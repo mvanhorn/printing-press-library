@@ -1,0 +1,102 @@
+{
+  "destination": {
+    "city_main_image": "https://statics.gojinko.com/cities/photos/NYC.webp",
+    "city_name": "New York",
+    "iata_code": "NYC",
+    "location": {
+      "latitude": 40.714167,
+      "longitude": -74.005833
+    }
+  },
+  "facets": {
+    "airlines": {
+      "BF": 2
+    }
+  },
+  "itineraries": [
+    {
+      "cabin_type": "economy",
+      "deep_link": "https://www.aircaraibes.com",
+      "destination_city_code": "NYC",
+      "destination_city_image": "https://statics.gojinko.com/cities/photos/NYC.webp",
+      "destination_city_location": {
+        "latitude": 40.714167,
+        "longitude": -74.005833
+      },
+      "destination_city_name": "New York",
+      "id": "es-RlJ8VFh8MjAyNjA2MjQ6VFg6NjcyMDpNOk4",
+      "jinko_advice": {
+        "description": "This is the lowest price we've seen for New York",
+        "label": "Lowest",
+        "quantiles": {
+          "max_fare": {
+            "currency": "USD",
+            "decimal_places": 2,
+            "value": 1092433
+          },
+          "min_fare": {
+            "currency": "USD",
+            "decimal_places": 2,
+            "value": 25391
+          },
+          "percentile_25": {
+            "currency": "USD",
+            "decimal_places": 2,
+            "value": 62505
+          },
+          "percentile_50": {
+            "currency": "USD",
+            "decimal_places": 2,
+            "value": 78232
+          },
+          "percentile_75": {
+            "currency": "USD",
+            "decimal_places": 2,
+            "value": 97231
+          }
+        },
+        "title": "415.61 USD is the best deal"
+      },
+      "origin_city_code": "PAR",
+      "origin_city_location": {
+        "latitude": 48.901841999999995,
+        "longitude": 2.4569433333333333
+      },
+      "origin_city_name": "Paris",
+      "origin_total_amount": {
+        "currency": "",
+        "decimal_places": 0,
+        "value": 0
+      },
+      "search_timestamp": "2026-05-21T04:38:51.000Z",
+      "slices": [
+        {
+          "cabin": "economy",
+          "destination": "EWR",
+          "destination_airport_name": "Newark Liberty Intl",
+          "destination_city_name": "New York",
+          "duration_minutes": 490,
+          "marketing_carrier_info": {
+            "code": "TX",
+            "logo": "https://statics.gojinko.com/airlines/photos/TX.png",
+            "name": "Air Caraïbes"
+          },
+          "origin": "ORY",
+          "origin_airport_name": "Orly",
+          "origin_city_name": "Paris",
+          "segments": [
+            {
+              "arrive": {
+                "airport": "EWR",
+                "city_code": "NYC",
+                "city_name": "New York",
+                "time_local": "2026-06-24T21:00:00-04:00"
+              },
+              "depart": {
+                "airport": "ORY",
+                "city_code": "PAR",
+                "city_name": "Paris",
+                "time_local": "2026-06-24T18:50:00+02:00"
+              },
+              "duration_minutes": 490,
+              "f... (truncated)

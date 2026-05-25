@@ -1,0 +1,96 @@
+{
+  "hotels": [
+    {
+      "address": "92, rue de Vaugirard",
+      "city": "Paris",
+      "country": "fr",
+      "hotel_id": "lp1beec",
+      "latitude": 48.84698486328125,
+      "longitude": 2.3259410858154297,
+      "main_photo": "https://static.cupid.travel/hotels/528466229.jpg",
+      "name": "Hôtel Des Grands Voyageurs",
+      "rating": 10,
+      "review_count": 2330,
+      "rooms": [
+        {
+          "max_occupancy": 2,
+          "rates": [
+            {
+              "board_name": "Room Only",
+              "board_type": "RO",
+              "currency": "USD",
+              "is_refundable": false,
+              "offer_id": "htl_1cc43c1a48216713",
+              "payment_types": [
+                "NUITEE_PAY"
+              ],
+              "taxes_breakdown": [
+                {
+                  "amount": 137.75999450683594,
+                  "currency": "USD",
+                  "description": "City Tax",
+                  "included": false
+                }
+              ],
+              "total_amount": 3412.01
+            },
+            {
+              "board_name": "Breakfast Included",
+              "board_type": "BI",
+              "currency": "USD",
+              "is_refundable": false,
+              "offer_id": "htl_cad36bf614cd53e0",
+              "payment_types": [
+                "NUITEE_PAY"
+              ],
+              "taxes_breakdown": [
+                {
+                  "amount": 137.75999450683594,
+                  "currency": "USD",
+                  "description": "City Tax",
+                  "included": false
+                }
+              ],
+              "total_amount": 3677.75
+            },
+            {
+              "board_name": "Room Only",
+              "board_type": "RO",
+              "cancellation_schedule": [
+                {
+                  "amount": 513.760009765625,
+                  "cancel_time": "2026-06-23 10:00:00",
+                  "currency": "USD",
+                  "type": "amount"
+                }
+              ],
+              "currency": "USD",
+              "free_cancellation_until": "2026-06-23 10:00:00",
+              "is_refundable": true,
+              "offer_id": "htl_c7fed2e933adcd58",
+              "payment_types": [
+                "NUITEE_PAY"
+              ],
+              "taxes_breakdown": [
+                {
+                  "amount": 137.75999450683594,
+                  "currency": "USD",
+                  "description": "City Tax",
+                  "included": false
+                }
+              ],
+              "total_amount": 3902.36
+            },
+            {
+              "board_name": "Breakfast Included",
+              "board_type": "BI",
+              "cancellation_schedule": [
+                {
+                  "amount": 549.75,
+                  "cancel_time": "2026-06-23 10:00:00",
+                  "currency": "USD",
+                  "type": "amount"
+                }
+              ],
+              "currency": "USD",
+              "free_cancel... (truncated)

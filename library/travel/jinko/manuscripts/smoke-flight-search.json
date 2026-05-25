@@ -1,0 +1,87 @@
+{
+  "flights": [
+    {
+      "destination": "NYC",
+      "destination_city": "New York",
+      "fares": [
+        {
+          "brand_name": "ECO BASIC",
+          "cabin_class": "economy",
+          "carry_on_baggage": "1 carry-on bag(s)",
+          "change_fee": "USD 232.00",
+          "change_policy": "Changes allowed with fee",
+          "included_baggage": "No checked bags included",
+          "price_per_passenger": [
+            {
+              "base_fare": "USD 175.00",
+              "passenger_type": "ADT",
+              "quantity": 1,
+              "taxes": "USD 468.13",
+              "total_per_person": "USD 643.13"
+            }
+          ],
+          "price_per_person": "USD 643.13",
+          "refund_policy": "Non-refundable",
+          "total_price": "USD 643.13",
+          "trip_item_token": "offer__a5e4a8fb:3-1-0"
+        },
+        {
+          "brand_name": "ECO SMART",
+          "cabin_class": "economy",
+          "carry_on_baggage": "1 carry-on bag(s)",
+          "change_fee": "USD 174.00",
+          "change_policy": "Changes allowed with fee",
+          "included_baggage": "1 checked bag(s) included",
+          "price_per_passenger": [
+            {
+              "base_fare": "USD 268.00",
+              "passenger_type": "ADT",
+              "quantity": 1,
+              "taxes": "USD 468.13",
+              "total_per_person": "USD 736.13"
+            }
+          ],
+          "price_per_person": "USD 736.13",
+          "refund_policy": "Non-refundable",
+          "total_price": "USD 736.13",
+          "trip_item_token": "offer__a5e4a8fb:3-1-1"
+        },
+        {
+          "brand_name": "PREMIUM ECO SMART",
+          "cabin_class": "premium_economy",
+          "carry_on_baggage": "1 carry-on bag(s)",
+          "change_fee": "USD 290.00",
+          "change_policy": "Changes allowed with fee",
+          "included_baggage": "2 checked bag(s) included",
+          "price_per_passenger": [
+            {
+              "base_fare": "USD 621.00",
+              "passenger_type": "ADT",
+              "quantity": 1,
+              "taxes": "USD 618.03",
+              "total_per_person": "USD 1239.03"
+            }
+          ],
+          "price_per_person": "USD 1239.03",
+          "refund_policy": "Non-refundable",
+          "total_price": "USD 1239.03",
+          "trip_item_token": "offer__a5e4a8fb:3-1-2"
+        }
+      ],
+      "inbound_airline": "TX",
+      "inbound_airline_name": "Air Caraïbes",
+      "inbound_arrival": "2026-07-01T12:15:00",
+      "inbound_departure": "2026-07-01T23:00:00",
+      "inbound_duration_min": 435,
+      "inbound_segments": [
+        {
+          "aircraft": "351",
+          "airline": "TX",
+          "airline_name": "Air Caraïbes",
+          "arrival_airport": "ORY",
+          "arrival_city": "Paris",
+          "arrival_time": "2026-07-01T12:15:00",
+          "departure_airport": "EWR",
+          "departure_city": "New York",
+          "departure_time": "2026-07-01T23:00:00",
+          "duration_minutes": ... (truncated)
