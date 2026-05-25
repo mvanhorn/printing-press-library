@@ -215,6 +215,75 @@ func TestRecall_CrossAlias_EmptyEntityLookups_FallsBackToLiteral(t *testing.T) {
 	}
 }
 
+// TestRecall_LegacyNullEntityRow_OpportunisticBackfill exercises U2
+// of plan 2026-05-25-004. A row written before symmetric teach-time
+// promotion landed has query_entities=null. The recall path should
+// walk the lowercased query_pattern through the canonical resolver
+// to derive effective entities for cross-alias matching this call,
+// without writing back to the DB.
+func TestRecall_LegacyNullEntityRow_OpportunisticBackfill(t *testing.T) {
+	t.Parallel()
+	db := openCanonicalTestDB(t)
+	seedCanonical(t, db, "nfl_team", "San Francisco 49ers",
+		[]string{"San Francisco 49ers", "Niners", "49ers", "SF"})
+	// Seed a legacy row: query_entities=null, query_pattern
+	// contains lowercase 'niners' that resolves via entity_lookups.
+	if _, err := db.Exec(`INSERT INTO search_learnings (
+		query_pattern, query_entities, resource_id, resource_type, action, source, confidence
+	) VALUES (?, NULL, ?, ?, 'boost', 'taught', 2)`,
+		"niners game tonight", "401547432", "events",
+	); err != nil {
+		t.Fatalf("seed legacy row: %v", err)
+	}
+
+	// Recall with a different alias — cross-alias must still fire
+	// against the legacy null-entity row.
+	got, err := Recall(context.Background(), db, "49ers game tonight", Opts{EntityConfig: espnLikeConfig()})
+	if err != nil {
+		t.Fatalf("recall: %v", err)
+	}
+	if !got.Found {
+		t.Errorf("legacy null-entity row should still hit via opportunistic backfill; got %+v", got)
+	}
+
+	// Confirm we did NOT write back: the column should still be NULL.
+	var stored sql.NullString
+	if err := db.QueryRow(
+		`SELECT query_entities FROM search_learnings WHERE resource_id = ?`,
+		"401547432",
+	).Scan(&stored); err != nil {
+		t.Fatalf("stored row lookup: %v", err)
+	}
+	if stored.Valid && stored.String != "" && stored.String != "null" {
+		t.Errorf("backfill should be read-only; stored column got modified to %q", stored.String)
+	}
+}
+
+// TestRecall_LegacyNullEntityRow_NoResolvableTokens confirms the
+// backfill is strictly additive — a legacy null-entity row whose
+// query_pattern has no canonical-resolvable tokens behaves as it did
+// before this plan.
+func TestRecall_LegacyNullEntityRow_NoResolvableTokens(t *testing.T) {
+	t.Parallel()
+	db := openCanonicalTestDB(t)
+	// No entity_lookups seeded.
+	if _, err := db.Exec(`INSERT INTO search_learnings (
+		query_pattern, query_entities, resource_id, resource_type, action, source, confidence
+	) VALUES (?, NULL, ?, ?, 'boost', 'taught', 2)`,
+		"how weather forecast today", "weather-1", "weather",
+	); err != nil {
+		t.Fatalf("seed legacy row: %v", err)
+	}
+
+	got, err := Recall(context.Background(), db, "how mariners game tonight", Opts{EntityConfig: espnLikeConfig()})
+	if err != nil {
+		t.Fatalf("recall: %v", err)
+	}
+	if got.Found {
+		t.Errorf("unrelated query against a null-entity row should not match; got %+v", got)
+	}
+}
+
 func TestRecall_CrossAlias_PromotesEntityMatchExact(t *testing.T) {
 	t.Parallel()
 	db := openCanonicalTestDB(t)

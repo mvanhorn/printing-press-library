@@ -214,6 +214,25 @@ func Recall(ctx context.Context, db *sql.DB, query string, opts Opts) (Result, e
 		if len(storedEntitySlice) == 0 {
 			storedEntitySlice = storedNorm.Entities
 		}
+		// Opportunistic backfill for legacy null-entity rows.
+		// Rows written before U1 of plan 2026-05-25-004 (or by callers
+		// that bypass PromoteEntities) have query_entities=null and
+		// storedNorm.Entities=empty because query_pattern is
+		// lowercased on write. Walk the lowercased query_pattern
+		// tokens through the resolver and use canonical-resolvable
+		// tokens as the effective entity slice for cross-alias
+		// matching this call. Read-only — the stored column stays
+		// null so we never silently rewrite user data.
+		if len(storedEntitySlice) == 0 {
+			for _, tok := range strings.Fields(strings.ToLower(queryPattern)) {
+				if cfg != nil && cfg.IsStopword(tok) {
+					continue
+				}
+				if cans := resolver.Resolve(tok); len(cans) > 0 {
+					storedEntitySlice = append(storedEntitySlice, tok)
+				}
+			}
+		}
 
 		// Compute the stored non-entity tokens by stripping case-folded
 		// stored entities (from the query_entities column, which preserves
