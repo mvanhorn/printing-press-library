@@ -407,6 +407,60 @@ func TestRecall_TrueCrossAliasHit_DoesNotSurfaceSimilarShapeWarning(t *testing.T
 	}
 }
 
+// TestRecall_CrossAliasJaccardMin_LowerFloorCatchesParaphrase
+// exercises U4 of plan 2026-05-25-004. With jMin=0.6 the boolean
+// at-threshold hack was needed to pass cross-alias hits at all; with
+// a separate crossAliasMin=0.3 the canonical-overlap path admits
+// paraphrased same-shape queries on their actual Jaccard ratio.
+func TestRecall_CrossAliasJaccardMin_LowerFloorCatchesParaphrase(t *testing.T) {
+	t.Parallel()
+	db := openCanonicalTestDB(t)
+	seedCanonical(t, db, "mlb_team", "Seattle Mariners",
+		[]string{"Seattle Mariners", "Mariners", "SEA"})
+	seedCanonical(t, db, "mlb_team", "New York Mets",
+		[]string{"New York Mets", "Mets", "NYM"})
+	// Mariners teach. Then ask the Mets question — different alias
+	// AND different canonical, so this should NOT hit. Confirms the
+	// cross-alias floor isn't a free pass; it still needs canonical
+	// overlap.
+	seedCanonicalLearning(t, db, "how mariners doing season year",
+		`["Mariners"]`, "12", "teams")
+
+	got, err := Recall(context.Background(), db, "how are the Mets doing this year", Opts{EntityConfig: espnLikeConfig()})
+	if err != nil {
+		t.Fatalf("recall: %v", err)
+	}
+	// Different canonical => no real Results, but envelope surfaces
+	// the similar-shape warning from U3 + the Mariners row sits in
+	// debug mismatches.
+	if got.Found {
+		t.Errorf("different canonical should not promote to Results; got %+v", got)
+	}
+}
+
+// TestRecall_CrossAliasJaccardMin_OverlapEnablesLowerFloor confirms
+// a query whose canonical truly overlaps an existing teach (different
+// alias, same canonical) clears the lower floor even when literal
+// non-entity Jaccard is below 0.6.
+func TestRecall_CrossAliasJaccardMin_OverlapEnablesLowerFloor(t *testing.T) {
+	t.Parallel()
+	db := openCanonicalTestDB(t)
+	seedCanonical(t, db, "nfl_team", "San Francisco 49ers",
+		[]string{"San Francisco 49ers", "Niners", "49ers", "SF"})
+	// Teach with a verbose query, recall with a terse one. Non-entity
+	// Jaccard ratio drops because the term overlap is small, but the
+	// canonical match should still let the row through.
+	seedCanonicalLearning(t, db, "tonight game niners stadium home", `["Niners"]`, "401547432", "events")
+
+	got, err := Recall(context.Background(), db, "49ers stadium", Opts{EntityConfig: espnLikeConfig()})
+	if err != nil {
+		t.Fatalf("recall: %v", err)
+	}
+	if !got.Found {
+		t.Errorf("cross-alias canonical match should clear the lower floor; got %+v", got)
+	}
+}
+
 func TestRecall_CrossAlias_PromotesEntityMatchExact(t *testing.T) {
 	t.Parallel()
 	db := openCanonicalTestDB(t)

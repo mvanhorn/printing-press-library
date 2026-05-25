@@ -18,10 +18,18 @@ import (
 // Default thresholds. Keep in sync with the documented contract in
 // SKILL.md: the recall match-score floor is 0.6 (token-set Jaccard)
 // and the default result cap is 10.
+//
+// defaultCrossAliasJaccardMin is the floor applied specifically when
+// the canonical-overlap fallback fires. Cross-alias matches differ on
+// literal entity strings, so non-entity Jaccard is the only signal
+// left to score on, and it's naturally lower for paraphrased
+// same-shape queries (e.g., "how are the mariners doing this season"
+// vs "how are the mets doing this year" share 5/13 tokens = ~0.38).
 const (
-	defaultJaccardMin    = 0.6
-	defaultRecallLimit   = 10
-	defaultMinConfidence = 1
+	defaultJaccardMin           = 0.6
+	defaultCrossAliasJaccardMin = 0.3
+	defaultRecallLimit          = 10
+	defaultMinConfidence        = 1
 )
 
 // SourcePattern marks a Hit synthesized by the pattern substitution
@@ -89,11 +97,17 @@ type Opts struct {
 	MinConfidence      int
 	Limit              int
 	JaccardMin         float64
-	DebugMismatches    bool
-	NoLearn            bool
-	EntityConfig       *entities.Config
-	ResourceTypeFields map[string][]string
-	PatternKinds       []string
+	// CrossAliasJaccardMin is the floor used when the canonical-overlap
+	// fallback fires. Defaults to 0.3 (defaultCrossAliasJaccardMin) when
+	// zero. Cross-alias matches share canonicals across different
+	// literal aliases, so non-entity Jaccard is naturally lower and a
+	// separate floor avoids gating out legitimate paraphrase hits.
+	CrossAliasJaccardMin float64
+	DebugMismatches      bool
+	NoLearn              bool
+	EntityConfig         *entities.Config
+	ResourceTypeFields   map[string][]string
+	PatternKinds         []string
 }
 
 // Recall is the entity-aware read path. db is the open *sql.DB
@@ -137,6 +151,13 @@ func Recall(ctx context.Context, db *sql.DB, query string, opts Opts) (Result, e
 	}
 	if jMin < 0 {
 		jMin = 0
+	}
+	crossAliasMin := opts.CrossAliasJaccardMin
+	if crossAliasMin == 0 {
+		crossAliasMin = defaultCrossAliasJaccardMin
+	}
+	if crossAliasMin < 0 {
+		crossAliasMin = 0
 	}
 
 	if len(strings.Fields(normalized.NonEntityNormalized)) == 0 && len(normalized.Entities) == 0 && len(normalized.Tickers) == 0 {
@@ -279,29 +300,38 @@ func Recall(ctx context.Context, db *sql.DB, query string, opts Opts) (Result, e
 		//   1. Entity-only fallback (U21): both sides have empty
 		//      non-entity content, both have entities → use literal
 		//      entity-Jaccard. Covers "Niners game tonight" vs same.
-		//   2. Cross-alias fallback (this unit): canonicals overlap
-		//      even when literal entities don't. Covers "49ers" query
-		//      against "Niners" stored learning, and also handles
-		//      ambiguous aliases ("SF" → both 49ers and Giants) by
-		//      gating on overlap presence rather than Jaccard ratio.
-		//      The downstream validateResource still gates entity
-		//      match against the stored resource, so an ambiguous
-		//      query that happens to canonical-overlap a stored row
-		//      for a different sport still gets caught at that layer.
+		//   2. Cross-alias fallback (U3 + U4): canonicals overlap
+		//      even when literal entities don't. Covers "49ers"
+		//      query against "Niners" stored learning, and also
+		//      paraphrased same-shape queries like "how are the
+		//      mariners doing this season" vs "how are the mets
+		//      doing this year" — non-entity Jaccard ratio is lower
+		//      here (often ~0.3-0.5), so a separate
+		//      CrossAliasJaccardMin floor lets these through. The
+		//      downstream validateResource still gates entity match
+		//      against the stored resource, so an ambiguous query
+		//      that happens to canonical-overlap a stored row for a
+		//      different sport still gets caught at that layer.
 		if score < jMin {
 			if len(queryTokens) == 0 && len(storedNonEntityTokens) == 0 &&
 				len(normalized.Entities) > 0 && len(storedEntitySlice) > 0 {
 				score = Jaccard(normalized.Entities, storedEntitySlice)
 			}
 			if score < jMin && canonicalOverlap {
-				// Any canonical overlap counts. Jaccard ratio drops
-				// to <0.6 for ambiguous-alias cases (e.g., "SF"
-				// resolves to multiple canonicals), which would
-				// gate out a legitimate cross-alias hit. Use the
-				// overlap as a boolean signal at-threshold.
-				score = jMin
-			}
-			if score < jMin {
+				// Use the higher of literal-non-entity Jaccard and
+				// canonical Jaccard so ambiguous aliases that
+				// partially overlap canonical sets still score
+				// meaningfully. Gate on the cross-alias floor (lower
+				// than jMin) rather than the boolean at-threshold
+				// hack the previous cascade used.
+				canonScore := canonicalJaccard(queryCanonicals, storedCanonicals)
+				if canonScore > score {
+					score = canonScore
+				}
+				if score < crossAliasMin {
+					continue
+				}
+			} else if score < jMin {
 				continue
 			}
 		}
