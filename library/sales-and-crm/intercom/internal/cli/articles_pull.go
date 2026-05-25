@@ -27,7 +27,7 @@ type articleManifestEntry struct {
 	Title         string            `json:"title"`
 	DefaultLocale string            `json:"default_locale,omitempty"`
 	Files         []string          `json:"files"`
-	Checksums     map[string]string `json:"checksums"` // locale -> sha256 of HTML body at pull time
+	Checksums     map[string]string `json:"checksums"` // locale -> sha256 of the as-written markdown file (frontmatter + body) at pull time; push re-reads + re-checksums to detect edits without round-tripping the lossy HTML↔markdown converter
 }
 
 func newArticlesPullCmd(flags *rootFlags) *cobra.Command {
@@ -297,7 +297,12 @@ func writeArticleFiles(dir string, raw json.RawMessage, localeFilter map[string]
 			return
 		}
 		entry.Files = append(entry.Files, fname)
-		sum := sha256.Sum256([]byte(body))
+		// PATCH(articles-checksum-of-file): sha256 the exact bytes we wrote.
+		// Push reads the file back and re-checksums; matching bytes = no edit.
+		// Earlier we checksummed the HTML source body and push checksummed
+		// markdownToHTML(mdBody), which never matched because the round-trip
+		// is lossy by design — every push then PATCHed all articles.
+		sum := sha256.Sum256([]byte(md))
 		entry.Checksums[locale] = hex.EncodeToString(sum[:])
 	}
 

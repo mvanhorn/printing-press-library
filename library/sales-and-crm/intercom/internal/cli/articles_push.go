@@ -77,13 +77,17 @@ func newArticlesPushCmd(flags *rootFlags) *cobra.Command {
 						fmt.Fprintf(cmd.ErrOrStderr(), "warning: read %s: %v\n", file, err)
 						continue
 					}
-					meta, mdBody := splitFrontmatter(string(raw))
-					html := markdownToHTML(mdBody)
-					sum := sha256.Sum256([]byte(html))
+					// PATCH(articles-checksum-of-file): compare raw file bytes
+					// against the pull-time checksum. Same byte sequence pull
+					// wrote = no edit = skip the PATCH. See articles_pull.go for
+					// the writer side of this contract.
+					sum := sha256.Sum256(raw)
 					newSum := hex.EncodeToString(sum[:])
 					if newSum == entry.Checksums[locale] {
 						continue
 					}
+					meta, mdBody := splitFrontmatter(string(raw))
+					html := markdownToHTML(mdBody)
 					localesChanged = append(localesChanged, locale)
 					if locale == entry.DefaultLocale || (entry.DefaultLocale == "" && len(perLocale) == 0) {
 						topTitle = meta["title"]
@@ -186,8 +190,18 @@ func splitFrontmatter(s string) (map[string]string, string) {
 		}
 		k = strings.TrimSpace(k)
 		v = strings.TrimSpace(v)
-		v = strings.TrimPrefix(v, "\"")
-		v = strings.TrimSuffix(v, "\"")
+		// PATCH(articles-frontmatter-unescape): articles_pull.go writes
+		// frontmatter values with `%q` formatting, which escapes embedded
+		// double-quotes as `\"` and backslashes as `\\`. Just stripping the
+		// outer quotes here without un-escaping corrupts any title or
+		// description that contains a `"` — the pushed value would land in
+		// Intercom with a literal `\"` in the middle.
+		if len(v) >= 2 && strings.HasPrefix(v, "\"") && strings.HasSuffix(v, "\"") {
+			inner := v[1 : len(v)-1]
+			inner = strings.ReplaceAll(inner, `\"`, `"`)
+			inner = strings.ReplaceAll(inner, `\\`, `\`)
+			v = inner
+		}
 		out[k] = v
 	}
 	return out, body
