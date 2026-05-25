@@ -284,6 +284,102 @@ Given `$ARGUMENTS`:
 3. **Anything else** → resolve `<sport> <league>` from user intent (e.g., "Lakers" → `basketball nba`), check `which espn-pp-cli` (offer install if missing), run with `--agent`.
 
 <!-- pr-218-features -->
+## Automatic learning
+
+Two-call protocol: `recall` before discovery, `teach &` before emitting. The CLI does entity-aware match validation; you read the envelope and follow the four-branch decision tree. Skipping either side costs you free recall hits in future sessions.
+
+### Step 1: `recall` before any discovery
+
+Before `scoreboard`, `teams`, `boxscore`, `search`, `standings`, or any other discovery command on a new user question, run:
+
+```bash
+espn-pp-cli recall "<user's question>" --agent
+```
+
+The response envelope:
+
+```json
+{
+  "query": "...",
+  "normalized": "game tonight",
+  "query_entities": ["Niners"],
+  "found": true | false,
+  "match_score": 0.0,
+  "results": [
+    { "resource_id": "...", "resource_type": "events|news|...", "venue": "...",
+      "confidence": 2, "entity_match": "exact|partial|unknown",
+      "source": "taught|preseed|pattern", "warnings": ["..."] }
+  ],
+  "mismatches": [ /* only when --debug-mismatches */ ],
+  "warnings": [ /* top-level */ ]
+}
+```
+
+### Step 2: four-branch decision tree
+
+Read `results[0]` and decide:
+
+```
+if Found AND Results[0].EntityMatch == "exact" AND Results[0].Confidence >= 2:
+    -> skip discovery; fetch live data for Results[*].ResourceID in parallel
+       (e.g., espn-pp-cli boxscore <eid> for an event, espn-pp-cli teams ... for a team)
+elif Found AND Results[0].EntityMatch == "partial":
+    -> candidate hint, NOT a hit; read the resource title to validate before trusting
+elif (any row in Mismatches[] when --debug-mismatches was passed):
+    -> treat as cold start; the stored learning is for a different entity
+       (e.g., a "Cowboys" learning won't satisfy a "Niners" query — different canonical)
+else:  // Found == false
+    -> cold start; run discovery normally; teach the answer afterward
+```
+
+Default to skipping `mismatches` (mismatch rows are filtered out of `results`). Pass `--debug-mismatches` only when investigating *why* a query you expected to recall came back cold.
+
+### Step 3: always read `warnings`
+
+- `low_confidence`: row exists at `confidence<2`. Treat as a hint, not a skip-discovery hit.
+- `resource_not_in_store`: the local store doesn't have the resource the learning points at. The match validator couldn't classify entities — direct-fetch and re-evaluate.
+- Top-level `no_learnings_for_query_family`: the table had no rows above the Jaccard floor. Pure cold start.
+
+### Step 4: `teach &` after finalizing your response
+
+After assembling your user-facing response containing event/team IDs but BEFORE emitting it, fire the teach call in the background. Append a shell `&` so the call returns immediately and does not block the user-facing response:
+
+```bash
+espn-pp-cli teach --query "<user's question>" --resource-type <events|news|teams> --resource <id1> --resource <id2>
+# (append shell `&` to background it)
+```
+
+Silent on success. Teach the **most specific** resource — if the user asked "when's next Spurs game" and you walked the teams scoreboard to find event `401747632`, teach that event ID, not the team ID. The CLI uses the seeded entity_lookups (NFL/NBA/MLB/MLS team rosters with aliases like Niners/49ers/SF) for cross-alias resolution at recall time, so a teach under "Niners" will satisfy future "49ers" queries automatically.
+
+### Worked examples
+
+1. **Cold: "when's next Spurs game?"** — `recall` returns `found=false`. Walk the teams scoreboard, find next upcoming Spurs event ID, answer. Teach the event:
+
+   ```bash
+   espn-pp-cli recall "when's next Spurs game?" --agent
+   # found=false -> discovery
+   espn-pp-cli teams basketball nba 24 --agent --select events.id,events.shortName,events.date
+   # ...answer "Tue May 26 SA @ OKC, event 401747632"...
+   espn-pp-cli teach --query "when's next Spurs game?" --resource-type events --resource 401747632
+   # (append shell `&` to background it)
+   ```
+
+2. **Warm: "Niners game tonight"** — `recall` returns `found=true`, `results[0].entity_match="exact"`, `results[0].confidence>=2`. Skip discovery; fetch the box score directly:
+
+   ```bash
+   espn-pp-cli recall "Niners game tonight" --agent
+   # found=true, results=[{resource_id: "401547432", entity_match: "exact"}]
+   espn-pp-cli boxscore 401547432 --agent
+   ```
+
+3. **Cross-alias hit: "49ers game tonight"** — never directly taught. `recall` resolves "49ers" → "San Francisco 49ers" canonical via entity_lookups (nfl_team kind), finds the "Niners game tonight" learning (same canonical), returns `found=true`. Skip discovery.
+
+4. **Entity mismatch: "Cowboys game tonight"** — has a Niners learning above the Jaccard floor on non-entity tokens (`game`, `tonight`), but the entity canonical differs (Dallas Cowboys ≠ San Francisco 49ers). Filtered into `mismatches`; recall returns `found=false`. Treat as cold start.
+
+When the loop is broken: `learnings list --warnings` surfaces local issues; `espn-pp-cli feedback "<what tripped you up>"` records the friction so the next print can fix it.
+
+---
+
 ## Agent Workflow Features
 
 This CLI exposes three shared agent-workflow capabilities patched in from cli-printing-press PR #218.
