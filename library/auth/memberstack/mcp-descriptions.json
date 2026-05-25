@@ -1,0 +1,5 @@
+{
+  "descriptions": {
+    "data-tables_list": "List all custom data tables defined in the Memberstack app. Takes no parameters. Returns an array of DataTable objects, each with id (tbl_*), key, name, createdAt/updatedAt, the four access rules (createRule, readRule, updateRule, deleteRule for PUBLIC/AUTHENTICATED/AUTHENTICATED_OWN/ADMIN_ONLY scope), and the fields[] schema (each field's key, name, type, required). Use this to discover table keys before calling data-tables_get or records_list/create/update on a specific table."
+  }
+}

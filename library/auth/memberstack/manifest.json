@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "memberstack-pp-mcp",
+  "display_name": "Memberstack",
+  "version": "4.15.0",
+  "description": "The first CLI for Memberstack — every Admin API endpoint plus stale-member detection, plan coverage, JWT decode, bulk operations, and a local SQLite mirror no SDK or MCP has.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/memberstack-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/memberstack-pp-mcp",
+      "args": [],
+      "env": {
+        "MEMBERSTACK_SECRET_KEY": "${user_config.memberstack_secret_key}"
+      }
+    }
+  },
+  "user_config": {
+    "memberstack_secret_key": {
+      "type": "string",
+      "title": "Memberstack Secret Key",
+      "description": "Secret key from Memberstack > Dev Tools. Test-mode keys begin sk_sb_, live keys begin sk_.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

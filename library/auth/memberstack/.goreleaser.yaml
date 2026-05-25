@@ -1,0 +1,51 @@
+version: 2
+project_name: memberstack-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: memberstack-pp-cli
+    main: ./cmd/memberstack-pp-cli
+    binary: memberstack-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/auth/memberstack/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: memberstack-pp-mcp
+    main: ./cmd/memberstack-pp-mcp
+    binary: memberstack-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: memberstack-pp-cli
+    repository:
+      owner: anton-sahibzada
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "The first CLI for Memberstack — every Admin API endpoint plus stale-member detection, plan coverage, JWT decode"
+    install: |
+      bin.install "memberstack-pp-cli"
+      bin.install "memberstack-pp-mcp"

@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "memberstack",
+  "run_id": "20260525-224452",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 83,
+  "tests_passed": 83,
+  "tests_skipped": 80,
+  "auth_context": {
+    "type": "api_key"
+  }
+}

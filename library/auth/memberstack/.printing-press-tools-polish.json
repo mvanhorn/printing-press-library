@@ -1,0 +1,19 @@
+{
+  "timestamp": "2026-05-25T21:34:21.497748Z",
+  "cli_dir": "\u003ccli-dir\u003e/memberstack-pp-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "version",
+      "file": "root.go",
+      "line": 328,
+      "evidence": "Print version",
+      "status": "accepted",
+      "note": "Standard 'version' command; agents understand this without elaboration"
+    }
+  ],
+  "scorecard_before": {
+    "mcp_description_quality": 7,
+    "captured": "2026-05-25T21:30:39.294873Z"
+  }
+}

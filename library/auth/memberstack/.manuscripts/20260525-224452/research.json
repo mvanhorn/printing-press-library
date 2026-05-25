@@ -1,0 +1,288 @@
+{
+  "api_name": "memberstack",
+  "novelty_score": 9,
+  "alternatives": [
+    {
+      "name": "@memberstack/admin",
+      "url": "https://www.npmjs.com/package/@memberstack/admin",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 14,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "memberstack-skills",
+      "url": "https://github.com/Memberstack/memberstack-skills",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Memberstack MCP Server (Beta)",
+      "url": "https://docs.memberstack.com/hc/en-us/articles/41661556042267-Memberstack-MCP-Server-Beta",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 68,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-25T22:53:00Z",
+  "novel_features": [
+    {
+      "name": "Stale members",
+      "command": "stale",
+      "description": "Find members whose lastLogin is older than N days.",
+      "rationale": "Requires joining lastLogin against a local snapshot the API does not filter on.",
+      "example": "memberstack-pp-cli stale --days 30 --json --select id,auth.email,lastLogin",
+      "why_it_matters": "When an agent needs to find dormant accounts for cleanup or re-engagement campaigns, this is the single command to reach for. The dashboard and MCP cannot filter by lastLogin server-side.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Plan coverage matrix",
+      "command": "plan-coverage",
+      "description": "Pivot active plan-connections across all members; flag members with zero active plans.",
+      "rationale": "Pivots planConnections[].planId across all members locally; Memberstack's UI shows this one member at a time.",
+      "example": "memberstack-pp-cli plan-coverage --agent",
+      "why_it_matters": "Agents auditing 'which members have access to which plans' should call this once instead of N member-get calls.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Custom-fields flatten",
+      "command": "fields flatten",
+      "description": "Pivot every member's customFields map into a flat table (CSV or JSON).",
+      "rationale": "Custom fields are nested per-member; flattening them for analysis requires local data.",
+      "example": "memberstack-pp-cli fields flatten --csv \u003e members.csv",
+      "why_it_matters": "Agents producing BI or marketing exports should not have to hand-write the pivot; one command produces the spreadsheet shape.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Token decode (offline)",
+      "command": "token decode",
+      "description": "Decode a Memberstack JWT locally without calling the API.",
+      "rationale": "Pure local parse; verify requires the secret, decode does not.",
+      "example": "memberstack-pp-cli token decode eyJhbGciOi...",
+      "why_it_matters": "When an agent needs to inspect a JWT during frontend debugging, this is faster than verify and works without the secret key.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Bulk delete by predicate",
+      "command": "bulk delete",
+      "description": "Wipe members matching a SQL WHERE clause, with --dry-run preview.",
+      "rationale": "Combines local SQL query plus per-row delete with --dry-run preview.",
+      "example": "memberstack-pp-cli bulk delete --where \"auth_email LIKE '%@test.local'\" --dry-run",
+      "why_it_matters": "Agents asked to clean up sandbox test accounts should call this once. Always preview first; explicit --apply required to commit.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Watch new signups",
+      "command": "watch",
+      "description": "Poll the cursor and print new members as they arrive (live tail).",
+      "rationale": "Memberstack has no streaming API; cursor-polling is the only way.",
+      "example": "memberstack-pp-cli watch --since 5m --json",
+      "why_it_matters": "When an agent needs to react to new signups (alerting, enrichment, Slack notify), pipe this through jq instead of building a webhook receiver.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Audit / drift",
+      "command": "audit",
+      "description": "Diff the local snapshot against live to surface what changed since the last sync.",
+      "rationale": "Requires two snapshots; only possible because we persist locally.",
+      "example": "memberstack-pp-cli audit --sample 100 --json",
+      "why_it_matters": "Agents validating a deploy or investigating support tickets should call this to see what mutated.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Plans roll-up (inferred)",
+      "command": "plans list",
+      "description": "Build a plans index from planConnections observed across sync, with (planId, member-count, lastSeen).",
+      "rationale": "Memberstack does not expose plans via REST; inferring from connections is the only available signal.",
+      "example": "memberstack-pp-cli plans list --json",
+      "why_it_matters": "When an agent needs to know which plan IDs are in use without opening the dashboard, this is the shortcut.",
+      "group": "Reachability mitigation"
+    },
+    {
+      "name": "Records find (shorthand)",
+      "command": "records find",
+      "description": "Build the Prisma findMany payload from --where, --order-by, --limit flags.",
+      "rationale": "The Prisma envelope is verbose; agents should not write it by hand.",
+      "example": "memberstack-pp-cli records find products --where 'inStock=true' --order-by price:asc --limit 10",
+      "why_it_matters": "Agents querying custom data tables get the same expressiveness without constructing JSON envelopes.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Stale members",
+      "command": "stale",
+      "description": "Find members whose lastLogin is older than N days.",
+      "rationale": "Requires joining lastLogin against a local snapshot the API does not filter on.",
+      "example": "memberstack-pp-cli stale --days 30 --json --select id,auth.email,lastLogin",
+      "why_it_matters": "When an agent needs to find dormant accounts for cleanup or re-engagement campaigns, this is the single command to reach for. The dashboard and MCP cannot filter by lastLogin server-side.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Plan coverage matrix",
+      "command": "plan-coverage",
+      "description": "Pivot active plan-connections across all members; flag members with zero active plans.",
+      "rationale": "Pivots planConnections[].planId across all members locally; Memberstack's UI shows this one member at a time.",
+      "example": "memberstack-pp-cli plan-coverage --agent",
+      "why_it_matters": "Agents auditing 'which members have access to which plans' should call this once instead of N member-get calls.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Custom-fields flatten",
+      "command": "fields flatten",
+      "description": "Pivot every member's customFields map into a flat table (CSV or JSON).",
+      "rationale": "Custom fields are nested per-member; flattening them for analysis requires local data.",
+      "example": "memberstack-pp-cli fields flatten --csv \u003e members.csv",
+      "why_it_matters": "Agents producing BI or marketing exports should not have to hand-write the pivot; one command produces the spreadsheet shape.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Token decode (offline)",
+      "command": "token decode",
+      "description": "Decode a Memberstack JWT locally without calling the API.",
+      "rationale": "Pure local parse; verify requires the secret, decode does not.",
+      "example": "memberstack-pp-cli token decode eyJhbGciOi...",
+      "why_it_matters": "When an agent needs to inspect a JWT during frontend debugging, this is faster than verify and works without the secret key.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Bulk delete by predicate",
+      "command": "bulk delete",
+      "description": "Wipe members matching a SQL WHERE clause, with --dry-run preview.",
+      "rationale": "Combines local SQL query plus per-row delete with --dry-run preview.",
+      "example": "memberstack-pp-cli bulk delete --where \"auth_email LIKE '%@test.local'\" --dry-run",
+      "why_it_matters": "Agents asked to clean up sandbox test accounts should call this once. Always preview first; explicit --apply required to commit.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Watch new signups",
+      "command": "watch",
+      "description": "Poll the cursor and print new members as they arrive (live tail).",
+      "rationale": "Memberstack has no streaming API; cursor-polling is the only way.",
+      "example": "memberstack-pp-cli watch --since 5m --json",
+      "why_it_matters": "When an agent needs to react to new signups (alerting, enrichment, Slack notify), pipe this through jq instead of building a webhook receiver.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Audit / drift",
+      "command": "audit",
+      "description": "Diff the local snapshot against live to surface what changed since the last sync.",
+      "rationale": "Requires two snapshots; only possible because we persist locally.",
+      "example": "memberstack-pp-cli audit --sample 100 --json",
+      "why_it_matters": "Agents validating a deploy or investigating support tickets should call this to see what mutated.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Plans roll-up (inferred)",
+      "command": "plans list",
+      "description": "Build a plans index from planConnections observed across sync, with (planId, member-count, lastSeen).",
+      "rationale": "Memberstack does not expose plans via REST; inferring from connections is the only available signal.",
+      "example": "memberstack-pp-cli plans list --json",
+      "why_it_matters": "When an agent needs to know which plan IDs are in use without opening the dashboard, this is the shortcut.",
+      "group": "Reachability mitigation"
+    },
+    {
+      "name": "Records find (shorthand)",
+      "command": "records find",
+      "description": "Build the Prisma findMany payload from --where, --order-by, --limit flags.",
+      "rationale": "The Prisma envelope is verbose; agents should not write it by hand.",
+      "example": "memberstack-pp-cli records find products --where 'inStock=true' --order-by price:asc --limit 10",
+      "why_it_matters": "Agents querying custom data tables get the same expressiveness without constructing JSON envelopes.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "narrative": {
+    "display_name": "Memberstack",
+    "headline": "The first CLI for Memberstack — every Admin API endpoint plus stale-member detection, plan coverage, JWT decode, bulk operations, and a local SQLite mirror no SDK or MCP has.",
+    "value_prop": "Memberstack ships an SDK and an MCP server, but no command-line tool. memberstack-pp-cli covers every Admin REST endpoint with agent-native --json output, then adds a local SQLite mirror that powers stale-member detection, plan-coverage pivots, custom-fields flatten, drift audit, and one-shot snapshot export — things no dashboard, SDK, or MCP can do. Writable via the CLI: member emails, custom-field values, metaData, plan-connections, and custom data records. Dashboard-only: defining new custom field names, creating plans, and creating new data tables (the REST API does not expose these).",
+    "auth_narrative": "Authenticate by exporting MEMBERSTACK_SECRET_KEY (sk_sb_* for sandbox / test mode, sk_* or sk_live_* for live mode). Keys come from Memberstack \u003e Dev Tools. The CLI never reads the browser-side public key (pk_*) — that is for the DOM SDK only. Rate limit is 25 requests/sec; the sync command paces itself automatically.",
+    "quickstart": [
+      {
+        "command": "memberstack-pp-cli doctor --dry-run",
+        "comment": "Confirm auth, network, and store are wired up before doing anything else."
+      },
+      {
+        "command": "memberstack-pp-cli sync --full",
+        "comment": "Mirror every member into the local SQLite store."
+      },
+      {
+        "command": "memberstack-pp-cli members update mem_example --custom-fields '{\"plan_tier\":\"gold\",\"city\":\"NYC\"}' --dry-run",
+        "comment": "Set custom-field values on a member — preview with --dry-run, remove the flag to commit."
+      },
+      {
+        "command": "memberstack-pp-cli stale --days 30 --json --select id,auth.email,lastLogin",
+        "comment": "Find dormant members in one command — no equivalent in dashboard or MCP."
+      },
+      {
+        "command": "memberstack-pp-cli plan-coverage",
+        "comment": "Pivot active plan-connections across every member; zero-plan members are flagged."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 Unauthorized on every command",
+        "fix": "Check the key prefix — sk_sb_* for sandbox, sk_* or sk_live_* for live. Public keys (pk_*) are browser-only and will not work."
+      },
+      {
+        "symptom": "429 Too Many Requests during sync",
+        "fix": "Memberstack caps at 25 req/sec. Pass --rate-limit 20 to back off, or wait ≈60 seconds and retry."
+      },
+      {
+        "symptom": "Plan ID not found",
+        "fix": "Plans live in the dashboard, not the REST API. Run plans list to see the plan IDs the CLI has observed in planConnections."
+      }
+    ],
+    "when_to_use": "Reach for memberstack-pp-cli whenever a Memberstack task is scriptable: bulk member operations, custom-fields exports for BI, sandbox cleanup, JWT inspection during frontend debugging, ad-hoc analytics on plan coverage or signup velocity, or backups and GDPR exports. Use it instead of writing a Node script when the workflow is one-shot or short. Keep the MCP server for long-running agent conversations that need natural-language access.",
+    "recipes": [
+      {
+        "title": "Find and clean up dormant test accounts",
+        "command": "memberstack-pp-cli stale --days 60 --json --select id,auth.email | jq -r '.[].id' | xargs -I{} memberstack-pp-cli members delete {} --dry-run",
+        "explanation": "Dry-run preview; remove --dry-run when you are ready to commit."
+      },
+      {
+        "title": "Export every member with custom fields flattened to CSV",
+        "command": "memberstack-pp-cli fields flatten --csv \u003e members-$(date +%F).csv",
+        "explanation": "One row per member; one column per custom field plus auth.email, planConnections, lastLogin."
+      },
+      {
+        "title": "Watch new signups",
+        "command": "memberstack-pp-cli watch --since 1h --agent --select id,auth.email,createdAt",
+        "explanation": "Cursor-polls the API; one JSON object per new member, pipeable to jq or any other notifier."
+      },
+      {
+        "title": "Find members with no active plan",
+        "command": "memberstack-pp-cli plan-coverage --agent --select id,auth.email,activePlanCount | jq 'map(select(.activePlanCount == 0))'",
+        "explanation": "Identifies free-tier members who should be re-engaged or pruned."
+      },
+      {
+        "title": "Query a custom data table without building a Prisma envelope",
+        "command": "memberstack-pp-cli records find products --where 'inStock=true,price\u003e=20' --order-by price:asc --limit 10 --agent --select records.id,records.data.name,records.data.price",
+        "explanation": "Shorthand flags compile to the Prisma findMany payload the API expects."
+      }
+    ],
+    "trigger_phrases": [
+      "list memberstack members",
+      "find stale memberstack members",
+      "decode a memberstack jwt",
+      "export memberstack members to csv",
+      "verify a memberstack token",
+      "use memberstack",
+      "run memberstack-pp-cli"
+    ]
+  }
+}

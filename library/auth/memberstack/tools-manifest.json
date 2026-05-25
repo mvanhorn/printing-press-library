@@ -1,0 +1,375 @@
+{
+  "api_name": "memberstack",
+  "base_url": "https://admin.memberstack.com",
+  "description": "The first CLI for Memberstack — every Admin API endpoint plus stale-member detection, plan coverage, JWT decode, bulk operations, and a local SQLite mirror no SDK or MCP has.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "api_key",
+    "header": "X-API-KEY",
+    "in": "header",
+    "env_vars": [
+      "MEMBERSTACK_SECRET_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "MEMBERSTACK_SECRET_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ],
+    "key_url": "https://app.memberstack.com/apps/select?path=/dev-tools"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "data-tables_get",
+      "description": "Get a single data table schema. Required: tableKey. Returns the DataTableResponse.",
+      "method": "GET",
+      "path": "/v2/data-tables/{tableKey}",
+      "params": [
+        {
+          "name": "tableKey",
+          "type": "string",
+          "location": "path",
+          "description": "Table key or table ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "data-tables_list",
+      "description": "List custom data tables. Returns the DataTableListResponse.",
+      "method": "GET",
+      "path": "/v2/data-tables",
+      "params": []
+    },
+    {
+      "name": "data-tables_records_create",
+      "description": "Create a data record. Required: tableKey, data. Optional: memberId. Returns the new RecordResponse.",
+      "method": "POST",
+      "path": "/v2/data-tables/{tableKey}/records",
+      "params": [
+        {
+          "name": "tableKey",
+          "type": "string",
+          "location": "path",
+          "description": "Table key",
+          "required": true
+        },
+        {
+          "name": "data",
+          "type": "object",
+          "location": "body",
+          "description": "Data",
+          "required": true
+        },
+        {
+          "name": "memberId",
+          "type": "string",
+          "location": "body",
+          "description": "Optional owning member ID"
+        }
+      ]
+    },
+    {
+      "name": "data-tables_records_delete",
+      "description": "Delete a data record. Required: tableKey, recordId. Returns the RecordResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/v2/data-tables/{tableKey}/records/{recordId}",
+      "params": [
+        {
+          "name": "tableKey",
+          "type": "string",
+          "location": "path",
+          "description": "Table key",
+          "required": true
+        },
+        {
+          "name": "recordId",
+          "type": "string",
+          "location": "path",
+          "description": "Record id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "data-tables_records_query",
+      "description": "Query records (Prisma-style). Required: tableKey, query. Returns the new QueryRecordsResponse.",
+      "method": "POST",
+      "path": "/v2/data-tables/{tableKey}/records/query",
+      "params": [
+        {
+          "name": "tableKey",
+          "type": "string",
+          "location": "path",
+          "description": "Table key",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "object",
+          "location": "body",
+          "description": "Prisma-style query envelope (findMany or findUnique)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "data-tables_records_update",
+      "description": "Update a data record (replace). Required: tableKey, recordId, data. Returns the updated RecordResponse.",
+      "method": "PUT",
+      "path": "/v2/data-tables/{tableKey}/records/{recordId}",
+      "params": [
+        {
+          "name": "tableKey",
+          "type": "string",
+          "location": "path",
+          "description": "Table key",
+          "required": true
+        },
+        {
+          "name": "recordId",
+          "type": "string",
+          "location": "path",
+          "description": "Record id",
+          "required": true
+        },
+        {
+          "name": "data",
+          "type": "object",
+          "location": "body",
+          "description": "Data",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "members_create",
+      "description": "Create a member. Required: email, password. Optional: customFields, json, loginRedirect (plus 2 more). Returns the new MemberResponse.",
+      "method": "POST",
+      "path": "/members",
+      "params": [
+        {
+          "name": "customFields",
+          "type": "object",
+          "location": "body",
+          "description": "Custom fields"
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body",
+          "description": "Email",
+          "required": true
+        },
+        {
+          "name": "json",
+          "type": "object",
+          "location": "body",
+          "description": "Json"
+        },
+        {
+          "name": "loginRedirect",
+          "type": "string",
+          "location": "body",
+          "description": "Login redirect"
+        },
+        {
+          "name": "metaData",
+          "type": "object",
+          "location": "body",
+          "description": "Meta data"
+        },
+        {
+          "name": "password",
+          "type": "string",
+          "location": "body",
+          "description": "Password",
+          "required": true
+        },
+        {
+          "name": "plans",
+          "type": "array",
+          "location": "body",
+          "description": "Plans"
+        }
+      ]
+    },
+    {
+      "name": "members_delete",
+      "description": "Delete a member. Required: id. Optional: cancelStripeSubscriptions, deleteStripeCustomer. Returns the DeleteMemberResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/members/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "cancelStripeSubscriptions",
+          "type": "bool",
+          "location": "body",
+          "description": "Cancel any active Stripe subscriptions for this member (default false)"
+        },
+        {
+          "name": "deleteStripeCustomer",
+          "type": "bool",
+          "location": "body",
+          "description": "Also delete the Stripe customer record (default false)"
+        }
+      ]
+    },
+    {
+      "name": "members_get",
+      "description": "Look up by Memberstack ID (mem_*) or URL-encoded email. Required: idOrEmail. Returns the MemberResponse.",
+      "method": "GET",
+      "path": "/members/{idOrEmail}",
+      "params": [
+        {
+          "name": "idOrEmail",
+          "type": "string",
+          "location": "path",
+          "description": "Id or email",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "members_list",
+      "description": "Paginated list of members. Cursor is the numeric `endCursor` from the previous response. Optional: after, order, limit (default: 50). Returns the MemberListResponse.",
+      "method": "GET",
+      "path": "/members",
+      "params": [
+        {
+          "name": "after",
+          "type": "int",
+          "location": "query",
+          "description": "Cursor — pass the previous response's `endCursor`"
+        },
+        {
+          "name": "order",
+          "type": "string",
+          "location": "query",
+          "description": "Sort order on `createdAt`"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Page size (max 200)"
+        }
+      ]
+    },
+    {
+      "name": "members_update",
+      "description": "Update a member. Required: id. Optional: customFields, email, json (plus 2 more). Returns the updated MemberResponse.",
+      "method": "PATCH",
+      "path": "/members/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "customFields",
+          "type": "object",
+          "location": "body",
+          "description": "Custom fields"
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body",
+          "description": "Email"
+        },
+        {
+          "name": "json",
+          "type": "object",
+          "location": "body",
+          "description": "Json"
+        },
+        {
+          "name": "loginRedirect",
+          "type": "string",
+          "location": "body",
+          "description": "Login redirect"
+        },
+        {
+          "name": "metaData",
+          "type": "object",
+          "location": "body",
+          "description": "Meta data"
+        }
+      ]
+    },
+    {
+      "name": "members_verify-token",
+      "description": "Validates a Memberstack-issued JWT server-side and returns the decoded claims. Required: token.",
+      "method": "POST",
+      "path": "/members/verify-token",
+      "params": [
+        {
+          "name": "token",
+          "type": "string",
+          "location": "body",
+          "description": "Memberstack-issued member JWT to verify",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "members_add-plan_add-free-plan",
+      "description": "Adds a free plan connection. Paid plans are managed by Stripe checkout and cannot be added via the Admin REST API. Required: id, planId.",
+      "method": "POST",
+      "path": "/members/{id}/add-plan",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "planId",
+          "type": "string",
+          "location": "body",
+          "description": "Free plan ID (pln_*)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "members_remove-plan_remove-free-plan",
+      "description": "Remove a free plan from a member. Required: id, planId.",
+      "method": "POST",
+      "path": "/members/{id}/remove-plan",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "planId",
+          "type": "string",
+          "location": "body",
+          "description": "Free plan ID (pln_*)",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

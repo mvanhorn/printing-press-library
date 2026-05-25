@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-25T21:35:18.370998Z",
+  "printing_press_version": "4.15.0",
+  "api_name": "memberstack",
+  "display_name": "Memberstack",
+  "cli_name": "memberstack-pp-cli",
+  "owner": "anton-sahibzada",
+  "printer": "Quarterpak",
+  "printer_name": "Anton Sahibzada",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:08452e65ccc0f406b9d4a406b98492b7fce8558bc7367d3595bb12e2337f4b46",
+  "run_id": "20260525-224452",
+  "category": "auth",
+  "description": "The first CLI for Memberstack — every Admin API endpoint plus stale-member detection, plan coverage, JWT decode, bulk operations, and a local SQLite mirror no SDK or MCP has.",
+  "mcp_binary": "memberstack-pp-mcp",
+  "mcp_tool_count": 14,
+  "mcp_ready": "full",
+  "api_version": "2.0.0",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "MEMBERSTACK_SECRET_KEY"
+  ],
+  "auth_key_url": "https://app.memberstack.com/apps/select?path=/dev-tools",
+  "auth_title": "Memberstack Secret Key",
+  "auth_description": "Secret key from Memberstack \u003e Dev Tools. Test-mode keys begin sk_sb_, live keys begin sk_.",
+  "novel_features": [
+    {
+      "name": "Stale members",
+      "command": "stale",
+      "description": "Find members whose lastLogin is older than N days."
+    },
+    {
+      "name": "Plan coverage matrix",
+      "command": "plan-coverage",
+      "description": "Pivot active plan-connections across all members; flag members with zero active plans."
+    },
+    {
+      "name": "Custom-fields flatten",
+      "command": "fields flatten",
+      "description": "Pivot every member's customFields map into a flat table (CSV or JSON)."
+    },
+    {
+      "name": "Token decode (offline)",
+      "command": "token decode",
+      "description": "Decode a Memberstack JWT locally without calling the API."
+    },
+    {
+      "name": "Bulk delete by predicate",
+      "command": "bulk delete",
+      "description": "Wipe members matching a SQL WHERE clause, with --dry-run preview."
+    },
+    {
+      "name": "Watch new signups",
+      "command": "watch",
+      "description": "Poll the cursor and print new members as they arrive (live tail)."
+    },
+    {
+      "name": "Audit / drift",
+      "command": "audit",
+      "description": "Diff the local snapshot against live to surface what changed since the last sync."
+    },
+    {
+      "name": "Plans roll-up (inferred)",
+      "command": "plans list",
+      "description": "Build a plans index from planConnections observed across sync, with (planId, member-count, lastSeen)."
+    },
+    {
+      "name": "Records find (shorthand)",
+      "command": "records find",
+      "description": "Build the Prisma findMany payload from --where, --order-by, --limit flags."
+    }
+  ]
+}

@@ -1,0 +1,641 @@
+openapi: "3.0.3"
+info:
+  title: Memberstack Admin API
+  description: |
+    Memberstack 2.0 Admin REST API for membership, authentication, and
+    custom data management. Covers Members (CRUD + plan-connection helpers),
+    JWT verification, Data Tables (schema discovery), and Data Records (CRUD
+    + Prisma-style query). Auth is a single secret API key in the X-API-KEY
+    header. Test-mode keys start with `sk_sb_` and live-mode keys start
+    with `sk_` / `sk_live_`. Rate limit is 25 requests per second.
+  version: "2.0.0"
+  contact:
+    name: Memberstack
+  x-display-name: Memberstack
+  x-website: https://www.memberstack.com
+  x-spec-provenance:
+    source: official-docs
+    docs_url: https://developers.memberstack.com/admin-rest-api
+    notes: >
+      Spec hand-curated from the public docs at developers.memberstack.com
+      (Member Actions, Verification, Data Tables). Memberstack does not
+      publish a vendor OpenAPI document. Plan CRUD lives in the dashboard
+      and is not exposed by the REST API; only plan-connection helpers
+      (add-plan / remove-plan) exist server-side.
+    confirmed_quirks:
+      - "GET /members uses a numeric cursor `after` + `limit` (max 200). Response shape is `{ totalCount, endCursor, hasNextPage, data: [...] }`."
+      - "Update is PATCH, not PUT. Delete accepts an optional body with `deleteStripeCustomer` and `cancelStripeSubscriptions` flags."
+      - "Data Tables live under the /v2 prefix; the rest of the API is unversioned."
+      - "Records `query` endpoint accepts a Prisma-style payload: `{ query: { findMany: { where, orderBy, take, skip } } }` (or `findUnique`)."
+      - "verify-token returns the decoded JWT (id, iat, exp, aud, iss) inside `data`."
+
+servers:
+  - url: https://admin.memberstack.com
+    description: Memberstack Admin API (production)
+
+tags:
+  - name: members
+    description: Member CRUD, JWT verification, and plan-connection helpers
+  - name: plans
+    description: Add / remove free plan connections on a member
+  - name: verification
+    description: Verify Memberstack-issued JWTs server-side
+  - name: data-tables
+    description: List and inspect custom data table schemas
+  - name: records
+    description: Create, read, update, delete, and Prisma-query data records
+
+components:
+  securitySchemes:
+    apiKey:
+      type: apiKey
+      in: header
+      name: X-API-KEY
+      x-auth-env-vars:
+        - MEMBERSTACK_SECRET_KEY
+      x-auth-key-url: https://app.memberstack.com/apps/select?path=/dev-tools
+      x-auth-title: Memberstack Secret Key
+      x-auth-description: "Secret key from Memberstack > Dev Tools. Test-mode keys begin sk_sb_, live keys begin sk_."
+
+  schemas:
+    Member:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Memberstack member ID (mem_*)
+        auth:
+          type: object
+          properties:
+            email:
+              type: string
+              format: email
+            hasPassword:
+              type: boolean
+            providers:
+              type: array
+              items:
+                type: object
+                properties:
+                  provider: { type: string }
+        customFields:
+          type: object
+          additionalProperties: true
+          description: Custom fields configured on the Memberstack app
+        metaData:
+          type: object
+          additionalProperties: true
+          description: Server-side metadata not exposed to the frontend
+        permissions:
+          type: array
+          items: { type: string }
+        verified:
+          type: boolean
+        planConnections:
+          type: array
+          items:
+            $ref: "#/components/schemas/PlanConnection"
+        loginRedirect:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        lastLogin:
+          type: string
+          format: date-time
+
+    PlanConnection:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Plan connection ID (pcn_*)
+        active:
+          type: boolean
+        status:
+          type: string
+          description: "ACTIVE | TRIALING | CANCELED | PAST_DUE | UNPAID etc."
+        type:
+          type: string
+          enum: [FREE, PAID]
+        planId:
+          type: string
+          description: Plan ID (pln_*)
+        payment:
+          type: object
+          nullable: true
+          properties:
+            amount: { type: number }
+            currency: { type: string }
+            lastBillingDate: { type: string, format: date-time }
+            nextBillingDate: { type: string, format: date-time }
+            status: { type: string }
+
+    MemberListResponse:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            totalCount: { type: integer }
+            endCursor: { type: integer, nullable: true }
+            hasNextPage: { type: boolean }
+            data:
+              type: array
+              items: { $ref: "#/components/schemas/Member" }
+
+    MemberResponse:
+      type: object
+      properties:
+        data:
+          $ref: "#/components/schemas/Member"
+
+    CreateMemberRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+        plans:
+          type: array
+          items:
+            type: object
+            properties:
+              planId: { type: string, description: "Plan ID (pln_*)" }
+        customFields:
+          type: object
+          additionalProperties: true
+        metaData:
+          type: object
+          additionalProperties: true
+        json:
+          type: object
+          additionalProperties: true
+        loginRedirect:
+          type: string
+
+    UpdateMemberRequest:
+      type: object
+      properties:
+        email: { type: string, format: email }
+        customFields:
+          type: object
+          additionalProperties: true
+        metaData:
+          type: object
+          additionalProperties: true
+        json:
+          type: object
+          additionalProperties: true
+        loginRedirect: { type: string }
+
+    DeleteMemberRequest:
+      type: object
+      properties:
+        deleteStripeCustomer:
+          type: boolean
+          description: Also delete the Stripe customer record (default false)
+        cancelStripeSubscriptions:
+          type: boolean
+          description: Cancel any active Stripe subscriptions for this member (default false)
+
+    DeleteMemberResponse:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            id: { type: string }
+
+    AddPlanRequest:
+      type: object
+      required: [planId]
+      properties:
+        planId:
+          type: string
+          description: Free plan ID (pln_*)
+
+    RemovePlanRequest:
+      type: object
+      required: [planId]
+      properties:
+        planId:
+          type: string
+          description: Free plan ID (pln_*)
+
+    VerifyTokenRequest:
+      type: object
+      required: [token]
+      properties:
+        token:
+          type: string
+          description: Memberstack-issued member JWT to verify
+
+    VerifyTokenResponse:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            id: { type: string, description: Member ID }
+            type: { type: string, description: "Token type (member)" }
+            iat: { type: integer, description: Issued-at unix seconds }
+            exp: { type: integer, description: Expiry unix seconds }
+            aud: { type: string, description: Application ID }
+            iss: { type: string, description: Issuer URL }
+
+    DataTable:
+      type: object
+      properties:
+        id: { type: string, description: "tbl_*" }
+        key: { type: string }
+        name: { type: string }
+        createRule: { type: string, description: "PUBLIC | AUTHENTICATED | AUTHENTICATED_OWN | ADMIN_ONLY" }
+        readRule: { type: string }
+        updateRule: { type: string }
+        deleteRule: { type: string }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+        fields:
+          type: array
+          items:
+            type: object
+            properties:
+              key: { type: string }
+              name: { type: string }
+              type: { type: string }
+              required: { type: boolean }
+
+    DataTableListResponse:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            tables:
+              type: array
+              items: { $ref: "#/components/schemas/DataTable" }
+
+    DataTableResponse:
+      type: object
+      properties:
+        data:
+          $ref: "#/components/schemas/DataTable"
+
+    DataRecord:
+      type: object
+      properties:
+        id: { type: string }
+        tableKey: { type: string }
+        data:
+          type: object
+          additionalProperties: true
+        memberId: { type: string, nullable: true }
+        internalOrder: { type: integer }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+
+    CreateRecordRequest:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: object
+          additionalProperties: true
+        memberId:
+          type: string
+          description: Optional owning member ID
+
+    UpdateRecordRequest:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: object
+          additionalProperties: true
+
+    QueryRecordsRequest:
+      type: object
+      required: [query]
+      properties:
+        query:
+          type: object
+          description: Prisma-style query envelope (findMany or findUnique)
+          properties:
+            findMany:
+              type: object
+              properties:
+                where: { type: object, additionalProperties: true }
+                orderBy: { type: object, additionalProperties: true }
+                take: { type: integer }
+                skip: { type: integer }
+            findUnique:
+              type: object
+              properties:
+                where: { type: object, additionalProperties: true }
+
+    QueryRecordsResponse:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            records:
+              type: array
+              items: { $ref: "#/components/schemas/DataRecord" }
+            pagination:
+              type: object
+              properties:
+                hasMore: { type: boolean }
+                limit: { type: integer }
+                endCursor: { type: integer, nullable: true }
+
+    RecordResponse:
+      type: object
+      properties:
+        data:
+          $ref: "#/components/schemas/DataRecord"
+
+security:
+  - apiKey: []
+
+paths:
+  /members:
+    get:
+      tags: [members]
+      summary: List members
+      operationId: listMembers
+      description: Paginated list of members. Cursor is the numeric `endCursor` from the previous response.
+      parameters:
+        - in: query
+          name: after
+          schema: { type: integer }
+          description: Cursor — pass the previous response's `endCursor`
+        - in: query
+          name: order
+          schema: { type: string, enum: [ASC, DESC] }
+          description: Sort order on `createdAt`
+        - in: query
+          name: limit
+          schema: { type: integer, maximum: 200, default: 50 }
+          description: Page size (max 200)
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/MemberListResponse" }
+    post:
+      tags: [members]
+      summary: Create a member
+      operationId: createMember
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CreateMemberRequest" }
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/MemberResponse" }
+
+  /members/{idOrEmail}:
+    get:
+      tags: [members]
+      summary: Get a member
+      operationId: getMember
+      description: Look up by Memberstack ID (mem_*) or URL-encoded email.
+      parameters:
+        - in: path
+          name: idOrEmail
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/MemberResponse" }
+
+  /members/{id}:
+    patch:
+      tags: [members]
+      summary: Update a member
+      operationId: updateMember
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/UpdateMemberRequest" }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/MemberResponse" }
+    delete:
+      tags: [members]
+      summary: Delete a member
+      operationId: deleteMember
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/DeleteMemberRequest" }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/DeleteMemberResponse" }
+
+  /members/{id}/add-plan:
+    post:
+      tags: [plans]
+      summary: Add a free plan to a member
+      operationId: addFreePlan
+      description: Adds a free plan connection. Paid plans are managed by Stripe checkout and cannot be added via the Admin REST API.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/AddPlanRequest" }
+      responses:
+        '200':
+          description: OK
+
+  /members/{id}/remove-plan:
+    post:
+      tags: [plans]
+      summary: Remove a free plan from a member
+      operationId: removeFreePlan
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/RemovePlanRequest" }
+      responses:
+        '200':
+          description: OK
+
+  /members/verify-token:
+    post:
+      tags: [verification]
+      summary: Verify a Memberstack member JWT
+      operationId: verifyToken
+      description: Validates a Memberstack-issued JWT server-side and returns the decoded claims.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/VerifyTokenRequest" }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/VerifyTokenResponse" }
+
+  /v2/data-tables:
+    get:
+      tags: [data-tables]
+      summary: List custom data tables
+      operationId: listDataTables
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/DataTableListResponse" }
+
+  /v2/data-tables/{tableKey}:
+    get:
+      tags: [data-tables]
+      summary: Get a single data table schema
+      operationId: getDataTable
+      parameters:
+        - in: path
+          name: tableKey
+          required: true
+          schema: { type: string }
+          description: Table key or table ID
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/DataTableResponse" }
+
+  /v2/data-tables/{tableKey}/records:
+    post:
+      tags: [records]
+      summary: Create a data record
+      operationId: createRecord
+      parameters:
+        - in: path
+          name: tableKey
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CreateRecordRequest" }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/RecordResponse" }
+
+  /v2/data-tables/{tableKey}/records/{recordId}:
+    put:
+      tags: [records]
+      summary: Update a data record (replace)
+      operationId: updateRecord
+      parameters:
+        - in: path
+          name: tableKey
+          required: true
+          schema: { type: string }
+        - in: path
+          name: recordId
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/UpdateRecordRequest" }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/RecordResponse" }
+    delete:
+      tags: [records]
+      summary: Delete a data record
+      operationId: deleteRecord
+      parameters:
+        - in: path
+          name: tableKey
+          required: true
+          schema: { type: string }
+        - in: path
+          name: recordId
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/RecordResponse" }
+
+  /v2/data-tables/{tableKey}/records/query:
+    post:
+      tags: [records]
+      summary: Query records (Prisma-style)
+      operationId: queryRecords
+      parameters:
+        - in: path
+          name: tableKey
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/QueryRecordsRequest" }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/QueryRecordsResponse" }
