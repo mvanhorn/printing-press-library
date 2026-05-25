@@ -1,6 +1,6 @@
 {
   "manifest_version": "0.3",
-  "name": "epropertyplus-public-land-pp-mcp",
+  "name": "epropertyplus-pp-mcp",
   "display_name": "Epropertyplus Public Land",
   "version": "4.6.1",
   "description": "Epropertyplus Public Land API surface as MCP tools.",
@@ -10,9 +10,9 @@
   "license": "Apache-2.0",
   "server": {
     "type": "binary",
-    "entry_point": "bin/epropertyplus-public-land-pp-mcp",
+    "entry_point": "bin/epropertyplus-pp-mcp",
     "mcp_config": {
-      "command": "${__dirname}/bin/epropertyplus-public-land-pp-mcp",
+      "command": "${__dirname}/bin/epropertyplus-pp-mcp",
       "args": []
     }
   },

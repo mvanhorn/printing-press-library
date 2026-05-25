@@ -247,7 +247,7 @@ Verifies configuration and connectivity to the API.
 
 ## Configuration
 
-Config file: `~/.config/epropertyplus-public-land-pp-cli/config.toml`
+Config file: `~/.config/epropertyplus-pp-cli/config.toml`
 
 Static request headers can be configured under `headers`; per-command header overrides take precedence.
 
