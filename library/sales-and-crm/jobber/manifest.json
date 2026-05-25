@@ -1,0 +1,79 @@
+{
+  "manifest_version": "0.3",
+  "name": "jobber-pp-mcp",
+  "display_name": "Jobber",
+  "version": "4.9.0",
+  "description": "Jobber API surface as MCP tools.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/jobber-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/jobber-pp-mcp",
+      "args": [],
+      "env": {
+        "JOBBER_ACCESS_TOKEN": "${user_config.jobber_access_token}",
+        "JOBBER_CALLBACK_URL": "${user_config.jobber_callback_url}",
+        "JOBBER_CLIENT_ID": "${user_config.jobber_client_id}",
+        "JOBBER_CLIENT_SECRET": "${user_config.jobber_client_secret}",
+        "JOBBER_GRAPHQL_VERSION": "${user_config.jobber_graphql_version}",
+        "JOBBER_REFRESH_TOKEN": "${user_config.jobber_refresh_token}"
+      }
+    }
+  },
+  "user_config": {
+    "jobber_access_token": {
+      "type": "string",
+      "title": "JOBBER_ACCESS_TOKEN",
+      "description": "Sets JOBBER_ACCESS_TOKEN for the Jobber MCP server.",
+      "sensitive": true,
+      "required": true
+    },
+    "jobber_callback_url": {
+      "type": "string",
+      "title": "JOBBER_CALLBACK_URL",
+      "description": "Sets JOBBER_CALLBACK_URL for the Jobber MCP server.",
+      "sensitive": true,
+      "required": true
+    },
+    "jobber_client_id": {
+      "type": "string",
+      "title": "JOBBER_CLIENT_ID",
+      "description": "Sets JOBBER_CLIENT_ID for the Jobber MCP server.",
+      "sensitive": true,
+      "required": true
+    },
+    "jobber_client_secret": {
+      "type": "string",
+      "title": "JOBBER_CLIENT_SECRET",
+      "description": "Sets JOBBER_CLIENT_SECRET for the Jobber MCP server.",
+      "sensitive": true,
+      "required": true
+    },
+    "jobber_graphql_version": {
+      "type": "string",
+      "title": "JOBBER_GRAPHQL_VERSION",
+      "description": "Sets JOBBER_GRAPHQL_VERSION for the Jobber MCP server.",
+      "sensitive": true,
+      "required": true
+    },
+    "jobber_refresh_token": {
+      "type": "string",
+      "title": "JOBBER_REFRESH_TOKEN",
+      "description": "Sets JOBBER_REFRESH_TOKEN for the Jobber MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}
