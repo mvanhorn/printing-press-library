@@ -336,14 +336,26 @@ func recordSnapshotsForResults(ctx context.Context, results []parser.Hotel, chec
 		return
 	}
 	defer s.Close()
+	failures := 0
 	for _, h := range results {
 		if h.PricePerNight <= 0 {
 			continue
 		}
 		if err := s.RecordPriceSnapshot(ctx, h.PropertyToken, h.Name, checkin, checkout, h.Currency, h.PricePerNight); err != nil {
-			fmt.Fprintf(stderr, "warning: record snapshot: %v\n", err)
-			return
+			failures++
+			// "Log and continue" per the function's contract — a single
+			// row-level write failure shouldn't silently abandon the
+			// rest of the batch and leave drift history quietly
+			// incomplete. Aggregate the count at the end so the
+			// stderr surface stays one line per call.
+			if failures == 1 {
+				fmt.Fprintf(stderr, "warning: record snapshot: %v\n", err)
+			}
+			continue
 		}
+	}
+	if failures > 1 {
+		fmt.Fprintf(stderr, "warning: %d additional snapshot writes failed in this batch\n", failures-1)
 	}
 }
 

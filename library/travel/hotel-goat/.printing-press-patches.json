@@ -50,6 +50,13 @@
       "reason": "The file's contract is 'every index access is bounds-checked' but `priceBlock[1]` and `priceBlock[2]` were accessed unconditionally. Google's price block has varied shape — sometimes a single nested array, sometimes empty when no OTA returned a price. Without the len() guard the parser would panic on a short-shape response.",
       "files": ["internal/parser/google_hotels.go"],
       "validated_outcome": "Greptile finding on google_hotels.go priceBlock indexing resolved. go test ./internal/parser/ passes."
+    },
+    {
+      "id": "hotel-goat-snapshot-batch-log-and-continue",
+      "summary": "recordSnapshotsForResults now continues past row-level write failures instead of returning on the first one.",
+      "reason": "The function's docstring promises 'errors don't fail the user-facing command — we log to stderr and continue', but the loop body `return`-ed on first error, silently abandoning every subsequent hotel's price-snapshot row for that batch. Switched to log-once + count-then-summarize so the drift-history store doesn't go quietly incomplete.",
+      "files": ["internal/cli/hotel_helpers.go"],
+      "validated_outcome": "Greptile finding on hotel_helpers.go:recordSnapshotsForResults resolved."
     }
   ]
 }
