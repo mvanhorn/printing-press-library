@@ -147,6 +147,6 @@ func newReturnsAnomaliesCmd(flags *rootFlags) *cobra.Command {
 			return printJSONFiltered(cmd.OutOrStdout(), rows, flags)
 		},
 	}
-	cmd.Flags().Float64Var(&threshold, "threshold", 0.05, "Minimum return rate (returns/orders) to flag an event")
+	cmd.Flags().Float64Var(&threshold, "threshold", 0.05, "Minimum return rate (returns/tickets_sold) to flag an event")
 	return cmd
 }
