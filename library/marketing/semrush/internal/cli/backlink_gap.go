@@ -7,6 +7,7 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
+	"sort"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -124,6 +125,20 @@ func newBacklinkGapCmd(flags *rootFlags) *cobra.Command {
 				}
 				hits = append(hits, hit{Domain: r.Domain, Ascore: r.Ascore, Backlinks: r.Backlinks})
 			}
+			// Deterministic top-N. The build loop iterates a Go map
+			// (theirRefs), so without this sort --limit would pick a random
+			// subset of authority-filtered domains. Sort by Ascore desc
+			// (authority first — most useful for outreach), tiebreak by
+			// Backlinks desc, final tiebreak by Domain for stability.
+			sort.SliceStable(hits, func(i, j int) bool {
+				if hits[i].Ascore != hits[j].Ascore {
+					return hits[i].Ascore > hits[j].Ascore
+				}
+				if hits[i].Backlinks != hits[j].Backlinks {
+					return hits[i].Backlinks > hits[j].Backlinks
+				}
+				return hits[i].Domain < hits[j].Domain
+			})
 			if limit > 0 && len(hits) > limit {
 				hits = hits[:limit]
 			}

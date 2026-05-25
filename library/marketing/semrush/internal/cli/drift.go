@@ -7,6 +7,8 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
+	"math"
+	"sort"
 	"strings"
 	"time"
 
@@ -201,6 +203,46 @@ Run 'semrush-pp-cli sync --resource keyword' to populate the store first.`,
 				row.PriorTraffic = p.traffic
 				report.Lost = append(report.Lost, row)
 			}
+
+			// Sort each category for deterministic, useful top-N before
+			// applying --limit. Gainers/Losers ranked by absolute delta
+			// (biggest movers first); New/Lost have no delta so rank by
+			// latest/prior traffic desc (most-impactful first), tiebreak
+			// by phrase asc. Without sorting, ranging over the latest map
+			// upstream would produce a random sample under --limit.
+			derefOrZero := func(p *float64) float64 {
+				if p == nil {
+					return 0
+				}
+				return *p
+			}
+			rankByAbsDelta := func(xs []driftRow) {
+				sort.SliceStable(xs, func(i, j int) bool {
+					di, dj := math.Abs(derefOrZero(xs[i].DeltaPosition)), math.Abs(derefOrZero(xs[j].DeltaPosition))
+					if di != dj {
+						return di > dj
+					}
+					return xs[i].Phrase < xs[j].Phrase
+				})
+			}
+			rankByTraffic := func(xs []driftRow, useLatest bool) {
+				sort.SliceStable(xs, func(i, j int) bool {
+					var ti, tj float64
+					if useLatest {
+						ti, tj = derefOrZero(xs[i].LatestTraffic), derefOrZero(xs[j].LatestTraffic)
+					} else {
+						ti, tj = derefOrZero(xs[i].PriorTraffic), derefOrZero(xs[j].PriorTraffic)
+					}
+					if ti != tj {
+						return ti > tj
+					}
+					return xs[i].Phrase < xs[j].Phrase
+				})
+			}
+			rankByAbsDelta(report.Gainers)
+			rankByAbsDelta(report.Losers)
+			rankByTraffic(report.New, true)
+			rankByTraffic(report.Lost, false)
 
 			trimDrift := func(xs []driftRow) []driftRow {
 				if limit > 0 && len(xs) > limit {
