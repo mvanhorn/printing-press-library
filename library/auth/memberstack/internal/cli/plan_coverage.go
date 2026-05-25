@@ -10,7 +10,7 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
-	"github.com/mvanhorn/printing-press-library/library/auth/memberstack/internal/store"
+	"memberstack-pp-cli/internal/store"
 )
 
 type planRow struct {
@@ -19,7 +19,6 @@ type planRow struct {
 	TrialingMembers int    `json:"trialingMembers"`
 	PaidMembers     int    `json:"paidMembers"`
 	FreeMembers     int    `json:"freeMembers"`
-	TotalMembers    int    `json:"totalMembers"`
 }
 
 type memberCoverage struct {
@@ -134,7 +133,6 @@ Run 'memberstack-pp-cli sync --full' first to populate the local store.`,
 						row = &planRow{PlanID: planID}
 						planAgg[planID] = row
 					}
-					row.TotalMembers++
 					row.ActiveMembers++
 					if status == "TRIALING" {
 						row.TrialingMembers++

@@ -11,7 +11,7 @@ import (
 	"time"
 
 	"github.com/spf13/cobra"
-	"github.com/mvanhorn/printing-press-library/library/auth/memberstack/internal/store"
+	"memberstack-pp-cli/internal/store"
 )
 
 type staleMember struct {
@@ -58,10 +58,21 @@ Run 'memberstack-pp-cli sync --full' first to populate the local store.`,
 			defer db.Close()
 
 			cutoff := time.Now().UTC().AddDate(0, 0, -days)
+			// Push the lastLogin cutoff into SQL so we don't materialise every member
+			// just to filter most of them out. NULL lastLogin members (never logged in)
+			// are always stale, so they pass through with COALESCE to a far-past date.
+			// ORDER BY ASC puts the oldest first; --limit caps the result set in SQL.
+			cutoffStr := cutoff.Format(time.RFC3339)
+			sqlLimit := limit
+			if sqlLimit <= 0 {
+				sqlLimit = 100000 // safety cap when --limit is 0 (unlimited)
+			}
 			rows, err := db.DB().QueryContext(cmd.Context(), `
 				SELECT id, data FROM resources
 				WHERE resource_type IN ('members', 'member')
-				LIMIT ?`, 100000)
+				  AND COALESCE(json_extract(data, '$.lastLogin'), '1970-01-01') < ?
+				ORDER BY COALESCE(json_extract(data, '$.lastLogin'), '1970-01-01') ASC
+				LIMIT ?`, cutoffStr, sqlLimit)
 			if err != nil {
 				return fmt.Errorf("query: %w", err)
 			}

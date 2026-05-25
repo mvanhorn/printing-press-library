@@ -10,8 +10,8 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
-	"github.com/mvanhorn/printing-press-library/library/auth/memberstack/internal/client"
-	"github.com/mvanhorn/printing-press-library/library/auth/memberstack/internal/store"
+	"memberstack-pp-cli/internal/client"
+	"memberstack-pp-cli/internal/store"
 )
 
 func newBulkCmd(flags *rootFlags) *cobra.Command {
@@ -197,6 +197,7 @@ func isSafePredicate(s string) bool {
 		";", "--", "/*", "*/",
 		"insert", "update", "delete", "drop", "alter", "create",
 		"attach", "detach", "pragma", "vacuum", "reindex", "replace",
+		"union", "select", "with",
 	}
 	for _, b := range banned {
 		if strings.Contains(lower, b) {
