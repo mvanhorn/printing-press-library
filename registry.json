@@ -3539,6 +3539,34 @@
       }
     },
     {
+      "name": "jinko",
+      "category": "travel",
+      "api": "Jinko Travel",
+      "description": "Industry-grade stable API for flights AND hotels with multi-product cart booking — search flights and hotels, build one trip containing both, and check out via a Jinko-hosted Stripe page from the terminal.",
+      "search_terms": [
+        "jinko",
+        "Jinko Travel",
+        "jinko-pp-cli",
+        "Industry-grade stable API for flights AND hotels with multi-product cart booking — search flights and hotels, build one trip containing both, and check out via a Jinko-hosted Stripe page from the terminal.",
+        "Get an API key at https://app.gojinko.com/devplatform, then run `jinko auth login --key jnk_...` or export JINKO_API_KEY. The same credential works with @gojinko/cli (Node) and Jinko's MCP server.",
+        "Multi-product trip in one cart",
+        "trip",
+        "A single trip_id accepts both flight and hotel trip_item_tokens. `book` checks out the whole cart with one Stripe payment URL — every other travel CLI in this library books only flights OR only hotels.",
+        "Agent-friendly token flow",
+        "find-flight, flight-search, trip, book",
+        "Named tokens that compose: offer_token (cached) → trip_item_token (live, bookable) → trip_id (cart) → checkout_url (Stripe). No hidden state, no implicit quote step — quote is automatic inside book.",
+        "Hotel + flight live inventory",
+        "hotel-search, flight-search",
+        "Live rates from Jinko's supplier network (Sabre, Travelfusion, Nuitee, and more). Stable, contracted API — not scraped or cookie-jacked. Industry-grade SLA on the BFF.",
+        "End-to-end lifecycle polling",
+        "trip-status",
+        "One endpoint returns cart, quote, payment, fulfillment, and PNRs. Designed for long-running async bookings (TravelFusion confirmations can take up to 72h) — agents poll this to know when to send the confirmation email."
+      ],
+      "path": "library/travel/jinko",
+      "printer": "dyzsasd",
+      "printer_name": "Shuai Zhang"
+    },
+    {
       "name": "jira",
       "category": "project-management",
       "api": "Jira Cloud Platform",

@@ -1,0 +1,19 @@
+Discover destinations from one or more origins (cheapest-from search).
+
+Usage:
+  jinko find-destination [flags]
+
+Flags:
+      --cabin string      cabin class (default "economy")
+      --date string       departure date (YYYY-MM-DD); omit to scan next 12 months
+      --direct-only       only direct flights
+      --from strings      origin airport code(s) — repeat or comma-separate (e.g. PAR,CDG)
+  -h, --help              help for find-destination
+      --limit int         max destinations (default 20)
+      --max-price float   maximum total price
+      --return string     return date (YYYY-MM-DD)
+      --sort string       sort: lowest, recommendation (default "lowest")
+
+Global Flags:
+      --api-key string   API key (jnk_...) — overrides JINKO_API_KEY env and config file
+      --format string    output format: json | table (default "json")

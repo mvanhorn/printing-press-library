@@ -1,0 +1,20 @@
+Poll a trip's lifecycle state.
+
+After book, the trip moves through:
+  pending → paid → fulfilling → fulfilled (PNRs issued)
+                              ↘ failed    (booking rejected; refund issued)
+
+Useful for end-to-end automations — TravelFusion flights may take up to 72h
+to confirm; polling trip-status is how an agent knows when to send a confirmation
+email or trigger downstream workflows.
+
+Usage:
+  jinko trip-status [flags]
+
+Flags:
+  -h, --help             help for trip-status
+      --trip-id string   trip ID
+
+Global Flags:
+      --api-key string   API key (jnk_...) — overrides JINKO_API_KEY env and config file
+      --format string    output format: json | table (default "json")

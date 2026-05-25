@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "api_name": "jinko",
+  "display_name": "Jinko Travel",
+  "cli_name": "jinko-pp-cli",
+  "owner": "dyzsasd",
+  "printer": "dyzsasd",
+  "printer_name": "Shuai Zhang",
+  "spec_format": "internal",
+  "description": "Industry-grade stable API for flights AND hotels with multi-product cart booking — search flights and hotels, build one trip containing both, and check out via a Jinko-hosted Stripe page from the terminal.",
+  "api_version": "1.1.1",
+  "auth_type": "api_key",
+  "auth_description": "Get an API key at https://app.gojinko.com/devplatform, then run `jinko auth login --key jnk_...` or export JINKO_API_KEY. The same credential works with @gojinko/cli (Node) and Jinko's MCP server.",
+  "auth_env_vars": [
+    "JINKO_API_KEY"
+  ],
+  "novel_features": [
+    {
+      "name": "Multi-product trip in one cart",
+      "command": "trip",
+      "description": "A single trip_id accepts both flight and hotel trip_item_tokens. `book` checks out the whole cart with one Stripe payment URL — every other travel CLI in this library books only flights OR only hotels."
+    },
+    {
+      "name": "Agent-friendly token flow",
+      "command": "find-flight, flight-search, trip, book",
+      "description": "Named tokens that compose: offer_token (cached) → trip_item_token (live, bookable) → trip_id (cart) → checkout_url (Stripe). No hidden state, no implicit quote step — quote is automatic inside book."
+    },
+    {
+      "name": "Hotel + flight live inventory",
+      "command": "hotel-search, flight-search",
+      "description": "Live rates from Jinko's supplier network (Sabre, Travelfusion, Nuitee, and more). Stable, contracted API — not scraped or cookie-jacked. Industry-grade SLA on the BFF."
+    },
+    {
+      "name": "End-to-end lifecycle polling",
+      "command": "trip-status",
+      "description": "One endpoint returns cart, quote, payment, fulfillment, and PNRs. Designed for long-running async bookings (TravelFusion confirmations can take up to 72h) — agents poll this to know when to send the confirmation email."
+    }
+  ]
+}

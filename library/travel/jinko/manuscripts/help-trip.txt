@@ -1,0 +1,32 @@
+One command for the whole cart lifecycle. Combine flags freely:
+
+  # Create a new trip with a flight
+  jinko trip --trip-item-token <flight_token>
+
+  # Add a hotel to the same trip
+  jinko trip --trip-id <id> --trip-item-token <hotel_token>
+
+  # Swap one flight item for another in a single call
+  jinko trip --trip-id <id> --remove-item-id <item_id> --trip-item-token <new_token>
+
+  # Set travelers + contact on an existing trip
+  jinko trip --trip-id <id> --travelers '[{"first_name":"Jane",...}]' --contact '{"email":"...","phone":"..."}'
+
+Returns the full trip with items, totals, and lifecycle state. The same trip_id
+accepts both flight and hotel trip_item_tokens — this is Jinko's multi-product
+cart differentiator.
+
+Usage:
+  jinko trip [flags]
+
+Flags:
+      --contact string           contact JSON {email, phone}
+  -h, --help                     help for trip
+      --remove-item-id string    remove an existing item by item_id (requires --trip-id)
+      --travelers string         travelers JSON array
+      --trip-id string           existing trip ID (omit to create new)
+      --trip-item-token string   add a flight or hotel item (from flight-search / hotel-search)
+
+Global Flags:
+      --api-key string   API key (jnk_...) — overrides JINKO_API_KEY env and config file
+      --format string    output format: json | table (default "json")

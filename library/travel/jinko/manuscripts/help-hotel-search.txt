@@ -1,0 +1,39 @@
+Live hotel search across Jinko's supplier network. Returns a list of hotels
+with bookable rates — each rate includes a trip_item_token you can pass to
+"jinko trip --trip-item-token" to add it to a multi-product trip alongside flights.
+
+Provide ONE destination signal:
+  --query <text>        free-text destination (city, region, POI)
+  --city <name>         city name
+  --lat + --lng         geo-radius search (use --radius to widen)
+  --place-id <id>       Google Places ID
+  --hotel-ids <ids>     re-shop specific hotel IDs
+
+Usage:
+  jinko hotel-search [flags]
+
+Flags:
+      --adults int           number of adult guests (default 2)
+      --checkin string       check-in date (YYYY-MM-DD)
+      --checkout string      check-out date (YYYY-MM-DD)
+      --children ints        children ages (e.g. --children 5,7)
+      --city string          city name
+      --country string       ISO 3166-1 alpha-2 country code
+      --currency string      ISO 4217 currency code (default USD)
+  -h, --help                 help for hotel-search
+      --hotel-ids strings    re-shop specific hotel IDs (repeat or comma-separate)
+      --lat float            latitude (geo-radius search)
+      --lng float            longitude (geo-radius search)
+      --max-results int      maximum hotels to return (default 50)
+      --min-rating float     minimum guest review rating (0-10)
+      --min-reviews int      minimum review count
+      --nationality string   guest nationality (ISO 3166-1 alpha-2)
+      --place-id string      Google Places ID
+      --query string         free-text destination
+      --radius float         search radius in km (default server-side: 5)
+      --rooms int            number of rooms
+      --stars int            minimum star rating (1-5)
+
+Global Flags:
+      --api-key string   API key (jnk_...) — overrides JINKO_API_KEY env and config file
+      --format string    output format: json | table (default "json")

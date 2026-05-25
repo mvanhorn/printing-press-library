@@ -1,0 +1,30 @@
+Two modes:
+  Search mode  — pass --from, --to, --date (+ optional filters) for live prices.
+  Price-check  — pass --offer-token (from a prior find-flight result) to refresh
+                 a single offer with live availability and a bookable trip_item_token.
+
+Use the returned trip_item_token with "jinko trip --trip-item-token ..." to add
+the flight to a multi-product trip (flight + hotel) before "jinko book".
+
+Usage:
+  jinko flight-search [flags]
+
+Flags:
+      --cabin string               cabin class (default "economy")
+      --date string                departure date (YYYY-MM-DD)
+      --destination-type string    destination code type: city or airport (default "city")
+      --direct-only                only direct flights
+      --exclude-carriers strings   exclude these IATA 2-letter codes
+      --from string                origin IATA code (city or airport)
+  -h, --help                       help for flight-search
+      --include-carriers strings   include only these IATA 2-letter codes
+      --max-price float            maximum price
+      --offer-token string         price-check a specific offer (from find-flight result)
+      --origin-type string         origin code type: city or airport (default "city")
+      --passengers int             number of adult passengers (default 1)
+      --return string              return date (YYYY-MM-DD)
+      --to string                  destination IATA code
+
+Global Flags:
+      --api-key string   API key (jnk_...) — overrides JINKO_API_KEY env and config file
+      --format string    output format: json | table (default "json")

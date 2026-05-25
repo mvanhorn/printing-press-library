@@ -1,0 +1,39 @@
+Jinko Travel CLI
+
+Search flights and hotels, build a multi-product trip (flight + hotel in one cart),
+and check out via a Jinko-hosted Stripe page — all from the terminal.
+
+Auth: pass --api-key, set JINKO_API_KEY, or run "jinko auth login --key jnk_..."
+to persist credentials to ~/.jinko/config.yaml.
+
+Token flow (agent-friendly):
+  find-flight / find-destination  →  offer_token       (cached search)
+  flight-search   --offer-token   →  trip_item_token   (live price + bookable)
+  hotel-search    --location ...  →  trip_item_token   (live rate)
+  trip            --trip-item-token (flight or hotel)  →  trip_id
+  book            --trip-id       →  checkout_url      (Stripe-hosted)
+  trip-status     --trip-id       →  PNRs + lifecycle
+
+Usage:
+  jinko [command]
+
+Available Commands:
+  auth             Manage authentication credentials.
+  book             Schedule checkout for a trip — returns a Stripe payment URL + ancillaries.
+  completion       Generate the autocompletion script for the specified shell
+  find-destination Discover destinations from one or more origins (cheapest-from search).
+  find-flight      Cached flight search by route + date. Returns offer_tokens for live price-check.
+  flight-search    Live flight search or price-check a specific offer. Returns trip_item_token for booking.
+  help             Help about any command
+  hotel-details    Fetch rich metadata for a hotel — gallery, facilities, policies, room details.
+  hotel-search     Search live hotel inventory and rates. Returns trip_item_token per bookable room.
+  trip             Build a multi-product trip: add flights + hotels, set travelers, get a trip_id.
+  trip-status      Get full status of a trip — cart, quote, fulfillment, PNRs.
+
+Flags:
+      --api-key string   API key (jnk_...) — overrides JINKO_API_KEY env and config file
+      --format string    output format: json | table (default "json")
+  -h, --help             help for jinko
+  -v, --version          version for jinko
+
+Use "jinko [command] --help" for more information about a command.

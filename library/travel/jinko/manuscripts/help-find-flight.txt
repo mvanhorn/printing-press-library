@@ -1,0 +1,24 @@
+Cached flight search. Returns offer_tokens you can pass to flight-search
+for a live (bookable) price + trip_item_token.
+
+For end-to-end booking, prefer flight-search directly — it returns live
+prices and a bookable trip_item_token in one step.
+
+Usage:
+  jinko find-flight [flags]
+
+Flags:
+      --cabin string      cabin class: economy, premium_economy, business, first (default "economy")
+      --date string       departure date (YYYY-MM-DD)
+      --direct-only       only show direct flights
+      --from string       origin airport code (e.g. PAR)
+  -h, --help              help for find-flight
+      --limit int         max results (default 10)
+      --max-price float   maximum total price filter
+      --return string     return date for round-trip (YYYY-MM-DD)
+      --sort string       sort: lowest, recommendation (default "lowest")
+      --to string         destination airport code (e.g. NYC)
+
+Global Flags:
+      --api-key string   API key (jnk_...) — overrides JINKO_API_KEY env and config file
+      --format string    output format: json | table (default "json")

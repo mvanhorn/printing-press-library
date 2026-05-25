@@ -1,0 +1,14 @@
+Fetch rich metadata for a hotel — gallery, facilities, policies, room details.
+
+Usage:
+  jinko hotel-details [flags]
+
+Flags:
+      --checkin string    check-in date (YYYY-MM-DD)
+      --checkout string   check-out date (YYYY-MM-DD)
+  -h, --help              help for hotel-details
+      --hotel-id string   hotel ID (from a prior hotel-search result)
+
+Global Flags:
+      --api-key string   API key (jnk_...) — overrides JINKO_API_KEY env and config file
+      --format string    output format: json | table (default "json")

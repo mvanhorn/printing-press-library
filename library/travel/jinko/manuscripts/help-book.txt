@@ -1,0 +1,20 @@
+Schedule checkout for an entire multi-product trip in one shot.
+
+The response includes:
+  - checkout_url : Jinko-hosted Stripe page; user pays for the full cart there
+  - items        : per-item summary with item_id (use for select-ancillaries)
+  - ancillaries  : bags / seats / meals offered per item (optional to preselect)
+  - total        : grand total across all flights + hotels
+
+Quote is automatic — handled inside book; you don't call a separate quote step.
+
+Usage:
+  jinko book [flags]
+
+Flags:
+  -h, --help             help for book
+      --trip-id string   trip ID (from trip command)
+
+Global Flags:
+      --api-key string   API key (jnk_...) — overrides JINKO_API_KEY env and config file
+      --format string    output format: json | table (default "json")
