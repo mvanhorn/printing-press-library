@@ -97,11 +97,14 @@ func loadProperties(ctx context.Context, c *client.Client, flags *rootFlags, lim
 			continue
 		}
 		hydrated++
+		// Throttle every hydrated request, not just kind-matching ones, so a
+		// mostly-non-matching filter (e.g. lots on a structure-heavy instance)
+		// can't fire rapid unthrottled requests at the unauthenticated API.
+		time.Sleep(politeDelay)
 		if !p.MatchesKind(kindFilter) {
 			continue
 		}
 		out = append(out, loadedProperty{Prop: p, Raw: raw})
-		time.Sleep(politeDelay)
 	}
 	return out, "live", nil
 }

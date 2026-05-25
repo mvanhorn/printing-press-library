@@ -210,7 +210,9 @@ func statsFromLoaded(slug, source string, loaded []loadedProperty, indexSize, sa
 	if indexSize > 0 && sampled > 0 {
 		// Live sample: report the full index size as the total and surface the
 		// sample provenance.
-		st.Total = indexSize
+		// Total reflects the sampled subset so structures+lots==total stays
+		// internally consistent; IndexSize surfaces the full inventory count.
+		st.Total = measured
 		st.IndexSize = indexSize
 		st.Sampled = sampled
 	} else {
