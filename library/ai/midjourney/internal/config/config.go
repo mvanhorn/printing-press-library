@@ -86,9 +86,6 @@ func (c *Config) AuthHeader() string {
 	if token == "" {
 		return ""
 	}
-	if c.MidjourneyCookieHeader == "" {
-		return ""
-	}
 	replacements := map[string]string{
 		"token":                    token,
 		"cookie_header":            c.MidjourneyCookieHeader,

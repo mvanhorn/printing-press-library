@@ -17,6 +17,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -293,7 +294,7 @@ func postSubmitJob(cmd *cobra.Command, flags *rootFlags, payload submitJobsReque
 		return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
 	}
 	if useBrowser && !flags.dryRun {
-		data, err := browserSubmitJob(context.Background(), browserCDP, payload)
+		data, err := browserSubmitJob(cmd.Context(), browserCDP, payload)
 		if err != nil {
 			return classifyAPIError(err, flags)
 		}
@@ -311,7 +312,7 @@ func postSubmitJob(cmd *cobra.Command, flags *rootFlags, payload submitJobsReque
 	if err := json.Unmarshal(body, &raw); err != nil {
 		return err
 	}
-	data, _, err := c.Post(context.Background(), "/api/submit-jobs", raw)
+	data, _, err := c.Post(cmd.Context(), "/api/submit-jobs", raw)
 	if err != nil {
 		return classifyAPIError(err, flags)
 	}
@@ -357,7 +358,8 @@ func browserSubmitJob(ctx context.Context, cdpBase string, payload submitJobsReq
 	if err != nil {
 		return nil, err
 	}
-	expression := fmt.Sprintf("fetch('/api/submit-jobs', {method: 'POST', headers: {'accept': 'application/json', 'content-type': 'application/json', 'x-csrf-protection': '1'}, credentials: 'include', body: JSON.stringify(%s)}).then(async r => ({ok: r.ok, status: r.status, text: await r.text()}))", payloadJSON)
+	payloadLiteral := jsStringLiteral(string(payloadJSON))
+	expression := fmt.Sprintf("fetch('/api/submit-jobs', {method: 'POST', headers: {'accept': 'application/json', 'content-type': 'application/json', 'x-csrf-protection': '1'}, credentials: 'include', body: %s}).then(async r => ({ok: r.ok, status: r.status, text: await r.text()}))", payloadLiteral)
 	eval := map[string]any{
 		"id":     1,
 		"method": "Runtime.evaluate",
@@ -396,6 +398,11 @@ func browserSubmitJob(ctx context.Context, cdpBase string, payload submitJobsReq
 		"status": value.Status,
 		"body":   value.Text,
 	})
+}
+
+func jsStringLiteral(value string) string {
+	value = strings.NewReplacer("\u2028", "\\u2028", "\u2029", "\\u2029").Replace(value)
+	return strconv.Quote(value)
 }
 
 func findMidjourneyCDPTarget(ctx context.Context, cdpBase string) (*cdpTarget, error) {

@@ -108,3 +108,16 @@ func TestSubmitJobVerifyShortCircuitEnvelope(t *testing.T) {
 		}
 	}
 }
+
+func TestJSStringLiteralEscapesLineSeparators(t *testing.T) {
+	t.Parallel()
+	got := jsStringLiteral("{\"prompt\":\"line\u2028para\u2029end\"}")
+	if strings.Contains(got, "\u2028") || strings.Contains(got, "\u2029") {
+		t.Fatalf("jsStringLiteral() left raw JavaScript line separator in %q", got)
+	}
+	for _, want := range []string{"\\u2028", "\\u2029"} {
+		if !strings.Contains(got, want) {
+			t.Fatalf("jsStringLiteral() = %q, want escaped %s", got, want)
+		}
+	}
+}

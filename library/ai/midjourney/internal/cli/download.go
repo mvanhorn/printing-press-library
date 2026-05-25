@@ -11,6 +11,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"math"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -48,7 +49,7 @@ func newDownloadCmd(flags *rootFlags) *cobra.Command {
 			if out == "" {
 				out = fmt.Sprintf("%s-%d.png", jobID, dl.index)
 			}
-			if err := browserCaptureJobImage(context.Background(), dl.browserCDP, jobID, dl.index, dl.wait, out); err != nil {
+			if err := browserCaptureJobImage(cmd.Context(), dl.browserCDP, jobID, dl.index, dl.wait, out); err != nil {
 				return classifyAPIError(err, flags)
 			}
 			data, err := json.Marshal(map[string]any{
@@ -86,7 +87,13 @@ func browserCaptureJobImage(ctx context.Context, cdpBase, jobID string, index in
 	if err := browserNavigate(ctx, cdpBase, pageURL); err != nil {
 		return err
 	}
-	time.Sleep(wait)
+	timer := time.NewTimer(wait)
+	defer timer.Stop()
+	select {
+	case <-timer.C:
+	case <-ctx.Done():
+		return ctx.Err()
+	}
 	rect, err := browserFindRenderedImage(ctx, cdpBase, jobID, index)
 	if err != nil {
 		return err
@@ -205,5 +212,5 @@ func browserCaptureClip(ctx context.Context, cdpBase string, rect renderedImageR
 }
 
 func urlPathEscape(value string) string {
-	return strings.ReplaceAll(value, "/", "")
+	return strings.ReplaceAll(url.PathEscape(value), "&", "%26")
 }
