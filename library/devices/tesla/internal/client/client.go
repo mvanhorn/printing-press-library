@@ -11,15 +11,16 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/devices/tesla/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/devices/tesla/internal/config"
 	"io"
 	"math"
 	"net/http"
 	"os"
 	"path/filepath"
+	"regexp"
 	"sort"
 	"strings"
-	"github.com/mvanhorn/printing-press-library/library/devices/tesla/internal/cliutil"
-	"github.com/mvanhorn/printing-press-library/library/devices/tesla/internal/config"
 	"time"
 )
 
@@ -43,6 +44,14 @@ type Client struct {
 	// left nil suppresses the retry (used by tools that want to inspect 401
 	// directly, like `tesla doctor`).
 	OnTokenExpired func() (string, error)
+
+	// FleetMode signals that reads are routed through the Tesla Fleet API
+	// (set by the cli layer when no usable owner-api credential exists). In
+	// this mode, owner-api vehicle-data subset paths (/data_request/<name>)
+	// are rewritten to the Fleet equivalent (/vehicle_data?endpoints=<name>)
+	// and the response is unwrapped back to the owner-api shape so subset
+	// callers parse it unchanged. See rewriteFleetSubsetPath / unwrapFleetSubset.
+	FleetMode bool
 }
 
 // APIError carries HTTP status information for structured exit codes.
@@ -359,6 +368,17 @@ func (c *Client) doInternal(method, path string, params map[string]string, body 
 	if !readOnlyIntent && isMutatingVerb(method) && cliutil.IsVerifyEnv() && !cliutil.IsVerifyLiveHTTPEnv() {
 		return verifyShortCircuitEnvelope(method, path), http.StatusOK, nil
 	}
+	// Fleet API serves vehicle-data subsets via /vehicle_data?endpoints=<name>;
+	// the owner-api /data_request/<name> path 404s there. When routing reads
+	// through Fleet, rewrite the path and remember the key to unwrap from the
+	// nested response so subset callers parse the owner-api shape unchanged.
+	var fleetUnwrapKey string
+	if c.FleetMode {
+		if rewritten, key := rewriteFleetSubsetPath(path); key != "" {
+			path = rewritten
+			fleetUnwrapKey = key
+		}
+	}
 	targetURL := c.BaseURL + path
 
 	var bodyBytes []byte
@@ -484,7 +504,11 @@ func (c *Client) doInternal(method, path string, params map[string]string, body 
 				}
 				return env, resp.StatusCode, nil
 			}
-			return json.RawMessage(sanitizeJSONResponse(respBody)), resp.StatusCode, nil
+			sanitized := sanitizeJSONResponse(respBody)
+			if fleetUnwrapKey != "" {
+				sanitized = unwrapFleetSubset(sanitized, fleetUnwrapKey)
+			}
+			return json.RawMessage(sanitized), resp.StatusCode, nil
 		}
 
 		if !binaryResponse {
@@ -541,6 +565,47 @@ func (c *Client) doInternal(method, path string, params map[string]string, body 
 	}
 
 	return nil, 0, lastErr
+}
+
+// fleetSubsetPathRe matches the owner-api vehicle-data subset path
+// /api/1/vehicles/<id>/data_request/<name>, capturing the vehicle prefix and
+// the subset name.
+var fleetSubsetPathRe = regexp.MustCompile(`^(/api/1/vehicles/[^/]+)/data_request/([a-zA-Z_]+)$`)
+
+// rewriteFleetSubsetPath converts an owner-api subset path to the Fleet API
+// equivalent (/vehicle_data?endpoints=<name>). Returns the rewritten path and
+// the subset key to unwrap from the response, or (path, "") when it does not
+// match (leaving non-subset paths untouched).
+func rewriteFleetSubsetPath(path string) (string, string) {
+	m := fleetSubsetPathRe.FindStringSubmatch(path)
+	if m == nil {
+		return path, ""
+	}
+	return m[1] + "/vehicle_data?endpoints=" + m[2], m[2]
+}
+
+// unwrapFleetSubset reshapes a Fleet vehicle_data?endpoints=<key> response
+// ({"response":{"<key>":{...}}}) back to the owner-api subset shape
+// ({"response":{...}}) so subset-command parsers work unchanged. Fail-safe: it
+// returns the input untouched if the body doesn't have the expected shape.
+func unwrapFleetSubset(body []byte, key string) []byte {
+	var env struct {
+		Response map[string]json.RawMessage `json:"response"`
+	}
+	if err := json.Unmarshal(body, &env); err != nil || env.Response == nil {
+		return body
+	}
+	sub, ok := env.Response[key]
+	if !ok {
+		return body
+	}
+	out, err := json.Marshal(struct {
+		Response json.RawMessage `json:"response"`
+	}{Response: sub})
+	if err != nil {
+		return body
+	}
+	return out
 }
 
 // dryRun prints the outgoing request exactly as the live path would send it,

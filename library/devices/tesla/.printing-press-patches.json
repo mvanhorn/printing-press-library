@@ -192,16 +192,18 @@
     },
     {
       "id": "tesla-regional-fleet-reads",
-      "summary": "Regional Fleet support + route reads through the Fleet API when no usable owner-api credential exists. Replaces the North-America-hardcoded fleetAPIAudience with a fleetAPIBase() resolver (TESLA_FLEET_API_URL env > persisted [fleet].api_base > NA default) used by fleet-register/login/partner-token, and persists api_base. newClient() points the read client at the regional Fleet API with the Fleet bearer when the owner-api token is absent or stale, with a Fleet-specific 401 auto-refresh (makeTeslaFleetRefreshCallback).",
+      "summary": "Regional Fleet support + route reads through the Fleet API when no usable owner-api credential exists. Replaces the North-America-hardcoded fleetAPIAudience with a fleetAPIBase() resolver (TESLA_FLEET_API_URL env > persisted [fleet].api_base > NA default) used by fleet-register/login/partner-token, and persists api_base. newClient() points the read client at the regional Fleet API with the Fleet bearer when the owner-api token is absent or stale, with a Fleet-specific 401 auto-refresh (makeTeslaFleetRefreshCallback). In Fleet mode the client rewrites owner-api vehicle-data subset paths (data_request/{name}) to the Fleet vehicle_data?endpoints= form and unwraps the nested response back to the owner-api shape, so the get-data-* subset commands and reachability work on Fleet instead of 404ing.",
       "reason": "tesla-pp-cli was generated from owner-api traffic: reads use the top-level owner-api bearer and Fleet was wired for commands only, hardcoded to North America. 2021+ vehicles and non-NA accounts (e.g. EU) have no working owner-api read path, so products/ready/vehicle_data returned owner-api 404/401 even with a valid Fleet token, and partner registration hit the wrong region (HTTP 421/412).",
       "files": [
         "internal/config/config.go",
         "internal/cli/tesla_fleet_auth.go",
         "internal/cli/root.go",
         "internal/cli/tesla_auth_autorefresh.go",
-        "internal/cli/tesla_fleet_region_test.go"
+        "internal/cli/tesla_fleet_region_test.go",
+        "internal/client/client.go",
+        "internal/client/client_fleet_subset_test.go"
       ],
-      "validated_outcome": "New unit tests (fleetAPIBase, teslaShouldUseFleetForReads, SaveFleetAPIBase) plus full module build/vet/test pass. Validated live against an EU vehicle: ready and products return real data with zero env vars after fleet-register persisted api_base=eu, where the unpatched CLI returned HTTP 404/421/412."
+      "validated_outcome": "New unit tests (fleetAPIBase, teslaShouldUseFleetForReads, SaveFleetAPIBase, rewriteFleetSubsetPath, unwrapFleetSubset) plus full module build/vet/test/govulncheck pass. Validated live against an EU vehicle: products, full vehicle_data, ready --force-refresh, and the get-data-* subset commands all return real data with zero env vars after fleet-register persisted api_base=eu, where the unpatched CLI returned HTTP 404/421/412."
     }
   ]
 }

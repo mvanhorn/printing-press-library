@@ -319,6 +319,7 @@ func (f *rootFlags) newClient() (*client.Client, error) {
 	c := client.New(cfg, f.timeout, f.rateLimit)
 	c.DryRun = f.dryRun
 	c.NoCache = f.noCache
+	c.FleetMode = fleetReads
 	// Tesla bearer auto-refresh on 401. Wired unless TESLA_PP_NO_AUTOREFRESH=1.
 	// On 401 the transport calls the matching refresh closure (Fleet when reads
 	// route through the Fleet API, otherwise owner-api), which exchanges the
