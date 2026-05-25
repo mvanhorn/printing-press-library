@@ -1,0 +1,412 @@
+{
+  "dir": "/home/markimus/printing-press/library/blender",
+  "binary": "/home/markimus/printing-press/library/blender/blender-pp-cli-dogfood",
+  "level": "full",
+  "verdict": "PASS",
+  "matrix_size": 21,
+  "passed": 21,
+  "failed": 0,
+  "skipped": 19,
+  "commands": [
+    "asset import",
+    "doctor",
+    "handoff plan",
+    "mcp serve",
+    "mcp status",
+    "render still",
+    "render turntable",
+    "resolve blender",
+    "scene inspect",
+    "script run"
+  ],
+  "tests": [
+    {
+      "command": "asset import",
+      "kind": "help",
+      "args": [
+        "asset",
+        "import",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Import an asset into a Blender scene\n\nUsage:\n  blender-pp-cli asset import --asset model.glb --output scene.blend [flags]\n\nExamples:\n  blender-pp-cli asset import --asset model.glb --output scene.blend --collection \"Imported CAD\" --dry-run\n  blender-pp-cli asset import --asset part.stl --output part.blend\n\nFlags:\n      --asset string        Asset to import (.glb, .gltf, .obj, .fbx, .stl)\n      --collection string   Collection name for imported objects (default \"Imported CAD\")\n      --dry-run             Print the command without running Blender\n  -h, --help                help for import\n      --output string       Output .blend path\n      --timeout duration    Maximum runtime (default 10m0s)\n"
+    },
+    {
+      "command": "asset import",
+      "kind": "happy_path",
+      "args": [
+        "asset",
+        "import",
+        "--asset",
+        "model.glb",
+        "--output",
+        "scene.blend",
+        "--collection",
+        "Imported CAD",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"asset\": \"model.glb\",\n  \"command\": {\n    \"command\": \"/mnt/c/Program Files/Blender Foundation/Blender 5.1/blender.exe\",\n    \"args\": [\n      \"--background\",\n      \"--python\",\n      \"\\\\\\\\wsl.localhost\\\\Ubuntu\\\\tmp\\\\blender-pp-import-257076956.py\"\n    ]\n  },\n  \"output_blend\": \"scene.blend\",\n  \"status\": \"dry-run\"\n}\n"
+    },
+    {
+      "command": "asset import",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "--json not supported"
+    },
+    {
+      "command": "asset import",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "doctor",
+      "kind": "help",
+      "args": [
+        "doctor",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Check CLI health\n\nUsage:\n  blender-pp-cli doctor [flags]\n\nExamples:\n  blender-pp-cli doctor\n\nFlags:\n  -h, --help   help for doctor\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "happy_path",
+      "args": [
+        "doctor"
+      ],
+      "status": "pass",
+      "output_sample": "blender-pp-cli doctor\n  go: go1.26.3\n  os: linux/amd64\n  blender: /mnt/c/Program Files/Blender Foundation/Blender 5.1/blender.exe\n  blender-mcp: /home/markimus/.local/bin/blender-mcp\n  status: ok\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "--json not supported"
+    },
+    {
+      "command": "doctor",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "handoff plan",
+      "kind": "help",
+      "args": [
+        "handoff",
+        "plan",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Create a reproducible Blender job manifest\n\nUsage:\n  blender-pp-cli handoff plan --asset model.glb [flags]\n\nExamples:\n  blender-pp-cli handoff plan --asset exports/assembly.glb --mode turntable --frames 120\n  blender-pp-cli handoff plan --asset onshape-export.json --output-blend assembly.blend --write blender-job.json\n\nFlags:\n      --asset string          Source asset path, export manifest, or Onshape-derived file\n      --engine string         Render engine (default \"BLENDER_EEVEE\")\n      --frames int            Turntable frame count (default 120)\n  -h, --help                  help for plan\n      --mode string           Planned workflow: still or turntable (default \"still\")\n      --output-blend string   Planned .blend output path\n      --write string          Optional path to write the manifest JSON\n"
+    },
+    {
+      "command": "handoff plan",
+      "kind": "happy_path",
+      "args": [
+        "handoff",
+        "plan",
+        "--asset",
+        "exports/assembly.glb",
+        "--mode",
+        "turntable",
+        "--frames",
+        "120"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"source_asset\": \"exports/assembly.glb\",\n  \"output_blend\": \"assembly.blend\",\n  \"collection\": \"Imported CAD\",\n  \"render\": {\n    \"engine\": \"BLENDER_EEVEE\",\n    \"resolution\": \"1920x1080\"\n  },\n  \"animation\": {\n    \"frames\": 120,\n    \"axis\": \"Z\",\n    \"degrees\": 360\n  },\n  \"steps\": [\n    \"resolve Blender runtime\",\n    \"import source asset into a named collection\",\n    \"normalize origin, camera, lights, and render engine\",\n    \"save .blend scene and emit a reproducible job manifest\",\n    \"run still or turntable render from the manifest\"\n  ]\n}\n"
+    },
+    {
+      "command": "handoff plan",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "--json not supported"
+    },
+    {
+      "command": "handoff plan",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "mcp serve",
+      "kind": "help",
+      "args": [
+        "mcp",
+        "serve",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Start blender-mcp for tandem/live sessions\n\nUsage:\n  blender-pp-cli mcp serve [flags]\n\nExamples:\n  blender-pp-cli mcp serve --transport stdio --dry-run\n  blender-pp-cli mcp serve --transport http --host 127.0.0.1 --port 8000 --dry-run\n\nFlags:\n      --dry-run            Print the command without running blender-mcp\n  -h, --help               help for serve\n      --host string        HTTP host (default \"127.0.0.1\")\n      --port int           HTTP port (default 8000)\n      --timeout duration   Maximum runtime for non-dry-run serve (default 30s)\n      --transport string   Transport: stdio or http (default \"stdio\")\n"
+    },
+    {
+      "command": "mcp serve",
+      "kind": "happy_path",
+      "args": [
+        "mcp",
+        "serve",
+        "--transport",
+        "stdio",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"command\": {\n    \"command\": \"/home/markimus/.local/bin/blender-mcp\",\n    \"args\": [\n      \"--transport\",\n      \"stdio\"\n    ]\n  },\n  \"status\": \"dry-run\"\n}\n"
+    },
+    {
+      "command": "mcp serve",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "--json not supported"
+    },
+    {
+      "command": "mcp serve",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "mcp status",
+      "kind": "help",
+      "args": [
+        "mcp",
+        "status",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Check blender-mcp installation and optional HTTP endpoint\n\nUsage:\n  blender-pp-cli mcp status [flags]\n\nExamples:\n  blender-pp-cli mcp status\n  blender-pp-cli mcp status --url http://127.0.0.1:8000/\n\nFlags:\n  -h, --help         help for status\n      --url string   Optional blender-mcp HTTP URL to probe\n"
+    },
+    {
+      "command": "mcp status",
+      "kind": "happy_path",
+      "args": [
+        "mcp",
+        "status"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"installed\": true,\n  \"path\": \"/home/markimus/.local/bin/blender-mcp\",\n  \"runtime\": {\n    \"blender_path\": \"/mnt/c/Program Files/Blender Foundation/Blender 5.1/blender.exe\",\n    \"blender_mcp_path\": \"/home/markimus/.local/bin/blender-mcp\",\n    \"mode\": \"headless+tandem\",\n    \"sources\": [\n      \"well-known-path\",\n      \"PATH:blender-mcp\"\n    ]\n  }\n}\n"
+    },
+    {
+      "command": "mcp status",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "--json not supported"
+    },
+    {
+      "command": "mcp status",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "render still",
+      "kind": "help",
+      "args": [
+        "render",
+        "still",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Render a still image in background mode\n\nUsage:\n  blender-pp-cli render still --blend scene.blend --output render.png [flags]\n\nExamples:\n  blender-pp-cli render still --blend scene.blend --output render.png --dry-run\n  blender-pp-cli render still --output startup.png --engine BLENDER_EEVEE --resolution 1280x720\n\nFlags:\n      --blend string        Blend file to render; omitted uses startup scene\n      --dry-run             Print the command without running Blender\n      --engine string       Render engine (default \"BLENDER_EEVEE\")\n  -h, --help                help for still\n      --output string       Output image path (default \"render.png\")\n      --resolution string   Render resolution as WIDTHxHEIGHT (default \"1920x1080\")\n      --timeout duration    Maximum runtime (default 10m0s)\n"
+    },
+    {
+      "command": "render still",
+      "kind": "happy_path",
+      "args": [
+        "render",
+        "still",
+        "--blend",
+        "scene.blend",
+        "--output",
+        "render.png",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"command\": {\n    \"command\": \"/mnt/c/Program Files/Blender Foundation/Blender 5.1/blender.exe\",\n    \"args\": [\n      \"--background\",\n      \"scene.blend\",\n      \"--python\",\n      \"\\\\\\\\wsl.localhost\\\\Ubuntu\\\\tmp\\\\blender-pp-still-PP_PROCESS_PID.py\"\n    ]\n  },\n  \"output_path\": \"render.png\",\n  \"status\": \"dry-run\"\n}\n"
+    },
+    {
+      "command": "render still",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "--json not supported"
+    },
+    {
+      "command": "render still",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "render turntable",
+      "kind": "help",
+      "args": [
+        "render",
+        "turntable",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Create a simple turntable animation job\n\nUsage:\n  blender-pp-cli render turntable --blend scene.blend --output scene-turntable.blend [flags]\n\nExamples:\n  blender-pp-cli render turntable --blend scene.blend --output scene-turntable.blend --frames 120 --dry-run\n  blender-pp-cli render turntable --output startup-turntable.blend --frames 48\n\nFlags:\n      --blend string       Blend file to animate; omitted uses startup scene\n      --dry-run            Print the command without running Blender\n      --engine string      Render engine (default \"BLENDER_EEVEE\")\n      --frames int         Turntable frame count (default 120)\n  -h, --help               help for turntable\n      --output string      Output .blend path (default \"turntable.blend\")\n      --timeout duration   Maximum runtime (default 10m0s)\n"
+    },
+    {
+      "command": "render turntable",
+      "kind": "happy_path",
+      "args": [
+        "render",
+        "turntable",
+        "--blend",
+        "scene.blend",
+        "--output",
+        "scene-turntable.blend",
+        "--frames",
+        "120",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"command\": {\n    \"command\": \"/mnt/c/Program Files/Blender Foundation/Blender 5.1/blender.exe\",\n    \"args\": [\n      \"--background\",\n      \"scene.blend\",\n      \"--python\",\n      \"\\\\\\\\wsl.localhost\\\\Ubuntu\\\\tmp\\\\blender-pp-turntable-PP_PROCESS_PID.py\"\n    ]\n  },\n  \"frames\": 120,\n  \"output_blend\": \"scene-turntable.blend\",\n  \"status\": \"dry-run\"\n}\n"
+    },
+    {
+      "command": "render turntable",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "--json not supported"
+    },
+    {
+      "command": "render turntable",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "resolve blender",
+      "kind": "help",
+      "args": [
+        "resolve",
+        "blender",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Locate Blender and blender-mcp runtimes\n\nUsage:\n  blender-pp-cli resolve blender [flags]\n\nExamples:\n  blender-pp-cli resolve blender\n  blender-pp-cli resolve blender --json\n\nFlags:\n  -h, --help   help for blender\n      --json   Output JSON\n"
+    },
+    {
+      "command": "resolve blender",
+      "kind": "happy_path",
+      "args": [
+        "resolve",
+        "blender"
+      ],
+      "status": "pass",
+      "output_sample": "mode: headless+tandem\nblender: /mnt/c/Program Files/Blender Foundation/Blender 5.1/blender.exe\nblender-mcp: /home/markimus/.local/bin/blender-mcp\n"
+    },
+    {
+      "command": "resolve blender",
+      "kind": "json_fidelity",
+      "args": [
+        "resolve",
+        "blender",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"blender_path\": \"/mnt/c/Program Files/Blender Foundation/Blender 5.1/blender.exe\",\n  \"blender_mcp_path\": \"/home/markimus/.local/bin/blender-mcp\",\n  \"mode\": \"headless+tandem\",\n  \"sources\": [\n    \"well-known-path\",\n    \"PATH:blender-mcp\"\n  ]\n}\n"
+    },
+    {
+      "command": "resolve blender",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "scene inspect",
+      "kind": "help",
+      "args": [
+        "scene",
+        "inspect",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Inspect a Blender scene or importable asset\n\nUsage:\n  blender-pp-cli scene inspect --file scene.blend [flags]\n\nExamples:\n  blender-pp-cli scene inspect --file scene.blend --dry-run\n  blender-pp-cli scene inspect --dry-run\n\nFlags:\n      --dry-run            Print the command without running Blender\n      --file string        Blend file to inspect; omitted means Blender's startup scene\n  -h, --help               help for inspect\n      --timeout duration   Maximum runtime (default 5m0s)\n"
+    },
+    {
+      "command": "scene inspect",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "file fixture required: --file scene.blend"
+    },
+    {
+      "command": "scene inspect",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "file fixture required: --file scene.blend"
+    },
+    {
+      "command": "scene inspect",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "script run",
+      "kind": "help",
+      "args": [
+        "script",
+        "run",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Run a Python script through Blender background mode\n\nUsage:\n  blender-pp-cli script run --script job.py [flags]\n\nExamples:\n  blender-pp-cli script run --script job.py --dry-run\n  blender-pp-cli script run --blend scene.blend --script job.py --arg --my-flag --json\n\nFlags:\n      --arg stringArray    Argument passed after Blender's -- separator\n      --blend string       Optional .blend file to open\n      --dry-run            Print the command without running Blender\n  -h, --help               help for run\n      --json               Output JSON\n      --script string      Python script to run\n      --timeout duration   Maximum runtime (default 5m0s)\n"
+    },
+    {
+      "command": "script run",
+      "kind": "happy_path",
+      "args": [
+        "script",
+        "run",
+        "--script",
+        "job.py",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"command\": \"/mnt/c/Program Files/Blender Foundation/Blender 5.1/blender.exe\",\n  \"args\": [\n    \"--background\",\n    \"--python\",\n    \"job.py\"\n  ]\n}\n"
+    },
+    {
+      "command": "script run",
+      "kind": "json_fidelity",
+      "args": [
+        "script",
+        "run",
+        "--script",
+        "job.py",
+        "--dry-run",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"command\": \"/mnt/c/Program Files/Blender Foundation/Blender 5.1/blender.exe\",\n  \"args\": [\n    \"--background\",\n    \"--python\",\n    \"job.py\"\n  ]\n}\n"
+    },
+    {
+      "command": "script run",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    }
+  ],
+  "ran_at": "2026-05-20T08:35:48.313106164Z"
+}

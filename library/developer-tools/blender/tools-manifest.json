@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "cli_name": "blender-pp-cli",
+  "api_name": "blender",
+  "mcp_ready": "external-blender-mcp",
+  "tools": [
+    {
+      "name": "resolve_blender",
+      "command": "resolve blender",
+      "description": "Locate Blender and blender-mcp runtimes across PATH, env vars, and well-known install paths.",
+      "read_only": true
+    },
+    {
+      "name": "script_run",
+      "command": "script run",
+      "description": "Execute a Python script through Blender background mode with dry-run preview and timeout control.",
+      "read_only": false
+    },
+    {
+      "name": "handoff_plan",
+      "command": "handoff plan",
+      "description": "Create a reproducible Blender job manifest for a CAD export or render asset, including render settings and step sequence.",
+      "read_only": true
+    },
+    {
+      "name": "mcp_serve",
+      "command": "mcp serve",
+      "description": "Start the external blender-mcp server over stdio or HTTP for tandem agent/Blender sessions.",
+      "read_only": false
+    },
+    {
+      "name": "mcp_status",
+      "command": "mcp status",
+      "description": "Check blender-mcp installation status and probe an optional HTTP endpoint for connectivity.",
+      "read_only": true
+    },
+    {
+      "name": "render_still",
+      "command": "render still",
+      "description": "Render a still image via Blender background mode with configurable engine, resolution, and timeout.",
+      "read_only": false
+    },
+    {
+      "name": "render_turntable",
+      "command": "render turntable",
+      "description": "Build and optionally render a turntable animation with configurable frame count, engine, and timeout.",
+      "read_only": false
+    },
+    {
+      "name": "scene_inspect",
+      "command": "scene inspect",
+      "description": "Inspect a Blender scene to list objects, materials, cameras, lights, and missing files.",
+      "read_only": true
+    },
+    {
+      "name": "asset_import",
+      "command": "asset import",
+      "description": "Import a 3D asset (.glb, .gltf, .obj, .fbx, .stl) into a named Blender collection and save as .blend.",
+      "read_only": false
+    },
+    {
+      "name": "doctor",
+      "command": "doctor",
+      "description": "Check CLI health: Go version, OS/arch, Blender runtime, and blender-mcp installation status.",
+      "read_only": true
+    }
+  ]
+}

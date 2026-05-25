@@ -1,0 +1,165 @@
+{
+  "api_name": "blender",
+  "novelty_score": 8,
+  "alternatives": [
+    {
+      "name": "Blender command line",
+      "url": "https://docs.blender.org/manual/en/3.6/advanced/command_line/arguments.html",
+      "language": "CLI",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Blender Python API",
+      "url": "https://docs.blender.org/api/current/",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "blender-mcp",
+      "url": "local:/home/markimus/.local/bin/blender-mcp",
+      "language": "Python/MCP",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": true,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [
+    "Raw Blender command-line use is powerful but brittle for agents because argument order matters and output is unstructured.",
+    "The Python API exposes everything needed, but agents need reproducible job manifests and safe dry-run previews before running heavy render/import jobs.",
+    "MCP provides a live/tandem path but does not replace headless batch execution for repeatable CAD-to-render jobs."
+  ],
+  "patterns": [
+    "Headless Blender jobs should use `--background` and a generated Python script, with user arguments passed after `--`.",
+    "Asset import workflows should choose an operator based on file extension and emit a manifest that records source, output, collection, and render settings.",
+    "Tandem sessions should start or probe blender-mcp separately from local headless jobs so an agent can choose live inspection or repeatable automation."
+  ],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-20T08:20:00Z",
+  "novel_features": [
+    {
+      "name": "Runtime mode resolver",
+      "command": "resolve blender",
+      "description": "Locate Blender and blender-mcp across WSL, PATH, and explicit env vars, then classify the available mode as headless, tandem, or both.",
+      "rationale": "Agents need to know whether to run background Blender, live MCP, or both before choosing a workflow.",
+      "example": "blender-pp-cli resolve blender --json",
+      "why_it_matters": "Prevents brittle assumptions about whether Blender is a Linux binary, Windows binary under WSL, or MCP-only install.",
+      "group": "Runtime readiness"
+    },
+    {
+      "name": "Safe headless script launcher",
+      "command": "script run",
+      "description": "Build and optionally execute a correct `blender --background ... --python ... -- ...` invocation with dry-run preview and JSON result capture.",
+      "rationale": "Blender command ordering is easy to get wrong; this command gives agents a repeatable envelope.",
+      "example": "blender-pp-cli script run --script job.py --dry-run",
+      "why_it_matters": "Turns arbitrary Blender Python automation into a predictable CLI primitive.",
+      "group": "Headless automation"
+    },
+    {
+      "name": "CAD-to-Blender handoff manifest",
+      "command": "handoff plan",
+      "description": "Turn an Onshape/export asset path into a reproducible Blender job manifest with blend output, collection, render, and turntable defaults.",
+      "rationale": "The prior Onshape CLI produces export targets; this command creates the receiving-side plan Blender needs.",
+      "example": "blender-pp-cli handoff plan --asset exports/assembly.glb --mode turntable --frames 120",
+      "why_it_matters": "Bridges CAD export reasoning into repeatable rendering and animation work.",
+      "group": "CAD handoff"
+    },
+    {
+      "name": "Tandem MCP session controls",
+      "command": "mcp serve",
+      "description": "Start blender-mcp over stdio or HTTP, with dry-run previews and status probing for live agent/Blender collaboration.",
+      "rationale": "A serious Blender CLI should account for both user-present live sessions and unattended batch runs.",
+      "example": "blender-pp-cli mcp serve --transport http --host 127.0.0.1 --port 8000 --dry-run",
+      "why_it_matters": "Lets an agent explicitly switch from deterministic headless jobs to live inspection and steering.",
+      "group": "Tandem workflow"
+    },
+    {
+      "name": "Deterministic render job builders",
+      "command": "render still",
+      "description": "Create still and turntable render invocations with explicit engine, output, resolution, frame count, and safe dry-run support.",
+      "rationale": "Rendering is expensive and stateful; agents need previewable commands before burning GPU/CPU time.",
+      "example": "blender-pp-cli render still --output startup.png --engine BLENDER_EEVEE --resolution 1280x720 --dry-run",
+      "why_it_matters": "Makes visual production reproducible instead of a one-off sequence of UI actions.",
+      "group": "Rendering"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Runtime mode resolver",
+      "command": "resolve blender",
+      "description": "Locate Blender and blender-mcp across WSL, PATH, and explicit env vars, then classify the available mode as headless, tandem, or both.",
+      "rationale": "Agents need to know whether to run background Blender, live MCP, or both before choosing a workflow.",
+      "example": "blender-pp-cli resolve blender --json",
+      "why_it_matters": "Prevents brittle assumptions about whether Blender is a Linux binary, Windows binary under WSL, or MCP-only install.",
+      "group": "Runtime readiness"
+    },
+    {
+      "name": "Safe headless script launcher",
+      "command": "script run",
+      "description": "Build and optionally execute a correct `blender --background ... --python ... -- ...` invocation with dry-run preview and JSON result capture.",
+      "rationale": "Blender command ordering is easy to get wrong; this command gives agents a repeatable envelope.",
+      "example": "blender-pp-cli script run --script job.py --dry-run",
+      "why_it_matters": "Turns arbitrary Blender Python automation into a predictable CLI primitive.",
+      "group": "Headless automation"
+    },
+    {
+      "name": "CAD-to-Blender handoff manifest",
+      "command": "handoff plan",
+      "description": "Turn an Onshape/export asset path into a reproducible Blender job manifest with blend output, collection, render, and turntable defaults.",
+      "rationale": "The prior Onshape CLI produces export targets; this command creates the receiving-side plan Blender needs.",
+      "example": "blender-pp-cli handoff plan --asset exports/assembly.glb --mode turntable --frames 120",
+      "why_it_matters": "Bridges CAD export reasoning into repeatable rendering and animation work.",
+      "group": "CAD handoff"
+    },
+    {
+      "name": "Tandem MCP session controls",
+      "command": "mcp serve",
+      "description": "Start blender-mcp over stdio or HTTP, with dry-run previews and status probing for live agent/Blender collaboration.",
+      "rationale": "A serious Blender CLI should account for both user-present live sessions and unattended batch runs.",
+      "example": "blender-pp-cli mcp serve --transport http --host 127.0.0.1 --port 8000 --dry-run",
+      "why_it_matters": "Lets an agent explicitly switch from deterministic headless jobs to live inspection and steering.",
+      "group": "Tandem workflow"
+    },
+    {
+      "name": "Deterministic render job builders",
+      "command": "render still",
+      "description": "Create still and turntable render invocations with explicit engine, output, resolution, frame count, and safe dry-run support.",
+      "rationale": "Rendering is expensive and stateful; agents need previewable commands before burning GPU/CPU time.",
+      "example": "blender-pp-cli render still --output startup.png --engine BLENDER_EEVEE --resolution 1280x720 --dry-run",
+      "why_it_matters": "Makes visual production reproducible instead of a one-off sequence of UI actions.",
+      "group": "Rendering"
+    }
+  ],
+  "narrative": {
+    "display_name": "Blender",
+    "headline": "Agent-native Blender automation for CAD handoff, headless rendering, turntables, and live MCP sessions.",
+    "value_prop": "This CLI gives agents a reliable bridge between CAD exports and Blender: resolve the local runtime, plan a handoff manifest, run safe headless Python jobs, inspect scenes, render stills or turntables, and start blender-mcp when the user is present for tandem work.",
+    "auth_narrative": "No API credentials are required. Runtime paths can be overridden with BLENDER_BIN and BLENDER_MCP_BIN.",
+    "quickstart": [
+      {
+        "command": "blender-pp-cli resolve blender --json",
+        "comment": "Confirm whether headless Blender, blender-mcp, or both are available."
+      },
+      {
+        "command": "blender-pp-cli handoff plan --asset exports/assembly.glb --mode turntable --frames 120",
+        "comment": "Create the receiving-side Blender job manifest for an exported CAD asset."
+      },
+      {
+        "command": "blender-pp-cli render still --output startup.png --engine BLENDER_EEVEE --resolution 1280x720 --dry-run",
+        "comment": "Preview a render job before running Blender."
+      }
+    ]
+  }
+}

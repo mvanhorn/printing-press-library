@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-20T08:20:00Z",
+  "printing_press_version": "4.9.0",
+  "api_name": "blender",
+  "display_name": "Blender",
+  "cli_name": "blender-pp-cli",
+  "owner": "markimus",
+  "printer": "mhintz1980",
+  "printer_name": "Markimus",
+  "spec_path": ".runstate/printing-press-4176052e/runs/20260520-035524/research/blender-cli-plan.md",
+  "spec_format": "plan",
+  "run_id": "20260520-035524",
+  "mcp_ready": "external-blender-mcp",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "auth_env_vars": [],
+  "novel_features": [
+    {
+      "name": "Runtime mode resolver",
+      "command": "resolve blender",
+      "description": "Locate Blender and blender-mcp across WSL, PATH, and explicit env vars, then classify the available mode as headless, tandem, or both."
+    },
+    {
+      "name": "Safe headless script launcher",
+      "command": "script run",
+      "description": "Build and optionally execute a correct `blender --background ... --python ... -- ...` invocation with dry-run preview and JSON result capture."
+    },
+    {
+      "name": "CAD-to-Blender handoff manifest",
+      "command": "handoff plan",
+      "description": "Turn an Onshape/export asset path into a reproducible Blender job manifest with blend output, collection, render, and turntable defaults."
+    },
+    {
+      "name": "Tandem MCP session controls",
+      "command": "mcp serve",
+      "description": "Start blender-mcp over stdio or HTTP, with dry-run previews and status probing for live agent/Blender collaboration."
+    },
+    {
+      "name": "Deterministic render job builders",
+      "command": "render still",
+      "description": "Create still and turntable render invocations with explicit engine, output, resolution, frame count, and safe dry-run support."
+    }
+  ]
+}

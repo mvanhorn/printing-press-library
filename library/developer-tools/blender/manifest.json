@@ -1,0 +1,47 @@
+{
+  "manifest_version": "0.3",
+  "name": "blender-pp-cli",
+  "display_name": "Blender",
+  "version": "4.9.0",
+  "description": "Blender local automation CLI for headless jobs and external blender-mcp tandem sessions.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/blender-pp-cli",
+    "mcp_config": {
+      "command": "${__dirname}/bin/blender-pp-cli",
+      "args": [
+        "agent-context"
+      ],
+      "env": {
+        "BLENDER_BIN": "${user_config.blender_bin}",
+        "BLENDER_MCP_BIN": "${user_config.blender_mcp_bin}"
+      }
+    }
+  },
+  "user_config": {
+    "blender_bin": {
+      "type": "string",
+      "title": "BLENDER_BIN",
+      "description": "Optional path to the Blender executable.",
+      "sensitive": false
+    },
+    "blender_mcp_bin": {
+      "type": "string",
+      "title": "BLENDER_MCP_BIN",
+      "description": "Optional path to the blender-mcp executable.",
+      "sensitive": false
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}
