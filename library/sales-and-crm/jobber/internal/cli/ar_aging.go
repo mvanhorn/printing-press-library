@@ -70,9 +70,9 @@ func newARAgingCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return fmt.Errorf("parsing --as-of as YYYY-MM-DD: %w", err)
 			}
-			db, err := store.OpenWithContext(cmd.Context(), dbPath)
+			db, err := store.OpenReadOnly(dbPath)
 			if err != nil {
-				return fmt.Errorf("opening local database: %w\nRun 'jobber-pp-cli sync' first.", err)
+				return fmt.Errorf("opening local database read-only: %w\nRun 'jobber-pp-cli sync' first.", err)
 			}
 			defer db.Close()
 
@@ -112,7 +112,9 @@ LEFT JOIN clients c ON c.id = json_extract(i.data, '$.client.id')`)
 					row = &arAgingRow{Event: "ar_aging_row", ClientID: clientID, ClientName: clientName}
 					byClient[clientID] = row
 				}
-				addARAgingBucket(row, due.String, asOf, balance)
+				if !addARAgingBucket(row, due.String, asOf, balance) {
+					continue
+				}
 				row.Total += balance
 				row.InvoiceCount++
 				_ = invoiceID
@@ -165,11 +167,10 @@ LEFT JOIN clients c ON c.id = json_extract(i.data, '$.client.id')`)
 	return cmd
 }
 
-func addARAgingBucket(row *arAgingRow, dueText string, asOf time.Time, balance float64) {
+func addARAgingBucket(row *arAgingRow, dueText string, asOf time.Time, balance float64) bool {
 	due, ok := parseJobberDate(dueText)
 	if !ok {
-		row.Total += 0
-		return
+		return false
 	}
 	ageDays := int(asOf.Sub(due).Hours() / 24)
 	switch {
@@ -182,6 +183,7 @@ func addARAgingBucket(row *arAgingRow, dueText string, asOf time.Time, balance f
 	default:
 		row.BucketOver90 += balance
 	}
+	return true
 }
 
 func parseJobberDate(s string) (time.Time, bool) {

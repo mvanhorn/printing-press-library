@@ -45,7 +45,7 @@ func newSnapshotSaveCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			if err := os.MkdirAll(filepath.Dir(target), 0o755); err != nil {
+			if err := os.MkdirAll(filepath.Dir(target), 0o700); err != nil {
 				return fmt.Errorf("creating snapshot directory: %w", err)
 			}
 			if !force {

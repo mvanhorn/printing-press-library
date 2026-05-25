@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "generated_at": "2026-05-22T23:40:28Z",
-  "printing_press_version": "4.9.0",
+  "printing_press_version": "4.10.0",
   "api_name": "jobber",
   "display_name": "Jobber",
   "cli_name": "jobber-pp-cli",
