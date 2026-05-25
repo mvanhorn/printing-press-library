@@ -151,7 +151,12 @@ func (s *Store) ListPriceSnapshots(ctx context.Context, tokenOrName string, sinc
 			AND snapshotted_at >= ?
 		ORDER BY snapshotted_at DESC
 		LIMIT ?`
-	rows, err := s.db.QueryContext(ctx, q, tokenOrName, "%"+tokenOrName+"%", since.UTC().Format(time.RFC3339), limit)
+	// Match the format SQLite's CURRENT_TIMESTAMP writes — "YYYY-MM-DD
+	// HH:MM:SS" with a space separator. Comparing against an RFC3339
+	// string ("YYYY-MM-DDTHH:MM:SSZ" with a 'T' separator) is
+	// lexicographic and silently drops every row from the boundary day
+	// because 'T' sorts after every literal space-prefixed value.
+	rows, err := s.db.QueryContext(ctx, q, tokenOrName, "%"+tokenOrName+"%", since.UTC().Format("2006-01-02 15:04:05"), limit)
 	if err != nil {
 		return nil, err
 	}

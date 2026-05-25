@@ -36,6 +36,13 @@
       "reason": "The dryRunOK short-circuit at the top of RunE made two inner dry-run blocks (lines 92-95 around geocoding, and lines 116-125 around the URL-emit envelope) unreachable. Removed both so the only live dry-run path is the early return.",
       "files": ["internal/cli/near.go"],
       "validated_outcome": "Greptile P2 finding on near.go:125 resolved."
+    },
+    {
+      "id": "hotel-goat-price-snapshots-timestamp-format",
+      "summary": "Format the `since` bound passed to ListPriceSnapshots as 'YYYY-MM-DD HH:MM:SS' to match what SQLite's CURRENT_TIMESTAMP writes.",
+      "reason": "Snapshot rows are written with `snapshotted_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP`, which produces 'YYYY-MM-DD HH:MM:SS' (space separator). The previous query bound `since` via time.RFC3339 ('YYYY-MM-DDTHH:MM:SSZ' with a 'T'), so the lexicographic `snapshotted_at >= ?` comparison silently excluded every row from the boundary day — 'T' sorts after every literal space-prefixed value. Aligning both sides on the SQLite text format fixes the recent-price-drift query.",
+      "files": ["internal/store/hotel_goat_migrations.go"],
+      "validated_outcome": "Greptile finding on hotel_goat_migrations.go ListPriceSnapshots resolved. go test ./internal/store/ passes."
     }
   ]
 }
