@@ -167,8 +167,12 @@ func (c *Client) cacheKey(path string, params map[string]string) string {
 	key := path
 	key += "|base_url=" + c.BaseURL
 	if c.Config != nil {
+		// Resolve AuthHeader() first: it sets AuthSource (e.g. "fleet") as a
+		// side effect, so reading AuthSource before this call would key the
+		// first request in a process differently from later ones.
+		authHeader := c.Config.AuthHeader()
 		key += "|auth_source=" + c.Config.AuthSource
-		if authHeader := c.Config.AuthHeader(); authHeader != "" {
+		if authHeader != "" {
 			authHash := sha256.Sum256([]byte(authHeader))
 			key += "|auth=" + hex.EncodeToString(authHash[:8])
 		}
@@ -574,8 +578,16 @@ var fleetSubsetPathRe = regexp.MustCompile(`^(/api/1/vehicles/[^/]+)/data_reques
 
 // rewriteFleetSubsetPath converts an owner-api subset path to the Fleet API
 // equivalent (/vehicle_data?endpoints=<name>). Returns the rewritten path and
-// the subset key to unwrap from the response, or (path, "") when it does not
-// match (leaving non-subset paths untouched).
+// the response key to unwrap, or (path, "") when it does not match (leaving
+// non-subset paths untouched).
+//
+// Note on drive_state GPS: owner-api drive_state included latitude/longitude,
+// but Fleet exposes location only via the separate location_data endpoint,
+// which requires the vehicle_location OAuth scope. Requesting location_data
+// without that scope makes the whole call 403, so we deliberately do NOT add it
+// here — a scopeless get-data-drive-state returns its non-location fields
+// instead of failing. Restoring GPS needs the partner app registered with
+// vehicle_location plus a user re-consent; tracked as a follow-up.
 func rewriteFleetSubsetPath(path string) (string, string) {
 	m := fleetSubsetPathRe.FindStringSubmatch(path)
 	if m == nil {
@@ -586,7 +598,7 @@ func rewriteFleetSubsetPath(path string) (string, string) {
 
 // unwrapFleetSubset reshapes a Fleet vehicle_data?endpoints=<key> response
 // ({"response":{"<key>":{...}}}) back to the owner-api subset shape
-// ({"response":{...}}) so subset-command parsers work unchanged. Fail-safe: it
+// ({"response":{...}}) so subset-command parsers work unchanged. Fail-safe:
 // returns the input untouched if the body doesn't have the expected shape.
 func unwrapFleetSubset(body []byte, key string) []byte {
 	var env struct {

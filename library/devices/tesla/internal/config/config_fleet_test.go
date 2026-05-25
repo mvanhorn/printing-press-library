@@ -7,6 +7,7 @@ import (
 )
 
 func TestAuthHeaderPrefersFleetBearer(t *testing.T) {
+	t.Setenv("TESLA_FLEET_TOKEN", "")
 	t.Run("UseFleetBearer routes to the fleet token", func(t *testing.T) {
 		c := &Config{UseFleetBearer: true, Fleet: FleetConfig{AccessToken: "ft"}}
 		if got := c.AuthHeader(); got != "Bearer ft" {
@@ -23,6 +24,13 @@ func TestAuthHeaderPrefersFleetBearer(t *testing.T) {
 		c := &Config{UseFleetBearer: true, AccessToken: "owner"}
 		if got := c.AuthHeader(); got != "Bearer owner" {
 			t.Errorf("AuthHeader = %q, want %q", got, "Bearer owner")
+		}
+	})
+	t.Run("UseFleetBearer prefers TESLA_FLEET_TOKEN env over persisted", func(t *testing.T) {
+		t.Setenv("TESLA_FLEET_TOKEN", "envft")
+		c := &Config{UseFleetBearer: true, Fleet: FleetConfig{AccessToken: "ft"}}
+		if got := c.AuthHeader(); got != "Bearer envft" {
+			t.Errorf("AuthHeader = %q, want %q", got, "Bearer envft")
 		}
 	})
 }

@@ -133,9 +133,18 @@ func (c *Config) AuthHeader() string {
 	// this config for Fleet reads. Read dynamically from Fleet.AccessToken so a
 	// mid-process token refresh (which updates that field) is picked up, and so
 	// nothing transient is ever written to the persisted auth_header field.
-	if c.UseFleetBearer && c.Fleet.AccessToken != "" {
-		c.AuthSource = "fleet"
-		return "Bearer " + c.Fleet.AccessToken
+	if c.UseFleetBearer {
+		// TESLA_FLEET_TOKEN is the env override the other Fleet surfaces honor
+		// (fleet-status, command dispatch, reachability); accept it here too so
+		// env-only Fleet users get routed reads.
+		if tok := os.Getenv("TESLA_FLEET_TOKEN"); tok != "" {
+			c.AuthSource = "env:TESLA_FLEET_TOKEN"
+			return "Bearer " + tok
+		}
+		if c.Fleet.AccessToken != "" {
+			c.AuthSource = "fleet"
+			return "Bearer " + c.Fleet.AccessToken
+		}
 	}
 	if c.AuthHeaderVal != "" {
 		return c.AuthHeaderVal

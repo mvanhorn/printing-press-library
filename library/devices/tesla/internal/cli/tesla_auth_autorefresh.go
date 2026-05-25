@@ -93,8 +93,9 @@ func teslaShouldUseFleetForReads(cfg *config.Config) bool {
 		return false
 	}
 	// Never affects users who haven't set up Fleet (e.g. pre-2021 cars on the
-	// owner-api read path).
-	if cfg.Fleet.AccessToken == "" {
+	// owner-api read path). TESLA_FLEET_TOKEN counts as Fleet being configured,
+	// matching AuthHeader() and the other Fleet surfaces.
+	if cfg.Fleet.AccessToken == "" && os.Getenv("TESLA_FLEET_TOKEN") == "" {
 		return false
 	}
 	switch os.Getenv("TESLA_PP_FORCE_FLEET_READS") {
@@ -108,6 +109,14 @@ func teslaShouldUseFleetForReads(cfg *config.Config) bool {
 	// owner-api token that hasn't expired. A stale owner-api token — the common
 	// leftover after moving a 2021+ car to Fleet, often persisted with a zero
 	// expiry — must not block Fleet reads.
+	//
+	// Known limitation: this is a per-install decision, not per-vehicle. A
+	// mixed account (a pre-2021 car still on owner-api plus a 2021+/non-NA car
+	// that only works via Fleet) with a *valid* owner token will route every
+	// read through owner-api, leaving the Fleet-only car unreadable. Resolving
+	// it properly needs per-vehicle year/region knowledge; until then
+	// TESLA_PP_FORCE_FLEET_READS=1 forces Fleet. Owner-api is broadly retired,
+	// so this is rare in practice.
 	ownerUsable := cfg.AuthHeaderVal != "" || cfg.TeslaAuthToken != "" ||
 		(cfg.AccessToken != "" && cfg.TokenExpiry.After(time.Now()))
 	return !ownerUsable
@@ -143,6 +152,9 @@ func makeTeslaFleetRefreshCallback(cfg *config.Config) func() (string, error) {
 			return "", fmt.Errorf("no Fleet refresh token available; run 'tesla auth fleet-login' first")
 		}
 		effClientID := firstNonEmpty(os.Getenv("TESLA_FLEET_CLIENT_ID"), ft.ClientID)
+		if effClientID == "" {
+			return "", fmt.Errorf("no Fleet client_id available for refresh; run 'tesla auth fleet-register' first")
+		}
 		tokenURL := fleetTokenURL
 		if base := os.Getenv("TESLA_FLEET_AUTH_URL"); base != "" {
 			tokenURL = base + "/oauth2/v3/token"

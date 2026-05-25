@@ -64,12 +64,42 @@ const (
 // the wrong region and HTTP 412 ("must be registered in the current region").
 func fleetAPIBase(cfg *config.Config) string {
 	if v := strings.TrimSpace(os.Getenv("TESLA_FLEET_API_URL")); v != "" {
-		return strings.TrimRight(v, "/")
+		if base := normalizeFleetBase(v); base != "" {
+			return base
+		}
+		fmt.Fprintf(os.Stderr, "warning: ignoring TESLA_FLEET_API_URL=%q (must be https on a tesla.com host)\n", v)
 	}
 	if cfg != nil && cfg.Fleet.APIBase != "" {
-		return strings.TrimRight(cfg.Fleet.APIBase, "/")
+		if base := normalizeFleetBase(cfg.Fleet.APIBase); base != "" {
+			return base
+		}
+		fmt.Fprintf(os.Stderr, "warning: ignoring persisted [fleet].api_base=%q (must be https on a tesla.com host)\n", cfg.Fleet.APIBase)
 	}
 	return fleetAPIAudience
+}
+
+// normalizeFleetBase validates and trims a Fleet API base URL. The Fleet bearer
+// is sent to this host, so an arbitrary value — from a hostile creds bundle, a
+// typo, or a poisoned env var — would be a token-exfiltration vector. Only
+// https:// URLs on a tesla.com host are accepted; returns "" otherwise.
+func normalizeFleetBase(raw string) string {
+	s := strings.TrimRight(strings.TrimSpace(raw), "/")
+	u, err := url.Parse(s)
+	if err != nil || u.Host == "" {
+		return ""
+	}
+	host := u.Hostname()
+	// Loopback is always allowed: a local mock server (tests) or the local
+	// tesla-http-proxy relay can't exfiltrate the bearer off-machine.
+	if host == "localhost" || host == "127.0.0.1" || host == "::1" {
+		return s
+	}
+	// Any remote host must be https on tesla.com — the bearer's only legit
+	// off-machine destination.
+	if u.Scheme == "https" && (host == "tesla.com" || strings.HasSuffix(host, ".tesla.com")) {
+		return s
+	}
+	return ""
 }
 
 // fleetTokenResponse is the shape every Tesla fleet token endpoint returns

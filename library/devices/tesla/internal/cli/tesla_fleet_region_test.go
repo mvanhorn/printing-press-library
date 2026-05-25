@@ -36,7 +36,65 @@ func TestFleetAPIBase(t *testing.T) {
 	})
 }
 
+// TestFleetAPIBaseRejectsHostileHost guards the SSRF/token-exfiltration fix: the
+// Fleet bearer is sent to this base, so non-https or non-tesla.com hosts (from a
+// poisoned env var or a hostile creds bundle) must be ignored, not honored.
+func TestFleetAPIBaseRejectsHostileHost(t *testing.T) {
+	t.Run("hostile env host ignored, falls back to NA", func(t *testing.T) {
+		t.Setenv("TESLA_FLEET_API_URL", "https://evil.example.com")
+		if got := fleetAPIBase(&config.Config{}); got != testNAFleetBase {
+			t.Errorf("hostile env not rejected: got %q", got)
+		}
+	})
+	t.Run("non-https tesla host ignored", func(t *testing.T) {
+		t.Setenv("TESLA_FLEET_API_URL", "http://fleet-api.prd.eu.vn.cloud.tesla.com")
+		if got := fleetAPIBase(&config.Config{}); got != testNAFleetBase {
+			t.Errorf("non-https not rejected: got %q", got)
+		}
+	})
+	t.Run("lookalike host ignored", func(t *testing.T) {
+		t.Setenv("TESLA_FLEET_API_URL", "https://tesla.com.evil.example")
+		if got := fleetAPIBase(&config.Config{}); got != testNAFleetBase {
+			t.Errorf("lookalike host not rejected: got %q", got)
+		}
+	})
+	t.Run("hostile persisted api_base ignored", func(t *testing.T) {
+		t.Setenv("TESLA_FLEET_API_URL", "")
+		cfg := &config.Config{Fleet: config.FleetConfig{APIBase: "https://evil.example.com"}}
+		if got := fleetAPIBase(cfg); got != testNAFleetBase {
+			t.Errorf("hostile persisted base not rejected: got %q", got)
+		}
+	})
+	t.Run("valid eu host accepted", func(t *testing.T) {
+		t.Setenv("TESLA_FLEET_API_URL", testEUFleetBase)
+		if got := fleetAPIBase(&config.Config{}); got != testEUFleetBase {
+			t.Errorf("valid host rejected: got %q", got)
+		}
+	})
+}
+
+// TestTeslaShouldUseFleetForReadsEnvToken verifies TESLA_FLEET_TOKEN alone
+// (no persisted [fleet] token) is enough to route reads through Fleet.
+func TestTeslaShouldUseFleetForReadsEnvToken(t *testing.T) {
+	t.Setenv("TESLA_PP_FORCE_FLEET_READS", "")
+	t.Setenv("TESLA_AUTH_TOKEN", "")
+	t.Run("TESLA_FLEET_TOKEN alone enables fleet reads", func(t *testing.T) {
+		t.Setenv("TESLA_FLEET_TOKEN", "envft")
+		if !teslaShouldUseFleetForReads(&config.Config{}) {
+			t.Error("expected fleet routing with TESLA_FLEET_TOKEN set")
+		}
+	})
+	t.Run("no token and no env stays on owner-api", func(t *testing.T) {
+		t.Setenv("TESLA_FLEET_TOKEN", "")
+		if teslaShouldUseFleetForReads(&config.Config{}) {
+			t.Error("expected no fleet routing")
+		}
+	})
+}
+
 func TestTeslaShouldUseFleetForReads(t *testing.T) {
+	t.Setenv("TESLA_FLEET_TOKEN", "")
+	t.Setenv("TESLA_AUTH_TOKEN", "")
 	future := time.Now().Add(time.Hour)
 	fleetOnly := config.FleetConfig{AccessToken: "ft"}
 	cases := []struct {
