@@ -1122,19 +1122,60 @@ func historyClosestClose(ctx context.Context, db *sql.DB, sym string, target tim
 }
 
 // dividendsInWindow sums dividend per-share amounts paid between start and end.
+// PATCH(greptile-dividends-array-shape): Yahoo dividend payloads land in the
+// resources table either as a single object ({date, amount}) keyed by
+// "<SYM>:<date>", or as an array ([{date, amount}, ...]) keyed by the bare
+// symbol. The previous SQL used json_extract(data, '$.amount'), which silently
+// returned NULL on the array shape and zeroed total return for symbols whose
+// syncer wrote arrays. We now walk rows and parse both shapes, mirroring
+// sumDividendsForSymbol in portfolio_dividends.go.
 func dividendsInWindow(ctx context.Context, db *sql.DB, sym string, start, end time.Time) float64 {
-	q := `
-		SELECT COALESCE(SUM(CAST(COALESCE(json_extract(data, '$.amount'), 0) AS REAL)), 0)
-		FROM resources
+	startStr := start.Format("2006-01-02")
+	endStr := end.Format("2006-01-02")
+	rows, err := db.QueryContext(ctx, `
+		SELECT data FROM resources
 		WHERE resource_type IN ('dividends', 'history_dividends')
-		  AND COALESCE(json_extract(data, '$.symbol'), id) = ?
-		  AND COALESCE(json_extract(data, '$.date'), '') BETWEEN ? AND ?
-	`
-	var sum sql.NullFloat64
-	if err := db.QueryRowContext(ctx, q, sym, start.Format("2006-01-02"), end.Format("2006-01-02")).Scan(&sum); err != nil {
+		  AND (id LIKE ? || ':%' OR id = ? OR COALESCE(json_extract(data, '$.symbol'), '') = ?)
+	`, sym, sym, sym)
+	if err != nil {
 		return 0
 	}
-	return sum.Float64
+	defer rows.Close()
+	total := 0.0
+	for rows.Next() {
+		var raw string
+		if err := rows.Scan(&raw); err != nil {
+			continue
+		}
+		raw = strings.TrimSpace(raw)
+		if raw == "" {
+			continue
+		}
+		if raw[0] == '[' {
+			var arr []struct {
+				Date   string  `json:"date"`
+				Amount float64 `json:"amount"`
+			}
+			if err := json.Unmarshal([]byte(raw), &arr); err == nil {
+				for _, e := range arr {
+					if e.Date >= startStr && e.Date <= endStr {
+						total += e.Amount
+					}
+				}
+			}
+		} else {
+			var single struct {
+				Date   string  `json:"date"`
+				Amount float64 `json:"amount"`
+			}
+			if err := json.Unmarshal([]byte(raw), &single); err == nil {
+				if single.Date >= startStr && single.Date <= endStr {
+					total += single.Amount
+				}
+			}
+		}
+	}
+	return total
 }
 
 func humanMarketCap(v float64) string {

@@ -44,12 +44,24 @@ func newInsidersNetBuyingLeafCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "net-buying",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short:       "Companies with positive insider net-shares in the recent window",
+		Short:       "Companies with positive insider net-shares (requires --all, --watchlist, or seeded watchlist_members)",
 		Long: strings.Trim(`
-For each symbol in a watchlist (or every symbol with locally synced
-insider rows when --all is set), compute net_shares = sum(buys) - sum(sells)
-over the lookback window and rank by net positive. Sells outweigh buys is
-omitted from the response so the ranked list focuses on buying activity.
+For each symbol in the selected universe, compute net_shares = sum(buys) -
+sum(sells) over the lookback window and rank by net positive (sells-outweigh-buys
+symbols are omitted so the list focuses on buying activity).
+
+Symbol-source selection (in priority order):
+
+  --watchlist <name>   Restrict to symbols in that named watchlist.
+  --all                Scan every symbol with locally synced insider data.
+  (neither flag set)   Fall back to every symbol in the watchlist_members
+                       table across all watchlists. On a fresh install with no
+                       watchlists yet this set is empty and the command will
+                       emit "hint: no symbols to scan" — pass --all or
+                       --watchlist to escape that case.
+
+Insider rows must already be synced locally via the spec endpoints; this
+command reads from the resources table and does not call the live API.
 `, "\n"),
 		Example: strings.Trim(`
   yahoo-finance-pp-cli insiders-net-buying --recent 30d --all
@@ -124,8 +136,8 @@ omitted from the response so the ranked list focuses on buying activity.
 		},
 	}
 	cmd.Flags().StringVar(&recent, "recent", "30d", "Lookback window (e.g. 30d, 90d, 6mo)")
-	cmd.Flags().StringVar(&watchlist, "watchlist", "", "Restrict to a watchlist (default: scan all watched symbols)")
-	cmd.Flags().BoolVar(&all, "all", false, "Scan every symbol with locally synced insider rows")
+	cmd.Flags().StringVar(&watchlist, "watchlist", "", "Restrict to a watchlist (default: union of watchlist_members across all watchlists; pass --all to scan every synced symbol)")
+	cmd.Flags().BoolVar(&all, "all", false, "Scan every symbol with locally synced insider rows (overrides --watchlist)")
 	cmd.Flags().IntVar(&limit, "limit", 25, "Maximum rows to return")
 	cmd.Flags().StringVar(&dbPath, "db", "", "Override local SQLite path")
 	return cmd
