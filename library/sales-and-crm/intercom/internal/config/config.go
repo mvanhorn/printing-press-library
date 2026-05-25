@@ -106,17 +106,20 @@ func RegionToBaseURL(region string) (string, bool) {
 	return regionToBaseURL(region)
 }
 
+// AuthHeader returns the Authorization header value for outbound API calls.
+// Pure read — does not mutate AuthSource. Load() is the single writer for
+// AuthSource: it sets "env:INTERCOM_ACCESS_TOKEN" when the env var supplied the
+// token (config.go:56) and "config" when the token came from the on-disk config
+// file (config.go:67-68). Earlier this function unconditionally overwrote
+// AuthSource to "env:INTERCOM_ACCESS_TOKEN" on every call, so doctor reported
+// the wrong credential origin for users who saved via `auth set-token`.
+// A second, byte-for-byte identical `if c.AccessToken != ""` block here was
+// dead code; removed.
 func (c *Config) AuthHeader() string {
 	if c.AuthHeaderVal != "" {
 		return c.AuthHeaderVal
 	}
-	// Env-var token wins over file-stored AccessToken (env > config convention).
 	if c.AccessToken != "" {
-		c.AuthSource = "env:INTERCOM_ACCESS_TOKEN"
-		return "Bearer " + c.AccessToken
-	}
-	if c.AccessToken != "" {
-		c.AuthSource = "oauth2"
 		return "Bearer " + c.AccessToken
 	}
 	return ""

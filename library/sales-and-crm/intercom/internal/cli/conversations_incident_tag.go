@@ -54,7 +54,12 @@ func newConversationsIncidentTagCmd(flags *rootFlags) *cobra.Command {
 						{"field": "updated_at", "operator": ">", "value": sinceEpoch},
 					},
 				},
-				"pagination": map[string]any{"per_page": limit},
+				// per_page is Intercom's max page size (150). The user-supplied --limit
+				// is the across-all-pages safety cap enforced in the pagination loop
+				// below; previously --limit was wired in as per_page and the apply
+				// path silently stopped at the first page, leaving conversations
+				// 101..N un-tagged on large incident windows.
+				"pagination": map[string]any{"per_page": perPageMax(limit)},
 			}
 
 			// Verify-env short-circuit BEFORE any network call (apply or not).
@@ -113,44 +118,82 @@ func newConversationsIncidentTagCmd(flags *rootFlags) *cobra.Command {
 				tagID = resolved
 			}
 
-			// Run search.
-			searchData, _, err := c.Post(cmd.Context(), "/conversations/search", body)
-			if err != nil {
-				return classifyAPIError(err, flags)
+			// Paginated search + tag loop. Intercom's /conversations/search
+			// response carries pages.next.starting_after; iterate until the
+			// cursor is empty OR we hit --limit conversations OR we exhaust
+			// what the search returned. The earlier shipped version only ran
+			// one page, which silently under-tagged whenever total_count
+			// exceeded the per_page cap (~150). The user-supplied --limit is
+			// the all-pages safety cap.
+			type convRow struct {
+				ID        string `json:"id"`
+				State     string `json:"state"`
+				UpdatedAt int64  `json:"updated_at"`
 			}
-			var sr struct {
-				Conversations []struct {
-					ID        string `json:"id"`
-					State     string `json:"state"`
-					UpdatedAt int64  `json:"updated_at"`
-				} `json:"conversations"`
-				TotalCount int `json:"total_count"`
-			}
-			if err := json.Unmarshal(searchData, &sr); err != nil {
-				return apiErr(fmt.Errorf("parsing search response: %w", err))
+			type searchResponse struct {
+				Conversations []convRow `json:"conversations"`
+				TotalCount    int       `json:"total_count"`
+				Pages         struct {
+					Next struct {
+						StartingAfter string `json:"starting_after"`
+					} `json:"next"`
+				} `json:"pages"`
 			}
 
 			tagged := 0
 			failed := 0
+			matched := 0
+			totalHint := 0
 			tagBody := map[string]any{"id": tagID, "admin_id": me.ID}
-			for _, conv := range sr.Conversations {
-				path := "/conversations/" + conv.ID + "/tags"
-				_, _, tagErr := c.Post(cmd.Context(), path, tagBody)
-				if tagErr != nil {
-					failed++
-					fmt.Fprintf(cmd.ErrOrStderr(), "warning: tag %s failed: %v\n", conv.ID, tagErr)
-					continue
+			cursor := ""
+			for {
+				if cursor != "" {
+					// Re-shape pagination on subsequent pages: keep per_page,
+					// add starting_after.
+					body["pagination"] = map[string]any{
+						"per_page":       perPageMax(limit),
+						"starting_after": cursor,
+					}
 				}
-				tagged++
-				fmt.Fprintf(cmd.ErrOrStderr(), "tagged: %s\n", conv.ID)
+				searchData, _, err := c.Post(cmd.Context(), "/conversations/search", body)
+				if err != nil {
+					return classifyAPIError(err, flags)
+				}
+				var sr searchResponse
+				if err := json.Unmarshal(searchData, &sr); err != nil {
+					return apiErr(fmt.Errorf("parsing search response: %w", err))
+				}
+				if totalHint == 0 {
+					totalHint = sr.TotalCount
+				}
+				matched += len(sr.Conversations)
+				for _, conv := range sr.Conversations {
+					if tagged+failed >= limit {
+						break
+					}
+					path := "/conversations/" + conv.ID + "/tags"
+					_, _, tagErr := c.Post(cmd.Context(), path, tagBody)
+					if tagErr != nil {
+						failed++
+						fmt.Fprintf(cmd.ErrOrStderr(), "warning: tag %s failed: %v\n", conv.ID, tagErr)
+						continue
+					}
+					tagged++
+					fmt.Fprintf(cmd.ErrOrStderr(), "tagged: %s\n", conv.ID)
+				}
+				cursor = sr.Pages.Next.StartingAfter
+				if cursor == "" || tagged+failed >= limit {
+					break
+				}
 			}
 
 			summary := map[string]any{
 				"tag":              tagName,
-				"matched":          len(sr.Conversations),
+				"matched":          matched,
 				"tagged":           tagged,
 				"failed":           failed,
-				"total_count_hint": sr.TotalCount,
+				"total_count_hint": totalHint,
+				"limit_reached":    (tagged + failed) >= limit && totalHint > matched,
 			}
 			return printJSONFiltered(cmd.OutOrStdout(), summary, flags)
 		},
@@ -197,4 +240,16 @@ func findTagIDByName(raw json.RawMessage, name string) (string, bool) {
 		}
 	}
 	return "", false
+}
+
+// perPageMax returns the Intercom search per_page cap, bounded by the user's
+// --limit so we don't over-fetch on small queries. Intercom's documented max
+// is 150; anything higher 400s. A --limit of 0 (which Cobra never produces but
+// is safe to guard) falls back to the cap.
+func perPageMax(limit int) int {
+	const intercomSearchPerPageMax = 150
+	if limit <= 0 || limit > intercomSearchPerPageMax {
+		return intercomSearchPerPageMax
+	}
+	return limit
 }
