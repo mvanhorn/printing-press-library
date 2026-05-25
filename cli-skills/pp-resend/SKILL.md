@@ -25,7 +25,7 @@ This skill drives the `resend-pp-cli` binary. **You must verify the CLI is insta
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install resend --cli-only
+   npx -y @mvanhorn/printing-press-library install resend --cli-only
    ```
 2. Verify: `resend-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
@@ -37,8 +37,6 @@ go install github.com/mvanhorn/printing-press-library/library/productivity/resen
 ```
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
-
-The official Resend CLI is fast and one-shot per command; this CLI is the agent-native companion with --json --select --dry-run consistency, FTS5 search over sent emails, and rollups (audiences inventory, broadcasts performance, deliverability summary, contacts where, emails to <recipient>) that exist only because every Resend resource is mirrored locally.
 
 ## When to Use This CLI
 

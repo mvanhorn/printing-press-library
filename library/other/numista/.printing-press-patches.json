@@ -62,6 +62,37 @@
       ],
       "findings_addressed": ["F1", "F2"],
       "validated_outcome": "go build ./... PASS, go vet ./... PASS, go test ./... PASS (TestFuzzyFindCatalogues 9/9 sub-tests including pcgs_locks_to_id=1856_(exact_code)), printing-press publish validate PASS. Live smokes: 'numista-pp-cli catalogues find pcgs' returns id=1856 top hit (no API call); 'numista-pp-cli types search --catalogue 1856 --number 7130' returns N#1492."
+    },
+    {
+      "id": "amend-2026-05-18-quota-stdout-stderr-discipline",
+      "date": "2026-05-18",
+      "amend_run_id": "amend-2026-05-18T2030",
+      "summary": "Route the human --quota line to stderr when any machine-format flag is set (--json, --csv, --compact, --plain, --quiet, --agent, --select, --deliver) or when stdout is not a TTY; keep stdout-on-TTY for the interactive case; --quota-only (JSON) still goes to stdout.",
+      "reason": "AGENTS.md Priority 2 in pp-numista: `numista-pp-cli --quota --json 1>/tmp/out 2>/tmp/err` was writing the `[quota] X/2000 used...` line to /tmp/out, polluting jq / json.loads pipelines with `Extra data: line N column 1`. The PersistentPreRunE --quota short-circuit always wrote to cmd.OutOrStdout(); the pp-CLI agent-mode contract documented in SKILL.md requires human summaries to divert to stderr under any machine-format flag. Mirrors the canonical fix shape landed for pcgs-pp-cli in PR #682. Adds package-private isMachineOutputMode + stdoutIsTerminal helpers plus a TestIsMachineOutputMode table covering every gating flag. PersistentPostRunE was already correct (EmitQuotaLine writes to os.Stderr unconditionally); added a clarifying source comment for symmetry. Direct-input scope from /printing-press-amend numista.",
+      "files": [
+        "internal/cli/root.go",
+        "internal/cli/root_test.go"
+      ],
+      "findings_addressed": [
+        "F1"
+      ],
+      "patch_count": 4,
+      "validated_outcome": "go build ./... && go vet ./... && go test ./internal/cli/... -run TestIsMachineOutputMode all PASS; smoke: `numista-pp-cli --quota --json 2>/dev/null | wc -c` returns 0."
+    },
+    {
+      "id": "issuer-discovery-and-types-search-help",
+      "summary": "Add 'issuers find' subcommand, suggest issuer slugs on HTTP 400, append slug-convention + filter-combo tip to 'types search --help', and a PCGS cert cookbook entry.",
+      "reason": "AGENTS.md Priority 1 + Priority 3 + Priority 4#3 — pp-numista session friction on PCGS-inventory enrichment showed agents waste quota guessing the underscore-vs-hyphen issuer slug, can't fuzzy-search a 127K-line issuer dump, and don't get help-text that nudges toward narrowing flags. All edits are hand-written and local-only; the error suggestion path never spends a quota call.",
+      "files": [
+        "internal/cli/issuers_amend.go",
+        "internal/cli/issuers_amend_test.go",
+        "internal/cli/types_search_amend.go",
+        "internal/cli/root.go",
+        "SKILL.md"
+      ],
+      "findings_addressed": ["F1", "F2", "F3", "F4", "F5", "F6", "greptile-p1-quiet"],
+      "patch_count": 4,
+      "validated_outcome": "Greptile P1: renderIssuersFind now early-returns on --quiet before the CSV/auto-JSON/human-table branches, so --quiet (incl. --json --quiet) suppresses all stdout per printOutputWithFlags' contract. TestRenderIssuersFindQuiet (3 modes) + TestRenderIssuersFindEmitsWhenNotQuiet PASS."
     }
   ]
 }

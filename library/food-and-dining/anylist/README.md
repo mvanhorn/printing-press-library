@@ -6,22 +6,40 @@ The CLI syncs your shopping lists, recipes, and meal plan to a local SQLite data
 
 ## Install
 
-The recommended path installs both the `anylist-pp-cli` binary and the `pp-anylist` agent skill in one shot:
+The recommended path installs both the `anylist-pp-cli` binary and the `pp-anylist` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
 
 ```bash
-npx -y @mvanhorn/printing-press install anylist
+npx -y @mvanhorn/printing-press-library install anylist
 ```
 
 For CLI only (no skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install anylist --cli-only
+npx -y @mvanhorn/printing-press-library install anylist --cli-only
 ```
 
+For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
 
-### Without Node
+```bash
+npx -y @mvanhorn/printing-press-library install anylist --skill-only
+```
 
-The generated install path is category-agnostic until this CLI is published. If `npx` is not available before publish, install Node or use the category-specific Go fallback from the public-library entry after publish.
+To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
+
+```bash
+npx -y @mvanhorn/printing-press-library install anylist --agent claude-code
+npx -y @mvanhorn/printing-press-library install anylist --agent claude-code --agent codex
+```
+
+### Without Node (Go fallback)
+
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.3 or newer):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/food-and-dining/anylist/cmd/anylist-pp-cli@latest
+```
+
+This installs the CLI only — no skill.
 
 ### Pre-built binary
 
@@ -50,6 +68,43 @@ Tell your OpenClaw agent (copy this):
 Install the pp-anylist skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-anylist. The skill defines how its required CLI can be installed.
 ```
 
+## Use with Claude Desktop
+
+This CLI ships an [MCPB](https://github.com/modelcontextprotocol/mcpb) bundle — Claude Desktop's standard format for one-click MCP extension installs (no JSON config required).
+
+To install:
+
+1. Download the `.mcpb` for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/anylist-current).
+2. Double-click the `.mcpb` file. Claude Desktop opens and walks you through the install.
+3. Fill in `ANYLIST_ACCESS_TOKEN` when Claude Desktop prompts you.
+
+Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple Silicon (`darwin-arm64`) and Windows (`amd64`, `arm64`); for other platforms, use the manual config below.
+
+<details>
+<summary>Manual JSON config (advanced)</summary>
+
+If you can't use the MCPB bundle (older Claude Desktop, unsupported platform), install the MCP binary and configure it manually.
+
+
+Install the MCP binary from this CLI's published public-library entry or pre-built release.
+
+Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
+
+```json
+{
+  "mcpServers": {
+    "anylist": {
+      "command": "anylist-pp-mcp",
+      "env": {
+        "ANYLIST_ACCESS_TOKEN": "<your-key>"
+      }
+    }
+  }
+}
+```
+
+</details>
+
 ## Authentication
 
 AnyList uses email + password authentication returning a short-lived access_token and a refresh_token. The CLI stores these in ~/.config/anylist-pp-cli/config.toml and transparently refreshes on 401 responses. All requests require two additional headers: X-AnyLeaf-API-Version: 3 and a stable X-AnyLeaf-Client-Identifier (a 32-char hex UUID generated once per device and reused).
@@ -60,22 +115,17 @@ AnyList uses email + password authentication returning a short-lived access_toke
 # Authenticate with your AnyList email and password
 anylist-pp-cli auth login
 
-
 # Pull all your lists, recipes, and meal plan into the local SQLite cache
 anylist-pp-cli sync
-
 
 # See all your shopping lists
 anylist-pp-cli lists list
 
-
 # Pipe unchecked items to jq for scripting
 anylist-pp-cli items list --list Groceries --unchecked --json | jq '.[].name'
 
-
 # View this week's meal plan as a Mon-Sun grid
 anylist-pp-cli meal summary --week
-
 
 # Preview adding this week's recipe ingredients to your grocery list
 anylist-pp-cli meal add-to-list --week --list Groceries --dry-run
@@ -261,7 +311,6 @@ View and manage stores and store filters
 
 - **`anylist-pp-cli stores`** - List all stores and store filters
 
-
 ## Output Formats
 
 ```bash
@@ -295,69 +344,6 @@ This CLI is designed for AI agent consumption:
 - **Agent-safe by default** - no colors or formatting unless `--human-friendly` is set
 
 Exit codes: `0` success, `2` usage error, `3` not found, `4` auth error, `5` API error, `7` rate limited, `10` config error.
-
-## Use with Claude Code
-
-Install the focused skill — it auto-installs the CLI on first invocation:
-
-```bash
-npx skills add mvanhorn/printing-press-library/cli-skills/pp-anylist -g
-```
-
-Then invoke `/pp-anylist <query>` in Claude Code. The skill is the most efficient path — Claude Code drives the CLI directly without an MCP server in the middle.
-
-<details>
-<summary>Use as an MCP server in Claude Code (advanced)</summary>
-
-If you'd rather register this CLI as an MCP server in Claude Code, install the MCP binary first:
-
-
-Install the MCP binary from this CLI's published public-library entry or pre-built release.
-
-Then register it:
-
-```bash
-claude mcp add anylist anylist-pp-mcp -e ANYLIST_ACCESS_TOKEN=<your-token>
-```
-
-</details>
-
-## Use with Claude Desktop
-
-This CLI ships an [MCPB](https://github.com/modelcontextprotocol/mcpb) bundle — Claude Desktop's standard format for one-click MCP extension installs (no JSON config required).
-
-To install:
-
-1. Download the `.mcpb` for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/anylist-current).
-2. Double-click the `.mcpb` file. Claude Desktop opens and walks you through the install.
-3. Fill in `ANYLIST_ACCESS_TOKEN` when Claude Desktop prompts you.
-
-Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple Silicon (`darwin-arm64`) and Windows (`amd64`, `arm64`); for other platforms, use the manual config below.
-
-<details>
-<summary>Manual JSON config (advanced)</summary>
-
-If you can't use the MCPB bundle (older Claude Desktop, unsupported platform), install the MCP binary and configure it manually.
-
-
-Install the MCP binary from this CLI's published public-library entry or pre-built release.
-
-Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
-
-```json
-{
-  "mcpServers": {
-    "anylist": {
-      "command": "anylist-pp-mcp",
-      "env": {
-        "ANYLIST_ACCESS_TOKEN": "<your-key>"
-      }
-    }
-  }
-}
-```
-
-</details>
 
 ## Health Check
 

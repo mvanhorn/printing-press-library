@@ -24,7 +24,7 @@ This skill drives the `pop-pp-cli` binary. **You must verify the CLI is installe
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install pop --cli-only
+   npx -y @mvanhorn/printing-press-library install pop --cli-only
    ```
 2. Verify: `pop-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
@@ -36,28 +36,6 @@ go install github.com/mvanhorn/printing-press-library/library/payments/pop/cmd/p
 ```
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
-
-POP API for European electronic invoicing workflows.
-
-This Printing Press blueprint intentionally exposes only the documented
-8-operation surface used by the POP MCP README at
-`getpopapi/pop-mcp@07a4a19ad5e657fa94d16fe617b8288e5046c489`:
-
-  - create-xml
-  - create-ubl
-  - create-pdf
-  - sdi-via-pop/document-notifications
-  - peppol/document-get
-  - sdi-via-pop/document-get
-  - sdi-via-pop/document-verify
-  - sdi-via-pop/document-preserve
-
-The `data` payloads are intentionally modeled as free-form JSON objects so
-the CLI can pass through the full POP invoice structure without freezing a
-brittle nested schema in this catalog spec.
-
-Upstream POP MCP changes should be reviewed periodically and intentionally
-synced into this print when the documented public surface evolves.
 
 ## Command Reference
 

@@ -1,0 +1,51 @@
+version: 2
+project_name: strava-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: strava-pp-cli
+    main: ./cmd/strava-pp-cli
+    binary: strava-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/productivity/strava/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: strava-pp-mcp
+    main: ./cmd/strava-pp-mcp
+    binary: strava-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: strava-pp-cli
+    repository:
+      owner: azaaron
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Every Strava feature, plus offline analytics — training load, power curves, zone time"
+    install: |
+      bin.install "strava-pp-cli"
+      bin.install "strava-pp-mcp"

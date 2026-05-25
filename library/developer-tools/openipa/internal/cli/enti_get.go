@@ -20,7 +20,7 @@ func newEntiGetCmd(flags *rootFlags) *cobra.Command {
 		Use:         "get",
 		Short:       "Dati anagrafici completi di un ente per codice IPA",
 		Example:     "  openipa-pp-cli enti get --codice example-value",
-		Annotations: map[string]string{"pp:endpoint": "enti.get", "pp:method": "POST", "pp:path": "/WS05_AMM.php", "mcp:read-only": "true"},
+		Annotations: map[string]string{"pp:endpoint": "enti.get", "pp:method": "POST", "pp:path": "/ws/WS05AMMServices/api/WS05_AMM", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {
 				if !cmd.Flags().Changed("codice") && !flags.dryRun {
@@ -32,7 +32,7 @@ func newEntiGetCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 
-			path := "/WS05_AMM.php"
+			path := "/ws/WS05AMMServices/api/WS05_AMM"
 			var body map[string]any
 			if stdinBody {
 				stdinData, err := io.ReadAll(os.Stdin)

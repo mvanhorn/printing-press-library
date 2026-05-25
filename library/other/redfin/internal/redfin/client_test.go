@@ -77,7 +77,8 @@ func TestBuildSearchParams_UIPropertyTypes(t *testing.T) {
 const fixtureSearchResponse = `{}&&{"version":1,"errorMessage":"Success","resultCode":0,"payload":{"homes":[
   {"propertyId":12345,"listingId":67890,"url":"/TX/Austin/123-Main-St-78704/home/12345","mlsStatus":"Active",
    "price":{"value":499000,"level":1},"beds":3,"baths":2,"sqFt":{"value":1500,"level":1},
-   "yearBuilt":{"value":1995,"level":1},"hoa":{"value":0,"level":1},"dom":{"value":7,"level":1},
+   "lotSize":{"value":7200,"level":1},"yearBuilt":{"value":1995,"level":1},
+   "uiPropertyType":1,"hoa":{"value":0,"level":1},"dom":{"value":7,"level":1},
    "streetLine":{"value":"123 Main St"},"city":"Austin","state":"TX","postalCode":"78704",
    "latitude":30.25,"longitude":-97.75,"timeOnRedfin":"P7D","mlsId":{"value":"MLS-1"}},
   {"propertyId":99,"listingId":1,"url":"/TX/Austin/foo/home/99","mlsStatus":"Sold",
@@ -108,6 +109,12 @@ func TestParseSearchResponse(t *testing.T) {
 	}
 	if first.Sqft != 1500 {
 		t.Errorf("Sqft = %d, want 1500", first.Sqft)
+	}
+	if first.LotSize != 7200 {
+		t.Errorf("LotSize = %d, want 7200", first.LotSize)
+	}
+	if first.UIPropertyType != 1 {
+		t.Errorf("UIPropertyType = %d, want 1", first.UIPropertyType)
 	}
 	if first.Status != "Active" {
 		t.Errorf("Status = %q, want Active", first.Status)
@@ -208,12 +215,16 @@ func TestParseListingDetail(t *testing.T) {
 }
 
 const fixtureTrends = `{}&&{"version":1,"errorMessage":"Success","resultCode":0,"payload":{
-  "months":[
-    {"period":"2025-01","medianSalePrice":500000,"medianListPrice":510000,"medianDom":15,
-     "monthsOfSupply":2.1,"medianSaleListRatio":0.98,"activeListings":120},
-    {"period":"2025-02","medianSalePrice":505000,"medianListPrice":515000,"medianDom":12,
-     "monthsOfSupply":1.9,"medianSaleListRatio":0.99,"activeListings":135}
-  ]
+  "medianSalePrice":"$500K",
+  "medianListPrice":"$510K",
+  "medianSalePerSqFt":"$333",
+  "medianListPerSqFt":"$340",
+  "avgDaysOnMarket":"22",
+  "medianDom":"15",
+  "numHomesOnMarket":"120",
+  "avgNumOffers":"3",
+  "yoySalePerSqft":"-2.3%",
+  "yoyMedianSalePrice":"4.5%"
 }}`
 
 func TestParseTrendsResponse(t *testing.T) {
@@ -221,10 +232,10 @@ func TestParseTrendsResponse(t *testing.T) {
 	if err != nil {
 		t.Fatalf("ParseTrendsResponse: %v", err)
 	}
-	// 2 months × 6 metrics = 12 rows
-	if len(rows) != 12 {
-		t.Fatalf("rows len = %d, want 12", len(rows))
+	if len(rows) != 10 {
+		t.Fatalf("rows len = %d, want 10", len(rows))
 	}
+	got := map[string]float64{}
 	for _, r := range rows {
 		if r.Region != "Austin, TX" {
 			t.Errorf("Region = %q, want Austin, TX", r.Region)
@@ -234,6 +245,23 @@ func TestParseTrendsResponse(t *testing.T) {
 		}
 		if r.Month == "" {
 			t.Errorf("Month should not be empty")
+		}
+		got[r.Metric] = r.Value
+	}
+	for metric, want := range map[string]float64{
+		"median_sale":           500000,
+		"median_list":           510000,
+		"median_sale_per_sqft":  333,
+		"median_list_per_sqft":  340,
+		"avg_days_on_market":    22,
+		"median_dom":            15,
+		"active_count":          120,
+		"avg_num_offers":        3,
+		"yoy_sale_per_sqft_pct": -2.3,
+		"yoy_median_sale_pct":   4.5,
+	} {
+		if got[metric] != want {
+			t.Errorf("%s = %v, want %v", metric, got[metric], want)
 		}
 	}
 }

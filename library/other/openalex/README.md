@@ -11,26 +11,26 @@ Printed by [@hiten-shah](https://github.com/hiten-shah) (Hiten Shah).
 The recommended path installs both the `openalex-pp-cli` binary and the `pp-openalex` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
 
 ```bash
-npx -y @mvanhorn/printing-press install openalex
+npx -y @mvanhorn/printing-press-library install openalex
 ```
 
 For CLI only (no skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install openalex --cli-only
+npx -y @mvanhorn/printing-press-library install openalex --cli-only
 ```
 
 For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install openalex --skill-only
+npx -y @mvanhorn/printing-press-library install openalex --skill-only
 ```
 
 To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
 
 ```bash
-npx -y @mvanhorn/printing-press install openalex --agent claude-code
-npx -y @mvanhorn/printing-press install openalex --agent claude-code --agent codex
+npx -y @mvanhorn/printing-press-library install openalex --agent claude-code
+npx -y @mvanhorn/printing-press-library install openalex --agent claude-code --agent codex
 ```
 
 ### Without Node (Go fallback)

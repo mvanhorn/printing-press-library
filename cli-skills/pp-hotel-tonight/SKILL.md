@@ -29,7 +29,7 @@ This skill drives the `hotel-tonight-pp-cli` binary. **You must verify the CLI i
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install hotel-tonight --cli-only
+   npx -y @mvanhorn/printing-press-library install hotel-tonight --cli-only
    ```
 2. Verify: `hotel-tonight-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
@@ -41,8 +41,6 @@ go install github.com/mvanhorn/printing-press-library/library/travel/hotel-tonig
 ```
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
-
-HotelTonight's deals are deliberately ephemeral and geo-local: they appear, drop, and vanish, and you only ever see now, here. This CLI syncs the anonymous deal feed into a local SQLite store and snapshots prices over time, so you (or an agent) can watch a city for drops, see a hotel's real price history, and get an objective cheap/typical/expensive verdict — none of which the app supports.
 
 ## When to Use This CLI
 

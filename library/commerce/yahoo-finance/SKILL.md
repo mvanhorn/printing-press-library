@@ -24,7 +24,7 @@ This skill drives the `yahoo-finance-pp-cli` binary. **You must verify the CLI i
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install yahoo-finance --cli-only
+   npx -y @mvanhorn/printing-press-library install yahoo-finance --cli-only
    ```
 2. Verify: `yahoo-finance-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.

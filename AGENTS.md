@@ -262,12 +262,15 @@ The repo is public, the package is published, and `npx -y @mvanhorn/printing-pre
 
 Single rule: **bump `npm/package.json`'s `version` field in your release PR.** Everything else is automated.
 
+An npm version bump is required for any PR that changes files that ship in, build, or document the npm package: `npm/src/**`, `npm/bin/**`, `npm/package.json`, `npm/package-lock.json`, `npm/README.md`, `npm/CHANGELOG.md`, `npm/LICENSE`, or `npm/tsconfig.json`. Tests-only changes under `npm/tests/**` do not need a bump. The `verify-npm-version-bump.yml` workflow enforces this at PR time so npm package behavior does not merge to `main` without a publishable version change.
+
 When a PR that bumps the version merges to `main`:
 
 1. `.github/workflows/auto-tag-npm.yml` detects the version change and pushes a matching `npm-v<version>` tag.
-2. `.github/workflows/npm-publish.yml` triggers on the tag push, runs tests + build, and publishes via OIDC Trusted Publishing with a provenance attestation.
+2. The same auto-tag workflow dispatches `.github/workflows/npm-publish.yml` for that tag. Tag pushes made by `GITHUB_TOKEN` do not trigger a second workflow run by themselves, so the explicit dispatch is the release handoff.
+3. `.github/workflows/npm-publish.yml` runs tests + build, and publishes via OIDC Trusted Publishing with a provenance attestation.
 
-End-to-end: PR → review → merge → tag → publish, with no manual steps after merge.
+End-to-end: PR → review → merge → tag → dispatched publish, with no manual steps after merge.
 
 **What does NOT trigger a release:**
 
@@ -278,7 +281,7 @@ End-to-end: PR → review → merge → tag → publish, with no manual steps af
 | `registry.json` | Fetched live by the installer; auto-regenerated post-merge with `[skip ci]` |
 | Root `README.md` / `AGENTS.md` / `CONTRIBUTING.md` | Repo docs, not in the npm tarball |
 | `.github/workflows/**` | CI infra, not in the tarball |
-| `npm/README.md` alone (no version bump) | The npmjs.com page only refreshes on republish; bump a patch version intentionally if you want it updated |
+| `npm/tests/**` only | Test coverage for the npm package, not published package behavior |
 | Bot regen commits with `[skip ci]` | Skipped by GitHub Actions |
 
 The single source of truth is `npm/package.json`'s `version`. If it didn't change in the merge to `main`, nothing publishes.

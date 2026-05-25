@@ -687,6 +687,100 @@ func TestAdaptiveLimiter_WaitEnforcesPacing(t *testing.T) {
 	}
 }
 
+func TestAdaptiveLimiter_SetRateNilSafe(t *testing.T) {
+	var l *AdaptiveLimiter
+	l.SetRate(2.0)
+	l.SetRate(0)
+	l.SetRate(-1)
+	if got := l.Rate(); got != 0 {
+		t.Errorf("nil limiter Rate() = %v, want 0", got)
+	}
+}
+
+func TestAdaptiveLimiter_SetRateAdjustsPace(t *testing.T) {
+	l := NewAdaptiveLimiter(0.5)
+	l.SetRate(20.0)
+	l.Wait()
+	start := time.Now()
+	l.Wait()
+	elapsed := time.Since(start)
+	if elapsed > 80*time.Millisecond {
+		t.Errorf("after SetRate(20.0), second Wait() took %v, want < 80ms", elapsed)
+	}
+	if got := l.Rate(); got != 20.0 {
+		t.Errorf("Rate() = %v, want 20.0 after SetRate(20.0)", got)
+	}
+}
+
+func TestAdaptiveLimiter_SetRateZeroDisables(t *testing.T) {
+	l := NewAdaptiveLimiter(0.5)
+	l.SetRate(0)
+	l.Wait()
+	start := time.Now()
+	for i := 0; i < 10; i++ {
+		l.Wait()
+	}
+	elapsed := time.Since(start)
+	if elapsed > 100*time.Millisecond {
+		t.Errorf("10 Wait() calls after SetRate(0) took %v, want immediate (< 100ms)", elapsed)
+	}
+}
+
+func TestAdaptiveLimiter_SetRateNegativeDisables(t *testing.T) {
+	l := NewAdaptiveLimiter(2.0)
+	l.SetRate(-3.0)
+	start := time.Now()
+	l.Wait()
+	l.Wait()
+	if elapsed := time.Since(start); elapsed > 50*time.Millisecond {
+		t.Errorf("Wait after SetRate(-3) took %v, want immediate", elapsed)
+	}
+}
+
+func TestAdaptiveLimiter_SetRateReenablesAfterDisable(t *testing.T) {
+	l := NewAdaptiveLimiter(0.5)
+	l.SetRate(0) // disables the limiter
+	l.Wait()     // no-op while disabled; does NOT update lastRequest
+	l.SetRate(10.0)
+	l.Wait() // first call after re-enable: lastRequest is still zero, returns immediately
+	start := time.Now()
+	l.Wait() // second call: enforces 100ms pacing at 10 rps
+	elapsed := time.Since(start)
+	if elapsed < 80*time.Millisecond {
+		t.Errorf("re-enabled Wait() took %v, want >= 80ms (10rps pacing)", elapsed)
+	}
+}
+
+func TestAdaptiveLimiter_SetRateClearsCeiling(t *testing.T) {
+	l := NewAdaptiveLimiter(8.0)
+	l.OnRateLimit() // sets ceiling = 8, rate = 4
+	l.SetRate(20.0)
+	if l.ceiling != 0 {
+		t.Errorf("SetRate did not clear ceiling: got %v, want 0", l.ceiling)
+	}
+	if got := l.Rate(); got != 20.0 {
+		t.Errorf("Rate() = %v after SetRate(20), want 20", got)
+	}
+}
+
+func TestAdaptiveLimiter_SetRateConcurrent(t *testing.T) {
+	// Goal: SetRate is safe when called concurrently with Wait/OnSuccess.
+	// Verified by go test -race; this test exercises the surface.
+	l := NewAdaptiveLimiter(5.0)
+	done := make(chan struct{})
+	go func() {
+		for i := 0; i < 200; i++ {
+			l.Wait()
+		}
+		close(done)
+	}()
+	for i := 0; i < 50; i++ {
+		l.SetRate(float64(i%10 + 1))
+		l.OnSuccess()
+	}
+	<-done
+}
+
 func TestRateLimitError_ErrorMessage(t *testing.T) {
 	cases := []struct {
 		name string

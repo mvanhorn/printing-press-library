@@ -20,7 +20,7 @@ func newDomicilioUoCmd(flags *rootFlags) *cobra.Command {
 		Use:         "uo",
 		Short:       "Domicilio digitale attivo di una UO per codice univoco",
 		Example:     "  openipa-pp-cli domicilio uo --codice-uni example-value",
-		Annotations: map[string]string{"pp:endpoint": "domicilio.uo", "pp:method": "POST", "pp:path": "/WS10_DOM_DIG_OU.php"},
+		Annotations: map[string]string{"pp:endpoint": "domicilio.uo", "pp:method": "POST", "pp:path": "/ws/WS10DOMDIGOUServices/api/WS10_DOM_DIG_OU"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {
 				if !cmd.Flags().Changed("codice-uni") && !flags.dryRun {
@@ -32,7 +32,7 @@ func newDomicilioUoCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 
-			path := "/WS10_DOM_DIG_OU.php"
+			path := "/ws/WS10DOMDIGOUServices/api/WS10_DOM_DIG_OU"
 			var body map[string]any
 			if stdinBody {
 				stdinData, err := io.ReadAll(os.Stdin)

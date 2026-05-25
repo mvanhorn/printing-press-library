@@ -38,6 +38,14 @@ name: Verify library conventions
 # 5. Prebuilt MCPB/native binary payloads must not be committed under
 #    library/. Release assets are built from source in GitHub Actions,
 #    then published from that workflow.
+#
+# 6. Newly added library CLIs must have been printed by cli-printing-press
+#    v4.10.0 or newer. That release renamed the generator binary from
+#    `printing-press` to `cli-printing-press`; stale local generator
+#    checkouts and skill installs should fail with direct upgrade
+#    instructions instead of publishing ambiguous old artifacts. Existing
+#    published CLIs can still receive narrow bugfixes even when their
+#    historical manifest records an older Printing Press version.
 
 on:
   pull_request:
@@ -97,6 +105,7 @@ jobs:
           for path in \
             .github/scripts/verify-attribution \
             .github/scripts/verify-binary-payload \
+            .github/scripts/verify-press-version \
             .github/scripts/verify-publish-package \
             tools/generate-registry
           do
@@ -201,6 +210,14 @@ jobs:
         run: |
           set -euo pipefail
           python3 .github/scripts/verify-binary-payload/verify_binary_payload.py --base-ref "${BASE_REMOTE_REF}"
+
+      - name: Require current cli-printing-press for new CLIs
+        if: github.event_name == 'pull_request'
+        env:
+          BASE_REMOTE_REF: ${{ steps.base.outputs.ref }}
+        run: |
+          set -euo pipefail
+          python3 .github/scripts/verify-press-version/verify_press_version.py --base-ref "${BASE_REMOTE_REF}"
 
       - name: go.mod module path matches directory
         run: |

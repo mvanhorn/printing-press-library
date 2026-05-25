@@ -29,7 +29,7 @@ This skill drives the `twilio-pp-cli` binary. **You must verify the CLI is insta
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install twilio --cli-only
+   npx -y @mvanhorn/printing-press-library install twilio --cli-only
    ```
 2. Verify: `twilio-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
@@ -41,8 +41,6 @@ go install github.com/mvanhorn/printing-press-library/library/social-and-messagi
 ```
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
-
-Twilio's official CLI is a thin Node wrapper with 1–3 second cold start and no local cache. This CLI syncs your Messages, Calls, Recordings, UsageRecords, and IncomingPhoneNumbers into a local SQLite store you can grep, SQL, and aggregate offline. It ships every v2010 endpoint as a typed Cobra command, plus 12 novel features the Twilio ecosystem does not have: delivery-failure breakdowns, subaccount spend matrices, call-trace stitches, TCPA opt-out checks, idle-number reclamation, webhook-orphan audits, and more.
 
 ## When to Use This CLI
 

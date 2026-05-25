@@ -45,7 +45,7 @@ brews:
       owner: joltsconsulting
       name: homebrew-tap
     homepage: "https://github.com/mvanhorn/printing-press-library"
-    description: "Every Admin By Request portal action, plus a local SQLite mirror of audit, events, inventory and requests for ad-hoc..."
+    description: "Sync Admin By Request audit, event, inventory, and elevation-request data for approvals, quota checks, and admin-risk reports."
     install: |
       bin.install "adminbyrequest-pp-cli"
       bin.install "adminbyrequest-pp-mcp"

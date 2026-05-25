@@ -16,6 +16,7 @@ export interface RegistryEntry {
   category: string;
   api: string;
   description: string;
+  search_terms?: string[];
   path: string;
   mcp?: MCPBlock;
 }
@@ -66,14 +67,14 @@ export function parseRegistry(
           ? raw.name
           : `(unnamed at index ${i})`;
       const message = error instanceof Error ? error.message : String(error);
-      warn(`[printing-press] skipping malformed registry entry: ${name}: ${message}`);
+      warn(`[printing-press-library] skipping malformed registry entry: ${name}: ${message}`);
       skipped++;
     }
   }
   if (skipped > 0) {
     const word = skipped === 1 ? "entry" : "entries";
     warn(
-      `[printing-press] skipped ${skipped} malformed registry ${word}; install/search may be missing items.`,
+      `[printing-press-library] skipped ${skipped} malformed registry ${word}; install/search may be missing items.`,
     );
   }
 
@@ -149,6 +150,7 @@ function parseRegistryEntry(value: unknown): RegistryEntry {
     category: requiredString(value, "category"),
     api: requiredString(value, "api"),
     description: requiredString(value, "description"),
+    search_terms: optionalStringArray(value, "search_terms"),
     path: requiredString(value, "path"),
   };
 
@@ -200,6 +202,24 @@ function requiredStringArray(value: Record<string, unknown>, key: string): strin
     out.push(item);
   }
   return out;
+}
+
+function optionalStringArray(value: Record<string, unknown>, key: string): string[] | undefined {
+  const raw = value[key];
+  if (raw === undefined || raw === null) {
+    return undefined;
+  }
+  if (!Array.isArray(raw)) {
+    throw new Error(`registry entry has non-array field: ${key}`);
+  }
+  const out: string[] = [];
+  for (const item of raw) {
+    if (typeof item !== "string" || item.trim() === "") {
+      throw new Error(`registry entry has non-string value in array field: ${key}`);
+    }
+    out.push(item);
+  }
+  return out.length > 0 ? out : undefined;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

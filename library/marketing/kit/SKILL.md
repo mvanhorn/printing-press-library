@@ -24,7 +24,7 @@ This skill drives the `kit-pp-cli` binary. **You must verify the CLI is installe
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install kit --cli-only
+   npx -y @mvanhorn/printing-press-library install kit --cli-only
    ```
 2. Verify: `kit-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
@@ -36,8 +36,6 @@ go install github.com/mvanhorn/printing-press-library/library/marketing/kit/cmd/
 ```
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
-
-
 
 ## Agentic Kit Workflows
 

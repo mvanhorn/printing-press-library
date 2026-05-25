@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-24T02:35:12Z",
+  "printing_press_version": "4.13.0",
+  "api_name": "chrome-history",
+  "display_name": "Chrome History",
+  "cli_name": "chrome-history-pp-cli",
+  "owner": "vinnypasceri",
+  "printer": "vinnyp",
+  "printer_name": "Vinny Pasceri",
+  "spec_format": "sqlite",
+  "run_id": "20260524-023512",
+  "description": "Query local Chrome browsing history from a snapshot index; no remote API spec.",
+  "mcp_binary": "chrome-history-pp-mcp",
+  "mcp_tool_count": 19,
+  "mcp_public_tool_count": 19,
+  "mcp_ready": "full",
+  "api_version": "local",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Chrome Journeys Topic Clusters",
+      "command": "journeys",
+      "description": "Surfaces Chrome's own Journeys topic clusters from local history databases."
+    },
+    {
+      "name": "Session Timeline Reconstruction",
+      "command": "timeline",
+      "description": "Reconstructs session-level browsing timelines using timestamp gaps and device filters."
+    },
+    {
+      "name": "Rabbithole Drift Detection",
+      "command": "rabbitholes",
+      "description": "Detects sessions that drift from productive starts into distracting browsing patterns."
+    }
+  ]
+}

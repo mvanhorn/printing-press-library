@@ -45,7 +45,7 @@ brews:
       owner: magoo242
       name: homebrew-tap
     homepage: "https://github.com/mvanhorn/printing-press-library"
-    description: "An agent-native CLI for SEC EDGAR — six sanctioned endpoints, SQLite-cached filings with FTS5, and LODESTAR-shaped..."
+    description: "Fetch SEC EDGAR filings, insider activity, XBRL facts, and cached filing search results with agent-friendly output."
     install: |
       bin.install "edgar-pp-cli"
       bin.install "edgar-pp-mcp"

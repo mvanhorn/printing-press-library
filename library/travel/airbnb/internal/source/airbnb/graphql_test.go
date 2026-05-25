@@ -8,6 +8,90 @@ import (
 	"testing"
 )
 
+func TestBuildCookieHeader_Multiple(t *testing.T) {
+	cookies := []*http.Cookie{
+		{Name: "session", Value: "abc"},
+		{Name: "csrf", Value: "xyz"},
+	}
+	got := buildCookieHeader(cookies)
+	want := "session=abc; csrf=xyz"
+	if got != want {
+		t.Errorf("buildCookieHeader = %q, want %q", got, want)
+	}
+}
+
+func TestBuildCookieHeader_Empty(t *testing.T) {
+	if got := buildCookieHeader(nil); got != "" {
+		t.Errorf("buildCookieHeader(nil) = %q, want empty", got)
+	}
+	if got := buildCookieHeader([]*http.Cookie{}); got != "" {
+		t.Errorf("buildCookieHeader([]) = %q, want empty", got)
+	}
+}
+
+func TestBuildCookieHeader_SkipsNilAndEmptyName(t *testing.T) {
+	cookies := []*http.Cookie{
+		nil,
+		{Name: "", Value: "ignored"},
+		{Name: "ok", Value: "v"},
+	}
+	got := buildCookieHeader(cookies)
+	if !strings.Contains(got, "ok=v") || strings.Contains(got, "ignored") {
+		t.Errorf("buildCookieHeader = %q, want only ok=v", got)
+	}
+}
+
+func TestPriceBreakdownFromAnySkipsLegacyFeesWhenStructuredFeesExist(t *testing.T) {
+	root := map[string]any{
+		"pdpPresentation": map[string]any{
+			"bookIt": map[string]any{
+				"structuredDisplayPrice": map[string]any{
+					"primaryLine": map[string]any{"price": "$200"},
+					"explanationData": map[string]any{
+						"priceDetails": []any{
+							map[string]any{
+								"items": []any{
+									map[string]any{"description": "Cleaning fee", "priceString": "$25"},
+									map[string]any{"description": "Service fee", "priceString": "$30"},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		"legacyFees": []any{
+			map[string]any{"label": "Cleaning fee", "amount": float64(25)},
+			map[string]any{"label": "Service fee", "amount": float64(30)},
+		},
+	}
+
+	got := priceBreakdownFromAny(root)
+	if got.Fees["cleaning"] != 25 {
+		t.Fatalf("cleaning fee = %v, want structured fee only", got.Fees["cleaning"])
+	}
+	if got.Fees["service"] != 30 {
+		t.Fatalf("service fee = %v, want structured fee only", got.Fees["service"])
+	}
+}
+
+func TestPriceBreakdownFromAnyLegacySubtotalDoesNotSetTotal(t *testing.T) {
+	root := map[string]any{
+		"legacyFees": []any{
+			map[string]any{"label": "Subtotal", "amount": float64(120)},
+			map[string]any{"label": "Total", "amount": float64(150)},
+		},
+	}
+
+	got := priceBreakdownFromAny(root)
+	if got.Subtotal != 120 {
+		t.Fatalf("Subtotal = %v, want 120", got.Subtotal)
+	}
+	if got.Total != 150 {
+		t.Fatalf("Total = %v, want 150", got.Total)
+	}
+}
+
 // TestParseAPIKeyFromSSR confirms the regex extracts the api_config key
 // embedded in airbnb.com SSR HTML.
 func TestParseAPIKeyFromSSR(t *testing.T) {

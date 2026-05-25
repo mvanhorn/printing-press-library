@@ -18,15 +18,13 @@ metadata:
 
 # airframe — Printing Press CLI
 
-Aircraft forensics from open public data. **Two distinct data tiers — understand which one the user's question needs before doing anything.**
-
 ## Prerequisites: Install the CLI
 
 This skill drives the `airframe-pp-cli` binary. **You must verify the CLI is installed before invoking any command from this skill.** If it is missing, install it first:
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install airframe --cli-only
+   npx -y @mvanhorn/printing-press-library install airframe --cli-only
    ```
 2. Verify: `airframe-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
@@ -38,8 +36,6 @@ go install github.com/mvanhorn/printing-press-library/library/developer-tools/ai
 ```
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
-
-For Tier 2 (NTSB accident data) you'll also need the `mdbtools` package — `airframe-pp-cli doctor` reports whether it's detected and gives the install command for your OS. Tier 1 (FAA registry) works without it.
 
 ## The two-tier model (read this first, every invocation)
 

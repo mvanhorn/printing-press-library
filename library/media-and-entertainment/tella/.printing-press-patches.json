@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "applied_at": "2026-05-10",
+  "applied_at": "2026-05-16",
   "base_run_id": "20260509-180956",
   "base_printing_press_version": "4.2.1",
   "patches": [
@@ -18,30 +18,57 @@
       "id": "format-flag-routing-and-helpers",
       "summary": "Add unwrapResultsArray, unwrapSingleEnvelope, printQuiet, printPlain helpers; route --csv/--quiet/--plain above the piped JSON gate; unwrap envelopes before --select/--compact.",
       "reason": "The generated gate `flags.asJSON || !isTerminal()` short-circuited explicit format flags when stdout was piped (the agent / shell case). printOutputWithFlags also fed CSV/plain renderers an envelope-shaped JSON instead of a flat array. --quiet was silent despite docs saying 'one value per line'. --plain had no renderer at all.",
-      "files": [
-        "internal/cli/helpers.go",
-        "internal/cli/videos_list.go"
-      ],
+      "files": ["internal/cli/helpers.go", "internal/cli/videos_list.go"],
       "validated_outcome": "videos list --csv --select id,name | head -3 emits CSV header + 2 rows; videos list --quiet --select id emits one ID per line; videos list --plain --select id,views emits tab-separated rows; videos/playlists/clips get --select id,name returns the populated {id,name} object."
     },
     {
       "id": "usage-exit-codes",
       "summary": "Replace `if len(args) == 0 { return cmd.Help() }` with usageErr; add rejectUnknownSubcommand RunE on parent commands.",
       "reason": "Two related issues: (1) cmd.Help() returns nil so missing positional args silently exited rc=0 in 51 generated commands; (2) parent commands without Run/RunE are non-Runnable in cobra v1.9.1, so `videos garbage` returned flag.ErrHelp (rc=0) before Args validation could run. Fix: make parents Runnable with a RunE that errors on unknown subcommand.",
-      "files": [
-        "internal/cli/helpers.go",
-        "internal/cli/playlists.go"
-      ],
+      "files": ["internal/cli/helpers.go", "internal/cli/playlists.go"],
       "validated_outcome": "playlists update --name x (missing <id>) exits rc=2; videos garbage exits rc=3 with 'unknown command'; bare parent (videos with no subcommand) still exits rc=0 with help; valid subcommands still dispatch."
     },
     {
       "id": "videos-viewed-help-clarity",
       "summary": "Add long-form --help text clarifying that videos viewed sources from the webhook event stream.",
       "reason": "Empty results from videos viewed against a workspace with real views (622 total) was confusing. The rollup is keyed off video.viewed/video.milestone webhook events, not the API counter — empty results don't mean zero views, they mean no view events have hit the inbox yet.",
-      "files": [
-        "internal/cli/videos_viewed.go"
-      ],
+      "files": ["internal/cli/videos_viewed.go"],
       "validated_outcome": "videos viewed --help now explains the data source and points users to wire a webhook endpoint."
+    },
+    {
+      "id": "add-cut-panel-parity",
+      "summary": "Add UI-matching `remove-buffers`, narrow `trim-edges`, and unofficial-API `find-mistakes` commands and `clips edit-pass` flags. Fix the pre-existing silent no-op in `--trim-silences-gt` (extractSilenceRanges field-shape drift + cut-args shape).",
+      "reason": "Tella's Cut panel exposes Remove buffers and Find mistakes that the published CLI didn't cover. Live smoke tests against api.tella.com on 2026-05-16 confirmed both POST shapes return 404 — the public OpenAPI has no equivalent. The web UI calls unofficial hosts: www.tella.tv (`/api/stories/{vid}/scenes/{cl}/silences?mode=...` + apply PATCH) for buffer trimming and prod-stream.tella.tv (`/ai-mistakes/analyze-scene` SSE) for mistake detection. Both unofficial hosts reject the public-API Bearer token with 401 `not_authenticated` and require a session cookie issued to a logged-in browser. This patch composes the documented public endpoints (GET /silences + POST /cut) for Remove buffers / Trim edges, and uses a mixed-auth path for Find mistakes (cookie-auth analyze + Bearer-auth public /cut apply) behind a hard `--unofficial` gate. Side-fix: extractSilenceRanges previously only handled `{start,end}`/`{startMs,endMs}` shapes, missing today's `{startTimeMs,durationMs}` response — that's why `--trim-silences-gt N` had been silently planning zero cuts on the live API. The parser now handles both shapes and the planned cut args now use the spec-correct `{fromMs,toMs}`.",
+      "files": [
+        "internal/cli/videos_clips_remove-buffers.go",
+        "internal/cli/videos_clips_trim-edges.go",
+        "internal/cli/videos_clips_find-mistakes.go",
+        "internal/cli/videos_clips.go",
+        "internal/cli/clips_edit_pass.go",
+        "internal/cli/clips_edit_pass_test.go",
+        "internal/cli/unofficial.go",
+        "internal/cli/sse_mistakes.go",
+        "internal/cli/sse_mistakes_test.go",
+        "internal/cli/root.go",
+        "internal/cli/which.go",
+        "internal/mcp/tools.go",
+        "internal/config/config.go",
+        "internal/config/config_test.go",
+        "SKILL.md",
+        "README.md"
+      ],
+      "validated_outcome": "go build/vet/test all clean (24 unit tests across the cli package). Skill verifier: ✓ All checks passed. Live smoke against the test workspace: `videos clips remove-buffers <vid> <cl> --dry-run --min-ms 500` planned 42 cuts from 105 silences; `videos clips trim-edges <vid> <cl> --dry-run` planned head/tail correctly; `videos clips find-mistakes <vid> <cl> --unofficial --detect-only` confirms the unofficial AI service returns detected mistakes when a fresh session cookie is set. Reset via PATCH /clips/{clipId} {cuts:[]} after each mutating run.",
+      "deferred_to_upstream": [
+        {
+          "feature": "single-POST remove-buffers + find-mistakes endpoints on the public API",
+          "reason": "If Tella publishes these on api.tella.com, the per-clip composition wrappers in this patch should be replaced by direct endpoint calls. Tracked at the upstream issue below."
+        },
+        {
+          "feature": "browser session-cookie ingestion UX",
+          "reason": "TELLA_SESSION_COOKIE manual paste is brittle. A login flow or browser-extension capture would improve UX; out of scope for this patch."
+        }
+      ],
+      "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/issues/1528"
     }
   ]
 }

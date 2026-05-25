@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "visit-detroit-blog-pp-mcp",
+  "display_name": "Visit Detroit Blog",
+  "version": "4.11.0",
+  "description": "Detroit's official \"Inside the D\" blog as a CLI — every article searchable offline, sliced across category and neighborhood at once, with related-reads and exports the website can't produce.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/visit-detroit-blog-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/visit-detroit-blog-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

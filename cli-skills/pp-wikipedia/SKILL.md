@@ -29,7 +29,7 @@ This skill drives the `wikipedia-pp-cli` binary. **You must verify the CLI is in
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install wikipedia --cli-only
+   npx -y @mvanhorn/printing-press-library install wikipedia --cli-only
    ```
 2. Verify: `wikipedia-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.

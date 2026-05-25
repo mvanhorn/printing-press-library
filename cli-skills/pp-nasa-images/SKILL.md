@@ -25,16 +25,18 @@ This skill drives the `nasa-images-pp-cli` binary. **You must verify the CLI is 
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install nasa-images --cli-only
+   npx -y @mvanhorn/printing-press-library install nasa-images --cli-only
    ```
 2. Verify: `nasa-images-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
 
-If the `npx` install fails before this CLI has a public-library category, install Node or use the category-specific Go fallback after publish.
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.3 or newer):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/media-and-entertainment/nasa-images/cmd/nasa-images-pp-cli@latest
+```
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
-
-The official NASA Image and Video Library exposes five endpoints but no Go CLI covers all of them, and none of the existing wrappers go past returning JSON. nasa-images-pp-cli adds a local SQLite mirror with FTS5 search, byte-range resumable album downloads, caption text extraction (not just URLs), deterministic best-variant picking for agents, and a typed MCP server — every command works offline once synced, and every command pipes cleanly to jq.
 
 ## When to Use This CLI
 

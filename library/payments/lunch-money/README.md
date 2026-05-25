@@ -6,22 +6,40 @@ Built on Lunch Money's published v2 alpha spec for forward compatibility — eve
 
 ## Install
 
-The recommended path installs both the `lunch-money-pp-cli` binary and the `pp-lunch-money` agent skill in one shot:
+The recommended path installs both the `lunch-money-pp-cli` binary and the `pp-lunch-money` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
 
 ```bash
-npx -y @mvanhorn/printing-press install lunch-money
+npx -y @mvanhorn/printing-press-library install lunch-money
 ```
 
 For CLI only (no skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install lunch-money --cli-only
+npx -y @mvanhorn/printing-press-library install lunch-money --cli-only
 ```
 
+For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
 
-### Without Node
+```bash
+npx -y @mvanhorn/printing-press-library install lunch-money --skill-only
+```
 
-The generated install path is category-agnostic until this CLI is published. If `npx` is not available before publish, install Node or use the category-specific Go fallback from the public-library entry after publish.
+To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
+
+```bash
+npx -y @mvanhorn/printing-press-library install lunch-money --agent claude-code
+npx -y @mvanhorn/printing-press-library install lunch-money --agent claude-code --agent codex
+```
+
+### Without Node (Go fallback)
+
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.3 or newer):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/payments/lunch-money/cmd/lunch-money-pp-cli@latest
+```
+
+This installs the CLI only — no skill.
 
 ### Pre-built binary
 
@@ -50,6 +68,43 @@ Tell your OpenClaw agent (copy this):
 Install the pp-lunch-money skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-lunch-money. The skill defines how its required CLI can be installed.
 ```
 
+## Use with Claude Desktop
+
+This CLI ships an [MCPB](https://github.com/modelcontextprotocol/mcpb) bundle — Claude Desktop's standard format for one-click MCP extension installs (no JSON config required).
+
+To install:
+
+1. Download the `.mcpb` for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/lunch-money-current).
+2. Double-click the `.mcpb` file. Claude Desktop opens and walks you through the install.
+3. Fill in `LUNCHMONEY_API_KEY` when Claude Desktop prompts you.
+
+Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple Silicon (`darwin-arm64`) and Windows (`amd64`, `arm64`); for other platforms, use the manual config below.
+
+<details>
+<summary>Manual JSON config (advanced)</summary>
+
+If you can't use the MCPB bundle (older Claude Desktop, unsupported platform), install the MCP binary and configure it manually.
+
+
+Install the MCP binary from this CLI's published public-library entry or pre-built release.
+
+Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
+
+```json
+{
+  "mcpServers": {
+    "lunch-money": {
+      "command": "lunch-money-pp-mcp",
+      "env": {
+        "LUNCHMONEY_API_KEY": "<your-key>"
+      }
+    }
+  }
+}
+```
+
+</details>
+
 ## Authentication
 
 **Public API** (`api.lunchmoney.dev/v2`) — covers every top-level command. Get a bearer token from https://my.lunchmoney.app/developers and set it as `LUNCHMONEY_API_KEY`:
@@ -74,22 +129,17 @@ The value IS the bearer token — the CLI prepends `Authorization: Bearer ` for 
 # Paste your token from my.lunchmoney.app/developers; the CLI writes it to config and points doctor at the live API.
 lunch-money-pp-cli auth set-token YOUR_TOKEN_HERE
 
-
 # Confirm the token is valid, the API is reachable, and the local store is initialized — before any sync.
 lunch-money-pp-cli doctor
-
 
 # Full pull of categories, tags, accounts, recurring items, and transactions into the local SQLite store with rate-limit-aware backoff.
 lunch-money-pp-cli sync
 
-
 # See unreviewed transactions with suggested categories computed from your own historical categorizations.
 lunch-money-pp-cli triage --limit 20
 
-
 # Preview a bulk retag before letting the bulk PUT /transactions endpoint apply it.
 lunch-money-pp-cli transactions retag --match '^AMZN' --category-id 73 --dry-run
-
 
 # Mid-month per-category burn-down with end-of-period projection — pipe into an agent or dashboard.
 lunch-money-pp-cli budgets burn --period 2026-05 --json
@@ -375,7 +425,6 @@ You may submit the response from a `GET /transactions/{id}` as the request body,
 Transactions that have been previously split or grouped may not be modified by this endpoint. Therefore the `is_split_parent`, `split_parent_id`, `is_group_parent`, `group_parent_id`, and `children` properties are also ignored when provided in the request body.<br><br>
 It is also possible to provide only the properties to be updated in the request body, as long as the request includes at least one of the properties that is not listed above. For example a request body that contains only an `category_id` attribute is valid.
 
-
 ## Output Formats
 
 ```bash
@@ -410,69 +459,6 @@ This CLI is designed for AI agent consumption:
 - **Agent-safe by default** - no colors or formatting unless `--human-friendly` is set
 
 Exit codes: `0` success, `2` usage error, `3` not found, `4` auth error, `5` API error, `7` rate limited, `10` config error.
-
-## Use with Claude Code
-
-Install the focused skill — it auto-installs the CLI on first invocation:
-
-```bash
-npx skills add mvanhorn/printing-press-library/cli-skills/pp-lunch-money -g
-```
-
-Then invoke `/pp-lunch-money <query>` in Claude Code. The skill is the most efficient path — Claude Code drives the CLI directly without an MCP server in the middle.
-
-<details>
-<summary>Use as an MCP server in Claude Code (advanced)</summary>
-
-If you'd rather register this CLI as an MCP server in Claude Code, install the MCP binary first:
-
-
-Install the MCP binary from this CLI's published public-library entry or pre-built release.
-
-Then register it:
-
-```bash
-claude mcp add lunch-money lunch-money-pp-mcp -e LUNCHMONEY_API_KEY=<your-token>
-```
-
-</details>
-
-## Use with Claude Desktop
-
-This CLI ships an [MCPB](https://github.com/modelcontextprotocol/mcpb) bundle — Claude Desktop's standard format for one-click MCP extension installs (no JSON config required).
-
-To install:
-
-1. Download the `.mcpb` for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/lunch-money-current).
-2. Double-click the `.mcpb` file. Claude Desktop opens and walks you through the install.
-3. Fill in `LUNCHMONEY_API_KEY` when Claude Desktop prompts you.
-
-Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple Silicon (`darwin-arm64`) and Windows (`amd64`, `arm64`); for other platforms, use the manual config below.
-
-<details>
-<summary>Manual JSON config (advanced)</summary>
-
-If you can't use the MCPB bundle (older Claude Desktop, unsupported platform), install the MCP binary and configure it manually.
-
-
-Install the MCP binary from this CLI's published public-library entry or pre-built release.
-
-Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
-
-```json
-{
-  "mcpServers": {
-    "lunch-money": {
-      "command": "lunch-money-pp-mcp",
-      "env": {
-        "LUNCHMONEY_API_KEY": "<your-key>"
-      }
-    }
-  }
-}
-```
-
-</details>
 
 ## Health Check
 

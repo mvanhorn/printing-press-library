@@ -45,12 +45,12 @@ jobs:
             exit 1
           fi
           git config --global url."https://oauth2:${TOKEN}@github.com/".insteadOf "https://github.com/"
-      - name: Install printing-press
+      - name: Install cli-printing-press
         env:
           GOPRIVATE: github.com/mvanhorn/*
         run: |
-          go install github.com/mvanhorn/cli-printing-press/v3/cmd/printing-press@latest
-          printing-press --version
+          go install github.com/mvanhorn/cli-printing-press/v4/cmd/cli-printing-press@latest
+          cli-printing-press --version
       - name: Run audit
         id: audit
         run: |
@@ -83,7 +83,7 @@ jobs:
             fi
 
             tmp_out="${RUNNER_TEMP}/${slug}.mcpb"
-            if printing-press bundle "$cli_dir" --output "$tmp_out" >/tmp/bundle.log 2>&1; then
+            if cli-printing-press bundle "$cli_dir" --output "$tmp_out" >/tmp/bundle.log 2>&1; then
               size=$(du -h "$tmp_out" 2>/dev/null | awk '{print $1}')
               echo "| ✅ ok | \`${target}\` | ${pp_version:-?} | ${size:-?} |" >> "$report"
               ok=$((ok+1))

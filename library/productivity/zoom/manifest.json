@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "zoom-pp-mcp",
+  "display_name": "Zoom",
+  "version": "4.9.0",
+  "description": "Zoom API surface as MCP tools.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/zoom-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/zoom-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

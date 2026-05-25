@@ -221,7 +221,11 @@ Ricette: README.md o SKILL.md`,
 	// Transcendence: add subcommands to existing parent commands
 	aooCmd := newAooCmd(flags)
 	aooCmd.AddCommand(newAooCercaCmd(flags))
+	aooCmd.AddCommand(newAooStoricoCmd(flags))
 	rootCmd.AddCommand(aooCmd)
+
+	pecCmd := newPecCmd(flags)
+	rootCmd.AddCommand(pecCmd)
 
 	domicilioCmd := newDomicilioCmd(flags)
 	domicilioCmd.AddCommand(newDomicilioVerificaCmd(flags))

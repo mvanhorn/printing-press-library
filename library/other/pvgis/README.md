@@ -11,31 +11,37 @@ Printed by [@robertobissanti](https://github.com/robertobissanti) (Roberto Bissa
 The recommended path installs both the `pvgis-pp-cli` binary and the `pp-pvgis` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
 
 ```bash
-npx -y @mvanhorn/printing-press install pvgis
+npx -y @mvanhorn/printing-press-library install pvgis
 ```
 
 For CLI only (no skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install pvgis --cli-only
+npx -y @mvanhorn/printing-press-library install pvgis --cli-only
 ```
 
 For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install pvgis --skill-only
+npx -y @mvanhorn/printing-press-library install pvgis --skill-only
 ```
 
 To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
 
 ```bash
-npx -y @mvanhorn/printing-press install pvgis --agent claude-code
-npx -y @mvanhorn/printing-press install pvgis --agent claude-code --agent codex
+npx -y @mvanhorn/printing-press-library install pvgis --agent claude-code
+npx -y @mvanhorn/printing-press-library install pvgis --agent claude-code --agent codex
 ```
 
-### Without Node
+### Without Node (Go fallback)
 
-The generated install path is category-agnostic until this CLI is published. If `npx` is not available before publish, install Node or use the category-specific Go fallback from the public-library entry after publish.
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.3 or newer):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/other/pvgis/cmd/pvgis-pp-cli@latest
+```
+
+This installs the CLI only — no skill.
 
 ### Pre-built binary
 
@@ -103,18 +109,14 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
 # Confirm the JRC API is reachable from this machine.
 pvgis-pp-cli doctor
 
-
 # Monthly irradiance for a Milano-area site, fixed tilt 30 south.
 pvgis-pp-cli radiation monthly --lat 45.0 --lon 9.0 --tilt 30 --azimuth 0 --json
-
 
 # Annual yield for a 5 kWp crystSi system at the same spot.
 pvgis-pp-cli production monthly --lat 45.0 --lon 9.0 --pnom 5 --system-loss 14 --tilt 30 --azimuth 0 --json
 
-
 # Sweep tilt 0-60 to find the production peak for a south-facing system.
 pvgis-pp-cli production optimal-tilt --lat 45.0 --lon 9.0 --azimuth 0 --json
-
 
 # Pull the full 8760-hour TMY; pipe through jq or save for downstream tools.
 pvgis-pp-cli weather tmy --lat 45.0 --lon 9.0 --json --select outputs.tmy_hourly
@@ -194,7 +196,6 @@ Solar radiation queries — monthly irradiance on horizontal, tilted, or optimal
 Typical Meteorological Year (TMY) weather data — 8760-hour synthetic year representative of long-term climate.
 
 - **`pvgis-pp-cli weather`** - Typical Meteorological Year for a site. Returns 8760 hourly rows with air temperature T2m, relative humidity, global horizontal irradiance G(h), beam normal Gb(n), diffuse Gd(h), longwave IR(h), wind speed WS10m, wind direction WD10m, surface pressure SP. Constructed from the long-term record so it represents climate, not a specific year.
-
 
 ## Output Formats
 

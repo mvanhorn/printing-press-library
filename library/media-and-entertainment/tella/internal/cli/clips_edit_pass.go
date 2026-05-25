@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/tella/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/tella/internal/config"
 
 	"github.com/spf13/cobra"
 )
@@ -33,17 +34,51 @@ func newClipsCmd(flags *rootFlags) *cobra.Command {
 func newClipsEditPassCmd(flags *rootFlags) *cobra.Command {
 	var playlistID string
 	var removeFillers bool
+	// PATCH(library): --remove-buffers mirrors the Tella web UI's "Remove
+	// buffers" Cut-panel button. Composes GET /silences + POST /cut per
+	// range filtered by --buffer-min-ms. --trim-edges adds the narrower
+	// head/tail-only primitive. --find-mistakes calls the unofficial AI
+	// service (requires --unofficial + TELLA_SESSION_COOKIE) and applies
+	// detected cuts via the public /cut endpoint. Cataloged in
+	// .printing-press-patches.json#add-cut-panel-parity.
+	var removeBuffers bool
+	var bufferMinMs int
+	var trimEdges bool
+	var findMistakes bool
+	var unofficial bool
 	var trimSilencesGT string
 	var apply bool
 	cmd := &cobra.Command{
 		Use:     "edit-pass",
-		Short:   "Apply remove-fillers and trim-silences across every clip in a playlist",
-		Example: "  tella-pp-cli clips edit-pass --playlist plst_42 --remove-fillers --trim-silences-gt 1s --json",
+		Short:   "Apply remove-fillers, remove-buffers, trim-edges, and trim-silences across every clip in a playlist",
+		Example: "  tella-pp-cli clips edit-pass --playlist plst_42 --remove-fillers --remove-buffers --trim-edges --json",
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if removeBuffers && bufferMinMs < 0 {
+				return usageErr(fmt.Errorf("--buffer-min-ms must be >= 0, got %d", bufferMinMs))
+			}
+			// PATCH(library): find-mistakes gate — refuse early with a
+			// clear message rather than letting the loop discover the
+			// missing session cookie per clip.
+			if findMistakes && !unofficial {
+				return usageErr(fmt.Errorf("--find-mistakes calls Tella's unofficial AI service (prod-stream.tella.tv); pass --unofficial to opt in"))
+			}
+			var uc *unofficialClient
+			if findMistakes {
+				cfg, cerr := config.Load(flags.configPath)
+				if cerr != nil {
+					return configErr(cerr)
+				}
+				var uerr error
+				uc, uerr = newUnofficialClient(cfg.SessionCookie, flags.timeout)
+				if uerr != nil {
+					return configErr(uerr)
+				}
+			}
 			if dryRunOK(flags) {
 				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
 					"dry_run":     true,
 					"playlist_id": playlistID,
+					"total_clips": 0,
 					"planned":     []any{},
 					"applied":     false,
 				}, flags)
@@ -106,6 +141,7 @@ func newClipsEditPassCmd(flags *rootFlags) *cobra.Command {
 			plans := []clipPlan{}
 			enumFailures := []enumerationFailure{}
 			totalClips := 0
+			unknownMistakeEvents := 0
 
 			for _, vid := range videoIDs {
 				clipIDs, err := listClipIDs(c, vid)
@@ -120,10 +156,38 @@ func newClipsEditPassCmd(flags *rootFlags) *cobra.Command {
 				for _, cid := range clipIDs {
 					totalClips++
 					p := clipPlan{VideoID: vid, ClipID: cid}
+					plannedCuts := map[string]int{}
+					appendCut := func(name string, from, to int) {
+						key := fmt.Sprintf("%d:%d", from, to)
+						if idx, exists := plannedCuts[key]; exists {
+							args := p.Ops[idx].Args
+							sources, _ := args["sources"].([]string)
+							if len(sources) == 0 {
+								sources = []string{p.Ops[idx].Op}
+							}
+							for _, source := range sources {
+								if source == name {
+									return
+								}
+							}
+							args["sources"] = append(sources, name)
+							return
+						}
+						plannedCuts[key] = len(p.Ops)
+						p.Ops = append(p.Ops, op{
+							Op:   name,
+							Args: map[string]any{"fromMs": from, "toMs": to},
+						})
+					}
 					if removeFillers {
 						p.Ops = append(p.Ops, op{Op: "remove-fillers"})
 					}
-					if minSilenceMS > 0 {
+					// Silences fetch is shared across --remove-buffers,
+					// --trim-edges, and --trim-silences-gt. Fetch once if
+					// any flag asks for it.
+					var silRanges []silenceRange
+					silencesNeeded := removeBuffers || trimEdges || minSilenceMS > 0
+					if silencesNeeded {
 						silData, silErr := c.Get(fmt.Sprintf("/v1/videos/%s/clips/%s/silences", vid, cid), nil)
 						if silErr != nil {
 							enumFailures = append(enumFailures, enumerationFailure{
@@ -133,13 +197,88 @@ func newClipsEditPassCmd(flags *rootFlags) *cobra.Command {
 								Error:   truncate(silErr.Error(), 200),
 							})
 						} else {
-							for _, sil := range extractSilenceRanges(silData) {
-								if sil.End-sil.Start >= minSilenceMS {
-									p.Ops = append(p.Ops, op{
-										Op:   "cut",
-										Args: map[string]any{"start": sil.Start, "end": sil.End},
-									})
+							silRanges = extractSilenceRanges(silData)
+						}
+					}
+					// PATCH(library): --remove-buffers plans a cut for every
+					// silence ≥ bufferMinMs, matching the Tella web UI's
+					// "Remove buffers" button. The /cut endpoint merges
+					// overlapping/adjacent cuts server-side, so any overlap
+					// with --trim-silences-gt is a no-op rather than a bug.
+					if removeBuffers && silRanges != nil {
+						for _, sil := range silRanges {
+							if sil.End-sil.Start >= bufferMinMs {
+								appendCut("remove-buffers", sil.Start, sil.End)
+							}
+						}
+					}
+					// PATCH(library): --trim-edges is the narrow primitive
+					// — head + tail only. Used when callers want to strip
+					// leading/trailing dead-air without touching mid-clip
+					// silences (which --remove-buffers would also cut).
+					// Needs clip duration for tail tolerance.
+					if trimEdges && len(silRanges) > 0 {
+						clipDurationMs, durErr := fetchClipDurationMs(c, vid, cid)
+						if durErr != nil {
+							enumFailures = append(enumFailures, enumerationFailure{
+								VideoID: vid,
+								ClipID:  cid,
+								Stage:   "fetch_clip_duration",
+								Error:   truncate(durErr.Error(), 200),
+							})
+						} else {
+							head, tail := pickBufferRanges(silRanges, clipDurationMs)
+							if head != nil {
+								appendCut("trim-edges-head", head.Start, head.End)
+							}
+							if tail != nil {
+								appendCut("trim-edges-tail", tail.Start, tail.End)
+							}
+						}
+					}
+					if minSilenceMS > 0 && silRanges != nil {
+						for _, sil := range silRanges {
+							if sil.End-sil.Start >= minSilenceMS {
+								// PATCH(library): args shape switched from
+								// {start, end} to {fromMs, toMs} to match
+								// the public spec's CutClipRequest. Apply
+								// switch below reads the same field names.
+								appendCut("cut", sil.Start, sil.End)
+							}
+						}
+					}
+					// PATCH(library): find-mistakes calls the unofficial AI
+					// service (analyze-scene SSE on prod-stream.tella.tv)
+					// during planning. Each detected mistake becomes one
+					// public /cut op so the apply step stays additive and
+					// goes through the documented Bearer-auth surface. If
+					// analyze-scene fails for a clip, the failure is
+					// surfaced via enumeration_failures and the clip's
+					// other ops still plan/apply normally.
+					if findMistakes {
+						mistakes, unknownEvents, analyzeStatus, mErr := analyzeMistakes(uc, vid, cid)
+						unknownMistakeEvents += unknownEvents
+						if mErr != nil || analyzeStatus < 200 || analyzeStatus >= 300 {
+							errMsg := ""
+							if mErr != nil {
+								errMsg = mErr.Error()
+							} else {
+								errMsg = fmt.Sprintf("HTTP %d", analyzeStatus)
+							}
+							enumFailures = append(enumFailures, enumerationFailure{
+								VideoID: vid,
+								ClipID:  cid,
+								Stage:   "analyze_mistakes",
+								Error:   truncate(errMsg, 200),
+							})
+						} else {
+							for _, m := range mistakes {
+								if m.Trim.Duration <= 0 {
+									continue
 								}
+								from := int(m.Trim.StartTime + 0.5)
+								to := int(m.Trim.StartTime + m.Trim.Duration + 0.5)
+								appendCut("find-mistakes", from, to)
 							}
 						}
 					}
@@ -160,6 +299,9 @@ func newClipsEditPassCmd(flags *rootFlags) *cobra.Command {
 			if len(enumFailures) > 0 {
 				result["enumeration_failures"] = enumFailures
 			}
+			if unknownMistakeEvents > 0 {
+				result["unknown_mistake_events"] = unknownMistakeEvents
+			}
 			if apply {
 				type failure struct {
 					VideoID string `json:"video_id"`
@@ -176,8 +318,19 @@ func newClipsEditPassCmd(flags *rootFlags) *cobra.Command {
 						switch o.Op {
 						case "remove-fillers":
 							_, _, postErr = c.Post(fmt.Sprintf("/v1/videos/%s/clips/%s/remove-fillers", p.VideoID, p.ClipID), map[string]any{})
-						case "cut":
-							_, _, postErr = c.Post(fmt.Sprintf("/v1/videos/%s/clips/%s/cut", p.VideoID, p.ClipID), o.Args)
+						case "cut", "remove-buffers", "trim-edges-head", "trim-edges-tail", "find-mistakes":
+							// PATCH(library): every cut-producing op
+							// applies via the same public /cut endpoint.
+							// Distinct op names keep the dry-run plan
+							// envelope auditable; server-side /cut merges
+							// overlapping cuts so any cross-flag overlap
+							// is idempotent. find-mistakes is detected
+							// against the unofficial AI service but
+							// applied via the documented Bearer surface.
+							cutBody := map[string]any{"fromMs": o.Args["fromMs"], "toMs": o.Args["toMs"]}
+							_, _, postErr = c.Post(fmt.Sprintf("/v1/videos/%s/clips/%s/cut", p.VideoID, p.ClipID), cutBody)
+						default:
+							postErr = fmt.Errorf("unrecognized op %q: not applied", o.Op)
 						}
 						if postErr != nil {
 							failed++
@@ -204,6 +357,14 @@ func newClipsEditPassCmd(flags *rootFlags) *cobra.Command {
 	}
 	cmd.Flags().StringVar(&playlistID, "playlist", "", "Playlist ID to iterate")
 	cmd.Flags().BoolVar(&removeFillers, "remove-fillers", false, "Plan a remove-fillers pass for every clip")
+	// PATCH(library): UI-button-matching buffer trim + narrow head/tail
+	// primitive + unofficial AI mistake detection. cataloged in
+	// .printing-press-patches.json#add-cut-panel-parity.
+	cmd.Flags().BoolVar(&removeBuffers, "remove-buffers", false, "Plan a remove-buffers pass for every clip (matches the Tella web UI's Cut-panel button; tune with --buffer-min-ms)")
+	cmd.Flags().IntVar(&bufferMinMs, "buffer-min-ms", defaultBufferMinMs, "Minimum silence duration in milliseconds for --remove-buffers (0 = cut every silence)")
+	cmd.Flags().BoolVar(&trimEdges, "trim-edges", false, "Plan head+tail silence cuts for every clip (narrow primitive; distinct from --remove-buffers which targets every silence)")
+	cmd.Flags().BoolVar(&findMistakes, "find-mistakes", false, "Plan an AI find-mistakes pass for every clip (requires --unofficial + TELLA_SESSION_COOKIE)")
+	cmd.Flags().BoolVar(&unofficial, "unofficial", false, "Required by --find-mistakes: opt in to calling Tella's undocumented AI service")
 	cmd.Flags().StringVar(&trimSilencesGT, "trim-silences-gt", "", "Plan cuts for silences longer than this duration (e.g. 1s)")
 	cmd.Flags().BoolVar(&apply, "apply", false, "Actually fire the planned mutations (default off — print plan only)")
 	return cmd
@@ -223,6 +384,15 @@ type silenceRange struct {
 	End   int
 }
 
+// extractSilenceRanges parses a /silences response into [{Start, End}] ranges.
+// The current public API returns objects shaped `{startTimeMs, durationMs}`
+// (verified against api.tella.com on 2026-05-16) — the legacy field-name
+// lookups (`start`/`end`, `startMs`/`endMs`) below remained from an earlier
+// API shape and missed today's response, so trim-silences-gt silently planned
+// zero cuts. The expanded lookup handles both the modern duration-based
+// shape and the legacy explicit-end shape without forking parsers.
+// PATCH(library): {startTimeMs, durationMs} support; cataloged in
+// .printing-press-patches.json#add-cut-panel-parity.
 func extractSilenceRanges(data json.RawMessage) []silenceRange {
 	var out []silenceRange
 	candidates := []json.RawMessage{data}
@@ -238,8 +408,16 @@ func extractSilenceRanges(data json.RawMessage) []silenceRange {
 		var arr []map[string]any
 		if err := json.Unmarshal(c, &arr); err == nil {
 			for _, item := range arr {
-				start := intField(item, "start", "from", "begin", "startMs")
-				end := intField(item, "end", "to", "stop", "endMs")
+				start := intField(item, "startTimeMs", "startMs", "start", "from", "begin")
+				// Prefer explicit end fields; fall back to start + duration when
+				// the response shape only carries a duration (the current API
+				// behavior). intField truncates floats to ints via int(x).
+				end, hasEnd := intFieldOK(item, "end", "to", "stop", "endMs", "endTimeMs")
+				if !hasEnd {
+					if dur, hasDuration := intFieldOK(item, "durationMs", "duration"); hasDuration && dur > 0 {
+						end = start + dur
+					}
+				}
 				if end > start {
 					out = append(out, silenceRange{Start: start, End: end})
 				}
@@ -253,23 +431,28 @@ func extractSilenceRanges(data json.RawMessage) []silenceRange {
 }
 
 func intField(m map[string]any, keys ...string) int {
+	v, _ := intFieldOK(m, keys...)
+	return v
+}
+
+func intFieldOK(m map[string]any, keys ...string) (int, bool) {
 	for _, k := range keys {
 		if v, ok := m[k]; ok {
 			switch x := v.(type) {
 			case float64:
-				return int(x)
+				return int(x), true
 			case int:
-				return x
+				return x, true
 			case string:
 				// Best-effort parse like "1500ms"
 				x = strings.TrimSuffix(x, "ms")
 				var n int
 				_, err := fmt.Sscanf(x, "%d", &n)
 				if err == nil {
-					return n
+					return n, true
 				}
 			}
 		}
 	}
-	return 0
+	return 0, false
 }

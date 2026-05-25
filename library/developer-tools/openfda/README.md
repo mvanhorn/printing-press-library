@@ -7,26 +7,26 @@ The FDA safety data terminal. Every drug adverse event, device recall, food cont
 The recommended path installs both the `openfda-pp-cli` binary and the `pp-openfda` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
 
 ```bash
-npx -y @mvanhorn/printing-press install openfda
+npx -y @mvanhorn/printing-press-library install openfda
 ```
 
 For CLI only (no skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install openfda --cli-only
+npx -y @mvanhorn/printing-press-library install openfda --cli-only
 ```
 
 For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install openfda --skill-only
+npx -y @mvanhorn/printing-press-library install openfda --skill-only
 ```
 
 To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
 
 ```bash
-npx -y @mvanhorn/printing-press install openfda --agent claude-code
-npx -y @mvanhorn/printing-press install openfda --agent claude-code --agent codex
+npx -y @mvanhorn/printing-press-library install openfda --agent claude-code
+npx -y @mvanhorn/printing-press-library install openfda --agent claude-code --agent codex
 ```
 
 ### Without Node (Go fallback)

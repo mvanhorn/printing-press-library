@@ -25,7 +25,7 @@ This skill drives the `cf-domain-pp-cli` binary. **You must verify the CLI is in
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install cf-domain --cli-only
+   npx -y @mvanhorn/printing-press-library install cf-domain --cli-only
    ```
 2. Verify: `cf-domain-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
@@ -37,8 +37,6 @@ go install github.com/mvanhorn/printing-press-library/library/cloud/cf-domain/cm
 ```
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
-
-Agent-native CLI for Cloudflare Registrar domain search, check, and registration.
 
 ## Command Reference
 

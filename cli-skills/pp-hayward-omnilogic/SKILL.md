@@ -19,27 +19,24 @@ metadata:
 
 # Hayward OmniLogic — Printing Press CLI
 
-> ## Write-command status
->
-> The Hayward `.ashx` handler overloads the `IsOn` parameter on `SetUIEquipmentCmd`: it expects `dataType="int"` 0-100 for variable-speed pumps, `dataType="bool"` `True`/`False` for everything else. This was reverse-engineered via a side-by-side packet capture against the canonical Python wrapper (`djtimca/omnilogic-api` 0.6.1).
->
-> **Verified working against the live API** (turn the pump on at 50%, observe `filterSpeed: 50` in telemetry, turn it off, observe `filterSpeed: 0`):
-> - `pump set-speed <name> --bow Pool --speed N` — VSP control 0-100. Speed=0 stops the pump.
-> - `equipment on <name> --bow Pool` — for VSPs, routes through `SetPumpSpeed(speed=100)`. For non-VSP equipment (relays, valves, single-speed accessory pumps) sends `IsOn=bool`.
-> - `equipment off <name> --bow Pool` — same routing; speed=0 for VSPs, `IsOn=False` for non-VSPs.
->
-> **Probably working but not yet verified end-to-end** (the operations use different XML shapes that didn't hit the IsOn overload trap, so they should work, but treat with care until exercised):
-> - `heater enable`, `heater disable`, `heater set-temp` (different op: `SetHeaterEnable` / `SetUIHeaterCmd`, uses `Enabled` and `Temp` params)
-> - `spillover set` (`SetUISpilloverCmd`, uses `Speed` param)
-> - `superchlor on`, `superchlor off` (`SetUISuperCHLORCmd`, uses `IsOn=bool` which is the non-overloaded form)
-> - `light show` (`SetStandAloneLightShow`, uses `Show` param)
-> - `chlorinator set-params` (`SetCHLORParams`, uses ordered fixed-format builder)
-> - `ready-by` (chains `SetHeaterEnable` + `SetUIHeaterCmd`; depends on the heater operations above)
->
-> **Always working** (read-only commands, exhaustively tested against the live API):
-> `sites list`, `config get`, `alarms list`, `telemetry get`, `chemistry get`, `status`, `sweep`, `sync`, `search`, `sql`, `command-log`, `runtime`, `schedule diff`, `chemistry log`, `chemistry drift`, `auth login/logout/status`, `doctor`, `capabilities get/set/clear`.
->
-> Cloud propagation lag is 10-15 seconds — after a successful write, `telemetry get` may show the prior state until the cloud catches up. The CLI's command response (`{"status":"ok"}`) returns as soon as Hayward accepts the request.
+## Prerequisites: Install the CLI
+
+This skill drives the `hayward-omnilogic-pp-cli` binary. **You must verify the CLI is installed before invoking any command from this skill.** If it is missing, install it first:
+
+1. Install via the Printing Press installer:
+   ```bash
+   npx -y @mvanhorn/printing-press-library install hayward-omnilogic --cli-only
+   ```
+2. Verify: `hayward-omnilogic-pp-cli --version`
+3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
+
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.3 or newer):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/devices/hayward-omnilogic/cmd/hayward-omnilogic-pp-cli@latest
+```
+
+If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
 
 ## Pool sensor capabilities — configure once per site
 
@@ -65,24 +62,6 @@ hayward-omnilogic-pp-cli capabilities get --json
 Stored in the local SQLite store per `MspSystemID`. After configuration: `status` correctly excludes the missing sensors from its verdict, `chemistry get` returns `not_equipped` instead of `unknown` for sensors that don't exist, and `water_temp = -1` while the pump is idle is reported as `"n/a (pump off)"` instead of "sensor offline".
 
 **Agents seeing `setup_hint` in CLI output should surface the suggested `capabilities set` command to the user as a one-time setup step before relying on chemistry/temp verdicts.**
-
-## Prerequisites: Install the CLI
-
-This skill drives the `hayward-omnilogic-pp-cli` binary. **You must verify the CLI is installed before invoking any command from this skill.** If it is missing, install it first:
-
-1. Install via the Printing Press installer:
-   ```bash
-   npx -y @mvanhorn/printing-press install hayward-omnilogic --cli-only
-   ```
-2. Verify: `hayward-omnilogic-pp-cli --version`
-3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
-
-If the `npx` install fails before this CLI has a public-library category, install Node or use the category-specific Go fallback after publish.
-
-If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
-
-Drives the same partner API the Hayward mobile app and Home Assistant integration use, but adds the historical chemistry log, the equipment diagnostic the cloud refuses to compute, the schedule-change detector for service techs, and the multi-site alarm sweep pool-service businesses ask for. Agent-native JSON throughout, with a local SQLite store that turns single-shot cloud reads into compound answers.
-
 ## When to Use This CLI
 
 Pick this CLI when an agent needs to read or control a Hayward OmniLogic pool/spa system over the partner cloud API: pool owners managing one pool, integrators wiring OmniLogic into agentic workflows, and pool-service businesses managing many sites. The CLI replaces ad-hoc Python scripts on top of `omnilogic-api`, the Hayward mobile app for diagnostics and trends, and the per-site click-through pool-service operators do every morning.

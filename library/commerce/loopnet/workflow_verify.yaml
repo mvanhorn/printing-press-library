@@ -1,0 +1,44 @@
+# Workflow verification manifest — loopnet-pp-cli
+#
+# Exercises the core market-intelligence loop end to end:
+#   1. sync a submarket into the local SQLite store
+#   2. read its cap-rate / yield distribution
+#   3. detect asking-price cuts across syncs
+#
+# price-cuts needs two syncs of the same submarket over time to surface
+# actual cuts; a single sync still verifies the command runs cleanly against
+# the populated store. The sync step is capped to one search page and three
+# detail fetches so live verification stays fast under Akamai pacing.
+#
+# All three steps are marked auth_required because the workflow's
+# data-producing step (sync) needs Akamai browser-clearance cookies, minted
+# by `loopnet-pp-cli auth refresh`. The downstream caprate/price-cuts steps
+# read the local store and need no auth themselves, but are only meaningful
+# once sync has populated it — so the workflow as a unit is clearance-gated.
+# Without cookies, workflow-verify reports `unverified-needs-auth` rather
+# than a false failure; with cookies present it runs fully and passes.
+workflows:
+  - name: sync-caprate-price-cuts
+    primary: true
+    steps:
+      - command: sync worcester-ma
+        args:
+          type: industrial-properties
+          listing: for-sale
+          pages: "1"
+          limit: "3"
+        mode: live
+        auth_required: true
+        expect_fields:
+          - location
+          - listings_synced
+      - command: caprate worcester-ma
+        args:
+          type: industrial-properties
+        mode: local
+        auth_required: true
+      - command: price-cuts worcester-ma
+        args:
+          type: industrial-properties
+        mode: local
+        auth_required: true

@@ -607,26 +607,54 @@ func extractViaCookieScoop(domain, profileDir string) (string, error) {
 // jwtPattern matches a JWT: three base64url segments separated by dots.
 var jwtPattern = regexp.MustCompile(`eyJ[A-Za-z0-9_-]{8,}\.eyJ[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}`)
 
-// PATCH: cookie-jar-jwt-sanitize
-// sanitizeCookieJar extracts only the auth_token JWT from the cookie
-// jar. On macOS, pycookiecheat sometimes returns Chrome's raw
-// encrypted_value (binary header + payload) instead of the decrypted
-// value; scan for the JWT pattern inside the cookie value so we don't
-// stuff garbage into config.toml. Other cookies (_fbp, client_id,
-// etc.) are dropped — Skool's API only needs auth_token.
+// PATCH(amend-2026-05-20: paid-community-auth): clientIDPattern matches
+// the Skool client_id cookie value — a UUID-ish identifier emitted by
+// Skool's frontend tracker. Pattern is intentionally permissive (hex
+// chars, dots, dashes, underscores) but length-bounded and ASCII-only so it
+// won't accept Chrome's raw encrypted_value bytes if pycookiecheat
+// returns the encrypted blob unchanged on macOS.
+var clientIDPattern = regexp.MustCompile(`^[A-Za-z0-9._-]{8,128}$`)
+
+// PATCH(amend-2026-05-20: paid-community-auth): generalize sanitizeCookieJar
+// to preserve client_id alongside auth_token. Skool's paid communities
+// (e.g. ai-automation-society-plus) return a 307 redirect to /about
+// when the request omits client_id — auth_token alone is insufficient.
+// Verified via curl tests: with the full cookie jar, classroom.json
+// returns the full payload; with auth_token alone, the server bounces
+// the request. The original sanitizer was written for free communities
+// where auth_token alone authenticates; this revision keeps the
+// macOS-encrypted-value defense (only ASCII, length-bounded values are
+// accepted) while expanding the allowlist.
+//
+// sanitizeCookieJar extracts the auth_token JWT and the client_id (when
+// present) from the cookie jar. On macOS, pycookiecheat sometimes
+// returns Chrome's raw encrypted_value (binary header + payload)
+// instead of the decrypted value; the JWT regex defends auth_token and
+// clientIDPattern defends client_id so we don't stuff garbage into
+// config.toml. Cookies outside the allowlist are dropped.
 func sanitizeCookieJar(jar string) string {
+	var authToken, clientID string
 	for _, kv := range strings.Split(jar, ";") {
 		kv = strings.TrimSpace(kv)
-		if !strings.HasPrefix(kv, "auth_token=") {
-			continue
-		}
-		val := strings.TrimPrefix(kv, "auth_token=")
-		if utf8.ValidString(val) && jwtPattern.MatchString(val) {
-			return "auth_token=" + jwtPattern.FindString(val)
-		}
-		if jwt := jwtPattern.FindString(val); jwt != "" {
-			return "auth_token=" + jwt
+		switch {
+		case strings.HasPrefix(kv, "auth_token="):
+			val := strings.TrimPrefix(kv, "auth_token=")
+			if jwt := jwtPattern.FindString(val); jwt != "" {
+				authToken = jwt
+			}
+		case strings.HasPrefix(kv, "client_id="):
+			val := strings.TrimPrefix(kv, "client_id=")
+			if utf8.ValidString(val) && clientIDPattern.MatchString(val) {
+				clientID = val
+			}
 		}
 	}
-	return ""
+	if authToken == "" {
+		return ""
+	}
+	out := "auth_token=" + authToken
+	if clientID != "" {
+		out += "; client_id=" + clientID
+	}
+	return out
 }
