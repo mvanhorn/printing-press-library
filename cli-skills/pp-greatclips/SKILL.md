@@ -25,7 +25,7 @@ This skill drives the `greatclips-pp-cli` binary. **You must verify the CLI is i
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install greatclips --cli-only
+   npx -y @mvanhorn/printing-press-library install greatclips --cli-only
    ```
 2. Verify: `greatclips-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
@@ -37,8 +37,6 @@ go install github.com/mvanhorn/printing-press-library/library/other/greatclips/c
 ```
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
-
-Drives the Great Clips Online Check-In API (webservices.greatclips.com) and the ICS Net Check-In wait/check-in service (www.stylewaretouch.net) from one Go binary. v0.1 ships every endpoint with --dry-run and --json so an agent can build flows on top; live calls require pasting cookies from a logged-in Chrome session (documented v0.2 gap).
 
 ## When to Use This CLI
 

@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-21T21:43:00Z",
+  "printing_press_version": "4.10.1",
+  "api_name": "sncf-connect",
+  "display_name": "Navitia",
+  "cli_name": "sncf-connect-pp-cli",
+  "owner": "jmbernabotto",
+  "printer": "jmbernabotto",
+  "printer_name": "jmbernabotto",
+  "spec_url": "https://api.navitia.io/v1/schema",
+  "spec_path": "/Users/jean-michelbernabotto/printing-press/.runstate/cli-printing-press-a5aa7aba/runs/20260521-213542/research/navitia-spec-patched.json",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:refreshed-20260521",
+  "run_id": "20260521-213542",
+  "description": "navitia.io is the open API for building cool stuff with mobility data.",
+  "mcp_binary": "sncf-connect-pp-mcp",
+  "mcp_tool_count": 269,
+  "mcp_ready": "full",
+  "api_version": "v15.108.0",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "SNCF_API_KEY"
+  ],
+  "auth_key_url": "https://numerique.sncf.com/startup/api/token-developpeur/",
+  "novel_features": [
+    {
+      "name": "Commute tracker",
+      "command": "commute check",
+      "description": "Save your commute route and check it each morning \u2014 next trains plus disruption status in one call, exits non-zero on disruption for cron scripting."
+    },
+    {
+      "name": "Disruption digest",
+      "command": "disruptions digest",
+      "description": "Morning brief of all disruptions across your saved lines, ranked by severity: blocked first, then delayed, then informational."
+    },
+    {
+      "name": "Isochrone station list",
+      "command": "isochrone stations",
+      "description": "Given a starting point and travel duration, list all train stations reachable within that time."
+    },
+    {
+      "name": "Accessibility report",
+      "command": "journey accessibility",
+      "description": "For a planned journey, show elevator and escalator status at each transfer station so you know before you travel."
+    },
+    {
+      "name": "Timetable frequency heatmap",
+      "command": "timetable heatmap",
+      "description": "See how many trains run each hour on a line at a stop \u2014 ASCII bar chart showing peak and off-peak density."
+    },
+    {
+      "name": "Board export",
+      "command": "board export",
+      "description": "Export a full departure board as flat CSV or JSONL for pipeline ingestion \u2014 all fields, no formatting."
+    },
+    {
+      "name": "Vehicle journey trace",
+      "command": "vehicle trace",
+      "description": "Get the full ordered stop sequence for a specific train service \u2014 train's perspective, not traveler's."
+    },
+    {
+      "name": "Stop cluster",
+      "command": "stops cluster",
+      "description": "Group nearby stops within a radius using Haversine distance \u2014 useful for deduplicating station indexes and resolving ambiguous names."
+    }
+  ]
+}

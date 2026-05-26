@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-21T15:00:02.017734Z",
+  "printing_press_version": "4.10.0",
+  "api_name": "tesla",
+  "display_name": "Tesla",
+  "cli_name": "tesla-pp-cli",
+  "owner": "mvanhorn",
+  "printer": "mvanhorn",
+  "printer_name": "Matt Van Horn",
+  "spec_path": "\u003cworkspace\u003e/research/tesla-merged-spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:cf8b58970d2e4186b6644aa8f90a8612254ffc82c49b0b7dc16886a3ce7fb49a",
+  "run_id": "20260519-225351",
+  "description": "Every Tesla mobile-API feature, plus offline charging history and a SQLite-backed vehicle log no other Tesla CLI has",
+  "mcp_binary": "tesla-pp-mcp",
+  "mcp_tool_count": 80,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "TESLA_AUTH_TOKEN"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "TESLA_AUTH_TOKEN",
+      "kind": "per_call",
+      "required": true,
+      "sensitive": true,
+      "description": "Tesla iOS-app OAuth bearer token (8-hour TTL). Mint via tesla auth login."
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Ready-to-drive composite",
+      "command": "ready",
+      "description": "Single yes/no answer to \"can I leave in 5 minutes?\" with reasoned blocker list - SOC vs trip distance, plugged-in, doors closed, sentry off, cabin within 3F of target, no mid-install update"
+    },
+    {
+      "name": "Charging cost ledger",
+      "command": "cost ledger",
+      "description": "Per-session cost, monthly spend, home-vs-Supercharger ratio with tariff-window aware $/kWh"
+    },
+    {
+      "name": "Cost counterfactual",
+      "command": "cost what-if",
+      "description": "\"If you had only charged at home you would have saved $X over the last 90 days.\" Re-runs charge rows with home $/kWh substituted for Supercharger sessions"
+    },
+    {
+      "name": "Supercharger queue watch",
+      "command": "supercharger watch",
+      "description": "Single-poll snapshot of free stalls at a saved Supercharger; --watch repeats every N seconds with JSON-lines transitions"
+    },
+    {
+      "name": "Drive-and-charge timeline",
+      "command": "timeline",
+      "description": "Stitched drives + charges from synced vehicle_states polls - start/end, distance, energy, efficiency, address-resolved lat/lng"
+    },
+    {
+      "name": "Vampire-drain monitor",
+      "command": "vampire",
+      "description": "SOC delta vs idle time, flags suspicious sentry sessions or app-wake events"
+    },
+    {
+      "name": "Keys audit",
+      "command": "keys audit",
+      "description": "Lists every enrolled key with last-seen, role, form-factor; flags keys not seen \u003e90d as stale candidates for removal"
+    },
+    {
+      "name": "Reachability doctor",
+      "command": "doctor",
+      "description": "Detects signed-command-required errors, classifies the vehicle as REST-friendly vs signed-command-required, prints tesla-control enrollment URL when needed"
+    }
+  ]
+}

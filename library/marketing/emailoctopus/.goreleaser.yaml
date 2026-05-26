@@ -45,7 +45,7 @@ brews:
       owner: trevin-chow
       name: homebrew-tap
     homepage: "https://github.com/mvanhorn/printing-press-library"
-    description: "Every EmailOctopus v2 endpoint, plus the cross-list joins, churn diffs, and rate-budgeted bulk operations the API..."
+    description: "Manage EmailOctopus lists, contacts, campaigns, automations, reports, and cross-list cleanup workflows from the terminal."
     install: |
       bin.install "emailoctopus-pp-cli"
       bin.install "emailoctopus-pp-mcp"

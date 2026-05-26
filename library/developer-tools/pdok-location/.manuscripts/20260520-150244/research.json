@@ -1,0 +1,355 @@
+{
+  "api_name": "pdok-location",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "foarsitter/locatieserver",
+      "url": "https://github.com/foarsitter/locatieserver",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 4,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Amsterdam/pdok-api-client",
+      "url": "https://github.com/Amsterdam/pdok-api-client",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 4,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "uRosConf/nlgeocoder",
+      "url": "https://github.com/uRosConf/nlgeocoder",
+      "language": "R",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 4,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "oldgeogap/angular-locatieserver-geocoder",
+      "url": "https://github.com/oldgeogap/angular-locatieserver-geocoder",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 4,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "PDOK/locatieserver (docs+wiki)",
+      "url": "https://github.com/PDOK/locatieserver",
+      "language": "Documentation",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-20T13:15:45Z",
+  "novel_features": [
+    {
+      "name": "Batch CSV geocode",
+      "command": "batch geocode",
+      "description": "Geocode an entire CSV of Dutch addresses in one command — outputs lat/lon, RD X/Y, match score, and an error column for failed rows.",
+      "rationale": "Reuses the local geocode cache and a rate-limited HTTP client; the API does this one row at a time, every existing wrapper makes you write the loop yourself.",
+      "example": "pdok-location-pp-cli batch geocode incidents.csv --address-col street --out incidents-geocoded.csv",
+      "why_it_matters": "When an agent needs to enrich a list of Dutch addresses, this is the one-shot command — no per-row scripting, with cached re-runs and a clear error column.",
+      "group": "Batch and bulk workflows"
+    },
+    {
+      "name": "Suggest+lookup one-shot",
+      "command": "resolve",
+      "description": "Type a partial address, get the canonical match with full GeoJSON geometry — the suggest→lookup chain collapsed into a single command.",
+      "rationale": "The Dutch autocomplete pattern is two API calls plus WKT parsing; resolve does it once and converts WKT to GeoJSON on the way out.",
+      "example": "pdok-location-pp-cli resolve 'Damrak Amsterdam' --geojson",
+      "why_it_matters": "When an agent needs to turn imprecise user text into a canonical address with geometry, this is the cheapest path.",
+      "group": "Geocoding workflows"
+    },
+    {
+      "name": "Cross-source nearest",
+      "command": "nearest",
+      "description": "From any lat/lon or RD coordinate, return the nearest address, nearest parcel, nearest hectometer marker, and the gemeente/provincie containing the point — all in one call.",
+      "rationale": "Fans out the reverse-geocoder across multiple type filters and joins with the offline gemeente gazetteer; nobody else does this in one request.",
+      "example": "pdok-location-pp-cli nearest --lat 52.3731 --lon 4.8922 --json",
+      "why_it_matters": "Reverse-geocoding usually needs four separate API calls; this one returns the full picture in one shot, ideal for field-data enrichment pipelines.",
+      "group": "Geocoding workflows"
+    },
+    {
+      "name": "RD ↔ WGS84 coordinate conversion",
+      "command": "convert rd-to-ll",
+      "description": "Convert Dutch RD (EPSG:28992) coordinates to WGS84 lat/lon and back, with pure-math precision — no API call needed.",
+      "rationale": "Every Dutch geo workflow eventually needs this transform; computing it locally costs nothing and avoids round trips to spec-only services.",
+      "example": "pdok-location-pp-cli convert rd-to-ll 121200 488000 --json",
+      "why_it_matters": "When an agent must reconcile Dutch RD coords with global WGS84, this is the local, deterministic path — no rate limit, no auth.",
+      "group": "Offline conversions"
+    },
+    {
+      "name": "WKT ↔ GeoJSON conversion",
+      "command": "convert wkt-to-geojson",
+      "description": "Take any WKT geometry (POINT, POLYGON, MULTIPOLYGON, MULTILINESTRING) and emit GeoJSON — or convert GeoJSON back to WKT.",
+      "rationale": "PDOK returns WKT in every response, but modern tools want GeoJSON; this converter is built in and offline.",
+      "example": "pdok-location-pp-cli convert wkt-to-geojson 'POINT(4.76 52.64)'",
+      "why_it_matters": "When an agent needs to feed a PDOK response into mapping or analysis tooling expecting GeoJSON, this saves a parser.",
+      "group": "Offline conversions"
+    },
+    {
+      "name": "Offline gemeente / provincie gazetteer",
+      "command": "gemeente get",
+      "description": "After a one-time sync, look up any of the 342 Dutch gemeenten or 12 provincies fully offline — name, centroid, codes, parent provincie.",
+      "rationale": "The gemeente set is small and stable; caching it locally beats the API on latency and survives disconnects.",
+      "example": "pdok-location-pp-cli gemeente get amsterdam --json",
+      "why_it_matters": "For any agent workflow that asks 'which gemeente?' or 'list all gemeenten in this provincie', the answer is local and instant.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Local FTS over cached results",
+      "command": "search",
+      "description": "Full-text search across every address, gemeente, and lookup you've previously fetched — finds matches locally before falling back to the API.",
+      "rationale": "After repeated use the local SQLite store is faster than the API for known queries, and works offline.",
+      "example": "pdok-location-pp-cli search 'amsterdam centraal' --json",
+      "why_it_matters": "When an agent repeats lookups on the same dataset, this short-circuits the API entirely once the cache is warm.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Multi-collection OGC search with optional bbox",
+      "command": "features search",
+      "description": "Search across multiple Location API OGC collections (adres, perceel, gebouw, ...) with an optional bounding-box filter, flattened to JSON or CSV.",
+      "rationale": "The Location API exposes a single `/search` endpoint that requires per-collection opt-in via bracketed `\u003ccol\u003e[version]=1` syntax — this command takes a friendly --collections flag, encodes correctly, optionally adds --bbox, and emits flat CSV across collections.",
+      "example": "pdok-location-pp-cli features search --query damrak --collections adres,perceel --bbox 4.85,52.36,4.92,52.40 --csv",
+      "why_it_matters": "When an agent needs a flat CSV of address+parcel matches inside a study area, this is the lightest path from a query to a multi-collection result set.",
+      "group": "Batch and bulk workflows"
+    },
+    {
+      "name": "Confidence-gated best match",
+      "command": "top",
+      "description": "Return the single best match for a query if (and only if) the Solr score clears a threshold — exits non-zero when no match clears the bar.",
+      "rationale": "Pipelines need 'is this address recognizable' as a binary check; the score field and a clear non-zero exit make it composable.",
+      "example": "pdok-location-pp-cli top 'Hertog Aalbrechtweg 5 1823DL Alkmaar' --min-score 5.0 --require-type adres --json",
+      "why_it_matters": "When an agent needs a yes/no on whether an address is well-known, this is the predicate.",
+      "group": "Geocoding workflows"
+    },
+    {
+      "name": "Perceel by kadastrale aanduiding",
+      "command": "perceel lookup",
+      "description": "Look up a Dutch cadastral parcel by its full kadastrale aanduiding (e.g. 'AMR03 N 1234') and get back the GeoJSON parcel feature.",
+      "rationale": "The aanduiding format is a Dutch cadastral identifier; nobody parses it for you. This command splits it, queries the Location API perceel collection, and returns the geometry.",
+      "example": "pdok-location-pp-cli perceel lookup --aanduiding 'ASD02 A 4332' --json",
+      "why_it_matters": "For cadastral investigations, this is the only command-line path from aanduiding text to a GeoJSON parcel.",
+      "group": "Service-specific identity"
+    },
+    {
+      "name": "Gemeente containing a point",
+      "command": "gemeente of-point",
+      "description": "Given any lat/lon or RD coordinate, return which gemeente and provincie contain it — using the offline gazetteer with an API fallback.",
+      "rationale": "Computes the answer locally when the gemeenten gazetteer is loaded, falling back to the API only when needed.",
+      "example": "pdok-location-pp-cli gemeente of-point --lat 52.3731 --lon 4.8922 --json",
+      "why_it_matters": "For 'which municipality is this incident in' questions an agent asks repeatedly, this is the cached, offline-first answer.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Batch CSV geocode",
+      "command": "batch geocode",
+      "description": "Geocode an entire CSV of Dutch addresses in one command — outputs lat/lon, RD X/Y, match score, and an error column for failed rows.",
+      "rationale": "Reuses the local geocode cache and a rate-limited HTTP client; the API does this one row at a time, every existing wrapper makes you write the loop yourself.",
+      "example": "pdok-location-pp-cli batch geocode incidents.csv --address-col street --out incidents-geocoded.csv",
+      "why_it_matters": "When an agent needs to enrich a list of Dutch addresses, this is the one-shot command — no per-row scripting, with cached re-runs and a clear error column.",
+      "group": "Batch and bulk workflows"
+    },
+    {
+      "name": "Suggest+lookup one-shot",
+      "command": "resolve",
+      "description": "Type a partial address, get the canonical match with full GeoJSON geometry — the suggest→lookup chain collapsed into a single command.",
+      "rationale": "The Dutch autocomplete pattern is two API calls plus WKT parsing; resolve does it once and converts WKT to GeoJSON on the way out.",
+      "example": "pdok-location-pp-cli resolve 'Damrak Amsterdam' --geojson",
+      "why_it_matters": "When an agent needs to turn imprecise user text into a canonical address with geometry, this is the cheapest path.",
+      "group": "Geocoding workflows"
+    },
+    {
+      "name": "Cross-source nearest",
+      "command": "nearest",
+      "description": "From any lat/lon or RD coordinate, return the nearest address, nearest parcel, nearest hectometer marker, and the gemeente/provincie containing the point — all in one call.",
+      "rationale": "Fans out the reverse-geocoder across multiple type filters and joins with the offline gemeente gazetteer; nobody else does this in one request.",
+      "example": "pdok-location-pp-cli nearest --lat 52.3731 --lon 4.8922 --json",
+      "why_it_matters": "Reverse-geocoding usually needs four separate API calls; this one returns the full picture in one shot, ideal for field-data enrichment pipelines.",
+      "group": "Geocoding workflows"
+    },
+    {
+      "name": "RD ↔ WGS84 coordinate conversion",
+      "command": "convert rd-to-ll",
+      "description": "Convert Dutch RD (EPSG:28992) coordinates to WGS84 lat/lon and back, with pure-math precision — no API call needed.",
+      "rationale": "Every Dutch geo workflow eventually needs this transform; computing it locally costs nothing and avoids round trips to spec-only services.",
+      "example": "pdok-location-pp-cli convert rd-to-ll 121200 488000 --json",
+      "why_it_matters": "When an agent must reconcile Dutch RD coords with global WGS84, this is the local, deterministic path — no rate limit, no auth.",
+      "group": "Offline conversions"
+    },
+    {
+      "name": "WKT ↔ GeoJSON conversion",
+      "command": "convert wkt-to-geojson",
+      "description": "Take any WKT geometry (POINT, POLYGON, MULTIPOLYGON, MULTILINESTRING) and emit GeoJSON — or convert GeoJSON back to WKT.",
+      "rationale": "PDOK returns WKT in every response, but modern tools want GeoJSON; this converter is built in and offline.",
+      "example": "pdok-location-pp-cli convert wkt-to-geojson 'POINT(4.76 52.64)'",
+      "why_it_matters": "When an agent needs to feed a PDOK response into mapping or analysis tooling expecting GeoJSON, this saves a parser.",
+      "group": "Offline conversions"
+    },
+    {
+      "name": "Offline gemeente / provincie gazetteer",
+      "command": "gemeente get",
+      "description": "After a one-time sync, look up any of the 342 Dutch gemeenten or 12 provincies fully offline — name, centroid, codes, parent provincie.",
+      "rationale": "The gemeente set is small and stable; caching it locally beats the API on latency and survives disconnects.",
+      "example": "pdok-location-pp-cli gemeente get amsterdam --json",
+      "why_it_matters": "For any agent workflow that asks 'which gemeente?' or 'list all gemeenten in this provincie', the answer is local and instant.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Local FTS over cached results",
+      "command": "search",
+      "description": "Full-text search across every address, gemeente, and lookup you've previously fetched — finds matches locally before falling back to the API.",
+      "rationale": "After repeated use the local SQLite store is faster than the API for known queries, and works offline.",
+      "example": "pdok-location-pp-cli search 'amsterdam centraal' --json",
+      "why_it_matters": "When an agent repeats lookups on the same dataset, this short-circuits the API entirely once the cache is warm.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Multi-collection OGC search with optional bbox",
+      "command": "features search",
+      "description": "Search across multiple Location API OGC collections (adres, perceel, gebouw, ...) with an optional bounding-box filter, flattened to JSON or CSV.",
+      "rationale": "The Location API exposes a single `/search` endpoint that requires per-collection opt-in via bracketed `\u003ccol\u003e[version]=1` syntax — this command takes a friendly --collections flag, encodes correctly, optionally adds --bbox, and emits flat CSV across collections.",
+      "example": "pdok-location-pp-cli features search --query damrak --collections adres,perceel --bbox 4.85,52.36,4.92,52.40 --csv",
+      "why_it_matters": "When an agent needs a flat CSV of address+parcel matches inside a study area, this is the lightest path from a query to a multi-collection result set.",
+      "group": "Batch and bulk workflows"
+    },
+    {
+      "name": "Confidence-gated best match",
+      "command": "top",
+      "description": "Return the single best match for a query if (and only if) the Solr score clears a threshold — exits non-zero when no match clears the bar.",
+      "rationale": "Pipelines need 'is this address recognizable' as a binary check; the score field and a clear non-zero exit make it composable.",
+      "example": "pdok-location-pp-cli top 'Hertog Aalbrechtweg 5 1823DL Alkmaar' --min-score 5.0 --require-type adres --json",
+      "why_it_matters": "When an agent needs a yes/no on whether an address is well-known, this is the predicate.",
+      "group": "Geocoding workflows"
+    },
+    {
+      "name": "Perceel by kadastrale aanduiding",
+      "command": "perceel lookup",
+      "description": "Look up a Dutch cadastral parcel by its full kadastrale aanduiding (e.g. 'AMR03 N 1234') and get back the GeoJSON parcel feature.",
+      "rationale": "The aanduiding format is a Dutch cadastral identifier; nobody parses it for you. This command splits it, queries the Location API perceel collection, and returns the geometry.",
+      "example": "pdok-location-pp-cli perceel lookup --aanduiding 'ASD02 A 4332' --json",
+      "why_it_matters": "For cadastral investigations, this is the only command-line path from aanduiding text to a GeoJSON parcel.",
+      "group": "Service-specific identity"
+    },
+    {
+      "name": "Gemeente containing a point",
+      "command": "gemeente of-point",
+      "description": "Given any lat/lon or RD coordinate, return which gemeente and provincie contain it — using the offline gazetteer with an API fallback.",
+      "rationale": "Computes the answer locally when the gemeenten gazetteer is loaded, falling back to the API only when needed.",
+      "example": "pdok-location-pp-cli gemeente of-point --lat 52.3731 --lon 4.8922 --json",
+      "why_it_matters": "For 'which municipality is this incident in' questions an agent asks repeatedly, this is the cached, offline-first answer.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "narrative": {
+    "display_name": "PDOK Location",
+    "headline": "One Go binary for every Dutch location workflow — geocode, reverse-geocode, batch CSVs, full GeoJSON geometries, and RD↔WGS84 conversion built in.",
+    "value_prop": "PDOK Location wraps both Dutch government location services in one CLI because they are complementary, not redundant. The Solr-based **Locatieserver** is the established text geocoder — free-text matches, suggest/lookup chains, type-filtered reverse geocoding, ranked Solr scores. The OGC **Kadaster Location API** ships what Locatieserver cannot — full GeoJSON geometries, bbox filtering, and multi-CRS output (WGS84, Dutch RD, Web Mercator, ETRS89). A common Dutch geo workflow uses both: geocode text on Locatieserver, then pull full geometry on the Location API. Bundling them under one binary, one config, and one local cache turns that workflow into a single tool. `doctor` probes each service individually so when one upstream is down you see which commands still work.",
+    "auth_narrative": "Both PDOK Location services are free, open, and require no authentication or API key. The CLI works out of the box — no env vars to set, no doctor failures on a fresh install.",
+    "quickstart": [
+      {
+        "command": "pdok-location-pp-cli geocode 'Hertog Aalbrechtweg 5 1823DL Alkmaar' --json",
+        "comment": "Verify the API is reachable with a real Dutch address — should return one match with lat/lon and RD coords."
+      },
+      {
+        "command": "pdok-location-pp-cli resolve 'Damrak Amsterdam' --geojson",
+        "comment": "Demonstrate the suggest→lookup chain returning full GeoJSON geometry for the canonical match."
+      },
+      {
+        "command": "pdok-location-pp-cli sync",
+        "comment": "Seed the local gazetteer (342 gemeenten, 12 provincies) so offline lookups work immediately."
+      },
+      {
+        "command": "pdok-location-pp-cli gemeente get amsterdam --json",
+        "comment": "Show that gemeente lookups are now served from the local cache."
+      },
+      {
+        "command": "pdok-location-pp-cli nearest --lat 52.3731 --lon 4.8922 --json",
+        "comment": "Cross-source reverse geocode — nearest address, parcel, hectometer marker, and gemeente in one call."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "Geocoding returns numFound \u003e 0 but score below your threshold.",
+        "fix": "Lower --min-score (default Solr scores are usually 5-15) or relax --type / --bron filters."
+      },
+      {
+        "symptom": "centroide_ll comes back blank.",
+        "fix": "Add 'centroide_ll' to --fl, or use --all-fields to request the full default field list."
+      },
+      {
+        "symptom": "reverse returns numFound=0 with --distance set.",
+        "fix": "Remove --distance or widen it; the default 50m radius is sometimes too tight for less dense areas."
+      },
+      {
+        "symptom": "Bulk batch geocode hits sustained 5xx errors.",
+        "fix": "Lower --concurrency (default 5) and add --retries 3; the limiter will back off on 429."
+      },
+      {
+        "symptom": "Local FTS search returns no results.",
+        "fix": "Run 'pdok-location-pp-cli sync' first, then geocode or lookup at least a few addresses to populate the cache."
+      }
+    ],
+    "when_to_use": "PDOK Location is the right CLI when an agent needs to work with Dutch addresses, parcels, roads, or administrative boundaries — including batch geocoding CSVs, looking up the gemeente containing a point, converting between RD and WGS84 coordinates, or pulling full GeoJSON features inside a bounding box. It is Netherlands-only (do not use for non-Dutch addresses) and free (no auth, no key).",
+    "recipes": [
+      {
+        "title": "Bulk geocode a CSV of customer addresses",
+        "command": "pdok-location-pp-cli batch geocode customers.csv --address-col street --out customers-geocoded.csv",
+        "explanation": "Geocode every row, write a new CSV with lat/lon, RD x/y, score, and an error column. Re-runs are free because successful matches are cached."
+      },
+      {
+        "title": "Resolve a partial address to its canonical match with geometry",
+        "command": "pdok-location-pp-cli resolve 'Damrak Amsterdam' --geojson",
+        "explanation": "One command that does the suggest→lookup chain and returns GeoJSON ready to drop into a map."
+      },
+      {
+        "title": "Trim a verbose reverse-geocode for agent context (--agent + --select)",
+        "command": "pdok-location-pp-cli nearest --lat 52.3731 --lon 4.8922 --agent --select adres.weergavenaam,adres.id,perceel.weergavenaam,gemeente.gemeentenaam,gemeente.provincienaam",
+        "explanation": "Pair --agent with --select dotted paths so the agent gets only the address line, parcel description, and admin context — not the full per-source response."
+      },
+      {
+        "title": "List matching parcels inside a study bbox",
+        "command": "pdok-location-pp-cli features search --query amsterdam --collections perceel --bbox 4.85,52.36,4.92,52.40 --csv",
+        "explanation": "Pulls every parcel matching 'amsterdam' inside the bbox from the Location API and emits a flat CSV; swap --collections to adres, gebouw, or any other OGC collection."
+      },
+      {
+        "title": "Convert Dutch RD coordinates to WGS84 with no API call",
+        "command": "pdok-location-pp-cli convert rd-to-ll 121200 488000 --json",
+        "explanation": "Pure-math transform, runs offline, deterministic — useful for normalizing legacy datasets stored in RD."
+      }
+    ],
+    "trigger_phrases": [
+      "geocode a Dutch address",
+      "find the gemeente for this lat/lon",
+      "convert RD coordinates to WGS84",
+      "look up a Dutch postcode",
+      "batch geocode a CSV of Dutch addresses",
+      "find the nearest address to this point in the Netherlands",
+      "use pdok-location",
+      "run pdok-location"
+    ]
+  }
+}

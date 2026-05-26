@@ -1,6 +1,6 @@
 ---
 name: pp-shopify
-description: "Printing Press CLI for Shopify. Ecommerce orders, products, customers, inventory, fulfillment orders, and bulk operations via the Shopify Admin..."
+description: "Operate a Shopify store from the terminal with local sync, analytics, and bulk exports."
 author: "Cathryn Lavery"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"
@@ -24,7 +24,7 @@ This skill drives the `shopify-pp-cli` binary. **You must verify the CLI is inst
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install shopify --cli-only
+   npx -y @mvanhorn/printing-press-library install shopify --cli-only
    ```
 2. Verify: `shopify-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
@@ -37,11 +37,18 @@ go install github.com/mvanhorn/printing-press-library/library/commerce/shopify/c
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
 
+Ecommerce orders, products, customers, inventory, fulfillment orders, and bulk operations via the Shopify Admin GraphQL API.
+
 ## When Not to Use This CLI
 
-Do not use resource commands for requests that require creating, updating, deleting, publishing, commenting, upvoting, inviting, ordering, sending messages, booking, purchasing, or changing remote state. The exception is `bulk-operations run-query`, which intentionally starts a Shopify bulk export job when the user explicitly asks for it.
+Do not activate this CLI for requests that require creating, updating, deleting, publishing, commenting, upvoting, inviting, ordering, sending messages, booking, purchasing, or changing remote state. This printed CLI exposes read-only commands for inspection, export, sync, and analysis.
 
 ## Command Reference
+
+**abandoned-checkouts** — Shopify abandoned checkouts for recovery campaigns and lost-cart analysis.
+
+- `shopify-pp-cli abandoned-checkouts get` — Get one Shopify abandoned checkout by GraphQL ID.
+- `shopify-pp-cli abandoned-checkouts list` — List abandoned checkouts from the Shopify Admin GraphQL API.
 
 **customers** — Shopify customers with lifetime order count, lifetime spend, and contact fields.
 
@@ -69,33 +76,36 @@ Do not use resource commands for requests that require creating, updating, delet
 - `shopify-pp-cli products list` — List products from the Shopify Admin GraphQL API.
 
 
-**Hand-written commands**
-
-- `shopify-pp-cli bulk-operations current` — Show the current or most recent Shopify bulk operation.
-- `shopify-pp-cli bulk-operations run-query --query-file <path>` — Start a Shopify bulk GraphQL export job from a query file.
-
-
 ## Freshness Contract
 
 This printed CLI owns bounded freshness only for registered store-backed read command paths. In `--data-source auto` mode, those paths check `sync_state` and may run a bounded refresh before reading local data. `--data-source local` never refreshes. `--data-source live` reads the API and does not mutate the local store. Set `SHOPIFY_NO_AUTO_REFRESH=1` to skip the freshness hook without changing source selection.
 
 Covered paths:
 
+- `shopify-pp-cli abandoned-checkouts`
+- `shopify-pp-cli abandoned-checkouts get`
+- `shopify-pp-cli abandoned-checkouts list`
+- `shopify-pp-cli abandoned-checkouts search`
 - `shopify-pp-cli customers`
 - `shopify-pp-cli customers get`
 - `shopify-pp-cli customers list`
+- `shopify-pp-cli customers search`
 - `shopify-pp-cli fulfillment-orders`
 - `shopify-pp-cli fulfillment-orders get`
 - `shopify-pp-cli fulfillment-orders list`
+- `shopify-pp-cli fulfillment-orders search`
 - `shopify-pp-cli inventory-items`
 - `shopify-pp-cli inventory-items get`
 - `shopify-pp-cli inventory-items list`
+- `shopify-pp-cli inventory-items search`
 - `shopify-pp-cli orders`
 - `shopify-pp-cli orders get`
 - `shopify-pp-cli orders list`
+- `shopify-pp-cli orders search`
 - `shopify-pp-cli products`
 - `shopify-pp-cli products get`
 - `shopify-pp-cli products list`
+- `shopify-pp-cli products search`
 
 When JSON output uses the generated provenance envelope, freshness metadata appears at `meta.freshness`. Treat it as current-cache freshness for the covered command path, not a guarantee of complete historical backfill or API-specific enrichment.
 
@@ -109,13 +119,16 @@ shopify-pp-cli which "<capability in your own words>"
 
 `which` resolves a natural-language capability query to the best matching command from this CLI's curated feature index. Exit code `0` means at least one match; exit code `2` means no confident match — fall back to `--help` or use a narrower query.
 
-## Auth Setup
+## Hand-written Extensions
 
-Set the store host, Admin API version, and access token via environment variables:
+These commands are declared by the spec author and require separate hand-written wiring; the generator does not emit Cobra registration for them. They are listed here for discoverability and are intentionally outside `## Command Reference` so the verify-skill unknown-command check does not treat them as generator-owned paths.
+
+- `shopify-pp-cli bulk-operations` — Run, poll, and inspect Shopify Admin GraphQL bulk operations.
+
+## Auth Setup
+Run `shopify-pp-cli auth setup` to print the URL and steps for getting a key (add `--launch` to open the URL). Then set:
 
 ```bash
-export SHOPIFY_SHOP="<your-store>.myshopify.com"
-export SHOPIFY_API_VERSION="2026-04"
 export SHOPIFY_ACCESS_TOKEN="<your-key>"
 ```
 
@@ -131,12 +144,12 @@ Add `--agent` to any command. Expands to: `--json --compact --no-input --no-colo
 - **Filterable** — `--select` keeps a subset of fields. Dotted paths descend into nested structures; arrays traverse element-wise. Critical for keeping context small on verbose APIs:
 
   ```bash
-  shopify-pp-cli customers list --agent --select id,name,status
+  shopify-pp-cli abandoned-checkouts list --agent --select id,name,status
   ```
 - **Previewable** — `--dry-run` shows the request without sending
 - **Offline-friendly** — sync/search commands can use the local SQLite store when available
 - **Non-interactive** — never prompts, every input is a flag
-- **Read-mostly** — resource commands are read-only; `bulk-operations run-query` mutates remote state by starting an export job and should only be used on explicit request
+- **Read-only** — do not use this CLI for create, update, delete, publish, comment, upvote, invite, order, send, or other mutating requests
 
 ### Response envelope
 
@@ -149,7 +162,7 @@ Commands that read from the local store or the API wrap output in a provenance e
 }
 ```
 
-Parse `.results` for data and `.meta.source` to know whether it's live or local. A human-readable `N results (live)` summary is printed to stderr only when stdout is a terminal — piped/agent consumers get pure JSON on stdout.
+Parse `.results` for data and `.meta.source` to know whether it's live or local. A human-readable `N results (live)` summary is printed to stderr only when stdout is a terminal AND no machine-format flag (`--json`, `--csv`, `--compact`, `--quiet`, `--plain`, `--select`) is set — piped/agent consumers and explicit-format runs get pure JSON on stdout.
 
 ## Agent Feedback
 
@@ -161,7 +174,7 @@ shopify-pp-cli feedback --stdin < notes.txt
 shopify-pp-cli feedback list --json --limit 10
 ```
 
-Entries are stored locally at `~/.shopify-pp-cli/feedback.jsonl`. They are never POSTed unless `SHOPIFY_FEEDBACK_ENDPOINT` is set AND either `--send` is passed or `SHOPIFY_FEEDBACK_AUTO_SEND=true`. Default behavior is local-only.
+Entries are stored locally at `~/.local/share/shopify-pp-cli/feedback.jsonl`. They are never POSTed unless `SHOPIFY_FEEDBACK_ENDPOINT` is set AND either `--send` is passed or `SHOPIFY_FEEDBACK_AUTO_SEND=true`. Default behavior is local-only.
 
 Write what *surprised* you, not a bug report. Short, specific, one line: that is the part that compounds.
 
@@ -183,7 +196,7 @@ A profile is a saved set of flag values, reused across invocations. Use it when 
 
 ```
 shopify-pp-cli profile save briefing --json
-shopify-pp-cli --profile briefing customers list
+shopify-pp-cli --profile briefing abandoned-checkouts list
 shopify-pp-cli profile list --json
 shopify-pp-cli profile show briefing
 shopify-pp-cli profile delete briefing --yes
@@ -210,6 +223,7 @@ Parse `$ARGUMENTS`:
 1. **Empty, `help`, or `--help`** → show `shopify-pp-cli --help` output
 2. **Starts with `install`** → ends with `mcp` → MCP installation; otherwise → see Prerequisites above
 3. **Anything else** → Direct Use (execute as CLI command with `--agent`)
+
 ## MCP Server Installation
 
 1. Install the MCP server:

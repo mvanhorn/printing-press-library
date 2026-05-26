@@ -24,7 +24,7 @@ This skill drives the `trendhunter-pp-cli` binary. **You must verify the CLI is 
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install trendhunter --cli-only
+   npx -y @mvanhorn/printing-press-library install trendhunter --cli-only
    ```
 2. Verify: `trendhunter-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
@@ -36,8 +36,6 @@ go install github.com/mvanhorn/printing-press-library/library/marketing/trendhun
 ```
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
-
-trendhunter-pp-cli scrapes the free public TrendHunter surface (RSS feed, sitemap, category and trend pages, search results) into a local SQLite store, then exposes corpus-diff, rising-keyword clusters, time-windowed author velocity, FAQ Q&A extraction, and a category-watch feed the site itself can't provide. No API key. No login. Stdlib HTTP transport - no headless browser.
 
 ## When to Use This CLI
 

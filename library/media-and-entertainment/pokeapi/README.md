@@ -11,26 +11,26 @@ Learn more at [PokéAPI](https://pokeapi.co/docs/v2).
 The recommended path installs both the `pokeapi-pp-cli` binary and the `pp-pokeapi` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
 
 ```bash
-npx -y @mvanhorn/printing-press install pokeapi
+npx -y @mvanhorn/printing-press-library install pokeapi
 ```
 
 For CLI only (no skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install pokeapi --cli-only
+npx -y @mvanhorn/printing-press-library install pokeapi --cli-only
 ```
 
 For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install pokeapi --skill-only
+npx -y @mvanhorn/printing-press-library install pokeapi --skill-only
 ```
 
 To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
 
 ```bash
-npx -y @mvanhorn/printing-press install pokeapi --agent claude-code
-npx -y @mvanhorn/printing-press install pokeapi --agent claude-code --agent codex
+npx -y @mvanhorn/printing-press-library install pokeapi --agent claude-code
+npx -y @mvanhorn/printing-press-library install pokeapi --agent claude-code --agent codex
 ```
 
 ### Without Node (Go fallback)

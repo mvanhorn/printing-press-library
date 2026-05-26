@@ -219,6 +219,14 @@ func ExtractClusters(decoded string) ([]Cluster, error) {
 		if c.CurrentRank == 0 && c.Rank > 0 {
 			c.CurrentRank = c.Rank
 		}
+		// PATCH: Treat PeakRank=9999 as absent (Digg's sentinel for newly-
+		// detected clusters with no tracked all-time peak). Normalize at
+		// parse time so a sentinel occurrence does not block a later
+		// occurrence's legitimate PeakRank via the first-non-zero-wins
+		// merge guard. Mirrors the Rank → CurrentRank normalization above.
+		if c.PeakRank == 9999 {
+			c.PeakRank = 0
+		}
 		// Keep only objects that look like real clusters. cluster_detected
 		// events also carry a clusterId, but they're events, not clusters.
 		// Fold them into existing clusters if the cluster is already there;
@@ -366,7 +374,14 @@ func matchBalancedObject(s string, start int) int {
 }
 
 // mergeClusters returns the union of two cluster records observed for
-// the same clusterId. Non-zero fields from b override zero fields in a.
+// the same clusterId. Most fields use later-wins-when-nonzero, so b
+// fills in or enriches values on a. The four rank-bearing fields
+// (CurrentRank, PeakRank, PreviousRank, Delta) use first-non-zero-wins
+// instead: a non-zero accumulator is preserved, and b only fills in
+// when a is still zero. This keeps the main /ai leaderboard rank
+// (emitted first in the RSC stream) from being clobbered by a later
+// featured / weekly / pinned / sevenDaysStories section that assigns
+// the same cluster a different rank.
 func mergeClusters(a, b Cluster) Cluster {
 	if b.ClusterURLID != "" {
 		a.ClusterURLID = b.ClusterURLID
@@ -389,16 +404,21 @@ func mergeClusters(a, b Cluster) Cluster {
 	if b.Topic != "" {
 		a.Topic = b.Topic
 	}
-	if b.CurrentRank != 0 {
+	// PATCH: rank-bearing fields use first-non-zero-wins precedence so later
+	// cross-section occurrences (featured / weekly / pinned / sevenDaysStories
+	// blocks in the RSC stream) cannot overwrite the main /ai leaderboard rank
+	// for the same cluster. Zero accumulator still accepts a later non-zero
+	// value so sparse-then-full enrichment is preserved.
+	if a.CurrentRank == 0 && b.CurrentRank != 0 {
 		a.CurrentRank = b.CurrentRank
 	}
-	if b.PeakRank != 0 {
+	if a.PeakRank == 0 && b.PeakRank != 0 {
 		a.PeakRank = b.PeakRank
 	}
-	if b.PreviousRank != 0 {
+	if a.PreviousRank == 0 && b.PreviousRank != 0 {
 		a.PreviousRank = b.PreviousRank
 	}
-	if b.Delta != 0 {
+	if a.Delta == 0 && b.Delta != 0 {
 		a.Delta = b.Delta
 	}
 	if b.GravityScore != 0 {

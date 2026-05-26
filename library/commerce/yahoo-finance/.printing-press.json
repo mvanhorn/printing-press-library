@@ -1,15 +1,75 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-04-12T05:57:02.896623Z",
-  "printing_press_version": "1.3.2",
+  "generated_at": "2026-05-25T03:34:18.266302Z",
+  "printing_press_version": "4.14.0",
   "api_name": "yahoo-finance",
+  "display_name": "Yahoo Finance",
   "cli_name": "yahoo-finance-pp-cli",
+  "owner": "tmchow",
   "printer": "tmchow",
   "printer_name": "Trevin Chow",
-  "spec_path": "/Users/tmchow/printing-press/.runstate/cli-printing-press-8bdedb85/runs/20260411-210148/research/yahoo-finance-spec.yaml",
-  "run_id": "20260411-210148",
+  "spec_path": "/Users/charlesg77/printing-press/.runstate/charlesg77-f2620910/runs/20260524-221143/research/yahoo-finance-spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:e6e704a24e222592954874e8231e6575cb747ac46a9a8572a640bd72d4fc093b",
+  "run_id": "20260524-221143",
+  "category": "commerce",
+  "description": "Every Yahoo Finance endpoint plus a SQLite portfolio, covered-call screener, and Chrome-cookie fallback the libraries don't ship.",
   "mcp_binary": "yahoo-finance-pp-mcp",
   "mcp_tool_count": 11,
+  "mcp_public_tool_count": 11,
   "mcp_ready": "full",
-  "auth_type": "none"
+  "api_version": "1.0.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Portfolio performance tracker",
+      "command": "portfolio perf",
+      "description": "Track YTD / 1Y / all-time returns on your holdings with cost basis, dividends, and current price baked in."
+    },
+    {
+      "name": "Morning digest across watchlist",
+      "command": "digest",
+      "description": "One command: overnight news + biggest movers + earnings today + ex-div dates for everything on your watchlist."
+    },
+    {
+      "name": "Dividend income + yield-on-cost",
+      "command": "portfolio dividends",
+      "description": "See total dividend income for the year, per-holding breakdown, and yield on cost."
+    },
+    {
+      "name": "Options moneyness + DTE filter",
+      "command": "options-chain",
+      "description": "Filter an options chain to ATM/OTM/ITM contracts within a days-to-expiration window."
+    },
+    {
+      "name": "Local SQL screener over synced fundamentals",
+      "command": "screen-local",
+      "description": "Run arbitrary P/E, P/B, yield, margin, and growth filters against the data you've synced locally."
+    },
+    {
+      "name": "Chrome cookie import fallback",
+      "command": "auth login --chrome",
+      "description": "Import your live Chrome session cookies when Yahoo's crumb handshake is blocked from your IP."
+    },
+    {
+      "name": "Insider net-buying signal screener",
+      "command": "insiders-net-buying",
+      "description": "Surface companies where insiders are net buyers in the last N days, filtered to your watchlist."
+    },
+    {
+      "name": "Total-return comparator",
+      "command": "compare",
+      "description": "Multi-symbol price-plus-dividend total return ranked over a range."
+    },
+    {
+      "name": "Covered-call screener over holdings",
+      "command": "options-covered-calls",
+      "description": "Scan your holdings for covered-call candidates by annualized yield and DTE."
+    },
+    {
+      "name": "Watchlist correlation matrix",
+      "command": "watchlist correlate",
+      "description": "Pairwise Pearson correlation across the symbols in a named watchlist over a date range."
+    }
+  ]
 }

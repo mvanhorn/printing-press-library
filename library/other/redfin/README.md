@@ -11,26 +11,26 @@ Learn more at [Redfin](https://www.redfin.com).
 The recommended path installs both the `redfin-pp-cli` binary and the `pp-redfin` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
 
 ```bash
-npx -y @mvanhorn/printing-press install redfin
+npx -y @mvanhorn/printing-press-library install redfin
 ```
 
 For CLI only (no skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install redfin --cli-only
+npx -y @mvanhorn/printing-press-library install redfin --cli-only
 ```
 
 For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install redfin --skill-only
+npx -y @mvanhorn/printing-press-library install redfin --skill-only
 ```
 
 To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
 
 ```bash
-npx -y @mvanhorn/printing-press install redfin --agent claude-code
-npx -y @mvanhorn/printing-press install redfin --agent claude-code --agent codex
+npx -y @mvanhorn/printing-press-library install redfin --agent claude-code
+npx -y @mvanhorn/printing-press-library install redfin --agent claude-code --agent codex
 ```
 
 ### Without Node (Go fallback)
@@ -279,12 +279,11 @@ Exit codes: `0` success, `2` usage error, `3` not found, `5` API error, `7` rate
 
 ## Freshness
 
-This CLI owns bounded freshness for registered store-backed read command paths. In `--data-source auto` mode, covered commands check the local SQLite store before serving results; stale or missing resources trigger a bounded refresh, and refresh failures fall back to the existing local data with a warning. `--data-source local` never refreshes, and `--data-source live` reads the API without mutating the local store.
+This CLI owns bounded freshness only for registered store-backed read command paths. In `--data-source auto` mode, covered commands check the local SQLite store before serving results; stale or missing resources trigger a bounded refresh, and refresh failures fall back to the existing local data with a warning. `--data-source local` never refreshes, and `--data-source live` reads the API without mutating the local store.
 
 Set `REDFIN_NO_AUTO_REFRESH=1` to disable the pre-read freshness hook while preserving the selected data source.
 
-Covered command paths:
-- `redfin-pp-cli homes`
+Covered command paths: none. `homes` is a live per-call search; the local store is populated by `sync-search` / `watch` only.
 
 JSON outputs that use the generated provenance envelope include freshness metadata at `meta.freshness`. This metadata describes the freshness decision for the covered command path; it does not claim full historical backfill or API-specific enrichment.
 

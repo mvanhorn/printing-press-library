@@ -11,31 +11,37 @@ Printed by [@markvandeven](https://github.com/markvandeven) (markvandeven).
 The recommended path installs both the `tenderned-pp-cli` binary and the `pp-tenderned` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
 
 ```bash
-npx -y @mvanhorn/printing-press install tenderned
+npx -y @mvanhorn/printing-press-library install tenderned
 ```
 
 For CLI only (no skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install tenderned --cli-only
+npx -y @mvanhorn/printing-press-library install tenderned --cli-only
 ```
 
 For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install tenderned --skill-only
+npx -y @mvanhorn/printing-press-library install tenderned --skill-only
 ```
 
 To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
 
 ```bash
-npx -y @mvanhorn/printing-press install tenderned --agent claude-code
-npx -y @mvanhorn/printing-press install tenderned --agent claude-code --agent codex
+npx -y @mvanhorn/printing-press-library install tenderned --agent claude-code
+npx -y @mvanhorn/printing-press-library install tenderned --agent claude-code --agent codex
 ```
 
-### Without Node
+### Without Node (Go fallback)
 
-The generated install path is category-agnostic until this CLI is published. If `npx` is not available before publish, install Node or use the category-specific Go fallback from the public-library entry after publish.
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.3 or newer):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/sales-and-crm/tenderned/cmd/tenderned-pp-cli@latest
+```
+
+This installs the CLI only — no skill.
 
 ### Pre-built binary
 
@@ -107,18 +113,14 @@ Most of TenderNed (search, list, document download, RSS) is unauthenticated and 
 # List the past two weeks of public-works tenders as JSON
 tenderned-pp-cli notices list --agent
 
-
 # Populate the local SQLite store so offline queries and novel commands work
 tenderned-pp-cli sync
-
 
 # Compute a full procurement profile for one contracting authority
 tenderned-pp-cli buyer dossier "Gemeente Rotterdam" --since 2025-01-01 --agent
 
-
 # Find sub-threshold construction tenders that never reach EU TED
 tenderned-pp-cli leads --national --max-value 200000 --cpv 45000000-7 --since 2026-04-01 --agent
-
 
 # Triage what's closing in the next two weeks
 tenderned-pp-cli deadline --within 14 --agent
@@ -250,7 +252,6 @@ Search, list and fetch tender notices (aankondigingen) from TenderNed — mirror
 
 - **`tenderned-pp-cli notices get`** - Fetch full structured metadata for one publication
 - **`tenderned-pp-cli notices list`** - Search and list tender publications with rich filters (CPV, dates, buyer, procedure, scope)
-
 
 ## Output Formats
 

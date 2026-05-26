@@ -1,0 +1,1957 @@
+{
+  "api_name": "eventbrite",
+  "base_url": "https://www.eventbriteapi.com/v3",
+  "description": "Every Eventbrite organizer endpoint, plus a local SQLite mirror of your events, orders, and attendees you can search offline — the cross-event search Eventbrite removed, restored over your own data.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "mcp": {
+    "endpoint_tools": "hidden",
+    "orchestration": "code"
+  },
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "EVENTBRITE_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "EVENTBRITE_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ],
+    "key_url": "https://www.eventbrite.com/platform/api-keys"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "balance_events_remaining-balance",
+      "description": "Given an organization id and an event id returns an event-level balance specific to the time the endpoint is called. Required: public_organization_id, public_event_id.",
+      "method": "GET",
+      "path": "/balance/{public_organization_id}/events/{public_event_id}/",
+      "params": [
+        {
+          "name": "public_organization_id",
+          "type": "string",
+          "location": "path",
+          "description": "public_organization_id",
+          "required": true
+        },
+        {
+          "name": "public_event_id",
+          "type": "string",
+          "location": "path",
+          "description": "public_event_id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "categories_category-by-id",
+      "description": "Gets a `category` by ID as ``category``. Required: id. Returns the CategoriesCategoryByIdResponse.",
+      "method": "GET",
+      "path": "/categories/{id}/",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Category ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "categories_list-of",
+      "description": "Returns a list of Category as categories, including subcategories nested. Returns a paginated response.",
+      "method": "GET",
+      "path": "/categories/",
+      "params": []
+    },
+    {
+      "name": "discounts_delete-a",
+      "description": "Delete a Discount. Only unused Discounts can be deleted. \u003cb\u003eWarning:\u003c/b\u003e A Discount cannot be restored after being deleted. Required: discount_id. Returns the DiscountsDeleteAResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/discounts/{discount_id}/",
+      "params": [
+        {
+          "name": "discount_id",
+          "type": "string",
+          "location": "path",
+          "description": "Discount ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "discounts_retrieve-a",
+      "description": "Retrieve a Discount by Discount ID. Required: discount_id. Returns the DiscountsRetrieveAResponse.",
+      "method": "GET",
+      "path": "/discounts/{discount_id}/",
+      "params": [
+        {
+          "name": "discount_id",
+          "type": "string",
+          "location": "path",
+          "description": "Discount ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "discounts_update-a",
+      "description": "Update a Discount by Discount ID. Required: discount_id. Optional: discount. Returns the new DiscountsUpdateAResponse.",
+      "method": "POST",
+      "path": "/discounts/{discount_id}/",
+      "params": [
+        {
+          "name": "discount_id",
+          "type": "string",
+          "location": "path",
+          "description": "Discount ID.",
+          "required": true
+        },
+        {
+          "name": "discount",
+          "type": "object",
+          "location": "body",
+          "description": "Discount"
+        }
+      ]
+    },
+    {
+      "name": "event_canned-questions_delete-default-question-by-id",
+      "description": "Deactivate a canned question for the event. Required: event_id, question_id. Returns the CannedQuestionsDeleteDefaultQuestionByIdResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/event/{event_id}/canned_questions/{question_id}",
+      "params": [
+        {
+          "name": "event_id",
+          "type": "string",
+          "location": "path",
+          "description": "Event ID.",
+          "required": true
+        },
+        {
+          "name": "question_id",
+          "type": "string",
+          "location": "path",
+          "description": "Canned Question ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "event_canned-questions_get-default-question-by-id",
+      "description": "Retrieve a Canned Question by Event and Question ID. Required: event_id, question_id. Returns the CannedQuestionsGetDefaultQuestionByIdResponse.",
+      "method": "GET",
+      "path": "/event/{event_id}/canned_questions/{question_id}",
+      "params": [
+        {
+          "name": "event_id",
+          "type": "string",
+          "location": "path",
+          "description": "Event ID.",
+          "required": true
+        },
+        {
+          "name": "question_id",
+          "type": "string",
+          "location": "path",
+          "description": "Canned Question ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "event_canned-questions_update-default-question-by-id",
+      "description": "Modify details of the canned question of the event. Required: event_id, question_id. Returns the new CannedQuestionsUpdateDefaultQuestionByIdResponse.",
+      "method": "POST",
+      "path": "/event/{event_id}/canned_questions/{question_id}",
+      "params": [
+        {
+          "name": "event_id",
+          "type": "string",
+          "location": "path",
+          "description": "Event ID.",
+          "required": true
+        },
+        {
+          "name": "question_id",
+          "type": "string",
+          "location": "path",
+          "description": "Canned Question ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "events_delete-an",
+      "description": "Delete an Event if the delete is permitted. Returns a boolean indicating the success or failure of the delete action. To delete an Event, the Event must not have any pending or completed orders. If the event is a series parent, all series occurrences must be in a valid state to be deleted. Deleting the series parent will delete all series occurrences. Required: event_id. Destructive.",
+      "method": "DELETE",
+      "path": "/events/{event_id}/",
+      "params": [
+        {
+          "name": "event_id",
+          "type": "string",
+          "location": "path",
+          "description": "Event ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "events_retrieve-an",
+      "description": "Retrieve an Event by Event ID. \u003e **Note**: If the Event being retrieved was created using the new version of Create, then you may notice that the Event’s description field is now being used to hold the event summary. To retrieve your event’s fully-rendered HTML description, you will need to make an additional API call to retrieve the Event's full HTML description. Required: event_id. Returns the EventsRetrieveAnResponse.",
+      "method": "GET",
+      "path": "/events/{event_id}/",
+      "params": [
+        {
+          "name": "event_id",
+          "type": "string",
+          "location": "path",
+          "description": "Event ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "events_update-an",
+      "description": "Update Event by Event ID. Note that if the event is a series parent, updating `name`, `description`, `hide_start_date`, `hide_end_date`, `currency`, `show_remaining`, `password`, `capacity`, or `source` on the series parent will update these fields on all occurrences in the series. Required: event_id. Optional: event. Returns the new EventsUpdateAnResponse.",
+      "method": "POST",
+      "path": "/events/{event_id}/",
+      "params": [
+        {
+          "name": "event_id",
+          "type": "string",
+          "location": "path",
+          "description": "Event ID.",
+          "required": true
+        },
+        {
+          "name": "event",
+          "type": "object",
+          "location": "body",
+          "description": "Event"
+        }
+      ]
+    },
+    {
+      "name": "events_attendees_list-by-event",
+      "description": "List Attendees by Event ID. Returns a paginated response. Required: event_id.",
+      "method": "GET",
+      "path": "/events/{event_id}/attendees/",
+      "params": [
+        {
+          "name": "event_id",
+          "type": "string",
+          "location": "path",
+          "description": "Event ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "events_attendees_retrieve-an",
+      "description": "Retrieve an Attendee by Attendee ID. Required: event_id, attendee_id. Returns the AttendeesRetrieveAnResponse.",
+      "method": "GET",
+      "path": "/events/{event_id}/attendees/{attendee_id}/",
+      "params": [
+        {
+          "name": "event_id",
+          "type": "string",
+          "location": "path",
+          "description": "Event ID.",
+          "required": true
+        },
+        {
+          "name": "attendee_id",
+          "type": "string",
+          "location": "path",
+          "description": "Attendee ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "events_cancel_an-event",
+      "description": "Cancel an Event. Returns a boolean indicating the success or failure of the cancel action. To cancel an Event, the Event must not have any pending or completed orders. If the event is a series parent, all series occurrences must be in a valid state to be canceled. Canceling the series parent will cancel all series occurrences. Required: event_id.",
+      "method": "POST",
+      "path": "/events/{event_id}/cancel/",
+      "params": [
+        {
+          "name": "event_id",
+          "type": "string",
+          "location": "path",
+          "description": "Event ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "events_canned-questions_create-a-default-question-for-an-event",
+      "description": "Create a default Question for an Event. Returns the result as a `question` array. Required: event_id. Optional: Headers, question.",
+      "method": "POST",
+      "path": "/events/{event_id}/canned_questions/",
+      "params": [
+        {
+          "name": "event_id",
+          "type": "string",
+          "location": "path",
+          "description": "Event ID.",
+          "required": true
+        },
+        {
+          "name": "Headers",
+          "type": "string",
+          "location": "body",
+          "description": "Authorization: Bearer \u003cREDACTED_BEARER_TOKEN_EXAMPLE\u003e Content-Type: application/json"
+        },
+        {
+          "name": "question",
+          "type": "object",
+          "location": "body",
+          "description": "Question"
+        }
+      ]
+    },
+    {
+      "name": "events_canned-questions_list-default-questions-by-event",
+      "description": "List default Questions by Event ID. Returns a paginated response. Required: event_id.",
+      "method": "GET",
+      "path": "/events/{event_id}/canned_questions/",
+      "params": [
+        {
+          "name": "event_id",
+          "type": "string",
+          "location": "path",
+          "description": "Event ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "events_capacity-tier_retrieve-a",
+      "description": "Retrieve the capacity tier for an event. Required: event_id. Returns the CapacityTierRetrieveAResponse.",
+      "method": "GET",
+      "path": "/events/{event_id}/capacity_tier/",
+      "params": [
+        {
+          "name": "event_id",
+          "type": "string",
+          "location": "path",
+          "description": "Event ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "events_capacity-tier_update-a",
+      "description": "Update the capacity tier for an event. Partial updates are supported. Submit only attributes that are changed. These rules must apply when updating capacity tier: - Sum of `quantity_total` from capacity holds cannot exceed remaining capacity quantity - If the event is already oversold, new remaining capacity quantity cannot become further negative (oversold) To **create GA capacity hold inventory tiers** for an event, include payload with `holds`. `capacity_total` must be supplied if event does not have a capacity set. For example: ```json { 'capacity_total': 100, 'holds': [ { 'name': 'Marketing', 'quantity_total': 10, 'sort_order': 1, }, ] } ``` To **update/delete GA capacity hold inventory tiers** for an event, include payload with `holds` that contain `id` and fields of the hold tier to be updated. Deleting is the same as updating with `is_deleted` set to `true`. Deleting a hold tier that has tickets sold or associated with attendees will be denied. `quantity_total` for a hold tier cannot be reduced below the quantity used (`quantity_sold` + `quantity_pending`). Payload can contain partial data/partial hold inventory tiers to be updated/deleted. For example: ```json { 'holds': [ {'id': 'I987', 'name': 'Marketing'}, # update existing tier {'id': 'I988', 'is_deleted': true}, # delete existing tier {'name': 'Accounting', 'quantity_total': 10}, # create new tier ] } ```. Required: event_id. Optional: capacity_tier. Returns the new CapacityTierUpdateAResponse.",
+      "method": "POST",
+      "path": "/events/{event_id}/capacity_tier/",
+      "params": [
+        {
+          "name": "event_id",
+          "type": "string",
+          "location": "path",
+          "description": "Event ID",
+          "required": true
+        },
+        {
+          "name": "capacity_tier",
+          "type": "object",
+          "location": "body",
+          "description": "Capacity tier"
+        }
+      ]
+    },
+    {
+      "name": "events_copy_an-event",
+      "description": "Copy the Event, creating a duplicate version of the Event with a new Event ID. Use to create a new Event based on an existing Event. Returns the Event object for the newly created Event. The Event payment options, payout method, refund policy, and tax settings will copy to the new Event. Required: event_id. Optional: end_date, name, start_date (plus 2 more).",
+      "method": "POST",
+      "path": "/events/{event_id}/copy/",
+      "params": [
+        {
+          "name": "event_id",
+          "type": "string",
+          "location": "path",
+          "description": "Event ID.",
+          "required": true
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "location": "body",
+          "description": "01-31T13:00:00Z (datetime, optional) - The end time of the new event"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "The name of the new event"
+        },
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "body",
+          "description": "01-31T13:00:00Z (datetime, optional) - The start time of the new event"
+        },
+        {
+          "name": "summary",
+          "type": "string",
+          "location": "body",
+          "description": "The summary of the new event"
+        },
+        {
+          "name": "timezone",
+          "type": "string",
+          "location": "body",
+          "description": "Timezone for the new event (Olson format)"
+        }
+      ]
+    },
+    {
+      "name": "events_description_retrieve-full-html",
+      "description": "Returns the fully rendered description for an Event as a string of HTML. This endpoint will work with events created using New or Classic Create. ```json { 'description: Example summary!\u003c/div\u003en \u003cP\u003eMy \u003cEM\u003eevent's\u003c/EM\u003e description would go \u003cSTRONG\u003ehere\u003c/STRONG\u003e.\u003c/P\u003e\u003c/div\u003e' } ``` #### Permissions `event.details:read`. Required: event_id.",
+      "method": "GET",
+      "path": "/events/{event_id}/description/",
+      "params": [
+        {
+          "name": "event_id",
+          "type": "string",
+          "location": "path",
+          "description": "Event ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "events_display-settings_retrieve",
+      "description": "Retrieve the Display Settings for an Event by Event ID. Required: event_id. Returns the DisplaySettingsRetrieveResponse.",
+      "method": "GET",
+      "path": "/events/{event_id}/display_settings/",
+      "params": [
+        {
+          "name": "event_id",
+          "type": "string",
+          "location": "path",
+          "description": "Event ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "events_display-settings_update",
+      "description": "Update Display Settings for an Event by Event ID. Required: event_id. Optional: display_settings. Returns the new DisplaySettingsUpdateResponse.",
+      "method": "POST",
+      "path": "/events/{event_id}/display_settings/",
+      "params": [
+        {
+          "name": "event_id",
+          "type": "string",
+          "location": "path",
+          "description": "Event ID.",
+          "required": true
+        },
+        {
+          "name": "display_settings",
+          "type": "object",
+          "location": "body",
+          "description": "Display settings"
+        }
+      ]
+    },
+    {
+      "name": "events_inventory-tiers_delete-an",
+      "description": "Mark an existing Inventory Tier as deleted. Required: event_id, inventory_tier_id. Returns the InventoryTiersDeleteAnResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/events/{event_id}/inventory_tiers/{inventory_tier_id}/",
+      "params": [
+        {
+          "name": "event_id",
+          "type": "string",
+          "location": "path",
+          "description": "Event ID",
+          "required": true
+        },
+        {
+          "name": "inventory_tier_id",
+          "type": "string",
+          "location": "path",
+          "description": "Inventory Tier ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "events_inventory-tiers_list-by-event",
+      "description": "Retrieves inventory tiers for an event. Required: event_id. Returns the InventoryTiersListByEventResponse.",
+      "method": "GET",
+      "path": "/events/{event_id}/inventory_tiers/",
+      "params": [
+        {
+          "name": "event_id",
+          "type": "string",
+          "location": "path",
+          "description": "Event ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "events_inventory-tiers_retrieve-an",
+      "description": "Retrieve an Inventory Tier by ID for an Event. Required: event_id, inventory_tier_id. Returns the InventoryTiersRetrieveAnResponse.",
+      "method": "GET",
+      "path": "/events/{event_id}/inventory_tiers/{inventory_tier_id}/",
+      "params": [
+        {
+          "name": "event_id",
+          "type": "string",
+          "location": "path",
+          "description": "Event ID",
+          "required": true
+        },
+        {
+          "name": "inventory_tier_id",
+          "type": "string",
+          "location": "path",
+          "description": "Inventory Tier ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "events_inventory-tiers_update-an",
+      "description": "Update an existing Inventory Iier by ID for an Event. Partial updates are supported. Submit only attributes that are changed. Required: event_id, inventory_tier_id. Optional: inventory_tier. Returns the new InventoryTiersUpdateAnResponse.",
+      "method": "POST",
+      "path": "/events/{event_id}/inventory_tiers/{inventory_tier_id}/",
+      "params": [
+        {
+          "name": "event_id",
+          "type": "string",
+          "location": "path",
+          "description": "Event ID",
+          "required": true
+        },
+        {
+          "name": "inventory_tier_id",
+          "type": "string",
+          "location": "path",
+          "description": "Inventory Tier ID",
+          "required": true
+        },
+        {
+          "name": "inventory_tier",
+          "type": "object",
+          "location": "body",
+          "description": "Inventory tier"
+        }
+      ]
+    },
+    {
+      "name": "events_inventory-tiers_update-multiple",
+      "description": "Update multiple existing Inventory Tiers for an Event. Partial updates are supported. Submit only attributes that are changed. Required: event_id. Optional: inventory_tiers. Returns the new InventoryTiersUpdateMultipleResponse.",
+      "method": "POST",
+      "path": "/events/{event_id}/inventory_tiers/",
+      "params": [
+        {
+          "name": "event_id",
+          "type": "string",
+          "location": "path",
+          "description": "Event ID",
+          "required": true
+        },
+        {
+          "name": "inventory_tiers",
+          "type": "array",
+          "location": "body",
+          "description": "Inventory tiers"
+        }
+      ]
+    },
+    {
+      "name": "events_orders_list-by-event-id",
+      "description": "List Orders by Event ID. Returns a paginated response. Required: event_id.",
+      "method": "GET",
+      "path": "/events/{event_id}/orders/",
+      "params": [
+        {
+          "name": "event_id",
+          "type": "string",
+          "location": "path",
+          "description": "Event ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "events_publish_an-event",
+      "description": "Publish an Event. In order for publish to be permitted, the event must have all necessary information, including a name and description, an organizer, at least one ticket, and valid payment options. This API endpoint will return argument errors for event fields that fail to validate the publish requirements. Returns a boolean indicating success or failure of the publish. If the event is a series parent, all occurrences in the series must be in a valid state to be published. Publishing the series parent will publish all series occurrences. Deleted Events can not be published. Required: event_id.",
+      "method": "POST",
+      "path": "/events/{event_id}/publish/",
+      "params": [
+        {
+          "name": "event_id",
+          "type": "string",
+          "location": "path",
+          "description": "Event ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "events_questions_create-a-custom-for-an-event",
+      "description": "Create a custom Question for an Event. Returns the result as a `question` array. Required: event_id. Optional: Headers, question.",
+      "method": "POST",
+      "path": "/events/{event_id}/questions/",
+      "params": [
+        {
+          "name": "event_id",
+          "type": "string",
+          "location": "path",
+          "description": "Event ID.",
+          "required": true
+        },
+        {
+          "name": "Headers",
+          "type": "string",
+          "location": "body",
+          "description": "Authorization: Bearer \u003cREDACTED_BEARER_TOKEN_EXAMPLE\u003e Content-Type: application/json"
+        },
+        {
+          "name": "question",
+          "type": "object",
+          "location": "body",
+          "description": "Question"
+        }
+      ]
+    },
+    {
+      "name": "events_questions_delete-a-custom-for-an-event",
+      "description": "Delete a custom Question by Event and Question ID. Required: event_id, question_id. Returns the QuestionsDeleteACustomForAnEventResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/events/{event_id}/questions/{question_id}/",
+      "params": [
+        {
+          "name": "event_id",
+          "type": "string",
+          "location": "path",
+          "description": "Event ID.",
+          "required": true
+        },
+        {
+          "name": "question_id",
+          "type": "string",
+          "location": "path",
+          "description": "Custom Question ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "events_questions_get-custom-by-id",
+      "description": "Retrieve a Custom Question by Event and Question ID. Required: event_id, question_id. Returns the QuestionsGetCustomByIdResponse.",
+      "method": "GET",
+      "path": "/events/{event_id}/questions/{question_id}/",
+      "params": [
+        {
+          "name": "event_id",
+          "type": "string",
+          "location": "path",
+          "description": "Event ID.",
+          "required": true
+        },
+        {
+          "name": "question_id",
+          "type": "string",
+          "location": "path",
+          "description": "Custom Question ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "events_questions_list-custom-by-event",
+      "description": "List custom Questions by Event ID. Returns a paginated response, with a `question` array. Required: event_id.",
+      "method": "GET",
+      "path": "/events/{event_id}/questions/",
+      "params": [
+        {
+          "name": "event_id",
+          "type": "string",
+          "location": "path",
+          "description": "Event ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "events_schedules_create-an-event",
+      "description": "Creating an event schedule requires that a series parent event has already been created. For instructions on how to create a series parent event, please refer to the [Create Event API](#events-create-api). Creating an event schedule will add occurrences to a series parent event, according to the pattern specified in the schedule. Each occurrence is backed by an [Event](#event_object), and will be associated with the series parent event specified in the request. If an occurrence specified by the schedule has the same date and time as an existing occurrence, the new occurrence is ignored and not created (the rest of the occurrences specified by the schedule are still created). Required: event_id. Optional: schedule. Returns the new SchedulesCreateAnEventResponse.",
+      "method": "POST",
+      "path": "/events/{event_id}/schedules/",
+      "params": [
+        {
+          "name": "event_id",
+          "type": "string",
+          "location": "path",
+          "description": "Event ID. Must be a valid series parent event.",
+          "required": true
+        },
+        {
+          "name": "schedule",
+          "type": "object",
+          "location": "body",
+          "description": "Schedule"
+        }
+      ]
+    },
+    {
+      "name": "events_seatmaps_create-seat-map-for-event",
+      "description": "Create a Seat Map for a new reserved seating event by copying an existing seat map. Event must be a new reserved seating. Once a seat map is already created for the event, this endpoint will return error. [List Seat Maps by Organization](#list_seat_maps_for_organization) can be used to find source seat maps and their IDs. Required: event_id. Optional: source_seatmap_id. Returns the new SeatmapsCreateSeatMapForEventResponse.",
+      "method": "POST",
+      "path": "/events/{event_id}/seatmaps/",
+      "params": [
+        {
+          "name": "event_id",
+          "type": "string",
+          "location": "path",
+          "description": "Event Id",
+          "required": true
+        },
+        {
+          "name": "source_seatmap_id",
+          "type": "string",
+          "location": "body",
+          "description": "m1 (string, required) - ID of source Seat Map to copy data from."
+        }
+      ]
+    },
+    {
+      "name": "events_structured-content_retrieve-latest-published-version-of-by-event-id",
+      "description": "Retrieve a paginated response of structured content for the given event `id`. This will retrieve the latest `published` version of the structured content. Therefore you must publish a version of the content before using this endpoint - aka send in `publish=true` with current set of modules to [Set Structured Content](#set-structured-content-by-event-id-and-version) endpoint. It will default to getting the structured content of the event listing page if no purpose is provided. Required: id. Returns the StructuredContentRetrieveLatestPublishedVersionOfByEventIdResponse.",
+      "method": "GET",
+      "path": "/events/{id}/structured_content/",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Event Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "events_structured-content_retrieve-latest-working-version-of-by-event-id",
+      "description": "Retrieve a paginated response of structured content for the given event `id`. This will retrieve the latest `working` version of the structured content - this means latest version that is either published or unpublished. It will default to getting the structured content of the event listing page if no purpose is provided. Required: id. Returns the StructuredContentRetrieveLatestWorkingVersionOfByEventIdResponse.",
+      "method": "GET",
+      "path": "/events/{id}/structured_content/edit/",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Event Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "events_structured-content_set-by-event-id-and-version",
+      "description": "Add new structured content to the event `id` for a specific `version` of structured content. This endpoint encapsulates both create and update for structured content. It will default to creating/updating the structured content for the listing page if no purpose is provided. Make sure to send in `publish=true` with current* set of modules. If you do not publish your structured content, then your most updated structured content will not be visible to public users looking at your event listing page - it will only be visible to you. From a technical perspective, [Get Latest Working Version of Structured Content by Event Id](#get-latest-working-version-of-structured-content-by-event-id) will return your most recent modules (published or unpublished), but [Get Latest Published Version of Structured Content by Event Id](#get-latest-publish-version-of-structured-content-by-event-id) will return only the latest structured content that has been published. * If you ONLY send in `publish=true` without the current set of modules, it will not work - modules will return as empty. Make sure to send in your most current modules AND `publish=true`. Required: id, version. Optional: access_type, modules, publish (plus 1 more). Returns the new StructuredContentSetByEventIdAndVersionResponse.",
+      "method": "POST",
+      "path": "/events/{id}/structured_content/{version}/",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Event Id",
+          "required": true
+        },
+        {
+          "name": "version",
+          "type": "string",
+          "location": "path",
+          "description": "Structured Content Version",
+          "required": true
+        },
+        {
+          "name": "access_type",
+          "type": "string",
+          "location": "body",
+          "description": "Access type"
+        },
+        {
+          "name": "modules",
+          "type": "array",
+          "location": "body",
+          "description": "Structured content modules."
+        },
+        {
+          "name": "publish",
+          "type": "bool",
+          "location": "body",
+          "description": "Boolean indicating whether to publish contents after saving."
+        },
+        {
+          "name": "purpose",
+          "type": "string",
+          "location": "body",
+          "description": "Purpose"
+        }
+      ]
+    },
+    {
+      "name": "events_teams_create-a",
+      "description": "Create and returns a `team`. Required: event_id, public_event_id. Optional: name, password, preferred_start_time.",
+      "method": "POST",
+      "path": "/events/{event_id}/teams/create/",
+      "params": [
+        {
+          "name": "event_id",
+          "type": "string",
+          "location": "path",
+          "description": "The event ID that the team will be created from.",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name of the team"
+        },
+        {
+          "name": "password",
+          "type": "string",
+          "location": "body",
+          "description": "Password of the team"
+        },
+        {
+          "name": "preferred_start_time",
+          "type": "string",
+          "location": "body",
+          "description": "Preferred start time the event"
+        },
+        {
+          "name": "public_event_id",
+          "type": "string",
+          "location": "body",
+          "description": "Public Event Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "events_teams_list-attendees-by",
+      "description": "Returns `attendee` for a single `team`. Returns a paginated response. Required: event_id, team_id.",
+      "method": "GET",
+      "path": "/events/{event_id}/teams/{team_id}/attendees/",
+      "params": [
+        {
+          "name": "event_id",
+          "type": "string",
+          "location": "path",
+          "description": "The event ID that the team will be retrieved from.",
+          "required": true
+        },
+        {
+          "name": "team_id",
+          "type": "string",
+          "location": "path",
+          "description": "The team ID that will be retrieved.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "events_teams_list-by-event",
+      "description": "Returns a list of `teams` for the event. Returns a paginated response. Required: event_id.",
+      "method": "GET",
+      "path": "/events/{event_id}/teams/",
+      "params": [
+        {
+          "name": "event_id",
+          "type": "string",
+          "location": "path",
+          "description": "The event ID that the teams will be retrieved from.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "events_teams_retrieve",
+      "description": "Returns information for a single `team`. Required: event_id, team_id.",
+      "method": "GET",
+      "path": "/events/{event_id}/teams/{team_id}/",
+      "params": [
+        {
+          "name": "event_id",
+          "type": "string",
+          "location": "path",
+          "description": "The event ID that the team will be retrieved from.",
+          "required": true
+        },
+        {
+          "name": "team_id",
+          "type": "string",
+          "location": "path",
+          "description": "The team ID that will be retrieved.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "events_teams_search-by-name",
+      "description": "Returns the teams of an event searched by name. Returns a paginated response. Required: event_id, term.",
+      "method": "GET",
+      "path": "/events/{event_id}/teams/search/",
+      "params": [
+        {
+          "name": "event_id",
+          "type": "string",
+          "location": "path",
+          "description": "The event ID from which we want to search teams",
+          "required": true
+        },
+        {
+          "name": "term",
+          "type": "string",
+          "location": "path",
+          "description": "Search term.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "events_teams_verify-password-for-a",
+      "description": "Verify that the password of a team is correct, and if so, and returns the token of the team. Required: event_id, team_id, password.",
+      "method": "POST",
+      "path": "/events/{event_id}/teams/{team_id}/check_password/",
+      "params": [
+        {
+          "name": "event_id",
+          "type": "string",
+          "location": "path",
+          "description": "The event ID of the team which the password will be checked",
+          "required": true
+        },
+        {
+          "name": "team_id",
+          "type": "string",
+          "location": "path",
+          "description": "The team ID which the password will be checked",
+          "required": true
+        },
+        {
+          "name": "password",
+          "type": "string",
+          "location": "body",
+          "description": "Password to verify",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "events_ticket-buyer-settings_retrieve-by-event",
+      "description": "Retrieve Ticket Buyer Settings by Event ID. Example: ```json { 'confirmation_message': { 'text': '\u003cH1\u003eConfirmation Message\u003c/H1\u003e', 'html': 'Confirmation Message' }, 'instructions': { 'text': '\u003cH1\u003eInstructions\u003c/H1\u003e', 'html': 'Instructions' }, 'sales_ended_message': { 'text': '\u003cH1\u003eSales Ended Message\u003c/H1\u003e', 'html': 'Sales Ended Message' }, 'survey_info': { 'text': '\u003cb\u003eFilling in this survey is required to attend the event\u003c/b\u003e', 'html': 'Filling in this survey is required to attend the event' }, 'event_id': '43253626762', 'survey_name': 'Registration Page Title', 'refund_request_enabled': true, 'allow_attendee_update': true, 'survey_time_limit': 15, 'redirect_url': null, 'survey_respondent': 'attendee', 'survey_ticket_classes': ['125', '374'] } ```. Required: event_id. Returns the TicketBuyerSettingsRetrieveByEventResponse.",
+      "method": "GET",
+      "path": "/events/{event_id}/ticket_buyer_settings/",
+      "params": [
+        {
+          "name": "event_id",
+          "type": "string",
+          "location": "path",
+          "description": "Event ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "events_ticket-buyer-settings_update-for-an-event",
+      "description": "Update Ticket Buyer Settings by Event ID. Example: ```json { 'ticket_buyer_settings': { 'confirmation_message': { 'text': '\u003cH1\u003eConfirmation Message\u003c/H1\u003e', 'html': 'Confirmation Message' }, 'instructions': { 'text': '\u003cH1\u003eInstructions\u003c/H1\u003e', 'html': 'Instructions' }, 'sales_ended_message': { 'text': '\u003cH1\u003eSales Ended Message\u003c/H1\u003e', 'html': 'Sales Ended Message' }, 'survey_info': { 'text': '\u003cb\u003eFilling in this survey is required to attend the event\u003c/b\u003e', 'html': 'Filling in this survey is required to attend the event' }, 'event_id': '43253626762', 'survey_name': 'Registration Page Title', 'refund_request_enabled': true, 'allow_attendee_update': true, 'survey_time_limit': 15, 'redirect_url': null, 'survey_respondent': 'attendee', 'survey_ticket_classes': ['125', '374'] } } ```. Required: event_id. Optional: ticket_buyer_settings. Returns the new TicketBuyerSettingsUpdateForAnEventResponse.",
+      "method": "POST",
+      "path": "/events/{event_id}/ticket_buyer_settings/",
+      "params": [
+        {
+          "name": "event_id",
+          "type": "string",
+          "location": "path",
+          "description": "Event ID.",
+          "required": true
+        },
+        {
+          "name": "ticket_buyer_settings",
+          "type": "object",
+          "location": "body",
+          "description": "Ticket buyer settings"
+        }
+      ]
+    },
+    {
+      "name": "events_ticket-classes_create-a-ticket-class",
+      "description": "Create a new Ticket Class. \u003e **Note:** After **May 7, 2020**, we will require you to provide an **inventory_tier_id** as part of your request for any **ticket_classes** you are creating or updating for a tiered event. For more information refer to our [changelog](https://www.eventbrite.com/platform/docs/changelog). \u003e **Add-On creation:** First you will need to create an [Add-On Inventory Tier](https://www.eventbrite.com/platform/api#/reference/inventory-tiers/create-an-inventory-tier) with **count_against_event_capacity** set to false and then provide the **inventory_tier_id** of the Add-On Inventory Tier when creating a new Ticket Class as part of your request. Required: event_id. Returns the new TicketClassesCreateATicketClassResponse.",
+      "method": "POST",
+      "path": "/events/{event_id}/ticket_classes/",
+      "params": [
+        {
+          "name": "event_id",
+          "type": "string",
+          "location": "path",
+          "description": "Event ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "events_ticket-classes_list-available-for-sale-by-event",
+      "description": "List Ticket Classes available for sale by Event ID for use in the purchase flow. Returns a paginated response. Required: event_id.",
+      "method": "GET",
+      "path": "/events/{event_id}/ticket_classes/for_sale/",
+      "params": [
+        {
+          "name": "event_id",
+          "type": "string",
+          "location": "path",
+          "description": "Event ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "events_ticket-classes_list-by-event",
+      "description": "List Ticket Classes by Event ID. Returns a paginated response. Required: event_id.",
+      "method": "GET",
+      "path": "/events/{event_id}/ticket_classes/",
+      "params": [
+        {
+          "name": "event_id",
+          "type": "string",
+          "location": "path",
+          "description": "Event ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "events_ticket-classes_retrieve-a-ticket-class",
+      "description": "Retrieve a Ticket Class by Ticket Class ID. Required: event_id, ticket_class_id. Returns the TicketClassesRetrieveATicketClassResponse.",
+      "method": "GET",
+      "path": "/events/{event_id}/ticket_classes/{ticket_class_id}/",
+      "params": [
+        {
+          "name": "event_id",
+          "type": "string",
+          "location": "path",
+          "description": "Event ID.",
+          "required": true
+        },
+        {
+          "name": "ticket_class_id",
+          "type": "string",
+          "location": "path",
+          "description": "Ticket Class ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "events_ticket-classes_update-a-ticket-class",
+      "description": "Update Ticket Class by Ticket Class ID. Required: event_id, ticket_class_id. Optional: ticket_class. Returns the new TicketClassesUpdateATicketClassResponse.",
+      "method": "POST",
+      "path": "/events/{event_id}/ticket_classes/{ticket_class_id}/",
+      "params": [
+        {
+          "name": "event_id",
+          "type": "string",
+          "location": "path",
+          "description": "Event ID.",
+          "required": true
+        },
+        {
+          "name": "ticket_class_id",
+          "type": "string",
+          "location": "path",
+          "description": "Ticket Class ID.",
+          "required": true
+        },
+        {
+          "name": "ticket_class",
+          "type": "object",
+          "location": "body",
+          "description": "Ticket class"
+        }
+      ]
+    },
+    {
+      "name": "events_unpublish_an-event",
+      "description": "Unpublish an Event. Returns a boolean indicating the success or failure of the unpublish action. To unpublish a free Event, including a past free Event, the Event must not have any pending or completed orders. A completed and paid out paid Event can be unpublished. A paid Event that is not completed and paid out can only be unpublished if the Event does not have any pending or completed orders. If the event is a series parent, all occurrences in the series must be in a valid state to be unpublished. Unpublishing a series parent will unpublish all series occurrences. A series occurrence cannot be unpublished individually. Required: event_id.",
+      "method": "POST",
+      "path": "/events/{event_id}/unpublish/",
+      "params": [
+        {
+          "name": "event_id",
+          "type": "string",
+          "location": "path",
+          "description": "Event ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "formats_list",
+      "description": "List all available Formats. Returns a paginated response.",
+      "method": "GET",
+      "path": "/formats/",
+      "params": []
+    },
+    {
+      "name": "formats_retrieve-a",
+      "description": "Retrieve a Format by Format ID. Required: format_id. Returns the FormatsRetrieveAResponse.",
+      "method": "GET",
+      "path": "/formats/{format_id}/",
+      "params": [
+        {
+          "name": "format_id",
+          "type": "float",
+          "location": "path",
+          "description": "Format ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "media_retrieve",
+      "description": "Retrieve Media by Media ID. Required: media_id. Optional: width, height. Returns the MediaRetrieveResponse.",
+      "method": "GET",
+      "path": "/media/{media_id}/",
+      "params": [
+        {
+          "name": "media_id",
+          "type": "float",
+          "location": "path",
+          "description": "Media ID.",
+          "required": true
+        },
+        {
+          "name": "width",
+          "type": "float",
+          "location": "query",
+          "description": "Thumbnail width."
+        },
+        {
+          "name": "height",
+          "type": "float",
+          "location": "query",
+          "description": "Thumbnail height."
+        }
+      ]
+    },
+    {
+      "name": "media_retrieve-a-upload",
+      "description": "Retrieve information on a Media image upload. Returns the MediaRetrieveAUploadResponse.",
+      "method": "GET",
+      "path": "/media/upload/",
+      "params": []
+    },
+    {
+      "name": "media_upload-a-file",
+      "description": "Upload a Media image file. Required: upload_token. Optional: crop_mask. Returns the new MediaUploadAFileResponse.",
+      "method": "POST",
+      "path": "/media/upload/",
+      "params": [
+        {
+          "name": "crop_mask",
+          "type": "object",
+          "location": "body",
+          "description": "A crop mask defines the window that will be used to crop the uploaded media"
+        },
+        {
+          "name": "upload_token",
+          "type": "string",
+          "location": "body",
+          "description": "The upload_token from the GET portion of the upload",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "orders_retrieve-by-id",
+      "description": "Retrieve an Order by Order ID. Required: order_id. Returns the OrdersRetrieveByIdResponse.",
+      "method": "GET",
+      "path": "/orders/{order_id}/",
+      "params": [
+        {
+          "name": "order_id",
+          "type": "string",
+          "location": "path",
+          "description": "Order ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "organizations_attendees_list-by-organization",
+      "description": "List Attendees of an Organization's Events by Organization ID. Returns a paginated response. Required: organization_id.",
+      "method": "GET",
+      "path": "/organizations/{organization_id}/attendees/",
+      "params": [
+        {
+          "name": "organization_id",
+          "type": "string",
+          "location": "path",
+          "description": "Organization ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "organizations_discounts_create-a",
+      "description": "Create a new Discount. Required: organization_id. Optional: discount. Returns the new DiscountsCreateAResponse.",
+      "method": "POST",
+      "path": "/organizations/{organization_id}/discounts/",
+      "params": [
+        {
+          "name": "organization_id",
+          "type": "string",
+          "location": "path",
+          "description": "Organization ID.",
+          "required": true
+        },
+        {
+          "name": "discount",
+          "type": "object",
+          "location": "body",
+          "description": "Discount"
+        }
+      ]
+    },
+    {
+      "name": "organizations_discounts_search-by-organization",
+      "description": "List Discounts by Organization ID. Returns a paginated response. Required: organization_id, scope.",
+      "method": "GET",
+      "path": "/organizations/{organization_id}/discounts/",
+      "params": [
+        {
+          "name": "organization_id",
+          "type": "string",
+          "location": "path",
+          "description": "Organization ID.",
+          "required": true
+        },
+        {
+          "name": "scope",
+          "type": "string",
+          "location": "query",
+          "description": "Discount scope.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "organizations_events_add-a-ticket-class-to-ticket-groups",
+      "description": "Add a Ticket Class to Ticket Groups by Organization ID and Event ID. To remove a Ticket Class from every Ticket Group owned by an Organization, leave the Ticket Group ID empty. Required: organization_id, event_id, ticket_class_id. Optional: ticket_group_ids.",
+      "method": "POST",
+      "path": "/organizations/{organization_id}/events/{event_id}/ticket_classes/{ticket_class_id}/ticket_groups/",
+      "params": [
+        {
+          "name": "organization_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the Organization that owns the Ticket Group.",
+          "required": true
+        },
+        {
+          "name": "event_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the Event that owns the Ticket Class.",
+          "required": true
+        },
+        {
+          "name": "ticket_class_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the Ticket Class to add to the Ticket Group.",
+          "required": true
+        },
+        {
+          "name": "ticket_group_ids",
+          "type": "array",
+          "location": "body",
+          "description": "a list of ticket groups that will have the ticket class added to them"
+        }
+      ]
+    },
+    {
+      "name": "organizations_events_create-an",
+      "description": "Create a new Event. By default, this API creates an event that occurs once. In order to create a series of events with multiple occurrences (also known as a 'repeating event' or 'recurring event'), you must first create one event to serve as the 'series parent', then add occurrences to the series parent. Creating the series parent is done by calling the Create Event API with the `is_series` attribute set to `True`. Occurrences can then be added to the newly created series parent, using the [Event Schedule API](#schedules-create-api). Required: organization_id. Optional: event. Returns the new EventsCreateAnResponse.",
+      "method": "POST",
+      "path": "/organizations/{organization_id}/events/",
+      "params": [
+        {
+          "name": "organization_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the Organization that owns the Event.",
+          "required": true
+        },
+        {
+          "name": "event",
+          "type": "object",
+          "location": "body",
+          "description": "Event"
+        }
+      ]
+    },
+    {
+      "name": "organizations_events_list-by-organization",
+      "description": "List Events by Organization ID. Returns a paginated response. Required: organization_id.",
+      "method": "GET",
+      "path": "/organizations/{organization_id}/events/",
+      "params": [
+        {
+          "name": "organization_id",
+          "type": "string",
+          "location": "path",
+          "description": "Organization ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "organizations_members_list-of-an-organization",
+      "description": "List an Organization's Members by Organization ID. Returns a paginated response. Required: organization_id.",
+      "method": "GET",
+      "path": "/organizations/{organization_id}/members/",
+      "params": [
+        {
+          "name": "organization_id",
+          "type": "string",
+          "location": "path",
+          "description": "Organization ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "organizations_orders_list-by-organization-id",
+      "description": "Returns a paginated response of orders, under the key orders, of orders placed against any of the events the organization owns (events that would be returned from /organizations/:id/events/). Required: organization_id.",
+      "method": "GET",
+      "path": "/organizations/{organization_id}/orders/",
+      "params": [
+        {
+          "name": "organization_id",
+          "type": "string",
+          "location": "path",
+          "description": "Organization ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "organizations_roles_list-by-organization",
+      "description": "List an Organization's Roles by Organization ID. Returns a paginated response. Required: organization_id.",
+      "method": "GET",
+      "path": "/organizations/{organization_id}/roles/",
+      "params": [
+        {
+          "name": "organization_id",
+          "type": "string",
+          "location": "path",
+          "description": "Organization ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "organizations_seatmaps_list-seat-maps-by-organization",
+      "description": "List Seat Maps of an Organization. \u003e**Warning:** Response is not paginated yet, but will be paginated soon. Required: organization_id. Optional: venue_id, venue_name_filter. Returns the SeatmapsListSeatMapsByOrganizationResponse.",
+      "method": "GET",
+      "path": "/organizations/{organization_id}/seatmaps/",
+      "params": [
+        {
+          "name": "organization_id",
+          "type": "string",
+          "location": "path",
+          "description": "Organization ID.",
+          "required": true
+        },
+        {
+          "name": "venue_id",
+          "type": "string",
+          "location": "query",
+          "description": "Filter Seat Maps by a venue."
+        },
+        {
+          "name": "venue_name_filter",
+          "type": "string",
+          "location": "query",
+          "description": "Filter Seat Maps by sub-string match venue name."
+        }
+      ]
+    },
+    {
+      "name": "organizations_text-overrides_create",
+      "description": "Create the Text Overrides for an organization, Venue, or Event. Messages will be internationalized using the `locale` parameter if it's specified. In case we don't send the locale we have 2 scenarios: * If event_id is provided the event's locale will be used * For other cases default locale will be used. Required: organization_id, strings. Optional: event_id, locale, venue_id. Returns the new TextOverridesCreateResponse.",
+      "method": "POST",
+      "path": "/organizations/{organization_id}/text_overrides/",
+      "params": [
+        {
+          "name": "organization_id",
+          "type": "string",
+          "location": "path",
+          "description": "Organization Id",
+          "required": true
+        },
+        {
+          "name": "event_id",
+          "type": "string",
+          "location": "body",
+          "description": "Event ID."
+        },
+        {
+          "name": "locale",
+          "type": "string",
+          "location": "body",
+          "description": "The locale for which you want to retrieve the strings. If it is not provided, we will use the one from the context. If an event_id is specified, we will use the event's locale"
+        },
+        {
+          "name": "strings",
+          "type": "array",
+          "location": "body",
+          "description": "Strings",
+          "required": true
+        },
+        {
+          "name": "venue_id",
+          "type": "string",
+          "location": "body",
+          "description": "Venue ID."
+        }
+      ]
+    },
+    {
+      "name": "organizations_text-overrides_retrieve",
+      "description": "Retrieve the Text Overrides for the selected locale for an organization, with options to filter by Venue or Event. Required: organization_id, locale, text_codes. Optional: venue_id, event_id. Returns the TextOverridesRetrieveResponse.",
+      "method": "GET",
+      "path": "/organizations/{organization_id}/text_overrides/",
+      "params": [
+        {
+          "name": "organization_id",
+          "type": "string",
+          "location": "path",
+          "description": "Organization Id",
+          "required": true
+        },
+        {
+          "name": "locale",
+          "type": "string",
+          "location": "query",
+          "description": "The Locale for which you want the strings.",
+          "required": true
+        },
+        {
+          "name": "venue_id",
+          "type": "string",
+          "location": "query",
+          "description": "Venue ID."
+        },
+        {
+          "name": "event_id",
+          "type": "string",
+          "location": "query",
+          "description": "Event ID."
+        },
+        {
+          "name": "text_codes",
+          "type": "string",
+          "location": "query",
+          "description": "List of text codes to retrieve",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "organizations_ticket-groups_create-a",
+      "description": "Create a new Ticket Group for an [Organization](#organization_object). Maximum number of 300 live Ticket Groups per Organization; archived or deleted Ticket Classes are not included in this limitation. Required: organization_id. Optional: ticket_group. Returns the new TicketGroupsCreateAResponse.",
+      "method": "POST",
+      "path": "/organizations/{organization_id}/ticket_groups/",
+      "params": [
+        {
+          "name": "organization_id",
+          "type": "string",
+          "location": "path",
+          "description": "Organization ID.",
+          "required": true
+        },
+        {
+          "name": "ticket_group",
+          "type": "object",
+          "location": "body",
+          "description": "Ticket group"
+        }
+      ]
+    },
+    {
+      "name": "organizations_ticket-groups_list-by-organization",
+      "description": "List Ticket Groups by Organization ID. Returns a paginated response. To include the Ticket Class name and sales channel in the response, add the Ticket Class expansion parameter. Required: organization_id.",
+      "method": "GET",
+      "path": "/organizations/{organization_id}/ticket_groups/",
+      "params": [
+        {
+          "name": "organization_id",
+          "type": "string",
+          "location": "path",
+          "description": "Organization ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "organizations_venues_create-a",
+      "description": "Create new Venue under an Organization. Required: organization_id. Optional: venue. Returns the new VenuesCreateAResponse.",
+      "method": "POST",
+      "path": "/organizations/{organization_id}/venues/",
+      "params": [
+        {
+          "name": "organization_id",
+          "type": "string",
+          "location": "path",
+          "description": "Organization ID.",
+          "required": true
+        },
+        {
+          "name": "venue",
+          "type": "object",
+          "location": "body",
+          "description": "Venue"
+        }
+      ]
+    },
+    {
+      "name": "organizations_venues_list-by-organization",
+      "description": "List Venues by Organization ID. Returns a paginated response. Required: organization_id.",
+      "method": "GET",
+      "path": "/organizations/{organization_id}/venues/",
+      "params": [
+        {
+          "name": "organization_id",
+          "type": "string",
+          "location": "path",
+          "description": "Organization ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "organizations_webhooks_create-by-organization-id",
+      "description": "Create a Webhook by Organization ID. Required: organization_id, endpoint_url. Optional: actions, event_id. Returns the new WebhooksCreateByOrganizationIdResponse.",
+      "method": "POST",
+      "path": "/organizations/{organization_id}/webhooks/",
+      "params": [
+        {
+          "name": "organization_id",
+          "type": "string",
+          "location": "path",
+          "description": "Organization ID",
+          "required": true
+        },
+        {
+          "name": "actions",
+          "type": "string",
+          "location": "body",
+          "description": "One or any combination of actions that will cause this webhook to be triggered."
+        },
+        {
+          "name": "endpoint_url",
+          "type": "string",
+          "location": "body",
+          "description": "The URL that the webhook will send data to when triggered.",
+          "required": true
+        },
+        {
+          "name": "event_id",
+          "type": "string",
+          "location": "body",
+          "description": "The Event ID that triggers this webhook. Leave blank for all events."
+        }
+      ]
+    },
+    {
+      "name": "organizations_webhooks_list-by-organization-id",
+      "description": "List Webhooks by Organization ID. Required: organization_id. Returns the WebhooksListByOrganizationIdResponse.",
+      "method": "GET",
+      "path": "/organizations/{organization_id}/webhooks/",
+      "params": [
+        {
+          "name": "organization_id",
+          "type": "string",
+          "location": "path",
+          "description": "Organization id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "pricing_calculate-items",
+      "description": "Calculates the Fees that Eventbrite would charge for a given price as it’s shown on the ticket authoring flow. This price would be hypothetical, as the pricing calculation would be based on the passed parameters instead of facts as it happens when an order is created. This price is a simplified view. The price reported can’t be used to calculate the price of an order. Its used to get fees, taxes and total price depending from scope parameter. The scope can be as one of the members: `organization`, `event`, `ticket_class` or `assortment_plan`. Depending on the scope type, the scope identifier has different meanings: For scope.type ``organization`` scope.identifier represents an organization id. For scope.type ``event`` scope.identifier represents an event id. For scope.type ``ticket_class`` scope.identifier represents a ticket class id. For scope.type ``assortment_plan`` scope.identifier can take a value of either 'package1' or 'package2' Returns a `item_pricing` according to the provided base price and scope. Required: base_price, country, scope. Optional: absorb_fees, absorb_taxes, channel (plus 1 more).",
+      "method": "POST",
+      "path": "/pricing/calculate_price_for_item/",
+      "params": [
+        {
+          "name": "absorb_fees",
+          "type": "bool",
+          "location": "body",
+          "description": "If set to true, the Fees will be included in the base price provided instead of adding them on top of it. False by default."
+        },
+        {
+          "name": "absorb_taxes",
+          "type": "bool",
+          "location": "body",
+          "description": "If set to true, the Taxes will be included in the base price provided instead of adding them on top of it. False by default."
+        },
+        {
+          "name": "base_price",
+          "type": "string",
+          "location": "body",
+          "description": "The base price for the calculation.",
+          "required": true
+        },
+        {
+          "name": "channel",
+          "type": "string",
+          "location": "body",
+          "description": "Sales channel used to calculate the price. If it’s not provided, web will be used by default."
+        },
+        {
+          "name": "country",
+          "type": "string",
+          "location": "body",
+          "description": "ISO 3166 2-letter country code where the event would be payed out.",
+          "required": true
+        },
+        {
+          "name": "payment_type",
+          "type": "string",
+          "location": "body",
+          "description": "The payment type used to calculate the price. If it’s not provided, eventbrite will be used by default."
+        },
+        {
+          "name": "scope",
+          "type": "object",
+          "location": "body",
+          "description": "The scope for which the item calculations will be made.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "pricing_list",
+      "description": "List all available Pricing rates. Returns a paginated response. Required: country, currency. Optional: plan, payment_type, channel (plus 1 more).",
+      "method": "GET",
+      "path": "/pricing/fee_rates",
+      "params": [
+        {
+          "name": "country",
+          "type": "string",
+          "location": "query",
+          "description": "Filter Fee Rates by country ISO 3166 alpha-2 code.",
+          "required": true
+        },
+        {
+          "name": "currency",
+          "type": "string",
+          "location": "query",
+          "description": "Filter Fee Rates by currency ISO 4217 3-character code.",
+          "required": true
+        },
+        {
+          "name": "plan",
+          "type": "string",
+          "location": "query",
+          "description": "Filter Fee Rates by Assortment package name. If it’s not provided, or the value is ‘any’, all the existing variants will be returned."
+        },
+        {
+          "name": "payment_type",
+          "type": "string",
+          "location": "query",
+          "description": "Filter Fee Rates by the payment type. If it’s not provided, or the value is ‘any’, all the existing variants will be returned."
+        },
+        {
+          "name": "channel",
+          "type": "string",
+          "location": "query",
+          "description": "Filter Fee Rates by the sales channel. If it’s not provided, or the value is ‘any’, all the existing variants will be returned."
+        },
+        {
+          "name": "item_type",
+          "type": "string",
+          "location": "query",
+          "description": "Filter Fee Rates by the item type. If it’s not provided, or the value is ‘any’, all the existing variants will be returned."
+        }
+      ]
+    },
+    {
+      "name": "reports_retrieve-a-attendee",
+      "description": "Retrieve an Attendee Report by Event ID or Event status. Returns array of ReportsRetrieveAAttendeeItem.",
+      "method": "GET",
+      "path": "/reports/attendees/",
+      "params": []
+    },
+    {
+      "name": "reports_retrieve-a-sales",
+      "description": "Retrieve a sales Report by Event ID or Event status. Returns array of ReportsRetrieveASalesItem.",
+      "method": "GET",
+      "path": "/reports/sales/",
+      "params": []
+    },
+    {
+      "name": "series_retrieve-an-event",
+      "description": "Retrieve the parent Event Series by Event Series ID. Required: event_series_id. Returns the SeriesRetrieveAnEventResponse.",
+      "method": "GET",
+      "path": "/series/{event_series_id}/",
+      "params": [
+        {
+          "name": "event_series_id",
+          "type": "string",
+          "location": "path",
+          "description": "Event Series ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "series_events_list-by-series",
+      "description": "List Events by Event Series ID. Returns a paginated response. Required: event_series_id.",
+      "method": "GET",
+      "path": "/series/{event_series_id}/events/",
+      "params": [
+        {
+          "name": "event_series_id",
+          "type": "string",
+          "location": "path",
+          "description": "Event Series ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "subcategories_list-of",
+      "description": "List all available Subcategories. Returns a paginated response.",
+      "method": "GET",
+      "path": "/subcategories/",
+      "params": []
+    },
+    {
+      "name": "subcategories_subcategory-by-id",
+      "description": "Retrieve a Subcategory by Subcategory ID. Required: subcategory_id. Returns the SubcategoriesSubcategoryByIdResponse.",
+      "method": "GET",
+      "path": "/subcategories/{subcategory_id}/",
+      "params": [
+        {
+          "name": "subcategory_id",
+          "type": "string",
+          "location": "path",
+          "description": "Subcategory ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "ticket-groups_delete-a",
+      "description": "Delete a Ticket Group. The status of the Ticket Group is changed to `deleted`. Required: ticket_group_id. Returns the TicketGroupsDeleteAResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/ticket_groups/{ticket_group_id}/",
+      "params": [
+        {
+          "name": "ticket_group_id",
+          "type": "string",
+          "location": "path",
+          "description": "Ticket Group ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "ticket-groups_retrieve-a",
+      "description": "Retrieve a Ticket Group by Ticket Group ID. Required: ticket_group_id. Returns the TicketGroupsRetrieveAResponse.",
+      "method": "GET",
+      "path": "/ticket_groups/{ticket_group_id}/",
+      "params": [
+        {
+          "name": "ticket_group_id",
+          "type": "string",
+          "location": "path",
+          "description": "Ticket Group ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "ticket-groups_update-a",
+      "description": "Update Ticket Group by Ticket Group ID. Required: ticket_group_id. Optional: ticket_group. Returns the new TicketGroupsUpdateAResponse.",
+      "method": "POST",
+      "path": "/ticket_groups/{ticket_group_id}/",
+      "params": [
+        {
+          "name": "ticket_group_id",
+          "type": "string",
+          "location": "path",
+          "description": "Ticket Group ID.",
+          "required": true
+        },
+        {
+          "name": "ticket_group",
+          "type": "object",
+          "location": "body",
+          "description": "Ticket group"
+        }
+      ]
+    },
+    {
+      "name": "users_list-your-organizations",
+      "description": "List the Organizations to which you are a Member. Returns a paginated response.",
+      "method": "GET",
+      "path": "/users/me/organizations/",
+      "params": []
+    },
+    {
+      "name": "users_retrieve-information-about-a-account",
+      "description": "Returns a user for the specified `user` as user. If you want to get details about the currently authenticated user, use /users/me/. To include the User’s assortment package in the response, add the assortment expansion parameter: /users/me/?expand=assortment. Required: user_id.",
+      "method": "GET",
+      "path": "/users/{user_id}/",
+      "params": [
+        {
+          "name": "user_id",
+          "type": "float",
+          "location": "path",
+          "description": "User ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "users_retrieve-information-about-your-account",
+      "description": "Retrieve Information About Your User Account. Returns the UsersRetrieveInformationAboutYourAccountResponse.",
+      "method": "GET",
+      "path": "/users/me/",
+      "params": []
+    },
+    {
+      "name": "users_orders_list-by-user-id",
+      "description": "List Orders by User ID. Returns a paginated response. Required: user_id.",
+      "method": "GET",
+      "path": "/users/{user_id}/orders/",
+      "params": [
+        {
+          "name": "user_id",
+          "type": "float",
+          "location": "path",
+          "description": "User ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "users_organizations_list-by-user",
+      "description": "List Organizations by User ID. Returns a paginated response. Required: user_id.",
+      "method": "GET",
+      "path": "/users/{user_id}/organizations/",
+      "params": [
+        {
+          "name": "user_id",
+          "type": "string",
+          "location": "path",
+          "description": "User ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "venues_retrieve-a",
+      "description": "Retrieve a Venue by Venue ID. Required: venue_id. Returns the VenuesRetrieveAResponse.",
+      "method": "GET",
+      "path": "/venues/{venue_id}/",
+      "params": [
+        {
+          "name": "venue_id",
+          "type": "string",
+          "location": "path",
+          "description": "Venue ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "venues_update-a",
+      "description": "Update a Venue by Venue ID. Required: venue_id. Optional: venue. Returns the new VenuesUpdateAResponse.",
+      "method": "POST",
+      "path": "/venues/{venue_id}/",
+      "params": [
+        {
+          "name": "venue_id",
+          "type": "string",
+          "location": "path",
+          "description": "Venue ID.",
+          "required": true
+        },
+        {
+          "name": "venue",
+          "type": "object",
+          "location": "body",
+          "description": "Venue"
+        }
+      ]
+    },
+    {
+      "name": "venues_events_list-by-venue",
+      "description": "List Events by Venue ID. Returns a paginated response. Required: venue_id.",
+      "method": "GET",
+      "path": "/venues/{venue_id}/events/",
+      "params": [
+        {
+          "name": "venue_id",
+          "type": "string",
+          "location": "path",
+          "description": "Venue ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "webhooks_create-deprecated",
+      "description": "Create a Webhook. \u003e Warning: Access to this API will be no longer usable on June 1st, 2020. For more information regarding deprecated APIs, refer to our [changelog](https://www.eventbrite.com/platform/docs/changelog). Returns the new WebhooksCreateDeprecatedResponse.",
+      "method": "POST",
+      "path": "/webhooks/",
+      "params": []
+    },
+    {
+      "name": "webhooks_delete-by-id",
+      "description": "Delete a Webhook by ID. Required: id. Returns the WebhooksDeleteByIdResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/webhooks/{id}/",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Webhook ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "webhooks_list-of-deprecation",
+      "description": "List Webhooks. \u003e Warning: Access to this API will be no longer usable on June 1st, 2020. For more information regarding deprecated APIs, refer to our [changelog](https://www.eventbrite.com/platform/docs/changelog). Returns the WebhooksListOfDeprecationResponse.",
+      "method": "GET",
+      "path": "/webhooks/",
+      "params": []
+    }
+  ]
+}

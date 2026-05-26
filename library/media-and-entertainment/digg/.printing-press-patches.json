@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "applied_at": "2026-05-16",
+  "applied_at": "2026-05-24",
   "base_run_id": "20260508-234057",
   "base_printing_press_version": "4.0.6",
   "patches": [
@@ -73,6 +73,39 @@
       ],
       "validated_outcome": "Live smoke against digg.com at PR time: 'rankings emerging' returns 10 entries (Inspired Cognition, Evolving Programs, Shadow Robot, Tavus, etc.); 'rankings movers --direction up' returns 10 gainers (rank 76 aclanthology, rank 4 GoogleAI...); 'rankings list --limit 3' returns OpenAI(#1), GoogleDeepMind(#2), AnthropicAI(#3); 'github stars --min-starrers 2' narrows 114 unfiltered rows to 6 with distinct_starrers >= 2.",
       "scope_note": "Rankings leaf commands intentionally OMIT the pp:endpoint annotation. The MCP cobratree walker treats pp:endpoint-tagged commands as 'covered by a typed MCP tool' and skips registering a shell-out tool; until a typed rankings tool ships, the rankings commands need shell-out MCP exposure. The existing github stars/new/activity/recent commands have the same annotation/MCP-skip behavior as a known issue, not as precedent."
+    },
+    {
+      "id": "digg-enhancements",
+      "summary": "Add three small surface enhancements: `sql <query>` read-only passthrough (driver-level mode=ro), `authors overlap <a> <b>` INTERSECT query, and `--topics` multi-topic flag on sync.",
+      "reason": "Follow-up to the closed digg-ai PR #704. Read-only enforcement for `sql` runs at the SQLite driver via store.OpenReadOnly so writable CTEs (`WITH x AS (DELETE ... RETURNING ...) SELECT * FROM x`) are rejected before parse — the SELECT/WITH prefix check is just a friendlier error path.",
+      "files": [
+        "internal/cli/sql.go",
+        "internal/cli/digg_commands.go",
+        "internal/cli/digg_sync.go",
+        "internal/cli/root.go",
+        "internal/diggstore/store.go"
+      ],
+      "validated_outcome": "go build / go test all green; smoke: writable-CTE rejected by driver mode=ro; `authors overlap karpathy sama --json` returns INTERSECT result; `sync --topics ai,technology --dry-run` reports both topics; `RecordReplacementsForTopics` scopes the 2-hour window query to the synced topics via WHERE topic IN (...) so a topic-subset sync no longer pollutes the replacements table."
+    },
+    {
+      "id": "rank-merge-first-non-zero-wins",
+      "summary": "Rank-bearing fields in mergeClusters (CurrentRank, PeakRank, PreviousRank, Delta) gate on accumulator==0 so first-non-zero-wins, instead of always overwriting on incoming non-zero.",
+      "reason": "Digg's /ai RSC stream emits the same clusterId in multiple sections (main leaderboard array, plus featured / weekly / pinned / sevenDaysStories blocks). The previous last-wins merge let secondary sections' rank=1 stamp the cluster's currentRank, displacing the live leaderboard rank. Symptom: `digg-pp-cli top` returned 7 distinct stories all stamped currentRank=1 and Karpathy pinned at rank 1 for 4+ days.",
+      "files": [
+        "internal/diggparse/parser.go",
+        "internal/diggparse/parser_rank_test.go"
+      ],
+      "validated_outcome": "TestMergeClustersFirstWinsForRankFields pins the fix against a real two-occurrence fixture; TestMergeClustersStillGapFillsZeroAccumulator and TestExtractClustersDedup confirm sparse-then-full enrichment still works; TestMergeClustersDistinctClustersPreserveOwnRanks confirms distinct clusters keep their own ranks."
+    },
+    {
+      "id": "peak-rank-9999-sentinel-normalization",
+      "summary": "ExtractClusters normalizes PeakRank=9999 to 0 at parse time (next to the existing Rank->CurrentRank normalization) so the sentinel does not block a later occurrence's legitimate PeakRank via the first-non-zero-wins merge guard, and so the json:peakRank,omitempty tag drops it from CLI JSON output.",
+      "reason": "9999 is Digg's internal placeholder for newly-detected clusters with no tracked all-time peak. Leaking it into CLI JSON forces every downstream agent to special-case the value. Normalizing at parse time (rather than at the output boundary) also prevents a sentinel occurrence from blocking a legitimate later PeakRank under the first-non-zero-wins merge guard introduced in the sibling rank-merge patch.",
+      "files": [
+        "internal/diggparse/parser.go",
+        "internal/diggparse/parser_rank_test.go"
+      ],
+      "validated_outcome": "TestExtractClustersNormalizesPeakRankSentinel verifies normalization + JSON omission; TestExtractClustersSentinelDoesNotBlockLaterPeakRank verifies the parse-time placement (sentinel-then-real interaction); TestExtractClustersPreservesLegitimatePeakRank confirms non-sentinel values pass through unchanged; TestExtractClustersOmitsAbsentPeakRank confirms absent-field behavior is unchanged."
     }
   ]
 }

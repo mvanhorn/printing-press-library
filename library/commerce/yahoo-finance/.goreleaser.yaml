@@ -42,10 +42,10 @@ checksum:
 brews:
   - name: yahoo-finance-pp-cli
     repository:
-      owner: trevin-chow
+      owner: charles-garrison
       name: homebrew-tap
     homepage: "https://github.com/mvanhorn/printing-press-library"
-    description: "Yahoo Finance CLI — market data, quotes, fundamentals, options, news"
+    description: "Every Yahoo Finance endpoint plus a SQLite portfolio, covered-call screener"
     install: |
       bin.install "yahoo-finance-pp-cli"
       bin.install "yahoo-finance-pp-mcp"

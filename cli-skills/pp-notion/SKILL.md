@@ -29,7 +29,7 @@ This skill drives the `notion-pp-cli` binary. **You must verify the CLI is insta
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install notion --cli-only
+   npx -y @mvanhorn/printing-press-library install notion --cli-only
    ```
 2. Verify: `notion-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
@@ -41,8 +41,6 @@ go install github.com/mvanhorn/printing-press-library/library/productivity/notio
 ```
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
-
-notion-pp-cli syncs your Notion workspace into a local SQLite store and exposes commands for page and block management, stale page detection, and change tracking. Works offline and ships a full MCP server.
 
 ## When to Use This CLI
 

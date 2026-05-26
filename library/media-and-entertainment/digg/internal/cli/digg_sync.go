@@ -23,10 +23,18 @@ import (
 // actually requires: fetch the HTML, decode the embedded RSC stream,
 // extract clusters and authors, persist them, and pull the trending
 // status events on the side.
+var validTopics = map[string]bool{
+	"ai": true, "technology": true, "science": true, "world": true,
+	"politics": true, "business": true, "sports": true, "entertainment": true, "news": true,
+}
+
 func newDiggSyncCmd(flags *rootFlags) *cobra.Command {
 	var dbPath string
 	var withDetails bool
 	var skipEvents bool
+	// PATCH(digg-enhancements): multi-topic sync. Loops fetch+parse+persist
+	// once per topic; defaults to ["ai"] to preserve previous behavior.
+	var topics []string
 
 	cmd := &cobra.Command{
 		Use:   "sync",
@@ -52,6 +60,19 @@ Sync is read-only against Digg. It never mutates anything upstream.`,
 				dbPath = defaultDBPath("digg-pp-cli")
 			}
 
+			// Validate topics
+			for _, t := range topics {
+				if !validTopics[t] {
+					valid := []string{"ai", "technology", "science", "world", "politics", "business", "sports", "entertainment", "news"}
+					return fmt.Errorf("unknown topic %q; valid topics: %s", t, strings.Join(valid, ", "))
+				}
+			}
+
+			if dryRunOK(flags) {
+				fmt.Fprintf(cmd.OutOrStdout(), "dry-run: would sync topics: %s\n", strings.Join(topics, ", "))
+				return nil
+			}
+
 			s, err := store.OpenWithContext(ctx, dbPath)
 			if err != nil {
 				return fmt.Errorf("opening local database: %w", err)
@@ -66,36 +87,80 @@ Sync is read-only against Digg. It never mutates anything upstream.`,
 			out := cmd.OutOrStdout()
 			now := time.Now().UTC()
 
-			// 1. Fetch /ai HTML
-			fmt.Fprintln(out, "fetching /ai ...")
-			html, err := fetchURL(ctx, "https://di.gg/ai")
-			if err != nil {
-				return fmt.Errorf("fetching /ai: %w", err)
-			}
-			clusters, embeddedEvents, _, err := diggparse.ParseHomeFeed(html)
-			if err != nil {
-				return fmt.Errorf("parsing /ai: %w", err)
-			}
-			fmt.Fprintf(out, "parsed %d clusters from /ai (%d KB)\n", len(clusters), len(html)/1024)
+			totalClusters := 0
+			totalEmbeddedEvents := 0
+			observed := make(map[string]bool)
 
-			// 2. Persist
-			observed := make(map[string]bool, len(clusters))
-			for _, c := range clusters {
-				observed[c.ClusterID] = true
-				if err := diggstore.UpsertCluster(db, c, now); err != nil {
-					return err
+			for _, topic := range topics {
+				topicURL := "https://di.gg/" + topic
+
+				// 1. Fetch topic HTML
+				fmt.Fprintf(out, "fetching /%s ...\n", topic)
+				html, err := fetchURL(ctx, topicURL)
+				if err != nil {
+					return fmt.Errorf("fetching /%s: %w", topic, err)
+				}
+				clusters, embeddedEvents, _, err := diggparse.ParseHomeFeed(html)
+				if err != nil {
+					return fmt.Errorf("parsing /%s: %w", topic, err)
+				}
+				fmt.Fprintf(out, "parsed %d clusters from /%s (%d KB)\n", len(clusters), topic, len(html)/1024)
+
+				// 2. Persist
+				for _, c := range clusters {
+					observed[c.ClusterID] = true
+					if err := diggstore.UpsertCluster(db, c, now); err != nil {
+						return err
+					}
+				}
+
+				// Persist embedded events too (cluster_detected, fast_climb seen in stream)
+				for _, e := range embeddedEvents {
+					if err := diggstore.UpsertEvent(db, e, now); err != nil {
+						return err
+					}
+				}
+
+				totalClusters += len(clusters)
+				totalEmbeddedEvents += len(embeddedEvents)
+
+				// 5. Optionally fetch detail pages for clusters
+				if withDetails {
+					fetched := 0
+					for _, c := range clusters {
+						if c.ClusterURLID == "" {
+							continue
+						}
+						detailURL := "https://di.gg/" + topic + "/" + c.ClusterURLID
+						body, err := fetchURL(ctx, detailURL)
+						if err != nil {
+							fmt.Fprintf(out, "  detail %s: %v\n", c.ClusterURLID, err)
+							continue
+						}
+						more, _, _, err := diggparse.ParseHomeFeed(body)
+						if err != nil || len(more) == 0 {
+							continue
+						}
+						for _, mc := range more {
+							if mc.ClusterID == c.ClusterID {
+								_ = diggstore.UpsertCluster(db, mc, now)
+								break
+							}
+						}
+						fetched++
+						time.Sleep(500 * time.Millisecond)
+					}
+					fmt.Fprintf(out, "fetched %d detail pages for /%s\n", fetched, topic)
 				}
 			}
 
-			// Persist embedded events too (cluster_detected, fast_climb seen in /ai stream)
-			for _, e := range embeddedEvents {
-				if err := diggstore.UpsertEvent(db, e, now); err != nil {
-					return err
-				}
-			}
-
-			// 3. Replacements
-			if err := diggstore.RecordReplacements(db, observed, now); err != nil {
+			// 3. Replacements (scoped to the synced topics only).
+			// PATCH(digg-enhancements): the non-scoped RecordReplacements
+			// scans every cluster in the 2-hour window, which means a topic-
+			// subset sync would falsely mark other topics' clusters as fell-
+			// out-of-feed. The ForTopics variant scopes the query to topics
+			// we actually fetched this run.
+			if err := diggstore.RecordReplacementsForTopics(db, observed, now, topics); err != nil {
 				return err
 			}
 
@@ -119,40 +184,11 @@ Sync is read-only against Digg. It never mutates anything upstream.`,
 					len(ts.Events), ts.StoriesToday, ts.ClustersToday)
 			}
 
-			// 5. Optionally fetch detail pages for clusters
-			if withDetails {
-				fetched := 0
-				for _, c := range clusters {
-					if c.ClusterURLID == "" {
-						continue
-					}
-					url := "https://di.gg/ai/" + c.ClusterURLID
-					body, err := fetchURL(ctx, url)
-					if err != nil {
-						fmt.Fprintf(out, "  detail %s: %v\n", c.ClusterURLID, err)
-						continue
-					}
-					more, _, _, err := diggparse.ParseHomeFeed(body)
-					if err != nil || len(more) == 0 {
-						continue
-					}
-					// Find the matching cluster object in the detail page (richer fields)
-					for _, mc := range more {
-						if mc.ClusterID == c.ClusterID {
-							_ = diggstore.UpsertCluster(db, mc, now)
-							break
-						}
-					}
-					fetched++
-					time.Sleep(500 * time.Millisecond)
-				}
-				fmt.Fprintf(out, "fetched %d detail pages\n", fetched)
-			}
-
 			summary := map[string]any{
 				"event":           "sync_summary",
-				"clusters_synced": len(clusters),
-				"events_synced":   len(embeddedEvents),
+				"topics":          topics,
+				"clusters_synced": totalClusters,
+				"events_synced":   totalEmbeddedEvents,
 				"with_details":    withDetails,
 				"skip_events":     skipEvents,
 				"db_path":         dbPath,
@@ -161,7 +197,7 @@ Sync is read-only against Digg. It never mutates anything upstream.`,
 			if flags.asJSON {
 				return printJSONFiltered(out, summary, flags)
 			}
-			fmt.Fprintf(out, "synced %d clusters into %s\n", len(clusters), dbPath)
+			fmt.Fprintf(out, "synced %d clusters into %s\n", totalClusters, dbPath)
 			return nil
 		},
 	}
@@ -169,6 +205,7 @@ Sync is read-only against Digg. It never mutates anything upstream.`,
 	cmd.Flags().StringVar(&dbPath, "db", "", "Database path (default: ~/.local/share/digg-pp-cli/data.db)")
 	cmd.Flags().BoolVar(&withDetails, "with-details", false, "Also fetch each cluster's detail page (slower; richer fields)")
 	cmd.Flags().BoolVar(&skipEvents, "no-events", false, "Skip /api/trending/status events fetch")
+	cmd.Flags().StringSliceVar(&topics, "topics", []string{"ai"}, "Comma-separated topic slugs to sync (valid: ai, technology, science, world, politics, business, sports, entertainment, news)")
 
 	cmd.Annotations = map[string]string{}
 	return cmd

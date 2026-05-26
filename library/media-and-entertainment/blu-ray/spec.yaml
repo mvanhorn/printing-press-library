@@ -1,0 +1,245 @@
+name: blu-ray
+display_name: Blu-ray.com
+description: "Blu-ray.com — the canonical disc database for Blu-ray, 4K UHD, DVD, and digital releases since 2002. No public API; sourced from the published XML sitemap and HTML pages."
+cli_description: "Blu-ray.com disc database CLI — local catalog, listings, deals, news, and price-drop watchlist for every Blu-ray, 4K, DVD, and digital release."
+version: "0.1.0"
+base_url: "https://www.blu-ray.com"
+website_url: "https://www.blu-ray.com"
+spec_source: community
+http_transport: standard
+health_check_path: "/sitemap.xml"
+category: media-and-entertainment
+
+auth:
+  type: none
+
+cache:
+  enabled: true
+  stale_after: 168h
+  env_opt_out: BLURAY_FRESHNESS_SKIP
+  commands:
+    - name: search
+      resources: [releases]
+    - name: editions
+      resources: [releases]
+    - name: drift
+      resources: [releases]
+    - name: history
+      resources: [releases]
+
+config:
+  format: toml
+  path: "~/.config/blu-ray-pp-cli/config.toml"
+
+mcp:
+  transport: [stdio, http]
+
+resources:
+  releases:
+    description: "Disc release pages and listings (Blu-ray, 4K, 3D, DVD, digital, iTunes, MA, UV)."
+    endpoints:
+      get:
+        method: GET
+        path: "/movies/{slug}/{id}/"
+        description: "Fetch the canonical release detail page by URL slug and id. The id is stable; slug is documented for redirect-safe fetching."
+        response_format: html
+        html_extract:
+          mode: page
+        params:
+          - name: slug
+            flag_name: slug
+            type: string
+            required: true
+            positional: true
+            description: "URL slug (e.g. 'Alien-Blu-ray', 'Fight-Club-4K-Blu-ray'). Captured from sitemap or listing pages."
+          - name: id
+            flag_name: id
+            type: int
+            required: true
+            positional: true
+            description: "Numeric release id (stable across slug renames)."
+      new:
+        method: GET
+        path: "/movies/movies.php"
+        description: "List recent Blu-ray, 4K, DVD, and digital releases (paginated). Returns release page links from the static template."
+        response_format: html
+        html_extract:
+          mode: links
+          link_prefixes: ["/movies/"]
+          limit: 60
+        params:
+          - name: show
+            flag_name: show
+            type: string
+            required: false
+            default: "newreleases"
+            enum: ["newreleases", "comingsoon"]
+            description: "Listing view: new releases or coming soon."
+          - name: page
+            flag_name: page
+            type: int
+            required: false
+            default: 1
+            description: "Page number (1-indexed)."
+          - name: country
+            flag_name: country
+            type: string
+            required: false
+            description: "ISO 2-letter country filter (e.g. US, UK, FR)."
+          - name: format
+            flag_name: format
+            type: string
+            required: false
+            enum: ["bluray", "4k", "3d", "dvd", "digital"]
+            description: "Format filter."
+
+  calendar:
+    description: "Release calendar (by year + format + country)."
+    endpoints:
+      releases:
+        method: GET
+        path: "/movies/releasedates.php"
+        description: "Release calendar page for a given year, optionally filtered by country and format. JS-driven UI; the raw HTML still contains the listing data the page renders."
+        response_format: html
+        html_extract:
+          mode: page
+        params:
+          - name: year
+            flag_name: year
+            type: int
+            required: false
+            description: "Calendar year (2006-onwards). Defaults to current year when omitted."
+          - name: country
+            flag_name: country
+            type: string
+            required: false
+            description: "Country filter (e.g. USA)."
+          - name: format
+            flag_name: format
+            type: string
+            required: false
+            enum: ["4K", "bluray", "3D", "DVD"]
+            description: "Format filter."
+      theatrical:
+        method: GET
+        path: "/theatrical/releasedates.php"
+        description: "Theatrical release calendar."
+        response_format: html
+        html_extract:
+          mode: page
+        params:
+          - name: year
+            flag_name: year
+            type: int
+            required: false
+            description: "Calendar year."
+      digital:
+        method: GET
+        path: "/digital/releasedates.php"
+        description: "Digital release calendar (streaming/rental window opens)."
+        response_format: html
+        html_extract:
+          mode: page
+        params:
+          - name: year
+            flag_name: year
+            type: int
+            required: false
+            description: "Calendar year."
+
+  deals:
+    description: "Live disc deals (sale prices across retailers)."
+    endpoints:
+      list:
+        method: GET
+        path: "/deals/"
+        description: "Current Blu-ray.com deals, filterable by country and format. Each row carries the underlying release id and the affiliate click URL (the latter is not followed by the CLI)."
+        response_format: html
+        html_extract:
+          mode: page
+        params:
+          - name: country
+            flag_name: country
+            type: string
+            required: false
+            default: "USA"
+            description: "Country code (USA, UK, DE, FR, ...). Defaults to USA."
+          - name: format
+            flag_name: format
+            type: string
+            required: false
+            enum: ["4k", "bluray", "dvd", "3d"]
+            description: "Format filter."
+
+  news:
+    description: "Blu-ray.com news stories."
+    endpoints:
+      index:
+        method: GET
+        path: "/news/"
+        description: "News index page (latest stories on top). Hand-parser extracts headline + posted-date + body link."
+        response_format: html
+        html_extract:
+          mode: page
+      get:
+        method: GET
+        path: "/news/"
+        description: "Fetch a single news story by id."
+        response_format: html
+        html_extract:
+          mode: page
+        params:
+          - name: id
+            flag_name: id
+            type: int
+            required: true
+            positional: true
+            description: "Numeric story id."
+
+  sitemap:
+    description: "Public XML sitemaps. Used by `sync` to enumerate every release id; safe to fetch (allowed by robots.txt)."
+    endpoints:
+      index:
+        method: GET
+        path: "/sitemap.xml"
+        description: "Sitemap index — points at gzipped sub-sitemaps for main, news, bluraymovies (9 shards), dvdmovies (7), itunesmovies (5), digitalmovies (2), cast (11), ma, games, other."
+        response_format: html
+        html_extract:
+          mode: page
+      news:
+        method: GET
+        path: "/sitemap/sitemap_news.xml.gz"
+        description: "Compressed news sitemap — each entry has title + publication_date inline (no per-story fetch needed for enumeration)."
+        response_format: html
+        html_extract:
+          mode: page
+      bluraymovies:
+        method: GET
+        path: "/sitemap/sitemap_bluraymovies_{shard}.xml.gz"
+        description: "One of nine gzipped Blu-ray release shards (50,000 URLs each). Pull all nine for the full Blu-ray catalog."
+        response_format: html
+        html_extract:
+          mode: page
+        params:
+          - name: shard
+            flag_name: shard
+            type: int
+            required: true
+            positional: true
+            description: "Shard index 0-8."
+
+extra_commands:
+  - name: sync
+    description: "Sync the published XML sitemap into a local SQLite catalog (~400-450k Blu-ray releases). Incremental by sitemap <lastmod>; rerun weekly. Enables offline FTS5 search via the `search` command."
+  - name: search
+    description: "Offline title search across the local catalog (FTS5). Filters: --format, --country, --year. Faster than blu-ray.com's own JS-rendered search and works offline."
+  - name: editions
+    description: "Given a movie umbrella id, list every disc edition (4K UHD, Blu-ray, Steelbook, Director's Cut, country) with release date, list price, and current price side-by-side."
+  - name: watch
+    description: "Local price-drop watchlist. Subcommands: add <id> [--target-price N], list, rm <id>, check (re-scan deals; alert when any watched release hits target or new historical low)."
+  - name: upc
+    description: "Resolve a CSV of UPC codes (e.g. exported from another collection tool) to local release records, hydrating metadata. Closes the gap left by Blu-ray.com's UPC-only export format."
+  - name: drift
+    description: "Diff this week's sitemap against the last sync. Surfaces 'new in catalog this week', 'removed', and 'metadata changed'."
+  - name: history
+    description: "Show the local price history for a release id (recorded by `watch check` and `deals --record`). Per-retailer, sortable, plotted as an ASCII spark when --plot."

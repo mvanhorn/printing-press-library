@@ -1,0 +1,317 @@
+{
+  "api_name": "yahoo-finance",
+  "base_url": "https://query1.finance.yahoo.com",
+  "description": "Every Yahoo Finance endpoint plus a SQLite portfolio, covered-call screener, and Chrome-cookie fallback the libraries don't ship.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "autocomplete_get",
+      "description": "Autocomplete symbols and company names. Required: query. Optional: lang (default: en), region (default: US). Returns the AutocompleteResult.",
+      "method": "GET",
+      "path": "/v6/finance/autocomplete",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Prefix query",
+          "required": true
+        },
+        {
+          "name": "lang",
+          "type": "string",
+          "location": "query",
+          "description": "Language code"
+        },
+        {
+          "name": "region",
+          "type": "string",
+          "location": "query",
+          "description": "Region code"
+        }
+      ]
+    },
+    {
+      "name": "chart_get",
+      "description": "Historical price chart data for a symbol. Required: symbol. Optional: interval (default: 1d), range (default: 1mo), period1 (plus 3 more). Returns the Chart.",
+      "method": "GET",
+      "path": "/v8/finance/chart/{symbol}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "path",
+          "description": "Ticker symbol",
+          "required": true
+        },
+        {
+          "name": "interval",
+          "type": "string",
+          "location": "query",
+          "description": "Bar interval: 1m, 2m, 5m, 15m, 30m, 60m, 90m, 1h, 1d, 5d, 1wk, 1mo, 3mo"
+        },
+        {
+          "name": "range",
+          "type": "string",
+          "location": "query",
+          "description": "Date range: 1d, 5d, 1mo, 3mo, 6mo, 1y, 2y, 5y, 10y, ytd, max"
+        },
+        {
+          "name": "period1",
+          "type": "int",
+          "location": "query",
+          "description": "Start unix timestamp (overrides range)"
+        },
+        {
+          "name": "period2",
+          "type": "int",
+          "location": "query",
+          "description": "End unix timestamp"
+        },
+        {
+          "name": "events",
+          "type": "string",
+          "location": "query",
+          "description": "Events to include: div, split, earn"
+        },
+        {
+          "name": "includePrePost",
+          "type": "bool",
+          "location": "query",
+          "description": "Include pre/post-market data"
+        }
+      ]
+    },
+    {
+      "name": "fundamentals_timeseries",
+      "description": "Fundamentals time series (EPS, revenue, margin, cash flow, etc.). Required: symbol, type. Optional: period1 (default: 0), period2. Returns the TimeSeries.",
+      "method": "GET",
+      "path": "/ws/fundamentals/v1/finance/timeseries/{symbol}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "path",
+          "description": "Ticker symbol",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated fundamentals keys (prefix annual/quarterly/trailing)",
+          "required": true
+        },
+        {
+          "name": "period1",
+          "type": "int",
+          "location": "query",
+          "description": "Start unix timestamp"
+        },
+        {
+          "name": "period2",
+          "type": "int",
+          "location": "query",
+          "description": "End unix timestamp (default now)"
+        }
+      ]
+    },
+    {
+      "name": "insights_get",
+      "description": "Insights for a symbol: technical events, valuation, research reports. Required: symbol. Returns the Insights.",
+      "method": "GET",
+      "path": "/ws/insights/v3/finance/insights",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "query",
+          "description": "Ticker symbol",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "lookup_query",
+      "description": "Search for symbols, news, and funds matching a query. Required: query. Optional: quotesCount (default: 10), newsCount (default: 5), region (default: US). Returns the SearchResult.",
+      "method": "GET",
+      "path": "/v1/finance/search",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "query",
+          "wire_name": "q",
+          "type": "string",
+          "location": "query",
+          "description": "Search query (ticker or company name)",
+          "required": true
+        },
+        {
+          "name": "quotesCount",
+          "type": "int",
+          "location": "query",
+          "description": "Max quote results"
+        },
+        {
+          "name": "newsCount",
+          "type": "int",
+          "location": "query",
+          "description": "Max news results"
+        },
+        {
+          "name": "region",
+          "type": "string",
+          "location": "query",
+          "description": "Market region"
+        }
+      ]
+    },
+    {
+      "name": "options_get",
+      "description": "Options chain for a symbol (calls and puts). Required: symbol. Optional: date. Returns the OptionChain.",
+      "method": "GET",
+      "path": "/v7/finance/options/{symbol}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "path",
+          "description": "Underlying ticker symbol",
+          "required": true
+        },
+        {
+          "name": "date",
+          "type": "int",
+          "location": "query",
+          "description": "Expiration unix epoch (omit for nearest expiration)"
+        }
+      ]
+    },
+    {
+      "name": "quote_list",
+      "description": "Get current quotes for one or more symbols. Required: symbols. Optional: fields, region (default: US). Returns array of Quote.",
+      "method": "GET",
+      "path": "/v7/finance/quote",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "symbols",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated ticker symbols",
+          "required": true
+        },
+        {
+          "name": "fields",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated response fields filter"
+        },
+        {
+          "name": "region",
+          "type": "string",
+          "location": "query",
+          "description": "Market region"
+        }
+      ]
+    },
+    {
+      "name": "quote_summary",
+      "description": "Deep quote summary including price, fundamentals, ownership, and filings. Required: symbol. Optional: modules. Returns the QuoteSummary.",
+      "method": "GET",
+      "path": "/v10/finance/quoteSummary/{symbol}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "path",
+          "description": "Ticker symbol",
+          "required": true
+        },
+        {
+          "name": "modules",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated quoteSummary modules: assetProfile, summaryProfile, summaryDetail, price, financialData, defaultKeyStatistics, incomeStatementHistory, incomeStatementHistoryQuarterly, balanceSheetHistory, balanceSheetHistoryQuarterly, cashflowStatementHistory, cashflowStatementHistoryQuarterly, earnings, earningsHistory, earningsTrend, calendarEvents, secFilings, upgradeDowngradeHistory, recommendationTrend, institutionOwnership, fundOwnership, majorHoldersBreakdown, insiderHolders, insiderTransactions, netSharePurchaseActivity, indexTrend, industryTrend, sectorTrend"
+        }
+      ]
+    },
+    {
+      "name": "recommendations_bysymbol",
+      "description": "Symbols that share recommendations with the given symbol. Required: symbol. Returns the Recommendations.",
+      "method": "GET",
+      "path": "/v6/finance/recommendationsbysymbol/{symbol}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "path",
+          "description": "Ticker symbol",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "screener_predefined",
+      "description": "Run a predefined screener by ID. Required: scrIds (default: day_gainers). Optional: count (default: 25), region (default: US). Returns array of ScreenerQuote.",
+      "method": "GET",
+      "path": "/v1/finance/screener/predefined/saved",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "scrIds",
+          "type": "string",
+          "location": "query",
+          "description": "Predefined screener: day_gainers, day_losers, most_actives, undervalued_growth_stocks, aggressive_small_caps, small_cap_gainers, top_mutual_funds, undervalued_large_caps, growth_technology_stocks, portfolio_anchors, conservative_foreign_funds, high_yield_bond",
+          "required": true
+        },
+        {
+          "name": "count",
+          "type": "int",
+          "location": "query",
+          "description": "Max results"
+        },
+        {
+          "name": "region",
+          "type": "string",
+          "location": "query",
+          "description": "Market region"
+        }
+      ]
+    },
+    {
+      "name": "trending_list",
+      "description": "Top trending symbols in a region right now. Required: region (default: US). Optional: count (default: 10). Returns array of TrendingSymbol.",
+      "method": "GET",
+      "path": "/v1/finance/trending/{region}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "region",
+          "type": "string",
+          "location": "path",
+          "description": "Region code: US, GB, FR, DE, HK, IN, AU, CA, BR, SG, TW, IT, ES, NL",
+          "required": true
+        },
+        {
+          "name": "count",
+          "type": "int",
+          "location": "query",
+          "description": "Max trending results"
+        }
+      ]
+    }
+  ]
+}

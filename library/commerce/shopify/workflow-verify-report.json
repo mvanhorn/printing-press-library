@@ -1,5 +1,5 @@
 {
-  "dir": "library/commerce/shopify",
+  "dir": "\u003ccli-dir\u003e/shopify",
   "workflows": null,
   "verdict": "workflow-pass",
   "issues": [

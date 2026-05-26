@@ -1,0 +1,56 @@
+{
+  "passed": true,
+  "exit_code": 0,
+  "started_at": "2026-05-24T11:20:03Z",
+  "elapsed_ms": 3954,
+  "legs": [
+    {
+      "name": "dogfood",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-05-24T11:20:03Z",
+      "elapsed_ms": 1514,
+      "command": "/Users/ericjung/cli-printing-press/printing-press dogfood --dir /Users/ericjung/printing-press/library/adguard-home --spec /Users/ericjung/printing-press/.runstate/runs/20260523-213639/research/adguard-home-openapi.json --research-dir /Users/ericjung/printing-press/.runstate/runs/20260523-213639/research"
+    },
+    {
+      "name": "verify",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-05-24T11:20:04Z",
+      "elapsed_ms": 2234,
+      "command": "/Users/ericjung/cli-printing-press/printing-press verify --dir /Users/ericjung/printing-press/library/adguard-home --spec /Users/ericjung/printing-press/.runstate/runs/20260523-213639/research/adguard-home-openapi.json --fix"
+    },
+    {
+      "name": "workflow-verify",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-05-24T11:20:06Z",
+      "elapsed_ms": 11,
+      "command": "/Users/ericjung/cli-printing-press/printing-press workflow-verify --dir /Users/ericjung/printing-press/library/adguard-home"
+    },
+    {
+      "name": "verify-skill",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-05-24T11:20:06Z",
+      "elapsed_ms": 101,
+      "command": "/Users/ericjung/cli-printing-press/printing-press verify-skill --dir /Users/ericjung/printing-press/library/adguard-home"
+    },
+    {
+      "name": "validate-narrative",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-05-24T11:20:07Z",
+      "elapsed_ms": 10,
+      "command": "/Users/ericjung/cli-printing-press/printing-press validate-narrative --strict --full-examples --research /Users/ericjung/printing-press/.runstate/runs/20260523-213639/research/research.json --binary /Users/ericjung/printing-press/library/adguard-home/adguard-home"
+    },
+    {
+      "name": "scorecard",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-05-24T11:20:07Z",
+      "elapsed_ms": 82,
+      "command": "/Users/ericjung/cli-printing-press/printing-press scorecard --dir /Users/ericjung/printing-press/library/adguard-home --research-dir /Users/ericjung/printing-press/.runstate/runs/20260523-213639/research --spec /Users/ericjung/printing-press/.runstate/runs/20260523-213639/research/adguard-home-openapi.json --live-check"
+    }
+  ]
+}

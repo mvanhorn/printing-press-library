@@ -25,7 +25,7 @@ This skill drives the `outlook-email-pp-cli` binary. **You must verify the CLI i
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install outlook-email --cli-only
+   npx -y @mvanhorn/printing-press-library install outlook-email --cli-only
    ```
 2. Verify: `outlook-email-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
@@ -37,8 +37,6 @@ go install github.com/mvanhorn/printing-press-library/library/productivity/outlo
 ```
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
-
-Personal MSA support via OAuth 2.0 device-code against /common. A local SQLite store synced through messages/delta unlocks `followup`, `senders`, `since`, `waiting`, `digest`, `stale-unread`, and `bulk-archive` — workflows no other Outlook CLI exposes because they require persisted state. Companion to outlook-calendar with the same auth playbook.
 
 ## When to Use This CLI
 

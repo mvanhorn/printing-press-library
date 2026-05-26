@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "obsidian-pp-mcp",
+  "display_name": "Obsidian",
+  "version": "4.9.0",
+  "description": "Note-taking knowledge base reached through the official Obsidian CLI shipped in the desktop app (v1.12+). Vault is local; no public network API.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/obsidian-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/obsidian-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

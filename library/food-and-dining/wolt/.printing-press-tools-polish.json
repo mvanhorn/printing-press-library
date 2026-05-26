@@ -1,0 +1,19 @@
+{
+  "timestamp": "2026-05-23T14:17:18.999954Z",
+  "cli_dir": "\u003ccli-dir\u003e/wolt-pp-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "version",
+      "file": "root.go",
+      "line": 308,
+      "evidence": "Print version",
+      "status": "accepted",
+      "note": "Standard 'version' command; agents understand this without elaboration"
+    }
+  ],
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-05-23T14:14:06.179547Z"
+  }
+}

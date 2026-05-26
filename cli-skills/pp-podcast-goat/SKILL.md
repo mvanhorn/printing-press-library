@@ -25,7 +25,7 @@ This skill drives the `podcast-goat-pp-cli` binary. **You must verify the CLI is
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install podcast-goat --cli-only
+   npx -y @mvanhorn/printing-press-library install podcast-goat --cli-only
    ```
 2. Verify: `podcast-goat-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
@@ -37,8 +37,6 @@ go install github.com/mvanhorn/printing-press-library/library/media-and-entertai
 ```
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
-
-Built for agentic users who already pay for Huberman, Acquired, Founders, and Peter Attia and want to feed those transcripts into Claude or Hermes without copy-pasting. Walks a cookie -> free -> paid dispatch chain across 10 sources, normalizes everything to the same `**Speaker** (MM:SS)` markdown shape, caches to a local FTS5 store, and ships an MCP wrapper so agents can drive the whole thing.
 
 ## When to Use This CLI
 

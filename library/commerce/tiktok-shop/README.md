@@ -9,26 +9,26 @@ This package intentionally exposes a conservative surface based only on official
 The recommended path installs both the `tiktok-shop-pp-cli` binary and the `pp-tiktok-shop` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
 
 ```bash
-npx -y @mvanhorn/printing-press install tiktok-shop
+npx -y @mvanhorn/printing-press-library install tiktok-shop
 ```
 
 For CLI only (no skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install tiktok-shop --cli-only
+npx -y @mvanhorn/printing-press-library install tiktok-shop --cli-only
 ```
 
 For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install tiktok-shop --skill-only
+npx -y @mvanhorn/printing-press-library install tiktok-shop --skill-only
 ```
 
 To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
 
 ```bash
-npx -y @mvanhorn/printing-press install tiktok-shop --agent claude-code
-npx -y @mvanhorn/printing-press install tiktok-shop --agent claude-code --agent codex
+npx -y @mvanhorn/printing-press-library install tiktok-shop --agent claude-code
+npx -y @mvanhorn/printing-press-library install tiktok-shop --agent claude-code --agent codex
 ```
 
 ### Without Node (Go fallback)

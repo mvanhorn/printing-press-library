@@ -1,0 +1,11 @@
+{
+  "headers": [
+    {
+      "source": "/.well-known/appspecific/com.tesla.3p.public-key.pem",
+      "headers": [
+        { "key": "Content-Type", "value": "application/x-pem-file" },
+        { "key": "Cache-Control", "value": "public, max-age=300" }
+      ]
+    }
+  ]
+}

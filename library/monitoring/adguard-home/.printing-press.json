@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-24T04:42:14.387358Z",
+  "printing_press_version": "4.14.0",
+  "api_name": "adguard-home",
+  "display_name": "AdGuard Home",
+  "cli_name": "adguard-home-pp-cli",
+  "owner": "eric-jung",
+  "printer": "e-jung",
+  "printer_name": "Eric Jung",
+  "spec_path": "/Users/ericjung/printing-press/.runstate/runs/20260523-213639/research/adguard-home-openapi.json",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:bef07ee3a638df41ed84576564f50610752de0d25766b2e3a40272cc68f09dd8",
+  "run_id": "20260524-044214",
+  "catalog_entry": "adguard-home",
+  "category": "monitoring",
+  "description": "DNS-level ad/tracker/malware blocking via AdGuard Home REST API for self-hosted network DNS management",
+  "mcp_binary": "adguard-home-pp-mcp",
+  "mcp_tool_count": 81,
+  "mcp_ready": "full",
+  "api_version": "0.107",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "ADGUARD_HOME_USERNAME",
+    "ADGUARD_HOME_PASSWORD"
+  ],
+  "novel_features": [
+    {
+      "name": "DNS Health Report",
+      "command": "health",
+      "description": "Summarize AdGuard Home health from locally synced data: protection status, block rate, top blocked domains, stale sync detection, and query volume trends"
+    },
+    {
+      "name": "Local Sync",
+      "command": "sync",
+      "description": "Sync API data to local SQLite for offline search and analysis with resumable incremental sync"
+    },
+    {
+      "name": "Full-Text Search",
+      "command": "search",
+      "description": "Full-text search across synced data or live API with auto mode that falls back to local on network failure"
+    },
+    {
+      "name": "Local Analytics",
+      "command": "analytics",
+      "description": "Analyze locally synced data with count, group-by, and summary operations"
+    },
+    {
+      "name": "Archive Workflow",
+      "command": "workflow archive",
+      "description": "Sync all resources to local store for offline access and search in one command"
+    },
+    {
+      "name": "Live Tail",
+      "command": "tail",
+      "description": "Stream live data changes by polling the API at configurable intervals, emitting NDJSON to stdout"
+    }
+  ]
+}

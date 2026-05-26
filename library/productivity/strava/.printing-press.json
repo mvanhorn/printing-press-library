@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-22T01:16:41.8305045Z",
+  "printing_press_version": "4.11.0",
+  "api_name": "strava",
+  "display_name": "Strava",
+  "cli_name": "strava-pp-cli",
+  "owner": "azaaron",
+  "printer": "azaaron",
+  "printer_name": "azaaron",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:2d3a43ebfa6afdc89324897cb4b52f14aa9cc5e866fa21a1b117c9fb4627ac99",
+  "run_id": "20260521-164944",
+  "description": "Every Strava feature, plus offline analytics — training load, power curves, zone time, and segment progression — that the website can't show you.",
+  "mcp_binary": "strava-pp-mcp",
+  "mcp_tool_count": 34,
+  "mcp_ready": "full",
+  "api_version": "3.0.0",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "STRAVA_STRAVA_OAUTH"
+  ],
+  "novel_features": [
+    {
+      "name": "Segment Effort Progression",
+      "command": "segments progress",
+      "description": "See your entire effort history on a segment — date, time, avg power, avg HR, delta from PR — so you can track if you're actually improving."
+    },
+    {
+      "name": "Training Load Timeline (CTL/ATL/TSB)",
+      "command": "training load",
+      "description": "See your Chronic Training Load, Acute Training Load, and Training Stress Balance as sparklines so you can spot overtraining or undertaper before a race."
+    },
+    {
+      "name": "Zone Time Distribution",
+      "command": "training zones",
+      "description": "See how many minutes per week you actually spent in each heart rate or power zone, so you can tell if your training distribution matches your plan."
+    },
+    {
+      "name": "Power Curve",
+      "command": "athlete power-curve",
+      "description": "See your best mean power for every standard duration (1s to 60min) so you can identify strengths, weaknesses, and fitness changes across seasons."
+    },
+    {
+      "name": "HR Drift Detector",
+      "command": "activities drift",
+      "description": "Measure aerobic decoupling in an activity — the ratio of HR rise to pace drop in the second half — to assess aerobic fitness without lab testing."
+    },
+    {
+      "name": "Bulk Activity Updater",
+      "command": "activities bulk-update",
+      "description": "Update gear, name template, or description across hundreds of activities at once with a preview-before-commit safety net."
+    },
+    {
+      "name": "Gear Retirement Tracker",
+      "command": "gear status",
+      "description": "See total mileage on each shoe and bike, your configured replacement threshold, and an estimated retirement date based on your recent usage rate."
+    },
+    {
+      "name": "KOM Gap Tracker",
+      "command": "segments kom-gap",
+      "description": "See exactly how far you are from the KOM on each starred segment, ranked by the gap you're most likely to close."
+    }
+  ]
+}

@@ -12,7 +12,7 @@
   "run_id": "20260519-111411",
   "catalog_entry": "kit",
   "category": "marketing",
-  "description": "Email marketing for creators (formerly ConvertKit) — subscribers, broadcasts, sequences, tags",
+  "description": "Manage Kit subscribers, tags, forms, sequences, broadcasts, purchases, and email marketing automation data from the terminal.",
   "mcp_binary": "kit-pp-mcp",
   "mcp_tool_count": 72,
   "mcp_ready": "full",

@@ -1,0 +1,4056 @@
+name: semrush
+description: "Every Semrush v3 Analytics + v3 Projects feature, plus a local SQLite store, snapshot diffs, gap analyses, and a per-call credit ledger no other Semrush tool has."
+version: "0.1.0"
+base_url: "https://api.semrush.com"
+category: marketing
+health_check_path: "/management/v1/projects"
+http_transport: standard
+
+auth:
+  type: api_key
+  in: query
+  header: key
+  env_vars:
+    - SEMRUSH_API_KEY
+
+config:
+  format: toml
+  path: "~/.config/semrush-pp-cli/config.toml"
+
+cache:
+  enabled: true
+  stale_after: 168h
+
+mcp:
+  transport: [stdio, http]
+  orchestration: code
+  endpoint_tools: hidden
+
+resources:
+
+  # ============================================================
+  # Account / utility
+  # ============================================================
+  account:
+    description: "Account utilities (API units balance)"
+    base_url: "https://www.semrush.com"
+    endpoints:
+      balance:
+        method: GET
+        path: "/users/countapiunits.html"
+        description: "Get remaining API units balance (free probe; no units cost)"
+        response:
+          type: object
+          item: UnitsBalance
+
+  # ============================================================
+  # Domain analytics (v3) — CSV responses, query-auth, root path `/`
+  # ============================================================
+  domain:
+    description: "Domain analytics: overview, organic/paid keywords, competitors, pages, ad history"
+    endpoints:
+      overview:
+        method: GET
+        path: "/"
+        description: "Domain Overview (one database). 10 units/line. Live or historical rankings in one regional database."
+        params:
+          - name: type
+            type: string
+            required: true
+            default: "domain_rank"
+            description: "v3 report type (do not override)"
+          - name: domain
+            type: string
+            required: true
+            positional: true
+            description: "Root domain (e.g., example.com)"
+          - name: database
+            type: string
+            default: "us"
+            description: "Database/country code (us, uk, ca, au, de, fr, es, it, br, in, ...)"
+          - name: display_date
+            flag_name: date
+            type: string
+            description: "Snapshot date in YYYYMM15 format (omit for current)"
+          - name: export_columns
+            type: string
+            default: "Dn,Rk,Or,Ot,Oc,Ad,At,Ac"
+            description: "Columns (Dn=domain, Rk=rank, Or=organic kws, Ot=organic traffic, Oc=organic cost, Ad/At/Ac=paid)"
+        response:
+          type: object
+          item: DomainOverview
+
+      overview-all:
+        method: GET
+        path: "/"
+        description: "Domain Overview (all databases). 10 units/line. ~140 lines covering every regional database."
+        params:
+          - name: type
+            type: string
+            required: true
+            default: "domain_ranks"
+            description: "v3 report type (do not override)"
+          - name: domain
+            type: string
+            required: true
+            positional: true
+            description: "Root domain"
+          - name: display_limit
+            flag_name: limit
+            type: int
+            default: 200
+            description: "Max database rows"
+          - name: display_offset
+            flag_name: offset
+            type: int
+            description: "Skip N rows before returning"
+          - name: display_date
+            flag_name: date
+            type: string
+            description: "Snapshot date in YYYYMM15 format"
+          - name: export_columns
+            type: string
+            default: "Db,Dn,Rk,Or,Ot,Oc,Ad,At,Ac,Sh,Sv"
+            description: "Columns (Db=database, Sh=PLA kws, Sv=PLA uniques)"
+        response:
+          type: array
+          item: DomainOverview
+
+      overview-history:
+        method: GET
+        path: "/"
+        description: "Domain Overview (history). 10 units/line. Monthly historical rankings for one database (back to 2012-2016)."
+        params:
+          - name: type
+            type: string
+            required: true
+            default: "domain_rank_history"
+            description: "v3 report type (do not override)"
+          - name: domain
+            type: string
+            required: true
+            positional: true
+            description: "Root domain"
+          - name: database
+            type: string
+            default: "us"
+            description: "Database/country code"
+          - name: display_limit
+            flag_name: limit
+            type: int
+            default: 24
+            description: "Max history rows (months)"
+          - name: display_offset
+            flag_name: offset
+            type: int
+            description: "Skip N rows before returning"
+          - name: display_daily
+            flag_name: daily
+            type: string
+            description: "Set to 1 for daily rather than monthly history (last 31 days)"
+          - name: export_columns
+            type: string
+            default: "Rk,Or,Ot,Oc,Ad,At,Ac,Dt"
+            description: "Columns (Dt=date)"
+        response:
+          type: array
+          item: DomainRankHistoryRow
+
+      organic-keywords:
+        method: GET
+        path: "/"
+        description: "Domain Organic Search Keywords. 30 units/line. Keywords a domain ranks for in Google's top 100 organic results."
+        params:
+          - name: type
+            type: string
+            required: true
+            default: "domain_organic"
+            description: "v3 report type (do not override)"
+          - name: domain
+            type: string
+            required: true
+            positional: true
+            description: "Root domain"
+          - name: database
+            type: string
+            default: "us"
+            description: "Database/country code"
+          - name: display_limit
+            flag_name: limit
+            type: int
+            default: 100
+            description: "Max keywords"
+          - name: display_offset
+            flag_name: offset
+            type: int
+            description: "Skip N rows before returning"
+          - name: display_filter
+            flag_name: filter
+            type: string
+            description: "URL-encoded filter string (see Semrush filter syntax)"
+          - name: display_sort
+            flag_name: sort
+            type: string
+            description: "Sort key (e.g., tr_desc, nq_desc, po_asc)"
+          - name: display_date
+            flag_name: date
+            type: string
+            description: "Snapshot date in YYYYMM15 format"
+          - name: export_columns
+            type: string
+            default: "Ph,Po,Pp,Pd,Nq,Cp,Co,Tr,Tc,Ur,Kd,Td"
+            description: "Columns (Ph=phrase, Po=pos, Pp=prev pos, Pd=delta, Nq=volume, Tr=traffic %, Kd=difficulty)"
+        response:
+          type: array
+          item: DomainOrganicKeyword
+
+      paid-keywords:
+        method: GET
+        path: "/"
+        description: "Domain Paid Search Keywords. 30 units/line. Keywords a domain buys in Google Ads."
+        params:
+          - name: type
+            type: string
+            required: true
+            default: "domain_adwords"
+            description: "v3 report type (do not override)"
+          - name: domain
+            type: string
+            required: true
+            positional: true
+            description: "Root domain"
+          - name: database
+            type: string
+            default: "us"
+            description: "Database/country code"
+          - name: display_limit
+            flag_name: limit
+            type: int
+            default: 100
+            description: "Max keywords"
+          - name: display_offset
+            flag_name: offset
+            type: int
+            description: "Skip N rows before returning"
+          - name: display_filter
+            flag_name: filter
+            type: string
+            description: "URL-encoded filter string"
+          - name: display_sort
+            flag_name: sort
+            type: string
+            description: "Sort key"
+          - name: display_date
+            flag_name: date
+            type: string
+            description: "Snapshot date in YYYYMM15 format"
+          - name: export_columns
+            type: string
+            default: "Ph,Po,Pp,Pd,Ab,Nq,Cp,Tr,Tc,Ur,Tt,Ds,Vu"
+            description: "Columns (Ab=ad block, Tt=ad title, Ds=ad description, Vu=visible URL)"
+        response:
+          type: array
+          item: DomainPaidKeyword
+
+      competitors-organic:
+        method: GET
+        path: "/"
+        description: "Competitors in Organic Search. 40 units/line. Domains sharing organic keywords with the target."
+        params:
+          - name: type
+            type: string
+            required: true
+            default: "domain_organic_organic"
+            description: "v3 report type (do not override)"
+          - name: domain
+            type: string
+            required: true
+            positional: true
+            description: "Root domain"
+          - name: database
+            type: string
+            default: "us"
+            description: "Database/country code"
+          - name: display_limit
+            flag_name: limit
+            type: int
+            default: 20
+            description: "Max competitors"
+          - name: display_offset
+            flag_name: offset
+            type: int
+            description: "Skip N rows before returning"
+          - name: display_sort
+            flag_name: sort
+            type: string
+            description: "Sort key (cr_desc, np_desc, ...)"
+          - name: export_columns
+            type: string
+            default: "Dn,Cr,Np,Or,Ot,Oc,Ad"
+            description: "Columns (Cr=competitor relevance, Np=common kws)"
+        response:
+          type: array
+          item: DomainCompetitor
+
+      competitors-paid:
+        method: GET
+        path: "/"
+        description: "Competitors in Paid Search. 40 units/line. Domains overlapping the target's Google Ads keyword set."
+        params:
+          - name: type
+            type: string
+            required: true
+            default: "domain_adwords_adwords"
+            description: "v3 report type (do not override)"
+          - name: domain
+            type: string
+            required: true
+            positional: true
+            description: "Root domain"
+          - name: database
+            type: string
+            default: "us"
+            description: "Database/country code"
+          - name: display_limit
+            flag_name: limit
+            type: int
+            default: 20
+            description: "Max competitors"
+          - name: display_offset
+            flag_name: offset
+            type: int
+            description: "Skip N rows before returning"
+          - name: display_sort
+            flag_name: sort
+            type: string
+            description: "Sort key"
+          - name: export_columns
+            type: string
+            default: "Dn,Cr,Np,Ad,At,Ac,Or"
+            description: "Columns"
+        response:
+          type: array
+          item: DomainCompetitor
+
+      competitors-pla:
+        method: GET
+        path: "/"
+        description: "PLA Competitors. 40 units/line. Domains overlapping the target's Google Shopping PLA keyword set."
+        params:
+          - name: type
+            type: string
+            required: true
+            default: "domain_shopping_competitors"
+            description: "v3 report type (do not override)"
+          - name: domain
+            type: string
+            required: true
+            positional: true
+            description: "Root domain"
+          - name: database
+            type: string
+            default: "us"
+            description: "Database/country code"
+          - name: display_limit
+            flag_name: limit
+            type: int
+            default: 20
+            description: "Max competitors"
+          - name: display_offset
+            flag_name: offset
+            type: int
+            description: "Skip N rows before returning"
+          - name: export_columns
+            type: string
+            default: "Dn,Cr,Np,Sh,Ad,At,Ac"
+            description: "Columns (Sh=PLA keywords)"
+        response:
+          type: array
+          item: DomainCompetitor
+
+      ad-history:
+        method: GET
+        path: "/"
+        description: "Domain Ad History. 100 units/line. 12-month archive of ad copies a domain ran for paid keywords."
+        params:
+          - name: type
+            type: string
+            required: true
+            default: "domain_adwords_historical"
+            description: "v3 report type (do not override)"
+          - name: domain
+            type: string
+            required: true
+            positional: true
+            description: "Root domain"
+          - name: database
+            type: string
+            default: "us"
+            description: "Database/country code"
+          - name: display_limit
+            flag_name: limit
+            type: int
+            default: 50
+            description: "Max history rows"
+          - name: display_offset
+            flag_name: offset
+            type: int
+            description: "Skip N rows before returning"
+          - name: display_sort
+            flag_name: sort
+            type: string
+            description: "Sort key"
+          - name: export_columns
+            type: string
+            default: "Ph,Po,Cv,Nq,Cp,Tr,Ur,Tt,Ds,Vu,Dt"
+            description: "Columns (Cv=coverage %, Dt=date)"
+        response:
+          type: array
+          item: AdHistoryRow
+
+      ad-copies:
+        method: GET
+        path: "/"
+        description: "Domain Ads Copies. 20 units/line. Unique ad creatives a domain has run (title + description)."
+        params:
+          - name: type
+            type: string
+            required: true
+            default: "domain_adwords_unique"
+            description: "v3 report type (do not override)"
+          - name: domain
+            type: string
+            required: true
+            positional: true
+            description: "Root domain"
+          - name: database
+            type: string
+            default: "us"
+            description: "Database/country code"
+          - name: display_limit
+            flag_name: limit
+            type: int
+            default: 50
+            description: "Max ad copies"
+          - name: display_offset
+            flag_name: offset
+            type: int
+            description: "Skip N rows before returning"
+          - name: export_columns
+            type: string
+            default: "Tt,Ds,Ur,Pc,Un"
+            description: "Columns (Tt=title, Ds=desc, Pc=keyword count, Un=ad id)"
+        response:
+          type: array
+          item: AdCopy
+
+      pla-keywords:
+        method: GET
+        path: "/"
+        description: "Domain PLA Search Keywords. 30 units/line. Google Shopping PLA keywords for a domain."
+        params:
+          - name: type
+            type: string
+            required: true
+            default: "domain_shopping"
+            description: "v3 report type (do not override)"
+          - name: domain
+            type: string
+            required: true
+            positional: true
+            description: "Root domain"
+          - name: database
+            type: string
+            default: "us"
+            description: "Database/country code"
+          - name: display_limit
+            flag_name: limit
+            type: int
+            default: 100
+            description: "Max keywords"
+          - name: display_offset
+            flag_name: offset
+            type: int
+            description: "Skip N rows before returning"
+          - name: display_sort
+            flag_name: sort
+            type: string
+            description: "Sort key"
+          - name: export_columns
+            type: string
+            default: "Ph,Po,Pp,Pd,Nq,Cp,Ur,Tt,Pr,Sn"
+            description: "Columns (Pr=product price, Sn=shop name)"
+        response:
+          type: array
+          item: PLAKeyword
+
+      pla-copies:
+        method: GET
+        path: "/"
+        description: "Domain PLA Copies. 20 units/line. Unique PLA ad creatives (title, price, shop)."
+        params:
+          - name: type
+            type: string
+            required: true
+            default: "domain_shopping_unique"
+            description: "v3 report type (do not override)"
+          - name: domain
+            type: string
+            required: true
+            positional: true
+            description: "Root domain"
+          - name: database
+            type: string
+            default: "us"
+            description: "Database/country code"
+          - name: display_limit
+            flag_name: limit
+            type: int
+            default: 50
+            description: "Max PLA copies"
+          - name: display_offset
+            flag_name: offset
+            type: int
+            description: "Skip N rows before returning"
+          - name: export_columns
+            type: string
+            default: "Tt,Ur,Pr,Pc,Un"
+            description: "Columns"
+        response:
+          type: array
+          item: PLACopy
+
+      organic-pages:
+        method: GET
+        path: "/"
+        description: "Domain Organic Pages. 30 units/line. Top organic landing pages on a domain by traffic."
+        params:
+          - name: type
+            type: string
+            required: true
+            default: "domain_organic_pages"
+            description: "v3 report type (do not override)"
+          - name: domain
+            type: string
+            required: true
+            positional: true
+            description: "Root domain"
+          - name: database
+            type: string
+            default: "us"
+            description: "Database/country code"
+          - name: display_limit
+            flag_name: limit
+            type: int
+            default: 100
+            description: "Max pages"
+          - name: display_offset
+            flag_name: offset
+            type: int
+            description: "Skip N rows before returning"
+          - name: display_sort
+            flag_name: sort
+            type: string
+            description: "Sort key (tg_desc by default useful)"
+          - name: export_columns
+            type: string
+            default: "Ur,Pc,Tg,Tr,Sr,St"
+            description: "Columns (Ur=URL, Pc=keyword count, Tg=traffic, Tr=traffic %, Sr=SERP-feature positions, St=SERP-feature traffic)"
+        response:
+          type: array
+          item: DomainOrganicPage
+
+      subdomains:
+        method: GET
+        path: "/"
+        description: "Domain Organic Subdomains. 30 units/line. Subdomains of a domain ranked by organic traffic."
+        params:
+          - name: type
+            type: string
+            required: true
+            default: "domain_organic_subdomains"
+            description: "v3 report type (do not override)"
+          - name: domain
+            type: string
+            required: true
+            positional: true
+            description: "Root domain"
+          - name: database
+            type: string
+            default: "us"
+            description: "Database/country code"
+          - name: display_limit
+            flag_name: limit
+            type: int
+            default: 100
+            description: "Max subdomains"
+          - name: display_offset
+            flag_name: offset
+            type: int
+            description: "Skip N rows before returning"
+          - name: export_columns
+            type: string
+            default: "Ur,Pc,Tg,Tr,Sr,St"
+            description: "Columns"
+        response:
+          type: array
+          item: DomainOrganicPage
+
+      compare:
+        method: GET
+        path: "/"
+        description: "Domain vs. Domain. 80 units/line. Side-by-side keyword overlap between 2-5 domains."
+        params:
+          - name: type
+            type: string
+            required: true
+            default: "domain_domains"
+            description: "v3 report type (do not override)"
+          - name: domains
+            type: string
+            required: true
+            description: "Semrush 'domains' param string (e.g., '*|or|example.com|*|or|other.com'). The CLI command 'domain compare' wraps this."
+          - name: database
+            type: string
+            default: "us"
+            description: "Database/country code"
+          - name: display_limit
+            flag_name: limit
+            type: int
+            default: 100
+            description: "Max overlap keywords"
+          - name: display_offset
+            flag_name: offset
+            type: int
+            description: "Skip N rows before returning"
+          - name: export_columns
+            type: string
+            default: "Ph,P0,P1,P2,P3,P4,Nq,Cp,Co,Kd,Tr,Td"
+            description: "Columns (P0-P4 = position of each compared domain)"
+        response:
+          type: array
+          item: DomainCompareRow
+
+  # ============================================================
+  # Subdomain analytics (v3)
+  # ============================================================
+  subdomain:
+    description: "Subdomain analytics: overview, organic/paid keywords, pages"
+    endpoints:
+      overview:
+        method: GET
+        path: "/"
+        description: "Subdomain Overview (one database). 10 units/line."
+        params:
+          - name: type
+            type: string
+            required: true
+            default: "subdomain_rank"
+            description: "v3 report type (do not override)"
+          - name: domain
+            type: string
+            required: true
+            positional: true
+            description: "Subdomain (e.g., blog.example.com)"
+          - name: database
+            type: string
+            default: "us"
+            description: "Database/country code"
+          - name: display_date
+            flag_name: date
+            type: string
+            description: "Snapshot date in YYYYMM15 format"
+          - name: export_columns
+            type: string
+            default: "Dn,Rk,Or,Ot,Oc,Ad,At,Ac"
+            description: "Columns"
+        response:
+          type: object
+          item: DomainOverview
+
+      overview-all:
+        method: GET
+        path: "/"
+        description: "Subdomain Overview (all databases). 10 units/line."
+        params:
+          - name: type
+            type: string
+            required: true
+            default: "subdomain_ranks"
+            description: "v3 report type (do not override)"
+          - name: domain
+            type: string
+            required: true
+            positional: true
+            description: "Subdomain"
+          - name: display_limit
+            flag_name: limit
+            type: int
+            default: 200
+            description: "Max database rows"
+          - name: display_offset
+            flag_name: offset
+            type: int
+            description: "Skip N rows before returning"
+          - name: display_date
+            flag_name: date
+            type: string
+            description: "Snapshot date in YYYYMM15 format"
+          - name: export_columns
+            type: string
+            default: "Db,Dn,Rk,Or,Ot,Oc,Ad,At,Ac"
+            description: "Columns"
+        response:
+          type: array
+          item: DomainOverview
+
+      overview-history:
+        method: GET
+        path: "/"
+        description: "Subdomain Overview (history). 10 units/line. Monthly historical rankings."
+        params:
+          - name: type
+            type: string
+            required: true
+            default: "subdomain_rank_history"
+            description: "v3 report type (do not override)"
+          - name: domain
+            type: string
+            required: true
+            positional: true
+            description: "Subdomain"
+          - name: database
+            type: string
+            default: "us"
+            description: "Database/country code"
+          - name: display_limit
+            flag_name: limit
+            type: int
+            default: 24
+            description: "Max history rows (months)"
+          - name: display_offset
+            flag_name: offset
+            type: int
+            description: "Skip N rows before returning"
+          - name: export_columns
+            type: string
+            default: "Rk,Or,Ot,Oc,Ad,At,Ac,Dt"
+            description: "Columns"
+        response:
+          type: array
+          item: DomainRankHistoryRow
+
+      organic-keywords:
+        method: GET
+        path: "/"
+        description: "Subdomain Organic Search Keywords. 30 units/line."
+        params:
+          - name: type
+            type: string
+            required: true
+            default: "subdomain_organic"
+            description: "v3 report type (do not override)"
+          - name: domain
+            type: string
+            required: true
+            positional: true
+            description: "Subdomain"
+          - name: database
+            type: string
+            default: "us"
+            description: "Database/country code"
+          - name: display_limit
+            flag_name: limit
+            type: int
+            default: 100
+            description: "Max keywords"
+          - name: display_offset
+            flag_name: offset
+            type: int
+            description: "Skip N rows before returning"
+          - name: display_filter
+            flag_name: filter
+            type: string
+            description: "URL-encoded filter string"
+          - name: display_sort
+            flag_name: sort
+            type: string
+            description: "Sort key"
+          - name: export_columns
+            type: string
+            default: "Ph,Po,Pp,Pd,Nq,Cp,Co,Tr,Tc,Ur,Kd"
+            description: "Columns"
+        response:
+          type: array
+          item: DomainOrganicKeyword
+
+      paid-keywords:
+        method: GET
+        path: "/"
+        description: "Subdomain Paid Search Keywords. 30 units/line."
+        params:
+          - name: type
+            type: string
+            required: true
+            default: "subdomain_adwords"
+            description: "v3 report type (do not override)"
+          - name: domain
+            type: string
+            required: true
+            positional: true
+            description: "Subdomain"
+          - name: database
+            type: string
+            default: "us"
+            description: "Database/country code"
+          - name: display_limit
+            flag_name: limit
+            type: int
+            default: 100
+            description: "Max keywords"
+          - name: display_offset
+            flag_name: offset
+            type: int
+            description: "Skip N rows before returning"
+          - name: display_sort
+            flag_name: sort
+            type: string
+            description: "Sort key"
+          - name: export_columns
+            type: string
+            default: "Ph,Po,Pp,Pd,Ab,Nq,Cp,Tr,Tc,Ur,Tt,Ds,Vu"
+            description: "Columns"
+        response:
+          type: array
+          item: DomainPaidKeyword
+
+      organic-pages:
+        method: GET
+        path: "/"
+        description: "Subdomain Organic Pages. 30 units/line."
+        params:
+          - name: type
+            type: string
+            required: true
+            default: "subdomain_organic_pages"
+            description: "v3 report type (do not override)"
+          - name: domain
+            type: string
+            required: true
+            positional: true
+            description: "Subdomain"
+          - name: database
+            type: string
+            default: "us"
+            description: "Database/country code"
+          - name: display_limit
+            flag_name: limit
+            type: int
+            default: 100
+            description: "Max pages"
+          - name: display_offset
+            flag_name: offset
+            type: int
+            description: "Skip N rows before returning"
+          - name: export_columns
+            type: string
+            default: "Ur,Pc,Tg,Tr,Sr,St"
+            description: "Columns"
+        response:
+          type: array
+          item: DomainOrganicPage
+
+  # ============================================================
+  # Subfolder analytics (v3)
+  # ============================================================
+  subfolder:
+    description: "Subfolder analytics: overview, organic/paid keywords, pages"
+    endpoints:
+      overview:
+        method: GET
+        path: "/"
+        description: "Subfolder Overview (one database). 10 units/line."
+        params:
+          - name: type
+            type: string
+            required: true
+            default: "subfolder_rank"
+            description: "v3 report type (do not override)"
+          - name: domain
+            type: string
+            required: true
+            positional: true
+            description: "Subfolder URL (e.g., example.com/blog/)"
+          - name: database
+            type: string
+            default: "us"
+            description: "Database/country code"
+          - name: display_date
+            flag_name: date
+            type: string
+            description: "Snapshot date in YYYYMM15 format"
+          - name: export_columns
+            type: string
+            default: "Dn,Rk,Or,Ot,Oc,Ad,At,Ac"
+            description: "Columns"
+        response:
+          type: object
+          item: DomainOverview
+
+      overview-all:
+        method: GET
+        path: "/"
+        description: "Subfolder Overview (all databases). 10 units/line."
+        params:
+          - name: type
+            type: string
+            required: true
+            default: "subfolder_ranks"
+            description: "v3 report type (do not override)"
+          - name: domain
+            type: string
+            required: true
+            positional: true
+            description: "Subfolder URL"
+          - name: display_limit
+            flag_name: limit
+            type: int
+            default: 200
+            description: "Max database rows"
+          - name: display_offset
+            flag_name: offset
+            type: int
+            description: "Skip N rows before returning"
+          - name: export_columns
+            type: string
+            default: "Db,Dn,Rk,Or,Ot,Oc,Ad,At,Ac"
+            description: "Columns"
+        response:
+          type: array
+          item: DomainOverview
+
+      overview-history:
+        method: GET
+        path: "/"
+        description: "Subfolder Overview (history). 10 units/line. Monthly historical rankings."
+        params:
+          - name: type
+            type: string
+            required: true
+            default: "subfolder_rank_history"
+            description: "v3 report type (do not override)"
+          - name: domain
+            type: string
+            required: true
+            positional: true
+            description: "Subfolder URL"
+          - name: database
+            type: string
+            default: "us"
+            description: "Database/country code"
+          - name: display_limit
+            flag_name: limit
+            type: int
+            default: 24
+            description: "Max history rows (months)"
+          - name: display_offset
+            flag_name: offset
+            type: int
+            description: "Skip N rows before returning"
+          - name: export_columns
+            type: string
+            default: "Rk,Or,Ot,Oc,Ad,At,Ac,Dt"
+            description: "Columns"
+        response:
+          type: array
+          item: DomainRankHistoryRow
+
+      organic-keywords:
+        method: GET
+        path: "/"
+        description: "Subfolder Organic Search Keywords. 30 units/line."
+        params:
+          - name: type
+            type: string
+            required: true
+            default: "subfolder_organic"
+            description: "v3 report type (do not override)"
+          - name: domain
+            type: string
+            required: true
+            positional: true
+            description: "Subfolder URL"
+          - name: database
+            type: string
+            default: "us"
+            description: "Database/country code"
+          - name: display_limit
+            flag_name: limit
+            type: int
+            default: 100
+            description: "Max keywords"
+          - name: display_offset
+            flag_name: offset
+            type: int
+            description: "Skip N rows before returning"
+          - name: display_filter
+            flag_name: filter
+            type: string
+            description: "URL-encoded filter string"
+          - name: display_sort
+            flag_name: sort
+            type: string
+            description: "Sort key"
+          - name: export_columns
+            type: string
+            default: "Ph,Po,Pp,Pd,Nq,Cp,Co,Tr,Tc,Ur,Kd"
+            description: "Columns"
+        response:
+          type: array
+          item: DomainOrganicKeyword
+
+      paid-keywords:
+        method: GET
+        path: "/"
+        description: "Subfolder Paid Search Keywords. 30 units/line."
+        params:
+          - name: type
+            type: string
+            required: true
+            default: "subfolder_adwords"
+            description: "v3 report type (do not override)"
+          - name: domain
+            type: string
+            required: true
+            positional: true
+            description: "Subfolder URL"
+          - name: database
+            type: string
+            default: "us"
+            description: "Database/country code"
+          - name: display_limit
+            flag_name: limit
+            type: int
+            default: 100
+            description: "Max keywords"
+          - name: display_offset
+            flag_name: offset
+            type: int
+            description: "Skip N rows before returning"
+          - name: display_sort
+            flag_name: sort
+            type: string
+            description: "Sort key"
+          - name: export_columns
+            type: string
+            default: "Ph,Po,Pp,Pd,Ab,Nq,Cp,Tr,Tc,Ur,Tt,Ds,Vu"
+            description: "Columns"
+        response:
+          type: array
+          item: DomainPaidKeyword
+
+      organic-pages:
+        method: GET
+        path: "/"
+        description: "Subfolder Organic Pages. 30 units/line."
+        params:
+          - name: type
+            type: string
+            required: true
+            default: "subfolder_organic_pages"
+            description: "v3 report type (do not override)"
+          - name: domain
+            type: string
+            required: true
+            positional: true
+            description: "Subfolder URL"
+          - name: database
+            type: string
+            default: "us"
+            description: "Database/country code"
+          - name: display_limit
+            flag_name: limit
+            type: int
+            default: 100
+            description: "Max pages"
+          - name: display_offset
+            flag_name: offset
+            type: int
+            description: "Skip N rows before returning"
+          - name: export_columns
+            type: string
+            default: "Ur,Pc,Tg,Tr,Sr,St"
+            description: "Columns"
+        response:
+          type: array
+          item: DomainOrganicPage
+
+      organic-pages-unique:
+        method: GET
+        path: "/"
+        description: "Subfolder Organic Pages (unique). 30 units/line. Unique top organic landing pages within a subfolder."
+        params:
+          - name: type
+            type: string
+            required: true
+            default: "subfolder_organic_unique"
+            description: "v3 report type (do not override)"
+          - name: domain
+            type: string
+            required: true
+            positional: true
+            description: "Subfolder URL"
+          - name: database
+            type: string
+            default: "us"
+            description: "Database/country code"
+          - name: display_limit
+            flag_name: limit
+            type: int
+            default: 100
+            description: "Max pages"
+          - name: display_offset
+            flag_name: offset
+            type: int
+            description: "Skip N rows before returning"
+          - name: export_columns
+            type: string
+            default: "Ur,Pc,Tg,Tr"
+            description: "Columns"
+        response:
+          type: array
+          item: DomainOrganicPage
+
+  # ============================================================
+  # URL analytics (v3)
+  # ============================================================
+  url:
+    description: "URL-level analytics: overview, organic/paid keywords"
+    endpoints:
+      overview:
+        method: GET
+        path: "/"
+        description: "URL Overview (one database). 10 units/line."
+        params:
+          - name: type
+            type: string
+            required: true
+            default: "url_rank"
+            description: "v3 report type (do not override)"
+          - name: url
+            type: string
+            required: true
+            positional: true
+            description: "Exact URL (e.g., https://example.com/page)"
+          - name: database
+            type: string
+            default: "us"
+            description: "Database/country code"
+          - name: display_date
+            flag_name: date
+            type: string
+            description: "Snapshot date in YYYYMM15 format"
+          - name: export_columns
+            type: string
+            default: "Or,Ot,Oc,Ad,At,Ac"
+            description: "Columns (no Dn — URL is the target)"
+        response:
+          type: object
+          item: DomainOverview
+
+      overview-all:
+        method: GET
+        path: "/"
+        description: "URL Overview (all databases). 10 units/line."
+        params:
+          - name: type
+            type: string
+            required: true
+            default: "url_ranks"
+            description: "v3 report type (do not override)"
+          - name: url
+            type: string
+            required: true
+            positional: true
+            description: "Exact URL"
+          - name: display_limit
+            flag_name: limit
+            type: int
+            default: 200
+            description: "Max database rows"
+          - name: display_offset
+            flag_name: offset
+            type: int
+            description: "Skip N rows before returning"
+          - name: export_columns
+            type: string
+            default: "Db,Rk,Or,Ot,Oc,Ad,At,Ac"
+            description: "Columns"
+        response:
+          type: array
+          item: DomainOverview
+
+      overview-history:
+        method: GET
+        path: "/"
+        description: "URL Overview (history). 10 units/line. Monthly historical rankings for a URL."
+        params:
+          - name: type
+            type: string
+            required: true
+            default: "url_rank_history"
+            description: "v3 report type (do not override)"
+          - name: url
+            type: string
+            required: true
+            positional: true
+            description: "Exact URL"
+          - name: database
+            type: string
+            default: "us"
+            description: "Database/country code"
+          - name: display_limit
+            flag_name: limit
+            type: int
+            default: 24
+            description: "Max history rows (months)"
+          - name: display_offset
+            flag_name: offset
+            type: int
+            description: "Skip N rows before returning"
+          - name: export_columns
+            type: string
+            default: "Or,Ot,Oc,Ad,At,Ac,Dt"
+            description: "Columns"
+        response:
+          type: array
+          item: DomainRankHistoryRow
+
+      organic-keywords:
+        method: GET
+        path: "/"
+        description: "URL Organic Search Keywords. 30 units/line. Keywords this URL ranks for organically."
+        params:
+          - name: type
+            type: string
+            required: true
+            default: "url_organic"
+            description: "v3 report type (do not override)"
+          - name: url
+            type: string
+            required: true
+            positional: true
+            description: "Exact URL"
+          - name: database
+            type: string
+            default: "us"
+            description: "Database/country code"
+          - name: display_limit
+            flag_name: limit
+            type: int
+            default: 100
+            description: "Max keywords"
+          - name: display_offset
+            flag_name: offset
+            type: int
+            description: "Skip N rows before returning"
+          - name: display_sort
+            flag_name: sort
+            type: string
+            description: "Sort key"
+          - name: export_columns
+            type: string
+            default: "Ph,Po,Pp,Nq,Cp,Co,Tr,Tc,Kd"
+            description: "Columns"
+        response:
+          type: array
+          item: DomainOrganicKeyword
+
+      paid-keywords:
+        method: GET
+        path: "/"
+        description: "URL Paid Search Keywords. 30 units/line. Keywords this URL has been advertised against."
+        params:
+          - name: type
+            type: string
+            required: true
+            default: "url_adwords"
+            description: "v3 report type (do not override)"
+          - name: url
+            type: string
+            required: true
+            positional: true
+            description: "Exact URL"
+          - name: database
+            type: string
+            default: "us"
+            description: "Database/country code"
+          - name: display_limit
+            flag_name: limit
+            type: int
+            default: 100
+            description: "Max keywords"
+          - name: display_offset
+            flag_name: offset
+            type: int
+            description: "Skip N rows before returning"
+          - name: display_sort
+            flag_name: sort
+            type: string
+            description: "Sort key"
+          - name: export_columns
+            type: string
+            default: "Ph,Po,Nq,Cp,Tr,Tc,Tt,Ds,Vu"
+            description: "Columns"
+        response:
+          type: array
+          item: DomainPaidKeyword
+
+  # ============================================================
+  # Keyword research (v3)
+  # ============================================================
+  keyword:
+    description: "Keyword research reports (volume, difficulty, related, SERP, ad history)"
+    endpoints:
+      overview:
+        method: GET
+        path: "/"
+        description: "Keyword Overview (one database). 10 units/line. Single-database volume, CPC, competition, results count."
+        params:
+          - name: type
+            type: string
+            required: true
+            default: "phrase_this"
+            description: "v3 report type (do not override)"
+          - name: phrase
+            type: string
+            required: true
+            positional: true
+            description: "Keyword phrase to look up"
+          - name: database
+            type: string
+            default: "us"
+            description: "Database/country code"
+          - name: export_columns
+            type: string
+            default: "Ph,Nq,Cp,Co,Nr,Td,In"
+            description: "Columns (Ph=phrase, Nq=volume, Cp=CPC, Co=comp, Nr=results, Td=trend, In=intent)"
+        response:
+          type: object
+          item: KeywordOverview
+
+      overview-all:
+        method: GET
+        path: "/"
+        description: "Keyword Overview (all databases). 10 units/line. ~140 rows covering every regional database."
+        params:
+          - name: type
+            type: string
+            required: true
+            default: "phrase_all"
+            description: "v3 report type (do not override)"
+          - name: phrase
+            type: string
+            required: true
+            positional: true
+            description: "Keyword phrase to look up"
+          - name: display_limit
+            flag_name: limit
+            type: int
+            default: 200
+            description: "Max database rows"
+          - name: display_offset
+            flag_name: offset
+            type: int
+            description: "Skip N rows before returning"
+          - name: export_columns
+            type: string
+            default: "Db,Dt,Ph,Nq,Cp,Co,Nr"
+            description: "Columns"
+        response:
+          type: array
+          item: KeywordOverview
+
+      batch:
+        method: GET
+        path: "/"
+        description: "Batch Keyword Overview. 10 units/line. Up to 100 keywords in one call."
+        params:
+          - name: type
+            type: string
+            required: true
+            default: "phrase_these"
+            description: "v3 report type (do not override)"
+          - name: phrase
+            type: string
+            required: true
+            description: "Semicolon-separated keywords (max 100)"
+          - name: database
+            type: string
+            default: "us"
+            description: "Database/country code"
+          - name: export_columns
+            type: string
+            default: "Ph,Nq,Cp,Co,Nr,Td,In"
+            description: "Columns"
+        response:
+          type: array
+          item: KeywordOverview
+
+      related:
+        method: GET
+        path: "/"
+        description: "Related Keywords. 40 units/line. Keywords semantically related to a seed phrase."
+        params:
+          - name: type
+            type: string
+            required: true
+            default: "phrase_related"
+            description: "v3 report type (do not override)"
+          - name: phrase
+            type: string
+            required: true
+            positional: true
+            description: "Seed keyword"
+          - name: database
+            type: string
+            default: "us"
+            description: "Database/country code"
+          - name: display_limit
+            flag_name: limit
+            type: int
+            default: 100
+            description: "Max related keywords"
+          - name: display_offset
+            flag_name: offset
+            type: int
+            description: "Skip N rows before returning"
+          - name: display_filter
+            flag_name: filter
+            type: string
+            description: "URL-encoded filter string"
+          - name: display_sort
+            flag_name: sort
+            type: string
+            description: "Sort key (nq_desc, rr_desc, ...)"
+          - name: export_columns
+            type: string
+            default: "Ph,Nq,Cp,Co,Nr,Td,Rr,Kd,In"
+            description: "Columns (Rr=related relevance)"
+        response:
+          type: array
+          item: KeywordOverview
+
+      broad-match:
+        method: GET
+        path: "/"
+        description: "Broad Match Keywords. 20 units/line. Phrase-match variants of a seed term."
+        params:
+          - name: type
+            type: string
+            required: true
+            default: "phrase_fullsearch"
+            description: "v3 report type (do not override)"
+          - name: phrase
+            type: string
+            required: true
+            positional: true
+            description: "Seed keyword"
+          - name: database
+            type: string
+            default: "us"
+            description: "Database/country code"
+          - name: display_limit
+            flag_name: limit
+            type: int
+            default: 100
+            description: "Max variants"
+          - name: display_offset
+            flag_name: offset
+            type: int
+            description: "Skip N rows before returning"
+          - name: display_filter
+            flag_name: filter
+            type: string
+            description: "URL-encoded filter string"
+          - name: display_sort
+            flag_name: sort
+            type: string
+            description: "Sort key"
+          - name: export_columns
+            type: string
+            default: "Ph,Nq,Cp,Co,Nr,Td,Kd,In"
+            description: "Columns"
+        response:
+          type: array
+          item: KeywordOverview
+
+      questions:
+        method: GET
+        path: "/"
+        description: "Phrase Questions. 40 units/line. Question-form keywords containing a seed phrase."
+        params:
+          - name: type
+            type: string
+            required: true
+            default: "phrase_questions"
+            description: "v3 report type (do not override)"
+          - name: phrase
+            type: string
+            required: true
+            positional: true
+            description: "Seed keyword"
+          - name: database
+            type: string
+            default: "us"
+            description: "Database/country code"
+          - name: display_limit
+            flag_name: limit
+            type: int
+            default: 100
+            description: "Max question keywords"
+          - name: display_offset
+            flag_name: offset
+            type: int
+            description: "Skip N rows before returning"
+          - name: display_sort
+            flag_name: sort
+            type: string
+            description: "Sort key"
+          - name: export_columns
+            type: string
+            default: "Ph,Nq,Cp,Co,Nr,Td,Kd,In"
+            description: "Columns"
+        response:
+          type: array
+          item: KeywordOverview
+
+      difficulty:
+        method: GET
+        path: "/"
+        description: "Keyword Difficulty. 50 units/line. KDI (0-100) for one or more keywords."
+        params:
+          - name: type
+            type: string
+            required: true
+            default: "phrase_kdi"
+            description: "v3 report type (do not override)"
+          - name: phrase
+            type: string
+            required: true
+            description: "Semicolon-separated keywords (max 100)"
+          - name: database
+            type: string
+            default: "us"
+            description: "Database/country code"
+          - name: export_columns
+            type: string
+            default: "Ph,Kd"
+            description: "Columns (Ph=phrase, Kd=KDI 0-100)"
+        response:
+          type: array
+          item: KeywordDifficulty
+
+      organic-serp:
+        method: GET
+        path: "/"
+        description: "Organic Results (SERP) for a keyword. 10 units/line. Top organic ranking URLs for a phrase."
+        params:
+          - name: type
+            type: string
+            required: true
+            default: "phrase_organic"
+            description: "v3 report type (do not override)"
+          - name: phrase
+            type: string
+            required: true
+            positional: true
+            description: "Keyword phrase"
+          - name: database
+            type: string
+            default: "us"
+            description: "Database/country code"
+          - name: display_limit
+            flag_name: limit
+            type: int
+            default: 100
+            description: "Max SERP rows"
+          - name: display_offset
+            flag_name: offset
+            type: int
+            description: "Skip N rows before returning"
+          - name: export_columns
+            type: string
+            default: "Dn,Ur,Po,Pt,Fp,Fk"
+            description: "Columns (Pt=position type, Fp/Fk=SERP feature flags)"
+        response:
+          type: array
+          item: SERPResult
+
+      paid-serp:
+        method: GET
+        path: "/"
+        description: "Paid Results (SERP) for a keyword. 20 units/line. Advertisers bidding on the phrase."
+        params:
+          - name: type
+            type: string
+            required: true
+            default: "phrase_adwords"
+            description: "v3 report type (do not override)"
+          - name: phrase
+            type: string
+            required: true
+            positional: true
+            description: "Keyword phrase"
+          - name: database
+            type: string
+            default: "us"
+            description: "Database/country code"
+          - name: display_limit
+            flag_name: limit
+            type: int
+            default: 50
+            description: "Max ad rows"
+          - name: display_offset
+            flag_name: offset
+            type: int
+            description: "Skip N rows before returning"
+          - name: export_columns
+            type: string
+            default: "Dn,Ur,Vu,Tt,Ds"
+            description: "Columns"
+        response:
+          type: array
+          item: SERPResult
+
+      ads-history:
+        method: GET
+        path: "/"
+        description: "Keyword Ads History. 100 units/line. 12-month archive of advertisers who bid on the keyword."
+        params:
+          - name: type
+            type: string
+            required: true
+            default: "phrase_adwords_historical"
+            description: "v3 report type (do not override)"
+          - name: phrase
+            type: string
+            required: true
+            positional: true
+            description: "Keyword phrase"
+          - name: database
+            type: string
+            default: "us"
+            description: "Database/country code"
+          - name: display_limit
+            flag_name: limit
+            type: int
+            default: 50
+            description: "Max history rows"
+          - name: display_offset
+            flag_name: offset
+            type: int
+            description: "Skip N rows before returning"
+          - name: export_columns
+            type: string
+            default: "Dn,Dt,Po,Ur,Tt,Ds,Vu"
+            description: "Columns (Dt=date)"
+        response:
+          type: array
+          item: AdHistoryRow
+
+  # ============================================================
+  # Backlinks (v3) — base_url is analytics/v1, NOT root api.semrush.com
+  # ============================================================
+  backlink:
+    description: "Backlinks: overview, list, referring domains/IPs, anchors, competitors, history"
+    base_url: "https://api.semrush.com/analytics/v1/"
+    endpoints:
+      overview:
+        method: GET
+        path: "/"
+        description: "Backlinks Overview. 40 units/request. Total backlinks, refdomains, refips, follow ratio, AS."
+        params:
+          - name: type
+            type: string
+            required: true
+            default: "backlinks_overview"
+            description: "v3 report type (do not override)"
+          - name: target
+            type: string
+            required: true
+            positional: true
+            description: "Target URL/domain/root_domain"
+          - name: target_type
+            type: string
+            default: "root_domain"
+            description: "url | domain | root_domain"
+          - name: export_columns
+            type: string
+            default: "ascore,total,domains_num,urls_num,ips_num,follows_num,nofollows_num,sponsored_num,ugc_num,texts_num,images_num,forms_num,frames_num"
+            description: "Columns to return"
+        response:
+          type: object
+          item: BacklinksOverview
+
+      list:
+        method: GET
+        path: "/"
+        description: "Backlinks. 40 units/line. Individual backlinks pointing at a target."
+        params:
+          - name: type
+            type: string
+            required: true
+            default: "backlinks"
+            description: "v3 report type (do not override)"
+          - name: target
+            type: string
+            required: true
+            positional: true
+            description: "Target URL/domain/root_domain"
+          - name: target_type
+            type: string
+            default: "root_domain"
+            description: "url | domain | root_domain"
+          - name: display_limit
+            flag_name: limit
+            type: int
+            default: 100
+            description: "Max backlinks"
+          - name: display_offset
+            flag_name: offset
+            type: int
+            description: "Skip N rows before returning"
+          - name: display_filter
+            flag_name: filter
+            type: string
+            description: "URL-encoded filter string"
+          - name: display_sort
+            flag_name: sort
+            type: string
+            description: "Sort key"
+          - name: export_columns
+            type: string
+            default: "page_ascore,source_url,source_title,target_url,anchor,external_num,internal_num,nofollow,form,frame,image,sitewide,newlink,lostlink,first_seen,last_seen"
+            description: "Columns to return"
+        response:
+          type: array
+          item: Backlink
+
+      referring-domains:
+        method: GET
+        path: "/"
+        description: "Referring Domains. 40 units/line. Deduped domains linking to a target."
+        params:
+          - name: type
+            type: string
+            required: true
+            default: "backlinks_refdomains"
+            description: "v3 report type (do not override)"
+          - name: target
+            type: string
+            required: true
+            positional: true
+            description: "Target URL/domain/root_domain"
+          - name: target_type
+            type: string
+            default: "root_domain"
+            description: "url | domain | root_domain"
+          - name: display_limit
+            flag_name: limit
+            type: int
+            default: 100
+            description: "Max referring domains"
+          - name: display_offset
+            flag_name: offset
+            type: int
+            description: "Skip N rows before returning"
+          - name: display_filter
+            flag_name: filter
+            type: string
+            description: "URL-encoded filter string"
+          - name: display_sort
+            flag_name: sort
+            type: string
+            description: "Sort key"
+          - name: export_columns
+            type: string
+            default: "domain_ascore,domain,backlinks_num,ip,country,first_seen,last_seen"
+            description: "Columns to return"
+        response:
+          type: array
+          item: ReferringDomain
+
+      referring-ips:
+        method: GET
+        path: "/"
+        description: "Referring IPs. 40 units/line. Deduped IP addresses hosting referring domains."
+        params:
+          - name: type
+            type: string
+            required: true
+            default: "backlinks_refips"
+            description: "v3 report type (do not override)"
+          - name: target
+            type: string
+            required: true
+            positional: true
+            description: "Target URL/domain/root_domain"
+          - name: target_type
+            type: string
+            default: "root_domain"
+            description: "url | domain | root_domain"
+          - name: display_limit
+            flag_name: limit
+            type: int
+            default: 100
+            description: "Max IPs"
+          - name: display_offset
+            flag_name: offset
+            type: int
+            description: "Skip N rows before returning"
+          - name: export_columns
+            type: string
+            default: "ip,country,domains_num,backlinks_num,first_seen,last_seen"
+            description: "Columns to return"
+        response:
+          type: array
+          item: ReferringIP
+
+      tld:
+        method: GET
+        path: "/"
+        description: "TLD Distribution. 40 units/line. Distribution of referring domains by TLD."
+        params:
+          - name: type
+            type: string
+            required: true
+            default: "backlinks_tld"
+            description: "v3 report type (do not override)"
+          - name: target
+            type: string
+            required: true
+            positional: true
+            description: "Target URL/domain/root_domain"
+          - name: target_type
+            type: string
+            default: "root_domain"
+            description: "url | domain | root_domain"
+          - name: display_limit
+            flag_name: limit
+            type: int
+            default: 50
+            description: "Max TLDs"
+          - name: display_offset
+            flag_name: offset
+            type: int
+            description: "Skip N rows before returning"
+          - name: export_columns
+            type: string
+            default: "zone,domains_num,backlinks_num"
+            description: "Columns to return"
+        response:
+          type: array
+          item: TLDDistribution
+
+      geo:
+        method: GET
+        path: "/"
+        description: "Referring Domains by Country. 40 units/line. Country distribution of referring domains."
+        params:
+          - name: type
+            type: string
+            required: true
+            default: "backlinks_geo"
+            description: "v3 report type (do not override)"
+          - name: target
+            type: string
+            required: true
+            positional: true
+            description: "Target URL/domain/root_domain"
+          - name: target_type
+            type: string
+            default: "root_domain"
+            description: "url | domain | root_domain"
+          - name: display_limit
+            flag_name: limit
+            type: int
+            default: 50
+            description: "Max countries"
+          - name: display_offset
+            flag_name: offset
+            type: int
+            description: "Skip N rows before returning"
+          - name: export_columns
+            type: string
+            default: "country,domains_num,backlinks_num"
+            description: "Columns to return"
+        response:
+          type: array
+          item: CountryDistribution
+
+      anchors:
+        method: GET
+        path: "/"
+        description: "Anchors. 40 units/line. Anchor texts used in backlinks pointing at a target."
+        params:
+          - name: type
+            type: string
+            required: true
+            default: "backlinks_anchors"
+            description: "v3 report type (do not override)"
+          - name: target
+            type: string
+            required: true
+            positional: true
+            description: "Target URL/domain/root_domain"
+          - name: target_type
+            type: string
+            default: "root_domain"
+            description: "url | domain | root_domain"
+          - name: display_limit
+            flag_name: limit
+            type: int
+            default: 100
+            description: "Max anchors"
+          - name: display_offset
+            flag_name: offset
+            type: int
+            description: "Skip N rows before returning"
+          - name: display_sort
+            flag_name: sort
+            type: string
+            description: "Sort key"
+          - name: export_columns
+            type: string
+            default: "anchor,domains_num,backlinks_num,first_seen,last_seen"
+            description: "Columns to return"
+        response:
+          type: array
+          item: AnchorText
+
+      indexed-pages:
+        method: GET
+        path: "/"
+        description: "Indexed Pages. 40 units/line. Pages on the target receiving backlinks."
+        params:
+          - name: type
+            type: string
+            required: true
+            default: "backlinks_pages"
+            description: "v3 report type (do not override)"
+          - name: target
+            type: string
+            required: true
+            positional: true
+            description: "Target URL/domain/root_domain"
+          - name: target_type
+            type: string
+            default: "root_domain"
+            description: "url | domain | root_domain"
+          - name: display_limit
+            flag_name: limit
+            type: int
+            default: 100
+            description: "Max pages"
+          - name: display_offset
+            flag_name: offset
+            type: int
+            description: "Skip N rows before returning"
+          - name: display_sort
+            flag_name: sort
+            type: string
+            description: "Sort key"
+          - name: export_columns
+            type: string
+            default: "source_url,source_title,response_code,backlinks_num,domains_num,external_num,internal_num,last_seen"
+            description: "Columns to return"
+        response:
+          type: array
+          item: BacklinkedPage
+
+      competitors:
+        method: GET
+        path: "/"
+        description: "Backlink Competitors. 40 units/line. Domains with similar backlink profiles to the target."
+        params:
+          - name: type
+            type: string
+            required: true
+            default: "backlinks_competitors"
+            description: "v3 report type (do not override)"
+          - name: target
+            type: string
+            required: true
+            positional: true
+            description: "Target URL/domain/root_domain"
+          - name: target_type
+            type: string
+            default: "root_domain"
+            description: "url | domain | root_domain"
+          - name: display_limit
+            flag_name: limit
+            type: int
+            default: 20
+            description: "Max competitors"
+          - name: display_offset
+            flag_name: offset
+            type: int
+            description: "Skip N rows before returning"
+          - name: export_columns
+            type: string
+            default: "ascore,neighbour,similarity,common_refdomains,domains_num,backlinks_num"
+            description: "Columns to return"
+        response:
+          type: array
+          item: BacklinkCompetitor
+
+      compare-refdomains:
+        method: GET
+        path: "/"
+        description: "Comparison by Referring Domains. 40 units/line. Which refdomains link to multiple targets (matrix)."
+        params:
+          - name: type
+            type: string
+            required: true
+            default: "backlinks_matrix"
+            description: "v3 report type (do not override)"
+          - name: targets
+            type: string
+            required: true
+            description: "Comma-separated target URLs/domains (up to 5)"
+          - name: target_types
+            type: string
+            default: "root_domain,root_domain,root_domain,root_domain,root_domain"
+            description: "Comma-separated target types matching 'targets'"
+          - name: display_limit
+            flag_name: limit
+            type: int
+            default: 100
+            description: "Max refdomain rows"
+          - name: display_offset
+            flag_name: offset
+            type: int
+            description: "Skip N rows before returning"
+          - name: export_columns
+            type: string
+            default: "domain_ascore,domain,matches_num,backlinks_num"
+            description: "Columns to return"
+        response:
+          type: array
+          item: ReferringDomain
+
+      compare-batch:
+        method: GET
+        path: "/"
+        description: "Batch Comparison. 40 units/request per domain. Side-by-side backlink stats for up to 200 domains."
+        params:
+          - name: type
+            type: string
+            required: true
+            default: "backlinks_comparison"
+            description: "v3 report type (do not override)"
+          - name: targets
+            type: string
+            required: true
+            description: "Comma-separated targets (up to 200)"
+          - name: target_types
+            type: string
+            description: "Comma-separated target types matching 'targets'"
+          - name: export_columns
+            type: string
+            default: "target,target_type,ascore,domains_num,urls_num,backlinks_num,follows_num,nofollows_num,texts_num,images_num,forms_num,frames_num"
+            description: "Columns to return"
+        response:
+          type: array
+          item: BacklinksOverview
+
+      authority-score:
+        method: GET
+        path: "/"
+        description: "Authority Score profile. 40 units/request. Snapshot of Semrush Authority Score (AS) for a target."
+        params:
+          - name: type
+            type: string
+            required: true
+            default: "backlinks_ascore_profile"
+            description: "v3 report type (do not override)"
+          - name: target
+            type: string
+            required: true
+            positional: true
+            description: "Target URL/domain/root_domain"
+          - name: target_type
+            type: string
+            default: "root_domain"
+            description: "url | domain | root_domain"
+          - name: export_columns
+            type: string
+            default: "ascore,domains_num,backlinks_num"
+            description: "Columns to return"
+        response:
+          type: object
+          item: AuthorityScoreProfile
+
+      categories-profile:
+        method: GET
+        path: "/"
+        description: "Categories profile. 40 units/request. Subject-matter categories of a target with confidence ratings."
+        params:
+          - name: type
+            type: string
+            required: true
+            default: "backlinks_categories_profile"
+            description: "v3 report type (do not override)"
+          - name: target
+            type: string
+            required: true
+            positional: true
+            description: "Target URL/domain/root_domain"
+          - name: target_type
+            type: string
+            default: "root_domain"
+            description: "url | domain | root_domain"
+          - name: display_limit
+            flag_name: limit
+            type: int
+            default: 50
+            description: "Max categories"
+          - name: display_offset
+            flag_name: offset
+            type: int
+            description: "Skip N rows before returning"
+          - name: export_columns
+            type: string
+            default: "category_name,rating"
+            description: "Columns to return"
+        response:
+          type: array
+          item: BacklinkCategory
+
+      categories:
+        method: GET
+        path: "/"
+        description: "Categories. 40 units/line. Subject-matter categories of referring domains."
+        params:
+          - name: type
+            type: string
+            required: true
+            default: "backlinks_categories"
+            description: "v3 report type (do not override)"
+          - name: target
+            type: string
+            required: true
+            positional: true
+            description: "Target URL/domain/root_domain"
+          - name: target_type
+            type: string
+            default: "root_domain"
+            description: "url | domain | root_domain"
+          - name: display_limit
+            flag_name: limit
+            type: int
+            default: 50
+            description: "Max categories"
+          - name: display_offset
+            flag_name: offset
+            type: int
+            description: "Skip N rows before returning"
+          - name: export_columns
+            type: string
+            default: "category_name,rating"
+            description: "Columns to return"
+        response:
+          type: array
+          item: BacklinkCategory
+
+      history:
+        method: GET
+        path: "/"
+        description: "Historical data (Backlinks). 40 units/line. Time series of backlink/refdomain counts and AS."
+        params:
+          - name: type
+            type: string
+            required: true
+            default: "backlinks_historical"
+            description: "v3 report type (do not override)"
+          - name: target
+            type: string
+            required: true
+            positional: true
+            description: "Target URL/domain/root_domain"
+          - name: target_type
+            type: string
+            default: "root_domain"
+            description: "url | domain | root_domain"
+          - name: display_limit
+            flag_name: limit
+            type: int
+            default: 50
+            description: "Max history rows"
+          - name: display_offset
+            flag_name: offset
+            type: int
+            description: "Skip N rows before returning"
+          - name: export_columns
+            type: string
+            default: "date,score,domains_num,backlinks_num,backlinks_new_num,backlinks_lost_num,domains_new_num,domains_lost_num"
+            description: "Columns to return"
+        response:
+          type: array
+          item: BacklinkHistoryRow
+
+  # ============================================================
+  # Projects API (JSON responses, query-auth)
+  # ============================================================
+  project:
+    description: "Manage Semrush Projects (containers for Position Tracking, Site Audit, Listings)"
+    endpoints:
+      list:
+        method: GET
+        path: "/management/v1/projects"
+        description: "List all projects on your account. Free (no API units)."
+        response:
+          type: array
+          item: Project
+
+      get:
+        method: GET
+        path: "/management/v1/projects/{project_id}"
+        description: "Get a single project by ID. Free (no API units)."
+        params:
+          - name: project_id
+            type: string
+            required: true
+            positional: true
+            description: "Numeric project ID"
+        response:
+          type: object
+          item: Project
+
+      create:
+        method: POST
+        path: "/management/v1/projects"
+        description: "Create a new Semrush project (container) with a name and root domain."
+        body:
+          - name: name
+            type: string
+            required: true
+            description: "Project name"
+          - name: url
+            type: string
+            required: true
+            description: "Root domain (e.g., example.com)"
+        response:
+          type: object
+          item: Project
+
+      update:
+        method: PUT
+        path: "/management/v1/projects/{project_id}"
+        description: "Update an existing project's name/url."
+        params:
+          - name: project_id
+            type: string
+            required: true
+            positional: true
+            description: "Numeric project ID"
+        body:
+          - name: name
+            type: string
+            description: "New project name"
+          - name: url
+            type: string
+            description: "New root domain"
+        response:
+          type: object
+          item: Project
+
+      delete:
+        method: DELETE
+        path: "/management/v1/projects/{project_id}"
+        description: "Delete a project. CLI requires --yes to confirm; otherwise dry-runs."
+        params:
+          - name: project_id
+            type: string
+            required: true
+            positional: true
+            description: "Numeric project ID"
+        response:
+          type: object
+          item: ProjectDeleteResult
+
+  # ============================================================
+  # Site Audit (v3)
+  # ============================================================
+  audit:
+    description: "Site Audit: enable, run, list snapshots, drill into issues and pages"
+    endpoints:
+      enable:
+        method: POST
+        path: "/management/v1/projects/{project_id}/siteaudit/enable"
+        description: "Enable Site Audit on a project. One-time per project. Free (config call)."
+        params:
+          - name: project_id
+            type: string
+            required: true
+            positional: true
+            description: "Numeric project ID"
+        body:
+          - name: domain
+            type: string
+            required: true
+            description: "Root domain to crawl"
+          - name: scope
+            type: string
+            description: "domain | subdomain | subfolder"
+          - name: limit
+            type: int
+            description: "Max pages to crawl per run"
+          - name: crawl_subdomains
+            type: bool
+            description: "Crawl subdomains too"
+          - name: user_agent
+            type: string
+            description: "Crawl user-agent (SemrushBot, GoogleBot, ...)"
+        response:
+          type: object
+          item: AuditCampaign
+
+      edit:
+        method: POST
+        path: "/management/v1/projects/{project_id}/siteaudit/save"
+        description: "Edit Site Audit campaign settings (page limit, user-agent, scope, etc.)."
+        params:
+          - name: project_id
+            type: string
+            required: true
+            positional: true
+            description: "Numeric project ID"
+        body:
+          - name: domain
+            type: string
+            description: "Root domain to crawl"
+          - name: scope
+            type: string
+            description: "domain | subdomain | subfolder"
+          - name: limit
+            type: int
+            description: "Max pages per run"
+          - name: crawl_subdomains
+            type: bool
+            description: "Crawl subdomains too"
+          - name: user_agent
+            type: string
+            description: "Crawl user-agent"
+        response:
+          type: object
+          item: AuditCampaign
+
+      snapshots:
+        method: GET
+        path: "/reports/v1/projects/{project_id}/siteaudit/snapshots"
+        description: "List Site Audit snapshots for a project. Free (no API units)."
+        params:
+          - name: project_id
+            type: string
+            required: true
+            positional: true
+            description: "Numeric project ID"
+        response:
+          type: array
+          item: AuditSnapshot
+
+      issue-catalog:
+        method: GET
+        path: "/reports/v1/projects/{project_id}/siteaudit/meta/issues"
+        description: "Get text descriptions for all Site Audit issue codes. Free."
+        params:
+          - name: project_id
+            type: string
+            required: true
+            positional: true
+            description: "Numeric project ID"
+        response:
+          type: array
+          item: AuditIssueDef
+
+      run:
+        method: POST
+        path: "/reports/v1/projects/{project_id}/siteaudit/launch"
+        description: "Trigger a new Site Audit crawl. Free to launch; counts against page-credit pool."
+        params:
+          - name: project_id
+            type: string
+            required: true
+            positional: true
+            description: "Numeric project ID"
+        response:
+          type: object
+          item: AuditRunResult
+
+      campaign-info:
+        method: GET
+        path: "/reports/v1/projects/{project_id}/siteaudit/info"
+        description: "Get Site Audit campaign configuration and current status."
+        params:
+          - name: project_id
+            type: string
+            required: true
+            positional: true
+            description: "Numeric project ID"
+        response:
+          type: object
+          item: AuditCampaign
+
+      snapshot-info:
+        method: GET
+        path: "/reports/v1/projects/{project_id}/siteaudit/snapshot"
+        description: "Get aggregated counts for a snapshot (errors/warnings/notices, total checks)."
+        params:
+          - name: project_id
+            type: string
+            required: true
+            positional: true
+            description: "Numeric project ID"
+          - name: snapshot_id
+            type: string
+            required: true
+            description: "Snapshot ID (from 'audit snapshots')"
+        response:
+          type: object
+          item: AuditSnapshot
+
+      issue:
+        method: GET
+        path: "/reports/v1/projects/{project_id}/siteaudit/snapshot/{snapshot_id}/issue/{issue_id}"
+        description: "Detailed report for one issue in a snapshot (affected pages, status)."
+        params:
+          - name: project_id
+            type: string
+            required: true
+            positional: true
+            description: "Numeric project ID"
+          - name: snapshot_id
+            type: string
+            required: true
+            positional: true
+            description: "Snapshot ID"
+          - name: issue_id
+            type: string
+            required: true
+            positional: true
+            description: "Issue ID (see 'audit issue-catalog')"
+          - name: limit
+            type: int
+            default: 100
+            description: "Max affected pages"
+          - name: page
+            type: int
+            description: "Page number for pagination"
+          - name: filter
+            type: string
+            description: "Filter string"
+          - name: sort
+            type: string
+            description: "Sort key"
+        response:
+          type: object
+          item: AuditIssueDetail
+
+      page-by-url:
+        method: GET
+        path: "/reports/v1/projects/{project_id}/siteaudit/page/list"
+        description: "Look up the page_id for a given URL within a snapshot."
+        params:
+          - name: project_id
+            type: string
+            required: true
+            positional: true
+            description: "Numeric project ID"
+          - name: url
+            type: string
+            required: true
+            description: "URL to look up"
+          - name: limit
+            type: int
+            default: 10
+            description: "Max matches"
+        response:
+          type: array
+          item: AuditPageRef
+
+      page:
+        method: GET
+        path: "/reports/v1/projects/{project_id}/siteaudit/page/{page_id}"
+        description: "Get full details for one crawled page (issues found, status, metrics)."
+        params:
+          - name: project_id
+            type: string
+            required: true
+            positional: true
+            description: "Numeric project ID"
+          - name: page_id
+            type: string
+            required: true
+            positional: true
+            description: "Page ID (from 'audit page-by-url')"
+        response:
+          type: object
+          item: AuditPage
+
+      history:
+        method: GET
+        path: "/reports/v1/projects/{project_id}/siteaudit/history"
+        description: "Site Audit snapshots history (time series of issue counts and score)."
+        params:
+          - name: project_id
+            type: string
+            required: true
+            positional: true
+            description: "Numeric project ID"
+          - name: limit
+            type: int
+            default: 30
+            description: "Max history rows"
+          - name: offset
+            type: int
+            description: "Skip N rows before returning"
+        response:
+          type: array
+          item: AuditHistoryRow
+
+  # ============================================================
+  # Position Tracking (v3)
+  #   Mutations live under /management/v1/projects/{id}/...
+  #   Reports share path /reports/v1/projects/{campaign_id}/tracking/ with type=... and action=report
+  # ============================================================
+  tracking:
+    description: "Position Tracking: create campaign, manage keywords/tags/competitors, organic and paid reports"
+    endpoints:
+      create:
+        method: POST
+        path: "/management/v1/projects/{project_id}/tracking/enable"
+        description: "Create a Position Tracking campaign on a project."
+        params:
+          - name: project_id
+            type: string
+            required: true
+            positional: true
+            description: "Numeric project ID"
+        body:
+          - name: url
+            type: string
+            required: true
+            description: "Tracked URL pattern (e.g., *.example.com/*)"
+          - name: location
+            type: string
+            description: "Geo target (use 'tracking location-search' to find the location_id)"
+          - name: location_id
+            type: int
+            description: "Numeric location ID from 'tracking location-search'"
+          - name: device
+            type: string
+            default: "desktop"
+            description: "desktop | mobile | tablet"
+          - name: language_code
+            type: string
+            default: "en"
+            description: "Language code"
+          - name: keywords
+            type: string
+            description: "Comma-separated initial keyword list"
+          - name: competitors
+            type: string
+            description: "Comma-separated competitor domains"
+          - name: search_engine
+            type: string
+            description: "Google search engine domain (e.g., google.com)"
+        response:
+          type: object
+          item: TrackingCampaign
+
+      emails-enable:
+        method: PUT
+        path: "/management/v1/projects/{campaign_id}/tracking/notifications"
+        description: "Enable weekly status emails for a Position Tracking campaign."
+        params:
+          - name: campaign_id
+            type: string
+            required: true
+            positional: true
+            description: "Position Tracking campaign ID"
+        response:
+          type: object
+          item: TrackingOperationResult
+
+      emails-disable:
+        method: DELETE
+        path: "/management/v1/projects/{campaign_id}/tracking/notifications"
+        description: "Disable weekly status emails for a Position Tracking campaign."
+        params:
+          - name: campaign_id
+            type: string
+            required: true
+            positional: true
+            description: "Position Tracking campaign ID"
+        response:
+          type: object
+          item: TrackingOperationResult
+
+      keywords-add:
+        method: PUT
+        path: "/management/v1/projects/{campaign_id}/keywords"
+        description: "Add keywords to an existing Position Tracking campaign."
+        params:
+          - name: campaign_id
+            type: string
+            required: true
+            positional: true
+            description: "Position Tracking campaign ID"
+        body:
+          - name: keywords
+            type: string
+            required: true
+            description: "Comma-separated keyword list (becomes JSON array)"
+          - name: tags
+            type: string
+            description: "Comma-separated tags to attach to these keywords"
+        response:
+          type: object
+          item: TrackingOperationResult
+
+      keywords-remove:
+        method: DELETE
+        path: "/management/v1/projects/{campaign_id}/keywords"
+        description: "Remove keywords from an existing Position Tracking campaign."
+        params:
+          - name: campaign_id
+            type: string
+            required: true
+            positional: true
+            description: "Position Tracking campaign ID"
+        body:
+          - name: keywords
+            type: string
+            required: true
+            description: "Comma-separated keyword list to remove"
+        response:
+          type: object
+          item: TrackingOperationResult
+
+      tags-add:
+        method: PUT
+        path: "/management/v1/projects/{campaign_id}/tags"
+        description: "Add tags to existing keywords in a Position Tracking campaign."
+        params:
+          - name: campaign_id
+            type: string
+            required: true
+            positional: true
+            description: "Position Tracking campaign ID"
+        body:
+          - name: keywords
+            type: string
+            required: true
+            description: "Comma-separated keyword list"
+          - name: tags
+            type: string
+            required: true
+            description: "Comma-separated tags to apply"
+        response:
+          type: object
+          item: TrackingOperationResult
+
+      tags-remove:
+        method: DELETE
+        path: "/management/v1/projects/{campaign_id}/tags"
+        description: "Remove tags from existing keywords in a Position Tracking campaign."
+        params:
+          - name: campaign_id
+            type: string
+            required: true
+            positional: true
+            description: "Position Tracking campaign ID"
+        body:
+          - name: keywords
+            type: string
+            required: true
+            description: "Comma-separated keyword list"
+          - name: tags
+            type: string
+            required: true
+            description: "Comma-separated tags to remove"
+        response:
+          type: object
+          item: TrackingOperationResult
+
+      competitors-add:
+        method: PUT
+        path: "/management/v1/projects/{campaign_id}/competitors"
+        description: "Add competitors to an existing Position Tracking campaign."
+        params:
+          - name: campaign_id
+            type: string
+            required: true
+            positional: true
+            description: "Position Tracking campaign ID"
+        body:
+          - name: competitors
+            type: string
+            required: true
+            description: "Comma-separated competitor domains"
+        response:
+          type: object
+          item: TrackingOperationResult
+
+      competitors-remove:
+        method: DELETE
+        path: "/management/v1/projects/{campaign_id}/competitors"
+        description: "Remove competitors from an existing Position Tracking campaign."
+        params:
+          - name: campaign_id
+            type: string
+            required: true
+            positional: true
+            description: "Position Tracking campaign ID"
+        body:
+          - name: competitors
+            type: string
+            required: true
+            description: "Comma-separated competitor domains"
+        response:
+          type: object
+          item: TrackingOperationResult
+
+      campaigns:
+        method: GET
+        path: "/management/v1/projects/{project_id}/tracking/campaigns"
+        description: "List Position Tracking campaigns under a project. Use this to find the campaign_id."
+        params:
+          - name: project_id
+            type: string
+            required: true
+            positional: true
+            description: "Numeric project ID"
+        response:
+          type: object
+          item: TrackingCampaignList
+
+      location-search:
+        method: GET
+        path: "/position-tracking/management/v1/info/locations"
+        description: "Universal location search (returns location IDs for cities/regions/countries)."
+        params:
+          - name: query
+            type: string
+            required: true
+            description: "Location text to search (e.g., 'San Francisco')"
+          - name: country
+            type: string
+            description: "Restrict to country code (e.g., 'US')"
+          - name: limit
+            type: int
+            default: 20
+            description: "Max matches"
+        response:
+          type: array
+          item: TrackingLocation
+
+      dates:
+        method: GET
+        path: "/reports/v1/projects/{campaign_id}/tracking/"
+        description: "Available snapshot dates for a tracking campaign (used by --snapshot flag elsewhere)."
+        params:
+          - name: campaign_id
+            type: string
+            required: true
+            positional: true
+            description: "Position Tracking campaign ID"
+          - name: type
+            type: string
+            required: true
+            default: "tracking_campaign_dates"
+            description: "Report type (do not override)"
+          - name: action
+            type: string
+            required: true
+            default: "report"
+            description: "Semrush requires action=report (do not override)"
+        response:
+          type: array
+          item: TrackingDate
+
+      organic-overview:
+        method: GET
+        path: "/reports/v1/projects/{campaign_id}/tracking/"
+        description: "Organic overview report (visibility, estimated traffic, average position over a date range)."
+        params:
+          - name: campaign_id
+            type: string
+            required: true
+            positional: true
+            description: "Position Tracking campaign ID"
+          - name: type
+            type: string
+            required: true
+            default: "tracking_overview_organic"
+            description: "Report type (do not override)"
+          - name: action
+            type: string
+            required: true
+            default: "report"
+            description: "Semrush requires action=report (do not override)"
+          - name: url
+            type: string
+            required: true
+            description: "Tracked URL pattern (e.g., *.example.com/*)"
+          - name: date_begin
+            flag_name: begin
+            type: string
+            description: "Start date in YYYYMMDD format"
+          - name: date_end
+            flag_name: end
+            type: string
+            description: "End date in YYYYMMDD format"
+          - name: linktype_filter
+            type: string
+            description: "0=organic only, 1=incl. SERP features"
+        response:
+          type: object
+          item: TrackingOverview
+
+      paid-overview:
+        method: GET
+        path: "/reports/v1/projects/{campaign_id}/tracking/"
+        description: "AdWords overview report (paid visibility, estimated traffic over a date range)."
+        params:
+          - name: campaign_id
+            type: string
+            required: true
+            positional: true
+            description: "Position Tracking campaign ID"
+          - name: type
+            type: string
+            required: true
+            default: "tracking_overview_adwords"
+            description: "Report type (do not override)"
+          - name: action
+            type: string
+            required: true
+            default: "report"
+            description: "Semrush requires action=report (do not override)"
+          - name: url
+            type: string
+            required: true
+            description: "Tracked URL pattern"
+          - name: date_begin
+            flag_name: begin
+            type: string
+            description: "Start date in YYYYMMDD format"
+          - name: date_end
+            flag_name: end
+            type: string
+            description: "End date in YYYYMMDD format"
+        response:
+          type: object
+          item: TrackingOverview
+
+      organic-positions:
+        method: GET
+        path: "/reports/v1/projects/{campaign_id}/tracking/"
+        description: "Per-keyword organic positions report. Supports tag filters and competitor comparison."
+        params:
+          - name: campaign_id
+            type: string
+            required: true
+            positional: true
+            description: "Position Tracking campaign ID"
+          - name: type
+            type: string
+            required: true
+            default: "tracking_position_organic"
+            description: "Report type (do not override)"
+          - name: action
+            type: string
+            required: true
+            default: "report"
+            description: "Semrush requires action=report (do not override)"
+          - name: url
+            type: string
+            required: true
+            description: "Colon-separated list of tracked URL + competitor URL patterns"
+          - name: date_begin
+            flag_name: begin
+            type: string
+            description: "Start date in YYYYMMDD format"
+          - name: date_end
+            flag_name: end
+            type: string
+            description: "End date in YYYYMMDD format"
+          - name: display_tags
+            flag_name: tags
+            type: string
+            description: "Tag-filter expression (URL-encoded; tag1&!tag2 = include tag1 and exclude tag2)"
+          - name: display_limit
+            flag_name: limit
+            type: int
+            default: 100
+            description: "Max rows"
+          - name: display_offset
+            flag_name: offset
+            type: int
+            description: "Skip N rows before returning"
+          - name: display_sort
+            flag_name: sort
+            type: string
+            description: "Sort key (0_pos_asc, 0_pos_desc, ...)"
+          - name: linktype_filter
+            type: string
+            description: "0=organic only, 1=incl. SERP features"
+        response:
+          type: array
+          item: TrackingPosition
+
+      paid-positions:
+        method: GET
+        path: "/reports/v1/projects/{campaign_id}/tracking/"
+        description: "Per-keyword paid (AdWords) positions report."
+        params:
+          - name: campaign_id
+            type: string
+            required: true
+            positional: true
+            description: "Position Tracking campaign ID"
+          - name: type
+            type: string
+            required: true
+            default: "tracking_position_adwords"
+            description: "Report type (do not override)"
+          - name: action
+            type: string
+            required: true
+            default: "report"
+            description: "Semrush requires action=report (do not override)"
+          - name: url
+            type: string
+            required: true
+            description: "Colon-separated list of tracked URL + competitor URL patterns"
+          - name: date_begin
+            flag_name: begin
+            type: string
+            description: "Start date in YYYYMMDD format"
+          - name: date_end
+            flag_name: end
+            type: string
+            description: "End date in YYYYMMDD format"
+          - name: display_tags_condition
+            flag_name: tags
+            type: string
+            description: "Tag-filter expression (URL-encoded)"
+          - name: display_limit
+            flag_name: limit
+            type: int
+            default: 100
+            description: "Max rows"
+          - name: display_offset
+            flag_name: offset
+            type: int
+            description: "Skip N rows before returning"
+          - name: display_sort
+            flag_name: sort
+            type: string
+            description: "Sort key"
+        response:
+          type: array
+          item: TrackingPosition
+
+      organic-competitors:
+        method: GET
+        path: "/reports/v1/projects/{campaign_id}/tracking/"
+        description: "Organic competitors discovery (auto-detected competitors ranked across the tracked keyword set)."
+        params:
+          - name: campaign_id
+            type: string
+            required: true
+            positional: true
+            description: "Position Tracking campaign ID"
+          - name: type
+            type: string
+            required: true
+            default: "tracking_competitors_organic"
+            description: "Report type (do not override)"
+          - name: action
+            type: string
+            required: true
+            default: "report"
+            description: "Semrush requires action=report (do not override)"
+          - name: main_domain
+            type: string
+            description: "Your main domain (used to anchor the competitor set)"
+          - name: date_begin
+            flag_name: begin
+            type: string
+            description: "Start date in YYYYMMDD format"
+          - name: date_end
+            flag_name: end
+            type: string
+            description: "End date in YYYYMMDD format"
+          - name: top_start
+            type: int
+            default: 1
+            description: "Start of SERP position range"
+          - name: top_end
+            type: int
+            default: 10
+            description: "End of SERP position range"
+          - name: url_type
+            type: string
+            default: "rootdomain"
+            description: "rootdomain | subdomain | url"
+          - name: linktype_filter
+            type: string
+            description: "0=organic only, 1=incl. SERP features"
+          - name: display_limit
+            flag_name: limit
+            type: int
+            default: 50
+            description: "Max competitor rows"
+          - name: display_offset
+            flag_name: offset
+            type: int
+            description: "Skip N rows before returning"
+          - name: display_sort
+            flag_name: sort
+            type: string
+            description: "Sort key"
+        response:
+          type: array
+          item: TrackingCompetitor
+
+      paid-competitors:
+        method: GET
+        path: "/reports/v1/projects/{campaign_id}/tracking/"
+        description: "AdWords competitors discovery (auto-detected paid competitors)."
+        params:
+          - name: campaign_id
+            type: string
+            required: true
+            positional: true
+            description: "Position Tracking campaign ID"
+          - name: type
+            type: string
+            required: true
+            default: "tracking_competitors_adwords"
+            description: "Report type (do not override)"
+          - name: action
+            type: string
+            required: true
+            default: "report"
+            description: "Semrush requires action=report (do not override)"
+          - name: main_domain
+            type: string
+            description: "Your main domain"
+          - name: date_begin
+            flag_name: begin
+            type: string
+            description: "Start date in YYYYMMDD format"
+          - name: date_end
+            flag_name: end
+            type: string
+            description: "End date in YYYYMMDD format"
+          - name: top_start
+            type: int
+            default: 1
+            description: "Start of SERP position range"
+          - name: top_end
+            type: int
+            default: 10
+            description: "End of SERP position range"
+          - name: url_type
+            type: string
+            default: "rootdomain"
+            description: "rootdomain | subdomain | url"
+          - name: display_limit
+            flag_name: limit
+            type: int
+            default: 50
+            description: "Max competitor rows"
+          - name: display_offset
+            flag_name: offset
+            type: int
+            description: "Skip N rows before returning"
+          - name: display_sort
+            flag_name: sort
+            type: string
+            description: "Sort key"
+        response:
+          type: array
+          item: TrackingCompetitor
+
+      organic-visibility:
+        method: GET
+        path: "/reports/v1/projects/{campaign_id}/tracking/"
+        description: "Organic visibility (Share-of-Voice) index over a date range."
+        params:
+          - name: campaign_id
+            type: string
+            required: true
+            positional: true
+            description: "Position Tracking campaign ID"
+          - name: type
+            type: string
+            required: true
+            default: "tracking_visibility_organic"
+            description: "Report type (do not override)"
+          - name: action
+            type: string
+            required: true
+            default: "report"
+            description: "Semrush requires action=report (do not override)"
+          - name: url
+            type: string
+            required: true
+            description: "Tracked URL pattern"
+          - name: date_begin
+            flag_name: begin
+            type: string
+            description: "Start date in YYYYMMDD format"
+          - name: date_end
+            flag_name: end
+            type: string
+            description: "End date in YYYYMMDD format"
+          - name: linktype_filter
+            type: string
+            description: "0=organic only, 1=incl. SERP features"
+        response:
+          type: array
+          item: TrackingVisibility
+
+      paid-visibility:
+        method: GET
+        path: "/reports/v1/projects/{campaign_id}/tracking/"
+        description: "AdWords visibility (Share-of-Voice) index over a date range."
+        params:
+          - name: campaign_id
+            type: string
+            required: true
+            positional: true
+            description: "Position Tracking campaign ID"
+          - name: type
+            type: string
+            required: true
+            default: "tracking_visibility_adwords"
+            description: "Report type (do not override)"
+          - name: action
+            type: string
+            required: true
+            default: "report"
+            description: "Semrush requires action=report (do not override)"
+          - name: url
+            type: string
+            required: true
+            description: "Tracked URL pattern"
+          - name: date_begin
+            flag_name: begin
+            type: string
+            description: "Start date in YYYYMMDD format"
+          - name: date_end
+            flag_name: end
+            type: string
+            description: "End date in YYYYMMDD format"
+        response:
+          type: array
+          item: TrackingVisibility
+
+      organic-landings:
+        method: GET
+        path: "/reports/v1/projects/{campaign_id}/tracking/"
+        description: "Top organic landing pages by tracked-keyword traffic."
+        params:
+          - name: campaign_id
+            type: string
+            required: true
+            positional: true
+            description: "Position Tracking campaign ID"
+          - name: type
+            type: string
+            required: true
+            default: "tracking_landing_pages_organic"
+            description: "Report type (do not override)"
+          - name: action
+            type: string
+            required: true
+            default: "report"
+            description: "Semrush requires action=report (do not override)"
+          - name: url
+            type: string
+            required: true
+            description: "Tracked domain (e.g., example.com)"
+          - name: date_begin
+            flag_name: begin
+            type: string
+            description: "Start date in YYYYMMDD format"
+          - name: date_end
+            flag_name: end
+            type: string
+            description: "End date in YYYYMMDD format"
+          - name: linktype_filter
+            type: string
+            description: "0=organic only, 1=incl. SERP features"
+          - name: display_limit
+            flag_name: limit
+            type: int
+            default: 50
+            description: "Max landing pages"
+          - name: display_offset
+            flag_name: offset
+            type: int
+            description: "Skip N rows before returning"
+          - name: display_sort
+            flag_name: sort
+            type: string
+            description: "Sort key (e.g., 1_mc_desc = mostly clicks desc)"
+        response:
+          type: array
+          item: TrackingLandingPage
+
+      paid-landings:
+        method: GET
+        path: "/reports/v1/projects/{campaign_id}/tracking/"
+        description: "Top paid (AdWords) landing pages by tracked-keyword traffic."
+        params:
+          - name: campaign_id
+            type: string
+            required: true
+            positional: true
+            description: "Position Tracking campaign ID"
+          - name: type
+            type: string
+            required: true
+            default: "tracking_landing_pages_adwords"
+            description: "Report type (do not override)"
+          - name: action
+            type: string
+            required: true
+            default: "report"
+            description: "Semrush requires action=report (do not override)"
+          - name: url
+            type: string
+            required: true
+            description: "Tracked URL pattern"
+          - name: date_begin
+            flag_name: begin
+            type: string
+            description: "Start date in YYYYMMDD format"
+          - name: date_end
+            flag_name: end
+            type: string
+            description: "End date in YYYYMMDD format"
+          - name: linktype_filter
+            type: string
+            description: "0=organic only, 1=incl. SERP features"
+          - name: display_limit
+            flag_name: limit
+            type: int
+            default: 50
+            description: "Max landing pages"
+          - name: display_offset
+            flag_name: offset
+            type: int
+            description: "Skip N rows before returning"
+          - name: display_sort
+            flag_name: sort
+            type: string
+            description: "Sort key"
+        response:
+          type: array
+          item: TrackingLandingPage
+
+# ============================================================
+# Types — reused across endpoints where the shape matches
+# ============================================================
+types:
+
+  UnitsBalance:
+    fields:
+      - name: units_remaining
+        type: int
+
+  DomainOverview:
+    fields:
+      - name: database
+        type: string
+      - name: domain
+        type: string
+      - name: rank
+        type: int
+      - name: organic_keywords
+        type: int
+      - name: organic_traffic
+        type: int
+      - name: organic_cost
+        type: float
+      - name: paid_keywords
+        type: int
+      - name: paid_traffic
+        type: int
+      - name: paid_cost
+        type: float
+      - name: pla_keywords
+        type: int
+      - name: pla_uniques
+        type: int
+      - name: date
+        type: string
+
+  DomainRankHistoryRow:
+    fields:
+      - name: date
+        type: string
+      - name: rank
+        type: int
+      - name: organic_keywords
+        type: int
+      - name: organic_traffic
+        type: int
+      - name: organic_cost
+        type: float
+      - name: paid_keywords
+        type: int
+      - name: paid_traffic
+        type: int
+      - name: paid_cost
+        type: float
+
+  DomainOrganicKeyword:
+    fields:
+      - name: phrase
+        type: string
+      - name: position
+        type: int
+      - name: previous_position
+        type: int
+      - name: position_difference
+        type: int
+      - name: search_volume
+        type: int
+      - name: cpc
+        type: float
+      - name: competition
+        type: float
+      - name: traffic
+        type: int
+      - name: traffic_percent
+        type: float
+      - name: url
+        type: string
+      - name: keyword_difficulty
+        type: float
+      - name: trend
+        type: string
+      - name: domain
+        type: string
+
+  DomainPaidKeyword:
+    fields:
+      - name: phrase
+        type: string
+      - name: position
+        type: int
+      - name: previous_position
+        type: int
+      - name: position_difference
+        type: int
+      - name: ad_block
+        type: string
+      - name: search_volume
+        type: int
+      - name: cpc
+        type: float
+      - name: traffic
+        type: int
+      - name: traffic_percent
+        type: float
+      - name: url
+        type: string
+      - name: title
+        type: string
+      - name: description
+        type: string
+      - name: visible_url
+        type: string
+      - name: domain
+        type: string
+
+  DomainCompetitor:
+    fields:
+      - name: domain
+        type: string
+      - name: competitor_relevance
+        type: float
+      - name: common_keywords
+        type: int
+      - name: organic_keywords
+        type: int
+      - name: organic_traffic
+        type: int
+      - name: organic_cost
+        type: float
+      - name: paid_keywords
+        type: int
+      - name: paid_traffic
+        type: int
+      - name: paid_cost
+        type: float
+      - name: pla_keywords
+        type: int
+
+  DomainOrganicPage:
+    fields:
+      - name: url
+        type: string
+      - name: keyword_count
+        type: int
+      - name: traffic
+        type: int
+      - name: traffic_percent
+        type: float
+      - name: serp_feature_positions
+        type: int
+      - name: serp_feature_traffic
+        type: int
+
+  DomainCompareRow:
+    fields:
+      - name: phrase
+        type: string
+      - name: position_0
+        type: int
+      - name: position_1
+        type: int
+      - name: position_2
+        type: int
+      - name: position_3
+        type: int
+      - name: position_4
+        type: int
+      - name: search_volume
+        type: int
+      - name: cpc
+        type: float
+      - name: competition
+        type: float
+      - name: keyword_difficulty
+        type: float
+      - name: traffic_percent
+        type: float
+      - name: trend
+        type: string
+
+  AdHistoryRow:
+    fields:
+      - name: phrase
+        type: string
+      - name: position
+        type: int
+      - name: coverage
+        type: float
+      - name: search_volume
+        type: int
+      - name: cpc
+        type: float
+      - name: traffic_percent
+        type: float
+      - name: url
+        type: string
+      - name: title
+        type: string
+      - name: description
+        type: string
+      - name: visible_url
+        type: string
+      - name: domain
+        type: string
+      - name: date
+        type: string
+
+  AdCopy:
+    fields:
+      - name: title
+        type: string
+      - name: description
+        type: string
+      - name: url
+        type: string
+      - name: keyword_count
+        type: int
+      - name: ad_id
+        type: string
+
+  PLAKeyword:
+    fields:
+      - name: phrase
+        type: string
+      - name: position
+        type: int
+      - name: previous_position
+        type: int
+      - name: position_difference
+        type: int
+      - name: search_volume
+        type: int
+      - name: cpc
+        type: float
+      - name: url
+        type: string
+      - name: title
+        type: string
+      - name: product_price
+        type: float
+      - name: shop_name
+        type: string
+
+  PLACopy:
+    fields:
+      - name: title
+        type: string
+      - name: url
+        type: string
+      - name: product_price
+        type: float
+      - name: keyword_count
+        type: int
+      - name: ad_id
+        type: string
+
+  KeywordOverview:
+    fields:
+      - name: phrase
+        type: string
+      - name: search_volume
+        type: int
+      - name: cpc
+        type: float
+      - name: competition
+        type: float
+      - name: number_of_results
+        type: int
+      - name: trend
+        type: string
+      - name: keyword_difficulty
+        type: float
+      - name: related_relevance
+        type: float
+      - name: intent
+        type: string
+      - name: database
+        type: string
+      - name: date
+        type: string
+
+  KeywordDifficulty:
+    fields:
+      - name: phrase
+        type: string
+      - name: keyword_difficulty_index
+        type: float
+      - name: database
+        type: string
+
+  SERPResult:
+    fields:
+      - name: domain
+        type: string
+      - name: url
+        type: string
+      - name: position
+        type: int
+      - name: position_type
+        type: string
+      - name: serp_features
+        type: string
+      - name: keyword_serp_features
+        type: string
+      - name: phrase
+        type: string
+      - name: title
+        type: string
+      - name: description
+        type: string
+      - name: visible_url
+        type: string
+
+  BacklinksOverview:
+    fields:
+      - name: target
+        type: string
+      - name: target_type
+        type: string
+      - name: authority_score
+        type: float
+      - name: total
+        type: int
+      - name: domains_num
+        type: int
+      - name: urls_num
+        type: int
+      - name: ips_num
+        type: int
+      - name: follows_num
+        type: int
+      - name: nofollows_num
+        type: int
+      - name: sponsored_num
+        type: int
+      - name: ugc_num
+        type: int
+      - name: texts_num
+        type: int
+      - name: images_num
+        type: int
+      - name: forms_num
+        type: int
+      - name: frames_num
+        type: int
+
+  Backlink:
+    fields:
+      - name: page_authority_score
+        type: float
+      - name: source_url
+        type: string
+      - name: source_title
+        type: string
+      - name: target_url
+        type: string
+      - name: anchor
+        type: string
+      - name: external_num
+        type: int
+      - name: internal_num
+        type: int
+      - name: nofollow
+        type: bool
+      - name: form
+        type: bool
+      - name: frame
+        type: bool
+      - name: image
+        type: bool
+      - name: sitewide
+        type: bool
+      - name: newlink
+        type: bool
+      - name: lostlink
+        type: bool
+      - name: first_seen
+        type: string
+      - name: last_seen
+        type: string
+
+  ReferringDomain:
+    fields:
+      - name: domain_authority_score
+        type: float
+      - name: domain
+        type: string
+      - name: backlinks_num
+        type: int
+      - name: matches_num
+        type: int
+      - name: ip
+        type: string
+      - name: country
+        type: string
+      - name: first_seen
+        type: string
+      - name: last_seen
+        type: string
+
+  ReferringIP:
+    fields:
+      - name: ip
+        type: string
+      - name: country
+        type: string
+      - name: domains_num
+        type: int
+      - name: backlinks_num
+        type: int
+      - name: first_seen
+        type: string
+      - name: last_seen
+        type: string
+
+  TLDDistribution:
+    fields:
+      - name: zone
+        type: string
+      - name: domains_num
+        type: int
+      - name: backlinks_num
+        type: int
+
+  CountryDistribution:
+    fields:
+      - name: country
+        type: string
+      - name: domains_num
+        type: int
+      - name: backlinks_num
+        type: int
+
+  AnchorText:
+    fields:
+      - name: anchor
+        type: string
+      - name: domains_num
+        type: int
+      - name: backlinks_num
+        type: int
+      - name: first_seen
+        type: string
+      - name: last_seen
+        type: string
+
+  BacklinkedPage:
+    fields:
+      - name: source_url
+        type: string
+      - name: source_title
+        type: string
+      - name: response_code
+        type: int
+      - name: backlinks_num
+        type: int
+      - name: domains_num
+        type: int
+      - name: external_num
+        type: int
+      - name: internal_num
+        type: int
+      - name: last_seen
+        type: string
+
+  BacklinkCompetitor:
+    fields:
+      - name: authority_score
+        type: float
+      - name: neighbour
+        type: string
+      - name: similarity
+        type: float
+      - name: common_refdomains
+        type: int
+      - name: domains_num
+        type: int
+      - name: backlinks_num
+        type: int
+
+  AuthorityScoreProfile:
+    fields:
+      - name: authority_score
+        type: float
+      - name: domains_num
+        type: int
+      - name: backlinks_num
+        type: int
+
+  BacklinkCategory:
+    fields:
+      - name: category_name
+        type: string
+      - name: rating
+        type: float
+
+  BacklinkHistoryRow:
+    fields:
+      - name: date
+        type: string
+      - name: score
+        type: float
+      - name: domains_num
+        type: int
+      - name: backlinks_num
+        type: int
+      - name: backlinks_new_num
+        type: int
+      - name: backlinks_lost_num
+        type: int
+      - name: domains_new_num
+        type: int
+      - name: domains_lost_num
+        type: int
+
+  Project:
+    fields:
+      - name: project_id
+        type: int
+      - name: project_name
+        type: string
+      - name: url
+        type: string
+      - name: domain_unicode
+        type: string
+      - name: owner_id
+        type: int
+
+  ProjectDeleteResult:
+    fields:
+      - name: project_id
+        type: int
+      - name: deleted
+        type: bool
+
+  AuditCampaign:
+    fields:
+      - name: project_id
+        type: int
+      - name: domain
+        type: string
+      - name: scope
+        type: string
+      - name: limit
+        type: int
+      - name: crawl_subdomains
+        type: bool
+      - name: user_agent
+        type: string
+      - name: status
+        type: string
+
+  AuditSnapshot:
+    fields:
+      - name: snapshot_id
+        type: string
+      - name: project_id
+        type: int
+      - name: created_at
+        type: string
+      - name: finished_at
+        type: string
+      - name: status
+        type: string
+      - name: pages_crawled
+        type: int
+      - name: errors
+        type: int
+      - name: warnings
+        type: int
+      - name: notices
+        type: int
+      - name: total_score
+        type: int
+
+  AuditIssueDef:
+    fields:
+      - name: issue_id
+        type: string
+      - name: name
+        type: string
+      - name: severity
+        type: string
+      - name: description
+        type: string
+      - name: how_to_fix
+        type: string
+
+  AuditRunResult:
+    fields:
+      - name: project_id
+        type: int
+      - name: snapshot_id
+        type: string
+      - name: status
+        type: string
+
+  AuditIssueDetail:
+    fields:
+      - name: issue_id
+        type: string
+      - name: name
+        type: string
+      - name: severity
+        type: string
+      - name: pages
+        type: int
+      - name: status
+        type: string
+
+  AuditPageRef:
+    fields:
+      - name: page_id
+        type: string
+      - name: url
+        type: string
+
+  AuditPage:
+    fields:
+      - name: page_id
+        type: string
+      - name: url
+        type: string
+      - name: status_code
+        type: int
+      - name: title
+        type: string
+      - name: meta_description
+        type: string
+      - name: word_count
+        type: int
+      - name: load_time_ms
+        type: int
+      - name: errors_count
+        type: int
+      - name: warnings_count
+        type: int
+      - name: notices_count
+        type: int
+
+  AuditHistoryRow:
+    fields:
+      - name: snapshot_id
+        type: string
+      - name: created_at
+        type: string
+      - name: total_score
+        type: int
+      - name: errors
+        type: int
+      - name: warnings
+        type: int
+      - name: notices
+        type: int
+      - name: pages_crawled
+        type: int
+
+  TrackingCampaign:
+    fields:
+      - name: campaign_id
+        type: string
+      - name: project_id
+        type: int
+      - name: url
+        type: string
+      - name: location
+        type: string
+      - name: location_id
+        type: int
+      - name: device
+        type: string
+      - name: language_code
+        type: string
+      - name: search_engine
+        type: string
+
+  TrackingCampaignList:
+    fields:
+      - name: project_id
+        type: string
+      - name: campaigns
+        type: string
+      - name: limits
+        type: string
+
+  TrackingOperationResult:
+    fields:
+      - name: campaign_id
+        type: string
+      - name: added
+        type: int
+      - name: removed
+        type: int
+      - name: success
+        type: bool
+
+  TrackingLocation:
+    fields:
+      - name: location_id
+        type: int
+      - name: name
+        type: string
+      - name: type
+        type: string
+      - name: country
+        type: string
+      - name: country_code
+        type: string
+
+  TrackingDate:
+    fields:
+      - name: date
+        type: string
+
+  TrackingOverview:
+    fields:
+      - name: campaign_id
+        type: string
+      - name: date
+        type: string
+      - name: visibility
+        type: float
+      - name: estimated_traffic
+        type: int
+      - name: average_position
+        type: float
+
+  TrackingPosition:
+    fields:
+      - name: keyword
+        type: string
+      - name: position
+        type: int
+      - name: previous_position
+        type: int
+      - name: search_volume
+        type: int
+      - name: cpc
+        type: float
+      - name: traffic
+        type: int
+      - name: url
+        type: string
+      - name: tags
+        type: string
+      - name: serp_features
+        type: string
+      - name: date
+        type: string
+
+  TrackingCompetitor:
+    fields:
+      - name: competitor_domain
+        type: string
+      - name: visibility
+        type: float
+      - name: estimated_traffic
+        type: int
+      - name: keywords_count
+        type: int
+      - name: average_position
+        type: float
+      - name: date
+        type: string
+
+  TrackingVisibility:
+    fields:
+      - name: campaign_id
+        type: string
+      - name: date
+        type: string
+      - name: visibility
+        type: float
+      - name: estimated_traffic
+        type: int
+
+  TrackingLandingPage:
+    fields:
+      - name: url
+        type: string
+      - name: keywords_count
+        type: int
+      - name: estimated_traffic
+        type: int
+      - name: average_position
+        type: float

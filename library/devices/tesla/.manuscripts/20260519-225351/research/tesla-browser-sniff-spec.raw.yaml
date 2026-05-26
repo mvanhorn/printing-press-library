@@ -1,0 +1,1291 @@
+name: tesla
+description: Discovered API spec for owner-api-teslamotors
+version: 0.1.0
+base_url: https://owner-api.teslamotors.com
+spec_source: sniffed
+http_transport: browser-chrome-h2
+auth:
+    type: bearer_token
+    header: Authorization
+    format: ""
+    env_vars:
+        - OWNER_API_TESLAMOTORS_TOKEN
+    env_var_specs:
+        - name: OWNER_API_TESLAMOTORS_TOKEN
+          kind: per_call
+          required: true
+          sensitive: true
+          inferred: true
+    browser_session_reason: browser clearance is required to replay captured website traffic
+    browser_session_validation_path: /mobile-app/drive/appointments
+    browser_session_validation_method: GET
+config:
+    format: toml
+    path: ~/.config/tesla-pp-cli/config.toml
+resources:
+    charging:
+        description: Operations on queue
+        endpoints:
+            get_queue:
+                method: GET
+                path: /api/{id}/charging/queue
+                description: GET /api/{id}/charging/queue
+                params:
+                    - name: id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The id path segment
+                      fields: []
+                    - name: vin
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: queue
+                pagination: null
+                observed_auth:
+                    - authorization
+    diagnostics:
+        description: Operations on diagnostics
+        endpoints:
+            get_diagnostics:
+                method: GET
+                path: /api/{id}/diagnostics
+                description: GET /api/{id}/diagnostics
+                params:
+                    - name: id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The id path segment
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: diagnostics
+                pagination: null
+                observed_auth:
+                    - authorization
+    energy_sites:
+        description: Operations on rate_tariffs
+        endpoints:
+            get_rate_tariffs:
+                method: GET
+                path: /api/{id}/energy_sites/rate_tariffs
+                description: GET /api/{id}/energy_sites/rate_tariffs
+                params:
+                    - name: id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The id path segment
+                      fields: []
+                    - name: language
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: rate_tariffs
+                pagination: null
+                observed_auth:
+                    - authorization
+    logs:
+        description: Operations on logs
+        endpoints:
+            create_logs:
+                method: POST
+                path: /api/{id}/logs
+                description: POST /api/{id}/logs
+                params:
+                    - name: id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The id path segment
+                      fields: []
+                body:
+                    - name: details
+                      type: object
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields:
+                        - name: app_id
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                          format: uuid
+                        - name: app_instance_id
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                          format: uuid
+                        - name: app_mode
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: app_state
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: app_version
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: build_number
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: central_state
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: debug
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: duration
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: history
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: last_beacon_signal_seconds_ago
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: launch_time
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: os_version
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: peripheral
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: pid
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: platform
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: process_uptime
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: seconds_from_GMT
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: state_machine_state
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: state_restoration
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: system_uptime
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: system_version
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: time_since_launch_ms
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: timeout
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: type
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: user_agent
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                response:
+                    type: object
+                    item: logs
+                pagination: null
+                observed_auth:
+                    - authorization
+    mobile-app:
+        description: Operations on assets
+        endpoints:
+            create_diagnostic:
+                method: POST
+                path: /mobile-app/macgyver/diagnostic
+                description: POST /mobile-app/macgyver/diagnostic
+                params:
+                    - name: deviceCountry
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: deviceLanguage
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: ttpLocale
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: vin
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body:
+                    - name: executionOptions
+                      type: array
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: networkName
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                response:
+                    type: object
+                    item: diagnostic
+                pagination: null
+                observed_auth:
+                    - authorization
+                    - cookie
+            list_appointments:
+                method: GET
+                path: /mobile-app/drive/appointments
+                description: GET /mobile-app/drive/appointments
+                params:
+                    - name: deviceCountry
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: deviceLanguage
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: ttpLocale
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: vin
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: appointments
+                pagination: null
+                observed_auth:
+                    - authorization
+                    - cookie
+            list_assets:
+                method: GET
+                path: /mobile-app/update-app/assets
+                description: GET /mobile-app/update-app/assets
+                params:
+                    - name: deviceCountry
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: deviceLanguage
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: ttpLocale
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: vin
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: assets
+                pagination: null
+                observed_auth:
+                    - authorization
+                    - cookie
+            list_surveys:
+                method: GET
+                path: /mobile-app/service/surveys
+                description: GET /mobile-app/service/surveys
+                params:
+                    - name: deviceCountry
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: deviceLanguage
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: ttpLocale
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: vin
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: surveys
+                pagination: null
+                observed_auth:
+                    - authorization
+                    - cookie
+    notification_preferences:
+        description: Operations on notification_preferences
+        endpoints:
+            create_notification_preferences:
+                method: POST
+                path: /api/{id}/notification_preferences
+                description: POST /api/{id}/notification_preferences
+                params:
+                    - name: id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The id path segment
+                      fields: []
+                body:
+                    - name: app_version
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: device_token
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: device_type
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: locale
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: notification_preferences
+                      type: object
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields:
+                        - name: alarm
+                          type: boolean
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: autopark_completed_success
+                          type: boolean
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: autopark_forward_started
+                          type: boolean
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: autopark_unavailable_plugged_in
+                          type: boolean
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: charging_complete
+                          type: boolean
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: charging_interrupted
+                          type: boolean
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: charging_started
+                          type: boolean
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: grid_outage
+                          type: boolean
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: update_available
+                          type: boolean
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                    - name: platform
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                response:
+                    type: object
+                    item: notification_preferences
+                pagination: null
+                observed_auth:
+                    - authorization
+    products:
+        description: Operations on products
+        endpoints:
+            get_products:
+                method: GET
+                path: /api/{id}/products
+                description: GET /api/{id}/products
+                params:
+                    - name: id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The id path segment
+                      fields: []
+                    - name: orders
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: products
+                pagination: null
+                observed_auth:
+                    - authorization
+    projects:
+        description: Operations on fireperf:fetch
+        endpoints:
+            create_fireperf:fetch:
+                method: POST
+                path: /v1/projects/tesla-prod/namespaces/fireperf:fetch
+                description: POST /v1/projects/tesla-prod/namespaces/fireperf:fetch
+                params:
+                    - name: appName
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: entries
+                      type: object
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields:
+                        - name: fpr_disabled_android_versions
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: fpr_disabled_ios_versions
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: fpr_disabled_web_versions
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: fpr_enabled
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: fpr_experiment_app_start_ttid
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: fpr_log_endpoint_url
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                          format: url
+                        - name: fpr_log_source
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: fpr_log_transport_android_percent
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: fpr_log_transport_ios_percent
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: fpr_log_transport_key
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: fpr_rl_network_request_event_count_bg
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: fpr_rl_network_request_event_count_fg
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: fpr_rl_time_limit_sec
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: fpr_rl_trace_event_count_bg
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: fpr_rl_trace_event_count_fg
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: fpr_session_gauge_cpu_capture_frequency_bg_ms
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: fpr_session_gauge_cpu_capture_frequency_fg_ms
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: fpr_session_gauge_memory_capture_frequency_bg_ms
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: fpr_session_gauge_memory_capture_frequency_fg_ms
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: fpr_session_max_length_min
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: fpr_vc_fragment_sampling_rate
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: fpr_vc_network_request_sampling_rate
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: fpr_vc_session_sampling_rate
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: fpr_vc_trace_sampling_rate
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                    - name: state
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: templateVersion
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: fireperf:fetch
+                pagination: null
+    referral:
+        description: Operations on content
+        endpoints:
+            list_content:
+                method: GET
+                path: /referral/content/v2
+                description: GET /referral/content/v2
+                params:
+                    - name: appVersion
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: fileName
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: ttpLocale
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: userCountry
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: content
+                pagination: null
+                observed_auth:
+                    - cookie
+    users:
+        description: Operations on feature_config
+        endpoints:
+            create_keys:
+                method: POST
+                path: /api/{id}/users/keys
+                description: POST /api/{id}/users/keys
+                params:
+                    - name: id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The id path segment
+                      fields: []
+                body:
+                    - name: battery_level
+                      type: integer
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: bluetooth_authorization
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: bluetooth_enabled
+                      type: boolean
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: device_token
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: device_type
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: kind
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: locale
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: location_permissions
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: low_power_mode
+                      type: boolean
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: model
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: name
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: public_key
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: tag
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                response:
+                    type: object
+                    item: keys
+                pagination: null
+                observed_auth:
+                    - authorization
+            get_app_config:
+                method: GET
+                path: /api/{id}/users/app_config
+                description: GET /api/{id}/users/app_config
+                params:
+                    - name: country
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The id path segment
+                      fields: []
+                    - name: page
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: app_config
+                pagination: null
+                observed_auth:
+                    - authorization
+            get_feature_config:
+                method: GET
+                path: /api/{id}/users/feature_config
+                description: GET /api/{id}/users/feature_config
+                params:
+                    - name: id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The id path segment
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: feature_config
+                pagination: null
+                observed_auth:
+                    - authorization
+            get_orders:
+                method: GET
+                path: /api/{id}/users/orders
+                description: GET /api/{id}/users/orders
+                params:
+                    - name: device_country
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: device_language
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The id path segment
+                      fields: []
+                    - name: ttp_locale
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: orders
+                pagination: null
+                observed_auth:
+                    - authorization
+    vehicles:
+        description: Operations on service_data
+        endpoints:
+            create_auto_conditioning_start:
+                method: POST
+                path: /api/{id}/vehicles/5YJ3E1EA6XXXXXXXX/command/auto_conditioning_start
+                description: POST /api/{id}/vehicles/5YJ3E1EA6XXXXXXXX/command/auto_conditioning_start
+                params:
+                    - name: id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The id path segment
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: auto_conditioning_start
+                pagination: null
+                observed_auth:
+                    - authorization
+            create_auto_conditioning_stop:
+                method: POST
+                path: /api/{id}/vehicles/5YJ3E1EA6XXXXXXXX/command/auto_conditioning_stop
+                description: POST /api/{id}/vehicles/5YJ3E1EA6XXXXXXXX/command/auto_conditioning_stop
+                params:
+                    - name: id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The id path segment
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: auto_conditioning_stop
+                pagination: null
+                observed_auth:
+                    - authorization
+            create_door_lock:
+                method: POST
+                path: /api/{id}/vehicles/5YJ3E1EA6XXXXXXXX/command/door_lock
+                description: POST /api/{id}/vehicles/5YJ3E1EA6XXXXXXXX/command/door_lock
+                params:
+                    - name: id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The id path segment
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: door_lock
+                pagination: null
+                observed_auth:
+                    - authorization
+            create_door_unlock:
+                method: POST
+                path: /api/{id}/vehicles/5YJ3E1EA6XXXXXXXX/command/door_unlock
+                description: POST /api/{id}/vehicles/5YJ3E1EA6XXXXXXXX/command/door_unlock
+                params:
+                    - name: id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The id path segment
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: door_unlock
+                pagination: null
+                observed_auth:
+                    - authorization
+            create_hermes:
+                method: POST
+                path: /api/{id}/vehicles/5YJ3E1EA6XXXXXXXX/jwt/hermes
+                description: POST /api/{id}/vehicles/5YJ3E1EA6XXXXXXXX/jwt/hermes
+                params:
+                    - name: id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The id path segment
+                      fields: []
+                body:
+                    - name: uuid
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                      format: uuid
+                response:
+                    type: object
+                    item: hermes
+                pagination: null
+                observed_auth:
+                    - authorization
+            create_remote_start_drive:
+                method: POST
+                path: /api/{id}/vehicles/5YJ3E1EA6XXXXXXXX/command/remote_start_drive
+                description: POST /api/{id}/vehicles/5YJ3E1EA6XXXXXXXX/command/remote_start_drive
+                params:
+                    - name: id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The id path segment
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: remote_start_drive
+                pagination: null
+                observed_auth:
+                    - authorization
+            get_service_data:
+                method: GET
+                path: /api/{id}/vehicles/5YJ3E1EA6XXXXXXXX/service_data
+                description: GET /api/{id}/vehicles/5YJ3E1EA6XXXXXXXX/service_data
+                params:
+                    - name: id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The id path segment
+                      fields: []
+                    - name: version
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: service_data
+                pagination: null
+                observed_auth:
+                    - authorization
+            get_vehicle_data:
+                method: GET
+                path: /api/{id}/vehicles/5YJ3E1EA6XXXXXXXX/vehicle_data
+                description: GET /api/{id}/vehicles/5YJ3E1EA6XXXXXXXX/vehicle_data
+                params:
+                    - name: endpoints
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The id path segment
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: vehicle_data
+                pagination: null
+                observed_auth:
+                    - authorization
+types: {}

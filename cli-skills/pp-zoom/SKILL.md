@@ -25,16 +25,18 @@ This skill drives the `zoom-pp-cli` binary. **You must verify the CLI is install
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install zoom --cli-only
+   npx -y @mvanhorn/printing-press-library install zoom --cli-only
    ```
 2. Verify: `zoom-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
 
-If the `npx` install fails before this CLI has a public-library category, install Node or use the category-specific Go fallback after publish.
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.3 or newer):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/productivity/zoom/cmd/zoom-pp-cli@latest
+```
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
-
-Start and join meetings via the desktop URL scheme (no browser interstitial), search every transcript you've ever recorded locally or in the cloud with one query, drive mute/unmute/video/leave from the command line on macOS, and run the full Zoom REST API (users, meetings, webinars, recordings, reports, dashboards) when your Server-to-Server OAuth credentials are configured. SQLite-backed; --json, --select, --dry-run on every command; works offline for the local surface and on-disk recordings.
 
 ## When to Use This CLI
 

@@ -9,26 +9,26 @@ Every Domino's feature you would expect — store locator, menu browse, build ca
 The recommended path installs both the `dominos-pp-cli` binary and the `pp-dominos` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
 
 ```bash
-npx -y @mvanhorn/printing-press install dominos
+npx -y @mvanhorn/printing-press-library install dominos
 ```
 
 For CLI only (no skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install dominos --cli-only
+npx -y @mvanhorn/printing-press-library install dominos --cli-only
 ```
 
 For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install dominos --skill-only
+npx -y @mvanhorn/printing-press-library install dominos --skill-only
 ```
 
 To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
 
 ```bash
-npx -y @mvanhorn/printing-press install dominos --agent claude-code
-npx -y @mvanhorn/printing-press install dominos --agent claude-code --agent codex
+npx -y @mvanhorn/printing-press-library install dominos --agent claude-code
+npx -y @mvanhorn/printing-press-library install dominos --agent claude-code --agent codex
 ```
 
 ### Without Node (Go fallback)

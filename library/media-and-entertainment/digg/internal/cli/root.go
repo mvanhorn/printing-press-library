@@ -197,6 +197,8 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.AddCommand(newWorkflowCmd(flags))
 	rootCmd.AddCommand(newAPICmd(flags))
 	rootCmd.AddCommand(newTrendingPromotedCmd(flags))
+	// PATCH(digg-enhancements): register read-only SQL passthrough (sql.go).
+	rootCmd.AddCommand(newSQLCmd(flags))
 	rootCmd.AddCommand(newVersionCliCmd())
 	registerDiggCommands(rootCmd, flags)
 

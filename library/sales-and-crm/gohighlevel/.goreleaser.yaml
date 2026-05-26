@@ -45,7 +45,7 @@ brews:
       owner: user
       name: homebrew-tap
     homepage: "https://github.com/user/gohighlevel-pp-cli"
-    description: "The terminal for GoHighLevel. Bulk ops, dedup, and pipeline reports in seconds — local cache, agent-native JSON,..."
+    description: "Sync GoHighLevel CRM data for contacts, opportunities, pipelines, custom fields, tags, bulk operations, and funnel reports."
     install: |
       bin.install "gohighlevel-pp-cli"
       bin.install "gohighlevel-pp-mcp"

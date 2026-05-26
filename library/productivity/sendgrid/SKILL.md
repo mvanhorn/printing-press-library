@@ -20,16 +20,18 @@ This skill drives the `sendgrid-pp-cli` binary. **You must verify the CLI is ins
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install sendgrid --cli-only
+   npx -y @mvanhorn/printing-press-library install sendgrid --cli-only
    ```
 2. Verify: `sendgrid-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
 
-If the `npx` install fails before this CLI has a public-library category, install Node or use the category-specific Go fallback after publish.
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.3 or newer):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/productivity/sendgrid/cmd/sendgrid-pp-cli@latest
+```
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
-
-Built from the official twilio/sendgrid-oai spec, sendgrid-pp-cli mirrors the full v3 surface (mail send, marketing, suppressions, stats, templates, subusers, IPs, webhooks) with offline SQLite, agent-native --json/--select/--csv output, and eight novel commands the existing SendGrid CLIs and MCP servers do not have. Suppression sync collapses the API's per-type format inconsistency into one table; templates lint catches silently-empty Handlebars variables before send; stats rollup turns flat API buckets into proper time-series.
 
 ## When to Use This CLI
 

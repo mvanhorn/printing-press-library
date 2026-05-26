@@ -1,0 +1,79 @@
+{
+  "api_name": "art-goat",
+  "base_url": "https://api.nasa.gov",
+  "description": "A contemplative daily art practice with museum and astronomy APIs as your gallery.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "api_key",
+    "header": "api_key",
+    "in": "query",
+    "env_vars": [
+      "ART_GOAT_API_KEY",
+      "NASA_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "ART_GOAT_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      },
+      {
+        "name": "NASA_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "planetary_apod-get",
+      "description": "Fetch the Astronomy Picture of the Day for a given date or date range. Anonymous via DEMO_KEY. Optional: api_key, date, start_date (plus 3 more). Returns the Apod.",
+      "method": "GET",
+      "path": "/planetary/apod",
+      "params": [
+        {
+          "name": "api_key",
+          "type": "string",
+          "location": "query",
+          "description": "NASA API key. Defaults to DEMO_KEY (rate-limited)."
+        },
+        {
+          "name": "date",
+          "type": "string",
+          "location": "query",
+          "description": "Date for single APOD lookup (YYYY-MM-DD)"
+        },
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "query",
+          "description": "Start date for a range query (YYYY-MM-DD)"
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "location": "query",
+          "description": "End date for a range query (YYYY-MM-DD)"
+        },
+        {
+          "name": "count",
+          "type": "int",
+          "location": "query",
+          "description": "Return N random APOD entries"
+        },
+        {
+          "name": "thumbs",
+          "type": "bool",
+          "location": "query",
+          "description": "Include thumbnail URLs for video APODs"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,87 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-25T13:43:22.078473Z",
+  "printing_press_version": "4.14.0",
+  "api_name": "semrush",
+  "display_name": "Semrush",
+  "cli_name": "semrush-pp-cli",
+  "owner": "charles-garrison",
+  "printer": "Charles-Garrison",
+  "printer_name": "Charles Garrison",
+  "spec_path": "/Users/charlesg77/printing-press/.runstate/semrush-d68edb2c/runs/20260524-232429/research/semrush-spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:c00032122bf54c7de397019c9d95e903ab497d0862386aead564120e4a47d4ed",
+  "run_id": "20260524-232429",
+  "category": "marketing",
+  "description": "Every Semrush Analytics + Projects feature, plus a local SQLite store and cross-domain joins no other Semrush tool has.",
+  "mcp_binary": "semrush-pp-mcp",
+  "mcp_tool_count": 97,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "SEMRUSH_API_KEY"
+  ],
+  "novel_features": [
+    {
+      "name": "Weekly Drift Report",
+      "command": "drift",
+      "description": "Diff this week's domain + keyword snapshot against last week's to see what moved, without re-spending credits on the data you already pulled."
+    },
+    {
+      "name": "Snapshot Tag + Diff",
+      "command": "snapshot",
+      "description": "Tag the current local-store state of any resource (e.g. monday-baseline) and later diff any two tags to see exactly what moved between them."
+    },
+    {
+      "name": "Backlink Delta Since Last Sync",
+      "command": "backlink new",
+      "description": "Show only the referring domains and backlinks first seen in a window, so the 'did anything new link to us this week' question is a one-liner."
+    },
+    {
+      "name": "Budget Ledger",
+      "command": "budget",
+      "description": "Every API call's documented unit cost is logged locally; budget rolls up spend by day, command, resource, and projects month-end burn from the current balance probe."
+    },
+    {
+      "name": "Keyword Gap",
+      "command": "keyword gap",
+      "description": "Set-difference of organic keywords across two or more domains in the same database, with intersection and unique-to-each modes."
+    },
+    {
+      "name": "Backlink Gap",
+      "command": "backlink gap",
+      "description": "Find referring domains that link to a competitor but not to you, filtered by authority score."
+    },
+    {
+      "name": "Audit Triage",
+      "command": "audit triage",
+      "description": "Rank Site Audit pages by weighted issue severity (errors x3, warnings x1, notices x0.1) so you fix the highest-impact pages first."
+    },
+    {
+      "name": "Position Drift",
+      "command": "tracking drift",
+      "description": "Window-function over Position Tracking snapshots: which keywords moved more than N positions, dropped off page 1, or entered page 1, per region and device."
+    },
+    {
+      "name": "Country Fan-out",
+      "command": "domain regions",
+      "description": "Run Domain Overview across multiple country databases in one shot, persist all rows with the database key so later cross-region drift queries work."
+    },
+    {
+      "name": "SERP Feature Monitor",
+      "command": "serp-features",
+      "description": "Time-series view of which SERP features (featured snippet, People Also Ask, video, image pack) have appeared and disappeared for a tracked keyword."
+    },
+    {
+      "name": "Cannibalization Detector",
+      "command": "cannibalization",
+      "description": "List phrases where the same domain ranks for multiple URLs (a known SEO problem) with the URLs and their respective positions."
+    },
+    {
+      "name": "Audit Regression Watch",
+      "command": "audit regression",
+      "description": "Diff the latest two Site Audit snapshots for a project: new issue IDs introduced, issues resolved, count delta per severity."
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 ---
 name: icloud-pp-cli
-description: "Query your iCloud data from the command line — Photos library storage analysis, largest-file finder, and delete via AppleScript. macOS only. No network calls or iCloud API token required."
+description: "Query your iCloud data from the command line — Photos library storage analysis, iMessage history search and export, largest-file finder, and delete via AppleScript. macOS only. No network calls or iCloud API token required."
 author: "Matias Sanchez Moises"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install"
@@ -25,19 +25,22 @@ metadata:
 
 ## Prerequisites: Install the CLI
 
-This skill drives the `icloud-pp-cli` binary. **Verify it is installed before running any command.**
+This skill drives the `icloud-pp-cli` binary. **You must verify the CLI is installed before invoking any command from this skill.** If it is missing, install it first:
 
-Install via Go (requires Go 1.23+):
+1. Install via the Printing Press installer:
+   ```bash
+   npx -y @mvanhorn/printing-press-library install icloud --cli-only
+   ```
+2. Verify: `icloud-pp-cli --version`
+3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
+
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.3 or newer):
 
 ```bash
-go install github.com/matysanchez/icloudcli/cmd/icloud-pp-cli@latest
+go install github.com/mvanhorn/printing-press-library/library/media-and-entertainment/icloud/cmd/icloud-pp-cli@latest
 ```
 
-Verify: `icloud-pp-cli --version`
-
-Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
-
-**macOS only.** The CLI reads local iCloud SQLite databases and uses AppleScript for deletion — it does not run on Linux or Windows.
+If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
 
 ## Pre-flight Check
 
@@ -47,13 +50,21 @@ Always run `doctor` first to confirm your setup:
 icloud-pp-cli doctor
 ```
 
-Verifies: macOS, Photos.app installed, library path found, database schema valid, asset count queryable.
+Verifies: macOS, Photos.app installed, library path found, database schema valid, asset count queryable, chat.db readable (Full Disk Access).
 
 If your Photos library is in a non-default location:
 
 ```bash
 icloud-pp-cli doctor --library "/Volumes/External/Photos Library.photoslibrary/database/Photos.sqlite"
 ```
+
+## Messages: Full Disk Access required
+
+`messages` subcommands read `~/Library/Messages/chat.db` directly, which on
+macOS requires Full Disk Access (FDA) for the terminal app invoking the binary.
+If a messages command fails with "Full Disk Access not granted", open System
+Settings > Privacy & Security > Full Disk Access, add your terminal, quit and
+reopen the terminal, and rerun. `doctor` reports FDA state automatically.
 
 ## Command Reference
 
@@ -67,6 +78,13 @@ icloud-pp-cli doctor --library "/Volumes/External/Photos Library.photoslibrary/d
 - `icloud-pp-cli photos download [uuid...] --output <dir>` — Export originals from iCloud to a local folder. Photos.app downloads from iCloud automatically if Optimize Mac Storage is enabled.
 - `icloud-pp-cli photos download --sensitive --confirm --output <dir>` — Export items Apple's on-device ML has flagged as containing nudity (`--confirm` required).
 
+**messages** — Read your iMessage history from `~/Library/Messages/chat.db`. Requires Full Disk Access.
+
+- `icloud-pp-cli messages list-chats` — Chats ordered by most-recent activity. Flags: `--limit`, `--since`, `--include-empty`.
+- `icloud-pp-cli messages search <query>` — Full-text search across message bodies (decoded from `attributedBody` when `text` is NULL). Flags: `--chat`, `--handle`, `--from-me`, `--from-others`, `--since`, `--until`, `--limit`.
+- `icloud-pp-cli messages stats` — Total messages / chats / handles, by-year breakdown, top N handles. Flags: `--top-handles`, `--include-tapbacks`.
+- `icloud-pp-cli messages export --chat <guid|all>` — Export a chat (or every chat) to JSON with attachment paths. Flags: `--out`, `--since`, `--until`, `--include-tapbacks`.
+
 **doctor** — Run pre-flight checks before using any other command.
 
 ## Agent Mode
@@ -77,9 +95,14 @@ Add `--agent` to any command. Expands to `--json --compact --no-color`.
 icloud-pp-cli photos top --agent
 icloud-pp-cli photos storage --agent | jq '.by_year'
 icloud-pp-cli photos stats --agent
+
+icloud-pp-cli messages list-chats --limit 10 --agent | jq '[.[] | {chat: .display_name // .chat_identifier, last: .last_message_date}]'
+icloud-pp-cli messages search "lunch" --limit 5 --agent
+icloud-pp-cli messages stats --agent
+icloud-pp-cli messages export --chat <guid> --out /tmp/chat.json
 ```
 
-Output is always JSON on stdout with no color. Pipe-friendly — commands also auto-detect pipes and switch to JSON without `--agent`.
+Output is always JSON on stdout with no color. Pipe-friendly — commands also auto-detect pipes and switch to JSON without `--agent`. Messages JSON includes a `text_source` field on every row (`decoded`, `text_column`, or `unrecoverable`) so agents can detect coverage gaps from the typedstream decoder.
 
 ## Common Workflows
 
@@ -125,6 +148,32 @@ icloud-pp-cli photos videos --year 2022 --json
 
 # Videos from January 2022
 icloud-pp-cli photos videos --year 2022 --month 1 --json
+```
+
+### Search a chat history for a phrase
+
+```bash
+# Recent messages mentioning "lunch"
+icloud-pp-cli messages search "lunch" --since 2026-01-01
+
+# Only messages I sent, last 6 months
+icloud-pp-cli messages search "thanks" --from-me --since 2025-11-22
+
+# Find a message in a specific chat
+icloud-pp-cli messages search "happy birthday" --chat +15551234567
+```
+
+### Export a chat for downstream analysis
+
+```bash
+# One chat to stdout
+icloud-pp-cli messages export --chat +15551234567
+
+# One chat to a file
+icloud-pp-cli messages export --chat +15551234567 --out /tmp/family.json
+
+# Every chat in one document (large)
+icloud-pp-cli messages export --chat all --out /tmp/all-messages.json
 ```
 
 ## Exit Codes

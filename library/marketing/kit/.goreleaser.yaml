@@ -45,7 +45,7 @@ brews:
       owner: cathrynlavery
       name: homebrew-tap
     homepage: "https://github.com/mvanhorn/printing-press-library"
-    description: "Printing Press CLI for Kit."
+    description: "Manage Kit subscribers, tags, forms, sequences, broadcasts, purchases, and email marketing automation data from the terminal."
     install: |
       bin.install "kit-pp-cli"
       bin.install "kit-pp-mcp"

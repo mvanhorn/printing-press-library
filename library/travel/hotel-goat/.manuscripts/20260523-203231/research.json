@@ -1,0 +1,207 @@
+{
+  "api_name": "hotel-goat",
+  "novelty_score": 9,
+  "alternatives": [
+    {
+      "name": "fast_hotels",
+      "url": "https://github.com/jongan69/hotels",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "google-hotels-scraper",
+      "url": "https://github.com/MFori/google-hotels-scraper",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "hotels_mcp_server",
+      "url": "https://github.com/esakrissa/hotels_mcp_server",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 2,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "mcp-booking",
+      "url": "https://github.com/markswendsen-code/mcp-booking",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 14,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "travel-hacking-toolkit",
+      "url": "https://github.com/borski/travel-hacking-toolkit",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 5,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "amadeus-node",
+      "url": "https://github.com/amadeus4dev/amadeus-node",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 9,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "mcp_travelassistant",
+      "url": "https://github.com/skarlekar/mcp_travelassistant",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 3,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "mcp-server-airbnb",
+      "url": "https://github.com/openbnb-org/mcp-server-airbnb",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 2,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-23T20:32:31Z",
+  "novel_features": [
+    {
+      "name": "Agent-composable nested JSON via --select dotted paths",
+      "command": "hotels",
+      "description": "Dotted-path selection through nested results.prices[], results.booking_urls, results.images[]. Returns only the fields the agent needs.",
+      "rationale": "Inherited from the framework's --select; the per-hotel feature is having a nested-enough response that selecting through it is worth the example.",
+      "example": "hotel-goat-pp-cli hotels \"San Francisco\" 2026-08-15 2026-08-17 --agent --select results.name,results.rating,results.price_per_night,results.booking_urls.primary",
+      "why_it_matters": "Use when you need only a couple of fields per hotel rather than the full nested response.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Agent-composable nested JSON via --select dotted paths",
+      "command": "hotels",
+      "description": "Dotted-path selection through nested results.prices[], results.booking_urls, results.images[]. Returns only the fields the agent needs.",
+      "rationale": "Inherited from the framework's --select; the per-hotel feature is having a nested-enough response that selecting through it is worth the example.",
+      "example": "hotel-goat-pp-cli hotels \"San Francisco\" 2026-08-15 2026-08-17 --agent --select results.name,results.rating,results.price_per_night,results.booking_urls.primary",
+      "why_it_matters": "Use when you need only a couple of fields per hotel rather than the full nested response.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "narrative": {
+    "display_name": "Google Hotels",
+    "headline": "Free Google Hotels CLI — per-hotel data with deep booking links, agent-native JSON, and local SQLite wishlist. No API key needed.",
+    "value_prop": "Hotel-goat scrapes Google Hotels' server-rendered data (the same data the Google Hotels web UI shows) without an API key. v1 ships hotel search by location + dates with rich filters, single-property detail, and local wishlist. Brand-loyalty expansion, date-flex windows, price drift tracking, and per-OTA breakdown are deferred to v0.2.",
+    "auth_narrative": "No authentication required. Google Hotels SSR is publicly accessible. Set `Accept-Language` via the system locale; pass `--currency EUR` to get pricing in another currency.",
+    "quickstart": [
+      {
+        "command": "hotel-goat-pp-cli hotels \"San Francisco\" 2026-08-15 2026-08-17 --sort cheapest --max-price 300 --min-rating 4.0",
+        "comment": "Headline search: location + dates + filters. Returns booking URLs per result."
+      },
+      {
+        "command": "hotel-goat-pp-cli hotels \"Paris\" 2026-07-20 2026-07-23 --brand Hyatt,Marriott --agent --select results.name,results.price_per_night,results.booking_urls.primary",
+        "comment": "Agent-friendly: brand filter + nested-field selection."
+      },
+      {
+        "command": "hotel-goat-pp-cli hotel show \u003cproperty-token\u003e",
+        "comment": "Property detail by Google's property_token from a search result."
+      },
+      {
+        "command": "hotel-goat-pp-cli wishlist add \u003cproperty-token\u003e",
+        "comment": "Save properties locally for later reference."
+      },
+      {
+        "command": "hotel-goat-pp-cli doctor",
+        "comment": "Confirm network reachability to Google Hotels."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "Empty results array on a query that returns hotels in the Google Hotels web UI.",
+        "fix": "Set --currency to match your locale (e.g. --currency EUR for European cities) — Google Hotels region-shifts inventory by currency. If still empty, run with --no-cache."
+      },
+      {
+        "symptom": "HTTP 429 or 403 from Google after rapid back-to-back calls.",
+        "fix": "Lower request rate with --rate-limit 0.5 (one request every two seconds), or run from a fresh IP. The scrape uses no anti-bot rotation by design."
+      },
+      {
+        "symptom": "Brand filter --brand Hyatt misses Andaz / Thompson / Park Hyatt properties.",
+        "fix": "Use brand-loyal --program hyatt instead — it expands to all sub-brands via the local brand_aliases table."
+      },
+      {
+        "symptom": "drift returns 'no snapshots' for a property you've searched before.",
+        "fix": "drift keys on property_token, not display name. Run hotel-goat-pp-cli resolve \"\u003cname\u003e\" to get the token, then drift \u003ctoken\u003e."
+      },
+      {
+        "symptom": "Total cost looks wrong for a multi-room family search.",
+        "fix": "The hotels command shows per-room price by default. Use the family command instead — it sums across rooms and surfaces the true family budget."
+      }
+    ],
+    "when_to_use": "Reach for hotel-goat whenever a user needs to search hotels by location and date range or save properties to a local wishlist. Pair it with flight-goat when composing an itinerary; both share the same flag and envelope shape so a future travel-pp-cli orchestrator is a thin merge layer. Skip it when the user wants to actually book (Google Hotels is metasearch — hotel-goat surfaces the OTA deep-link, then the user books on the OTA).",
+    "recipes": [
+      {
+        "title": "Filtered search with European currency",
+        "command": "hotel-goat-pp-cli hotels \"Paris\" 2026-07-20 2026-07-23 --currency EUR --hotel-class 4,5 --max-price 300 --sort cheapest",
+        "explanation": "Premium 4-5 star hotels in Paris under €300/night, sorted cheapest."
+      },
+      {
+        "title": "Agent-friendly nested-field selection",
+        "command": "hotel-goat-pp-cli hotels \"San Francisco\" 2026-08-15 2026-08-17 --agent --select results.name,results.rating,results.price_per_night,results.booking_urls.primary",
+        "explanation": "Returns only the four fields the agent needs, not the full per-result payload."
+      },
+      {
+        "title": "Property detail by token",
+        "command": "hotel-goat-pp-cli hotel show \u003cproperty-token\u003e",
+        "explanation": "Full property details (amenities, nearby places, full image gallery) from a property_token returned by the search."
+      },
+      {
+        "title": "Save and recall properties",
+        "command": "hotel-goat-pp-cli wishlist add \u003cproperty-token\u003e \u0026\u0026 hotel-goat-pp-cli wishlist list",
+        "explanation": "Local-SQLite wishlist: save properties from searches, list them later."
+      },
+      {
+        "title": "Health check",
+        "command": "hotel-goat-pp-cli doctor",
+        "explanation": "Confirms network reachability to Google Hotels and that the parser still finds AF_initDataCallback blobs."
+      }
+    ],
+    "trigger_phrases": [
+      "find a hotel in \u003ccity\u003e",
+      "search hotels for \u003ccity\u003e \u003cdates\u003e",
+      "compare hotel prices for \u003ccity\u003e",
+      "what hotels are available in \u003ccity\u003e",
+      "save this hotel",
+      "use hotel-goat",
+      "run hotel-goat"
+    ]
+  }
+}

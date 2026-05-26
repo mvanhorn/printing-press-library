@@ -115,7 +115,23 @@ metadata:
 func TestEnsureFrontmatterTopLevelFields(t *testing.T) {
 	ctx := patchSkillCtx{AuthorName: "Trevin Chow"}
 
-	t.Run("inserts after description when fields absent", func(t *testing.T) {
+	t.Run("leaves author absent by default", func(t *testing.T) {
+		in := `name: pp-test
+description: "a CLI"
+argument-hint: "..."
+`
+		want := `name: pp-test
+description: "a CLI"
+license: "Apache-2.0"
+argument-hint: "..."
+`
+		if got := ensureFrontmatterTopLevelFields(in, ctx); got != want {
+			t.Errorf("\nwant: %q\ngot:  %q", want, got)
+		}
+	})
+
+	t.Run("can fill author when explicitly requested", func(t *testing.T) {
+		ctxFill := patchSkillCtx{AuthorName: "Trevin Chow", FillMissingAuthor: true}
 		in := `name: pp-test
 description: "a CLI"
 argument-hint: "..."
@@ -126,7 +142,7 @@ author: "Trevin Chow"
 license: "Apache-2.0"
 argument-hint: "..."
 `
-		if got := ensureFrontmatterTopLevelFields(in, ctx); got != want {
+		if got := ensureFrontmatterTopLevelFields(in, ctxFill); got != want {
 			t.Errorf("\nwant: %q\ngot:  %q", want, got)
 		}
 	})
@@ -163,22 +179,17 @@ license: "Apache-2.0"
 		}
 	})
 
-	t.Run("overrides placeholder \"user\" with ctx value", func(t *testing.T) {
-		// `user` is the known generator-fallback placeholder that means
-		// "no real author was captured at print time." The sweep is
-		// allowed to fill in the ctx-resolved author (which itself
-		// comes from cliAuthorByAPIName → manifest owner_name → git
-		// config) only in this specific case.
+	t.Run("preserves placeholder \"user\" by default", func(t *testing.T) {
 		in := `description: "a CLI"
 author: "user"
 license: "Apache-2.0"
 `
 		want := `description: "a CLI"
-author: "Trevin Chow"
+author: "user"
 license: "Apache-2.0"
 `
 		if got := ensureFrontmatterTopLevelFields(in, ctx); got != want {
-			t.Errorf("expected placeholder author overridden;\nwant: %q\ngot:  %q", want, got)
+			t.Errorf("expected placeholder author preserved;\nwant: %q\ngot:  %q", want, got)
 		}
 	})
 
@@ -201,7 +212,7 @@ license: "Apache-2.0"
 	})
 
 	t.Run("escapes special characters via fmt %q", func(t *testing.T) {
-		ctxQuoted := patchSkillCtx{AuthorName: `Trevin "Quoted" Chow`}
+		ctxQuoted := patchSkillCtx{AuthorName: `Trevin "Quoted" Chow`, FillMissingAuthor: true}
 		in := `description: "a CLI"
 `
 		got := ensureFrontmatterTopLevelFields(in, ctxQuoted)
@@ -239,7 +250,7 @@ stuff.
 	if strings.Contains(got, "STALE INSTALL CONTENT") {
 		t.Errorf("stale Prerequisites content not removed:\n%s", got)
 	}
-	if !strings.Contains(got, "npx -y @mvanhorn/printing-press install x --cli-only") {
+	if !strings.Contains(got, "npx -y @mvanhorn/printing-press-library install x --cli-only") {
 		t.Errorf("canonical npx install line not present:\n%s", got)
 	}
 	if strings.Count(got, "## Prerequisites: Install the CLI") != 1 {
@@ -602,14 +613,14 @@ stuff.
 		t.Errorf("legacy ### Binary subsection still present:\n%s", got)
 	}
 	// Canonical npx install line present.
-	if !strings.Contains(got, "npx -y @mvanhorn/printing-press install x\n") {
+	if !strings.Contains(got, "npx -y @mvanhorn/printing-press-library install x\n") {
 		t.Errorf("canonical npx install line not present:\n%s", got)
 	}
-	if !strings.Contains(got, "npx -y @mvanhorn/printing-press install x --cli-only") {
+	if !strings.Contains(got, "npx -y @mvanhorn/printing-press-library install x --cli-only") {
 		t.Errorf("--cli-only variant not present:\n%s", got)
 	}
 	// --skill-only variant is documented for skill-only installs / updates.
-	if !strings.Contains(got, "npx -y @mvanhorn/printing-press install x --skill-only") {
+	if !strings.Contains(got, "npx -y @mvanhorn/printing-press-library install x --skill-only") {
 		t.Errorf("--skill-only variant not present:\n%s", got)
 	}
 	// --agent flag is documented for constraining the skill install to one

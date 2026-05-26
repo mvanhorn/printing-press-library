@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-23T10:57:44.598042Z",
+  "printing_press_version": "4.12.0",
+  "api_name": "mobalytics-lol",
+  "cli_name": "mobalytics-lol-pp-cli",
+  "run_id": "20260523-111659",
+  "novel_features": [
+    {
+      "name": "Counter-pool analysis",
+      "command": "counter-pool",
+      "description": "Given our champion pool and the enemy pool, return the full matchup matrix ranked by WR delta with sample-size floor \u2014 the SQL coaches do in their head."
+    },
+    {
+      "name": "Patch meta-shift",
+      "command": "meta-shift",
+      "description": "Diff two tier_snapshots and list champions that gained or lost \u22651 tier or \u22652% WR since a prior patch, with sample-size guard."
+    },
+    {
+      "name": "Head-to-head champion compare",
+      "command": "compare",
+      "description": "Side-by-side join across tier, build, counters, and matchups for two champions \u2014 including item-overlap percentage."
+    },
+    {
+      "name": "ARAM batch item-set export",
+      "command": "item-set",
+      "description": "Write LoL client item-set JSON for N champions in ARAM mode in one command, refreshing all stale files in the client config folder."
+    },
+    {
+      "name": "Duo-finder with candidate-pool filter",
+      "command": "duo-finder",
+      "description": "Best support pairings for a given ADC, restricted to a candidate support pool \u2014 coaches' player pools are fixed."
+    },
+    {
+      "name": "Personal pool tier digest",
+      "command": "pool-digest",
+      "description": "For each champion in your pool: current tier, WR delta since last patch, top-1 counter, top-1 synergy \u2014 all in one composite query."
+    },
+    {
+      "name": "Power-spike phase filter",
+      "command": "power-spike",
+      "description": "List champions ranked by early/mid/late spike strength for a chosen role \u2014 inverts Mobalytics's per-champion data into a leaderboard."
+    },
+    {
+      "name": "Flex-pick detector",
+      "command": "flex",
+      "description": "Champions that are \u2265A-tier in 2+ roles for the same patch and rank \u2014 the SQL no aggregator surfaces because they index by role first."
+    },
+    {
+      "name": "Region-split tier compare",
+      "command": "tier-list",
+      "description": "Same patch, same rank \u2014 three regions side-by-side. Surfaces pick-priority drift between KR/EUW/NA that no aggregator defaults to."
+    }
+  ],
+  "category": "media-and-entertainment",
+  "printer": "QuantumGlitch",
+  "printer_name": "QuantumGlitch"
+}

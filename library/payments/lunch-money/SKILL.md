@@ -20,7 +20,7 @@ This skill drives the `lunch-money-pp-cli` binary. **You must verify the CLI is 
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install lunch-money --cli-only
+   npx -y @mvanhorn/printing-press-library install lunch-money --cli-only
    ```
 2. Verify: `lunch-money-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
@@ -32,8 +32,6 @@ go install github.com/mvanhorn/printing-press-library/library/payments/lunch-mon
 ```
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
-
-Built on Lunch Money's published v2 alpha spec for forward compatibility — every endpoint exposed as a Cobra subcommand with --json, --select dotted-paths, --csv, --dry-run, and typed exit codes. Local SQLite store powers offline search, history queries, and joins (net worth at any date, stale balance audit, duplicate detection, subscription detective) that single API calls can't answer. A companion `lunch-money-pp-mcp` binary ships alongside for Claude Desktop / Claude Code MCP integration.
 
 ## When to Use This CLI
 

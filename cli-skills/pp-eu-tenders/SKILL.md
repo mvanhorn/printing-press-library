@@ -29,7 +29,7 @@ This skill drives the `eu-tenders-pp-cli` binary. **You must verify the CLI is i
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install eu-tenders --cli-only
+   npx -y @mvanhorn/printing-press-library install eu-tenders --cli-only
    ```
 2. Verify: `eu-tenders-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
@@ -41,8 +41,6 @@ go install github.com/mvanhorn/printing-press-library/library/sales-and-crm/eu-t
 ```
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
-
-TED publishes every significant EU public contract (€676K notices/year) but the web interface makes analysis nearly impossible. This CLI syncs the corpus to SQLite, then layers market intelligence nobody else offers: win rates, concentration scores, dark-buyer detection, and opportunity scoring — free, composable, agent-native.
 
 ## When to Use This CLI
 
