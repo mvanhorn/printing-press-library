@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "generated_at": "2026-05-13T01:05:46.21975Z",
-  "printing_press_version": "4.5.1",
+  "printing_press_version": "4.10.0",
   "api_name": "superhuman",
   "display_name": "Superhuman",
   "cli_name": "superhuman-pp-cli",
