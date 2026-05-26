@@ -204,7 +204,7 @@ Run `dice-fm-pp-cli <command> --help` for the full flag list on any command.
 
 | Command | What it does |
 | --- | --- |
-| `events list` / `events get <id>` | List your events (filter by `--state`) or fetch one by ID |
+| `events list` / `events get <id>` | List your events (filter by `--state` and show-date `--from`/`--to`) or fetch one by ID |
 | `tickets` | List sold tickets with holder, pricing, and claim status (filter by event) |
 | `orders` | List ticket purchase orders with financial and geographic data (filter by event) |
 | `returns` | List ticket returns and refunds (filter by event) |
@@ -216,19 +216,22 @@ Run `dice-fm-pp-cli <command> --help` for the full flag list on any command.
 
 | Command | What it does |
 | --- | --- |
-| `revenue summary` | Gross revenue, Dice fees, and net per event or date range |
+| `revenue summary` | Gross revenue, Dice fees, and net per event or show-date range (`--from`/`--to`) |
+| `revenue by-artist` | Gross/net and order counts aggregated by artist across events (`--headliner-only`, `--from`/`--to`) |
 | `door list` | Valid-holder list for an event, transfers resolved, returns removed |
 | `velocity show` | Cumulative ticket-sales pace by day or hour relative to on-sale |
-| `returns anomalies` | Flag events whose refund rate exceeds a threshold |
+| `returns anomalies` | Flag events whose refund rate exceeds a threshold (`--from`/`--to` show-date window) |
 | `fans repeat` | Fans who bought into two or more events — your loyal audience |
 | `fans top` | Buyers ranked by total spend, per event or across all events |
 | `fans optin` | Opted-in fan contacts filtered by city or country (CSV-ready) |
+| `fans segment` | Build audience segments by min-events, ticket type, tier, genre, event name, quantity, or opt-in (`--from`/`--to`) |
+| `fans profile <email>` | One fan's profile: first/last order, order count, total & VIP spend, events and ticket types |
 
 ### Data & utilities
 
 | Command | What it does |
 | --- | --- |
-| `sync` | Sync your DICE data to local SQLite (`--full`, `--since`, `--resources`) |
+| `sync` | Sync your DICE data to local SQLite — complete by default; `--since` bounds a window, `--latest-only` grabs the newest, plus `--full`, `--resources` |
 | `search <query>` | Full-text search across synced data or the live API |
 | `analytics` | Run analytics queries on locally synced data |
 | `tail` | Stream live changes by polling the API at intervals |

@@ -83,6 +83,14 @@ These capabilities aren't available in any other tool for this API.
   dice-fm-pp-cli returns anomalies --threshold 0.08 --agent
   ```
 
+- **`revenue by-artist`** — Aggregate gross, Dice fees, and net by artist across all events — see which artists actually drive revenue, for booking decisions.
+
+  _Use before booking negotiations to rank artists by the revenue they've historically generated. Add `--headliner-only` to credit just the headliner; `--from`/`--to` to scope by show date._
+
+  ```bash
+  dice-fm-pp-cli revenue by-artist --headliner-only --json
+  ```
+
 ### Audience intelligence
 - **`fans repeat`** — Find fans who bought tickets to two or more of your events — your most loyal audience, ready for VIP outreach.
 
@@ -104,6 +112,20 @@ These capabilities aren't available in any other tool for this API.
 
   ```bash
   dice-fm-pp-cli fans top --event RXZlbnQ6MTIzNDU= --n 20 --json
+  ```
+- **`fans segment`** — Build a targeted audience segment by behavior: minimum events attended, ticket type, price tier, genre, event name, order quantity, or opt-in status — the segments your CDP needs.
+
+  _Use to assemble lists like "3+ event buyers," "VIP buyers," or "presale buyers" for campaigns. Combine filters; add `--from`/`--to` to scope by show date._
+
+  ```bash
+  dice-fm-pp-cli fans segment --min-events 3 --ticket-type VIP --opted-in --csv
+  ```
+- **`fans profile <email>`** — One fan's full history: first/last order, order count, total and VIP spend, events attended, and ticket types bought.
+
+  _Use to look up a specific fan before VIP outreach or to answer a support question._
+
+  ```bash
+  dice-fm-pp-cli fans profile fan@example.com --json
   ```
 
 ## Command Reference
