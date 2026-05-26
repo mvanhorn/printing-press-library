@@ -10,7 +10,6 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"sync"
 	"testing"
 
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/espn/internal/learn/entities"
@@ -66,7 +65,7 @@ func TestTeachCommand_SilentOnSuccess(t *testing.T) {
 		t.Fatalf("reopen db: %v", err)
 	}
 	defer s.Close()
-	rows, err := listLearningsRows(s, store.ListLearningsFilter{})
+	rows, err := listLearningsRows(context.Background(), s, store.ListLearningsFilter{})
 	if err != nil {
 		t.Fatalf("listLearnings: %v", err)
 	}
@@ -144,7 +143,7 @@ func TestTeachCommand_RespectsNoLearnEnvVar(t *testing.T) {
 	if _, statErr := os.Stat(dbPath); statErr == nil {
 		s, _ := store.OpenWithContext(context.Background(), dbPath)
 		defer s.Close()
-		rows, _ := listLearningsRows(s, store.ListLearningsFilter{})
+		rows, _ := listLearningsRows(context.Background(), s, store.ListLearningsFilter{})
 		if len(rows) != 0 {
 			t.Errorf("NO_LEARN should leave DB empty; got %d rows", len(rows))
 		}
@@ -444,7 +443,9 @@ func TestSkipLearnHook_NovelCommandsNotSkipped(t *testing.T) {
 
 func TestSkipLearnHook_FrameworkCommandsDoNotCreateDefaultDB(t *testing.T) {
 	home := withTempLearnHome(t)
-	learnInitOnce = sync.Once{}
+	learnInitMu.Lock()
+	learnInitDone = false
+	learnInitMu.Unlock()
 
 	cases := [][]string{
 		{"auth", "setup"},

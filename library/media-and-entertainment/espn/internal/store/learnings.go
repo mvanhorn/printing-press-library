@@ -7,10 +7,21 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strings"
 	"time"
 )
+
+// ErrApplierSkip lets an Applier's InsertLearnedHit or ReplaceHit declare
+// that the rule is a no-op for it without producing a warning or being
+// counted as an applied change. Use when the rule belongs to a different
+// bundle, group, or scope the applier owns, or when the resource lookup
+// soft-fails (target not in local store). Apply treats this sentinel as
+// "silently skip this rule"; any other error becomes a warning.
+// PATCH(pr#850): added to fix applied-count inflation in cross-group
+// and missing-resource paths flagged by Greptile.
+var ErrApplierSkip = errors.New("learnings.Applier: skip this rule")
 
 // Learning action constants. See LearningRow.Action.
 const (
@@ -144,7 +155,11 @@ type UpsertLearningInput struct {
 // refreshes last_observed_at. Source on the existing row is preserved;
 // only confidence + last_observed_at update on re-teach. Returns the
 // row's ID and a bool indicating whether the row was newly inserted.
-func (s *Store) UpsertLearning(in UpsertLearningInput) (int64, bool, error) {
+//
+// ctx is honored by the underlying transaction so Ctrl+C or a command
+// timeout aborts the write rather than waiting out the SQLite busy
+// timeout. PATCH(pr#850): added ctx for consistency with Apply/Recall.
+func (s *Store) UpsertLearning(ctx context.Context, in UpsertLearningInput) (int64, bool, error) {
 	if strings.TrimSpace(in.ResourceID) == "" {
 		return 0, false, fmt.Errorf("upsert learning: resource_id is required")
 	}
@@ -173,20 +188,20 @@ func (s *Store) UpsertLearning(in UpsertLearningInput) (int64, bool, error) {
 	defer s.writeMu.Unlock()
 
 	now := time.Now().UTC()
-	tx, err := s.db.Begin()
+	tx, err := s.db.BeginTx(ctx, nil)
 	if err != nil {
 		return 0, false, err
 	}
 	defer tx.Rollback()
 
 	var existingID int64
-	err = tx.QueryRow(
+	err = tx.QueryRowContext(ctx,
 		`SELECT id FROM search_learnings
 		 WHERE query_pattern = ? AND resource_id = ? AND action = ?`,
 		pattern, in.ResourceID, action,
 	).Scan(&existingID)
 	if err == nil {
-		if _, err := tx.Exec(
+		if _, err := tx.ExecContext(ctx,
 			`UPDATE search_learnings
 			 SET confidence = confidence + 1, last_observed_at = ?
 			 WHERE id = ?`,
@@ -281,7 +296,12 @@ type ListLearningsFilter struct {
 // filter applies a normalized LIKE match against query_pattern so a
 // filter value of "portugal" matches a row taught for "portugal world
 // cup odds".
-func (s *Store) ListLearnings(f ListLearningsFilter) ([]LearningRow, error) {
+//
+// ctx is forwarded to the underlying query so a `learnings list` against
+// a large table can be cancelled by Ctrl+C rather than holding a read
+// connection to completion. PATCH(pr#850): added ctx for consistency
+// with Apply/Recall.
+func (s *Store) ListLearnings(ctx context.Context, f ListLearningsFilter) ([]LearningRow, error) {
 	clauses := []string{}
 	args := []any{}
 	if f.Query != "" {
@@ -321,7 +341,7 @@ func (s *Store) ListLearnings(f ListLearningsFilter) ([]LearningRow, error) {
 		ORDER BY last_observed_at DESC, id DESC
 		LIMIT ?`, where)
 
-	rows, err := s.db.Query(q, args...)
+	rows, err := s.db.QueryContext(ctx, q, args...)
 	if err != nil {
 		return nil, fmt.Errorf("list learnings: %w", err)
 	}
@@ -669,6 +689,9 @@ func (s *Store) Apply(ctx context.Context, query string, ap Applier) (ApplyResul
 					Confidence:   r.Confidence,
 					Source:       r.Source,
 				}); err != nil {
+					if errors.Is(err, ErrApplierSkip) {
+						continue
+					}
 					result.Warnings = append(result.Warnings, fmt.Sprintf("insert learned hit %s/%s: %v", r.ResourceType, r.ResourceID, err))
 					continue
 				}
@@ -690,6 +713,9 @@ func (s *Store) Apply(ctx context.Context, query string, ap Applier) (ApplyResul
 				continue
 			}
 			if err := ap.ReplaceHit(r.ResourceType, r.ResourceID, r.ResourceType, r.AliasTarget); err != nil {
+				if errors.Is(err, ErrApplierSkip) {
+					continue
+				}
 				result.Warnings = append(result.Warnings, fmt.Sprintf("alias replace %s -> %s: %v", r.ResourceID, r.AliasTarget, err))
 				continue
 			}

@@ -89,15 +89,18 @@ func (a *searchApplier) MoveToFront(rt, rid string) {
 func (a *searchApplier) InsertLearnedHit(h store.LearnedHit) error {
 	// Soft-skip: this applier only owns one group. When a learning
 	// targets a different resource_type, let the next applier instance
-	// claim it.
+	// claim it. Returning ErrApplierSkip prevents Apply from counting
+	// this rule as applied or surfacing a spurious warning.
 	if !a.matchesKind(h.ResourceType) {
-		return nil
+		return store.ErrApplierSkip
 	}
 	raw, ok := resolveSearchLearnedHit(a.ctx, a.db, h)
 	if !ok {
-		// Resource not in local store: soft-fail so the rerank pass
-		// surfaces a warning but doesn't abort the rest of the rules.
-		return nil
+		// Resource not in local store: nothing to insert. Returning the
+		// sentinel keeps Apply from counting this as an applied change
+		// (which would mislead hintForApplied into "low_confidence" when
+		// the bundle was untouched).
+		return store.ErrApplierSkip
 	}
 	items := append([]json.RawMessage{raw}, *a.items...)
 	*a.items = items
@@ -136,10 +139,11 @@ func (a *searchApplier) ReplaceHit(srcType, srcID, dstType, dstID string) error 
 		}
 	}
 	// Src not present in this group. Only fall through to InsertLearnedHit
-	// when the alias destination belongs to this group; otherwise no-op so
-	// the other applier instances get a chance to handle it.
+	// when the alias destination belongs to this group; otherwise return
+	// the sentinel so other applier instances get a chance to handle it
+	// without inflating Apply's counter.
 	if !a.matchesKind(dstType) {
-		return nil
+		return store.ErrApplierSkip
 	}
 	return a.InsertLearnedHit(store.LearnedHit{ResourceType: dstType, ResourceID: dstID})
 }

@@ -204,10 +204,17 @@ func initLearn(ctx context.Context, db *sql.DB) error {
 	return nil
 }
 
-// learnInitOnce gates runLearnInitOnce so the seed pass happens at
-// most once per CLI process. The sync.Once keeps the cost off the
-// hot path for repeat command invocations within an MCP session.
-var learnInitOnce sync.Once
+// learnInitMu and learnInitDone gate runLearnInitOnce so the seed pass
+// runs at most once per CLI process — but only locks in "done" after a
+// successful init. A sync.Once would mark itself complete even on
+// failure, which is fatal for MCP sessions: a cancelled context on the
+// first command would leave entity_lookups empty for the rest of the
+// process with no recovery short of restart.
+// PATCH(pr#850): replaced sync.Once so failed inits can be retried.
+var (
+	learnInitMu   sync.Mutex
+	learnInitDone bool
+)
 
 // runLearnInitOnce opens the canonical store path, fires initLearn
 // once per process, and downgrades any failure to a stderr warning.
@@ -216,16 +223,21 @@ var learnInitOnce sync.Once
 // empty envelope if entity_lookups is missing rows, which is the
 // same behavior an opt-out CLI sees.
 func runLearnInitOnce(ctx context.Context) {
-	learnInitOnce.Do(func() {
-		dbPath := defaultDBPath("espn-pp-cli")
-		s, err := store.OpenWithContext(ctx, dbPath)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "warning: espn-pp-cli: learn init: open store: %v\n", err)
-			return
-		}
-		defer s.Close()
-		if err := initLearn(ctx, s.DB()); err != nil {
-			fmt.Fprintf(os.Stderr, "warning: espn-pp-cli: learn init: %v\n", err)
-		}
-	})
+	learnInitMu.Lock()
+	defer learnInitMu.Unlock()
+	if learnInitDone {
+		return
+	}
+	dbPath := defaultDBPath("espn-pp-cli")
+	s, err := store.OpenWithContext(ctx, dbPath)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "warning: espn-pp-cli: learn init: open store: %v\n", err)
+		return
+	}
+	defer s.Close()
+	if err := initLearn(ctx, s.DB()); err != nil {
+		fmt.Fprintf(os.Stderr, "warning: espn-pp-cli: learn init: %v\n", err)
+		return
+	}
+	learnInitDone = true
 }

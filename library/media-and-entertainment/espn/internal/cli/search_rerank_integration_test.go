@@ -67,7 +67,7 @@ func TestApplyLearningsForSearch_BoostMovesTaughtResourceToFront(t *testing.T) {
 	general := []json.RawMessage{}
 
 	// Teach: agent answered "Niners game tonight" by surfacing event 401547439.
-	if _, _, err := s.UpsertLearning(store.UpsertLearningInput{
+	if _, _, err := s.UpsertLearning(context.Background(), store.UpsertLearningInput{
 		Query:        "Niners game tonight",
 		ResourceID:   taughtID,
 		ResourceType: "events",
@@ -77,7 +77,7 @@ func TestApplyLearningsForSearch_BoostMovesTaughtResourceToFront(t *testing.T) {
 		t.Fatalf("teach (first): %v", err)
 	}
 	// Second upsert bumps confidence from 2 to 3 (high-confidence floor).
-	if _, _, err := s.UpsertLearning(store.UpsertLearningInput{
+	if _, _, err := s.UpsertLearning(context.Background(), store.UpsertLearningInput{
 		Query:        "Niners game tonight",
 		ResourceID:   taughtID,
 		ResourceType: "events",
@@ -139,7 +139,7 @@ func TestApplyLearningsForSearch_LowConfidenceWhenSingleTeach(t *testing.T) {
 	general := []json.RawMessage{}
 
 	// Single teach -> confidence=2 -> below the high-confidence floor of 3.
-	if _, _, err := s.UpsertLearning(store.UpsertLearningInput{
+	if _, _, err := s.UpsertLearning(context.Background(), store.UpsertLearningInput{
 		Query:        "kanye",
 		ResourceID:   taughtID,
 		ResourceType: "events",
@@ -178,7 +178,7 @@ func TestApplyLearningsForSearch_InsertSyntheticHitFromStore(t *testing.T) {
 	news := []json.RawMessage{}
 	general := []json.RawMessage{}
 
-	if _, _, err := s.UpsertLearning(store.UpsertLearningInput{
+	if _, _, err := s.UpsertLearning(context.Background(), store.UpsertLearningInput{
 		Query:        "Niners game tonight",
 		ResourceID:   stashedID,
 		ResourceType: "events",
@@ -211,7 +211,7 @@ func TestApplyLearningsForSearch_MissingResourceSoftFails(t *testing.T) {
 	news := []json.RawMessage{}
 	general := []json.RawMessage{}
 
-	if _, _, err := s.UpsertLearning(store.UpsertLearningInput{
+	if _, _, err := s.UpsertLearning(context.Background(), store.UpsertLearningInput{
 		Query:        "kanye",
 		ResourceID:   "no-such-id",
 		ResourceType: "events",
@@ -222,10 +222,18 @@ func TestApplyLearningsForSearch_MissingResourceSoftFails(t *testing.T) {
 	}
 
 	applied, hasHigh := applyLearningsForSearch(context.Background(), s, "kanye", &events, &news, &general)
-	// Single teach at confidence=2 with missing resource: engine still
-	// counts the rule as applied (it ran), but the bundle is unchanged.
-	_ = applied
-	_ = hasHigh
+	// Missing-resource teach: appliers return ErrApplierSkip so Apply
+	// neither counts the rule nor mutates the bundle. hint should be
+	// "empty" because nothing actually applied.
+	if applied != 0 {
+		t.Errorf("want applied=0 for missing-resource teach, got %d", applied)
+	}
+	if hasHigh {
+		t.Errorf("want hasHigh=false for missing-resource teach")
+	}
+	if hint := hintForApplied(applied, hasHigh); hint != "empty" {
+		t.Errorf("hint = %q, want %q", hint, "empty")
+	}
 	if len(events) != 1 || rawHitID(events[0]) != "e1" {
 		t.Errorf("events mutated despite missing-resource teach: %v", events)
 	}

@@ -16,6 +16,7 @@
 package cli
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -36,7 +37,7 @@ import (
 // noLearnEnvVar is the environment variable that disables the learning
 // loop for a session. Used by deterministic agent flows that don't
 // want a learning row to silently change subsequent query results.
-const noLearnEnvVar = "LEARN_LOOP_EXAMPLE_NO_LEARN"
+const noLearnEnvVar = "ESPN_PP_CLI_NO_LEARN"
 
 // learningsAuditFileName is the JSONL audit log alongside the DB.
 const learningsAuditFileName = "learnings.jsonl"
@@ -205,7 +206,7 @@ Disabling: pass --no-learn or set ` + noLearnEnvVar + `=true.`,
 				if rid == "" {
 					continue
 				}
-				if _, _, uerr := s.UpsertLearning(store.UpsertLearningInput{
+				if _, _, uerr := s.UpsertLearning(cmd.Context(), store.UpsertLearningInput{
 					Query:         query,
 					QueryEntities: normalized.Entities,
 					ResourceID:    rid,
@@ -453,8 +454,8 @@ type learningRow struct {
 
 // listLearningsRows queries the store via the canonical ListLearnings
 // API and translates each row into the CLI envelope shape.
-func listLearningsRows(s *store.Store, f store.ListLearningsFilter) ([]learningRow, error) {
-	stored, err := s.ListLearnings(f)
+func listLearningsRows(ctx context.Context, s *store.Store, f store.ListLearningsFilter) ([]learningRow, error) {
+	stored, err := s.ListLearnings(ctx, f)
 	if err != nil {
 		return nil, err
 	}
@@ -534,7 +535,7 @@ func newLearningsListCmd(flags *rootFlags) *cobra.Command {
 			}
 			defer s.Close()
 
-			rows, err := listLearningsRows(s, store.ListLearningsFilter{
+			rows, err := listLearningsRows(cmd.Context(), s, store.ListLearningsFilter{
 				Query:         queryFilter,
 				Source:        sourceFilter,
 				ResourceID:    resourceFilter,
