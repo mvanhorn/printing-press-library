@@ -1,0 +1,187 @@
+{
+  "api_name": "art-goat",
+  "novelty_score": 9,
+  "alternatives": [
+    {
+      "name": "art-institute-of-chicago/api",
+      "url": "https://github.com/art-institute-of-chicago/api",
+      "language": "PHP",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "nasa/apod-api",
+      "url": "https://github.com/nasa/apod-api",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "metmuseum/openaccess",
+      "url": "https://github.com/metmuseum/openaccess",
+      "language": "CSV",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-21T06:24:40Z",
+  "novel_features": [
+    {
+      "name": "Contemplative timer sit",
+      "command": "sit",
+      "description": "Sit with one piece of art for a fixed period. Opens the image in your browser, shows the curator's description, runs a quiet timer, and captures your reflection in the journal.",
+      "rationale": "No museum API exposes a 'sit' endpoint. This is a hand-authored Cobra command that joins the local works store with a journal SQLite to make extended attention durable.",
+      "example": "art-goat-pp-cli sit --duration 10 --dry-run",
+      "why_it_matters": "Use this when you want to spend deliberate time with one piece instead of skimming a feed. The reflection is persisted locally for later search.",
+      "group": "Contemplative practice"
+    },
+    {
+      "name": "Opinionated daily pick",
+      "command": "today",
+      "description": "Today's curated piece, chosen using anti-repeat against your sits and journal-aware diversity against your recent medium and culture choices. Includes a one-line 'why this today'.",
+      "rationale": "Requires local joins across the works table and the journal sits table. Random picks ignore your practice; this picks in conversation with it.",
+      "example": "art-goat-pp-cli today",
+      "why_it_matters": "Use today as the default daily entry point. It avoids showing you what you already sat with and rotates against your recent medium and region choices.",
+      "group": "Contemplative practice"
+    },
+    {
+      "name": "Reframed practice metrics",
+      "command": "journal stats",
+      "description": "Practice statistics emphasising source breadth, medium variety, region coverage, and mood drift, with streak available at the bottom labeled 'if you want to know'.",
+      "rationale": "Counts aggregations over the local sits and works tables that no museum API exposes. The metric reframe is editorial, not mechanical, and lives in hand-authored code.",
+      "example": "art-goat-pp-cli journal stats",
+      "why_it_matters": "Use this to see breadth instead of streak length. Practice quality is captured as how widely you've ranged, not how many days in a row you've sat.",
+      "group": "Practice journal"
+    },
+    {
+      "name": "Reflection full-text search",
+      "command": "journal search",
+      "description": "FTS5 over your reflection history. Surfaces every past sit whose text matches the query.",
+      "rationale": "No other tool stores user reflections in this domain at all. The sits_fts virtual table is hand-authored.",
+      "example": "art-goat-pp-cli journal search \"solitude\"",
+      "why_it_matters": "Use this to find prior reflections by token. Years of practice become queryable.",
+      "group": "Practice journal"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Contemplative timer sit",
+      "command": "sit",
+      "description": "Sit with one piece of art for a fixed period. Opens the image in your browser, shows the curator's description, runs a quiet timer, and captures your reflection in the journal.",
+      "rationale": "No museum API exposes a 'sit' endpoint. This is a hand-authored Cobra command that joins the local works store with a journal SQLite to make extended attention durable.",
+      "example": "art-goat-pp-cli sit --duration 10 --dry-run",
+      "why_it_matters": "Use this when you want to spend deliberate time with one piece instead of skimming a feed. The reflection is persisted locally for later search.",
+      "group": "Contemplative practice"
+    },
+    {
+      "name": "Opinionated daily pick",
+      "command": "today",
+      "description": "Today's curated piece, chosen using anti-repeat against your sits and journal-aware diversity against your recent medium and culture choices. Includes a one-line 'why this today'.",
+      "rationale": "Requires local joins across the works table and the journal sits table. Random picks ignore your practice; this picks in conversation with it.",
+      "example": "art-goat-pp-cli today",
+      "why_it_matters": "Use today as the default daily entry point. It avoids showing you what you already sat with and rotates against your recent medium and region choices.",
+      "group": "Contemplative practice"
+    },
+    {
+      "name": "Reframed practice metrics",
+      "command": "journal stats",
+      "description": "Practice statistics emphasising source breadth, medium variety, region coverage, and mood drift, with streak available at the bottom labeled 'if you want to know'.",
+      "rationale": "Counts aggregations over the local sits and works tables that no museum API exposes. The metric reframe is editorial, not mechanical, and lives in hand-authored code.",
+      "example": "art-goat-pp-cli journal stats",
+      "why_it_matters": "Use this to see breadth instead of streak length. Practice quality is captured as how widely you've ranged, not how many days in a row you've sat.",
+      "group": "Practice journal"
+    },
+    {
+      "name": "Reflection full-text search",
+      "command": "journal search",
+      "description": "FTS5 over your reflection history. Surfaces every past sit whose text matches the query.",
+      "rationale": "No other tool stores user reflections in this domain at all. The sits_fts virtual table is hand-authored.",
+      "example": "art-goat-pp-cli journal search \"solitude\"",
+      "why_it_matters": "Use this to find prior reflections by token. Years of practice become queryable.",
+      "group": "Practice journal"
+    }
+  ],
+  "narrative": {
+    "display_name": "art-goat",
+    "headline": "A contemplative daily art practice with museum and astronomy APIs as your gallery.",
+    "value_prop": "art-goat aggregates the Art Institute of Chicago and NASA Astronomy Picture of the Day into one local SQLite corpus, then turns it into a daily practice. Sit with one piece for a fixed period, capture your reflection, and let an opinionated today pick rotate against your recent practice. v1 ships the contemplative spine (sit, today, journal) end-to-end with AIC + APOD; cross-source browse/similar/compare and additional sources are deferred to v1.1 (see README Known Gaps).",
+    "auth_narrative": "Anonymous out of the box. AIC requires no key. NASA APOD ships with DEMO_KEY by default; run `art-goat auth set apod` if you want to upgrade past the DEMO_KEY rate limit.",
+    "quickstart": [
+      {
+        "command": "art-goat-pp-cli sources sync",
+        "comment": "Populate the local corpus across all configured sources (AIC, APOD, Met, Cleveland, Harvard, Smithsonian, NPM Taiwan). Anonymous; no setup wall."
+      },
+      {
+        "command": "art-goat-pp-cli today",
+        "comment": "Today's curated piece — opinionated against your practice, with a one-line 'why this today'."
+      },
+      {
+        "command": "art-goat-pp-cli sit",
+        "comment": "Sit with a random piece. Image opens in your browser; reflection captured in terminal."
+      },
+      {
+        "command": "art-goat-pp-cli journal stats",
+        "comment": "See breadth, variety, region coverage, mood drift. Streak available at the bottom if you want to know."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "sit opens nothing in browser",
+        "fix": "Run with --no-image to fall back to description mode, or check that $BROWSER is set on your platform."
+      },
+      {
+        "symptom": "NASA APOD rate limit hit",
+        "fix": "Run `art-goat-pp-cli auth set apod` and paste a free key from https://api.nasa.gov/. The DEMO_KEY ships with a ~30/hour cap."
+      },
+      {
+        "symptom": "Empty results from search or browse",
+        "fix": "Run `art-goat-pp-cli sources sync` first; novel commands read from the local store, which sync populates."
+      },
+      {
+        "symptom": "Journal entries not showing in Obsidian",
+        "fix": "Set ART_GOAT_JOURNAL_PATH to your Obsidian vault path before journal write; the Markdown mirror writes there."
+      }
+    ],
+    "when_to_use": "Use art-goat when you want a daily contemplative practice grounded in real museum and astronomy collections. It's the right choice when one piece of extended attention is more useful than skimming a feed of fifty. It's not the right choice for shopping for art, building a catalog, or doing research that needs the museum's full canonical metadata in raw form — for that, use the AIC API directly.",
+    "recipes": [
+      {
+        "title": "Start a daily practice",
+        "command": "art-goat-pp-cli sources sync \u0026\u0026 art-goat-pp-cli today",
+        "explanation": "Populate the store, then enter today's curated practice in a single line."
+      },
+      {
+        "title": "Sit with a specific piece",
+        "command": "art-goat-pp-cli sit aic:24645 --duration 10",
+        "explanation": "Pull AIC's Hokusai 'Under the Wave off Kanagawa' for a ten-minute sit."
+      },
+      {
+        "title": "Look back on reflections",
+        "command": "art-goat-pp-cli journal search \"water\" --json --select started_at,work_id,reflection",
+        "explanation": "Find every past sit where you wrote about water. JSON output piped through select keeps the response narrow."
+      }
+    ],
+    "trigger_phrases": [
+      "sit with a piece of art",
+      "today's piece of art",
+      "what's APOD",
+      "art journal stats",
+      "use art-goat",
+      "run art-goat"
+    ]
+  }
+}

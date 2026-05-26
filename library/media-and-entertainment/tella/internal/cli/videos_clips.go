@@ -21,6 +21,9 @@ func newVideosClipsCmd(flags *rootFlags) *cobra.Command {
 	cmd.AddCommand(newVideosClipsCutCmd(flags))
 	cmd.AddCommand(newVideosClipsDeleteCmd(flags))
 	cmd.AddCommand(newVideosClipsDuplicateCmd(flags))
+	// PATCH(library): add find-mistakes (UNOFFICIAL API; cataloged in
+	// .printing-press-patches.json#add-cut-panel-parity)
+	cmd.AddCommand(newVideosClipsFindMistakesCmd(flags))
 	cmd.AddCommand(newVideosClipsGetCmd(flags))
 	cmd.AddCommand(newVideosClipsGetCutTranscriptCmd(flags))
 	cmd.AddCommand(newVideosClipsGetSilencesCmd(flags))
@@ -35,11 +38,17 @@ func newVideosClipsCmd(flags *rootFlags) *cobra.Command {
 	cmd.AddCommand(newVideosClipsListSourcesCmd(flags))
 	cmd.AddCommand(newVideosClipsListZoomsCmd(flags))
 	cmd.AddCommand(newVideosClipsRemoveBlurCmd(flags))
+	// PATCH(library): add remove-buffers composition (cataloged in
+	// .printing-press-patches.json#add-cut-panel-parity)
+	cmd.AddCommand(newVideosClipsRemoveBuffersCmd(flags))
 	cmd.AddCommand(newVideosClipsRemoveFillersCmd(flags))
 	cmd.AddCommand(newVideosClipsRemoveHighlightCmd(flags))
 	cmd.AddCommand(newVideosClipsRemoveLayoutCmd(flags))
 	cmd.AddCommand(newVideosClipsRemoveZoomCmd(flags))
 	cmd.AddCommand(newVideosClipsReorderCmd(flags))
+	// PATCH(library): add trim-edges composition (cataloged in
+	// .printing-press-patches.json#add-cut-panel-parity)
+	cmd.AddCommand(newVideosClipsTrimEdgesCmd(flags))
 	cmd.AddCommand(newVideosClipsUpdateCmd(flags))
 	cmd.AddCommand(newVideosClipsUpdateBlurCmd(flags))
 	cmd.AddCommand(newVideosClipsUpdateHighlightCmd(flags))

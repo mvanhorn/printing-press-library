@@ -21,7 +21,7 @@ func newAooGetCmd(flags *rootFlags) *cobra.Command {
 		Use:         "get",
 		Short:       "AOO di un ente con filtro opzionale per codice AOO",
 		Example:     "  openipa-pp-cli aoo get --codice example-value",
-		Annotations: map[string]string{"pp:endpoint": "aoo.get", "pp:method": "POST", "pp:path": "/WS08_AOOC.php", "mcp:read-only": "true"},
+		Annotations: map[string]string{"pp:endpoint": "aoo.get", "pp:method": "POST", "pp:path": "/ws/WS08AOOCServices/api/WS08_AOOC", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {
 				if !cmd.Flags().Changed("codice") && !flags.dryRun {
@@ -33,7 +33,7 @@ func newAooGetCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 
-			path := "/WS08_AOOC.php"
+			path := "/ws/WS08AOOCServices/api/WS08_AOOC"
 			var body map[string]any
 			if stdinBody {
 				stdinData, err := io.ReadAll(os.Stdin)

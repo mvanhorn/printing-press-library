@@ -25,23 +25,18 @@ This skill drives the `table-reservation-goat-pp-cli` binary. **You must verify 
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install table-reservation-goat --cli-only
+   npx -y @mvanhorn/printing-press-library install table-reservation-goat --cli-only
    ```
 2. Verify: `table-reservation-goat-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
 
-If the `npx` install fails before this CLI has a public-library category, install Node or use the category-specific Go fallback after publish.
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.3 or newer):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/food-and-dining/table-reservation-goat/cmd/table-reservation-goat-pp-cli@latest
+```
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
-
-OpenTable, Tock, and Resy split the US fine-dining world between them and share zero data. This CLI unifies them: `goat` searches all three at once, `watch` polls each network for cancellations, `earliest` composes availability across all three, and `drift` surfaces what changed at a venue since your last look.
-
-**Authentication** is two commands, each run once:
-
-- `auth login --chrome` imports OpenTable + Tock session cookies from your local Chrome profile.
-- `auth login --resy --email <you@example.com>` exchanges Resy email + password for a long-lived API token; the password is consumed and never persisted.
-
-**Network-prefixed addressing.** Resy venues are addressed by numeric id (`resy:1387`); OpenTable by numeric id or URL slug (`opentable:le-bernardin`); Tock by domain-name slug (`tock:alinea`).
 
 ## When to Use This CLI
 

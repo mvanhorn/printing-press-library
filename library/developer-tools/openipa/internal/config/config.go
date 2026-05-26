@@ -28,8 +28,11 @@ type Config struct {
 }
 
 func Load(configPath string) (*Config, error) {
+	// PATCH(WS-endpoint-migration): IPA deprecated PHP endpoints from WS18 onwards.
+	// New canonical base URL per WS00_INDICE_DEI_SERVIZI.pdf §3.1. All WS paths
+	// now use /ws/<Bundle>Services/api/<WSname> instead of /public-ws/<WSname>.php.
 	cfg := &Config{
-		BaseURL: "https://indicepa.gov.it/public-ws",
+		BaseURL: "https://www.indicepa.gov.it",
 	}
 
 	// Resolve config path

@@ -1,18 +1,20 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-05-02T03:53:03.774005Z",
-  "printing_press_version": "3.2.1",
+  "generated_at": "2026-05-24T09:17:42.147208Z",
+  "printing_press_version": "4.14.0",
   "api_name": "shopify",
   "display_name": "Shopify",
   "cli_name": "shopify-pp-cli",
-  "owner": "user",
+  "owner": "benjamin-huang",
   "printer": "cathrynlavery",
   "printer_name": "Cathryn Lavery",
-  "spec_path": "catalog/specs/shopify-2026-04-wrapper.yaml",
   "spec_format": "internal",
-  "spec_checksum": "sha256:4e5ca1c0c251eed7ac5fce5c7bcf974c584bcdea07ffb495eb6c5dd37fe00d69",
+  "spec_checksum": "sha256:7bfc2ce208f6f85e21949cc1f0a4045d4f121b36153efe09b3d4736265a01207",
+  "run_id": "20260524-085902",
+  "category": "commerce",
+  "description": "Operate a Shopify store from the terminal with local sync, analytics, and bulk exports.",
   "mcp_binary": "shopify-pp-mcp",
-  "mcp_tool_count": 10,
+  "mcp_tool_count": 12,
   "mcp_ready": "full",
   "api_version": "2026-04",
   "auth_type": "api_key",
@@ -26,9 +28,74 @@
   "auth_key_url": "https://shopify.dev/docs/apps/build/authentication-authorization/access-tokens",
   "novel_features": [
     {
-      "name": "Bulk operation runner",
-      "command": "bulk-operations",
-      "description": "Inspect the current Shopify bulk operation and launch bulk GraphQL export jobs from query text or a query file."
+      "command": "shopifyql funnel",
+      "name": "Sales Funnel from ShopifyQL",
+      "description": "Three-stage funnel over N days (sessions -> checkouts -> orders) computed via ShopifyQL with real response columns."
+    },
+    {
+      "command": "shopifyql query",
+      "name": "Raw ShopifyQL Query",
+      "description": "Run an arbitrary ShopifyQL query string and stream the JSON response."
+    },
+    {
+      "command": "shopifyql sessions",
+      "name": "Daily Sessions",
+      "description": "Online Store sessions per day for the last N days."
+    },
+    {
+      "command": "shopifyql conversion",
+      "name": "Conversion Rate",
+      "description": "Online Store conversion rate over the last N days, optionally per-day."
+    },
+    {
+      "command": "report revenue-daily",
+      "name": "Daily Revenue Breakdown",
+      "description": "Daily revenue, refunds, net, and order count over the last N days from the local orders store."
+    },
+    {
+      "command": "report channel-mix",
+      "name": "Channel Mix",
+      "description": "Revenue by sourceName (web, draft_order, pos, channel id) over the last N days."
+    },
+    {
+      "command": "report show-impact",
+      "name": "Tag-Match Impact",
+      "description": "Compare revenue for tag-matched orders against the rest over the last N days."
+    },
+    {
+      "command": "report attach-rate",
+      "name": "Attach Rate",
+      "description": "Percent of orders containing --anchor that also contain --attached, by case-insensitive line-item title substring."
+    },
+    {
+      "command": "report customer-lifecycle",
+      "name": "Repeat-Purchase Lifecycle",
+      "description": "Repeat-purchase distribution and median time-between-orders over the last N days."
+    },
+    {
+      "command": "bulk-operations current",
+      "name": "Current Bulk Operation",
+      "description": "Show the currently running or most recent Shopify bulk operation."
+    },
+    {
+      "command": "bulk-operations run-query",
+      "name": "Run Bulk Query",
+      "description": "Start a Shopify bulk operation from a GraphQL query string or file."
+    },
+    {
+      "command": "orders tag",
+      "name": "Order Tag Mutation",
+      "description": "Add or remove tags on a Shopify order by id or name."
+    },
+    {
+      "command": "customers tag",
+      "name": "Customer Tag Mutation",
+      "description": "Add or remove tags on a Shopify customer by id."
+    },
+    {
+      "command": "auth audit",
+      "name": "Auth Audit",
+      "description": "Audit OAuth client_credentials setup and access-token freshness."
     }
   ]
 }

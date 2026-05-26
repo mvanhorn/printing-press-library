@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-17T07:47:59.153331Z",
+  "printing_press_version": "4.8.0",
+  "api_name": "exchangerate-api",
+  "display_name": "Exchangerate Api",
+  "cli_name": "exchangerate-api-pp-cli",
+  "owner": "vinny-pasceri",
+  "printer": "vinnyp",
+  "printer_name": "Vinny Pasceri",
+  "spec_path": "/Users/vinnypasceri/printing-press/.runstate/pp-exchangerate-api-4e2ad573/runs/20260517-025552/research/exchangerate-api-spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:1cd8b413b81c21e5bdad61713fa75feb974ca020ddd0895efd0324464ee7c7aa",
+  "run_id": "20260517-025552",
+  "description": "Every ExchangeRate-API endpoint, plus a local rate history, watchlists, drift alerts, and an MCP server.",
+  "mcp_binary": "exchangerate-api-pp-mcp",
+  "mcp_tool_count": 7,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "EXCHANGERATE_API_KEY"
+  ],
+  "novel_features": [
+    {
+      "name": "Local history reconstruction",
+      "command": "history-cache",
+      "description": "Reconstruct historical FX rates from your prior `latest` syncs — free tier gets time travel without `/history` quota."
+    },
+    {
+      "name": "Watchlist with drift alerts",
+      "command": "watch check",
+      "description": "Define currency pairs with movement thresholds; one command reports which crossed since the last check."
+    },
+    {
+      "name": "Drift detection between syncs",
+      "command": "drift",
+      "description": "Diff the latest snapshot against any prior point and report the biggest movers as ranked output."
+    },
+    {
+      "name": "Quota burn projection",
+      "command": "quota burn",
+      "description": "Fit a trend over `quota_snapshots` and project when your quota will exhaust before refresh day."
+    },
+    {
+      "name": "N×N cross-rate matrix",
+      "command": "matrix",
+      "description": "Show full cross-rate matrix for any set of currencies from a single `latest` call — N² rates, 1 quota tick."
+    },
+    {
+      "name": "Batch conversion from stdin",
+      "command": "convert-batch",
+      "description": "Pipe a list of amounts to a single command; converts all of them with one rate fetch."
+    },
+    {
+      "name": "Plan/tier probe",
+      "command": "plan-check",
+      "description": "Probe each tier-gated endpoint with a single low-cost request; reports which tier your key supports."
+    },
+    {
+      "name": "Time-traveling cache reads",
+      "command": "pair --as-of",
+      "description": "Look up the rate from local snapshots at any historical timestamp — free tier time travel."
+    },
+    {
+      "name": "Conversion log",
+      "command": "log show",
+      "description": "Every `convert` call is logged; query the log by base, target, time window for recurring conversion analysis."
+    },
+    {
+      "name": "MCP server for agents",
+      "command": "mcp serve",
+      "description": "Every user-facing command is exposed as an MCP tool with read-only annotations on safe queries."
+    }
+  ]
+}

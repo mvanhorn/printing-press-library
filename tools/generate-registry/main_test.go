@@ -67,11 +67,11 @@ func TestFormatDescription(t *testing.T) {
 
 func TestRegistryDescription(t *testing.T) {
 	cases := []struct {
-		name           string
-		prior          string
-		goreleaser     string
-		ppDescription  string
-		want           string
+		name          string
+		prior         string
+		goreleaser    string
+		ppDescription string
+		want          string
 	}{
 		{
 			name:          "curated copy wins over both fallbacks",
@@ -79,6 +79,48 @@ func TestRegistryDescription(t *testing.T) {
 			goreleaser:    "Goreleaser brews copy.",
 			ppDescription: "Manifest copy.",
 			want:          "Curated catalog copy.",
+		},
+		{
+			name:          "boilerplate prior falls through to goreleaser",
+			prior:         "Printing Press CLI for Whoop.",
+			goreleaser:    "Fetch WHOOP recovery, strain, sleep, workout, cycle, profile, and body-measurement data with OAuth-backed API access.",
+			ppDescription: "Manifest copy.",
+			want:          "Fetch WHOOP recovery, strain, sleep, workout, cycle, profile, and body-measurement data with OAuth-backed API access.",
+		},
+		{
+			name:          "raw-html prior falls through to goreleaser",
+			prior:         "<p>",
+			goreleaser:    "Search setlist.fm artists, setlists, venues, cities, and concert histories through the setlist.fm API.",
+			ppDescription: "Manifest copy.",
+			want:          "Search setlist.fm artists, setlists, venues, cities, and concert histories through the setlist.fm API.",
+		},
+		{
+			name:          "truncated prior falls through to goreleaser",
+			prior:         "Every EmailOctopus v2 endpoint, plus the cross-list joins, churn diffs, and rate-budgeted bulk operations the API...",
+			goreleaser:    "Manage EmailOctopus lists, contacts, campaigns, automations, reports, and cross-list cleanup workflows from the terminal.",
+			ppDescription: "Manifest copy.",
+			want:          "Manage EmailOctopus lists, contacts, campaigns, automations, reports, and cross-list cleanup workflows from the terminal.",
+		},
+		{
+			name:          "oversized prior falls through to goreleaser",
+			prior:         strings.Repeat("Recipe catalog copy ", 20),
+			goreleaser:    "Search trusted recipe sites, rank results, save a local cookbook, and enrich nutrition data with USDA FoodData Central.",
+			ppDescription: "Manifest copy.",
+			want:          "Search trusted recipe sites, rank results, save a local cookbook, and enrich nutrition data with USDA FoodData Central.",
+		},
+		{
+			name:          "boilerplate prior with no source returns empty for validation",
+			prior:         "Printing Press CLI for Missing.",
+			goreleaser:    "",
+			ppDescription: "",
+			want:          "",
+		},
+		{
+			name:          "raw-html prior with no source returns empty for validation",
+			prior:         "<p>",
+			goreleaser:    "",
+			ppDescription: "",
+			want:          "",
 		},
 		{
 			name:          "bare-heading prior falls through to goreleaser",
@@ -123,6 +165,174 @@ func TestRegistryDescription(t *testing.T) {
 					tc.prior, tc.goreleaser, tc.ppDescription, got, tc.want)
 			}
 		})
+	}
+}
+
+func TestAPIDisplayName(t *testing.T) {
+	cases := []struct {
+		name  string
+		pp    printingPressManifest
+		prior RegistryEntry
+		slug  string
+		want  string
+	}{
+		{
+			name:  "curated punctuation wins over auto display",
+			pp:    printingPressManifest{APIName: "cal-com", DisplayName: "Cal Com"},
+			prior: RegistryEntry{API: "Cal.com"},
+			slug:  "cal-com",
+			want:  "Cal.com",
+		},
+		{
+			name:  "curated spacing wins over naive display",
+			pp:    printingPressManifest{APIName: "producthunt", DisplayName: "Producthunt"},
+			prior: RegistryEntry{API: "Product Hunt"},
+			slug:  "producthunt",
+			want:  "Product Hunt",
+		},
+		{
+			name:  "long description prior falls through to manifest display",
+			pp:    printingPressManifest{APIName: "recipe-goat", DisplayName: "Recipe GOAT"},
+			prior: RegistryEntry{API: "Cross-site recipe aggregator (37 trusted sites: King Arthur, Serious Eats, Smitten Kitchen, AllRecipes, Food52, BBC Food, EatingWell, Food Network, and 29 more) + USDA FoodData Central"},
+			slug:  "recipe-goat",
+			want:  "Recipe GOAT",
+		},
+		{
+			name:  "title-cased slug falls through to brand casing",
+			pp:    printingPressManifest{APIName: "setlist-fm", DisplayName: "setlist.fm"},
+			prior: RegistryEntry{API: "Setlist Fm"},
+			slug:  "setlist-fm",
+			want:  "setlist.fm",
+		},
+		{
+			name:  "internal capitalization replaces title-cased slug",
+			pp:    printingPressManifest{APIName: "coingecko", DisplayName: "CoinGecko"},
+			prior: RegistryEntry{API: "Coingecko"},
+			slug:  "coingecko",
+			want:  "CoinGecko",
+		},
+		{
+			name:  "lowercase brand replaces title-cased slug",
+			pp:    printingPressManifest{APIName: "beehiiv", DisplayName: "beehiiv"},
+			prior: RegistryEntry{API: "Beehiiv"},
+			slug:  "beehiiv",
+			want:  "beehiiv",
+		},
+		{
+			name:  "generic suffix falls through to full parent product",
+			pp:    printingPressManifest{APIName: "servicetitan-pricebook", DisplayName: "ServiceTitan Pricebook"},
+			prior: RegistryEntry{API: "Pricebook"},
+			slug:  "servicetitan-pricebook",
+			want:  "ServiceTitan Pricebook",
+		},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			if got := apiDisplayName(tc.pp, tc.prior, tc.slug); got != tc.want {
+				t.Errorf("apiDisplayName(%+v, %+v, %q) = %q, want %q", tc.pp, tc.prior, tc.slug, got, tc.want)
+			}
+		})
+	}
+}
+
+func TestRepairDuplicateAPIDisplayNamesUsesSourceDisplay(t *testing.T) {
+	entries := []RegistryEntry{
+		{
+			Name:      "substack",
+			API:       "Substack",
+			sourceAPI: "Substack",
+		},
+		{
+			Name:      "substack-creator",
+			API:       "Substack",
+			sourceAPI: "Substack Creator",
+		},
+		{
+			Name:      "cal-com",
+			API:       "Cal.com",
+			sourceAPI: "Cal Com",
+		},
+	}
+
+	repairDuplicateAPIDisplayNames(entries)
+
+	if got := entries[1].API; got != "Substack Creator" {
+		t.Fatalf("substack-creator API = %q, want source display name", got)
+	}
+	if got := entries[2].API; got != "Cal.com" {
+		t.Fatalf("non-duplicate curated API = %q, want unchanged", got)
+	}
+}
+
+func TestRepairDuplicateAPIDisplayNamesPartialRepair(t *testing.T) {
+	entries := []RegistryEntry{
+		{Name: "alpha", API: "Acme", sourceAPI: "Acme Corp"},
+		{Name: "beta", API: "Acme", sourceAPI: "Acme"},
+		{Name: "gamma", API: "Acme", sourceAPI: "Acme"},
+	}
+
+	repairDuplicateAPIDisplayNames(entries)
+
+	if got := entries[0].API; got != "Acme Corp" {
+		t.Fatalf("repairable entry API = %q, want source display name", got)
+	}
+	if entries[1].API != "Acme" || entries[2].API != "Acme" {
+		t.Fatalf("unrepairable entries should remain duplicated, got %q and %q", entries[1].API, entries[2].API)
+	}
+	if errs := validateUniqueAPIDisplayNames(entries, nil); len(errs) == 0 {
+		t.Fatal("want validation to report the unresolved duplicate, got no errors")
+	}
+}
+
+func TestTitleCaseSlug(t *testing.T) {
+	cases := map[string]string{
+		"setlist-fm": "Setlist Fm",
+		"éclair-api": "Éclair Api",
+	}
+	for in, want := range cases {
+		t.Run(in, func(t *testing.T) {
+			if got := titleCaseSlug(in); got != want {
+				t.Errorf("titleCaseSlug(%q) = %q, want %q", in, got, want)
+			}
+		})
+	}
+}
+
+func TestSearchTerms(t *testing.T) {
+	got := searchTerms(printingPressManifest{
+		APIName:         "booking-com",
+		DisplayName:     "Booking.com",
+		CLIName:         "booking-com-pp-cli",
+		Description:     "Search Booking.com hotels, scrape details and reviews.",
+		AuthDescription: "Authenticated trips use cookie import.",
+		NovelFeatures: []struct {
+			Name        string `json:"name"`
+			Command     string `json:"command"`
+			Description string `json:"description"`
+			Rationale   string `json:"rationale"`
+		}{
+			{
+				Name:        "Compare two hotels side-by-side",
+				Command:     "compare",
+				Description: "Fetches detail and reviews for two hotels in parallel.",
+				Rationale:   "Useful for lodging decisions.",
+			},
+		},
+	})
+
+	want := []string{
+		"booking-com",
+		"Booking.com",
+		"booking-com-pp-cli",
+		"Search Booking.com hotels, scrape details and reviews.",
+		"Authenticated trips use cookie import.",
+		"Compare two hotels side-by-side",
+		"compare",
+		"Fetches detail and reviews for two hotels in parallel.",
+		"Useful for lodging decisions.",
+	}
+	if strings.Join(got, "\n") != strings.Join(want, "\n") {
+		t.Fatalf("searchTerms mismatch\nwant: %#v\ngot:  %#v", want, got)
 	}
 }
 
@@ -268,6 +478,34 @@ func TestValidateEntries(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestValidateUniqueAPIDisplayNames(t *testing.T) {
+	entries := []RegistryEntry{
+		{Name: "substack", Category: "media", API: "Substack", Description: "Growth loop.", Path: "library/media/substack"},
+		{Name: "substack-creator", Category: "media", API: "Substack", Description: "Creator workflows.", Path: "library/media/substack-creator"},
+		{Name: "espn", Category: "media", API: "ESPN", Description: "Sports.", Path: "library/media/espn"},
+	}
+
+	t.Run("full validation rejects duplicate display labels", func(t *testing.T) {
+		got := strings.Join(validateUniqueAPIDisplayNames(entries, nil), "\n")
+		if !strings.Contains(got, `api display name "Substack" is used by multiple entries: substack, substack-creator`) {
+			t.Fatalf("missing duplicate display error, got:\n%s", got)
+		}
+	})
+
+	t.Run("scoped validation catches a touched entry colliding with unchanged sibling", func(t *testing.T) {
+		got := strings.Join(validateUniqueAPIDisplayNames(entries, []string{"substack-creator"}), "\n")
+		if !strings.Contains(got, "substack, substack-creator") {
+			t.Fatalf("missing scoped duplicate display error, got:\n%s", got)
+		}
+	})
+
+	t.Run("scoped validation ignores unrelated duplicate groups", func(t *testing.T) {
+		if got := validateUniqueAPIDisplayNames(entries, []string{"espn"}); len(got) != 0 {
+			t.Fatalf("want no unrelated duplicate errors, got: %v", got)
+		}
+	})
 }
 
 // TestValidateEntries_IgnoresPriorCuratedValue is the regression test for

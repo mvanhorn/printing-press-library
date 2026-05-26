@@ -9,26 +9,26 @@ Drives your personal Microsoft 365 calendar from scripts and agents. OAuth 2.0 d
 The recommended path installs both the `outlook-calendar-pp-cli` binary and the `pp-outlook-calendar` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
 
 ```bash
-npx -y @mvanhorn/printing-press install outlook-calendar
+npx -y @mvanhorn/printing-press-library install outlook-calendar
 ```
 
 For CLI only (no skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install outlook-calendar --cli-only
+npx -y @mvanhorn/printing-press-library install outlook-calendar --cli-only
 ```
 
 For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install outlook-calendar --skill-only
+npx -y @mvanhorn/printing-press-library install outlook-calendar --skill-only
 ```
 
 To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
 
 ```bash
-npx -y @mvanhorn/printing-press install outlook-calendar --agent claude-code
-npx -y @mvanhorn/printing-press install outlook-calendar --agent claude-code --agent codex
+npx -y @mvanhorn/printing-press-library install outlook-calendar --agent claude-code
+npx -y @mvanhorn/printing-press-library install outlook-calendar --agent claude-code --agent codex
 ```
 
 ### Without Node (Go fallback)

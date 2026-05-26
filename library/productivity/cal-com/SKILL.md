@@ -24,7 +24,7 @@ This skill drives the `cal-com-pp-cli` binary. **You must verify the CLI is inst
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install cal-com --cli-only
+   npx -y @mvanhorn/printing-press-library install cal-com --cli-only
    ```
 2. Verify: `cal-com-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.

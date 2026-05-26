@@ -1,0 +1,465 @@
+{
+  "api_name": "zoom",
+  "novelty_score": 8,
+  "alternatives": [
+    {
+      "name": "zoom/zoom-plugin",
+      "url": "https://github.com/zoom/zoom-plugin",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 12,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "forayconsulting/zoom_transcript_mcp",
+      "url": "https://github.com/forayconsulting/zoom_transcript_mcp",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 4,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "echelon-ai-labs/zoom-mcp",
+      "url": "https://github.com/echelon-ai-labs/zoom-mcp",
+      "language": "Python",
+      "install_method": "",
+      "stars": 26,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "mattcoatsworth/zoom-mcp-server",
+      "url": "https://github.com/mattcoatsworth/zoom-mcp-server",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 30,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "prschmid/zoomus",
+      "url": "https://github.com/prschmid/zoomus",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 100,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "licht1stein/pyzoom",
+      "url": "https://github.com/licht1stein/pyzoom",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 50,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "n44h/Cloe",
+      "url": "https://github.com/n44h/Cloe",
+      "language": "Python",
+      "install_method": "",
+      "stars": 2,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "tmonfre/zoom-cli",
+      "url": "https://github.com/tmonfre/zoom-cli",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 6,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-19T13:59:00Z",
+  "novel_features": [
+    {
+      "name": "Find a quote across all transcripts",
+      "command": "find",
+      "description": "Search every locally-recorded and cloud-recorded Zoom transcript at once, with speaker filter, context windows, and a clickable deep link back to the exact second.",
+      "rationale": "Requires FTS5 across both local VTT cues on disk and cloud recording transcripts in the local store — no Zoom tool searches both layers in one query.",
+      "example": "zoom-pp-cli find \"q2 pricing\" --source both --speaker \"Maya\" --after 30 --json",
+      "why_it_matters": "When you need to recover a specific commitment or decision from a meeting, you don't know in advance whether it was recorded locally or to the cloud. One search box.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Storage audit of local recordings",
+      "command": "storage",
+      "description": "Group everything under ~/Documents/Zoom/ by month, topic, or partial-conversion status; cross-check against the cloud recordings list to flag duplicates safe to delete locally.",
+      "rationale": "Joins the on-disk filesystem walk with the cloud_recordings table — no API call returns the local view, no local tool sees what's in the cloud.",
+      "example": "zoom-pp-cli storage --by month --also-in-cloud --json",
+      "why_it_matters": "When the Documents folder is the biggest thing on the laptop, agents need to surface which gigabytes are safely reclaimable.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Recording drift detector",
+      "command": "recordings drift",
+      "description": "Set-difference between local and cloud recordings; flags cloud recordings approaching the org retention deadline and local double_click_to_convert partials whose cloud version is already complete.",
+      "rationale": "Requires both layers in one SQLite store; no single endpoint exposes the diff.",
+      "example": "zoom-pp-cli recordings drift --retention-days 90 --json",
+      "why_it_matters": "Cloud retention silently deletes recordings. Local partials silently fail. The agent needs to surface both before they bite.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Today's meeting load + conflicts",
+      "command": "today",
+      "description": "One screen: every meeting on your calendar today, every saved bookmark scheduled for today, every recording made today, and any overlapping intervals flagged as conflicts.",
+      "rationale": "UNION across cloud meetings, saved_meetings bookmarks, and local_recordings — no single endpoint composes all three.",
+      "example": "zoom-pp-cli today --with-recordings --json --select topic,start_time,join_url,conflict_with",
+      "why_it_matters": "When the agent is asked 'what's on my plate today and is anything double-booked,' it needs the answer in one call.",
+      "group": "Agent-native composition"
+    },
+    {
+      "name": "Bookmark from URL paste",
+      "command": "saved add-from-url",
+      "description": "Paste any Zoom URL shape (https://zoom.us/j/\u003cid\u003e?pwd=, zoommtg://, calendar-invite formats) and the CLI extracts ID + unencrypted password into a named saved bookmark in one step.",
+      "rationale": "Regex-parses Zoom's specific URL shapes (a service-specific content pattern); the absorbed `saved add` command forces the user to dissect the URL by hand.",
+      "example": "zoom-pp-cli saved add-from-url team-standup \"https://us02web.zoom.us/j/85123456789?pwd=abc\" --json",
+      "why_it_matters": "URLs land in Slack/email constantly. Closing the parse-it-yourself gap turns 'save this for later' into one command.",
+      "group": "Agent-native composition"
+    },
+    {
+      "name": "Schedule + bookmark in one shot",
+      "command": "schedule",
+      "description": "Create a cloud meeting (POST /users/me/meetings) and immediately persist the resulting ID + password into local saved_meetings, so future `zoom saved join \u003cname\u003e` works offline.",
+      "rationale": "Cloud write + local cache round-trip — no existing CLI or MCP does this combo.",
+      "example": "zoom-pp-cli schedule \"Q3 Planning\" --when \"2026-08-12T14:00:00Z\" --duration 60 --save-as q3-planning --json",
+      "why_it_matters": "Scheduling and joining are usually two separate tools. Pairing them lets agents create-then-recall meetings without re-querying the cloud.",
+      "group": "Cross-source round-trips"
+    },
+    {
+      "name": "Speaker-time analytics on a recording",
+      "command": "recordings analyze",
+      "description": "Per-speaker total talk-seconds, longest monologue, and cue-overlap interruption count, computed from VTT cue timestamps and speaker labels.",
+      "rationale": "Zoom VTT cues carry speaker labels per cue (Teams/Meet don't index this way) — pure mechanical computation on a Zoom-specific content shape.",
+      "example": "zoom-pp-cli recordings analyze meeting-2026-05-12-1400 --json --select per_speaker.name,per_speaker.talk_seconds,per_speaker.longest_monologue_sec",
+      "why_it_matters": "When the agent is asked 'who dominated the meeting' or 'did everyone get a chance to speak,' it needs the answer without an LLM transcription pass.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Export a recording bundle",
+      "command": "recordings export",
+      "description": "Resolve a recording ID against local first, fall back to cloud (downloading if needed); package mp4 + vtt + chat.txt + a generated INDEX.md with timestamped table of contents into one folder.",
+      "rationale": "One verb for local OR cloud; the INDEX.md TOC is derived from VTT cues — no existing tool produces a share-ready bundle.",
+      "example": "zoom-pp-cli recordings export meeting-2026-05-12-1400 --with-transcript --with-chat --out ~/Drive/q2-planning --json",
+      "why_it_matters": "When the agent is asked to 'pull together everything we have on Tuesday's planning call,' it needs one verb that doesn't care whether the source is local or cloud.",
+      "group": "Cross-source round-trips"
+    },
+    {
+      "name": "My Notes — open the Zoom Notes web portal",
+      "command": "notes web",
+      "description": "Open https://zoom.us/notes (optionally scoped to a meeting) in the user's default browser — the only path to the live Notes UI since Zoom has no public REST endpoint for the My Notes feature.",
+      "rationale": "Zoom devs confirmed in 2024 and 2025 forum threads that no API for My Notes exists; opening the web portal is the canonical workaround.",
+      "example": "zoom-pp-cli notes web --json --dry-run",
+      "why_it_matters": "When an agent needs to send the user to their notes, this is the single command that always works regardless of auth state.",
+      "group": "My Notes integration"
+    },
+    {
+      "name": "My Notes — AI Companion meeting summary",
+      "command": "notes summary",
+      "description": "Fetches Zoom AI Companion's auto-generated meeting summary for a meeting UUID via the documented `/meetings/{uuid}/meeting_summary` endpoint (S2S OAuth gated).",
+      "rationale": "Closest documented API to 'what was said and decided' content the My Notes UI shows; uses the public AI Companion endpoint.",
+      "example": "zoom-pp-cli notes summary abc123== --json --select summary_title,summary_overview,summary_details",
+      "why_it_matters": "When an agent needs the canonical post-meeting recap without manually exporting a PDF.",
+      "group": "My Notes integration"
+    },
+    {
+      "name": "My Notes — AI Companion transcript",
+      "command": "notes transcript",
+      "description": "Fetches the AI Companion full transcript for a meeting UUID via the documented `/meetings/{uuid}/transcript` endpoint (S2S OAuth gated).",
+      "rationale": "Companion to `notes summary`; provides verbatim transcript when the summary isn't enough.",
+      "example": "zoom-pp-cli notes transcript abc123== --json",
+      "why_it_matters": "Agents that need to verify a summary or quote can pull verbatim transcript without opening the web portal.",
+      "group": "My Notes integration"
+    },
+    {
+      "name": "My Notes — ingest exported PDF or DOCX",
+      "command": "notes ingest",
+      "description": "Parses a Notes PDF or DOCX exported from the Zoom web portal, extracts text + meeting metadata + headings, indexes them in a local SQLite `notes` table (FTS5 enabled).",
+      "rationale": "The only way to get raw My Notes text on disk today is the manual PDF/DOCX export from zoom.us/notes; once on disk, the CLI owns the data forever.",
+      "example": "zoom-pp-cli notes ingest ~/Downloads/zoom-notes-2026-05-12.pdf --json --select meeting_topic,note_count,word_count",
+      "why_it_matters": "Lets agents build a searchable, persistent corpus of the user's meeting notes from manual exports.",
+      "group": "My Notes integration"
+    },
+    {
+      "name": "My Notes — search across ingested notes",
+      "command": "notes search",
+      "description": "FTS5 query across every Notes file that has been ingested, returns `meeting_topic + note_excerpt + source_file + match_offset` with optional `--since` / `--meeting-id` filters.",
+      "rationale": "Once ingested, the user's My Notes become greppable across every meeting — a capability the web portal does not provide.",
+      "example": "zoom-pp-cli notes search \"q2 launch plan\" --since 30d --json --select meeting_topic,start_time,note_excerpt,source_file",
+      "why_it_matters": "Agents asked 'what did I write down about X' can answer instantly from the ingested corpus.",
+      "group": "My Notes integration"
+    },
+    {
+      "name": "My Notes — extract to-do / action items",
+      "command": "notes todos",
+      "description": "Scans ingested notes for action-item patterns (`TODO:`, `Action:`, `[ ]`, `- [ ]`, `Action Item:`, `Next:`, `Follow up:`, `Owner:`) and emits a structured to-do list with source meeting topic + date + checkbox state.",
+      "rationale": "Directly serves the user's stated weekly ritual: 'I build my own to-do lists from them.' No existing tool extracts action items from Zoom Notes.",
+      "example": "zoom-pp-cli notes todos --since 7d --json --select text,meeting_topic,start_time,owner,checked",
+      "why_it_matters": "Turns the My Notes archive into a queryable backlog — the killer feature for agents that need to surface 'what do I still owe people from last week's meetings.'",
+      "group": "My Notes integration"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Find a quote across all transcripts",
+      "command": "find",
+      "description": "Search every locally-recorded and cloud-recorded Zoom transcript at once, with speaker filter, context windows, and a clickable deep link back to the exact second.",
+      "rationale": "Requires FTS5 across both local VTT cues on disk and cloud recording transcripts in the local store — no Zoom tool searches both layers in one query.",
+      "example": "zoom-pp-cli find \"q2 pricing\" --source both --speaker \"Maya\" --after 30 --json",
+      "why_it_matters": "When you need to recover a specific commitment or decision from a meeting, you don't know in advance whether it was recorded locally or to the cloud. One search box.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Storage audit of local recordings",
+      "command": "storage",
+      "description": "Group everything under ~/Documents/Zoom/ by month, topic, or partial-conversion status; cross-check against the cloud recordings list to flag duplicates safe to delete locally.",
+      "rationale": "Joins the on-disk filesystem walk with the cloud_recordings table — no API call returns the local view, no local tool sees what's in the cloud.",
+      "example": "zoom-pp-cli storage --by month --also-in-cloud --json",
+      "why_it_matters": "When the Documents folder is the biggest thing on the laptop, agents need to surface which gigabytes are safely reclaimable.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Recording drift detector",
+      "command": "recordings drift",
+      "description": "Set-difference between local and cloud recordings; flags cloud recordings approaching the org retention deadline and local double_click_to_convert partials whose cloud version is already complete.",
+      "rationale": "Requires both layers in one SQLite store; no single endpoint exposes the diff.",
+      "example": "zoom-pp-cli recordings drift --retention-days 90 --json",
+      "why_it_matters": "Cloud retention silently deletes recordings. Local partials silently fail. The agent needs to surface both before they bite.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Today's meeting load + conflicts",
+      "command": "today",
+      "description": "One screen: every meeting on your calendar today, every saved bookmark scheduled for today, every recording made today, and any overlapping intervals flagged as conflicts.",
+      "rationale": "UNION across cloud meetings, saved_meetings bookmarks, and local_recordings — no single endpoint composes all three.",
+      "example": "zoom-pp-cli today --with-recordings --json --select topic,start_time,join_url,conflict_with",
+      "why_it_matters": "When the agent is asked 'what's on my plate today and is anything double-booked,' it needs the answer in one call.",
+      "group": "Agent-native composition"
+    },
+    {
+      "name": "Bookmark from URL paste",
+      "command": "saved add-from-url",
+      "description": "Paste any Zoom URL shape (https://zoom.us/j/\u003cid\u003e?pwd=, zoommtg://, calendar-invite formats) and the CLI extracts ID + unencrypted password into a named saved bookmark in one step.",
+      "rationale": "Regex-parses Zoom's specific URL shapes (a service-specific content pattern); the absorbed `saved add` command forces the user to dissect the URL by hand.",
+      "example": "zoom-pp-cli saved add-from-url team-standup \"https://us02web.zoom.us/j/85123456789?pwd=abc\" --json",
+      "why_it_matters": "URLs land in Slack/email constantly. Closing the parse-it-yourself gap turns 'save this for later' into one command.",
+      "group": "Agent-native composition"
+    },
+    {
+      "name": "Schedule + bookmark in one shot",
+      "command": "schedule",
+      "description": "Create a cloud meeting (POST /users/me/meetings) and immediately persist the resulting ID + password into local saved_meetings, so future `zoom saved join \u003cname\u003e` works offline.",
+      "rationale": "Cloud write + local cache round-trip — no existing CLI or MCP does this combo.",
+      "example": "zoom-pp-cli schedule \"Q3 Planning\" --when \"2026-08-12T14:00:00Z\" --duration 60 --save-as q3-planning --json",
+      "why_it_matters": "Scheduling and joining are usually two separate tools. Pairing them lets agents create-then-recall meetings without re-querying the cloud.",
+      "group": "Cross-source round-trips"
+    },
+    {
+      "name": "Speaker-time analytics on a recording",
+      "command": "recordings analyze",
+      "description": "Per-speaker total talk-seconds, longest monologue, and cue-overlap interruption count, computed from VTT cue timestamps and speaker labels.",
+      "rationale": "Zoom VTT cues carry speaker labels per cue (Teams/Meet don't index this way) — pure mechanical computation on a Zoom-specific content shape.",
+      "example": "zoom-pp-cli recordings analyze meeting-2026-05-12-1400 --json --select per_speaker.name,per_speaker.talk_seconds,per_speaker.longest_monologue_sec",
+      "why_it_matters": "When the agent is asked 'who dominated the meeting' or 'did everyone get a chance to speak,' it needs the answer without an LLM transcription pass.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Export a recording bundle",
+      "command": "recordings export",
+      "description": "Resolve a recording ID against local first, fall back to cloud (downloading if needed); package mp4 + vtt + chat.txt + a generated INDEX.md with timestamped table of contents into one folder.",
+      "rationale": "One verb for local OR cloud; the INDEX.md TOC is derived from VTT cues — no existing tool produces a share-ready bundle.",
+      "example": "zoom-pp-cli recordings export meeting-2026-05-12-1400 --with-transcript --with-chat --out ~/Drive/q2-planning --json",
+      "why_it_matters": "When the agent is asked to 'pull together everything we have on Tuesday's planning call,' it needs one verb that doesn't care whether the source is local or cloud.",
+      "group": "Cross-source round-trips"
+    },
+    {
+      "name": "My Notes — open the Zoom Notes web portal",
+      "command": "notes web",
+      "description": "Open https://zoom.us/notes (optionally scoped to a meeting) in the user's default browser — the only path to the live Notes UI since Zoom has no public REST endpoint for the My Notes feature.",
+      "rationale": "Zoom devs confirmed in 2024 and 2025 forum threads that no API for My Notes exists; opening the web portal is the canonical workaround.",
+      "example": "zoom-pp-cli notes web --json --dry-run",
+      "why_it_matters": "When an agent needs to send the user to their notes, this is the single command that always works regardless of auth state.",
+      "group": "My Notes integration"
+    },
+    {
+      "name": "My Notes — AI Companion meeting summary",
+      "command": "notes summary",
+      "description": "Fetches Zoom AI Companion's auto-generated meeting summary for a meeting UUID via the documented `/meetings/{uuid}/meeting_summary` endpoint (S2S OAuth gated).",
+      "rationale": "Closest documented API to 'what was said and decided' content the My Notes UI shows; uses the public AI Companion endpoint.",
+      "example": "zoom-pp-cli notes summary abc123== --json --select summary_title,summary_overview,summary_details",
+      "why_it_matters": "When an agent needs the canonical post-meeting recap without manually exporting a PDF.",
+      "group": "My Notes integration"
+    },
+    {
+      "name": "My Notes — AI Companion transcript",
+      "command": "notes transcript",
+      "description": "Fetches the AI Companion full transcript for a meeting UUID via the documented `/meetings/{uuid}/transcript` endpoint (S2S OAuth gated).",
+      "rationale": "Companion to `notes summary`; provides verbatim transcript when the summary isn't enough.",
+      "example": "zoom-pp-cli notes transcript abc123== --json",
+      "why_it_matters": "Agents that need to verify a summary or quote can pull verbatim transcript without opening the web portal.",
+      "group": "My Notes integration"
+    },
+    {
+      "name": "My Notes — ingest exported PDF or DOCX",
+      "command": "notes ingest",
+      "description": "Parses a Notes PDF or DOCX exported from the Zoom web portal, extracts text + meeting metadata + headings, indexes them in a local SQLite `notes` table (FTS5 enabled).",
+      "rationale": "The only way to get raw My Notes text on disk today is the manual PDF/DOCX export from zoom.us/notes; once on disk, the CLI owns the data forever.",
+      "example": "zoom-pp-cli notes ingest ~/Downloads/zoom-notes-2026-05-12.pdf --json --select meeting_topic,note_count,word_count",
+      "why_it_matters": "Lets agents build a searchable, persistent corpus of the user's meeting notes from manual exports.",
+      "group": "My Notes integration"
+    },
+    {
+      "name": "My Notes — search across ingested notes",
+      "command": "notes search",
+      "description": "FTS5 query across every Notes file that has been ingested, returns `meeting_topic + note_excerpt + source_file + match_offset` with optional `--since` / `--meeting-id` filters.",
+      "rationale": "Once ingested, the user's My Notes become greppable across every meeting — a capability the web portal does not provide.",
+      "example": "zoom-pp-cli notes search \"q2 launch plan\" --since 30d --json --select meeting_topic,start_time,note_excerpt,source_file",
+      "why_it_matters": "Agents asked 'what did I write down about X' can answer instantly from the ingested corpus.",
+      "group": "My Notes integration"
+    },
+    {
+      "name": "My Notes — extract to-do / action items",
+      "command": "notes todos",
+      "description": "Scans ingested notes for action-item patterns (`TODO:`, `Action:`, `[ ]`, `- [ ]`, `Action Item:`, `Next:`, `Follow up:`, `Owner:`) and emits a structured to-do list with source meeting topic + date + checkbox state.",
+      "rationale": "Directly serves the user's stated weekly ritual: 'I build my own to-do lists from them.' No existing tool extracts action items from Zoom Notes.",
+      "example": "zoom-pp-cli notes todos --since 7d --json --select text,meeting_topic,start_time,owner,checked",
+      "why_it_matters": "Turns the My Notes archive into a queryable backlog — the killer feature for agents that need to surface 'what do I still owe people from last week's meetings.'",
+      "group": "My Notes integration"
+    }
+  ],
+  "narrative": {
+    "display_name": "Zoom",
+    "headline": "The first Zoom CLI that joins your local desktop app, your on-disk recordings, and your cloud account into one agent-native surface.",
+    "value_prop": "Start and join meetings via the desktop URL scheme (no browser interstitial), search every transcript you've ever recorded locally or in the cloud with one query, drive mute/unmute/video/leave from the command line on macOS, and run the full Zoom REST API (users, meetings, webinars, recordings, reports, dashboards) when your Server-to-Server OAuth credentials are configured. SQLite-backed; --json, --select, --dry-run on every command; works offline for the local surface and on-disk recordings.",
+    "auth_narrative": "Local commands (start, join, mute, leave, recordings local, search) require no Zoom account — just the Zoom desktop app installed. Cloud commands (meetings, users, webinars, recordings cloud, reports, metrics) need Server-to-Server OAuth credentials. Run `zoom-pp-cli auth set-token` to provide ZOOM_S2S_ACCOUNT_ID, ZOOM_S2S_CLIENT_ID, ZOOM_S2S_CLIENT_SECRET — the CLI caches the access token and auto-refreshes on 401.",
+    "quickstart": [
+      {
+        "command": "zoom-pp-cli doctor",
+        "comment": "Confirms the Zoom app is installed, the URL handler is registered, ~/Documents/Zoom exists, and surfaces macOS accessibility-permission gaps before they bite."
+      },
+      {
+        "command": "zoom-pp-cli recordings local sync",
+        "comment": "Walks ~/Documents/Zoom/, parses every VTT transcript into a local FTS5 index — usually a few seconds."
+      },
+      {
+        "command": "zoom-pp-cli find \"q2 pricing\" --source both --json",
+        "comment": "The killer command: searches every local and cloud transcript at once with speaker filter and clickable timestamps."
+      },
+      {
+        "command": "zoom-pp-cli today --with-recordings --json",
+        "comment": "Composes your cloud calendar, saved bookmarks, and today's local recordings into one view with conflict detection."
+      },
+      {
+        "command": "zoom-pp-cli join \"https://zoom.us/j/85123456789?pwd=abc\" --dry-run",
+        "comment": "Pastes any Zoom URL, opens it directly in the desktop app — no browser interstitial. --dry-run prints the zoommtg:// URL it would launch."
+      },
+      {
+        "command": "zoom-pp-cli mute toggle",
+        "comment": "macOS only — flips mute via the running Zoom app's Meeting menu. Safe no-op if not in a meeting."
+      },
+      {
+        "command": "zoom-pp-cli notes ingest ~/Downloads/zoom-notes-2026-05-12.pdf \u0026\u0026 zoom-pp-cli notes todos --since 7d --json",
+        "comment": "The My Notes pipeline: drop in an exported PDF/DOCX from zoom.us/notes, then extract action items across the last week."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "`open: zoommtg://...: No application knows how to open URL`",
+        "fix": "Run `zoom-pp-cli doctor` — it tells you whether the URL handler is registered. Reinstalling the Zoom desktop app re-registers it."
+      },
+      {
+        "symptom": "`mute/unmute` returns `osascript: not supported on this platform`",
+        "fix": "These commands are macOS-only. On Linux/Windows, use the Zoom client's keyboard shortcuts directly."
+      },
+      {
+        "symptom": "`mute/unmute` exits 0 but nothing happens",
+        "fix": "Grant accessibility permission to your terminal: System Settings → Privacy \u0026 Security → Accessibility → add Terminal/iTerm. `zoom-pp-cli doctor` checks this."
+      },
+      {
+        "symptom": "Cloud commands return `auth: ZOOM_S2S_* not set`",
+        "fix": "Run `zoom-pp-cli auth set-token` or export `ZOOM_S2S_ACCOUNT_ID`, `ZOOM_S2S_CLIENT_ID`, `ZOOM_S2S_CLIENT_SECRET`. Get them from your Zoom App Marketplace Server-to-Server OAuth app."
+      },
+      {
+        "symptom": "Cloud requests return 429",
+        "fix": "The CLI honors `Retry-After`; if you're hitting daily caps, narrow `--from`/`--to` windows or use the local cache (`--data-source local`)."
+      },
+      {
+        "symptom": "`recordings local sync` skips files",
+        "fix": "Skipped files are usually `double_click_to_convert` partials. Run `zoom-pp-cli recordings local list --partial-only` to see them; double-click in Finder to trigger Zoom's conversion."
+      }
+    ],
+    "when_to_use": "Use this CLI when an agent needs to reach across the user's Zoom surface holistically — joining the right meeting now, surfacing what's on the calendar today, finding what was said in a past meeting, or managing the cloud account. Particularly powerful when local desktop recordings and cloud-recorded meetings need to be queried together. Not the right pick for embedding live Zoom video into a custom app (use the Meeting SDK) or for hosting bot participants (use Recall.ai or the Meeting SDK).",
+    "recipes": [
+      {
+        "title": "Find a quote from any past meeting",
+        "command": "zoom-pp-cli find \"customer churn\" --source both --speaker \"Riley\" --after 45 --json --select recording_path,start_ms,speaker,text,deep_link",
+        "explanation": "Searches every local + cloud transcript for the phrase, scoped to one speaker, with 45 seconds of follow-up context per match — and returns a clickable timestamped deep link."
+      },
+      {
+        "title": "Triage Monday morning",
+        "command": "zoom-pp-cli today --with-recordings --since 7d --json --select topic,start_time,join_url,conflict_with,recording_path",
+        "explanation": "Pulls the last week of meetings + today's calendar + today's recordings in one query, flags any back-to-back overlaps, and gives the agent everything it needs to draft a weekly recap."
+      },
+      {
+        "title": "Clean up Documents/Zoom safely",
+        "command": "zoom-pp-cli storage --by month --also-in-cloud --json --select month,total_gb,safe_to_delete_gb",
+        "explanation": "Groups local recordings by month and flags which are also in the cloud (and therefore safe to delete locally) — agents can recommend reclaimable disk without risking the only copy."
+      },
+      {
+        "title": "Schedule a meeting and stash it",
+        "command": "zoom-pp-cli schedule \"Sprint planning\" --when 2026-05-21T15:00:00Z --duration 60 --save-as sprint --json",
+        "explanation": "Creates the cloud meeting and immediately writes a local bookmark, so a later `zoom-pp-cli saved join sprint` works without re-hitting the API."
+      },
+      {
+        "title": "Audit speaker time on yesterday's offsite",
+        "command": "zoom-pp-cli recordings analyze offsite-2026-05-18 --json --select per_speaker",
+        "explanation": "Computes per-speaker talk-time, longest monologue, and interruption count from the VTT cues without an LLM call."
+      },
+      {
+        "title": "Build a to-do list from your meeting notes",
+        "command": "zoom-pp-cli notes ingest ~/Downloads/notes-q2-planning.pdf \u0026\u0026 zoom-pp-cli notes todos --since 14d --json --select text,meeting_topic,owner,checked",
+        "explanation": "Ingest an exported Notes PDF, then extract every action-item pattern across the last two weeks of ingested notes — Zoom has no public API for My Notes, so manual export plus this pipeline is the only path."
+      }
+    ],
+    "trigger_phrases": [
+      "join the zoom meeting",
+      "start my zoom",
+      "mute zoom",
+      "what zoom meetings do i have today",
+      "find that quote from last week's zoom",
+      "what's in my documents/zoom folder",
+      "schedule a zoom meeting",
+      "search my zoom recordings",
+      "use zoom",
+      "run zoom",
+      "extract todos from my zoom notes",
+      "search my zoom notes",
+      "ingest zoom notes pdf",
+      "open zoom notes"
+    ]
+  }
+}

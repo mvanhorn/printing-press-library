@@ -29,7 +29,7 @@ This skill drives the `bird-pp-cli` binary. **You must verify the CLI is install
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install bird --cli-only
+   npx -y @mvanhorn/printing-press-library install bird --cli-only
    ```
 2. Verify: `bird-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
@@ -41,8 +41,6 @@ go install github.com/mvanhorn/printing-press-library/library/social-and-messagi
 ```
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
-
-bird-pp-cli wraps every Conversations endpoint plus the SMS-relevant pieces of Bird's Channels API, then layers on what the SDKs miss: send/reconcile pairs with idempotency keys, FTS5 over message bodies, a delivery audit that exits non-zero on failure, and a tenant-readiness checklist that replaces the 12-curl onboarding flow.
 
 ## When to Use This CLI
 

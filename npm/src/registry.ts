@@ -16,6 +16,7 @@ export interface RegistryEntry {
   category: string;
   api: string;
   description: string;
+  search_terms?: string[];
   path: string;
   mcp?: MCPBlock;
 }
@@ -149,6 +150,7 @@ function parseRegistryEntry(value: unknown): RegistryEntry {
     category: requiredString(value, "category"),
     api: requiredString(value, "api"),
     description: requiredString(value, "description"),
+    search_terms: optionalStringArray(value, "search_terms"),
     path: requiredString(value, "path"),
   };
 
@@ -200,6 +202,24 @@ function requiredStringArray(value: Record<string, unknown>, key: string): strin
     out.push(item);
   }
   return out;
+}
+
+function optionalStringArray(value: Record<string, unknown>, key: string): string[] | undefined {
+  const raw = value[key];
+  if (raw === undefined || raw === null) {
+    return undefined;
+  }
+  if (!Array.isArray(raw)) {
+    throw new Error(`registry entry has non-array field: ${key}`);
+  }
+  const out: string[] = [];
+  for (const item of raw) {
+    if (typeof item !== "string" || item.trim() === "") {
+      throw new Error(`registry entry has non-string value in array field: ${key}`);
+    }
+    out.push(item);
+  }
+  return out.length > 0 ? out : undefined;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

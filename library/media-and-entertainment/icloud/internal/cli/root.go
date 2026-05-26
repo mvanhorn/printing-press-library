@@ -11,11 +11,12 @@ import (
 const version = "0.1.0"
 
 type rootFlags struct {
-	asJSON      bool
-	compact     bool
-	noColor     bool
-	agent       bool
-	libraryPath string
+	asJSON          bool
+	compact         bool
+	noColor         bool
+	agent           bool
+	libraryPath     string
+	messagesDBPath  string
 }
 
 func Execute() error {
@@ -49,8 +50,14 @@ Pipe any command for automatic JSON output.`,
 	root.PersistentFlags().BoolVar(&f.noColor, "no-color", false, "Disable colored output")
 	root.PersistentFlags().BoolVar(&f.agent, "agent", false, "Agent-friendly mode: --json --compact --no-color")
 	root.PersistentFlags().StringVar(&f.libraryPath, "library", "", "Path to Photos.sqlite (default: ~/Pictures/Photos Library.photoslibrary/database/Photos.sqlite)")
+	// PATCH(messages-db-flag-root-scope): registered at root so `doctor` and any
+	// future sibling command can read the override. Previously scoped to the
+	// `messages` group only, which made `doctor --messages-db ...` exit with
+	// `unknown flag` despite the doctor body reading f.messagesDBPath.
+	root.PersistentFlags().StringVar(&f.messagesDBPath, "messages-db", "", "Path to chat.db (default: ~/Library/Messages/chat.db)")
 
 	root.AddCommand(newPhotosCmd(f))
+	root.AddCommand(newMessagesCmd(f))
 	root.AddCommand(newDoctorCmd(f))
 
 	return root.Execute()

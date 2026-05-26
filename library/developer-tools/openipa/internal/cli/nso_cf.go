@@ -20,7 +20,7 @@ func newNsoCfCmd(flags *rootFlags) *cobra.Command {
 		Use:         "cf",
 		Short:       "Nodi NSO per codice fiscale ente",
 		Example:     "  openipa-pp-cli nso cf --cf example-value",
-		Annotations: map[string]string{"pp:endpoint": "nso.cf", "pp:method": "POST", "pp:path": "/WS14_NSO_CF.php"},
+		Annotations: map[string]string{"pp:endpoint": "nso.cf", "pp:method": "POST", "pp:path": "/ws/WS14NSOCFServices/api/WS14_NSO_CF"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {
 				if !cmd.Flags().Changed("cf") && !flags.dryRun {
@@ -32,7 +32,7 @@ func newNsoCfCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 
-			path := "/WS14_NSO_CF.php"
+			path := "/ws/WS14NSOCFServices/api/WS14_NSO_CF"
 			var body map[string]any
 			if stdinBody {
 				stdinData, err := io.ReadAll(os.Stdin)

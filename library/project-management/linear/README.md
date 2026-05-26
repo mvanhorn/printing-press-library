@@ -11,31 +11,37 @@ Printed by [@mvanhorn](https://github.com/mvanhorn) (Matt Van Horn).
 The recommended path installs both the `linear-pp-cli` binary and the `pp-linear` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
 
 ```bash
-npx -y @mvanhorn/printing-press install linear
+npx -y @mvanhorn/printing-press-library install linear
 ```
 
 For CLI only (no skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install linear --cli-only
+npx -y @mvanhorn/printing-press-library install linear --cli-only
 ```
 
 For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install linear --skill-only
+npx -y @mvanhorn/printing-press-library install linear --skill-only
 ```
 
 To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
 
 ```bash
-npx -y @mvanhorn/printing-press install linear --agent claude-code
-npx -y @mvanhorn/printing-press install linear --agent claude-code --agent codex
+npx -y @mvanhorn/printing-press-library install linear --agent claude-code
+npx -y @mvanhorn/printing-press-library install linear --agent claude-code --agent codex
 ```
 
-### Without Node
+### Without Node (Go fallback)
 
-The generated install path is category-agnostic until this CLI is published. If `npx` is not available before publish, install Node or use the category-specific Go fallback from the public-library entry after publish.
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.3 or newer):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/project-management/linear/cmd/linear-pp-cli@latest
+```
+
+This installs the CLI only — no skill.
 
 ### Pre-built binary
 
@@ -111,22 +117,17 @@ Linear personal API keys go in the `Authorization` header verbatim — no `Beare
 # Save your Linear personal API key (or export LINEAR_API_KEY)
 linear-pp-cli auth set-token <your-key>
 
-
 # Burn your workspace into the local SQLite store for offline + transcendent queries
 linear-pp-cli sync --full
-
 
 # Your ranked work queue for today across every team
 linear-pp-cli today --json
 
-
 # Pre-sprint-planning overload + blocked-count signal for one team
 linear-pp-cli bottleneck --team ENG
 
-
 # Project landing date from regressed velocity, not the static target someone typed in
 linear-pp-cli projects burndown PROJ_ID --weeks 8
-
 
 # Archive only the test issues this CLI created in this session
 linear-pp-cli pp-cleanup
@@ -404,7 +405,6 @@ Manage user-settingses
 Manage users
 
 - **`linear-pp-cli users`** - Get a single user
-
 
 ## Output Formats
 

@@ -3,6 +3,8 @@
   "generated_at": "2026-05-14T21:55:53.182927145Z",
   "printing_press_version": "4.6.1",
   "api_name": "openipa",
+  "display_name": "IndicePA",
+  "description": "Search Italy's IndicePA for public administrations, PEC addresses, IPA codes, billing codes, and compliance details.",
   "cli_name": "openipa-pp-cli",
   "run_id": "20260514-212234",
   "printer": "aborruso",

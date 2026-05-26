@@ -25,16 +25,18 @@ This skill drives the `spotify-pp-cli` binary. **You must verify the CLI is inst
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install spotify --cli-only
+   npx -y @mvanhorn/printing-press-library install spotify --cli-only
    ```
 2. Verify: `spotify-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
 
-If the `npx` install fails before this CLI has a public-library category, install Node or use the category-specific Go fallback after publish.
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.3 or newer):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/media-and-entertainment/spotify/cmd/spotify-pp-cli@latest
+```
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
-
-Every Spotify Web API endpoint is reachable from one static binary with --json and --select everywhere and a built-in MCP server, so an agent can drive playback, search, and library curation with the same surface a human uses. A local SQLite store captures top-tracks/top-artists snapshots, snapshot-keyed playlist tracks, and extended play history beyond Spotify's 50-event cap, enabling one-shot queries like 'which tracks dropped out of medium-term but stayed in long-term' that no existing CLI can answer. Endpoints Spotify removed for new apps on 2024-11-27 ship as honest deprecation-aware stubs with a --legacy-app opt-in.
 
 ## When to Use This CLI
 

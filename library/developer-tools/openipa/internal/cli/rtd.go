@@ -181,22 +181,13 @@ func newRtdEmailCmd(flags *rootFlags) *cobra.Command {
 				}
 
 				if codUni != "" {
-					uoRaw, _, uoErr := ws.Post("/WS06_OU_CODUNI.php", map[string]any{"COD_UNI_OU": codUni})
+					uoRaw, _, uoErr := ws.Post("/ws/WS06OUCODUNIServices/api/WS06_OU_COD_UNI", map[string]any{"COD_UNI_OU": codUni})
 					if uoErr != nil {
 						fmt.Fprintf(os.Stderr, "warning: WS06 failed for %s: %v\n", codUni, uoErr)
-					} else {
-						var uoWrap struct {
-							Data []struct {
-								DesOU string `json:"des_ou"`
-								Mail1 string `json:"mail1"`
-								Mail2 string `json:"mail2"`
-							} `json:"data"`
-						}
-						if json.Unmarshal(uoRaw, &uoWrap) == nil && len(uoWrap.Data) > 0 {
-							r.Ufficio = uoWrap.Data[0].DesOU
-							r.Email = uoWrap.Data[0].Mail1
-							r.PEC = uoWrap.Data[0].Mail2
-						}
+					} else if items := ipaExtractItems(uoRaw); len(items) > 0 {
+						r.Ufficio, _ = items[0]["des_ou"].(string)
+						r.Email, _ = items[0]["mail1"].(string)
+						r.PEC, _ = items[0]["mail2"].(string)
 					}
 				}
 				results = append(results, r)

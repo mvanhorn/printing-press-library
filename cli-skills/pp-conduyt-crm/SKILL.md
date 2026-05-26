@@ -25,7 +25,7 @@ This skill drives the `conduyt-crm-pp-cli` binary. **You must verify the CLI is 
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install conduyt-crm --cli-only
+   npx -y @mvanhorn/printing-press-library install conduyt-crm --cli-only
    ```
 2. Verify: `conduyt-crm-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
@@ -37,10 +37,6 @@ go install github.com/mvanhorn/printing-press-library/library/sales-and-crm/cond
 ```
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
-
-The Conduyt CRM API provides programmatic access to your CRM data including
-contacts, companies, deals, pipelines, tasks, notes, automations, invoices,
-email sequences, and more.
 
 ## Authentication
 

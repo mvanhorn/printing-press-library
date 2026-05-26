@@ -20,16 +20,18 @@ This skill drives the `mailchimp-pp-cli` binary. **You must verify the CLI is in
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install mailchimp --cli-only
+   npx -y @mvanhorn/printing-press-library install mailchimp --cli-only
    ```
 2. Verify: `mailchimp-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
 
-If the `npx` install fails before this CLI has a public-library category, install Node or use the category-specific Go fallback after publish.
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.3 or newer):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/marketing/mailchimp/cmd/mailchimp-pp-cli@latest
+```
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
-
-Mailchimp's REST API has 291 endpoints and an SDK in every language, but composes nothing — subscribing a contact with tags takes three calls and an MD5 hash; checking whether a campaign worked takes four endpoints joined by hand; bulk imports require decoding tar.gz JSONL from a 10-minute expiring URL. This CLI ships every endpoint as a typed command plus eight novel workflow commands that compose the API the way humans and agents actually use it: subscribe-with-tags in one call, CSV bulk subscribe with batch decode, single and multi-campaign digests with --md for pasting into weekly review docs, head-to-head campaign comparison, segment health audit, send-checklist CI gate, e-commerce attribution, and per-domain deliverability rollup. A local SQLite cache makes every audience SQL-queryable, and the MCP surface uses code orchestration so an agent loads the whole API in ~1K tokens.
 
 ## When to Use This CLI
 

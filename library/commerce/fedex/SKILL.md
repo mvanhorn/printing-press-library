@@ -24,7 +24,7 @@ This skill drives the `fedex-pp-cli` binary. **You must verify the CLI is instal
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install fedex --cli-only
+   npx -y @mvanhorn/printing-press-library install fedex --cli-only
    ```
 2. Verify: `fedex-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.

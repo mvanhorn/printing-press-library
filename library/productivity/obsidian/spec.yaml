@@ -1,0 +1,340 @@
+openapi: 3.0.3
+info:
+  title: Obsidian CLI (virtual REST surface) — Read-Only V1
+  version: 0.1.0
+  description: >
+    SYNTHETIC OpenAPI 3.0 spec mapping Obsidian's official command-line interface
+    (v1.12+) to virtual REST endpoints. NOT a real HTTP API. It is a structural
+    description the Printing Press factory consumes to generate a Go CLI scaffold
+    (Cobra + MCP server + agent-native flags + golden fixtures). During the build,
+    the generated HTTP client in internal/client/ is replaced with
+    exec.Command("obsidian", ...) subprocess dispatch, annotated // pp:client-call.
+
+    SCOPE: V1 is READ-ONLY (14 endpoints). Zero write operations — this dodges the
+    upstream markdown-patch frontmatter-corruption bug entirely (three corruption
+    paths confirmed in Phase A eval 2026-05-19, all in the write path). The 6 write
+    commands (create, delete, append, prepend, move, property:set) are DEFERRED to
+    V2, gated on the upstream markdown-patch fix. The full ~95-command surface is
+    also V2.
+
+    Param convention in the Obsidian CLI: commands take ARG=value pairs, not POSIX
+    flags. `file=<name>` resolves wikilink-style; `path=<rel>` is exact. Both are
+    optional alternates on most commands — modeled here as the {name} path
+    parameter (file) plus an optional `path` query parameter (exact).
+
+    Source command surface: projects/morpheus/research/obsidian-cli-command-surface-2026-05-19.md
+  contact:
+    name: "@DrDriftwood"
+    url: https://github.com/DrDriftwood
+  license:
+    name: Apache-2.0
+
+servers:
+  - url: subprocess://obsidian
+    description: >
+      Virtual server. Handlers shell out to the local `obsidian` binary. No
+      network transport. The factory will emit an HTTP base-URL client; the build
+      session replaces it with subprocess dispatch.
+
+tags:
+  - name: notes
+    description: Single-note read operations
+  - name: search
+    description: Vault-wide text search
+  - name: graph
+    description: Link-graph queries (backlinks, links, orphans, deadends, unresolved)
+  - name: properties
+    description: Frontmatter property reads (writes deferred to V2)
+  - name: vault
+    description: Vault-level inventory and metadata
+
+paths:
+  /notes/{name}:
+    get:
+      tags: [notes]
+      summary: Read note contents
+      operationId: readNote
+      description: "Wraps `obsidian read file={name}` (or path= for exact paths). Returns raw file contents."
+      parameters:
+        - $ref: "#/components/parameters/NoteName"
+        - $ref: "#/components/parameters/PathAlt"
+      responses:
+        "200":
+          description: Note contents
+          content:
+            text/markdown:
+              schema: { type: string }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /notes/{name}/backlinks:
+    get:
+      tags: [graph]
+      summary: List backlinks to a note
+      operationId: listBacklinks
+      description: "Wraps `obsidian backlinks file={name}`."
+      parameters:
+        - $ref: "#/components/parameters/NoteName"
+        - $ref: "#/components/parameters/PathAlt"
+        - { name: counts, in: query, schema: { type: boolean } }
+        - { name: total, in: query, description: Return backlink count only, schema: { type: boolean } }
+        - $ref: "#/components/parameters/Format3"
+      responses:
+        "200": { $ref: "#/components/responses/LinkList" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /notes/{name}/links:
+    get:
+      tags: [graph]
+      summary: List outgoing links from a note
+      operationId: listLinks
+      description: "Wraps `obsidian links file={name}`."
+      parameters:
+        - $ref: "#/components/parameters/NoteName"
+        - $ref: "#/components/parameters/PathAlt"
+        - { name: total, in: query, description: Return link count only, schema: { type: boolean } }
+      responses:
+        "200": { $ref: "#/components/responses/LinkList" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /notes/{name}/properties/{property}:
+    get:
+      tags: [properties]
+      summary: Read a frontmatter property value
+      operationId: readProperty
+      description: "Wraps `obsidian property:read name={property} file={name}`. (property:set is V2 — it inherits the markdown-patch corruption bug.)"
+      parameters:
+        - $ref: "#/components/parameters/NoteName"
+        - $ref: "#/components/parameters/PropertyName"
+        - $ref: "#/components/parameters/PathAlt"
+      responses:
+        "200":
+          description: Property value
+          content:
+            application/json:
+              schema: { type: object, additionalProperties: true }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /live-search:
+    get:
+      tags: [search]
+      summary: Live full-text search across the open vault
+      operationId: liveSearch
+      description: "Wraps `obsidian search query=<text>` — dials the running Obsidian process for body-text search. Distinct from the framework `search` command, which queries the local mirror (titles/paths only). limit= bounds output."
+      parameters:
+        - { name: query, in: query, required: true, schema: { type: string } }
+        - { name: path, in: query, description: Limit to folder, schema: { type: string } }
+        - { name: limit, in: query, schema: { type: integer } }
+        - { name: total, in: query, description: Return match count only, schema: { type: boolean } }
+        - { name: case, in: query, description: Case sensitive, schema: { type: boolean } }
+        - $ref: "#/components/parameters/Format2"
+      responses:
+        "200": { $ref: "#/components/responses/SearchResult" }
+
+  /live-search/context:
+    get:
+      tags: [search]
+      summary: Live full-text search with matching line context
+      operationId: liveSearchContext
+      description: "Wraps `obsidian search:context query=<text>` — body-text search with surrounding lines for each hit."
+      parameters:
+        - { name: query, in: query, required: true, schema: { type: string } }
+        - { name: path, in: query, description: Limit to folder, schema: { type: string } }
+        - { name: limit, in: query, schema: { type: integer } }
+        - { name: case, in: query, schema: { type: boolean } }
+        - $ref: "#/components/parameters/Format2"
+      responses:
+        "200": { $ref: "#/components/responses/SearchResult" }
+
+  /tags:
+    get:
+      tags: [vault]
+      summary: List tags in the vault
+      operationId: listTags
+      description: "Wraps `obsidian tags`. Optionally scope to a file via path= query."
+      parameters:
+        - { name: path, in: query, description: Scope to a file path, schema: { type: string } }
+        - { name: counts, in: query, schema: { type: boolean } }
+        - { name: total, in: query, schema: { type: boolean } }
+        - { name: sort, in: query, schema: { type: string, enum: [count, name], default: name } }
+        - $ref: "#/components/parameters/Format3"
+      responses:
+        "200": { $ref: "#/components/responses/StringList" }
+
+  /tasks:
+    get:
+      tags: [vault]
+      summary: List tasks in the vault
+      operationId: listTasks
+      description: "Wraps `obsidian tasks`. Filter by done/todo/status. (task mutation is V2.)"
+      parameters:
+        - { name: done, in: query, schema: { type: boolean } }
+        - { name: todo, in: query, schema: { type: boolean } }
+        - { name: status, in: query, description: Filter by status character, schema: { type: string } }
+        - { name: total, in: query, schema: { type: boolean } }
+        - $ref: "#/components/parameters/Format3"
+      responses:
+        "200": { $ref: "#/components/responses/StringList" }
+
+  # /orphans intentionally absent: the hand-authored Tier-3 `orphans`
+  # command (mirror-ranked with mtime/title/words, live-subprocess fallback)
+  # supersedes the raw pass-through. Including the Tier-1 endpoint here
+  # collides with the Tier-3 command and forces the auto-renamer to emit
+  # `obsidian-cli-virtual-orphans`.
+
+  /deadends:
+    get:
+      tags: [graph]
+      summary: List notes with no outgoing links
+      operationId: listDeadends
+      description: "Wraps `obsidian deadends`."
+      parameters:
+        - { name: total, in: query, schema: { type: boolean } }
+        - { name: all, in: query, schema: { type: boolean } }
+      responses:
+        "200": { $ref: "#/components/responses/StringList" }
+
+  /unresolved:
+    get:
+      tags: [graph]
+      summary: List unresolved links in the vault
+      operationId: listUnresolved
+      description: "Wraps `obsidian unresolved`. Tier-3 `broken` builds on this with source-note context."
+      parameters:
+        - { name: counts, in: query, schema: { type: boolean } }
+        - { name: total, in: query, schema: { type: boolean } }
+        - { name: verbose, in: query, description: Include source files, schema: { type: boolean } }
+        - $ref: "#/components/parameters/Format3"
+      responses:
+        "200": { $ref: "#/components/responses/StringList" }
+
+  /vault:
+    get:
+      tags: [vault]
+      summary: Show vault info
+      operationId: vaultInfo
+      description: "Wraps `obsidian vault`. info= narrows to one field."
+      parameters:
+        - { name: info, in: query, schema: { type: string, enum: [name, path, files, folders, size] } }
+      responses:
+        "200":
+          description: Vault metadata
+          content:
+            application/json:
+              schema: { type: object, additionalProperties: true }
+
+  /files:
+    get:
+      tags: [vault]
+      summary: List files in the vault
+      operationId: listFiles
+      description: "Wraps `obsidian files`. Filter by folder or extension."
+      parameters:
+        - { name: folder, in: query, schema: { type: string } }
+        - { name: ext, in: query, schema: { type: string } }
+        - { name: total, in: query, schema: { type: boolean } }
+      responses:
+        "200": { $ref: "#/components/responses/StringList" }
+
+  /folders:
+    get:
+      tags: [vault]
+      summary: List folders in the vault
+      operationId: listFolders
+      description: "Wraps `obsidian folders`."
+      parameters:
+        - { name: folder, in: query, description: Filter by parent folder, schema: { type: string } }
+        - { name: total, in: query, schema: { type: boolean } }
+      responses:
+        "200": { $ref: "#/components/responses/StringList" }
+
+components:
+  parameters:
+    NoteName:
+      name: name
+      in: path
+      required: true
+      description: "Note name (wikilink-style resolution, maps to obsidian `file=`). For an exact path, pass the `path` query param instead."
+      schema: { type: string }
+    PathAlt:
+      name: path
+      in: query
+      required: false
+      description: "Exact vault-relative path (maps to obsidian `path=`). Alternative to the {name} path parameter."
+      schema: { type: string }
+    PropertyName:
+      name: property
+      in: path
+      required: true
+      description: "Frontmatter property name (maps to obsidian `name=` on property:read)."
+      schema: { type: string }
+    Format2:
+      name: format
+      in: query
+      description: Output format
+      schema: { type: string, enum: [text, json], default: text }
+    Format3:
+      name: format
+      in: query
+      description: Output format
+      schema: { type: string, enum: [json, tsv, csv], default: tsv }
+
+  responses:
+    NotFound:
+      description: Note or resource not found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error: { type: string }
+    StringList:
+      description: A list of items (notes, tags, tasks, folders) in the requested format
+      content:
+        application/json:
+          schema:
+            type: array
+            items: { type: string }
+        text/plain:
+          schema: { type: string }
+    LinkList:
+      description: A list of links with optional counts
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              type: object
+              properties:
+                target: { type: string }
+                count: { type: integer }
+        text/plain:
+          schema: { type: string }
+    SearchResult:
+      description: Search hits, optionally with line context
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              type: object
+              properties:
+                path: { type: string }
+                matches: { type: integer }
+                context:
+                  type: array
+                  items: { type: string }
+        text/plain:
+          schema: { type: string }
+
+# ── V2 DEFERRED (do NOT implement in V1) ────────────────────────────────────
+# The following 6 write endpoints are deferred to V2, gated on the upstream
+# markdown-patch frontmatter-corruption fix. Definitions preserved here as
+# comments so V2 doesn't re-derive them:
+#   POST   /notes                              createNote   (obsidian create name=<n> content=<c>)
+#   DELETE /notes/{name}                       deleteNote   (obsidian delete file=<n> [permanent])
+#   POST   /notes/{name}/append                appendNote   (obsidian append file=<n> content=<c> [inline])
+#   POST   /notes/{name}/prepend               prependNote  (obsidian prepend file=<n> content=<c> [inline])
+#   POST   /notes/{name}/move                  moveNote     (obsidian move file=<n> to=<path>)
+#   PUT    /notes/{name}/properties/{property} setProperty  (obsidian property:set name=<p> value=<v> type=<t> file=<n>)
+# All 6 inherit the markdown-patch YAML corruption bug — that's why they wait
+# for the upstream fix. See projects/morpheus/research/obsidian-rest-api-v4-eval-2026-05-19.md.

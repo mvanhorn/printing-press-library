@@ -14,7 +14,7 @@ name: Build CLI release artifacts
 #
 # Auth: requires GENERATOR_READ_TOKEN (fine-grained PAT with Contents:read on
 # mvanhorn/cli-printing-press) so the bundle job can `go install` the
-# printing-press generator from a private repo. The build-cli job doesn't
+# cli-printing-press generator from a private repo. The build-cli job doesn't
 # need it — printed CLIs only depend on public Go modules.
 
 on:
@@ -165,12 +165,12 @@ jobs:
             exit 1
           fi
           git config --global url."https://oauth2:${TOKEN}@github.com/".insteadOf "https://github.com/"
-      - name: Install printing-press
+      - name: Install cli-printing-press
         env:
           GOPRIVATE: github.com/mvanhorn/*
         run: |
-          go install github.com/mvanhorn/cli-printing-press/v3/cmd/printing-press@latest
-          printing-press --version
+          go install github.com/mvanhorn/cli-printing-press/v4/cmd/cli-printing-press@latest
+          cli-printing-press --version
       - name: Bundle MCPB
         env:
           CLI_TARGET: ${{ matrix.target }}
@@ -194,7 +194,7 @@ jobs:
           fi
           out="${RUNNER_TEMP}/out/${slug}-pp-mcp-${os}-${arch}.mcpb"
           mkdir -p "$(dirname "$out")"
-          printing-press bundle "$cli_dir" --platform "${PLATFORM}" --output "$out"
+          cli-printing-press bundle "$cli_dir" --platform "${PLATFORM}" --output "$out"
           ls -lh "$out"
       - name: Upload bundle artifact
         uses: actions/upload-artifact@v6
@@ -387,6 +387,7 @@ jobs:
             echo "No artifacts to publish for ${SLUG}; skipping release."
             exit 0
           fi
+          # shellcheck disable=SC2016
           notes=$(printf 'Auto-built artifacts for **%s** at commit %s.\n\n**Claude Desktop:** download the matching `.mcpb` file and double-click to install.\n\n**Terminal CLI:** download the binary matching your platform. On macOS you may need to clear the Gatekeeper quarantine: `xattr -d com.apple.quarantine <binary>`. On Unix, `chmod +x <binary>`.\n\n_This is a moving tag — it always points at the latest build._' "${CLI_TARGET}" "${GITHUB_SHA}")
           if gh release view "${tag}" >/dev/null 2>&1; then
             echo "Updating existing release ${tag}"

@@ -24,7 +24,7 @@ This skill drives the `tiktok-shop-pp-cli` binary. **You must verify the CLI is 
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install tiktok-shop --cli-only
+   npx -y @mvanhorn/printing-press-library install tiktok-shop --cli-only
    ```
 2. Verify: `tiktok-shop-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.

@@ -90,7 +90,7 @@ Highlights (not in the official API docs):
   • transcripts search   FTS5 search across every cached clip transcript in your workspace; returns video, clip, and timecode hits in milliseconds.
   • videos viewed   Roll up webhook view-milestone events into a per-video summary over a window (e.g. who crossed 75% in the last 7 days).
   • webhooks tail   Stream new webhook events from the inbox to stdout, and replay any prior message to a local URL with valid HMAC headers — no public tunnel needed.
-  • clips edit-pass   Apply a chained set of edits (remove-fillers, trim-silences-gt N, blur preset) across every clip in a playlist in one command.
+  • clips edit-pass   Apply a chained set of edits (remove-fillers, remove-buffers, trim-edges, trim-silences-gt N, find-mistakes [unofficial]) across every clip in a playlist in one command.
   • clips transcript-diff   Diff a clip's cut transcript against its uncut transcript to surface every word that editing removed (filler, silence, hand-edit) with timecodes.
   • exports wait   Kick off exports for one or more videos and block until each is ready, short-circuiting on the Export ready webhook event.
   • clips captions   Format a clip's cut transcript as an SRT or VTT subtitle file ready to attach to an embed or upload.

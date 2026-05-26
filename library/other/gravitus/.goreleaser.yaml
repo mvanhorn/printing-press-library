@@ -1,0 +1,51 @@
+version: 2
+project_name: gravitus-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: gravitus-pp-cli
+    main: ./cmd/gravitus-pp-cli
+    binary: gravitus-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/other/gravitus/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: gravitus-pp-mcp
+    main: ./cmd/gravitus-pp-mcp
+    binary: gravitus-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: gravitus-pp-cli
+    repository:
+      owner: mvanhorn
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "The only CLI that syncs your Gravitus strength data into your training dashboard."
+    install: |
+      bin.install "gravitus-pp-cli"
+      bin.install "gravitus-pp-mcp"

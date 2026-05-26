@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-20T14:24:27.48513952Z",
+  "printing_press_version": "4.9.0",
+  "api_name": "pdok-location",
+  "display_name": "PDOK Location",
+  "description": "Geocode Dutch addresses, reverse-geocode coordinates, convert RD/WGS84, and query PDOK location data with offline helpers.",
+  "cli_name": "pdok-location-pp-cli",
+  "spec_path": "https://api.pdok.nl/bzk/locatieserver/search/v3_1/openapi.json",
+  "run_id": "20260520-150244",
+  "novel_features": [
+    {
+      "name": "Batch CSV geocode",
+      "command": "batch geocode",
+      "description": "Geocode an entire CSV of Dutch addresses in one command \u2014 outputs lat/lon, RD X/Y, match score, and an error column for failed rows."
+    },
+    {
+      "name": "Suggest+lookup one-shot",
+      "command": "resolve",
+      "description": "Type a partial address, get the canonical match with full GeoJSON geometry \u2014 the suggest\u2192lookup chain collapsed into a single command."
+    },
+    {
+      "name": "Cross-source nearest",
+      "command": "nearest",
+      "description": "From any lat/lon or RD coordinate, return the nearest address, nearest parcel, nearest hectometer marker, and the gemeente/provincie containing the point \u2014 all in one call."
+    },
+    {
+      "name": "RD \u2194 WGS84 coordinate conversion",
+      "command": "convert rd-to-ll",
+      "description": "Convert Dutch RD (EPSG:28992) coordinates to WGS84 lat/lon and back, with pure-math precision \u2014 no API call needed."
+    },
+    {
+      "name": "WKT \u2194 GeoJSON conversion",
+      "command": "convert wkt-to-geojson",
+      "description": "Take any WKT geometry (POINT, POLYGON, MULTIPOLYGON, MULTILINESTRING) and emit GeoJSON \u2014 or convert GeoJSON back to WKT."
+    },
+    {
+      "name": "Offline gemeente / provincie gazetteer",
+      "command": "gemeente get",
+      "description": "After a one-time sync, look up any of the 342 Dutch gemeenten or 12 provincies fully offline \u2014 name, centroid, codes, parent provincie."
+    },
+    {
+      "name": "Local FTS over cached results",
+      "command": "search",
+      "description": "Full-text search across every address, gemeente, and lookup you've previously fetched \u2014 finds matches locally before falling back to the API."
+    },
+    {
+      "name": "Multi-collection OGC search with optional bbox",
+      "command": "features search",
+      "description": "Search across multiple Location API OGC collections (adres, perceel, gebouw, ...) with an optional bounding-box filter, flattened to JSON or CSV."
+    },
+    {
+      "name": "Confidence-gated best match",
+      "command": "top",
+      "description": "Return the single best match for a query if (and only if) the Solr score clears a threshold \u2014 exits non-zero when no match clears the bar."
+    },
+    {
+      "name": "Perceel by kadastrale aanduiding",
+      "command": "perceel lookup",
+      "description": "Look up a Dutch cadastral parcel by its full kadastrale aanduiding (e.g. 'AMR03 N 1234') and get back the GeoJSON parcel feature."
+    },
+    {
+      "name": "Gemeente containing a point",
+      "command": "gemeente of-point",
+      "description": "Given any lat/lon or RD coordinate, return which gemeente and provincie contain it \u2014 using the offline gazetteer with an API fallback."
+    }
+  ],
+  "printer": "markvandeven",
+  "printer_name": "markvandeven",
+  "category": "developer-tools"
+}

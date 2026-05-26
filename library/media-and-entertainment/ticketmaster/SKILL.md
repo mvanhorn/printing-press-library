@@ -20,7 +20,7 @@ This skill drives the `ticketmaster-pp-cli` binary. **You must verify the CLI is
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install ticketmaster --cli-only
+   npx -y @mvanhorn/printing-press-library install ticketmaster --cli-only
    ```
 2. Verify: `ticketmaster-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
@@ -32,8 +32,6 @@ go install github.com/mvanhorn/printing-press-library/library/media-and-entertai
 ```
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
-
-This CLI is the first single-binary tool for the Ticketmaster Discovery API. It absorbs the full read-only surface (events, venues, attractions, classifications, suggest) and adds a local SQLite store with FTS search, named watchlists, residency collapse, tour-view with on-sale flags, and markdown briefs — the workflows real users built scripts to handle.
 
 ## When to Use This CLI
 

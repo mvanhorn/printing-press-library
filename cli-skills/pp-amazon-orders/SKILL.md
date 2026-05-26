@@ -29,7 +29,7 @@ This skill drives the `amazon-orders-pp-cli` binary. **You must verify the CLI i
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install amazon-orders --cli-only
+   npx -y @mvanhorn/printing-press-library install amazon-orders --cli-only
    ```
 2. Verify: `amazon-orders-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
@@ -41,8 +41,6 @@ go install github.com/mvanhorn/printing-press-library/library/commerce/amazon-or
 ```
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
-
-Sync once and ask cross-cutting questions forever. Where is my stuff right now, what did I spend last quarter, which deliveries are slipping, when did I order that thing — answered in milliseconds without re-hitting the live site or burning agent context on full HTML pages.
 
 ## When to Use This CLI
 

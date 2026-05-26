@@ -1,0 +1,82 @@
+{
+  "api_name": "shopify",
+  "novelty_score": 0,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-15T09:52:56Z",
+  "narrative": {
+    "display_name": "Shopify",
+    "headline": "Operate a Shopify store from the terminal with curated Admin GraphQL commands, local sync, analytics, and bulk exports.",
+    "value_prop": "Endpoint mirrors for orders, products, customers, inventory items, and fulfillment orders. A local SQLite store for offline reads and full-text search after sync. MCP server with both stdio and HTTP transport so agents (OpenAI Codex CLI, hosted clients) consume the same surface without learning GraphQL.",
+    "auth_narrative": "Set SHOPIFY_ACCESS_TOKEN to a custom-app token with the read scopes you need (read_orders, read_products, read_customers, read_inventory, read_fulfillments).",
+    "quickstart": [
+      {
+        "command": "shopify-pp-cli doctor",
+        "comment": "Confirm auth and shop reachability."
+      },
+      {
+        "command": "shopify-pp-cli workflow status --json",
+        "comment": "Local archive state for all resources before any sync."
+      },
+      {
+        "command": "shopify-pp-cli orders list --first 10 --json",
+        "comment": "List recent orders with agent-native JSON."
+      },
+      {
+        "command": "shopify-pp-cli search 'pending' --json",
+        "comment": "Cross-table FTS over synced data."
+      },
+      {
+        "command": "shopify-pp-cli bulk-operations current --json",
+        "comment": "Inspect the current Shopify bulk export job."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 Unauthorized on every call",
+        "fix": "Verify SHOPIFY_ACCESS_TOKEN is an Admin API token, not a Storefront API token. Re-issue under custom-app settings."
+      },
+      {
+        "symptom": "Empty results from local search or analytics",
+        "fix": "Run shopify-pp-cli sync --full first; analytics and search read from the local SQLite store."
+      },
+      {
+        "symptom": "Stale data in queries",
+        "fix": "Run shopify-pp-cli workflow status --json to see per-resource state, then sync the specific resource that is stale."
+      }
+    ],
+    "when_to_use": "Use when an agent needs Shopify Admin GraphQL data without learning GraphQL. The MCP server exposes both stdio (Codex CLI) and HTTP (hosted agents). Best for read-heavy ops workflows and as the MCP backend for agent-driven Shopify operations.",
+    "recipes": [
+      {
+        "title": "Confirm a clean install",
+        "command": "shopify-pp-cli doctor --json",
+        "explanation": "JSON health output suitable for piping into agent context."
+      },
+      {
+        "title": "Inspect local archive state",
+        "command": "shopify-pp-cli workflow status --json",
+        "explanation": "Per-resource sync state, row counts, age \u2014 agent's freshness oracle before running an offline query."
+      },
+      {
+        "title": "Narrow a verbose response for agents",
+        "command": "shopify-pp-cli orders list --first 5 --agent --json --select edges.node.id,edges.node.name,edges.node.displayFinancialStatus",
+        "explanation": "Pairs --agent with --select dotted paths so agents do not burn context on fields they did not ask for."
+      },
+      {
+        "title": "Check a bulk export status",
+        "command": "shopify-pp-cli bulk-operations current --json",
+        "explanation": "Bulk operations are async; this returns the current or most recent job state in one MCP call."
+      }
+    ],
+    "trigger_phrases": [
+      "shopify orders",
+      "shopify products",
+      "shopify inventory",
+      "shopify customers",
+      "sync shopify data",
+      "use shopify-pp-cli"
+    ]
+  }
+}

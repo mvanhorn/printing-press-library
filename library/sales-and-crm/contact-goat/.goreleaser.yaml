@@ -45,12 +45,7 @@ brews:
       owner: matt-van-horn
       name: homebrew-tap
     homepage: "https://github.com/mvanhorn/printing-press-library"
-    description: "Sniffed endpoints from happenstance.ai web app (signed-in browser session).
-Uses Clerk session cookies for auth.
-
-This is DISTINCT from the public Happenstance REST API at api.happenstance.ai/v1 
-which uses Bearer token auth and burns credits. The web-app endpoints use your 
-free-tier web-app allocation (14 searches/mo on free plan)."
+    description: "Search, enrich, and map warm-introduction paths across LinkedIn, Happenstance, Deepline, and a unified local contacts store."
     install: |
       bin.install "contact-goat-pp-cli"
       bin.install "contact-goat-pp-mcp"

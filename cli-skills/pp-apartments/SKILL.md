@@ -21,7 +21,7 @@ This skill drives the `apartments-pp-cli` binary. **You must verify the CLI is i
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install apartments --cli-only
+   npx -y @mvanhorn/printing-press-library install apartments --cli-only
    ```
 2. Verify: `apartments-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.

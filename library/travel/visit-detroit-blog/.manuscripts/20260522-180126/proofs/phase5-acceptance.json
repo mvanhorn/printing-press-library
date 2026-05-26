@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "visit-detroit-blog",
+  "run_id": "20260522-180126",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 60,
+  "tests_passed": 60,
+  "tests_skipped": 37,
+  "auth_context": {
+    "type": "none"
+  }
+}

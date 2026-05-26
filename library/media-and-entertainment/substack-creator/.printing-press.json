@@ -4,12 +4,13 @@
   "generated_at": "2026-05-12T19:48:34.6188875Z",
   "printing_press_version": "4.3.0",
   "api_name": "substack-creator",
+  "display_name": "Substack Creator",
   "cli_name": "substack-creator-pp-cli",
   "printer": "JPresting",
   "printer_name": "JimPresting",
   "run_id": "20260512-202201",
   "category": "media-and-entertainment",
-  "description": "Every Substack feature, plus a local SQLite database, full-text search across years of writing, and the only cross-publication portfolio view that exists.",
+  "description": "Manage Substack posts, drafts, subscribers, notes, comments, and cross-publication analytics from a local SQLite cache.",
   "novel_features": [
     {
       "name": "Portfolio Dashboard",

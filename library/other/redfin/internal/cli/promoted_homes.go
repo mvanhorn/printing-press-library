@@ -304,7 +304,77 @@ func runHomesSearch(cmd *cobra.Command, flags *rootFlags, opts redfin.SearchOpti
 			break
 		}
 	}
-	return allListings, nil
+	return filterListings(opts, allListings), nil
+}
+
+// filterListings enforces price / beds / baths / sqft / year-built / lot-size
+// / property-type bounds in the CLI process after the Stingray response is
+// parsed.
+//
+// PATCH(upstream cli-printing-press): Stingray's `/api/gis` endpoint accepts
+// `min_price`, `max_price`, `min_beds`, `min_baths`, `min_sqft`, `max_sqft`,
+// `min_year_built`, `max_year_built`, `min_lot_size`, and `uipt` in the query
+// string but does not consistently honor them in the server response —
+// verified against multiple city regions on 2026-05-17. The website filters
+// those rows out client-side in its React layer. The CLI was forwarding the
+// same params and inheriting the same gap. We now apply the bounds locally
+// before returning so `--price-min`, etc., mean what users (and agents) expect.
+//
+// Region and status are still applied server-side; we don't re-filter those.
+// Property type (`uipt`) is also sent to the server but is ignored in observed
+// responses — see the PATCH comment below. The polygon path is server-side.
+func filterListings(opts redfin.SearchOptions, in []redfin.Listing) []redfin.Listing {
+	if len(in) == 0 {
+		return in
+	}
+	// PATCH(upstream cli-printing-press): Stingray ignores `uipt` too. A
+	// query with `uipt=1` (house) still returns rows tagged with other
+	// uiPropertyType codes. When --type is requested, only keep listings
+	// whose uiPropertyType is in the requested set OR is unknown (0 = the
+	// gis response omitted it; preserved to avoid dropping legitimate rows
+	// where the field was missing).
+	allowedTypes := map[int]bool{}
+	for _, t := range opts.UIPropertyTypes {
+		allowedTypes[t] = true
+	}
+	out := make([]redfin.Listing, 0, len(in))
+	for _, l := range in {
+		if len(allowedTypes) > 0 && l.UIPropertyType > 0 && !allowedTypes[l.UIPropertyType] {
+			continue
+		}
+		if (opts.PriceMin > 0 || opts.PriceMax > 0) && l.Price == 0 {
+			continue
+		}
+		if opts.PriceMin > 0 && l.Price < opts.PriceMin {
+			continue
+		}
+		if opts.PriceMax > 0 && l.Price > opts.PriceMax {
+			continue
+		}
+		if opts.BedsMin > 0 && l.Beds > 0 && l.Beds < opts.BedsMin {
+			continue
+		}
+		if opts.BathsMin > 0 && l.Baths > 0 && l.Baths < opts.BathsMin {
+			continue
+		}
+		if opts.SqftMin > 0 && l.Sqft > 0 && l.Sqft < opts.SqftMin {
+			continue
+		}
+		if opts.SqftMax > 0 && l.Sqft > opts.SqftMax {
+			continue
+		}
+		if opts.YearMin > 0 && l.YearBuilt > 0 && l.YearBuilt < opts.YearMin {
+			continue
+		}
+		if opts.YearMax > 0 && l.YearBuilt > 0 && l.YearBuilt > opts.YearMax {
+			continue
+		}
+		if opts.LotMin > 0 && (l.LotSize == 0 || l.LotSize < opts.LotMin) {
+			continue
+		}
+		out = append(out, l)
+	}
+	return out
 }
 
 func newHomesCmd(flags *rootFlags) *cobra.Command {

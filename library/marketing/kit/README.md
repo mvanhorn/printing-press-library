@@ -11,26 +11,26 @@ Printed by [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
 The recommended path installs both the `kit-pp-cli` binary and the `pp-kit` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
 
 ```bash
-npx -y @mvanhorn/printing-press install kit
+npx -y @mvanhorn/printing-press-library install kit
 ```
 
 For CLI only (no skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install kit --cli-only
+npx -y @mvanhorn/printing-press-library install kit --cli-only
 ```
 
 For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install kit --skill-only
+npx -y @mvanhorn/printing-press-library install kit --skill-only
 ```
 
 To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
 
 ```bash
-npx -y @mvanhorn/printing-press install kit --agent claude-code
-npx -y @mvanhorn/printing-press install kit --agent claude-code --agent codex
+npx -y @mvanhorn/printing-press-library install kit --agent claude-code
+npx -y @mvanhorn/printing-press-library install kit --agent claude-code --agent codex
 ```
 
 ### Without Node (Go fallback)
@@ -437,7 +437,6 @@ Kit-specific compound workflows for agents. These call real Kit v4 endpoints and
 - **`kit-pp-cli workflow audience-health`** - Subscriber status counts, growth stats, and largest tags by subscriber count.
 - **`kit-pp-cli workflow content-inventory`** - Sequences, sequence emails, snippets, forms, email templates, and recent broadcast stats.
 - **`kit-pp-cli workflow subscriber-lookup --email <email>`** - Subscriber profile, custom fields, tags, attribution, and email stats for support or personalization checks.
-
 
 ## Output Formats
 

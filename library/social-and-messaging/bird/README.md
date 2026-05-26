@@ -10,18 +10,30 @@ Printed by [@CleverAI-ZH](https://github.com/CleverAI-ZH) (Stephan Stoeber).
 
 ## Install
 
-The recommended path installs both the `bird-pp-cli` binary and the `pp-bird` agent skill in one shot:
+The recommended path installs both the `bird-pp-cli` binary and the `pp-bird` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
 
 ```bash
-npx -y @mvanhorn/printing-press install bird
+npx -y @mvanhorn/printing-press-library install bird
 ```
 
 For CLI only (no skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install bird --cli-only
+npx -y @mvanhorn/printing-press-library install bird --cli-only
 ```
 
+For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
+
+```bash
+npx -y @mvanhorn/printing-press-library install bird --skill-only
+```
+
+To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
+
+```bash
+npx -y @mvanhorn/printing-press-library install bird --agent claude-code
+npx -y @mvanhorn/printing-press-library install bird --agent claude-code --agent codex
+```
 
 ### Without Node (Go fallback)
 
@@ -60,6 +72,46 @@ Tell your OpenClaw agent (copy this):
 Install the pp-bird skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-bird. The skill defines how its required CLI can be installed.
 ```
 
+## Use with Claude Desktop
+
+This CLI ships an [MCPB](https://github.com/modelcontextprotocol/mcpb) bundle — Claude Desktop's standard format for one-click MCP extension installs (no JSON config required).
+
+To install:
+
+1. Download the `.mcpb` for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/bird-current).
+2. Double-click the `.mcpb` file. Claude Desktop opens and walks you through the install.
+3. Fill in `BIRD_API_KEY` when Claude Desktop prompts you.
+
+Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple Silicon (`darwin-arm64`) and Windows (`amd64`, `arm64`); for other platforms, use the manual config below.
+
+<details>
+<summary>Manual JSON config (advanced)</summary>
+
+If you can't use the MCPB bundle (older Claude Desktop, unsupported platform), install the MCP binary and configure it manually.
+
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/social-and-messaging/bird/cmd/bird-pp-mcp@latest
+```
+
+Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
+
+```json
+{
+  "mcpServers": {
+    "bird": {
+      "command": "bird-pp-mcp",
+      "env": {
+        "BIRD_WORKSPACE_ID": "<workspace_id>",
+        "BIRD_API_KEY": "<your-key>"
+      }
+    }
+  }
+}
+```
+
+</details>
+
 ## Authentication
 
 Authentication uses Bird's `Authorization: AccessKey <key>` header. Set BIRD_API_KEY plus BIRD_WORKSPACE_ID (every Bird endpoint is workspace-scoped) before calling any command. An optional BIRD_CHANNEL_ID provides a default for SMS commands so you don't have to pass --channel-id every time.
@@ -70,14 +122,11 @@ Authentication uses Bird's `Authorization: AccessKey <key>` header. Set BIRD_API
 # Check that BIRD_API_KEY and BIRD_WORKSPACE_ID resolve and the API is reachable.
 bird-pp-cli doctor
 
-
 # Verify your SMS tenant is ready: channels, anti-spam, compliance keywords, and messageability all probed in one shot.
 bird-pp-cli tenant doctor --json
 
-
 # Inspect the request without sending; drop --dry-run to actually fire.
 bird-pp-cli sms send --to +31612345678 --body "Hello from bird-pp-cli" --dry-run
-
 
 # Find the most recent OTP-shaped SMS sent to that recipient. Works offline once 'bird-pp-cli sync' has populated the local store.
 bird-pp-cli sms search "otp" --to +31612345678 --json
@@ -190,7 +239,6 @@ SMS channels available in the workspace
 
 Channel compliance keyword routing (HELP/STOP/START)
 
-
 ### conversations
 
 Manage Bird conversation threads (cross-channel customer interactions)
@@ -232,8 +280,6 @@ Programmable SMS send (the headline command)
 ### workspace
 
 Workspace-level configuration: anti-spam and allow/block rules
-
-
 
 ## Output Formats
 
@@ -278,74 +324,6 @@ Endpoint environment variables:
 - `BIRD_WORKSPACE_ID` resolves `{workspace_id}`
 
 Base URL: `https://api.bird.com/workspaces/{workspace_id}`
-
-## Use with Claude Code
-
-Install the focused skill — it auto-installs the CLI on first invocation:
-
-```bash
-npx skills add mvanhorn/printing-press-library/cli-skills/pp-bird -g
-```
-
-Then invoke `/pp-bird <query>` in Claude Code. The skill is the most efficient path — Claude Code drives the CLI directly without an MCP server in the middle.
-
-<details>
-<summary>Use as an MCP server in Claude Code (advanced)</summary>
-
-If you'd rather register this CLI as an MCP server in Claude Code, install the MCP binary first:
-
-
-```bash
-go install github.com/mvanhorn/printing-press-library/library/social-and-messaging/bird/cmd/bird-pp-mcp@latest
-```
-
-Then register it:
-
-```bash
-claude mcp add bird bird-pp-mcp -e BIRD_WORKSPACE_ID=<workspace_id> -e BIRD_API_KEY=<your-key>
-```
-
-</details>
-
-## Use with Claude Desktop
-
-This CLI ships an [MCPB](https://github.com/modelcontextprotocol/mcpb) bundle — Claude Desktop's standard format for one-click MCP extension installs (no JSON config required).
-
-To install:
-
-1. Download the `.mcpb` for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/bird-current).
-2. Double-click the `.mcpb` file. Claude Desktop opens and walks you through the install.
-3. Fill in `BIRD_API_KEY` when Claude Desktop prompts you.
-
-Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple Silicon (`darwin-arm64`) and Windows (`amd64`, `arm64`); for other platforms, use the manual config below.
-
-<details>
-<summary>Manual JSON config (advanced)</summary>
-
-If you can't use the MCPB bundle (older Claude Desktop, unsupported platform), install the MCP binary and configure it manually.
-
-
-```bash
-go install github.com/mvanhorn/printing-press-library/library/social-and-messaging/bird/cmd/bird-pp-mcp@latest
-```
-
-Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
-
-```json
-{
-  "mcpServers": {
-    "bird": {
-      "command": "bird-pp-mcp",
-      "env": {
-        "BIRD_WORKSPACE_ID": "<workspace_id>",
-        "BIRD_API_KEY": "<your-key>"
-      }
-    }
-  }
-}
-```
-
-</details>
 
 ## Health Check
 

@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "api_name": "gravitus",
+  "run_id": "20260517-231116",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 9,
+  "tests_passed": 9,
+  "tests_failed": 0,
+  "auth_context": {
+    "type": "cookie",
+    "api_key_available": false,
+    "browser_session_available": true
+  },
+  "notes": "Two HTML parsing bugs found and fixed inline: (1) date format was human-readable only, updated to include RFC3339 (actual Gravitus format); (2) PR badge class was 'pr-badge' not 'pr', gym used plain span in text-muted div."
+}

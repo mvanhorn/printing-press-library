@@ -21,7 +21,7 @@ This skill drives the `redfin-pp-cli` binary. **You must verify the CLI is insta
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install redfin --cli-only
+   npx -y @mvanhorn/printing-press-library install redfin --cli-only
    ```
 2. Verify: `redfin-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
@@ -33,8 +33,6 @@ go install github.com/mvanhorn/printing-press-library/library/other/redfin/cmd/r
 ```
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
-
-Search homes for sale via Redfin's internal Stingray endpoints from the terminal, sync results to a local SQLite store, and run the workflows the website never built: diff a saved search week-over-week with `watch`, rank by $/sqft net of HOA with `rank`, pull sold comps for a subject property with `comps`, surface price drops or stale listings with `drops`, and overlay market trends across multiple cities with `trends`. Every command is `--json` / `--select`-shaped so an agent can pipe the output without burning context.
 
 ## When to Use This CLI
 
@@ -182,9 +180,7 @@ This CLI was generated with browser-observed traffic context.
 
 This printed CLI owns bounded freshness only for registered store-backed read command paths. In `--data-source auto` mode, those paths check `sync_state` and may run a bounded refresh before reading local data. `--data-source local` never refreshes. `--data-source live` reads the API and does not mutate the local store. Set `REDFIN_NO_AUTO_REFRESH=1` to skip the freshness hook without changing source selection.
 
-Covered paths:
-
-- `redfin-pp-cli homes`
+Covered paths: none. `homes` is a live per-call search; the local store is populated by `sync-search` / `watch` only.
 
 When JSON output uses the generated provenance envelope, freshness metadata appears at `meta.freshness`. Treat it as current-cache freshness for the covered command path, not a guarantee of complete historical backfill or API-specific enrichment.
 

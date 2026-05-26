@@ -1,21 +1,74 @@
 {
   "schema_version": 1,
-  "applied_at": "2026-05-08",
-  "base_run_id": "2026-05-02T03:53:03.774005Z",
-  "base_printing_press_version": "3.2.1",
+  "applied_at": "2026-05-24",
+  "base_run_id": "20260524-085902",
+  "base_printing_press_version": "4.14.0",
   "patches": [
     {
-      "id": "orders-query-search-resolve",
-      "summary": "Expose Shopify order query filters and exact order-number resolution in the native CLI.",
-      "reason": "Agent and warehouse workflows often start from human order numbers like 1942, but the generated orders list command only paginated unfiltered orders. Native query/search/resolve support removes the need for a Maxi sidecar GraphQL resolver.",
+      "id": "shopifyql-funnel-real-columns",
+      "summary": "shopifyql funnel uses real ShopifyQL response columns, not hallucinated ones.",
+      "reason": "The novel-feature shopifyql funnel command originally referenced column names (e.g. funnel_step, step_count) that do not exist in Shopify's ShopifyQL response schema, producing empty results against live data. Replacing them with the actual schema fields makes the command return real funnel rows against a live store. This lives only in this CLI's hand-coded internal/cli/shopifyql.go and is novel-feature substance, not a generator template bug.",
+      "validated_outcome": "Funnel command returns real session/checkout/order counts against a live Shopify store.",
       "files": [
-        "internal/client/queries.go",
-        "internal/cli/orders.go",
-        "internal/cli/orders_list.go",
-        "internal/cli/orders_search_resolve.go",
-        "internal/cli/auto_refresh.go",
-        "internal/cli/which.go"
+        "internal/cli/shopifyql.go"
+      ],
+      "applies_to_template": false,
+      "issue_refs": []
+    },
+    {
+      "id": "sync-since-utc-and-bind",
+      "summary": "sync --since now uses UTC RFC3339 and binds the resulting timestamp into the GraphQL query variable so updated_at filtering actually runs.",
+      "reason": "Shopify GraphQL updated_at filtering requires the `query: $query` field arg on resource connections, with an RFC3339 UTC timestamp. The generated sync.go formats --since via .Format(time.RFC3339) on a local time.Time (which Shopify parses as UTC, producing a wrong-window cursor) and never binds sinceTS into the variables map at all (so even a correct timestamp does nothing). Fix applies .UTC() before .Format and adds the variables[\"query\"] = \"updated_at:>=\" + sinceTS bind for every resource except fulfillment-orders, whose schema has no query arg. Generator template bug; cli-printing-press#2056 covers the UTC half; the dead-bind half is a related defect surfaced in this reprint.",
+      "validated_outcome": "shopify-pp-cli sync orders --since 7d returns only orders updated in the last 7 days against a live Shopify store, not the full table.",
+      "files": [
+        "internal/cli/sync.go"
+      ],
+      "applies_to_template": true,
+      "issue_refs": [
+        "mvanhorn/cli-printing-press#2056"
       ]
+    },
+    {
+      "id": "sync-max-pages-default-unlimited",
+      "summary": "sync --max-pages default changed from 10 to 0 (unlimited).",
+      "reason": "Default --max-pages 10 multiplied by default page size 50 silently caps every sync to 500 rows. Full-store backfills appear successful but return partial data with no warning. Default 0 (unlimited) matches operator intent; users who need a cap pass a positive number explicitly. Generator template bug filed as cli-printing-press#2057, not yet absorbed.",
+      "validated_outcome": "shopify-pp-cli sync orders against a live store's full order history returns all rows, not the first 500.",
+      "files": [
+        "internal/cli/sync.go"
+      ],
+      "applies_to_template": true,
+      "issue_refs": [
+        "mvanhorn/cli-printing-press#2057"
+      ]
+    },
+    {
+      "id": "list-query-flag-wiring",
+      "summary": "--query flag now wired into GraphQL variables on 5 list commands, including the matching $query argument declarations in queries.go.",
+      "reason": "Generated template emits a --query flag on orders/customers/products/inventory-items/abandoned-checkouts list commands but (a) the Go side never passes the value into the GraphQL variables map and (b) the corresponding GraphQL queries in internal/client/queries.go don't declare a $query: String variable or pass it into the connection's `query:` argument. Either half alone is a silent no-op. Fix is two-part: add the conditional variables[\"query\"] = flagQuery bind in each list command, and add `$query: String` to the operation signature plus `query: $query` to the connection in queries.go. Fulfillment-orders list is intentionally left dead because Shopify's fulfillmentOrders GraphQL field has no query arg; that is API truth, not a template bug. Generator template bug filed as cli-printing-press#2058.",
+      "validated_outcome": "shopify-pp-cli orders list --query 'created_at:>2026-05-01' --first 5 returns only orders created after 2026-05-01 against a live store; without the fix the filter silently no-ops and returns the oldest 5 orders in the store.",
+      "files": [
+        "internal/cli/orders_list.go",
+        "internal/cli/customers_list.go",
+        "internal/cli/products_list.go",
+        "internal/cli/inventory-items_list.go",
+        "internal/cli/abandoned-checkouts_list.go",
+        "internal/client/queries.go"
+      ],
+      "applies_to_template": true,
+      "issue_refs": [
+        "mvanhorn/cli-printing-press#2058"
+      ]
+    },
+    {
+      "id": "orders-list-drop-sort-flags",
+      "summary": "orders list no longer exposes --sort-key or --reverse; the v3.2.1 printing carried them via a now-superseded query/search/resolve patch.",
+      "reason": "v3.2.1 (printed by @cathrynlavery) carried a `orders-query-search-resolve` patch that wired --sort-key, --reverse, and several orders search helpers into the generated orders surface. This reprint replaces that approach with the generic --query flag wiring (patch list-query-flag-wiring), which covers the same filter use cases via Shopify's native search syntax and does not need bespoke sort flags. Automations relying on the old --sort-key / --reverse will see unknown-flag errors and must switch to --query 'sort_key:created_at-asc' or equivalent search-syntax expressions. Recording this here so future regen and reprint tooling treats the removal as intentional, not a regression.",
+      "validated_outcome": "shopify-pp-cli orders list --help no longer advertises --sort-key/--reverse; --query covers the same filter shapes.",
+      "files": [
+        "internal/cli/orders_list.go"
+      ],
+      "applies_to_template": false,
+      "issue_refs": []
     }
   ]
 }

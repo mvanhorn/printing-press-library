@@ -1,0 +1,51 @@
+version: 2
+project_name: art-goat-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: art-goat-pp-cli
+    main: ./cmd/art-goat-pp-cli
+    binary: art-goat-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/media-and-entertainment/art-goat/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: art-goat-pp-mcp
+    main: ./cmd/art-goat-pp-mcp
+    binary: art-goat-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: art-goat-pp-cli
+    repository:
+      owner: justinwfu
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "A contemplative daily art practice with museum and astronomy APIs as your gallery."
+    install: |
+      bin.install "art-goat-pp-cli"
+      bin.install "art-goat-pp-mcp"

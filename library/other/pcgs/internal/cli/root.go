@@ -207,11 +207,25 @@ See README.md or the bundled SKILL.md for recipes.`,
 				return err
 			}
 			if quotaPrintOnlyJSON {
+				// --quota-only is the machine form; JSON always goes to stdout
+				// since that IS the requested machine output.
 				if err := json.NewEncoder(cmd.OutOrStdout()).Encode(q); err != nil {
 					return fmt.Errorf("encode quota json: %w", err)
 				}
 			} else {
-				fmt.Fprintln(cmd.OutOrStdout(), cliutil.FormatQuotaLine(q))
+				// PATCH(amend-2026-05-18: route human --quota line to stderr in
+				// machine modes) — was unconditionally written to stdout, which
+				// polluted JSON / agent pipelines combining --quota with --json
+				// or --agent. Per the pp-CLI agent-mode contract documented in
+				// SKILL.md, human summaries must go to stderr when ANY of the
+				// machine-format flags is set OR stdout is not a TTY. The
+				// interactive UX (bare `pcgs-pp-cli --quota` in a terminal)
+				// still emits to stdout.
+				w := cmd.OutOrStdout()
+				if isMachineOutputMode(flags) || !stdoutIsTerminal() {
+					w = cmd.ErrOrStderr()
+				}
+				fmt.Fprintln(w, cliutil.FormatQuotaLine(q))
 			}
 			os.Exit(0)
 		}
@@ -268,6 +282,12 @@ See README.md or the bundled SKILL.md for recipes.`,
 		return nil
 	}
 	// PATCH: emit post-command quota usage summary for API-touching commands.
+	// PATCH(amend-2026-05-18: keep PostRunE on stderr unconditionally) — the
+	// post-command [quota] summary is always written to os.Stderr so it never
+	// pollutes machine-format stdout (e.g. `--json`, `--csv`, `--agent`). The
+	// PreRunE --quota path got a similar fix in the same amend; the PostRunE
+	// behavior was already correct and is preserved here for symmetry with
+	// the rule documented in SKILL.md.
 	rootCmd.PersistentPostRunE = func(cmd *cobra.Command, args []string) error {
 		if flags.quiet || quotaPrintOnly || quotaPrintOnlyJSON {
 			return nil
@@ -413,4 +433,55 @@ func newVersionCliCmd() *cobra.Command {
 			fmt.Printf("pcgs-pp-cli %s\n", version)
 		},
 	}
+}
+
+// PATCH(amend-2026-05-18: machine-mode + tty detection for quota stdout/stderr discipline).
+//
+// isMachineOutputMode reports whether any flag that promises machine-shaped
+// output (or routes output away from the user's terminal) is currently set.
+// Used to decide whether human-readable summaries (the bracketed `[quota]`
+// line in particular) should be diverted from stdout to stderr so they
+// don't pollute downstream `jq` / `json.loads` consumers.
+//
+// The list mirrors the pp-CLI agent-mode contract enumerated in SKILL.md:
+// --json, --csv, --compact, --quiet, --plain, --select, --agent. The brief
+// also names --deliver because piping output to a non-stdout sink implies
+// the caller wants stdout clean for machine consumption.
+//
+// Kept as a package-private helper rather than promoted to cliutil so the
+// flag struct stays in one package.
+func isMachineOutputMode(f *rootFlags) bool {
+	if f == nil {
+		return false
+	}
+	if f.agent || f.asJSON || f.csv || f.compact || f.plain || f.quiet {
+		return true
+	}
+	if f.selectFields != "" {
+		return true
+	}
+	if f.deliverSpec != "" && f.deliverSpec != "stdout" {
+		return true
+	}
+	return false
+}
+
+// stdoutIsTerminal returns true when os.Stdout is attached to a terminal
+// (interactive use), false when it's a pipe, file, or detached. Uses a
+// stdlib-only file-mode check (os.Stat → mode.IsRegular / mode&CharDevice)
+// so we don't pull in golang.org/x/term as a direct dependency.
+//
+// The check is deliberately conservative: any error path returns false,
+// which biases toward stderr emission (the safe choice for machine-mode
+// pipelines). Worst case: interactive users with an unusual stdout setup
+// see the quota line on stderr instead of stdout — annoying but harmless.
+func stdoutIsTerminal() bool {
+	fi, err := os.Stdout.Stat()
+	if err != nil {
+		return false
+	}
+	// On a real TTY the mode has the os.ModeCharDevice bit set AND is not
+	// a regular file. Pipes report os.ModeNamedPipe; redirected files
+	// report mode.IsRegular().
+	return (fi.Mode() & os.ModeCharDevice) != 0
 }

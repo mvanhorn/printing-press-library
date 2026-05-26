@@ -19,12 +19,26 @@ import (
 // map to decide whether to refresh the local cache before serving.
 // Populated from generated syncable resource commands and any custom
 // command-path coverage declared in spec.Cache.Commands.
-var readCommandResources = map[string][]string{
-	"redfin-pp-cli homes":        {"homes"},
-	"redfin-pp-cli homes list":   {"homes"},
-	"redfin-pp-cli homes get":    {"homes"},
-	"redfin-pp-cli homes search": {"homes"},
-}
+//
+// PATCH(upstream cli-printing-press): the `homes` resource was previously
+// registered here, which made every `redfin-pp-cli homes` invocation fire
+// `syncResource(c, db, "homes", ...)` via runAutoRefresh. That generic
+// resource-sync path builds params with only pageSize/cursor/since — none
+// of the Stingray gis arguments (`al`, `region_id`, `region_type`, status,
+// filters) that `/stingray/api/gis` requires. Stingray rejected every such
+// call with `HTTP 400: Request was missing a required argument named 'al'`,
+// the auto-refresh wrote a `warning: using stale redfin-pp-cli cache`
+// line to stderr, and the foreground `homes` call then proceeded normally
+// — making it look like cached data was being served when the live call
+// was actually fine.
+//
+// `homes` is a per-call search endpoint (region + filters required per
+// request), not a list-all resource that can be backfilled into a local
+// table. It should never have been registered for auto-refresh; entries
+// are intentionally omitted here. The generator (cli-printing-press)
+// should treat `homes`-shaped search endpoints as non-cacheable when
+// emitting this map for future prints.
+var readCommandResources = map[string][]string{}
 
 // cachePolicy returns the cache freshness policy assembled from spec
 // configuration. Defaults: 6h global stale-after, env opt-out named after

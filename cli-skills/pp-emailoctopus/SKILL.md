@@ -25,16 +25,18 @@ This skill drives the `emailoctopus-pp-cli` binary. **You must verify the CLI is
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install emailoctopus --cli-only
+   npx -y @mvanhorn/printing-press-library install emailoctopus --cli-only
    ```
 2. Verify: `emailoctopus-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
 
-If the `npx` install fails before this CLI has a public-library category, install Node or use the category-specific Go fallback after publish.
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.3 or newer):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/marketing/emailoctopus/cmd/emailoctopus-pp-cli@latest
+```
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
-
-EmailOctopus is the only major email-marketing platform whose free tier includes API access — but until now no maintained v2 CLI or SDK existed. This CLI ships all 25 endpoints with --json, --select, --csv, --dry-run, plus a local SQLite store that powers cross-list dedupe, per-contact engagement scoring, list churn diffs over time, and rate-budgeted bulk delete.
 
 ## When to Use This CLI
 

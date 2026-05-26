@@ -11,31 +11,37 @@ Printed by [@mvanhorn](https://github.com/mvanhorn) (Matt Van Horn).
 The recommended path installs both the `podcast-goat-pp-cli` binary and the `pp-podcast-goat` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
 
 ```bash
-npx -y @mvanhorn/printing-press install podcast-goat
+npx -y @mvanhorn/printing-press-library install podcast-goat
 ```
 
 For CLI only (no skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install podcast-goat --cli-only
+npx -y @mvanhorn/printing-press-library install podcast-goat --cli-only
 ```
 
 For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install podcast-goat --skill-only
+npx -y @mvanhorn/printing-press-library install podcast-goat --skill-only
 ```
 
 To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
 
 ```bash
-npx -y @mvanhorn/printing-press install podcast-goat --agent claude-code
-npx -y @mvanhorn/printing-press install podcast-goat --agent claude-code --agent codex
+npx -y @mvanhorn/printing-press-library install podcast-goat --agent claude-code
+npx -y @mvanhorn/printing-press-library install podcast-goat --agent claude-code --agent codex
 ```
 
-### Without Node
+### Without Node (Go fallback)
 
-The generated install path is category-agnostic until this CLI is published. If `npx` is not available before publish, install Node or use the category-specific Go fallback from the public-library entry after publish.
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.3 or newer):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/media-and-entertainment/podcast-goat/cmd/podcast-goat-pp-cli@latest
+```
+
+This installs the CLI only — no skill.
 
 ### Pre-built binary
 
@@ -113,18 +119,14 @@ Three auth surfaces, in cost order. (1) `auth login-service --service <huberman|
 # Confirm yt-dlp present, RSS reachability, cookie freshness
 podcast-goat-pp-cli doctor
 
-
 # Free path; canonical markdown straight to cache
 podcast-goat-pp-cli episode get https://www.dwarkesh.com/p/andrej-karpathy
-
 
 # One-time cookie capture from your logged-in Chrome
 podcast-goat-pp-cli auth login-service --service huberman
 
-
 # Cookie path; free because you subscribe
 podcast-goat-pp-cli episode get https://www.hubermanlab.com/episode/<your-premium-slug>
-
 
 # Bundle cached transcripts into one prompt-shaped file
 podcast-goat-pp-cli magic 'AI chip supply chain' --out chips.md
@@ -228,7 +230,6 @@ Pull, search, and inspect podcast episode transcripts
 
 - **`podcast-goat-pp-cli episode get`** - Fetch one transcript by URL via the cookie -> free -> paid dispatch chain
 - **`podcast-goat-pp-cli episode latest`** - Pull the most recent episode for a subscribed feed
-
 
 ## Output Formats
 

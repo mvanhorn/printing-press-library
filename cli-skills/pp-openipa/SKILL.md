@@ -25,7 +25,7 @@ This skill drives the `openipa-pp-cli` binary. **You must verify the CLI is inst
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install openipa --cli-only
+   npx -y @mvanhorn/printing-press-library install openipa --cli-only
    ```
 2. Verify: `openipa-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
@@ -37,8 +37,6 @@ go install github.com/mvanhorn/printing-press-library/library/developer-tools/op
 ```
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
-
-openipa porta sul terminale le 22 API web service di IPA che gli sviluppatori usano copia-incollando curl. Con un singolo comando `openipa cf <CF>` ottieni uffici FE, nodi NSO e domicilio digitale in parallelo — tre roundtrip in uno.
 
 ## Perché openipa?
 
@@ -124,8 +122,10 @@ These capabilities aren't available in any other tool for this API.
 
 **aoo** — Aree Organizzative Omogenee degli enti
 
+- `openipa-pp-cli aoo cerca <cod_uni_aoo>` — Dati AOO per codice univoco IPA a 7 caratteri (es. `A463BFE`) — **non** il cod_aoo testuale (es. `agid_aoo`)
 - `openipa-pp-cli aoo get` — AOO di un ente con filtro opzionale per codice AOO
 - `openipa-pp-cli aoo list` — Lista delle AOO di un ente
+- `openipa-pp-cli aoo storico <cod_amm>` — Lista AOO di un ente (attive + cessate); espone `cod_uni_aoo` utile per `aoo cerca`
 
 **cerca** — Ricerca trasversale — trova entità IPA per email
 
@@ -155,10 +155,38 @@ These capabilities aren't available in any other tool for this API.
 - `openipa-pp-cli nso cf` — Nodi NSO per codice fiscale ente
 - `openipa-pp-cli nso ente` — Canali NSO attivi di un ente per codice IPA
 
+**pec** — Indirizzi PEC degli enti IPA
+
+- `openipa-pp-cli pec ente <cod_amm>` — PEC attive di un ente per codice IPA (WS20)
+- `openipa-pp-cli pec storico <cod_amm>` — Storico PEC di un ente, attive e cessate (WS21)
+- `openipa-pp-cli pec cerca <indirizzo-pec>` — Storia di un indirizzo PEC specifico nell'IPA (WS22)
+
 **uo** — Unità Organizzative degli enti
 
 - `openipa-pp-cli uo get` — Dettagli di una singola UO per codice univoco
 - `openipa-pp-cli uo list` — Lista delle UO di un ente
+
+**servizi** — Servizi digitali pubblicati sul portale IPA (non API pubblica, nessun AUTH_ID richiesto)
+
+- `openipa-pp-cli servizi tipi` — Lista le tipologie di servizi digitali degli enti. Usa questi ID con `servizi ente --tipologia`.
+- `openipa-pp-cli servizi tipi --uo` — Lista le categorie dei servizi erogati dalle UO. Usa questi ID con `servizi uo --categoria`.
+- `openipa-pp-cli servizi ente` — Cerca servizi online erogati da enti, con URL quando presente: albo pretorio, pagoPA, SUAP, tributi, pratiche edilizie, concorsi, contravvenzioni, appalti.
+- `openipa-pp-cli servizi uo` — Cerca UO per categoria o descrizione del servizio erogato, spesso con email e codice UO.
+
+Esempi:
+
+```bash
+# Albo pretorio / accesso agli atti del Comune di Bari
+openipa-pp-cli servizi ente --nome-ente "Comune di Bari" --nome-servizio "albo" --json
+
+# Scoprire l'ID tipologia: Accesso agli atti = 1, include Albo Pretorio
+openipa-pp-cli servizi tipi --json | jq '.data[] | select(.tipo == "Accesso agli atti")'
+
+# Tutti i servizi di una tipologia in un'area
+openipa-pp-cli servizi ente --area "Bari" --tipologia 1 --json
+```
+
+> `--nome-ente` è una ricerca testuale ampia: `"Comune di Bari"` può restituire anche Bariano, Baricella, Barisardo, ecc. Filtra per `.denominazioneEnte == "Comune di Bari"` quando serve una corrispondenza esatta.
 
 **sede** — Ricerca per nome/area (portale IPA — non API pubblica, nessun AUTH_ID richiesto)
 
@@ -168,19 +196,36 @@ These capabilities aren't available in any other tool for this API.
 
 Restituisce 30 risultati per pagina; aggiungere `--tutti` per scaricare tutto.
 
+**Ricerca per nome senza conoscere il tipo di entità:**
+
+IPA distingue tre tipi: enti autonomi, AOO, UO. Se non sai di che tipo è la struttura che cerchi, prova in cascata:
+
+| Passo | Comando | Trova |
+|-------|---------|-------|
+| 1 | `enti cerca --nome <nome>` | ente con codice IPA proprio (comuni, ministeri, università…) |
+| 2 | `sede aoo --nome <keyword>` | AOO di un ente padre (prefetture, questure, provveditorati…) |
+| 3 | `sede uo --nome <keyword>` | UO interna a un ente |
+
+> **Limite `--nome` su `sede`**: accetta una singola parola chiave; con più parole il risultato è spesso vuoto. Usa la keyword più distintiva e filtra via jq.
+
 **Riepilogo modalità di ricerca AOO:**
 
 | Comando | Input | Quando usarlo |
 |---------|-------|---------------|
 | `aoo list --codice <cod_amm>` | codice ente padre | vuoi tutte le AOO di un ente noto |
-| `aoo cerca <cod_uni_aoo>` | codice univoco AOO | hai già il codice univoco (es. `m_it_001`) |
-| `sede aoo --nome <nome>` | testo libero | cerchi per denominazione senza codice — **usa questo come fallback** |
+| `aoo cerca <cod_uni_aoo>` | codice univoco IPA a 7 car. | hai già il cod_uni_aoo — recuperalo con `sede aoo` o `aoo storico` |
+| `sede aoo --nome <keyword>` | singola parola chiave | cerchi per denominazione senza codice — poi `aoo cerca <cod_uni_aoo>` per i contatti |
 
 **rtd** — Responsabile Transizione Digitale (portale IPA — non API pubblica)
 
 - `openipa-pp-cli rtd cerca` — Cerca RTD per nominativo, ente, area geografica, categoria
 
 Nota: l'RTD non è esposto dai web service ufficiali IPA (WS01-WS23); questo comando usa il portale PortaleServices.
+
+### Note operative sugli endpoint IPA
+
+- **`aoo cerca` vuole `cod_uni_aoo`, non `cod_aoo`** — Il parametro è l'identificatore univoco IPA a 7 caratteri (es. `A463BFE`), diverso dal cod_aoo testuale dell'ente (es. `agid_aoo`). Per ottenerlo: `openipa-pp-cli aoo storico <cod_amm> --json | jq '.[].cod_uni_aoo'`
+- **I web service WS18+ usano endpoint REST** — Dal 2021 IPA ha migrato i WS ≥ 18 a endpoint REST (`/ws/<Bundle>Services/api/<WS>`). Il CLI usa già il formato corretto; i vecchi path `.php` non sono più supportati per questi WS.
 
 ### Finding the right command
 
@@ -218,6 +263,15 @@ openipa-pp-cli sede enti --area "Sicilia" --tutti --json | jq '.meta.total'
 ```
 
 Conta gli enti siciliani — usa il portale IPA con auto-paginazione
+
+### Trovare l'Albo Pretorio online di un ente
+
+```bash
+openipa-pp-cli servizi ente --nome-ente "Comune di Bari" --nome-servizio "albo" --json \
+  | jq -r '.data[] | select(.denominazioneEnte == "Comune di Bari") | .uri'
+```
+
+Cerca nei servizi digitali IPA: l'Albo Pretorio è tipicamente nella tipologia `Accesso agli atti` (`--tipologia 1`).
 
 ### Verifica PEC valida
 
@@ -263,25 +317,53 @@ Con `--tutti` vengono scaricate automaticamente tutte le pagine (default: 30 ris
 openipa-pp-cli sede enti --nome "ospedale" --tutti --json | jq '[.data[] | .denominazioneEnte]'
 ```
 
-### Enti che sono AOO, non enti autonomi
+### Cercare per nome senza sapere il tipo di entità
 
-**Regola generale:** se `enti cerca --nome "<nome>"` restituisce 0 risultati, la struttura cercata potrebbe essere una **AOO di un ente padre** (ministero, agenzia, etc.) anziché un ente IPA autonomo. In questo caso usare `sede aoo --nome "<nome>"` per la ricerca per testo libero.
+Quando non sai se la struttura è un ente autonomo, una AOO o una UO, prova in cascata — la maggior parte dei casi si risolve al passo 1 o 2.
 
 ```bash
-# fallback generico quando enti cerca non trova nulla
-openipa-pp-cli sede aoo --nome "<nome struttura>" --json | jq '.data[0] | {nome: .denominazioneAoo, ente: .denominazioneEnte, pec: .domicili[0].domicilioDigitale}'
+# Passo 1 — enti autonomi (comuni, ministeri, università…)
+openipa-pp-cli enti cerca --nome "<nome>" --agent
+
+# Passo 2 — AOO (usa una sola parola chiave, non frasi composte)
+openipa-pp-cli sede aoo --nome "<keyword>" --tutti --agent | \
+  jq '.data[] | select(.denominazioneAoo | test("<filtro>"; "i")) | {nome: .denominazioneAoo, ente: .denominazioneEnte, cod_uni_aoo: .codUniAoo}'
+
+# Passo 3 — UO
+openipa-pp-cli sede uo --nome "<keyword>" --agent
 ```
 
-Alcuni esempi di strutture che sono AOO, non enti autonomi (i nomi IPA esatti variano — usare sempre `sede aoo --nome` per scoprirli):
+Se il passo 2 trova una AOO e ti servono i contatti (PEC, telefono, indirizzo), recuperali con un secondo step — il campo `domicili` di `sede aoo` è spesso null:
+
+```bash
+openipa-pp-cli aoo cerca <cod_uni_aoo> --agent
+# → mail1 = PEC, tel = telefono, indirizzo = sede
+```
+
+Per una ricerca esaustiva in parallelo su tutti i tipi:
+
+```bash
+openipa-pp-cli enti cerca --nome "<nome>" --agent &
+openipa-pp-cli sede aoo --nome "<keyword>" --tutti --agent &
+openipa-pp-cli sede uo --nome "<keyword>" --agent &
+wait
+```
+
+### Enti che sono AOO, non enti autonomi
+
+Alcune strutture note non sono enti IPA autonomi ma **AOO di un ente padre**: `enti cerca` restituisce 0 risultati per loro.
 
 - **Prefetture** → AOO del Ministero dell'Interno (`m_it`)
 - **Questure** → AOO del Ministero dell'Interno
-- **Provveditorati** → AOO del Ministero dell'Istruzione
+- **Provveditorati / Uffici Scolastici** → AOO del Ministero dell'Istruzione
 
 ```bash
-# esempio: trova il nome IPA esatto e la PEC di una prefettura
-openipa-pp-cli sede aoo --nome "prefettura palermo" --json | \
-  jq '.data[] | {nome: .denominazioneAoo, pec: .domicili[0].domicilioDigitale}'
+# trova nome IPA esatto e contatti (es. prefettura di una provincia)
+openipa-pp-cli sede aoo --nome "prefettura" --tutti --agent | \
+  jq '.data[] | select(.denominazioneAoo | test("<provincia>"; "i")) | {nome: .denominazioneAoo, cod_uni_aoo: .codUniAoo}'
+
+# poi recupera PEC e telefono con:
+openipa-pp-cli aoo cerca <cod_uni_aoo> --agent
 ```
 
 ## Auth Setup
