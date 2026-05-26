@@ -172,7 +172,7 @@ func TestTeach_WithPlaybookFile_LandsBothSurfaces(t *testing.T) {
 	s, _ := store.OpenWithContext(context.Background(), dbPath)
 	defer s.Close()
 	// Resource learning landed.
-	lrows, _ := listLearningsRows(s, store.ListLearningsFilter{})
+	lrows, _ := listLearningsRows(context.Background(), s, store.ListLearningsFilter{})
 	if len(lrows) != 1 {
 		t.Errorf("want 1 learning row, got %d", len(lrows))
 	}
@@ -205,7 +205,7 @@ func TestTeach_GracefulDegrade_PlaybookFails(t *testing.T) {
 	}
 	s, _ := store.OpenWithContext(context.Background(), dbPath)
 	defer s.Close()
-	lrows, _ := listLearningsRows(s, store.ListLearningsFilter{})
+	lrows, _ := listLearningsRows(context.Background(), s, store.ListLearningsFilter{})
 	if len(lrows) != 1 {
 		t.Errorf("resource learning should land despite playbook fail; got %d rows", len(lrows))
 	}

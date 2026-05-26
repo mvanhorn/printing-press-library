@@ -238,3 +238,44 @@ func TestApplyLearningsForSearch_MissingResourceSoftFails(t *testing.T) {
 		t.Errorf("events mutated despite missing-resource teach: %v", events)
 	}
 }
+
+// TestApplyLearningsForSearch_UntypedLearningLandsInOneGroup pins the
+// fix for the empty-resource_type triple-insert bug: a learning with no
+// resource_type must surface in exactly one search slice (the one whose
+// table actually holds the row), not get prepended to events + news +
+// general.
+func TestApplyLearningsForSearch_UntypedLearningLandsInOneGroup(t *testing.T) {
+	t.Parallel()
+	s := openIntegrationStore(t)
+
+	stashedID := "401547443"
+	seedResource(t, s, "events", stashedID, `{"id":"`+stashedID+`","name":"Untyped boost target"}`)
+
+	events := []json.RawMessage{rawEvent("e1", "x")}
+	news := []json.RawMessage{rawEvent("n1", "y")}
+	general := []json.RawMessage{rawEvent("g1", "z")}
+
+	if _, _, err := s.UpsertLearning(context.Background(), store.UpsertLearningInput{
+		Query:      "ambiguous topic",
+		ResourceID: stashedID,
+		// ResourceType intentionally empty.
+		Action: store.LearningActionBoost,
+		Source: store.LearningSourceTaught,
+	}); err != nil {
+		t.Fatalf("teach: %v", err)
+	}
+
+	_, _ = applyLearningsForSearch(context.Background(), s, "ambiguous topic", &events, &news, &general)
+	// Only the events slice should have the synthetic insert; news and
+	// general should be untouched (any other behavior is the
+	// triple-insert regression).
+	if len(events) != 2 || rawHitID(events[0]) != stashedID {
+		t.Errorf("events should have the untyped boost at front; got %v", events)
+	}
+	if len(news) != 1 || rawHitID(news[0]) != "n1" {
+		t.Errorf("news should be untouched by untyped boost; got %v", news)
+	}
+	if len(general) != 1 || rawHitID(general[0]) != "g1" {
+		t.Errorf("general should be untouched by untyped boost; got %v", general)
+	}
+}

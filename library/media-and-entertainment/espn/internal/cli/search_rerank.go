@@ -94,12 +94,20 @@ func (a *searchApplier) InsertLearnedHit(h store.LearnedHit) error {
 	if !a.matchesKind(h.ResourceType) {
 		return store.ErrApplierSkip
 	}
-	raw, ok := resolveSearchLearnedHit(a.ctx, a.db, h)
+	raw, foundKind, ok := resolveSearchLearnedHit(a.ctx, a.db, h)
 	if !ok {
 		// Resource not in local store: nothing to insert. Returning the
 		// sentinel keeps Apply from counting this as an applied change
 		// (which would mislead hintForApplied into "low_confidence" when
 		// the bundle was untouched).
+		return store.ErrApplierSkip
+	}
+	// When the learning was untyped (resource_type == ""), the resolver
+	// returns the first table that had the row; only the applier whose
+	// group matches that discovery should claim the insert. Without this
+	// gate, an untyped boost fans out to events + news + general (the
+	// same raw payload prepended to all three slices).
+	if h.ResourceType == "" && foundKind != a.kind {
 		return store.ErrApplierSkip
 	}
 	items := append([]json.RawMessage{raw}, *a.items...)
@@ -125,7 +133,7 @@ func (a *searchApplier) ReplaceHit(srcType, srcID, dstType, dstID string) error 
 		items := *a.items
 		for i, raw := range items {
 			if rawHitID(raw) == srcID {
-				rawDst, ok := resolveSearchLearnedHit(a.ctx, a.db, store.LearnedHit{
+				rawDst, _, ok := resolveSearchLearnedHit(a.ctx, a.db, store.LearnedHit{
 					ResourceType: dstType,
 					ResourceID:   dstID,
 				})
@@ -149,30 +157,100 @@ func (a *searchApplier) ReplaceHit(srcType, srcID, dstType, dstID string) error 
 }
 
 // resolveSearchLearnedHit looks up the raw JSON for a learning whose
-// resource the upstream search bundle missed. ESPN's store.Get is keyed
-// by (resource_type, id) against the generic resources table; when a
-// learning carries an empty resource_type we probe the priority order
-// events / news / resources, returning the first non-empty payload.
-func resolveSearchLearnedHit(ctx context.Context, db *store.Store, h store.LearnedHit) (json.RawMessage, bool) {
-	_ = ctx
+// resource the upstream search bundle missed. ESPN syncs events into
+// the `events` domain table (via UpsertEvent) and news into
+// `news_domain` (UpsertNews); the generic `resources` table only holds
+// types that don't have a dedicated domain table. We probe by group:
+//   - "events"   → SELECT data FROM events WHERE id = ?
+//   - "news"     → SELECT data FROM news_domain WHERE id = ?
+//   - otherwise  → db.Get against `resources` with the given type
+//
+// When the learning's resource_type is empty we probe events → news →
+// resources in that priority order and return the first non-empty
+// payload plus the group tag ("events" / "news" / "general") that
+// claimed it. Callers can use the tag to decide which applier instance
+// should accept the insert (see InsertLearnedHit). PATCH(pr#850):
+// returns the matching kind so untyped learnings don't fan out to all
+// three search groups, and reaches into the domain tables so taught
+// boosts for synced events / news actually fire.
+func resolveSearchLearnedHit(ctx context.Context, db *store.Store, h store.LearnedHit) (raw json.RawMessage, kind string, ok bool) {
 	if strings.TrimSpace(h.ResourceID) == "" {
-		return nil, false
+		return nil, "", false
 	}
-	candidates := []string{h.ResourceType}
-	if h.ResourceType == "" {
-		candidates = []string{"events", "news", "resources"}
+	// Each probe tries the domain table first, then falls back to the
+	// generic resources table under the same kind tag. The fallback
+	// matters because some integration paths (and tests) seed events /
+	// news via s.Upsert into `resources` rather than UpsertEvent /
+	// UpsertNews.
+	type probe struct {
+		kind  string
+		query func() (json.RawMessage, error)
 	}
-	for _, rt := range candidates {
-		raw, err := db.Get(rt, h.ResourceID)
-		if err != nil {
+	all := []probe{
+		{kind: "events", query: func() (json.RawMessage, error) {
+			if raw, err := getEventData(ctx, db, h.ResourceID); err == nil && len(raw) > 0 {
+				return raw, nil
+			}
+			return db.Get("events", h.ResourceID)
+		}},
+		{kind: "news", query: func() (json.RawMessage, error) {
+			if raw, err := getNewsData(ctx, db, h.ResourceID); err == nil && len(raw) > 0 {
+				return raw, nil
+			}
+			return db.Get("news", h.ResourceID)
+		}},
+		{kind: "general", query: func() (json.RawMessage, error) {
+			rt := h.ResourceType
+			if rt == "" || rt == "general" {
+				return nil, nil
+			}
+			return db.Get(rt, h.ResourceID)
+		}},
+	}
+	probes := all
+	switch h.ResourceType {
+	case "events":
+		probes = all[:1]
+	case "news":
+		probes = all[1:2]
+	case "":
+		// Probe all three.
+	default:
+		probes = all[2:]
+	}
+	for _, p := range probes {
+		raw, err := p.query()
+		if err != nil || len(raw) == 0 {
 			continue
 		}
-		if len(raw) == 0 {
-			continue
-		}
-		return raw, true
+		return raw, p.kind, true
 	}
-	return nil, false
+	return nil, "", false
+}
+
+// getEventData returns the JSON payload from the events domain table
+// for a synced event id, or nil if not present.
+func getEventData(ctx context.Context, db *store.Store, id string) (json.RawMessage, error) {
+	var data string
+	err := db.DB().QueryRowContext(ctx,
+		`SELECT data FROM events WHERE id = ?`, id,
+	).Scan(&data)
+	if err != nil {
+		return nil, err
+	}
+	return json.RawMessage(data), nil
+}
+
+// getNewsData returns the JSON payload from the news_domain table.
+func getNewsData(ctx context.Context, db *store.Store, id string) (json.RawMessage, error) {
+	var data string
+	err := db.DB().QueryRowContext(ctx,
+		`SELECT data FROM news_domain WHERE id = ?`, id,
+	).Scan(&data)
+	if err != nil {
+		return nil, err
+	}
+	return json.RawMessage(data), nil
 }
 
 // applyLearningsForSearch runs the rerank Apply engine against ESPN's

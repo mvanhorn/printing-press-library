@@ -379,7 +379,12 @@ type ForgetLearningsFilter struct {
 // removed. If All is false the filter must specify at least one of
 // ResourceID or Action (the Query is the primary scoping key and is
 // always required).
-func (s *Store) ForgetLearnings(f ForgetLearningsFilter) (int64, error) {
+//
+// ctx is forwarded to the DELETE so a `learnings forget` against a large
+// table can be cancelled by Ctrl+C instead of holding writeMu until the
+// 5 s busy-timeout fires. PATCH(pr#850): added ctx for parity with
+// UpsertLearning, ListLearnings, Apply, Recall.
+func (s *Store) ForgetLearnings(ctx context.Context, f ForgetLearningsFilter) (int64, error) {
 	if f.Query == "" {
 		return 0, fmt.Errorf("forget learnings: query is required")
 	}
@@ -405,7 +410,7 @@ func (s *Store) ForgetLearnings(f ForgetLearningsFilter) (int64, error) {
 		args = append(args, f.Action)
 	}
 	q := "DELETE FROM search_learnings WHERE " + strings.Join(clauses, " AND ")
-	res, err := s.db.Exec(q, args...)
+	res, err := s.db.ExecContext(ctx, q, args...)
 	if err != nil {
 		return 0, fmt.Errorf("forget learnings: %w", err)
 	}

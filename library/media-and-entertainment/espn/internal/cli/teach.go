@@ -637,7 +637,7 @@ func newLearningsListCmd(flags *rootFlags) *cobra.Command {
 // canonical store.ForgetLearningsFilter and returns the count
 // removed. Requires at least one of ResourceID, Action, or All on the
 // filter (enforced by the store side).
-func forgetLearningsRows(s *store.Store, query string, f store.ForgetLearningsFilter) (int64, error) {
+func forgetLearningsRows(ctx context.Context, s *store.Store, query string, f store.ForgetLearningsFilter) (int64, error) {
 	if s == nil {
 		return 0, errors.New("forgetLearningsRows: store is nil")
 	}
@@ -645,7 +645,7 @@ func forgetLearningsRows(s *store.Store, query string, f store.ForgetLearningsFi
 		return 0, errors.New("forgetLearningsRows: query is required")
 	}
 	f.Query = query
-	return s.ForgetLearnings(f)
+	return s.ForgetLearnings(ctx, f)
 }
 
 func newLearningsForgetCmd(flags *rootFlags) *cobra.Command {
@@ -678,7 +678,7 @@ Requires at least one of --resource, --action, or --all.`,
 			}
 			defer s.Close()
 
-			n, err := forgetLearningsRows(s, query, store.ForgetLearningsFilter{
+			n, err := forgetLearningsRows(cmd.Context(), s, query, store.ForgetLearningsFilter{
 				ResourceID: resourceArg,
 				Action:     actionArg,
 				All:        all,

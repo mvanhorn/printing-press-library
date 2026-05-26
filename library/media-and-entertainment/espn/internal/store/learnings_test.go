@@ -246,12 +246,12 @@ func TestForgetLearnings(t *testing.T) {
 	}
 
 	// Without --all / --resource / --action, refuse.
-	if _, err := s.ForgetLearnings(store.ForgetLearningsFilter{Query: "portugal world cup"}); err == nil {
+	if _, err := s.ForgetLearnings(context.Background(), store.ForgetLearningsFilter{Query: "portugal world cup"}); err == nil {
 		t.Errorf("want error when no filter provided")
 	}
 
 	// Targeted delete by resource.
-	n, err := s.ForgetLearnings(store.ForgetLearningsFilter{Query: "portugal world cup", ResourceID: "Y"})
+	n, err := s.ForgetLearnings(context.Background(), store.ForgetLearningsFilter{Query: "portugal world cup", ResourceID: "Y"})
 	if err != nil {
 		t.Fatalf("forget Y: %v", err)
 	}
@@ -260,7 +260,7 @@ func TestForgetLearnings(t *testing.T) {
 	}
 
 	// Wipe the rest.
-	n, err = s.ForgetLearnings(store.ForgetLearningsFilter{Query: "portugal world cup", All: true})
+	n, err = s.ForgetLearnings(context.Background(), store.ForgetLearningsFilter{Query: "portugal world cup", All: true})
 	if err != nil {
 		t.Fatalf("forget all: %v", err)
 	}
