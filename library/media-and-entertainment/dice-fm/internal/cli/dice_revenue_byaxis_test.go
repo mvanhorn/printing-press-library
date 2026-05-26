@@ -6,6 +6,7 @@ package cli
 import (
 	"bytes"
 	"context"
+	"strings"
 	"testing"
 
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/dice-fm/internal/store"
@@ -62,6 +63,34 @@ func TestRevenueByAxisFallsBackWhenUnnormalized(t *testing.T) {
 	// Warning must be non-empty on fallback.
 	if res.Warning == "" {
 		t.Errorf("want a warning message when falling back to raw grouping")
+	}
+}
+
+// TestLoadTicketTypeCrosswalkUnsupportedAxis verifies that calling
+// loadTicketTypeCrosswalk with an unrecognized axis name returns a descriptive
+// error naming the bad axis, rather than panicking or executing malformed SQL.
+func TestLoadTicketTypeCrosswalkUnsupportedAxis(t *testing.T) {
+	s := seedStore(t, map[string]map[string]string{})
+	_, err := loadTicketTypeCrosswalk(context.Background(), s.DB(), "bogus")
+	if err == nil {
+		t.Fatalf("want error for unsupported axis %q, got nil", "bogus")
+	}
+	if !strings.Contains(err.Error(), "bogus") {
+		t.Errorf("error %q should mention the unsupported axis name", err.Error())
+	}
+}
+
+// TestGroupTicketRevenueByAxisUnsupportedAxis verifies that calling
+// groupTicketRevenueByAxis with an unrecognized axis name returns a descriptive
+// error naming the bad axis, rather than constructing malformed SQL.
+func TestGroupTicketRevenueByAxisUnsupportedAxis(t *testing.T) {
+	s := seedStore(t, map[string]map[string]string{})
+	_, err := groupTicketRevenueByAxis(context.Background(), s.DB(), "bogus")
+	if err == nil {
+		t.Fatalf("want error for unsupported axis %q, got nil", "bogus")
+	}
+	if !strings.Contains(err.Error(), "bogus") {
+		t.Errorf("error %q should mention the unsupported axis name", err.Error())
 	}
 }
 

@@ -406,6 +406,9 @@ func groupTicketRevenueByAxis(ctx context.Context, db *sql.DB, axis string) ([]r
 		"comp_flag":         "CAST(ta.comp_flag AS TEXT)",
 	}
 	axisCol := colMap[axis]
+	if axisCol == "" {
+		return nil, fmt.Errorf("unsupported axis %q", axis)
+	}
 
 	// CASE logic:
 	//   - ec row absent or method='unmatched'  -> '(unclassified)'
@@ -576,9 +579,6 @@ func computeRevenueByAxisScoped(ctx context.Context, db *sql.DB, axis, eventFilt
 		}
 		return rows[i].AxisValue < rows[j].AxisValue
 	})
-	if rows == nil {
-		rows = []revenueByAxisRow{}
-	}
 	return &revenueByAxisResult{
 		Axis:       axis,
 		Normalized: true,
@@ -604,6 +604,9 @@ func loadTicketTypeCrosswalk(ctx context.Context, db *sql.DB, axis string) (map[
 		"comp_flag":         "CAST(ta.comp_flag AS TEXT)",
 	}
 	axisCol := colMap[axis]
+	if axisCol == "" {
+		return nil, fmt.Errorf("unsupported axis %q", axis)
+	}
 
 	query := fmt.Sprintf(`
 		SELECT ec.source_value, ec.method, COALESCE(%s, '') AS axis_val
@@ -688,9 +691,6 @@ func scopedFallbackByRaw(axis string, orders []storeOrder) (*revenueByAxisResult
 		}
 		return rows[i].AxisValue < rows[j].AxisValue
 	})
-	if rows == nil {
-		rows = []revenueByAxisRow{}
-	}
 	return &revenueByAxisResult{
 		Axis:       axis,
 		Normalized: false,

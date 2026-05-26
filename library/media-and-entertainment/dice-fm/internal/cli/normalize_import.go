@@ -271,7 +271,11 @@ func parseCSV(data []byte) ([]importRow, error) {
 				s := strings.ToLower(strings.TrimSpace(rec[ci]))
 				row.CompFlag = flexBool(s == "true" || s == "1" || s == "yes")
 			}
-			row.hasAxes = true
+			// hasAxes is true only when at least one axis field carries a meaningful
+			// value; a row with all-empty axis values must not write tier_attributes.
+			row.hasAxes = row.AccessClass != "" || row.SalesStage != "" ||
+				row.EntryWindowType != "" || row.EntryWindowTime != "" ||
+				row.GroupSize > 0 || bool(row.CompFlag)
 		}
 
 		rows = append(rows, row)
@@ -325,13 +329,12 @@ func parseJSON(data []byte) ([]importRow, error) {
 			}
 		}
 
-		// Determine hasAxes: any axis key present in the raw object.
-		for _, ac := range axisCols {
-			if _, ok := raw[ac]; ok {
-				r.hasAxes = true
-				break
-			}
-		}
+		// hasAxes is true only when at least one axis field carries a meaningful
+		// value; a row where every axis field is empty/zero must not write
+		// tier_attributes.
+		r.hasAxes = r.AccessClass != "" || r.SalesStage != "" ||
+			r.EntryWindowType != "" || r.EntryWindowTime != "" ||
+			r.GroupSize > 0 || bool(r.CompFlag)
 
 		if r.SourceValue == "" {
 			continue

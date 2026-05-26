@@ -92,3 +92,122 @@ func TestImportMappingUnknownFormat(t *testing.T) {
 		t.Error("want error for unknown format, got nil")
 	}
 }
+
+// TestImportCSVAllEmptyAxisValues verifies that when a CSV has axis columns but
+// every axis value for a row is empty/zero, no tier_attributes row is written
+// for that row. The crosswalk method=manual row must still be written.
+func TestImportCSVAllEmptyAxisValues(t *testing.T) {
+	s := openSeededStoreForImport(t)
+	// CSV has all axis columns, but values are empty for "empty name".
+	csvData := "source_value,access_class,sales_stage,entry_window_type,entry_window_time,group_size,comp_flag\n" +
+		"empty name,,,,,,\n"
+	n, err := importMapping(s, "dice", []byte(csvData), "csv")
+	if err != nil {
+		t.Fatalf("csv import: %v", err)
+	}
+	if n != 1 {
+		t.Fatalf("want 1 row imported, got %d", n)
+	}
+
+	// Crosswalk row must exist with method=manual.
+	cw, err := s.ListCrosswalk("ticket_type", "dice")
+	if err != nil {
+		t.Fatalf("ListCrosswalk: %v", err)
+	}
+	if len(cw) != 1 || cw[0].Method != "manual" {
+		t.Fatalf("want 1 manual crosswalk row, got %+v", cw)
+	}
+
+	// tier_attributes must NOT be written when all axis values are empty.
+	ta, err := s.ListTierAttributes("ticket_type")
+	if err != nil {
+		t.Fatalf("ListTierAttributes: %v", err)
+	}
+	if len(ta) != 0 {
+		t.Errorf("want 0 tier_attributes rows for all-empty axis row, got %d: %+v", len(ta), ta)
+	}
+}
+
+// TestImportJSONAllEmptyAxisValues verifies the same guarantee on the JSON path:
+// a row with all-empty axis values must not write a tier_attributes row.
+func TestImportJSONAllEmptyAxisValues(t *testing.T) {
+	s := openSeededStoreForImport(t)
+	jsonDoc := `[{"source_value":"empty json row","access_class":"","sales_stage":"","entry_window_type":"","entry_window_time":"","group_size":0,"comp_flag":false}]`
+	n, err := importMapping(s, "dice", []byte(jsonDoc), "json")
+	if err != nil {
+		t.Fatalf("json import: %v", err)
+	}
+	if n != 1 {
+		t.Fatalf("want 1 row imported, got %d", n)
+	}
+
+	// Crosswalk row must exist with method=manual.
+	cw, err := s.ListCrosswalk("ticket_type", "dice")
+	if err != nil {
+		t.Fatalf("ListCrosswalk: %v", err)
+	}
+	if len(cw) != 1 || cw[0].Method != "manual" {
+		t.Fatalf("want 1 manual crosswalk row, got %+v", cw)
+	}
+
+	// tier_attributes must NOT be written.
+	ta, err := s.ListTierAttributes("ticket_type")
+	if err != nil {
+		t.Fatalf("ListTierAttributes: %v", err)
+	}
+	if len(ta) != 0 {
+		t.Errorf("want 0 tier_attributes rows for all-empty axis row, got %d: %+v", len(ta), ta)
+	}
+}
+
+// TestImportCSVNonEmptyAxisValuesWritesTierAttributes verifies that when a CSV
+// row has at least one non-empty axis value, tier_attributes is written
+// (regression-guard for the existing behavior).
+func TestImportCSVNonEmptyAxisValuesWritesTierAttributes(t *testing.T) {
+	s := openSeededStoreForImport(t)
+	csvData := "source_value,access_class,sales_stage\n" +
+		"vip name,vip,\n"
+	n, err := importMapping(s, "dice", []byte(csvData), "csv")
+	if err != nil {
+		t.Fatalf("csv import: %v", err)
+	}
+	if n != 1 {
+		t.Fatalf("want 1 row imported, got %d", n)
+	}
+
+	ta, err := s.ListTierAttributes("ticket_type")
+	if err != nil {
+		t.Fatalf("ListTierAttributes: %v", err)
+	}
+	if len(ta) != 1 {
+		t.Fatalf("want 1 tier_attributes row for non-empty axis, got %d", len(ta))
+	}
+	if ta[0].AccessClass != "vip" {
+		t.Errorf("access_class = %q, want %q", ta[0].AccessClass, "vip")
+	}
+}
+
+// TestImportJSONNonEmptyAxisValueWritesTierAttributes verifies that a JSON row
+// with at least one non-empty axis value writes tier_attributes.
+func TestImportJSONNonEmptyAxisValueWritesTierAttributes(t *testing.T) {
+	s := openSeededStoreForImport(t)
+	jsonDoc := `[{"source_value":"ga name","access_class":"ga","sales_stage":"","group_size":0,"comp_flag":false}]`
+	n, err := importMapping(s, "dice", []byte(jsonDoc), "json")
+	if err != nil {
+		t.Fatalf("json import: %v", err)
+	}
+	if n != 1 {
+		t.Fatalf("want 1 row imported, got %d", n)
+	}
+
+	ta, err := s.ListTierAttributes("ticket_type")
+	if err != nil {
+		t.Fatalf("ListTierAttributes: %v", err)
+	}
+	if len(ta) != 1 {
+		t.Fatalf("want 1 tier_attributes row, got %d", len(ta))
+	}
+	if ta[0].AccessClass != "ga" {
+		t.Errorf("access_class = %q, want %q", ta[0].AccessClass, "ga")
+	}
+}

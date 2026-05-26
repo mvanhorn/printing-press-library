@@ -143,6 +143,43 @@ func TestGuestlistComp(t *testing.T) {
 	}
 }
 
+// TestDeadlineSynonymWordBoundary verifies that reDeadlineSynonym does NOT match
+// "entry"/"enter" mid-word (e.g. "gentry by 10pm", "re-entry by 10pm") but still
+// matches the real space-separated phrases.
+func TestDeadlineSynonymWordBoundary(t *testing.T) {
+	// These must NOT be classified as deadlines — the keyword appears mid-word.
+	noMatch := []string{
+		"gentry by 10pm",
+		"re-entry by 10pm",
+	}
+	for _, in := range noMatch {
+		got := extractTierAxes(in)
+		if got.EntryWindowType == "deadline" {
+			t.Errorf("extractTierAxes(%q): EntryWindowType = %q, want NOT deadline (mid-word match)", in, got.EntryWindowType)
+		}
+	}
+
+	// These must still be classified as deadlines with the correct 24h time.
+	yesMatch := []struct {
+		in       string
+		wantTime string
+	}{
+		{"entry by 9pm", "21:00"},
+		{"enter before 10pm", "22:00"},
+		{"must be in by 11pm", "23:00"},
+		{"must enter by 8pm", "20:00"},
+	}
+	for _, c := range yesMatch {
+		got := extractTierAxes(c.in)
+		if got.EntryWindowType != "deadline" {
+			t.Errorf("extractTierAxes(%q): EntryWindowType = %q, want deadline", c.in, got.EntryWindowType)
+		}
+		if got.EntryWindowTime != c.wantTime {
+			t.Errorf("extractTierAxes(%q): EntryWindowTime = %q, want %q", c.in, got.EntryWindowTime, c.wantTime)
+		}
+	}
+}
+
 // TestParse12hEdgeCases verifies 12am → "00:00" and 12pm → "12:00".
 func TestParse12hEdgeCases(t *testing.T) {
 	cases := []struct {

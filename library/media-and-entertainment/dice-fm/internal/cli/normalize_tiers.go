@@ -38,8 +38,10 @@ var (
 	// reDeadlineSynonym matches additional entry-window deadline phrasings:
 	//   "entry by 9pm", "enter before 10pm", "arrive before 8pm",
 	//   "must be in by 11pm", "be in by 10pm".
+	// The (?:^| ) anchor requires the keyword to start at string-start or after
+	// a space so mid-word substrings like "gentry" or "re-entry" do not match.
 	// Capture groups: (1) hour, (2) optional minutes, (3) am/pm.
-	reDeadlineSynonym = regexp.MustCompile(`(?:must )?(?:enter|entry|arrive|be in) (?:by|before) (\d{1,2})(?::(\d{2}))? ?(am|pm)`)
+	reDeadlineSynonym = regexp.MustCompile(`(?:^| )(?:must )?(?:enter|entry|arrive|be in) (?:by|before) (\d{1,2})(?::(\d{2}))? ?(am|pm)`)
 	reAnytime         = regexp.MustCompile(`\banytime\b`)
 	reDoor            = regexp.MustCompile(`\bat the door\b|\bat door\b`)
 	reYouPlus         = regexp.MustCompile(`you ?\+ ?(\d+)`)
