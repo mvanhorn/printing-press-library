@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "defillama-pp-mcp",
+  "display_name": "Defillama",
+  "version": "4.16.0",
+  "description": "DefiLlama offers two ways to use our data with AI:",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/defillama-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/defillama-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}
