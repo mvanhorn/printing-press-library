@@ -159,7 +159,7 @@ func newVelocityShowCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "show",
 		Short:       "Show cumulative ticket sales by day or hour relative to on-sale",
-		Example:     "  dice-fm-pp-cli velocity show --event RXExampleEventID --bucket day --json",
+		Example:     "  dice-fm-pp-cli velocity show --event RXZlbnQ6MTIzNDU= --bucket day --json",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {

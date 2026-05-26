@@ -57,7 +57,7 @@ These capabilities aren't available in any other tool for this API.
   _Use this before every show to get the definitive 'who can enter' list including all transfers and minus all returns._
 
   ```bash
-  dice-fm-pp-cli door list --event evt_abc123 --json
+  dice-fm-pp-cli door list --event RXZlbnQ6MTIzNDU= --json
   ```
 
 ### Financial intelligence
@@ -73,7 +73,7 @@ These capabilities aren't available in any other tool for this API.
   _Use within the first 72 hours after an on-sale to decide whether an event needs promotional push._
 
   ```bash
-  dice-fm-pp-cli velocity show --event evt_abc123 --bucket day --json
+  dice-fm-pp-cli velocity show --event RXZlbnQ6MTIzNDU= --bucket day --json
   ```
 - **`returns anomalies`** — Flag events with unusually high refund rates — a pricing or marketing signal that deserves immediate attention.
 
@@ -96,14 +96,14 @@ These capabilities aren't available in any other tool for this API.
   _Use every Monday to build targeted email lists from the previous week's ticket buyers without touching the Dice dashboard._
 
   ```bash
-  dice-fm-pp-cli fans optin --event evt_abc123 --country GB --city London --csv
+  dice-fm-pp-cli fans optin --event RXZlbnQ6MTIzNDU= --country GB --city London --csv
   ```
 - **`fans top`** — Rank ticket buyers by total spend for an event or across all events — your VIP list for comps, upgrades, and sponsor decks.
 
   _Use before each show to identify high-value fans for VIP treatment, and before sponsor meetings to demonstrate audience quality._
 
   ```bash
-  dice-fm-pp-cli fans top --event evt_abc123 --n 20 --json
+  dice-fm-pp-cli fans top --event RXZlbnQ6MTIzNDU= --n 20 --json
   ```
 
 ## Command Reference
@@ -154,7 +154,7 @@ dice-fm-pp-cli which "<capability in your own words>"
 ### Build tonight's door list
 
 ```bash
-dice-fm-pp-cli door list --event evt_abc123 --json
+dice-fm-pp-cli door list --event RXZlbnQ6MTIzNDU= --json
 ```
 
 Returns valid ticket holders with transfer resolution — who holds valid tickets, with new holder names for any transferred tickets.
@@ -162,7 +162,7 @@ Returns valid ticket holders with transfer resolution — who holds valid ticket
 ### Export opted-in London fans for Mailchimp
 
 ```bash
-dice-fm-pp-cli fans optin --event evt_abc123 --country GB --city London --csv
+dice-fm-pp-cli fans optin --event RXZlbnQ6MTIzNDU= --country GB --city London --csv
 ```
 
 Filters opted-in buyers from London, outputs CSV with firstName, lastName, email for direct import.
@@ -186,7 +186,7 @@ Lists fans who attended 2+ events this year with total spend — warm audience f
 ### Check ticket velocity in first 72 hours
 
 ```bash
-dice-fm-pp-cli velocity show --event evt_abc123 --bucket hour --json --select hour_offset,cumulative_sold
+dice-fm-pp-cli velocity show --event RXZlbnQ6MTIzNDU= --bucket hour --json --select hour_offset,cumulative_sold
 ```
 
 Shows hourly cumulative ticket sales relative to on-sale time so you can decide if an event needs promotional push.

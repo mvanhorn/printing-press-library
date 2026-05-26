@@ -55,7 +55,7 @@ func newEventsGetCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "get <id>",
 		Short:       "Get a single event by ID",
-		Example:     "  dice-fm-pp-cli events get RXThisExampleEventID --json",
+		Example:     "  dice-fm-pp-cli events get RXZlbnQ6MTIzNDU= --json",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -84,7 +84,7 @@ func newTicketsPromotedCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "tickets",
 		Short:       "List sold tickets with holder details, pricing, and claim status",
-		Example:     "  dice-fm-pp-cli tickets --event RXThisExampleEventID --json",
+		Example:     "  dice-fm-pp-cli tickets --event RXZlbnQ6MTIzNDU= --json",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			var clauses []map[string]any
@@ -109,7 +109,7 @@ func newOrdersPromotedCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "orders",
 		Short:       "List ticket purchase orders with financial and geographic data",
-		Example:     "  dice-fm-pp-cli orders --event RXThisExampleEventID --json",
+		Example:     "  dice-fm-pp-cli orders --event RXZlbnQ6MTIzNDU= --json",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			var where map[string]any
@@ -130,7 +130,7 @@ func newReturnsPromotedCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "returns",
 		Short:       "List ticket returns and refunds",
-		Example:     "  dice-fm-pp-cli returns --event RXThisExampleEventID --json",
+		Example:     "  dice-fm-pp-cli returns --event RXZlbnQ6MTIzNDU= --json",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			var where map[string]any
@@ -151,7 +151,7 @@ func newTransfersPromotedCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "transfers",
 		Short:       "List ticket transfers between fans",
-		Example:     "  dice-fm-pp-cli transfers --event RXThisExampleEventID --json",
+		Example:     "  dice-fm-pp-cli transfers --event RXZlbnQ6MTIzNDU= --json",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			var where map[string]any
@@ -173,7 +173,7 @@ func newExtrasPromotedCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "extras",
 		Short:       "List extras and add-ons sold with tickets",
-		Example:     "  dice-fm-pp-cli extras --event RXThisExampleEventID --json",
+		Example:     "  dice-fm-pp-cli extras --event RXZlbnQ6MTIzNDU= --json",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			var clauses []map[string]any

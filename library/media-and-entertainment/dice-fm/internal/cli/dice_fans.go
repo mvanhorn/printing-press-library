@@ -256,7 +256,7 @@ func newFansTopCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "top",
 		Short:       "Rank ticket buyers by total spend",
-		Example:     "  dice-fm-pp-cli fans top --event RXExampleEventID --n 20 --json",
+		Example:     "  dice-fm-pp-cli fans top --event RXZlbnQ6MTIzNDU= --n 20 --json",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {

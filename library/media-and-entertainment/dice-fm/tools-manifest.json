@@ -1,7 +1,7 @@
 {
   "api_name": "dice-fm",
   "base_url": "https://partners-endpoint.dice.fm",
-  "description": "Every ticket, fan, and pound of revenue from your DICE events — queryable, exportable, and joinable across shows.",
+  "description": "Every ticket, fan, and pound of revenue from your DICE events \u2014 queryable, exportable, and joinable across shows.",
   "mcp_ready": "full",
   "http_transport": "standard",
   "auth": {
@@ -74,7 +74,7 @@
     },
     {
       "name": "genres_list",
-      "description": "List genre types. Returns array of GenreType.",
+      "description": "List the DICE genre types available for classifying events (e.g. Electronic, Rock, Hip-Hop). No parameters. Returns an array of genre types, each with an id, name, and its child genres (id and name). Use this to resolve genre names to IDs or to populate a genre filter before querying events.",
       "method": "POST",
       "path": "/graphql",
       "params": []
@@ -95,7 +95,7 @@
     },
     {
       "name": "returns_list",
-      "description": "List returns (filter by event). Optional: event.",
+      "description": "List ticket returns and refunds across your DICE events. Optional: event (a DICE event ID) to scope the results to one show. Returns an array of returns, each with id, ticketId, returnedAt, reason, and the linked ticket, order, and event. Use this to investigate refund activity; pair with returns anomalies to flag events with unusually high return rates.",
       "method": "POST",
       "path": "/graphql",
       "params": [

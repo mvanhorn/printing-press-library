@@ -62,7 +62,7 @@ func newDoorListCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "list",
 		Short:       "List valid ticket holders for an event (excludes returns, shows transfers)",
-		Example:     "  dice-fm-pp-cli door list --event RXExampleEventID --json",
+		Example:     "  dice-fm-pp-cli door list --event RXZlbnQ6MTIzNDU= --json",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {

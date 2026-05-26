@@ -127,7 +127,7 @@ dice-fm-pp-cli sync --full
 dice-fm-pp-cli revenue summary --from 2026-01-01 --json
 
 # 4. Build tonight's door list, transfers resolved and returns removed
-dice-fm-pp-cli door list --event evt_abc123
+dice-fm-pp-cli door list --event RXZlbnQ6MTIzNDU=
 
 # 5. Export your repeat buyers for re-engagement campaigns
 dice-fm-pp-cli fans repeat --min-events 2 --csv
@@ -143,7 +143,7 @@ These capabilities aren't available in any other tool for this API.
   _Use this before every show to get the definitive 'who can enter' list including all transfers and minus all returns._
 
   ```bash
-  dice-fm-pp-cli door list --event evt_abc123 --json
+  dice-fm-pp-cli door list --event RXZlbnQ6MTIzNDU= --json
   ```
 
 ### Financial intelligence
@@ -159,7 +159,7 @@ These capabilities aren't available in any other tool for this API.
   _Use within the first 72 hours after an on-sale to decide whether an event needs promotional push._
 
   ```bash
-  dice-fm-pp-cli velocity show --event evt_abc123 --bucket day --json
+  dice-fm-pp-cli velocity show --event RXZlbnQ6MTIzNDU= --bucket day --json
   ```
 - **`returns anomalies`** — Flag events with unusually high refund rates — a pricing or marketing signal that deserves immediate attention.
 
@@ -182,14 +182,14 @@ These capabilities aren't available in any other tool for this API.
   _Use every Monday to build targeted email lists from the previous week's ticket buyers without touching the Dice dashboard._
 
   ```bash
-  dice-fm-pp-cli fans optin --event evt_abc123 --country GB --city London --csv
+  dice-fm-pp-cli fans optin --event RXZlbnQ6MTIzNDU= --country GB --city London --csv
   ```
 - **`fans top`** — Rank ticket buyers by total spend for an event or across all events — your VIP list for comps, upgrades, and sponsor decks.
 
   _Use before each show to identify high-value fans for VIP treatment, and before sponsor meetings to demonstrate audience quality._
 
   ```bash
-  dice-fm-pp-cli fans top --event evt_abc123 --n 20 --json
+  dice-fm-pp-cli fans top --event RXZlbnQ6MTIzNDU= --n 20 --json
   ```
 
 ## Usage
@@ -273,13 +273,13 @@ Real workflows, every flag verified against `--help`.
 dice-fm-pp-cli revenue summary --from 2026-01-01 --json
 
 # Net revenue for a single show
-dice-fm-pp-cli revenue summary --event evt_abc123
+dice-fm-pp-cli revenue summary --event RXZlbnQ6MTIzNDU=
 
 # Tonight's door list (transfers resolved, returns removed) as JSON
-dice-fm-pp-cli door list --event evt_abc123 --json
+dice-fm-pp-cli door list --event RXZlbnQ6MTIzNDU= --json
 
 # Is an on-sale tracking fast or slow? Hourly pace for the first day
-dice-fm-pp-cli velocity show --event evt_abc123 --bucket hour
+dice-fm-pp-cli velocity show --event RXZlbnQ6MTIzNDU= --bucket hour
 
 # Surface events with refund rates above 8% — a pricing/marketing signal
 dice-fm-pp-cli returns anomalies --threshold 0.08 --agent
@@ -288,7 +288,7 @@ dice-fm-pp-cli returns anomalies --threshold 0.08 --agent
 dice-fm-pp-cli fans repeat --min-events 2 --since 2026-01-01 --csv
 
 # Top 20 spenders for a show — your VIP / comp list
-dice-fm-pp-cli fans top --event evt_abc123 --n 20 --json
+dice-fm-pp-cli fans top --event RXZlbnQ6MTIzNDU= --n 20 --json
 
 # Opted-in London fans, CSV ready for Mailchimp
 dice-fm-pp-cli fans optin --country GB --city London --csv
