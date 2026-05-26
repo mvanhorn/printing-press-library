@@ -197,7 +197,9 @@ func (c *Client) callTool(ctx context.Context, name string, args any) (json.RawM
 			return nil, err
 		}
 		if resp.StatusCode == 429 && attempt == 0 {
-			c.Limiter.OnRateLimit()
+			if c.Limiter != nil {
+				c.Limiter.OnRateLimit()
+			}
 			wait := cliutil.RetryAfter(resp)
 			resp.Body.Close()
 			select {
@@ -226,8 +228,12 @@ func (c *Client) callTool(ctx context.Context, name string, args any) (json.RawM
 	}
 	// Signal success only after the response is structurally valid; a 2xx
 	// with malformed JSON shouldn't ramp the limiter as if the call
-	// produced usable data.
-	c.Limiter.OnSuccess()
+	// produced usable data. Nil-guarded to match waitForSlot, since the
+	// Limiter field is documented as nil-safe and TestWaitForSlot_DisabledWhenNil
+	// exercises that path.
+	if c.Limiter != nil {
+		c.Limiter.OnSuccess()
+	}
 	return rr.Result, nil
 }
 

@@ -4,6 +4,9 @@ package trivago
 
 import (
 	"context"
+	"encoding/json"
+	"net/http"
+	"net/http/httptest"
 	"testing"
 	"time"
 
@@ -107,5 +110,38 @@ func TestNewClient_Defaults(t *testing.T) {
 	}
 	if got := c.Limiter.Rate(); got != DefaultRatePerSec {
 		t.Errorf("Limiter rate = %v, want %v", got, DefaultRatePerSec)
+	}
+}
+
+// TestCallTool_NilLimiter_NoPanic locks in the contract that callTool's
+// limiter signalling paths (OnRateLimit on 429, OnSuccess on a clean
+// 2xx) are nil-safe. waitForSlot already exercises the nil path; this
+// covers the symmetric assumption for the other two limiter call sites
+// so a future refactor that drops a guard panics here, not in prod.
+func TestCallTool_NilLimiter_NoPanic(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		var req map[string]any
+		_ = json.NewDecoder(r.Body).Decode(&req)
+		switch req["method"] {
+		case "initialize":
+			w.Header().Set("Mcp-Session-Id", "test-session")
+			w.Header().Set("Content-Type", "application/json")
+			_, _ = w.Write([]byte(`{"jsonrpc":"2.0","id":1,"result":{}}`))
+		case "tools/call":
+			w.Header().Set("Content-Type", "application/json")
+			_, _ = w.Write([]byte(`{"jsonrpc":"2.0","id":2,"result":{"ok":true}}`))
+		default:
+			w.WriteHeader(http.StatusNoContent)
+		}
+	}))
+	defer srv.Close()
+
+	c := &Client{
+		HTTPClient: srv.Client(),
+		Endpoint:   srv.URL,
+		Limiter:    nil,
+	}
+	if _, err := c.callTool(context.Background(), "noop", map[string]any{}); err != nil {
+		t.Fatalf("callTool with nil Limiter returned error: %v", err)
 	}
 }
