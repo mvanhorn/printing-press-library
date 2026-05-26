@@ -58,6 +58,7 @@ Pipe any command for automatic JSON output.`,
 
 	root.AddCommand(newPhotosCmd(f))
 	root.AddCommand(newMessagesCmd(f))
+	root.AddCommand(newContactsCmd(f))
 	root.AddCommand(newDoctorCmd(f))
 
 	return root.Execute()

@@ -82,6 +82,18 @@
       "summary": "fillLastPreviews and printSearchTable slice text via []rune so previews don't split multi-byte UTF-8 runes at the truncation boundary.",
       "reason": "Byte-index truncation (text[:maxLen]) on emoji or CJK previews left a half rune at the end, which both JSON encoders and terminals render as U+FFFD mojibake. Rune-aware slicing keeps the cut at a glyph boundary. Greptile P1 on PR #766.",
       "files": ["internal/cli/messages_db.go", "internal/cli/messages_search.go"]
+    },
+    {
+      "id": "contacts-jxa-sqlite-store",
+      "summary": "contacts.go / contacts_db.go / contacts_analytics.go add a full contacts command group: sync (JXA → SQLite), list, get, search (FTS5), create, update, delete, and analytics subcommands (countries, domains, missing).",
+      "reason": "macOS Contacts requires Full Disk Access for raw SQLite but is fully readable via JXA (JavaScript for Automation) without any special permission. A local SQLite cache (~/Library/Application Support/icloud-pp-cli/contacts.db) is populated once via a single JXA call and makes all subsequent reads instant (<20ms). Phone numbers are resolved to countries via a longest-prefix E.164 dial-code map, enabling the `contacts analytics countries` command that groups contacts by country without any network call.",
+      "files": [
+        "internal/cli/contacts.go",
+        "internal/cli/contacts_analytics.go",
+        "internal/cli/contacts_db.go",
+        "internal/cli/root.go"
+      ],
+      "validated_outcome": "Synced 1,648 contacts; analytics countries returned 47 countries; FTS5 search on 'juan' returned 21 results in 13ms."
     }
   ]
 }
