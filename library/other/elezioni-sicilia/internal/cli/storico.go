@@ -122,7 +122,11 @@ e mostra un confronto della partecipazione elettorale nel tempo.`,
 				if a.Errore != "" {
 					rows = append(rows, []string{fmt.Sprintf("%d", a.Anno), "-", "-", a.Errore})
 				} else {
-					rows = append(rows, []string{fmt.Sprintf("%d", a.Anno), a.Elettori, a.Votanti, a.Percentuale + "%"})
+					perc := "-"
+					if a.Percentuale != "" {
+						perc = a.Percentuale + "%"
+					}
+					rows = append(rows, []string{fmt.Sprintf("%d", a.Anno), a.Elettori, a.Votanti, perc})
 				}
 			}
 			return flags.printTable(cmd, []string{"ANNO", "ELETTORI", "VOTANTI", "% AFFLUENZA"}, rows)
