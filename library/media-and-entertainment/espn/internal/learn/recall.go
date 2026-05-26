@@ -344,6 +344,25 @@ func Recall(ctx context.Context, db *sql.DB, query string, opts Opts) (Result, e
 				//   - otherwise: row is genuine noise, drop it.
 				switch {
 				case canonicalOverlap:
+					// Case 1's purpose is cross-alias matching: the
+					// query and stored row use DIFFERENT literal
+					// entities ("49ers" vs "Niners") that resolve to
+					// the same canonical. The canonicalJaccard boost
+					// to 1.0 (single canonical on each side, identical)
+					// rewards that real cross-alias hit. But when query
+					// and stored share the SAME literal entity that
+					// happens to be in entity_lookups, canonicalOverlap
+					// is also true and canonicalJaccard is also 1.0 —
+					// boosting structurally-unrelated rows to score=1.0
+					// and admitting them above jMin (e.g. "mariners
+					// today scoreboard" lands at 1.0 for "mariners end
+					// of year stats" despite structural Jaccard=0.0).
+					// Guard the boost: only fire when literal entities
+					// genuinely differ. Same-entity rows that miss jMin
+					// are genuine structural noise and should drop.
+					if entitySlicesIntersect(normalized.Entities, storedEntitySlice) {
+						continue
+					}
 					canonScore := canonicalJaccard(queryCanonicals, storedCanonicals)
 					if canonScore > score {
 						score = canonScore
@@ -720,9 +739,13 @@ func (r *CanonicalResolver) ResolveSet(entities []string) map[string]struct{} {
 }
 
 // entitySlicesIntersect reports whether two literal entity slices
-// share at least one element. Used to detect "same literal entity but
-// entity_lookups has no canonical row for it" — those rows must not
-// slip through the lower crossAliasMin floor.
+// share at least one element after case-insensitive comparison.
+// Used to detect "same literal entity" — normalized.Entities is
+// lowercased by Normalize, but storedEntitySlice comes straight from
+// ParseStoredEntities (which preserves the case the extractor saw at
+// teach time, e.g. "Mariners"). A naive case-sensitive comparison
+// would miss the match. Same-entity rows must not slip through the
+// lower crossAliasMin floor or get inflated by canonicalJaccard.
 func entitySlicesIntersect(a, b []string) bool {
 	if len(a) == 0 || len(b) == 0 {
 		return false
@@ -732,10 +755,10 @@ func entitySlicesIntersect(a, b []string) bool {
 	}
 	seen := make(map[string]struct{}, len(a))
 	for _, v := range a {
-		seen[v] = struct{}{}
+		seen[strings.ToLower(strings.TrimSpace(v))] = struct{}{}
 	}
 	for _, v := range b {
-		if _, ok := seen[v]; ok {
+		if _, ok := seen[strings.ToLower(strings.TrimSpace(v))]; ok {
 			return true
 		}
 	}

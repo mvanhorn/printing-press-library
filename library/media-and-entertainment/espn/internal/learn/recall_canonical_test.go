@@ -680,3 +680,40 @@ func TestRecall_SameEntity_NoCanonicalLookup_DropsBelowJMin(t *testing.T) {
 		t.Errorf("expected zero Results, got %d (effective jMin downgraded)", len(got.Results))
 	}
 }
+
+// TestRecall_SameEntity_CanonicalJaccardDoesNotInflateScore guards
+// the second Greptile finding on PR #851 round 3: case 1 of the
+// fallback switch (canonicalOverlap branch) used to boost the score
+// via canonicalJaccard for any row whose canonicals overlapped the
+// query — including same-literal-entity rows where the boost is
+// trivially 1.0 (one canonical on each side, identical). A
+// structurally unrelated stored row could surface at score=1.0 above
+// jMin. The case-1 entitySlicesIntersect guard mirrors the case-2
+// guard added in the prior round.
+func TestRecall_SameEntity_CanonicalJaccardDoesNotInflateScore(t *testing.T) {
+	t.Parallel()
+	db := openCanonicalTestDB(t)
+	seedCanonical(t, db, "mlb_team", "Seattle Mariners",
+		[]string{"Seattle Mariners", "Mariners", "SEA"})
+	// Stored row shares the entity ("mariners") and is structurally
+	// disjoint from the recall query: zero non-entity-token overlap.
+	// Pre-fix, canonicalJaccard would boost this to score=1.0.
+	seedCanonicalLearning(t, db,
+		"today scoreboard mariners",
+		`["Mariners"]`, "tv-scoreboard", "tv")
+
+	got, err := Recall(context.Background(), db,
+		"how did mariners end the year ppg stats",
+		Opts{EntityConfig: espnLikeConfig()})
+	if err != nil {
+		t.Fatalf("recall: %v", err)
+	}
+	if got.Found {
+		t.Errorf("structurally disjoint same-entity row must not be admitted via canonical-overlap boost; got %+v", got)
+	}
+	for _, r := range got.Results {
+		if r.ResourceID == "tv-scoreboard" {
+			t.Errorf("unrelated stored row leaked into Results with score=%v", r.MatchScore)
+		}
+	}
+}

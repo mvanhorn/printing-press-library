@@ -179,6 +179,56 @@ func TestResolveSlots_EmptySlots(t *testing.T) {
 	}
 }
 
+// TestResolveSlots_OnlyConsidersEntities guards the Greptile finding
+// on PR #851 round 3: ResolveSlots used to include non-entity tokens
+// in the candidate pool. If a token classified as non-entity happens
+// to resolve via entity_lookups (a secondary-alias collision the
+// extractor didn't promote), the old code would still let it win a
+// slot binding meant for a real entity. The fix restricts the pool
+// to normalized.Entities so the slot stays unbound rather than
+// silently grabbing the wrong token.
+//
+// To exercise the contract without depending on PromoteEntities'
+// classification logic, we construct the normalized query directly:
+// "boston" is in Entities, "ppg" is only in NonEntityNormalized, and
+// the resolver can resolve BOTH. Pre-fix: "ppg" would have won
+// because the candidate pool included non-entity tokens. Post-fix:
+// "boston" is the only candidate.
+func TestResolveSlots_OnlyConsidersEntities(t *testing.T) {
+	t.Parallel()
+	db := openCanonicalTestDB(t)
+	seedCanonical(t, db, "nba_team", "Boston Celtics",
+		[]string{"Boston Celtics", "Boston", "Celtics", "BOS"})
+	// Register "ppg" as a secondary alias of a different canonical so
+	// the resolver returns a hit for it.
+	seedCanonical(t, db, "stat_abbrev", "PointsPerGame",
+		[]string{"PointsPerGame", "ppg"})
+
+	p := Playbook{
+		EntitySlots: []string{"$TEAM"},
+		Steps:       []PlaybookStep{{Cmd: "leaders {team.abbr}"}},
+	}
+	// Hand-build the normalized query so "ppg" stays in
+	// NonEntityNormalized (the test of the fix's contract).
+	normalized := NormalizedQuery{
+		Entities:            []string{"boston"},
+		NonEntityNormalized: "leads ppg who",
+	}
+	resolver := NewCanonicalResolver(context.Background(), db)
+	got := ResolveSlots(p, normalized, resolver)
+
+	slot, ok := got["$TEAM"]
+	if !ok {
+		t.Fatalf("$TEAM slot missing; got %+v", got)
+	}
+	if slot["token"] == "ppg" || slot["canonical"] == "PointsPerGame" {
+		t.Errorf("non-entity token 'ppg' wrongly won the $TEAM slot; slot=%+v", slot)
+	}
+	if slot["canonical"] != "Boston Celtics" {
+		t.Errorf("$TEAM canonical = %v, want Boston Celtics", slot["canonical"])
+	}
+}
+
 func TestResolveSlots_NilResolver(t *testing.T) {
 	t.Parallel()
 	p := Playbook{

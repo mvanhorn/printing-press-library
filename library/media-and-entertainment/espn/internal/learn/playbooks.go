@@ -110,8 +110,15 @@ func ResolveSlots(p Playbook, normalized NormalizedQuery, r EntityResolver) map[
 		return nil
 	}
 	out := make(map[string]map[string]any, len(p.EntitySlots))
+	// Slot binding must only consider tokens classified as entities
+	// (after PromoteEntities). Pulling in non-entity tokens would mean
+	// a non-entity token aliased in entity_lookups could win a slot
+	// that the playbook author intended for a real entity — e.g. a
+	// "$TEAM" slot getting bound to "ppg" if "ppg" were ever added as
+	// a secondary alias. The docstring says "Slots that don't match
+	// any query entity stay absent"; restricting the pool to
+	// normalized.Entities matches that intent.
 	queryTokens := append([]string(nil), normalized.Entities...)
-	queryTokens = append(queryTokens, strings.Fields(normalized.NonEntityNormalized)...)
 	sort.Strings(queryTokens)
 
 	// Build a working set of unmatched tokens; mark off as slots claim them.
