@@ -8,7 +8,11 @@ hotel-goat fans out across two cash-price sources by default:
 
 Pick a single source with `--source google` or `--source trivago`; the default is `--source both`. When both sources see the same property (matched on lat/lng + name overlap), the OTA prices are merged into one `prices[]` array. Trivago-only properties are appended as standalone rows so the agent gets a wider candidate set.
 
-When Trivago's currency differs from Google's (Trivago is geolocated server-side, so it often returns EUR), the source label is tagged `trivago/<OTA> [EUR]` and the headline `price_per_night` is only overridden when currencies match — so an agent never silently compares 802 EUR against 160 USD as if they were the same scale.
+Trivago is geolocated server-side and returns EUR regardless of client hints. When the headline currency differs (typically Google's USD vs Trivago's EUR), each Trivago price is converted via the Frankfurter ECB FX endpoint (free, no key, 24h on-disk cache) so the agent compares apples-to-apples. The source label records what happened:
+
+- **`trivago/<OTA> [EUR 802 -> USD]`** — FX conversion succeeded. The numeric `price` and headline `price_per_night` are the converted (USD) values; the native EUR amount is preserved in the label so the agent can see both.
+- **`trivago/<OTA> [EUR]`** — FX lookup failed (offline, Frankfurter outage). The numeric `price` is the native EUR value; the headline `price_per_night` is NOT overridden, so cross-source comparisons remain meaningful.
+- **`trivago/<OTA>`** (no bracket suffix) — currencies already matched, no conversion needed.
 
 v1 ships:
 - `hotels <location> <ci> <co>` — multi-source search with rich filters (brand, hotel-class, max-price, min-rating, amenities, currency)

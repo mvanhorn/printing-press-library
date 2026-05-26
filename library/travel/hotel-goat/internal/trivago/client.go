@@ -57,14 +57,20 @@ func NewClient() *Client {
 
 // waitForSlot blocks until the AdaptiveLimiter releases the next slot,
 // honoring ctx cancellation. No-op when Limiter is nil.
+//
+// The channel is buffered so the limiter goroutine never blocks on send
+// after the caller has already returned on ctx.Done(); the goroutine
+// finishes its Limiter.Wait() and exits without leaking under repeated
+// cancellation (AdaptiveLimiter backoff after 429 can otherwise outlive
+// the request).
 func (c *Client) waitForSlot(ctx context.Context) error {
 	if c.Limiter == nil {
 		return nil
 	}
-	done := make(chan struct{})
+	done := make(chan struct{}, 1)
 	go func() {
 		c.Limiter.Wait()
-		close(done)
+		done <- struct{}{}
 	}()
 	select {
 	case <-done:
@@ -210,7 +216,6 @@ func (c *Client) callTool(ctx context.Context, name string, args any) (json.RawM
 	if statusCode >= 400 {
 		return nil, fmt.Errorf("trivago: HTTP %d: %s", statusCode, truncate(raw))
 	}
-	c.Limiter.OnSuccess()
 	payload := parseMaybeSSE(raw)
 	var rr rpcResponse
 	if err := json.Unmarshal(payload, &rr); err != nil {
@@ -219,6 +224,10 @@ func (c *Client) callTool(ctx context.Context, name string, args any) (json.RawM
 	if rr.Error != nil {
 		return nil, fmt.Errorf("trivago %s: %s", name, rr.Error.Message)
 	}
+	// Signal success only after the response is structurally valid; a 2xx
+	// with malformed JSON shouldn't ramp the limiter as if the call
+	// produced usable data.
+	c.Limiter.OnSuccess()
 	return rr.Result, nil
 }
 

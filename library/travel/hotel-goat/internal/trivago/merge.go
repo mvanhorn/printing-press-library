@@ -226,15 +226,29 @@ var (
 	tokenSplit = regexp.MustCompile(`[^a-z0-9]+`)
 )
 
-// nameOverlap returns the token-set Jaccard ratio (over the smaller set,
-// so a short canonical name like "Park Hyatt Paris" still matches the
-// fuller "Park Hyatt Paris Vendôme" at 1.0 rather than 0.6). Stopwords
-// like "hotel" and "the" are stripped so they don't inflate matches
-// between unrelated properties.
+// nameOverlap returns the token-set overlap ratio using the LARGER set as
+// the denominator (standard Jaccard-ish, not min-denominator). Min would
+// score a single-token chain name like "Marriott" against any longer
+// "Marriott …" property as 1.0, then the 250m radius gate would silently
+// merge two distinct properties in dense city blocks. Max denominator
+// keeps legitimate matches strong ("Park Hyatt Paris" vs "Park Hyatt
+// Paris Vendôme" = 3/4 = 0.75) while killing the single-token false
+// positive ("Marriott" vs "JW Marriott Bonvoy" = 1/3 = 0.33).
+//
+// We also require >=2 informative tokens on the shorter side: a Google
+// row reduced to a single brand token after stopword stripping never
+// auto-merges, since chain-only names carry no per-property signal.
+//
+// Stopwords ("hotel", "the", "by", ...) are stripped so they don't
+// inflate matches between unrelated properties.
 func nameOverlap(a, b string) float64 {
 	ta := tokenSet(a)
 	tb := tokenSet(b)
-	if len(ta) == 0 || len(tb) == 0 {
+	short := len(ta)
+	if len(tb) < short {
+		short = len(tb)
+	}
+	if short < 2 {
 		return 0
 	}
 	common := 0
@@ -244,7 +258,7 @@ func nameOverlap(a, b string) float64 {
 		}
 	}
 	base := len(ta)
-	if len(tb) < base {
+	if len(tb) > base {
 		base = len(tb)
 	}
 	return float64(common) / float64(base)

@@ -124,13 +124,12 @@ func (c *fxClient) fetch(ctx context.Context, from string) (frankfurterResponse,
 		return frankfurterResponse{}, err
 	}
 	req.Header.Set("Accept", "application/json")
-	// Throttle via AdaptiveLimiter (no-op when nil). Network calls are
-	// rare in practice — the 24h disk + memory cache typically absorbs
-	// repeated lookups — but a sudden burst (new locale + new currency
-	// per result) can still hit Frankfurter; this paces them.
-	if c.limiter != nil {
-		c.limiter.Wait()
-	}
+	// Throttle via AdaptiveLimiter. Network calls are rare in practice
+	// (24h disk + memory cache absorbs repeats) but a sudden burst (new
+	// locale + new currency per result) can still hit Frankfurter; this
+	// paces them. newFXClient() always sets a non-nil limiter, matching
+	// the OnRateLimit/OnSuccess call sites below.
+	c.limiter.Wait()
 	resp, err := c.http.Do(req)
 	if err != nil {
 		return frankfurterResponse{}, err

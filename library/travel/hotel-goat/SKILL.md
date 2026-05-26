@@ -41,7 +41,13 @@ hotel-goat fans out across **two cash-price sources** by default:
 - **Google Hotels** — scraped from the server-rendered page
 - **Trivago** — called via the public Trivago MCP server (no key); aggregates OTA rates from Booking.com, Expedia, Agoda, Hotels.com, Priceline, etc.
 
-Control which sources run with `--source google|trivago|both` on the `hotels` command. Default is `both`. Matched hotels (lat/lng within 250m and name token-overlap ≥ 0.5) get a unified `prices[]` array with one entry per source; Trivago-only properties are appended as standalone rows with `property_token` prefixed `trivago:`. When Trivago returns a different currency than Google (it geolocates server-side, often EUR), the source label is tagged `trivago/<OTA> [EUR]` so the agent never silently cross-compares.
+Control which sources run with `--source google|trivago|both` on the `hotels` command. Default is `both`. Matched hotels (lat/lng within 250m and name token-overlap ≥ 0.5, with both sides carrying ≥2 informative tokens after stopword stripping) get a unified `prices[]` array with one entry per source; Trivago-only properties are appended as standalone rows with `property_token` prefixed `trivago:`.
+
+Trivago is geolocated server-side and returns EUR regardless of client hints. When the headline currency differs from Trivago's, each Trivago price is converted via the Frankfurter ECB FX endpoint (free, no key, 24h cache) so cross-source comparisons are apples-to-apples. Source label semantics:
+
+- `trivago/<OTA> [EUR 802 -> USD]` — FX conversion ran. The numeric `price` field is in the target currency; the original EUR amount is in the label.
+- `trivago/<OTA> [EUR]` — FX lookup failed. The numeric `price` is native EUR and the headline `price_per_night` is NOT overridden.
+- `trivago/<OTA>` (no suffix) — currencies already matched.
 
 v1 ships:
 - `hotels <loc> <ci> <co>` — multi-source search with brand / hotel-class / price / rating / amenity / `--source` filters
