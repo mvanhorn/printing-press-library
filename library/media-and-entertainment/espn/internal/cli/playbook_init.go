@@ -13,6 +13,10 @@
 // matches. Binary upgrades that bump the SeedVersion constant
 // trigger re-seed. User-authored playbooks via teach-playbook have
 // different query_family keys and are untouched by re-seed.
+// `playbook amend` does share family keys with seeded rows, so the
+// seed loop checks each existing row and suppresses its embedded
+// notes when the agent has already written notes_text — agent
+// gotchas survive binary upgrades.
 //
 // Failures degrade gracefully: stderr warning, CLI continues without
 // seeded playbooks (recall returns the empty playbook envelope, same
@@ -135,7 +139,14 @@ func installPlaybooksFromEmbed(ctx context.Context, s *store.Store) error {
 			}
 		}
 		if len(families) == 0 {
-			families[base] = true
+			// Without query_family_examples we have no way to compute
+			// a family key that `recall` would ever match — QueryFamily
+			// returns a space-separated bag of non-entity tokens, and
+			// the underscore-delimited filename stem can't reproduce
+			// that shape. Refuse to seed under an unreachable key; the
+			// authored embed must supply at least one example query.
+			fmt.Fprintf(os.Stderr, "warning: espn-pp-cli: playbook init: %s has no query_family_examples; skipping (would be unreachable at recall time)\n", jsonName)
+			continue
 		}
 		var notesText string
 		if notesName, ok := notesBases[base]; ok {
@@ -155,11 +166,19 @@ func installPlaybooksFromEmbed(ctx context.Context, s *store.Store) error {
 		}
 		sort.Strings(famList)
 		for _, family := range famList {
+			// PreserveExistingNotes protects `playbook amend` writes
+			// across binary upgrades: the amend command resolves to
+			// the same family key the seed uses, so an unconditional
+			// re-seed would wipe every gotcha the agent appended.
+			// The flag makes the UPDATE branch fill notes_text only
+			// when the stored value is empty, in a single atomic
+			// transaction (no read-then-write race).
 			if _, _, uerr := s.UpsertPlaybook(store.UpsertPlaybookInput{
-				QueryFamily:  family,
-				PlaybookJSON: jsonStr,
-				NotesText:    notesText,
-				Source:       store.LearningSourceTaught,
+				QueryFamily:           family,
+				PlaybookJSON:          jsonStr,
+				NotesText:             notesText,
+				Source:                store.LearningSourceTaught,
+				PreserveExistingNotes: true,
 			}); uerr != nil {
 				fmt.Fprintf(os.Stderr, "warning: espn-pp-cli: playbook init: upsert family=%q for %s: %v\n", family, jsonName, uerr)
 				continue

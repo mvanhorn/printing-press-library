@@ -134,6 +134,121 @@ func TestUpsertPlaybook_NotesOnly(t *testing.T) {
 	}
 }
 
+func TestUpsertPlaybook_PreservesUnsuppliedFields(t *testing.T) {
+	t.Parallel()
+	s := openTestStore(t)
+
+	// Seed both columns.
+	_, _, err := s.UpsertPlaybook(UpsertPlaybookInput{
+		QueryFamily:  "fam-preserve",
+		PlaybookJSON: `{"steps":[{"cmd":"seasons"}]}`,
+		NotesText:    "original gotchas",
+	})
+	if err != nil {
+		t.Fatalf("seed upsert: %v", err)
+	}
+
+	// Notes-only re-teach: playbook_json must survive.
+	if _, _, err := s.UpsertPlaybook(UpsertPlaybookInput{
+		QueryFamily: "fam-preserve",
+		NotesText:   "amended gotcha",
+	}); err != nil {
+		t.Fatalf("notes-only update: %v", err)
+	}
+	row, _, _ := s.GetPlaybookByFamily("fam-preserve")
+	if !strings.Contains(row.PlaybookJSON, "seasons") {
+		t.Errorf("notes-only update wiped playbook_json: %q", row.PlaybookJSON)
+	}
+	if row.NotesText != "amended gotcha" {
+		t.Errorf("notes_text was not updated: %q", row.NotesText)
+	}
+
+	// Playbook-only re-teach: notes_text must survive.
+	if _, _, err := s.UpsertPlaybook(UpsertPlaybookInput{
+		QueryFamily:  "fam-preserve",
+		PlaybookJSON: `{"steps":[{"cmd":"newcmd"}]}`,
+	}); err != nil {
+		t.Fatalf("playbook-only update: %v", err)
+	}
+	row, _, _ = s.GetPlaybookByFamily("fam-preserve")
+	if !strings.Contains(row.PlaybookJSON, "newcmd") {
+		t.Errorf("playbook-only update did not refresh playbook_json: %q", row.PlaybookJSON)
+	}
+	if row.NotesText != "amended gotcha" {
+		t.Errorf("playbook-only update wiped notes_text: %q", row.NotesText)
+	}
+}
+
+func TestUpsertPlaybook_PreserveExistingNotes(t *testing.T) {
+	t.Parallel()
+	s := openTestStore(t)
+
+	// Seed first.
+	_, _, err := s.UpsertPlaybook(UpsertPlaybookInput{
+		QueryFamily:  "fam-seed",
+		PlaybookJSON: `{"steps":[{"cmd":"initial"}]}`,
+		NotesText:    "embedded notes v1",
+	})
+	if err != nil {
+		t.Fatalf("seed: %v", err)
+	}
+
+	// Agent appends a gotcha via amend (uses partial-update semantics).
+	if _, _, err := s.UpsertPlaybook(UpsertPlaybookInput{
+		QueryFamily: "fam-seed",
+		NotesText:   "agent-authored gotcha",
+	}); err != nil {
+		t.Fatalf("amend: %v", err)
+	}
+
+	// Binary upgrade re-runs the seed loop with PreserveExistingNotes
+	// set. PlaybookJSON refreshes; NotesText stays as the agent wrote.
+	if _, _, err := s.UpsertPlaybook(UpsertPlaybookInput{
+		QueryFamily:           "fam-seed",
+		PlaybookJSON:          `{"steps":[{"cmd":"v2"}]}`,
+		NotesText:             "embedded notes v2",
+		PreserveExistingNotes: true,
+	}); err != nil {
+		t.Fatalf("re-seed: %v", err)
+	}
+	row, _, _ := s.GetPlaybookByFamily("fam-seed")
+	if !strings.Contains(row.PlaybookJSON, "v2") {
+		t.Errorf("re-seed did not refresh playbook_json: %q", row.PlaybookJSON)
+	}
+	if row.NotesText != "agent-authored gotcha" {
+		t.Errorf("re-seed clobbered agent notes: %q", row.NotesText)
+	}
+}
+
+func TestUpsertPlaybook_PreserveExistingNotes_EmptyFills(t *testing.T) {
+	t.Parallel()
+	s := openTestStore(t)
+
+	// Seed playbook only (no notes).
+	_, _, err := s.UpsertPlaybook(UpsertPlaybookInput{
+		QueryFamily:  "fam-empty-notes",
+		PlaybookJSON: `{"steps":[{"cmd":"x"}]}`,
+	})
+	if err != nil {
+		t.Fatalf("seed: %v", err)
+	}
+
+	// First binary that ships embedded notes: should fill the empty
+	// notes column because there's nothing to preserve yet.
+	if _, _, err := s.UpsertPlaybook(UpsertPlaybookInput{
+		QueryFamily:           "fam-empty-notes",
+		PlaybookJSON:          `{"steps":[{"cmd":"x"}]}`,
+		NotesText:             "first canonical notes",
+		PreserveExistingNotes: true,
+	}); err != nil {
+		t.Fatalf("re-seed: %v", err)
+	}
+	row, _, _ := s.GetPlaybookByFamily("fam-empty-notes")
+	if row.NotesText != "first canonical notes" {
+		t.Errorf("seed should have filled empty notes_text: %q", row.NotesText)
+	}
+}
+
 func TestUpsertPlaybook_Concurrent(t *testing.T) {
 	t.Parallel()
 	s := openTestStore(t)

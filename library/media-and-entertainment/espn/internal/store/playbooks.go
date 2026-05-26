@@ -26,11 +26,19 @@ type PlaybookRow struct {
 // UpsertPlaybookInput is the call-shape UpsertPlaybook accepts.
 // QueryFamily is required; at least one of PlaybookJSON / NotesText
 // must be non-empty.
+//
+// PreserveExistingNotes is a seed-loop affordance: when set, the
+// UPDATE branch only fills notes_text if the stored value is empty.
+// This protects `playbook amend` notes (which share the seed's family
+// keys) across binary upgrades that bump SeedVersion and re-run the
+// install path. Insert paths ignore the flag — a brand-new row gets
+// the supplied notes unconditionally.
 type UpsertPlaybookInput struct {
-	QueryFamily  string
-	PlaybookJSON string
-	NotesText    string
-	Source       string
+	QueryFamily           string
+	PlaybookJSON          string
+	NotesText             string
+	Source                string
+	PreserveExistingNotes bool
 }
 
 // UpsertPlaybook inserts a playbook row for a query family or, on
@@ -67,12 +75,30 @@ func (s *Store) UpsertPlaybook(in UpsertPlaybookInput) (int64, bool, error) {
 		family,
 	).Scan(&existingID)
 	if err == nil {
-		if _, err := tx.Exec(
-			`UPDATE learning_playbooks
-			 SET playbook_json = ?, notes_text = ?, last_observed_at = ?
-			 WHERE id = ?`,
-			in.PlaybookJSON, in.NotesText, now, existingID,
-		); err != nil {
+		// Partial-update semantics: an empty PlaybookJSON or NotesText
+		// from the caller means "leave this column alone", not "wipe
+		// it". This lets `teach-playbook --notes "..."` and
+		// `playbook amend --add-note ...` append guidance without
+		// destroying the stored choreography, and lets a playbook-only
+		// re-teach preserve existing notes. PreserveExistingNotes
+		// additionally protects existing non-empty notes_text from
+		// being overwritten by a seed-loop upsert.
+		var notesUpdate string
+		notesArgs := []any{in.NotesText, in.NotesText}
+		if in.PreserveExistingNotes {
+			notesUpdate = `notes_text = CASE WHEN ? != '' AND (notes_text IS NULL OR notes_text = '') THEN ? ELSE notes_text END`
+		} else {
+			notesUpdate = `notes_text = CASE WHEN ? != '' THEN ? ELSE notes_text END`
+		}
+		query := `UPDATE learning_playbooks
+			 SET playbook_json = CASE WHEN ? != '' THEN ? ELSE playbook_json END,
+			     ` + notesUpdate + `,
+			     last_observed_at = ?
+			 WHERE id = ?`
+		args := []any{in.PlaybookJSON, in.PlaybookJSON}
+		args = append(args, notesArgs...)
+		args = append(args, now, existingID)
+		if _, err := tx.Exec(query, args...); err != nil {
 			return 0, false, fmt.Errorf("upsert playbook update: %w", err)
 		}
 		if err := tx.Commit(); err != nil {

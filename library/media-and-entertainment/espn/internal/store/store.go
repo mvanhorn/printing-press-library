@@ -461,6 +461,10 @@ func (s *Store) reconcileSchema(ctx context.Context, createTables []string) erro
 		}
 		canonicalTables = append(canonicalTables, name)
 	}
+	if err := canonRows.Err(); err != nil {
+		canonRows.Close()
+		return fmt.Errorf("iterate canonical tables: %w", err)
+	}
 	canonRows.Close()
 	for _, table := range canonicalTables {
 		var userTableName string
@@ -534,6 +538,9 @@ func pragmaColumns(ctx context.Context, db *sql.DB, table string) (map[string]co
 			spec += " DEFAULT " + dflt.String
 		}
 		out[name] = colInfo{name: name, spec: spec, pk: pk > 0}
+	}
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("iterate pragma table_info(%s): %w", table, err)
 	}
 	return out, nil
 }

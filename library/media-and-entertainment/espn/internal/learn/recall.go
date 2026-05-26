@@ -194,12 +194,17 @@ func Recall(ctx context.Context, db *sql.DB, query string, opts Opts) (Result, e
 	result.Normalized = normalized.NonEntityNormalized
 
 	queryCanonicals := resolver.ResolveSet(normalized.Entities)
-	if len(queryCanonicals) > 1 {
-		// Ambiguous-alias warning surfaces when a single query entity
-		// resolves to multiple canonicals (e.g., "Cards" → both
-		// Arizona Cardinals NFL and St. Louis Cardinals MLB). The
-		// agent can pass --debug-mismatches to investigate.
-		result.Warnings = append(result.Warnings, WarningAmbiguousAlias)
+	// Ambiguous-alias warning surfaces only when a SINGLE query entity
+	// resolves to multiple canonicals (e.g., "Cards" → both Arizona
+	// Cardinals NFL and St. Louis Cardinals MLB). A perfectly ordinary
+	// multi-team query like "49ers vs Cowboys" resolves to two
+	// canonicals via two different entities and must NOT trip this
+	// warning. The agent can pass --debug-mismatches to investigate.
+	for _, e := range normalized.Entities {
+		if len(resolver.Resolve(e)) > 1 {
+			result.Warnings = append(result.Warnings, WarningAmbiguousAlias)
+			break
+		}
 	}
 
 	rows, err := db.QueryContext(ctx, `SELECT id, query_pattern, COALESCE(query_entities, ''),
@@ -668,9 +673,17 @@ func (r *CanonicalResolver) Resolve(entity string) []string {
 	for rows.Next() {
 		var c string
 		if err := rows.Scan(&c); err != nil {
-			break
+			// Don't cache partial results: a scan failure mid-loop
+			// would otherwise pin a truncated canonical list for
+			// every subsequent Resolve call in this recall, silently
+			// suppressing real canonicals.
+			return nil
 		}
 		out = append(out, c)
+	}
+	if err := rows.Err(); err != nil {
+		// Same reason — incomplete iteration must not be cached.
+		return nil
 	}
 	r.cache[key] = out
 	return out
