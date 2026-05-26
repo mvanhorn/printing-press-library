@@ -107,7 +107,7 @@ func computeFansSegment(ctx context.Context, db *sql.DB, f segmentFilters) ([]fa
 	for _, o := range orders {
 		// An order is at least one ticket even when DICE omits the quantity
 		// field; mirror computeReturnsAnomalies/computeCapacity so a 0 quantity
-		// isn't dropped by --min-qty or the per-fan max-quantity rollup.
+		// counts as 1 in the per-fan max-quantity rollup that drives --min-qty.
 		qty := o.Quantity
 		if qty <= 0 {
 			qty = 1
@@ -118,9 +118,9 @@ func computeFansSegment(ctx context.Context, db *sql.DB, f segmentFilters) ([]fa
 		if f.optedIn && !o.Fan.OptInPartners {
 			continue
 		}
-		if f.minQty > 0 && qty < f.minQty {
-			continue
-		}
+		// --min-qty is NOT applied here as a per-order filter — doing so would
+		// shrink total_spend/events_count to only the qualifying orders. It is a
+		// fan-level qualifier (g.maxQty) applied during row building below.
 		if wantEventName != "" {
 			name := strings.ToLower(o.Event.Name)
 			// Also check store event name in case the order's event name is truncated.
@@ -188,6 +188,12 @@ func computeFansSegment(ctx context.Context, db *sql.DB, f segmentFilters) ([]fa
 			continue
 		}
 		if f.optedIn && !g.optedIn {
+			continue
+		}
+		// --min-qty qualifies a fan when any single order met the threshold
+		// (g.maxQty), without shrinking total_spend/events_count to only the
+		// qualifying orders.
+		if f.minQty > 0 && g.maxQty < f.minQty {
 			continue
 		}
 		// Ticket type / tier filters: check whether this fan has any matching ticket.

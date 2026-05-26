@@ -168,6 +168,32 @@ func TestFansSegmentMinQtyZeroQuantityFallback(t *testing.T) {
 	}
 }
 
+// --min-qty qualifies a fan but must NOT reduce their total_spend/events_count
+// to only the qualifying orders — all of the fan's orders count.
+func TestFansSegmentMinQtyAggregatesAllOrders(t *testing.T) {
+	s := seedStore(t, map[string]map[string]string{
+		"orders": {
+			// fanA: a qty=3 order ($100, evtA) qualifies for --min-qty 2, plus a
+			// qty=1 order ($40, evtB). Both must count toward spend + events.
+			"o1": order("o1", "2026-01-10T10:00:00Z", "evtA", "Show A", fanA, "Ann", "A", 10000, 0, 3, false, "", ""),
+			"o2": order("o2", "2026-01-11T10:00:00Z", "evtB", "Show B", fanA, "Ann", "A", 4000, 0, 1, false, "", ""),
+		},
+	})
+	rows, err := computeFansSegment(context.Background(), s.DB(), segmentFilters{minQty: 2})
+	if err != nil {
+		t.Fatalf("computeFansSegment: %v", err)
+	}
+	if len(rows) != 1 || rows[0].Email != fanA {
+		t.Fatalf("want fanA qualified by min-qty, got %+v", rows)
+	}
+	if rows[0].TotalSpend != 140.00 {
+		t.Errorf("total_spend = %v, want 140.00 (both orders, not just the qty>=2 one)", rows[0].TotalSpend)
+	}
+	if rows[0].EventsCount != 2 {
+		t.Errorf("events_count = %d, want 2 (both events, not just the qty>=2 one)", rows[0].EventsCount)
+	}
+}
+
 func TestFansSegmentTicketType(t *testing.T) {
 	// fanA has a "VIP" ticket; fanB has a "GA" ticket.
 	s := seedStore(t, map[string]map[string]string{
