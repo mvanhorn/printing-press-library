@@ -57,8 +57,11 @@ const (
 		variant { id name size sku }
 		ticket { id }`
 
+	// The nested genres connection needs its own first/last arg — DICE rejects
+	// any unbounded Relay connection. 100 generously covers the child-genre
+	// vocabulary under a single genre type, which is a small controlled set.
 	genreTypeSelection = `id name
-		genres { edges { node { id name } } }`
+		genres(first: 100) { edges { node { id name } } }`
 )
 
 // connectionSpec maps a CLI resource to its viewer connection field, GraphQL
