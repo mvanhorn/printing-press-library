@@ -117,15 +117,25 @@ func installPlaybooksFromEmbed(ctx context.Context, s *store.Store) error {
 			fmt.Fprintf(os.Stderr, "warning: espn-pp-cli: playbook init: parse %s: %v\n", jsonName, perr)
 			continue
 		}
-		// Derive query family from the first example. Falls back to
-		// the filename base when no examples exist.
-		var family string
+		// Derive ALL distinct query families from the example queries.
+		// One playbook may cover multiple families (e.g., league_top_bottom
+		// covers both "3 division each teams top" from "top 3..." and
+		// "3 best division each teams" from "best 3..."; direction words
+		// differ but the choreography is identical). Seed under each
+		// distinct family so any example phrasing hits the same
+		// playbook+notes.
+		families := make(map[string]bool)
 		if len(pb.QueryFamilyExamples) > 0 {
-			normalized := learn.Normalize(pb.QueryFamilyExamples[0], learnCfg)
-			family = learn.QueryFamily(normalized)
+			for _, ex := range pb.QueryFamilyExamples {
+				normalized := learn.Normalize(ex, learnCfg)
+				fam := learn.QueryFamily(normalized)
+				if fam != "" {
+					families[fam] = true
+				}
+			}
 		}
-		if family == "" {
-			family = base
+		if len(families) == 0 {
+			families[base] = true
 		}
 		var notesText string
 		if notesName, ok := notesBases[base]; ok {
@@ -138,14 +148,22 @@ func installPlaybooksFromEmbed(ctx context.Context, s *store.Store) error {
 			fmt.Fprintf(os.Stderr, "warning: espn-pp-cli: playbook init: marshal %s: %v\n", jsonName, merr)
 			continue
 		}
-		if _, _, uerr := s.UpsertPlaybook(store.UpsertPlaybookInput{
-			QueryFamily:  family,
-			PlaybookJSON: jsonStr,
-			NotesText:    notesText,
-			Source:       store.LearningSourceTaught,
-		}); uerr != nil {
-			fmt.Fprintf(os.Stderr, "warning: espn-pp-cli: playbook init: upsert %s: %v\n", jsonName, uerr)
-			continue
+		// Sort families for deterministic install order.
+		famList := make([]string, 0, len(families))
+		for f := range families {
+			famList = append(famList, f)
+		}
+		sort.Strings(famList)
+		for _, family := range famList {
+			if _, _, uerr := s.UpsertPlaybook(store.UpsertPlaybookInput{
+				QueryFamily:  family,
+				PlaybookJSON: jsonStr,
+				NotesText:    notesText,
+				Source:       store.LearningSourceTaught,
+			}); uerr != nil {
+				fmt.Fprintf(os.Stderr, "warning: espn-pp-cli: playbook init: upsert family=%q for %s: %v\n", family, jsonName, uerr)
+				continue
+			}
 		}
 	}
 
