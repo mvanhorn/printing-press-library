@@ -53,16 +53,17 @@ func newTailCmd(flags *rootFlags) *cobra.Command {
 			// title/url into the same query that pulls slot events. The
 			// previous implementation issued one SELECT per event row,
 			// which becomes a bottleneck as snapshot history grows.
-			// Joining on (story_id, snapshot_id) gives the title that
-			// existed at the time of the event — more accurate than the
-			// "most recent row" lookup the per-row query produced.
 			results := make([]map[string]any, 0)
 			if since > 0 {
 				cutoff := time.Now().UTC().Add(-since).Format(time.RFC3339Nano)
 				query := `SELECT e.event_id, e.snapshot_id, e.story_id, e.event_type, e.from_slot, e.to_slot, e.captured_at,
 					COALESCE(s.title, ''), COALESCE(s.url, '')
 					FROM drudge_slot_event e
-					LEFT JOIN drudge_story s ON s.story_id = e.story_id AND s.snapshot_id = e.snapshot_id
+					LEFT JOIN (
+						SELECT story_id, title, url,
+							ROW_NUMBER() OVER (PARTITION BY story_id ORDER BY captured_at DESC) AS rn
+						FROM drudge_story
+					) s ON s.story_id = e.story_id AND s.rn = 1
 					WHERE e.captured_at >= ?
 					ORDER BY e.captured_at DESC, e.event_id`
 				if limit > 0 {
@@ -80,7 +81,11 @@ func newTailCmd(flags *rootFlags) *cobra.Command {
 					query := `SELECT e.event_id, e.snapshot_id, e.story_id, e.event_type, e.from_slot, e.to_slot, e.captured_at,
 						COALESCE(s.title, ''), COALESCE(s.url, '')
 						FROM drudge_slot_event e
-						LEFT JOIN drudge_story s ON s.story_id = e.story_id AND s.snapshot_id = e.snapshot_id
+						LEFT JOIN (
+							SELECT story_id, title, url,
+								ROW_NUMBER() OVER (PARTITION BY story_id ORDER BY captured_at DESC) AS rn
+							FROM drudge_story
+						) s ON s.story_id = e.story_id AND s.rn = 1
 						WHERE e.snapshot_id = ?
 						ORDER BY e.event_type, e.captured_at`
 					if limit > 0 {

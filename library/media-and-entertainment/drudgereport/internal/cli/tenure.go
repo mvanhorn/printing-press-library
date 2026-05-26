@@ -102,23 +102,24 @@ func queryCurrentSplashTenure(cmd *cobra.Command, db *sql.DB) (map[string]any, e
 	}
 
 	// PATCH(greptile-2026-05-21:tenure-contiguous): current-splash tenure must
-	// reflect the active contiguous splash run, not the all-time first sighting.
-	// A story that was previously demoted from splash and later re-promoted
-	// should report seconds since the most recent promotion. The earliest
-	// captured_at of the current contiguous run is the smallest captured_at
-	// strictly after the most recent non-splash row for this story_id (or
-	// the epoch when the story has never been off splash, in which case the
-	// query collapses to the all-time MIN).
+	// start at the most recent appeared-on-splash or promoted-to-splash event.
 	var firstSeen sql.NullString
 	if err := db.QueryRowContext(cmd.Context(),
-		`SELECT MIN(captured_at) FROM drudge_story
+		`SELECT MAX(captured_at)
+		 FROM drudge_slot_event
 		 WHERE story_id = ?
-		   AND slot = ?
-		   AND captured_at > COALESCE((
+		   AND (
+		     event_type = ?
+		     OR (event_type = ? AND to_slot = ?)
+		   )
+		   AND captured_at <= (
 		     SELECT MAX(captured_at) FROM drudge_story
-		     WHERE story_id = ? AND slot != ?
-		   ), '1970-01-01T00:00:00Z')`,
-		storyID, string(drudge.SlotSplash), storyID, string(drudge.SlotSplash),
+		     WHERE story_id = ? AND slot = ?
+		   )`,
+		storyID,
+		string(drudge.EventPromotedToSplash),
+		string(drudge.EventAppeared), string(drudge.SlotSplash),
+		storyID, string(drudge.SlotSplash),
 	).Scan(&firstSeen); err != nil {
 		return nil, fmt.Errorf("query splash first seen: %w", err)
 	}
@@ -141,45 +142,45 @@ func queryCurrentSplashTenure(cmd *cobra.Command, db *sql.DB) (map[string]any, e
 }
 
 func querySplashTenureHistory(cmd *cobra.Command, db *sql.DB, limit int) ([]map[string]any, error) {
-	// PATCH(greptile-2026-05-21:tenure-contiguous): the all-time MIN/MAX
-	// over every splash row for a story overstates tenure when a story has
-	// been demoted from splash and re-promoted. The leaderboard must rank
-	// by the longest CONTIGUOUS splash run per story, not the gross span.
-	//
-	// Pattern: tag every splash row with its run-start marker (the MAX
-	// non-splash captured_at for the same story_id that is strictly
-	// earlier than this splash row, or the epoch if the story has never
-	// been off splash). Splash rows sharing the same marker belong to the
-	// same contiguous run. Then GROUP BY (story_id, marker) to get
-	// per-run MIN/MAX, take ROW_NUMBER() OVER (PARTITION BY story_id
-	// ORDER BY run length DESC) = 1 per story, and rank.
+	// PATCH(greptile-2026-05-21:tenure-contiguous): rank real splash runs
+	// from slot-event starts instead of all-time MIN/MAX story spans.
 	rows, err := db.QueryContext(cmd.Context(),
-		`WITH splash_rows AS (
-			SELECT story_id, captured_at
-			FROM drudge_story
-			WHERE slot = ?
-		),
-		run_marked AS (
+		`WITH splash_starts AS (
 			SELECT
-				sr.story_id,
-				sr.captured_at,
-				COALESCE((
-					SELECT MAX(captured_at) FROM drudge_story
-					WHERE story_id = sr.story_id
-					  AND slot != ?
-					  AND captured_at < sr.captured_at
-				), '1970-01-01T00:00:00Z') AS run_marker
-			FROM splash_rows sr
+				story_id,
+				captured_at AS first_seen_at
+			FROM drudge_slot_event
+			WHERE event_type = ?
+			   OR (event_type = ? AND to_slot = ?)
 		),
 		runs AS (
 			SELECT
+				ss.story_id,
+				ss.first_seen_at,
+				(
+					SELECT MAX(ds.captured_at)
+					FROM drudge_story ds
+					WHERE ds.story_id = ss.story_id
+					  AND ds.slot = ?
+					  AND ds.captured_at >= ss.first_seen_at
+					  AND ds.captured_at <= COALESCE((
+						SELECT MIN(se.captured_at)
+						FROM drudge_slot_event se
+						WHERE se.story_id = ss.story_id
+						  AND se.event_type = ?
+						  AND se.captured_at > ss.first_seen_at
+					  ), '9999-12-31T23:59:59Z')
+				) AS last_seen_at
+			FROM splash_starts ss
+		),
+		run_lengths AS (
+			SELECT
 				story_id,
-				run_marker,
-				MIN(captured_at) AS first_seen_at,
-				MAX(captured_at) AS last_seen_at,
-				(strftime('%s', MAX(captured_at)) - strftime('%s', MIN(captured_at))) AS run_length_s
-			FROM run_marked
-			GROUP BY story_id, run_marker
+				first_seen_at,
+				last_seen_at,
+				(strftime('%s', last_seen_at) - strftime('%s', first_seen_at)) AS run_length_s
+			FROM runs
+			WHERE last_seen_at IS NOT NULL
 		),
 		ranked AS (
 			SELECT
@@ -188,7 +189,7 @@ func querySplashTenureHistory(cmd *cobra.Command, db *sql.DB, limit int) ([]map[
 				last_seen_at,
 				run_length_s,
 				ROW_NUMBER() OVER (PARTITION BY story_id ORDER BY run_length_s DESC, first_seen_at ASC) AS rn
-			FROM runs
+			FROM run_lengths
 		)
 		SELECT
 			r.story_id,
@@ -206,7 +207,10 @@ func querySplashTenureHistory(cmd *cobra.Command, db *sql.DB, limit int) ([]map[
 		WHERE r.rn = 1
 		ORDER BY r.run_length_s DESC, r.first_seen_at ASC
 		LIMIT ?`,
-		string(drudge.SlotSplash), string(drudge.SlotSplash), limit,
+		string(drudge.EventPromotedToSplash),
+		string(drudge.EventAppeared), string(drudge.SlotSplash),
+		string(drudge.SlotSplash), string(drudge.EventDemotedFromSplash),
+		limit,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("query splash history: %w", err)

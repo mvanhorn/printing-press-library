@@ -111,7 +111,7 @@ func queryOnDate(cmd *cobra.Command, db *sql.DB, requestedAt time.Time) (map[str
 		// is the conventional code for missing data; the framework's exit 4
 		// is reserved for auth errors and using it here breaks scripts that
 		// branch on exit code.
-		return nil, &cliError{code: 3, err: fmt.Errorf("no snapshots in local store")}
+		return nil, notFoundErr(fmt.Errorf("no snapshots in local store"))
 	}
 	if err != nil {
 		return nil, fmt.Errorf("query nearest snapshot: %w", err)
