@@ -7,10 +7,30 @@
 package cli
 
 import (
+	"encoding/json"
+	"fmt"
 	"strings"
+	"time"
 
 	"github.com/spf13/cobra"
 )
+
+// fetchListNodes fetches a connection's nodes, emitting a stderr warning when the
+// result was capped by limit so a partial result is never silent.
+func fetchListNodes(cmd *cobra.Command, flags *rootFlags, resource string, where map[string]any, limit int) ([]json.RawMessage, error) {
+	c, err := flags.newClient()
+	if err != nil {
+		return nil, err
+	}
+	nodes, _, truncated, err := fetchConnection(cmd.Context(), c, resource, where, dicePerPage, limit, "", false)
+	if err != nil {
+		return nil, classifyAPIError(err, flags)
+	}
+	if truncated {
+		fmt.Fprintf(cmd.ErrOrStderr(), "warning: showing first %d %s; more records exist — pass --limit 0 to fetch all\n", len(nodes), resource)
+	}
+	return nodes, nil
+}
 
 // runList is the shared body for a live connection-list command: short-circuit
 // under --dry-run, fetch the viewer connection with the given where-filter, and
@@ -19,35 +39,97 @@ func runList(cmd *cobra.Command, flags *rootFlags, resource string, where map[st
 	if dryRunOK(flags) {
 		return nil
 	}
-	c, err := flags.newClient()
+	nodes, err := fetchListNodes(cmd, flags, resource, where, limit)
 	if err != nil {
 		return err
-	}
-	nodes, _, err := fetchConnection(cmd.Context(), c, resource, where, dicePerPage, limit, "")
-	if err != nil {
-		return classifyAPIError(err, flags)
 	}
 	return outputNodes(cmd, flags, nodes)
 }
 
+// effectiveLimit returns 0 (all pages) when a command is scoped to a single event
+// and the user did not explicitly set --limit, so per-event queries return every
+// record rather than silently capping at the browse default.
+func effectiveLimit(cmd *cobra.Command, event string, limit int) int {
+	if event != "" && !cmd.Flags().Changed("limit") {
+		return 0
+	}
+	return limit
+}
+
+// parseDateFlag validates a YYYY-MM-DD flag value, returning it unchanged. An
+// empty value is allowed (open bound).
+func parseDateFlag(name, v string) (string, error) {
+	if v == "" {
+		return "", nil
+	}
+	if _, err := time.Parse("2006-01-02", v); err != nil {
+		return "", fmt.Errorf("--%s must be a YYYY-MM-DD date: %w", name, err)
+	}
+	return v, nil
+}
+
+// filterByShowDate keeps event nodes whose startDatetime falls in the [from, to]
+// inclusive date window (YYYY-MM-DD). Empty bounds are open. Comparison is on the
+// date prefix, which is correct for ISO-8601 timestamps.
+func filterByShowDate(nodes []json.RawMessage, from, to string) []json.RawMessage {
+	if from == "" && to == "" {
+		return nodes
+	}
+	out := make([]json.RawMessage, 0, len(nodes))
+	for _, n := range nodes {
+		var e struct {
+			StartDatetime string `json:"startDatetime"`
+		}
+		_ = json.Unmarshal(n, &e)
+		d := e.StartDatetime
+		if len(d) >= 10 {
+			d = d[:10]
+		}
+		if from != "" && d < from {
+			continue
+		}
+		if to != "" && d > to {
+			continue
+		}
+		out = append(out, n)
+	}
+	return out
+}
+
 func newEventsListCmd(flags *rootFlags) *cobra.Command {
-	var state string
+	var state, from, to string
 	var limit int
 	cmd := &cobra.Command{
 		Use:         "list",
-		Short:       "List your DICE events, optionally filtered by state (APPROVED, DRAFT, CANCELLED, ...); returns id, name, date, and venue",
-		Example:     "  dice-fm-pp-cli events list --state APPROVED --json",
+		Short:       "List your DICE events, optionally filtered by state and show-date window; returns id, name, date, and venue",
+		Example:     "  dice-fm-pp-cli events list --state APPROVED --from 2026-04-26 --to 2026-05-26 --json",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			var err error
+			if from, err = parseDateFlag("from", from); err != nil {
+				return err
+			}
+			if to, err = parseDateFlag("to", to); err != nil {
+				return err
+			}
+			if dryRunOK(flags) {
+				return nil
+			}
 			var where map[string]any
 			if state != "" {
 				where = eqWhere("state", strings.ToUpper(state))
 			}
-			return runList(cmd, flags, "events", where, limit)
+			nodes, err := fetchListNodes(cmd, flags, "events", where, limit)
+			if err != nil {
+				return err
+			}
+			return outputNodes(cmd, flags, filterByShowDate(nodes, from, to))
 		},
 	}
 	cmd.Flags().StringVar(&state, "state", "", "Filter by state: APPROVED, ARCHIVED, CANCELLED, DECLINED, DRAFT, REVIEW, SUBMITTED")
-	cmd.Flags().IntVar(&limit, "limit", diceDefaultListLimit, "Max events to return (0 = all pages)")
+	cmd.Flags().StringVar(&from, "from", "", "Only include shows on or after this date (YYYY-MM-DD, by show date)")
+	cmd.Flags().StringVar(&to, "to", "", "Only include shows on or before this date (YYYY-MM-DD, by show date)")
+	cmd.Flags().IntVar(&limit, "limit", 0, "Max events to fetch (0 = all pages; default fetches all)")
 	return cmd
 }
 
@@ -94,7 +176,7 @@ func newTicketsPromotedCmd(flags *rootFlags) *cobra.Command {
 			if fanPhone != "" {
 				clauses = append(clauses, eqWhere("fanPhoneNumber", fanPhone))
 			}
-			return runList(cmd, flags, "tickets", mergeWhere(clauses...), limit)
+			return runList(cmd, flags, "tickets", mergeWhere(clauses...), effectiveLimit(cmd, event, limit))
 		},
 	}
 	cmd.Flags().StringVar(&event, "event", "", "Filter by event ID")
@@ -116,7 +198,7 @@ func newOrdersPromotedCmd(flags *rootFlags) *cobra.Command {
 			if event != "" {
 				where = eqWhere("eventId", event)
 			}
-			return runList(cmd, flags, "orders", where, limit)
+			return runList(cmd, flags, "orders", where, effectiveLimit(cmd, event, limit))
 		},
 	}
 	cmd.Flags().StringVar(&event, "event", "", "Filter by event ID")
@@ -137,7 +219,7 @@ func newReturnsPromotedCmd(flags *rootFlags) *cobra.Command {
 			if event != "" {
 				where = eqWhere("eventId", event)
 			}
-			return runList(cmd, flags, "returns", where, limit)
+			return runList(cmd, flags, "returns", where, effectiveLimit(cmd, event, limit))
 		},
 	}
 	cmd.Flags().StringVar(&event, "event", "", "Filter by event ID")
@@ -158,7 +240,7 @@ func newTransfersPromotedCmd(flags *rootFlags) *cobra.Command {
 			if event != "" {
 				where = eqWhere("eventId", event)
 			}
-			return runList(cmd, flags, "transfers", where, limit)
+			return runList(cmd, flags, "transfers", where, effectiveLimit(cmd, event, limit))
 		},
 	}
 	cmd.Flags().StringVar(&event, "event", "", "Filter by event ID")
@@ -183,7 +265,7 @@ func newExtrasPromotedCmd(flags *rootFlags) *cobra.Command {
 			if separateBarcode {
 				clauses = append(clauses, eqWhere("hasSeparateAccessBarcode", true))
 			}
-			return runList(cmd, flags, "extras", mergeWhere(clauses...), limit)
+			return runList(cmd, flags, "extras", mergeWhere(clauses...), effectiveLimit(cmd, event, limit))
 		},
 	}
 	cmd.Flags().StringVar(&event, "event", "", "Filter by event ID")

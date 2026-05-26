@@ -20,12 +20,28 @@ var relayConnectionRe = regexp.MustCompile(`(\w+)\s*(\([^)]*\))?\s*\{\s*edges\b`
 // genreType.genres connection shipped without pagination args.
 func TestBuiltConnectionQueriesBoundEveryConnection(t *testing.T) {
 	for name, cs := range diceConnections {
-		query := buildConnectionQuery(cs)
-		for _, m := range relayConnectionRe.FindAllStringSubmatch(query, -1) {
-			field, args := m[1], m[2]
-			if !strings.Contains(args, "first") && !strings.Contains(args, "last") {
-				t.Errorf("connection query %q: field %q opens a Relay connection without a first/last pagination arg (args %q); DICE will reject it", name, field, args)
+		// Both pagination directions: forward (first/after) and the latest-only
+		// backward variant (last/before).
+		for _, latest := range []bool{false, true} {
+			query := buildConnectionQuery(cs, latest)
+			for _, m := range relayConnectionRe.FindAllStringSubmatch(query, -1) {
+				field, args := m[1], m[2]
+				if !strings.Contains(args, "first") && !strings.Contains(args, "last") {
+					t.Errorf("connection query %q (latest=%v): field %q opens a Relay connection without a first/last pagination arg (args %q); DICE will reject it", name, latest, field, args)
+				}
 			}
 		}
+	}
+}
+
+// The latest-only variant must page backward (last) so it returns the newest
+// records, not page 1 (oldest) of an oldest-first connection.
+func TestLatestQueryPagesBackward(t *testing.T) {
+	q := buildConnectionQuery(diceConnections["orders"], true)
+	if !strings.Contains(q, "last: $last") || !strings.Contains(q, "before: $before") {
+		t.Errorf("latest-only orders query should page backward via last/before; got:\n%s", q)
+	}
+	if strings.Contains(q, "first: $first") {
+		t.Errorf("latest-only query must not use forward first/after pagination; got:\n%s", q)
 	}
 }

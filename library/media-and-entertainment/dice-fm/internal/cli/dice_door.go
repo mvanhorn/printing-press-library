@@ -78,15 +78,15 @@ func newDoorListCmd(flags *rootFlags) *cobra.Command {
 			ctx := cmd.Context()
 			where := eqWhere("eventId", event)
 
-			ticketNodes, _, err := fetchConnection(ctx, c, "tickets", where, dicePerPage, 0, "")
+			ticketNodes, _, _, err := fetchConnection(ctx, c, "tickets", where, dicePerPage, 0, "", false)
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
-			returnNodes, _, err := fetchConnection(ctx, c, "returns", where, dicePerPage, 0, "")
+			returnNodes, _, _, err := fetchConnection(ctx, c, "returns", where, dicePerPage, 0, "", false)
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
-			transferNodes, _, err := fetchConnection(ctx, c, "transfers", where, dicePerPage, 0, "")
+			transferNodes, _, _, err := fetchConnection(ctx, c, "transfers", where, dicePerPage, 0, "", false)
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}

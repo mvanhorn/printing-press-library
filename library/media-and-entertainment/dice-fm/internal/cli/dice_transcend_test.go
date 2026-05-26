@@ -76,7 +76,7 @@ func TestDiceRevenueSummary(t *testing.T) {
 		},
 	})
 
-	rows, err := computeRevenue(context.Background(), s.DB(), "", "")
+	rows, err := computeRevenue(context.Background(), s.DB(), "", "", "")
 	if err != nil {
 		t.Fatalf("computeRevenue: %v", err)
 	}
@@ -105,22 +105,29 @@ func TestDiceRevenueSummary(t *testing.T) {
 		t.Errorf("row[1] = %+v, want evtB gross 50 net 47.50 orders 1", b)
 	}
 
-	// --from filter: only orders on/after 2026-02-02 -> drops o1.
-	filtered, err := computeRevenue(context.Background(), s.DB(), "", "2026-02-02")
+	// --from/--to filter by SHOW date (event startDatetime), not purchase date.
+	// Seed events so evtA's show is in-window and evtB's is out; the window keeps
+	// all of evtA's orders (regardless of when they were purchased) and drops evtB.
+	sd := seedStore(t, map[string]map[string]string{
+		"orders": {
+			"o1": order("o1", "2026-02-01T10:00:00Z", "evtA", "Show A", fanA, "Ann", "A", 20000, 2000, 2, false, "", ""),
+			"o2": order("o2", "2026-02-02T10:00:00Z", "evtA", "Show A", fanB, "Bob", "B", 10000, 1000, 1, false, "", ""),
+			"o3": order("o3", "2026-02-03T10:00:00Z", "evtB", "Show B", fanC, "Cat", "C", 5000, 250, 1, false, "", ""),
+		},
+		"events": {
+			"evtA": `{"id":"evtA","name":"Show A","startDatetime":"2026-05-16T20:00:00Z"}`,
+			"evtB": `{"id":"evtB","name":"Show B","startDatetime":"2026-06-20T20:00:00Z"}`,
+		},
+	})
+	windowed, err := computeRevenue(context.Background(), sd.DB(), "", "2026-05-01", "2026-05-31")
 	if err != nil {
-		t.Fatalf("computeRevenue (from): %v", err)
+		t.Fatalf("computeRevenue (show-date window): %v", err)
 	}
-	var aFiltered *revenueRow
-	for i := range filtered {
-		if filtered[i].EventID == "evtA" {
-			aFiltered = &filtered[i]
-		}
+	if len(windowed) != 1 || windowed[0].EventID != "evtA" {
+		t.Fatalf("show-date window = %+v, want only evtA (show 2026-05-16)", windowed)
 	}
-	if aFiltered == nil {
-		t.Fatalf("evtA missing from filtered result: %+v", filtered)
-	}
-	if aFiltered.OrdersCount != 1 || aFiltered.Gross != 100.00 {
-		t.Errorf("filtered evtA = %+v, want orders 1 gross 100", *aFiltered)
+	if windowed[0].OrdersCount != 2 || windowed[0].Gross != 300.00 {
+		t.Errorf("windowed evtA = %+v, want all 2 orders, gross 300", windowed[0])
 	}
 }
 
@@ -276,7 +283,7 @@ func TestDiceReturnsAnomalies(t *testing.T) {
 		},
 	})
 
-	rows, err := computeReturnsAnomalies(context.Background(), s.DB(), 0.05)
+	rows, err := computeReturnsAnomalies(context.Background(), s.DB(), 0.05, "", "")
 	if err != nil {
 		t.Fatalf("computeReturnsAnomalies: %v", err)
 	}

@@ -139,6 +139,9 @@ Exit codes & warnings:
 				}
 				sinceTS = ts.Format(time.RFC3339)
 			}
+			// --latest-only fetches the newest page via backward pagination; it is
+			// suppressed when --since is set (--since wins, handled above).
+			latestFetch := latestOnly && since == ""
 
 			if concurrency < 1 {
 				concurrency = 4
@@ -159,7 +162,7 @@ Exit codes & warnings:
 				go func() {
 					defer wg.Done()
 					for resource := range work {
-						results <- syncResource(cmd.Context(), c, db, resource, sinceTS, full, maxPages)
+						results <- syncResource(cmd.Context(), c, db, resource, sinceTS, full, maxPages, latestFetch)
 					}
 				}()
 			}
@@ -241,7 +244,7 @@ Exit codes & warnings:
 	cmd.Flags().StringVar(&since, "since", "", "Incremental sync duration (e.g. 7d, 24h, 1w, 30m) — applies to events, orders, returns, transfers")
 	cmd.Flags().IntVar(&concurrency, "concurrency", 4, "Number of parallel sync workers")
 	cmd.Flags().StringVar(&dbPath, "db", "", "Database path (default: ~/.local/share/dice-fm-pp-cli/data.db)")
-	cmd.Flags().IntVar(&maxPages, "max-pages", 10, "Maximum pages to fetch per resource (0 = unlimited)")
+	cmd.Flags().IntVar(&maxPages, "max-pages", 0, "Maximum pages to fetch per resource (0 = unlimited; default fetches all)")
 	cmd.Flags().BoolVar(&latestOnly, "latest-only", false, "Refresh head of each resource only; clears resume cursor and caps pages at 1. Mutually exclusive with --since (--since wins).")
 
 	return cmd
@@ -251,7 +254,7 @@ Exit codes & warnings:
 // upserts its nodes into the local store. For orders and tickets it also
 // derives the fans table from embedded holder/fan objects, since DICE exposes
 // no top-level fan connection.
-func syncResource(ctx context.Context, c *client.Client, db *store.Store, resource, sinceTS string, full bool, maxPages int) syncResult {
+func syncResource(ctx context.Context, c *client.Client, db *store.Store, resource, sinceTS string, full bool, maxPages int, latest bool) syncResult {
 	started := time.Now()
 	if !humanFriendly {
 		// json.Marshal escapes the resource name so a value containing a quote,
@@ -281,7 +284,7 @@ func syncResource(ctx context.Context, c *client.Client, db *store.Store, resour
 		max = maxPages * dicePerPage
 	}
 
-	nodes, endCursor, err := fetchConnection(ctx, c, resource, where, dicePerPage, max, startCursor)
+	nodes, endCursor, _, err := fetchConnection(ctx, c, resource, where, dicePerPage, max, startCursor, latest)
 	if err != nil {
 		if w, ok := isSyncAccessWarning(err); ok {
 			if !humanFriendly {

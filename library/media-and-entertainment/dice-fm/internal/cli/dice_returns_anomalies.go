@@ -1,7 +1,7 @@
 // Copyright 2026 vinny-pasceri. Licensed under Apache-2.0. See LICENSE.
 // Hand-authored DICE "returns anomalies" command: flags events whose return
-// rate (returns/tickets_sold) meets or exceeds a threshold, computed from the local
-// order and return stores.
+// rate (returns/tickets_sold) meets or exceeds a threshold, computed from the
+// local order and return stores.
 package cli
 
 import (
@@ -27,8 +27,12 @@ type returnsAnomalyRow struct {
 // computeReturnsAnomalies counts orders and returns per event and returns the
 // events whose return rate is >= threshold, sorted by return rate descending.
 // Events with zero orders are skipped (an undefined rate).
-func computeReturnsAnomalies(ctx context.Context, db *sql.DB, threshold float64) ([]returnsAnomalyRow, error) {
+func computeReturnsAnomalies(ctx context.Context, db *sql.DB, threshold float64, fromDate, toDate string) ([]returnsAnomalyRow, error) {
 	orders, err := readOrders(ctx, db)
+	if err != nil {
+		return nil, err
+	}
+	eligible, dateFiltered, err := eligibleEventsByDate(ctx, db, fromDate, toDate)
 	if err != nil {
 		return nil, err
 	}
@@ -36,6 +40,9 @@ func computeReturnsAnomalies(ctx context.Context, db *sql.DB, threshold float64)
 	ticketsByEvent := map[string]int{}
 	for _, o := range orders {
 		if o.Event.ID == "" {
+			continue
+		}
+		if dateFiltered && !eligible[o.Event.ID] {
 			continue
 		}
 		ordersByEvent[o.Event.ID]++
@@ -123,12 +130,20 @@ func readReturnsByEvent(ctx context.Context, db *sql.DB) (counts map[string]int,
 
 func newReturnsAnomaliesCmd(flags *rootFlags) *cobra.Command {
 	var threshold float64
+	var from, to string
 	cmd := &cobra.Command{
 		Use:         "anomalies",
 		Short:       "Flag events with an unusually high return rate",
-		Example:     "  dice-fm-pp-cli returns anomalies --threshold 0.05 --json",
+		Example:     "  dice-fm-pp-cli returns anomalies --threshold 0.05 --from 2026-04-01 --to 2026-04-30 --json",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			var err error
+			if from, err = parseDateFlag("from", from); err != nil {
+				return err
+			}
+			if to, err = parseDateFlag("to", to); err != nil {
+				return err
+			}
 			if dryRunOK(flags) {
 				return nil
 			}
@@ -140,7 +155,7 @@ func newReturnsAnomaliesCmd(flags *rootFlags) *cobra.Command {
 				return printJSONFiltered(cmd.OutOrStdout(), []returnsAnomalyRow{}, flags)
 			}
 			defer s.Close()
-			rows, err := computeReturnsAnomalies(cmd.Context(), s.DB(), threshold)
+			rows, err := computeReturnsAnomalies(cmd.Context(), s.DB(), threshold, from, to)
 			if err != nil {
 				return fmt.Errorf("computing return anomalies: %w", err)
 			}
@@ -148,5 +163,7 @@ func newReturnsAnomaliesCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	cmd.Flags().Float64Var(&threshold, "threshold", 0.05, "Minimum return rate (returns/tickets_sold) to flag an event")
+	cmd.Flags().StringVar(&from, "from", "", "Only include shows on or after this date (YYYY-MM-DD, by show date)")
+	cmd.Flags().StringVar(&to, "to", "", "Only include shows on or before this date (YYYY-MM-DD, by show date)")
 	return cmd
 }

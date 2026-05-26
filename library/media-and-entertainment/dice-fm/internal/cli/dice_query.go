@@ -82,12 +82,25 @@ var diceConnections = map[string]connectionSpec{
 	"genres":    {field: "genreTypes", whereType: "", selection: genreTypeSelection},
 }
 
-// buildConnectionQuery renders a paginated viewer-connection query.
-func buildConnectionQuery(cs connectionSpec) string {
+// buildConnectionQuery renders a paginated viewer-connection query. When latest
+// is true it pages backward from the end (last/before) so the newest records
+// come first: DICE connections are ordered oldest-first, so a forward page-1
+// fetch returns the OLDEST rows, not the newest.
+func buildConnectionQuery(cs connectionSpec, latest bool) string {
 	whereDecl, whereArg := "", ""
 	if cs.whereType != "" {
 		whereDecl = fmt.Sprintf(", $where: %s", cs.whereType)
 		whereArg = ", where: $where"
+	}
+	if latest {
+		return fmt.Sprintf(`query($last: Int!, $before: String%s) {
+  viewer {
+    %s(last: $last, before: $before%s) {
+      edges { node { %s } }
+      pageInfo { hasPreviousPage startCursor }
+    }
+  }
+}`, whereDecl, cs.field, whereArg, cs.selection)
 	}
 	return fmt.Sprintf(`query($first: Int!, $after: String%s) {
   viewer {
@@ -178,15 +191,34 @@ func isVerifySynthetic(raw json.RawMessage) bool {
 // fetchConnection paginates a viewer connection and returns the node payloads.
 // where is the GraphQL where-input value (nil for none). perPage caps the page
 // size; max caps total nodes (0 = unbounded). startCursor resumes pagination.
-// It returns the collected nodes and the final endCursor (for resumable sync).
-func fetchConnection(ctx context.Context, c *client.Client, resource string, where map[string]any, perPage, max int, startCursor string) ([]json.RawMessage, string, error) {
+// When latest is true it fetches a single newest page via backward pagination
+// (DICE connections are oldest-first), ignoring max and startCursor.
+//
+// It returns the collected nodes, the final endCursor (for resumable sync), and
+// truncated — true when max was hit while more records remained, so callers can
+// warn instead of silently dropping data.
+func fetchConnection(ctx context.Context, c *client.Client, resource string, where map[string]any, perPage, max int, startCursor string, latest bool) ([]json.RawMessage, string, bool, error) {
 	cs, ok := diceConnections[resource]
 	if !ok {
-		return nil, "", fmt.Errorf("unknown DICE connection %q", resource)
+		return nil, "", false, fmt.Errorf("unknown DICE connection %q", resource)
 	}
-	query := buildConnectionQuery(cs)
+	query := buildConnectionQuery(cs, latest)
 	if perPage <= 0 {
 		perPage = 50
+	}
+
+	// latest-only: a single newest page via backward (last) pagination.
+	if latest {
+		vars := map[string]any{"last": perPage}
+		if cs.whereType != "" && len(where) > 0 {
+			vars["where"] = where
+		}
+		data, err := diceQuery(ctx, c, query, vars)
+		if err != nil {
+			return nil, "", false, err
+		}
+		nodes, err := parseConnectionNodes(data, cs.field)
+		return nodes, "", false, err
 	}
 
 	var all []json.RawMessage
@@ -201,35 +233,56 @@ func fetchConnection(ctx context.Context, c *client.Client, resource string, whe
 		}
 		data, err := diceQuery(ctx, c, query, vars)
 		if err != nil {
-			return all, cursor, err
+			return all, cursor, false, err
 		}
-		var root struct {
-			Viewer map[string]json.RawMessage `json:"viewer"`
+		nodes, hasNext, endCursor, parseErr := parseConnectionPage(data, cs.field)
+		if parseErr != nil {
+			return all, cursor, false, parseErr
 		}
-		if err := json.Unmarshal(data, &root); err != nil {
-			return all, cursor, fmt.Errorf("parsing viewer response: %w", err)
-		}
-		connRaw, ok := root.Viewer[cs.field]
-		if !ok {
-			// Empty viewer (e.g. verify-mode synthetic envelope) — return what
-			// we have rather than erroring.
-			return all, cursor, nil
-		}
-		var page viewerConnectionPage
-		if err := json.Unmarshal(connRaw, &page); err != nil {
-			return all, cursor, fmt.Errorf("parsing connection %q: %w", cs.field, err)
-		}
-		for _, e := range page.Edges {
-			all = append(all, e.Node)
+		for i, n := range nodes {
+			all = append(all, n)
 			if max > 0 && len(all) >= max {
-				return all, page.PageInfo.EndCursor, nil
+				truncated := i < len(nodes)-1 || hasNext
+				return all, endCursor, truncated, nil
 			}
 		}
-		if !page.PageInfo.HasNextPage || page.PageInfo.EndCursor == "" {
-			return all, page.PageInfo.EndCursor, nil
+		if !hasNext || endCursor == "" {
+			return all, endCursor, false, nil
 		}
-		cursor = page.PageInfo.EndCursor
+		cursor = endCursor
 	}
+}
+
+// parseConnectionPage extracts the node payloads, hasNextPage, and endCursor from
+// a single viewer.<field> connection page. A missing field (e.g. verify-mode
+// synthetic envelope) returns no nodes and a stop signal rather than an error.
+func parseConnectionPage(data json.RawMessage, field string) (nodes []json.RawMessage, hasNext bool, endCursor string, err error) {
+	var root struct {
+		Viewer map[string]json.RawMessage `json:"viewer"`
+	}
+	if err := json.Unmarshal(data, &root); err != nil {
+		return nil, false, "", fmt.Errorf("parsing viewer response: %w", err)
+	}
+	connRaw, ok := root.Viewer[field]
+	if !ok {
+		return nil, false, "", nil
+	}
+	var page viewerConnectionPage
+	if err := json.Unmarshal(connRaw, &page); err != nil {
+		return nil, false, "", fmt.Errorf("parsing connection %q: %w", field, err)
+	}
+	out := make([]json.RawMessage, 0, len(page.Edges))
+	for _, e := range page.Edges {
+		out = append(out, e.Node)
+	}
+	return out, page.PageInfo.HasNextPage, page.PageInfo.EndCursor, nil
+}
+
+// parseConnectionNodes extracts just the node payloads from a viewer.<field>
+// response (used by the latest-only single-page path).
+func parseConnectionNodes(data json.RawMessage, field string) ([]json.RawMessage, error) {
+	nodes, _, _, err := parseConnectionPage(data, field)
+	return nodes, err
 }
 
 // eqWhere builds a single-field equality where-input value: {field: {eq: val}}.

@@ -27,6 +27,36 @@ type storeEvent struct {
 	Name          string `json:"name"`
 	State         string `json:"state"`
 	TotalAllocQty int64  `json:"totalTicketAllocationQty"`
+	StartDatetime string `json:"startDatetime"`
+}
+
+// eligibleEventsByDate returns the set of event IDs whose startDatetime falls in
+// the [from, to] inclusive show-date window (YYYY-MM-DD). The second return is
+// false when no window is set (both bounds empty), meaning "do not filter by
+// date". Comparison is on the date prefix, correct for ISO-8601 timestamps.
+func eligibleEventsByDate(ctx context.Context, db *sql.DB, from, to string) (map[string]bool, bool, error) {
+	if from == "" && to == "" {
+		return nil, false, nil
+	}
+	events, err := readEvents(ctx, db)
+	if err != nil {
+		return nil, false, err
+	}
+	ids := make(map[string]bool)
+	for _, e := range events {
+		d := e.StartDatetime
+		if len(d) >= 10 {
+			d = d[:10]
+		}
+		if from != "" && d < from {
+			continue
+		}
+		if to != "" && d > to {
+			continue
+		}
+		ids[e.ID] = true
+	}
+	return ids, true, nil
 }
 
 // readEvents loads every `events` node from the store and unmarshals it. Rows

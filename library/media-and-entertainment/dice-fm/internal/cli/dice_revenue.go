@@ -123,10 +123,14 @@ type revenueRow struct {
 }
 
 // computeRevenue aggregates orders into per-event gross/dice-fee/net rows,
-// filtered by an optional event ID and an optional purchase-date floor, sorted
-// by gross descending.
-func computeRevenue(ctx context.Context, db *sql.DB, eventFilter, fromFilter string) ([]revenueRow, error) {
+// filtered by an optional event ID and an optional show-date window (events whose
+// startDatetime falls in [fromDate, toDate]), sorted by gross descending.
+func computeRevenue(ctx context.Context, db *sql.DB, eventFilter, fromDate, toDate string) ([]revenueRow, error) {
 	orders, err := readOrders(ctx, db)
+	if err != nil {
+		return nil, err
+	}
+	eligible, dateFiltered, err := eligibleEventsByDate(ctx, db, fromDate, toDate)
 	if err != nil {
 		return nil, err
 	}
@@ -141,7 +145,7 @@ func computeRevenue(ctx context.Context, db *sql.DB, eventFilter, fromFilter str
 		if eventFilter != "" && o.Event.ID != eventFilter {
 			continue
 		}
-		if !dateFloorMatch(o.PurchasedAt, fromFilter) {
+		if dateFiltered && !eligible[o.Event.ID] {
 			continue
 		}
 		g := groups[o.Event.ID]
@@ -190,13 +194,20 @@ func newRevenueCmd(flags *rootFlags) *cobra.Command {
 }
 
 func newRevenueSummaryCmd(flags *rootFlags) *cobra.Command {
-	var event, from string
+	var event, from, to string
 	cmd := &cobra.Command{
 		Use:         "summary",
 		Short:       "Aggregate gross, Dice fees, and net per event from synced orders",
-		Example:     "  dice-fm-pp-cli revenue summary --from 2026-01-01 --select event_name,gross,dice_fees,net,orders_count",
+		Example:     "  dice-fm-pp-cli revenue summary --from 2026-04-01 --to 2026-04-30 --select event_name,gross,dice_fees,net,orders_count",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			var err error
+			if from, err = parseDateFlag("from", from); err != nil {
+				return err
+			}
+			if to, err = parseDateFlag("to", to); err != nil {
+				return err
+			}
 			if dryRunOK(flags) {
 				return nil
 			}
@@ -208,7 +219,7 @@ func newRevenueSummaryCmd(flags *rootFlags) *cobra.Command {
 				return printJSONFiltered(cmd.OutOrStdout(), []revenueRow{}, flags)
 			}
 			defer s.Close()
-			rows, err := computeRevenue(cmd.Context(), s.DB(), event, from)
+			rows, err := computeRevenue(cmd.Context(), s.DB(), event, from, to)
 			if err != nil {
 				return fmt.Errorf("computing revenue: %w", err)
 			}
@@ -216,6 +227,7 @@ func newRevenueSummaryCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&event, "event", "", "Limit to a single event ID")
-	cmd.Flags().StringVar(&from, "from", "", "Only count orders purchased on or after this date (YYYY-MM-DD)")
+	cmd.Flags().StringVar(&from, "from", "", "Only include shows on or after this date (YYYY-MM-DD, by show date)")
+	cmd.Flags().StringVar(&to, "to", "", "Only include shows on or before this date (YYYY-MM-DD, by show date)")
 	return cmd
 }
