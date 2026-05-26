@@ -34,14 +34,26 @@ import (
 // discount-code entity) — per-price-tier redemptions + share-of-redemptions
 // rate from the local store.
 
-// storeTicket is the slim shape of a `tickets` store node this command reads.
-// priceTier is DICE's named pricing lever (the discount-code analog). Note:
-// `ticketSelection` in dice_query.go does not sync an event reference onto
-// tickets (DICE links tickets to events server-side via TicketWhereInput, not
-// a field on the node), so this command aggregates per tier across all synced
-// tickets rather than per event.
+// storeTicket is the slim shape of a `tickets` store node used across the
+// analytics commands. priceTier is DICE's named pricing lever; holder carries
+// fan identity for cross-join with orders; ticketType carries the named type
+// (e.g. "GA", "VIP"). Note: `ticketSelection` in dice_query.go does not sync
+// an event reference onto tickets (DICE links tickets to events server-side
+// via TicketWhereInput), so per-event aggregations are done via orders, not
+// tickets.
 type storeTicket struct {
-	ID        string `json:"id"`
+	ID     string `json:"id"`
+	Holder struct {
+		Email         string `json:"email"`
+		FirstName     string `json:"firstName"`
+		LastName      string `json:"lastName"`
+		OptInPartners bool   `json:"optInPartners"`
+	} `json:"holder"`
+	TicketType struct {
+		ID    string `json:"id"`
+		Name  string `json:"name"`
+		Price int64  `json:"price"`
+	} `json:"ticketType"`
 	PriceTier struct {
 		ID    string `json:"id"`
 		Name  string `json:"name"`

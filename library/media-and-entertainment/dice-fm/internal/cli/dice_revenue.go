@@ -190,6 +190,7 @@ func newRevenueCmd(flags *rootFlags) *cobra.Command {
 		RunE:  parentNoSubcommandRunE(flags),
 	}
 	cmd.AddCommand(newRevenueSummaryCmd(flags))
+	cmd.AddCommand(newRevenueByArtistCmd(flags))
 	return cmd
 }
 

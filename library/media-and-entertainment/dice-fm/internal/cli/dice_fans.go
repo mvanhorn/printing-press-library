@@ -209,12 +209,14 @@ func computeFansOptin(ctx context.Context, db *sql.DB, eventFilter, country, cit
 func newFansCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "fans",
-		Short: "Fan analytics: repeat buyers, top spenders, opted-in contacts",
+		Short: "Fan analytics: repeat buyers, top spenders, opted-in contacts, segments, profiles",
 		RunE:  parentNoSubcommandRunE(flags),
 	}
 	cmd.AddCommand(newFansRepeatCmd(flags))
 	cmd.AddCommand(newFansTopCmd(flags))
 	cmd.AddCommand(newFansOptinCmd(flags))
+	cmd.AddCommand(newFansSegmentCmd(flags))
+	cmd.AddCommand(newFansProfileCmd(flags))
 	return cmd
 }
 

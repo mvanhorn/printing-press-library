@@ -20,14 +20,20 @@ import (
 // PATCH(amend-2026-05-23: port eventbrite capacity to dice-fm) — cross-event
 // sold-vs-capacity headroom rollup over the local events + orders store.
 
-// storeEvent is the slim shape of an `events` store node the capacity command
-// reads. totalTicketAllocationQty is the event-level capacity in tickets.
+// storeEvent is the slim shape of an `events` store node used across the
+// analytics commands. Artists, genres, and genreTypes are included for the
+// by-artist revenue rollup; totalTicketAllocationQty is event-level capacity.
 type storeEvent struct {
 	ID            string `json:"id"`
 	Name          string `json:"name"`
 	State         string `json:"state"`
 	TotalAllocQty int64  `json:"totalTicketAllocationQty"`
 	StartDatetime string `json:"startDatetime"`
+	Artists       []struct {
+		Name string `json:"name"`
+	} `json:"artists"`
+	Genres     []string `json:"genres"`
+	GenreTypes []string `json:"genreTypes"`
 }
 
 // eligibleEventsByDate returns the set of event IDs whose startDatetime falls in
