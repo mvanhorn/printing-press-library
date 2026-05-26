@@ -527,6 +527,23 @@ func computeRevenueByAxisScoped(ctx context.Context, db *sql.DB, axis, eventFilt
 		qualifying = append(qualifying, o)
 	}
 
+	// Orders synced without --order-tickets carry no nested tickets, so a
+	// scoped by-axis query would otherwise return an empty result with no
+	// explanation. Detect that case (orders in scope, but none have ticket
+	// data) and warn instead of silently returning nothing.
+	ticketsInScope := 0
+	for _, o := range qualifying {
+		ticketsInScope += len(o.Tickets)
+	}
+	if len(qualifying) > 0 && ticketsInScope == 0 {
+		return &revenueByAxisResult{
+			Axis:       axis,
+			Normalized: crosswalkCount > 0,
+			Warning:    "orders in the selected window have no ticket data; date/event-scoped --by-axis requires orders synced with their tickets — run `sync --order-tickets`",
+			Rows:       []revenueByAxisRow{},
+		}, nil
+	}
+
 	if crosswalkCount == 0 {
 		// Fallback: group by raw ticketType.name from the nested tickets.
 		return scopedFallbackByRaw(axis, qualifying)

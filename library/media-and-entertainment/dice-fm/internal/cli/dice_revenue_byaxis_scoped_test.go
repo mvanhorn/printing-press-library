@@ -9,6 +9,7 @@ package cli
 import (
 	"context"
 	"encoding/json"
+	"strings"
 	"testing"
 
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/dice-fm/internal/store"
@@ -321,6 +322,33 @@ func TestComputeRevenueByAxisScopedFallbackUnnormalized(t *testing.T) {
 	// Even on fallback, tickets are returned with raw name grouping.
 	if len(res.Rows) == 0 {
 		t.Errorf("want at least one fallback row")
+	}
+}
+
+// TestComputeRevenueByAxisScopedWarnsWhenOrdersLackTickets verifies that when
+// orders in scope were synced without --order-tickets (no nested tickets), the
+// scoped path returns a warning rather than an empty result with no explanation.
+func TestComputeRevenueByAxisScopedWarnsWhenOrdersLackTickets(t *testing.T) {
+	s := seedStore(t, map[string]map[string]string{
+		"events": {
+			"evt-lean": eventJSON("evt-lean", "Lean Show", "2026-06-15T20:00:00Z"),
+		},
+		"orders": {
+			// Order with NO tickets — synced without --order-tickets.
+			"ord-lean": orderWithTickets("ord-lean", "2026-06-14T10:00:00Z", "evt-lean", "Lean Show", 5000, nil),
+		},
+	})
+	seedCrosswalkAndTiers(t, s, "General Admission", "ga") // crosswalk populated
+
+	res, err := computeRevenueByAxisScoped(context.Background(), s.DB(), "access_class", "evt-lean", "", "")
+	if err != nil {
+		t.Fatalf("computeRevenueByAxisScoped: %v", err)
+	}
+	if res.Warning == "" || !strings.Contains(res.Warning, "order-tickets") {
+		t.Errorf("want a warning mentioning --order-tickets, got %q", res.Warning)
+	}
+	if len(res.Rows) != 0 {
+		t.Errorf("want no rows when orders in scope lack tickets, got %d", len(res.Rows))
 	}
 }
 
