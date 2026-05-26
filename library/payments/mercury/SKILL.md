@@ -24,7 +24,7 @@ This skill drives the `mercury-pp-cli` binary. **You must verify the CLI is inst
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install mercury --cli-only
+   npx -y @mvanhorn/printing-press-library install mercury --cli-only
    ```
 2. Verify: `mercury-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.

@@ -70,6 +70,10 @@ func (c *Client) Get(path string, params map[string]string) (json.RawMessage, er
 	return c.GetWithHeaders(path, params, nil)
 }
 
+func (c *Client) GetJSON(path string, params map[string]string) (json.RawMessage, int, error) {
+	return c.do("GET", path, params, nil, nil)
+}
+
 func (c *Client) GetWithHeaders(path string, params map[string]string, headers map[string]string) (json.RawMessage, error) {
 	// Check cache for GET requests
 	if !c.NoCache && !c.DryRun && c.cacheDir != "" {

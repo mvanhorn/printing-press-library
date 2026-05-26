@@ -1,0 +1,19 @@
+{
+  "sources": [
+    "roaster-sites",
+    "james-hoffmann",
+    "coffee-review",
+    "world-barista-championship",
+    "lance-hedrick",
+    "other-trusted-sources"
+  ],
+  "confirmed_at": "2026-05-20T18:08:18Z",
+  "raw_user_phrasing": "for beans, roaster sites. for reviews, james hoffmann, coffee review, world barista champ data, other trusted sources. Lance Hedrick (big on YouTube) as a source. can use youtube-pp-cli to rip transcripts if needed.",
+  "auth_scoping": {
+    "policy": "no_auth_required",
+    "rationale": "user explicitly requested low barrier to entry, no API keys, no logins"
+  },
+  "implementation_notes": {
+    "youtube_transcripts": "use youtube-pp-cli (existing printed CLI) for Hoffmann + Lance Hedrick channels"
+  }
+}

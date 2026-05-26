@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-24T00:00:00Z",
+  "base_run_id": "20260523-231334",
+  "base_printing_press_version": "4.13.0",
+  "patches": [
+    {"id": "safari-history-local-sqlite-source", "summary": "Hand-built local-SQLite source adapter (snapshot + FTS5 + typed queries) over Safari's History.db, replacing the HTTP client.", "reason": "Data source is Safari's local History DB, not an HTTP API — the generator has no local-datastore path yet.", "files": ["internal/source/types.go", "internal/source/safari/source.go", "internal/store/store.go"]},
+    {"id": "safari-history-novel-commands", "summary": "Hand-authored timeline/rabbitholes/dwell/graph/profile/topic commands over the local store (journeys/searches/downloads are capability-gated off for Safari).", "reason": "Transcendence features over the local store; not generatable from a spec.", "files": ["internal/cli/timeline.go", "internal/cli/rabbitholes.go", "internal/cli/dwell.go", "internal/cli/graph.go", "internal/cli/profile.go", "internal/cli/topic.go"]},
+    {"id": "safari-history-device-origin", "summary": "Cross-device (origin) partitioning via history_visits.origin (this/synced, binary) + --device filter + devices command.", "reason": "Safari history includes synced other-device activity; surfaced as a first-class dimension (no per-device identity, unlike Chrome).", "files": ["internal/cli/devices.go", "internal/source/safari/source.go"]}
+  ]
+}

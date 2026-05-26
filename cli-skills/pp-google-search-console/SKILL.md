@@ -25,7 +25,7 @@ This skill drives the `google-search-console-pp-cli` binary. **You must verify t
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install google-search-console --cli-only
+   npx -y @mvanhorn/printing-press-library install google-search-console --cli-only
    ```
 2. Verify: `google-search-console-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
@@ -37,8 +37,6 @@ go install github.com/mvanhorn/printing-press-library/library/marketing/google-s
 ```
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
-
-A single binary covering search analytics, URL inspection, sitemaps, and site management -- with the agent-native JSON and CSV outputs, --dry-run, exit codes, and offline search every other GSC tool half-implements. The transcendence layer (compare, quick-wins, cannibalization, historical, decaying, outliers, cliff, roll-up, coverage-drift, sitemap-watch, new-queries) runs entirely from the local SQLite store, so the workflows the API can't answer in one call are answered in one command.
 
 ## When to Use This CLI
 

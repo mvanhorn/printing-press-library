@@ -25,7 +25,7 @@ This skill drives the `openalex-pp-cli` binary. **You must verify the CLI is ins
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install openalex --cli-only
+   npx -y @mvanhorn/printing-press-library install openalex --cli-only
    ```
 2. Verify: `openalex-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.

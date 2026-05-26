@@ -20,7 +20,7 @@ func newCercaPromotedCmd(flags *rootFlags) *cobra.Command {
 		Long:        "Shortcut for 'cerca email'. Trova entità IPA (AMM/AOO/UO) associate a un indirizzo email",
 		Example:     "  openipa-pp-cli cerca user@example.com\n  openipa-pp-cli cerca --email user@example.com",
 		Args:        cobra.MaximumNArgs(1),
-		Annotations: map[string]string{"pp:endpoint": "cerca.email", "pp:method": "POST", "pp:path": "/WS07_EMAIL.php"},
+		Annotations: map[string]string{"pp:endpoint": "cerca.email", "pp:method": "POST", "pp:path": "/ws/WS07EMAILServices/api/WS07_EMAIL"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) > 0 {
 				bodyEMAIL = args[0]
@@ -36,7 +36,7 @@ func newCercaPromotedCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 
-			path := "/WS07_EMAIL.php"
+			path := "/ws/WS07EMAILServices/api/WS07_EMAIL"
 			// HasStore + non-GET falls through to a live API call here
 			// rather than through resolveRead (GET-only internally); a
 			// body-aware cached read helper is filed as #425 for when a

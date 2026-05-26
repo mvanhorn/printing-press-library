@@ -29,7 +29,7 @@ This skill drives the `sec-edgar-pp-cli` binary. **You must verify the CLI is in
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install sec-edgar --cli-only
+   npx -y @mvanhorn/printing-press-library install sec-edgar --cli-only
    ```
 2. Verify: `sec-edgar-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
@@ -41,8 +41,6 @@ go install github.com/mvanhorn/printing-press-library/library/developer-tools/se
 ```
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
-
-An agent-native CLI for the entire SEC EDGAR surface — data.sec.gov XBRL, efts.sec.gov full-text search, and the live Atom feed. The synced SQLite store enables joins no single SEC endpoint supports: insider-cluster detection across issuers, XBRL peer-group benchmarks by SIC, 13F holdings deltas across quarters, and live filing watches with multi-dimensional filters. All free — SEC provides no API key, just a mandatory User-Agent header.
 
 ## When to Use This CLI
 

@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"strings"
 )
 
 // Category is one entry from reference.craigslist.org/Categories. 178 entries as of 2026.
@@ -45,6 +46,29 @@ func (c *Client) GetCategories(ctx context.Context) ([]Category, error) {
 		})
 	}
 	return out, nil
+}
+
+func (c *Client) cachedCategoryAbbrs(ctx context.Context) (map[int]string, error) {
+	c.cacheMu.Lock()
+	if c.categoriesLoaded {
+		abbrs := c.categoryAbbrs
+		c.cacheMu.Unlock()
+		return abbrs, nil
+	}
+	cats, err := c.GetCategories(ctx)
+	if err != nil {
+		c.cacheMu.Unlock()
+		return nil, err
+	}
+	abbrs := make(map[int]string, len(cats))
+	for _, cat := range cats {
+		abbrs[cat.CategoryID] = cat.Abbreviation
+	}
+
+	c.categoryAbbrs = abbrs
+	c.categoriesLoaded = true
+	c.cacheMu.Unlock()
+	return abbrs, nil
 }
 
 // Area is one entry from reference.craigslist.org/Areas. 707 entries as of 2026.
@@ -127,4 +151,55 @@ func (c *Client) GetAreas(ctx context.Context) ([]Area, error) {
 		out = append(out, a)
 	}
 	return out, nil
+}
+
+func (c *Client) cachedAreaIndex(ctx context.Context) (map[string]Area, error) {
+	c.cacheMu.Lock()
+	if c.areasLoaded {
+		areaByKey := c.areaByKey
+		c.cacheMu.Unlock()
+		return areaByKey, nil
+	}
+	areas, err := c.GetAreas(ctx)
+	if err != nil {
+		c.cacheMu.Unlock()
+		return nil, err
+	}
+	areaByKey := make(map[string]Area, len(areas)*2)
+	for _, area := range areas {
+		areaByKey[normalizeSiteKey(area.Hostname)] = area
+		areaByKey[strings.ToLower(area.Abbreviation)] = area
+	}
+
+	c.areaByKey = areaByKey
+	c.areasLoaded = true
+	c.cacheMu.Unlock()
+	return areaByKey, nil
+}
+
+// ResolveArea finds a Craigslist area by hostname or abbreviation. Common user
+// inputs include hostnames ("sfbay", "portland") and abbreviations ("nyc").
+func (c *Client) ResolveArea(ctx context.Context, site string) (Area, bool, error) {
+	key := normalizeSiteKey(site)
+	if key == "" {
+		return Area{}, false, nil
+	}
+	areaByKey, err := c.cachedAreaIndex(ctx)
+	if err != nil {
+		return Area{}, false, err
+	}
+	area, ok := areaByKey[key]
+	if !ok {
+		return Area{}, false, nil
+	}
+	return area, true, nil
+}
+
+func normalizeSiteKey(site string) string {
+	key := strings.ToLower(strings.TrimSpace(site))
+	key = strings.TrimPrefix(key, "https://")
+	key = strings.TrimPrefix(key, "http://")
+	key = strings.TrimSuffix(key, "/")
+	key = strings.TrimSuffix(key, ".craigslist.org")
+	return key
 }

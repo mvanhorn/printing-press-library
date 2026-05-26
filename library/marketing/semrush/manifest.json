@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "semrush-pp-mcp",
+  "display_name": "Semrush",
+  "version": "4.14.0",
+  "description": "Every Semrush Analytics + Projects feature, plus a local SQLite store and cross-domain joins no other Semrush tool has.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/semrush-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/semrush-pp-mcp",
+      "args": [],
+      "env": {
+        "SEMRUSH_API_KEY": "${user_config.semrush_api_key}"
+      }
+    }
+  },
+  "user_config": {
+    "semrush_api_key": {
+      "type": "string",
+      "title": "SEMRUSH_API_KEY",
+      "description": "Sets SEMRUSH_API_KEY for the Semrush MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

@@ -15,6 +15,7 @@ import (
 
 	"github.com/mvanhorn/printing-press-library/library/travel/airbnb/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/travel/airbnb/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/travel/airbnb/internal/source/airbnb"
 	"github.com/spf13/cobra"
 )
 
@@ -125,6 +126,14 @@ See README.md or the bundled SKILL.md for recipes.`,
 
 	rootCmd.PersistentPreRunE = func(cmd *cobra.Command, args []string) error {
 		MigrateLegacy(cmd.ErrOrStderr())
+		// PATCH: thread --rate-limit into the source/airbnb scrape client.
+		// Thread --rate-limit into the source/airbnb scrape + GraphQL path
+		// only when the user explicitly passed the flag. When unset, the
+		// hardcoded 0.5 rps baseline in source/airbnb's defaultClient is
+		// preserved, so default invocations stay non-regressive.
+		if cmd.Flags().Changed("rate-limit") {
+			airbnb.SetRate(flags.rateLimit)
+		}
 		if flags.deliverSpec != "" {
 			sink, err := ParseDeliverSink(flags.deliverSpec)
 			if err != nil {

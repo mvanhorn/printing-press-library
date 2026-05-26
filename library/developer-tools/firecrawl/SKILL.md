@@ -24,7 +24,7 @@ This skill drives the `firecrawl-pp-cli` binary. **You must verify the CLI is in
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install firecrawl --cli-only
+   npx -y @mvanhorn/printing-press-library install firecrawl --cli-only
    ```
 2. Verify: `firecrawl-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.

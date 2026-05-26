@@ -29,7 +29,7 @@ This skill drives the `stripe-pp-cli` binary. **You must verify the CLI is insta
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install stripe --cli-only
+   npx -y @mvanhorn/printing-press-library install stripe --cli-only
    ```
 2. Verify: `stripe-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
@@ -41,8 +41,6 @@ go install github.com/mvanhorn/printing-press-library/library/payments/stripe/cm
 ```
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
-
-stripe-pp-cli matches the official stripe-cli verb-for-verb and adds what it deliberately omits: a local mirror of customers, subscriptions, invoices, charges, payouts, and events with FTS5 search; cross-entity SQL queries (`sql`); and dossier commands (`health`, `dunning-queue`, `customer-360`, `subs-at-risk`, `payout-reconcile`). Built for agents — every command is one-shot, one-shot, and emits structured output.
 
 ## When to Use This CLI
 

@@ -110,6 +110,21 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 						report["browser_session_proof"] = "missing or stale"
 						report["browser_session_proof_detail"] = proofDetail
 					}
+					// PATCH(suno-jwt-staleness-check): decode the bearer
+					// token and surface its remaining lifetime. The cookie-
+					// from-Chrome flow stores a Clerk JWT that expires every
+					// ~1h; the read-side validation endpoint accepts stale
+					// tokens, so without this signal doctor reports "valid"
+					// while every write endpoint 401s. Turns a silent failure
+					// into a visible one and tells the user the fix.
+					if exp, ok := config.JWTExpiry(header); ok {
+						if exp.Before(time.Now()) {
+							report["auth_token"] = fmt.Sprintf("expired %s ago", time.Since(exp).Round(time.Second))
+							report["auth_token_hint"] = "open https://suno.com in Chrome to refresh, then run suno-pp-cli auth login --chrome"
+						} else {
+							report["auth_token"] = fmt.Sprintf("valid for %s", time.Until(exp).Round(time.Second))
+						}
+					}
 				}
 			}
 			// Check cookie tool availability
@@ -245,6 +260,7 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 			checkKeys := []struct{ key, label string }{
 				{"config", "Config"},
 				{"auth", "Auth"},
+				{"auth_token", "Auth Token"},
 				{"env_vars", "Env Vars"},
 				{"browser_session_proof", "Browser Session Proof"},
 				{"api", "API"},
@@ -268,7 +284,7 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 					indicator = yellow("INFO")
 				case strings.Contains(s, "scope-limited"):
 					indicator = yellow("WARN")
-				case strings.Contains(s, "error") || strings.Contains(s, "not configured") || strings.Contains(s, "unreachable") || strings.Contains(s, "invalid") || strings.Contains(s, "missing"):
+				case strings.Contains(s, "error") || strings.Contains(s, "not configured") || strings.Contains(s, "unreachable") || strings.Contains(s, "invalid") || strings.Contains(s, "missing") || strings.HasPrefix(s, "expired "):
 					indicator = red("FAIL")
 				case s == "not required":
 					// Public APIs: no auth needed is a healthy state, not a warning.
@@ -286,6 +302,12 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 			}
 			// Print auth setup hints (indented under Auth line)
 			if hint, ok := report["auth_hint"]; ok {
+				fmt.Fprintf(w, "  hint: %v\n", hint)
+			}
+			// PATCH(suno-jwt-staleness-check): mirror auth_hint rendering for
+			// the JWT-expiry hint so users running plain `doctor` see the
+			// recovery instruction, not just `FAIL Auth Token: expired Xs ago`.
+			if hint, ok := report["auth_token_hint"]; ok {
 				fmt.Fprintf(w, "  hint: %v\n", hint)
 			}
 			// Cache section: render after the primary health block so it
@@ -387,7 +409,7 @@ func doctorExitForFailOn(failOn string, report map[string]any) error {
 	for _, v := range report {
 		s, ok := v.(string)
 		if ok {
-			if strings.Contains(s, "error") || strings.Contains(s, "unreachable") || strings.Contains(s, "invalid") || strings.Contains(s, "missing") {
+			if strings.Contains(s, "error") || strings.Contains(s, "unreachable") || strings.Contains(s, "invalid") || strings.Contains(s, "missing") || strings.HasPrefix(s, "expired ") {
 				worstError = true
 			}
 		}

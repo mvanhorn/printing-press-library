@@ -1,0 +1,38 @@
+{
+  "manifest_version": "0.3",
+  "name": "amazon-orders-pp-mcp",
+  "display_name": "Amazon Orders",
+  "version": "4.2.2",
+  "description": "Sync your Amazon order history into a local SQLite store, then ask cross-cutting questions offline: which deliveries are slipping, what did I spend last quarter, when did I order that thing, where is my stuff right now.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/amazon-orders-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/amazon-orders-pp-mcp",
+      "args": [],
+      "env": {
+        "AMAZON_COOKIES": "${user_config.amazon_cookies}"
+      }
+    }
+  },
+  "user_config": {
+    "amazon_cookies": {
+      "type": "string",
+      "title": "Amazon buyer session",
+      "description": "Amazon does not publish a buyer-side API for order history. This CLI imports\ncookies from your logged-in Chrome / Firefox / Safari / Brave browser session,\nthen makes authenticated HTTPS GETs to the same HTML pages you see on\namazon.com. Log in to amazon.com in your browser, then run:\n\n  amazon-orders-pp-cli auth login --chrome\n\nCookies live under the .amazon.com domain. The CLI persists them locally and\nrefreshes the session-id cookie automatically when amazon.com rotates it.",
+      "sensitive": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

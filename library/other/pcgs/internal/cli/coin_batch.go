@@ -131,7 +131,12 @@ func runBatch(cmd *cobra.Command, flags *rootFlags, rows []inputRow, resumable b
 			}
 		}
 		if cached, err := s.Get("coin", r.CertNo); err == nil {
-			obj["data"] = json.RawMessage(cached)
+			// PATCH(amend-2026-05-18: coin-response-transforms) — apply
+			// PriceGuideValue=0→null and year_mismatch transforms on the
+			// cached payload too so a coin pulled from local cache is
+			// indistinguishable from a freshly-fetched live payload at the
+			// agent-facing surface.
+			obj["data"] = applyCoinResponseTransforms(json.RawMessage(cached))
 		} else if err != sql.ErrNoRows {
 			obj["error"] = err.Error()
 		} else {
@@ -140,10 +145,16 @@ func runBatch(cmd *cobra.Command, flags *rootFlags, rows []inputRow, resumable b
 			if callErr != nil {
 				obj["error"] = callErr.Error()
 			} else {
-				obj["data"] = json.RawMessage(data)
+				// PATCH(amend-2026-05-18: coin-response-transforms) — store
+				// the original PCGS payload to disk (so a future generator
+				// regen or schema change can re-derive transforms from
+				// source-of-truth), but emit the transformed shape to the
+				// JSONL stream. Cache stays a faithful copy of what PCGS
+				// sent; output stays consistent with the agent contract.
 				if upErr := s.Upsert("coin", r.CertNo, data); upErr != nil {
 					obj["error"] = fmt.Sprintf("upsert failed: %v", upErr)
 				}
+				obj["data"] = applyCoinResponseTransforms(json.RawMessage(data))
 			}
 		}
 		if err := enc.Encode(obj); err != nil {

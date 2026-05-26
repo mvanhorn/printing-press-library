@@ -45,7 +45,7 @@ brews:
       owner: kevin-magnan
       name: homebrew-tap
     homepage: "https://github.com/mvanhorn/printing-press-library"
-    description: "Printing Press CLI for Beehiiv."
+    description: "Manage beehiiv publications, subscribers, segments, posts, automations, and newsletter analytics from the terminal."
     install: |
       bin.install "beehiiv-pp-cli"
       bin.install "beehiiv-pp-mcp"

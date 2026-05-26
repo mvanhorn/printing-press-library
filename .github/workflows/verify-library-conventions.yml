@@ -34,18 +34,21 @@ name: Verify library conventions
 #    novel feature metadata, and MCP manifests when advertised. The
 #    publish-skill PR body sections are suggested from these artifacts,
 #    but artifact completeness remains the source of truth.
+#
+# 5. Prebuilt MCPB/native binary payloads must not be committed under
+#    library/. Release assets are built from source in GitHub Actions,
+#    then published from that workflow.
+#
+# 6. Newly added library CLIs must have been printed by cli-printing-press
+#    v4.10.0 or newer. That release renamed the generator binary from
+#    `printing-press` to `cli-printing-press`; stale local generator
+#    checkouts and skill installs should fail with direct upgrade
+#    instructions instead of publishing ambiguous old artifacts. Existing
+#    published CLIs can still receive narrow bugfixes even when their
+#    historical manifest records an older Printing Press version.
 
 on:
   pull_request:
-    paths:
-      - 'library/**'
-      - 'cli-skills/**'
-      - 'registry.json'
-      - 'tools/generate-skills/**'
-      - 'tools/sweep-canonical/**'
-      - '.github/scripts/verify-attribution/**'
-      - '.github/scripts/verify-publish-package/**'
-      - '.github/workflows/verify-library-conventions.yml'
   workflow_dispatch:
 
 permissions:
@@ -92,9 +95,24 @@ jobs:
           # have since been relaxed and missing checks that have since
           # been added. It's also the right security default: fork PRs
           # shouldn't be able to ship their own modified verifier.
-          git checkout "${BASE_REMOTE_REF}" -- \
+          #
+          # tools/generate-registry is overlaid for the same reason: the
+          # "Validate registry source descriptions" step below runs it in
+          # --validate mode, so it is a verifier too. A PR branched before
+          # the --validate flag existed otherwise runs its own stale tool
+          # and dies with "flag provided but not defined: -validate"
+          # instead of a real validation message (or a pass).
+          for path in \
             .github/scripts/verify-attribution \
-            .github/scripts/verify-publish-package
+            .github/scripts/verify-binary-payload \
+            .github/scripts/verify-press-version \
+            .github/scripts/verify-publish-package \
+            tools/generate-registry
+          do
+            if git cat-file -e "${BASE_REMOTE_REF}:${path}" 2>/dev/null; then
+              git checkout "${BASE_REMOTE_REF}" -- "${path}"
+            fi
+          done
 
       - name: Fail on changes to generated artifacts
         if: github.event_name == 'pull_request'
@@ -133,9 +151,15 @@ jobs:
           # The intersection is the only signal that means "this PR
           # introduced a divergent change to a generated file."
 
+          # `awk 'NF'` keeps non-blank lines; unlike `grep -v '^$'`, it exits
+          # 0 even when no lines pass through. With `set -o pipefail`, the
+          # previous `grep -v '^$'` form failed the assignment whenever
+          # `git log` produced empty output (the common no-touch case),
+          # making the whole step exit 1 with no stdout. awk's exit code
+          # reflects script errors only, not match counts.
           touched=$(git log "${BASE_REMOTE_REF}..HEAD" --name-only --format= \
             -- 'registry.json' 'cli-skills/pp-*/SKILL.md' \
-            | grep -v '^$' | sort -u)
+            | awk 'NF' | sort -u)
           differs=$(git diff --name-only "${BASE_REMOTE_REF}" HEAD \
             -- 'registry.json' 'cli-skills/pp-*/SKILL.md' \
             | sort -u)
@@ -179,6 +203,22 @@ jobs:
           set -euo pipefail
           python3 .github/scripts/verify-publish-package/verify_publish_package.py --base-ref "${BASE_REMOTE_REF}"
 
+      - name: Block committed MCPB/native binary payloads
+        if: github.event_name == 'pull_request'
+        env:
+          BASE_REMOTE_REF: ${{ steps.base.outputs.ref }}
+        run: |
+          set -euo pipefail
+          python3 .github/scripts/verify-binary-payload/verify_binary_payload.py --base-ref "${BASE_REMOTE_REF}"
+
+      - name: Require current cli-printing-press for new CLIs
+        if: github.event_name == 'pull_request'
+        env:
+          BASE_REMOTE_REF: ${{ steps.base.outputs.ref }}
+        run: |
+          set -euo pipefail
+          python3 .github/scripts/verify-press-version/verify_press_version.py --base-ref "${BASE_REMOTE_REF}"
+
       - name: go.mod module path matches directory
         run: |
           set -euo pipefail
@@ -196,3 +236,63 @@ jobs:
             exit 1
           fi
           echo "All library/*/*/go.mod module declarations match their directories."
+
+      # Go is needed only for the next step's `go run ./tools/generate-registry`.
+      # Pinned to the same version as the post-merge regen workflow
+      # (generate-registry.yml) so a CI pass here implies the same generator
+      # binary that will run after merge.
+      - uses: actions/setup-go@v6
+        with:
+          go-version: '1.26.3'
+
+      - name: Validate registry source descriptions
+        # Reject PRs whose .printing-press.json + .goreleaser.yaml sources would
+        # produce an empty `description` (or other required field) in the
+        # post-merge regenerated registry.json. Catches the lawhub-shape
+        # regression at PR time so the npm installer never sees a malformed
+        # entry. See tools/generate-registry/main.go validateEntries() for the
+        # exact field set.
+        #
+        # Scope to the CLIs this PR actually changes. --validate runs against
+        # the PR's whole tree, but a stale PR shouldn't be failed for an
+        # unrelated CLI that is already correct on main — merging the PR won't
+        # change that CLI's manifest, so its in-tree copy never reaches the
+        # post-merge registry. (A PR branched before a CLI's description landed
+        # carries the old description-less manifest for that untouched CLI and
+        # was failing here for agent-capture / tiktok-shop.) We pass the slugs
+        # of CLIs whose registry-source files this PR adds or modifies vs base;
+        # with none, there's nothing to validate. The full-tree invariant still
+        # holds: every CLI is validated by the PR that introduces or edits it.
+        # workflow_dispatch keeps the unscoped whole-library run.
+        #
+        # The file-path form (./tools/generate-registry/main.go) is required
+        # because the repo root has no go.mod — Go locates the tool's go.mod
+        # by walking up from the source file. The package-path form
+        # (./tools/generate-registry) fails with "go.mod not found" from the
+        # repo root. Matches the invocation in generate-registry.yml.
+        #
+        # The tool is overlaid from base in "Overlay verifier scripts from
+        # base" above, so this always runs the current validator (including
+        # the slug-scoping arg) even on a stale-base PR; only the library
+        # data being validated is the PR's.
+        env:
+          BASE_REMOTE_REF: ${{ steps.base.outputs.ref }}
+        run: |
+          set -euo pipefail
+          if [ "${GITHUB_EVENT_NAME}" != "pull_request" ]; then
+            go run ./tools/generate-registry/main.go --validate
+            exit 0
+          fi
+          # --diff-filter=d drops deletions: a CLI the PR removes has nothing
+          # to validate. $3 of library/<cat>/<slug>/<file> is the slug, which
+          # equals the registry entry Name the validator keys its errors on.
+          mapfile -t slugs < <(
+            git diff --name-only --diff-filter=d "${BASE_REMOTE_REF}...HEAD" \
+              -- 'library/*/*/.printing-press.json' 'library/*/*/.goreleaser.yaml' \
+            | awk -F/ 'NF>=3 {print $3}' | sort -u)
+          if [ "${#slugs[@]}" -eq 0 ]; then
+            echo "No CLI registry-source files changed in this PR. Nothing to validate."
+            exit 0
+          fi
+          echo "Validating changed CLIs: ${slugs[*]}"
+          go run ./tools/generate-registry/main.go --validate "${slugs[@]}"

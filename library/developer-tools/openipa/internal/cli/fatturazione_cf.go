@@ -20,7 +20,7 @@ func newFatturazioneCfCmd(flags *rootFlags) *cobra.Command {
 		Use:         "cf",
 		Short:       "Uffici destinatari fattura elettronica per codice fiscale ente",
 		Example:     "  openipa-pp-cli fatturazione cf --cf example-value",
-		Annotations: map[string]string{"pp:endpoint": "fatturazione.cf", "pp:method": "POST", "pp:path": "/WS01_SFE_CF.php"},
+		Annotations: map[string]string{"pp:endpoint": "fatturazione.cf", "pp:method": "POST", "pp:path": "/ws/WS01SFECFServices/api/WS01_SFE_CF"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {
 				if !cmd.Flags().Changed("cf") && !flags.dryRun {
@@ -32,7 +32,7 @@ func newFatturazioneCfCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 
-			path := "/WS01_SFE_CF.php"
+			path := "/ws/WS01SFECFServices/api/WS01_SFE_CF"
 			var body map[string]any
 			if stdinBody {
 				stdinData, err := io.ReadAll(os.Stdin)

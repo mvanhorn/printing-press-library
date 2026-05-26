@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-18T07:45:49.0272565Z",
+  "printing_press_version": "4.11.0",
+  "api_name": "gravitus",
+  "display_name": "Gravitus",
+  "cli_name": "gravitus-pp-cli",
+  "owner": "mvanhorn",
+  "printer": "azaaron",
+  "printer_name": "mvanhorn",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:293a2b08f231409512eec08f90ec226bab6c68dd195638796250135e2cf5a1ff",
+  "run_id": "20260517-231116",
+  "mcp_binary": "gravitus-pp-mcp",
+  "mcp_tool_count": 4,
+  "mcp_public_tool_count": 1,
+  "mcp_ready": "partial",
+  "api_version": "0.1.0",
+  "auth_type": "cookie",
+  "auth_env_vars": [
+    "GRAVITUS_SESSION_ID"
+  ],
+  "novel_features": [
+    {
+      "name": "Dashboard Sync",
+      "command": "sync",
+      "description": "Sync all Gravitus workouts into your training dashboard's SQLite database — writes LiftingSession records in the exact Prisma schema format with auth, pagination, and incremental support."
+    },
+    {
+      "name": "Data Export",
+      "command": "export",
+      "description": "Export your complete Gravitus training history to CSV or JSON — the first and only way to get your data out of Gravitus."
+    },
+    {
+      "name": "Plateau Detection",
+      "command": "exercises plateau",
+      "description": "Identifies exercises where estimated 1RM hasn't improved in N weeks — alert-style output for the dashboard coaching panel."
+    },
+    {
+      "name": "Weekly Volume",
+      "command": "stats volume",
+      "description": "Weekly total lifting volume (lbs) aggregated from all synced sessions — the same metric the dashboard LiftingSection displays."
+    },
+    {
+      "name": "Personal Records",
+      "command": "exercises prs",
+      "description": "All-time PRs across every exercise, extracted from PR markers on workout pages."
+    }
+  ]
+}

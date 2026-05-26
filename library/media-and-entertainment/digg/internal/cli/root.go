@@ -92,7 +92,8 @@ Highlights (not in the official API docs):
   • evidence   Print the full ranking transparency record for one cluster — scoreComponents, evidence array, numeratorLabel, percentAboveAverage.
   • sentiment   Read per-time-window positivity ratios (pos6h, pos12h, pos24h, posLast) for a cluster.
   • crossref   Show this cluster's Hacker News and Techmeme mirrors when Digg has detected the story is being discussed there.
-  • github stars|new|activity|recent   Four GitHub feeds: top starred AI repos, freshly first-seen repos, contributor leaderboard, live activity stream.
+  • github stars|new|activity|recent   Four GitHub feeds: top starred AI repos, freshly first-seen repos, contributor leaderboard, live activity stream. github stars supports --min-starrers N (smart-money convergence filter).
+  • rankings emerging|movers|list   Three sub-views of /ai/x/rankings/companies: curated emerging startups, follower-velocity movers, full ranking. (PATCH: digg-rankings-and-min-starrers)
   • authors top   Top accounts Digg tracks, ranked by Digg's influence score, story count, or reach.
   • history   Full trajectory of one cluster's currentRank, peakRank, and delta over local snapshot history.
   • author   Every cluster a given X account contributed to, with post type (original, retweet, quote, reply).
@@ -184,6 +185,8 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.AddCommand(newFeedCmd(flags))
 	// PATCH(digg-rename-and-github-feeds): wire up the four /ai/github/* feed commands.
 	rootCmd.AddCommand(newGithubCmd(flags))
+	// PATCH(digg-rankings-and-min-starrers): expose the /ai/x/rankings/companies sub-views.
+	rootCmd.AddCommand(newRankingsCmd(flags))
 	rootCmd.AddCommand(newDoctorCmd(flags))
 	rootCmd.AddCommand(newAgentContextCmd(rootCmd))
 	rootCmd.AddCommand(newProfileCmd(flags))
@@ -194,6 +197,8 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.AddCommand(newWorkflowCmd(flags))
 	rootCmd.AddCommand(newAPICmd(flags))
 	rootCmd.AddCommand(newTrendingPromotedCmd(flags))
+	// PATCH(digg-enhancements): register read-only SQL passthrough (sql.go).
+	rootCmd.AddCommand(newSQLCmd(flags))
 	rootCmd.AddCommand(newVersionCliCmd())
 	registerDiggCommands(rootCmd, flags)
 

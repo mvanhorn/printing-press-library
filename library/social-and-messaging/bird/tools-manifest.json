@@ -1,0 +1,1005 @@
+{
+  "api_name": "bird",
+  "base_url": "https://api.bird.com/workspaces/{workspace_id}",
+  "description": "Bird (formerly MessageBird) Conversations and SMS API",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "api_key",
+    "header": "Authorization",
+    "format": "AccessKey {BIRD_API_KEY}",
+    "in": "header",
+    "env_vars": [
+      "BIRD_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "BIRD_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ],
+    "key_url": "https://app.bird.com/settings/security/access-keys"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "channel-config_get",
+      "description": "Get the Conversations configuration for a channel. Required: channel_id. Returns the ConversationsConfig.",
+      "method": "GET",
+      "path": "/channels/{channel_id}/conversations-configuration",
+      "params": [
+        {
+          "name": "channel_id",
+          "type": "string",
+          "location": "path",
+          "description": "Channel ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "channel-config_update",
+      "description": "Update Conversations configuration for a channel. Required: channel_id. Optional: enabled, customStatuses. Returns the updated ConversationsConfig.",
+      "method": "PUT",
+      "path": "/channels/{channel_id}/conversations-configuration",
+      "params": [
+        {
+          "name": "channel_id",
+          "type": "string",
+          "location": "path",
+          "description": "Channel ID",
+          "required": true
+        },
+        {
+          "name": "enabled",
+          "type": "boolean",
+          "location": "body",
+          "description": "Whether Conversations is enabled on this channel"
+        },
+        {
+          "name": "customStatuses",
+          "type": "array",
+          "location": "body",
+          "description": "Optional list of custom statuses"
+        }
+      ]
+    },
+    {
+      "name": "channel-media_presigned-upload",
+      "description": "Create a channel-scoped pre-signed media upload URL. Required: channel_id, contentType. Optional: contentLength. Returns the new PresignedUpload.",
+      "method": "POST",
+      "path": "/channels/{channel_id}/presigned-upload",
+      "params": [
+        {
+          "name": "channel_id",
+          "type": "string",
+          "location": "path",
+          "description": "Channel ID",
+          "required": true
+        },
+        {
+          "name": "contentType",
+          "type": "string",
+          "location": "body",
+          "description": "MIME type",
+          "required": true
+        },
+        {
+          "name": "contentLength",
+          "type": "int",
+          "location": "body",
+          "description": "Content length in bytes"
+        }
+      ]
+    },
+    {
+      "name": "channels_get",
+      "description": "Get one channel by ID. Required: channel_id. Returns the Channel.",
+      "method": "GET",
+      "path": "/channels/{channel_id}",
+      "params": [
+        {
+          "name": "channel_id",
+          "type": "string",
+          "location": "path",
+          "description": "Channel ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "channels_list",
+      "description": "List channels in the workspace (filter --kind sms). Optional: kind, limit, pageToken. Returns array of Channel.",
+      "method": "GET",
+      "path": "/channels",
+      "params": [
+        {
+          "name": "kind",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by channel kind (sms, whatsapp, email, etc.)"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Page size"
+        },
+        {
+          "name": "pageToken",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor"
+        }
+      ]
+    },
+    {
+      "name": "channels_messageability",
+      "description": "Check whether a channel can message a given contact (the customer-service window probe). Required: channel_id, contact_id. Returns the Messageability.",
+      "method": "GET",
+      "path": "/channels/{channel_id}/messageability/{contact_id}",
+      "params": [
+        {
+          "name": "channel_id",
+          "type": "string",
+          "location": "path",
+          "description": "Channel ID",
+          "required": true
+        },
+        {
+          "name": "contact_id",
+          "type": "string",
+          "location": "path",
+          "description": "Contact ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "compliance_keywords_get",
+      "description": "Get one compliance keyword's configuration. Required: channel_id, keyword. Returns the ComplianceKeyword.",
+      "method": "GET",
+      "path": "/channels/{channel_id}/compliance-keywords/{keyword}",
+      "params": [
+        {
+          "name": "channel_id",
+          "type": "string",
+          "location": "path",
+          "description": "Channel ID",
+          "required": true
+        },
+        {
+          "name": "keyword",
+          "type": "string",
+          "location": "path",
+          "description": "Keyword (HELP, STOP, START)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "compliance_keywords_list",
+      "description": "List compliance keyword messages. Required: channel_id. Returns array of ComplianceKeyword.",
+      "method": "GET",
+      "path": "/channels/{channel_id}/compliance-keywords",
+      "params": [
+        {
+          "name": "channel_id",
+          "type": "string",
+          "location": "path",
+          "description": "Channel ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "compliance_keywords_set",
+      "description": "Set the auto-reply for a compliance keyword. Required: channel_id, keyword, body. Returns the updated ComplianceKeyword.",
+      "method": "PUT",
+      "path": "/channels/{channel_id}/compliance-keywords/{keyword}",
+      "params": [
+        {
+          "name": "channel_id",
+          "type": "string",
+          "location": "path",
+          "description": "Channel ID",
+          "required": true
+        },
+        {
+          "name": "keyword",
+          "type": "string",
+          "location": "path",
+          "description": "Keyword (HELP, STOP, START)",
+          "required": true
+        },
+        {
+          "name": "body",
+          "type": "object",
+          "location": "body",
+          "description": "Auto-reply body envelope",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "conversations_create",
+      "description": "Start a new conversation. Required: channelId. Optional: name, status, visibility (plus 1 more). Returns the new Conversation.",
+      "method": "POST",
+      "path": "/conversations",
+      "params": [
+        {
+          "name": "channelId",
+          "type": "string",
+          "location": "body",
+          "description": "Channel ID to attach this conversation to",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Conversation display name"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "body",
+          "description": "Initial status (active, snoozed, closed)"
+        },
+        {
+          "name": "visibility",
+          "type": "string",
+          "location": "body",
+          "description": "Visibility (public or private)"
+        },
+        {
+          "name": "participants",
+          "type": "array",
+          "location": "body",
+          "description": "Initial participants (objects with type and identifier)"
+        }
+      ]
+    },
+    {
+      "name": "conversations_delete",
+      "description": "Delete a conversation. Required: conversation_id. Destructive.",
+      "method": "DELETE",
+      "path": "/conversations/{conversation_id}",
+      "params": [
+        {
+          "name": "conversation_id",
+          "type": "string",
+          "location": "path",
+          "description": "Conversation ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "conversations_get",
+      "description": "Get one conversation by ID. Required: conversation_id. Returns the Conversation.",
+      "method": "GET",
+      "path": "/conversations/{conversation_id}",
+      "params": [
+        {
+          "name": "conversation_id",
+          "type": "string",
+          "location": "path",
+          "description": "Conversation ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "conversations_list",
+      "description": "List conversations across the workspace. Optional: status, limit, pageToken. Returns array of Conversation.",
+      "method": "GET",
+      "path": "/conversations",
+      "params": [
+        {
+          "name": "status",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by conversation status (active, snoozed, closed)"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Page size (max 100, default 10)"
+        },
+        {
+          "name": "pageToken",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor returned by a previous list call"
+        }
+      ]
+    },
+    {
+      "name": "conversations_update",
+      "description": "Update a conversation (status, name, etc.). Required: conversation_id. Optional: status, name. Returns the updated Conversation.",
+      "method": "PATCH",
+      "path": "/conversations/{conversation_id}",
+      "params": [
+        {
+          "name": "conversation_id",
+          "type": "string",
+          "location": "path",
+          "description": "Conversation ID",
+          "required": true
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "body",
+          "description": "New status"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "New display name"
+        }
+      ]
+    },
+    {
+      "name": "conversations_messages_create",
+      "description": "Send a reply in a conversation. Required: conversation_id, body. Optional: receiver. Returns the new ConversationMessage.",
+      "method": "POST",
+      "path": "/conversations/{conversation_id}/messages",
+      "params": [
+        {
+          "name": "conversation_id",
+          "type": "string",
+          "location": "path",
+          "description": "Conversation ID",
+          "required": true
+        },
+        {
+          "name": "body",
+          "type": "object",
+          "location": "body",
+          "description": "Message body envelope (e.g., {type: text, text: {text: hello}})",
+          "required": true
+        },
+        {
+          "name": "receiver",
+          "type": "object",
+          "location": "body",
+          "description": "Optional receiver override; defaults to conversation's contact"
+        }
+      ]
+    },
+    {
+      "name": "conversations_messages_delete",
+      "description": "Delete a conversation message. Required: conversation_id, message_id. Destructive.",
+      "method": "DELETE",
+      "path": "/conversations/{conversation_id}/messages/{message_id}",
+      "params": [
+        {
+          "name": "conversation_id",
+          "type": "string",
+          "location": "path",
+          "description": "Conversation ID",
+          "required": true
+        },
+        {
+          "name": "message_id",
+          "type": "string",
+          "location": "path",
+          "description": "Message ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "conversations_messages_get",
+      "description": "Get one conversation message. Required: conversation_id, message_id. Returns the ConversationMessage.",
+      "method": "GET",
+      "path": "/conversations/{conversation_id}/messages/{message_id}",
+      "params": [
+        {
+          "name": "conversation_id",
+          "type": "string",
+          "location": "path",
+          "description": "Conversation ID",
+          "required": true
+        },
+        {
+          "name": "message_id",
+          "type": "string",
+          "location": "path",
+          "description": "Message ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "conversations_messages_list",
+      "description": "List messages in a conversation. Required: conversation_id. Optional: limit, pageToken. Returns array of ConversationMessage.",
+      "method": "GET",
+      "path": "/conversations/{conversation_id}/messages",
+      "params": [
+        {
+          "name": "conversation_id",
+          "type": "string",
+          "location": "path",
+          "description": "Conversation ID",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Page size (max 100)"
+        },
+        {
+          "name": "pageToken",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor"
+        }
+      ]
+    },
+    {
+      "name": "conversations_messages_update",
+      "description": "Update a conversation message. Required: conversation_id, message_id. Optional: status. Returns the updated ConversationMessage.",
+      "method": "PATCH",
+      "path": "/conversations/{conversation_id}/messages/{message_id}",
+      "params": [
+        {
+          "name": "conversation_id",
+          "type": "string",
+          "location": "path",
+          "description": "Conversation ID",
+          "required": true
+        },
+        {
+          "name": "message_id",
+          "type": "string",
+          "location": "path",
+          "description": "Message ID",
+          "required": true
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "body",
+          "description": "New message status"
+        }
+      ]
+    },
+    {
+      "name": "conversations_participants_add",
+      "description": "Add a participant to a conversation. Required: conversation_id, type. Optional: identifierKey, identifierValue, id. Returns the new Participant.",
+      "method": "POST",
+      "path": "/conversations/{conversation_id}/participants",
+      "params": [
+        {
+          "name": "conversation_id",
+          "type": "string",
+          "location": "path",
+          "description": "Conversation ID",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Participant type (contact, user, accessKey, bot, flow, connector, channel, collaborationAutomation)",
+          "required": true
+        },
+        {
+          "name": "identifierKey",
+          "type": "string",
+          "location": "body",
+          "description": "Identifier key for contacts (e.g. phonenumber, emailaddress)"
+        },
+        {
+          "name": "identifierValue",
+          "type": "string",
+          "location": "body",
+          "description": "Identifier value (e.g. +31612345678)"
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "Participant ID when type is user/bot/etc."
+        }
+      ]
+    },
+    {
+      "name": "conversations_participants_find",
+      "description": "Look up a participant by identifier key and value. Required: conversation_id, identifier_key, identifier_value. Returns the Participant.",
+      "method": "GET",
+      "path": "/conversations/{conversation_id}/participants/key/{identifier_key}/value/{identifier_value}",
+      "params": [
+        {
+          "name": "conversation_id",
+          "type": "string",
+          "location": "path",
+          "description": "Conversation ID",
+          "required": true
+        },
+        {
+          "name": "identifier_key",
+          "type": "string",
+          "location": "path",
+          "description": "Identifier key (e.g. phonenumber)",
+          "required": true
+        },
+        {
+          "name": "identifier_value",
+          "type": "string",
+          "location": "path",
+          "description": "Identifier value (e.g. +31612345678)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "conversations_participants_get",
+      "description": "Get a participant by ID. Required: conversation_id, participant_id. Returns the Participant.",
+      "method": "GET",
+      "path": "/conversations/{conversation_id}/participants/{participant_id}",
+      "params": [
+        {
+          "name": "conversation_id",
+          "type": "string",
+          "location": "path",
+          "description": "Conversation ID",
+          "required": true
+        },
+        {
+          "name": "participant_id",
+          "type": "string",
+          "location": "path",
+          "description": "Participant ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "conversations_participants_list",
+      "description": "List participants in a conversation. Required: conversation_id. Optional: limit, pageToken. Returns array of Participant.",
+      "method": "GET",
+      "path": "/conversations/{conversation_id}/participants",
+      "params": [
+        {
+          "name": "conversation_id",
+          "type": "string",
+          "location": "path",
+          "description": "Conversation ID",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Page size"
+        },
+        {
+          "name": "pageToken",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor"
+        }
+      ]
+    },
+    {
+      "name": "conversations_participants_remove",
+      "description": "Remove a participant from a conversation. Required: conversation_id, participant_id. Destructive.",
+      "method": "DELETE",
+      "path": "/conversations/{conversation_id}/participants/{participant_id}",
+      "params": [
+        {
+          "name": "conversation_id",
+          "type": "string",
+          "location": "path",
+          "description": "Conversation ID",
+          "required": true
+        },
+        {
+          "name": "participant_id",
+          "type": "string",
+          "location": "path",
+          "description": "Participant ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "conversations_participants_update",
+      "description": "Update a participant by ID. Required: conversation_id, participant_id. Optional: status, displayName. Returns the updated Participant.",
+      "method": "PATCH",
+      "path": "/conversations/{conversation_id}/participants/{participant_id}",
+      "params": [
+        {
+          "name": "conversation_id",
+          "type": "string",
+          "location": "path",
+          "description": "Conversation ID",
+          "required": true
+        },
+        {
+          "name": "participant_id",
+          "type": "string",
+          "location": "path",
+          "description": "Participant ID",
+          "required": true
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "body",
+          "description": "New participant status"
+        },
+        {
+          "name": "displayName",
+          "type": "string",
+          "location": "body",
+          "description": "New display name"
+        }
+      ]
+    },
+    {
+      "name": "media_presigned-upload",
+      "description": "Create a workspace-wide pre-signed media upload URL. Required: contentType. Optional: contentLength. Returns the new PresignedUpload.",
+      "method": "POST",
+      "path": "/channel-media/presigned-upload",
+      "params": [
+        {
+          "name": "contentType",
+          "type": "string",
+          "location": "body",
+          "description": "MIME type (e.g. image/jpeg)",
+          "required": true
+        },
+        {
+          "name": "contentLength",
+          "type": "int",
+          "location": "body",
+          "description": "Content length in bytes"
+        }
+      ]
+    },
+    {
+      "name": "messages_get",
+      "description": "Get one message by ID. Required: channel_id, message_id. Returns the Message.",
+      "method": "GET",
+      "path": "/channels/{channel_id}/messages/{message_id}",
+      "params": [
+        {
+          "name": "channel_id",
+          "type": "string",
+          "location": "path",
+          "description": "Channel ID",
+          "required": true
+        },
+        {
+          "name": "message_id",
+          "type": "string",
+          "location": "path",
+          "description": "Message ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "messages_interactions",
+      "description": "List delivery-event interactions for a message (sent, delivered, read, failed). Required: channel_id, message_id. Returns array of Interaction.",
+      "method": "GET",
+      "path": "/channels/{channel_id}/messages/{message_id}/interactions",
+      "params": [
+        {
+          "name": "channel_id",
+          "type": "string",
+          "location": "path",
+          "description": "Channel ID",
+          "required": true
+        },
+        {
+          "name": "message_id",
+          "type": "string",
+          "location": "path",
+          "description": "Message ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "messages_list",
+      "description": "List messages on a channel (chronological). Required: channel_id. Optional: limit, pageToken. Returns array of Message.",
+      "method": "GET",
+      "path": "/channels/{channel_id}/messages",
+      "params": [
+        {
+          "name": "channel_id",
+          "type": "string",
+          "location": "path",
+          "description": "Channel ID (or set BIRD_CHANNEL_ID)",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Page size"
+        },
+        {
+          "name": "pageToken",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor"
+        }
+      ]
+    },
+    {
+      "name": "messages_list-all",
+      "description": "List messages across the workspace. Optional: limit, pageToken. Returns array of Message.",
+      "method": "GET",
+      "path": "/messages",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Page size"
+        },
+        {
+          "name": "pageToken",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor"
+        }
+      ]
+    },
+    {
+      "name": "participants_conversations",
+      "description": "List conversations a participant belongs to (by participant ID). Required: participant_id. Optional: limit, pageToken. Returns array of Conversation.",
+      "method": "GET",
+      "path": "/participants/{participant_id}/conversations",
+      "params": [
+        {
+          "name": "participant_id",
+          "type": "string",
+          "location": "path",
+          "description": "Participant ID",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Page size"
+        },
+        {
+          "name": "pageToken",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor"
+        }
+      ]
+    },
+    {
+      "name": "participants_conversations-by-identifier",
+      "description": "List conversations a participant belongs to (by identifier key and value). Required: identifier_key, identifier_value. Returns array of Conversation.",
+      "method": "GET",
+      "path": "/participants/key/{identifier_key}/value/{identifier_value}/conversations",
+      "params": [
+        {
+          "name": "identifier_key",
+          "type": "string",
+          "location": "path",
+          "description": "Identifier key (e.g. phonenumber)",
+          "required": true
+        },
+        {
+          "name": "identifier_value",
+          "type": "string",
+          "location": "path",
+          "description": "Identifier value (e.g. +31612345678)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sms_send",
+      "description": "Send an SMS message. Required: channel_id, receiver, body. Optional: idempotencyKey. Returns the new Message.",
+      "method": "POST",
+      "path": "/channels/{channel_id}/messages",
+      "params": [
+        {
+          "name": "channel_id",
+          "type": "string",
+          "location": "path",
+          "description": "SMS channel ID (or set BIRD_CHANNEL_ID)",
+          "required": true
+        },
+        {
+          "name": "receiver",
+          "type": "object",
+          "location": "body",
+          "description": "Receiver envelope: {contacts: [{identifierKey: phonenumber, identifierValue: +31612345678}]}",
+          "required": true
+        },
+        {
+          "name": "body",
+          "type": "object",
+          "location": "body",
+          "description": "Message body envelope: {type: text, text: {text: hello}}",
+          "required": true
+        },
+        {
+          "name": "idempotencyKey",
+          "type": "string",
+          "location": "body",
+          "description": "Idempotency key (recommended for retries)"
+        }
+      ]
+    },
+    {
+      "name": "workspace_antispam_get",
+      "description": "Get the anti-spam setting. Returns the AntispamSetting.",
+      "method": "GET",
+      "path": "/conversation-settings/antispam",
+      "params": []
+    },
+    {
+      "name": "workspace_antispam_update",
+      "description": "Update the anti-spam setting. Required: enabled. Returns the updated AntispamSetting.",
+      "method": "PUT",
+      "path": "/conversation-settings/antispam",
+      "params": [
+        {
+          "name": "enabled",
+          "type": "boolean",
+          "location": "body",
+          "description": "Whether anti-spam classification is enabled",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "workspace_rules_bulk-add",
+      "description": "Bulk add allow/block rules from a list. Required: rules. Returns the new BulkRulesUpload.",
+      "method": "POST",
+      "path": "/conversation-settings/allow-block-rules/bulk",
+      "params": [
+        {
+          "name": "rules",
+          "type": "array",
+          "location": "body",
+          "description": "Array of rule objects (kind/identifierKey/identifierValue)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "workspace_rules_bulk-status",
+      "description": "Get the status of a bulk rules upload. Required: upload_id. Returns the BulkRulesUpload.",
+      "method": "GET",
+      "path": "/conversation-settings/allow-block-rules/bulk/{upload_id}",
+      "params": [
+        {
+          "name": "upload_id",
+          "type": "string",
+          "location": "path",
+          "description": "Bulk upload ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "workspace_rules_create",
+      "description": "Create an allow or block rule. Required: kind, identifierKey, identifierValue. Returns the new AllowBlockRule.",
+      "method": "POST",
+      "path": "/conversation-settings/allow-block-rules",
+      "params": [
+        {
+          "name": "kind",
+          "type": "string",
+          "location": "body",
+          "description": "Rule kind (allow or block)",
+          "required": true
+        },
+        {
+          "name": "identifierKey",
+          "type": "string",
+          "location": "body",
+          "description": "Identifier key (e.g. phonenumber)",
+          "required": true
+        },
+        {
+          "name": "identifierValue",
+          "type": "string",
+          "location": "body",
+          "description": "Identifier value (e.g. +31612345678)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "workspace_rules_delete",
+      "description": "Delete an allow/block rule. Required: rule_id. Destructive.",
+      "method": "DELETE",
+      "path": "/conversation-settings/allow-block-rules/{rule_id}",
+      "params": [
+        {
+          "name": "rule_id",
+          "type": "string",
+          "location": "path",
+          "description": "Rule ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "workspace_rules_get",
+      "description": "Get one allow/block rule. Required: rule_id. Returns the AllowBlockRule.",
+      "method": "GET",
+      "path": "/conversation-settings/allow-block-rules/{rule_id}",
+      "params": [
+        {
+          "name": "rule_id",
+          "type": "string",
+          "location": "path",
+          "description": "Rule ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "workspace_rules_list",
+      "description": "List allow/block rules. Optional: kind, limit, pageToken. Returns array of AllowBlockRule.",
+      "method": "GET",
+      "path": "/conversation-settings/allow-block-rules",
+      "params": [
+        {
+          "name": "kind",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by allow or block"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Page size"
+        },
+        {
+          "name": "pageToken",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor"
+        }
+      ]
+    },
+    {
+      "name": "workspace_rules_update",
+      "description": "Update an allow/block rule. Required: rule_id. Optional: kind. Returns the updated AllowBlockRule.",
+      "method": "PATCH",
+      "path": "/conversation-settings/allow-block-rules/{rule_id}",
+      "params": [
+        {
+          "name": "rule_id",
+          "type": "string",
+          "location": "path",
+          "description": "Rule ID",
+          "required": true
+        },
+        {
+          "name": "kind",
+          "type": "string",
+          "location": "body",
+          "description": "Rule kind"
+        }
+      ]
+    }
+  ]
+}

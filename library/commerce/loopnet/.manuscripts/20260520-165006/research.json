@@ -1,0 +1,274 @@
+{
+  "api_name": "loopnet",
+  "novelty_score": 8,
+  "alternatives": [
+    {
+      "name": "LoopnetMCP",
+      "url": "https://github.com/johnstenner/LoopnetMCP",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 3,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "commercial-realestate-crawler-v3",
+      "url": "https://github.com/BenNormann/commercial-realestate-crawler-v3",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "ln-scraper",
+      "url": "https://github.com/Spareo/ln-scraper",
+      "language": "Python",
+      "install_method": "",
+      "stars": 6,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-20T11:50:00Z",
+  "novel_features": [
+    {
+      "name": "Price-cut detection",
+      "command": "price-cuts",
+      "description": "Surfaces every synced listing whose asking price dropped between syncs, with old price, new price, percent cut, and days on market at the cut.",
+      "rationale": "LoopNet shows only the current price. Detecting a cut requires a price_history time series across syncs that only the local store has.",
+      "example": "loopnet-pp-cli price-cuts worcester-ma --type industrial-properties --agent",
+      "why_it_matters": "Reach for this to find motivated sellers and re-priced assets — a price cut is the single strongest deal-sentiment signal LoopNet itself never exposes.",
+      "group": "Change tracking only the local store enables"
+    },
+    {
+      "name": "Days-on-market",
+      "command": "dom",
+      "description": "Computes true days on market for every live listing from the date the CLI first saw it, and flags aged inventory past a threshold.",
+      "rationale": "LoopNet hides days-on-market entirely. The CLI synthesizes it from first_seen timestamps in listing_snapshots.",
+      "example": "loopnet-pp-cli dom worcester-ma --min-days 90 --agent",
+      "why_it_matters": "Use this to tell a fresh comp from a stale one and to find listings that have languished — both invisible on LoopNet.",
+      "group": "Change tracking only the local store enables"
+    },
+    {
+      "name": "Market velocity",
+      "command": "velocity",
+      "description": "Reports absorption for a submarket: new listings, delistings, median days on market, and net supply change per period.",
+      "rationale": "Requires new/delisted counts and median DOM aggregated across the full snapshot history — no single LoopNet page carries a time dimension.",
+      "example": "loopnet-pp-cli velocity worcester-ma --agent",
+      "why_it_matters": "Reach for this to gauge whether a submarket is heating up or cooling — the supply-and-demand pulse for a market-intelligence brief.",
+      "group": "Change tracking only the local store enables"
+    },
+    {
+      "name": "Delisting detection",
+      "command": "delisted",
+      "description": "Lists listings present in a prior sync but absent now — sold, withdrawn, or expired.",
+      "rationale": "Requires a presence diff of listing_snapshots between syncs; a stateless scraper cannot know what disappeared.",
+      "example": "loopnet-pp-cli delisted worcester-ma --since 30d --agent",
+      "why_it_matters": "Use this to track which assets cleared the market — a proxy for transaction velocity LoopNet never publishes.",
+      "group": "Change tracking only the local store enables"
+    },
+    {
+      "name": "Cap-rate and yield distribution",
+      "command": "caprate",
+      "description": "Reports the cap-rate, NOI, and price-per-square-foot distribution (count, min, median, quartiles, max) for synced for-sale listings in a submarket, and flags listings whose cap rate falls outside the interquartile range.",
+      "rationale": "A statistical distribution across listings is a local aggregation; LoopNet exposes per-listing cap rate but never the submarket spread.",
+      "example": "loopnet-pp-cli caprate worcester-ma --type industrial-properties --agent",
+      "why_it_matters": "Use this to benchmark a single asset's yield against its submarket and spot mispriced cap rates.",
+      "group": "Pricing, yield and distress intelligence"
+    },
+    {
+      "name": "Distress and motivation scan",
+      "command": "distress",
+      "description": "Flags listings carrying motivation signals: price-reduced and must-sell keyword hits in the description, Ten-X auction listings, and recent price cuts.",
+      "rationale": "Deterministic keyword match over the synced description/highlights corpus plus auction flags and price-history joins — needs the local store, not a live page.",
+      "example": "loopnet-pp-cli distress worcester-ma --agent",
+      "why_it_matters": "Reach for this to find distressed and motivated-seller assets in one sweep instead of reading every listing's free text.",
+      "group": "Pricing, yield and distress intelligence"
+    },
+    {
+      "name": "Submarket digest",
+      "command": "digest",
+      "description": "Rolls a synced submarket into one report: live supply count, recent price cuts, median days on market, new and delisted counts, and distress hits.",
+      "rationale": "Joins listings, price_history, and listing_snapshots in the local store — no single LoopNet page carries supply, change, and distress together.",
+      "example": "loopnet-pp-cli digest worcester-ma --type industrial-properties --agent",
+      "why_it_matters": "Reach for this for a one-command market-intelligence snapshot of a submarket instead of running five separate analysis commands.",
+      "group": "Analyst and pipeline workflows"
+    },
+    {
+      "name": "Pipeline feed export",
+      "command": "feed",
+      "description": "Exports the latest synced submarket as a run-stamped JSON or CSV file, with records mapped to the six CRE market-intelligence data categories.",
+      "rationale": "Shapes local store rows into a clean, time-stamped feed for an external pipeline's ingest path — a deliberate integration surface no scraper offers.",
+      "example": "loopnet-pp-cli feed worcester-ma --format csv --out ./loopnet-worcester.csv",
+      "why_it_matters": "Reach for this to drop LoopNet data straight into a downstream CRE pipeline (e.g. a data/raw ingest folder) without glue code.",
+      "group": "Analyst and pipeline workflows"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Price-cut detection",
+      "command": "price-cuts",
+      "description": "Surfaces every synced listing whose asking price dropped between syncs, with old price, new price, percent cut, and days on market at the cut.",
+      "rationale": "LoopNet shows only the current price. Detecting a cut requires a price_history time series across syncs that only the local store has.",
+      "example": "loopnet-pp-cli price-cuts worcester-ma --type industrial-properties --agent",
+      "why_it_matters": "Reach for this to find motivated sellers and re-priced assets — a price cut is the single strongest deal-sentiment signal LoopNet itself never exposes.",
+      "group": "Change tracking only the local store enables"
+    },
+    {
+      "name": "Days-on-market",
+      "command": "dom",
+      "description": "Computes true days on market for every live listing from the date the CLI first saw it, and flags aged inventory past a threshold.",
+      "rationale": "LoopNet hides days-on-market entirely. The CLI synthesizes it from first_seen timestamps in listing_snapshots.",
+      "example": "loopnet-pp-cli dom worcester-ma --min-days 90 --agent",
+      "why_it_matters": "Use this to tell a fresh comp from a stale one and to find listings that have languished — both invisible on LoopNet.",
+      "group": "Change tracking only the local store enables"
+    },
+    {
+      "name": "Market velocity",
+      "command": "velocity",
+      "description": "Reports absorption for a submarket: new listings, delistings, median days on market, and net supply change per period.",
+      "rationale": "Requires new/delisted counts and median DOM aggregated across the full snapshot history — no single LoopNet page carries a time dimension.",
+      "example": "loopnet-pp-cli velocity worcester-ma --agent",
+      "why_it_matters": "Reach for this to gauge whether a submarket is heating up or cooling — the supply-and-demand pulse for a market-intelligence brief.",
+      "group": "Change tracking only the local store enables"
+    },
+    {
+      "name": "Delisting detection",
+      "command": "delisted",
+      "description": "Lists listings present in a prior sync but absent now — sold, withdrawn, or expired.",
+      "rationale": "Requires a presence diff of listing_snapshots between syncs; a stateless scraper cannot know what disappeared.",
+      "example": "loopnet-pp-cli delisted worcester-ma --since 30d --agent",
+      "why_it_matters": "Use this to track which assets cleared the market — a proxy for transaction velocity LoopNet never publishes.",
+      "group": "Change tracking only the local store enables"
+    },
+    {
+      "name": "Cap-rate and yield distribution",
+      "command": "caprate",
+      "description": "Reports the cap-rate, NOI, and price-per-square-foot distribution (count, min, median, quartiles, max) for synced for-sale listings in a submarket, and flags listings whose cap rate falls outside the interquartile range.",
+      "rationale": "A statistical distribution across listings is a local aggregation; LoopNet exposes per-listing cap rate but never the submarket spread.",
+      "example": "loopnet-pp-cli caprate worcester-ma --type industrial-properties --agent",
+      "why_it_matters": "Use this to benchmark a single asset's yield against its submarket and spot mispriced cap rates.",
+      "group": "Pricing, yield and distress intelligence"
+    },
+    {
+      "name": "Distress and motivation scan",
+      "command": "distress",
+      "description": "Flags listings carrying motivation signals: price-reduced and must-sell keyword hits in the description, Ten-X auction listings, and recent price cuts.",
+      "rationale": "Deterministic keyword match over the synced description/highlights corpus plus auction flags and price-history joins — needs the local store, not a live page.",
+      "example": "loopnet-pp-cli distress worcester-ma --agent",
+      "why_it_matters": "Reach for this to find distressed and motivated-seller assets in one sweep instead of reading every listing's free text.",
+      "group": "Pricing, yield and distress intelligence"
+    },
+    {
+      "name": "Submarket digest",
+      "command": "digest",
+      "description": "Rolls a synced submarket into one report: live supply count, recent price cuts, median days on market, new and delisted counts, and distress hits.",
+      "rationale": "Joins listings, price_history, and listing_snapshots in the local store — no single LoopNet page carries supply, change, and distress together.",
+      "example": "loopnet-pp-cli digest worcester-ma --type industrial-properties --agent",
+      "why_it_matters": "Reach for this for a one-command market-intelligence snapshot of a submarket instead of running five separate analysis commands.",
+      "group": "Analyst and pipeline workflows"
+    },
+    {
+      "name": "Pipeline feed export",
+      "command": "feed",
+      "description": "Exports the latest synced submarket as a run-stamped JSON or CSV file, with records mapped to the six CRE market-intelligence data categories.",
+      "rationale": "Shapes local store rows into a clean, time-stamped feed for an external pipeline's ingest path — a deliberate integration surface no scraper offers.",
+      "example": "loopnet-pp-cli feed worcester-ma --format csv --out ./loopnet-worcester.csv",
+      "why_it_matters": "Reach for this to drop LoopNet data straight into a downstream CRE pipeline (e.g. a data/raw ingest folder) without glue code.",
+      "group": "Analyst and pipeline workflows"
+    }
+  ],
+  "narrative": {
+    "display_name": "LoopNet",
+    "headline": "LoopNet shows you today — this CLI remembers, building the price-cut, days-on-market, and supply trends LoopNet never exposes.",
+    "value_prop": "A SQLite-backed, agent-native CLI for LoopNet, the largest US commercial real estate marketplace. Search inventory and pull full listing detail like any scraper — then sync a submarket on a schedule and the local store accumulates the time series LoopNet hides. price-cuts finds every drop, dom computes true days-on-market, velocity tracks absorption, distress surfaces motivated sellers. Built to feed CRE market-intelligence pipelines: every command emits clean JSON or CSV.",
+    "auth_narrative": "LoopNet's data pages are protected by Akamai Bot Manager, which blocks plain HTTP clients. The CLI fetches them by replaying short-lived clearance cookies from a real browser session. Run 'loopnet-pp-cli auth refresh' to mint cookies — it briefly drives the browser-use tool — or 'auth set --cookies' to paste a Cookie header copied from your browser's DevTools. Cookies last a few hours; refresh when a fetch fails with a bot-challenge error. No API key is required.",
+    "quickstart": [
+      {
+        "command": "loopnet-pp-cli auth refresh",
+        "comment": "Mint Akamai clearance cookies (briefly opens a browser). Required before any live fetch."
+      },
+      {
+        "command": "loopnet-pp-cli inventory worcester-ma --type industrial --listing for-sale --json",
+        "comment": "Live search — confirm cookies work and listings parse."
+      },
+      {
+        "command": "loopnet-pp-cli sync worcester-ma --type industrial --listing for-sale",
+        "comment": "Pull the submarket into the local store (fetches are paced ~10s for Akamai)."
+      },
+      {
+        "command": "loopnet-pp-cli caprate worcester-ma --type industrial --agent",
+        "comment": "Cap-rate and yield distribution, computed offline from the store."
+      },
+      {
+        "command": "loopnet-pp-cli price-cuts worcester-ma --agent",
+        "comment": "After a later sync, see which listings dropped their asking price."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "Fetch fails: 'Akamai bot-challenge page' / clearance cookies expired",
+        "fix": "Run 'loopnet-pp-cli auth refresh' to mint fresh cookies (or 'auth set --cookies \"...\"' to paste them). Cookies last a few hours; check state with 'auth status'."
+      },
+      {
+        "symptom": "price-cuts, dom, velocity, or delisted return nothing",
+        "fix": "These read the local store and need at least two syncs of the same submarket over time. Run sync again after a gap, then re-run the command."
+      },
+      {
+        "symptom": "sync is slow",
+        "fix": "Each LoopNet fetch is paced ~10 seconds to stay under Akamai's bot-velocity threshold — this is expected. Lower --limit and --pages for a faster partial sync."
+      },
+      {
+        "symptom": "inventory or sync returns 0 results for a location",
+        "fix": "Use LoopNet's slug form: a city-state like worcester-ma, a state like ma, or a 5-digit zip. Type accepts office, industrial, retail, multifamily, land, hospitality, health-care."
+      }
+    ],
+    "when_to_use": "Use this CLI when an agent or analyst needs commercial real estate inventory, pricing, or market-intelligence data from LoopNet in a structured, scriptable form. It is the right choice for building a CRE data pipeline, tracking a submarket over time, screening for distressed or mispriced assets, or assembling comp sets. It is not for residential rentals (use Apartments.com) and it cannot access CoStar's subscriber-only analytics.",
+    "recipes": [
+      {
+        "title": "Seed and screen a submarket",
+        "command": "loopnet-pp-cli sync worcester-ma --type industrial --listing for-sale \u0026\u0026 loopnet-pp-cli caprate worcester-ma --type industrial --agent",
+        "explanation": "Pull a submarket into the store, then read its cap-rate and yield distribution in one pass."
+      },
+      {
+        "title": "Narrow a verbose detail record for an agent",
+        "command": "loopnet-pp-cli property 38523625 --agent --select name,price,cap_rate,total_assessment,broker_name",
+        "explanation": "Detail records carry tens of fields; --select returns only the address, price, cap rate, assessment, and broker so an agent does not burn context on the full payload."
+      },
+      {
+        "title": "Find every price cut this month",
+        "command": "loopnet-pp-cli price-cuts worcester-ma --since 30d --agent",
+        "explanation": "After repeated syncs, list listings whose asking price dropped in the last 30 days — the core deal-sentiment signal."
+      },
+      {
+        "title": "Export a market for a downstream pipeline",
+        "command": "loopnet-pp-cli feed worcester-ma --type industrial --format csv --out ./loopnet-worcester.csv",
+        "explanation": "Write the latest synced submarket as a run-stamped CSV ready for a CRE market-intelligence ingest folder."
+      },
+      {
+        "title": "Roll up a submarket in one command",
+        "command": "loopnet-pp-cli digest worcester-ma --type industrial-properties --agent",
+        "explanation": "Supply, recent price cuts, median days on market, new and delisted counts, and distress hits for a submarket in a single report."
+      }
+    ],
+    "trigger_phrases": [
+      "search loopnet for commercial real estate",
+      "find industrial properties for sale in",
+      "track price cuts on loopnet",
+      "what is the cap rate distribution in",
+      "screen for distressed commercial properties",
+      "use loopnet",
+      "run loopnet-pp-cli"
+    ]
+  }
+}

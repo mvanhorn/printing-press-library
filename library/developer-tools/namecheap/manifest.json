@@ -17,11 +17,9 @@
       "env": {
         "NAMECHEAP_USERNAME": "${user_config.namecheap_username}",
         "NAMECHEAP_API_KEY": "${user_config.namecheap_api_key}",
-        "NAMECHEAP_CLIENT_IP": "${user_config.namecheap_client_ip}"
+        "NAMECHEAP_CLIENT_IP": "${user_config.namecheap_client_ip}",
+        "NAMECHEAP_SANDBOX": "${user_config.namecheap_sandbox}"
       }
-    },
-    "env": {
-      "NAMECHEAP_SANDBOX": "${user_config.namecheap_sandbox}"
     }
   },
   "user_config": {

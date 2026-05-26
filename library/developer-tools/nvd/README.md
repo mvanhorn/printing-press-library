@@ -9,26 +9,26 @@ affected versions, references, and severity ratings. No API key required (option
 The recommended path installs both the `nvd-pp-cli` binary and the `pp-nvd` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
 
 ```bash
-npx -y @mvanhorn/printing-press install nvd
+npx -y @mvanhorn/printing-press-library install nvd
 ```
 
 For CLI only (no skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install nvd --cli-only
+npx -y @mvanhorn/printing-press-library install nvd --cli-only
 ```
 
 For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install nvd --skill-only
+npx -y @mvanhorn/printing-press-library install nvd --skill-only
 ```
 
 To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
 
 ```bash
-npx -y @mvanhorn/printing-press install nvd --agent claude-code
-npx -y @mvanhorn/printing-press install nvd --agent claude-code --agent codex
+npx -y @mvanhorn/printing-press-library install nvd --agent claude-code
+npx -y @mvanhorn/printing-press-library install nvd --agent claude-code --agent codex
 ```
 
 ### Without Node (Go fallback)

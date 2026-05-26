@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 # Authenticates to npm via Trusted Publishing (OIDC). Configure on
-# npmjs.com/package/@mvanhorn/printing-press → Settings → Trusted Publishers:
+# npmjs.com/package/@mvanhorn/printing-press-library → Settings → Trusted Publishers:
 #   Provider:   GitHub Actions
 #   Owner:      mvanhorn
 #   Repository: printing-press-library

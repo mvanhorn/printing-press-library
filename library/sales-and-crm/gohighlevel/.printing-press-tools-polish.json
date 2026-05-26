@@ -1,0 +1,150 @@
+{
+  "timestamp": "2026-05-19T20:48:07.60124Z",
+  "cli_dir": "\u003ccli-dir\u003e/gohighlevel-pp-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "calendars",
+      "file": "calendars.go",
+      "line": 11,
+      "evidence": "Manage calendars",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated parent grouper (Hidden:true, parentNoSubcommandRunE). Subcommands carry the agent-grade Shorts; this grouper is not surfaced as an MCP tool. Generator template should emit a richer Short for the calendar resource family."
+    },
+    {
+      "kind": "thin-short",
+      "command": "free-slots",
+      "file": "calendars_free-slots.go",
+      "line": 11,
+      "evidence": "Manage free slots",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated parent grouper (Hidden:true). Wraps calendar free-slot lookup subcommands; not exposed as a callable MCP tool. Generator should emit a sub-resource Short that names the lookup workflow."
+    },
+    {
+      "kind": "thin-short",
+      "command": "contacts",
+      "file": "contacts.go",
+      "line": 11,
+      "evidence": "Manage contacts",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated parent grouper for typed-endpoint contact CRUD (Hidden:true). The hand-written 'contact' command (bulk ops, dedup, decay) is the user-facing surface and has agent-grade Short text. Generator template improvement candidate for the typed-endpoint parent."
+    },
+    {
+      "kind": "thin-short",
+      "command": "notes",
+      "file": "contacts_notes.go",
+      "line": 11,
+      "evidence": "Manage notes",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated parent grouper under contacts (Hidden:true). Wraps contact-note create/list subcommands; not an MCP tool itself. Generator should compose the parent Short from the child operation set."
+    },
+    {
+      "kind": "thin-short",
+      "command": "tags",
+      "file": "contacts_tags.go",
+      "line": 11,
+      "evidence": "Manage tags",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated parent grouper for contact-tags subcommands (Hidden:true). Distinct from locations.tags. Subcommands handle add/remove on individual contacts. Generator parent template needs scope qualification (per-contact vs. per-location tag operations)."
+    },
+    {
+      "kind": "thin-short",
+      "command": "tasks",
+      "file": "contacts_tasks.go",
+      "line": 11,
+      "evidence": "Manage tasks",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated parent grouper under contacts (Hidden:true). Wraps contact-task CRUD subcommands. Not surfaced as an MCP tool. Generator template should disambiguate task scope (contact-bound vs. standalone tasks)."
+    },
+    {
+      "kind": "thin-short",
+      "command": "workflow",
+      "file": "contacts_workflow.go",
+      "line": 11,
+      "evidence": "Manage workflow",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated parent grouper for contact-workflow enrollment subcommands (Hidden:true). Distinct from the top-level 'workflows' list command. Generator parent template should name the enrollment domain rather than the generic 'workflow' label."
+    },
+    {
+      "kind": "thin-short",
+      "command": "conversations",
+      "file": "conversations.go",
+      "line": 11,
+      "evidence": "Manage conversations",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated parent grouper for typed-endpoint conversation operations (Hidden:true). The hand-written 'convo' command provides the agent-facing thread reconstruction. Generator parent template improvement candidate."
+    },
+    {
+      "kind": "thin-short",
+      "command": "messages",
+      "file": "conversations_messages.go",
+      "line": 11,
+      "evidence": "Manage messages",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated parent grouper for conversation-message subcommands (Hidden:true). Wraps send/inbound/outbound subcommands. Generator should produce a parent Short reflecting the message lifecycle scope."
+    },
+    {
+      "kind": "thin-short",
+      "command": "locations",
+      "file": "locations.go",
+      "line": 11,
+      "evidence": "Manage locations",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated parent grouper for location-management subcommands (Hidden:true). GHL locations are multi-tenant sub-accounts; parent Short should name the multi-tenant scope. Not exposed as an MCP tool."
+    },
+    {
+      "kind": "thin-short",
+      "command": "custom-fields",
+      "file": "locations_custom-fields.go",
+      "line": 11,
+      "evidence": "Manage custom fields",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated parent grouper for location custom-field schema CRUD (Hidden:true). The hand-written 'field id' command resolves names to IDs at runtime; this parent wraps schema management. Generator parent template should distinguish schema-management from runtime-lookup."
+    },
+    {
+      "kind": "thin-short",
+      "command": "custom-values",
+      "file": "locations_custom-values.go",
+      "line": 11,
+      "evidence": "Manage custom values",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated parent grouper for location custom-value CRUD (Hidden:true). Custom values are merge-tag substitutions used in workflows and templates; parent Short should name that merge-tag role. Not an MCP tool itself."
+    },
+    {
+      "kind": "thin-short",
+      "command": "tags",
+      "file": "locations_tags.go",
+      "line": 11,
+      "evidence": "Manage tags",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated parent grouper for location-level tag management (Hidden:true). Distinct from contacts.tags (per-contact assignment). Generator parent template needs scope qualification to differentiate from the contacts.tags grouper."
+    },
+    {
+      "kind": "thin-short",
+      "command": "opportunities",
+      "file": "opportunities.go",
+      "line": 11,
+      "evidence": "Manage opportunities",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated parent grouper for typed-endpoint opportunity CRUD (Hidden:true). The hand-written 'opp' command provides agent-facing reports (stale, funnel). Generator parent template improvement candidate; should reference the pipeline-stage model."
+    },
+    {
+      "kind": "thin-short",
+      "command": "status",
+      "file": "opportunities_status.go",
+      "line": 11,
+      "evidence": "Manage status",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated parent grouper for opportunity-status subcommands (Hidden:true). Wraps status updates within the opportunity pipeline. Generator parent template should name the pipeline-stage transition scope rather than the generic 'status' label."
+    },
+    {
+      "kind": "thin-short",
+      "command": "users",
+      "file": "users.go",
+      "line": 11,
+      "evidence": "Manage users",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated parent grouper for user CRUD subcommands (Hidden:true). GHL users are agency team members; parent Short should name agency-team scope rather than generic 'users'. Not an MCP tool itself."
+    }
+  ]
+}

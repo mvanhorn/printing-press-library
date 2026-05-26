@@ -24,7 +24,7 @@ This skill drives the `elevenlabs-pp-cli` binary. **You must verify the CLI is i
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install elevenlabs --cli-only
+   npx -y @mvanhorn/printing-press-library install elevenlabs --cli-only
    ```
 2. Verify: `elevenlabs-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
@@ -36,8 +36,6 @@ go install github.com/mvanhorn/printing-press-library/library/ai/elevenlabs/cmd/
 ```
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
-
-This is the documentation for the ElevenLabs API. You can use this API to use our service programmatically, this is done by using your API key. You can find your API key in the dashboard at https://elevenlabs.io/app/settings/api-keys.
 
 ## Unique Capabilities
 

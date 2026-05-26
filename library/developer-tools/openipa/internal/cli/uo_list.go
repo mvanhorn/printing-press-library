@@ -20,7 +20,7 @@ func newUoListCmd(flags *rootFlags) *cobra.Command {
 		Use:         "list",
 		Short:       "Lista delle UO di un ente",
 		Example:     "  openipa-pp-cli uo list --codice example-value",
-		Annotations: map[string]string{"pp:endpoint": "uo.list", "pp:method": "POST", "pp:path": "/WS03_OU.php", "mcp:read-only": "true"},
+		Annotations: map[string]string{"pp:endpoint": "uo.list", "pp:method": "POST", "pp:path": "/ws/WS03OUServices/api/WS03_OU", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {
 				if !cmd.Flags().Changed("codice") && !flags.dryRun {
@@ -32,7 +32,7 @@ func newUoListCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 
-			path := "/WS03_OU.php"
+			path := "/ws/WS03OUServices/api/WS03_OU"
 			var body map[string]any
 			if stdinBody {
 				stdinData, err := io.ReadAll(os.Stdin)

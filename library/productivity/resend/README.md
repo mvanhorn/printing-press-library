@@ -11,26 +11,26 @@ Printed by [@giacaglia](https://github.com/giacaglia) (Giuliano Giacaglia).
 The recommended path installs both the `resend-pp-cli` binary and the `pp-resend` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
 
 ```bash
-npx -y @mvanhorn/printing-press install resend
+npx -y @mvanhorn/printing-press-library install resend
 ```
 
 For CLI only (no skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install resend --cli-only
+npx -y @mvanhorn/printing-press-library install resend --cli-only
 ```
 
 For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install resend --skill-only
+npx -y @mvanhorn/printing-press-library install resend --skill-only
 ```
 
 To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
 
 ```bash
-npx -y @mvanhorn/printing-press install resend --agent claude-code
-npx -y @mvanhorn/printing-press install resend --agent claude-code --agent codex
+npx -y @mvanhorn/printing-press-library install resend --agent claude-code
+npx -y @mvanhorn/printing-press-library install resend --agent claude-code --agent codex
 ```
 
 ### Without Node (Go fallback)

@@ -3,6 +3,8 @@
   "generated_at": "2026-05-12T03:10:10.529011Z",
   "printing_press_version": "4.4.0",
   "api_name": "marianatek",
+  "display_name": "Mariana Tek",
+  "description": "Search Mariana Tek studio schedules, book classes, watch cancellations, and sync reservations into an offline class catalog.",
   "cli_name": "marianatek-pp-cli",
   "run_id": "20260511-194406",
   "novel_features": [

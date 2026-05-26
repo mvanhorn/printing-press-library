@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-18T20:24:49.131652Z",
+  "printing_press_version": "4.8.0",
+  "api_name": "sendgrid",
+  "display_name": "Twilio Sendgrid",
+  "cli_name": "sendgrid-pp-cli",
+  "owner": "nathan-kettles",
+  "printer": "natekettles",
+  "printer_name": "Nathan Kettles",
+  "spec_path": "/Users/nathan/printing-press/.runstate/nathan-978ea990/runs/20260518-202518/research/sendgrid-spec.yaml",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:e1167368206d9c15dcd1a002cdaa7c9b9529e16503d23125e75753efbe1e830a",
+  "run_id": "20260518-202518",
+  "mcp_binary": "sendgrid-pp-mcp",
+  "mcp_tool_count": 391,
+  "mcp_ready": "full",
+  "api_version": "1.0.0",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "SENDGRID_API_KEY"
+  ],
+  "novel_features": [
+    {
+      "name": "Suppression sync",
+      "command": "suppression sync",
+      "description": "Bidirectional sync between SendGrid suppressions and an external CSV/CRM source, with dry-run preview and unified schema across the four inconsistent suppression types."
+    },
+    {
+      "name": "Template variable lint",
+      "command": "templates lint",
+      "description": "Statically extracts {{handlebars}} from a template version and cross-checks them against a contact record or JSON payload, flagging missing or typo'd variables before send."
+    },
+    {
+      "name": "Suppression diff",
+      "command": "suppression diff",
+      "description": "Three-way diff between the local SQLite mirror, live API, and an external CSV; shows adds, drops, and drift across the suppression universe."
+    },
+    {
+      "name": "Stats time-series rollup",
+      "command": "stats rollup",
+      "description": "Pulls flat windowed stats from the API, stores them in SQLite, and computes day/week/month rollups plus WoW/MoM deltas."
+    },
+    {
+      "name": "Bounce investigate",
+      "command": "bounce why",
+      "description": "Joins suppressions, email activity, and stats locally to produce a narrative explaining why a specific address keeps bouncing."
+    },
+    {
+      "name": "Template version diff",
+      "command": "templates diff",
+      "description": "Side-by-side semantic diff of two template versions (HTML, plain text, subject, test data) with HTML-aware normalization."
+    },
+    {
+      "name": "Activity tail",
+      "command": "activity tail",
+      "description": "Streams Email Activity events with rate-limit-aware polling (respects the 6/min cap), local FTS, and filters by status/from/to."
+    },
+    {
+      "name": "Subuser rollup",
+      "command": "subusers rollup",
+      "description": "Fans out per-subuser stats pulls in parallel, caches them locally, and produces a single aggregated table for ESP operators managing tenant hierarchies."
+    }
+  ],
+  "spec_source": "https://github.com/twilio/sendgrid-oai (bundled from 46 resource files under spec/yaml/; OpenAPI 3.1; 240 paths, 391 ops)"
+}

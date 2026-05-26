@@ -1,0 +1,2041 @@
+{
+  "api_name": "gohighlevel",
+  "base_url": "https://services.leadconnectorhq.com",
+  "description": "GoHighLevel (HighLevel) public API v2 — multi-tenant SaaS marketing/CRM\nplatform widely used by agencies and real estate brokerages.\n\nAuthentication: Private Integration Token (PIT). Format `pit-\u003cuuid\u003e`,\nlowercase prefix mandatory. Capital `Pit-` returns 401 Invalid JWT.\n\nVersion header: most endpoints want `Version: 2021-07-28`. Conversations\nendpoints want `Version: 2021-04-15`. The CLI handles this per-resource\nso callers never think about it.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "GHL_PIT_TOKEN"
+    ],
+    "env_var_specs": [
+      {
+        "name": "GHL_PIT_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "calendars_create",
+      "description": "Create. Optional: groupId, id, locationId (plus 4 more).",
+      "method": "POST",
+      "path": "/calendars/",
+      "params": [
+        {
+          "name": "groupId",
+          "type": "string",
+          "location": "body",
+          "description": "Group id"
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "Id"
+        },
+        {
+          "name": "locationId",
+          "type": "string",
+          "location": "body",
+          "description": "Location id"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        },
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "body",
+          "description": "Slug"
+        },
+        {
+          "name": "teamMembers",
+          "type": "array",
+          "location": "body",
+          "description": "Team members"
+        },
+        {
+          "name": "widgetSlug",
+          "type": "string",
+          "location": "body",
+          "description": "Widget slug"
+        }
+      ]
+    },
+    {
+      "name": "calendars_create-appointment",
+      "description": "Create appointment. Optional: address, appointmentStatus, calendarId (plus 7 more).",
+      "method": "POST",
+      "path": "/calendars/events/appointments",
+      "params": [
+        {
+          "name": "address",
+          "type": "string",
+          "location": "body",
+          "description": "Address"
+        },
+        {
+          "name": "appointmentStatus",
+          "type": "string",
+          "location": "body",
+          "description": "Appointment status"
+        },
+        {
+          "name": "calendarId",
+          "type": "string",
+          "location": "body",
+          "description": "Calendar id"
+        },
+        {
+          "name": "contactId",
+          "type": "string",
+          "location": "body",
+          "description": "Contact id"
+        },
+        {
+          "name": "endTime",
+          "type": "string",
+          "location": "body",
+          "description": "End time"
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "Id"
+        },
+        {
+          "name": "meetingLocationType",
+          "type": "string",
+          "location": "body",
+          "description": "Meeting location type"
+        },
+        {
+          "name": "notes",
+          "type": "string",
+          "location": "body",
+          "description": "Notes"
+        },
+        {
+          "name": "startTime",
+          "type": "string",
+          "location": "body",
+          "description": "Start time"
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "Title"
+        }
+      ]
+    },
+    {
+      "name": "calendars_delete-appointment",
+      "description": "Delete appointment. Required: eventId. Destructive.",
+      "method": "DELETE",
+      "path": "/calendars/events/appointments/{eventId}",
+      "params": [
+        {
+          "name": "eventId",
+          "type": "string",
+          "location": "path",
+          "description": "Event id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "calendars_get",
+      "description": "Get. Required: calendarId.",
+      "method": "GET",
+      "path": "/calendars/{calendarId}",
+      "params": [
+        {
+          "name": "calendarId",
+          "type": "string",
+          "location": "path",
+          "description": "Calendar id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "calendars_get-appointment",
+      "description": "Get appointment. Required: eventId.",
+      "method": "GET",
+      "path": "/calendars/events/appointments/{eventId}",
+      "params": [
+        {
+          "name": "eventId",
+          "type": "string",
+          "location": "path",
+          "description": "Event id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "calendars_list",
+      "description": "List. Required: locationId. Returns the CalendarsListResponse.",
+      "method": "GET",
+      "path": "/calendars/",
+      "params": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "location": "query",
+          "description": "GHL sub-account (location) ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "calendars_list-events",
+      "description": "List calendar events for a location. Required: locationId. Optional: calendarId, startTime, endTime. Returns the CalendarsListEventsResponse.",
+      "method": "GET",
+      "path": "/calendars/events",
+      "params": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "location": "query",
+          "description": "GHL sub-account (location) ID",
+          "required": true
+        },
+        {
+          "name": "calendarId",
+          "type": "string",
+          "location": "query",
+          "description": "Calendar id"
+        },
+        {
+          "name": "startTime",
+          "type": "string",
+          "location": "query",
+          "description": "Start time"
+        },
+        {
+          "name": "endTime",
+          "type": "string",
+          "location": "query",
+          "description": "End time"
+        }
+      ]
+    },
+    {
+      "name": "calendars_update-appointment",
+      "description": "Update appointment. Required: eventId. Optional: address, appointmentStatus, calendarId (plus 7 more).",
+      "method": "PUT",
+      "path": "/calendars/events/appointments/{eventId}",
+      "params": [
+        {
+          "name": "eventId",
+          "type": "string",
+          "location": "path",
+          "description": "Event id",
+          "required": true
+        },
+        {
+          "name": "address",
+          "type": "string",
+          "location": "body",
+          "description": "Address"
+        },
+        {
+          "name": "appointmentStatus",
+          "type": "string",
+          "location": "body",
+          "description": "Appointment status"
+        },
+        {
+          "name": "calendarId",
+          "type": "string",
+          "location": "body",
+          "description": "Calendar id"
+        },
+        {
+          "name": "contactId",
+          "type": "string",
+          "location": "body",
+          "description": "Contact id"
+        },
+        {
+          "name": "endTime",
+          "type": "string",
+          "location": "body",
+          "description": "End time"
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "Id"
+        },
+        {
+          "name": "meetingLocationType",
+          "type": "string",
+          "location": "body",
+          "description": "Meeting location type"
+        },
+        {
+          "name": "notes",
+          "type": "string",
+          "location": "body",
+          "description": "Notes"
+        },
+        {
+          "name": "startTime",
+          "type": "string",
+          "location": "body",
+          "description": "Start time"
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "Title"
+        }
+      ]
+    },
+    {
+      "name": "calendars_free-slots_get-calendar",
+      "description": "Get calendar. Required: calendarId. Optional: startDate, endDate, timezone.",
+      "method": "GET",
+      "path": "/calendars/{calendarId}/free-slots",
+      "params": [
+        {
+          "name": "calendarId",
+          "type": "string",
+          "location": "path",
+          "description": "Calendar id",
+          "required": true
+        },
+        {
+          "name": "startDate",
+          "type": "string",
+          "location": "query",
+          "description": "Start date"
+        },
+        {
+          "name": "endDate",
+          "type": "string",
+          "location": "query",
+          "description": "End date"
+        },
+        {
+          "name": "timezone",
+          "type": "string",
+          "location": "query",
+          "description": "Timezone"
+        }
+      ]
+    },
+    {
+      "name": "contacts_bulk-update-tags",
+      "description": "Bulk add/remove tags across many contacts. Optional: ids, tags, type.",
+      "method": "POST",
+      "path": "/contacts/tags/bulk",
+      "params": [
+        {
+          "name": "ids",
+          "type": "array",
+          "location": "body",
+          "description": "Ids"
+        },
+        {
+          "name": "tags",
+          "type": "array",
+          "location": "body",
+          "description": "Tags"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Type"
+        }
+      ]
+    },
+    {
+      "name": "contacts_create",
+      "description": "Create a contact. Optional: address1, assignedTo, city (plus 19 more). Returns the new ContactsCreateResponse.",
+      "method": "POST",
+      "path": "/contacts/",
+      "params": [
+        {
+          "name": "address1",
+          "type": "string",
+          "location": "body",
+          "description": "Address1"
+        },
+        {
+          "name": "assignedTo",
+          "type": "string",
+          "location": "body",
+          "description": "Assigned to"
+        },
+        {
+          "name": "city",
+          "type": "string",
+          "location": "body",
+          "description": "City"
+        },
+        {
+          "name": "companyName",
+          "type": "string",
+          "location": "body",
+          "description": "Company name"
+        },
+        {
+          "name": "contactName",
+          "type": "string",
+          "location": "body",
+          "description": "Contact name"
+        },
+        {
+          "name": "country",
+          "type": "string",
+          "location": "body",
+          "description": "Country"
+        },
+        {
+          "name": "customFields",
+          "type": "array",
+          "location": "body",
+          "description": "Custom fields"
+        },
+        {
+          "name": "dateAdded",
+          "type": "string",
+          "location": "body",
+          "description": "Date added"
+        },
+        {
+          "name": "dateUpdated",
+          "type": "string",
+          "location": "body",
+          "description": "Date updated"
+        },
+        {
+          "name": "dnd",
+          "type": "bool",
+          "location": "body",
+          "description": "Dnd"
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body",
+          "description": "Email"
+        },
+        {
+          "name": "firstName",
+          "type": "string",
+          "location": "body",
+          "description": "First name"
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "Id"
+        },
+        {
+          "name": "lastName",
+          "type": "string",
+          "location": "body",
+          "description": "Last name"
+        },
+        {
+          "name": "locationId",
+          "type": "string",
+          "location": "body",
+          "description": "Location id"
+        },
+        {
+          "name": "phone",
+          "type": "string",
+          "location": "body",
+          "description": "Phone"
+        },
+        {
+          "name": "postalCode",
+          "type": "string",
+          "location": "body",
+          "description": "Postal code"
+        },
+        {
+          "name": "source",
+          "type": "string",
+          "location": "body",
+          "description": "Source"
+        },
+        {
+          "name": "state",
+          "type": "string",
+          "location": "body",
+          "description": "State"
+        },
+        {
+          "name": "tags",
+          "type": "array",
+          "location": "body",
+          "description": "Tags"
+        },
+        {
+          "name": "timezone",
+          "type": "string",
+          "location": "body",
+          "description": "Timezone"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Type"
+        }
+      ]
+    },
+    {
+      "name": "contacts_delete",
+      "description": "Delete a contact. Required: contactId. Destructive.",
+      "method": "DELETE",
+      "path": "/contacts/{contactId}",
+      "params": [
+        {
+          "name": "contactId",
+          "type": "string",
+          "location": "path",
+          "description": "Contact id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "contacts_find-duplicate",
+      "description": "Find duplicate contact by email or name. Required: locationId. Optional: email, name.",
+      "method": "GET",
+      "path": "/contacts/search/duplicate",
+      "params": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "location": "query",
+          "description": "GHL sub-account (location) ID",
+          "required": true
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "location": "query",
+          "description": "Email"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "query",
+          "description": "Name"
+        }
+      ]
+    },
+    {
+      "name": "contacts_get",
+      "description": "Get a contact by id. Required: contactId. Returns the ContactsGetResponse.",
+      "method": "GET",
+      "path": "/contacts/{contactId}",
+      "params": [
+        {
+          "name": "contactId",
+          "type": "string",
+          "location": "path",
+          "description": "Contact id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "contacts_search",
+      "description": "GHL's /contacts/search has a hard 100-page cap. Use the `startAfter` cursor returned in the response for pagination past 10k results. Phone search returns 500 — use email or name instead. Optional: filters, locationId, pageLimit (default: 100) (plus 2 more).",
+      "method": "POST",
+      "path": "/contacts/search",
+      "params": [
+        {
+          "name": "filters",
+          "type": "array",
+          "location": "body",
+          "description": "Filters"
+        },
+        {
+          "name": "locationId",
+          "type": "string",
+          "location": "body",
+          "description": "Location id"
+        },
+        {
+          "name": "pageLimit",
+          "type": "int",
+          "location": "body",
+          "description": "Page limit"
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "Query"
+        },
+        {
+          "name": "startAfter",
+          "type": "array",
+          "location": "body",
+          "description": "Start after"
+        }
+      ]
+    },
+    {
+      "name": "contacts_update",
+      "description": "Update a contact. Required: contactId. Optional: address1, assignedTo, city (plus 19 more).",
+      "method": "PUT",
+      "path": "/contacts/{contactId}",
+      "params": [
+        {
+          "name": "contactId",
+          "type": "string",
+          "location": "path",
+          "description": "Contact id",
+          "required": true
+        },
+        {
+          "name": "address1",
+          "type": "string",
+          "location": "body",
+          "description": "Address1"
+        },
+        {
+          "name": "assignedTo",
+          "type": "string",
+          "location": "body",
+          "description": "Assigned to"
+        },
+        {
+          "name": "city",
+          "type": "string",
+          "location": "body",
+          "description": "City"
+        },
+        {
+          "name": "companyName",
+          "type": "string",
+          "location": "body",
+          "description": "Company name"
+        },
+        {
+          "name": "contactName",
+          "type": "string",
+          "location": "body",
+          "description": "Contact name"
+        },
+        {
+          "name": "country",
+          "type": "string",
+          "location": "body",
+          "description": "Country"
+        },
+        {
+          "name": "customFields",
+          "type": "array",
+          "location": "body",
+          "description": "Custom fields"
+        },
+        {
+          "name": "dateAdded",
+          "type": "string",
+          "location": "body",
+          "description": "Date added"
+        },
+        {
+          "name": "dateUpdated",
+          "type": "string",
+          "location": "body",
+          "description": "Date updated"
+        },
+        {
+          "name": "dnd",
+          "type": "bool",
+          "location": "body",
+          "description": "Dnd"
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body",
+          "description": "Email"
+        },
+        {
+          "name": "firstName",
+          "type": "string",
+          "location": "body",
+          "description": "First name"
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "Id"
+        },
+        {
+          "name": "lastName",
+          "type": "string",
+          "location": "body",
+          "description": "Last name"
+        },
+        {
+          "name": "locationId",
+          "type": "string",
+          "location": "body",
+          "description": "Location id"
+        },
+        {
+          "name": "phone",
+          "type": "string",
+          "location": "body",
+          "description": "Phone"
+        },
+        {
+          "name": "postalCode",
+          "type": "string",
+          "location": "body",
+          "description": "Postal code"
+        },
+        {
+          "name": "source",
+          "type": "string",
+          "location": "body",
+          "description": "Source"
+        },
+        {
+          "name": "state",
+          "type": "string",
+          "location": "body",
+          "description": "State"
+        },
+        {
+          "name": "tags",
+          "type": "array",
+          "location": "body",
+          "description": "Tags"
+        },
+        {
+          "name": "timezone",
+          "type": "string",
+          "location": "body",
+          "description": "Timezone"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Type"
+        }
+      ]
+    },
+    {
+      "name": "contacts_upsert",
+      "description": "Upsert contact by email or phone. Optional: address1, assignedTo, city (plus 19 more).",
+      "method": "POST",
+      "path": "/contacts/upsert",
+      "params": [
+        {
+          "name": "address1",
+          "type": "string",
+          "location": "body",
+          "description": "Address1"
+        },
+        {
+          "name": "assignedTo",
+          "type": "string",
+          "location": "body",
+          "description": "Assigned to"
+        },
+        {
+          "name": "city",
+          "type": "string",
+          "location": "body",
+          "description": "City"
+        },
+        {
+          "name": "companyName",
+          "type": "string",
+          "location": "body",
+          "description": "Company name"
+        },
+        {
+          "name": "contactName",
+          "type": "string",
+          "location": "body",
+          "description": "Contact name"
+        },
+        {
+          "name": "country",
+          "type": "string",
+          "location": "body",
+          "description": "Country"
+        },
+        {
+          "name": "customFields",
+          "type": "array",
+          "location": "body",
+          "description": "Custom fields"
+        },
+        {
+          "name": "dateAdded",
+          "type": "string",
+          "location": "body",
+          "description": "Date added"
+        },
+        {
+          "name": "dateUpdated",
+          "type": "string",
+          "location": "body",
+          "description": "Date updated"
+        },
+        {
+          "name": "dnd",
+          "type": "bool",
+          "location": "body",
+          "description": "Dnd"
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body",
+          "description": "Email"
+        },
+        {
+          "name": "firstName",
+          "type": "string",
+          "location": "body",
+          "description": "First name"
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "Id"
+        },
+        {
+          "name": "lastName",
+          "type": "string",
+          "location": "body",
+          "description": "Last name"
+        },
+        {
+          "name": "locationId",
+          "type": "string",
+          "location": "body",
+          "description": "Location id"
+        },
+        {
+          "name": "phone",
+          "type": "string",
+          "location": "body",
+          "description": "Phone"
+        },
+        {
+          "name": "postalCode",
+          "type": "string",
+          "location": "body",
+          "description": "Postal code"
+        },
+        {
+          "name": "source",
+          "type": "string",
+          "location": "body",
+          "description": "Source"
+        },
+        {
+          "name": "state",
+          "type": "string",
+          "location": "body",
+          "description": "State"
+        },
+        {
+          "name": "tags",
+          "type": "array",
+          "location": "body",
+          "description": "Tags"
+        },
+        {
+          "name": "timezone",
+          "type": "string",
+          "location": "body",
+          "description": "Timezone"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Type"
+        }
+      ]
+    },
+    {
+      "name": "contacts_notes_create-contact",
+      "description": "Create contact. Required: contactId. Optional: body, dateAdded, id (plus 1 more).",
+      "method": "POST",
+      "path": "/contacts/{contactId}/notes",
+      "params": [
+        {
+          "name": "contactId",
+          "type": "string",
+          "location": "path",
+          "description": "Contact id",
+          "required": true
+        },
+        {
+          "name": "body",
+          "type": "string",
+          "location": "body",
+          "description": "Body"
+        },
+        {
+          "name": "dateAdded",
+          "type": "string",
+          "location": "body",
+          "description": "Date added"
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "Id"
+        },
+        {
+          "name": "userId",
+          "type": "string",
+          "location": "body",
+          "description": "User id"
+        }
+      ]
+    },
+    {
+      "name": "contacts_notes_list-contact",
+      "description": "List contact. Required: contactId. Returns the NotesListContactResponse.",
+      "method": "GET",
+      "path": "/contacts/{contactId}/notes",
+      "params": [
+        {
+          "name": "contactId",
+          "type": "string",
+          "location": "path",
+          "description": "Contact id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "contacts_tags_add-contact",
+      "description": "Add tags to a contact. Required: contactId. Optional: tags.",
+      "method": "POST",
+      "path": "/contacts/{contactId}/tags",
+      "params": [
+        {
+          "name": "contactId",
+          "type": "string",
+          "location": "path",
+          "description": "Contact id",
+          "required": true
+        },
+        {
+          "name": "tags",
+          "type": "array",
+          "location": "body",
+          "description": "Tags"
+        }
+      ]
+    },
+    {
+      "name": "contacts_tags_remove-contact",
+      "description": "Remove tags from a contact. Required: contactId. Optional: tags. Destructive.",
+      "method": "DELETE",
+      "path": "/contacts/{contactId}/tags",
+      "params": [
+        {
+          "name": "contactId",
+          "type": "string",
+          "location": "path",
+          "description": "Contact id",
+          "required": true
+        },
+        {
+          "name": "tags",
+          "type": "array",
+          "location": "body",
+          "description": "Tags"
+        }
+      ]
+    },
+    {
+      "name": "contacts_tasks_create-contact",
+      "description": "Create contact. Required: contactId. Optional: assignedTo, body, completed (plus 3 more).",
+      "method": "POST",
+      "path": "/contacts/{contactId}/tasks",
+      "params": [
+        {
+          "name": "contactId",
+          "type": "string",
+          "location": "path",
+          "description": "Contact id",
+          "required": true
+        },
+        {
+          "name": "assignedTo",
+          "type": "string",
+          "location": "body",
+          "description": "Assigned to"
+        },
+        {
+          "name": "body",
+          "type": "string",
+          "location": "body",
+          "description": "Body"
+        },
+        {
+          "name": "completed",
+          "type": "bool",
+          "location": "body",
+          "description": "Completed"
+        },
+        {
+          "name": "dueDate",
+          "type": "string",
+          "location": "body",
+          "description": "Due date"
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "Id"
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "Title"
+        }
+      ]
+    },
+    {
+      "name": "contacts_tasks_list-contact",
+      "description": "List contact. Required: contactId. Returns the TasksListContactResponse.",
+      "method": "GET",
+      "path": "/contacts/{contactId}/tasks",
+      "params": [
+        {
+          "name": "contactId",
+          "type": "string",
+          "location": "path",
+          "description": "Contact id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "contacts_workflow_add-contact-to",
+      "description": "Note: GHL 'Form Submitted' trigger won't re-fire for contacts already enrolled in this workflow. Required: contactId, workflowId.",
+      "method": "POST",
+      "path": "/contacts/{contactId}/workflow/{workflowId}",
+      "params": [
+        {
+          "name": "contactId",
+          "type": "string",
+          "location": "path",
+          "description": "Contact id",
+          "required": true
+        },
+        {
+          "name": "workflowId",
+          "type": "string",
+          "location": "path",
+          "description": "Workflow id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "contacts_workflow_remove-contact-from",
+      "description": "Remove contact from. Required: contactId, workflowId. Destructive.",
+      "method": "DELETE",
+      "path": "/contacts/{contactId}/workflow/{workflowId}",
+      "params": [
+        {
+          "name": "contactId",
+          "type": "string",
+          "location": "path",
+          "description": "Contact id",
+          "required": true
+        },
+        {
+          "name": "workflowId",
+          "type": "string",
+          "location": "path",
+          "description": "Workflow id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "conversations_get",
+      "description": "Get. Required: conversationId.",
+      "method": "GET",
+      "path": "/conversations/{conversationId}",
+      "params": [
+        {
+          "name": "conversationId",
+          "type": "string",
+          "location": "path",
+          "description": "Conversation id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "conversations_search",
+      "description": "Search conversations (Version 2021-04-15). Required: locationId. Optional: contactId, lastMessageDirection, assignedTo (plus 1 more). Returns the ConversationsSearchResponse.",
+      "method": "GET",
+      "path": "/conversations/search",
+      "params": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "location": "query",
+          "description": "GHL sub-account (location) ID",
+          "required": true
+        },
+        {
+          "name": "contactId",
+          "type": "string",
+          "location": "query",
+          "description": "Contact id"
+        },
+        {
+          "name": "lastMessageDirection",
+          "type": "string",
+          "location": "query",
+          "description": "Last message direction"
+        },
+        {
+          "name": "assignedTo",
+          "type": "string",
+          "location": "query",
+          "description": "Assigned to"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "query",
+          "description": "Status"
+        }
+      ]
+    },
+    {
+      "name": "conversations_send-message",
+      "description": "Send an SMS, email, or other message. Required: contactId, type. Optional: emailFrom, emailTo, html (plus 2 more).",
+      "method": "POST",
+      "path": "/conversations/messages",
+      "params": [
+        {
+          "name": "contactId",
+          "type": "string",
+          "location": "body",
+          "description": "Contact id",
+          "required": true
+        },
+        {
+          "name": "emailFrom",
+          "type": "string",
+          "location": "body",
+          "description": "Email from"
+        },
+        {
+          "name": "emailTo",
+          "type": "array",
+          "location": "body",
+          "description": "Email to"
+        },
+        {
+          "name": "html",
+          "type": "string",
+          "location": "body",
+          "description": "Html"
+        },
+        {
+          "name": "message",
+          "type": "string",
+          "location": "body",
+          "description": "Message"
+        },
+        {
+          "name": "subject",
+          "type": "string",
+          "location": "body",
+          "description": "Subject"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Type",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "conversations_messages_list-conversation",
+      "description": "List conversation. Required: conversationId. Returns the MessagesListConversationResponse.",
+      "method": "GET",
+      "path": "/conversations/{conversationId}/messages",
+      "params": [
+        {
+          "name": "conversationId",
+          "type": "string",
+          "location": "path",
+          "description": "Conversation id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "locations_get",
+      "description": "Get. Required: locationId.",
+      "method": "GET",
+      "path": "/locations/{locationId}",
+      "params": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "location": "path",
+          "description": "Location id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "locations_search",
+      "description": "Search locations (agency-level). Optional: limit, skip, companyId. Returns the LocationsSearchResponse.",
+      "method": "GET",
+      "path": "/locations/search",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "skip",
+          "type": "int",
+          "location": "query",
+          "description": "Skip"
+        },
+        {
+          "name": "companyId",
+          "type": "string",
+          "location": "query",
+          "description": "Company id"
+        }
+      ]
+    },
+    {
+      "name": "locations_custom-fields_create",
+      "description": "Note: GHL API cannot create dropdown / multi-select custom fields with their options via this endpoint. Use the UI for those. Required: locationId. Optional: dataType, fieldKey, id (plus 3 more).",
+      "method": "POST",
+      "path": "/locations/{locationId}/customFields",
+      "params": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "location": "path",
+          "description": "Location id",
+          "required": true
+        },
+        {
+          "name": "dataType",
+          "type": "string",
+          "location": "body",
+          "description": "Data type"
+        },
+        {
+          "name": "fieldKey",
+          "type": "string",
+          "location": "body",
+          "description": "Field key"
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "Id"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        },
+        {
+          "name": "placeholder",
+          "type": "string",
+          "location": "body",
+          "description": "Placeholder"
+        },
+        {
+          "name": "position",
+          "type": "int",
+          "location": "body",
+          "description": "Position"
+        }
+      ]
+    },
+    {
+      "name": "locations_custom-fields_delete",
+      "description": "Delete. Required: locationId, id. Destructive.",
+      "method": "DELETE",
+      "path": "/locations/{locationId}/customFields/{id}",
+      "params": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "location": "path",
+          "description": "Location id",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "locations_custom-fields_get",
+      "description": "Get. Required: locationId, id.",
+      "method": "GET",
+      "path": "/locations/{locationId}/customFields/{id}",
+      "params": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "location": "path",
+          "description": "Location id",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "locations_custom-fields_list",
+      "description": "List custom fields for a location. Required: locationId. Returns the CustomFieldsListResponse.",
+      "method": "GET",
+      "path": "/locations/{locationId}/customFields",
+      "params": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "location": "path",
+          "description": "Location id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "locations_custom-fields_update",
+      "description": "Update. Required: locationId, id. Optional: dataType, fieldKey, name (plus 2 more).",
+      "method": "PUT",
+      "path": "/locations/{locationId}/customFields/{id}",
+      "params": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "location": "path",
+          "description": "Location id",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "dataType",
+          "type": "string",
+          "location": "body",
+          "description": "Data type"
+        },
+        {
+          "name": "fieldKey",
+          "type": "string",
+          "location": "body",
+          "description": "Field key"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        },
+        {
+          "name": "placeholder",
+          "type": "string",
+          "location": "body",
+          "description": "Placeholder"
+        },
+        {
+          "name": "position",
+          "type": "int",
+          "location": "body",
+          "description": "Position"
+        }
+      ]
+    },
+    {
+      "name": "locations_custom-values_create",
+      "description": "Create. Required: locationId. Optional: fieldKey, id, name (plus 1 more).",
+      "method": "POST",
+      "path": "/locations/{locationId}/customValues",
+      "params": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "location": "path",
+          "description": "Location id",
+          "required": true
+        },
+        {
+          "name": "fieldKey",
+          "type": "string",
+          "location": "body",
+          "description": "Field key"
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "Id"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        },
+        {
+          "name": "value",
+          "type": "string",
+          "location": "body",
+          "description": "Value"
+        }
+      ]
+    },
+    {
+      "name": "locations_custom-values_delete",
+      "description": "Delete. Required: locationId, id. Destructive.",
+      "method": "DELETE",
+      "path": "/locations/{locationId}/customValues/{id}",
+      "params": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "location": "path",
+          "description": "Location id",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "locations_custom-values_get",
+      "description": "Get. Required: locationId, id.",
+      "method": "GET",
+      "path": "/locations/{locationId}/customValues/{id}",
+      "params": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "location": "path",
+          "description": "Location id",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "locations_custom-values_list",
+      "description": "List. Required: locationId. Returns the CustomValuesListResponse.",
+      "method": "GET",
+      "path": "/locations/{locationId}/customValues",
+      "params": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "location": "path",
+          "description": "Location id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "locations_custom-values_update",
+      "description": "Update. Required: locationId, id. Optional: fieldKey, name, value.",
+      "method": "PUT",
+      "path": "/locations/{locationId}/customValues/{id}",
+      "params": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "location": "path",
+          "description": "Location id",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "fieldKey",
+          "type": "string",
+          "location": "body",
+          "description": "Field key"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        },
+        {
+          "name": "value",
+          "type": "string",
+          "location": "body",
+          "description": "Value"
+        }
+      ]
+    },
+    {
+      "name": "locations_tags_create-location",
+      "description": "Create location. Required: locationId. Optional: id, name.",
+      "method": "POST",
+      "path": "/locations/{locationId}/tags",
+      "params": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "location": "path",
+          "description": "Location id",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "Id"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        }
+      ]
+    },
+    {
+      "name": "locations_tags_delete-location",
+      "description": "Delete location. Required: locationId, tagId. Destructive.",
+      "method": "DELETE",
+      "path": "/locations/{locationId}/tags/{tagId}",
+      "params": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "location": "path",
+          "description": "Location id",
+          "required": true
+        },
+        {
+          "name": "tagId",
+          "type": "string",
+          "location": "path",
+          "description": "Tag id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "locations_tags_get-location",
+      "description": "Get location. Required: locationId, tagId.",
+      "method": "GET",
+      "path": "/locations/{locationId}/tags/{tagId}",
+      "params": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "location": "path",
+          "description": "Location id",
+          "required": true
+        },
+        {
+          "name": "tagId",
+          "type": "string",
+          "location": "path",
+          "description": "Tag id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "locations_tags_list-location",
+      "description": "List location tags. Required: locationId. Returns the TagsListLocationResponse.",
+      "method": "GET",
+      "path": "/locations/{locationId}/tags",
+      "params": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "location": "path",
+          "description": "Location id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "opportunities_create-opportunity",
+      "description": "Create opportunity. Optional: assignedTo, contactId, dateAdded (plus 7 more).",
+      "method": "POST",
+      "path": "/opportunities/",
+      "params": [
+        {
+          "name": "assignedTo",
+          "type": "string",
+          "location": "body",
+          "description": "Assigned to"
+        },
+        {
+          "name": "contactId",
+          "type": "string",
+          "location": "body",
+          "description": "Contact id"
+        },
+        {
+          "name": "dateAdded",
+          "type": "string",
+          "location": "body",
+          "description": "Date added"
+        },
+        {
+          "name": "dateUpdated",
+          "type": "string",
+          "location": "body",
+          "description": "Date updated"
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "Id"
+        },
+        {
+          "name": "monetaryValue",
+          "type": "float",
+          "location": "body",
+          "description": "Monetary value"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        },
+        {
+          "name": "pipelineId",
+          "type": "string",
+          "location": "body",
+          "description": "Pipeline id"
+        },
+        {
+          "name": "pipelineStageId",
+          "type": "string",
+          "location": "body",
+          "description": "Pipeline stage id"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "body",
+          "description": "Status"
+        }
+      ]
+    },
+    {
+      "name": "opportunities_delete-opportunity",
+      "description": "Delete opportunity. Required: id. Destructive.",
+      "method": "DELETE",
+      "path": "/opportunities/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "opportunities_get-opportunity",
+      "description": "Get opportunity. Required: id.",
+      "method": "GET",
+      "path": "/opportunities/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "opportunities_list-pipelines",
+      "description": "List pipelines for a location. Required: locationId. Returns the OpportunitiesListPipelinesResponse.",
+      "method": "GET",
+      "path": "/opportunities/pipelines",
+      "params": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "location": "query",
+          "description": "GHL sub-account (location) ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "opportunities_search",
+      "description": "Search opportunities across a pipeline. Required: locationId. Optional: pipeline_id, pipeline_stage_id, status (plus 5 more). Returns the OpportunitiesSearchResponse.",
+      "method": "GET",
+      "path": "/opportunities/search",
+      "params": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "location": "query",
+          "description": "GHL sub-account (location) ID",
+          "required": true
+        },
+        {
+          "name": "pipeline_id",
+          "type": "string",
+          "location": "query",
+          "description": "Pipeline id"
+        },
+        {
+          "name": "pipeline_stage_id",
+          "type": "string",
+          "location": "query",
+          "description": "Pipeline stage id"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "query",
+          "description": "Status"
+        },
+        {
+          "name": "contact_id",
+          "type": "string",
+          "location": "query",
+          "description": "Contact id"
+        },
+        {
+          "name": "assigned_to",
+          "type": "string",
+          "location": "query",
+          "description": "Assigned to"
+        },
+        {
+          "name": "q",
+          "type": "string",
+          "location": "query",
+          "description": "Q"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page"
+        }
+      ]
+    },
+    {
+      "name": "opportunities_update-opportunity",
+      "description": "Update opportunity. Required: id. Optional: assignedTo, contactId, dateAdded (plus 6 more).",
+      "method": "PUT",
+      "path": "/opportunities/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "assignedTo",
+          "type": "string",
+          "location": "body",
+          "description": "Assigned to"
+        },
+        {
+          "name": "contactId",
+          "type": "string",
+          "location": "body",
+          "description": "Contact id"
+        },
+        {
+          "name": "dateAdded",
+          "type": "string",
+          "location": "body",
+          "description": "Date added"
+        },
+        {
+          "name": "dateUpdated",
+          "type": "string",
+          "location": "body",
+          "description": "Date updated"
+        },
+        {
+          "name": "monetaryValue",
+          "type": "float",
+          "location": "body",
+          "description": "Monetary value"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        },
+        {
+          "name": "pipelineId",
+          "type": "string",
+          "location": "body",
+          "description": "Pipeline id"
+        },
+        {
+          "name": "pipelineStageId",
+          "type": "string",
+          "location": "body",
+          "description": "Pipeline stage id"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "body",
+          "description": "Status"
+        }
+      ]
+    },
+    {
+      "name": "opportunities_upsert-opportunity",
+      "description": "Upsert opportunity. Optional: assignedTo, contactId, dateAdded (plus 7 more).",
+      "method": "POST",
+      "path": "/opportunities/upsert",
+      "params": [
+        {
+          "name": "assignedTo",
+          "type": "string",
+          "location": "body",
+          "description": "Assigned to"
+        },
+        {
+          "name": "contactId",
+          "type": "string",
+          "location": "body",
+          "description": "Contact id"
+        },
+        {
+          "name": "dateAdded",
+          "type": "string",
+          "location": "body",
+          "description": "Date added"
+        },
+        {
+          "name": "dateUpdated",
+          "type": "string",
+          "location": "body",
+          "description": "Date updated"
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "Id"
+        },
+        {
+          "name": "monetaryValue",
+          "type": "float",
+          "location": "body",
+          "description": "Monetary value"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        },
+        {
+          "name": "pipelineId",
+          "type": "string",
+          "location": "body",
+          "description": "Pipeline id"
+        },
+        {
+          "name": "pipelineStageId",
+          "type": "string",
+          "location": "body",
+          "description": "Pipeline stage id"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "body",
+          "description": "Status"
+        }
+      ]
+    },
+    {
+      "name": "opportunities_status_update-opportunity",
+      "description": "Update opportunity status only (Open/Won/Lost/Abandoned). Required: id. Optional: status.",
+      "method": "PUT",
+      "path": "/opportunities/{id}/status",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "body",
+          "description": "Status"
+        }
+      ]
+    },
+    {
+      "name": "surveys_list",
+      "description": "List. Required: locationId.",
+      "method": "GET",
+      "path": "/surveys/",
+      "params": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "location": "query",
+          "description": "GHL sub-account (location) ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "users_get",
+      "description": "Get. Required: userId.",
+      "method": "GET",
+      "path": "/users/{userId}",
+      "params": [
+        {
+          "name": "userId",
+          "type": "string",
+          "location": "path",
+          "description": "User id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "users_search",
+      "description": "Search users in a location. Required: locationId. Returns the UsersSearchResponse.",
+      "method": "GET",
+      "path": "/users/search",
+      "params": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "location": "query",
+          "description": "GHL sub-account (location) ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "workflows_list",
+      "description": "List workflows for a location. Required: locationId. Returns the WorkflowsListResponse.",
+      "method": "GET",
+      "path": "/workflows/",
+      "params": [
+        {
+          "name": "locationId",
+          "type": "string",
+          "location": "query",
+          "description": "GHL sub-account (location) ID",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

@@ -504,6 +504,75 @@ func RecordReplacements(db *sql.DB, observedClusterIDs map[string]bool, observed
 	return nil
 }
 
+// PATCH(digg-enhancements): topic-scoped variant of RecordReplacements.
+// The multi-topic sync flag means a single run may cover only a subset of
+// topics. The non-scoped version scans all digg_clusters in the 2-hour
+// window, so a `sync --topics technology` run would falsely mark every
+// recently-seen `ai` cluster as fell-out-of-feed. Scoping by topic IN (...)
+// fixes the cross-topic pollution. Passing an empty slice falls back to the
+// non-scoped behavior so callers that genuinely sync everything still work.
+func RecordReplacementsForTopics(db *sql.DB, observedClusterIDs map[string]bool, observedAt time.Time, topics []string) error {
+	if len(topics) == 0 {
+		return RecordReplacements(db, observedClusterIDs, observedAt)
+	}
+	now := observedAt.UTC().Format(time.RFC3339Nano)
+
+	placeholders := strings.Repeat("?,", len(topics))
+	placeholders = strings.TrimSuffix(placeholders, ",")
+	args := make([]any, 0, len(topics)+2)
+	args = append(args, now, now)
+	for _, t := range topics {
+		args = append(args, t)
+	}
+
+	query := `
+		SELECT cluster_id, cluster_url_id, label, current_rank, replacement_rationale, last_seen_at
+		FROM digg_clusters
+		WHERE last_seen_at < ?
+		  AND last_seen_at >= datetime(?, '-2 hours')
+		  AND topic IN (` + placeholders + `)
+	`
+	rows, err := db.Query(query, args...)
+	if err != nil {
+		return fmt.Errorf("scanning replacements: %w", err)
+	}
+	defer rows.Close()
+
+	type pending struct {
+		id, urlID, label, rationale string
+		rank                        int
+	}
+	var pendings []pending
+	for rows.Next() {
+		var id, urlID, label, rationale string
+		var rank sql.NullInt64
+		var lastSeen string
+		if err := rows.Scan(&id, &urlID, &label, &rank, &rationale, &lastSeen); err != nil {
+			return err
+		}
+		if observedClusterIDs[id] {
+			continue
+		}
+		r := rationale
+		if r == "" {
+			r = "fell out of feed (no rationale published)"
+		}
+		pendings = append(pendings, pending{id: id, urlID: urlID, label: label, rationale: r, rank: int(rank.Int64)})
+	}
+	if err := rows.Err(); err != nil {
+		return err
+	}
+	for _, p := range pendings {
+		if _, err := db.Exec(`
+			INSERT OR IGNORE INTO digg_replacements (cluster_id, observed_at, rationale, previous_rank, cluster_url_id, label)
+			VALUES (?,?,?,?,?,?)
+		`, p.id, now, p.rationale, p.rank, p.urlID, p.label); err != nil {
+			return fmt.Errorf("record replacement %s: %w", p.id, err)
+		}
+	}
+	return nil
+}
+
 func raw(r json.RawMessage) any {
 	if len(r) == 0 {
 		return nil

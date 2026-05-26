@@ -26,26 +26,26 @@ See [Known Limitations](#known-limitations) for what doesn't work today.
 The recommended path installs both the `ebay-pp-cli` binary and the `pp-ebay` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
 
 ```bash
-npx -y @mvanhorn/printing-press install ebay
+npx -y @mvanhorn/printing-press-library install ebay
 ```
 
 For CLI only (no skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install ebay --cli-only
+npx -y @mvanhorn/printing-press-library install ebay --cli-only
 ```
 
 For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install ebay --skill-only
+npx -y @mvanhorn/printing-press-library install ebay --skill-only
 ```
 
 To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
 
 ```bash
-npx -y @mvanhorn/printing-press install ebay --agent claude-code
-npx -y @mvanhorn/printing-press install ebay --agent claude-code --agent codex
+npx -y @mvanhorn/printing-press-library install ebay --agent claude-code
+npx -y @mvanhorn/printing-press-library install ebay --agent claude-code --agent codex
 ```
 
 ### Without Node (Go fallback)

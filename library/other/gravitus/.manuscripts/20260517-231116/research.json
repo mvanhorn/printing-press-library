@@ -1,0 +1,216 @@
+{
+  "api_name": "gravitus",
+  "novelty_score": 9,
+  "alternatives": [
+    {
+      "name": "hevycli",
+      "url": "https://github.com/obay/hevycli",
+      "language": "Go",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 24,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "hevy-mcp",
+      "url": "https://github.com/chrisdoc/hevy-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 12,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "LiftShift",
+      "url": "https://github.com/aree6/LiftShift",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 6,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-17T23:30:00Z",
+  "novel_features": [
+    {
+      "name": "Dashboard Sync",
+      "command": "sync",
+      "description": "Sync all Gravitus workouts into your training dashboard's SQLite database — writes LiftingSession records in the exact Prisma schema format with auth, pagination, and incremental support.",
+      "rationale": "The dashboard's existing /api/gravitus/sync route has no session cookie auth and no pagination, so it finds zero workouts. This CLI fixes both.",
+      "example": "gravitus-pp-cli gravitus-sync --dashboard-db D:/AB-Solutions/Training_Dashboard/prisma/dev.db",
+      "why_it_matters": "Use to populate the training dashboard's lifting data — the only reliable way to authenticate and paginate all workout history into dev.db.",
+      "group": "Dashboard pipeline"
+    },
+    {
+      "name": "Data Export",
+      "command": "export",
+      "description": "Export your complete Gravitus training history to CSV or JSON — the first and only way to get your data out of Gravitus.",
+      "rationale": "Gravitus has zero native export functionality. This CLI owns the auth layer and full paginated history.",
+      "example": "gravitus-pp-cli export --format csv --output training_history.csv",
+      "why_it_matters": "Use when a coach, analyst, or AI agent needs the full training history outside the app.",
+      "group": "Dashboard pipeline"
+    },
+    {
+      "name": "Plateau Detection",
+      "command": "exercises plateau",
+      "description": "Identifies exercises where estimated 1RM hasn't improved in N weeks — alert-style output for the dashboard coaching panel.",
+      "rationale": "Requires comparing 1RM estimates across time windows from the local SQLite store — no single API call provides this.",
+      "example": "gravitus-pp-cli exercises plateau --weeks 6 --agent",
+      "why_it_matters": "Use before a program change — gives evidence-based list of which lifts need intervention.",
+      "group": "Analytics"
+    },
+    {
+      "name": "Weekly Volume",
+      "command": "stats volume",
+      "description": "Weekly total lifting volume (lbs) aggregated from all synced sessions — the same metric the dashboard LiftingSection displays.",
+      "rationale": "Requires summing totalVolumeLbs across all sessions per week from the local store.",
+      "example": "gravitus-pp-cli stats volume --weeks 12 --agent",
+      "why_it_matters": "Use to feed the dashboard's volume trend chart or check load progression over a training block.",
+      "group": "Analytics"
+    },
+    {
+      "name": "Personal Records",
+      "command": "exercises prs",
+      "description": "All-time PRs across every exercise, extracted from PR markers on workout pages.",
+      "rationale": "Requires scanning all synced workout pages for PR markers and keeping the max per exercise — only possible with full history in SQLite.",
+      "example": "gravitus-pp-cli exercises prs --agent",
+      "why_it_matters": "Use to display the personal records panel in the dashboard or track PR cadence.",
+      "group": "Analytics"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Dashboard Sync",
+      "command": "sync",
+      "description": "Sync all Gravitus workouts into your training dashboard's SQLite database — writes LiftingSession records in the exact Prisma schema format with auth, pagination, and incremental support.",
+      "rationale": "The dashboard's existing /api/gravitus/sync route has no session cookie auth and no pagination, so it finds zero workouts. This CLI fixes both.",
+      "example": "gravitus-pp-cli gravitus-sync --dashboard-db D:/AB-Solutions/Training_Dashboard/prisma/dev.db",
+      "why_it_matters": "Use to populate the training dashboard's lifting data — the only reliable way to authenticate and paginate all workout history into dev.db.",
+      "group": "Dashboard pipeline"
+    },
+    {
+      "name": "Data Export",
+      "command": "export",
+      "description": "Export your complete Gravitus training history to CSV or JSON — the first and only way to get your data out of Gravitus.",
+      "rationale": "Gravitus has zero native export functionality. This CLI owns the auth layer and full paginated history.",
+      "example": "gravitus-pp-cli export --format csv --output training_history.csv",
+      "why_it_matters": "Use when a coach, analyst, or AI agent needs the full training history outside the app.",
+      "group": "Dashboard pipeline"
+    },
+    {
+      "name": "Plateau Detection",
+      "command": "exercises plateau",
+      "description": "Identifies exercises where estimated 1RM hasn't improved in N weeks — alert-style output for the dashboard coaching panel.",
+      "rationale": "Requires comparing 1RM estimates across time windows from the local SQLite store — no single API call provides this.",
+      "example": "gravitus-pp-cli exercises plateau --weeks 6 --agent",
+      "why_it_matters": "Use before a program change — gives evidence-based list of which lifts need intervention.",
+      "group": "Analytics"
+    },
+    {
+      "name": "Weekly Volume",
+      "command": "stats volume",
+      "description": "Weekly total lifting volume (lbs) aggregated from all synced sessions — the same metric the dashboard LiftingSection displays.",
+      "rationale": "Requires summing totalVolumeLbs across all sessions per week from the local store.",
+      "example": "gravitus-pp-cli stats volume --weeks 12 --agent",
+      "why_it_matters": "Use to feed the dashboard's volume trend chart or check load progression over a training block.",
+      "group": "Analytics"
+    },
+    {
+      "name": "Personal Records",
+      "command": "exercises prs",
+      "description": "All-time PRs across every exercise, extracted from PR markers on workout pages.",
+      "rationale": "Requires scanning all synced workout pages for PR markers and keeping the max per exercise — only possible with full history in SQLite.",
+      "example": "gravitus-pp-cli exercises prs --agent",
+      "why_it_matters": "Use to display the personal records panel in the dashboard or track PR cadence.",
+      "group": "Analytics"
+    }
+  ],
+  "narrative": {
+    "display_name": "Gravitus",
+    "headline": "The only CLI that syncs your Gravitus strength data into your training dashboard.",
+    "value_prop": "Gravitus has no API and no data export. gravitus-pp-cli handles the session auth, paginates your full workout history, and writes LiftingSession records directly into your dashboard's SQLite database — incremental, reliable, and scriptable.",
+    "auth_narrative": "Gravitus uses Django session auth. Run `gravitus-pp-cli auth login` with your email and password — the CLI handles the CSRF token exchange and stores your session cookie in the config file. Re-run `auth login` whenever the session expires (typically every few weeks).",
+    "quickstart": [
+      {
+        "command": "gravitus-pp-cli auth login-password",
+        "comment": "authenticate with email and password — handles the CSRF dance automatically"
+      },
+      {
+        "command": "gravitus-pp-cli gravitus-sync --dashboard-db ./prisma/dev.db",
+        "comment": "pull all workouts into dev.db as LiftingSession records"
+      },
+      {
+        "command": "gravitus-pp-cli gravitus-sync --incremental --dashboard-db ./prisma/dev.db",
+        "comment": "only fetch new workouts since last sync"
+      },
+      {
+        "command": "gravitus-pp-cli exercises prs --agent",
+        "comment": "view all personal records as structured JSON"
+      },
+      {
+        "command": "gravitus-pp-cli exercises plateau --weeks 6",
+        "comment": "find lifts with no progress in 6 weeks"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "sync returns 0 workouts",
+        "fix": "run `gravitus-pp-cli doctor` — session likely expired, re-run `auth login`"
+      },
+      {
+        "symptom": "dashboard-db write fails",
+        "fix": "verify the path with `gravitus-pp-cli doctor --dashboard-db \u003cpath\u003e` and ensure the file is not locked by the Next.js dev server"
+      },
+      {
+        "symptom": "auth login fails with CSRF error",
+        "fix": "run `gravitus-pp-cli auth logout` then `auth login` again to force a fresh CSRF token fetch"
+      }
+    ],
+    "when_to_use": "Use gravitus-pp-cli as the data pipeline for any training dashboard or analysis tool that needs Gravitus workout data. It is the only reliable way to authenticate with Gravitus, paginate full workout history, and write structured LiftingSession records into SQLite.",
+    "recipes": [
+      {
+        "title": "Full initial sync into dashboard",
+        "command": "gravitus-pp-cli gravitus-sync --dashboard-db D:/AB-Solutions/Training_Dashboard/prisma/dev.db",
+        "explanation": "Pulls all workout pages with pagination and writes every session to dev.db"
+      },
+      {
+        "title": "Incremental sync (run daily)",
+        "command": "gravitus-pp-cli gravitus-sync --incremental --dashboard-db D:/AB-Solutions/Training_Dashboard/prisma/dev.db",
+        "explanation": "Only fetches workouts not already in dev.db — fast and safe to run repeatedly"
+      },
+      {
+        "title": "Find plateaued lifts for coaching panel",
+        "command": "gravitus-pp-cli exercises plateau --weeks 6 --agent --select exercise,last_pr_date,weeks_stalled",
+        "explanation": "Returns structured JSON of stalled lifts for the dashboard coaching panel"
+      },
+      {
+        "title": "Export full history to CSV",
+        "command": "gravitus-pp-cli export --format csv --output training_history.csv",
+        "explanation": "Dumps every workout and set to CSV — useful for offline analysis or backup"
+      },
+      {
+        "title": "Weekly volume for charting",
+        "command": "gravitus-pp-cli stats volume --weeks 12 --agent",
+        "explanation": "Returns 12 weeks of volume totals as JSON — feed directly to a Recharts bar chart"
+      }
+    ],
+    "trigger_phrases": [
+      "sync my Gravitus workouts",
+      "load my lifting data into the dashboard",
+      "find my plateau lifts",
+      "export my Gravitus data",
+      "check my personal records",
+      "use gravitus",
+      "run gravitus-pp-cli"
+    ]
+  }
+}

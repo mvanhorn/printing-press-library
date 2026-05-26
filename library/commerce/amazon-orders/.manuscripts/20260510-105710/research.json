@@ -1,0 +1,301 @@
+{
+  "api_name": "amazon-orders",
+  "novelty_score": 8,
+  "alternatives": [
+    {
+      "name": "amazon-orders",
+      "url": "https://github.com/alexdlaird/amazon-orders",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 2,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "amazon-order-history-csv-download-mcp",
+      "url": "https://github.com/marcusquinn/amazon-order-history-csv-download-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 11,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "azad",
+      "url": "https://github.com/philipmulcahy/azad",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Amazon-Order-History",
+      "url": "https://github.com/MaX-Lo/Amazon-Order-History",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 2,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "amazon_order_history_scraper",
+      "url": "https://github.com/drewdaemon/amazon_order_history_scraper",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-10T18:05:00Z",
+  "novel_features": [
+    {
+      "name": "Where Is My Stuff",
+      "command": "where-is-my-stuff",
+      "description": "All in-flight Amazon shipments with their current status and ETA in one view.",
+      "rationale": "Requires joining every open order with its shipments and live tracking; the official UI shows one order at a time and competitors output static CSVs.",
+      "example": "amazon-orders-pp-cli where-is-my-stuff --json --select orderId,status,etaDate,carrier",
+      "why_it_matters": "When an agent needs to answer 'is my package coming today' across many orders, this is the one-shot view.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Delivery Slips Detector",
+      "command": "delivery-slips",
+      "description": "Orders whose actual delivery date slipped more than N days from the original estimate.",
+      "rationale": "Comparing original ETA to actual delivery requires historical snapshots only available because we sync periodically into SQLite.",
+      "example": "amazon-orders-pp-cli delivery-slips --days 3 --since 2025-01-01 --json",
+      "why_it_matters": "Surfaces unreliable carriers and sellers without manually scrolling through every order.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Spend Rollup",
+      "command": "spend",
+      "description": "Spending broken down by month, year, category, seller, or payment method.",
+      "rationale": "A SQL aggregate over orders + items + transactions; incumbents export static CSVs that downstream tools have to roll up themselves.",
+      "example": "amazon-orders-pp-cli spend --by month --year 2025 --json",
+      "why_it_matters": "Gives agents a one-shot answer for budgeting, expense reporting, and trend analysis.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Top Items",
+      "command": "top-items",
+      "description": "Most-ordered items by frequency or by total spend, ASIN-grouped across all history.",
+      "rationale": "Group-by ASIN across years requires a normalized item store; existing tools only show per-order item lists.",
+      "example": "amazon-orders-pp-cli top-items --by total-spend --limit 20 --json",
+      "why_it_matters": "Helps an agent reason about what the user actually consumes vs one-off purchases.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Subscribe \u0026 Save Detector",
+      "command": "subscribe-and-save",
+      "description": "Recurring purchases inferred from order history (same ASIN ordered on a regular cadence).",
+      "rationale": "Heuristic detection over the local store; the official S\u0026S page only lists currently-active subscriptions.",
+      "example": "amazon-orders-pp-cli subscribe-and-save --min-occurrences 3 --json",
+      "why_it_matters": "Surfaces candidates for actual S\u0026S enrollment and detects de-facto subscriptions the user may not realize they have.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Find That Thing",
+      "command": "find",
+      "description": "FTS5 search across orders, items, sellers, and tracking notes.",
+      "rationale": "FTS5 needs the data ingested locally; live searching the Amazon UI is slow and shallow.",
+      "example": "amazon-orders-pp-cli find 'usb-c cable' --json --select orderId,placedDate,total",
+      "why_it_matters": "Direct answer to 'when did I order that thing' without scrolling through years of order history.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Arriving Soon",
+      "command": "arriving-soon",
+      "description": "Shipments arriving in the next N days, sorted by ETA.",
+      "rationale": "Cross-order ETA window query needs the local store; existing tools show one order at a time.",
+      "example": "amazon-orders-pp-cli arriving-soon --days 7 --json",
+      "why_it_matters": "Lets an agent plan around incoming deliveries (e.g. 'is my router arriving before the meeting on Friday?').",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Late Shipments",
+      "command": "late",
+      "description": "Active shipments past their original estimated delivery date.",
+      "rationale": "Detecting late requires the original ETA snapshot, which only exists if we sync periodically into a store.",
+      "example": "amazon-orders-pp-cli late --json",
+      "why_it_matters": "Surfaces carrier delays the moment they happen, no manual review.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Where Is My Stuff",
+      "command": "where-is-my-stuff",
+      "description": "All in-flight Amazon shipments with their current status and ETA in one view.",
+      "rationale": "Requires joining every open order with its shipments and live tracking; the official UI shows one order at a time and competitors output static CSVs.",
+      "example": "amazon-orders-pp-cli where-is-my-stuff --json --select orderId,status,etaDate,carrier",
+      "why_it_matters": "When an agent needs to answer 'is my package coming today' across many orders, this is the one-shot view.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Delivery Slips Detector",
+      "command": "delivery-slips",
+      "description": "Orders whose actual delivery date slipped more than N days from the original estimate.",
+      "rationale": "Comparing original ETA to actual delivery requires historical snapshots only available because we sync periodically into SQLite.",
+      "example": "amazon-orders-pp-cli delivery-slips --days 3 --since 2025-01-01 --json",
+      "why_it_matters": "Surfaces unreliable carriers and sellers without manually scrolling through every order.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Spend Rollup",
+      "command": "spend",
+      "description": "Spending broken down by month, year, category, seller, or payment method.",
+      "rationale": "A SQL aggregate over orders + items + transactions; incumbents export static CSVs that downstream tools have to roll up themselves.",
+      "example": "amazon-orders-pp-cli spend --by month --year 2025 --json",
+      "why_it_matters": "Gives agents a one-shot answer for budgeting, expense reporting, and trend analysis.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Top Items",
+      "command": "top-items",
+      "description": "Most-ordered items by frequency or by total spend, ASIN-grouped across all history.",
+      "rationale": "Group-by ASIN across years requires a normalized item store; existing tools only show per-order item lists.",
+      "example": "amazon-orders-pp-cli top-items --by total-spend --limit 20 --json",
+      "why_it_matters": "Helps an agent reason about what the user actually consumes vs one-off purchases.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Subscribe \u0026 Save Detector",
+      "command": "subscribe-and-save",
+      "description": "Recurring purchases inferred from order history (same ASIN ordered on a regular cadence).",
+      "rationale": "Heuristic detection over the local store; the official S\u0026S page only lists currently-active subscriptions.",
+      "example": "amazon-orders-pp-cli subscribe-and-save --min-occurrences 3 --json",
+      "why_it_matters": "Surfaces candidates for actual S\u0026S enrollment and detects de-facto subscriptions the user may not realize they have.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Find That Thing",
+      "command": "find",
+      "description": "FTS5 search across orders, items, sellers, and tracking notes.",
+      "rationale": "FTS5 needs the data ingested locally; live searching the Amazon UI is slow and shallow.",
+      "example": "amazon-orders-pp-cli find 'usb-c cable' --json --select orderId,placedDate,total",
+      "why_it_matters": "Direct answer to 'when did I order that thing' without scrolling through years of order history.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Arriving Soon",
+      "command": "arriving-soon",
+      "description": "Shipments arriving in the next N days, sorted by ETA.",
+      "rationale": "Cross-order ETA window query needs the local store; existing tools show one order at a time.",
+      "example": "amazon-orders-pp-cli arriving-soon --days 7 --json",
+      "why_it_matters": "Lets an agent plan around incoming deliveries (e.g. 'is my router arriving before the meeting on Friday?').",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Late Shipments",
+      "command": "late",
+      "description": "Active shipments past their original estimated delivery date.",
+      "rationale": "Detecting late requires the original ETA snapshot, which only exists if we sync periodically into a store.",
+      "example": "amazon-orders-pp-cli late --json",
+      "why_it_matters": "Surfaces carrier delays the moment they happen, no manual review.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "narrative": {
+    "display_name": "Amazon Orders",
+    "headline": "Walk your Amazon order history offline — every order, item, shipment, and dollar in a local SQLite store no other tool gives you.",
+    "value_prop": "Sync once and ask cross-cutting questions forever. Where is my stuff right now, what did I spend last quarter, which deliveries are slipping, when did I order that thing — answered in milliseconds without re-hitting the live site or burning agent context on full HTML pages.",
+    "auth_narrative": "Amazon publishes no buyer API. The CLI imports cookies from your logged-in Chrome / Firefox / Safari / Brave session via `auth login --chrome`. Those cookies persist locally, refresh automatically, and authenticate every subsequent fetch — no API key, no OAuth, no resident browser at runtime.",
+    "quickstart": [
+      {
+        "command": "amazon-orders-pp-cli auth login --chrome",
+        "comment": "Import cookies from your logged-in browser session — required for any authenticated fetch."
+      },
+      {
+        "command": "amazon-orders-pp-cli sync --since 90d --concurrency 1",
+        "comment": "Walk the last 90 days of orders into the local SQLite store at a polite pace."
+      },
+      {
+        "command": "amazon-orders-pp-cli where-is-my-stuff --json",
+        "comment": "See every in-flight package with current status and ETA."
+      },
+      {
+        "command": "amazon-orders-pp-cli spend --by month --year 2026 --json",
+        "comment": "Roll up your 2026 Amazon spending by month."
+      },
+      {
+        "command": "amazon-orders-pp-cli find 'usb-c cable' --json",
+        "comment": "Find every order containing 'usb-c cable' — FTS5-backed, instant, offline."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "`auth status` reports `unauthenticated` after `auth login --chrome`",
+        "fix": "Make sure you're logged in to amazon.com in Chrome, then re-run `auth login --chrome --domain amazon.com`."
+      },
+      {
+        "symptom": "`sync` fails with `RateLimitError` after ~10 orders",
+        "fix": "Pass `--rate 0.5` to slow the per-order detail fetch, or omit `--full-details` to fetch only the listing pages."
+      },
+      {
+        "symptom": "Order detail returns 401 even when logged in",
+        "fix": "Amazon rotated your session-id; re-run `auth login --chrome` to refresh cookies."
+      },
+      {
+        "symptom": "`track \u003cid\u003e` returns empty when the order has multiple shipments",
+        "fix": "Pass `--shipment-id \u003cSID\u003e` (visible in `orders get \u003cid\u003e --json`) to disambiguate."
+      },
+      {
+        "symptom": "Foreign-locale orders parse with garbled dates",
+        "fix": "v1 supports US (.com) only. Multi-region shipping in v2; track issue."
+      }
+    ],
+    "when_to_use": "Reach for amazon-orders-pp-cli when an agent needs to reason across the user's Amazon order history — multi-order tracking radars, recurring-purchase detection, spending rollups, FTS5 searches like 'when did I order that USB-C cable'. The local SQLite store means cross-cutting questions return instantly without re-hitting Amazon and without burning context on full HTML pages.",
+    "recipes": [
+      {
+        "title": "Where is everything I'm waiting on?",
+        "command": "amazon-orders-pp-cli where-is-my-stuff --json --select orderId,status,etaDate,carrier",
+        "explanation": "Lists every open shipment with current status and ETA — the unified radar across all in-flight Amazon orders."
+      },
+      {
+        "title": "How much did I spend this year?",
+        "command": "amazon-orders-pp-cli spend --by month --year 2026 --json",
+        "explanation": "Rolls up monthly Amazon spend from the local store; no live calls, sub-second."
+      },
+      {
+        "title": "Find the order with that thing I bought",
+        "command": "amazon-orders-pp-cli find 'usb-c hub' --json --select orderId,placedDate,total,items.title",
+        "explanation": "FTS5 search across orders + items; uses dotted `--select` to extract just the fields the agent needs."
+      },
+      {
+        "title": "What ships am I being charged for that aren't here yet?",
+        "command": "amazon-orders-pp-cli late --json",
+        "explanation": "Shows active shipments past their original ETA so an agent can flag carrier delays."
+      },
+      {
+        "title": "What do I actually buy?",
+        "command": "amazon-orders-pp-cli top-items --by total-spend --limit 20 --json",
+        "explanation": "Groups every purchased ASIN across history by total spend — surfaces the recurring purchases."
+      }
+    ],
+    "trigger_phrases": [
+      "where is my Amazon order",
+      "what did I spend on Amazon this month",
+      "find that thing I ordered on Amazon",
+      "when did I order from Amazon",
+      "track my Amazon shipments",
+      "show my Amazon purchase history",
+      "use amazon-orders",
+      "run amazon-orders"
+    ]
+  }
+}

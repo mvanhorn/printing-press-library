@@ -11,26 +11,26 @@ Learn more at [Apartments.com](https://www.apartments.com).
 The recommended path installs both the `apartments-pp-cli` binary and the `pp-apartments` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
 
 ```bash
-npx -y @mvanhorn/printing-press install apartments
+npx -y @mvanhorn/printing-press-library install apartments
 ```
 
 For CLI only (no skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install apartments --cli-only
+npx -y @mvanhorn/printing-press-library install apartments --cli-only
 ```
 
 For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install apartments --skill-only
+npx -y @mvanhorn/printing-press-library install apartments --skill-only
 ```
 
 To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
 
 ```bash
-npx -y @mvanhorn/printing-press install apartments --agent claude-code
-npx -y @mvanhorn/printing-press install apartments --agent claude-code --agent codex
+npx -y @mvanhorn/printing-press-library install apartments --agent claude-code
+npx -y @mvanhorn/printing-press-library install apartments --agent claude-code --agent codex
 ```
 
 ### Without Node (Go fallback)

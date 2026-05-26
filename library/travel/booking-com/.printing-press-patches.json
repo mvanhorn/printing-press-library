@@ -1,0 +1,102 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-20",
+  "base_run_id": "20260519-175228",
+  "base_printing_press_version": "4.9.0",
+  "patches": [
+    {
+      "id": "booking-novel-commands",
+      "summary": "Added hand-coded Booking.com price, watch, trip, deal, search, and review analysis commands promised by the generated docs.",
+      "reason": "The generated CLI advertised these transcendence workflows in help and README, but only the absorbed endpoint commands were wired.",
+      "files": [
+        "internal/store/booking_migrations.go",
+        "internal/cli/booking_novel_helpers.go",
+        "internal/cli/prices.go",
+        "internal/cli/watch.go",
+        "internal/cli/wishlist_drops.go",
+        "internal/cli/compare.go",
+        "internal/cli/trips_deadlines.go",
+        "internal/cli/trip_plan.go",
+        "internal/cli/genius_impact.go",
+        "internal/cli/deals.go",
+        "internal/cli/destinations_price_band.go",
+        "internal/cli/trips_export.go",
+        "internal/cli/search.go",
+        "internal/cli/reviews_stats.go",
+        "internal/cli/root.go"
+      ],
+      "validated_outcome": "go build ./... && go vet ./... succeeded."
+    },
+    {
+      "id": "chrome-cookie-domain-pattern-validation",
+      "summary": "Allowed the generated Chrome cookie LIKE pattern while preserving the sqlite3 host_key validation gate.",
+      "reason": "Chrome profile auto-detection builds %booking.com% before counting cookies; rejecting a leading wildcard made pycookiecheat and cookie-scoop profiles look empty.",
+      "files": [
+        "internal/cli/auth.go",
+        "internal/cli/auth_test.go"
+      ],
+      "validated_outcome": "go test ./internal/cli -run TestHostKeyPatternREAllowsGeneratedLikePattern succeeded."
+    },
+    {
+      "id": "trip-plan-budget-guards",
+      "summary": "Required trip-plan combinations to use one currency and capped the DFS search space.",
+      "reason": "Budget comparisons are only meaningful across same-currency prices, and large leg counts can otherwise trigger an unbounded combinatorial search.",
+      "files": [
+        "internal/cli/trip_plan.go",
+        "internal/cli/trip_plan_test.go"
+      ],
+      "validated_outcome": "go test ./internal/cli -run TestChoosePlan succeeded."
+    },
+    {
+      "id": "compare-coordinate-distance",
+      "summary": "Computed compare distance output from hotel coordinates instead of emitting a permanently zero delta.",
+      "reason": "Booking hotel detail pages provide latitude and longitude, but no search-center distance value; using the coordinates makes the comparison distance field meaningful.",
+      "files": [
+        "internal/cli/compare.go",
+        "internal/cli/compare_test.go"
+      ],
+      "validated_outcome": "go test ./internal/cli -run TestHotelDistanceKM succeeded."
+    },
+    {
+      "id": "trip-plan-empty-price-leg-warning",
+      "summary": "Skipped trip legs with no parseable prices after warning instead of adding empty DFS option buckets.",
+      "reason": "A successful HTTP response with no parseable prices should not silently make the whole trip plan appear impossible.",
+      "files": [
+        "internal/cli/trip_plan.go",
+        "internal/cli/trip_plan_test.go"
+      ],
+      "validated_outcome": "go test ./internal/cli -run TestPlanPicksForLeg succeeded."
+    },
+    {
+      "id": "trip-plan-currency-diagnostic",
+      "summary": "Returned a diagnostic when trip legs have no common price currency.",
+      "reason": "The planner cannot compare budgets across currencies; returning an empty successful result made multi-country currency mismatches look like no availability.",
+      "files": [
+        "internal/cli/trip_plan.go",
+        "internal/cli/trip_plan_test.go"
+      ],
+      "validated_outcome": "go test ./internal/cli -run 'TestChoosePlan|TestValidatePlanSearchSpace' succeeded."
+    },
+    {
+      "id": "header-aware-http-cache",
+      "summary": "Included custom request headers in the Booking.com HTTP cache key.",
+      "reason": "The mobile-rates deal comparison fetches the same search URL with desktop and mobile user agents; sharing one cache entry made the mobile response reuse desktop HTML.",
+      "files": [
+        "internal/cli/deals.go",
+        "internal/client/client.go",
+        "internal/client/client_test.go"
+      ],
+      "validated_outcome": "go test ./internal/client -run TestCacheKeyIncludesHeaders and go test ./internal/cli succeeded."
+    },
+    {
+      "id": "trips-deadline-window-filter",
+      "summary": "Skipped trips with unknown cancellation deadlines when applying the deadlines window.",
+      "reason": "The deadlines command promises trips whose cancellation deadline is within --within; including unknown-deadline trips made the filtered output over-inclusive.",
+      "files": [
+        "internal/cli/trips_deadlines.go",
+        "internal/cli/trips_deadlines_test.go"
+      ],
+      "validated_outcome": "go test ./internal/cli -run TestTripsWithinDeadlineWindow succeeded."
+    }
+  ]
+}

@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-20T23:56:27.7092979Z",
+  "printing_press_version": "4.9.0",
+  "api_name": "loopnet",
+  "display_name": "Loopnet",
+  "cli_name": "loopnet-pp-cli",
+  "owner": "user",
+  "printer": "melanson633",
+  "printer_name": "melanson633",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:d4480785b0a80ab71d89b5d5ddeb640e02c10ba6b0820f8aac67aa622ba4e9f4",
+  "run_id": "20260520-165006",
+  "mcp_binary": "loopnet-pp-mcp",
+  "mcp_tool_count": 2,
+  "mcp_public_tool_count": 2,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Price-cut detection",
+      "command": "price-cuts",
+      "description": "Surfaces every synced listing whose asking price dropped between syncs, with old price, new price, percent cut, and days on market at the cut."
+    },
+    {
+      "name": "Days-on-market",
+      "command": "dom",
+      "description": "Computes true days on market for every live listing from the date the CLI first saw it, and flags aged inventory past a threshold."
+    },
+    {
+      "name": "Market velocity",
+      "command": "velocity",
+      "description": "Reports absorption for a submarket: new listings, delistings, median days on market, and net supply change per period."
+    },
+    {
+      "name": "Delisting detection",
+      "command": "delisted",
+      "description": "Lists listings present in a prior sync but absent now — sold, withdrawn, or expired."
+    },
+    {
+      "name": "Cap-rate and yield distribution",
+      "command": "caprate",
+      "description": "Reports the cap-rate, NOI, and price-per-square-foot distribution (count, min, median, quartiles, max) for synced for-sale listings in a submarket, and flags listings whose cap rate falls outside the interquartile range."
+    },
+    {
+      "name": "Distress and motivation scan",
+      "command": "distress",
+      "description": "Flags listings carrying motivation signals: price-reduced and must-sell keyword hits in the description, Ten-X auction listings, and recent price cuts."
+    },
+    {
+      "name": "Submarket digest",
+      "command": "digest",
+      "description": "Rolls a synced submarket into one report: live supply count, recent price cuts, median days on market, new and delisted counts, and distress hits."
+    },
+    {
+      "name": "Pipeline feed export",
+      "command": "feed",
+      "description": "Exports the latest synced submarket as a run-stamped JSON or CSV file, with records mapped to the six CRE market-intelligence data categories."
+    }
+  ]
+}

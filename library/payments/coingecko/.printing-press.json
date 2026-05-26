@@ -3,6 +3,8 @@
   "generated_at": "2026-04-26T15:00:28.352635Z",
   "printing_press_version": "2.3.7",
   "api_name": "coingecko",
+  "display_name": "CoinGecko",
+  "description": "Fetch CoinGecko cryptocurrency prices, market data, coins, exchanges, and trend endpoints from the public API.",
   "cli_name": "coingecko-pp-cli",
   "printer": "hnshah",
   "printer_name": "Hiten Shah",

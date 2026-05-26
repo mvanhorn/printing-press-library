@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-19T02:55:31.227851Z",
+  "printing_press_version": "4.2.1",
+  "api_name": "rappi",
+  "display_name": "Rappi",
+  "cli_name": "rappi-pp-cli",
+  "owner": "bobeglz",
+  "printer": "bobeglz",
+  "printer_name": "bobe",
+  "spec_path": "/Users/bobe/printing-press/.runstate/cli-printing-press-fbbda735/runs/20260518-200403/research/rappi-browser-sniff-spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:9130884d204f45fa71f9a0330b899435d994535396d74f95fe385e8ffc29796e",
+  "run_id": "20260518-200403",
+  "description": "Read-only Rappi Mexico catalog: restaurants by city/category, supermarkets and pharmacies by type, store details, plus offline SQLite search across the full crawled catalog.",
+  "mcp_binary": "rappi-pp-mcp",
+  "mcp_tool_count": 7,
+  "mcp_public_tool_count": 7,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Restaurants diff",
+      "command": "restaurants diff",
+      "description": "See newcomers and closures in any city + cuisine between two snapshots \u2014 answers \"what's new in Roma Norte sushi this week\" in one command."
+    },
+    {
+      "name": "Restaurants top",
+      "command": "restaurants top",
+      "description": "Top-rated restaurants with both a minimum rating AND a minimum review-count floor \u2014 the listicle-grade filter Rappi UI hides."
+    },
+    {
+      "name": "Store coverage matrix",
+      "command": "stores coverage",
+      "description": "Cross-city, cross-store-type coverage matrix (CDMX \u00d7 markets \u00d7 pharmacies \u00d7 liquor \u00d7 express, all in one table) for the cities you sync."
+    },
+    {
+      "name": "Coverage delta",
+      "command": "stores coverage-diff",
+      "description": "Delta-vs-last-snapshot of the (city, store_type) coverage matrix \u2014 see store openings and store-type expansions over time."
+    },
+    {
+      "name": "Open at time",
+      "command": "restaurants open",
+      "description": "Restaurants open at an arbitrary local time (e.g., \"23:30 on Sunday\") parsed from schema.org openingHours \u2014 beyond Rappi's \"open now\" view."
+    },
+    {
+      "name": "Cuisine by neighborhood",
+      "command": "restaurants by-neighborhood",
+      "description": "Group restaurants by neighborhood within a city (Polanco vs Condesa vs Roma Norte) and rank by count or top-rated per neighborhood."
+    },
+    {
+      "name": "Multi-category overlap",
+      "command": "restaurants multi-category",
+      "description": "Restaurants listed under two or more cuisine categories \u2014 surfaces fusion places and mis-categorized spots in one query."
+    },
+    {
+      "name": "Geo-radius restaurants",
+      "command": "restaurants near",
+      "description": "Restaurants within a Haversine radius of a lat/lng with optional category filter \u2014 sorted by distance."
+    },
+    {
+      "name": "Brand presence matrix",
+      "command": "restaurants brand",
+      "description": "Find every city \u00d7 category where a restaurant brand (e.g., \"Sushi Itto\") appears in the synced catalog."
+    },
+    {
+      "name": "Pharmacy near supermarket adjacency",
+      "command": "stores adjacency",
+      "description": "Stores of type A within a Haversine radius of stores of type B (e.g., pharmacies within 1km of supermarkets) \u2014 for concierge-style \"one-stop trip\" planning."
+    }
+  ],
+  "category": "food-and-dining"
+}

@@ -45,7 +45,7 @@ brews:
       owner: mayank-lavania
       name: homebrew-tap
     homepage: "https://github.com/mvanhorn/printing-press-library"
-    description: "Every NSE equity data point in a single Go binary — live quotes, order book, filings, and a local SQLite store no..."
+    description: "Fetch NSE India quotes, market status, order books, filings, indices, and cached equity analytics from the terminal."
     install: |
       bin.install "nse-india-pp-cli"
       bin.install "nse-india-pp-mcp"

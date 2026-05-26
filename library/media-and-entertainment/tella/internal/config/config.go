@@ -25,6 +25,19 @@ type Config struct {
 	ClientSecret  string            `toml:"client_secret"`
 	Path          string            `toml:"-"`
 	TellaApiKey   string            `toml:"api_key"`
+	// PATCH(library): SessionCookie holds the raw `Cookie:` header value
+	// the user copies from a browser DevTools session on tella.tv. Used
+	// only by --unofficial commands (find-mistakes today) that hit
+	// www.tella.tv or prod-stream.tella.tv — those hosts require
+	// session-cookie auth and reject the public-API Bearer token (401).
+	// Cataloged in .printing-press-patches.json#add-cut-panel-parity.
+	SessionCookie string `toml:"session_cookie"`
+
+	// PATCH(library): track whether SessionCookie came from disk or the
+	// ephemeral TELLA_SESSION_COOKIE override so save() never writes an
+	// env-supplied browser session cookie back to config.toml.
+	sessionCookieFromEnv   bool   `toml:"-"`
+	persistedSessionCookie string `toml:"-"`
 }
 
 func Load(configPath string) (*Config, error) {
@@ -50,11 +63,21 @@ func Load(configPath string) (*Config, error) {
 			return nil, fmt.Errorf("parsing config %s: %w", path, err)
 		}
 	}
+	cfg.persistedSessionCookie = cfg.SessionCookie
 
 	// Env var overrides
 	if v := os.Getenv("TELLA_API_KEY"); v != "" {
 		cfg.TellaApiKey = v
 		cfg.AuthSource = "env:TELLA_API_KEY"
+	}
+	// PATCH(library): TELLA_SESSION_COOKIE overrides any config-file
+	// session_cookie. Expected value is the raw `Cookie:` header content
+	// (everything after the leading "Cookie: ") copied from browser
+	// DevTools on tella.tv. The CLI never persists this to disk unless
+	// the user writes it to config explicitly.
+	if v := os.Getenv("TELLA_SESSION_COOKIE"); v != "" {
+		cfg.SessionCookie = strings.TrimSpace(strings.TrimPrefix(v, "Cookie:"))
+		cfg.sessionCookieFromEnv = true
 	}
 
 	// Label config-file-derived credentials so doctor can distinguish
@@ -129,7 +152,11 @@ func (c *Config) save() error {
 	if err := os.MkdirAll(dir, 0o700); err != nil {
 		return fmt.Errorf("creating config dir: %w", err)
 	}
-	data, err := toml.Marshal(c)
+	toSave := *c
+	if c.sessionCookieFromEnv {
+		toSave.SessionCookie = c.persistedSessionCookie
+	}
+	data, err := toml.Marshal(&toSave)
 	if err != nil {
 		return fmt.Errorf("marshaling config: %w", err)
 	}

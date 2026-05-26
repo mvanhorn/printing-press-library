@@ -1,0 +1,51 @@
+{
+  "endpoint": "POST /api/{id}/vehicles/5YJ3E1EA6XXXXXXXX/command/door_lock",
+  "method": "POST",
+  "raw_url": "https://owner-api.teslamotors.com/api/1/vehicles/5YJ3E1EA6XXXXXXXX/command/door_lock",
+  "status": 200,
+  "request_headers": {
+    "accept": "*/*",
+    "accept-encoding": "gzip",
+    "accept-language": "en",
+    "authorization": "<redacted>",
+    "baggage": "sentry-environment=tesla,sentry-public_key=c1ad0d1b7177450aaaf8a91863960dc7,sentry-release=com.teslamotors.TeslaApp%404.57.0-4306,sentry-trace_id=74e3e9b31a484793b845b5ebadd7f932",
+    "cache-control": "no-cache",
+    "charset": "utf-8",
+    "content-length": "0",
+    "content-type": "application/json",
+    "priority": "u=3, i",
+    "sentry-trace": "74e3e9b31a484793b845b5ebadd7f932-fa868ccd4e02499a-0",
+    "user-agent": "TeslaV4/4.57.0 (com.teslamotors.TeslaApp; build:4306; iOS 26.5.0) Alamofire/5.2.1",
+    "x-app-state": "active",
+    "x-tesla-app-key": "684260B3F7B372B67DFECD8A023131784979490A",
+    "x-tesla-user-agent": "com.teslamotors.TeslaApp/4.57.0-4306/b937ef26/iOS/26.5",
+    "x-txid": "64B8A223-77F4-4C6B-8414-651A86B224FC"
+  },
+  "request_body": null,
+  "response_headers": {
+    "cache-control": "no-cache, no-store, private, s-max-age=0",
+    "content-encoding": "gzip",
+    "content-type": "application/json; charset=utf-8",
+    "date": "Mon, 18 May 2026 22:57:13 GMT",
+    "etag": "W/\"4f19f3c772655c8e69f03530b93311ac\"",
+    "server": "envoy",
+    "strict-transport-security": "max-age=31536000; includeSubDomains",
+    "vary": "Accept,Accept-Encoding",
+    "x-content-type-options": "nosniff",
+    "x-envoy-upstream-service-time": "232",
+    "x-frame-options": "DENY",
+    "x-request-id": "f99de229-07b8-484b-bf6b-13021ab90fc8",
+    "x-txid": "64B8A223-77F4-4C6B-8414-651A86B224FC",
+    "x-xss-protection": "1; mode=block"
+  },
+  "response_body": {
+    "response": {
+      "reason": "",
+      "result": true
+    }
+  },
+  "response_body_known": true,
+  "redactions": [
+    "request_headers.authorization"
+  ]
+}

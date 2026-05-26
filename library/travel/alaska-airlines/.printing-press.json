@@ -3,6 +3,8 @@
   "generated_at": "2026-05-13T00:22:17.427686Z",
   "printing_press_version": "4.5.1",
   "api_name": "alaska-airlines",
+  "display_name": "Alaska Airlines",
+  "description": "Search Alaska Airlines flights, manage Atmos Rewards data, and build checkout-ready cart links from the terminal.",
   "cli_name": "alaska-airlines-pp-cli",
   "run_id": "20260512-151223",
   "novel_features": [
@@ -10,6 +12,11 @@
       "name": "Field selection on deep JSON",
       "command": "flights search --select",
       "description": "Generic --select flag narrows the ~50KB search/results JSON to just the fields the agent needs."
+    },
+    {
+      "name": "Cash vs award comparison with TPG valuation",
+      "command": "flights value-compare",
+      "description": "Runs paired cash + award searches for the same itinerary and applies a cents-per-point valuation (default: Alaska/Atmos from thepointsguy.com, cached 30 days). Returns effective cpp, TPG multiple, and TPG-valued dollar cost of the points option."
     }
   ],
   "printer": "mvanhorn",

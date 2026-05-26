@@ -4,6 +4,7 @@
   "printing_press_version": "3.8.0",
   "api_name": "tiktok-shop",
   "display_name": "TikTok Shop",
+  "description": "Safe v1 TikTok Shop Seller API CLI/MCP for auth readiness, token exchange and read endpoints; pre-flight checks gate live writes by default.",
   "cli_name": "tiktok-shop-pp-cli",
   "owner": "cathryn-lavery",
   "printer": "cathrynlavery",

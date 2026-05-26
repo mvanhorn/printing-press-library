@@ -31,7 +31,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/WS08_AOOC.php", []mcpParamBinding{{PublicName: "codice", WireName: "COD_AMM", Location: "body"}, {PublicName: "aoo", WireName: "COD_AOO", Location: "body"}}, []string{}),
+		makeAPIHandler("POST", "/ws/WS08AOOCServices/api/WS08_AOOC", []mcpParamBinding{{PublicName: "codice", WireName: "COD_AMM", Location: "body"}, {PublicName: "aoo", WireName: "COD_AOO", Location: "body"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("aoo_list",
@@ -40,7 +40,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/WS02_AOO.php", []mcpParamBinding{{PublicName: "codice", WireName: "COD_AMM", Location: "body"}}, []string{}),
+		makeAPIHandler("POST", "/ws/WS02AOOServices/api/WS02_AOO", []mcpParamBinding{{PublicName: "codice", WireName: "COD_AMM", Location: "body"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("cerca_email",
@@ -49,7 +49,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/WS07_EMAIL.php", []mcpParamBinding{{PublicName: "email", WireName: "EMAIL", Location: "body"}}, []string{}),
+		makeAPIHandler("POST", "/ws/WS07EMAILServices/api/WS07_EMAIL", []mcpParamBinding{{PublicName: "email", WireName: "EMAIL", Location: "body"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("domicilio_aoo",
@@ -58,7 +58,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/WS09_DOM_DIG_AOO.php", []mcpParamBinding{{PublicName: "codice-aoo", WireName: "COD_AOO", Location: "body"}}, []string{}),
+		makeAPIHandler("POST", "/ws/WS09DOMDIGAOOServices/api/WS09_DOMDIGAOO", []mcpParamBinding{{PublicName: "codice-aoo", WireName: "COD_AOO", Location: "body"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("domicilio_cf",
@@ -67,7 +67,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/WS23_DOM_DIG_CF.php", []mcpParamBinding{{PublicName: "cf", WireName: "CF", Location: "body"}}, []string{}),
+		makeAPIHandler("POST", "/ws/WS23DOMDIGCFServices/api/WS23_DOM_DIG_CF", []mcpParamBinding{{PublicName: "cf", WireName: "CF", Location: "body"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("domicilio_email",
@@ -76,7 +76,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/WS13_DOM_DIG.php", []mcpParamBinding{{PublicName: "pec", WireName: "DOMICILIO DIGITALE", Location: "body"}}, []string{}),
+		makeAPIHandler("POST", "/ws/WS13DOMDIGServices/api/WS13_DOM_DIG", []mcpParamBinding{{PublicName: "pec", WireName: "DOMICILIO DIGITALE", Location: "body"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("domicilio_storico-aoo",
@@ -85,7 +85,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/WS11_DOM_DIG_STOR_AOO.php", []mcpParamBinding{{PublicName: "codice-aoo", WireName: "COD_AOO", Location: "body"}}, []string{}),
+		makeAPIHandler("POST", "/ws/WS11DOMDIGSTORAOOServices/api/WS11_DOM_DIG_STOR_AOO", []mcpParamBinding{{PublicName: "codice-aoo", WireName: "COD_AOO", Location: "body"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("domicilio_storico-uo",
@@ -94,7 +94,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/WS12_DOM_DIG_STOR_OU.php", []mcpParamBinding{{PublicName: "codice-uni", WireName: "COD_UNI_OU", Location: "body"}}, []string{}),
+		makeAPIHandler("POST", "/ws/WS12DOMDIGSTOROUServices/api/WS12_DOM_DIG_STOR_OU", []mcpParamBinding{{PublicName: "codice-uni", WireName: "COD_UNI_OU", Location: "body"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("domicilio_uo",
@@ -103,7 +103,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/WS10_DOM_DIG_OU.php", []mcpParamBinding{{PublicName: "codice-uni", WireName: "COD_UNI_OU", Location: "body"}}, []string{}),
+		makeAPIHandler("POST", "/ws/WS10DOMDIGOUServices/api/WS10_DOM_DIG_OU", []mcpParamBinding{{PublicName: "codice-uni", WireName: "COD_UNI_OU", Location: "body"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("enti_cerca",
@@ -112,7 +112,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/WS16_DES_AMM.php", []mcpParamBinding{{PublicName: "nome", WireName: "DESCR", Location: "body"}}, []string{}),
+		makeAPIHandler("POST", "/ws/WS16DESAMMServices/api/WS16_DES_AMM", []mcpParamBinding{{PublicName: "nome", WireName: "DESCR", Location: "body"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("enti_get",
@@ -121,7 +121,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/WS05_AMM.php", []mcpParamBinding{{PublicName: "codice", WireName: "COD_AMM", Location: "body"}}, []string{}),
+		makeAPIHandler("POST", "/ws/WS05AMMServices/api/WS05_AMM", []mcpParamBinding{{PublicName: "codice", WireName: "COD_AMM", Location: "body"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("fatturazione_cf",
@@ -130,7 +130,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/WS01_SFE_CF.php", []mcpParamBinding{{PublicName: "cf", WireName: "CF", Location: "body"}}, []string{}),
+		makeAPIHandler("POST", "/ws/WS01SFECFServices/api/WS01_SFE_CF", []mcpParamBinding{{PublicName: "cf", WireName: "CF", Location: "body"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("fatturazione_ente",
@@ -139,7 +139,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/WS04_SFE.php", []mcpParamBinding{{PublicName: "codice", WireName: "COD_AMM", Location: "body"}}, []string{}),
+		makeAPIHandler("POST", "/ws/WS04SFEServices/api/WS04_SFE", []mcpParamBinding{{PublicName: "codice", WireName: "COD_AMM", Location: "body"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("nso_cf",
@@ -148,7 +148,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/WS14_NSO_CF.php", []mcpParamBinding{{PublicName: "cf", WireName: "CF", Location: "body"}}, []string{}),
+		makeAPIHandler("POST", "/ws/WS14NSOCFServices/api/WS14_NSO_CF", []mcpParamBinding{{PublicName: "cf", WireName: "CF", Location: "body"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("nso_ente",
@@ -157,7 +157,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/WS15_NSO.php", []mcpParamBinding{{PublicName: "codice", WireName: "COD_AMM", Location: "body"}}, []string{}),
+		makeAPIHandler("POST", "/ws/WS15NSOServices/api/WS15_NSO", []mcpParamBinding{{PublicName: "codice", WireName: "COD_AMM", Location: "body"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("uo_get",
@@ -166,7 +166,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/WS06_OU_CODUNI.php", []mcpParamBinding{{PublicName: "codice-uni", WireName: "COD_UNI_OU", Location: "body"}}, []string{}),
+		makeAPIHandler("POST", "/ws/WS06OUCODUNIServices/api/WS06_OU_COD_UNI", []mcpParamBinding{{PublicName: "codice-uni", WireName: "COD_UNI_OU", Location: "body"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("uo_list",
@@ -175,7 +175,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/WS03_OU.php", []mcpParamBinding{{PublicName: "codice", WireName: "COD_AMM", Location: "body"}}, []string{}),
+		makeAPIHandler("POST", "/ws/WS03OUServices/api/WS03_OU", []mcpParamBinding{{PublicName: "codice", WireName: "COD_AMM", Location: "body"}}, []string{}),
 	)
 
 	// Context tool — front-loaded domain knowledge for agents.

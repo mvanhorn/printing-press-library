@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/mvanhorn/printing-press-library/library/project-management/linear/internal/store"
 
@@ -94,7 +95,13 @@ tickets in the workspace.`,
 			const mutation = `mutation CreateIssue($input: IssueCreateInput!) {
 				issueCreate(input: $input) {
 					success
-					issue { id identifier title url team { key } state { name } }
+					issue {
+						id identifier title url priority
+						team { id key }
+						state { id name type }
+						assignee { id name displayName }
+						project { id name }
+					}
 				}
 			}`
 
@@ -125,12 +132,25 @@ tickets in the workspace.`,
 						Identifier string `json:"identifier"`
 						Title      string `json:"title"`
 						URL        string `json:"url"`
+						Priority   int    `json:"priority"`
 						Team       struct {
+							ID  string `json:"id"`
 							Key string `json:"key"`
 						} `json:"team"`
 						State struct {
+							ID   string `json:"id"`
 							Name string `json:"name"`
+							Type string `json:"type"`
 						} `json:"state"`
+						Assignee *struct {
+							ID          string `json:"id"`
+							Name        string `json:"name"`
+							DisplayName string `json:"displayName"`
+						} `json:"assignee,omitempty"`
+						Project *struct {
+							ID   string `json:"id"`
+							Name string `json:"name"`
+						} `json:"project,omitempty"`
 					} `json:"issue"`
 				} `json:"issueCreate"`
 			}
@@ -149,6 +169,51 @@ tickets in the workspace.`,
 				defer db.Close()
 				if recErr := db.RecordPPFixture(parsed.IssueCreate.Issue.ID, parsed.IssueCreate.Issue.Identifier, parsed.IssueCreate.Issue.Title, sess); recErr != nil {
 					fmt.Fprintf(os.Stderr, "warning: pp_created ledger write failed: %v\n", recErr)
+				}
+				// Write-back to the local issues table so a subsequent
+				// `issues list` from the local store sees the new ticket
+				// without requiring a separate `sync --incremental`. The
+				// HTTP cache is already invalidated by client.do on every
+				// non-GET success; this closes the SQLite-store-side gap.
+				wb := map[string]any{
+					"id":         parsed.IssueCreate.Issue.ID,
+					"identifier": parsed.IssueCreate.Issue.Identifier,
+					"title":      parsed.IssueCreate.Issue.Title,
+					"url":        parsed.IssueCreate.Issue.URL,
+					"priority":   parsed.IssueCreate.Issue.Priority,
+					"team": map[string]any{
+						"id":  parsed.IssueCreate.Issue.Team.ID,
+						"key": parsed.IssueCreate.Issue.Team.Key,
+					},
+					"teamId": parsed.IssueCreate.Issue.Team.ID,
+					"state": map[string]any{
+						"id":   parsed.IssueCreate.Issue.State.ID,
+						"name": parsed.IssueCreate.Issue.State.Name,
+						"type": parsed.IssueCreate.Issue.State.Type,
+					},
+					"createdAt": time.Now().UTC().Format(time.RFC3339),
+					"updatedAt": time.Now().UTC().Format(time.RFC3339),
+				}
+				if parsed.IssueCreate.Issue.Assignee != nil {
+					wb["assignee"] = map[string]any{
+						"id":          parsed.IssueCreate.Issue.Assignee.ID,
+						"name":        parsed.IssueCreate.Issue.Assignee.Name,
+						"displayName": parsed.IssueCreate.Issue.Assignee.DisplayName,
+					}
+					wb["assigneeId"] = parsed.IssueCreate.Issue.Assignee.ID
+				}
+				if parsed.IssueCreate.Issue.Project != nil {
+					wb["project"] = map[string]any{
+						"id":   parsed.IssueCreate.Issue.Project.ID,
+						"name": parsed.IssueCreate.Issue.Project.Name,
+					}
+					wb["projectId"] = parsed.IssueCreate.Issue.Project.ID
+				}
+				newIssueJSON, mErr := json.Marshal(wb)
+				if mErr == nil {
+					if upErr := db.UpsertIssue(parsed.IssueCreate.Issue.ID, parsed.IssueCreate.Issue.Identifier, parsed.IssueCreate.Issue.Title, newIssueJSON); upErr != nil {
+						fmt.Fprintf(os.Stderr, "warning: local store write-back failed: %v\n", upErr)
+					}
 				}
 			} else {
 				fmt.Fprintf(os.Stderr, "warning: cannot open ledger at %s: %v\n", dbPath, dbErr)

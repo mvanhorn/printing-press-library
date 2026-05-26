@@ -45,7 +45,7 @@ brews:
       owner: user
       name: homebrew-tap
     homepage: "https://github.com/mvanhorn/printing-press-library"
-    description: "A focused per-module ServiceTitan CLI for the Pricebook — sync once, then audit markup, costs, vendor parts, and..."
+    description: "Sync ServiceTitan Pricebook services, materials, equipment, vendors, markups, warranties, and cost-drift audits."
     install: |
       bin.install "servicetitan-pricebook-pp-cli"
       bin.install "servicetitan-pricebook-pp-mcp"

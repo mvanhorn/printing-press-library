@@ -1,0 +1,51 @@
+version: 2
+project_name: zoom-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: zoom-pp-cli
+    main: ./cmd/zoom-pp-cli
+    binary: zoom-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/productivity/zoom/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: zoom-pp-mcp
+    main: ./cmd/zoom-pp-mcp
+    binary: zoom-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: zoom-pp-cli
+    repository:
+      owner: jacken
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "The first Zoom CLI that joins your local desktop app, your on-disk recordings, and your cloud account into one..."
+    install: |
+      bin.install "zoom-pp-cli"
+      bin.install "zoom-pp-mcp"

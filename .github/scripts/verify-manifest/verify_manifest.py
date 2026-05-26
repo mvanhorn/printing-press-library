@@ -7,6 +7,11 @@ Per CLI:
 - has manifest_version="0.3", non-empty name, display_name, version, description
 - server.type="binary", server.entry_point references the bundled binary
 - server.mcp_config.command points at ${__dirname}/<entry_point>
+- server.mcp_config.args is empty for generated binary MCPBs
+- server.mcp_config.env maps each env var to its lower-case user_config key,
+  or to an existing alias key when the lower-case env key is intentionally absent
+- every user_config key is injected through server.mcp_config.env
+- server.env is not used; generated binary MCPBs inject env through mcp_config.env
 - user_config keys (when present) match auth_env_vars in .printing-press.json
 - cli_binary, when present, matches the CLI name from .printing-press.json
 - compatibility.platforms is a non-empty list
@@ -65,6 +70,11 @@ def validate(cli_dir: Path) -> list[str]:
     cmd = (server.get("mcp_config") or {}).get("command", "")
     if "${__dirname}" not in cmd:
         problems.append(f'server.mcp_config.command should contain ${{__dirname}} (got {cmd!r})')
+    args = (server.get("mcp_config") or {}).get("args")
+    if args not in ([], None):
+        problems.append(
+            f"server.mcp_config.args should be empty for generated binary MCPBs (got {args!r})"
+        )
 
     expected_mcp = pp.get("mcp_binary")
     if expected_mcp:
@@ -89,11 +99,34 @@ def validate(cli_dir: Path) -> list[str]:
     declared_envs = set(pp.get("auth_env_vars") or [])
     user_config = m.get("user_config") or {}
     if declared_envs:
-        # user_config keys are lower-cased env var names; map back for comparison.
-        uc_envs = {k.upper() for k in user_config}
-        missing = declared_envs - uc_envs
+        mcp_env_keys = set(((server.get("mcp_config") or {}).get("env") or {}).keys())
+        missing = declared_envs - mcp_env_keys
         if missing:
-            problems.append(f"user_config missing entries for {sorted(missing)}")
+            problems.append(f"server.mcp_config.env missing entries for {sorted(missing)}")
+    mcp_env = (server.get("mcp_config") or {}).get("env") or {}
+    if server.get("env"):
+        problems.append("server.env is unsupported for generated binary MCPBs; use server.mcp_config.env")
+    for env_name, env_value in mcp_env.items():
+        expected_key = env_name.lower()
+        expected_ref = f"${{user_config.{expected_key}}}"
+        ref_key = None
+        if isinstance(env_value, str) and env_value.startswith("${user_config.") and env_value.endswith("}"):
+            ref_key = env_value[len("${user_config.") : -1]
+
+        if expected_key in user_config and env_value != expected_ref:
+            problems.append(
+                f"server.mcp_config.env {env_name!r} should map to {expected_ref!r} (got {env_value!r})"
+            )
+        elif expected_key not in user_config and ref_key not in user_config:
+            problems.append(
+                f"server.mcp_config.env {env_name!r} references missing user_config key {ref_key or expected_key!r}"
+            )
+    for config_key in user_config:
+        expected_env = config_key.upper()
+        if expected_env not in mcp_env:
+            problems.append(
+                f"user_config key {config_key!r} is not injected through server.mcp_config.env {expected_env!r}"
+            )
 
     # cli_binary should match .printing-press.json's cli_name when set.
     cli_binary = m.get("cli_binary")

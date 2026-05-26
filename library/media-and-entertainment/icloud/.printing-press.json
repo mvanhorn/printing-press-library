@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "run_id": "20260517-000000",
+  "printer": "matysanchez",
+  "printer_name": "Matias Sanchez Moises",
+  "generated_at": "2026-05-17T00:00:00Z",
+  "printing_press_version": "4.8.0",
+  "api_name": "icloud",
+  "display_name": "iCloud",
+  "cli_name": "icloud-pp-cli",
+  "category": "media-and-entertainment",
+  "description": "Query iCloud data stored locally on macOS — Photos library storage analysis, with Contacts and more coming. All reads hit local SQLite databases directly; no network calls or iCloud API token required.",
+  "auth_type": "none",
+  "spec_format": "local",
+  "spec_source": "local-sqlite",
+  "spec_checksum": "sha256:22cd5bbab4725e711b49f2e3f08462a0eb9986a490b3b389ce06a115104cc38e",
+  "api_version": "0.1.0",
+  "novel_features": [
+    {
+      "name": "Heaviest file finder",
+      "command": "photos top",
+      "description": "List the top N heaviest files across all media types or filtered to photos/videos."
+    },
+    {
+      "name": "Storage breakdown",
+      "command": "photos storage",
+      "description": "Show storage distribution by media type (photo/video) and by year."
+    },
+    {
+      "name": "Direct SQLite access",
+      "command": "photos",
+      "description": "Reads Photos.sqlite directly in read-only mode — no Photos.app launch needed for queries."
+    },
+    {
+      "name": "AppleScript delete",
+      "command": "photos delete",
+      "description": "Move items to Recently Deleted via Photos.app scripting using UUIDs from query output."
+    }
+  ]
+}

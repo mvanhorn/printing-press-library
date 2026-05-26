@@ -13,6 +13,12 @@ import (
 var (
 	moneyRe  = regexp.MustCompile(`[$£€]\s*([0-9][0-9,]*(?:\.[0-9]{2})?)`)
 	roomIDRe = regexp.MustCompile(`/rooms/([0-9A-Za-z_-]+)`)
+	// PATCH: Recover Airbnb review counts from localized rating strings.
+	// `avgRatingLocalized` ships as "4.98 (576)"; we extract the numeric
+	// rating and review count from the parenthesized suffix when
+	// `reviewsCount` is null (which Airbnb commonly returns).
+	avgRatingRe   = regexp.MustCompile(`([0-9]+(?:\.[0-9]+)?)\s*\(([0-9][0-9,]*)\)`)
+	reviewsA11yRe = regexp.MustCompile(`([0-9][0-9,]*)\s+reviews?`)
 )
 
 func firstNiobeData(root any) any {
@@ -50,7 +56,16 @@ func listingFromSearch(lmap, priceQuote map[string]any) Listing {
 			l.Badges = append(l.Badges, text)
 		}
 	}
-	price := asMap(firstByKey(priceQuote, "structuredStayDisplayPrice"))
+	// PATCH: Prefer the current flat-card price field, with legacy fallback.
+	// Airbnb ships search-result prices under `structuredStayDisplayPrice`
+	// (legacy nested-under-pricingQuote shape) OR `structuredDisplayPrice`
+	// (current flat-card shape, where each searchResults entry carries the
+	// price directly). Try both — flat shape wins because that's what the
+	// site ships today, with legacy as a fallback.
+	price := asMap(firstByKey(priceQuote, "structuredDisplayPrice"))
+	if len(price) == 0 {
+		price = asMap(firstByKey(priceQuote, "structuredStayDisplayPrice"))
+	}
 	l.PrimaryPrice = priceLine(asMap(price["primaryLine"]))
 	l.SecondaryPrice = priceLine(asMap(price["secondaryLine"]))
 	if l.SecondaryPrice != nil || l.PrimaryPrice != nil {
@@ -65,6 +80,43 @@ func listingFromSearch(lmap, priceQuote map[string]any) Listing {
 		}
 	}
 	enrichCounts(&l, lmap)
+	// PATCH: Backfill missing flat-card review counts from rating labels.
+	// Airbnb commonly returns `reviewsCount: null` on the flat search-result
+	// shape, with the count buried inside `avgRatingLocalized` (e.g.
+	// "4.98 (576)") or `avgRatingA11yLabel` ("4.98 out of 5 average rating,
+	// 576 reviews"). Parse the count from those when the structured field
+	// didn't come through.
+	if l.ReviewsCount == 0 {
+		if m := avgRatingRe.FindStringSubmatch(l.AvgRatingLocalized); len(m) >= 3 {
+			if n, err := strconv.Atoi(strings.ReplaceAll(m[2], ",", "")); err == nil {
+				l.ReviewsCount = n
+			}
+		}
+	}
+	if l.ReviewsCount == 0 {
+		if a11y := clean(str(lmap["avgRatingA11yLabel"])); a11y != "" {
+			if m := reviewsA11yRe.FindStringSubmatch(a11y); len(m) >= 2 {
+				if n, err := strconv.Atoi(strings.ReplaceAll(m[1], ",", "")); err == nil {
+					l.ReviewsCount = n
+				}
+			}
+		}
+	}
+	// PATCH: Read flat-card location lines from structuredContent.
+	// On the flat shape, location lines live under `structuredContent`
+	// rather than as top-level `primaryLine` / `secondaryLine` arrays.
+	if len(l.PrimaryLine) == 0 {
+		sc := asMap(lmap["structuredContent"])
+		if line := stringList(firstByKey(sc, "primaryLine")); len(line) > 0 {
+			l.PrimaryLine = line
+		}
+	}
+	if len(l.SecondaryLine) == 0 {
+		sc := asMap(lmap["structuredContent"])
+		if line := stringList(firstByKey(sc, "secondaryLine")); len(line) > 0 {
+			l.SecondaryLine = line
+		}
+	}
 	return l
 }
 

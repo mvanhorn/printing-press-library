@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-19T20:54:11.034055Z",
+  "printing_press_version": "4.9.0",
+  "api_name": "gohighlevel",
+  "display_name": "GoHighLevel",
+  "description": "Sync GoHighLevel CRM data for contacts, opportunities, pipelines, custom fields, tags, bulk operations, and funnel reports.",
+  "cli_name": "gohighlevel-pp-cli",
+  "owner": "user",
+  "printer": "jenwilliams-eng",
+  "printer_name": "Jen Williams",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:7393f2edae7a89f6809e94b17d7b6562faf87d493087be94616fd67af3aa215f",
+  "run_id": "20260519-151335",
+  "mcp_binary": "gohighlevel-pp-mcp",
+  "mcp_tool_count": 57,
+  "mcp_ready": "full",
+  "api_version": "2021-07-28",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "GHL_PIT_TOKEN"
+  ],
+  "novel_features": [
+    {
+      "name": "Stale opportunity report",
+      "command": "opp stale",
+      "description": "Find opportunities sitting in a stage longer than N days, using synthesized stage-entry timestamps from sync history."
+    },
+    {
+      "name": "Pipeline funnel snapshot",
+      "command": "opp funnel",
+      "description": "Stage-by-stage count and total monetary value for a pipeline, output as TSV ready to paste into a dashboard sheet."
+    },
+    {
+      "name": "Custom field name resolver",
+      "command": "field id",
+      "description": "Translate human-readable custom field names into opaque GHL IDs, with did-you-mean suggestions on typos."
+    },
+    {
+      "name": "Bulk tag from stdin",
+      "command": "contact bulk-tag",
+      "description": "Apply or remove a tag across many contacts read from stdin, with chunked 100-at-a-time delivery and connection-drop retry."
+    },
+    {
+      "name": "SQL on local cache",
+      "command": "sql",
+      "description": "Run read-only SQL against the local SQLite mirror of contacts, opportunities, pipelines, stages, tags, custom_fields, conversations, messages, and appointments."
+    },
+    {
+      "name": "Contact dedup with richness scoring",
+      "command": "contact dedup",
+      "description": "Group contacts by lowercased email and E.164 phone, score by filled-field count and recency, emit a merge plan."
+    },
+    {
+      "name": "Engagement decay alert",
+      "command": "contact decay",
+      "description": "Find opportunities in a stage whose contacts have had no inbound or outbound messages in N days."
+    },
+    {
+      "name": "Hot follow-up scorecard",
+      "command": "recruit hot",
+      "description": "Rank recruits by a composite of production signals, engagement, and recruit-tag count."
+    },
+    {
+      "name": "Multi-location config and flag",
+      "command": "config use",
+      "description": "Named profiles for each GHL sub-account (KWCP, THINK), with --location flag honored across every command."
+    },
+    {
+      "name": "Doctor",
+      "command": "doctor",
+      "description": "Validate the PIT token (auto-lowercases the prefix), ping the active location, and report local cache state."
+    },
+    {
+      "name": "Conversation thread reconstruction",
+      "command": "convo thread",
+      "description": "Reconstruct a chronological SMS+email+call thread for a single contact from the local messages table."
+    }
+  ]
+}

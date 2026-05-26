@@ -1,0 +1,337 @@
+{
+  "api_name": "strava",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "eddmann/strava-cli",
+      "url": "https://github.com/eddmann/strava-cli",
+      "language": "Python",
+      "install_method": "",
+      "stars": 400,
+      "last_updated": "",
+      "command_count": 40,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "liskin/strava-offline",
+      "url": "https://github.com/liskin/strava-offline",
+      "language": "Python",
+      "install_method": "",
+      "stars": 1000,
+      "last_updated": "",
+      "command_count": 5,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "eddmann/strava-mcp",
+      "url": "https://github.com/eddmann/strava-mcp",
+      "language": "Python",
+      "install_method": "",
+      "stars": 300,
+      "last_updated": "",
+      "command_count": 11,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Guutong/strava-mcp-kit",
+      "url": "https://github.com/Guutong/strava-mcp-kit",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 50,
+      "last_updated": "",
+      "command_count": 34,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "bwilczynski/strava-cli",
+      "url": "https://github.com/bwilczynski/strava-cli",
+      "language": "Python",
+      "install_method": "",
+      "stars": 200,
+      "last_updated": "",
+      "command_count": 15,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "dlenski/stravacli",
+      "url": "https://github.com/dlenski/stravacli",
+      "language": "Python",
+      "install_method": "",
+      "stars": 100,
+      "last_updated": "",
+      "command_count": 8,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "hozn/stravalib",
+      "url": "https://github.com/hozn/stravalib",
+      "language": "Python",
+      "install_method": "",
+      "stars": 600,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "nickel/strava-v3",
+      "url": "https://github.com/nickel/strava-v3",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 300,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-21T16:49:44Z",
+  "novel_features": [
+    {
+      "name": "Segment Effort Progression",
+      "command": "segments progress",
+      "description": "See your entire effort history on a segment — date, time, avg power, avg HR, delta from PR — so you can track if you're actually improving.",
+      "rationale": "Requires joining all segment efforts with their stream data in local SQLite; Strava web only shows your PR.",
+      "example": "strava-pp-cli segments progress 229781 --json --select start_date,elapsed,avg_watts,delta_pr_seconds",
+      "why_it_matters": "Use this when an agent needs to assess whether an athlete is progressing on a target training segment over a season.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Training Load Timeline (CTL/ATL/TSB)",
+      "command": "training load",
+      "description": "See your Chronic Training Load, Acute Training Load, and Training Stress Balance as sparklines so you can spot overtraining or undertaper before a race.",
+      "rationale": "Requires computing exponential decay aggregations over historical TSS values stored in local SQLite — no single Strava API call provides this.",
+      "example": "strava-pp-cli training load --weeks 12 --ftp 285 --agent",
+      "why_it_matters": "Use when an agent needs to assess an athlete's fitness/fatigue state and readiness for an upcoming event.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Zone Time Distribution",
+      "command": "training zones",
+      "description": "See how many minutes per week you actually spent in each heart rate or power zone, so you can tell if your training distribution matches your plan.",
+      "rationale": "Requires decoding second-by-second stream data for each activity and cross-referencing athlete zone thresholds from the API — no single call provides this aggregate.",
+      "example": "strava-pp-cli training zones --weeks 8 --type Run --zone-type heartrate --agent",
+      "why_it_matters": "Use when evaluating whether a training block was executed as prescribed (polarized, sweet-spot, base).",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Power Curve",
+      "command": "athlete power-curve",
+      "description": "See your best mean power for every standard duration (1s to 60min) so you can identify strengths, weaknesses, and fitness changes across seasons.",
+      "rationale": "Requires sliding-window max over per-second watts arrays across all synced activities — computationally intensive local operation that no Strava API endpoint provides.",
+      "example": "strava-pp-cli athlete power-curve --since 2025-01-01 --weight 75 --agent",
+      "why_it_matters": "Use when an agent needs to characterize a cyclist's physiological profile or compare peak power across training blocks.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "HR Drift Detector",
+      "command": "activities drift",
+      "description": "Measure aerobic decoupling in an activity — the ratio of HR rise to pace drop in the second half — to assess aerobic fitness without lab testing.",
+      "rationale": "Requires splitting heartrate and velocity_smooth streams at the temporal midpoint and computing normalized drift — a multi-stream local calculation not available from any Strava endpoint.",
+      "example": "strava-pp-cli activities drift --min-duration 45m --since 2025-01-01 --threshold 5 --agent",
+      "why_it_matters": "Use when an agent needs to identify which long runs or rides showed aerobic decoupling, indicating the athlete was above their aerobic threshold.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Bulk Activity Updater",
+      "command": "activities bulk-update",
+      "description": "Update gear, name template, or description across hundreds of activities at once with a preview-before-commit safety net.",
+      "rationale": "Requires filtering activities from local SQLite and issuing batched PUT requests with built-in rate-limit management — the Strava web interface has no bulk operation.",
+      "example": "strava-pp-cli activities bulk-update --type Ride --after 2024-01-01 --set-gear b12345678 --dry-run",
+      "why_it_matters": "Use when an agent needs to mass-migrate a gear assignment after equipment replacement or retroactively organize a training block's activities.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Gear Retirement Tracker",
+      "command": "gear status",
+      "description": "See total mileage on each shoe and bike, your configured replacement threshold, and an estimated retirement date based on your recent usage rate.",
+      "rationale": "Requires aggregating activity distance by gear_id across local SQLite and projecting forward based on weekly average — no Strava API call computes this.",
+      "example": "strava-pp-cli gear status --threshold shoes=500mi --agent",
+      "why_it_matters": "Use when an agent needs to check whether any gear is approaching retirement before an important race.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "KOM Gap Tracker",
+      "command": "segments kom-gap",
+      "description": "See exactly how far you are from the KOM on each starred segment, ranked by the gap you're most likely to close.",
+      "rationale": "Requires combining your best local effort time with a live leaderboard fetch for each starred segment — a join of local and live data no single API call provides.",
+      "example": "strava-pp-cli segments kom-gap --top 10 --agent",
+      "why_it_matters": "Use when an agent needs to surface the most achievable KOM targets for a training plan or pre-ride goal setting.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Segment Effort Progression",
+      "command": "segments progress",
+      "description": "See your entire effort history on a segment — date, time, avg power, avg HR, delta from PR — so you can track if you're actually improving.",
+      "rationale": "Requires joining all segment efforts with their stream data in local SQLite; Strava web only shows your PR.",
+      "example": "strava-pp-cli segments progress 229781 --json --select start_date,elapsed,avg_watts,delta_pr_seconds",
+      "why_it_matters": "Use this when an agent needs to assess whether an athlete is progressing on a target training segment over a season.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Training Load Timeline (CTL/ATL/TSB)",
+      "command": "training load",
+      "description": "See your Chronic Training Load, Acute Training Load, and Training Stress Balance as sparklines so you can spot overtraining or undertaper before a race.",
+      "rationale": "Requires computing exponential decay aggregations over historical TSS values stored in local SQLite — no single Strava API call provides this.",
+      "example": "strava-pp-cli training load --weeks 12 --ftp 285 --agent",
+      "why_it_matters": "Use when an agent needs to assess an athlete's fitness/fatigue state and readiness for an upcoming event.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Zone Time Distribution",
+      "command": "training zones",
+      "description": "See how many minutes per week you actually spent in each heart rate or power zone, so you can tell if your training distribution matches your plan.",
+      "rationale": "Requires decoding second-by-second stream data for each activity and cross-referencing athlete zone thresholds from the API — no single call provides this aggregate.",
+      "example": "strava-pp-cli training zones --weeks 8 --type Run --zone-type heartrate --agent",
+      "why_it_matters": "Use when evaluating whether a training block was executed as prescribed (polarized, sweet-spot, base).",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Power Curve",
+      "command": "athlete power-curve",
+      "description": "See your best mean power for every standard duration (1s to 60min) so you can identify strengths, weaknesses, and fitness changes across seasons.",
+      "rationale": "Requires sliding-window max over per-second watts arrays across all synced activities — computationally intensive local operation that no Strava API endpoint provides.",
+      "example": "strava-pp-cli athlete power-curve --since 2025-01-01 --weight 75 --agent",
+      "why_it_matters": "Use when an agent needs to characterize a cyclist's physiological profile or compare peak power across training blocks.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "HR Drift Detector",
+      "command": "activities drift",
+      "description": "Measure aerobic decoupling in an activity — the ratio of HR rise to pace drop in the second half — to assess aerobic fitness without lab testing.",
+      "rationale": "Requires splitting heartrate and velocity_smooth streams at the temporal midpoint and computing normalized drift — a multi-stream local calculation not available from any Strava endpoint.",
+      "example": "strava-pp-cli activities drift --min-duration 45m --since 2025-01-01 --threshold 5 --agent",
+      "why_it_matters": "Use when an agent needs to identify which long runs or rides showed aerobic decoupling, indicating the athlete was above their aerobic threshold.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Bulk Activity Updater",
+      "command": "activities bulk-update",
+      "description": "Update gear, name template, or description across hundreds of activities at once with a preview-before-commit safety net.",
+      "rationale": "Requires filtering activities from local SQLite and issuing batched PUT requests with built-in rate-limit management — the Strava web interface has no bulk operation.",
+      "example": "strava-pp-cli activities bulk-update --type Ride --after 2024-01-01 --set-gear b12345678 --dry-run",
+      "why_it_matters": "Use when an agent needs to mass-migrate a gear assignment after equipment replacement or retroactively organize a training block's activities.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Gear Retirement Tracker",
+      "command": "gear status",
+      "description": "See total mileage on each shoe and bike, your configured replacement threshold, and an estimated retirement date based on your recent usage rate.",
+      "rationale": "Requires aggregating activity distance by gear_id across local SQLite and projecting forward based on weekly average — no Strava API call computes this.",
+      "example": "strava-pp-cli gear status --threshold shoes=500mi --agent",
+      "why_it_matters": "Use when an agent needs to check whether any gear is approaching retirement before an important race.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "KOM Gap Tracker",
+      "command": "segments kom-gap",
+      "description": "See exactly how far you are from the KOM on each starred segment, ranked by the gap you're most likely to close.",
+      "rationale": "Requires combining your best local effort time with a live leaderboard fetch for each starred segment — a join of local and live data no single API call provides.",
+      "example": "strava-pp-cli segments kom-gap --top 10 --agent",
+      "why_it_matters": "Use when an agent needs to surface the most achievable KOM targets for a training plan or pre-ride goal setting.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "narrative": {
+    "display_name": "Strava",
+    "headline": "Every Strava feature, plus offline analytics — training load, power curves, zone time, and segment progression — that the website can't show you.",
+    "value_prop": "strava-pp-cli syncs your entire Strava history to a local SQLite database, then unlocks the analytics your training actually requires: CTL/ATL training load, power curve, zone time distribution, aerobic decoupling, and segment effort progression. Everything works offline, composes with jq, and speaks JSON natively for AI coaching agents.",
+    "auth_narrative": "Strava uses OAuth2. Run `strava-pp-cli auth login` to open the browser authorization page — the CLI handles the local callback, token exchange, and storage automatically. Set STRAVA_CLIENT_ID and STRAVA_CLIENT_SECRET before running. Tokens are refreshed automatically; run `auth refresh` to force a refresh.",
+    "quickstart": [
+      {
+        "command": "strava-pp-cli doctor",
+        "comment": "Verify credentials and API connectivity (run auth login first if not authenticated)"
+      },
+      {
+        "command": "strava-pp-cli doctor",
+        "comment": "Verify credentials and check API connectivity"
+      },
+      {
+        "command": "strava-pp-cli sync",
+        "comment": "Mirror your Strava data to a local SQLite database"
+      },
+      {
+        "command": "strava-pp-cli training load --weeks 12",
+        "comment": "See your CTL/ATL/TSB training load timeline"
+      },
+      {
+        "command": "strava-pp-cli athlete power-curve --since 2025-01-01",
+        "comment": "Compute your power curve from synced stream data"
+      },
+      {
+        "command": "strava-pp-cli segments progress 229781",
+        "comment": "Track your progression on a specific segment over time"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "auth login fails with redirect_uri mismatch",
+        "fix": "Set STRAVA_REDIRECT_URI to the value configured in your Strava API application settings (default: http://localhost:8421/callback)"
+      },
+      {
+        "symptom": "HTTP 429 during sync",
+        "fix": "Strava rate-limits at 200 requests/15min. Run sync --slow to add a 1s delay between requests, or wait for the 15-minute window to reset"
+      },
+      {
+        "symptom": "power-curve returns no data",
+        "fix": "Power data requires sync with --streams flag: run sync --streams to fetch per-second watts data. Requires activities recorded with a power meter"
+      },
+      {
+        "symptom": "training load shows 0 TSS",
+        "fix": "TSS computation uses Strava's suffer_score by default. For power-based TSS supply --ftp \u003cwatts\u003e and run sync --streams first"
+      },
+      {
+        "symptom": "bulk-update hits rate limit mid-run",
+        "fix": "Re-run with --rate-limit-sleep 4 to spread requests across the 15-min window. The command is idempotent — already-updated activities are skipped"
+      }
+    ],
+    "when_to_use": "Use strava-pp-cli when an agent needs to query an athlete's historical training data, compute fitness metrics unavailable from the Strava web interface, manage activities in bulk, or build a training analysis pipeline. It is the right choice when the question involves aggregating across more than 5 activities, involves stream-level data (heart rate, power, GPS), or requires offline access to Strava data.",
+    "recipes": [
+      {
+        "title": "Check training readiness before a race",
+        "command": "strava-pp-cli training load --weeks 8 --ftp 285 --agent --select ctl,atl,tsb,label",
+        "explanation": "Shows TSB (freshness) for each of the past 8 weeks; negative TSB = fatigue, positive = fresh. Ideal for race week targeting TSB \u003e 10."
+      },
+      {
+        "title": "Find your best power efforts this year",
+        "command": "strava-pp-cli athlete power-curve --since 2025-01-01 --weight 72 --agent --select duration,watts,wkg",
+        "explanation": "Returns best mean power per standard window normalized to W/kg — share with a coach for physiological profiling."
+      },
+      {
+        "title": "Identify aerobically decoupled long runs",
+        "command": "strava-pp-cli activities drift --type Run --min-duration 60m --threshold 8 --agent --select id,name,start_date,drift_pct",
+        "explanation": "Lists all runs where HR drifted more than 8% relative to pace in the second half — these are training days where you went too hard."
+      },
+      {
+        "title": "See your segment progression this season",
+        "command": "strava-pp-cli segments progress 229781 --since 2025-01-01 --agent --select start_date,elapsed,avg_watts,delta_pr_seconds",
+        "explanation": "Shows every effort on segment 229781, ordered by date, with delta from your PR so you can see the trend clearly."
+      },
+      {
+        "title": "Check gear retirement status before a marathon",
+        "command": "strava-pp-cli gear status --threshold run_shoes=400 --agent --select gear_name,total_distance_mi,pct_threshold,est_retirement_date",
+        "explanation": "Shows all running gear with mileage and estimated retirement date; use --select to narrow to the fields a race-day checklist needs."
+      }
+    ],
+    "trigger_phrases": [
+      "strava training load",
+      "check my CTL ATL",
+      "power curve from Strava",
+      "sync my Strava activities",
+      "segment progression strava",
+      "use strava-pp-cli",
+      "run strava cli"
+    ]
+  }
+}

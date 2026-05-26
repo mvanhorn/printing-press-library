@@ -1,0 +1,51 @@
+version: 2
+project_name: kit-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: kit-pp-cli
+    main: ./cmd/kit-pp-cli
+    binary: kit-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/marketing/kit/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: kit-pp-mcp
+    main: ./cmd/kit-pp-mcp
+    binary: kit-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: kit-pp-cli
+    repository:
+      owner: cathrynlavery
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Manage Kit subscribers, tags, forms, sequences, broadcasts, purchases, and email marketing automation data from the terminal."
+    install: |
+      bin.install "kit-pp-cli"
+      bin.install "kit-pp-mcp"

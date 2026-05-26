@@ -45,7 +45,7 @@ brews:
       owner: jimpresting
       name: homebrew-tap
     homepage: "https://github.com/mvanhorn/printing-press-library"
-    description: "Every Substack feature, plus a local SQLite database, full-text search across years of writing, and the only..."
+    description: "Manage Substack posts, drafts, subscribers, notes, comments, and cross-publication analytics from a local SQLite cache."
     install: |
       bin.install "substack-creator-pp-cli"
       bin.install "substack-creator-pp-mcp"

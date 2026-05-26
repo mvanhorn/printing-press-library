@@ -1,0 +1,43 @@
+{
+  "version": "1.0",
+  "summary": {
+    "target_url": "https://wolt.com/",
+    "captured_at": "2026-05-23T13:50:00Z",
+    "entry_count": 5,
+    "api_entry_count": 5,
+    "noise_entry_count": 0,
+    "host_distribution": {
+      "restaurant-api.wolt.com": 3,
+      "consumer-api.wolt.com": 2
+    }
+  },
+  "reachability": {
+    "mode": "standard_http",
+    "confidence": 0.95,
+    "reasons": [
+      "Plain curl with minimal headers (Referer, Platform: Web) returns 200 across 4 of 5 probed endpoints",
+      "No 403/429/CloudFront challenge observed on working endpoints"
+    ]
+  },
+  "protocols": [
+    {"label": "rest_json", "confidence": 0.95}
+  ],
+  "auth": {
+    "candidates": [],
+    "captcha_preflight": false
+  },
+  "endpoint_clusters": [
+    {
+      "host": "restaurant-api.wolt.com",
+      "base_path": "/v1",
+      "method": "GET",
+      "response_format": "json"
+    },
+    {
+      "host": "consumer-api.wolt.com",
+      "base_path": "/v1/pages",
+      "method": "GET",
+      "response_format": "json"
+    }
+  ]
+}

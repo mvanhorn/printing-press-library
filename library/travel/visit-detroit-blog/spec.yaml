@@ -1,0 +1,38 @@
+name: visit-detroit-blog
+display_name: Visit Detroit Blog
+description: Search and read Visit Detroit's "Inside the D" editorial blog — articles on Detroit dining, culture, neighborhoods, events, and things to do.
+cli_description: Detroit's official "Inside the D" blog as a CLI — every article searchable offline, sliced across category and neighborhood at once.
+base_url: https://EYQHJ2IY2M-dsn.algolia.net/1/indexes
+
+auth:
+  type: none
+
+resources:
+  blogs:
+    description: Inside the D blog posts covering Detroit dining, culture, neighborhoods, events, and things to do
+    endpoints:
+      list:
+        method: POST
+        path: /prod-visit-detroit-listings/query
+        description: List and filter Inside the D blog posts (sectionName:Blogs in the Visit Detroit content index)
+        request_body:
+          type: object
+          properties:
+            query:
+              type: string
+              description: Full-text search query
+            facetFilters:
+              type: array
+              description: Facet filters such as blogCategories or partnerRegions (AND of ORs per Algolia)
+            numericFilters:
+              type: array
+              description: Date range filters on postDate (unix timestamps)
+            hitsPerPage:
+              type: integer
+              description: Results per page (max 1000)
+            page:
+              type: integer
+              description: Page number (0-indexed)
+            facets:
+              type: array
+              description: Facets to return in the response

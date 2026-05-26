@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-13T16:35:03.8524764Z",
+  "printing_press_version": "4.5.2",
+  "api_name": "adminbyrequest",
+  "display_name": "Admin By Request",
+  "description": "Sync Admin By Request audit, event, inventory, and elevation-request data for approvals, quota checks, and admin-risk reports.",
+  "cli_name": "adminbyrequest-pp-cli",
+  "owner": "joltsconsulting",
+  "printer": "joltsconsulting",
+  "printer_name": "joltsconsulting",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:768a59281529e4b9e2f40e1cf29a32b037278f7a8cd4904435daa9489d7ffbf5",
+  "run_id": "20260513-165311",
+  "mcp_binary": "adminbyrequest-pp-mcp",
+  "mcp_tool_count": 8,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "ADMINBYREQUEST_API_KEY"
+  ],
+  "novel_features": [
+    {
+      "name": "Repeat-Requestor Detection",
+      "command": "requests repeat-offenders",
+      "description": "Surface the top users by elevation-request count over a configurable window, so admins can spot patterns the portal does not visualize."
+    },
+    {
+      "name": "Audit-to-Event Correlation",
+      "command": "correlate",
+      "description": "Given an audit log entry ID, join it to nearby events on the same computer to reconstruct a full elevation timeline."
+    },
+    {
+      "name": "Agent-Version Drift",
+      "command": "inventory drift",
+      "description": "List endpoints whose AbR client version is older than a target version, useful for upgrade campaigns."
+    },
+    {
+      "name": "Quota Usage Forecast",
+      "command": "quota forecast",
+      "description": "Track local API call count against the 100k-per-day quota and predict whether the current pace will exceed it before midnight."
+    },
+    {
+      "name": "Denied-Reason Distribution",
+      "command": "requests denied-reasons",
+      "description": "Tokenize the free-text deniedReason field across all denied requests and emit a top-N word distribution."
+    },
+    {
+      "name": "Compliance Report",
+      "command": "report compliance",
+      "description": "Render audit entries for a user or computer over a window in a format suitable for auditors (CSV or markdown)."
+    },
+    {
+      "name": "Endpoint Risk Score",
+      "command": "inventory risk-score",
+      "description": "Score each endpoint by elevation frequency, local-admin count, and AbR client version recency."
+    }
+  ]
+}

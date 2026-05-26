@@ -25,7 +25,7 @@ This skill drives the `marianatek-pp-cli` binary. **You must verify the CLI is i
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install marianatek --cli-only
+   npx -y @mvanhorn/printing-press-library install marianatek --cli-only
    ```
 2. Verify: `marianatek-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
@@ -37,8 +37,6 @@ go install github.com/mvanhorn/printing-press-library/library/productivity/maria
 ```
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
-
-marianatek is the first CLI and MCP server for the Mariana Tek booking platform that powers hundreds of boutique-fitness, yoga, sauna, and wellness studios. Beyond mirroring every Customer API endpoint, it adds a local SQLite catalog, FTS5 search across class sessions, cancellation watching (the API exposes no waitlist signal), and joins across tenants that the per-studio iframe widget can't perform.
 
 ## When to Use This CLI
 
