@@ -6,23 +6,30 @@
 
 ## Immediate Priority
 
-**Rename home-goat to reno-goat.** User wants the slug changed. This is a full rename across:
+**Rename home-goat to reno-goat.** User stated preference, not yet executed. This is a full slug rename across ~124 files:
 - Directory: `library/commerce/home-goat/` -> `library/commerce/reno-goat/`
-- Binary names: `home-goat-pp-cli` / `home-goat-pp-mcp` -> `reno-goat-pp-cli` / `reno-goat-pp-mcp`
-- Module path: `github.com/mvanhorn/printing-press-library/library/commerce/home-goat` -> `...reno-goat`
-- All import paths across ~60 Go files
+- Binary names: `home-goat-pp-cli` -> `reno-goat-pp-cli`, `home-goat-pp-mcp` -> `reno-goat-pp-mcp`
+- Module path: `github.com/mvanhorn/printing-press-library/library/commerce/home-goat` -> `.../reno-goat`
+- All internal import paths across ~60 Go files
 - `.printing-press.json` fields (`api_name`, `cli_name`)
-- SKILL.md, README.md, AGENTS.md content
-- Branch name: `feat/home-goat` -> `feat/reno-goat`
-- PR #855 title
 - Env var prefix: `HOME_GOAT_*` -> `RENO_GOAT_*`
 - Cobra `Use:` strings, help text, descriptions throughout
+- SKILL.md, README.md, AGENTS.md content
+- Branch name: `feat/home-goat` -> `feat/reno-goat`
+- PR #855 title: `feat(reno-goat): add reno-goat`
 
 After rename, re-run local validation:
 ```bash
 python3 .github/scripts/verify-skill/verify_skill.py --dir library/commerce/reno-goat/
 cd library/commerce/reno-goat/ && go build ./... && go vet ./...
 ```
+
+## Context
+
+- home-goat is a multi-source home furnishing CLI combining Ferguson, West Elm, Rejuvenation, Article, and Shopify DTC stores
+- 7 novel features: Compound Category Search, Price Watch, Project Tracker, Stale Detector, Spec Sheet Export, Brand Cross-Reference, Review Aggregation
+- Ferguson and Article sources are stubbed (JWT auth and APQ hash discovery gaps respectively)
+- Constructor.io price normalization was patched (camelCase vs snake_case) and recorded in `.printing-press-patches.json`
 
 ## Post-Merge Work (not blocking PR)
 
