@@ -1,9 +1,9 @@
 {
   "manifest_version": "0.3",
   "name": "jinko-pp-mcp",
-  "display_name": "Jinko",
+  "display_name": "Jinko Travel",
   "version": "4.17.0",
-  "description": "Printing Press CLI for Jinko.",
+  "description": "Jinko Travel API surface as MCP tools — flights, hotels, multi-product cart booking.",
   "author": {
     "name": "CLI Printing Press"
   },
@@ -13,7 +13,19 @@
     "entry_point": "bin/jinko-pp-mcp",
     "mcp_config": {
       "command": "${__dirname}/bin/jinko-pp-mcp",
-      "args": []
+      "args": [],
+      "env": {
+        "JINKO_API_KEY": "${user_config.jinko_api_key}"
+      }
+    }
+  },
+  "user_config": {
+    "jinko_api_key": {
+      "type": "string",
+      "title": "Jinko API Key",
+      "description": "API key (jnk_...) issued by the Jinko developer platform. Get one at https://app.gojinko.com/devplatform. Required to call any tool — the BFF rejects unauthenticated requests with 401.",
+      "sensitive": true,
+      "required": true
     }
   },
   "compatibility": {
