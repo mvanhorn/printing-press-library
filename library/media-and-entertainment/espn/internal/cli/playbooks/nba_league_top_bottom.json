@@ -1,8 +1,8 @@
 {
   "query_family_examples": [
-    "best 3 NBA teams in each division",
-    "top 3 nba teams per division",
-    "worst NBA team in each division",
+    "best 3 nba teams in each division",
+    "top 3 nba teams in each division",
+    "worst nba team in each division",
     "bottom 3 nba teams in each division"
   ],
   "steps": [

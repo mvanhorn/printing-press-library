@@ -1,7 +1,7 @@
 {
   "query_family_examples": [
-    "top 3 $LEAGUE teams in each division",
-    "bottom 3 $LEAGUE teams in each division",
+    "top 3 mlb teams in each division",
+    "bottom 3 mlb teams in each division",
     "top 3 mlb teams each division"
   ],
   "steps": [
