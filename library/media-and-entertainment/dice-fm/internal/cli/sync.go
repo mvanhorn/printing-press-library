@@ -104,7 +104,7 @@ Exit codes & warnings:
 					// names and emits the array form, so a crafted --resources value
 					// can't produce malformed JSON (mirrors sync_warning/sync_error).
 					resJSON, _ := json.Marshal(resources)
-					fmt.Fprintf(os.Stderr, `{"event":"sync_dry_run","resources":%s}`+"\n", resJSON)
+					fmt.Fprintf(os.Stdout, `{"event":"sync_dry_run","resources":%s}`+"\n", resJSON)
 				}
 				return nil
 			}
@@ -214,7 +214,12 @@ Exit codes & warnings:
 						totalSynced, totalResources, elapsed.Seconds())
 				}
 			} else {
-				fmt.Fprintf(os.Stderr, `{"event":"sync_summary","total_records":%d,"resources":%d,"success":%d,"warned":%d,"errored":%d,"duration_ms":%d}`+"\n",
+				// The summary is the command's result, so it goes to stdout where
+				// `sync --json | jq` and agents can read it; per-resource progress
+				// events stream to stderr. Keeping progress off stdout also lets
+				// `workflow archive --json` emit its own single summary object
+				// cleanly when it composes syncResource.
+				fmt.Fprintf(os.Stdout, `{"event":"sync_summary","total_records":%d,"resources":%d,"success":%d,"warned":%d,"errored":%d,"duration_ms":%d}`+"\n",
 					totalSynced, totalResources, successCount, warnCount, errCount, elapsed.Milliseconds())
 			}
 
