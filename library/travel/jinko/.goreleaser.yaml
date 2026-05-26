@@ -1,0 +1,36 @@
+version: 2
+project_name: jinko-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: jinko-pp-cli
+    main: ./cmd/jinko-pp-cli
+    binary: jinko-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/travel/jinko/internal/cli.Version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: jinko-pp-cli
+    repository:
+      owner: mvanhorn
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Industry-grade stable API for flights and hotels with multi-product cart booking — search flights and hotels, build one trip containing both, and check out via a Jinko-hosted Stripe page."
+    install: |
+      bin.install "jinko-pp-cli"

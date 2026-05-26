@@ -1,5 +1,7 @@
 {
   "schema_version": 1,
+  "printing_press_version": "0.1.0-manual",
+  "run_id": "20260526-082000",
   "api_name": "jinko",
   "display_name": "Jinko Travel",
   "cli_name": "jinko-pp-cli",

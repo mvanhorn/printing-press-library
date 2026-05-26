@@ -1,0 +1,15 @@
+jinko-pp-cli
+Copyright 2026 Shuai Zhang
+
+This CLI is a hand-authored Go port of @gojinko/cli — the official Jinko
+developer CLI maintained at https://github.com/jinkoso/jinko-dev-tools.
+Command names, request envelopes, the token flow (offer_token →
+trip_item_token → trip_id → checkout_url), and the observability
+headers are intentionally identical to the upstream Node CLI so a
+~/.jinko/config.yaml file works with either transport.
+
+The Jinko BFF (https://mcp-bff.gojinko.com) is the contracted-supplier
+API behind app.gojinko.com. It is not affiliated with CLI Printing
+Press; this CLI ships under the printing-press-library catalog as a
+hand-published entry per the convention documented in
+.printing-press-patches.json.
