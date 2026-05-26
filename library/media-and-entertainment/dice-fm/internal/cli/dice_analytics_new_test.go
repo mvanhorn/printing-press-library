@@ -150,6 +150,24 @@ func TestFansSegmentMinQty(t *testing.T) {
 	}
 }
 
+// An order with an API-omitted quantity (0) counts as one ticket, so it must not
+// be silently dropped by --min-qty 1 — mirrors the qty<=0→1 fallback in the
+// other analytics commands.
+func TestFansSegmentMinQtyZeroQuantityFallback(t *testing.T) {
+	s := seedStore(t, map[string]map[string]string{
+		"orders": {
+			"o1": order("o1", "2026-01-10T10:00:00Z", "evtA", "Show A", fanA, "Ann", "A", 4000, 0, 0, false, "", ""),
+		},
+	})
+	rows, err := computeFansSegment(context.Background(), s.DB(), segmentFilters{minQty: 1})
+	if err != nil {
+		t.Fatalf("computeFansSegment minQty zero-fallback: %v", err)
+	}
+	if len(rows) != 1 || rows[0].Email != fanA {
+		t.Fatalf("want fanA included (qty 0 → 1 ticket >= min-qty 1), got %+v", rows)
+	}
+}
+
 func TestFansSegmentTicketType(t *testing.T) {
 	// fanA has a "VIP" ticket; fanB has a "GA" ticket.
 	s := seedStore(t, map[string]map[string]string{

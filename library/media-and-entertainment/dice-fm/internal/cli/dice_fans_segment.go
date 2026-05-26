@@ -105,13 +105,20 @@ func computeFansSegment(ctx context.Context, db *sql.DB, f segmentFilters) ([]fa
 	groups := map[string]*agg{}
 
 	for _, o := range orders {
+		// An order is at least one ticket even when DICE omits the quantity
+		// field; mirror computeReturnsAnomalies/computeCapacity so a 0 quantity
+		// isn't dropped by --min-qty or the per-fan max-quantity rollup.
+		qty := o.Quantity
+		if qty <= 0 {
+			qty = 1
+		}
 		if dateFiltered && !eligible[o.Event.ID] {
 			continue
 		}
 		if f.optedIn && !o.Fan.OptInPartners {
 			continue
 		}
-		if f.minQty > 0 && o.Quantity < f.minQty {
+		if f.minQty > 0 && qty < f.minQty {
 			continue
 		}
 		if wantEventName != "" {
@@ -170,8 +177,8 @@ func computeFansSegment(ctx context.Context, db *sql.DB, f segmentFilters) ([]fa
 		if o.Event.ID != "" {
 			g.eventSet[o.Event.ID] = true
 		}
-		if o.Quantity > g.maxQty {
-			g.maxQty = o.Quantity
+		if qty > g.maxQty {
+			g.maxQty = qty
 		}
 	}
 
