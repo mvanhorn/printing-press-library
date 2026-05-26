@@ -18,14 +18,17 @@ func newUsagePromotedCmd(flags *rootFlags) *cobra.Command {
 		Short:       "Get amount of credits left in the api key, these reset on the 1st of each month",
 		Long:        "Get amount of credits left in the api key, these reset on the 1st of each month",
 		Example:     "  defillama-pp-cli usage",
-		Annotations: map[string]string{"pp:endpoint": "usage.list", "pp:method": "GET", "pp:path": "https://pro-api.llama.fi/usage/APIKEY", "mcp:read-only": "true"},
+		Annotations: map[string]string{"pp:endpoint": "usage.list", "pp:method": "GET", "pp:path": "https://pro-api.llama.fi/usage/{api_key}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
 
-			path := "https://pro-api.llama.fi/usage/APIKEY"
+			path, err := c.UsagePath()
+			if err != nil {
+				return err
+			}
 			params := map[string]string{}
 			data, prov, err := resolveReadWithStrategy(cmd.Context(), c, flags, "auto", "usage", true, path, params, nil, cmd.ErrOrStderr())
 			if err != nil {

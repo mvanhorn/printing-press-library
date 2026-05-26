@@ -5,10 +5,10 @@ package cli
 
 import (
 	"context"
-	"github.com/mvanhorn/printing-press-library/library/other/defillama/internal/cliutil"
-	"github.com/mvanhorn/printing-press-library/library/other/defillama/internal/store"
 	"encoding/json"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/other/defillama/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/other/defillama/internal/store"
 	"github.com/spf13/cobra"
 	"io"
 	"net/url"
@@ -342,6 +342,16 @@ func syncResource(ctx context.Context, c interface {
 	path, err := syncResourcePath(resource)
 	if err != nil {
 		return syncResult{Resource: resource, Err: err, Duration: time.Since(started)}
+	}
+	if resource == "usage" {
+		usageClient, ok := c.(interface{ UsagePath() (string, error) })
+		if !ok {
+			return syncResult{Resource: resource, Err: fmt.Errorf("usage resource requires DefiLlama Pro API key path support"), Duration: time.Since(started)}
+		}
+		path, err = usageClient.UsagePath()
+		if err != nil {
+			return syncResult{Resource: resource, Err: err, Duration: time.Since(started)}
+		}
 	}
 
 	// Skip resources whose path template still contains unresolved `{key}`
@@ -1350,7 +1360,7 @@ func syncResourcePath(resource string) (string, error) {
 		"stablecoinprices":                "/stablecoinprices",
 		"stablecoins":                     "/stablecoins",
 		"treasuries":                      "/api/treasuries",
-		"usage":                           "/usage/APIKEY",
+		"usage":                           "/usage/{api_key}",
 		"yields":                          "/yields/perps",
 		"yields-lsd-rates":                "/yields/lsdRates",
 		"yields-pools-borrow":             "/yields/poolsBorrow",

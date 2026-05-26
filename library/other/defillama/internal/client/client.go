@@ -7,13 +7,13 @@ import (
 	"bytes"
 	"context"
 	"crypto/sha256"
-	"github.com/mvanhorn/printing-press-library/library/other/defillama/internal/cliutil"
-	"github.com/mvanhorn/printing-press-library/library/other/defillama/internal/config"
 	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/other/defillama/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/other/defillama/internal/config"
 	"io"
 	"math"
 	"net/http"
@@ -654,6 +654,36 @@ func (c *Client) authHeader(ctx context.Context) (string, error) {
 	}
 	authHeader := c.Config.AuthHeader()
 	return authHeader, nil
+}
+
+// ProAPIKey returns the configured DefiLlama Pro API key for endpoints whose
+// upstream path embeds the key as a segment, e.g. /usage/<key>. Config values
+// may be stored either as the raw key or as an Authorization-style value; strip
+// common schemes before placing the credential into the URL path.
+func (c *Client) ProAPIKey() (string, error) {
+	if c == nil || c.Config == nil {
+		return "", fmt.Errorf("missing DefiLlama Pro API key; run defillama-pp-cli doctor to check auth status")
+	}
+	key := strings.TrimSpace(c.Config.AuthHeader())
+	for _, prefix := range []string{"Bearer ", "Token ", "ApiKey ", "APIKey "} {
+		if strings.HasPrefix(strings.ToLower(key), strings.ToLower(prefix)) {
+			key = strings.TrimSpace(key[len(prefix):])
+			break
+		}
+	}
+	if key == "" {
+		return "", fmt.Errorf("missing DefiLlama Pro API key; run defillama-pp-cli doctor to check auth status")
+	}
+	return key, nil
+}
+
+// UsagePath fills the DefiLlama spec's literal APIKEY placeholder.
+func (c *Client) UsagePath() (string, error) {
+	key, err := c.ProAPIKey()
+	if err != nil {
+		return "", err
+	}
+	return "https://pro-api.llama.fi/usage/" + url.PathEscape(key), nil
 }
 
 // isAbsoluteURL reports whether path is already a full URL. Resource or

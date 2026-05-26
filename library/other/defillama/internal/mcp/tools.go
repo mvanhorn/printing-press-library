@@ -13,13 +13,13 @@ import (
 	"strings"
 	"time"
 
+	mcplib "github.com/mark3labs/mcp-go/mcp"
+	"github.com/mark3labs/mcp-go/server"
 	"github.com/mvanhorn/printing-press-library/library/other/defillama/internal/cli"
 	"github.com/mvanhorn/printing-press-library/library/other/defillama/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/other/defillama/internal/config"
 	"github.com/mvanhorn/printing-press-library/library/other/defillama/internal/mcp/cobratree"
 	"github.com/mvanhorn/printing-press-library/library/other/defillama/internal/store"
-	mcplib "github.com/mark3labs/mcp-go/mcp"
-	"github.com/mark3labs/mcp-go/server"
 )
 
 // RegisterTools registers all API operations as MCP tools.
@@ -1177,7 +1177,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "https://pro-api.llama.fi/usage/APIKEY", true, false, nil, []mcpParamBinding{}, []string{}),
+		handleUsage,
 	)
 	s.AddTool(
 		mcplib.NewTool("yields_get",
@@ -1270,6 +1270,22 @@ type mcpParamBinding struct {
 }
 
 // makeAPIHandler creates a generic MCP tool handler for an API endpoint.
+func handleUsage(ctx context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
+	c, err := newMCPClient()
+	if err != nil {
+		return mcplib.NewToolResultError(err.Error()), nil
+	}
+	path, err := c.UsagePath()
+	if err != nil {
+		return mcplib.NewToolResultError(err.Error()), nil
+	}
+	data, err := c.Get(ctx, path, nil)
+	if err != nil {
+		return mcplib.NewToolResultError(err.Error()), nil
+	}
+	return mcplib.NewToolResultText(string(data)), nil
+}
+
 func makeAPIHandler(method, pathTemplate string, readOnly bool, binaryResponse bool, headerOverrides map[string]string, bindings []mcpParamBinding, positionalParams []string) server.ToolHandlerFunc {
 	return func(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
 		c, err := newMCPClient()

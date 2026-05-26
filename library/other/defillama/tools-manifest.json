@@ -2114,7 +2114,7 @@
       "name": "usage_list",
       "description": "Get amount of credits left in the api key, these reset on the 1st of each month.",
       "method": "GET",
-      "path": "/usage/APIKEY",
+      "path": "/usage/{api_key}",
       "no_auth": true,
       "params": []
     },
