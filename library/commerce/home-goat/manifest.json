@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "home-goat-pp-mcp",
+  "display_name": "Home-GOAT",
+  "version": "4.14.0",
+  "description": "Multi-source home furnishing CLI combining 5 Tier 1 APIs: search, compare, stores, delivery, reviews, and deals — category-routed across Ferguson, West Elm, Rejuvenation, Article, and 5+ Shopify DTC stores. No API keys required.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/home-goat-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/home-goat-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

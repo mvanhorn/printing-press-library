@@ -1,0 +1,51 @@
+version: 2
+project_name: home-goat-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: home-goat-pp-cli
+    main: ./cmd/home-goat-pp-cli
+    binary: home-goat-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X home-goat-pp-cli/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: home-goat-pp-mcp
+    main: ./cmd/home-goat-pp-mcp
+    binary: home-goat-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: home-goat-pp-cli
+    repository:
+      owner: h179922
+      name: homebrew-tap
+    homepage: "https://github.com/h179922/home-goat-pp-cli"
+    description: "Multi-source home furnishing CLI combining 5 Tier 1 APIs: search, compare, stores, delivery, reviews"
+    install: |
+      bin.install "home-goat-pp-cli"
+      bin.install "home-goat-pp-mcp"

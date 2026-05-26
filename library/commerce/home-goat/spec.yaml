@@ -1,0 +1,931 @@
+name: home-goat
+display_name: Home-GOAT
+kind: synthetic
+description: Every home furnishing query in one CLI — product search, price comparison, store locator, delivery checks, reviews, and deal finding across Ferguson, West Elm, Rejuvenation, Article, and Shopify
+  DTC stores (Schoolhouse, Blu Dot, Gus Modern, Floyd, Lulu & Georgia), with category-based routing that sends queries to the sources that carry each product type.
+cli_description: 'Multi-source home furnishing CLI combining 5 Tier 1 APIs: search, compare, stores, delivery, reviews, and deals — category-routed across Ferguson, West Elm, Rejuvenation, Article, and 5+
+  Shopify DTC stores. No API keys required.'
+version: 1.0.0
+spec_source: internal
+http_transport: standard
+website_url: https://www.fergusonhome.com
+category: shopping
+auth:
+  type: none
+config:
+  format: toml
+  path: ~/.config/home-goat-pp-cli/config.toml
+mcp:
+  transport:
+  - stdio
+  - http
+base_url: https://ac.cnstrc.com
+category_routing:
+  foundational:
+    description: GC/specialist-installed items — toilets, faucets, recessed lights, shower systems, hardware
+    sources: [ferguson, rejuvenation]
+  appliances:
+    description: Kitchen and laundry appliances
+    sources: [ferguson]
+  furniture:
+    description: Sofas, tables, beds, vanities, shelving
+    sources: [west-elm, article, shopify-dtc]
+  decor:
+    description: Lighting, mirrors, art, accessories
+    sources: [west-elm, rejuvenation, shopify-dtc]
+room_templates:
+  bathroom: [foundational, furniture, decor]
+  kitchen: [foundational, appliances, decor]
+  bedroom: [furniture, decor]
+  living: [furniture, decor]
+  dining: [furniture, decor]
+  outdoor: [furniture, decor]
+sources:
+  ferguson:
+    display_name: Ferguson
+    base_url: https://www.fergusonhome.com
+    transport: graphql
+    categories: [foundational, appliances]
+    auth:
+      type: anonymous_jwt
+      notes: Anonymous JWT auto-issued via window.__AUTHTOKEN__ on page load.
+    required_headers:
+      Authorization: Bearer <token>
+      x-fergy-client-name: react-build-store
+      Content-Type: application/json
+    notes: Ferguson GraphQL API. Anonymous JWT from page load. Covers foundational fixtures, appliances, and bath products (West Elm/Rejuvenation bath redirects here).
+  west-elm:
+    display_name: West Elm
+    base_url: https://ac.cnstrc.com
+    site_base_url: https://www.westelm.com
+    transport: constructor_io
+    categories: [furniture, decor]
+    auth:
+      type: api_key_query
+      key_param: key
+      key_value: key_SQBuGmXjiXmP0UNI
+    client_id: ciojs-client-2.77.1
+    notes: Constructor.io search API. API key in query param. Same provider as Rejuvenation (WSI family). Bath products redirect to Ferguson.
+  rejuvenation:
+    display_name: Rejuvenation
+    base_url: https://ac.cnstrc.com
+    site_base_url: https://www.rejuvenation.com
+    transport: constructor_io
+    categories: [foundational, decor]
+    auth:
+      type: api_key_query
+      key_param: key
+      key_value: key_9BhS51IOFNhJejk4
+    client_id: ciojs-client-2.77.1
+    notes: Constructor.io search API. Same API as West Elm with different key. WSI family. Bath products redirect to Ferguson.
+  article:
+    display_name: Article
+    base_url: https://www.article.com
+    transport: apq_graphql
+    categories: [furniture, decor]
+    auth:
+      type: none
+    notes: Apollo Persisted Query (APQ) GraphQL. Unauthenticated. Uses sha256 hashes for operations. 14 operations discovered including SEARCH_PRODUCTS, PRODUCT, SIMILAR_PRODUCTS, CROSS_SELL, PRODUCT_REVIEWS_ANALYTICS.
+  shopify-dtc:
+    display_name: Shopify DTC
+    base_url: https://{store}.myshopify.com/api/2025-01/graphql.json
+    transport: shopify_storefront
+    categories: [furniture, decor]
+    auth:
+      type: storefront_token
+      header: X-Shopify-Storefront-Access-Token
+    stores:
+    - domain: schoolhouseelectric
+      name: Schoolhouse
+      token: 6b9644bb298124bc9ade899eaddea363
+    - domain: bludot
+      name: Blu Dot
+      token: 1e4672177051168711b9283f503746a7
+    - domain: gus-design-group
+      name: Gus Modern
+      token: 1875077237db56b54e58dac554913b32
+    - domain: floyd-home
+      name: Floyd
+      token: a89468f33bb6a48a0db09360abcd89fb
+    - domain: lulu-and-georgia
+      name: Lulu & Georgia
+      token: a1c43345d9845c6c42cd62ddb895ffbb
+    notes: Shopify Storefront API with public access tokens. One client covers all stores by swapping domain and token. Standard GraphQL queries for products, collections, search.
+  wayfair:
+    display_name: Wayfair
+    base_url: https://www.wayfair.com
+    transport: graphql_clearance
+    categories: [foundational, appliances, furniture]
+    status: stub
+    auth:
+      type: browser_clearance
+    notes: Federated GraphQL at /federation/graphql. PerimeterX bot protection. Needs clearance cookies. Deferred.
+  allmodern:
+    display_name: AllModern
+    base_url: https://www.allmodern.com
+    transport: graphql_clearance
+    categories: [appliances, furniture]
+    status: stub
+    auth:
+      type: browser_clearance
+    notes: Same Wayfair infrastructure. PerimeterX protected. Deferred.
+  rh:
+    display_name: Restoration Hardware
+    base_url: https://rh.com
+    transport: unknown
+    categories: [foundational, furniture]
+    status: stub
+    auth:
+      type: browser_clearance
+    notes: DataDome CAPTCHA wall. No API reverse-engineered. Deferred.
+  ikea:
+    display_name: IKEA
+    base_url: https://www.ikea.com
+    transport: unknown
+    categories: [furniture, decor, foundational]
+    status: stub
+    auth:
+      type: unknown
+    notes: User-deferred to later phase. Community reverse-engineered APIs exist.
+  dupe-com:
+    display_name: Dupe
+    base_url: https://www.dupe.com
+    transport: unknown
+    categories: []
+    status: stub
+    auth:
+      type: unknown
+    notes: AI visual-similarity matching. Deferred to later phase.
+resources:
+  product-search:
+    description: Fan-out product search across all Tier 1 sources. Category-based routing sends queries to relevant sources. Returns normalized products with unified price, rating, and brand fields.
+    endpoints:
+      ferguson-search:
+        method: POST
+        source: ferguson
+        source_base_url: https://www.fergusonhome.com
+        path: /graphql/ProductSearch
+        description: Search products via Ferguson GraphQL. Returns ProductSearchResult (count + products) or SearchRedirect. Primary source for foundational fixtures and appliances.
+        content_type: application/json
+        params:
+        - name: query
+          type: string
+          required: true
+          positional: true
+          description: Product search query text.
+        - name: first
+          flag_name: per-page
+          type: int
+          default: 20
+          description: Number of results per page.
+        - name: offset
+          type: int
+          default: 0
+          description: Pagination offset (0-indexed).
+        - name: sort
+          type: string
+          default: relevance
+          description: Sort order for results.
+          enum:
+          - relevance
+          - price-asc
+          - price-desc
+        response:
+          type: object
+          item: FergusonSearchResult
+      westelm-search:
+        method: GET
+        source: west-elm
+        source_base_url: https://ac.cnstrc.com
+        path: /search/{query}
+        description: Search products via West Elm Constructor.io API. Returns faceted results with product data, prices, and images.
+        params:
+        - name: query
+          type: string
+          required: true
+          positional: true
+          in: path
+          description: Product search query text.
+        - name: key
+          type: string
+          default: key_SQBuGmXjiXmP0UNI
+          description: Constructor.io API key.
+        - name: num_results_per_page
+          flag_name: per-page
+          type: int
+          default: 20
+          description: Number of results per page.
+        - name: page
+          type: int
+          default: 1
+          description: Page number (1-indexed).
+        - name: sort_by
+          flag_name: sort
+          type: string
+          default: relevance
+          description: Sort field.
+          enum:
+          - relevance
+          - lowestPrice
+          - highestPrice
+          - name
+        - name: sort_order
+          type: string
+          default: ascending
+          description: Sort direction (used with sort_by).
+          enum:
+          - ascending
+          - descending
+        - name: filters
+          flag_name: facet
+          type: string
+          description: 'Facet filter expression. Format: facet_name=value (e.g. "Product Type=Vanities", "Material=Wood", "Color=White").'
+        - name: i
+          type: string
+          default: ciojs-client-2.77.1
+          description: Client identifier for Constructor.io analytics.
+        - name: s
+          flag_name: session-id
+          type: int
+          description: Session ID for Constructor.io analytics.
+        - name: _dt
+          type: int
+          description: Timestamp for request deduplication.
+        response:
+          type: object
+          item: ConstructorSearchResult
+      rejuvenation-search:
+        method: GET
+        source: rejuvenation
+        source_base_url: https://ac.cnstrc.com
+        path: /search/{query}
+        description: Search products via Rejuvenation Constructor.io API. Same API shape as West Elm with different key. Primary source for foundational hardware and decor.
+        params:
+        - name: query
+          type: string
+          required: true
+          positional: true
+          in: path
+          description: Product search query text.
+        - name: key
+          type: string
+          default: key_9BhS51IOFNhJejk4
+          description: Constructor.io API key for Rejuvenation.
+        - name: num_results_per_page
+          flag_name: per-page
+          type: int
+          default: 20
+          description: Number of results per page.
+        - name: page
+          type: int
+          default: 1
+          description: Page number (1-indexed).
+        - name: sort_by
+          flag_name: sort
+          type: string
+          default: relevance
+          description: Sort field.
+          enum:
+          - relevance
+          - lowestPrice
+          - highestPrice
+          - name
+        - name: sort_order
+          type: string
+          default: ascending
+          description: Sort direction.
+          enum:
+          - ascending
+          - descending
+        - name: filters
+          flag_name: facet
+          type: string
+          description: 'Facet filter expression (e.g. "Product Type=Lighting", "Room=Bathroom").'
+        - name: i
+          type: string
+          default: ciojs-client-2.77.1
+          description: Client identifier for Constructor.io analytics.
+        response:
+          type: object
+          item: ConstructorSearchResult
+      article-search:
+        method: GET
+        source: article
+        source_base_url: https://www.article.com
+        path: /graphql
+        description: Search products via Article APQ GraphQL. Uses SEARCH_PRODUCTS persisted query hash. Returns paginated product results with pricing and ratings.
+        params:
+        - name: query
+          type: string
+          required: true
+          positional: true
+          description: Product search query text.
+        - name: extensions
+          type: string
+          description: 'APQ extensions JSON containing the persisted query hash. Auto-generated: {"persistedQuery":{"version":1,"sha256Hash":"<SEARCH_PRODUCTS_HASH>"}}.'
+        - name: variables
+          type: string
+          description: 'GraphQL variables JSON. Auto-generated from flags: {"query":"...","pageSize":N,"page":N}.'
+        - name: pageSize
+          flag_name: per-page
+          type: int
+          default: 20
+          description: Number of results per page.
+        - name: page
+          type: int
+          default: 1
+          description: Page number (1-indexed).
+        response:
+          type: object
+          item: ArticleSearchResult
+      shopify-search:
+        method: POST
+        source: shopify-dtc
+        source_base_url: https://{store}.myshopify.com
+        path: /api/2025-01/graphql.json
+        description: Search products across Shopify DTC stores via Storefront API GraphQL. Fans out to all configured stores (Schoolhouse, Blu Dot, Gus Modern, Floyd, Lulu & Georgia).
+        content_type: application/json
+        params:
+        - name: query
+          type: string
+          required: true
+          positional: true
+          description: Product search query text.
+        - name: first
+          flag_name: per-page
+          type: int
+          default: 20
+          description: Number of results per page per store.
+        - name: store
+          type: string
+          description: Restrict to a specific Shopify store domain (e.g. schoolhouseelectric, floyd-home). Omit to fan out to all stores.
+        response:
+          type: object
+          item: ShopifySearchResult
+  suggest:
+    description: Autocomplete and typeahead suggestions from Constructor.io sources (West Elm and Rejuvenation). Returns search suggestions and optionally product previews.
+    endpoints:
+      westelm-suggest:
+        method: GET
+        source: west-elm
+        source_base_url: https://ac.cnstrc.com
+        path: /autocomplete/{query}
+        description: Autocomplete suggestions from West Elm via Constructor.io.
+        params:
+        - name: query
+          type: string
+          required: true
+          positional: true
+          in: path
+          description: Partial search query for autocomplete.
+        - name: key
+          type: string
+          default: key_SQBuGmXjiXmP0UNI
+          description: Constructor.io API key.
+        - name: num_results_Products
+          flag_name: num-products
+          type: int
+          default: 0
+          description: Number of product results to include alongside suggestions.
+        - name: num_results_Search+Suggestions
+          flag_name: num-suggestions
+          type: int
+          default: 5
+          description: Number of search suggestions to return.
+        - name: i
+          type: string
+          default: ciojs-client-2.77.1
+          description: Client identifier.
+        response:
+          type: object
+          item: ConstructorAutocompleteResult
+      rejuvenation-suggest:
+        method: GET
+        source: rejuvenation
+        source_base_url: https://ac.cnstrc.com
+        path: /autocomplete/{query}
+        description: Autocomplete suggestions from Rejuvenation via Constructor.io.
+        params:
+        - name: query
+          type: string
+          required: true
+          positional: true
+          in: path
+          description: Partial search query for autocomplete.
+        - name: key
+          type: string
+          default: key_9BhS51IOFNhJejk4
+          description: Constructor.io API key for Rejuvenation.
+        - name: num_results_Products
+          flag_name: num-products
+          type: int
+          default: 0
+          description: Number of product results to include.
+        - name: num_results_Search+Suggestions
+          flag_name: num-suggestions
+          type: int
+          default: 5
+          description: Number of search suggestions to return.
+        - name: i
+          type: string
+          default: ciojs-client-2.77.1
+          description: Client identifier.
+        response:
+          type: object
+          item: ConstructorAutocompleteResult
+  product:
+    description: Get full product details from any source. Resolves the source from the product URL and fetches complete product data including specs, images, variants, and pricing.
+    endpoints:
+      ferguson-product:
+        method: POST
+        source: ferguson
+        source_base_url: https://www.fergusonhome.com
+        path: /graphql/ProductDetail
+        description: Get full product details from Ferguson via GraphQL ProductDetail query.
+        content_type: application/json
+        params:
+        - name: url
+          type: string
+          required: true
+          positional: true
+          description: Ferguson product URL or product slug.
+        - name: images
+          type: bool
+          default: false
+          description: Include full image gallery URLs.
+        - name: spec-sheet
+          type: bool
+          default: false
+          description: Extract and normalize product specifications into a structured sheet.
+        response:
+          type: object
+          item: FergusonProductDetail
+      westelm-product:
+        method: GET
+        source: west-elm
+        source_base_url: https://www.westelm.com
+        path: /api/catalog/v1/product/{slug}/data.json
+        description: Get full product details from West Elm.
+        params:
+        - name: url
+          type: string
+          required: true
+          positional: true
+          description: West Elm product URL or product slug.
+        - name: images
+          type: bool
+          default: false
+          description: Include full image gallery and swatch URLs.
+        - name: spec-sheet
+          type: bool
+          default: false
+          description: Extract and normalize product specifications.
+        response:
+          type: object
+          item: WestElmProductDetail
+      rejuvenation-product:
+        method: GET
+        source: rejuvenation
+        source_base_url: https://www.rejuvenation.com
+        path: /api/catalog/v1/product/{slug}/data.json
+        description: Get full product details from Rejuvenation.
+        params:
+        - name: url
+          type: string
+          required: true
+          positional: true
+          description: Rejuvenation product URL or product slug.
+        - name: images
+          type: bool
+          default: false
+          description: Include full image gallery.
+        - name: spec-sheet
+          type: bool
+          default: false
+          description: Extract and normalize product specifications.
+        response:
+          type: object
+          item: RejuvenationProductDetail
+      article-product:
+        method: GET
+        source: article
+        source_base_url: https://www.article.com
+        path: /graphql
+        description: Get full product details from Article via APQ PRODUCT query. Returns 50+ fields including specs, reviews summary, delivery estimates, and customization options.
+        params:
+        - name: url
+          type: string
+          required: true
+          positional: true
+          description: Article product URL or product handle.
+        - name: extensions
+          type: string
+          description: 'APQ extensions JSON. Auto-generated: {"persistedQuery":{"version":1,"sha256Hash":"<PRODUCT_HASH>"}}.'
+        - name: images
+          type: bool
+          default: false
+          description: Include full image gallery.
+        - name: spec-sheet
+          type: bool
+          default: false
+          description: Extract and normalize product specifications.
+        response:
+          type: object
+          item: ArticleProductDetail
+      shopify-product:
+        method: POST
+        source: shopify-dtc
+        source_base_url: https://{store}.myshopify.com
+        path: /api/2025-01/graphql.json
+        description: Get full product details from a Shopify DTC store via Storefront API. Resolves store from URL.
+        content_type: application/json
+        params:
+        - name: url
+          type: string
+          required: true
+          positional: true
+          description: Shopify product URL (store resolved from domain).
+        - name: handle
+          type: string
+          description: Product handle (alternative to URL if store is also specified).
+        - name: store
+          type: string
+          description: Shopify store domain (required if using handle instead of URL).
+        - name: images
+          type: bool
+          default: false
+          description: Include full image gallery with variant images.
+        - name: spec-sheet
+          type: bool
+          default: false
+          description: Extract and normalize product specifications.
+        response:
+          type: object
+          item: ShopifyProductDetail
+  compare:
+    description: Side-by-side product comparison across any sources. Fetches full details for each product URL and renders a normalized comparison table of price, specs, ratings, and availability.
+    endpoints:
+      multi-product-compare:
+        method: GET
+        source: ferguson
+        source_base_url: ''
+        path: /compare
+        description: Compare 2+ products side-by-side. Each URL is resolved to its source, fetched in parallel, and rendered in a comparison table. Works across different sources.
+        params:
+        - name: urls
+          type: string
+          required: true
+          positional: true
+          description: Space-separated product URLs to compare (2 or more). Each URL is resolved to its source automatically.
+        response:
+          type: object
+          item: CompareResult
+  stores:
+    description: Find physical retail stores near a location. Supported for West Elm and Rejuvenation via their store locator APIs.
+    endpoints:
+      westelm-stores:
+        method: GET
+        source: west-elm
+        source_base_url: https://www.westelm.com
+        path: /search/stores.json
+        description: Find West Elm stores near a location.
+        params:
+        - name: zip
+          type: string
+          required: true
+          positional: true
+          description: ZIP code or postal code to search near.
+        - name: brands
+          type: string
+          default: WE
+          description: Brand filter (WE for West Elm).
+        - name: lat
+          type: float
+          description: Latitude for proximity search (alternative to ZIP).
+        - name: lng
+          type: float
+          description: Longitude for proximity search.
+        - name: radius
+          type: int
+          default: 25
+          description: Search radius in miles.
+        response:
+          type: object
+          item: StoreLocatorResult
+      rejuvenation-stores:
+        method: GET
+        source: rejuvenation
+        source_base_url: https://www.rejuvenation.com
+        path: /search/stores.json
+        description: Find Rejuvenation stores near a location.
+        params:
+        - name: zip
+          type: string
+          required: true
+          positional: true
+          description: ZIP code or postal code to search near.
+        - name: brands
+          type: string
+          default: RJ
+          description: Brand filter (RJ for Rejuvenation).
+        - name: lat
+          type: float
+          description: Latitude for proximity search.
+        - name: lng
+          type: float
+          description: Longitude for proximity search.
+        - name: radius
+          type: int
+          default: 25
+          description: Search radius in miles.
+        response:
+          type: object
+          item: StoreLocatorResult
+  delivery:
+    description: Check delivery availability and options by postal code. Supported for West Elm and Rejuvenation via their delivery information APIs.
+    endpoints:
+      westelm-delivery:
+        method: GET
+        source: west-elm
+        source_base_url: https://www.westelm.com
+        path: /cacheable/availability/getDeliveryInformationByPostalCode.json
+        description: Check delivery availability and options from West Elm by postal code.
+        params:
+        - name: postalCode
+          flag_name: zip
+          type: string
+          required: true
+          positional: true
+          description: Postal code to check delivery for.
+        - name: product_url
+          type: string
+          required: true
+          description: Product URL to check delivery availability for.
+        response:
+          type: object
+          item: DeliveryInfoResult
+      rejuvenation-delivery:
+        method: GET
+        source: rejuvenation
+        source_base_url: https://www.rejuvenation.com
+        path: /cacheable/availability/getDeliveryInformationByPostalCode.json
+        description: Check delivery availability and options from Rejuvenation by postal code.
+        params:
+        - name: postalCode
+          flag_name: zip
+          type: string
+          required: true
+          positional: true
+          description: Postal code to check delivery for.
+        - name: product_url
+          type: string
+          required: true
+          description: Product URL to check delivery availability for.
+        response:
+          type: object
+          item: DeliveryInfoResult
+  deals:
+    description: Find active promotions, sales, and eligible discounts. Queries promotion eligibility APIs for current deals.
+    endpoints:
+      westelm-deals:
+        method: GET
+        source: west-elm
+        source_base_url: https://www.westelm.com
+        path: /promotion/eligibility/group/{slug}/eligiblePromotions.json
+        description: Check eligible promotions for a West Elm product or category. Returns active sales, discount percentages, and promo codes.
+        params:
+        - name: slug
+          flag_name: category
+          type: string
+          in: path
+          description: Product or category slug to check promotions for.
+        - name: price
+          type: float
+          description: Product price to check promotion eligibility against.
+        - name: source
+          type: string
+          default: west-elm
+          description: Source to check deals for (currently West Elm only).
+        response:
+          type: object
+          item: PromotionResult
+  brands:
+    description: List brands available at a source and cross-reference brand availability across retailers. Shows which retailers carry a given brand and at what price points.
+    endpoints:
+      ferguson-brands:
+        method: POST
+        source: ferguson
+        source_base_url: https://www.fergusonhome.com
+        path: /graphql/ProductSearch
+        description: List brands available at Ferguson by searching with a brand filter. Returns brand facets from search results.
+        content_type: application/json
+        params:
+        - name: source
+          type: string
+          default: ferguson
+          description: Source to list brands for.
+        - name: cross-ref
+          flag_name: cross-ref
+          type: string
+          description: Brand name to cross-reference across all sources. Returns availability and price ranges at each retailer carrying this brand.
+        response:
+          type: object
+          item: BrandListResult
+      westelm-brands:
+        method: GET
+        source: west-elm
+        source_base_url: https://ac.cnstrc.com
+        path: /search/brands
+        description: List brands available at West Elm via Constructor.io brand facets.
+        params:
+        - name: key
+          type: string
+          default: key_SQBuGmXjiXmP0UNI
+          description: Constructor.io API key.
+        - name: source
+          type: string
+          default: west-elm
+          description: Source to list brands for.
+        - name: cross-ref
+          flag_name: cross-ref
+          type: string
+          description: Brand name to cross-reference across sources.
+        response:
+          type: object
+          item: BrandListResult
+      rejuvenation-brands:
+        method: GET
+        source: rejuvenation
+        source_base_url: https://ac.cnstrc.com
+        path: /search/brands
+        description: List brands available at Rejuvenation via Constructor.io brand facets.
+        params:
+        - name: key
+          type: string
+          default: key_9BhS51IOFNhJejk4
+          description: Constructor.io API key for Rejuvenation.
+        - name: source
+          type: string
+          default: rejuvenation
+          description: Source to list brands for.
+        - name: cross-ref
+          flag_name: cross-ref
+          type: string
+          description: Brand name to cross-reference across sources.
+        response:
+          type: object
+          item: BrandListResult
+  categories:
+    description: Browse product category trees at a source. Currently supported for Rejuvenation via their catalog API.
+    endpoints:
+      rejuvenation-categories:
+        method: GET
+        source: rejuvenation
+        source_base_url: https://www.rejuvenation.com
+        path: /api/catalog/v1/category/inspiration/shop/{category}/data.json
+        description: Browse the Rejuvenation product category tree. Returns subcategories, product counts, and navigation paths.
+        params:
+        - name: category
+          type: string
+          in: path
+          description: Category slug to browse (e.g. lighting, hardware, bath). Omit for top-level category listing.
+        - name: source
+          type: string
+          default: rejuvenation
+          description: Source to browse categories for (currently Rejuvenation only).
+        response:
+          type: object
+          item: CategoryResult
+  reviews:
+    description: Get product reviews from a single source. Supports Ferguson (via GraphQL) and Article (via APQ queries for reviews and UGC media).
+    endpoints:
+      article-reviews:
+        method: GET
+        source: article
+        source_base_url: https://www.article.com
+        path: /graphql
+        description: Get product reviews from Article via APQ getProductReviewsByProductId query. Includes ratings, review text, and UGC media.
+        params:
+        - name: product_url
+          type: string
+          required: true
+          positional: true
+          description: Article product URL to fetch reviews for.
+        - name: extensions
+          type: string
+          description: 'APQ extensions JSON. Auto-generated: {"persistedQuery":{"version":1,"sha256Hash":"<PRODUCT_REVIEWS_HASH>"}}.'
+        - name: aggregate
+          type: bool
+          default: false
+          description: When true, cross-source review aggregation is performed. Finds the same product at other retailers by title/brand match and merges reviews.
+        response:
+          type: object
+          item: ArticleReviewsResult
+      ferguson-reviews:
+        method: POST
+        source: ferguson
+        source_base_url: https://www.fergusonhome.com
+        path: /graphql/ProductDetail
+        description: Get product reviews from Ferguson via the ProductDetail GraphQL query (reviews are embedded in product detail response).
+        content_type: application/json
+        params:
+        - name: product_url
+          type: string
+          required: true
+          positional: true
+          description: Ferguson product URL to fetch reviews for.
+        - name: aggregate
+          type: bool
+          default: false
+          description: When true, cross-source review aggregation is performed.
+        response:
+          type: object
+          item: FergusonReviewsResult
+  find-similar:
+    description: Find similar products at the same retailer. Currently supported for Article via the SIMILAR_PRODUCTS APQ query.
+    endpoints:
+      article-similar:
+        method: GET
+        source: article
+        source_base_url: https://www.article.com
+        path: /graphql
+        description: Find similar products from Article via APQ SIMILAR_PRODUCTS query. Returns visually and categorically similar items.
+        params:
+        - name: product_url
+          type: string
+          required: true
+          positional: true
+          description: Article product URL to find similar products for.
+        - name: extensions
+          type: string
+          description: 'APQ extensions JSON. Auto-generated: {"persistedQuery":{"version":1,"sha256Hash":"<SIMILAR_PRODUCTS_HASH>"}}.'
+        response:
+          type: object
+          item: ArticleSimilarResult
+  find-related:
+    description: Find cross-sell and complementary products. Currently supported for Article via the CROSS_SELL APQ query.
+    endpoints:
+      article-related:
+        method: GET
+        source: article
+        source_base_url: https://www.article.com
+        path: /graphql
+        description: Find cross-sell/related products from Article via APQ CROSS_SELL query. Returns complementary items for the given product.
+        params:
+        - name: product_url
+          type: string
+          required: true
+          positional: true
+          description: Article product URL to find related products for.
+        - name: extensions
+          type: string
+          description: 'APQ extensions JSON. Auto-generated: {"persistedQuery":{"version":1,"sha256Hash":"<CROSS_SELL_HASH>"}}.'
+        response:
+          type: object
+          item: ArticleRelatedResult
+extra_commands:
+- name: watch
+  args: <product-url> [--threshold <percent>]
+  description: 'Price watch system. Three subcommands: (1) `watch add <product-url> --threshold 10` adds a product to the watch list with an alert threshold (default 10%), (2) `watch list` shows all watched
+    products with price history, (3) `watch check` polls all watched products for price changes (cron-friendly). Uses local SQLite for price history snapshots. No single retailer tracks cross-retailer price
+    trends; we store every snapshot and alert on drops.'
+- name: project
+  args: <subcommand> [args]
+  description: 'Project tracker for grouping saved products into named renovation/design projects with running budget totals. Subcommands: `project create "Kitchen Reno"`, `project list`, `project show <name>`,
+    `project add <name> <product-url> [--quantity N]`, `project budget <name>`. No retailer tracks cross-store project budgets; we aggregate spend across Ferguson, West Elm, Article, and all other sources.'
+- name: saved
+  args: '[--check-stale]'
+  description: 'Manage saved/bookmarked products. `saved` lists all saved products. `saved --check-stale` re-fetches every saved product from its source and flags items that are discontinued, out of stock,
+    or have changed price since saving. Also available on projects: `project --check-stale <name>`.'
+- name: config
+  description: View and edit CLI configuration (default category routing, preferred sources, output format, SQLite database path). Reads/writes ~/.config/home-goat-pp-cli/config.toml.
+- name: sources
+  description: List all upstream API sources, their status (active/stub/deferred), categories served, rate limits, and current reachability. Pings each active source and reports latency.
+- name: history
+  description: Show past search queries with timestamps, result counts, and sources queried. Reads from local SQLite search history table.
+- name: save
+  args: <product-url>
+  description: Bookmark a product URL for later. Stores the product snapshot (title, price, source, URL) in local SQLite. Use `saved` to list, `saved --check-stale` to detect changes.
+- name: version
+  description: Print CLI version, build info, configured sources, and SQLite database path.
+novel_features:
+- id: compound-category-routing
+  summary: Room-type shortcuts (--room bathroom, --room kitchen) that expand to multi-category fan-outs across the relevant source fleet. No single retailer routes searches across product types; the CLI chains
+    searches to the sources that carry each category.
+- id: price-watch
+  summary: SQLite price history with cron-friendly polling and threshold alerts. Stores every price snapshot for watched products and detects drops, increases, and sale events across all sources.
+- id: project-tracker
+  summary: Named project grouping (Kitchen Reno, Bathroom Remodel) with cross-store budget tracking. No retailer aggregates spend across competing stores; we sum prices from Ferguson, West Elm, Article, and
+    Shopify DTC into a single budget view.
+- id: stale-detector
+  summary: Re-fetches saved and project products from their source to detect discontinuation, out-of-stock status, and price changes since the product was saved. No retailer alerts you about products saved
+    at other retailers.
+- id: spec-sheet-export
+  summary: Normalized product specification extraction from unstructured retailer pages. Dimensions, materials, finishes, and certifications rendered as structured markdown or CSV tables. Individual retailers
+    bury specs in HTML; we normalize across sources.
+- id: brand-cross-ref
+  summary: Cross-retailer brand availability and price comparison. Shows which retailers carry a given brand (Kohler, DXV, Schoolhouse, etc.) and at what price points. No single retailer shows where else a
+    brand is sold.
+- id: review-aggregation
+  summary: Cross-source review merging. Finds the same product at other retailers by title/brand/model match and merges reviews from all sources. Also pulls from external review sites for broader coverage.
+    No retailer aggregates reviews from competing stores.
