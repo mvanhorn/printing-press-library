@@ -553,7 +553,11 @@ func runFleetLoginFlow(cmd *cobra.Command, cfg *config.Config, clientID, authURL
 		"redirect_uri":  {fleetRedirectURI},
 		"scope":         {scope},
 		"state":         {state},
-		"prompt":        {"login"},
+		// "login consent" forces both re-authentication AND a fresh consent
+		// screen. Without consent, Tesla silently grants only the user's
+		// previously-consented scopes and ignores newly-requested ones (e.g.
+		// vehicle_location), so a scope added later never reaches the token.
+		"prompt": {"login consent"},
 	}
 	loginURL := authURL + "?" + q.Encode()
 
@@ -773,9 +777,19 @@ func decodeJWTClaims(tok string) ([]string, string, error) {
 	}
 	scope, _ := raw["scope"].(string)
 	if scope == "" {
-		// Sometimes Tesla returns scp instead.
-		if s, ok := raw["scp"].(string); ok {
-			scope = s
+		// Tesla returns the granted scopes under `scp`, and as a JSON array
+		// (not a space-delimited string), so handle both shapes.
+		switch v := raw["scp"].(type) {
+		case string:
+			scope = v
+		case []any:
+			parts := make([]string, 0, len(v))
+			for _, e := range v {
+				if s, ok := e.(string); ok {
+					parts = append(parts, s)
+				}
+			}
+			scope = strings.Join(parts, " ")
 		}
 	}
 	return aud, scope, nil
