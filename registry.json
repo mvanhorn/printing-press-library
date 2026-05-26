@@ -2,6 +2,54 @@
   "schema_version": 2,
   "entries": [
     {
+      "name": "adguard-home",
+      "category": "monitoring",
+      "api": "AdGuard Home",
+      "description": "AdGuard Home REST-ish API. Our admin web interface is built on top of this REST-ish API.",
+      "search_terms": [
+        "adguard-home",
+        "AdGuard Home",
+        "adguard-home-pp-cli",
+        "DNS-level ad/tracker/malware blocking via AdGuard Home REST API for self-hosted network DNS management",
+        "DNS Health Report",
+        "health",
+        "Summarize AdGuard Home health from locally synced data: protection status, block rate, top blocked domains, stale sync detection, and query volume trends",
+        "Local Sync",
+        "sync",
+        "Sync API data to local SQLite for offline search and analysis with resumable incremental sync",
+        "Full-Text Search",
+        "search",
+        "Full-text search across synced data or live API with auto mode that falls back to local on network failure",
+        "Local Analytics",
+        "analytics",
+        "Analyze locally synced data with count, group-by, and summary operations",
+        "Archive Workflow",
+        "workflow archive",
+        "Sync all resources to local store for offline access and search in one command",
+        "Live Tail",
+        "tail",
+        "Stream live data changes by polling the API at configurable intervals, emitting NDJSON to stdout"
+      ],
+      "path": "library/monitoring/adguard-home",
+      "printer": "e-jung",
+      "printer_name": "Eric Jung",
+      "mcp": {
+        "binary": "adguard-home-pp-mcp",
+        "transports": [
+          "stdio"
+        ],
+        "tool_count": 81,
+        "public_tool_count": 0,
+        "auth_type": "api_key",
+        "env_vars": [
+          "ADGUARD_HOME_USERNAME",
+          "ADGUARD_HOME_PASSWORD"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
+      }
+    },
+    {
       "name": "adminbyrequest",
       "category": "devices",
       "api": "Admin By Request",
@@ -3145,6 +3193,48 @@
       }
     },
     {
+      "name": "gravitus",
+      "category": "other",
+      "api": "Gravitus",
+      "description": "The only CLI that syncs your Gravitus strength data into your training dashboard.",
+      "search_terms": [
+        "gravitus",
+        "gravitus-pp-cli",
+        "Dashboard Sync",
+        "sync",
+        "Sync all Gravitus workouts into your training dashboard's SQLite database — writes LiftingSession records in the exact Prisma schema format with auth, pagination, and incremental support.",
+        "Data Export",
+        "export",
+        "Export your complete Gravitus training history to CSV or JSON — the first and only way to get your data out of Gravitus.",
+        "Plateau Detection",
+        "exercises plateau",
+        "Identifies exercises where estimated 1RM hasn't improved in N weeks — alert-style output for the dashboard coaching panel.",
+        "Weekly Volume",
+        "stats volume",
+        "Weekly total lifting volume (lbs) aggregated from all synced sessions — the same metric the dashboard LiftingSection displays.",
+        "Personal Records",
+        "exercises prs",
+        "All-time PRs across every exercise, extracted from PR markers on workout pages."
+      ],
+      "path": "library/other/gravitus",
+      "printer": "azaaron",
+      "printer_name": "mvanhorn",
+      "mcp": {
+        "binary": "gravitus-pp-mcp",
+        "transports": [
+          "stdio"
+        ],
+        "tool_count": 4,
+        "public_tool_count": 1,
+        "auth_type": "cookie",
+        "env_vars": [
+          "GRAVITUS_SESSION_ID"
+        ],
+        "mcp_ready": "partial",
+        "spec_format": "internal"
+      }
+    },
+    {
       "name": "greatclips",
       "category": "other",
       "api": "Great Clips",
@@ -3537,34 +3627,6 @@
         "mcp_ready": "partial",
         "spec_format": "openapi3"
       }
-    },
-    {
-      "name": "jinko",
-      "category": "travel",
-      "api": "Jinko Travel",
-      "description": "Industry-grade stable API for flights AND hotels with multi-product cart booking — search flights and hotels, build one trip containing both, and check out via a Jinko-hosted Stripe page from the terminal.",
-      "search_terms": [
-        "jinko",
-        "Jinko Travel",
-        "jinko-pp-cli",
-        "Industry-grade stable API for flights AND hotels with multi-product cart booking — search flights and hotels, build one trip containing both, and check out via a Jinko-hosted Stripe page from the terminal.",
-        "Get an API key at https://app.gojinko.com/devplatform, then run `jinko auth login --key jnk_...` or export JINKO_API_KEY. The same credential works with @gojinko/cli (Node) and Jinko's MCP server.",
-        "Multi-product trip in one cart",
-        "trip",
-        "A single trip_id accepts both flight and hotel trip_item_tokens. `book` checks out the whole cart with one Stripe payment URL — every other travel CLI in this library books only flights OR only hotels.",
-        "Agent-friendly token flow",
-        "find-flight, flight-search, trip, book",
-        "Named tokens that compose: offer_token (cached) → trip_item_token (live, bookable) → trip_id (cart) → checkout_url (Stripe). No hidden state, no implicit quote step — quote is automatic inside book.",
-        "Hotel + flight live inventory",
-        "hotel-search, flight-search",
-        "Live rates from Jinko's supplier network (Sabre, Travelfusion, Nuitee, and more). Stable, contracted API — not scraped or cookie-jacked. Industry-grade SLA on the BFF.",
-        "End-to-end lifecycle polling",
-        "trip-status",
-        "One endpoint returns cart, quote, payment, fulfillment, and PNRs. Designed for long-running async bookings (TravelFusion confirmations can take up to 72h) — agents poll this to know when to send the confirmation email."
-      ],
-      "path": "library/travel/jinko",
-      "printer": "dyzsasd",
-      "printer_name": "Shuai Zhang"
     },
     {
       "name": "jira",
@@ -6146,6 +6208,43 @@
       }
     },
     {
+      "name": "safari-history",
+      "category": "productivity",
+      "api": "Safari History",
+      "description": "Reverse-engineered from the hand-built safari-history-pp-cli command/data shape",
+      "search_terms": [
+        "safari-history",
+        "Safari History",
+        "safari-history-pp-cli",
+        "Query local Safari browsing history from a snapshot index; no remote API spec.",
+        "Session Timeline Reconstruction",
+        "timeline",
+        "Reconstructs session-level browsing timelines from visit-time gaps and redirect chains.",
+        "Derived Dwell Estimate",
+        "dwell",
+        "Estimates per-domain time-on-site from visit-time gaps (Safari stores no native dwell).",
+        "Navigation Graph",
+        "graph",
+        "Builds a page-node / referrer-edge navigation graph (JSON or Graphviz dot)."
+      ],
+      "path": "library/productivity/safari-history",
+      "printer": "vinnyp",
+      "printer_name": "Vinny Pasceri",
+      "mcp": {
+        "binary": "safari-history-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 19,
+        "public_tool_count": 19,
+        "auth_type": "none",
+        "env_vars": [],
+        "mcp_ready": "full",
+        "spec_format": "sqlite"
+      }
+    },
+    {
       "name": "scrape-creators",
       "category": "developer-tools",
       "api": "Scrape Creators",
@@ -6300,6 +6399,68 @@
         "auth_type": "api_key",
         "env_vars": [
           "SEC_EDGAR_USER_AGENT"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "internal"
+      }
+    },
+    {
+      "name": "semrush",
+      "category": "marketing",
+      "api": "Semrush",
+      "description": "Every Semrush Analytics + Projects feature, plus a local SQLite store and cross-domain joins no other Semrush tool has.",
+      "search_terms": [
+        "semrush",
+        "semrush-pp-cli",
+        "Every Semrush Analytics + Projects feature, plus a local SQLite store and cross-domain joins no other Semrush tool has.",
+        "Weekly Drift Report",
+        "drift",
+        "Diff this week's domain + keyword snapshot against last week's to see what moved, without re-spending credits on the data you already pulled.",
+        "Snapshot Tag + Diff",
+        "snapshot",
+        "Tag the current local-store state of any resource (e.g. monday-baseline) and later diff any two tags to see exactly what moved between them.",
+        "Backlink Delta Since Last Sync",
+        "backlink new",
+        "Show only the referring domains and backlinks first seen in a window, so the 'did anything new link to us this week' question is a one-liner.",
+        "Budget Ledger",
+        "budget",
+        "Every API call's documented unit cost is logged locally; budget rolls up spend by day, command, resource, and projects month-end burn from the current balance probe.",
+        "Keyword Gap",
+        "Set-difference of organic keywords across two or more domains in the same database, with intersection and unique-to-each modes.",
+        "Backlink Gap",
+        "Find referring domains that link to a competitor but not to you, filtered by authority score.",
+        "Audit Triage",
+        "Rank Site Audit pages by weighted issue severity (errors x3, warnings x1, notices x0.1) so you fix the highest-impact pages first.",
+        "Position Drift",
+        "tracking drift",
+        "Window-function over Position Tracking snapshots: which keywords moved more than N positions, dropped off page 1, or entered page 1, per region and device.",
+        "Country Fan-out",
+        "domain regions",
+        "Run Domain Overview across multiple country databases in one shot, persist all rows with the database key so later cross-region drift queries work.",
+        "SERP Feature Monitor",
+        "serp-features",
+        "Time-series view of which SERP features (featured snippet, People Also Ask, video, image pack) have appeared and disappeared for a tracked keyword.",
+        "Cannibalization Detector",
+        "cannibalization",
+        "List phrases where the same domain ranks for multiple URLs (a known SEO problem) with the URLs and their respective positions.",
+        "Audit Regression Watch",
+        "audit regression",
+        "Diff the latest two Site Audit snapshots for a project: new issue IDs introduced, issues resolved, count delta per severity."
+      ],
+      "path": "library/marketing/semrush",
+      "printer": "Charles-Garrison",
+      "printer_name": "Charles Garrison",
+      "mcp": {
+        "binary": "semrush-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 97,
+        "public_tool_count": 0,
+        "auth_type": "api_key",
+        "env_vars": [
+          "SEMRUSH_API_KEY"
         ],
         "mcp_ready": "full",
         "spec_format": "internal"
@@ -8297,6 +8458,38 @@
         "mcp_ready": "full",
         "spec_format": "openapi3"
       }
+    },
+    {
+      "name": "wolt",
+      "category": "food-and-dining",
+      "api": "Wolt",
+      "description": "Browse-only Wolt consumer CLI.",
+      "search_terms": [
+        "wolt",
+        "wolt-pp-cli",
+        "Browse Wolt food delivery from the terminal: cities, nearby venues, menus, prices, ETAs, and cross-venue comparisons.",
+        "Menu browsing with prices",
+        "menu show",
+        "Full venue menu: categories + items + prices + dietary preferences + availability. Discovered via the SSR-embedded React Query state behind the Wolt SPA.",
+        "Menu item search with price cap",
+        "menu search",
+        "Substring search within a venue's menu (name + description), sorted cheapest first, with --max-price filter in cents.",
+        "What's open right now and fast",
+        "venues-now",
+        "Filter nearby venues by open status + ETA cap + cuisine tag in one structured call. Replaces three SPA card-clicks.",
+        "Cross-venue comparison",
+        "venues-compare",
+        "Fan-out per-venue dynamic snapshots and join open status + next-close + delivery configs side by side.",
+        "Cuisine bottleneck",
+        "cuisine-bottleneck",
+        "Which cuisines have the longest average ETA right now near a coordinate — aggregates across nearby venues.",
+        "Order tracking by share link",
+        "track",
+        "Parse a Wolt order share URL and extract the order id. Stub — live JSON tracking endpoint not yet reverse-engineered."
+      ],
+      "path": "library/food-and-dining/wolt",
+      "printer": "Amit-Tabibi",
+      "printer_name": "Amit"
     },
     {
       "name": "x-twitter",
