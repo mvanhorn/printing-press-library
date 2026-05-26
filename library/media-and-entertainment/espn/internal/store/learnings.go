@@ -720,6 +720,9 @@ func (s *Store) Apply(ctx context.Context, query string, ap Applier) (ApplyResul
 				continue
 			}
 			result.Count++
+			if r.Confidence >= 3 {
+				result.HasHighConfidence = true
+			}
 		}
 	}
 
