@@ -214,6 +214,22 @@ func newRevenueSummaryCmd(flags *rootFlags) *cobra.Command {
 				if err := validateByAxis(byAxis); err != nil {
 					return err
 				}
+				// --by-axis groups across all events; per-event/date filters are
+				// not yet supported and would silently produce misleading results.
+				var conflicts []string
+				if cmd.Flags().Changed("event") {
+					conflicts = append(conflicts, "--event")
+				}
+				if cmd.Flags().Changed("from") {
+					conflicts = append(conflicts, "--from")
+				}
+				if cmd.Flags().Changed("to") {
+					conflicts = append(conflicts, "--to")
+				}
+				if len(conflicts) > 0 {
+					return fmt.Errorf("--by-axis does not yet support %s filters",
+						strings.Join(conflicts, "/"))
+				}
 			}
 			if dryRunOK(flags) {
 				return nil

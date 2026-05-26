@@ -6,6 +6,7 @@ package cli
 
 import (
 	"context"
+	"encoding/csv"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -112,6 +113,8 @@ func runNormalize(ctx context.Context, s *store.Store, opts normalizeOpts, w io.
 
 // exportUnmatched writes source values with method="unmatched" for the given
 // entity type to a CSV file at path. Each row is: entity_type,source_value.
+// Values are written via encoding/csv so source values containing commas,
+// quotes, or newlines are correctly escaped and can be round-tripped.
 func exportUnmatched(ctx context.Context, s *store.Store, entityType, path string) error {
 	rows, err := s.DB().QueryContext(ctx,
 		`SELECT source_value FROM entity_crosswalk
@@ -128,13 +131,22 @@ func exportUnmatched(ctx context.Context, s *store.Store, entityType, path strin
 	}
 	defer f.Close()
 
-	fmt.Fprintf(f, "entity_type,source_value\n")
+	w := csv.NewWriter(f)
+	if err := w.Write([]string{"entity_type", "source_value"}); err != nil {
+		return err
+	}
 	for rows.Next() {
 		var sv string
 		if err := rows.Scan(&sv); err != nil {
 			return err
 		}
-		fmt.Fprintf(f, "%s,%s\n", entityType, sv)
+		if err := w.Write([]string{entityType, sv}); err != nil {
+			return err
+		}
+	}
+	w.Flush()
+	if err := w.Error(); err != nil {
+		return err
 	}
 	return rows.Err()
 }
@@ -269,13 +281,11 @@ func newNormalizeStatsCmd(flags *rootFlags) *cobra.Command {
 				return fmt.Errorf("listing tier attributes: %w", err)
 			}
 
-			// Count venue canonicals from the crosswalk (no ListVenueAttributes
-			// method exists yet; query directly).
-			var venueCount int
-			if err := s.DB().QueryRowContext(cmd.Context(),
-				`SELECT COUNT(DISTINCT canonical_id) FROM entity_crosswalk WHERE entity_type = 'venue'`,
-			).Scan(&venueCount); err != nil {
-				venueCount = 0
+			// Count venue canonicals from venue_attributes (matched only) so the
+			// metric is symmetric with TierCanonicals which counts tier_attributes.
+			venueRows, err := s.ListVenueAttributes("venue")
+			if err != nil {
+				return fmt.Errorf("listing venue attributes: %w", err)
 			}
 
 			axisCount := map[string]int{}
@@ -287,7 +297,7 @@ func newNormalizeStatsCmd(flags *rootFlags) *cobra.Command {
 
 			out := normalizeStatsOutput{
 				TierCanonicals:  len(tierRows),
-				VenueCanonicals: venueCount,
+				VenueCanonicals: len(venueRows),
 				TierByAxis:      axisCount,
 			}
 			return printJSONFiltered(cmd.OutOrStdout(), out, flags)

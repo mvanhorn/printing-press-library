@@ -249,6 +249,61 @@ func (s *Store) ListTierAttributes(entityType string) ([]TierAttributesRow, erro
 	return results, rows.Err()
 }
 
+// UpsertExternalRef inserts or updates an entity_external_ref row keyed by
+// (entity_type, canonical_id, source_system). All writes are serialized through
+// writeMu, matching the locking contract of UpsertCrosswalk and UpsertBatch.
+func (s *Store) UpsertExternalRef(entityType, canonicalID, sourceSystem, externalID string) error {
+	s.writeMu.Lock()
+	defer s.writeMu.Unlock()
+	_, err := s.db.Exec(
+		`INSERT INTO entity_external_ref (entity_type, canonical_id, source_system, external_id)
+		 VALUES (?, ?, ?, ?)
+		 ON CONFLICT(entity_type, canonical_id, source_system) DO UPDATE SET
+		 	external_id = excluded.external_id`,
+		entityType, canonicalID, sourceSystem, externalID,
+	)
+	if err != nil {
+		return fmt.Errorf("upsert external ref: %w", err)
+	}
+	return nil
+}
+
+// ListVenueAttributes returns all venue attribute rows for a given entity type
+// by joining through entity_crosswalk. Results are ordered by canonical_id.
+// Only canonical IDs that have a venue_attributes entry (i.e. matched venues)
+// are returned — unmatched crosswalk rows are not included — mirroring
+// ListTierAttributes so normalize stats counts are symmetric.
+func (s *Store) ListVenueAttributes(entityType string) ([]VenueAttributesRow, error) {
+	rows, err := s.db.Query(
+		`SELECT va.canonical_id,
+			COALESCE(va.complex,''), COALESCE(va.room,''),
+			va.classifier_version, va.method
+		 FROM venue_attributes va
+		 WHERE va.canonical_id IN (
+			SELECT DISTINCT canonical_id FROM entity_crosswalk WHERE entity_type = ?
+		 )
+		 ORDER BY va.canonical_id`,
+		entityType,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("list venue attributes: %w", err)
+	}
+	defer rows.Close()
+
+	var results []VenueAttributesRow
+	for rows.Next() {
+		var r VenueAttributesRow
+		if err := rows.Scan(
+			&r.CanonicalID, &r.Complex, &r.Room,
+			&r.ClassifierVersion, &r.Method,
+		); err != nil {
+			return nil, fmt.Errorf("scan venue attributes: %w", err)
+		}
+		results = append(results, r)
+	}
+	return results, rows.Err()
+}
+
 // ClearNormalization removes all non-manual normalization rows for the given
 // entity type from entity_crosswalk and the corresponding attribute tables.
 // Rows with method='manual' are preserved so operator overrides survive a

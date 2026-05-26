@@ -26,16 +26,20 @@ var (
 	reAccessGA       = regexp.MustCompile(`\b(general admission|ga)\b`)
 	reSuperEarlyBird = regexp.MustCompile(`\bsuper early bird`)
 	reEarlyBird      = regexp.MustCompile(`\bearly bird`)
-	reFinalRelease   = regexp.MustCompile(`\bfinal( release| tickets)?`)
-	reLastChance     = regexp.MustCompile(`\blast chance\b`)
-	reTierN          = regexp.MustCompile(`\b(tier|ga) ?(\d+)\b`)
-	reDeadline       = regexp.MustCompile(`must (?:enter|arrive) by (\d{1,2})(?::(\d{2}))? ?(am|pm)`)
-	reAnytime        = regexp.MustCompile(`\banytime\b`)
-	reDoor           = regexp.MustCompile(`\bat the door\b|\bat door\b`)
-	reYouPlus        = regexp.MustCompile(`you ?\+ ?(\d+)`)
-	reGroupParens    = regexp.MustCompile(`\b(?:group|party|table)\b.*\((\d+)\)`)
-	reDoubleTriple   = regexp.MustCompile(`\b(double|triple|quad)\b`)
-	reComp           = regexp.MustCompile(`\bcomp\b|complimentary|reward ticket`)
+	// reFinalRelease matches "final release", "final tickets", or bare "final"
+	// only at end-of-string. The bare-final arm requires a word boundary and
+	// trailing whitespace-or-end so "final countdown" and "finalists" do not
+	// match.
+	reFinalRelease = regexp.MustCompile(`(?:\bfinal (release|tickets)\b)|(?:\bfinal\b\s*$)`)
+	reLastChance   = regexp.MustCompile(`\blast chance\b`)
+	reTierN        = regexp.MustCompile(`\b(tier|ga) ?(\d+)\b`)
+	reDeadline     = regexp.MustCompile(`must (?:enter|arrive) by (\d{1,2})(?::(\d{2}))? ?(am|pm)`)
+	reAnytime      = regexp.MustCompile(`\banytime\b`)
+	reDoor         = regexp.MustCompile(`\bat the door\b|\bat door\b`)
+	reYouPlus      = regexp.MustCompile(`you ?\+ ?(\d+)`)
+	reGroupParens  = regexp.MustCompile(`\b(?:group|party|table)\b.*\((\d+)\)`)
+	reDoubleTriple = regexp.MustCompile(`\b(double|triple|quad)\b`)
+	reComp         = regexp.MustCompile(`\bcomp\b|complimentary|reward ticket`)
 )
 
 // extractTierAxes extracts structured axes from a canonicalized ticket-type

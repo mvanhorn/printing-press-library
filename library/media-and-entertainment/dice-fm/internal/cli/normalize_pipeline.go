@@ -6,6 +6,7 @@ import (
 	"crypto/sha1"
 	"database/sql"
 	"fmt"
+	"sort"
 
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/dice-fm/internal/store"
 )
@@ -47,9 +48,14 @@ func mintCanonicalID(entityType, canonicalName string) string {
 // runs them through Layer-A canonicalization + Layer-B tier-axis extraction,
 // and writes results to the normalization tables.
 //
-// Source values already stored with method="manual" are skipped so operator
-// overrides survive re-runs.
+// Derived rows (method != "manual") are cleared at the start of each run so
+// stale entries from previously classified source values do not linger.
+// Rows with method="manual" are preserved so operator overrides survive re-runs.
 func classifyTiers(ctx context.Context, s *store.Store, opts classifyOpts) (classifyResult, error) {
+	if err := s.ClearNormalization("ticket_type"); err != nil {
+		return classifyResult{}, fmt.Errorf("clearing stale tier normalization: %w", err)
+	}
+
 	raws, err := distinctTicketTypeNames(ctx, s.DB())
 	if err != nil {
 		return classifyResult{}, fmt.Errorf("reading ticket type names: %w", err)
@@ -128,30 +134,44 @@ func classifyTiers(ctx context.Context, s *store.Store, opts classifyOpts) (clas
 		for cn := range canonToID {
 			canonNames = append(canonNames, cn)
 		}
+		// Sort before clustering so the representative (cluster[0]) is chosen
+		// deterministically regardless of map iteration order.
+		sort.Strings(canonNames)
 		clusters := clusterNames(canonNames, 0.92)
+
+		// Hoist a single ListCrosswalk call and build an index keyed by
+		// canonical_id so we remap in O(n) instead of O(k×n).
+		allRows, err := s.ListCrosswalk("ticket_type", "dice")
+		if err != nil {
+			return classifyResult{}, fmt.Errorf("fuzzy pass list crosswalk: %w", err)
+		}
+		byCanonID := map[string][]store.CrosswalkRow{}
+		for _, r := range allRows {
+			byCanonID[r.CanonicalID] = append(byCanonID[r.CanonicalID], r)
+		}
+
 		for _, cluster := range clusters {
 			if len(cluster) < 2 {
 				continue
 			}
-			// Use the first cluster member as the representative.
+			// Use the first (lexicographically smallest) cluster member as the representative.
 			repID := canonToID[cluster[0]]
 			for _, cn := range cluster[1:] {
 				old := canonToID[cn]
 				if old == repID {
 					continue
 				}
-				// Remap crosswalk rows pointing to old ID.
-				rows, _ := s.ListCrosswalk("ticket_type", "dice")
-				for _, r := range rows {
-					if r.CanonicalID == old {
-						_ = s.UpsertCrosswalk(store.CrosswalkRow{
-							EntityType:        r.EntityType,
-							SourceSystem:      r.SourceSystem,
-							SourceValue:       r.SourceValue,
-							CanonicalID:       repID,
-							Method:            r.Method,
-							ClassifierVersion: opts.ClassifierVersion,
-						})
+				// Remap crosswalk rows pointing to old ID using the hoisted index.
+				for _, r := range byCanonID[old] {
+					if err := s.UpsertCrosswalk(store.CrosswalkRow{
+						EntityType:        r.EntityType,
+						SourceSystem:      r.SourceSystem,
+						SourceValue:       r.SourceValue,
+						CanonicalID:       repID,
+						Method:            r.Method,
+						ClassifierVersion: opts.ClassifierVersion,
+					}); err != nil {
+						return classifyResult{}, fmt.Errorf("fuzzy pass remap crosswalk %q: %w", r.SourceValue, err)
 					}
 				}
 				canonToID[cn] = repID
@@ -167,8 +187,14 @@ func classifyTiers(ctx context.Context, s *store.Store, opts classifyOpts) (clas
 // through Layer-A canonicalization + Layer-B venue-parts extraction, and writes
 // results to the normalization tables.
 //
-// Source values already stored with method="manual" are skipped.
+// Derived rows (method != "manual") are cleared at the start of each run so
+// stale entries from previously classified venues do not linger.
+// Rows with method="manual" are preserved so operator overrides survive re-runs.
 func classifyVenues(ctx context.Context, s *store.Store, opts classifyOpts) (classifyResult, error) {
+	if err := s.ClearNormalization("venue"); err != nil {
+		return classifyResult{}, fmt.Errorf("clearing stale venue normalization: %w", err)
+	}
+
 	raws, err := distinctVenueNames(ctx, s.DB())
 	if err != nil {
 		return classifyResult{}, fmt.Errorf("reading venue names: %w", err)

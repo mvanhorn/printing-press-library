@@ -49,16 +49,7 @@ func importMapping(s *store.Store, sourceSystem string, data []byte, format stri
 			return 0, fmt.Errorf("upsert crosswalk for %q: %w", r.SourceValue, err)
 		}
 		if r.ExternalID != "" {
-			// entity_external_ref has no Store method yet; write directly via the
-			// underlying DB handle. SQLite's own serialization is sufficient for
-			// the single-writer import path.
-			if _, err := s.DB().Exec(
-				`INSERT INTO entity_external_ref (entity_type, canonical_id, source_system, external_id)
-				 VALUES (?, ?, ?, ?)
-				 ON CONFLICT(entity_type, canonical_id, source_system) DO UPDATE SET
-				 	external_id = excluded.external_id`,
-				r.EntityType, cid, sourceSystem, r.ExternalID,
-			); err != nil {
+			if err := s.UpsertExternalRef(r.EntityType, cid, sourceSystem, r.ExternalID); err != nil {
 				return 0, fmt.Errorf("upsert external ref for %q: %w", r.SourceValue, err)
 			}
 		}

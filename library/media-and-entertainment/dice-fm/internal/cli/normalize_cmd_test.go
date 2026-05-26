@@ -6,9 +6,14 @@ package cli
 import (
 	"bytes"
 	"context"
+	"encoding/csv"
 	"encoding/json"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/dice-fm/internal/store"
 )
 
 // TestNormalizeCommandSummaryTiers verifies that runNormalize over a seeded
@@ -147,5 +152,164 @@ func TestNormalizeFlagsRegistered(t *testing.T) {
 		if cmd.Flags().Lookup(flagName) == nil {
 			t.Errorf("flag --%s not registered on normalize", flagName)
 		}
+	}
+}
+
+// TestExportUnmatchedCSVRoundTrip verifies that exportUnmatched writes valid
+// CSV that can be re-imported, including source values containing commas and
+// double quotes — characters that raw fmt.Fprintf would misformat.
+func TestExportUnmatchedCSVRoundTrip(t *testing.T) {
+	s := seedStore(t, map[string]map[string]string{
+		"tickets": {
+			"t1": `{"id":"t1","ticketType":{"name":"weird, name with comma"}}`,
+			"t2": `{"id":"t2","ticketType":{"name":"name with \"quote\""}}`,
+		},
+	})
+
+	// Classify so unmatched rows are written to the crosswalk.
+	if _, err := classifyTiers(context.Background(), s, classifyOpts{ClassifierVersion: 1}); err != nil {
+		t.Fatalf("classifyTiers: %v", err)
+	}
+
+	// Export unmatched rows.
+	outPath := filepath.Join(t.TempDir(), "unmatched.csv")
+	if err := exportUnmatched(context.Background(), s, "ticket_type", outPath); err != nil {
+		t.Fatalf("exportUnmatched: %v", err)
+	}
+
+	// Re-read with encoding/csv — must round-trip without parse errors and
+	// preserve the original values including embedded commas and quotes.
+	f, err := os.Open(outPath)
+	if err != nil {
+		t.Fatalf("open exported csv: %v", err)
+	}
+	defer f.Close()
+
+	reader := csv.NewReader(f)
+	records, err := reader.ReadAll()
+	if err != nil {
+		t.Fatalf("csv parse exported file: %v (file not valid CSV)", err)
+	}
+	// First row is the header.
+	if len(records) < 1 {
+		t.Fatal("exported CSV is empty")
+	}
+	// Build a set of the exported source values.
+	exported := map[string]bool{}
+	for _, rec := range records[1:] {
+		if len(rec) < 2 {
+			t.Fatalf("short record: %v", rec)
+		}
+		exported[rec[1]] = true
+	}
+	for _, want := range []string{`weird, name with comma`, `name with "quote"`} {
+		if !exported[want] {
+			t.Errorf("source value %q not found in exported CSV; got: %v", want, exported)
+		}
+	}
+}
+
+// TestIdempotentRerunClearsStaleRows verifies that a second classifyTiers call
+// does NOT leave stale crosswalk rows when a ticket's source value was removed
+// from the store between runs, and that a method='manual' row survives.
+func TestIdempotentRerunClearsStaleRows(t *testing.T) {
+	s := seedStore(t, map[string]map[string]string{
+		"tickets": {
+			"t1": `{"id":"t1","ticketType":{"name":"General Admission"}}`,
+			"t2": `{"id":"t2","ticketType":{"name":"stale ticket type"}}`,
+		},
+	})
+
+	// Pre-seed a manual crosswalk row that must survive.
+	if err := s.UpsertCrosswalk(store.CrosswalkRow{
+		EntityType: "ticket_type", SourceSystem: "dice",
+		SourceValue: "manual override", CanonicalID: "ticket_type:manual-999",
+		Method: "manual", ClassifierVersion: 1,
+	}); err != nil {
+		t.Fatalf("pre-seed manual: %v", err)
+	}
+
+	// First classify run.
+	if _, err := classifyTiers(context.Background(), s, classifyOpts{ClassifierVersion: 1}); err != nil {
+		t.Fatalf("first classifyTiers: %v", err)
+	}
+
+	// Verify "stale ticket type" was classified.
+	cw, _ := s.ListCrosswalk("ticket_type", "dice")
+	hasStale := false
+	for _, r := range cw {
+		if r.SourceValue == "stale ticket type" {
+			hasStale = true
+		}
+	}
+	if !hasStale {
+		t.Fatal("stale ticket type row missing after first run")
+	}
+
+	// Remove the stale ticket from the store.
+	if _, err := s.DB().Exec(`DELETE FROM resources WHERE resource_type='tickets' AND id='t2'`); err != nil {
+		t.Fatalf("delete stale ticket: %v", err)
+	}
+
+	// Second classify run — classifyTiers calls ClearNormalization first, so
+	// stale derived rows must be gone.
+	if _, err := classifyTiers(context.Background(), s, classifyOpts{ClassifierVersion: 1}); err != nil {
+		t.Fatalf("second classifyTiers: %v", err)
+	}
+
+	cw2, _ := s.ListCrosswalk("ticket_type", "dice")
+	for _, r := range cw2 {
+		if r.SourceValue == "stale ticket type" {
+			t.Errorf("stale crosswalk row survived second run: %+v", r)
+		}
+	}
+	// Manual row must survive.
+	manualFound := false
+	for _, r := range cw2 {
+		if r.SourceValue == "manual override" && r.Method == "manual" {
+			manualFound = true
+		}
+	}
+	if !manualFound {
+		t.Errorf("manual crosswalk row did not survive second run; rows=%+v", cw2)
+	}
+}
+
+// TestNormalizeCommandWithImportSurvivesRerun extends TestNormalizeCommandWithImport
+// by verifying the imported manual row still has method="manual" after a second
+// runNormalize call (ClearNormalization preserves manual rows).
+func TestNormalizeCommandWithImportSurvivesRerun(t *testing.T) {
+	s := seedStore(t, map[string]map[string]string{})
+
+	csvData := "entity_type,source_value,canonical_name\nticket_type,weird name,general admission\n"
+	opts := normalizeOpts{
+		Tiers:             true,
+		ClassifierVersion: 1,
+		ImportData:        []byte(csvData),
+		ImportFormat:      "csv",
+	}
+
+	// First run (import + classify).
+	var buf bytes.Buffer
+	if err := runNormalize(context.Background(), s, opts, &buf); err != nil {
+		t.Fatalf("first runNormalize: %v", err)
+	}
+
+	// Second run without import data (re-classify only).
+	opts2 := normalizeOpts{Tiers: true, ClassifierVersion: 1}
+	var buf2 bytes.Buffer
+	if err := runNormalize(context.Background(), s, opts2, &buf2); err != nil {
+		t.Fatalf("second runNormalize: %v", err)
+	}
+
+	cw, _ := s.ListCrosswalk("ticket_type", "dice")
+	found := false
+	for _, r := range cw {
+		if r.SourceValue == "weird name" && r.Method == "manual" {
+			found = true
+		}
+	}
+	if !found {
+		t.Errorf("manual crosswalk row did not survive second runNormalize; rows=%+v", cw)
 	}
 }

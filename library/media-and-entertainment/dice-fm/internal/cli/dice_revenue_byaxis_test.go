@@ -4,11 +4,59 @@
 package cli
 
 import (
+	"bytes"
 	"context"
 	"testing"
 
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/dice-fm/internal/store"
 )
+
+// TestRevenueSummaryByAxisRejectsFilters verifies that --by-axis combined with
+// --event, --from, or --to returns a clear error rather than silently ignoring
+// the filter flags.
+func TestRevenueSummaryByAxisRejectsFilters(t *testing.T) {
+	cases := []struct {
+		name string
+		args []string
+	}{
+		{"by-axis + event", []string{"revenue", "summary", "--by-axis", "access_class", "--event", "evt-123"}},
+		{"by-axis + from", []string{"revenue", "summary", "--by-axis", "access_class", "--from", "2026-01-01"}},
+		{"by-axis + to", []string{"revenue", "summary", "--by-axis", "access_class", "--to", "2026-12-31"}},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			flags := &rootFlags{}
+			root := newRootCmd(flags)
+			var outBuf, errBuf bytes.Buffer
+			root.SetOut(&outBuf)
+			root.SetErr(&errBuf)
+			root.SetArgs(tc.args)
+			err := root.Execute()
+			if err == nil {
+				t.Errorf("want error when --by-axis combined with filter flag, got nil")
+				return
+			}
+			msg := err.Error()
+			if !containsAny(msg, "--by-axis", "by-axis") {
+				t.Errorf("error message should mention --by-axis; got: %q", msg)
+			}
+		})
+	}
+}
+
+// containsAny reports whether s contains any of the given substrings.
+func containsAny(s string, subs ...string) bool {
+	for _, sub := range subs {
+		if len(s) >= len(sub) {
+			for i := 0; i <= len(s)-len(sub); i++ {
+				if s[i:i+len(sub)] == sub {
+					return true
+				}
+			}
+		}
+	}
+	return false
+}
 
 // TestRevenueByAxisFallsBackWhenUnnormalized verifies that computeRevenueByAxis
 // returns Normalized=false and does not error when the entity_crosswalk table
