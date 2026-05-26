@@ -33,6 +33,11 @@ type normalizeOpts struct {
 	// ExportUnmatched, when non-empty, is the file path to write unmatched
 	// source values for external classification.
 	ExportUnmatched string
+	// ExportFormat controls the shape of the --export-unmatched file.
+	// "prompt" (default) writes a self-describing classification request with
+	// the tier-axis rubric and import schema. "names" writes only the CSV of
+	// source_value names for programmatic use.
+	ExportFormat string
 	// ImportData, when non-nil, is pre-loaded import bytes to feed to
 	// importMapping before the classify pipeline runs.
 	ImportData []byte
@@ -85,7 +90,7 @@ func runNormalize(ctx context.Context, s *store.Store, opts normalizeOpts, w io.
 		}
 		// Export unmatched names when requested.
 		if opts.ExportUnmatched != "" && res.Unmatched > 0 {
-			if err := exportUnmatched(ctx, s, "ticket_type", opts.ExportUnmatched); err != nil {
+			if err := exportUnmatchedWithFormat(ctx, s, "ticket_type", opts.ExportUnmatched, opts.ExportFormat); err != nil {
 				fmt.Fprintf(os.Stderr, "warning: export-unmatched: %v\n", err)
 			}
 		}
@@ -102,7 +107,7 @@ func runNormalize(ctx context.Context, s *store.Store, opts normalizeOpts, w io.
 			Unmatched:      res.Unmatched,
 		}
 		if opts.ExportUnmatched != "" && res.Unmatched > 0 {
-			if err := exportUnmatched(ctx, s, "venue", opts.ExportUnmatched); err != nil {
+			if err := exportUnmatchedWithFormat(ctx, s, "venue", opts.ExportUnmatched, opts.ExportFormat); err != nil {
 				fmt.Fprintf(os.Stderr, "warning: export-unmatched venues: %v\n", err)
 			}
 		}
@@ -111,19 +116,50 @@ func runNormalize(ctx context.Context, s *store.Store, opts normalizeOpts, w io.
 	return json.NewEncoder(w).Encode(summary)
 }
 
-// exportUnmatched writes source values with method="unmatched" for the given
-// entity type to a CSV file at path. Each row is: entity_type,source_value.
-// Values are written via encoding/csv so source values containing commas,
-// quotes, or newlines are correctly escaped and can be round-tripped.
-func exportUnmatched(ctx context.Context, s *store.Store, entityType, path string) error {
-	rows, err := s.DB().QueryContext(ctx,
+// exportUnmatchedWithFormat writes unmatched source values for the given entity
+// type to path in one of two formats controlled by format:
+//   - "prompt" or "" (default): a self-describing classification request
+//     containing the tier-axis rubric, import schema, and the unmatched names.
+//   - "names": a minimal CSV of just the source_value names, for programmatic
+//     use by callers that do not need the rubric preamble.
+//
+// Unknown format values return an error immediately without touching the store.
+func exportUnmatchedWithFormat(ctx context.Context, s *store.Store, entityType, path, format string) error {
+	// Validate format before touching the store; nil store is valid only for
+	// pre-flight format validation (used by tests that pass nil).
+	switch format {
+	case "prompt", "":
+		// default — OK
+	case "names":
+		// explicit names — OK
+	default:
+		return fmt.Errorf("unknown --export-format %q: must be prompt or names", format)
+	}
+
+	if s == nil {
+		return nil
+	}
+
+	dbRows, err := s.DB().QueryContext(ctx,
 		`SELECT source_value FROM entity_crosswalk
 		 WHERE entity_type = ? AND method = 'unmatched'
 		 ORDER BY source_value`, entityType)
 	if err != nil {
 		return err
 	}
-	defer rows.Close()
+	defer dbRows.Close()
+
+	var names []string
+	for dbRows.Next() {
+		var sv string
+		if err := dbRows.Scan(&sv); err != nil {
+			return err
+		}
+		names = append(names, sv)
+	}
+	if err := dbRows.Err(); err != nil {
+		return err
+	}
 
 	f, err := os.Create(filepath.Clean(path))
 	if err != nil {
@@ -131,24 +167,89 @@ func exportUnmatched(ctx context.Context, s *store.Store, entityType, path strin
 	}
 	defer f.Close()
 
-	w := csv.NewWriter(f)
-	if err := w.Write([]string{"entity_type", "source_value"}); err != nil {
+	if format == "names" {
+		return writeNamesCSV(f, names)
+	}
+	// Default: prompt format.
+	return writePromptExport(f, names)
+}
+
+// writeNamesCSV writes a minimal CSV with a single source_value column.
+func writeNamesCSV(w io.Writer, names []string) error {
+	cw := csv.NewWriter(w)
+	if err := cw.Write([]string{"source_value"}); err != nil {
 		return err
 	}
-	for rows.Next() {
-		var sv string
-		if err := rows.Scan(&sv); err != nil {
-			return err
-		}
-		if err := w.Write([]string{entityType, sv}); err != nil {
+	for _, name := range names {
+		if err := cw.Write([]string{name}); err != nil {
 			return err
 		}
 	}
-	w.Flush()
-	if err := w.Error(); err != nil {
+	cw.Flush()
+	return cw.Error()
+}
+
+// promptHeader is the static preamble for the prompt export format.
+// It contains the tier-axis rubric and the import schema that the classifying
+// LLM must produce. Only the names section that follows it is tenant data.
+const promptHeader = `CLASSIFICATION REQUEST — Tier-Axis Labeling
+===========================================
+
+Your task: classify each ticket-type name below against the rubric and return
+a CSV (or JSON array) in the exact import schema. Do not add rows that are not
+listed. Return only the data — no explanation.
+
+TIER-AXIS RUBRIC
+----------------
+
+access_class   : the access level or area of the ticket.
+  Allowed values: ga, vip, premium, or empty.
+
+sales_stage    : the pricing/release wave.
+  Allowed values: super_early_bird, early_bird, final_release, last_chance, tier_n, or empty.
+
+entry_window_type : the entry timing constraint.
+  Allowed values: deadline, anytime, door, or empty.
+  When type=deadline, set entry_window_time to HH:MM (24h); otherwise leave empty.
+
+entry_window_time : HH:MM (24h) only when entry_window_type=deadline; otherwise empty.
+
+group_size     : integer party size (e.g. "You+2" means 3); 0 or empty = single ticket.
+
+comp_flag      : true if the ticket is complimentary/free; false otherwise.
+
+IMPORT SCHEMA (CSV columns, in order)
+--------------------------------------
+source_value,access_class,sales_stage,entry_window_type,entry_window_time,group_size,comp_flag
+
+JSON alternative (array of objects with the same keys) is also accepted.
+
+Rules:
+- Every name below must appear as source_value exactly as written.
+- Use empty string for any axis you cannot confidently classify.
+- Do not invent or rename any column.
+- Do not include a header row when returning JSON.
+
+---
+source_value
+`
+
+// writePromptExport writes the self-describing classification request to w.
+// The header section contains the rubric and import schema; the names section
+// is a CSV of source_value entries (one per line, properly encoded).
+func writePromptExport(w io.Writer, names []string) error {
+	if _, err := io.WriteString(w, promptHeader); err != nil {
 		return err
 	}
-	return rows.Err()
+	// Write each name as a CSV row so embedded commas/quotes are properly escaped.
+	cw := csv.NewWriter(w)
+	for _, name := range names {
+		if err := cw.Write([]string{name}); err != nil {
+			return err
+		}
+	}
+	cw.Flush()
+	return cw.Error()
 }
 
 // newNormalizeCmd returns the `normalize` cobra command and its subcommands.
@@ -162,6 +263,7 @@ func newNormalizeCmd(flags *rootFlags) *cobra.Command {
 		fuzzy             bool
 		classifierVersion int
 		exportUnmatched   string
+		exportFormat      string
 		importFile        string
 		tiersSet          bool
 		venuesSet         bool
@@ -223,6 +325,7 @@ func newNormalizeCmd(flags *rootFlags) *cobra.Command {
 				Fuzzy:             fuzzy,
 				ClassifierVersion: classifierVersion,
 				ExportUnmatched:   exportUnmatched,
+				ExportFormat:      exportFormat,
 				ImportData:        importData,
 				ImportFormat:      importFormat,
 			}
@@ -235,6 +338,7 @@ func newNormalizeCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().BoolVar(&fuzzy, "fuzzy", false, "Enable Jaro-Winkler clustering of near-duplicate canonical names (default false; deterministic without it)")
 	cmd.Flags().IntVar(&classifierVersion, "classifier-version", 1, "Classifier version stamped on written rows (default 1)")
 	cmd.Flags().StringVar(&exportUnmatched, "export-unmatched", "", "Write unmatched source values to this CSV file path for external classification")
+	cmd.Flags().StringVar(&exportFormat, "export-format", "prompt", `Format for --export-unmatched: "prompt" (default) writes a self-describing classification request with tier-axis rubric; "names" writes only the source_value CSV`)
 	cmd.Flags().StringVar(&importFile, "import", "", "Import a caller-supplied CSV or JSON mapping file (method=manual rows survive re-classification)")
 
 	// Track whether the caller explicitly set --tiers or --venues so the default

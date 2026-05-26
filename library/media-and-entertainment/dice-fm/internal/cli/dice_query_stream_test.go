@@ -109,7 +109,7 @@ func TestFetchConnectionStream_MultiPageEarlyStop(t *testing.T) {
 	seenCursors := []string{}
 
 	truncated, err := fetchConnectionStream(
-		context.Background(), c, "events", nil, 50, 0, "", false,
+		context.Background(), c, "events", nil, 50, 0, "", false, false,
 		func(pageNodes []json.RawMessage, endCursor string, fetched int) error {
 			callCount++
 			totalNodes += len(pageNodes)
@@ -193,7 +193,7 @@ func TestFetchConnectionStream_MaxCapTruncation(t *testing.T) {
 	var callCount int
 
 	truncated, err := fetchConnectionStream(
-		context.Background(), c, "events", nil, 3, 5, "", false,
+		context.Background(), c, "events", nil, 3, 5, "", false, false,
 		func(pageNodes []json.RawMessage, endCursor string, fetched int) error {
 			callCount++
 			deliveredNodes += len(pageNodes)
@@ -239,7 +239,7 @@ func TestFetchConnectionStream_OnPageErrorStopsLoop(t *testing.T) {
 	var callCount int
 
 	_, err := fetchConnectionStream(
-		context.Background(), c, "events", nil, 50, 0, "", false,
+		context.Background(), c, "events", nil, 50, 0, "", false, false,
 		func(pageNodes []json.RawMessage, endCursor string, fetched int) error {
 			callCount++
 			return sentinel
@@ -273,7 +273,7 @@ func TestFetchConnectionStream_UnknownResource(t *testing.T) {
 	c := newTestClient(t, srv)
 
 	_, err := fetchConnectionStream(
-		context.Background(), c, "does-not-exist", nil, 50, 0, "", false,
+		context.Background(), c, "does-not-exist", nil, 50, 0, "", false, false,
 		func(_ []json.RawMessage, _ string, _ int) error { return nil },
 	)
 	if err == nil {

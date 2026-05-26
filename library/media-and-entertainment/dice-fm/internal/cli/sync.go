@@ -41,6 +41,7 @@ func newSyncCmd(flags *rootFlags) *cobra.Command {
 	var dbPath string
 	var maxPages int
 	var latestOnly bool
+	var orderTickets bool
 
 	cmd := &cobra.Command{
 		Use:   "sync",
@@ -160,7 +161,7 @@ Exit codes & warnings:
 				go func() {
 					defer wg.Done()
 					for resource := range work {
-						results <- syncResource(cmd.Context(), c, db, resource, sinceTS, full, maxPages, latestFetch)
+						results <- syncResource(cmd.Context(), c, db, resource, sinceTS, full, maxPages, latestFetch, orderTickets)
 					}
 				}()
 			}
@@ -244,6 +245,7 @@ Exit codes & warnings:
 	cmd.Flags().StringVar(&dbPath, "db", "", "Database path (default: ~/.local/share/dice-fm-pp-cli/data.db)")
 	cmd.Flags().IntVar(&maxPages, "max-pages", 0, "Maximum pages to fetch per resource (0 = unlimited; default fetches all)")
 	cmd.Flags().BoolVar(&latestOnly, "latest-only", false, "Refresh head of each resource only; clears resume cursor and caps pages at 1. Mutually exclusive with --since (--since wins).")
+	cmd.Flags().BoolVar(&orderTickets, "order-tickets", false, "Also fetch each order's tickets (enables date/event-scoped `revenue --by-axis`; slower — heavier payload, opt-in).")
 
 	return cmd
 }
@@ -253,8 +255,9 @@ Exit codes & warnings:
 // it also derives the fans table from embedded holder/fan objects, since DICE
 // exposes no top-level fan connection. Each page is upserted immediately and
 // the resume cursor is advanced per page so an interrupted sync can resume from
-// the last completed page rather than restarting from scratch.
-func syncResource(ctx context.Context, c *client.Client, db *store.Store, resource, sinceTS string, full bool, maxPages int, latest bool) syncResult {
+// the last completed page rather than restarting from scratch. enrichOrders
+// selects the heavier per-ticket nested selection for orders; see --order-tickets.
+func syncResource(ctx context.Context, c *client.Client, db *store.Store, resource, sinceTS string, full bool, maxPages int, latest bool, enrichOrders bool) syncResult {
 	started := time.Now()
 	if !humanFriendly {
 		// json.Marshal escapes the resource name so a value containing a quote,
@@ -288,7 +291,7 @@ func syncResource(ctx context.Context, c *client.Client, db *store.Store, resour
 	var stored, fanCount int
 	lastHeartbeat := time.Now()
 
-	_, err := fetchConnectionStream(ctx, c, resource, where, dicePerPage, max, startCursor, latest,
+	_, err := fetchConnectionStream(ctx, c, resource, where, dicePerPage, max, startCursor, latest, enrichOrders,
 		func(pageNodes []json.RawMessage, endCursor string, totalFetched int) error {
 			pageStored, _, upsertErr := db.UpsertBatch(resource, pageNodes)
 			if upsertErr != nil {

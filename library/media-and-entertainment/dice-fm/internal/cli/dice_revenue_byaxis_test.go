@@ -11,10 +11,11 @@ import (
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/dice-fm/internal/store"
 )
 
-// TestRevenueSummaryByAxisRejectsFilters verifies that --by-axis combined with
-// --event, --from, or --to returns a clear error rather than silently ignoring
-// the filter flags.
-func TestRevenueSummaryByAxisRejectsFilters(t *testing.T) {
+// TestRevenueSummaryByAxisWithFiltersSucceeds verifies that --by-axis combined
+// with --event, --from, or --to is now accepted (routes to the scoped path) and
+// does NOT return an error. The previous rejection behavior was removed when
+// computeRevenueByAxisScoped was added to support date/event-scoped axis views.
+func TestRevenueSummaryByAxisWithFiltersSucceeds(t *testing.T) {
 	cases := []struct {
 		name string
 		args []string
@@ -25,37 +26,18 @@ func TestRevenueSummaryByAxisRejectsFilters(t *testing.T) {
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			flags := &rootFlags{}
+			flags := &rootFlags{dryRun: true}
 			root := newRootCmd(flags)
 			var outBuf, errBuf bytes.Buffer
 			root.SetOut(&outBuf)
 			root.SetErr(&errBuf)
 			root.SetArgs(tc.args)
 			err := root.Execute()
-			if err == nil {
-				t.Errorf("want error when --by-axis combined with filter flag, got nil")
-				return
-			}
-			msg := err.Error()
-			if !containsAny(msg, "--by-axis", "by-axis") {
-				t.Errorf("error message should mention --by-axis; got: %q", msg)
+			if err != nil {
+				t.Errorf("want no error when --by-axis combined with filter flag, got: %v", err)
 			}
 		})
 	}
-}
-
-// containsAny reports whether s contains any of the given substrings.
-func containsAny(s string, subs ...string) bool {
-	for _, sub := range subs {
-		if len(s) >= len(sub) {
-			for i := 0; i <= len(s)-len(sub); i++ {
-				if s[i:i+len(sub)] == sub {
-					return true
-				}
-			}
-		}
-	}
-	return false
 }
 
 // TestRevenueByAxisFallsBackWhenUnnormalized verifies that computeRevenueByAxis

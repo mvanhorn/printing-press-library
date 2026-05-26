@@ -161,10 +161,12 @@ These capabilities aren't available in any other tool for this API.
 
 **normalize** — Canonicalize manually-entered ticket-type and venue names into structured axes (parallel and re-runnable; raw synced data is never modified)
 
-- `dice-fm-pp-cli normalize` — Resolve raw names → canonical entities + axes (`--tiers`, `--venues`, `--fuzzy`, `--export-unmatched <file>`, `--import <file.csv|.json>`)
+- `dice-fm-pp-cli normalize` — Resolve raw names → canonical entities + axes (`--tiers`, `--venues`, `--fuzzy`, `--export-unmatched <file>`, `--export-format prompt|names`, `--import <file.csv|.json>`)
 - `dice-fm-pp-cli normalize stats` — Show the normalized axis distribution
 
   Query the normalized view via `revenue summary --by-axis <access_class|sales_stage|entry_window_type|group_size|comp_flag>`. Raw is the default; `--by-axis` falls back to raw (with a warning) if `normalize` has not been run. Normalization is local-only — resolved name mappings never leave your machine.
+
+  Future: `--classifier-cmd <path>` will let you bring your own LLM subprocess for classification; the external command owns its auth and credentials.
 
 
 ### Finding the right command
@@ -219,6 +221,29 @@ dice-fm-pp-cli velocity show --event RXZlbnQ6MTIzNDU= --bucket hour --json --sel
 ```
 
 Shows hourly cumulative ticket sales relative to on-sale time so you can decide if an event needs promotional push.
+
+### Classify the unmatched tier tail
+
+When `normalize --tiers` leaves names unmatched, the CLI cannot infer their tier axes. This recipe lets you (as the classifying LLM) do it:
+
+```bash
+# Step 1 — export the unmatched names as a self-describing classification request.
+# The file contains the tier-axis rubric, the exact import schema, and the names.
+dice-fm-pp-cli normalize --tiers --export-unmatched tail.txt
+# --export-format prompt is the default; omit it or set it explicitly.
+
+# Step 2 — you are the classifier.
+# Read tail.txt. For each name, assign axis values per the rubric.
+# Write the result as tail.csv with columns:
+#   source_value,access_class,sales_stage,entry_window_type,entry_window_time,group_size,comp_flag
+# Use empty string for any axis you cannot confidently classify.
+# JSON array format is also accepted.
+
+# Step 3 — import the classification back.
+dice-fm-pp-cli normalize --import tail.csv
+```
+
+The imported rows are tagged `method=manual` and survive subsequent `normalize` re-runs. Re-run `normalize stats` to confirm the axes are now populated.
 
 ## Auth Setup
 

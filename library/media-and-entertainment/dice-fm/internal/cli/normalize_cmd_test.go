@@ -171,10 +171,10 @@ func TestExportUnmatchedCSVRoundTrip(t *testing.T) {
 		t.Fatalf("classifyTiers: %v", err)
 	}
 
-	// Export unmatched rows.
+	// Export unmatched rows (names format keeps the old CSV-only behaviour).
 	outPath := filepath.Join(t.TempDir(), "unmatched.csv")
-	if err := exportUnmatched(context.Background(), s, "ticket_type", outPath); err != nil {
-		t.Fatalf("exportUnmatched: %v", err)
+	if err := exportUnmatchedWithFormat(context.Background(), s, "ticket_type", outPath, "names"); err != nil {
+		t.Fatalf("exportUnmatchedWithFormat: %v", err)
 	}
 
 	// Re-read with encoding/csv — must round-trip without parse errors and
@@ -194,13 +194,14 @@ func TestExportUnmatchedCSVRoundTrip(t *testing.T) {
 	if len(records) < 1 {
 		t.Fatal("exported CSV is empty")
 	}
-	// Build a set of the exported source values.
+	// Build a set of the exported source values. The "names" format writes a
+	// single source_value column, so rec[0] is the value.
 	exported := map[string]bool{}
 	for _, rec := range records[1:] {
-		if len(rec) < 2 {
+		if len(rec) < 1 {
 			t.Fatalf("short record: %v", rec)
 		}
-		exported[rec[1]] = true
+		exported[rec[0]] = true
 	}
 	for _, want := range []string{`weird, name with comma`, `name with "quote"`} {
 		if !exported[want] {

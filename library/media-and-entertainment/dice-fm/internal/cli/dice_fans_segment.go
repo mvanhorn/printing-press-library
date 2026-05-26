@@ -9,6 +9,8 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"io"
+	"os"
 	"sort"
 	"strings"
 
@@ -35,12 +37,88 @@ type segmentFilters struct {
 	optedIn    bool
 	fromDate   string // YYYY-MM-DD show-date lower bound
 	toDate     string // YYYY-MM-DD show-date upper bound
+
+	// Normalized-axis filters — resolved via entity_crosswalk + tier_attributes.
+	// Require normalization to have been run; emit a warning and return no rows
+	// when the crosswalk table is empty.
+	accessClass  string // match fans with any ticket whose access_class equals this value
+	salesStage   string // match fans with any ticket whose sales_stage equals this value
+	entryWindow  string // match fans with any ticket whose entry_window_type equals this value
+	comp         bool   // match fans with any ticket whose comp_flag is true
+	minGroupSize int    // match fans with any ticket whose group_size >= N (N>0 to activate)
+}
+
+// ticketAxisAttrs holds all five tier-axis values for a single ticketType.name,
+// resolved from entity_crosswalk + tier_attributes. found=false means the type
+// has no crosswalk row (or method='unmatched').
+type ticketAxisAttrs struct {
+	found       bool
+	accessClass string
+	salesStage  string
+	entryWindow string
+	compFlag    bool
+	groupSize   int
+}
+
+// loadAllTicketTypeAxes fetches entity_crosswalk + tier_attributes for all
+// ticket_type entries and returns a name→ticketAxisAttrs map for O(1) lookup.
+func loadAllTicketTypeAxes(ctx context.Context, db *sql.DB) (map[string]ticketAxisAttrs, error) {
+	rows, err := db.QueryContext(ctx, `
+		SELECT
+			ec.source_value,
+			ec.method,
+			COALESCE(ta.access_class,      '') AS access_class,
+			COALESCE(ta.sales_stage,       '') AS sales_stage,
+			COALESCE(ta.entry_window_type, '') AS entry_window_type,
+			COALESCE(ta.comp_flag,          0) AS comp_flag,
+			COALESCE(ta.group_size,         0) AS group_size
+		FROM entity_crosswalk ec
+		LEFT JOIN tier_attributes ta ON ta.canonical_id = ec.canonical_id
+		WHERE ec.entity_type   = 'ticket_type'
+		  AND ec.source_system = 'dice'
+	`)
+	if err != nil {
+		return nil, fmt.Errorf("loading ticket type axes: %w", err)
+	}
+	defer rows.Close()
+	m := map[string]ticketAxisAttrs{}
+	for rows.Next() {
+		var sourceVal, method, ac, ss, ew string
+		var compInt, gs int
+		if err := rows.Scan(&sourceVal, &method, &ac, &ss, &ew, &compInt, &gs); err != nil {
+			return nil, fmt.Errorf("scanning ticket axis row: %w", err)
+		}
+		if method == "unmatched" {
+			m[sourceVal] = ticketAxisAttrs{found: false}
+		} else {
+			m[sourceVal] = ticketAxisAttrs{
+				found:       true,
+				accessClass: ac,
+				salesStage:  ss,
+				entryWindow: ew,
+				compFlag:    compInt != 0,
+				groupSize:   gs,
+			}
+		}
+	}
+	return m, rows.Err()
+}
+
+// hasAxisFilters reports whether any normalized-axis filter is active.
+func hasAxisFilters(f segmentFilters) bool {
+	return f.accessClass != "" || f.salesStage != "" || f.entryWindow != "" || f.comp || f.minGroupSize > 0
 }
 
 // computeFansSegment filters fans from the local order, ticket, and event store.
 // A fan must satisfy ALL provided (non-zero) filter values. Results are sorted
 // by total_spend descending.
 func computeFansSegment(ctx context.Context, db *sql.DB, f segmentFilters) ([]fanSegmentRow, error) {
+	return computeFansSegmentWithStderr(ctx, db, f, os.Stderr)
+}
+
+// computeFansSegmentWithStderr is the internal implementation with an injectable
+// stderr writer for testability of warning emission.
+func computeFansSegmentWithStderr(ctx context.Context, db *sql.DB, f segmentFilters, stderr io.Writer) ([]fanSegmentRow, error) {
 	orders, err := readOrders(ctx, db)
 	if err != nil {
 		return nil, err
@@ -64,16 +142,38 @@ func computeFansSegment(ctx context.Context, db *sql.DB, f segmentFilters) ([]fa
 		}
 	}
 
-	// Build per-holder ticket index keyed by holder email for type/tier filters.
-	// Ticket rows carry no event reference, so this is a global set for the
-	// holder's purchased ticket types/tiers. The segment applies the filter as
-	// "did this fan ever buy a ticket of this type/tier across any event".
+	// Normalized-axis filter path: when any axis filter is requested, check
+	// whether the crosswalk has been populated. If not, warn and return no rows —
+	// the filter cannot be satisfied. If populated, load all axes at once.
+	var axisMap map[string]ticketAxisAttrs
+	if hasAxisFilters(f) {
+		var crosswalkCount int
+		if err := db.QueryRowContext(ctx,
+			`SELECT COUNT(*) FROM entity_crosswalk WHERE entity_type = 'ticket_type'`,
+		).Scan(&crosswalkCount); err != nil {
+			return nil, fmt.Errorf("checking crosswalk for axis filters: %w", err)
+		}
+		if crosswalkCount == 0 {
+			fmt.Fprintf(stderr, "warning: normalization not run; --access-class/--sales-stage/--entry-window/--comp/--min-group-size require `normalize` — run it first\n")
+			return []fanSegmentRow{}, nil
+		}
+		axisMap, err = loadAllTicketTypeAxes(ctx, db)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	// Build per-holder ticket index keyed by holder email for type/tier filters
+	// and for axis filters. Ticket rows carry no event reference, so this is a
+	// global set for the holder's purchased ticket types/tiers. The segment
+	// applies the filter as "did this fan ever buy a ticket of this type/tier
+	// across any event".
 	type ticketInfo struct {
 		typeName string
 		tierName string
 	}
 	holderTickets := map[string][]ticketInfo{} // email -> ticket infos
-	if f.ticketType != "" || f.tier != "" {
+	if f.ticketType != "" || f.tier != "" || axisMap != nil {
 		tickets, terr := readTickets(ctx, db)
 		if terr != nil {
 			return nil, terr
@@ -229,6 +329,51 @@ func computeFansSegment(ctx context.Context, db *sql.DB, f segmentFilters) ([]fa
 				continue
 			}
 		}
+		// Normalized-axis filters: a fan qualifies if ANY of their tickets resolves
+		// to the requested axis value. ALL requested axis filters must be satisfied
+		// (AND semantics). total_spend/events_count are NOT shrunk.
+		if axisMap != nil {
+			tickets := holderTickets[email]
+			wantAC := f.accessClass != ""
+			wantSS := f.salesStage != ""
+			wantEW := f.entryWindow != ""
+			wantComp := f.comp
+			wantGS := f.minGroupSize > 0
+
+			matchedAC := !wantAC
+			matchedSS := !wantSS
+			matchedEW := !wantEW
+			matchedComp := !wantComp
+			matchedGS := !wantGS
+
+			for _, ti := range tickets {
+				attrs, ok := axisMap[ti.typeName]
+				if !ok || !attrs.found {
+					continue
+				}
+				if wantAC && !matchedAC && attrs.accessClass == f.accessClass {
+					matchedAC = true
+				}
+				if wantSS && !matchedSS && attrs.salesStage == f.salesStage {
+					matchedSS = true
+				}
+				if wantEW && !matchedEW && attrs.entryWindow == f.entryWindow {
+					matchedEW = true
+				}
+				if wantComp && !matchedComp && attrs.compFlag {
+					matchedComp = true
+				}
+				if wantGS && !matchedGS && attrs.groupSize >= f.minGroupSize {
+					matchedGS = true
+				}
+				if matchedAC && matchedSS && matchedEW && matchedComp && matchedGS {
+					break
+				}
+			}
+			if !matchedAC || !matchedSS || !matchedEW || !matchedComp || !matchedGS {
+				continue
+			}
+		}
 		rows = append(rows, fanSegmentRow{
 			Email:       email,
 			Name:        g.name,
@@ -282,7 +427,7 @@ func newFansSegmentCmd(flags *rootFlags) *cobra.Command {
 				return printJSONFiltered(cmd.OutOrStdout(), []fanSegmentRow{}, flags)
 			}
 			defer s.Close()
-			rows, err := computeFansSegment(cmd.Context(), s.DB(), f)
+			rows, err := computeFansSegmentWithStderr(cmd.Context(), s.DB(), f, cmd.ErrOrStderr())
 			if err != nil {
 				return fmt.Errorf("computing fan segment: %w", err)
 			}
@@ -298,5 +443,11 @@ func newFansSegmentCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().BoolVar(&f.optedIn, "opted-in", false, "Only fans with optInPartners == true")
 	cmd.Flags().StringVar(&f.fromDate, "from", "", "Only orders for shows on or after this date (YYYY-MM-DD, by show date)")
 	cmd.Flags().StringVar(&f.toDate, "to", "", "Only orders for shows on or before this date (YYYY-MM-DD, by show date)")
+	// Normalized-axis filters (require `normalize` to have been run first).
+	cmd.Flags().StringVar(&f.accessClass, "access-class", "", "Only fans holding a ticket whose normalized access_class equals this value (e.g. vip, ga); requires normalize")
+	cmd.Flags().StringVar(&f.salesStage, "sales-stage", "", "Only fans holding a ticket whose normalized sales_stage equals this value (e.g. early_bird); requires normalize")
+	cmd.Flags().StringVar(&f.entryWindow, "entry-window", "", "Only fans holding a ticket whose normalized entry_window_type equals this value (deadline|anytime|door); requires normalize")
+	cmd.Flags().BoolVar(&f.comp, "comp", false, "Only fans holding at least one comp/guestlist ticket (comp_flag=true); requires normalize")
+	cmd.Flags().IntVar(&f.minGroupSize, "min-group-size", 0, "Only fans holding a ticket whose normalized group_size >= N (0 = no minimum); requires normalize")
 	return cmd
 }

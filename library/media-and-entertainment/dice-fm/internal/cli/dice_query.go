@@ -43,6 +43,18 @@ const (
 		address { town county postCode countryCode }
 		fees { category promoter dice }`
 
+	// orderSelectionWithTickets extends orderSelection with per-order nested
+	// tickets. This is the enriched selection used when --order-tickets is set
+	// on sync. Fetching nested tickets is opt-in: the payload is significantly
+	// heavier and makes full syncs much slower. Required for date/event-scoped
+	// revenue --by-axis analysis.
+	//
+	// NOTE: the nested tickets fetch below should be validated against the live
+	// API for payload size and query complexity before relying on it in
+	// production — DICE may apply per-order ticket limits or add latency.
+	orderSelectionWithTickets = orderSelection + `
+		tickets { id total ticketType { name } priceTier { name } }`
+
 	returnSelection = `id ticketId returnedAt reason
 		ticket { id }
 		order { id event { id name } }`
@@ -80,6 +92,20 @@ var diceConnections = map[string]connectionSpec{
 	"transfers": {field: "ticketTransfers", whereType: "TicketTransferWhereInput", selection: transferSelection},
 	"extras":    {field: "extras", whereType: "ExtraWhereInput", selection: extraSelection},
 	"genres":    {field: "genreTypes", whereType: "", selection: genreTypeSelection},
+}
+
+// effectiveConnectionSpec returns the connectionSpec for resource, substituting
+// the enriched order selection (including nested tickets) when enrichOrders is
+// true and the resource is "orders". All other resources are unaffected.
+func effectiveConnectionSpec(resource string, enrichOrders bool) (connectionSpec, bool) {
+	cs, ok := diceConnections[resource]
+	if !ok {
+		return connectionSpec{}, false
+	}
+	if enrichOrders && resource == "orders" {
+		cs.selection = orderSelectionWithTickets
+	}
+	return cs, true
 }
 
 // buildConnectionQuery renders a paginated viewer-connection query. When latest
@@ -193,7 +219,8 @@ func isVerifySynthetic(raw json.RawMessage) bool {
 // perPage caps the page size; max caps total nodes (0 = unbounded). startCursor
 // resumes pagination. When latest is true it fetches a single newest page via
 // backward pagination (DICE connections are oldest-first), ignoring max and
-// startCursor.
+// startCursor. enrichOrders selects the heavier per-ticket nested selection for
+// the orders connection; all other resources are unaffected.
 //
 // onPage receives the page's nodes, the cursor after this page, and the running
 // total-fetched count so far. If onPage returns an error the loop stops and
@@ -207,9 +234,10 @@ func fetchConnectionStream(
 	perPage, max int,
 	startCursor string,
 	latest bool,
+	enrichOrders bool,
 	onPage func(pageNodes []json.RawMessage, endCursor string, totalFetched int) error,
 ) (truncated bool, err error) {
-	cs, ok := diceConnections[resource]
+	cs, ok := effectiveConnectionSpec(resource, enrichOrders)
 	if !ok {
 		return false, fmt.Errorf("unknown DICE connection %q", resource)
 	}
@@ -292,7 +320,7 @@ func fetchConnectionStream(
 func fetchConnection(ctx context.Context, c *client.Client, resource string, where map[string]any, perPage, max int, startCursor string, latest bool) ([]json.RawMessage, string, bool, error) {
 	var all []json.RawMessage
 	var finalCursor string
-	truncated, err := fetchConnectionStream(ctx, c, resource, where, perPage, max, startCursor, latest,
+	truncated, err := fetchConnectionStream(ctx, c, resource, where, perPage, max, startCursor, latest, false,
 		func(pageNodes []json.RawMessage, endCursor string, _ int) error {
 			all = append(all, pageNodes...)
 			finalCursor = endCursor
