@@ -11,7 +11,7 @@ import (
 	"fmt"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
-	"home-goat-pp-cli/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/commerce/home-goat/internal/client"
 	"io"
 	"net/url"
 	"os"

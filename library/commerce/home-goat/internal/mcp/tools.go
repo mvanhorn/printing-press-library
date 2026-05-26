@@ -15,11 +15,11 @@ import (
 
 	mcplib "github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
-	"home-goat-pp-cli/internal/cli"
-	"home-goat-pp-cli/internal/client"
-	"home-goat-pp-cli/internal/config"
-	"home-goat-pp-cli/internal/mcp/cobratree"
-	"home-goat-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/commerce/home-goat/internal/cli"
+	"github.com/mvanhorn/printing-press-library/library/commerce/home-goat/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/commerce/home-goat/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/commerce/home-goat/internal/mcp/cobratree"
+	"github.com/mvanhorn/printing-press-library/library/commerce/home-goat/internal/store"
 )
 
 // RegisterTools registers all API operations as MCP tools.

@@ -12,7 +12,7 @@ import (
 	"testing"
 	"time"
 
-	"home-goat-pp-cli/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/commerce/home-goat/internal/config"
 )
 
 // recordingRoundTripper counts how many times its RoundTrip method is

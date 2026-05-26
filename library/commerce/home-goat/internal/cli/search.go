@@ -9,7 +9,7 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
-	"home-goat-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/commerce/home-goat/internal/store"
 )
 
 // isNilOrEmpty checks whether a JSON object has nil or empty values for

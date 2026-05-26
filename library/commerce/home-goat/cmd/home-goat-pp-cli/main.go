@@ -6,7 +6,7 @@ package main
 import (
 	"os"
 
-	"home-goat-pp-cli/internal/cli"
+	"github.com/mvanhorn/printing-press-library/library/commerce/home-goat/internal/cli"
 )
 
 func main() {

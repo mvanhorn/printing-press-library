@@ -14,10 +14,10 @@ import (
 	"time"
 
 	"github.com/spf13/cobra"
-	"home-goat-pp-cli/internal/client"
-	"home-goat-pp-cli/internal/cliutil"
-	"home-goat-pp-cli/internal/config"
-	"home-goat-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/commerce/home-goat/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/commerce/home-goat/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/commerce/home-goat/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/commerce/home-goat/internal/store"
 )
 
 // looksLikeDoctorInterstitial reports whether the response body matches a known

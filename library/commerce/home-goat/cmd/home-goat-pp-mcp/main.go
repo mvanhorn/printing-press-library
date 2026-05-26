@@ -10,7 +10,7 @@ import (
 	"strings"
 
 	"github.com/mark3labs/mcp-go/server"
-	mcptools "home-goat-pp-cli/internal/mcp"
+	mcptools "github.com/mvanhorn/printing-press-library/library/commerce/home-goat/internal/mcp"
 )
 
 // Transport selection order: --transport flag, then PP_MCP_TRANSPORT env,

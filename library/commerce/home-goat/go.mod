@@ -1,4 +1,4 @@
-module home-goat-pp-cli
+module github.com/mvanhorn/printing-press-library/library/commerce/home-goat
 
 go 1.26.3
 

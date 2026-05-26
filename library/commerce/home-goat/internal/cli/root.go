@@ -13,8 +13,8 @@ import (
 	"time"
 
 	"github.com/spf13/cobra"
-	"home-goat-pp-cli/internal/client"
-	"home-goat-pp-cli/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/commerce/home-goat/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/commerce/home-goat/internal/config"
 )
 
 var version = "1.0.0"

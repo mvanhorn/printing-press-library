@@ -17,8 +17,8 @@ import (
 	"strings"
 	"time"
 
-	"home-goat-pp-cli/internal/client"
-	"home-goat-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/commerce/home-goat/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/commerce/home-goat/internal/store"
 )
 
 // isNetworkError returns true for errors caused by network connectivity issues

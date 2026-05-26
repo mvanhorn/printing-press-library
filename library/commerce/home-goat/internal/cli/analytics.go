@@ -10,7 +10,7 @@ import (
 	"sort"
 
 	"github.com/spf13/cobra"
-	"home-goat-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/commerce/home-goat/internal/store"
 )
 
 func newAnalyticsCmd(flags *rootFlags) *cobra.Command {

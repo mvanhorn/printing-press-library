@@ -17,7 +17,7 @@ import (
 	"time"
 
 	"github.com/spf13/cobra"
-	"home-goat-pp-cli/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/commerce/home-goat/internal/cliutil"
 )
 
 // shopifyStore describes one Shopify DTC storefront for fan-out search.
