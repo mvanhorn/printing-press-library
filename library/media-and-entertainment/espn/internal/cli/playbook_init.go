@@ -166,19 +166,32 @@ func installPlaybooksFromEmbed(ctx context.Context, s *store.Store) error {
 		}
 		sort.Strings(famList)
 		for _, family := range famList {
-			// PreserveExistingNotes protects `playbook amend` writes
-			// across binary upgrades: the amend command resolves to
-			// the same family key the seed uses, so an unconditional
-			// re-seed would wipe every gotcha the agent appended.
-			// The flag makes the UPDATE branch fill notes_text only
-			// when the stored value is empty, in a single atomic
-			// transaction (no read-then-write race).
+			// Two competing goals on re-seed:
+			//   1. SeedVersion bumps must deliver corrected notes
+			//      content to existing installs (the whole point of
+			//      bumping the version).
+			//   2. Notes that `playbook amend` wrote at runtime must
+			//      survive binary upgrades — they encode agent-observed
+			//      gotchas we don't want to lose.
+			//
+			// The amend command appends a "[amend YYYY-MM-DDTHH:MMZ]:"
+			// marker, which is the durable signal that a row has agent
+			// content. If the stored notes carry that marker, preserve
+			// them; otherwise overwrite with the freshly-embedded
+			// notes so the SeedVersion bump actually ships the
+			// content corrections.
+			preserve := false
+			if existing, ok, gerr := s.GetPlaybookByFamily(family); gerr == nil && ok {
+				if strings.Contains(existing.NotesText, "[amend ") {
+					preserve = true
+				}
+			}
 			if _, _, uerr := s.UpsertPlaybook(store.UpsertPlaybookInput{
 				QueryFamily:           family,
 				PlaybookJSON:          jsonStr,
 				NotesText:             notesText,
 				Source:                store.LearningSourceTaught,
-				PreserveExistingNotes: true,
+				PreserveExistingNotes: preserve,
 			}); uerr != nil {
 				fmt.Fprintf(os.Stderr, "warning: espn-pp-cli: playbook init: upsert family=%q for %s: %v\n", family, jsonName, uerr)
 				continue

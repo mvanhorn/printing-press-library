@@ -290,6 +290,118 @@ func TestGetPlaybookByFamily_NotFound(t *testing.T) {
 	}
 }
 
+func TestAppendPlaybookNotes_InsertsWhenAbsent(t *testing.T) {
+	t.Parallel()
+	s := openTestStore(t)
+	id, inserted, err := s.AppendPlaybookNotes("season recap mariners", "\n\n[amend 2026-05-25T03:14Z]: first")
+	if err != nil {
+		t.Fatalf("append: %v", err)
+	}
+	if !inserted || id <= 0 {
+		t.Fatalf("want inserted=true and positive id; got inserted=%v id=%d", inserted, id)
+	}
+	row, ok, err := s.GetPlaybookByFamily("season recap mariners")
+	if err != nil || !ok {
+		t.Fatalf("get: ok=%v err=%v", ok, err)
+	}
+	if row.NotesText != "[amend 2026-05-25T03:14Z]: first" {
+		t.Errorf("leading newlines should be trimmed on insert; got %q", row.NotesText)
+	}
+}
+
+func TestAppendPlaybookNotes_AppendsToExisting(t *testing.T) {
+	t.Parallel()
+	s := openTestStore(t)
+	if _, _, err := s.UpsertPlaybook(UpsertPlaybookInput{
+		QueryFamily:  "test family",
+		PlaybookJSON: `{"steps":[]}`,
+		NotesText:    "base notes",
+	}); err != nil {
+		t.Fatalf("seed: %v", err)
+	}
+	if _, _, err := s.AppendPlaybookNotes("test family", "\n\n[amend 2026-05-25T03:14Z]: addition"); err != nil {
+		t.Fatalf("append: %v", err)
+	}
+	row, _, _ := s.GetPlaybookByFamily("test family")
+	if !strings.Contains(row.NotesText, "base notes") {
+		t.Errorf("base notes lost; got %q", row.NotesText)
+	}
+	if !strings.Contains(row.NotesText, "[amend 2026-05-25T03:14Z]: addition") {
+		t.Errorf("marker missing; got %q", row.NotesText)
+	}
+	if !strings.HasPrefix(row.NotesText, "base notes\n\n[amend ") {
+		t.Errorf("expected marker appended to base; got %q", row.NotesText)
+	}
+}
+
+func TestAppendPlaybookNotes_ConcurrentNoLoss(t *testing.T) {
+	t.Parallel()
+	s := openTestStore(t)
+	// Seed an empty-notes row so we exercise the UPDATE branch under
+	// concurrent appends — the bug Greptile flagged is that two amends
+	// can interleave outside the transaction and overwrite each other.
+	if _, _, err := s.UpsertPlaybook(UpsertPlaybookInput{
+		QueryFamily:  "concurrent family",
+		PlaybookJSON: `{"steps":[]}`,
+		NotesText:    "seed",
+	}); err != nil {
+		t.Fatalf("seed: %v", err)
+	}
+	const N = 8
+	var wg sync.WaitGroup
+	for i := 0; i < N; i++ {
+		i := i
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			marker := "\n\n[amend 2026-05-25T03:14Z]: note-" + string(rune('A'+i))
+			if _, _, err := s.AppendPlaybookNotes("concurrent family", marker); err != nil {
+				t.Errorf("append %d: %v", i, err)
+			}
+		}()
+	}
+	wg.Wait()
+	row, _, _ := s.GetPlaybookByFamily("concurrent family")
+	for i := 0; i < N; i++ {
+		want := "note-" + string(rune('A'+i))
+		if !strings.Contains(row.NotesText, want) {
+			t.Errorf("concurrent append lost %q; final notes=%q", want, row.NotesText)
+		}
+	}
+}
+
+func TestListPlaybooks_HidesSentinelFamilies(t *testing.T) {
+	t.Parallel()
+	s := openTestStore(t)
+	// Insert a sentinel-shaped row and a normal row.
+	if _, _, err := s.UpsertPlaybook(UpsertPlaybookInput{
+		QueryFamily: "__seed_meta__",
+		NotesText:   "v1",
+	}); err != nil {
+		t.Fatalf("sentinel upsert: %v", err)
+	}
+	if _, _, err := s.UpsertPlaybook(UpsertPlaybookInput{
+		QueryFamily:  "real family",
+		PlaybookJSON: `{"steps":[]}`,
+		NotesText:    "notes",
+	}); err != nil {
+		t.Fatalf("real upsert: %v", err)
+	}
+	rows, err := s.ListPlaybooks()
+	if err != nil {
+		t.Fatalf("list: %v", err)
+	}
+	for _, r := range rows {
+		if strings.HasPrefix(r.QueryFamily, "__") {
+			t.Errorf("ListPlaybooks should hide __-prefixed sentinel rows; got %q", r.QueryFamily)
+		}
+	}
+	// Direct lookup should still find the sentinel.
+	if _, ok, err := s.GetPlaybookByFamily("__seed_meta__"); err != nil || !ok {
+		t.Errorf("GetPlaybookByFamily should still see sentinel; ok=%v err=%v", ok, err)
+	}
+}
+
 func TestPlaybooksTable_LegacyDBHeal(t *testing.T) {
 	t.Parallel()
 	// New store creates the table from scratch (the table didn't exist

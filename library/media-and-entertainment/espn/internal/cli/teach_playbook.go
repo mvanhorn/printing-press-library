@@ -195,22 +195,15 @@ Disabling: pass --no-learn or set ` + noLearnEnvVar + `=true.`,
 				return silentCodeErr(2)
 			}
 
-			// Look up existing notes. UPSERT semantics: append if
-			// row exists, create notes-only if it doesn't.
+			// AppendPlaybookNotes runs the read+update inside a single
+			// transaction under writeMu, so two concurrent
+			// `playbook amend` calls for the same family cannot
+			// race-overwrite each other (e.g. when SKILL.md tells the
+			// agent to background amend with `&` across overlapping
+			// sessions).
 			marker := fmt.Sprintf("\n\n[amend %s]: %s", time.Now().UTC().Format("2006-01-02T15:04Z"), addNote)
-			var newNotes string
-			if existing, ok, err := s.GetPlaybookByFamily(family); err == nil && ok {
-				newNotes = existing.NotesText + marker
-			} else {
-				newNotes = strings.TrimLeft(marker, "\n")
-			}
-
-			if _, _, err := s.UpsertPlaybook(store.UpsertPlaybookInput{
-				QueryFamily: family,
-				NotesText:   newNotes,
-				Source:      store.LearningSourceTaught,
-			}); err != nil {
-				writeTeachErrLog(fmt.Sprintf("playbook amend: upsert family=%q: %v", family, err))
+			if _, _, err := s.AppendPlaybookNotes(family, marker); err != nil {
+				writeTeachErrLog(fmt.Sprintf("playbook amend: append family=%q: %v", family, err))
 				return silentCodeErr(1)
 			}
 

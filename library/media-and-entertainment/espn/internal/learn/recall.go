@@ -352,6 +352,23 @@ func Recall(ctx context.Context, db *sql.DB, query string, opts Opts) (Result, e
 						continue
 					}
 				case len(normalized.Entities) > 0 && len(storedEntitySlice) > 0:
+					// Case 2 is the "similar shape, different entity"
+					// candidate path — its job is to surface
+					// `similar_shape_different_entity` warnings, not
+					// admit hits the jMin floor would otherwise reject.
+					// If query and stored share a literal entity yet
+					// canonicalOverlap is false, entity_lookups has no
+					// row for that entity (queryCanonicals and
+					// storedCanonicals are both empty, so setIntersects
+					// returned false). Without this guard the looser
+					// crossAliasMin floor would silently downgrade
+					// jMin to 0.3 for any unregistered entity. Drop
+					// such rows instead — case 1 covers the matching-
+					// canonical path, case 2 is reserved for actually
+					// different entities.
+					if entitySlicesIntersect(normalized.Entities, storedEntitySlice) {
+						continue
+					}
 					if score < crossAliasMin {
 						continue
 					}
@@ -700,6 +717,29 @@ func (r *CanonicalResolver) ResolveSet(entities []string) map[string]struct{} {
 		}
 	}
 	return out
+}
+
+// entitySlicesIntersect reports whether two literal entity slices
+// share at least one element. Used to detect "same literal entity but
+// entity_lookups has no canonical row for it" — those rows must not
+// slip through the lower crossAliasMin floor.
+func entitySlicesIntersect(a, b []string) bool {
+	if len(a) == 0 || len(b) == 0 {
+		return false
+	}
+	if len(a) > len(b) {
+		a, b = b, a
+	}
+	seen := make(map[string]struct{}, len(a))
+	for _, v := range a {
+		seen[v] = struct{}{}
+	}
+	for _, v := range b {
+		if _, ok := seen[v]; ok {
+			return true
+		}
+	}
+	return false
 }
 
 // setIntersects reports whether two canonical sets share at least one

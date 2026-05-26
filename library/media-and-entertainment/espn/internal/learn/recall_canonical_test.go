@@ -645,3 +645,38 @@ func TestRecall_CrossAlias_PromotesEntityMatchExact(t *testing.T) {
 		t.Errorf("want %q warning on cross-alias hit; got %v", WarningCrossAliasMatch, got.Results[0].Warnings)
 	}
 }
+
+// TestRecall_SameEntity_NoCanonicalLookup_DropsBelowJMin guards the
+// regression Greptile flagged on PR #851: when both query and stored
+// row share a literal entity but entity_lookups has no canonical row
+// for it, queryCanonicals and storedCanonicals are both empty.
+// Without an explicit guard, case 2 of the cross-alias fallback would
+// admit such rows below jMin via the looser crossAliasMin floor —
+// silently downgrading the effective Jaccard minimum from 0.6 to 0.3
+// for every unregistered entity. With the guard in place, the row
+// must be dropped at the jMin gate.
+func TestRecall_SameEntity_NoCanonicalLookup_DropsBelowJMin(t *testing.T) {
+	t.Parallel()
+	db := openCanonicalTestDB(t)
+	// Intentionally do NOT seed entity_lookups for "mariners". The
+	// stored row carries "mariners" as a literal entity; the recall
+	// query carries the same literal entity. Non-entity Jaccard
+	// between the two should fall in (crossAliasMin, jMin) so the
+	// only fallback that could admit the row is case 2.
+	seedCanonicalLearning(t, db,
+		"how mariners doing season year",
+		`["Mariners"]`, "12", "teams")
+
+	got, err := Recall(context.Background(), db,
+		"are the mariners doing well this year overall",
+		Opts{EntityConfig: espnLikeConfig()})
+	if err != nil {
+		t.Fatalf("recall: %v", err)
+	}
+	if got.Found {
+		t.Errorf("same literal entity with no entity_lookups should NOT admit a sub-jMin hit; got %+v", got)
+	}
+	if len(got.Results) > 0 {
+		t.Errorf("expected zero Results, got %d (effective jMin downgraded)", len(got.Results))
+	}
+}

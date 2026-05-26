@@ -124,6 +124,76 @@ func (s *Store) UpsertPlaybook(in UpsertPlaybookInput) (int64, bool, error) {
 	return id, true, nil
 }
 
+// AppendPlaybookNotes atomically appends marker to the notes_text of
+// the row matching family. If the row doesn't exist yet, a notes-only
+// row is inserted with marker as the initial content (leading newlines
+// trimmed). Runs inside writeMu so concurrent `playbook amend` calls
+// for the same family cannot race-overwrite each other's notes.
+//
+// Returns the row id, an insert/update bool, and any error. The
+// SQLite UPDATE uses COALESCE(notes_text, '') || ? so an absent or
+// NULL existing notes_text appends cleanly without a separate
+// read+rewrite step.
+func (s *Store) AppendPlaybookNotes(family, marker string) (int64, bool, error) {
+	family = strings.TrimSpace(family)
+	if family == "" {
+		return 0, false, fmt.Errorf("append playbook notes: query_family is required")
+	}
+	if marker == "" {
+		return 0, false, fmt.Errorf("append playbook notes: marker is required")
+	}
+
+	s.writeMu.Lock()
+	defer s.writeMu.Unlock()
+
+	now := time.Now().UTC()
+	tx, err := s.db.Begin()
+	if err != nil {
+		return 0, false, err
+	}
+	defer tx.Rollback()
+
+	var existingID int64
+	err = tx.QueryRow(
+		`SELECT id FROM learning_playbooks WHERE query_family = ?`,
+		family,
+	).Scan(&existingID)
+	switch err {
+	case nil:
+		if _, err := tx.Exec(
+			`UPDATE learning_playbooks
+			 SET notes_text = COALESCE(notes_text, '') || ?,
+			     last_observed_at = ?
+			 WHERE id = ?`,
+			marker, now, existingID,
+		); err != nil {
+			return 0, false, fmt.Errorf("append playbook notes update: %w", err)
+		}
+		if err := tx.Commit(); err != nil {
+			return 0, false, err
+		}
+		return existingID, false, nil
+	case sql.ErrNoRows:
+		initial := strings.TrimLeft(marker, "\n")
+		res, err := tx.Exec(
+			`INSERT INTO learning_playbooks
+			 (query_family, playbook_json, notes_text, source, confidence, last_observed_at)
+			 VALUES (?, '', ?, ?, 2, ?)`,
+			family, initial, LearningSourceTaught, now,
+		)
+		if err != nil {
+			return 0, false, fmt.Errorf("append playbook notes insert: %w", err)
+		}
+		id, _ := res.LastInsertId()
+		if err := tx.Commit(); err != nil {
+			return 0, false, err
+		}
+		return id, true, nil
+	default:
+		return 0, false, fmt.Errorf("append playbook notes lookup: %w", err)
+	}
+}
+
 // GetPlaybookByFamily returns the row for a given family, or
 // (PlaybookRow{}, false, nil) when nothing matches. The bool
 // distinguishes "no row" from "lookup error".
@@ -156,13 +226,17 @@ func (s *Store) GetPlaybookByFamily(family string) (PlaybookRow, bool, error) {
 	return row, true, nil
 }
 
-// ListPlaybooks returns all rows ordered by last_observed_at DESC.
-// Useful for `playbook list` inspection.
+// ListPlaybooks returns all rows ordered by last_observed_at DESC,
+// excluding any sentinel/meta rows whose family starts with "__"
+// (e.g. the seed-version tracker "__seed_meta__"). Useful for
+// `playbook list` inspection without leaking install bookkeeping into
+// agent-facing JSON.
 func (s *Store) ListPlaybooks() ([]PlaybookRow, error) {
 	rows, err := s.db.Query(
 		`SELECT id, query_family, COALESCE(playbook_json, ''), COALESCE(notes_text, ''),
 			source, confidence, created_at, last_observed_at
 		 FROM learning_playbooks
+		 WHERE query_family NOT LIKE '\_\_%' ESCAPE '\'
 		 ORDER BY COALESCE(last_observed_at, created_at) DESC`,
 	)
 	if err != nil {

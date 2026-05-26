@@ -30,21 +30,32 @@ func TestPlaybookInit_SeedsAllShippedPlaybooks(t *testing.T) {
 	if err != nil {
 		t.Fatalf("list: %v", err)
 	}
-	// Sentinel + per-family rows.
-	if len(rows) < 4 {
-		t.Errorf("expected at least 4 rows (sentinel + several playbooks); got %d", len(rows))
+	// ListPlaybooks hides the sentinel row, so only per-family rows
+	// surface here. Verify the sentinel exists separately via
+	// GetPlaybookByFamily below.
+	if len(rows) < 3 {
+		t.Errorf("expected at least 3 user-facing playbook rows; got %d", len(rows))
+	}
+	for _, r := range rows {
+		if r.QueryFamily == playbookSeedSentinelFamily {
+			t.Errorf("ListPlaybooks should hide the seed sentinel; got family=%q", r.QueryFamily)
+		}
 	}
 
-	var foundSentinel bool
+	// Sentinel is the durable signal that install completed; check it
+	// directly rather than via the user-facing list.
+	sentinel, ok, err := s.GetPlaybookByFamily(playbookSeedSentinelFamily)
+	if err != nil {
+		t.Fatalf("get sentinel: %v", err)
+	}
+	foundSentinel := ok
+	if ok && sentinel.NotesText != playbooks.SeedVersion {
+		t.Errorf("sentinel notes_text = %q, want %q", sentinel.NotesText, playbooks.SeedVersion)
+	}
+
 	var foundSeasonRecap bool
 	var foundLeagueTopBottom bool
 	for _, r := range rows {
-		if r.QueryFamily == playbookSeedSentinelFamily {
-			foundSentinel = true
-			if r.NotesText != playbooks.SeedVersion {
-				t.Errorf("sentinel notes_text = %q, want %q", r.NotesText, playbooks.SeedVersion)
-			}
-		}
 		if strings.Contains(r.QueryFamily, "end") && strings.Contains(r.QueryFamily, "season") {
 			foundSeasonRecap = true
 			if !strings.Contains(r.NotesText, "teamShortName") {
@@ -116,18 +127,128 @@ func TestPlaybookInit_ConcurrentSafe(t *testing.T) {
 	}
 	wg.Wait()
 
+	// Sentinel should exist exactly once; concurrent writers must not
+	// duplicate it (UpsertPlaybook handles the race). The sentinel is
+	// hidden from ListPlaybooks so we check via GetPlaybookByFamily.
+	if _, ok, err := s.GetPlaybookByFamily(playbookSeedSentinelFamily); err != nil {
+		t.Fatalf("get sentinel: %v", err)
+	} else if !ok {
+		t.Error("expected sentinel row after concurrent installs, got none")
+	}
+}
+
+// TestPlaybookInit_ReseedReplacesNotesWithoutAmend confirms that a
+// SeedVersion bump replaces the stored notes_text when no
+// `[amend ...]` marker is present — otherwise the bump would have no
+// effect on existing users (PreserveExistingNotes blocks the change).
+// The seed loop's marker check is what lets corrected notes ship.
+func TestPlaybookInit_ReseedReplacesNotesWithoutAmend(t *testing.T) {
+	dir := t.TempDir()
+	dbPath := filepath.Join(dir, "data.db")
+	s, err := store.OpenWithContext(context.Background(), dbPath)
+	if err != nil {
+		t.Fatalf("open: %v", err)
+	}
+	t.Cleanup(func() { s.Close() })
+
+	if err := installPlaybooksFromEmbed(context.Background(), s); err != nil {
+		t.Fatalf("first install: %v", err)
+	}
+
+	// Find any family row with non-empty notes_text we can mutate.
 	rows, _ := s.ListPlaybooks()
-	// Sentinel should be exactly 1; non-sentinel rows should match the
-	// number of JSON files in the embed FS. Concurrent writers should
-	// not produce duplicates (UpsertPlaybook handles the race).
-	sentinelCount := 0
+	var target string
 	for _, r := range rows {
-		if r.QueryFamily == playbookSeedSentinelFamily {
-			sentinelCount++
+		if r.NotesText != "" {
+			target = r.QueryFamily
+			break
 		}
 	}
-	if sentinelCount != 1 {
-		t.Errorf("expected exactly 1 sentinel row, got %d", sentinelCount)
+	if target == "" {
+		t.Fatal("no seeded row with notes to mutate; can't exercise the re-seed path")
+	}
+
+	// Overwrite the stored notes with stale content (no amend marker).
+	if _, _, err := s.UpsertPlaybook(store.UpsertPlaybookInput{
+		QueryFamily:  target,
+		PlaybookJSON: "{}",
+		NotesText:    "STALE PRE-CORRECTION CONTENT",
+		Source:       store.LearningSourceTaught,
+	}); err != nil {
+		t.Fatalf("seed stale notes: %v", err)
+	}
+	// Reset the sentinel so the next install re-seeds.
+	if _, _, err := s.UpsertPlaybook(store.UpsertPlaybookInput{
+		QueryFamily: playbookSeedSentinelFamily,
+		NotesText:   "old-version",
+		Source:      "seeded",
+	}); err != nil {
+		t.Fatalf("reset sentinel: %v", err)
+	}
+
+	if err := installPlaybooksFromEmbed(context.Background(), s); err != nil {
+		t.Fatalf("re-install: %v", err)
+	}
+
+	got, _, _ := s.GetPlaybookByFamily(target)
+	if got.NotesText == "STALE PRE-CORRECTION CONTENT" {
+		t.Errorf("re-seed should overwrite stale notes without amend marker; still got STALE content")
+	}
+}
+
+// TestPlaybookInit_ReseedPreservesNotesWithAmend confirms the
+// complementary path: when the stored notes contain a `[amend ...]`
+// marker (an agent-authored correction), a SeedVersion bump preserves
+// the existing content so the agent's work isn't lost.
+func TestPlaybookInit_ReseedPreservesNotesWithAmend(t *testing.T) {
+	dir := t.TempDir()
+	dbPath := filepath.Join(dir, "data.db")
+	s, err := store.OpenWithContext(context.Background(), dbPath)
+	if err != nil {
+		t.Fatalf("open: %v", err)
+	}
+	t.Cleanup(func() { s.Close() })
+
+	if err := installPlaybooksFromEmbed(context.Background(), s); err != nil {
+		t.Fatalf("first install: %v", err)
+	}
+
+	rows, _ := s.ListPlaybooks()
+	var target string
+	for _, r := range rows {
+		if r.NotesText != "" {
+			target = r.QueryFamily
+			break
+		}
+	}
+	if target == "" {
+		t.Fatal("no seeded row to mutate")
+	}
+
+	const amended = "base content\n\n[amend 2026-05-25T03:14Z]: agent gotcha"
+	if _, _, err := s.UpsertPlaybook(store.UpsertPlaybookInput{
+		QueryFamily:  target,
+		PlaybookJSON: "{}",
+		NotesText:    amended,
+		Source:       store.LearningSourceTaught,
+	}); err != nil {
+		t.Fatalf("seed amended notes: %v", err)
+	}
+	if _, _, err := s.UpsertPlaybook(store.UpsertPlaybookInput{
+		QueryFamily: playbookSeedSentinelFamily,
+		NotesText:   "old-version",
+		Source:      "seeded",
+	}); err != nil {
+		t.Fatalf("reset sentinel: %v", err)
+	}
+
+	if err := installPlaybooksFromEmbed(context.Background(), s); err != nil {
+		t.Fatalf("re-install: %v", err)
+	}
+
+	got, _, _ := s.GetPlaybookByFamily(target)
+	if got.NotesText != amended {
+		t.Errorf("re-seed should preserve notes containing [amend ...] marker; got %q", firstN(got.NotesText, 200))
 	}
 }
 
