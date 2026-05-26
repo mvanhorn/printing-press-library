@@ -1,35 +1,7 @@
 {
   "schema_version": 1,
   "applied_at": "2026-05-26",
-  "base_run_id": "20260526-082000",
-  "base_printing_press_version": "0.1.0-manual",
-  "patches": [
-    {
-      "id": "jinko-hand-authored-port",
-      "summary": "Entire CLI is a hand-authored Go port of @gojinko/cli (the official Node SDK at jinkoso/jinko-dev-tools). No upstream printing-press generator run — the source of truth for command names, request envelopes, token flow, and observability headers is jinko-dev-tools/packages/cli + jinko-dev-tools/packages/api-client.",
-      "reason": "The Jinko BFF is a contracted supplier API with a typed Node SDK already in production use. Re-deriving the CLI from an OpenAPI spec via the generator would either drift from the Node SDK or expose internal devplatform endpoints not meant for end users. A 1:1 hand port keeps the cross-CLI auth (~/.jinko/config.yaml), command names, and token names (offer_token, trip_item_token, trip_id) in sync.",
-      "files": [
-        "cmd/jinko-pp-cli/main.go",
-        "internal/cli/root.go",
-        "internal/cli/exit.go",
-        "internal/cli/shared.go",
-        "internal/cli/auth.go",
-        "internal/cli/find_flight.go",
-        "internal/cli/find_destination.go",
-        "internal/cli/flight_search.go",
-        "internal/cli/hotel_search.go",
-        "internal/cli/hotel_details.go",
-        "internal/cli/trip.go",
-        "internal/cli/book.go",
-        "internal/cli/trip_status.go",
-        "internal/client/auth.go",
-        "internal/client/client.go",
-        "internal/client/errors.go",
-        "internal/client/jwt.go",
-        "internal/client/session.go",
-        "internal/output/formatter.go"
-      ],
-      "validated_outcome": "go build ./... && go vet ./... clean; verify_skill.py all checks passed; live smoke against mcp-bff.dev.gojinko.com returns 200 for find-flight, find-destination, flight-search, and hotel-search."
-    }
-  ]
+  "base_run_id": "20260526-090108",
+  "base_printing_press_version": "4.17.0",
+  "patches": []
 }

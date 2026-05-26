@@ -1,45 +1,83 @@
-# Agent guidance for jinko-pp-cli
+# Jinko Printed CLI Agent Guide
 
-This file mirrors `SKILL.md` but is structured for **autonomous agents** integrating Jinko into a longer workflow (Claude Code, Codex, custom orchestrators). Read it once and link to commands by exact name in your tool descriptions.
+This directory is a generated `jinko-pp-cli` printed CLI. It was produced by [CLI Printing Press](https://github.com/mvanhorn/cli-printing-press), so treat systemic fixes as upstream Printing Press fixes first. Keep local edits narrow and document why a generated-tree patch belongs here.
 
-## Surface
+## Local Operating Contract
 
-| Command | Endpoint | Idempotent | Cost |
-|---|---|---|---|
-| `auth login/logout/status` | local config | yes | free |
-| `find-flight` | `POST /api/v1/flights/search` | yes | cached, free |
-| `find-destination` | `POST /api/v1/flights/destination-search` | yes | cached, free |
-| `flight-search` | `POST /api/v1/flights/shop` | yes | live API call |
-| `hotel-search` | `POST /api/v1/hotels/shop` | yes | live API call |
-| `hotel-details` | `GET /api/v1/hotels/{id}/details` | yes | live API call |
-| `trip` (no `--trip-item-token`) | `POST /api/v1/shop/sync` | yes | free (cart op) |
-| `trip` (with token) | `POST /api/v1/shop/sync` | **no** (creates / mutates trip) | free |
-| `book` | `POST /api/v1/shop/sync/checkout` | **no** | schedules payment; user must pay on the returned URL |
-| `trip-status` | `GET /api/v1/shop/sync/{id}` | yes | free |
+Start by asking the generated CLI for current runtime truth:
 
-"Idempotent" here means: re-running with the same flags does not change server state.
+```bash
+jinko-pp-cli doctor --json
+jinko-pp-cli agent-context --pretty
+```
 
-## Composition rules
+Use runtime discovery instead of relying on a copied command list:
 
-1. **One trip per multi-product booking.** Don't create a separate trip for the flight and the hotel — put them in the same `trip_id`. The user gets one Stripe URL and one PNR-bundle email.
-2. **Set travelers before `book`.** The BFF rejects `book` if any item lacks the required passenger metadata. Set it once per trip.
-3. **`book` is non-destructive — the user has not paid yet.** The trip stays in `pending_payment` until they complete Stripe. Safe to re-run `book` to get a fresh URL.
-4. **Long async fulfillment is normal.** TravelFusion confirmations can take up to 72 hours. Poll `trip-status` — don't assume failure based on a short timeout.
+```bash
+jinko-pp-cli which "<capability>" --json
+jinko-pp-cli <command> --help
+```
 
-## Error handling
+Add `--agent` to command invocations for JSON, compact output, non-interactive defaults, no color, and confirmation-safe scripting:
 
-| `error.code` | What it means | Recommended action |
-|---|---|---|
-| `AUTH_REQUIRED` | No API key | Prompt the user to `jinko auth login --key jnk_...` |
-| `AUTH_INVALID` | Bad / expired credential | Same as above, plus suggest checking `app.gojinko.com/devplatform` |
-| `OFFER_EXPIRED` | `offer_token` / `trip_item_token` is stale | Re-run the corresponding `*-search` command |
-| `TRIP_NOT_FOUND` | Wrong `trip_id` | Check the value; trips are scoped to your tenant |
-| `PRICE_CHANGED` | Live price differs from cached one | Surface the diff to the user before re-attempting |
-| `BOOKING_FAILED` | Fulfillment failed on the supplier side | Read `trip-status` for the rejection reason; refund is automatic |
-| `VALIDATION_ERROR` | Missing or malformed field | Read the human message; fix the inputs |
+```bash
+jinko-pp-cli <command> --agent
+```
 
-`X-Request-ID` is logged with every response — include it in support tickets for fast triage.
+Before running an unfamiliar command that may mutate remote state, inspect its help and prefer a dry run:
 
-## Versioning
+```bash
+jinko-pp-cli <command> --help
+jinko-pp-cli <command> --dry-run --agent
+```
 
-`jinko --version` prints the CLI version. `printing-press-library install jinko` always pulls the latest tagged release. Pin in CI with `go install ...@vX.Y.Z`.
+Use `--yes --no-input` only after the target, arguments, and side effects are clear.
+
+For install, auth, examples, and longer product guidance, read `README.md` and `SKILL.md`. This file intentionally stays small so repo-local agents get invariant local guidance without duplicating the generated docs.
+
+## Local Customizations
+
+If you modify this CLI beyond what the generator produced, record each customization in a `.printing-press-patches.json` at this CLI's root (parallel to `.printing-press.json`) so the change isn't lost on the next regen and is visible to the next reader.
+
+Minimum shape:
+
+```json
+{
+  "schema_version": 1,
+  "applied_at": "YYYY-MM-DD",
+  "base_run_id": "<copy from .printing-press.json>",
+  "base_printing_press_version": "<copy from .printing-press.json>",
+  "patches": [
+    {
+      "id": "short-identifier",
+      "summary": "What changed (one sentence).",
+      "reason": "Why this customization was needed (one or two sentences).",
+      "files": ["internal/cli/foo.go"],
+      "validated_outcome": "Optional: non-obvious test result that confirms the fix."
+    }
+  ]
+}
+```
+
+Use `deferred_to_upstream` when a local patch is a temporary bridge for a missing public API endpoint, an unofficial-host workaround, a live response-shape drift, or behavior the Printing Press should eventually generate correctly. Search `mvanhorn/cli-printing-press` issues first; reuse a matching issue or open one, then set `upstream_issue` so the next regen knows what must supersede the patch:
+
+```json
+{
+  "id": "temporary-bridge",
+  "summary": "What changed (one sentence).",
+  "reason": "Why this customization was needed (one or two sentences).",
+  "files": ["internal/cli/foo.go"],
+  "validated_outcome": "Optional: non-obvious test result that confirms the fix.",
+  "deferred_to_upstream": [
+    {
+      "feature": "Generator behavior or upstream API capability that should eventually supersede this patch",
+      "reason": "Why the local patch is temporary or API-specific"
+    }
+  ],
+  "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/issues/<n>"
+}
+```
+
+This file is an **index of customizations**, not a second copy of the diff. Diffs live in `git`; the manifest is what tells the next agent (or regeneration tooling) what was customized and why. Keep `summary` and `reason` short -- if you find yourself writing tables of field renames or code transformations, that detail belongs in the commit message, not here.
+
+Inline `// PATCH:` source comments are optional. If you find them helpful as a navigation aid (`grep -rn 'PATCH' .` surfaces customized sites), feel free to add them -- but they aren't required and aren't enforced by any CI.

@@ -1,0 +1,6333 @@
+openapi: 3.0.0
+info:
+  contact: {}
+  title: ""
+  version: ""
+servers:
+  - url: https://mcp-bff.gojinko.com
+    description: Production
+  - url: https://mcp-bff.dev.gojinko.com
+    description: Development
+paths:
+  "/api/v1/devplatform/admin/users/{id}/role":
+    patch:
+      description: Update the role of a devplatform user (admin only)
+      parameters:
+        - description: User ID
+          in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateRoleRequest"
+        description: New role
+        required: true
+      responses:
+        "200":
+          description: id and role
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+      summary: Update a user's role
+      tags:
+        - devplatform_admin
+  "/api/v1/devplatform/admin/users/{id}/topup":
+    post:
+      description: Add credits to a user's rate limit balance (admin only)
+      parameters:
+        - description: User ID
+          in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TopupRequest"
+        description: Top-up amount
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UsageResponse"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+      summary: Top up user credits
+      tags:
+        - devplatform_admin
+  /api/v1/devplatform/keys/validate:
+    post:
+      description: Validate an API key without incrementing rate limit counter
+        (public, no auth required)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VerifyKeyRequest"
+        description: API key to validate
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VerifyKeyResponse"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+      summary: Validate an API key without consuming quota
+      tags:
+        - devplatform_keys
+  /api/v1/devplatform/keys/verify:
+    post:
+      description: Verify an API key and increment rate limit counter (public, no auth
+        required)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VerifyKeyRequest"
+        description: API key to verify
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VerifyKeyResponse"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+        "429":
+          description: Too Many Requests
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+      summary: Verify an API key
+      tags:
+        - devplatform_keys
+  /api/v1/devplatform/orgs:
+    get:
+      description: List all devplatform organizations (admin only)
+      responses:
+        "200":
+          description: orgs array
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+      summary: List all organizations
+      tags:
+        - devplatform_orgs
+    post:
+      description: Create a new devplatform organization (admin only)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateOrgRequest"
+        description: Organization creation payload
+        required: true
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrgResponse"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+      summary: Create an organization
+      tags:
+        - devplatform_orgs
+  "/api/v1/devplatform/orgs/{id}":
+    get:
+      description: Get organization details by ID (org_admin or admin)
+      parameters:
+        - description: Organization ID
+          in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrgResponse"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+      summary: Get an organization
+      tags:
+        - devplatform_orgs
+  "/api/v1/devplatform/orgs/{id}/admins":
+    patch:
+      description: Assign a user as admin of an organization by WorkOS ID (admin only)
+      parameters:
+        - description: Organization ID
+          in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AssignOrgAdminRequest"
+        description: WorkOS user ID to assign as admin
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserResponse"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+      summary: Assign an org admin
+      tags:
+        - devplatform_orgs
+  "/api/v1/devplatform/orgs/{id}/partner-keys":
+    post:
+      description: Create a partner API key that can be used to create shadow users
+        (admin only)
+      parameters:
+        - description: Organization ID
+          in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreatePartnerKeyRequest"
+        description: Partner key name
+        required: true
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreateKeyResponse"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+      summary: Create a partner API key for an organization
+      tags:
+        - devplatform_orgs
+  "/api/v1/devplatform/orgs/{id}/users":
+    get:
+      description: List all users belonging to an organization (org_admin or admin)
+      parameters:
+        - description: Organization ID
+          in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: users array
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+      summary: List users in an organization
+      tags:
+        - devplatform_orgs
+    post:
+      description: Create a shadow user that can later be claimed by a real identity
+        (partner key or admin auth)
+      parameters:
+        - description: Organization ID
+          in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateShadowUserRequest"
+        description: Shadow user details
+        required: true
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserResponse"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+      summary: Create a shadow user in an organization
+      tags:
+        - devplatform_orgs
+  "/api/v1/devplatform/orgs/{id}/users/{user_id}/keys/{key_id}":
+    delete:
+      description: Revoke an API key for a specific user in an organization (org_admin
+        or admin)
+      parameters:
+        - description: Organization ID
+          in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+        - description: User ID
+          in: path
+          name: user_id
+          required: true
+          schema:
+            type: integer
+        - description: API Key ID
+          in: path
+          name: key_id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: message
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+      summary: Revoke a user's API key within an organization
+      tags:
+        - devplatform_orgs
+  /api/v1/devplatform/users:
+    get:
+      description: List all users or filter by status (pending, active, suspended).
+        Admin only.
+      parameters:
+        - description: Filter by status (pending, active, suspended)
+          in: query
+          name: status
+          schema:
+            type: string
+      responses:
+        "200":
+          description: users array
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+      summary: List devplatform users
+      tags:
+        - devplatform_users
+    post:
+      description: Create a new developer platform user (admin only)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateUserRequest"
+        description: User creation payload
+        required: true
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserResponse"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+      summary: Create a new devplatform user
+      tags:
+        - devplatform_users
+  "/api/v1/devplatform/users/{workos_id}/approve":
+    patch:
+      description: Approve a pending devplatform user by WorkOS ID (admin only)
+      parameters:
+        - description: WorkOS User ID
+          in: path
+          name: workos_id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserResponse"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+      summary: Approve a pending user
+      tags:
+        - devplatform_users
+  "/api/v1/devplatform/users/{workos_id}/keys/resolve":
+    get:
+      description: Resolve the active API key for a user by WorkOS ID (admin only)
+      parameters:
+        - description: WorkOS User ID
+          in: path
+          name: workos_id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/KeyListItem"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+      summary: Resolve active API key for a user
+      tags:
+        - devplatform_keys
+  /api/v1/devplatform/users/me:
+    get:
+      description: Get the devplatform user profile for the authenticated JWT user
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+      summary: Get current authenticated user
+      tags:
+        - devplatform_users
+  /api/v1/devplatform/users/me/claim:
+    post:
+      description: Link a real WorkOS identity to an existing shadow user account.
+        Email is taken from JWT, not request body.
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ClaimResponse"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+      summary: Claim a shadow user account
+      tags:
+        - devplatform_users
+  /api/v1/devplatform/users/me/keys:
+    get:
+      description: List all API keys for the authenticated user
+      responses:
+        "200":
+          description: keys array
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+      summary: List API keys
+      tags:
+        - devplatform_keys
+    post:
+      description: Create a new API key for the authenticated user
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateKeyRequest"
+        description: Key creation payload
+        required: true
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreateKeyResponse"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+      summary: Create a new API key
+      tags:
+        - devplatform_keys
+  "/api/v1/devplatform/users/me/keys/{id}":
+    delete:
+      description: Revoke an API key by ID for the authenticated user
+      parameters:
+        - description: API Key ID
+          in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: message
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+      summary: Revoke an API key
+      tags:
+        - devplatform_keys
+  /api/v1/devplatform/users/me/register:
+    post:
+      description: Self-register a new devplatform account using the authenticated JWT
+        identity
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                email:
+                  type: string
+                name:
+                  type: string
+              type: object
+        description: Registration payload (email required)
+        required: true
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserResponse"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+      summary: Register a new developer account
+      tags:
+        - devplatform_users
+  /api/v1/devplatform/users/me/usage:
+    get:
+      description: Get API usage and rate limit statistics for the authenticated user
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UsageResponse"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+      summary: Get API usage statistics
+      tags:
+        - devplatform_users
+  /api/v1/devplatform/users/status:
+    post:
+      description: Check whether a devplatform user exists and their current status
+        (public, no auth)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                workos_user_id:
+                  type: string
+              type: object
+        description: WorkOS user ID
+        required: true
+      responses:
+        "200":
+          description: id, workos_user_id, status
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+      summary: Check user status by WorkOS ID
+      tags:
+        - devplatform_users
+  /api/v1/flights/check:
+    post:
+      description: Check a flight offer from search results to get confirmed
+        availability and detailed fare options
+      parameters:
+        - description: Target a specific provider (sabre, travelfusion). When omitted, all
+            enabled providers are called.
+          in: query
+          name: provider
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FlightCheckRequest"
+        description: Flight check request
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FlightCheckResponse"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+      summary: Check flight availability and get detailed pricing
+      tags:
+        - flights
+  /api/v1/flights/destination-search:
+    post:
+      description: Search for destination cities with cheapest flight options based on
+        filter criteria
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DestinationSearchRequest"
+        description: Destination search request
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DestinationSearchResponse"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+      summary: Search destinations by flight criteria
+      tags:
+        - flights
+  /api/v1/flights/refund-check:
+    post:
+      description: Check whether a flight booking is eligible for a refund and get the
+        refund amount
+      parameters:
+        - description: Target a specific provider (sabre, travelfusion). When omitted,
+            uses request body provider field.
+          in: query
+          name: provider
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RefundCheckRequest"
+        description: Refund check request
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RefundCheckResponse"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+      summary: Check flight refund eligibility
+      tags:
+        - flights
+  /api/v1/flights/search:
+    post:
+      description: Search flights with filter-based criteria
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FlightSearchRequest"
+        description: Flight search request
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FlightSearchResponse"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+      summary: Search flights (synchronous, filter-based)
+      tags:
+        - flights
+  /api/v1/hotels/semantic-search:
+    post:
+      description: Search hotels with a natural-language query (e.g. "beach
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SemanticSearchRequest"
+        description: Semantic search request
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SemanticSearchResult"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+      summary: Semantic hotel search
+      tags:
+        - hotels
+  /api/v1/hotels/shop:
+    post:
+      description: Search hotels by destination and return available rooms with live pricing
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ShopRequest"
+        description: Hotel shop request
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HotelShopResponse"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+      summary: Shop hotel rates
+      tags:
+        - hotels
+  "/api/v1/payment/authorization/{id}":
+    get:
+      description: Retrieve payment authorization information by ID
+      parameters:
+        - description: Payment Authorization ID
+          in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaymentAuthorization"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+      summary: Get payment authorization by ID
+      tags:
+        - payment
+  "/api/v1/payment/authorization/{id}/capture":
+    post:
+      description: Capture an authorized payment (full or partial amount)
+      parameters:
+        - description: Payment Authorization ID
+          in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Amount"
+        description: Amount to capture (optional, defaults to full amount)
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaymentCapture"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+      summary: Capture payment
+      tags:
+        - payment
+  "/api/v1/payment/authorization/{id}/status":
+    get:
+      description: Check the current status of a payment from Stripe and update local record
+      parameters:
+        - description: Payment Authorization ID
+          in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaymentAuthorization"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+      summary: Check payment status
+      tags:
+        - payment
+  /api/v1/payment/authorize:
+    post:
+      description: Create a payment authorization for a quote using Stripe
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PaymentAuthorizationRequest"
+        description: Payment authorization request
+        required: true
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaymentAuthorizationResponse"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+      summary: Create payment authorization
+      tags:
+        - payment
+  /api/v1/payment/cart/authorize:
+    post:
+      description: Create a payment authorization for a shopping cart quote using Stripe
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CartPaymentAuthorizationRequest"
+        description: Cart payment authorization request
+        required: true
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaymentAuthorizationResponse"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+      summary: Create payment authorization for cart
+      tags:
+        - payment
+  "/api/v1/payment/quote/{quote_id}":
+    get:
+      description: Retrieve payment authorization information by quote ID
+      parameters:
+        - description: Quote ID
+          in: path
+          name: quote_id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaymentAuthorization"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+      summary: Get payment authorization by quote ID
+      tags:
+        - payment
+  /api/v1/payment/stripe/client-secret:
+    post:
+      description: Get the Stripe client secret (PaymentIntent flow) or checkout URL
+        (Checkout Session flow)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ClientSecretRequest"
+        description: Client secret request
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ClientSecretResponse"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+      summary: Get client secret or checkout URL
+      tags:
+        - payment
+  "/api/v1/shop/{cart_id}/quoted/{quoted_item_id}/ancillaries":
+    put:
+      description: Replace all ancillary selections on a quoted cart item
+        (full-replace semantics)
+      parameters:
+        - description: Cart ID
+          in: path
+          name: cart_id
+          required: true
+          schema:
+            type: integer
+        - description: Quoted Cart Item ID
+          in: path
+          name: quoted_item_id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SelectAncillariesRequest"
+        description: Ancillary selections
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SelectAncillariesResponse"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+      summary: Select ancillaries for a quoted item
+      tags:
+        - shopping_cart_ancillaries
+  /api/v1/shop/fulfillment/confirm-payment:
+    post:
+      description: Verify payment with Stripe API and transition fulfillment from
+        awaiting_payment to processing
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ConfirmPaymentRequest"
+        description: Confirm payment request
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConfirmPaymentResponse"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+      summary: Confirm payment and trigger booking
+      tags:
+        - shopping_cart_fulfillment
+  /api/v1/shop/fulfillment/pull:
+    post:
+      description: Retrieve current fulfillment orchestration status and results
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PullFulfillmentRequest"
+        description: Pull fulfillment request
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PullFulfillmentResponse"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+      summary: Pull fulfillment results
+      tags:
+        - shopping_cart_fulfillment
+  /api/v1/shop/fulfillment/schedule:
+    post:
+      description: Schedule fulfillment orchestration for all successfully quoted products
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ScheduleFulfillmentRequest"
+        description: Schedule fulfillment request
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ScheduleFulfillmentResponse"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+      summary: Schedule fulfillment orchestration
+      tags:
+        - shopping_cart_fulfillment
+  /api/v1/shop/quote/pull:
+    post:
+      description: Retrieve current quote orchestration status and results
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PullQuoteRequest"
+        description: Pull quote request
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PullQuoteResponse"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+      summary: Pull quote results
+      tags:
+        - shopping_cart_quotes
+  /api/v1/shop/quote/schedule:
+    post:
+      description: Schedule quote orchestration for all products in a cart
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ScheduleQuoteRequest"
+        description: Schedule quote request
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ScheduleQuoteResponse"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+      summary: Schedule quote orchestration
+      tags:
+        - shopping_cart_quotes
+  /api/v1/shopping_cart/shop:
+    post:
+      description: Create a new shopping cart bound to a session
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CartCreateRequest"
+        description: Cart create request
+        required: true
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CartCreateResponse"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+        "409":
+          description: Cart already exists
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CartCreateResponse"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+      summary: Create shopping cart
+      tags:
+        - shopping_cart
+  "/api/v1/shopping_cart/shop/{cart_id}":
+    get:
+      description: Retrieve a shopping cart with its products
+      parameters:
+        - description: Cart ID
+          in: path
+          name: cart_id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CartGetResponse"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+      summary: Get shopping cart
+      tags:
+        - shopping_cart
+    put:
+      description: Add a product to an existing shopping cart
+      parameters:
+        - description: Cart ID
+          in: path
+          name: cart_id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AddProductRequest"
+        description: Add product request
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AddProductResponse"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+      summary: Add product to cart
+      tags:
+        - shopping_cart
+  "/api/v1/shopping_cart/shop/{cart_id}/{product_id}":
+    delete:
+      description: Remove a product from the shopping cart (soft delete)
+      parameters:
+        - description: Cart ID
+          in: path
+          name: cart_id
+          required: true
+          schema:
+            type: integer
+        - description: Product ID
+          in: path
+          name: product_id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CartGetResponse"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+      summary: Remove product from cart
+      tags:
+        - shopping_cart
+    get:
+      description: Retrieve a specific product's details from the cart
+      parameters:
+        - description: Cart ID
+          in: path
+          name: cart_id
+          required: true
+          schema:
+            type: integer
+        - description: Product ID
+          in: path
+          name: product_id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CartProduct"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+      summary: Get product from cart
+      tags:
+        - shopping_cart
+  "/api/v1/shopping_cart/shop/{cart_id}/travelers":
+    put:
+      description: Update contact info and/or travelers on a shopping cart
+      parameters:
+        - description: Cart ID
+          in: path
+          name: cart_id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CartUpdateTravelersRequest"
+        description: Update travelers request
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+      summary: Update cart travelers
+      tags:
+        - shopping_cart
+  /devplatform/flights/shop:
+    post:
+      description: Unified flight shop endpoint. When offer_token is present the
+        handler re-prices that offer (price-check mode); otherwise it performs a
+        live search by route with optional JIN-187 filter fields (cabin_class,
+        direct_only, max_price, include_carriers, exclude_carriers).
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ShopFlightRequest"
+        description: Shop flight request
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ShopFlightResponse"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+      summary: Shop for flights or re-price an offer
+      tags:
+        - devplatform-flights
+  /shop/sync:
+    post:
+      description: Unified trip management endpoint. Accepts create / add_product /
+        remove_product / set_travelers / remove_travelers actions and returns
+        the resulting trip state.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TripRequest"
+        description: Trip request
+        required: true
+      responses:
+        "200":
+          description: Trip updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TripResponse"
+        "201":
+          description: Trip created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TripResponse"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+      summary: Create or update a trip (cart)
+      tags:
+        - devplatform-trips
+  "/shop/sync/{id}":
+    get:
+      parameters:
+        - description: Trip (cart) ID
+          in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TripResponse"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+      summary: Retrieve a trip by ID
+      tags:
+        - devplatform-trips
+  /shop/sync/ancillaries:
+    post:
+      description: Selects or updates ancillaries (seats, bags, meals, assistance) for
+        a trip item. The body references a trip_id and trip_item_token and
+        provides the desired selection; the handler validates the selection
+        against the item's available ancillary inventory.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AncillaryRequest"
+        description: Ancillary selection request
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AncillaryResponse"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+      summary: Select ancillaries for a trip item
+      tags:
+        - devplatform-trips
+  /shop/sync/checkout:
+    post:
+      description: Starts the checkout flow for a trip (cart), creating a Stripe
+        Checkout Session or PaymentIntent depending on the configured
+        authorisation type.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CheckoutRequest"
+        description: Checkout request
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CheckoutResponse"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+      summary: Checkout a trip and create a payment authorisation
+      tags:
+        - devplatform-trips
+  /travelers:
+    get:
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TravelerListResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+      summary: List traveler profiles for the authenticated user
+      tags:
+        - travelers
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateTravelerRequest"
+        description: Create traveler request
+        required: true
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TravelerResponse"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+      summary: Create a traveler profile
+      tags:
+        - travelers
+  "/travelers/{id}":
+    delete:
+      parameters:
+        - description: Traveler ID
+          in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          content:
+            "*/*":
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+        "401":
+          description: Unauthorized
+          content:
+            "*/*":
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+        "403":
+          description: Forbidden
+          content:
+            "*/*":
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+        "404":
+          description: Not Found
+          content:
+            "*/*":
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+        "500":
+          description: Internal Server Error
+          content:
+            "*/*":
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+      summary: Delete a traveler profile
+      tags:
+        - travelers
+    get:
+      parameters:
+        - description: Traveler ID
+          in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TravelerResponse"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+      summary: Retrieve a traveler profile by ID
+      tags:
+        - travelers
+    put:
+      parameters:
+        - description: Traveler ID
+          in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateTravelerRequest"
+        description: Update traveler request
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TravelerResponse"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+      summary: Update a traveler profile
+      tags:
+        - travelers
+components:
+  schemas:
+    AddProductRequest:
+      properties:
+        attributes:
+          additionalProperties: true
+          type: object
+        domain:
+          $ref: "#/components/schemas/ProductDomain"
+        reference_id:
+          type: string
+        snapshot:
+          additionalProperties: true
+          type: object
+      required:
+        - domain
+      type: object
+    AddProductResponse:
+      properties:
+        product_id:
+          type: string
+        status:
+          $ref: "#/components/schemas/ProductStatus"
+      type: object
+    AdviceQuantiles:
+      properties:
+        max_fare:
+          allOf:
+            - $ref: "#/components/schemas/Amount"
+          description: MaxFare is the highest fare seen for this route (in display currency)
+        min_fare:
+          allOf:
+            - $ref: "#/components/schemas/Amount"
+          description: MinFare is the lowest fare seen for this route (in display currency)
+        percentile_25:
+          allOf:
+            - $ref: "#/components/schemas/Amount"
+          description: Percentile25 is the 25th percentile fare (in display currency)
+        percentile_50:
+          allOf:
+            - $ref: "#/components/schemas/Amount"
+          description: Percentile50 is the median fare (in display currency)
+        percentile_75:
+          allOf:
+            - $ref: "#/components/schemas/Amount"
+          description: Percentile75 is the 75th percentile fare (in display currency)
+      type: object
+    Amount:
+      properties:
+        currency:
+          description: Currency code (ISO 4217)
+          type: string
+        decimal_places:
+          description: |-
+            Number of decimal places for this currency
+            Common values: 2 for USD/EUR/GBP, 0 for JPY/KRW, 3 for BHD/KWD
+          maximum: 4
+          minimum: 0
+          type: integer
+        value:
+          description: |-
+            Value in smallest currency unit (e.g., cents for USD, yen for JPY)
+            Example: 120.34 EUR = 12034, 1000 JPY = 1000
+          type: integer
+      required:
+        - currency
+      type: object
+    AmountInfo:
+      properties:
+        currency:
+          type: string
+        decimal_places:
+          type: integer
+        value:
+          type: integer
+      type: object
+    Ancillary:
+      properties:
+        applicable_pax_types:
+          description: nil = all pax types
+          items:
+            type: string
+          type: array
+        assistance_details:
+          $ref: "#/components/schemas/AssistanceDetails"
+        baggage_details:
+          allOf:
+            - $ref: "#/components/schemas/BaggageDetails"
+          description: Type-specific details (only the relevant one is populated)
+        category:
+          allOf:
+            - $ref: "#/components/schemas/AncillaryCategory"
+          description: BAGGAGE, SEAT, MEAL, ...
+        description:
+          description: optional longer description
+          type: string
+        journey_ref_id:
+          description: '"outward", "return", nil = all'
+          type: string
+        label:
+          description: human-readable, e.g. "1 bag - 23kg"
+          type: string
+        max_quantity:
+          description: Constraints
+          type: integer
+        meal_details:
+          $ref: "#/components/schemas/MealDetails"
+        mutually_exclusive:
+          description: conflicting offer_ids
+          items:
+            type: string
+          type: array
+        offer_id:
+          description: Identity
+          type: string
+        price:
+          allOf:
+            - $ref: "#/components/schemas/Money"
+          description: Pricing
+        provider_metadata:
+          additionalProperties:
+            type: string
+          description: Provider-specific opaque data — passed through to booking
+          type: object
+        scope:
+          allOf:
+            - $ref: "#/components/schemas/AncillaryScope"
+          description: Scope — defines who/what this applies to
+        seat_details:
+          $ref: "#/components/schemas/SeatDetails"
+        segment_ref_ids:
+          description: nil = all segments
+          items:
+            type: string
+          type: array
+      type: object
+    AncillaryCategory:
+      enum:
+        - BAGGAGE
+        - SEAT
+        - MEAL
+        - CABIN_BAG_UPGRADE
+        - SPORTS_EQUIPMENT
+        - PRIORITY_BOARDING
+        - SPECIAL_ASSISTANCE
+        - INSURANCE
+        - LOUNGE
+        - FREQUENT_FLYER
+        - OTHER
+      type: string
+      x-enum-varnames:
+        - AncillaryCategoryBaggage
+        - AncillaryCategorySeat
+        - AncillaryCategoryMeal
+        - AncillaryCategoryCabinBagUpgrade
+        - AncillaryCategorySportsEquipment
+        - AncillaryCategoryPriorityBoarding
+        - AncillaryCategorySpecialAssistance
+        - AncillaryCategoryInsurance
+        - AncillaryCategoryLounge
+        - AncillaryCategoryFrequentFlyer
+        - AncillaryCategoryOther
+    AncillaryOffer:
+      properties:
+        description:
+          type: string
+        label:
+          type: string
+        max_quantity:
+          type: integer
+        offer_id:
+          type: string
+        per_pax:
+          type: boolean
+        price_per_unit:
+          $ref: "#/components/schemas/DevPlatformMoney"
+        type:
+          description: '"bag" | "seat" | "meal" | "assistance" | ...'
+          type: string
+      type: object
+    AncillaryRequest:
+      properties:
+        selections:
+          items:
+            $ref: "#/components/schemas/SelectedAncillary"
+          type: array
+        trip_id:
+          type: string
+      required:
+        - trip_id
+      type: object
+    AncillaryResponse:
+      properties:
+        quoted_item_id:
+          type: integer
+        selected_ancillaries:
+          items:
+            $ref: "#/components/schemas/SelectedAncillary"
+          type: array
+        total_with_ancillaries:
+          $ref: "#/components/schemas/Money"
+        trip_id:
+          type: string
+      type: object
+    AncillaryScope:
+      enum:
+        - PER_PAX_PER_SEGMENT
+        - PER_PAX_PER_JOURNEY
+        - PER_PAX_PER_BOOKING
+        - PER_BOOKING
+      type: string
+      x-enum-varnames:
+        - AncillaryScopePerPaxPerSegment
+        - AncillaryScopePerPaxPerJourney
+        - AncillaryScopePerPaxPerBooking
+        - AncillaryScopePerBooking
+    AssignOrgAdminRequest:
+      properties:
+        workos_user_id:
+          type: string
+      required:
+        - workos_user_id
+      type: object
+    AssistanceDetails:
+      properties:
+        description:
+          description: e.g. "Wheelchair to aircraft cabin seat"
+          type: string
+        ssr_code:
+          description: WCHR, WCHS, WCHC, BLND, DEAF
+          type: string
+      type: object
+    AuditEntry:
+      properties:
+        action:
+          type: string
+        actor_id:
+          type: string
+        details:
+          type: string
+        timestamp:
+          type: string
+      type: object
+    AuthorizationType:
+      enum:
+        - payment_intent
+        - checkout_session
+        - refund
+      type: string
+      x-enum-varnames:
+        - AuthorizationTypePaymentIntent
+        - AuthorizationTypeCheckoutSession
+        - AuthorizationTypeRefund
+    BaggageDetails:
+      properties:
+        dimensions:
+          type: string
+        pieces:
+          type: integer
+        weight_kg:
+          type: integer
+        weight_lb:
+          type: integer
+      type: object
+    BaggageInfo:
+      properties:
+        description:
+          description: Description for display
+          type: string
+        id:
+          description: Unique identifier (required for purchasable options)
+          type: string
+        is_included:
+          description: Whether baggage is included in fare
+          type: boolean
+        journey_id:
+          description: Journey this applies to (if journey-specific)
+          type: string
+        pieces:
+          description: Number of pieces
+          type: integer
+        price_per_bag:
+          allOf:
+            - $ref: "#/components/schemas/Amount"
+          description: Price per bag
+        segment_id:
+          description: Segment this applies to (if segment-specific)
+          type: string
+        total_price:
+          allOf:
+            - $ref: "#/components/schemas/Amount"
+          description: Total price
+        weight:
+          description: Weight per piece
+          type: number
+        weight_unit:
+          description: Weight unit (KG, LB, or PC)
+          type: string
+      type: object
+    CabinType:
+      enum:
+        - economy
+        - premium_economy
+        - business
+        - first
+      type: string
+      x-enum-varnames:
+        - CabinTypeEconomy
+        - CabinTypePremiumEconomy
+        - CabinTypeBusiness
+        - CabinTypeFirst
+    CancellationDetails:
+      properties:
+        cancellation_id:
+          type: string
+        cancelled_at:
+          type: string
+        initiated_by:
+          type: string
+        reason:
+          type: string
+        refund_amount:
+          $ref: "#/components/schemas/Money"
+      type: object
+    CarrierInfo:
+      properties:
+        code:
+          description: Airline code (IATA or ICAO)
+          type: string
+        is_lcc:
+          description: Whether the airline is a low-cost carrier
+          type: boolean
+        logo:
+          description: URL to the airline logo
+          type: string
+        name:
+          description: Airline name
+          type: string
+      type: object
+    CarryOnBaggage:
+      properties:
+        description:
+          description: Description for display
+          type: string
+        dimensions:
+          description: Dimensions of the carry-on bag (e.g., "25 x 33 x 20 cm")
+          type: string
+        pieces:
+          description: Number of carry-on pieces allowed
+          type: integer
+        weight:
+          description: Weight limit per piece
+          type: number
+        weight_unit:
+          description: Weight unit (KG or LB)
+          type: string
+      type: object
+    CartCreateRequest:
+      properties:
+        metadata:
+          additionalProperties: true
+          type: object
+        payment_type:
+          $ref: "#/components/schemas/PaymentType"
+        platform:
+          $ref: "#/components/schemas/CartPlatform"
+        session_id:
+          type: string
+        source:
+          $ref: "#/components/schemas/CartSource"
+        tenant:
+          type: string
+        user_id:
+          type: string
+      required:
+        - platform
+        - session_id
+        - source
+        - tenant
+      type: object
+    CartCreateResponse:
+      properties:
+        cart_id:
+          type: integer
+        status:
+          $ref: "#/components/schemas/CartStatus"
+      type: object
+    CartGetResponse:
+      properties:
+        cart_id:
+          type: integer
+        contact_info:
+          additionalProperties: true
+          type: object
+        fulfillment_status:
+          type: string
+        items:
+          items:
+            $ref: "#/components/schemas/UnifiedCartItem"
+          type: array
+        quote_status:
+          type: string
+        quoted_cart_id:
+          description: >-
+            QuotedCartID is the ID of the most recent quoted cart for this cart.
+
+            Nil when no quote has been scheduled yet. Required by callers that need
+
+            to invoke /fulfillment/schedule, which expects both cart_id and
+
+            quoted_cart_id in its request body.
+          type: integer
+        session_id:
+          type: string
+        tenant:
+          type: string
+        total_sell_at:
+          allOf:
+            - $ref: "#/components/schemas/Money"
+          description: |-
+            TotalSellAt is the ancillary-inclusive sum of all item totals.
+            Nil when no items have a quote.
+        travelers:
+          items:
+            additionalProperties: true
+            type: object
+          type: array
+      type: object
+    CartPaymentAuthorizationRequest:
+      properties:
+        amount:
+          $ref: "#/components/schemas/Amount"
+        quoted_cart_id:
+          type: integer
+      required:
+        - amount
+        - quoted_cart_id
+      type: object
+    CartPlatform:
+      enum:
+        - ChatGPT
+        - Gemini
+        - iOS
+        - Android
+        - Web
+        - Other
+      type: string
+      x-enum-varnames:
+        - CartPlatformChatGPT
+        - CartPlatformGemini
+        - CartPlatformIOS
+        - CartPlatformAndroid
+        - CartPlatformWeb
+        - CartPlatformOther
+    CartPriceBreakdown:
+      properties:
+        base_price:
+          $ref: "#/components/schemas/Money"
+        fees:
+          $ref: "#/components/schemas/Money"
+        taxes:
+          $ref: "#/components/schemas/Money"
+      type: object
+    CartProduct:
+      properties:
+        cart_id:
+          type: integer
+        child_products:
+          description: >-
+            ChildProducts holds ancillary service products linked to this
+            product as their parent.
+
+            This is a transient field (not persisted) populated only in the GetCart response.
+
+            Populated by CartService.GetCart() when building the response.
+          items:
+            $ref: "#/components/schemas/CartProduct"
+          type: array
+        created_at:
+          type: string
+        deleted_at:
+          type: string
+        domain:
+          $ref: "#/components/schemas/ProductDomain"
+        parent_product_id:
+          type: string
+        pricing:
+          $ref: "#/components/schemas/PriceBreakdown"
+        product_id:
+          type: string
+        session_reference:
+          type: string
+        snapshot:
+          additionalProperties: true
+          type: object
+        status:
+          $ref: "#/components/schemas/ProductStatus"
+        updated_at:
+          type: string
+      type: object
+    CartSource:
+      enum:
+        - web
+        - llm
+        - api
+        - app
+      type: string
+      x-enum-varnames:
+        - CartSourceWeb
+        - CartSourceLLM
+        - CartSourceAPI
+        - CartSourceApp
+    CartStatus:
+      enum:
+        - draft
+        - quoting
+        - quoted
+        - fulfillment_prepared
+        - fulfilling
+        - fulfilled
+        - partially_fulfilled
+        - failed
+        - cancelled
+      type: string
+      x-enum-varnames:
+        - CartStatusDraft
+        - CartStatusQuoting
+        - CartStatusQuoted
+        - CartStatusFulfillmentPrepared
+        - CartStatusFulfilling
+        - CartStatusFulfilled
+        - CartStatusPartiallyFulfilled
+        - CartStatusFailed
+        - CartStatusCancelled
+    CartUpdateTravelersRequest:
+      properties:
+        contact_info:
+          $ref: "#/components/schemas/CustomerContact"
+        travelers:
+          items: {}
+          type: array
+      type: object
+    CashSettlement:
+      properties:
+        account_id:
+          type: string
+        transaction_ref:
+          type: string
+      type: object
+    CheckedBaggage:
+      properties:
+        description:
+          description: Description for display (e.g., "1 bag, 23kg included")
+          type: string
+        dimensions:
+          description: Dimensions of the checked bag (e.g., "UP TO 50 POUNDS/23 KILOGRAMS
+            UP TO 62 LINEAR INCHES/158 LINEAR CENTIMETERS")
+          type: string
+        pieces:
+          description: Number of checked bags included
+          type: integer
+        weight:
+          description: Weight per piece
+          type: number
+        weight_unit:
+          description: Weight unit (KG or LB)
+          type: string
+      type: object
+    CheckoutRequest:
+      properties:
+        trip_id:
+          type: string
+      required:
+        - trip_id
+      type: object
+    CheckoutResponse:
+      properties:
+        checkout_url:
+          type: string
+        expires_at:
+          type: string
+        items:
+          items:
+            $ref: "#/components/schemas/TripQuotedItem"
+          type: array
+        session_id:
+          type: string
+        status:
+          description: '"ready", "pending", "failed"'
+          type: string
+        total_amount:
+          $ref: "#/components/schemas/DevPlatformMoney"
+      type: object
+    ClaimResponse:
+      properties:
+        keys:
+          items:
+            $ref: "#/components/schemas/KeyListItem"
+          type: array
+        user:
+          $ref: "#/components/schemas/UserResponse"
+      type: object
+    ClientSecretRequest:
+      properties:
+        payment_intent_id:
+          type: string
+        quoted_cart_id:
+          type: integer
+      type: object
+    ClientSecretResponse:
+      properties:
+        checkout_session_id:
+          type: string
+        checkout_url:
+          type: string
+        client_secret:
+          type: string
+      type: object
+    ConfirmPaymentRequest:
+      properties:
+        checkout_session_id:
+          description: Checkout Session flow
+          type: string
+        fulfillment_cart_id:
+          type: integer
+        payment_intent_id:
+          description: PaymentIntent flow
+          type: string
+      required:
+        - fulfillment_cart_id
+      type: object
+    ConfirmPaymentResponse:
+      properties:
+        fulfillment_cart_id:
+          type: integer
+        message:
+          type: string
+        payment_verified:
+          type: boolean
+        status:
+          $ref: "#/components/schemas/FulfillmentStatus"
+      type: object
+    CreateKeyRequest:
+      properties:
+        name:
+          maxLength: 128
+          minLength: 1
+          type: string
+      required:
+        - name
+      type: object
+    CreateKeyResponse:
+      properties:
+        api_key:
+          type: string
+        key_id:
+          type: integer
+        name:
+          type: string
+        prefix:
+          type: string
+        rate_limit:
+          $ref: "#/components/schemas/RateLimitInfo"
+      type: object
+    CreateOrgRequest:
+      properties:
+        name:
+          type: string
+        slug:
+          type: string
+      required:
+        - name
+        - slug
+      type: object
+    CreatePartnerKeyRequest:
+      properties:
+        name:
+          type: string
+      required:
+        - name
+      type: object
+    CreateShadowUserRequest:
+      properties:
+        email:
+          type: string
+        name:
+          type: string
+      required:
+        - email
+      type: object
+    CreateTravelerRequest:
+      properties:
+        address:
+          type: string
+        channel_user_id:
+          type: string
+        date_of_birth:
+          description: 'ISO 8601 date: "2000-01-15"'
+          type: string
+        email:
+          type: string
+        first_name:
+          type: string
+        gender:
+          type: string
+        is_primary:
+          type: boolean
+        last_name:
+          type: string
+        middle_name:
+          type: string
+        nationality:
+          type: string
+        passenger_type:
+          type: string
+        passport_expiry_date:
+          description: ISO 8601 date
+          type: string
+        passport_issuing_country:
+          type: string
+        passport_nationality:
+          type: string
+        passport_number:
+          type: string
+        phone_number:
+          type: string
+        title:
+          type: string
+      type: object
+    CreateUserRequest:
+      properties:
+        email:
+          type: string
+        name:
+          type: string
+        partner_origin:
+          type: string
+        workos_user_id:
+          type: string
+      required:
+        - email
+        - workos_user_id
+      type: object
+    CustomerContact:
+      properties:
+        email:
+          type: string
+        first_name:
+          type: string
+        last_name:
+          type: string
+        phone_number:
+          type: string
+      required:
+        - email
+        - first_name
+        - last_name
+        - phone_number
+      type: object
+    DateRange:
+      properties:
+        end:
+          description: YYYY-MM-DD
+          type: string
+        start:
+          description: YYYY-MM-DD
+          type: string
+      type: object
+    DestinationInfo:
+      properties:
+        city_main_image:
+          description: URL to the main image of the destination city
+          type: string
+        city_name:
+          description: Name of the destination city
+          type: string
+        iata_code:
+          description: IATA code of the destination city
+          type: string
+        location:
+          allOf:
+            - $ref: "#/components/schemas/Location"
+          description: Geographic coordinates of the destination
+      type: object
+    DestinationSearchRequest:
+      properties:
+        currency:
+          description: Currency code for pricing (e.g., "USD", "EUR", "GBP")
+          type: string
+        filters:
+          allOf:
+            - $ref: "#/components/schemas/FlightSearchFilters"
+          description: Search filters (required)
+        flights_per_destination:
+          description: "FlightsPerDestination - number of flights to return per
+            destination bucket (default: 1, max: 10)"
+          type: integer
+        limit:
+          description: "Limit - maximum number of destinations to return (default: 20,
+            max: 100)"
+          type: integer
+        locale:
+          description: Locale code for results (e.g., "en", "fr", "de", "es", "zh", "ja",
+            "ko")
+          type: string
+        offset:
+          description: "Offset - number of destinations to skip for pagination (default: 0)"
+          type: integer
+        passengers:
+          allOf:
+            - $ref: "#/components/schemas/FlightPassengers"
+          description: Passengers (required for pricing)
+        price_constraints:
+          allOf:
+            - $ref: "#/components/schemas/FlightPriceConstraints"
+          description: Price constraints
+        sort:
+          allOf:
+            - $ref: "#/components/schemas/SortBy"
+          description: 'Sort criteria: "lowest" (default) or "recommendation"'
+      type: object
+    DestinationSearchResponse:
+      properties:
+        destinations:
+          items:
+            $ref: "#/components/schemas/DestinationSuggestion"
+          type: array
+        origin:
+          allOf:
+            - $ref: "#/components/schemas/Origin"
+          description: Origin location information
+        pagination:
+          $ref: "#/components/schemas/Pagination"
+        total:
+          type: integer
+      type: object
+    DestinationSuggestion:
+      properties:
+        city_main_image:
+          type: string
+        city_name:
+          type: string
+        flights:
+          items:
+            $ref: "#/components/schemas/FlightItinerary"
+          type: array
+        iata_code:
+          type: string
+        location:
+          $ref: "#/components/schemas/Location"
+        lowest_fare_flight:
+          $ref: "#/components/schemas/FlightItinerary"
+      type: object
+    DetailedFare:
+      properties:
+        booking_fees:
+          allOf:
+            - $ref: "#/components/schemas/Amount"
+          description: >-
+            BookingFees are one-time booking-level fees (e.g. Bank Handling
+            Charge, Service Fee).
+
+            When present: TotalPrice includes these fees (TotalPrice = sell price + BookingFees).
+
+            When nil: no booking fees for this carrier (TotalPrice = sell price).
+        brand_name:
+          description: Fare brand name (e.g., "Basic Economy", "Main Cabin")
+          type: string
+        cabin_class:
+          description: Cabin class (economy, premium_economy, business, first)
+          type: string
+        cancellation_fee:
+          $ref: "#/components/schemas/Amount"
+        carry_on_baggage:
+          allOf:
+            - $ref: "#/components/schemas/CarryOnBaggage"
+          description: Baggage information
+        change_fee:
+          allOf:
+            - $ref: "#/components/schemas/Amount"
+          description: Fees
+        change_policy:
+          type: string
+        fare_basis_code:
+          description: Fare basis code
+          type: string
+        fare_brand_code:
+          description: Fare brand code
+          type: string
+        fare_descriptions:
+          description: >-
+            FareDescriptions contains free-text descriptions from the provider
+            (e.g., TravelFusion
+
+            SupplierClassDescription). Populated only when the provider returns fare brand descriptions.
+          items:
+            type: string
+          type: array
+        fare_rules:
+          description: >-
+            FareRules contains the full structured fare rules with all time
+            windows,
+
+            channels, charge model, and direction details.
+          items:
+            $ref: "#/components/schemas/FareRuleDetail"
+          type: array
+        fare_rules_summary:
+          description: Summary of fare rules
+          items:
+            type: string
+          type: array
+        included_baggage:
+          $ref: "#/components/schemas/CheckedBaggage"
+        is_changeable:
+          type: boolean
+        is_name_changeable:
+          type: boolean
+        is_refundable:
+          description: Flexibility rules
+          type: boolean
+        price_per_passenger:
+          description: Price breakdown by passenger type
+          items:
+            $ref: "#/components/schemas/PassengerPricing"
+          type: array
+        price_per_person:
+          allOf:
+            - $ref: "#/components/schemas/Amount"
+          description: Price per person (total price divided by all passengers)
+        priority_boarding:
+          type: boolean
+        provider_metadata:
+          description: >-
+            ProviderMetadata is base64-encoded metadata from the connector's
+            shop response.
+
+            Required for offer-price API calls to reconstruct provider-specific context.
+          type: string
+        rbd:
+          description: Reservation Booking Designator
+          type: string
+        refund_policy:
+          type: string
+        seat_selection_included:
+          description: Amenities
+          type: boolean
+        total_price:
+          allOf:
+            - $ref: "#/components/schemas/Amount"
+          description: Total price for all passengers
+        trip_item_token:
+          description: Unique trip item token for use with add_trip_item booking
+          type: string
+      type: object
+    DevPlatformMoney:
+      properties:
+        amount:
+          type: number
+        currency:
+          type: string
+      type: object
+    DocumentLink:
+      properties:
+        title:
+          type: string
+        type:
+          type: string
+        url:
+          type: string
+      type: object
+    Duration:
+      enum:
+        - -9223372036854776000
+        - 9223372036854776000
+        - 1
+        - 1000
+        - 1000000
+        - 1000000000
+        - 60000000000
+        - 3600000000000
+      format: int64
+      type: integer
+      x-enum-varnames:
+        - minDuration
+        - maxDuration
+        - Nanosecond
+        - Microsecond
+        - Millisecond
+        - Second
+        - Minute
+        - Hour
+    EmissionsStats:
+      properties:
+        avg:
+          type: number
+        max:
+          type: number
+        min:
+          type: number
+      type: object
+    ErrorResponse:
+      properties:
+        details:
+          type: string
+        error:
+          type: string
+        message:
+          type: string
+        type:
+          type: string
+      type: object
+    FareLabel:
+      enum:
+        - Lowest
+        - Low
+        - Medium
+        - High
+      type: string
+      x-enum-comments:
+        FareLabelHigh: More than 75% quantile
+        FareLabelLow: Cheaper than 25% quantile
+        FareLabelLowest: The lowest fare seen for origin-destination
+        FareLabelMedium: Between 25% and 75% quantile
+      x-enum-descriptions:
+        - The lowest fare seen for origin-destination
+        - Cheaper than 25% quantile
+        - Between 25% and 75% quantile
+        - More than 75% quantile
+      x-enum-varnames:
+        - FareLabelLowest
+        - FareLabelLow
+        - FareLabelMedium
+        - FareLabelHigh
+    FareRuleDetail:
+      properties:
+        channels:
+          description: Sales channels this rule applies to; empty means all channels
+          items:
+            type: string
+          type: array
+        charge_model:
+          description: Charge model (e.g. PerPassenger, PerBooking, PerSegment, PerLeg)
+          items:
+            type: string
+          type: array
+        direction:
+          description: "Direction this rule applies to: Outbound, Inbound, or empty for
+            both"
+          type: string
+        max_minutes_after_departure:
+          description: Maximum minutes after departure this rule applies (for
+            after-departure rules)
+          type: integer
+        max_minutes_before_departure:
+          description: Maximum minutes before departure this rule applies
+          type: integer
+        min_minutes_before_departure:
+          description: Minimum minutes before departure this rule applies
+          type: integer
+        penalty:
+          description: "Penalty: PENALTY_NOT_ALLOWED, PENALTY_NO_PENALTY,
+            PENALTY_ALLOWED_WITH_FEE"
+          type: string
+        penalty_fee:
+          allOf:
+            - $ref: "#/components/schemas/Amount"
+          description: Fee charged when penalty is ALLOWED_WITH_FEE
+        rule_type:
+          description: "Rule type: CANCEL, CHANGE, CANCEL_AFTER_DEPARTURE,
+            CHANGE_AFTER_DEPARTURE, NAME_CHANGE"
+          type: string
+      type: object
+    FlightCheckRequest:
+      properties:
+        cabin_class:
+          description: |-
+            JIN-187 filter forwards. These are only meaningful for DirectShop
+            (live search) — the /flights/check (re-price by offer token) surface
+            ignores them because the cached offer already has a concrete cabin,
+            carrier, and price.
+          type: string
+        currency:
+          description: Currency code for pricing (ISO 4217, e.g., "USD", "EUR")
+          type: string
+        direct_only:
+          type: boolean
+        exclude_carriers:
+          items:
+            type: string
+          type: array
+        include_carriers:
+          items:
+            type: string
+          type: array
+        locale:
+          description: Locale for formatting (e.g., "en-US")
+          type: string
+        max_price:
+          type: number
+        offer_token:
+          description: >-
+            The offer token from a flight search result (find_flight or
+            find_destination)
+
+            This is the ES doc_id from the search results
+          type: string
+        passengers:
+          allOf:
+            - $ref: "#/components/schemas/FlightShopPassengers"
+          description: Passengers for pricing
+        provider:
+          description: >-
+            Provider to target for this check (e.g., "sabre", "travelfusion").
+
+            When specified, only this provider is called instead of fan-out to all.
+
+            When empty, all enabled providers are called in parallel.
+          type: string
+      required:
+        - offer_token
+      type: object
+    FlightCheckResponse:
+      properties:
+        alternative_offers:
+          description: Alternative offers if the original is not available or for comparison
+          items:
+            $ref: "#/components/schemas/ShoppedFlightOffer"
+          type: array
+        exact_match_found:
+          description: >-
+            ExactMatchFound indicates whether a provider returned the exact same
+            flight.
+
+            When false, Offer may still be populated with a promoted alternative.
+          type: boolean
+        offer:
+          allOf:
+            - $ref: "#/components/schemas/ShoppedFlightOffer"
+          description: The shopped/confirmed offer with detailed pricing
+        origin_offer:
+          allOf:
+            - $ref: "#/components/schemas/OriginOfferSummary"
+          description: The original offer from flight search (for price comparison)
+        price_diff:
+          allOf:
+            - $ref: "#/components/schemas/Amount"
+          description: >-
+            PriceDiff is the absolute price difference (live minus cached).
+
+            Positive value means increase, negative value means decrease.
+
+            Populated when PriceStatus is "price_increased" or "price_decreased".
+        price_status:
+          description: >-
+            PriceStatus describes the outcome of the price check.
+
+            Values: "match", "price_increased", "price_decreased", "flight_not_found", "no_flight_found"
+          type: string
+        search_price:
+          allOf:
+            - $ref: "#/components/schemas/Amount"
+          description: >-
+            SearchPrice is the original cached price from the flight search
+            (what the user saw).
+
+            Always populated so the client can show "was X, now Y".
+      type: object
+    FlightDateFilter:
+      properties:
+        departure_date_ranges:
+          description: Multiple departure date ranges
+          items:
+            $ref: "#/components/schemas/DateRange"
+          type: array
+        departure_dates:
+          description: Multiple departure dates (list of specific dates)
+          items:
+            type: string
+          type: array
+        return_date_ranges:
+          description: Multiple return date ranges
+          items:
+            $ref: "#/components/schemas/DateRange"
+          type: array
+        return_dates:
+          description: Multiple return dates (list of specific dates)
+          items:
+            type: string
+          type: array
+        stay_days:
+          description: Length of stay in days (for roundtrip flights)
+          type: integer
+        stay_days_range:
+          allOf:
+            - $ref: "#/components/schemas/StayDaysRange"
+          description: Stay days range (alternative to exact stay_days)
+      type: object
+    FlightItinerary:
+      properties:
+        cabin_type:
+          $ref: "#/components/schemas/CabinType"
+        conversion_rate:
+          type: number
+        deep_link:
+          description: DeepLink is the URL to book this itinerary (defaults to
+            https://jinkotravel.com)
+          type: string
+        destination_city_code:
+          type: string
+        destination_city_image:
+          type: string
+        destination_city_location:
+          $ref: "#/components/schemas/Location"
+        destination_city_name:
+          type: string
+        fare_brand:
+          type: string
+        id:
+          type: string
+        jinko_advice:
+          allOf:
+            - $ref: "#/components/schemas/JinkoAdvice"
+          description: JinkoAdvice provides fare assessment with label, title and
+            description
+        origin_city_code:
+          type: string
+        origin_city_location:
+          $ref: "#/components/schemas/Location"
+        origin_city_name:
+          type: string
+        origin_total_amount:
+          $ref: "#/components/schemas/Amount"
+        score:
+          type: number
+        search_timestamp:
+          type: string
+        slices:
+          items:
+            $ref: "#/components/schemas/FlightSlice"
+          type: array
+        total_amount:
+          $ref: "#/components/schemas/Amount"
+      type: object
+    FlightJourney:
+      properties:
+        airline:
+          description: Primary airline code
+          type: string
+        airline_logo:
+          description: Airline logo URL
+          type: string
+        airline_name:
+          description: Airline name
+          type: string
+        arrival_datetime:
+          description: Arrival datetime (ISO 8601 local time)
+          type: string
+        departure_datetime:
+          description: Departure datetime (ISO 8601 local time)
+          type: string
+        destination:
+          description: Destination airport code
+          type: string
+        destination_airport_name:
+          description: Destination airport name
+          type: string
+        destination_name:
+          description: Destination city name
+          type: string
+        duration_minutes:
+          description: Total duration in minutes
+          type: integer
+        origin:
+          description: Origin airport code
+          type: string
+        origin_airport_name:
+          description: Origin airport name
+          type: string
+        origin_name:
+          description: Origin city name
+          type: string
+        segments:
+          description: Flight segments
+          items:
+            $ref: "#/components/schemas/FlightShopSegment"
+          type: array
+        stop_infos:
+          description: Stop information
+          items:
+            $ref: "#/components/schemas/StopInfo"
+          type: array
+        stops:
+          description: Number of stops
+          type: integer
+      type: object
+    FlightLocationFilter:
+      properties:
+        destination_type:
+          description: '"city" or "airport" — defaults to "city" if empty'
+          type: string
+        destinations:
+          description: One or more destination IATA codes (required)
+          items:
+            type: string
+          type: array
+        origin_type:
+          description: '"city" or "airport" — defaults to "city" if empty'
+          type: string
+        origins:
+          description: One or more origin IATA codes (required)
+          items:
+            type: string
+          type: array
+      type: object
+    FlightPassengers:
+      properties:
+        adt:
+          type: integer
+        ages:
+          items:
+            type: integer
+          type: array
+        chd:
+          type: integer
+        inf_lap:
+          type: integer
+        inf_seat:
+          type: integer
+        residency_country:
+          type: string
+        student:
+          type: integer
+        youth:
+          type: integer
+      type: object
+    FlightPriceConstraints:
+      properties:
+        max_total:
+          description: Maximum total price in USD (will be converted to NUC millicents for
+            ES query)
+          type: number
+      type: object
+    FlightSearchFacets:
+      properties:
+        airlines:
+          additionalProperties:
+            type: integer
+          type: object
+        cabins:
+          additionalProperties:
+            type: integer
+          type: object
+        destinations:
+          additionalProperties:
+            type: integer
+          type: object
+        emissions:
+          $ref: "#/components/schemas/EmissionsStats"
+        origins:
+          additionalProperties:
+            type: integer
+          type: object
+        prices:
+          items:
+            $ref: "#/components/schemas/PriceHistogramBucket"
+          type: array
+        stops:
+          additionalProperties:
+            type: integer
+          type: object
+      type: object
+    FlightSearchFilters:
+      properties:
+        cabin_class:
+          allOf:
+            - $ref: "#/components/schemas/CabinType"
+          description: "Cabin class filter (optional): filters by cabin class"
+        dates:
+          allOf:
+            - $ref: "#/components/schemas/FlightDateFilter"
+          description: Date filter (required)
+        direct_only:
+          description: Direct flights only (maps to lowest_direct_fare in ES)
+          type: boolean
+        locations:
+          allOf:
+            - $ref: "#/components/schemas/FlightLocationFilter"
+          description: Location filter (required)
+        trip_type:
+          allOf:
+            - $ref: "#/components/schemas/TripType"
+          description: 'Trip type (required): "oneway" or "roundtrip"'
+      type: object
+    FlightSearchRequest:
+      properties:
+        allow_live_shop:
+          description: >-
+            AllowLiveShop enables live shopping in parallel with cached search.
+
+            Default false — only opted-in consumers (e.g. MCP FindFlight) set this to true.
+          type: boolean
+        currency:
+          description: Currency code for pricing (e.g., "USD", "EUR", "GBP")
+          type: string
+        filters:
+          allOf:
+            - $ref: "#/components/schemas/FlightSearchFilters"
+          description: Search filters (required)
+        limit:
+          description: "Limit - maximum number of results to return (default: 20, max: 100)"
+          type: integer
+        locale:
+          description: Locale code for results (e.g., "en", "fr", "de", "es", "zh", "ja",
+            "ko")
+          type: string
+        offset:
+          description: "Offset - number of results to skip for pagination (default: 0)"
+          type: integer
+        passengers:
+          allOf:
+            - $ref: "#/components/schemas/FlightPassengers"
+          description: Passengers (required for pricing)
+        price_constraints:
+          allOf:
+            - $ref: "#/components/schemas/FlightPriceConstraints"
+          description: Price constraints
+        sort:
+          allOf:
+            - $ref: "#/components/schemas/SortBy"
+          description: 'Sort criteria: "lowest" (default) or "recommendation"'
+      type: object
+    FlightSearchResponse:
+      properties:
+        destination:
+          allOf:
+            - $ref: "#/components/schemas/DestinationInfo"
+          description: Destination information (populated from first itinerary)
+        facets:
+          $ref: "#/components/schemas/FlightSearchFacets"
+        itineraries:
+          items:
+            $ref: "#/components/schemas/FlightItinerary"
+          type: array
+        live_offers:
+          items:
+            $ref: "#/components/schemas/ShoppedFlightOffer"
+          type: array
+        live_shop_status:
+          $ref: "#/components/schemas/LiveShopStatus"
+        pagination:
+          $ref: "#/components/schemas/Pagination"
+      type: object
+    FlightSegment:
+      properties:
+        aircraft:
+          type: string
+        arrive:
+          properties:
+            airport:
+              type: string
+            city_code:
+              type: string
+            city_name:
+              type: string
+            terminal:
+              type: string
+            time_local:
+              type: string
+          type: object
+        depart:
+          properties:
+            airport:
+              type: string
+            city_code:
+              type: string
+            city_name:
+              type: string
+            terminal:
+              type: string
+            time_local:
+              type: string
+          type: object
+        duration_minutes:
+          type: integer
+        flight_number:
+          type: string
+        layover_minutes_after:
+          type: integer
+        marketing_carrier:
+          type: string
+        marketing_carrier_info:
+          $ref: "#/components/schemas/CarrierInfo"
+        operating_carrier:
+          type: string
+        operating_carrier_info:
+          $ref: "#/components/schemas/CarrierInfo"
+      type: object
+    FlightShopPassengers:
+      properties:
+        adt:
+          description: Number of adult passengers (12+ years), required, 1-9
+          maximum: 9
+          minimum: 1
+          type: integer
+        chd:
+          description: Number of child passengers (2-11 years), optional, 0-8
+          maximum: 8
+          minimum: 0
+          type: integer
+        inf:
+          description: Number of infant passengers (under 2 years), optional, 0-4
+          maximum: 4
+          minimum: 0
+          type: integer
+      required:
+        - adt
+      type: object
+    FlightShopSegment:
+      properties:
+        aircraft:
+          description: Aircraft type
+          type: string
+        airline:
+          description: Airline code
+          type: string
+        airline_logo:
+          description: Airline logo URL
+          type: string
+        airline_name:
+          description: Airline name
+          type: string
+        arrival_airport:
+          type: string
+        arrival_city:
+          description: Arrival information
+          type: string
+        arrival_city_name:
+          type: string
+        arrival_terminal:
+          type: string
+        arrival_time:
+          description: ISO 8601
+          type: string
+        arrival_time_local:
+          description: Local time string
+          type: string
+        departure_airport:
+          type: string
+        departure_city:
+          description: Departure information
+          type: string
+        departure_city_name:
+          type: string
+        departure_terminal:
+          type: string
+        departure_time:
+          description: ISO 8601
+          type: string
+        departure_time_local:
+          description: Local time string
+          type: string
+        duration_minutes:
+          description: Duration in minutes
+          type: integer
+        flight_number:
+          description: Flight number
+          type: string
+        layover_minutes:
+          description: Layover after this segment in minutes
+          type: integer
+        operating_carrier:
+          description: Operating carrier (if codeshare)
+          type: string
+        operating_carrier_info:
+          $ref: "#/components/schemas/CarrierInfo"
+      type: object
+    FlightSlice:
+      properties:
+        cabin:
+          $ref: "#/components/schemas/CabinType"
+        destination:
+          type: string
+        destination_airport_name:
+          type: string
+        destination_city_name:
+          type: string
+        duration_minutes:
+          type: integer
+        marketing_carrier_info:
+          allOf:
+            - $ref: "#/components/schemas/CarrierInfo"
+          description: MarketingCarrierInfo is the carrier info of the first segment
+        origin:
+          type: string
+        origin_airport_name:
+          type: string
+        origin_city_name:
+          type: string
+        segments:
+          items:
+            $ref: "#/components/schemas/FlightSegment"
+          type: array
+      type: object
+    FulfillmentCart:
+      properties:
+        booking_reference:
+          type: string
+        cart_id:
+          type: integer
+        cart_type:
+          type: string
+        completed_at:
+          type: string
+        confirmed_at:
+          type: string
+        created_at:
+          type: string
+        customer_contact:
+          additionalProperties: true
+          type: object
+        error_message:
+          type: string
+        failure_reason:
+          type: string
+        fulfilled_at:
+          type: string
+        id:
+          type: integer
+        idempotency_key:
+          type: string
+        metadata:
+          additionalProperties: true
+          type: object
+        payment_authorization_id:
+          type: string
+        payment_capture_amount:
+          type: integer
+        payment_captured_at:
+          type: string
+        phase:
+          $ref: "#/components/schemas/FulfillmentPhase"
+        prepared_at:
+          type: string
+        quoted_cart_id:
+          type: integer
+        scheduled_at:
+          type: string
+        status:
+          $ref: "#/components/schemas/FulfillmentStatus"
+        tenant_id:
+          type: string
+        travelers:
+          items: {}
+          type: array
+        updated_at:
+          type: string
+      type: object
+    FulfillmentCartItem:
+      properties:
+        cart_product_id:
+          type: string
+        completed_at:
+          type: string
+        created_at:
+          type: string
+        domain:
+          type: string
+        domain_fulfillment_id:
+          type: string
+        error_message:
+          type: string
+        fulfillment_cart_id:
+          type: integer
+        id:
+          type: integer
+        last_polled_at:
+          type: string
+        max_poll_count:
+          type: integer
+        max_poll_duration:
+          $ref: "#/components/schemas/Duration"
+        next_poll_at:
+          type: string
+        phase:
+          $ref: "#/components/schemas/FulfillmentPhase"
+        pipeline_version:
+          type: integer
+        poll_count:
+          type: integer
+        prepared_at:
+          type: string
+        private_confirmation:
+          $ref: "#/components/schemas/PrivateConfirmation"
+        provider_booking_id:
+          type: string
+        provider_status:
+          type: string
+        public_confirmation:
+          $ref: "#/components/schemas/PublicConfirmation"
+        quoted_cart_item_id:
+          type: integer
+        retry_count:
+          type: integer
+        scheduled_at:
+          type: string
+        settlement:
+          $ref: "#/components/schemas/Settlement"
+        status:
+          $ref: "#/components/schemas/FulfillmentStatus"
+        step_state:
+          $ref: "#/components/schemas/StepState"
+        updated_at:
+          type: string
+      type: object
+    FulfillmentPhase:
+      enum:
+        - pending
+        - preparing
+        - prepared
+        - processing
+        - confirming
+        - completed
+        - failed
+      type: string
+      x-enum-varnames:
+        - FulfillmentPhasePending
+        - FulfillmentPhasePreparing
+        - FulfillmentPhasePrepared
+        - FulfillmentPhaseProcessing
+        - FulfillmentPhaseConfirming
+        - FulfillmentPhaseCompleted
+        - FulfillmentPhaseFailed
+    FulfillmentStatus:
+      enum:
+        - pending
+        - awaiting_payment
+        - preparing
+        - prepared
+        - processing
+        - confirming
+        - completed
+        - partial
+        - failed
+        - cancelled
+        - exchange_partial_failure
+        - expired_quote
+      type: string
+      x-enum-varnames:
+        - FulfillmentStatusPending
+        - FulfillmentStatusAwaitingPayment
+        - FulfillmentStatusPreparing
+        - FulfillmentStatusPrepared
+        - FulfillmentStatusProcessing
+        - FulfillmentStatusConfirming
+        - FulfillmentStatusCompleted
+        - FulfillmentStatusPartial
+        - FulfillmentStatusFailed
+        - FulfillmentStatusCancelled
+        - FulfillmentStatusExchangePartialFailure
+        - FulfillmentStatusExpiredQuote
+    GuestInfo:
+      properties:
+        adults:
+          minimum: 1
+          type: integer
+        children:
+          items:
+            type: integer
+          type: array
+        infants:
+          type: integer
+      required:
+        - adults
+      type: object
+    HotelShopResponse:
+      properties:
+        hotels:
+          items:
+            $ref: "#/components/schemas/ShoppedHotel"
+          type: array
+        total:
+          type: integer
+      type: object
+    JinkoAdvice:
+      properties:
+        description:
+          description: >-
+            Description provides context about the pricing
+
+            Example: "Cheapest price for Mallorca are usually $57 more expensive than this deal"
+          type: string
+        label:
+          allOf:
+            - $ref: "#/components/schemas/FareLabel"
+          description: Label indicates the price category (Lowest, Low, Medium, High)
+        quantiles:
+          allOf:
+            - $ref: "#/components/schemas/AdviceQuantiles"
+          description: Quantiles provides the fare percentile data for scoring
+        title:
+          description: |-
+            Title is a human-readable summary of the deal quality
+            Example: "$264 is a very good deal"
+          type: string
+      type: object
+    KeyListItem:
+      properties:
+        created_at:
+          type: string
+        id:
+          type: integer
+        key_type:
+          type: string
+        name:
+          type: string
+        prefix:
+          type: string
+        rate_limit:
+          $ref: "#/components/schemas/RateLimitInfo"
+        revoked_at:
+          type: string
+        status:
+          type: string
+      type: object
+    LiveShopStatus:
+      enum:
+        - ok
+        - rate_limited
+        - failed
+        - not_eligible
+      type: string
+      x-enum-varnames:
+        - LiveShopStatusOK
+        - LiveShopStatusRateLimited
+        - LiveShopStatusFailed
+        - LiveShopStatusNotEligible
+    Location:
+      properties:
+        latitude:
+          type: number
+        longitude:
+          type: number
+      type: object
+    MatchSummary:
+      properties:
+        assumptions:
+          description: |-
+            Assumptions lists human-readable assumptions the LLM/service had to
+            make because the query didn't carry enough structure (e.g. children
+            ages filled with a default when the LLM only extracted a count).
+            Frontend should surface these so the user knows and can refine.
+          items:
+            type: string
+          type: array
+        hard_filters_applied:
+          description: |-
+            HardFiltersApplied lists which hard filters the LLM extracted
+            (e.g. ["facility_ids", "min_star_rating"]). Absent if none.
+          items:
+            type: string
+          type: array
+        soft_filters_applied:
+          description: |-
+            SoftFiltersApplied lists which soft filters were evaluated on the
+            response (e.g. ["max_price", "refundable_only"]). Absent if none.
+          items:
+            type: string
+          type: array
+        strict_matches:
+          description: |-
+            StrictMatches is the number of hotels with AT LEAST ONE rate that
+            passes every soft filter the LLM extracted.
+          type: integer
+        total_returned:
+          description: |-
+            TotalReturned is the number of hotels in the response after hard
+            filters but before any soft-filter consideration.
+          type: integer
+      type: object
+    MealDetails:
+      properties:
+        available_meals:
+          description: all meals for this segment
+          items:
+            $ref: "#/components/schemas/MealOption"
+          type: array
+        meal_code:
+          description: "TF: flightNum-mealCode"
+          type: string
+        meal_name:
+          description: e.g. "Roast Chicken with BBQ Sauce"
+          type: string
+      type: object
+    MealOption:
+      properties:
+        csp_value:
+          description: exact value to submit
+          type: string
+        meal_code:
+          description: e.g. "flightNum-mealCode"
+          type: string
+        meal_name:
+          description: e.g. "Roast Chicken with BBQ Sauce"
+          type: string
+        price:
+          $ref: "#/components/schemas/Money"
+      type: object
+    Money:
+      properties:
+        amount:
+          type: integer
+        currency:
+          type: string
+        decimal_places:
+          type: integer
+      type: object
+    OccupancyRequest:
+      properties:
+        adults:
+          type: integer
+        children_ages:
+          items:
+            type: integer
+          type: array
+      type: object
+    OrgResponse:
+      properties:
+        created_at:
+          type: string
+        id:
+          type: integer
+        name:
+          type: string
+        slug:
+          type: string
+        status:
+          type: string
+        updated_at:
+          type: string
+      type: object
+    Origin:
+      properties:
+        city_code:
+          description: City code (only for single origin city)
+          type: string
+        city_name:
+          description: City name (only for single origin city)
+          type: string
+        country_code:
+          description: Country code (for multiple origins or as fallback)
+          type: string
+        country_name:
+          description: Country name (for multiple origins or as fallback)
+          type: string
+        location:
+          allOf:
+            - $ref: "#/components/schemas/Location"
+          description: Geographic coordinates (only for single origin city)
+      type: object
+    OriginOfferSummary:
+      properties:
+        destination_city_code:
+          description: Destination city code
+          type: string
+        destination_city_name:
+          description: Destination city name
+          type: string
+        offer_id:
+          description: Offer ID from search
+          type: string
+        offer_token:
+          description: Offer token used for shopping
+          type: string
+        origin_city_code:
+          description: Origin city code
+          type: string
+        origin_city_name:
+          description: Origin city name
+          type: string
+        total_price:
+          allOf:
+            - $ref: "#/components/schemas/Amount"
+          description: Total price from search
+      type: object
+    Pagination:
+      properties:
+        next_page_token:
+          type: string
+      type: object
+    ParsedQuery:
+      properties:
+        board_type:
+          description: '"RO"|"BB"|"HB"|"FB"|"AI"'
+          type: string
+        chain_ids:
+          items:
+            type: integer
+          type: array
+        confidence:
+          description: |-
+            LLM self-reported confidence (0..1). Service may downgrade behavior
+            or drop filters if confidence is below a threshold.
+          type: number
+        facility_ids:
+          description: Hard filters — applied at search time by the connector.
+          items:
+            type: integer
+          type: array
+        guests:
+          items:
+            $ref: "#/components/schemas/GuestInfo"
+          type: array
+        hotel_type_ids:
+          items:
+            type: string
+          type: array
+        max_price:
+          description: Soft filters — applied client-side against the shop response.
+          type: number
+        min_rating:
+          type: number
+        min_star_rating:
+          type: integer
+        parsed_fields:
+          description: |-
+            Human-readable list of which fields the LLM claims to have parsed
+            from the query. Useful for UX feedback and debugging.
+          items:
+            type: string
+          type: array
+        refundable_only:
+          type: boolean
+      type: object
+    PassengerPricing:
+      properties:
+        base_fare:
+          allOf:
+            - $ref: "#/components/schemas/Amount"
+          description: Base fare per passenger
+        passenger_type:
+          description: Passenger type (ADT, CHD, INF)
+          type: string
+        quantity:
+          description: Number of passengers of this type
+          type: integer
+        taxes:
+          allOf:
+            - $ref: "#/components/schemas/Amount"
+          description: Taxes per passenger
+        total_per_person:
+          allOf:
+            - $ref: "#/components/schemas/Amount"
+          description: Total per person
+      type: object
+    PassthroughSettlement:
+      properties:
+        card_brand:
+          type: string
+        card_last_four:
+          type: string
+        payment_intent_id:
+          type: string
+      type: object
+    PaymentAuthorization:
+      properties:
+        authorization_type:
+          $ref: "#/components/schemas/AuthorizationType"
+        authorized_amount:
+          $ref: "#/components/schemas/Amount"
+        checkout_expires_at:
+          type: string
+        checkout_session_id:
+          type: string
+        checkout_url:
+          type: string
+        client_secret:
+          type: string
+        created_at:
+          type: string
+        error_message:
+          type: string
+        external_auth_id:
+          type: string
+        id:
+          type: string
+        payment_provider:
+          $ref: "#/components/schemas/PaymentProvider"
+        quote_id:
+          type: integer
+        quoted_cart_id:
+          type: integer
+        status:
+          $ref: "#/components/schemas/PaymentAuthorizationStatus"
+        updated_at:
+          type: string
+      type: object
+    PaymentAuthorizationRequest:
+      properties:
+        quote_id:
+          type: integer
+      required:
+        - quote_id
+      type: object
+    PaymentAuthorizationResponse:
+      properties:
+        client_secret:
+          type: string
+        id:
+          type: string
+        provider:
+          $ref: "#/components/schemas/PaymentProvider"
+        provider_authorization_id:
+          type: string
+        status:
+          $ref: "#/components/schemas/PaymentAuthorizationStatus"
+      type: object
+    PaymentAuthorizationStatus:
+      enum:
+        - initiated
+        - authorized
+        - failed
+        - cancelled
+        - expired
+      type: string
+      x-enum-varnames:
+        - PaymentAuthorizationStatusInitiated
+        - PaymentAuthorizationStatusAuthorized
+        - PaymentAuthorizationStatusFailed
+        - PaymentAuthorizationStatusCancelled
+        - PaymentAuthorizationStatusExpired
+    PaymentCapture:
+      properties:
+        authorization_id:
+          type: string
+        captured_amount:
+          $ref: "#/components/schemas/Amount"
+        created_at:
+          type: string
+        error_message:
+          type: string
+        external_capture_id:
+          type: string
+        id:
+          type: string
+        status:
+          $ref: "#/components/schemas/PaymentCaptureStatus"
+        updated_at:
+          type: string
+      type: object
+    PaymentCaptureStatus:
+      enum:
+        - initiated
+        - success
+        - failed
+      type: string
+      x-enum-varnames:
+        - PaymentCaptureStatusInitiated
+        - PaymentCaptureStatusSuccess
+        - PaymentCaptureStatusFailed
+    PaymentProvider:
+      enum:
+        - stripe
+      type: string
+      x-enum-varnames:
+        - PaymentProviderStripe
+    PaymentType:
+      enum:
+        - intent
+        - checkout
+        - checkout
+      type: string
+      x-enum-varnames:
+        - PaymentTypeIntent
+        - PaymentTypeCheckout
+        - DefaultPaymentType
+    PriceBreakdown:
+      properties:
+        base:
+          $ref: "#/components/schemas/Amount"
+        tax_and_fee:
+          $ref: "#/components/schemas/Amount"
+        total:
+          $ref: "#/components/schemas/Amount"
+      type: object
+    PriceHistogramBucket:
+      properties:
+        count:
+          type: integer
+        from:
+          type: integer
+        label:
+          type: string
+        to:
+          type: integer
+      type: object
+    PriceQuote:
+      properties:
+        breakdown:
+          $ref: "#/components/schemas/CartPriceBreakdown"
+        remit:
+          $ref: "#/components/schemas/Money"
+        sell_at:
+          $ref: "#/components/schemas/Money"
+        supported_settlement_types:
+          items:
+            $ref: "#/components/schemas/SettlementType"
+          type: array
+      type: object
+    PrivateConfirmation:
+      properties:
+        audit_trail:
+          items:
+            $ref: "#/components/schemas/AuditEntry"
+          type: array
+        cancellation_details:
+          $ref: "#/components/schemas/CancellationDetails"
+        provider_booking_id:
+          type: string
+        provider_rate_id:
+          type: string
+        provider_response_raw:
+          type: string
+        settlement_id:
+          type: string
+        vcc_used:
+          $ref: "#/components/schemas/VCCReference"
+      type: object
+    ProductDomain:
+      enum:
+        - hotel
+        - flight
+        - activities
+        - transfer
+        - flight_refund
+        - flight_exchange
+      type: string
+      x-enum-varnames:
+        - ProductDomainHotel
+        - ProductDomainFlight
+        - ProductDomainActivities
+        - ProductDomainTransfer
+        - ProductDomainFlightRefund
+        - ProductDomainFlightExchange
+    ProductStatus:
+      enum:
+        - draft
+        - quoted
+        - fulfilled
+        - removed
+      type: string
+      x-enum-varnames:
+        - ProductStatusDraft
+        - ProductStatusQuoted
+        - ProductStatusFulfilled
+        - ProductStatusRemoved
+    PublicConfirmation:
+      properties:
+        confirmation_number:
+          type: string
+        details:
+          additionalProperties: true
+          type: object
+        documents:
+          items:
+            $ref: "#/components/schemas/DocumentLink"
+          type: array
+        product_summary:
+          type: string
+        total_paid:
+          $ref: "#/components/schemas/Money"
+      type: object
+    PullFulfillmentRequest:
+      properties:
+        fulfillment_cart_id:
+          type: integer
+      required:
+        - fulfillment_cart_id
+      type: object
+    PullFulfillmentResponse:
+      properties:
+        fulfillment_cart:
+          $ref: "#/components/schemas/FulfillmentCart"
+        items:
+          items:
+            $ref: "#/components/schemas/FulfillmentCartItem"
+          type: array
+        payment_capture_error:
+          type: string
+        payment_captured:
+          type: boolean
+      type: object
+    PullQuoteRequest:
+      properties:
+        quoted_cart_id:
+          type: integer
+      required:
+        - quoted_cart_id
+      type: object
+    PullQuoteResponse:
+      properties:
+        ancillary_sell_at:
+          $ref: "#/components/schemas/Money"
+        base_sell_at:
+          $ref: "#/components/schemas/Money"
+        checkout_expires_at:
+          type: string
+        checkout_session_id:
+          type: string
+        checkout_url:
+          type: string
+        items:
+          items:
+            $ref: "#/components/schemas/QuotedCartItem"
+          type: array
+        payment_authorization_id:
+          type: string
+        payment_client_secret:
+          type: string
+        payment_type:
+          allOf:
+            - $ref: "#/components/schemas/PaymentType"
+          description: >-
+            PaymentType mirrors QuotedCart.PaymentType at the top level for
+            convenient
+
+            access by the frontend to decide which payment flow to use.
+        quoted_cart:
+          $ref: "#/components/schemas/QuotedCart"
+        reshop_quoted_cart_id:
+          description: >-
+            ReshopQuotedCartID mirrors QuotedCart.ReshopQuotedCartID at the top
+            level
+
+            for convenient access by callers without nesting into quoted_cart.
+          type: integer
+        total_margin:
+          $ref: "#/components/schemas/Money"
+        total_remit:
+          $ref: "#/components/schemas/Money"
+        total_sell_at:
+          $ref: "#/components/schemas/Money"
+      type: object
+    QuoteStatus:
+      enum:
+        - pending
+        - in_progress
+        - partial
+        - completed
+        - failed
+        - expired
+      type: string
+      x-enum-varnames:
+        - QuoteStatusPending
+        - QuoteStatusInProgress
+        - QuoteStatusPartial
+        - QuoteStatusCompleted
+        - QuoteStatusFailed
+        - QuoteStatusExpired
+    QuotedCart:
+      properties:
+        cart_id:
+          type: integer
+        completed_at:
+          type: string
+        contact_info:
+          additionalProperties: true
+          type: object
+        created_at:
+          type: string
+        error_message:
+          type: string
+        expires_at:
+          type: string
+        id:
+          type: integer
+        metadata:
+          additionalProperties: true
+          type: object
+        payment_authorization_id:
+          type: string
+        payment_type:
+          $ref: "#/components/schemas/PaymentType"
+        reshop_quoted_cart_id:
+          description: >-
+            ReshopQuotedCartID is set on the original (superseded) quoted cart
+            when a
+
+            reshop occurs during quoting. Callers that receive status "failed" with this
+
+            field populated should re-poll using the new quoted cart ID instead.
+          type: integer
+        scheduled_at:
+          type: string
+        status:
+          $ref: "#/components/schemas/QuoteStatus"
+        tenant_id:
+          type: string
+        total_margin:
+          $ref: "#/components/schemas/Money"
+        total_remit:
+          $ref: "#/components/schemas/Money"
+        total_sell_at:
+          $ref: "#/components/schemas/Money"
+        travelers:
+          items: {}
+          type: array
+        updated_at:
+          type: string
+      type: object
+    QuotedCartItem:
+      properties:
+        available_ancillaries:
+          items:
+            $ref: "#/components/schemas/Ancillary"
+          type: array
+        cart_product_id:
+          type: string
+        completed_at:
+          type: string
+        created_at:
+          type: string
+        domain:
+          type: string
+        domain_quote_id:
+          type: string
+        error_message:
+          type: string
+        expires_at:
+          type: string
+        id:
+          type: integer
+        price_quote:
+          $ref: "#/components/schemas/PriceQuote"
+        quote_details:
+          additionalProperties: true
+          type: object
+        quoted_cart_id:
+          type: integer
+        retry_count:
+          type: integer
+        scheduled_at:
+          type: string
+        selected_ancillaries:
+          items:
+            $ref: "#/components/schemas/SelectedAncillary"
+          type: array
+        status:
+          $ref: "#/components/schemas/QuoteStatus"
+        supported_settlement_types:
+          items:
+            $ref: "#/components/schemas/SettlementType"
+          type: array
+        total_with_ancillaries:
+          allOf:
+            - $ref: "#/components/schemas/Money"
+          description: computed on read, not persisted
+        updated_at:
+          type: string
+      type: object
+    RateLimitInfo:
+      properties:
+        max:
+          type: integer
+        window_seconds:
+          type: integer
+      type: object
+    RateMatches:
+      properties:
+        board_type:
+          type: boolean
+        max_price:
+          type: boolean
+        refundable:
+          type: boolean
+      type: object
+    RefundCheckRequest:
+      properties:
+        booking_ref:
+          type: string
+        last_name:
+          type: string
+        order_id:
+          type: string
+        provider:
+          type: string
+        ticket_numbers:
+          items:
+            type: string
+          type: array
+      type: object
+    RefundCheckResponse:
+      properties:
+        expires_at:
+          type: string
+        is_automatable:
+          type: boolean
+        is_refundable:
+          type: boolean
+        manual_reason:
+          type: string
+        penalty_amount:
+          $ref: "#/components/schemas/AmountInfo"
+        refund_amount:
+          $ref: "#/components/schemas/AmountInfo"
+        support_level:
+          type: string
+        total_paid:
+          $ref: "#/components/schemas/AmountInfo"
+        warnings:
+          items:
+            type: string
+          type: array
+      type: object
+    ResponseFormat:
+      enum:
+        - text
+        - structured
+      type: string
+      x-enum-varnames:
+        - ResponseFormatText
+        - ResponseFormatStructured
+    ScheduleFulfillmentRequest:
+      properties:
+        cart_id:
+          description: >-
+            Standard path: provide cart_id + quoted_cart_id + idempotency_key.
+
+            payment_authorization_id is now optional — the server creates the Stripe payment at schedule time (PAYF-01).
+          type: integer
+        checkout_session_id:
+          description: >-
+            CheckoutSessionID: alternative path — web app provides the Stripe
+            checkout session ID
+
+            after redirect. The server resolves quoted_cart_id and payment_auth automatically.
+          type: string
+        customer_contact:
+          $ref: "#/components/schemas/CustomerContact"
+        guest_data:
+          additionalProperties: true
+          description: 'GuestData is the MCP-client-facing field (matches swagger spec).
+            Shape: { "passengers": [...] }'
+          type: object
+        idempotency_key:
+          type: string
+        payment_authorization_id:
+          type: string
+        payment_intent_id:
+          description: >-
+            PaymentIntentID: alternative path — web app provides the Stripe
+            PaymentIntent ID
+
+            after embedded payment confirmation. The server resolves quoted_cart_id and payment_auth automatically.
+          type: string
+        quoted_cart_id:
+          type: integer
+        travelers:
+          description: Travelers is the internal field used downstream. Populated from
+            GuestData if not set directly.
+          items: {}
+          type: array
+      type: object
+    ScheduleFulfillmentResponse:
+      properties:
+        cart_id:
+          type: integer
+        checkout_expires_at:
+          type: string
+        checkout_session_id:
+          type: string
+        checkout_url:
+          type: string
+        fulfillment_cart_id:
+          type: integer
+        item_count:
+          type: integer
+        payment_authorization_id:
+          description: Payment fields — populated by createPaymentForFulfillment at
+            schedule time (PAYF-01/03)
+          type: string
+        payment_client_secret:
+          type: string
+        payment_type:
+          type: string
+        phase:
+          $ref: "#/components/schemas/FulfillmentPhase"
+        quoted_cart_id:
+          type: integer
+        scheduled_at:
+          type: string
+        status:
+          $ref: "#/components/schemas/FulfillmentStatus"
+      type: object
+    ScheduleQuoteRequest:
+      properties:
+        cart_id:
+          type: integer
+      required:
+        - cart_id
+      type: object
+    ScheduleQuoteResponse:
+      properties:
+        cart_id:
+          type: integer
+        item_count:
+          type: integer
+        quoted_cart_id:
+          type: integer
+        scheduled_at:
+          type: string
+        status:
+          $ref: "#/components/schemas/QuoteStatus"
+      type: object
+    SeatDetails:
+      properties:
+        available_seats:
+          description: all seats for this segment
+          items:
+            $ref: "#/components/schemas/SeatOption"
+          type: array
+        characteristics:
+          description: EXIT_ROW, EXTRA_LEGROOM, BULKHEAD
+          items:
+            type: string
+          type: array
+        flight_number:
+          type: string
+        seat_number:
+          type: string
+        seat_type:
+          description: WINDOW, AISLE, MIDDLE
+          type: string
+      type: object
+    SeatInfo:
+      properties:
+        availability:
+          description: Availability status (available, occupied, blocked, reserved)
+          type: string
+        column:
+          description: Column letter
+          type: string
+        features:
+          description: Seat features (window, aisle, extra_legroom, etc.)
+          items:
+            type: string
+          type: array
+        price:
+          allOf:
+            - $ref: "#/components/schemas/Amount"
+          description: Price for seat selection
+        seat_number:
+          description: Seat number (e.g., "12A")
+          type: string
+      type: object
+    SeatMap:
+      properties:
+        aircraft_type:
+          description: Aircraft type
+          type: string
+        rows:
+          description: Rows of seats
+          items:
+            $ref: "#/components/schemas/SeatRow"
+          type: array
+        segment_id:
+          description: Segment this seat map applies to
+          type: string
+      type: object
+    SeatOption:
+      properties:
+        characteristics:
+          description: '"E" (exit row), "EL" (extra legroom), etc.'
+          items:
+            type: string
+          type: array
+        csp_value:
+          description: exact value to submit, e.g. "5477-14A;;;"
+          type: string
+        price:
+          allOf:
+            - $ref: "#/components/schemas/Money"
+          description: nil = no price listed
+        seat_number:
+          description: e.g. "14A"
+          type: string
+        seat_type:
+          description: '"W" (window), "A" (aisle), "N" (middle/regular)'
+          type: string
+      type: object
+    SeatRow:
+      properties:
+        row_number:
+          description: Row number
+          type: integer
+        seats:
+          description: Seats in this row
+          items:
+            $ref: "#/components/schemas/SeatInfo"
+          type: array
+      type: object
+    SelectAncillariesRequest:
+      properties:
+        selections:
+          items:
+            $ref: "#/components/schemas/SelectedAncillary"
+          type: array
+      type: object
+    SelectAncillariesResponse:
+      properties:
+        selected_ancillaries:
+          items:
+            $ref: "#/components/schemas/SelectedAncillary"
+          type: array
+        total_with_ancillaries:
+          $ref: "#/components/schemas/Money"
+      type: object
+    SelectedAncillary:
+      properties:
+        offer_id:
+          type: string
+        pax_ref_id:
+          type: string
+        quantity:
+          type: integer
+      type: object
+    SemanticSearchRequest:
+      properties:
+        check_in_date:
+          type: string
+        check_out_date:
+          type: string
+        currency:
+          type: string
+        destination:
+          type: string
+        guest_nationality:
+          type: string
+        language:
+          type: string
+        market:
+          description: User preferences
+          type: string
+        max_results:
+          description: Pagination
+          type: integer
+        query:
+          type: string
+      required:
+        - check_in_date
+        - check_out_date
+        - destination
+        - query
+      type: object
+    SemanticSearchResult:
+      properties:
+        hotels:
+          description: |-
+            Hotels passed the HARD filters (FacilityIDs/MinStarRating/MinRating/
+            HotelTypeIDs/ChainIDs) at search time. Rates inside each hotel are
+            NOT filtered by soft filters — instead each rate carries a
+            SemanticMatches annotation so the frontend can sort/highlight.
+          items:
+            $ref: "#/components/schemas/ShoppedHotel"
+          type: array
+        llm_extracted:
+          allOf:
+            - $ref: "#/components/schemas/ParsedQuery"
+          description: >-
+            LLMExtracted echoes what the LLM parser produced from the NL query.
+
+            Useful for debugging, transparency, and UX feedback ("We searched
+
+            for: pool, 2 adults, 4+ stars — if this looks wrong, try rephrasing").
+        match_summary:
+          allOf:
+            - $ref: "#/components/schemas/MatchSummary"
+          description: |-
+            MatchSummary aggregates match counts so the frontend can render
+            "X of Y hotels match all your filters" banners.
+      type: object
+    Settlement:
+      properties:
+        amount:
+          $ref: "#/components/schemas/Money"
+        created_at:
+          type: string
+        id:
+          type: integer
+        method:
+          $ref: "#/components/schemas/SettlementMethod"
+        payment_authorization_id:
+          type: string
+        status:
+          $ref: "#/components/schemas/SettlementStatus"
+        type:
+          $ref: "#/components/schemas/SettlementType"
+        updated_at:
+          type: string
+      type: object
+    SettlementMethod:
+      properties:
+        cash:
+          $ref: "#/components/schemas/CashSettlement"
+        passthrough:
+          $ref: "#/components/schemas/PassthroughSettlement"
+        vcc:
+          $ref: "#/components/schemas/VCCSettlement"
+      type: object
+    SettlementStatus:
+      enum:
+        - pending
+        - processed
+        - captured
+        - failed
+        - refunded
+      type: string
+      x-enum-varnames:
+        - SettlementStatusPending
+        - SettlementStatusProcessed
+        - SettlementStatusCaptured
+        - SettlementStatusFailed
+        - SettlementStatusRefunded
+    SettlementType:
+      enum:
+        - vcc
+        - passthrough
+        - cash
+        - settled_by_parent
+      type: string
+      x-enum-varnames:
+        - SettlementTypeVCC
+        - SettlementTypePassthrough
+        - SettlementTypeCash
+        - SettlementTypeParent
+    ShopFare:
+      properties:
+        brand_name:
+          type: string
+        cabin_class:
+          type: string
+        cancel_fee:
+          type: string
+        carry_on_baggage:
+          description: Baggage
+          type: string
+        change_fee:
+          type: string
+        change_policy:
+          type: string
+        fare_descriptions:
+          description: Provider fare descriptions
+          items:
+            type: string
+          type: array
+        included_baggage:
+          type: string
+        price_per_passenger:
+          description: Per-passenger breakdown
+          items:
+            $ref: "#/components/schemas/ShopPassengerPrice"
+          type: array
+        price_per_person:
+          type: string
+        priority_boarding:
+          type: boolean
+        refund_policy:
+          description: Refund & change conditions
+          type: string
+        seat_selection:
+          description: Amenities
+          type: boolean
+        total_price:
+          type: string
+        trip_item_token:
+          type: string
+      type: object
+    ShopFlight:
+      properties:
+        destination:
+          type: string
+        destination_city:
+          type: string
+        fares:
+          items:
+            $ref: "#/components/schemas/ShopFare"
+          type: array
+        inbound_airline:
+          type: string
+        inbound_airline_name:
+          type: string
+        inbound_arrival:
+          type: string
+        inbound_departure:
+          type: string
+        inbound_duration_min:
+          type: integer
+        inbound_segments:
+          items:
+            $ref: "#/components/schemas/ShopSegment"
+          type: array
+        inbound_stops:
+          type: integer
+        is_matched_flight:
+          description: IsMatchedFlight is true for the exact-matched flight in price_check
+            mode.
+          type: boolean
+        is_round_trip:
+          type: boolean
+        origin:
+          type: string
+        origin_city:
+          type: string
+        outbound_airline:
+          type: string
+        outbound_airline_name:
+          type: string
+        outbound_arrival:
+          type: string
+        outbound_departure:
+          type: string
+        outbound_duration_min:
+          type: integer
+        outbound_segments:
+          items:
+            $ref: "#/components/schemas/ShopSegment"
+          type: array
+        outbound_stops:
+          type: integer
+      type: object
+    ShopFlightRequest:
+      properties:
+        cabin_class:
+          description: economy, premium_economy, business, first
+          type: string
+        currency:
+          description: default USD
+          type: string
+        departure_date:
+          description: YYYY-MM-DD
+          type: string
+        destination:
+          description: 3-letter IATA city or airport code
+          type: string
+        destination_type:
+          description: '"city" (default) or "airport"'
+          type: string
+        direct_only:
+          type: boolean
+        exclude_carriers:
+          description: >-
+            ExcludeCarriers is a list of IATA 2-letter marketing codes to
+            blacklist.
+
+            Internally populates the connector's BlackListCarriers.MarketingCarriers.
+          items:
+            type: string
+          type: array
+        format:
+          allOf:
+            - $ref: "#/components/schemas/ResponseFormat"
+          description: >-
+            Format selects the response shape. Defaults to "text" (LLM-friendly
+
+            human-readable strings). Set to "structured" to receive the canonical
+
+            flight.FlightCheckResponse with Amount objects (for client-side
+
+            formatters / widgets).
+        include_carriers:
+          description: >-
+            JIN-187 filter additions. All forwarded to the connector when
+            present.
+
+            IncludeCarriers is a list of IATA 2-letter marketing codes to whitelist.
+          items:
+            type: string
+          type: array
+        locale:
+          description: default en
+          type: string
+        max_price:
+          type: number
+        offer_token:
+          description: "Mode B: Price-check by offer token"
+          type: string
+        origin:
+          description: "Mode A: Search by params"
+          type: string
+        origin_type:
+          description: '"city" (default) or "airport"'
+          type: string
+        passengers:
+          allOf:
+            - $ref: "#/components/schemas/ShopPassengers"
+          description: Shared
+        return_date:
+          description: YYYY-MM-DD
+          type: string
+        trip_type:
+          description: '"oneway" or "roundtrip", default "roundtrip"'
+          type: string
+      type: object
+    ShopFlightResponse:
+      properties:
+        flights:
+          items:
+            $ref: "#/components/schemas/ShopFlight"
+          type: array
+        has_more:
+          type: boolean
+        message:
+          description: human-readable explanation when status != confirmed
+          type: string
+        mode:
+          description: '"search" or "price_check"'
+          type: string
+        price_diff:
+          description: e.g. "USD 12.50" or "USD -8.00"
+          type: string
+        price_status:
+          description: Price-check metadata (only in price_check mode when status=confirmed)
+          type: string
+        search_price:
+          description: original cached price the user saw
+          type: string
+        status:
+          description: '"confirmed" or "flight_unavailable" (price_check mode only)'
+          type: string
+        total:
+          type: integer
+      type: object
+    ShopPassengerPrice:
+      properties:
+        base_fare:
+          type: string
+        passenger_type:
+          type: string
+        quantity:
+          type: integer
+        taxes:
+          type: string
+        total_per_person:
+          type: string
+      type: object
+    ShopPassengers:
+      properties:
+        adults:
+          description: default 1
+          type: integer
+        children:
+          type: integer
+        infants:
+          type: integer
+      type: object
+    ShopRequest:
+      properties:
+        adults:
+          type: integer
+        chain_ids:
+          items:
+            type: string
+          type: array
+        checkin:
+          description: Dates (required)
+          type: string
+        checkout:
+          type: string
+        children:
+          items:
+            type: integer
+          type: array
+        city_name:
+          type: string
+        country_code:
+          type: string
+        currency:
+          description: Options
+          type: string
+        facility_ids:
+          items:
+            type: string
+          type: array
+        guest_nationality:
+          type: string
+        hotel_ids:
+          items:
+            type: string
+          type: array
+        hotel_type_ids:
+          items:
+            type: string
+          type: array
+        latitude:
+          type: number
+        longitude:
+          type: number
+        max_results:
+          type: integer
+        min_rating:
+          description: Filter overrides
+          type: number
+        min_reviews:
+          type: integer
+        occupancies:
+          description: Occupancies — structured or shorthand
+          items:
+            $ref: "#/components/schemas/OccupancyRequest"
+          type: array
+        place_id:
+          type: string
+        query:
+          description: Destination — at least one must be set
+          type: string
+        radius_km:
+          type: number
+        rooms:
+          type: integer
+        star_rating:
+          type: integer
+      required:
+        - checkin
+        - checkout
+      type: object
+    ShopSegment:
+      properties:
+        aircraft:
+          type: string
+        airline:
+          type: string
+        airline_name:
+          type: string
+        arrival_airport:
+          type: string
+        arrival_city:
+          type: string
+        arrival_time:
+          type: string
+        departure_airport:
+          type: string
+        departure_city:
+          type: string
+        departure_time:
+          type: string
+        duration_minutes:
+          type: integer
+        flight_number:
+          type: string
+        layover_minutes:
+          type: integer
+        operating_carrier:
+          type: string
+      type: object
+    ShoppedFlightOffer:
+      properties:
+        deep_link:
+          description: >-
+            DeepLink is the URL to book this offer on the airline's own site.
+            Filled
+
+            by SearchService after the direct-shop call using the shared deeplink
+
+            pattern service. Empty when no pattern matches the carrier.
+          type: string
+        destination_city_code:
+          description: Destination city information
+          type: string
+        destination_city_image:
+          type: string
+        destination_city_location:
+          $ref: "#/components/schemas/Location"
+        destination_city_name:
+          type: string
+        extra_baggage_options:
+          description: Extra baggage purchase options
+          items:
+            $ref: "#/components/schemas/BaggageInfo"
+          type: array
+        extra_carry_on_options:
+          description: Extra carry-on purchase options (purchasable carry-on upgrades)
+          items:
+            $ref: "#/components/schemas/BaggageInfo"
+          type: array
+        fares:
+          description: Available fare options (primary + alternatives)
+          items:
+            $ref: "#/components/schemas/DetailedFare"
+          type: array
+        inbound_flight:
+          $ref: "#/components/schemas/FlightJourney"
+        is_round_trip:
+          description: Trip type indicator
+          type: boolean
+        jinko_advice:
+          allOf:
+            - $ref: "#/components/schemas/JinkoAdvice"
+          description: Jinko advice for the offer
+        offer_id:
+          description: Unique offer ID for booking
+          type: string
+        offer_token:
+          description: |-
+            OfferToken is the original ES DocID used to re-shop this offer when
+            passenger counts change. Stored so that the snapshot resolver can
+            include it without re-fetching the fare record.
+          type: string
+        origin_city_code:
+          description: Origin city information
+          type: string
+        origin_city_location:
+          $ref: "#/components/schemas/Location"
+        origin_city_name:
+          type: string
+        outbound_flight:
+          allOf:
+            - $ref: "#/components/schemas/FlightJourney"
+          description: Flight journeys
+        owner:
+          description: Provider/Owner code
+          type: string
+        passenger_count:
+          description: Number of passengers
+          type: integer
+        passengers:
+          allOf:
+            - $ref: "#/components/schemas/FlightShopPassengers"
+          description: |-
+            Passenger breakdown by type (ADT/CHD/INF) from the original search.
+            Stored in the cached offer so the snapshot resolver can inject it
+            into the cart product snapshot — even if the client omits it.
+        provider:
+          description: Provider ID (sabre, travelfusion, etc.) for quote and booking routing
+          type: string
+        provider_name:
+          description: Provider display name (Sabre GDS, TravelFusion, etc.)
+          type: string
+        response_id:
+          description: Response ID from provider
+          type: string
+        seat_maps:
+          description: Available seat maps for selection
+          items:
+            $ref: "#/components/schemas/SeatMap"
+          type: array
+        total_duration_minutes:
+          description: Total duration in minutes (all journeys combined)
+          type: integer
+        validating_carrier:
+          description: Validating carrier information
+          type: string
+        validating_carrier_info:
+          $ref: "#/components/schemas/CarrierInfo"
+      type: object
+    ShoppedHotel:
+      properties:
+        address:
+          type: string
+        city:
+          type: string
+        country:
+          type: string
+        hotel_id:
+          type: string
+        latitude:
+          type: number
+        longitude:
+          type: number
+        main_photo:
+          type: string
+        name:
+          type: string
+        rating:
+          type: number
+        review_count:
+          type: integer
+        rooms:
+          items:
+            $ref: "#/components/schemas/ShoppedRoom"
+          type: array
+        star_rating:
+          type: integer
+        thumbnail:
+          type: string
+      type: object
+    ShoppedRate:
+      properties:
+        board_name:
+          type: string
+        board_type:
+          type: string
+        currency:
+          type: string
+        free_cancellation_until:
+          type: string
+        is_refundable:
+          type: boolean
+        offer_id:
+          description: htl_* token for cart add
+          type: string
+        semantic_matches:
+          allOf:
+            - $ref: "#/components/schemas/RateMatches"
+          description: |-
+            SemanticMatches is populated ONLY by the semantic-search pipeline.
+            For plain /hotels/shop calls it stays nil. Each sub-field is a
+            tri-state: nil = filter not asked for, true/false = matched or not.
+        total_amount:
+          type: number
+      type: object
+    ShoppedRoom:
+      properties:
+        max_occupancy:
+          type: integer
+        rates:
+          items:
+            $ref: "#/components/schemas/ShoppedRate"
+          type: array
+        room_id:
+          type: string
+        room_name:
+          type: string
+      type: object
+    SortBy:
+      enum:
+        - lowest
+        - recommendation
+      type: string
+      x-enum-comments:
+        SortByLowest: Sort by lowest price (default)
+        SortByRecommendation: Sort by recommendation algorithm
+      x-enum-descriptions:
+        - Sort by lowest price (default)
+        - Sort by recommendation algorithm
+      x-enum-varnames:
+        - SortByLowest
+        - SortByRecommendation
+    StayDaysRange:
+      properties:
+        max:
+          description: Maximum stay days
+          type: integer
+        min:
+          description: Minimum stay days
+          type: integer
+      type: object
+    StepState:
+      properties:
+        completed_steps:
+          description: CompletedSteps lists the names of successfully completed steps.
+          items:
+            type: string
+          type: array
+        current_step:
+          description: CurrentStep is the index of the next step to execute (0-based).
+          type: integer
+        domain:
+          description: Domain is the travel domain for this pipeline execution.
+          type: string
+        fulfillment_cart_id:
+          description: FulfillmentCartID is the DB ID of the parent fulfillment cart.
+          type: integer
+        fulfillment_cart_item_id:
+          description: FulfillmentCartItemID is the DB ID of the item being fulfilled.
+          type: integer
+        parent_cart_product_id:
+          description: |-
+            ParentCartProductID is the cart_product_id of the parent product.
+            Set by the fulfillment orchestrator for ancillary-service items.
+            Used by WaitForParentStep to poll the parent's fulfillment status.
+          type: string
+        payment_authorization_id:
+          description: >-
+            PaymentAuthorizationID is the UUID of the PaymentAuthorization
+            record created
+
+            at fulfillment schedule time. Set by ScheduleFulfillment so WaitForPaymentStep
+
+            has access to the payment ID if needed for direct Stripe status checks in the future.
+          type: string
+        poll_attempt:
+          description: PollAttempt tracks how many times the poll step has executed.
+          type: integer
+        provider_booking_id:
+          description: ProviderBookingID is the external booking reference (e.g., TF
+            BookingReference).
+          type: string
+        provider_status:
+          description: ProviderStatus is the raw provider status (e.g., TF "Unconfirmed",
+            "Succeeded").
+          type: string
+        step_data:
+          additionalProperties: {}
+          description: StepData accumulates output from prior steps (e.g., booking
+            reference, confirmation).
+          type: object
+      type: object
+    StopInfo:
+      properties:
+        airport_code:
+          description: Airport code of the stop
+          type: string
+        duration_minutes:
+          description: Duration of the layover in minutes
+          type: integer
+      type: object
+    TopupRequest:
+      properties:
+        amount:
+          type: integer
+      required:
+        - amount
+      type: object
+    TravelerListResponse:
+      properties:
+        total:
+          type: integer
+        travelers:
+          items:
+            $ref: "#/components/schemas/TravelerResponse"
+          type: array
+      type: object
+    TravelerResponse:
+      properties:
+        address:
+          type: string
+        channel_user_id:
+          type: string
+        created_at:
+          type: string
+        date_of_birth:
+          type: string
+        email:
+          type: string
+        first_name:
+          type: string
+        gender:
+          type: string
+        id:
+          type: string
+        is_primary:
+          type: boolean
+        last_name:
+          type: string
+        middle_name:
+          type: string
+        nationality:
+          type: string
+        passenger_type:
+          type: string
+        passport_expiry_date:
+          type: string
+        passport_issuing_country:
+          type: string
+        passport_nationality:
+          type: string
+        passport_number:
+          type: string
+        phone_number:
+          type: string
+        title:
+          type: string
+        updated_at:
+          type: string
+      type: object
+    TripAddItem:
+      properties:
+        trip_item_token:
+          type: string
+      required:
+        - trip_item_token
+      type: object
+    TripContact:
+      properties:
+        email:
+          type: string
+        phone:
+          type: string
+      required:
+        - email
+      type: object
+    TripItem:
+      properties:
+        currency:
+          type: string
+        description:
+          type: string
+        item_id:
+          description: product_id in cart
+          type: string
+        price:
+          description: major currency units
+          type: number
+        type:
+          description: e.g. "flight"
+          type: string
+      type: object
+    TripQuotedItem:
+      properties:
+        available_ancillaries:
+          items:
+            $ref: "#/components/schemas/AncillaryOffer"
+          type: array
+        item_id:
+          type: string
+        kind:
+          description: '"flight" | "hotel"'
+          type: string
+        pax_count:
+          type: integer
+        price:
+          $ref: "#/components/schemas/DevPlatformMoney"
+        selected_ancillaries:
+          items:
+            $ref: "#/components/schemas/SelectedAncillary"
+          type: array
+      type: object
+    TripRemoveItem:
+      properties:
+        item_id:
+          type: string
+      required:
+        - item_id
+      type: object
+    TripRequest:
+      properties:
+        add_item:
+          $ref: "#/components/schemas/TripAddItem"
+        remove_item:
+          $ref: "#/components/schemas/TripRemoveItem"
+        trip_id:
+          description: existing cart ID; omit to create new
+          type: string
+        upsert_travelers:
+          $ref: "#/components/schemas/TripUpsertTravelers"
+      type: object
+    TripResponse:
+      properties:
+        actions_performed:
+          description: e.g. ["created", "item_added", "travelers_updated"]
+          items:
+            type: string
+          type: array
+        contact:
+          $ref: "#/components/schemas/TripContact"
+        items:
+          items:
+            $ref: "#/components/schemas/TripItem"
+          type: array
+        status:
+          description: e.g. "draft"
+          type: string
+        totals:
+          $ref: "#/components/schemas/TripTotals"
+        travelers:
+          items:
+            $ref: "#/components/schemas/TripTravelerOut"
+          type: array
+        trip_id:
+          type: string
+      type: object
+    TripTotals:
+      properties:
+        currency:
+          type: string
+        total:
+          description: major currency units
+          type: number
+      type: object
+    TripTraveler:
+      properties:
+        date_of_birth:
+          description: YYYY-MM-DD
+          type: string
+        first_name:
+          type: string
+        gender:
+          description: MALE, FEMALE
+          type: string
+        last_name:
+          type: string
+        nationality:
+          type: string
+        passenger_type:
+          description: ADULT, CHILD, INFANT
+          type: string
+        passport_country:
+          type: string
+        passport_expiry:
+          description: YYYY-MM-DD
+          type: string
+        passport_number:
+          description: Optional passport details
+          type: string
+      required:
+        - date_of_birth
+        - first_name
+        - gender
+        - last_name
+        - passenger_type
+      type: object
+    TripTravelerOut:
+      properties:
+        date_of_birth:
+          type: string
+        first_name:
+          type: string
+        gender:
+          type: string
+        last_name:
+          type: string
+        passenger_type:
+          type: string
+      type: object
+    TripType:
+      enum:
+        - oneway
+        - roundtrip
+      type: string
+      x-enum-varnames:
+        - TripTypeOneWay
+        - TripTypeRoundtrip
+    TripUpsertTravelers:
+      properties:
+        contact:
+          $ref: "#/components/schemas/TripContact"
+        travelers:
+          items:
+            $ref: "#/components/schemas/TripTraveler"
+          type: array
+      required:
+        - travelers
+      type: object
+    UnifiedCartItem:
+      properties:
+        available_ancillaries:
+          items:
+            $ref: "#/components/schemas/Ancillary"
+          type: array
+        cart_id:
+          type: integer
+        child_products:
+          description: |-
+            ChildProducts holds nested ancillary service products.
+            Populated by CartService.GetCart() — not persisted.
+          items:
+            $ref: "#/components/schemas/UnifiedCartItem"
+          type: array
+        created_at:
+          type: string
+        deleted_at:
+          type: string
+        domain:
+          $ref: "#/components/schemas/ProductDomain"
+        parent_product_id:
+          type: string
+        price_quote:
+          $ref: "#/components/schemas/PriceQuote"
+        pricing:
+          $ref: "#/components/schemas/PriceBreakdown"
+        product_id:
+          description: CartProduct fields (flat — not embedded to avoid JSON nesting)
+          type: string
+        quote_details:
+          additionalProperties: true
+          type: object
+        quote_status:
+          type: string
+        quoted_item_id:
+          description: Quote fields — nil/empty when no quote exists for this item
+          type: integer
+        selected_ancillaries:
+          items:
+            $ref: "#/components/schemas/SelectedAncillary"
+          type: array
+        session_reference:
+          type: string
+        snapshot:
+          additionalProperties: true
+          type: object
+        status:
+          $ref: "#/components/schemas/ProductStatus"
+        total_with_ancillaries:
+          $ref: "#/components/schemas/Money"
+        updated_at:
+          type: string
+      type: object
+    UpdateRoleRequest:
+      properties:
+        role:
+          $ref: "#/components/schemas/UserRole"
+      required:
+        - role
+      type: object
+    UpdateTravelerRequest:
+      properties:
+        address:
+          type: string
+        channel_user_id:
+          type: string
+        date_of_birth:
+          type: string
+        email:
+          type: string
+        first_name:
+          type: string
+        gender:
+          type: string
+        is_primary:
+          type: boolean
+        last_name:
+          type: string
+        middle_name:
+          type: string
+        nationality:
+          type: string
+        passenger_type:
+          type: string
+        passport_expiry_date:
+          type: string
+        passport_issuing_country:
+          type: string
+        passport_nationality:
+          type: string
+        passport_number:
+          type: string
+        phone_number:
+          type: string
+        title:
+          type: string
+      type: object
+    UsageResponse:
+      properties:
+        limit:
+          type: integer
+        remaining:
+          type: integer
+        resets_at:
+          type: string
+        used:
+          type: integer
+      type: object
+    UserResponse:
+      properties:
+        approved_at:
+          type: string
+        created_at:
+          type: string
+        email:
+          type: string
+        id:
+          type: integer
+        name:
+          type: string
+        organization_id:
+          type: integer
+        partner_origin:
+          type: string
+        role:
+          type: string
+        status:
+          type: string
+        updated_at:
+          type: string
+        workos_user_id:
+          type: string
+      type: object
+    UserRole:
+      enum:
+        - developer
+        - org_admin
+        - admin
+      type: string
+      x-enum-varnames:
+        - UserRoleDeveloper
+        - UserRoleOrgAdmin
+        - UserRoleAdmin
+    VCCReference:
+      properties:
+        last_four:
+          type: string
+        vcc_id:
+          type: string
+      type: object
+    VCCSettlement:
+      properties:
+        expiry_month:
+          type: integer
+        expiry_year:
+          type: integer
+        last_four:
+          type: string
+        vcc_id:
+          type: string
+      type: object
+    VerifyKeyRequest:
+      properties:
+        api_key:
+          type: string
+      required:
+        - api_key
+      type: object
+    VerifyKeyResponse:
+      properties:
+        error:
+          type: string
+        key_id:
+          type: integer
+        remaining:
+          type: integer
+        user_id:
+          type: integer
+        valid:
+          type: boolean
+      type: object

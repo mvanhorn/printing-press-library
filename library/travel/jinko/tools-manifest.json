@@ -1,0 +1,2247 @@
+{
+  "api_name": "jinko",
+  "base_url": "https://mcp-bff.gojinko.com",
+  "description": "",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "devplatform_create",
+      "description": "Unified flight shop endpoint. When offer_token is present the handler re-prices that offer (price-check mode); otherwise it performs a live search by route with optional JIN-187 filter fields (cabin_class, direct_only, max_price, include_carriers, exclude_carriers). Optional: cabin_class, currency, departure_date (plus 14 more). Returns the new ShopFlightResponse.",
+      "method": "POST",
+      "path": "/devplatform/flights/shop",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "cabin_class",
+          "type": "string",
+          "location": "body",
+          "description": "economy, premium_economy, business, first"
+        },
+        {
+          "name": "currency",
+          "type": "string",
+          "location": "body",
+          "description": "default USD"
+        },
+        {
+          "name": "departure_date",
+          "type": "string",
+          "location": "body",
+          "description": "YYYY-MM-DD"
+        },
+        {
+          "name": "destination",
+          "type": "string",
+          "location": "body",
+          "description": "3-letter IATA city or airport code"
+        },
+        {
+          "name": "destination_type",
+          "type": "string",
+          "location": "body",
+          "description": "'city' (default) or 'airport'"
+        },
+        {
+          "name": "direct_only",
+          "type": "bool",
+          "location": "body",
+          "description": "Direct only"
+        },
+        {
+          "name": "exclude_carriers",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "ExcludeCarriers is a list of IATA 2-letter marketing codes to blacklist. Internally populates the connector's BlackListCarriers.MarketingCarriers."
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "body",
+          "description": "Format selects the response shape. Defaults to 'text' (LLM-friendly human-readable strings). Set to 'structured' to receive the canonical flight.FlightCheckResponse with Amount objects (for client-side formatters / widgets)."
+        },
+        {
+          "name": "include_carriers",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "JIN-187 filter additions. All forwarded to the connector when present. IncludeCarriers is a list of IATA 2-letter marketing codes to whitelist."
+        },
+        {
+          "name": "locale",
+          "type": "string",
+          "location": "body",
+          "description": "default en"
+        },
+        {
+          "name": "max_price",
+          "type": "float",
+          "location": "body",
+          "description": "Max price"
+        },
+        {
+          "name": "offer_token",
+          "type": "string",
+          "location": "body",
+          "description": "Mode B: Price-check by offer token"
+        },
+        {
+          "name": "origin",
+          "type": "string",
+          "location": "body",
+          "description": "Mode A: Search by params"
+        },
+        {
+          "name": "origin_type",
+          "type": "string",
+          "location": "body",
+          "description": "'city' (default) or 'airport'"
+        },
+        {
+          "name": "passengers-adults",
+          "wire_name": "passengers.adults",
+          "type": "int",
+          "location": "body",
+          "description": "default 1"
+        },
+        {
+          "name": "passengers-children",
+          "wire_name": "passengers.children",
+          "type": "int",
+          "location": "body",
+          "description": "Children"
+        },
+        {
+          "name": "passengers-infants",
+          "wire_name": "passengers.infants",
+          "type": "int",
+          "location": "body",
+          "description": "Infants"
+        },
+        {
+          "name": "return_date",
+          "type": "string",
+          "location": "body",
+          "description": "YYYY-MM-DD"
+        },
+        {
+          "name": "trip_type",
+          "type": "string",
+          "location": "body",
+          "description": "'oneway' or 'roundtrip', default 'roundtrip'"
+        }
+      ]
+    },
+    {
+      "name": "devplatform_create-admin",
+      "description": "Add credits to a user's rate limit balance (admin only). Required: id, amount. Returns the new UsageResponse.",
+      "method": "POST",
+      "path": "/api/v1/devplatform/admin/users/{id}/topup",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "User ID",
+          "required": true
+        },
+        {
+          "name": "amount",
+          "type": "int",
+          "location": "body",
+          "description": "Amount",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "devplatform_create-keys",
+      "description": "Validate an API key without incrementing rate limit counter (public, no auth required). Required: api_key. Returns the new VerifyKeyResponse.",
+      "method": "POST",
+      "path": "/api/v1/devplatform/keys/validate",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "api_key",
+          "type": "string",
+          "location": "body",
+          "description": "Api key",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "devplatform_create-keys-2",
+      "description": "Verify an API key and increment rate limit counter (public, no auth required). Required: api_key. Returns the new VerifyKeyResponse.",
+      "method": "POST",
+      "path": "/api/v1/devplatform/keys/verify",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "api_key",
+          "type": "string",
+          "location": "body",
+          "description": "Api key",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "devplatform_create-orgs",
+      "description": "Create a new devplatform organization (admin only). Required: name, slug. Returns the new OrgResponse.",
+      "method": "POST",
+      "path": "/api/v1/devplatform/orgs",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        },
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "body",
+          "description": "Slug",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "devplatform_create-orgs-2",
+      "description": "Create a partner API key that can be used to create shadow users (admin only). Required: id, name. Returns the new CreateKeyResponse.",
+      "method": "POST",
+      "path": "/api/v1/devplatform/orgs/{id}/partner-keys",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Organization ID",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "devplatform_create-orgs-3",
+      "description": "Create a shadow user that can later be claimed by a real identity (partner key or admin auth). Required: id, email. Optional: name. Returns the new UserResponse.",
+      "method": "POST",
+      "path": "/api/v1/devplatform/orgs/{id}/users",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Organization ID",
+          "required": true
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body",
+          "description": "Email",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        }
+      ]
+    },
+    {
+      "name": "devplatform_create-users",
+      "description": "Create a new developer platform user (admin only). Required: email, workos_user_id. Optional: name, partner_origin. Returns the new UserResponse.",
+      "method": "POST",
+      "path": "/api/v1/devplatform/users",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body",
+          "description": "Email",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        },
+        {
+          "name": "partner_origin",
+          "type": "string",
+          "location": "body",
+          "description": "Partner origin"
+        },
+        {
+          "name": "workos_user_id",
+          "type": "string",
+          "location": "body",
+          "description": "Workos user id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "devplatform_create-users-2",
+      "description": "Check whether a devplatform user exists and their current status (public, no auth). Optional: workos_user_id. Returns the new DevplatformCreateUsers2Response.",
+      "method": "POST",
+      "path": "/api/v1/devplatform/users/status",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "workos_user_id",
+          "type": "string",
+          "location": "body",
+          "description": "Workos user id"
+        }
+      ]
+    },
+    {
+      "name": "devplatform_create-users-3",
+      "description": "Link a real WorkOS identity to an existing shadow user account. Email is taken from JWT, not request body. Returns the new ClaimResponse.",
+      "method": "POST",
+      "path": "/api/v1/devplatform/users/me/claim",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "devplatform_create-users-4",
+      "description": "Create a new API key for the authenticated user. Required: name. Returns the new CreateKeyResponse.",
+      "method": "POST",
+      "path": "/api/v1/devplatform/users/me/keys",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "devplatform_create-users-5",
+      "description": "Self-register a new devplatform account using the authenticated JWT identity. Optional: email, name. Returns the new UserResponse.",
+      "method": "POST",
+      "path": "/api/v1/devplatform/users/me/register",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body",
+          "description": "Email"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        }
+      ]
+    },
+    {
+      "name": "devplatform_delete",
+      "description": "Revoke an API key by ID for the authenticated user. Required: id. Returns the DevplatformDeleteResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/api/v1/devplatform/users/me/keys/{id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "API Key ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "devplatform_delete-orgs",
+      "description": "Revoke an API key for a specific user in an organization (org_admin or admin). Required: id, user_id, key_id. Returns the DevplatformDeleteOrgsResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/api/v1/devplatform/orgs/{id}/users/{user_id}/keys/{key_id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Organization ID",
+          "required": true
+        },
+        {
+          "name": "user_id",
+          "type": "int",
+          "location": "path",
+          "description": "User ID",
+          "required": true
+        },
+        {
+          "name": "key_id",
+          "type": "int",
+          "location": "path",
+          "description": "API Key ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "devplatform_get",
+      "description": "Get organization details by ID (org_admin or admin). Required: id. Returns the OrgResponse.",
+      "method": "GET",
+      "path": "/api/v1/devplatform/orgs/{id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Organization ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "devplatform_get-orgs",
+      "description": "List all users belonging to an organization (org_admin or admin). Required: id. Returns the DevplatformGetOrgsResponse.",
+      "method": "GET",
+      "path": "/api/v1/devplatform/orgs/{id}/users",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Organization ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "devplatform_get-users",
+      "description": "Resolve the active API key for a user by WorkOS ID (admin only). Required: workos_id. Returns the KeyListItem.",
+      "method": "GET",
+      "path": "/api/v1/devplatform/users/{workos_id}/keys/resolve",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "workos_id",
+          "type": "string",
+          "location": "path",
+          "description": "WorkOS User ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "devplatform_list",
+      "description": "List all devplatform organizations (admin only). Returns the DevplatformListResponse.",
+      "method": "GET",
+      "path": "/api/v1/devplatform/orgs",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "devplatform_list-users",
+      "description": "List all users or filter by status (pending, active, suspended). Admin only. Optional: status. Returns the DevplatformListUsersResponse.",
+      "method": "GET",
+      "path": "/api/v1/devplatform/users",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "status",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by status (pending, active, suspended)"
+        }
+      ]
+    },
+    {
+      "name": "devplatform_list-users-2",
+      "description": "Get the devplatform user profile for the authenticated JWT user. Returns the UserResponse.",
+      "method": "GET",
+      "path": "/api/v1/devplatform/users/me",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "devplatform_list-users-3",
+      "description": "List all API keys for the authenticated user. Returns the DevplatformListUsers3Response.",
+      "method": "GET",
+      "path": "/api/v1/devplatform/users/me/keys",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "devplatform_list-users-4",
+      "description": "Get API usage and rate limit statistics for the authenticated user. Returns the UsageResponse.",
+      "method": "GET",
+      "path": "/api/v1/devplatform/users/me/usage",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "devplatform_update",
+      "description": "Approve a pending devplatform user by WorkOS ID (admin only). Required: workos_id. Returns the updated UserResponse.",
+      "method": "PATCH",
+      "path": "/api/v1/devplatform/users/{workos_id}/approve",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "workos_id",
+          "type": "string",
+          "location": "path",
+          "description": "WorkOS User ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "devplatform_update-admin",
+      "description": "Update the role of a devplatform user (admin only). Required: id, role. Returns the updated DevplatformUpdateAdminResponse.",
+      "method": "PATCH",
+      "path": "/api/v1/devplatform/admin/users/{id}/role",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "User ID",
+          "required": true
+        },
+        {
+          "name": "role",
+          "type": "string",
+          "location": "body",
+          "description": "Role",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "devplatform_update-orgs",
+      "description": "Assign a user as admin of an organization by WorkOS ID (admin only). Required: id, workos_user_id. Returns the updated UserResponse.",
+      "method": "PATCH",
+      "path": "/api/v1/devplatform/orgs/{id}/admins",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Organization ID",
+          "required": true
+        },
+        {
+          "name": "workos_user_id",
+          "type": "string",
+          "location": "body",
+          "description": "Workos user id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "flights_create",
+      "description": "Check a flight offer from search results to get confirmed availability and detailed fare options. Required: offer_token. Optional: provider, cabin_class, currency (plus 7 more). Returns the new FlightCheckResponse.",
+      "method": "POST",
+      "path": "/api/v1/flights/check",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "provider",
+          "type": "string",
+          "location": "query",
+          "description": "Target a specific provider (sabre, travelfusion). When omitted, all enabled providers are called."
+        },
+        {
+          "name": "cabin_class",
+          "type": "string",
+          "location": "body",
+          "description": "JIN-187 filter forwards. These are only meaningful for DirectShop (live search) — the /flights/check (re-price by offer token) surface ignores them because the cached offer already has a concrete cabin, carrier, and price."
+        },
+        {
+          "name": "currency",
+          "type": "string",
+          "location": "body",
+          "description": "Currency code for pricing (ISO 4217, e.g., 'USD', 'EUR')"
+        },
+        {
+          "name": "direct_only",
+          "type": "bool",
+          "location": "body",
+          "description": "Direct only"
+        },
+        {
+          "name": "exclude_carriers",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Exclude carriers"
+        },
+        {
+          "name": "include_carriers",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Include carriers"
+        },
+        {
+          "name": "locale",
+          "type": "string",
+          "location": "body",
+          "description": "Locale for formatting (e.g., 'en-US')"
+        },
+        {
+          "name": "max_price",
+          "type": "float",
+          "location": "body",
+          "description": "Max price"
+        },
+        {
+          "name": "offer_token",
+          "type": "string",
+          "location": "body",
+          "description": "The offer token from a flight search result (find_flight or find_destination) This is the ES doc_id from the search results",
+          "required": true
+        },
+        {
+          "name": "passengers-adt",
+          "wire_name": "passengers.adt",
+          "type": "int",
+          "location": "body",
+          "description": "Number of adult passengers (12+ years), required, 1-9",
+          "required": true
+        },
+        {
+          "name": "passengers-chd",
+          "wire_name": "passengers.chd",
+          "type": "int",
+          "location": "body",
+          "description": "Number of child passengers (2-11 years), optional, 0-8"
+        },
+        {
+          "name": "passengers-inf",
+          "wire_name": "passengers.inf",
+          "type": "int",
+          "location": "body",
+          "description": "Number of infant passengers (under 2 years), optional, 0-4"
+        },
+        {
+          "name": "provider-2",
+          "wire_name": "provider",
+          "type": "string",
+          "location": "body",
+          "description": "Provider to target for this check (e.g., 'sabre', 'travelfusion'). When specified, only this provider is called instead of fan-out to all. When empty, all enabled providers are called in parallel."
+        }
+      ]
+    },
+    {
+      "name": "flights_create-destinationsearch",
+      "description": "Search for destination cities with cheapest flight options based on filter criteria. Optional: currency, filters, flights_per_destination (plus 6 more). Returns the new DestinationSearchResponse.",
+      "method": "POST",
+      "path": "/api/v1/flights/destination-search",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "currency",
+          "type": "string",
+          "location": "body",
+          "description": "Currency code for pricing (e.g., 'USD', 'EUR', 'GBP')"
+        },
+        {
+          "name": "filters-cabin-class",
+          "wire_name": "filters.cabin_class",
+          "type": "string",
+          "location": "body",
+          "description": "Cabin class filter (optional): filters by cabin class"
+        },
+        {
+          "name": "filters-dates-departure-date-ranges",
+          "wire_name": "filters.dates.departure_date_ranges",
+          "type": "array",
+          "location": "body",
+          "description": "Multiple departure date ranges"
+        },
+        {
+          "name": "filters-dates-departure-dates",
+          "wire_name": "filters.dates.departure_dates",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Multiple departure dates (list of specific dates)"
+        },
+        {
+          "name": "filters-dates-return-date-ranges",
+          "wire_name": "filters.dates.return_date_ranges",
+          "type": "array",
+          "location": "body",
+          "description": "Multiple return date ranges"
+        },
+        {
+          "name": "filters-dates-return-dates",
+          "wire_name": "filters.dates.return_dates",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Multiple return dates (list of specific dates)"
+        },
+        {
+          "name": "filters-dates-stay-days",
+          "wire_name": "filters.dates.stay_days",
+          "type": "int",
+          "location": "body",
+          "description": "Length of stay in days (for roundtrip flights)"
+        },
+        {
+          "name": "filters-direct-only",
+          "wire_name": "filters.direct_only",
+          "type": "bool",
+          "location": "body",
+          "description": "Direct flights only (maps to lowest_direct_fare in ES)"
+        },
+        {
+          "name": "filters-locations-destination-type",
+          "wire_name": "filters.locations.destination_type",
+          "type": "string",
+          "location": "body",
+          "description": "'city' or 'airport' — defaults to 'city' if empty"
+        },
+        {
+          "name": "filters-locations-destinations",
+          "wire_name": "filters.locations.destinations",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "One or more destination IATA codes (required)"
+        },
+        {
+          "name": "filters-locations-origin-type",
+          "wire_name": "filters.locations.origin_type",
+          "type": "string",
+          "location": "body",
+          "description": "'city' or 'airport' — defaults to 'city' if empty"
+        },
+        {
+          "name": "filters-locations-origins",
+          "wire_name": "filters.locations.origins",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "One or more origin IATA codes (required)"
+        },
+        {
+          "name": "filters-trip-type",
+          "wire_name": "filters.trip_type",
+          "type": "string",
+          "location": "body",
+          "description": "Trip type (required): 'oneway' or 'roundtrip'"
+        },
+        {
+          "name": "flights_per_destination",
+          "type": "int",
+          "location": "body",
+          "description": "FlightsPerDestination - number of flights to return per destination bucket (default: 1, max: 10)"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "body",
+          "description": "Limit - maximum number of destinations to return (default: 20, max: 100)"
+        },
+        {
+          "name": "locale",
+          "type": "string",
+          "location": "body",
+          "description": "Locale code for results (e.g., 'en', 'fr', 'de', 'es', 'zh', 'ja', 'ko')"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "body",
+          "description": "Offset - number of destinations to skip for pagination (default: 0)"
+        },
+        {
+          "name": "passengers-adt",
+          "wire_name": "passengers.adt",
+          "type": "int",
+          "location": "body",
+          "description": "Adt"
+        },
+        {
+          "name": "passengers-ages",
+          "wire_name": "passengers.ages",
+          "type": "array",
+          "location": "body",
+          "description": "Ages"
+        },
+        {
+          "name": "passengers-chd",
+          "wire_name": "passengers.chd",
+          "type": "int",
+          "location": "body",
+          "description": "Chd"
+        },
+        {
+          "name": "passengers-inf-lap",
+          "wire_name": "passengers.inf_lap",
+          "type": "int",
+          "location": "body",
+          "description": "Inf lap"
+        },
+        {
+          "name": "passengers-inf-seat",
+          "wire_name": "passengers.inf_seat",
+          "type": "int",
+          "location": "body",
+          "description": "Inf seat"
+        },
+        {
+          "name": "passengers-residency-country",
+          "wire_name": "passengers.residency_country",
+          "type": "string",
+          "location": "body",
+          "description": "Residency country"
+        },
+        {
+          "name": "passengers-student",
+          "wire_name": "passengers.student",
+          "type": "int",
+          "location": "body",
+          "description": "Student"
+        },
+        {
+          "name": "passengers-youth",
+          "wire_name": "passengers.youth",
+          "type": "int",
+          "location": "body",
+          "description": "Youth"
+        },
+        {
+          "name": "price-constraints-max-total",
+          "wire_name": "price_constraints.max_total",
+          "type": "float",
+          "location": "body",
+          "description": "Maximum total price in USD (will be converted to NUC millicents for ES query)"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "body",
+          "description": "Sort criteria: 'lowest' (default) or 'recommendation'"
+        }
+      ]
+    },
+    {
+      "name": "flights_create-refundcheck",
+      "description": "Check whether a flight booking is eligible for a refund and get the refund amount. Optional: provider, booking_ref, last_name (plus 3 more). Returns the new RefundCheckResponse.",
+      "method": "POST",
+      "path": "/api/v1/flights/refund-check",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "provider",
+          "type": "string",
+          "location": "query",
+          "description": "Target a specific provider (sabre, travelfusion). When omitted, uses request body provider field."
+        },
+        {
+          "name": "booking_ref",
+          "type": "string",
+          "location": "body",
+          "description": "Booking ref"
+        },
+        {
+          "name": "last_name",
+          "type": "string",
+          "location": "body",
+          "description": "Last name"
+        },
+        {
+          "name": "order_id",
+          "type": "string",
+          "location": "body",
+          "description": "Order id"
+        },
+        {
+          "name": "provider-2",
+          "wire_name": "provider",
+          "type": "string",
+          "location": "body",
+          "description": "Provider"
+        },
+        {
+          "name": "ticket_numbers",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Ticket numbers"
+        }
+      ]
+    },
+    {
+      "name": "flights_create-search",
+      "description": "Search flights (synchronous, filter-based). Optional: allow_live_shop, currency, filters (plus 6 more). Returns the new FlightSearchResponse.",
+      "method": "POST",
+      "path": "/api/v1/flights/search",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "allow_live_shop",
+          "type": "bool",
+          "location": "body",
+          "description": "AllowLiveShop enables live shopping in parallel with cached search. Default false — only opted-in consumers (e.g. MCP FindFlight) set this to true."
+        },
+        {
+          "name": "currency",
+          "type": "string",
+          "location": "body",
+          "description": "Currency code for pricing (e.g., 'USD', 'EUR', 'GBP')"
+        },
+        {
+          "name": "filters-cabin-class",
+          "wire_name": "filters.cabin_class",
+          "type": "string",
+          "location": "body",
+          "description": "Cabin class filter (optional): filters by cabin class"
+        },
+        {
+          "name": "filters-dates-departure-date-ranges",
+          "wire_name": "filters.dates.departure_date_ranges",
+          "type": "array",
+          "location": "body",
+          "description": "Multiple departure date ranges"
+        },
+        {
+          "name": "filters-dates-departure-dates",
+          "wire_name": "filters.dates.departure_dates",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Multiple departure dates (list of specific dates)"
+        },
+        {
+          "name": "filters-dates-return-date-ranges",
+          "wire_name": "filters.dates.return_date_ranges",
+          "type": "array",
+          "location": "body",
+          "description": "Multiple return date ranges"
+        },
+        {
+          "name": "filters-dates-return-dates",
+          "wire_name": "filters.dates.return_dates",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Multiple return dates (list of specific dates)"
+        },
+        {
+          "name": "filters-dates-stay-days",
+          "wire_name": "filters.dates.stay_days",
+          "type": "int",
+          "location": "body",
+          "description": "Length of stay in days (for roundtrip flights)"
+        },
+        {
+          "name": "filters-direct-only",
+          "wire_name": "filters.direct_only",
+          "type": "bool",
+          "location": "body",
+          "description": "Direct flights only (maps to lowest_direct_fare in ES)"
+        },
+        {
+          "name": "filters-locations-destination-type",
+          "wire_name": "filters.locations.destination_type",
+          "type": "string",
+          "location": "body",
+          "description": "'city' or 'airport' — defaults to 'city' if empty"
+        },
+        {
+          "name": "filters-locations-destinations",
+          "wire_name": "filters.locations.destinations",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "One or more destination IATA codes (required)"
+        },
+        {
+          "name": "filters-locations-origin-type",
+          "wire_name": "filters.locations.origin_type",
+          "type": "string",
+          "location": "body",
+          "description": "'city' or 'airport' — defaults to 'city' if empty"
+        },
+        {
+          "name": "filters-locations-origins",
+          "wire_name": "filters.locations.origins",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "One or more origin IATA codes (required)"
+        },
+        {
+          "name": "filters-trip-type",
+          "wire_name": "filters.trip_type",
+          "type": "string",
+          "location": "body",
+          "description": "Trip type (required): 'oneway' or 'roundtrip'"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "body",
+          "description": "Limit - maximum number of results to return (default: 20, max: 100)"
+        },
+        {
+          "name": "locale",
+          "type": "string",
+          "location": "body",
+          "description": "Locale code for results (e.g., 'en', 'fr', 'de', 'es', 'zh', 'ja', 'ko')"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "body",
+          "description": "Offset - number of results to skip for pagination (default: 0)"
+        },
+        {
+          "name": "passengers-adt",
+          "wire_name": "passengers.adt",
+          "type": "int",
+          "location": "body",
+          "description": "Adt"
+        },
+        {
+          "name": "passengers-ages",
+          "wire_name": "passengers.ages",
+          "type": "array",
+          "location": "body",
+          "description": "Ages"
+        },
+        {
+          "name": "passengers-chd",
+          "wire_name": "passengers.chd",
+          "type": "int",
+          "location": "body",
+          "description": "Chd"
+        },
+        {
+          "name": "passengers-inf-lap",
+          "wire_name": "passengers.inf_lap",
+          "type": "int",
+          "location": "body",
+          "description": "Inf lap"
+        },
+        {
+          "name": "passengers-inf-seat",
+          "wire_name": "passengers.inf_seat",
+          "type": "int",
+          "location": "body",
+          "description": "Inf seat"
+        },
+        {
+          "name": "passengers-residency-country",
+          "wire_name": "passengers.residency_country",
+          "type": "string",
+          "location": "body",
+          "description": "Residency country"
+        },
+        {
+          "name": "passengers-student",
+          "wire_name": "passengers.student",
+          "type": "int",
+          "location": "body",
+          "description": "Student"
+        },
+        {
+          "name": "passengers-youth",
+          "wire_name": "passengers.youth",
+          "type": "int",
+          "location": "body",
+          "description": "Youth"
+        },
+        {
+          "name": "price-constraints-max-total",
+          "wire_name": "price_constraints.max_total",
+          "type": "float",
+          "location": "body",
+          "description": "Maximum total price in USD (will be converted to NUC millicents for ES query)"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "body",
+          "description": "Sort criteria: 'lowest' (default) or 'recommendation'"
+        }
+      ]
+    },
+    {
+      "name": "hotels_create",
+      "description": "Search hotels with a natural-language query (e.g. 'beach. Required: check_in_date, check_out_date, destination, query. Optional: currency, guest_nationality, language (plus 2 more). Returns the new SemanticSearchResult.",
+      "method": "POST",
+      "path": "/api/v1/hotels/semantic-search",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "check_in_date",
+          "type": "string",
+          "location": "body",
+          "description": "Check in date",
+          "required": true
+        },
+        {
+          "name": "check_out_date",
+          "type": "string",
+          "location": "body",
+          "description": "Check out date",
+          "required": true
+        },
+        {
+          "name": "currency",
+          "type": "string",
+          "location": "body",
+          "description": "Currency"
+        },
+        {
+          "name": "destination",
+          "type": "string",
+          "location": "body",
+          "description": "Destination",
+          "required": true
+        },
+        {
+          "name": "guest_nationality",
+          "type": "string",
+          "location": "body",
+          "description": "Guest nationality"
+        },
+        {
+          "name": "language",
+          "type": "string",
+          "location": "body",
+          "description": "Language"
+        },
+        {
+          "name": "market",
+          "type": "string",
+          "location": "body",
+          "description": "User preferences"
+        },
+        {
+          "name": "max_results",
+          "type": "int",
+          "location": "body",
+          "description": "Pagination"
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "Query",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "hotels_create-shop",
+      "description": "Search hotels by destination and return available rooms with live pricing. Required: checkin, checkout. Optional: adults, chain_ids, children (plus 18 more). Returns the new HotelShopResponse.",
+      "method": "POST",
+      "path": "/api/v1/hotels/shop",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "adults",
+          "type": "int",
+          "location": "body",
+          "description": "Adults"
+        },
+        {
+          "name": "chain_ids",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Chain ids"
+        },
+        {
+          "name": "checkin",
+          "type": "string",
+          "location": "body",
+          "description": "Dates (required)",
+          "required": true
+        },
+        {
+          "name": "checkout",
+          "type": "string",
+          "location": "body",
+          "description": "Checkout",
+          "required": true
+        },
+        {
+          "name": "children",
+          "type": "array",
+          "location": "body",
+          "description": "Children"
+        },
+        {
+          "name": "city_name",
+          "type": "string",
+          "location": "body",
+          "description": "City name"
+        },
+        {
+          "name": "country_code",
+          "type": "string",
+          "location": "body",
+          "description": "Country code"
+        },
+        {
+          "name": "currency",
+          "type": "string",
+          "location": "body",
+          "description": "Options"
+        },
+        {
+          "name": "facility_ids",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Facility ids"
+        },
+        {
+          "name": "guest_nationality",
+          "type": "string",
+          "location": "body",
+          "description": "Guest nationality"
+        },
+        {
+          "name": "hotel_ids",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Hotel ids"
+        },
+        {
+          "name": "hotel_type_ids",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Hotel type ids"
+        },
+        {
+          "name": "latitude",
+          "type": "float",
+          "location": "body",
+          "description": "Latitude"
+        },
+        {
+          "name": "longitude",
+          "type": "float",
+          "location": "body",
+          "description": "Longitude"
+        },
+        {
+          "name": "max_results",
+          "type": "int",
+          "location": "body",
+          "description": "Max results"
+        },
+        {
+          "name": "min_rating",
+          "type": "float",
+          "location": "body",
+          "description": "Filter overrides"
+        },
+        {
+          "name": "min_reviews",
+          "type": "int",
+          "location": "body",
+          "description": "Min reviews"
+        },
+        {
+          "name": "occupancies",
+          "type": "array",
+          "location": "body",
+          "description": "Occupancies — structured or shorthand"
+        },
+        {
+          "name": "place_id",
+          "type": "string",
+          "location": "body",
+          "description": "Place id"
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "Destination — at least one must be set"
+        },
+        {
+          "name": "radius_km",
+          "type": "float",
+          "location": "body",
+          "description": "Radius km"
+        },
+        {
+          "name": "rooms",
+          "type": "int",
+          "location": "body",
+          "description": "Rooms"
+        },
+        {
+          "name": "star_rating",
+          "type": "int",
+          "location": "body",
+          "description": "Star rating"
+        }
+      ]
+    },
+    {
+      "name": "payment_create",
+      "description": "Create a payment authorization for a quote using Stripe. Required: quote_id. Returns the new PaymentAuthorizationResponse.",
+      "method": "POST",
+      "path": "/api/v1/payment/authorize",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "quote_id",
+          "type": "int",
+          "location": "body",
+          "description": "Quote id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "payment_create-authorization",
+      "description": "Capture an authorized payment (full or partial amount). Required: id, currency. Optional: decimal_places, value. Returns the new PaymentCapture.",
+      "method": "POST",
+      "path": "/api/v1/payment/authorization/{id}/capture",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Payment Authorization ID",
+          "required": true
+        },
+        {
+          "name": "currency",
+          "type": "string",
+          "location": "body",
+          "description": "Currency code (ISO 4217)",
+          "required": true
+        },
+        {
+          "name": "decimal_places",
+          "type": "int",
+          "location": "body",
+          "description": "Number of decimal places for this currency Common values: 2 for USD/EUR/GBP, 0 for JPY/KRW, 3 for BHD/KWD"
+        },
+        {
+          "name": "value",
+          "type": "int",
+          "location": "body",
+          "description": "Value in smallest currency unit (e.g., cents for USD, yen for JPY) Example: 120.34 EUR = 12034, 1000 JPY = 1000"
+        }
+      ]
+    },
+    {
+      "name": "payment_create-cart",
+      "description": "Create a payment authorization for a shopping cart quote using Stripe. Required: amount, quoted_cart_id. Returns the new PaymentAuthorizationResponse.",
+      "method": "POST",
+      "path": "/api/v1/payment/cart/authorize",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "amount-currency",
+          "wire_name": "amount.currency",
+          "type": "string",
+          "location": "body",
+          "description": "Currency code (ISO 4217)",
+          "required": true
+        },
+        {
+          "name": "amount-decimal-places",
+          "wire_name": "amount.decimal_places",
+          "type": "int",
+          "location": "body",
+          "description": "Number of decimal places for this currency Common values: 2 for USD/EUR/GBP, 0 for JPY/KRW, 3 for BHD/KWD"
+        },
+        {
+          "name": "amount-value",
+          "wire_name": "amount.value",
+          "type": "int",
+          "location": "body",
+          "description": "Value in smallest currency unit (e.g., cents for USD, yen for JPY) Example: 120.34 EUR = 12034, 1000 JPY = 1000"
+        },
+        {
+          "name": "quoted_cart_id",
+          "type": "int",
+          "location": "body",
+          "description": "Quoted cart id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "payment_create-stripe",
+      "description": "Get the Stripe client secret (PaymentIntent flow) or checkout URL (Checkout Session flow). Optional: payment_intent_id, quoted_cart_id. Returns the new ClientSecretResponse.",
+      "method": "POST",
+      "path": "/api/v1/payment/stripe/client-secret",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "payment_intent_id",
+          "type": "string",
+          "location": "body",
+          "description": "Payment intent id"
+        },
+        {
+          "name": "quoted_cart_id",
+          "type": "int",
+          "location": "body",
+          "description": "Quoted cart id"
+        }
+      ]
+    },
+    {
+      "name": "payment_get",
+      "description": "Retrieve payment authorization information by ID. Required: id. Returns the PaymentAuthorization.",
+      "method": "GET",
+      "path": "/api/v1/payment/authorization/{id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Payment Authorization ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "payment_get-authorization",
+      "description": "Check the current status of a payment from Stripe and update local record. Required: id. Returns the PaymentAuthorization.",
+      "method": "GET",
+      "path": "/api/v1/payment/authorization/{id}/status",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Payment Authorization ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "payment_get-quote",
+      "description": "Retrieve payment authorization information by quote ID. Required: quote_id. Returns the PaymentAuthorization.",
+      "method": "GET",
+      "path": "/api/v1/payment/quote/{quote_id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "quote_id",
+          "type": "int",
+          "location": "path",
+          "description": "Quote ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "shop_create",
+      "description": "Unified trip management endpoint. Accepts create / add_product / remove_product / set_travelers / remove_travelers actions and returns the resulting trip state. Optional: add_item, remove_item, trip_id (plus 1 more).",
+      "method": "POST",
+      "path": "/shop/sync",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "add-item-trip-item-token",
+          "wire_name": "add_item.trip_item_token",
+          "type": "string",
+          "location": "body",
+          "description": "Trip item token",
+          "required": true
+        },
+        {
+          "name": "remove-item-item-id",
+          "wire_name": "remove_item.item_id",
+          "type": "string",
+          "location": "body",
+          "description": "Item id",
+          "required": true
+        },
+        {
+          "name": "trip_id",
+          "type": "string",
+          "location": "body",
+          "description": "existing cart ID; omit to create new"
+        },
+        {
+          "name": "upsert-travelers-contact-email",
+          "wire_name": "upsert_travelers.contact.email",
+          "type": "string",
+          "location": "body",
+          "description": "Email",
+          "required": true
+        },
+        {
+          "name": "upsert-travelers-contact-phone",
+          "wire_name": "upsert_travelers.contact.phone",
+          "type": "string",
+          "location": "body",
+          "description": "Phone"
+        },
+        {
+          "name": "upsert-travelers-travelers",
+          "wire_name": "upsert_travelers.travelers",
+          "type": "array",
+          "location": "body",
+          "description": "Travelers",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "shop_create-fulfillment",
+      "description": "Verify payment with Stripe API and transition fulfillment from awaiting_payment to processing. Required: fulfillment_cart_id. Optional: checkout_session_id, payment_intent_id. Returns the new ConfirmPaymentResponse.",
+      "method": "POST",
+      "path": "/api/v1/shop/fulfillment/confirm-payment",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "checkout_session_id",
+          "type": "string",
+          "location": "body",
+          "description": "Checkout Session flow"
+        },
+        {
+          "name": "fulfillment_cart_id",
+          "type": "int",
+          "location": "body",
+          "description": "Fulfillment cart id",
+          "required": true
+        },
+        {
+          "name": "payment_intent_id",
+          "type": "string",
+          "location": "body",
+          "description": "PaymentIntent flow"
+        }
+      ]
+    },
+    {
+      "name": "shop_create-fulfillment-2",
+      "description": "Retrieve current fulfillment orchestration status and results. Required: fulfillment_cart_id. Returns the new PullFulfillmentResponse.",
+      "method": "POST",
+      "path": "/api/v1/shop/fulfillment/pull",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "fulfillment_cart_id",
+          "type": "int",
+          "location": "body",
+          "description": "Fulfillment cart id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "shop_create-fulfillment-3",
+      "description": "Schedule fulfillment orchestration for all successfully quoted products. Optional: cart_id, checkout_session_id, customer_contact (plus 6 more). Returns the new ScheduleFulfillmentResponse.",
+      "method": "POST",
+      "path": "/api/v1/shop/fulfillment/schedule",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "cart_id",
+          "type": "int",
+          "location": "body",
+          "description": "Standard path: provide cart_id + quoted_cart_id + idempotency_key. payment_authorization_id is now optional — the server creates the Stripe payment at schedule time (PAYF-01)."
+        },
+        {
+          "name": "checkout_session_id",
+          "type": "string",
+          "location": "body",
+          "description": "CheckoutSessionID: alternative path — web app provides the Stripe checkout session ID after redirect. The server resolves quoted_cart_id and payment_auth automatically."
+        },
+        {
+          "name": "customer-contact-email",
+          "wire_name": "customer_contact.email",
+          "type": "string",
+          "location": "body",
+          "description": "Email",
+          "required": true
+        },
+        {
+          "name": "customer-contact-first-name",
+          "wire_name": "customer_contact.first_name",
+          "type": "string",
+          "location": "body",
+          "description": "First name",
+          "required": true
+        },
+        {
+          "name": "customer-contact-last-name",
+          "wire_name": "customer_contact.last_name",
+          "type": "string",
+          "location": "body",
+          "description": "Last name",
+          "required": true
+        },
+        {
+          "name": "customer-contact-phone-number",
+          "wire_name": "customer_contact.phone_number",
+          "type": "string",
+          "location": "body",
+          "description": "Phone number",
+          "required": true
+        },
+        {
+          "name": "guest_data",
+          "type": "object",
+          "location": "body",
+          "description": "GuestData is the MCP-client-facing field (matches swagger spec). Shape: { 'passengers': [...] }"
+        },
+        {
+          "name": "idempotency_key",
+          "type": "string",
+          "location": "body",
+          "description": "Idempotency key"
+        },
+        {
+          "name": "payment_authorization_id",
+          "type": "string",
+          "location": "body",
+          "description": "Payment authorization id"
+        },
+        {
+          "name": "payment_intent_id",
+          "type": "string",
+          "location": "body",
+          "description": "PaymentIntentID: alternative path — web app provides the Stripe PaymentIntent ID after embedded payment confirmation. The server resolves quoted_cart_id and payment_auth automatically."
+        },
+        {
+          "name": "quoted_cart_id",
+          "type": "int",
+          "location": "body",
+          "description": "Quoted cart id"
+        },
+        {
+          "name": "travelers",
+          "type": "array",
+          "location": "body",
+          "description": "Travelers is the internal field used downstream. Populated from GuestData if not set directly."
+        }
+      ]
+    },
+    {
+      "name": "shop_create-quote",
+      "description": "Retrieve current quote orchestration status and results. Required: quoted_cart_id. Returns the new PullQuoteResponse.",
+      "method": "POST",
+      "path": "/api/v1/shop/quote/pull",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "quoted_cart_id",
+          "type": "int",
+          "location": "body",
+          "description": "Quoted cart id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "shop_create-quote-2",
+      "description": "Schedule quote orchestration for all products in a cart. Required: cart_id. Returns the new ScheduleQuoteResponse.",
+      "method": "POST",
+      "path": "/api/v1/shop/quote/schedule",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "cart_id",
+          "type": "int",
+          "location": "body",
+          "description": "Cart id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "shop_create-sync",
+      "description": "Selects or updates ancillaries (seats, bags, meals, assistance) for a trip item. The body references a trip_id and trip_item_token and provides the desired selection; the handler validates the selection against the item's available ancillary inventory. Required: trip_id. Optional: selections. Returns the new AncillaryResponse.",
+      "method": "POST",
+      "path": "/shop/sync/ancillaries",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "selections",
+          "type": "array",
+          "location": "body",
+          "description": "Selections"
+        },
+        {
+          "name": "trip_id",
+          "type": "string",
+          "location": "body",
+          "description": "Trip id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "shop_create-sync-2",
+      "description": "Starts the checkout flow for a trip (cart), creating a Stripe Checkout Session or PaymentIntent depending on the configured authorisation type. Required: trip_id. Returns the new CheckoutResponse.",
+      "method": "POST",
+      "path": "/shop/sync/checkout",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "trip_id",
+          "type": "string",
+          "location": "body",
+          "description": "Trip id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "shop_get",
+      "description": "Retrieve a trip by ID. Required: id. Returns the TripResponse.",
+      "method": "GET",
+      "path": "/shop/sync/{id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Trip (cart) ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "shop_quoted_update",
+      "description": "Replace all ancillary selections on a quoted cart item (full-replace semantics). Required: cart_id, quoted_item_id. Optional: selections. Returns the updated SelectAncillariesResponse.",
+      "method": "PUT",
+      "path": "/api/v1/shop/{cart_id}/quoted/{quoted_item_id}/ancillaries",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "cart_id",
+          "type": "int",
+          "location": "path",
+          "description": "Cart ID",
+          "required": true
+        },
+        {
+          "name": "quoted_item_id",
+          "type": "int",
+          "location": "path",
+          "description": "Quoted Cart Item ID",
+          "required": true
+        },
+        {
+          "name": "selections",
+          "type": "array",
+          "location": "body",
+          "description": "Selections"
+        }
+      ]
+    },
+    {
+      "name": "shopping-cart_create",
+      "description": "Create a new shopping cart bound to a session. Required: platform, session_id, source, tenant. Optional: metadata, payment_type, user_id. Returns the new CartCreateResponse.",
+      "method": "POST",
+      "path": "/api/v1/shopping_cart/shop",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "metadata",
+          "type": "object",
+          "location": "body",
+          "description": "Metadata"
+        },
+        {
+          "name": "payment_type",
+          "type": "string",
+          "location": "body",
+          "description": "Payment type"
+        },
+        {
+          "name": "platform",
+          "type": "string",
+          "location": "body",
+          "description": "Platform",
+          "required": true
+        },
+        {
+          "name": "session_id",
+          "type": "string",
+          "location": "body",
+          "description": "Session id",
+          "required": true
+        },
+        {
+          "name": "source",
+          "type": "string",
+          "location": "body",
+          "description": "Source",
+          "required": true
+        },
+        {
+          "name": "tenant",
+          "type": "string",
+          "location": "body",
+          "description": "Tenant",
+          "required": true
+        },
+        {
+          "name": "user_id",
+          "type": "string",
+          "location": "body",
+          "description": "User id"
+        }
+      ]
+    },
+    {
+      "name": "shopping-cart_delete",
+      "description": "Remove a product from the shopping cart (soft delete). Required: cart_id, product_id. Returns the CartGetResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/api/v1/shopping_cart/shop/{cart_id}/{product_id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "cart_id",
+          "type": "int",
+          "location": "path",
+          "description": "Cart ID",
+          "required": true
+        },
+        {
+          "name": "product_id",
+          "type": "string",
+          "location": "path",
+          "description": "Product ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "shopping-cart_get",
+      "description": "Retrieve a shopping cart with its products. Required: cart_id. Returns the CartGetResponse.",
+      "method": "GET",
+      "path": "/api/v1/shopping_cart/shop/{cart_id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "cart_id",
+          "type": "int",
+          "location": "path",
+          "description": "Cart ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "shopping-cart_get-shoppingcart",
+      "description": "Retrieve a specific product's details from the cart. Required: cart_id, product_id. Returns the CartProduct.",
+      "method": "GET",
+      "path": "/api/v1/shopping_cart/shop/{cart_id}/{product_id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "cart_id",
+          "type": "int",
+          "location": "path",
+          "description": "Cart ID",
+          "required": true
+        },
+        {
+          "name": "product_id",
+          "type": "string",
+          "location": "path",
+          "description": "Product ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "shopping-cart_update",
+      "description": "Add a product to an existing shopping cart. Required: cart_id, domain. Optional: attributes, reference_id, snapshot. Returns the updated AddProductResponse.",
+      "method": "PUT",
+      "path": "/api/v1/shopping_cart/shop/{cart_id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "cart_id",
+          "type": "int",
+          "location": "path",
+          "description": "Cart ID",
+          "required": true
+        },
+        {
+          "name": "attributes",
+          "type": "object",
+          "location": "body",
+          "description": "Attributes"
+        },
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "body",
+          "description": "Domain",
+          "required": true
+        },
+        {
+          "name": "reference_id",
+          "type": "string",
+          "location": "body",
+          "description": "Reference id"
+        },
+        {
+          "name": "snapshot",
+          "type": "object",
+          "location": "body",
+          "description": "Snapshot"
+        }
+      ]
+    },
+    {
+      "name": "shopping-cart_update-shoppingcart",
+      "description": "Update contact info and/or travelers on a shopping cart. Required: cart_id. Optional: contact_info, travelers. Returns the updated ShoppingCartUpdateShoppingcartResponse.",
+      "method": "PUT",
+      "path": "/api/v1/shopping_cart/shop/{cart_id}/travelers",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "cart_id",
+          "type": "int",
+          "location": "path",
+          "description": "Cart ID",
+          "required": true
+        },
+        {
+          "name": "contact-info-email",
+          "wire_name": "contact_info.email",
+          "type": "string",
+          "location": "body",
+          "description": "Email",
+          "required": true
+        },
+        {
+          "name": "contact-info-first-name",
+          "wire_name": "contact_info.first_name",
+          "type": "string",
+          "location": "body",
+          "description": "First name",
+          "required": true
+        },
+        {
+          "name": "contact-info-last-name",
+          "wire_name": "contact_info.last_name",
+          "type": "string",
+          "location": "body",
+          "description": "Last name",
+          "required": true
+        },
+        {
+          "name": "contact-info-phone-number",
+          "wire_name": "contact_info.phone_number",
+          "type": "string",
+          "location": "body",
+          "description": "Phone number",
+          "required": true
+        },
+        {
+          "name": "travelers",
+          "type": "array",
+          "location": "body",
+          "description": "Travelers"
+        }
+      ]
+    },
+    {
+      "name": "travelers_create",
+      "description": "Create a traveler profile. Optional: address, channel_user_id, date_of_birth (plus 14 more). Returns the new TravelerResponse.",
+      "method": "POST",
+      "path": "/travelers",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "address",
+          "type": "string",
+          "location": "body",
+          "description": "Address"
+        },
+        {
+          "name": "channel_user_id",
+          "type": "string",
+          "location": "body",
+          "description": "Channel user id"
+        },
+        {
+          "name": "date_of_birth",
+          "type": "string",
+          "location": "body",
+          "description": "ISO 8601 date: '2000-01-15'"
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body",
+          "description": "Email"
+        },
+        {
+          "name": "first_name",
+          "type": "string",
+          "location": "body",
+          "description": "First name"
+        },
+        {
+          "name": "gender",
+          "type": "string",
+          "location": "body",
+          "description": "Gender"
+        },
+        {
+          "name": "is_primary",
+          "type": "bool",
+          "location": "body",
+          "description": "Is primary"
+        },
+        {
+          "name": "last_name",
+          "type": "string",
+          "location": "body",
+          "description": "Last name"
+        },
+        {
+          "name": "middle_name",
+          "type": "string",
+          "location": "body",
+          "description": "Middle name"
+        },
+        {
+          "name": "nationality",
+          "type": "string",
+          "location": "body",
+          "description": "Nationality"
+        },
+        {
+          "name": "passenger_type",
+          "type": "string",
+          "location": "body",
+          "description": "Passenger type"
+        },
+        {
+          "name": "passport_expiry_date",
+          "type": "string",
+          "location": "body",
+          "description": "ISO 8601 date"
+        },
+        {
+          "name": "passport_issuing_country",
+          "type": "string",
+          "location": "body",
+          "description": "Passport issuing country"
+        },
+        {
+          "name": "passport_nationality",
+          "type": "string",
+          "location": "body",
+          "description": "Passport nationality"
+        },
+        {
+          "name": "passport_number",
+          "type": "string",
+          "location": "body",
+          "description": "Passport number"
+        },
+        {
+          "name": "phone_number",
+          "type": "string",
+          "location": "body",
+          "description": "Phone number"
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "Title"
+        }
+      ]
+    },
+    {
+      "name": "travelers_delete",
+      "description": "Delete a traveler profile. Required: id. Destructive.",
+      "method": "DELETE",
+      "path": "/travelers/{id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Traveler ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "travelers_get",
+      "description": "Retrieve a traveler profile by ID. Required: id. Returns the TravelerResponse.",
+      "method": "GET",
+      "path": "/travelers/{id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Traveler ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "travelers_list",
+      "description": "List traveler profiles for the authenticated user. Returns the TravelerListResponse.",
+      "method": "GET",
+      "path": "/travelers",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "travelers_update",
+      "description": "Update a traveler profile. Required: id. Optional: address, channel_user_id, date_of_birth (plus 14 more). Returns the updated TravelerResponse.",
+      "method": "PUT",
+      "path": "/travelers/{id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Traveler ID",
+          "required": true
+        },
+        {
+          "name": "address",
+          "type": "string",
+          "location": "body",
+          "description": "Address"
+        },
+        {
+          "name": "channel_user_id",
+          "type": "string",
+          "location": "body",
+          "description": "Channel user id"
+        },
+        {
+          "name": "date_of_birth",
+          "type": "string",
+          "location": "body",
+          "description": "Date of birth"
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body",
+          "description": "Email"
+        },
+        {
+          "name": "first_name",
+          "type": "string",
+          "location": "body",
+          "description": "First name"
+        },
+        {
+          "name": "gender",
+          "type": "string",
+          "location": "body",
+          "description": "Gender"
+        },
+        {
+          "name": "is_primary",
+          "type": "bool",
+          "location": "body",
+          "description": "Is primary"
+        },
+        {
+          "name": "last_name",
+          "type": "string",
+          "location": "body",
+          "description": "Last name"
+        },
+        {
+          "name": "middle_name",
+          "type": "string",
+          "location": "body",
+          "description": "Middle name"
+        },
+        {
+          "name": "nationality",
+          "type": "string",
+          "location": "body",
+          "description": "Nationality"
+        },
+        {
+          "name": "passenger_type",
+          "type": "string",
+          "location": "body",
+          "description": "Passenger type"
+        },
+        {
+          "name": "passport_expiry_date",
+          "type": "string",
+          "location": "body",
+          "description": "Passport expiry date"
+        },
+        {
+          "name": "passport_issuing_country",
+          "type": "string",
+          "location": "body",
+          "description": "Passport issuing country"
+        },
+        {
+          "name": "passport_nationality",
+          "type": "string",
+          "location": "body",
+          "description": "Passport nationality"
+        },
+        {
+          "name": "passport_number",
+          "type": "string",
+          "location": "body",
+          "description": "Passport number"
+        },
+        {
+          "name": "phone_number",
+          "type": "string",
+          "location": "body",
+          "description": "Phone number"
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "Title"
+        }
+      ]
+    }
+  ]
+}
