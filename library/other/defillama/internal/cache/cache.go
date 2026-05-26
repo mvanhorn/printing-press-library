@@ -55,5 +55,5 @@ func (s *Store) Clear() error {
 
 func (s *Store) path(key string) string {
 	h := sha256.Sum256([]byte(key))
-	return filepath.Join(s.Dir, hex.EncodeToString(h[:8])+".json")
+	return filepath.Join(s.Dir, hex.EncodeToString(h[:])+".json")
 }

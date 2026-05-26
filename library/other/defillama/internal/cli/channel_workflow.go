@@ -55,7 +55,7 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
 			}
 			defer s.Close()
 
-			resources := []string{"bridges", "categories", "chain-assets", "chains", "chart", "chart-fork-protocol-breakdown", "chart-oracle-chain-breakdown", "chart-oracle-protocol-breakdown", "dat", "emissions", "entities", "equities", "etfs", "etfs-snapshot", "forks", "hacks", "historical-chain-tvl", "metrics", "metrics-oracle", "oracles", "pools", "protocols", "raises", "rwa", "rwa-chart-chain-breakdown", "rwa-current", "rwa-stats", "stablecoinchains", "stablecoincharts", "stablecoinprices", "stablecoins", "treasuries", "usage", "yields", "yields-lsd-rates", "yields-pools-borrow", "yields-pools-old"}
+			resources := defaultSyncResources()
 			totalSynced := 0
 			syncEventWriter := cmd.OutOrStdout()
 			if flags.asJSON {
