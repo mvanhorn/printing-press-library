@@ -1,25 +1,52 @@
 # Last-game stats query family
 
-ESPN's player search has weak coverage for rookies and recently-signed players. Two gotchas worth recording:
+ESPN's player search has weak coverage for rookies and recently-signed players. Two gotchas:
 
 - `espn-pp-cli search "<player name>"` returns empty for many active rookies (e.g., Carter Bryant). Do NOT rely on it as the resolution step.
 - `https://site.api.espn.com/apps/searchapi/search` returns 403 Forbidden without a `User-Agent: Mozilla/5.0` header. Even with the header it filters out a lot of players. Avoid as a primary path.
 
-Resolution that works:
-- `espn-pp-cli compare "$ATHLETE_NAME" "<any other athlete>" --sport <s> --league <l> --agent` accepts free-text athlete names and resolves both. The response includes `athlete1.id` and `athlete1.team.id` for the queried athlete. Pick any second athlete you know exists in the same league to satisfy the comparison.
-
-Once you have `athlete.team.id`, walk the team's recent events:
+## Resolution that works
 
 ```
-espn-pp-cli teams <sport> <league> <team.id> --agent
+espn-pp-cli compare "$ATHLETE_NAME" "<any other athlete>" --sport <s> --league <l> --agent
 ```
 
-Returns `events[]` with `competitions.status.type.completed: true` on finished games. Sort by date DESC, take the first.
+Compare accepts free-text athlete names and resolves both. The response includes `athlete1.id` and `athlete1.team.id` for the queried athlete. Pick any second athlete you know exists in the same league to satisfy the comparison.
 
-Boxscore parsing:
-- The athlete stats live at `.players[teamIdx].statistics[0].athletes[playerIdx]` where `teamIdx` is 0 or 1 depending on which side the athlete played for.
-- Stat keys appear in `.statistics[0].keys[]` and values in `.statistics[0].athletes[i].stats[]` (same index). Use keys[], not labels[].
-- A player who didn't play has `active: false` and stats may be empty strings; treat as DNP.
-- Box score `header.competitions.competitors[].score` carries the final team scores. Don't read it from `events` -- those competitors may be empty before the game completes.
+## Postseason mode failure (Stephen Curry case)
 
-For the user-facing answer, format `+/-` from `stats[plusMinus_index]` (not from a separate field) and `MIN` (minutes played) from `stats[min_index]` — DNP players have empty MIN.
+The compare-then-teams choreography breaks when the league is in postseason mode and the athlete's team isn't currently in the playoffs.
+
+Symptoms:
+- `currentSeason.type.name === "Postseason"` (visible in any ESPN API response with the season info).
+- `espn-pp-cli compare ... --agent` returns `athlete1.team = ""` for athletes whose team is eliminated or didn't make the playoffs.
+- `espn-pp-cli teams <sport> <league> <team.id> --agent` returns `events: []` because the team-schedule endpoint scopes to the active seasontype.
+
+This is what bit the Stephen Curry session (Warriors were eliminated in the play-in; postseason mode = compare/teams choreography returned nothing).
+
+## Fallback path for postseason mode
+
+When step 1 or step 2 above returns empty:
+
+```
+espn-pp-cli scoreboard <sport> <league> --dates <YYYYMMDD>-<YYYYMMDD> --agent
+```
+
+Use a date window covering the last 30 days of regular season plus the play-in tournament. For NBA the regular season ends mid-April; the play-in runs Apr 14-Apr 18. So a window like `20260401-20260425` covers the recent completed games.
+
+Filter the returned events by the team's abbreviation (e.g., `GS` for Warriors), sort by date DESC, take the first completed event. The event id flows into the boxscore step.
+
+## Boxscore parsing
+
+- Athlete stats live at `.players[teamIdx].statistics[0].athletes[playerIdx]` where teamIdx is 0 or 1 depending on which side the athlete played for.
+- Stat schema lives at `.players[teamIdx].statistics[0].keys[]` (machine-readable) and `.players[teamIdx].statistics[0].names[]` (human label). Athlete values are at `.athletes[i].stats[]` indexed positionally. Use `keys[]` not `labels[]` (labels carry duplicates in some sports).
+- A player who didn't play has `active: false` and `stats` may be empty strings or missing. Treat as DNP. MIN will be empty.
+- `header.competitions.competitors[].score` carries the final team scores. DO NOT read final scores from the `events` array - those `competitors[]` may be empty before the game completes.
+- `+/-` comes from `stats[<plusMinus_index>]` where the index is found by `keys.indexOf("plusMinus")`.
+
+## Output formatting
+
+For the user-facing answer:
+- MIN (minutes played) - empty string means DNP.
+- PTS, FG, 3PT, REB, AST, STL, BLK, TO, PF - read positionally per the keys[] index.
+- +/- - same approach; pull from keys.indexOf("plusMinus").
