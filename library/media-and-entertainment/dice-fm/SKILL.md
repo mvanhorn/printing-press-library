@@ -159,6 +159,13 @@ These capabilities aren't available in any other tool for this API.
 
 - `dice-fm-pp-cli transfers` — List ticket transfers (filter by event)
 
+**normalize** — Canonicalize manually-entered ticket-type and venue names into structured axes (parallel and re-runnable; raw synced data is never modified)
+
+- `dice-fm-pp-cli normalize` — Resolve raw names → canonical entities + axes (`--tiers`, `--venues`, `--fuzzy`, `--export-unmatched <file>`, `--import <file.csv|.json>`)
+- `dice-fm-pp-cli normalize stats` — Show the normalized axis distribution
+
+  Query the normalized view via `revenue summary --by-axis <access_class|sales_stage|entry_window_type|group_size|comp_flag>`. Raw is the default; `--by-axis` falls back to raw (with a warning) if `normalize` has not been run. Normalization is local-only — resolved name mappings never leave your machine.
+
 
 ### Finding the right command
 

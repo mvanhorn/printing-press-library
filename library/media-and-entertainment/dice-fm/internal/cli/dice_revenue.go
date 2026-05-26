@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"sort"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
@@ -195,7 +196,7 @@ func newRevenueCmd(flags *rootFlags) *cobra.Command {
 }
 
 func newRevenueSummaryCmd(flags *rootFlags) *cobra.Command {
-	var event, from, to string
+	var event, from, to, byAxis string
 	cmd := &cobra.Command{
 		Use:         "summary",
 		Short:       "Aggregate gross, Dice fees, and net per event from synced orders",
@@ -209,6 +210,11 @@ func newRevenueSummaryCmd(flags *rootFlags) *cobra.Command {
 			if to, err = parseDateFlag("to", to); err != nil {
 				return err
 			}
+			if byAxis != "" {
+				if err := validateByAxis(byAxis); err != nil {
+					return err
+				}
+			}
 			if dryRunOK(flags) {
 				return nil
 			}
@@ -217,9 +223,22 @@ func newRevenueSummaryCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 			if s == nil {
+				if byAxis != "" {
+					return printJSONFiltered(cmd.OutOrStdout(), &revenueByAxisResult{}, flags)
+				}
 				return printJSONFiltered(cmd.OutOrStdout(), []revenueRow{}, flags)
 			}
 			defer s.Close()
+			if byAxis != "" {
+				res, err := computeRevenueByAxis(cmd.Context(), s.DB(), byAxis)
+				if err != nil {
+					return fmt.Errorf("computing revenue by axis: %w", err)
+				}
+				if !res.Normalized {
+					fmt.Fprintf(cmd.ErrOrStderr(), "warning: %s\n", res.Warning)
+				}
+				return printJSONFiltered(cmd.OutOrStdout(), res, flags)
+			}
 			rows, err := computeRevenue(cmd.Context(), s.DB(), event, from, to)
 			if err != nil {
 				return fmt.Errorf("computing revenue: %w", err)
@@ -230,5 +249,175 @@ func newRevenueSummaryCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&event, "event", "", "Limit to a single event ID")
 	cmd.Flags().StringVar(&from, "from", "", "Only include shows on or after this date (YYYY-MM-DD, by show date)")
 	cmd.Flags().StringVar(&to, "to", "", "Only include shows on or before this date (YYYY-MM-DD, by show date)")
+	cmd.Flags().StringVar(&byAxis, "by-axis", "", "Group ticket revenue by a normalized tier axis (access_class|sales_stage|entry_window_type|group_size|comp_flag); falls back to raw ticketType.name if normalize has not been run")
 	return cmd
+}
+
+// validByAxisValues lists the recognized tier axis names for --by-axis.
+var validByAxisValues = map[string]bool{
+	"access_class":      true,
+	"sales_stage":       true,
+	"entry_window_type": true,
+	"group_size":        true,
+	"comp_flag":         true,
+}
+
+// validateByAxis returns an error when axis is not one of the accepted values.
+func validateByAxis(axis string) error {
+	if !validByAxisValues[axis] {
+		keys := make([]string, 0, len(validByAxisValues))
+		for k := range validByAxisValues {
+			keys = append(keys, k)
+		}
+		sort.Strings(keys)
+		return fmt.Errorf("invalid --by-axis %q: must be one of %s", axis, strings.Join(keys, "|"))
+	}
+	return nil
+}
+
+// revenueByAxisRow is one axis-value bucket of ticket revenue.
+type revenueByAxisRow struct {
+	AxisValue    string  `json:"axis_value"`
+	TicketCount  int     `json:"ticket_count"`
+	TotalRevenue float64 `json:"total_revenue"`
+}
+
+// revenueByAxisResult is the full result of computeRevenueByAxis.
+type revenueByAxisResult struct {
+	Axis       string             `json:"axis"`
+	Normalized bool               `json:"normalized"`
+	Warning    string             `json:"warning,omitempty"`
+	Rows       []revenueByAxisRow `json:"rows"`
+}
+
+// computeRevenueByAxis groups ticket revenue from the tickets store table by a
+// normalized tier axis (e.g. access_class). When no entity_crosswalk rows exist
+// for entity_type='ticket_type', it falls back to grouping by raw
+// ticketType.name and sets Normalized=false.
+//
+// Monetary values come from ticketType.price (cents stored on each ticket). This
+// is the only per-ticket monetary field reachable without joining through orders,
+// since synced tickets carry no order-ID reference (see storeTicket comment in
+// dice_tier_performance.go).
+func computeRevenueByAxis(ctx context.Context, db *sql.DB, axis string) (*revenueByAxisResult, error) {
+	// Check whether normalization has been run for ticket_type.
+	var crosswalkCount int
+	err := db.QueryRowContext(ctx,
+		`SELECT COUNT(*) FROM entity_crosswalk WHERE entity_type = 'ticket_type'`,
+	).Scan(&crosswalkCount)
+	if err != nil {
+		return nil, fmt.Errorf("checking crosswalk: %w", err)
+	}
+
+	if crosswalkCount == 0 {
+		// Fallback: group by raw ticketType.name.
+		rows, err := groupTicketRevenueByRaw(ctx, db)
+		if err != nil {
+			return nil, err
+		}
+		return &revenueByAxisResult{
+			Axis:       axis,
+			Normalized: false,
+			Warning:    "normalization has not been run; grouping by raw ticketType.name — run 'normalize --tiers' to enable axis grouping",
+			Rows:       rows,
+		}, nil
+	}
+
+	// Normalized path: join tickets → crosswalk → tier_attributes, group by axis.
+	rows, err := groupTicketRevenueByAxis(ctx, db, axis)
+	if err != nil {
+		return nil, err
+	}
+	return &revenueByAxisResult{
+		Axis:       axis,
+		Normalized: true,
+		Rows:       rows,
+	}, nil
+}
+
+// groupTicketRevenueByRaw groups ticket counts and ticketType.price sums by the
+// raw ticketType.name. Used as the fallback when no crosswalk rows exist.
+func groupTicketRevenueByRaw(ctx context.Context, db *sql.DB) ([]revenueByAxisRow, error) {
+	sqlRows, err := db.QueryContext(ctx, `
+		SELECT
+			json_extract(data, '$.ticketType.name') AS axis_value,
+			COUNT(*)                                  AS ticket_count,
+			COALESCE(SUM(json_extract(data, '$.ticketType.price')), 0) AS total_cents
+		FROM resources
+		WHERE resource_type = 'tickets'
+		  AND json_extract(data, '$.ticketType.name') IS NOT NULL
+		GROUP BY json_extract(data, '$.ticketType.name')
+		ORDER BY total_cents DESC, axis_value ASC
+	`)
+	if err != nil {
+		return nil, fmt.Errorf("grouping tickets by raw name: %w", err)
+	}
+	defer sqlRows.Close()
+	return scanAxisRows(sqlRows)
+}
+
+// groupTicketRevenueByAxis joins tickets → entity_crosswalk → tier_attributes
+// and groups by the requested axis column. Tickets with no crosswalk match land
+// in an "(unclassified)" bucket so no revenue is silently dropped.
+func groupTicketRevenueByAxis(ctx context.Context, db *sql.DB, axis string) ([]revenueByAxisRow, error) {
+	// axis is already validated against validByAxisValues before reaching here.
+	// Use a fixed allow-list to build the column reference safely.
+	colMap := map[string]string{
+		"access_class":      "ta.access_class",
+		"sales_stage":       "ta.sales_stage",
+		"entry_window_type": "ta.entry_window_type",
+		"group_size":        "CAST(ta.group_size AS TEXT)",
+		"comp_flag":         "CAST(ta.comp_flag AS TEXT)",
+	}
+	axisCol := colMap[axis]
+
+	query := fmt.Sprintf(`
+		SELECT
+			COALESCE(%s, '(unclassified)') AS axis_value,
+			COUNT(*)                        AS ticket_count,
+			COALESCE(SUM(json_extract(r.data, '$.ticketType.price')), 0) AS total_cents
+		FROM resources r
+		LEFT JOIN entity_crosswalk ec
+			ON ec.entity_type   = 'ticket_type'
+			AND ec.source_system = 'dice'
+			AND ec.source_value  = json_extract(r.data, '$.ticketType.name')
+		LEFT JOIN tier_attributes ta
+			ON ta.canonical_id = ec.canonical_id
+		WHERE r.resource_type = 'tickets'
+		GROUP BY %s
+		ORDER BY total_cents DESC, axis_value ASC
+	`, axisCol, axisCol)
+
+	sqlRows, err := db.QueryContext(ctx, query)
+	if err != nil {
+		return nil, fmt.Errorf("grouping tickets by axis %q: %w", axis, err)
+	}
+	defer sqlRows.Close()
+	return scanAxisRows(sqlRows)
+}
+
+// scanAxisRows reads (axis_value, ticket_count, total_cents) rows from a query
+// result and converts total_cents to dollars.
+func scanAxisRows(sqlRows *sql.Rows) ([]revenueByAxisRow, error) {
+	var out []revenueByAxisRow
+	for sqlRows.Next() {
+		var axisValue string
+		var ticketCount int
+		var totalCents int64
+		if err := sqlRows.Scan(&axisValue, &ticketCount, &totalCents); err != nil {
+			return nil, fmt.Errorf("scanning axis row: %w", err)
+		}
+		out = append(out, revenueByAxisRow{
+			AxisValue:    axisValue,
+			TicketCount:  ticketCount,
+			TotalRevenue: round2(float64(totalCents) / 100.0),
+		})
+	}
+	if err := sqlRows.Err(); err != nil {
+		return nil, err
+	}
+	if out == nil {
+		out = []revenueByAxisRow{}
+	}
+	return out, nil
 }

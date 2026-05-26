@@ -269,6 +269,7 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.AddCommand(newRevenueCmd(flags))
 	rootCmd.AddCommand(newVelocityCmd(flags))
 	rootCmd.AddCommand(newFansCmd(flags))
+	rootCmd.AddCommand(newNormalizeCmd(flags))
 	// PATCH(amend-2026-05-23: port eventbrite capacity + discount-performance)
 	rootCmd.AddCommand(newCapacityCmd(flags))
 	rootCmd.AddCommand(newTierPerformanceCmd(flags))

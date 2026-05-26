@@ -267,6 +267,7 @@ func (s *Store) migrate(ctx context.Context) error {
 		)`,
 		resourcesFTSCreateSQL,
 	}
+	migrations = append(migrations, normalizationMigrations...)
 
 	// Run every migration — including the column backfill and the
 	// schema-version stamp — inside a single BEGIN IMMEDIATE transaction

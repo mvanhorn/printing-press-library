@@ -192,6 +192,19 @@ These capabilities aren't available in any other tool for this API.
   dice-fm-pp-cli fans top --event RXZlbnQ6MTIzNDU= --n 20 --json
   ```
 
+### Tier & venue normalization
+Manually-entered ticket-type and venue names drift into many near-duplicate and overlapping forms, which fragments analytics. `normalize` resolves each distinct raw name to a canonical entity and extracts structured axes — for ticket types: access class (GA/VIP), sales stage (early-bird/final-release/…), entry window (a parsed "must enter by" time / anytime / door), group size, and a comp flag; for venues: complex + room. It writes a **parallel** lookup keyed by the distinct raw value, so your raw synced data is never modified and you can re-run as the rules improve.
+
+  _Workflow: `sync` → `normalize` → (optional) `normalize --export-unmatched names.txt`, classify the long tail however you like, then `normalize --import names.{csv,json}` (imported rows are kept on re-runs) → query with `--by-axis`._
+
+  ```bash
+  dice-fm-pp-cli normalize --tiers --venues --json
+  dice-fm-pp-cli normalize stats --json
+  dice-fm-pp-cli revenue summary --by-axis sales_stage --json
+  ```
+
+  Raw values stay the default everywhere; `--by-axis` opts into the normalized view and falls back to raw (with a warning) if `normalize` hasn't run. Normalization runs entirely on your local store — the shipped rules are generic patterns; your resolved name mappings never leave your machine.
+
 ## Usage
 
 Run `dice-fm-pp-cli --help` for the full command reference and flag list.
@@ -216,7 +229,7 @@ Run `dice-fm-pp-cli <command> --help` for the full flag list on any command.
 
 | Command | What it does |
 | --- | --- |
-| `revenue summary` | Gross revenue, Dice fees, and net per event or show-date range (`--from`/`--to`) |
+| `revenue summary` | Gross revenue, Dice fees, and net per event or show-date range (`--from`/`--to`); group by a normalized tier axis with `--by-axis` |
 | `revenue by-artist` | Gross/net and order counts aggregated by artist across events (`--headliner-only`, `--from`/`--to`) |
 | `door list` | Valid-holder list for an event, transfers resolved, returns removed |
 | `velocity show` | Cumulative ticket-sales pace by day or hour relative to on-sale |
@@ -232,6 +245,7 @@ Run `dice-fm-pp-cli <command> --help` for the full flag list on any command.
 | Command | What it does |
 | --- | --- |
 | `sync` | Sync your DICE data to local SQLite — complete by default; `--since` bounds a window, `--latest-only` grabs the newest, plus `--full`, `--resources` |
+| `normalize` | Normalize raw ticket-type & venue names into canonical, structured axes; writes a parallel lookup and leaves raw data untouched (re-runnable). `--export-unmatched`/`--import` handle the long tail; `normalize stats` shows the distribution |
 | `search <query>` | Full-text search across synced data or the live API |
 | `analytics` | Run analytics queries on locally synced data |
 | `tail` | Stream live changes by polling the API at intervals |
