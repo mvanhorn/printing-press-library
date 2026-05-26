@@ -96,11 +96,13 @@ func computeFansSegment(ctx context.Context, db *sql.DB, f segmentFilters) ([]fa
 	wantTier := strings.ToLower(f.tier)
 
 	type agg struct {
-		name       string
-		totalCents int64
-		optedIn    bool
-		eventSet   map[string]bool
-		maxQty     int // maximum quantity of any single order
+		name             string
+		totalCents       int64
+		optedIn          bool
+		eventSet         map[string]bool
+		maxQty           int  // maximum quantity of any single order
+		matchedEventName bool // fan has >=1 order whose event name matched --event-name
+		matchedGenre     bool // fan has >=1 order whose event genre matched --genre
 	}
 	groups := map[string]*agg{}
 
@@ -112,13 +114,24 @@ func computeFansSegment(ctx context.Context, db *sql.DB, f segmentFilters) ([]fa
 		if qty <= 0 {
 			qty = 1
 		}
+		// --from/--to is a time-window scope, not a fan qualifier: it bounds the
+		// universe of orders considered to the requested show-date window. The
+		// other filters (--opted-in, --min-qty, --event-name, --genre) qualify
+		// the FAN and never shrink total_spend/events_count to only the matching
+		// orders — they are applied as per-fan flags during row building below.
 		if dateFiltered && !eligible[o.Event.ID] {
 			continue
 		}
-		// --opted-in and --min-qty are NOT applied here as per-order filters —
-		// doing so would shrink total_spend/events_count to only the qualifying
-		// orders. Both are fan-level qualifiers (g.optedIn / g.maxQty) applied
-		// during row building below.
+
+		email := o.Fan.Email
+		if email == "" {
+			continue
+		}
+
+		// Compute this order's match against the fan-qualifier filters, then OR
+		// the result into the fan's running flags. A non-matching order still
+		// contributes to the fan's spend and event totals.
+		orderMatchesEventName := wantEventName == ""
 		if wantEventName != "" {
 			name := strings.ToLower(o.Event.Name)
 			// Also check store event name in case the order's event name is truncated.
@@ -126,40 +139,28 @@ func computeFansSegment(ctx context.Context, db *sql.DB, f segmentFilters) ([]fa
 			if meta, ok := eventMeta[o.Event.ID]; ok {
 				storeName = strings.ToLower(meta.Name)
 			}
-			if !strings.Contains(name, wantEventName) && !strings.Contains(storeName, wantEventName) {
-				continue
-			}
+			orderMatchesEventName = strings.Contains(name, wantEventName) || strings.Contains(storeName, wantEventName)
 		}
+		orderMatchesGenre := wantGenre == ""
 		if wantGenre != "" {
-			meta, ok := eventMeta[o.Event.ID]
-			if !ok {
-				// Event metadata not synced; skip this order for genre filter.
-				continue
-			}
-			matched := false
-			for _, g := range meta.Genres {
-				if strings.Contains(strings.ToLower(g), wantGenre) {
-					matched = true
-					break
-				}
-			}
-			if !matched {
-				for _, g := range meta.GenreTypes {
-					if strings.Contains(strings.ToLower(g), wantGenre) {
-						matched = true
+			if meta, ok := eventMeta[o.Event.ID]; ok {
+				for _, gr := range meta.Genres {
+					if strings.Contains(strings.ToLower(gr), wantGenre) {
+						orderMatchesGenre = true
 						break
 					}
 				}
-			}
-			if !matched {
-				continue
+				if !orderMatchesGenre {
+					for _, gr := range meta.GenreTypes {
+						if strings.Contains(strings.ToLower(gr), wantGenre) {
+							orderMatchesGenre = true
+							break
+						}
+					}
+				}
 			}
 		}
 
-		email := o.Fan.Email
-		if email == "" {
-			continue
-		}
 		g := groups[email]
 		if g == nil {
 			g = &agg{eventSet: map[string]bool{}}
@@ -170,6 +171,12 @@ func computeFansSegment(ctx context.Context, db *sql.DB, f segmentFilters) ([]fa
 		}
 		if o.Fan.OptInPartners {
 			g.optedIn = true
+		}
+		if orderMatchesEventName {
+			g.matchedEventName = true
+		}
+		if orderMatchesGenre {
+			g.matchedGenre = true
 		}
 		g.totalCents += o.Total
 		if o.Event.ID != "" {
@@ -192,6 +199,14 @@ func computeFansSegment(ctx context.Context, db *sql.DB, f segmentFilters) ([]fa
 		// (g.maxQty), without shrinking total_spend/events_count to only the
 		// qualifying orders.
 		if f.minQty > 0 && g.maxQty < f.minQty {
+			continue
+		}
+		// --event-name / --genre qualify a fan when any of their orders matched,
+		// without shrinking total_spend/events_count to only the matching orders.
+		if wantEventName != "" && !g.matchedEventName {
+			continue
+		}
+		if wantGenre != "" && !g.matchedGenre {
 			continue
 		}
 		// Ticket type / tier filters: check whether this fan has any matching ticket.
@@ -239,6 +254,11 @@ func newFansSegmentCmd(flags *rootFlags) *cobra.Command {
 		Short: "Filter fans by purchasing behavior; all provided filters must match",
 		Long: "Segment fans from the local order, ticket, and event store. " +
 			"A fan must satisfy ALL provided (non-zero) filters. " +
+			"The --opted-in/--min-qty/--ticket-type/--tier/--genre/--event-name " +
+			"filters qualify the fan (matched on any of their orders) and do not " +
+			"reduce the reported total_spend/events_count to only the matching " +
+			"orders. --from/--to are different: they scope the order window by " +
+			"show date, so spend and event counts reflect only that window. " +
 			"Omitting all flags returns every fan with any order. " +
 			"Results are sorted by total_spend descending.",
 		Example:     "  dice-fm-pp-cli fans segment --min-events 3 --ticket-type VIP --opted-in --json",

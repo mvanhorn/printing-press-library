@@ -115,17 +115,15 @@ Exit codes & warnings:
 				}
 			}
 
-			// --latest-only: cap at page 1 and clear the resume cursor so we
-			// fetch from the head. --since takes precedence when both are set.
+			// --latest-only fetches the single newest page via backward pagination
+			// (see latestFetch below), so cap at one page. The forward-resume
+			// cursor is intentionally left untouched: the backward fetch does not
+			// use it, and clearing it would force the next default sync to re-walk
+			// the whole connection from the oldest record. --since takes
+			// precedence when both are set.
 			if latestOnly {
 				if since == "" {
 					maxPages = 1
-					for _, resource := range resources {
-						existing, _, _, _ := db.GetSyncState(resource)
-						if existing != "" {
-							_ = db.SaveSyncState(resource, "", 0)
-						}
-					}
 				} else if humanFriendly {
 					fmt.Fprintln(os.Stderr, "warning: --latest-only ignored because --since is set; --since takes precedence")
 				}
@@ -303,8 +301,13 @@ func syncResource(ctx context.Context, c *client.Client, db *store.Store, resour
 			}
 
 			// Advance the resume cursor after each successfully stored page so
-			// an interrupted sync resumes from this point on the next run.
-			_ = db.SaveSyncState(resource, endCursor, stored)
+			// an interrupted sync resumes from this point on the next run. Skip
+			// on the --latest-only backward path: it fetches the newest page and
+			// carries an empty endCursor, so saving it would clobber the
+			// forward-resume checkpoint a later default sync depends on.
+			if !latest {
+				_ = db.SaveSyncState(resource, endCursor, stored)
+			}
 
 			// Emit a time-throttled heartbeat (~every 5s) so observers can
 			// distinguish a long fetch from a stuck one.

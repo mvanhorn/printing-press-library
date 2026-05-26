@@ -313,6 +313,62 @@ func TestFansSegmentEventName(t *testing.T) {
 	}
 }
 
+// --event-name qualifies a fan but must NOT reduce their total_spend/events_count
+// to only the matching-event orders — all of the fan's orders count.
+func TestFansSegmentEventNameAggregatesAllOrders(t *testing.T) {
+	s := seedStore(t, map[string]map[string]string{
+		"orders": {
+			// fanA: a "Jazz Night" order ($100, evtA) qualifies for --event-name
+			// jazz, plus a "Rock Show" order ($40, evtB). Both must count.
+			"o1": order("o1", "2026-01-10T10:00:00Z", "evtA", "Jazz Night", fanA, "Ann", "A", 10000, 0, 1, false, "", ""),
+			"o2": order("o2", "2026-01-11T10:00:00Z", "evtB", "Rock Show", fanA, "Ann", "A", 4000, 0, 1, false, "", ""),
+		},
+	})
+	rows, err := computeFansSegment(context.Background(), s.DB(), segmentFilters{eventName: "jazz"})
+	if err != nil {
+		t.Fatalf("computeFansSegment: %v", err)
+	}
+	if len(rows) != 1 || rows[0].Email != fanA {
+		t.Fatalf("want fanA qualified by event-name, got %+v", rows)
+	}
+	if rows[0].TotalSpend != 140.00 {
+		t.Errorf("total_spend = %v, want 140.00 (both orders, not just the jazz one)", rows[0].TotalSpend)
+	}
+	if rows[0].EventsCount != 2 {
+		t.Errorf("events_count = %d, want 2 (both events, not just the jazz one)", rows[0].EventsCount)
+	}
+}
+
+// --genre qualifies a fan but must NOT reduce their total_spend/events_count to
+// only the matching-genre orders — all of the fan's orders count.
+func TestFansSegmentGenreAggregatesAllOrders(t *testing.T) {
+	s := seedStore(t, map[string]map[string]string{
+		"orders": {
+			// fanA: an electronic-genre order ($100, evtA) qualifies for --genre
+			// electronic, plus a rock-genre order ($40, evtB). Both must count.
+			"o1": order("o1", "2026-01-10T10:00:00Z", "evtA", "Show A", fanA, "Ann", "A", 10000, 0, 1, false, "", ""),
+			"o2": order("o2", "2026-01-11T10:00:00Z", "evtB", "Show B", fanA, "Ann", "A", 4000, 0, 1, false, "", ""),
+		},
+		"events": {
+			"evtA": eventWithArtists("evtA", "Show A", nil, []string{"dj:electronic"}),
+			"evtB": eventWithArtists("evtB", "Show B", nil, []string{"rock:indie"}),
+		},
+	})
+	rows, err := computeFansSegment(context.Background(), s.DB(), segmentFilters{genre: "electronic"})
+	if err != nil {
+		t.Fatalf("computeFansSegment: %v", err)
+	}
+	if len(rows) != 1 || rows[0].Email != fanA {
+		t.Fatalf("want fanA qualified by genre, got %+v", rows)
+	}
+	if rows[0].TotalSpend != 140.00 {
+		t.Errorf("total_spend = %v, want 140.00 (both orders, not just the electronic one)", rows[0].TotalSpend)
+	}
+	if rows[0].EventsCount != 2 {
+		t.Errorf("events_count = %d, want 2 (both events, not just the electronic one)", rows[0].EventsCount)
+	}
+}
+
 func TestFansSegmentShowDateWindow(t *testing.T) {
 	// evtA show on 2026-05-10; evtB show on 2026-06-20.
 	// Filter from=2026-05-01 to=2026-05-31 keeps only evtA orders.
@@ -439,6 +495,35 @@ func TestFanProfileVIPSpend(t *testing.T) {
 	}
 	if !found {
 		t.Errorf("ticket_types = %v, want to include 'VIP Lounge'", result.TicketTypes)
+	}
+}
+
+// vip_spend is a fan-level signal: a fan who holds any VIP ticket has ALL of
+// their order spend counted as vip_spend, not only the order tied to the VIP
+// ticket. Locks the documented all-or-nothing semantic against a future
+// regression that tries to attribute vip_spend per order.
+func TestFanProfileVIPSpendCountsAllFanOrders(t *testing.T) {
+	s := seedStore(t, map[string]map[string]string{
+		"orders": {
+			"o1": order("o1", "2026-01-10T10:00:00Z", "evtA", "Show A", fanA, "Ann", "A", 20000, 0, 1, false, "", ""),
+			"o2": order("o2", "2026-02-10T10:00:00Z", "evtB", "Show B", fanA, "Ann", "A", 5000, 0, 1, false, "", ""),
+		},
+		"tickets": {
+			// One VIP ticket qualifies the fan; the GA ticket does not negate it.
+			"t1": ticketWithHolder("t1", fanA, "VIP Lounge", "Tier 1", false),
+			"t2": ticketWithHolder("t2", fanA, "GA Standard", "Tier 1", false),
+		},
+	})
+	result, err := computeFanProfile(context.Background(), s.DB(), fanA)
+	if err != nil {
+		t.Fatalf("computeFanProfile: %v", err)
+	}
+	if !result.Found {
+		t.Fatalf("expected found:true")
+	}
+	// $200 (o1) + $50 (o2) = $250, all attributed to vip_spend at the fan level.
+	if result.VIPSpend != 250.00 {
+		t.Errorf("vip_spend = %v, want 250.00 (all fan orders count; VIP is a fan-level signal)", result.VIPSpend)
 	}
 }
 

@@ -257,7 +257,7 @@ func fetchConnectionStream(
 		// Apply the max cap per page: deliver a trimmed slice and stop.
 		if max > 0 && totalFetched+len(nodes) >= max {
 			keep := max - totalFetched
-			truncated := keep < len(nodes) || hasNext
+			truncated = keep < len(nodes) || hasNext
 			pageNodes := nodes[:keep]
 			totalFetched += len(pageNodes)
 			if cbErr := onPage(pageNodes, endCursor, totalFetched); cbErr != nil {

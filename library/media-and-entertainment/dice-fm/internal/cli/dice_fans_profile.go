@@ -7,7 +7,6 @@ package cli
 import (
 	"context"
 	"database/sql"
-	"encoding/json"
 	"fmt"
 	"sort"
 	"strings"
@@ -220,27 +219,19 @@ func newFansProfileCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 			if s == nil {
-				result := fanProfileResult{
+				return printJSONFiltered(cmd.OutOrStdout(), fanProfileResult{
 					Found:           false,
 					Email:           args[0],
 					EventsPurchased: []string{},
 					TicketTypes:     []string{},
-				}
-				b, _ := json.Marshal(result)
-				_, err := fmt.Fprintln(cmd.OutOrStdout(), string(b))
-				return err
+				}, flags)
 			}
 			defer s.Close()
 			result, err := computeFanProfile(cmd.Context(), s.DB(), args[0])
 			if err != nil {
 				return fmt.Errorf("computing fan profile: %w", err)
 			}
-			b, err := json.Marshal(result)
-			if err != nil {
-				return err
-			}
-			_, err = fmt.Fprintln(cmd.OutOrStdout(), string(b))
-			return err
+			return printJSONFiltered(cmd.OutOrStdout(), result, flags)
 		},
 	}
 	return cmd
