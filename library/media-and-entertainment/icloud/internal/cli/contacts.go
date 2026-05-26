@@ -42,6 +42,73 @@ Write operations (create, update, delete) go through Contacts.app and update the
 
 // ── sync ──────────────────────────────────────────────────────────────────────
 
+// contactCreateScript creates a new contact in Contacts.app.
+// Values are received via "on run argv" so they are never interpolated into the
+// script body — this prevents AppleScript injection via special characters or
+// quote sequences in user-supplied strings.
+// Argv order: firstName, lastName, middleName, org, jobTitle, note, phone, email.
+// Empty string args are accepted and skipped (no field is set).
+const contactCreateScript = `
+on run argv
+	tell application "Contacts"
+		set propsRec to {}
+		if (count of argv) >= 1 and item 1 of argv is not "" then set propsRec to propsRec & {first name: item 1 of argv}
+		if (count of argv) >= 2 and item 2 of argv is not "" then set propsRec to propsRec & {last name: item 2 of argv}
+		if (count of argv) >= 3 and item 3 of argv is not "" then set propsRec to propsRec & {middle name: item 3 of argv}
+		if (count of argv) >= 4 and item 4 of argv is not "" then set propsRec to propsRec & {organization: item 4 of argv}
+		if (count of argv) >= 5 and item 5 of argv is not "" then set propsRec to propsRec & {job title: item 5 of argv}
+		if (count of argv) >= 6 and item 6 of argv is not "" then set propsRec to propsRec & {note: item 6 of argv}
+		set newPerson to make new person with properties propsRec
+		if (count of argv) >= 7 and item 7 of argv is not "" then
+			make new phone at end of phones of newPerson with properties {label: "mobile", value: item 7 of argv}
+		end if
+		if (count of argv) >= 8 and item 8 of argv is not "" then
+			make new email at end of emails of newPerson with properties {label: "work", value: item 8 of argv}
+		end if
+		save
+		return id of newPerson
+	end tell
+end run
+`
+
+// contactUpdateScript updates fields on an existing contact by ID.
+// Argv order: id, firstName, lastName, middleName, org, jobTitle, note, addPhone, addEmail.
+// Empty string args are skipped — only non-empty values overwrite existing fields.
+const contactUpdateScript = `
+on run argv
+	tell application "Contacts"
+		set p to person id (item 1 of argv)
+		if (count of argv) >= 2 and item 2 of argv is not "" then set first name of p to item 2 of argv
+		if (count of argv) >= 3 and item 3 of argv is not "" then set last name of p to item 3 of argv
+		if (count of argv) >= 4 and item 4 of argv is not "" then set middle name of p to item 4 of argv
+		if (count of argv) >= 5 and item 5 of argv is not "" then set organization of p to item 5 of argv
+		if (count of argv) >= 6 and item 6 of argv is not "" then set job title of p to item 6 of argv
+		if (count of argv) >= 7 and item 7 of argv is not "" then set note of p to item 7 of argv
+		if (count of argv) >= 8 and item 8 of argv is not "" then
+			make new phone at end of phones of p with properties {label: "mobile", value: item 8 of argv}
+		end if
+		if (count of argv) >= 9 and item 9 of argv is not "" then
+			make new email at end of emails of p with properties {label: "work", value: item 9 of argv}
+		end if
+		save
+		return "ok"
+	end tell
+end run
+`
+
+// contactDeleteScript deletes a contact by ID.
+// Argv order: id.
+const contactDeleteScript = `
+on run argv
+	tell application "Contacts"
+		set p to person id (item 1 of argv)
+		delete p
+		save
+		return "ok"
+	end tell
+end run
+`
+
 // jxaSyncScript exports all contacts via JavaScript for Automation (JXA).
 // Single call — much faster than iterating in Go.
 const jxaSyncScript = `
@@ -278,40 +345,11 @@ func newContactsCreateCmd(f *rootFlags) *cobra.Command {
 				return usageErr(fmt.Errorf("--first or --org is required"))
 			}
 
-			// Build AppleScript
-			var sb strings.Builder
-			sb.WriteString("tell application \"Contacts\"\n")
-			sb.WriteString("  set propsRec to {}\n")
-			if firstName != "" {
-				sb.WriteString(fmt.Sprintf("  set propsRec to propsRec & {first name:%q}\n", firstName))
-			}
-			if lastName != "" {
-				sb.WriteString(fmt.Sprintf("  set propsRec to propsRec & {last name:%q}\n", lastName))
-			}
-			if middle != "" {
-				sb.WriteString(fmt.Sprintf("  set propsRec to propsRec & {middle name:%q}\n", middle))
-			}
-			if org != "" {
-				sb.WriteString(fmt.Sprintf("  set propsRec to propsRec & {organization:%q}\n", org))
-			}
-			if jobTitle != "" {
-				sb.WriteString(fmt.Sprintf("  set propsRec to propsRec & {job title:%q}\n", jobTitle))
-			}
-			if note != "" {
-				sb.WriteString(fmt.Sprintf("  set propsRec to propsRec & {note:%q}\n", note))
-			}
-			sb.WriteString("  set newPerson to make new person with properties propsRec\n")
-			if phone != "" {
-				sb.WriteString(fmt.Sprintf("  make new phone at end of phones of newPerson with properties {label:\"mobile\", value:%q}\n", phone))
-			}
-			if email != "" {
-				sb.WriteString(fmt.Sprintf("  make new email at end of emails of newPerson with properties {label:\"work\", value:%q}\n", email))
-			}
-			sb.WriteString("  save\n")
-			sb.WriteString("  return id of newPerson\n")
-			sb.WriteString("end tell\n")
-
-			appleID, err := runOsascript(sb.String())
+			// Pass values as out-of-band argv — no string interpolation into the
+			// script body, so quotes and backslashes in user data cannot escape
+			// the AppleScript string context.
+			appleID, err := runOsascriptWithArgs(contactCreateScript,
+				firstName, lastName, middle, org, jobTitle, note, phone, email)
 			if err != nil {
 				return fmt.Errorf("creating contact: %w", err)
 			}
@@ -380,38 +418,9 @@ func newContactsUpdateCmd(f *rootFlags) *cobra.Command {
 			out := cmd.OutOrStdout()
 			id := args[0]
 
-			var sb strings.Builder
-			sb.WriteString("tell application \"Contacts\"\n")
-			sb.WriteString(fmt.Sprintf("  set p to person id %q\n", id))
-			if firstName != "" {
-				sb.WriteString(fmt.Sprintf("  set first name of p to %q\n", firstName))
-			}
-			if lastName != "" {
-				sb.WriteString(fmt.Sprintf("  set last name of p to %q\n", lastName))
-			}
-			if middle != "" {
-				sb.WriteString(fmt.Sprintf("  set middle name of p to %q\n", middle))
-			}
-			if org != "" {
-				sb.WriteString(fmt.Sprintf("  set organization of p to %q\n", org))
-			}
-			if jobTitle != "" {
-				sb.WriteString(fmt.Sprintf("  set job title of p to %q\n", jobTitle))
-			}
-			if note != "" {
-				sb.WriteString(fmt.Sprintf("  set note of p to %q\n", note))
-			}
-			if addPhone != "" {
-				sb.WriteString(fmt.Sprintf("  make new phone at end of phones of p with properties {label:\"mobile\", value:%q}\n", addPhone))
-			}
-			if addEmail != "" {
-				sb.WriteString(fmt.Sprintf("  make new email at end of emails of p with properties {label:\"work\", value:%q}\n", addEmail))
-			}
-			sb.WriteString("  save\n")
-			sb.WriteString("  return \"ok\"\n")
-			sb.WriteString("end tell\n")
-
-			if _, err := runOsascript(sb.String()); err != nil {
+			// Pass ID and field values as out-of-band argv — no string interpolation.
+			if _, err := runOsascriptWithArgs(contactUpdateScript,
+				id, firstName, lastName, middle, org, jobTitle, note, addPhone, addEmail); err != nil {
 				return fmt.Errorf("updating contact: %w", err)
 			}
 
@@ -429,6 +438,9 @@ func newContactsUpdateCmd(f *rootFlags) *cobra.Command {
 				}
 				if lastName != "" {
 					existing.LastName = lastName
+				}
+				if middle != "" {
+					existing.MiddleName = middle
 				}
 				if org != "" {
 					existing.Organization = org
@@ -484,15 +496,9 @@ func newContactsDeleteCmd(f *rootFlags) *cobra.Command {
 			}
 			id := args[0]
 
-			script := fmt.Sprintf(`
-tell application "Contacts"
-  set p to person id %q
-  delete p
-  save
-  return "ok"
-end tell`, id)
-
-			if _, err := runOsascript(script); err != nil {
+			// Pass id as out-of-band argv — prevents injection if the ID ever
+			// contains characters that AppleScript would misparse in a string literal.
+			if _, err := runOsascriptWithArgs(contactDeleteScript, id); err != nil {
 				return fmt.Errorf("deleting contact: %w", err)
 			}
 
@@ -610,6 +616,43 @@ func truncate(s string, n int) string {
 
 func runOsascript(script string) (string, error) {
 	cmd := exec.Command("osascript", "-e", script)
+	out, err := cmd.Output()
+	if err != nil {
+		if ee, ok := err.(*exec.ExitError); ok {
+			return "", fmt.Errorf("%w: %s", err, strings.TrimSpace(string(ee.Stderr)))
+		}
+		return "", err
+	}
+	return strings.TrimSpace(string(out)), nil
+}
+
+// runOsascriptWithArgs runs an "on run argv" AppleScript, passing values as
+// separate process arguments after "--" rather than interpolating them into the
+// script body. This is the safe way to pass user-supplied strings to AppleScript:
+// the values are never parsed by the AppleScript lexer, so quotes, backslashes,
+// and other special characters cannot escape the string context or inject code.
+func runOsascriptWithArgs(script string, args ...string) (string, error) {
+	out, err := osascriptRawWithArgs(script, args...)
+	if err == nil {
+		return out, nil
+	}
+	// Contacts.app may not be running (-600). Launch it silently and retry.
+	if strings.Contains(err.Error(), "-600") || strings.Contains(err.Error(), "isn't running") {
+		if launchErr := exec.Command("open", "-a", "Contacts").Run(); launchErr == nil {
+			for i := 0; i < 6; i++ {
+				time.Sleep(500 * time.Millisecond)
+				if out2, err2 := osascriptRawWithArgs(script, args...); err2 == nil {
+					return out2, nil
+				}
+			}
+		}
+	}
+	return "", err
+}
+
+func osascriptRawWithArgs(script string, args ...string) (string, error) {
+	cmdArgs := append([]string{"-e", script, "--"}, args...)
+	cmd := exec.Command("osascript", cmdArgs...)
 	out, err := cmd.Output()
 	if err != nil {
 		if ee, ok := err.(*exec.ExitError); ok {

@@ -500,16 +500,24 @@ func (s *contactStore) UpsertOne(c *Contact) error {
 		return err
 	}
 	for _, t := range []string{"contact_phones", "contact_emails", "contact_addresses", "contact_urls"} {
-		tx.Exec("DELETE FROM "+t+" WHERE contact_id = ?", c.ID)
+		if _, err := tx.Exec("DELETE FROM "+t+" WHERE contact_id = ?", c.ID); err != nil {
+			return fmt.Errorf("upsert: delete %s: %w", t, err)
+		}
 	}
-	tx.Exec("DELETE FROM contacts_fts WHERE id = ?", c.ID)
+	if _, err := tx.Exec("DELETE FROM contacts_fts WHERE id = ?", c.ID); err != nil {
+		return fmt.Errorf("upsert: delete fts: %w", err)
+	}
 
 	var phoneTokens, emailTokens []string
 	for _, ph := range c.Phones {
 		norm := normalizePhone(ph.Value)
 		code, iso, country := resolvePhoneCountry(norm)
-		tx.Exec(`INSERT INTO contact_phones (contact_id, label, value, normalized, country_code, country_iso, country) VALUES (?, ?, ?, ?, ?, ?, ?)`,
-			c.ID, ph.Label, ph.Value, norm, code, iso, country)
+		if _, err := tx.Exec(
+			`INSERT INTO contact_phones (contact_id, label, value, normalized, country_code, country_iso, country) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+			c.ID, ph.Label, ph.Value, norm, code, iso, country,
+		); err != nil {
+			return fmt.Errorf("upsert: insert phone: %w", err)
+		}
 		phoneTokens = append(phoneTokens, ph.Value)
 	}
 	for _, em := range c.Emails {
@@ -517,14 +525,20 @@ func (s *contactStore) UpsertOne(c *Contact) error {
 		if at := strings.LastIndex(em.Value, "@"); at >= 0 {
 			domain = strings.ToLower(em.Value[at+1:])
 		}
-		tx.Exec(`INSERT INTO contact_emails (contact_id, label, value, domain) VALUES (?, ?, ?, ?)`,
-			c.ID, em.Label, em.Value, domain)
+		if _, err := tx.Exec(
+			`INSERT INTO contact_emails (contact_id, label, value, domain) VALUES (?, ?, ?, ?)`,
+			c.ID, em.Label, em.Value, domain,
+		); err != nil {
+			return fmt.Errorf("upsert: insert email: %w", err)
+		}
 		emailTokens = append(emailTokens, em.Value)
 	}
 
 	body := strings.Join(filterEmpty(c.FirstName, c.LastName, c.Organization, c.JobTitle, c.Note,
 		strings.Join(phoneTokens, " "), strings.Join(emailTokens, " ")), " ")
-	tx.Exec(`INSERT INTO contacts_fts (id, body) VALUES (?, ?)`, c.ID, body)
+	if _, err := tx.Exec(`INSERT INTO contacts_fts (id, body) VALUES (?, ?)`, c.ID, body); err != nil {
+		return fmt.Errorf("upsert: insert fts: %w", err)
+	}
 
 	return tx.Commit()
 }
