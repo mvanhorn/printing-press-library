@@ -1,0 +1,146 @@
+{
+  "api_name": "defillama",
+  "base_url": "https://api.llama.fi",
+  "description": "DefiLlama DeFi analytics: TVL, fees, revenue, yields, stablecoins, DEX volume, 350+ chains. The MCP server delegates each tool call to a sibling defillama-pp-cli binary, which runs against a local SQLite mirror of the DefiLlama free-tier API (and the pro tier when DEFILLAMA_PRO_KEY is set).",
+  "mcp_ready": "full",
+  "http_transport": "subprocess",
+  "auth": {
+    "type": "none",
+    "optional_env_vars": ["DEFILLAMA_PRO_KEY"]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "defillama_top",
+      "description": "Top protocols by TVL, optionally filtered per-chain with fees/revenue/volume extras. Excludes CEXs by default when a chain filter is applied.",
+      "method": "CLI",
+      "path": "top",
+      "no_auth": true,
+      "params": [
+        {"name": "chain", "type": "string", "location": "flag", "description": "Filter by chain. Uses per-chain TVL, excludes CEXs."},
+        {"name": "sort", "type": "string", "location": "flag", "description": "tvl | fees | revenue | volume | change_1d | change_7d"},
+        {"name": "limit", "type": "integer", "location": "flag", "description": "Max rows (default 20)."},
+        {"name": "with", "type": "string", "location": "flag", "description": "Comma list of extras: fees,revenue,volume."},
+        {"name": "category", "type": "string", "location": "flag", "description": "Filter by category (Lending, Dexs, ...)."},
+        {"name": "include_cex", "type": "boolean", "location": "flag", "description": "Include CEX protocols when chain is set."}
+      ]
+    },
+    {
+      "name": "defillama_compare",
+      "description": "Side-by-side protocol comparison. Without --period: current snapshot. With --period: daily time-series table.",
+      "method": "CLI",
+      "path": "compare",
+      "no_auth": true,
+      "params": [
+        {"name": "protocols", "type": "array", "location": "args", "description": "Protocol slugs to compare.", "required": true},
+        {"name": "metrics", "type": "string", "location": "flag", "description": "Comma list: tvl,fees,revenue,volume,mcap,change_1d,change_7d."},
+        {"name": "period", "type": "string", "location": "flag", "description": "Time-series window: 7d|30d|90d|180d|1y|all."}
+      ]
+    },
+    {
+      "name": "defillama_yields",
+      "description": "Yield pools filtered by chain, project, TVL floor, stablecoin-only. Sorted by TVL or APY.",
+      "method": "CLI",
+      "path": "yields top",
+      "no_auth": true,
+      "params": [
+        {"name": "chain", "type": "string", "location": "flag", "description": "Filter by chain."},
+        {"name": "project", "type": "string", "location": "flag", "description": "Filter by project."},
+        {"name": "min_tvl", "type": "number", "location": "flag", "description": "Minimum pool TVL in USD."},
+        {"name": "stablecoin_only", "type": "boolean", "location": "flag", "description": "Only stablecoin pools."},
+        {"name": "sort", "type": "string", "location": "flag", "description": "tvl | apy | apy_base."},
+        {"name": "limit", "type": "integer", "location": "flag", "description": "Max rows (default 50)."}
+      ]
+    },
+    {
+      "name": "defillama_stables",
+      "description": "Stablecoin overview, per-chain breakdown, or flow analysis (per-chain supply deltas over period).",
+      "method": "CLI",
+      "path": "stables",
+      "no_auth": true,
+      "params": [
+        {"name": "chain", "type": "string", "location": "flag", "description": "Show per-chain breakdown."},
+        {"name": "asset", "type": "string", "location": "arg", "description": "Show detail for a specific stablecoin."},
+        {"name": "with", "type": "string", "location": "flag", "description": "Extras: dominance."},
+        {"name": "flow", "type": "boolean", "location": "flag", "description": "Use the flow subcommand."},
+        {"name": "period", "type": "string", "location": "flag", "description": "For flow: 7d|30d|90d|180d|1y|all."}
+      ]
+    },
+    {
+      "name": "defillama_fees",
+      "description": "Protocol fees and revenue: current snapshot or historical time series.",
+      "method": "CLI",
+      "path": "fees",
+      "no_auth": true,
+      "params": [
+        {"name": "protocol", "type": "string", "location": "arg", "description": "Protocol slug."},
+        {"name": "chain", "type": "string", "location": "flag", "description": "Chain filter."},
+        {"name": "sort", "type": "string", "location": "flag", "description": "fees | revenue."},
+        {"name": "history", "type": "boolean", "location": "flag", "description": "Historical mode."},
+        {"name": "period", "type": "string", "location": "flag", "description": "7d|30d|90d|180d|1y|all."}
+      ]
+    },
+    {
+      "name": "defillama_dexs",
+      "description": "DEX volume overview. Per-chain mode uses chain-specific volumes (not global). Optional market-share extra.",
+      "method": "CLI",
+      "path": "dexs",
+      "no_auth": true,
+      "params": [
+        {"name": "protocol", "type": "string", "location": "arg", "description": "Specific DEX slug."},
+        {"name": "chain", "type": "string", "location": "flag", "description": "Chain filter."},
+        {"name": "sort", "type": "string", "location": "flag", "description": "volume_24h | volume_7d | volume_30d."},
+        {"name": "limit", "type": "integer", "location": "flag", "description": "Max rows."},
+        {"name": "with", "type": "string", "location": "flag", "description": "Extras: market-share."},
+        {"name": "history", "type": "boolean", "location": "flag", "description": "With a protocol arg, show historical."},
+        {"name": "period", "type": "string", "location": "flag", "description": "7d|30d|90d|180d|1y|all."}
+      ]
+    },
+    {
+      "name": "defillama_profile",
+      "description": "Deep dive on a single protocol: TVL, fees, revenue, volume snapshot. With --period, appends historical section.",
+      "method": "CLI",
+      "path": "profile",
+      "no_auth": true,
+      "params": [
+        {"name": "protocol", "type": "string", "location": "arg", "description": "Protocol slug.", "required": true},
+        {"name": "period", "type": "string", "location": "flag", "description": "Add historical section over the period."}
+      ]
+    },
+    {
+      "name": "defillama_price",
+      "description": "Live token price lookup (pass-through to coins.llama.fi, no mirror).",
+      "method": "CLI",
+      "path": "price",
+      "no_auth": true,
+      "params": [
+        {"name": "coins", "type": "string", "location": "arg", "description": "Comma-separated, chain:address or coingecko:id.", "required": true},
+        {"name": "at", "type": "string", "location": "flag", "description": "Historical Unix timestamp."}
+      ]
+    },
+    {
+      "name": "defillama_sql",
+      "description": "Read-only SELECT against the local SQLite mirror. DDL and DML are rejected. Use this when no named command fits the question.",
+      "method": "CLI",
+      "path": "sql",
+      "no_auth": true,
+      "params": [
+        {"name": "query", "type": "string", "location": "arg", "description": "SELECT statement.", "required": true}
+      ]
+    },
+    {
+      "name": "defillama_sync",
+      "description": "Trigger a sync. Without args, full free-tier sync. With --protocol, per-protocol history. With --status, print last sync times.",
+      "method": "CLI",
+      "path": "sync",
+      "no_auth": true,
+      "params": [
+        {"name": "domain", "type": "string", "location": "flag", "description": "Limit to a domain: pools|yields|stablecoins|dexs|fees|options|chains."},
+        {"name": "protocol", "type": "string", "location": "flag", "description": "Sync per-protocol history (default trailing 90 days)."},
+        {"name": "chain", "type": "string", "location": "flag", "description": "Sync chain TVL history."},
+        {"name": "backfill", "type": "boolean", "location": "flag", "description": "With --protocol, fetch full history."},
+        {"name": "status", "type": "boolean", "location": "flag", "description": "Print last sync times instead of syncing."}
+      ]
+    }
+  ]
+}

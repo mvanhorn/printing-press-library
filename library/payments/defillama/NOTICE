@@ -1,0 +1,12 @@
+defillama-pp-cli
+Copyright 2026 Kieran (Get Alpha LLC)
+
+This CLI was authored for the CLI Printing Press
+(https://github.com/mvanhorn/cli-printing-press) library. The Printing Press
+itself is by Matt Van Horn; this CLI is hand-authored to match the Printing
+Press conventions (SQLite mirror, compound commands, MCP bundle).
+
+The DefiLlama API (https://api.llama.fi) is operated by the DefiLlama team
+and is not endorsed by or affiliated with this CLI.
+
+CLI Printing Press is licensed separately under the MIT License.

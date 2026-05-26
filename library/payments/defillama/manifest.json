@@ -1,0 +1,28 @@
+{
+  "manifest_version": "0.3",
+  "name": "defillama-pp-mcp",
+  "display_name": "DefiLlama",
+  "version": "0.1.0",
+  "description": "DefiLlama DeFi analytics surfaced as a SQLite-backed CLI with MCP tools.",
+  "author": {
+    "name": "kierandotai"
+  },
+  "license": "MIT",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/defillama-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/defillama-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  },
+  "cli_binary": "defillama-pp-cli"
+}

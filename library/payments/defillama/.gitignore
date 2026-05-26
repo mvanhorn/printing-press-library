@@ -1,0 +1,22 @@
+# compiled binary at repo root (don't match cmd/defillama-pp-cli/)
+/defillama-pp-cli
+
+# local data
+*.db
+*.db-shm
+*.db-wal
+.defillama-pp/
+.defillama-pp-test/
+
+# test artifacts
+test-results/
+
+# editor
+.DS_Store
+.idea/
+.vscode/
+
+# go
+*.test
+*.out
+coverage.txt

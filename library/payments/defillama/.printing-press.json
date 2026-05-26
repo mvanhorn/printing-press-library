@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-26T02:45:00Z",
+  "printing_press_version": "4.10.0",
+  "run_id": "20260526-024500",
+  "api_name": "defillama",
+  "display_name": "DefiLlama",
+  "category": "payments",
+  "description": "Agent-native CLI for DefiLlama DeFi analytics. SQLite-backed compound queries across TVL, fees, revenue, yields, stablecoins, DEX volume, and 350+ chains.",
+  "cli_name": "defillama-pp-cli",
+  "printer": "kierandotai",
+  "printer_name": "Kieran",
+  "spec_path": "https://api-docs.defillama.com/defillama-openapi-free.json",
+  "spec_url": "https://api-docs.defillama.com/defillama-openapi-free.json",
+  "spec_format": "openapi3",
+  "mcp_binary": "defillama-pp-mcp",
+  "mcp_tool_count": 10,
+  "mcp_public_tool_count": 10,
+  "mcp_ready": "full",
+  "api_version": "free-tier",
+  "auth_type": "none",
+  "auth_env_vars": [],
+  "novel_features": [
+    {
+      "name": "Top protocols by chain with per-chain TVL",
+      "command": "top --chain arbitrum --with fees,revenue",
+      "description": "Filters protocols by chain using a per-chain TVL breakdown (not the global tvl); excludes CEXs by default. One command replaces N+1 calls to /protocols + /summary/fees/{protocol}."
+    },
+    {
+      "name": "Cross-protocol time-series compare",
+      "command": "compare aave compound morpho --metrics tvl,fees,revenue --period 90d",
+      "description": "Side-by-side daily time series across protocols. No single API endpoint provides this; the CLI joins protocol_tvl_hist + fees_hist locally."
+    },
+    {
+      "name": "Stablecoin flow",
+      "command": "stables flow --period 30d --sort change",
+      "description": "Per-chain stablecoin supply deltas synthesised from /stablecoincharts/{chain} into stablecoin_hist."
+    },
+    {
+      "name": "Read-only SQL escape hatch",
+      "command": "sql \"SELECT p.name, p.tvl, f.total_24h_rev, p.change_7d FROM protocols p JOIN fees_overview f ON p.slug = f.protocol WHERE f.total_24h_rev > 50000 AND p.change_7d < -5 ORDER BY f.total_24h_rev DESC LIMIT 15\"",
+      "description": "Raw SELECT against the local mirror for questions that don't map to a named command (e.g. high-revenue + declining-TVL value extraction)."
+    }
+  ]
+}

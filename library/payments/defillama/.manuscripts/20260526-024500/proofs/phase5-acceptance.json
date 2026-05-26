@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "api_name": "defillama",
+  "cli_name": "defillama-pp-cli",
+  "run_id": "20260526-024500",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 16,
+  "tests_total": 162,
+  "tests_passed": 162,
+  "tests_skipped": 0,
+  "tests_failed": 0,
+  "completed_at": "2026-05-26T02:30:00Z",
+  "summary": "162 assertions across 16 shell test files, all passing against live DefiLlama data. Phase 1 covers bug fixes (per-chain TVL, config naming, sync aliases, protocol resolution incl rebrands, SQL number formatting, compare metrics filtering, JSON numerics, empty status). Phase 2 covers historical backfill (sync --protocol, --chain, --backfill), --history/--period on compare/profile/yields, stables flow, tier-2 commands (tvl/fees/dexs/options with --history), pro-tier gating, export, SKILL.md, MCP server.",
+  "auth_context": {
+    "type": "none",
+    "api_key_available": false,
+    "browser_session_available": false
+  },
+  "test_files": [
+    {"file": "test_1_1_top_chain.sh", "assertions": 14, "passed": 14},
+    {"file": "test_1_2_config.sh", "assertions": 11, "passed": 11},
+    {"file": "test_1_3_sync_domains.sh", "assertions": 7, "passed": 7},
+    {"file": "test_1_4_protocol_resolution.sh", "assertions": 8, "passed": 8},
+    {"file": "test_1_5_sql_formatting.sh", "assertions": 11, "passed": 11},
+    {"file": "test_1_6_compare_metrics.sh", "assertions": 6, "passed": 6},
+    {"file": "test_1_7_json_numbers.sh", "assertions": 9, "passed": 9},
+    {"file": "test_1_8_empty_status.sh", "assertions": 5, "passed": 5},
+    {"file": "test_2_1_historical.sh", "assertions": 9, "passed": 9},
+    {"file": "test_2_2_history_flags.sh", "assertions": 8, "passed": 8},
+    {"file": "test_2_3_stables_flow.sh", "assertions": 7, "passed": 7},
+    {"file": "test_2_4_tier2.sh", "assertions": 21, "passed": 21},
+    {"file": "test_2_5_pro.sh", "assertions": 15, "passed": 15},
+    {"file": "test_2_6_export.sh", "assertions": 6, "passed": 6},
+    {"file": "test_2_7_skill.sh", "assertions": 9, "passed": 9},
+    {"file": "test_2_8_mcp.sh", "assertions": 16, "passed": 16}
+  ]
+}
