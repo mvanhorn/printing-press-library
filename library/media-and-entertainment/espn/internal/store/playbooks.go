@@ -83,22 +83,20 @@ func (s *Store) UpsertPlaybook(in UpsertPlaybookInput) (int64, bool, error) {
 		// re-teach preserve existing notes. PreserveExistingNotes
 		// additionally protects existing non-empty notes_text from
 		// being overwritten by a seed-loop upsert.
-		var notesUpdate string
-		notesArgs := []any{in.NotesText, in.NotesText}
+		notesUpdate := `notes_text = CASE WHEN ? != '' THEN ? ELSE notes_text END`
 		if in.PreserveExistingNotes {
 			notesUpdate = `notes_text = CASE WHEN ? != '' AND (notes_text IS NULL OR notes_text = '') THEN ? ELSE notes_text END`
-		} else {
-			notesUpdate = `notes_text = CASE WHEN ? != '' THEN ? ELSE notes_text END`
 		}
 		query := `UPDATE learning_playbooks
 			 SET playbook_json = CASE WHEN ? != '' THEN ? ELSE playbook_json END,
 			     ` + notesUpdate + `,
 			     last_observed_at = ?
 			 WHERE id = ?`
-		args := []any{in.PlaybookJSON, in.PlaybookJSON}
-		args = append(args, notesArgs...)
-		args = append(args, now, existingID)
-		if _, err := tx.Exec(query, args...); err != nil {
+		if _, err := tx.Exec(query,
+			in.PlaybookJSON, in.PlaybookJSON,
+			in.NotesText, in.NotesText,
+			now, existingID,
+		); err != nil {
 			return 0, false, fmt.Errorf("upsert playbook update: %w", err)
 		}
 		if err := tx.Commit(); err != nil {
