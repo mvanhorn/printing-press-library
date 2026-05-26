@@ -1,0 +1,151 @@
+name: elezioni-sicilia
+display_name: Elezioni Sicilia
+description: Estrai dati strutturati sulle elezioni comunali siciliane dal sito ufficiale della Regione Siciliana.
+cli_description: Dati elettorali comunali siciliani da riga di comando — affluenza, candidati, liste, risultati in JSON o tabella.
+version: "0.1.0"
+kind: synthetic
+spec_source: sniffed
+http_transport: browser-http
+website_url: "https://www.elezioni.regione.sicilia.it"
+category: government
+base_url: "https://www.elezioni.regione.sicilia.it"
+
+auth:
+  type: none
+
+config:
+  format: toml
+  path: "~/.config/elezioni-sicilia-pp-cli/config.toml"
+
+resources:
+  affluenza:
+    description: "Dati sull'affluenza alle urne per tutti i comuni siciliani in più rilevamenti orari."
+    endpoints:
+      tabella:
+        method: GET
+        path: "/ReportTabellaAffluenza.html"
+        description: "Tabella regionale completa dell'affluenza con tutti i rilevamenti orari e confronto con elezioni precedenti."
+        no_auth: true
+        response:
+          type: html
+          item: AffluenzaComune
+
+  candidati:
+    description: "Voti per candidato sindaco per comune."
+    endpoints:
+      get:
+        method: GET
+        path: "/{provincia}/ReportCandidati{provincia}{codice}.html"
+        description: "Voti per ogni candidato sindaco in un comune specifico."
+        no_auth: true
+        params:
+          - name: provincia
+            type: string
+            required: true
+            positional: false
+            description: "Codice provincia (AG, CL, CT, EN, ME, PA, RG, SR, TP)"
+          - name: codice
+            type: string
+            required: true
+            positional: false
+            description: "Codice interno comune (dal dropdown del sito)"
+        response:
+          type: html
+          item: VotiCandidato
+
+  liste:
+    description: "Voti per lista elettorale collegata a ogni candidato sindaco."
+    endpoints:
+      get:
+        method: GET
+        path: "/{provincia}/ReportCandidatiListe{provincia}{codice}.html"
+        description: "Voti per lista collegata a ciascun candidato sindaco in un comune."
+        no_auth: true
+        params:
+          - name: provincia
+            type: string
+            required: true
+            positional: false
+          - name: codice
+            type: string
+            required: true
+            positional: false
+        response:
+          type: html
+          item: VotiLista
+
+  risultati:
+    description: "Risultati finali delle elezioni per comune (disponibile a scrutinio completato)."
+    endpoints:
+      get:
+        method: GET
+        path: "/{provincia}/ReportRisultati{provincia}{codice}.html"
+        description: "Risultato finale del comune: sindaco eletto, sezioni, votanti, seggi per lista."
+        no_auth: true
+        params:
+          - name: provincia
+            type: string
+            required: true
+          - name: codice
+            type: string
+            required: true
+        response:
+          type: html
+          item: RisultatoComune
+
+  seggi:
+    description: "Ripartizione dei seggi consiliari per lista."
+    endpoints:
+      get:
+        method: GET
+        path: "/{provincia}/ReportSeggi{provincia}{codice}.html"
+        description: "Ripartizione seggi in Consiglio Comunale per ogni lista."
+        no_auth: true
+        params:
+          - name: provincia
+            type: string
+            required: true
+          - name: codice
+            type: string
+            required: true
+        response:
+          type: html
+          item: RipartizioneSeggi
+
+  comuni:
+    description: "Elenco dei comuni che partecipano alle elezioni per una data provincia e anno."
+    endpoints:
+      list:
+        method: GET
+        path: "/{provincia}/ReportDatiLista{provincia}.html"
+        description: "Lista comuni con dropdown per navigazione, con codici interni del sito."
+        no_auth: true
+        params:
+          - name: provincia
+            type: string
+            required: true
+        response:
+          type: html
+          item: ComuneEntry
+
+extra_commands:
+  - name: affluenza
+    description: "Mostra l'affluenza elettorale per tutti i comuni siciliani con confronto rispetto alle elezioni precedenti."
+  - name: comuni
+    args: "[--provincia AG]"
+    description: "Elenca i comuni alle elezioni con codice, provincia e nome."
+  - name: candidati
+    args: "<comune> [--provincia AG] [--anno 2026]"
+    description: "Mostra i voti per candidato sindaco in un comune."
+  - name: liste
+    args: "<comune> [--provincia AG] [--anno 2026]"
+    description: "Mostra i voti per lista elettorale in un comune."
+  - name: risultati
+    args: "<comune> [--provincia AG] [--anno 2026]"
+    description: "Mostra il risultato finale delle elezioni in un comune (richiede scrutinio completato)."
+  - name: seggi
+    args: "<comune> [--provincia AG] [--anno 2026]"
+    description: "Mostra la ripartizione dei seggi consiliari in un comune."
+  - name: stato
+    args: "<comune> [--provincia AG] [--anno 2026]"
+    description: "Controlla lo stato dello scrutinio: in corso, parziale (N/M sezioni), o completo."

@@ -1,0 +1,51 @@
+version: 2
+project_name: elezioni-sicilia-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: elezioni-sicilia-pp-cli
+    main: ./cmd/elezioni-sicilia-pp-cli
+    binary: elezioni-sicilia-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/other/elezioni-sicilia/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: elezioni-sicilia-pp-mcp
+    main: ./cmd/elezioni-sicilia-pp-mcp
+    binary: elezioni-sicilia-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: elezioni-sicilia-pp-cli
+    repository:
+      owner: aborruso
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Dati elettorali siciliani da riga di comando — senza copiare tabelle HTML."
+    install: |
+      bin.install "elezioni-sicilia-pp-cli"
+      bin.install "elezioni-sicilia-pp-mcp"

@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-26",
+  "base_run_id": "20260526-180400",
+  "base_printing_press_version": "4.18.0",
+  "patches": [
+    {
+      "id": "review-fixes",
+      "summary": "Fix riepilogo province aggregation, scraper default state, remove unused max(), fix watch interval warning, fix README/SKILL module paths, fix workflow archive.",
+      "reason": "Greptile P1: riepilogo overwrote PercAffluenza per-comune instead of weighted provincial average; TotaleElettori never populated. P1: ExtractScrutinioState default returned ScrutinioCompleto for unrecognized pages. P2: unused max() shadowing Go 1.21 builtin. P2: watch interval message omitted scraping overhead. Copilot: module paths pointed to library/government; workflow archive silently no-oped.",
+      "files": [
+        "internal/cli/riepilogo.go",
+        "internal/scraper/scraper.go",
+        "internal/cli/watch.go",
+        "internal/cli/channel_workflow.go",
+        "README.md",
+        "SKILL.md"
+      ],
+      "validated_outcome": "go build ./... passes; printing-press publish package passes all checks"
+    }
+  ]
+}
