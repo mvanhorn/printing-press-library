@@ -37,7 +37,7 @@ func TestPlaybookInit_SeedsAllShippedPlaybooks(t *testing.T) {
 
 	var foundSentinel bool
 	var foundSeasonRecap bool
-	var foundNbaTopBottom bool
+	var foundLeagueTopBottom bool
 	for _, r := range rows {
 		if r.QueryFamily == playbookSeedSentinelFamily {
 			foundSentinel = true
@@ -48,11 +48,20 @@ func TestPlaybookInit_SeedsAllShippedPlaybooks(t *testing.T) {
 		if strings.Contains(r.QueryFamily, "end") && strings.Contains(r.QueryFamily, "season") {
 			foundSeasonRecap = true
 			if !strings.Contains(r.NotesText, "teamShortName") {
-				t.Errorf("season_recap notes should contain U1 correction 'teamShortName'; got first 100 chars: %q", firstN(r.NotesText, 100))
+				t.Errorf("season_recap notes should contain 'teamShortName' correction; got first 100 chars: %q", firstN(r.NotesText, 100))
 			}
 		}
-		if strings.Contains(r.QueryFamily, "nba") && strings.Contains(r.QueryFamily, "division") {
-			foundNbaTopBottom = true
+		// The merged league_top_bottom playbook covers all leagues. Its
+		// family is derived from "top 3 mlb teams in each division" which,
+		// after the U1 stopword change (mlb/nba/nfl/nhl/mls all become
+		// stopwords), normalizes to a family containing "division" and
+		// "teams" but NOT "mlb"/"nba".
+		if strings.Contains(r.QueryFamily, "division") && strings.Contains(r.QueryFamily, "teams") && strings.Contains(r.QueryFamily, "top") {
+			foundLeagueTopBottom = true
+			// Notes should carry both MLB and NBA division maps now.
+			if !strings.Contains(r.NotesText, "MLB") || !strings.Contains(r.NotesText, "NBA") {
+				t.Errorf("merged league_top_bottom notes should contain BOTH MLB and NBA division maps; got first 200 chars: %q", firstN(r.NotesText, 200))
+			}
 		}
 	}
 	if !foundSentinel {
@@ -61,8 +70,8 @@ func TestPlaybookInit_SeedsAllShippedPlaybooks(t *testing.T) {
 	if !foundSeasonRecap {
 		t.Error("season_recap playbook missing after install")
 	}
-	if !foundNbaTopBottom {
-		t.Error("nba_league_top_bottom playbook missing after install")
+	if !foundLeagueTopBottom {
+		t.Error("merged league_top_bottom playbook missing after install")
 	}
 }
 

@@ -55,6 +55,13 @@ func newLearnConfig() *entities.Config {
 		"schedule", "scoreboard", "score", "scores",
 		"result", "results", "winner",
 		"stats", "standings", "lineup", "roster",
+		// League names treated as stopwords so caps ("NBA") and
+		// lowercase ("nba") collapse to the same family key. Without
+		// this, the entity extractor's ALL-CAPS rule promotes "NBA"
+		// to entity, stripping it from the family while lowercase
+		// "nba" stays as content. Different families = different
+		// recall hits for the same intent.
+		"mlb", "nba", "nfl", "nhl", "mls",
 	)
 	return cfg
 }

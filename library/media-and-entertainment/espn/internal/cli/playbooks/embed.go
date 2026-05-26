@@ -25,4 +25,4 @@ var FS embed.FS
 // SeedVersion identifies the playbook content version. Embedded by
 // the install path as a sentinel row; mismatch triggers re-seed.
 // Format: <iso-date>-<cli-name>-<content-rev>.
-var SeedVersion = "2026-05-25-espn-002"
+var SeedVersion = "2026-05-25-espn-003"

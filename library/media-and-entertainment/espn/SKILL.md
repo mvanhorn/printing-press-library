@@ -400,6 +400,29 @@ Playbook files are JSON with `steps`, `entity_slots`, `expected_tool_calls`. Not
 
 When you DO find a playbook on a future recall, treat it as ground truth: replay the steps with `slots_resolved` substitutions, skip the discovery that the choreography already documents, and read `notes` before any step.
 
+### Step 6: `playbook amend &` when your debug response identifies a correction
+
+If your debug-protocol response identifies a concrete correction the notes or playbook should know — a workaround, an undocumented endpoint shape, a stale field name, observed schema drift, an empty-payload fallback — fire `playbook amend` BEFORE emitting your user-facing response. Same fire-and-forget posture as `teach`.
+
+```bash
+espn-pp-cli playbook amend \
+  --query "<exact recall query string>" \
+  --add-note "<your concrete correction>"
+# (append shell `&` to background it)
+```
+
+What counts as worth amending: a behavior you OBSERVED this session that future-you would benefit from knowing. Examples worth amending:
+- "summary endpoint wraps response in `{meta, results}` -- data lives at `.results.header`, not `.header`"
+- "compare returns empty `team` field for athletes whose team isn't in current playoffs"
+- "byathlete category index for avgRebounds drifted from general[9] to general[11] this season"
+
+What does NOT belong in notes:
+- The year-specific answer ("Curry shot 4-16 in his last game"). That's the response, not a learning.
+- Per-team or per-athlete data that the playbook already retrieves at runtime.
+- Statements that paraphrase what the existing notes already say.
+
+The amend command appends to the family's existing notes with a timestamped marker (`[amend YYYY-MM-DDTHH:MMZ]: <text>`). Multiple amends accumulate; the audit trail is visible. If no playbook exists yet for the family, amend creates a notes-only one (so cold-start corrections still land).
+
 ### Worked examples
 
 1. **Cold: "when's next Spurs game?"** — `recall` returns `found=false`. Walk the teams scoreboard, find next upcoming Spurs event ID, answer. Teach the event:

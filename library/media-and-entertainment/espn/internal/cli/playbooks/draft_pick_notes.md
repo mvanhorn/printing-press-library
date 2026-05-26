@@ -18,9 +18,13 @@ Fetch the page, scan for the first round; pick 1 is the team you want. For lotte
 
 The `/draft/rounds` URL is the canonical path for NBA/NFL/MLB; NHL uses `/draft/order`. Try `/draft/rounds` first, fall back to `/draft/order` if 404.
 
-## Answer decay
+## CRITICAL: Do NOT teach the year-specific answer
 
-The specific answer (which team holds #1) decays with each draft cycle. Don't teach the answer as a learning; teach the ROUTING decision (skip CLI, go to web). The notes here ARE the playbook value; the steps are minimal.
+The specific answer (which team holds #1) decays with each draft cycle. The 2026-05-25 dogfood observed an agent fire `teach-playbook` with `notes "Wizards/2026 #1 pick"` despite this rule. That note will mislead the 2027 draft session because recall has no concept of answer-decay TTL.
+
+Rule: amend ONLY for ROUTING improvements (e.g., "ESPN's draft URL changed from /draft/rounds to /draft/order in October", "the lottery results page now lives at /draft/lottery"). Use the user-facing answer to report the year-specific result.
+
+If you want to encode the answer for retrieval, use auto-memory or a session-local note, not playbook notes. Playbooks are shared across years and sessions.
 
 For seasonal accuracy: cross-check the published-at date on the espn.com page before quoting the order. Mock drafts and prediction articles can show "projected" orders that differ from official lottery results.
 

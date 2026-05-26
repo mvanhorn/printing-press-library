@@ -215,6 +215,159 @@ func TestTeach_GracefulDegrade_PlaybookFails(t *testing.T) {
 	}
 }
 
+func TestPlaybookAmend_HappyPath_ExistingPlaybook(t *testing.T) {
+	home := withTempLearnHome(t)
+	dbPath := filepath.Join(home, "data.db")
+	pbPath := writePlaybookFile(t, home, "p.json", `{"steps":[{"cmd":"x"}],"query_family_examples":["foo bar baz"]}`)
+
+	// Seed an existing playbook for "foo bar baz" family via teach-playbook
+	if _, _, err := runRootArgs(t,
+		"teach-playbook",
+		"--query", "foo bar baz",
+		"--playbook-file", pbPath,
+		"--notes", "original note",
+		"--db", dbPath,
+	); err != nil {
+		t.Fatalf("seed: %v", err)
+	}
+
+	// Now amend
+	if _, _, err := runRootArgs(t,
+		"playbook", "amend",
+		"--query", "foo bar baz",
+		"--add-note", "a new correction",
+		"--db", dbPath,
+	); err != nil {
+		t.Fatalf("amend: %v", err)
+	}
+
+	s, _ := store.OpenWithContext(context.Background(), dbPath)
+	defer s.Close()
+	rows, _ := s.ListPlaybooks()
+	if len(rows) != 1 {
+		t.Fatalf("want 1 row (amend should append, not create new), got %d", len(rows))
+	}
+	if !strings.Contains(rows[0].NotesText, "original note") {
+		t.Errorf("amend should preserve original notes; got %q", rows[0].NotesText)
+	}
+	if !strings.Contains(rows[0].NotesText, "a new correction") {
+		t.Errorf("amend should add new note; got %q", rows[0].NotesText)
+	}
+	if !strings.Contains(rows[0].NotesText, "[amend ") {
+		t.Errorf("amend should include timestamp marker; got %q", rows[0].NotesText)
+	}
+}
+
+func TestPlaybookAmend_EmptyFamily_CreatesNotesOnly(t *testing.T) {
+	home := withTempLearnHome(t)
+	dbPath := filepath.Join(home, "data.db")
+
+	// Amend a family with no existing playbook
+	if _, _, err := runRootArgs(t,
+		"playbook", "amend",
+		"--query", "brand new query family",
+		"--add-note", "from cold",
+		"--db", dbPath,
+	); err != nil {
+		t.Fatalf("amend: %v", err)
+	}
+
+	s, _ := store.OpenWithContext(context.Background(), dbPath)
+	defer s.Close()
+	rows, _ := s.ListPlaybooks()
+	if len(rows) != 1 {
+		t.Fatalf("want 1 row created from cold amend, got %d", len(rows))
+	}
+	if !strings.Contains(rows[0].NotesText, "from cold") {
+		t.Errorf("notes should contain the amend text; got %q", rows[0].NotesText)
+	}
+	if !strings.Contains(rows[0].NotesText, "[amend ") {
+		t.Errorf("cold amend should still carry the timestamp marker; got %q", rows[0].NotesText)
+	}
+}
+
+func TestPlaybookAmend_RequiresQuery(t *testing.T) {
+	home := withTempLearnHome(t)
+	dbPath := filepath.Join(home, "data.db")
+
+	_, _, err := runRootArgs(t,
+		"playbook", "amend",
+		"--add-note", "missing query",
+		"--db", dbPath,
+	)
+	if err == nil {
+		t.Fatal("amend without --query should exit nonzero")
+	}
+}
+
+func TestPlaybookAmend_RequiresAddNote(t *testing.T) {
+	home := withTempLearnHome(t)
+	dbPath := filepath.Join(home, "data.db")
+
+	_, _, err := runRootArgs(t,
+		"playbook", "amend",
+		"--query", "no add-note",
+		"--db", dbPath,
+	)
+	if err == nil {
+		t.Fatal("amend without --add-note should exit nonzero")
+	}
+}
+
+func TestPlaybookAmend_MultipleAmendsTimestamped(t *testing.T) {
+	home := withTempLearnHome(t)
+	dbPath := filepath.Join(home, "data.db")
+
+	for i, text := range []string{"first amend", "second amend", "third amend"} {
+		if _, _, err := runRootArgs(t,
+			"playbook", "amend",
+			"--query", "multi-amend test",
+			"--add-note", text,
+			"--db", dbPath,
+		); err != nil {
+			t.Fatalf("amend %d: %v", i, err)
+		}
+	}
+
+	s, _ := store.OpenWithContext(context.Background(), dbPath)
+	defer s.Close()
+	rows, _ := s.ListPlaybooks()
+	if len(rows) != 1 {
+		t.Fatalf("want 1 row after 3 amends to same family, got %d", len(rows))
+	}
+	for _, text := range []string{"first amend", "second amend", "third amend"} {
+		if !strings.Contains(rows[0].NotesText, text) {
+			t.Errorf("notes missing %q; full: %q", text, rows[0].NotesText)
+		}
+	}
+}
+
+func TestPlaybookAmend_RespectsNoLearn(t *testing.T) {
+	home := withTempLearnHome(t)
+	dbPath := filepath.Join(home, "data.db")
+	t.Setenv(noLearnEnvVar, "true")
+
+	_, _, err := runRootArgs(t,
+		"playbook", "amend",
+		"--query", "should noop",
+		"--add-note", "should noop",
+		"--db", dbPath,
+	)
+	if err != nil {
+		t.Fatalf("amend with NO_LEARN should be silent noop: %v", err)
+	}
+
+	// DB shouldn't exist or should have no playbook rows.
+	if _, statErr := os.Stat(dbPath); statErr == nil {
+		s, _ := store.OpenWithContext(context.Background(), dbPath)
+		defer s.Close()
+		rows, _ := s.ListPlaybooks()
+		if len(rows) != 0 {
+			t.Errorf("NO_LEARN should suppress amend writes; got %d rows", len(rows))
+		}
+	}
+}
+
 func TestPlaybookList_Empty(t *testing.T) {
 	home := withTempLearnHome(t)
 	dbPath := filepath.Join(home, "data.db")

@@ -30,17 +30,23 @@ The stat schema (which stat each totals[] index represents) lives at the TOP-LEV
 
 To pull a specific stat for an athlete: find `j = top.categories[i].names.indexOf(<wanted_name>)`, then read `athlete.categories[i].totals[j]`.
 
-## Per-sport stat index map (current ESPN schema; may shift across seasons - look up by name at runtime if uncertain)
+## Stat index lookup pattern (use runtime indexOf - DO NOT hardcode positions)
 
-NBA basketball, top-level `categories[i].names[]` (positional):
+Index positions in `top.categories[i].names[]` DRIFT across seasons. The 2026-05-25 dogfood observed `avgRebounds` at general[11] in one Pistons session while an earlier note had it at general[9]. ESPN reshuffles ordering between seasons (and occasionally mid-season as fields are added).
 
-| Category | Index map (name -> position) |
-|---|---|
-| general | gamesPlayed=0, avgMinutes=1, avgFouls=2, flagrantFouls=3, technicalFouls=4, ejections=5, doubleDouble=6, tripleDouble=7, minutes=8, avgRebounds=9, fouls=10, rebounds=11 |
-| offensive | avgPoints=0, avgFieldGoalsMade=1, avgFieldGoalsAttempted=2, fieldGoalPct=3, avgThreePointFieldGoalsMade=4, avgThreePointFieldGoalsAttempted=5, threePointFieldGoalPct=6, avgFreeThrowsMade=7, avgFreeThrowsAttempted=8, freeThrowPct=9, avgAssists=10, avgTurnovers=11, points=12, ... |
-| defensive | avgSteals=0, avgBlocks=1, ... |
+Always look up by name at runtime:
 
-The safe runtime pattern: `j = top.categories[i].names.indexOf("avgPoints")` -> `athlete.categories[0].totals[j]`. Do NOT hardcode the index across seasons - ESPN reshuffles ordering occasionally.
+```
+j = top.categories[i].names.indexOf("avgPoints")
+value = athlete.categories[0].totals[j]
+```
+
+Common stat-name keys to look up (NBA):
+- offensive: `avgPoints`, `avgFieldGoalsMade`, `avgFieldGoalsAttempted`, `fieldGoalPct`, `avgThreePointFieldGoalsMade`, `threePointFieldGoalPct`, `avgFreeThrowsMade`, `freeThrowPct`, `avgAssists`, `avgTurnovers`, `points`
+- general: `gamesPlayed`, `avgMinutes`, `avgRebounds`, `avgFouls`, `doubleDouble`, `tripleDouble`
+- defensive: `avgSteals`, `avgBlocks`
+
+If a `names.indexOf(<key>)` returns -1, the category doesn't carry that stat in this season's schema — fall back to a different category (e.g., `avgRebounds` sometimes appears under general, sometimes under defensive — check both).
 
 ## Team filter
 

@@ -117,16 +117,125 @@ At least one of --playbook-file and --notes/--notes-file must be set.`,
 	return cmd
 }
 
-// newPlaybookCmd is the inspection parent. `playbook list` is the
-// counterpart to `learnings list`.
-func newPlaybookCmd(flags *rootFlags) *cobra.Command {
+// newPlaybookCmd is the inspection + amendment parent. `playbook list`
+// lists stored playbooks; `playbook amend` appends notes to an
+// existing family.
+func newPlaybookCmd(flags *rootFlags, learnCfg *entities.Config) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:         "playbook",
-		Short:       "Inspect or delete stored CLI playbooks",
-		Annotations: map[string]string{"mcp:read-only": "true"},
-		RunE:        parentNoSubcommandRunE(flags),
+		Use:   "playbook",
+		Short: "Inspect or amend stored CLI playbooks",
+		RunE:  parentNoSubcommandRunE(flags),
 	}
 	cmd.AddCommand(newPlaybookListCmd(flags))
+	cmd.AddCommand(newPlaybookAmendCmd(flags, learnCfg))
+	return cmd
+}
+
+// newPlaybookAmendCmd is the self-correction surface: a one-line
+// CLI call that appends a timestamped note to an existing playbook's
+// notes_text (or creates a notes-only playbook if the family has
+// none). Designed for agents to fire when their debug-protocol
+// response identifies a concrete correction worth persisting.
+//
+// Same fire-and-forget posture as `teach` -- silent on success,
+// errors to teach.log, safe to background with &.
+func newPlaybookAmendCmd(flags *rootFlags, learnCfg *entities.Config) *cobra.Command {
+	var query string
+	var addNote string
+	var dbPath string
+
+	cmd := &cobra.Command{
+		Use:   "amend",
+		Short: "Append a note to an existing playbook (LLM-fired self-correction, silent)",
+		Long: `Appends a timestamped note to the matching family's playbook notes_text.
+If no playbook exists for the family yet, creates a notes-only one.
+
+Designed for agents to fire when their debug-protocol response
+identifies a concrete correction worth persisting (a workaround, an
+undocumented endpoint shape, a stale field name, observed schema
+drift). Same fire-and-forget posture as teach: silent on success,
+errors to teach.log, safe to background with &.
+
+Disabling: pass --no-learn or set ` + noLearnEnvVar + `=true.`,
+		Example: `  espn-pp-cli playbook amend \
+    --query "<exact recall query>" \
+    --add-note "summary endpoint envelope: data lives at .results.header, not .header"`,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			cmd.SilenceUsage = true
+			cmd.SilenceErrors = true
+			if noLearnActive(flags) {
+				return nil
+			}
+			if dryRunOK(flags) {
+				return nil
+			}
+			if strings.TrimSpace(query) == "" {
+				writeTeachErrLog(fmt.Sprintf("playbook amend: missing --query (args=%v)", args))
+				return silentCodeErr(2)
+			}
+			if strings.TrimSpace(addNote) == "" {
+				writeTeachErrLog(fmt.Sprintf("playbook amend: missing --add-note for query=%q", query))
+				return silentCodeErr(2)
+			}
+
+			dbPath = learnDBPath(dbPath)
+			s, err := store.OpenWithContext(cmd.Context(), dbPath)
+			if err != nil {
+				writeTeachErrLog(fmt.Sprintf("playbook amend: open db: %v", err))
+				return silentCodeErr(1)
+			}
+			defer s.Close()
+
+			normalized := learn.Normalize(query, learnCfg)
+			resolver := learn.NewCanonicalResolver(cmd.Context(), s.DB())
+			normalized = learn.PromoteEntities(normalized, resolver)
+			family := learn.QueryFamily(normalized)
+			if family == "" {
+				writeTeachErrLog(fmt.Sprintf("playbook amend: query normalized to empty family: %q", query))
+				return silentCodeErr(2)
+			}
+
+			// Look up existing notes. UPSERT semantics: append if
+			// row exists, create notes-only if it doesn't.
+			marker := fmt.Sprintf("\n\n[amend %s]: %s", time.Now().UTC().Format("2006-01-02T15:04Z"), addNote)
+			var newNotes string
+			if existing, ok, err := s.GetPlaybookByFamily(family); err == nil && ok {
+				newNotes = existing.NotesText + marker
+			} else {
+				newNotes = strings.TrimLeft(marker, "\n")
+			}
+
+			if _, _, err := s.UpsertPlaybook(store.UpsertPlaybookInput{
+				QueryFamily: family,
+				NotesText:   newNotes,
+				Source:      store.LearningSourceTaught,
+			}); err != nil {
+				writeTeachErrLog(fmt.Sprintf("playbook amend: upsert family=%q: %v", family, err))
+				return silentCodeErr(1)
+			}
+
+			if auditErr := appendLearningsAudit(map[string]any{
+				"action":       "playbook-amend",
+				"query":        query,
+				"query_family": family,
+				"add_note":     addNote,
+			}); auditErr != nil {
+				writeTeachErrLog(fmt.Sprintf("playbook amend: audit append: %v", auditErr))
+			}
+
+			if flags.asJSON {
+				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+					"amended":      true,
+					"query":        query,
+					"query_family": family,
+				}, flags)
+			}
+			return nil
+		},
+	}
+	cmd.Flags().StringVar(&query, "query", "", "The exact recall query whose family should be amended (required)")
+	cmd.Flags().StringVar(&addNote, "add-note", "", "The note text to append to the family's playbook (required)")
+	cmd.Flags().StringVar(&dbPath, "db", "", "Database path (default: standard cache location)")
 	return cmd
 }
 

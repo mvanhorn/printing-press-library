@@ -36,13 +36,32 @@ Use a date window covering the last 30 days of regular season plus the play-in t
 
 Filter the returned events by the team's abbreviation (e.g., `GS` for Warriors), sort by date DESC, take the first completed event. The event id flows into the boxscore step.
 
-## Boxscore parsing
+## Summary endpoint envelope (the 2026-05-25 dogfood gotcha)
+
+`espn-pp-cli summary <sport> <league> --event <id> --agent` wraps its payload in `{meta, results}`. The boxscore-shaped data (header, competitions, competitors, status, gameNote, boxscore, leaders) lives at `.results`, NOT at the top level.
+
+- WRONG: `--select header.competitions.competitors.score` (looks at top-level header, which is empty)
+- RIGHT: `--select results.header.competitions.competitors.score` (looks under results)
+- Or via jq: `jq '.results.header.competitions[0].competitors[].score' summary.json`
+
+Both Carter Bryant and Stephen Curry sessions in 2026-05-25 dogfood burned 2 calls each rediscovering this. Always probe `.results.<field>` first when working with summary output.
+
+## Boxscore endpoint shape (different from summary)
+
+`espn-pp-cli boxscore <event_id> --sport <s> --league <l> --agent` does NOT wrap in meta/results. The shape is `{teams, players}` directly at the top level. NO `.header` field; pull final score / date from `summary --event <id>` (at `.results.header.competitions[]`) when you need it.
 
 - Athlete stats live at `.players[teamIdx].statistics[0].athletes[playerIdx]` where teamIdx is 0 or 1 depending on which side the athlete played for.
 - Stat schema lives at `.players[teamIdx].statistics[0].keys[]` (machine-readable) and `.players[teamIdx].statistics[0].names[]` (human label). Athlete values are at `.athletes[i].stats[]` indexed positionally. Use `keys[]` not `labels[]` (labels carry duplicates in some sports).
 - A player who didn't play has `active: false` and `stats` may be empty strings or missing. Treat as DNP. MIN will be empty.
-- `header.competitions.competitors[].score` carries the final team scores. DO NOT read final scores from the `events` array - those `competitors[]` may be empty before the game completes.
 - `+/-` comes from `stats[<plusMinus_index>]` where the index is found by `keys.indexOf("plusMinus")`.
+
+## When you need both stats AND final score
+
+Run boxscore + summary in parallel:
+- boxscore: per-player stats (.players[][].statistics[0].athletes[])
+- summary: final score + date + status (.results.header.competitions[0].competitors[].score, .results.header.competitions[0].date)
+
+Don't try to extract final score from boxscore output - it isn't there.
 
 ## Output formatting
 
