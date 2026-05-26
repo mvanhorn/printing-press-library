@@ -2,6 +2,7 @@ package client
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -9,7 +10,14 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
+	"time"
 )
+
+// defaultBridgeTimeout caps how long a single bridge subprocess can run before
+// being killed. Override at runtime with FRAMER_BRIDGE_TIMEOUT (Go duration
+// string, e.g. "5m" or "30s"). Without a timeout a hung Framer WebSocket would
+// block the CLI process indefinitely on every bridge-powered command.
+const defaultBridgeTimeout = 120 * time.Second
 
 // BridgeClient calls the Node.js framer-bridge.mjs script to communicate
 // with the Framer Server API over WebSocket.
@@ -50,11 +58,22 @@ func NewBridgeClient() (*BridgeClient, error) {
 }
 
 // Call invokes a bridge command and returns the parsed JSON result.
+// The subprocess is killed if it does not complete within the bridge timeout
+// (default 120s; override with FRAMER_BRIDGE_TIMEOUT, e.g. "5m").
 func (bc *BridgeClient) Call(command string, arg ...string) (json.RawMessage, error) {
 	args := []string{bc.BridgePath, command}
 	args = append(args, arg...)
 
-	cmd := exec.Command(bc.NodeBin, args...)
+	timeout := defaultBridgeTimeout
+	if raw := os.Getenv("FRAMER_BRIDGE_TIMEOUT"); raw != "" {
+		if d, perr := time.ParseDuration(raw); perr == nil && d > 0 {
+			timeout = d
+		}
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
+	defer cancel()
+
+	cmd := exec.CommandContext(ctx, bc.NodeBin, args...)
 	cmd.Env = append(os.Environ(),
 		"FRAMER_PROJECT_URL="+bc.ProjectURL,
 		"FRAMER_API_KEY="+bc.APIKey,
@@ -67,6 +86,9 @@ func (bc *BridgeClient) Call(command string, arg ...string) (json.RawMessage, er
 	cmd.Stderr = &stderr
 
 	err := cmd.Run()
+	if ctx.Err() == context.DeadlineExceeded {
+		return nil, fmt.Errorf("bridge command %q timed out after %s (override via FRAMER_BRIDGE_TIMEOUT, e.g. FRAMER_BRIDGE_TIMEOUT=5m)", command, timeout)
+	}
 	if err != nil {
 		// Try to parse stderr as JSON error
 		var bridgeErr struct {

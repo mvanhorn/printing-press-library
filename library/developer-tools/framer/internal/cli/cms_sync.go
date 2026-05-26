@@ -10,7 +10,6 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
-	"time"
 
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/framer/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/framer/internal/store"
@@ -426,8 +425,9 @@ func refreshLocalStore(db *store.Store, raw json.RawMessage) error {
 		return err
 	}
 
-	now := time.Now().UTC().Format(time.RFC3339)
-
+	// Route writes through store.Upsert so the FTS5 virtual table is updated
+	// alongside the resources table; writing the resources row directly leaves
+	// search returning stale results for items just pushed.
 	upsert := func(resourceType string, items []json.RawMessage) error {
 		for _, item := range items {
 			var obj map[string]any
@@ -438,17 +438,11 @@ func refreshLocalStore(db *store.Store, raw json.RawMessage) error {
 			if id == "" {
 				id, _ = obj["name"].(string)
 			}
+			if id == "" {
+				continue
+			}
 			dataBytes, _ := json.Marshal(obj)
-			_, err := db.DB().Exec(
-				`INSERT INTO resources (id, resource_type, data, synced_at, updated_at)
-				 VALUES (?, ?, ?, ?, ?)
-				 ON CONFLICT (id, resource_type) DO UPDATE SET
-				   data = excluded.data,
-				   synced_at = excluded.synced_at,
-				   updated_at = excluded.updated_at`,
-				id, resourceType, string(dataBytes), now, now,
-			)
-			if err != nil {
+			if err := db.Upsert(resourceType, id, dataBytes); err != nil {
 				return err
 			}
 		}
