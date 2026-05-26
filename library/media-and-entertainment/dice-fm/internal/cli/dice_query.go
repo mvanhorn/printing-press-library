@@ -188,19 +188,30 @@ func isVerifySynthetic(raw json.RawMessage) bool {
 	return probe.Synthetic
 }
 
-// fetchConnection paginates a viewer connection and returns the node payloads.
-// where is the GraphQL where-input value (nil for none). perPage caps the page
-// size; max caps total nodes (0 = unbounded). startCursor resumes pagination.
-// When latest is true it fetches a single newest page via backward pagination
-// (DICE connections are oldest-first), ignoring max and startCursor.
+// fetchConnectionStream paginates a viewer connection, calling onPage for each
+// page as it is fetched. where is the GraphQL where-input value (nil for none).
+// perPage caps the page size; max caps total nodes (0 = unbounded). startCursor
+// resumes pagination. When latest is true it fetches a single newest page via
+// backward pagination (DICE connections are oldest-first), ignoring max and
+// startCursor.
 //
-// It returns the collected nodes, the final endCursor (for resumable sync), and
-// truncated — true when max was hit while more records remained, so callers can
-// warn instead of silently dropping data.
-func fetchConnection(ctx context.Context, c *client.Client, resource string, where map[string]any, perPage, max int, startCursor string, latest bool) ([]json.RawMessage, string, bool, error) {
+// onPage receives the page's nodes, the cursor after this page, and the running
+// total-fetched count so far. If onPage returns an error the loop stops and
+// that error is returned. truncated is true when max was hit while more records
+// remained.
+func fetchConnectionStream(
+	ctx context.Context,
+	c *client.Client,
+	resource string,
+	where map[string]any,
+	perPage, max int,
+	startCursor string,
+	latest bool,
+	onPage func(pageNodes []json.RawMessage, endCursor string, totalFetched int) error,
+) (truncated bool, err error) {
 	cs, ok := diceConnections[resource]
 	if !ok {
-		return nil, "", false, fmt.Errorf("unknown DICE connection %q", resource)
+		return false, fmt.Errorf("unknown DICE connection %q", resource)
 	}
 	query := buildConnectionQuery(cs, latest)
 	if perPage <= 0 {
@@ -215,14 +226,17 @@ func fetchConnection(ctx context.Context, c *client.Client, resource string, whe
 		}
 		data, err := diceQuery(ctx, c, query, vars)
 		if err != nil {
-			return nil, "", false, err
+			return false, err
 		}
 		nodes, err := parseConnectionNodes(data, cs.field)
-		return nodes, "", false, err
+		if err != nil {
+			return false, err
+		}
+		return false, onPage(nodes, "", len(nodes))
 	}
 
-	var all []json.RawMessage
 	cursor := startCursor
+	totalFetched := 0
 	for {
 		vars := map[string]any{"first": perPage}
 		if cursor != "" {
@@ -233,24 +247,59 @@ func fetchConnection(ctx context.Context, c *client.Client, resource string, whe
 		}
 		data, err := diceQuery(ctx, c, query, vars)
 		if err != nil {
-			return all, cursor, false, err
+			return false, err
 		}
 		nodes, hasNext, endCursor, parseErr := parseConnectionPage(data, cs.field)
 		if parseErr != nil {
-			return all, cursor, false, parseErr
+			return false, parseErr
 		}
-		for i, n := range nodes {
-			all = append(all, n)
-			if max > 0 && len(all) >= max {
-				truncated := i < len(nodes)-1 || hasNext
-				return all, endCursor, truncated, nil
+
+		// Apply the max cap per page: deliver a trimmed slice and stop.
+		if max > 0 && totalFetched+len(nodes) >= max {
+			keep := max - totalFetched
+			truncated := keep < len(nodes) || hasNext
+			pageNodes := nodes[:keep]
+			totalFetched += len(pageNodes)
+			if cbErr := onPage(pageNodes, endCursor, totalFetched); cbErr != nil {
+				return truncated, cbErr
 			}
+			return truncated, nil
+		}
+
+		totalFetched += len(nodes)
+		if cbErr := onPage(nodes, endCursor, totalFetched); cbErr != nil {
+			return false, cbErr
 		}
 		if !hasNext || endCursor == "" {
-			return all, endCursor, false, nil
+			return false, nil
 		}
 		cursor = endCursor
 	}
+}
+
+// fetchConnection paginates a viewer connection and returns the node payloads.
+// where is the GraphQL where-input value (nil for none). perPage caps the page
+// size; max caps total nodes (0 = unbounded). startCursor resumes pagination.
+// When latest is true it fetches a single newest page via backward pagination
+// (DICE connections are oldest-first), ignoring max and startCursor.
+//
+// It returns the collected nodes, the final endCursor (for resumable sync), and
+// truncated — true when max was hit while more records remained, so callers can
+// warn instead of silently dropping data.
+//
+// Implemented on top of fetchConnectionStream so read commands (runList, door)
+// keep working unchanged while the streaming core is shared with sync.
+func fetchConnection(ctx context.Context, c *client.Client, resource string, where map[string]any, perPage, max int, startCursor string, latest bool) ([]json.RawMessage, string, bool, error) {
+	var all []json.RawMessage
+	var finalCursor string
+	truncated, err := fetchConnectionStream(ctx, c, resource, where, perPage, max, startCursor, latest,
+		func(pageNodes []json.RawMessage, endCursor string, _ int) error {
+			all = append(all, pageNodes...)
+			finalCursor = endCursor
+			return nil
+		},
+	)
+	return all, finalCursor, truncated, err
 }
 
 // parseConnectionPage extracts the node payloads, hasNextPage, and endCursor from

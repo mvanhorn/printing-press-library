@@ -251,9 +251,11 @@ Exit codes & warnings:
 }
 
 // syncResource fetches one DICE viewer connection (paginated, resumable) and
-// upserts its nodes into the local store. For orders and tickets it also
-// derives the fans table from embedded holder/fan objects, since DICE exposes
-// no top-level fan connection.
+// upserts its nodes into the local store page by page. For orders and tickets
+// it also derives the fans table from embedded holder/fan objects, since DICE
+// exposes no top-level fan connection. Each page is upserted immediately and
+// the resume cursor is advanced per page so an interrupted sync can resume from
+// the last completed page rather than restarting from scratch.
 func syncResource(ctx context.Context, c *client.Client, db *store.Store, resource, sinceTS string, full bool, maxPages int, latest bool) syncResult {
 	started := time.Now()
 	if !humanFriendly {
@@ -284,7 +286,40 @@ func syncResource(ctx context.Context, c *client.Client, db *store.Store, resour
 		max = maxPages * dicePerPage
 	}
 
-	nodes, endCursor, _, err := fetchConnection(ctx, c, resource, where, dicePerPage, max, startCursor, latest)
+	// Accumulators updated per page inside the streaming callback.
+	var stored, fanCount int
+	lastHeartbeat := time.Now()
+
+	_, err := fetchConnectionStream(ctx, c, resource, where, dicePerPage, max, startCursor, latest,
+		func(pageNodes []json.RawMessage, endCursor string, totalFetched int) error {
+			pageStored, _, upsertErr := db.UpsertBatch(resource, pageNodes)
+			if upsertErr != nil {
+				return fmt.Errorf("upserting %s: %w", resource, upsertErr)
+			}
+			stored += pageStored
+
+			if resource == "orders" || resource == "tickets" {
+				fanCount += extractFans(db, pageNodes)
+			}
+
+			// Advance the resume cursor after each successfully stored page so
+			// an interrupted sync resumes from this point on the next run.
+			_ = db.SaveSyncState(resource, endCursor, stored)
+
+			// Emit a time-throttled heartbeat (~every 5s) so observers can
+			// distinguish a long fetch from a stuck one.
+			if time.Since(lastHeartbeat) >= 5*time.Second {
+				lastHeartbeat = time.Now()
+				if !humanFriendly {
+					resJSON, _ := json.Marshal(resource)
+					fmt.Fprintf(os.Stderr, `{"event":"sync_progress","resource":%s,"fetched":%d}`+"\n", resJSON, totalFetched)
+				} else {
+					fmt.Fprintf(os.Stderr, "  %s: %d fetched…\n", resource, totalFetched)
+				}
+			}
+			return nil
+		},
+	)
 	if err != nil {
 		if w, ok := isSyncAccessWarning(err); ok {
 			if !humanFriendly {
@@ -303,18 +338,6 @@ func syncResource(ctx context.Context, c *client.Client, db *store.Store, resour
 		}
 		return syncResult{Resource: resource, Err: fmt.Errorf("fetching %s: %w", resource, err), Duration: time.Since(started)}
 	}
-
-	stored, _, err := db.UpsertBatch(resource, nodes)
-	if err != nil {
-		return syncResult{Resource: resource, Err: fmt.Errorf("upserting %s: %w", resource, err), Duration: time.Since(started)}
-	}
-
-	fanCount := 0
-	if resource == "orders" || resource == "tickets" {
-		fanCount = extractFans(db, nodes)
-	}
-
-	_ = db.SaveSyncState(resource, endCursor, stored)
 
 	if !humanFriendly {
 		fmt.Fprintf(os.Stderr, `{"event":"sync_complete","resource":"%s","total":%d,"fans":%d,"duration_ms":%d}`+"\n",
