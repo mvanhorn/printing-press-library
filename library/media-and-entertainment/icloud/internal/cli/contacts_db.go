@@ -62,7 +62,8 @@ func (s *contactStore) migrate() error {
 			note         TEXT,
 			birthday     TEXT,
 			modified_at  TEXT,
-			synced_at    DATETIME DEFAULT CURRENT_TIMESTAMP
+			synced_at    DATETIME DEFAULT CURRENT_TIMESTAMP,
+			uuid         TEXT
 		)`,
 		`CREATE INDEX IF NOT EXISTS idx_contacts_org      ON contacts(organization)`,
 		`CREATE INDEX IF NOT EXISTS idx_contacts_modified ON contacts(modified_at)`,
@@ -129,6 +130,10 @@ func (s *contactStore) migrate() error {
 			return fmt.Errorf("migrate: %w\nstmt: %s", err, stmt[:min(60, len(stmt))])
 		}
 	}
+	// Incremental migrations for existing databases (errors from ALTER TABLE are
+	// ignored — SQLite returns "duplicate column name" when column already exists).
+	s.db.Exec("ALTER TABLE contacts ADD COLUMN uuid TEXT")
+	s.db.Exec("CREATE UNIQUE INDEX IF NOT EXISTS idx_contacts_uuid ON contacts(uuid)")
 	return nil
 }
 
@@ -173,6 +178,15 @@ func str(v interface{}) string {
 	return strings.TrimSpace(s)
 }
 
+// extractUUID strips the ":ABPerson" (or similar) suffix from Apple's contact ID,
+// returning the bare UUID that serves as a shorter stable identifier.
+func extractUUID(appleID string) string {
+	if i := strings.LastIndex(appleID, ":"); i >= 0 {
+		return appleID[:i]
+	}
+	return appleID
+}
+
 // SyncAll replaces all contact data with the provided JXA-exported list.
 func (s *contactStore) SyncAll(contacts []jxaContact) (int, error) {
 	tx, err := s.db.Begin()
@@ -208,9 +222,9 @@ func (s *contactStore) SyncAll(contacts []jxaContact) (int, error) {
 		mod := str(c.ModifiedAt)
 
 		_, err := tx.Exec(
-			`INSERT INTO contacts (id, first_name, last_name, middle_name, organization, job_title, note, birthday, modified_at, synced_at)
-			 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-			c.ID, fn, ln, mn, org, jt, note, bday, mod, now,
+			`INSERT INTO contacts (id, uuid, first_name, last_name, middle_name, organization, job_title, note, birthday, modified_at, synced_at)
+			 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+			c.ID, extractUUID(c.ID), fn, ln, mn, org, jt, note, bday, mod, now,
 		)
 		if err != nil {
 			return 0, fmt.Errorf("insert contact %s: %w", c.ID, err)
@@ -311,6 +325,7 @@ func (s *contactStore) SyncAll(contacts []jxaContact) (int, error) {
 // Contact is the full contact record returned to CLI commands.
 type Contact struct {
 	ID           string           `json:"id"`
+	UUID         string           `json:"uuid,omitempty"`
 	FirstName    string           `json:"first_name"`
 	LastName     string           `json:"last_name,omitempty"`
 	MiddleName   string           `json:"middle_name,omitempty"`
@@ -385,7 +400,7 @@ func (s *contactStore) List(limit, offset int) ([]Contact, error) {
 		limit = 50
 	}
 	rows, err := s.db.Query(
-		`SELECT id, first_name, last_name, organization, synced_at
+		`SELECT id, uuid, first_name, last_name, organization, synced_at
 		 FROM contacts
 		 ORDER BY first_name, last_name
 		 LIMIT ? OFFSET ?`, limit, offset,
@@ -397,10 +412,11 @@ func (s *contactStore) List(limit, offset int) ([]Contact, error) {
 	var cs []Contact
 	for rows.Next() {
 		var c Contact
-		var ln, org, sa sql.NullString
-		if err := rows.Scan(&c.ID, &c.FirstName, &ln, &org, &sa); err != nil {
+		var uuidN, ln, org, sa sql.NullString
+		if err := rows.Scan(&c.ID, &uuidN, &c.FirstName, &ln, &org, &sa); err != nil {
 			return nil, err
 		}
+		c.UUID = uuidN.String
 		c.LastName = ln.String
 		c.Organization = org.String
 		c.SyncedAt = sa.String
@@ -419,21 +435,60 @@ func (s *contactStore) List(limit, offset int) ([]Contact, error) {
 
 func (s *contactStore) Get(id string) (*Contact, error) {
 	var c Contact
-	var ln, mn, org, jt, note, bday, mod, sa sql.NullString
+	var uuidN, ln, mn, org, jt, note, bday, mod, sa sql.NullString
 	err := s.db.QueryRow(
-		`SELECT id, first_name, last_name, middle_name, organization, job_title, note, birthday, modified_at, synced_at
+		`SELECT id, uuid, first_name, last_name, middle_name, organization, job_title, note, birthday, modified_at, synced_at
 		 FROM contacts WHERE id = ?`, id,
-	).Scan(&c.ID, &c.FirstName, &ln, &mn, &org, &jt, &note, &bday, &mod, &sa)
+	).Scan(&c.ID, &uuidN, &c.FirstName, &ln, &mn, &org, &jt, &note, &bday, &mod, &sa)
 	if err == sql.ErrNoRows {
 		return nil, nil
 	}
 	if err != nil {
 		return nil, err
 	}
+	c.UUID = uuidN.String
 	c.LastName, c.MiddleName, c.Organization = ln.String, mn.String, org.String
 	c.JobTitle, c.Note, c.Birthday = jt.String, note.String, bday.String
 	c.ModifiedAt, c.SyncedAt = mod.String, sa.String
 	return &c, s.loadRelations(&c)
+}
+
+// GetByAny resolves a contact by full Apple ID, bare UUID, or UUID prefix.
+// Returns an error if the prefix is ambiguous (matches >1 contact).
+func (s *contactStore) GetByAny(input string) (*Contact, error) {
+	// 1. Exact match on Apple ID (e.g. "UUID:ABPerson")
+	if strings.Contains(input, ":") {
+		return s.Get(input)
+	}
+	// 2. Exact UUID match
+	var id string
+	err := s.db.QueryRow("SELECT id FROM contacts WHERE uuid = ?", input).Scan(&id)
+	if err == nil {
+		return s.Get(id)
+	}
+	// 3. UUID prefix match — must be unique
+	rows, err := s.db.Query("SELECT id FROM contacts WHERE uuid LIKE ? || '%' LIMIT 3", input)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var ids []string
+	for rows.Next() {
+		var rid string
+		if err := rows.Scan(&rid); err != nil {
+			return nil, err
+		}
+		ids = append(ids, rid)
+	}
+	rows.Close()
+	switch len(ids) {
+	case 0:
+		return nil, fmt.Errorf("no contact found for %q", input)
+	case 1:
+		return s.Get(ids[0])
+	default:
+		return nil, fmt.Errorf("ambiguous prefix %q matches %d contacts — use more characters", input, len(ids))
+	}
 }
 
 func (s *contactStore) Search(query string, limit int) ([]Contact, error) {
@@ -441,7 +496,7 @@ func (s *contactStore) Search(query string, limit int) ([]Contact, error) {
 		limit = 50
 	}
 	rows, err := s.db.Query(
-		`SELECT c.id, c.first_name, c.last_name, c.organization, c.synced_at
+		`SELECT c.id, c.uuid, c.first_name, c.last_name, c.organization, c.synced_at
 		 FROM contacts c
 		 JOIN contacts_fts f ON f.id = c.id
 		 WHERE contacts_fts MATCH ?
@@ -455,10 +510,11 @@ func (s *contactStore) Search(query string, limit int) ([]Contact, error) {
 	var cs []Contact
 	for rows.Next() {
 		var c Contact
-		var ln, org, sa sql.NullString
-		if err := rows.Scan(&c.ID, &c.FirstName, &ln, &org, &sa); err != nil {
+		var uuidN, ln, org, sa sql.NullString
+		if err := rows.Scan(&c.ID, &uuidN, &c.FirstName, &ln, &org, &sa); err != nil {
 			return nil, err
 		}
+		c.UUID = uuidN.String
 		c.LastName, c.Organization, c.SyncedAt = ln.String, org.String, sa.String
 		cs = append(cs, c)
 	}
@@ -482,6 +538,183 @@ func (s *contactStore) Delete(id string) error {
 	return err
 }
 
+// ── duplicates & merge ────────────────────────────────────────────────────────
+
+// DuplicatePair is a pair of contacts that may be duplicates.
+type DuplicatePair struct {
+	Reason string  `json:"reason"`
+	A      Contact `json:"a"`
+	B      Contact `json:"b"`
+}
+
+// FindDuplicates returns candidate duplicate pairs grouped by detection reason.
+// Checks: exact name, same-first-with-prefix-last, same phone, same email.
+func (s *contactStore) FindDuplicates() ([]DuplicatePair, error) {
+	seen := map[string]bool{} // dedup pair keys (idA+idB)
+	var pairs []DuplicatePair
+
+	addPair := func(reason, idA, idB string) {
+		key := idA + "|" + idB
+		if seen[key] {
+			return
+		}
+		seen[key] = true
+		a, err := s.Get(idA)
+		if err != nil || a == nil {
+			return
+		}
+		b, err := s.Get(idB)
+		if err != nil || b == nil {
+			return
+		}
+		pairs = append(pairs, DuplicatePair{Reason: reason, A: *a, B: *b})
+	}
+
+	// Exact name match (case-insensitive, non-empty names)
+	rows, err := s.db.Query(`
+		SELECT a.id, b.id
+		FROM contacts a JOIN contacts b ON a.id < b.id
+		WHERE a.first_name != '' AND a.last_name != ''
+		  AND LOWER(a.first_name) = LOWER(b.first_name)
+		  AND LOWER(a.last_name)  = LOWER(b.last_name)
+	`)
+	if err != nil {
+		return nil, err
+	}
+	for rows.Next() {
+		var idA, idB string
+		if err := rows.Scan(&idA, &idB); err != nil {
+			return nil, err
+		}
+		addPair("exact_name", idA, idB)
+	}
+	rows.Close()
+
+	// Same first name, one last name is a prefix of the other (e.g. "Gomes" vs "Gomes SF")
+	rows, err = s.db.Query(`
+		SELECT a.id, b.id
+		FROM contacts a JOIN contacts b ON a.id < b.id
+		WHERE a.first_name != '' AND b.first_name != ''
+		  AND LOWER(a.first_name) = LOWER(b.first_name)
+		  AND a.last_name != b.last_name
+		  AND (LOWER(b.last_name) LIKE LOWER(a.last_name) || ' %'
+		    OR LOWER(a.last_name) LIKE LOWER(b.last_name) || ' %')
+	`)
+	if err != nil {
+		return nil, err
+	}
+	for rows.Next() {
+		var idA, idB string
+		if err := rows.Scan(&idA, &idB); err != nil {
+			return nil, err
+		}
+		addPair("similar_name", idA, idB)
+	}
+	rows.Close()
+
+	// Same normalized phone number
+	rows, err = s.db.Query(`
+		SELECT DISTINCT pa.contact_id, pb.contact_id, pa.normalized
+		FROM contact_phones pa
+		JOIN contact_phones pb ON pa.normalized = pb.normalized
+		  AND pa.contact_id < pb.contact_id
+		WHERE pa.normalized != ''
+	`)
+	if err != nil {
+		return nil, err
+	}
+	for rows.Next() {
+		var idA, idB, norm string
+		if err := rows.Scan(&idA, &idB, &norm); err != nil {
+			return nil, err
+		}
+		addPair("same_phone:"+norm, idA, idB)
+	}
+	rows.Close()
+
+	// Same email address (case-insensitive)
+	rows, err = s.db.Query(`
+		SELECT DISTINCT ea.contact_id, eb.contact_id, LOWER(ea.value)
+		FROM contact_emails ea
+		JOIN contact_emails eb ON LOWER(ea.value) = LOWER(eb.value)
+		  AND ea.contact_id < eb.contact_id
+		WHERE ea.value != ''
+	`)
+	if err != nil {
+		return nil, err
+	}
+	for rows.Next() {
+		var idA, idB, email string
+		if err := rows.Scan(&idA, &idB, &email); err != nil {
+			return nil, err
+		}
+		addPair("same_email:"+email, idA, idB)
+	}
+	rows.Close()
+
+	return pairs, nil
+}
+
+// MergeIntoStore merges the absorbed contact's data into the primary contact
+// in the local SQLite store. Call this after the Contacts.app merge has already
+// been performed via AppleScript. Deduplicates phones by normalized number and
+// emails by lowercase value; appends all addresses, URLs, and the note.
+func (s *contactStore) MergeIntoStore(primaryID, absorbedID string) (*Contact, error) {
+	primary, err := s.Get(primaryID)
+	if err != nil || primary == nil {
+		return nil, fmt.Errorf("primary contact not found: %s", primaryID)
+	}
+	absorbed, err := s.Get(absorbedID)
+	if err != nil || absorbed == nil {
+		return nil, fmt.Errorf("absorbed contact not found: %s", absorbedID)
+	}
+
+	// Deduplicated phone merge
+	phoneSet := map[string]bool{}
+	for _, ph := range primary.Phones {
+		phoneSet[normalizePhone(ph.Value)] = true
+	}
+	for _, ph := range absorbed.Phones {
+		if norm := normalizePhone(ph.Value); !phoneSet[norm] {
+			primary.Phones = append(primary.Phones, ph)
+			phoneSet[norm] = true
+		}
+	}
+
+	// Deduplicated email merge
+	emailSet := map[string]bool{}
+	for _, em := range primary.Emails {
+		emailSet[strings.ToLower(em.Value)] = true
+	}
+	for _, em := range absorbed.Emails {
+		if !emailSet[strings.ToLower(em.Value)] {
+			primary.Emails = append(primary.Emails, em)
+			emailSet[strings.ToLower(em.Value)] = true
+		}
+	}
+
+	// Append addresses and URLs without dedup (addresses are complex to compare)
+	primary.Addresses = append(primary.Addresses, absorbed.Addresses...)
+	primary.URLs = append(primary.URLs, absorbed.URLs...)
+
+	// Append note (separated by a divider)
+	if absorbed.Note != "" {
+		if primary.Note == "" {
+			primary.Note = absorbed.Note
+		} else {
+			primary.Note = primary.Note + "\n---\n" + absorbed.Note
+		}
+	}
+
+	if err := s.UpsertOne(primary); err != nil {
+		return nil, fmt.Errorf("upsert merged contact: %w", err)
+	}
+	if err := s.Delete(absorbedID); err != nil {
+		return nil, fmt.Errorf("delete absorbed contact from store: %w", err)
+	}
+	return primary, nil
+}
+
 // UpsertOne inserts or replaces a single contact (used after create/update via AppleScript).
 func (s *contactStore) UpsertOne(c *Contact) error {
 	tx, err := s.db.Begin()
@@ -492,9 +725,9 @@ func (s *contactStore) UpsertOne(c *Contact) error {
 
 	now := time.Now().UTC().Format(time.RFC3339)
 	_, err = tx.Exec(
-		`INSERT OR REPLACE INTO contacts (id, first_name, last_name, middle_name, organization, job_title, note, birthday, modified_at, synced_at)
-		 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-		c.ID, c.FirstName, c.LastName, c.MiddleName, c.Organization, c.JobTitle, c.Note, c.Birthday, c.ModifiedAt, now,
+		`INSERT OR REPLACE INTO contacts (id, uuid, first_name, last_name, middle_name, organization, job_title, note, birthday, modified_at, synced_at)
+		 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+		c.ID, extractUUID(c.ID), c.FirstName, c.LastName, c.MiddleName, c.Organization, c.JobTitle, c.Note, c.Birthday, c.ModifiedAt, now,
 	)
 	if err != nil {
 		return err

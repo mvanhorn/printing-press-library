@@ -35,6 +35,8 @@ Write operations (create, update, delete) go through Contacts.app and update the
 	contacts.AddCommand(newContactsCreateCmd(f))
 	contacts.AddCommand(newContactsUpdateCmd(f))
 	contacts.AddCommand(newContactsDeleteCmd(f))
+	contacts.AddCommand(newContactsMergeCmd(f))
+	contacts.AddCommand(newContactsDuplicatesCmd(f))
 	contacts.AddCommand(newContactsAnalyticsCmd(f))
 
 	return contacts
@@ -105,6 +107,42 @@ on run argv
 		delete p
 		save
 		return "ok"
+	end tell
+end run
+`
+
+// contactMergeScript copies all phones, emails, URLs, and addresses from
+// contact 2 into contact 1, appends contact 2's note, then deletes contact 2.
+// Argv order: id1 (primary), id2 (to absorb).
+const contactMergeScript = `
+on run argv
+	tell application "Contacts"
+		set p1 to person id (item 1 of argv)
+		set p2 to person id (item 2 of argv)
+		repeat with ph in (get phones of p2)
+			make new phone at end of phones of p1 with properties {label: label of ph, value: value of ph}
+		end repeat
+		repeat with em in (get emails of p2)
+			make new email at end of emails of p1 with properties {label: label of em, value: value of em}
+		end repeat
+		repeat with u in (get urls of p2)
+			make new url at end of urls of p1 with properties {label: label of u, value: value of u}
+		end repeat
+		repeat with addr in (get addresses of p2)
+			make new address at end of addresses of p1 with properties {label: label of addr, street: street of addr, city: city of addr, state: state of addr, zip: zip of addr, country: country of addr}
+		end repeat
+		set n2 to note of p2
+		if n2 is not missing value and n2 is not "" then
+			set n1 to note of p1
+			if n1 is missing value or n1 is "" then
+				set note of p1 to n2
+			else
+				set note of p1 to (n1 & return & "---" & return & n2)
+			end if
+		end if
+		delete p2
+		save
+		return id of p1
 	end tell
 end run
 `
@@ -270,7 +308,7 @@ func newContactsGetCmd(f *rootFlags) *cobra.Command {
 			}
 			defer store.Close()
 
-			c, err := store.Get(args[0])
+			c, err := store.GetByAny(args[0])
 			if err != nil {
 				return err
 			}
@@ -416,7 +454,21 @@ func newContactsUpdateCmd(f *rootFlags) *cobra.Command {
   icloud-pp-cli contacts update "UUID:ABPerson" --add-phone "+1 555 000 0001"`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			out := cmd.OutOrStdout()
-			id := args[0]
+
+			// Resolve id (accepts full Apple ID, bare UUID, or UUID prefix)
+			store, err := openContactStore()
+			if err != nil {
+				return err
+			}
+			resolved, err := store.GetByAny(args[0])
+			store.Close()
+			if err != nil {
+				return err
+			}
+			if resolved == nil {
+				return fmt.Errorf("contact not found: %s", args[0])
+			}
+			id := resolved.ID // use full Apple ID for AppleScript
 
 			// Pass ID and field values as out-of-band argv — no string interpolation.
 			if _, err := runOsascriptWithArgs(contactUpdateScript,
@@ -425,11 +477,12 @@ func newContactsUpdateCmd(f *rootFlags) *cobra.Command {
 			}
 
 			// Refresh local store entry.
-			store, err := openContactStore()
+			store2, err := openContactStore()
 			if err != nil {
 				return err
 			}
-			defer store.Close()
+			defer store2.Close()
+			store = store2
 
 			existing, err := store.Get(id)
 			if err == nil && existing != nil {
@@ -494,7 +547,21 @@ func newContactsDeleteCmd(f *rootFlags) *cobra.Command {
 			if !confirm {
 				return usageErr(fmt.Errorf("pass --confirm to delete the contact permanently"))
 			}
-			id := args[0]
+
+			// Resolve id (accepts full Apple ID, bare UUID, or UUID prefix)
+			store, err := openContactStore()
+			if err != nil {
+				return err
+			}
+			c, err := store.GetByAny(args[0])
+			store.Close()
+			if err != nil {
+				return err
+			}
+			if c == nil {
+				return fmt.Errorf("contact not found: %s", args[0])
+			}
+			id := c.ID // use full Apple ID for AppleScript
 
 			// Pass id as out-of-band argv — prevents injection if the ID ever
 			// contains characters that AppleScript would misparse in a string literal.
@@ -502,12 +569,12 @@ func newContactsDeleteCmd(f *rootFlags) *cobra.Command {
 				return fmt.Errorf("deleting contact: %w", err)
 			}
 
-			store, err := openContactStore()
+			store2, err := openContactStore()
 			if err != nil {
 				return err
 			}
-			defer store.Close()
-			if err := store.Delete(id); err != nil {
+			defer store2.Close()
+			if err := store2.Delete(id); err != nil {
 				fmt.Fprintf(os.Stderr, "warning: local store delete failed: %v\n", err)
 			}
 
@@ -522,13 +589,197 @@ func newContactsDeleteCmd(f *rootFlags) *cobra.Command {
 	return cmd
 }
 
+// ── merge ─────────────────────────────────────────────────────────────────────
+
+func newContactsMergeCmd(f *rootFlags) *cobra.Command {
+	var confirm bool
+	cmd := &cobra.Command{
+		Use:   "merge <id1> <id2>",
+		Short: "Merge contact 2 into contact 1, combining all data",
+		Args:  cobra.ExactArgs(2),
+		Example: `  icloud-pp-cli contacts merge 7D7D265B 3E9B2104
+  icloud-pp-cli contacts merge 7D7D265B 3E9B2104 --confirm`,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			out := cmd.OutOrStdout()
+
+			store, err := openContactStore()
+			if err != nil {
+				return err
+			}
+			defer store.Close()
+
+			primary, err := store.GetByAny(args[0])
+			if err != nil {
+				return fmt.Errorf("contact 1: %w", err)
+			}
+			absorbed, err := store.GetByAny(args[1])
+			if err != nil {
+				return fmt.Errorf("contact 2: %w", err)
+			}
+
+			// Compute what would be added
+			phoneSet := map[string]bool{}
+			for _, ph := range primary.Phones {
+				phoneSet[normalizePhone(ph.Value)] = true
+			}
+			var newPhones []ContactPhone
+			for _, ph := range absorbed.Phones {
+				if !phoneSet[normalizePhone(ph.Value)] {
+					newPhones = append(newPhones, ph)
+				}
+			}
+			emailSet := map[string]bool{}
+			for _, em := range primary.Emails {
+				emailSet[strings.ToLower(em.Value)] = true
+			}
+			var newEmails []ContactEmail
+			for _, em := range absorbed.Emails {
+				if !emailSet[strings.ToLower(em.Value)] {
+					newEmails = append(newEmails, em)
+				}
+			}
+
+			// Preview
+			fmt.Fprintf(out, "\n%s  %s\n", bold(f, out, "Primary:"), primary.DisplayName())
+			fmt.Fprintf(out, "    UUID: %s\n", primary.UUID)
+			fmt.Fprintf(out, "%s  %s\n", bold(f, out, "Absorb: "), absorbed.DisplayName())
+			fmt.Fprintf(out, "    UUID: %s\n", absorbed.UUID)
+			fmt.Fprintln(out)
+
+			if len(newPhones) > 0 {
+				fmt.Fprintln(out, "  Phones to add:")
+				for _, ph := range newPhones {
+					fmt.Fprintf(out, "    %-10s %s\n", ph.Label, ph.Value)
+				}
+			} else {
+				fmt.Fprintln(out, "  Phones to add: (none new)")
+			}
+			if len(newEmails) > 0 {
+				fmt.Fprintln(out, "  Emails to add:")
+				for _, em := range newEmails {
+					fmt.Fprintf(out, "    %-10s %s\n", em.Label, em.Value)
+				}
+			} else {
+				fmt.Fprintln(out, "  Emails to add: (none new)")
+			}
+			if len(absorbed.Addresses) > 0 {
+				fmt.Fprintf(out, "  Addresses to add: %d\n", len(absorbed.Addresses))
+			}
+			if absorbed.Note != "" {
+				fmt.Fprintln(out, "  Note: will be appended")
+			}
+			fmt.Fprintln(out)
+
+			if !confirm {
+				fmt.Fprintln(out, yellow(f, out, "  Run with --confirm to execute the merge."))
+				return nil
+			}
+
+			if _, err := runOsascriptWithArgs(contactMergeScript, primary.ID, absorbed.ID); err != nil {
+				return fmt.Errorf("merge in Contacts.app: %w", err)
+			}
+			if _, err := store.MergeIntoStore(primary.ID, absorbed.ID); err != nil {
+				fmt.Fprintf(os.Stderr, "warning: local store merge failed: %v\n", err)
+			}
+
+			if f.asJSON || !isTerminal(out) {
+				return printJSON(out, map[string]string{
+					"status":     "merged",
+					"primary_id": primary.ID,
+					"removed_id": absorbed.ID,
+				})
+			}
+			fmt.Fprintf(out, "%s Merged %s into %s\n",
+				green(f, out, "✓"), absorbed.DisplayName(), primary.DisplayName())
+			fmt.Fprintf(out, "   Primary UUID: %s\n", primary.UUID)
+			return nil
+		},
+	}
+	cmd.Flags().BoolVar(&confirm, "confirm", false, "Required: confirm the merge")
+	return cmd
+}
+
+// ── duplicates ────────────────────────────────────────────────────────────────
+
+func newContactsDuplicatesCmd(f *rootFlags) *cobra.Command {
+	return &cobra.Command{
+		Use:   "duplicates",
+		Short: "Find potential duplicate contacts (same name, phone, or email)",
+		Example: `  icloud-pp-cli contacts duplicates
+  icloud-pp-cli contacts duplicates --json`,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			out := cmd.OutOrStdout()
+			store, err := openContactStore()
+			if err != nil {
+				return err
+			}
+			defer store.Close()
+
+			pairs, err := store.FindDuplicates()
+			if err != nil {
+				return fmt.Errorf("finding duplicates: %w", err)
+			}
+			if len(pairs) == 0 {
+				fmt.Fprintln(out, green(f, out, "✓")+" No duplicate contacts found.")
+				return nil
+			}
+
+			if f.asJSON || !isTerminal(out) {
+				return printJSON(out, pairs)
+			}
+
+			reasonLabel := map[string]string{
+				"exact_name":   "Exact name match",
+				"similar_name": "Similar name (possible suffix)",
+			}
+
+			fmt.Fprintf(out, "\n%s\n\n", bold(f, out, fmt.Sprintf("Found %d potential duplicate pair(s)", len(pairs))))
+			for i, p := range pairs {
+				label := p.Reason
+				if l, ok := reasonLabel[p.Reason]; ok {
+					label = l
+				} else if strings.HasPrefix(p.Reason, "same_phone:") {
+					label = "Same phone: " + strings.TrimPrefix(p.Reason, "same_phone:")
+				} else if strings.HasPrefix(p.Reason, "same_email:") {
+					label = "Same email: " + strings.TrimPrefix(p.Reason, "same_email:")
+				}
+				fmt.Fprintf(out, "  %d. %s\n", i+1, bold(f, out, label))
+				shortA := p.A.UUID
+				if len(shortA) > 8 {
+					shortA = shortA[:8]
+				}
+				shortB := p.B.UUID
+				if len(shortB) > 8 {
+					shortB = shortB[:8]
+				}
+				phA := ""
+				if len(p.A.Phones) > 0 {
+					phA = "  " + p.A.Phones[0].Value
+				}
+				phB := ""
+				if len(p.B.Phones) > 0 {
+					phB = "  " + p.B.Phones[0].Value
+				}
+				fmt.Fprintf(out, "     [%s]  %-30s%s\n", shortA, truncate(p.A.DisplayName(), 30), phA)
+				fmt.Fprintf(out, "     [%s]  %-30s%s\n", shortB, truncate(p.B.DisplayName(), 30), phB)
+				fmt.Fprintf(out, "     → contacts merge %s %s --confirm\n\n", shortA, shortB)
+			}
+			return nil
+		},
+	}
+}
+
 // ── display helpers ───────────────────────────────────────────────────────────
 
 func printContactsTable(f *rootFlags, out io.Writer, cs []Contact) {
 	tw := newTabWriter(out)
-	fmt.Fprintln(tw, bold(f, out, "Name")+"\t"+bold(f, out, "Phone")+"\t"+bold(f, out, "Email")+"\t"+bold(f, out, "Company"))
-	fmt.Fprintln(tw, strings.Repeat("─", 20)+"\t"+strings.Repeat("─", 18)+"\t"+strings.Repeat("─", 22)+"\t"+strings.Repeat("─", 16))
+	fmt.Fprintln(tw, bold(f, out, "UUID")+"\t"+bold(f, out, "Name")+"\t"+bold(f, out, "Phone")+"\t"+bold(f, out, "Email")+"\t"+bold(f, out, "Company"))
+	fmt.Fprintln(tw, strings.Repeat("─", 8)+"\t"+strings.Repeat("─", 20)+"\t"+strings.Repeat("─", 18)+"\t"+strings.Repeat("─", 22)+"\t"+strings.Repeat("─", 16))
 	for _, c := range cs {
+		short := c.UUID
+		if len(short) > 8 {
+			short = short[:8]
+		}
 		ph := ""
 		if len(c.Phones) > 0 {
 			ph = c.Phones[0].Value
@@ -537,7 +788,8 @@ func printContactsTable(f *rootFlags, out io.Writer, cs []Contact) {
 		if len(c.Emails) > 0 {
 			em = c.Emails[0].Value
 		}
-		fmt.Fprintf(tw, "%s\t%s\t%s\t%s\n",
+		fmt.Fprintf(tw, "%s\t%s\t%s\t%s\t%s\n",
+			short,
 			truncate(c.DisplayName(), 28),
 			truncate(ph, 20),
 			truncate(em, 24),
@@ -550,6 +802,9 @@ func printContactsTable(f *rootFlags, out io.Writer, cs []Contact) {
 func printContactDetail(f *rootFlags, out io.Writer, c *Contact) {
 	fmt.Fprintf(out, "\n%s\n", bold(f, out, c.DisplayName()))
 	fmt.Fprintf(out, "  ID:  %s\n", c.ID)
+	if c.UUID != "" {
+		fmt.Fprintf(out, "  UUID: %s\n", c.UUID)
+	}
 	if c.Organization != "" {
 		fmt.Fprintf(out, "  Org: %s\n", c.Organization)
 	}
