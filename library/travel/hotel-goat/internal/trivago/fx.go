@@ -124,12 +124,22 @@ func (c *fxClient) fetch(ctx context.Context, from string) (frankfurterResponse,
 		return frankfurterResponse{}, err
 	}
 	req.Header.Set("Accept", "application/json")
-	// Throttle via AdaptiveLimiter. Network calls are rare in practice
-	// (24h disk + memory cache absorbs repeats) but a sudden burst (new
-	// locale + new currency per result) can still hit Frankfurter; this
-	// paces them. newFXClient() always sets a non-nil limiter, matching
-	// the OnRateLimit/OnSuccess call sites below.
-	c.limiter.Wait()
+	// Throttle via AdaptiveLimiter, but honor ctx cancellation. A
+	// Frankfurter 429 halves the rate on the process-wide singleton, so
+	// without this select a single backoff makes every subsequent
+	// Convert() call inside Merge() sleep up to ~2s ignoring the
+	// caller's cancellation. Matches client.waitForSlot. Buffered
+	// channel so the abandoned goroutine never blocks on send.
+	done := make(chan struct{}, 1)
+	go func() {
+		c.limiter.Wait()
+		done <- struct{}{}
+	}()
+	select {
+	case <-done:
+	case <-ctx.Done():
+		return frankfurterResponse{}, ctx.Err()
+	}
 	resp, err := c.http.Do(req)
 	if err != nil {
 		return frankfurterResponse{}, err
