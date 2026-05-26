@@ -24,20 +24,18 @@ This skill drives the `nse-india-pp-cli` binary. **You must verify the CLI is in
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install nse-india --cli-only
+   npx -y @mvanhorn/printing-press-library install nse-india --cli-only
    ```
 2. Verify: `nse-india-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
 
-If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.23+):
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.3 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/developer-tools/nse-india/cmd/nse-india-pp-cli@latest
 ```
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
-
-nse-india-pp-cli fetches real-time NSE equity quotes, index constituents, corporate filings, and market status with just browser headers — no API key, no Python runtime, no setup friction. After sync, the local SQLite store powers cross-symbol analysis that is invisible in any single API call: delivery spikes, sector breadth, portfolio margin health, and index attribution.
 
 ## When to Use This CLI
 

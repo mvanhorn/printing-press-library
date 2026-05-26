@@ -10,6 +10,10 @@ __debug_bin*
 
 # Go build cache
 .cache/
+library/**/.gocache/
+
+# Per-CLI runtime SQLite databases (created by dogfood/verify)
+library/**/.*-pp-cli.db
 
 # Local vulnerability scan reports
 .govulncheck/

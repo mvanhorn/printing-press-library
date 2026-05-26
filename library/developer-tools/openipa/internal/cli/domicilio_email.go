@@ -21,7 +21,7 @@ func newDomicilioEmailCmd(flags *rootFlags) *cobra.Command {
 		Short:       "Cerca entità IPA tramite indirizzo domicilio digitale (PEC)",
 		Example:     "  openipa-pp-cli domicilio email user@pec.it\n  openipa-pp-cli domicilio email --pec user@pec.it",
 		Args:        cobra.MaximumNArgs(1),
-		Annotations: map[string]string{"pp:endpoint": "domicilio.email", "pp:method": "POST", "pp:path": "/WS13_DOM_DIG.php"},
+		Annotations: map[string]string{"pp:endpoint": "domicilio.email", "pp:method": "POST", "pp:path": "/ws/WS13DOMDIGServices/api/WS13_DOM_DIG"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) > 0 {
 				bodyDOMICILIODIGITALE = args[0]
@@ -36,7 +36,7 @@ func newDomicilioEmailCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 
-			path := "/WS13_DOM_DIG.php"
+			path := "/ws/WS13DOMDIGServices/api/WS13_DOM_DIG"
 			var body map[string]any
 			if stdinBody {
 				stdinData, err := io.ReadAll(os.Stdin)

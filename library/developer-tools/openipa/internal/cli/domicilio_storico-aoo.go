@@ -20,7 +20,7 @@ func newDomicilioStoricoAooCmd(flags *rootFlags) *cobra.Command {
 		Use:         "storico-aoo",
 		Short:       "Storico domicili digitali di una AOO (inclusi cessati)",
 		Example:     "  openipa-pp-cli domicilio storico-aoo --codice-aoo example-value",
-		Annotations: map[string]string{"pp:endpoint": "domicilio.storico-aoo", "pp:method": "POST", "pp:path": "/WS11_DOM_DIG_STOR_AOO.php"},
+		Annotations: map[string]string{"pp:endpoint": "domicilio.storico-aoo", "pp:method": "POST", "pp:path": "/ws/WS11DOMDIGSTORAOOServices/api/WS11_DOM_DIG_STOR_AOO"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {
 				if !cmd.Flags().Changed("codice-aoo") && !flags.dryRun {
@@ -32,7 +32,7 @@ func newDomicilioStoricoAooCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 
-			path := "/WS11_DOM_DIG_STOR_AOO.php"
+			path := "/ws/WS11DOMDIGSTORAOOServices/api/WS11_DOM_DIG_STOR_AOO"
 			var body map[string]any
 			if stdinBody {
 				stdinData, err := io.ReadAll(os.Stdin)

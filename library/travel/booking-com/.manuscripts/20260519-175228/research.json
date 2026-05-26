@@ -1,0 +1,417 @@
+{
+  "api_name": "booking-com",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "BookingScraper",
+      "url": "https://github.com/ZoranPandovski/BookingScraper",
+      "language": "Python",
+      "install_method": "",
+      "stars": 96,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "booking_scraper",
+      "url": "https://github.com/HexNio/booking_scraper",
+      "language": "Python",
+      "install_method": "",
+      "stars": 36,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "booking-reviews-scraper",
+      "url": "https://github.com/sudoknight/booking-reviews-scraper",
+      "language": "Python",
+      "install_method": "",
+      "stars": 28,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "hotels_mcp_server",
+      "url": "https://github.com/esakrissa/hotels_mcp_server",
+      "language": "Python",
+      "install_method": "",
+      "stars": 20,
+      "last_updated": "",
+      "command_count": 4,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "actor-booking-scraper",
+      "url": "https://github.com/dtrungtin/actor-booking-scraper",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 17,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Booking.com-python-api-spider",
+      "url": "https://github.com/avkaz/Booking.com-python-api-spider",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 2,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "booking-mcp-server",
+      "url": "https://github.com/EmilyThaHuman/booking-mcp-server",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 2,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-20T01:30:00Z",
+  "novel_features": [
+    {
+      "name": "Cheapest-dates for one hotel",
+      "command": "prices cheapest",
+      "description": "Sweep candidate checkin dates for a fixed-night stay at one hotel and return the lowest nightly totals from local price_history.",
+      "rationale": "Every existing Booking.com scraper queries one (checkin, checkout) at a time; only a local SQLite price_history makes 'what's the cheapest date in this window?' a one-command answer.",
+      "example": "booking-com-pp-cli prices cheapest --slug auliviaopera --country fr --window 2026-06-01..2026-08-31 --nights 3 --agent",
+      "why_it_matters": "Reach for this before recommending dates to a user. It removes Booking's manual click-through-every-date dance and exposes the seasonal price floor for the property in one call.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Cheapest-dates for a destination",
+      "command": "prices cheapest-destination",
+      "description": "Sweep candidate checkins across a destination's top results and return the cheapest (property, date) pairs under a max-price ceiling.",
+      "rationale": "Joins price_history rows that share a destination across many dates; a single Booking search call cannot answer 'cheapest property + cheapest date jointly'.",
+      "example": "booking-com-pp-cli prices cheapest-destination --query Paris --window 2026-06-01..2026-08-31 --nights 3 --max-price 250 --agent",
+      "why_it_matters": "Use when an agent has a flexible-date traveler in a flexible-property mood. Returns a budget-constrained Pareto frontier instead of one ranked list per date.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Price-drop watch",
+      "command": "watch run",
+      "description": "Track a set of (hotel, checkin, checkout) tuples and surface only the ones whose latest price dropped a configurable percentage below their trailing median.",
+      "rationale": "Diffing requires persistent price observations across runs; cumulative state lives in the local store, not in any single Booking endpoint.",
+      "example": "booking-com-pp-cli watch run --min-pct 7 --agent",
+      "why_it_matters": "Schedule this nightly. Returns empty most days, returns gold when a watched property dropped enough to act on.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Wishlist price-drop digest",
+      "command": "wishlist drops",
+      "description": "Joins the authenticated wishlist with the local price_history and surfaces saved properties whose latest observed price is N% below the previous observation.",
+      "rationale": "Booking.com's wishlist page shows only today's price; no scraper or RapidAPI MCP can authenticate AND diff against history.",
+      "example": "booking-com-pp-cli wishlist drops --since 168h --min-pct 5 --agent",
+      "why_it_matters": "Use Sunday morning. Returns the small set of wishlist items worth booking now, instead of forcing the user to eyeball 30-40 saved properties.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Compare two hotels side-by-side",
+      "command": "compare",
+      "description": "Fetches detail + reviews for two hotels in parallel and emits a paired struct (price, score, amenity Δ, distance, free-cancellation, breakfast, recent-review counts).",
+      "rationale": "Booking has no two-hotel comparison endpoint; the diff is local synthesis across two JSON-LD payloads + two review streams.",
+      "example": "booking-com-pp-cli compare auliviaopera plazaathenee --checkin 2026-07-15 --checkout 2026-07-18 --agent",
+      "why_it_matters": "When an agent has narrowed to two finalists, reach for this instead of re-rendering both detail pages and asking the user to read both.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Free-cancellation deadline alarm",
+      "command": "trips deadlines",
+      "description": "Walks authenticated upcoming trips, extracts the free-cancellation-until deadline from each trip detail, and returns trips whose deadline is within a configurable window.",
+      "rationale": "Booking's free-cancellation policy is a service-specific identity feature; surfacing it in one command requires authenticated trip walks no scraper supports.",
+      "example": "booking-com-pp-cli trips deadlines --within 168h --agent",
+      "why_it_matters": "Booking penalizes missed cancellation deadlines. Run this each Monday morning to catch deadlines before they expire.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Multi-leg itinerary planner",
+      "command": "trip plan",
+      "description": "Given multiple destination + date legs and a total budget, picks the cheapest property per leg whose summed nightly totals fit the budget, with a bounded combinatorial fallback when greedy busts.",
+      "rationale": "Booking's UI doesn't compose results across destinations; cross-leg optimization happens locally over multiple absorbed search calls.",
+      "example": "booking-com-pp-cli trip plan --leg Rome:2026-07-10:2026-07-13 --leg Florence:2026-07-13:2026-07-16 --leg Venice:2026-07-16:2026-07-20 --budget 1800 --filters free_cancellation,breakfast,score\u003e=8 --agent",
+      "why_it_matters": "For multi-city European itineraries the agent can answer the budget-constrained question in one round-trip instead of asking the user to iterate per leg.",
+      "group": "Reachability mitigation"
+    },
+    {
+      "name": "Genius-tier price-impact estimator",
+      "command": "genius impact",
+      "description": "Runs an absorbed search twice — once with the authenticated cookie (Genius rates applied) and once anonymously — and diffs price-per-property to surface the Genius savings delta.",
+      "rationale": "Booking.com hides whether a given search benefited from Genius until you compare; only a CLI that owns both cookie + cookieless surf calls can compute it.",
+      "example": "booking-com-pp-cli genius impact --query Paris --checkin 2026-07-15 --checkout 2026-07-18 --adults 2 --agent",
+      "why_it_matters": "Use when an agent helps a user evaluate whether a Booking Genius tier is worth chasing. Reports the actual unlocked discount on a real search.",
+      "group": "Reachability mitigation"
+    },
+    {
+      "name": "Mobile-only rate detector",
+      "command": "deals mobile-rates",
+      "description": "Re-runs an absorbed search with a Chrome mobile UA on top of the desktop call and diffs to surface mobile-only discounts Booking hides from desktop users.",
+      "rationale": "Booking's mobile-only rates are a documented identity feature; no scraper exploits the desktop/mobile pricing gap because they only ship one UA.",
+      "example": "booking-com-pp-cli deals mobile-rates --query Paris --checkin 2026-07-15 --checkout 2026-07-18 --agent",
+      "why_it_matters": "When an agent is hunting savings, reach for this before recommending the desktop-quoted rate. Mobile rates can be 5-15 percent lower on the same hotel + dates.",
+      "group": "Reachability mitigation"
+    },
+    {
+      "name": "Destination price-band by month",
+      "command": "destinations price-band",
+      "description": "Aggregates price_history for a destination's synced properties and emits per-month median, min, and max nightly rate plus contributing property-count.",
+      "rationale": "Booking has no public seasonality endpoint; the per-month waterfall is a local aggregation only possible after `sync` builds the price_history backlog.",
+      "example": "booking-com-pp-cli destinations price-band --query Paris --year 2026 --nights 3 --agent",
+      "why_it_matters": "Use when planning a flexible-month trip. Returns the cheapest month + 'avoid this month' signal without manual searching.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Trips export for expense systems",
+      "command": "trips export",
+      "description": "Walks authenticated past-trip list, opens each trip detail, and emits a deterministic CSV (confirmation, property, checkin, checkout, currency, total, address) ready to paste into expense systems.",
+      "rationale": "Booking's web UI shows trips one-by-one; no scraper supports authenticated trip detail. Structured CSV is the agent-native shape for downstream automation.",
+      "example": "booking-com-pp-cli trips export --state past --since 2026-01-01 --format csv",
+      "why_it_matters": "Use Monday morning for last week's reimbursements. One call replaces clicking through every past trip.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Offline property FTS",
+      "command": "search",
+      "description": "After `sync` populates the local property store, FTS5 ranks free-text queries over name + description + amenity strings with BM25, no network call.",
+      "rationale": "Booking's hotel-name search is destination-locked; an offline FTS lets agents query 'boutique near louvre with rooftop' across already-synced properties.",
+      "example": "booking-com-pp-cli search \"boutique near louvre with rooftop\" --agent",
+      "why_it_matters": "After repeated `sync` calls have built a corpus, this lets an agent answer cross-destination property questions without re-hitting the network.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Review stats rollup",
+      "command": "reviews stats",
+      "description": "Local SQL group-by over synced reviews; counts and median score per score-band, language, and traveler-type bucket. Mechanical, no NLP.",
+      "rationale": "Booking's review API returns flat lists; aggregating sentiment buckets requires local rollup, the only way to answer 'is this hotel good for solo travelers?' without reading every review.",
+      "example": "booking-com-pp-cli reviews stats --slug auliviaopera --country fr --by score-band,language,traveler-type --agent",
+      "why_it_matters": "Reach for this when an agent is matching property fit to a traveler type. Returns a bucket distribution instead of forcing the agent to read 1000 reviews.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Cheapest-dates for one hotel",
+      "command": "prices cheapest",
+      "description": "Sweep candidate checkin dates for a fixed-night stay at one hotel and return the lowest nightly totals from local price_history.",
+      "rationale": "Every existing Booking.com scraper queries one (checkin, checkout) at a time; only a local SQLite price_history makes 'what's the cheapest date in this window?' a one-command answer.",
+      "example": "booking-com-pp-cli prices cheapest --slug auliviaopera --country fr --window 2026-06-01..2026-08-31 --nights 3 --agent",
+      "why_it_matters": "Reach for this before recommending dates to a user. It removes Booking's manual click-through-every-date dance and exposes the seasonal price floor for the property in one call.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Cheapest-dates for a destination",
+      "command": "prices cheapest-destination",
+      "description": "Sweep candidate checkins across a destination's top results and return the cheapest (property, date) pairs under a max-price ceiling.",
+      "rationale": "Joins price_history rows that share a destination across many dates; a single Booking search call cannot answer 'cheapest property + cheapest date jointly'.",
+      "example": "booking-com-pp-cli prices cheapest-destination --query Paris --window 2026-06-01..2026-08-31 --nights 3 --max-price 250 --agent",
+      "why_it_matters": "Use when an agent has a flexible-date traveler in a flexible-property mood. Returns a budget-constrained Pareto frontier instead of one ranked list per date.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Price-drop watch",
+      "command": "watch run",
+      "description": "Track a set of (hotel, checkin, checkout) tuples and surface only the ones whose latest price dropped a configurable percentage below their trailing median.",
+      "rationale": "Diffing requires persistent price observations across runs; cumulative state lives in the local store, not in any single Booking endpoint.",
+      "example": "booking-com-pp-cli watch run --min-pct 7 --agent",
+      "why_it_matters": "Schedule this nightly. Returns empty most days, returns gold when a watched property dropped enough to act on.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Wishlist price-drop digest",
+      "command": "wishlist drops",
+      "description": "Joins the authenticated wishlist with the local price_history and surfaces saved properties whose latest observed price is N% below the previous observation.",
+      "rationale": "Booking.com's wishlist page shows only today's price; no scraper or RapidAPI MCP can authenticate AND diff against history.",
+      "example": "booking-com-pp-cli wishlist drops --since 168h --min-pct 5 --agent",
+      "why_it_matters": "Use Sunday morning. Returns the small set of wishlist items worth booking now, instead of forcing the user to eyeball 30-40 saved properties.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Compare two hotels side-by-side",
+      "command": "compare",
+      "description": "Fetches detail + reviews for two hotels in parallel and emits a paired struct (price, score, amenity Δ, distance, free-cancellation, breakfast, recent-review counts).",
+      "rationale": "Booking has no two-hotel comparison endpoint; the diff is local synthesis across two JSON-LD payloads + two review streams.",
+      "example": "booking-com-pp-cli compare auliviaopera plazaathenee --checkin 2026-07-15 --checkout 2026-07-18 --agent",
+      "why_it_matters": "When an agent has narrowed to two finalists, reach for this instead of re-rendering both detail pages and asking the user to read both.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Free-cancellation deadline alarm",
+      "command": "trips deadlines",
+      "description": "Walks authenticated upcoming trips, extracts the free-cancellation-until deadline from each trip detail, and returns trips whose deadline is within a configurable window.",
+      "rationale": "Booking's free-cancellation policy is a service-specific identity feature; surfacing it in one command requires authenticated trip walks no scraper supports.",
+      "example": "booking-com-pp-cli trips deadlines --within 168h --agent",
+      "why_it_matters": "Booking penalizes missed cancellation deadlines. Run this each Monday morning to catch deadlines before they expire.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Multi-leg itinerary planner",
+      "command": "trip plan",
+      "description": "Given multiple destination + date legs and a total budget, picks the cheapest property per leg whose summed nightly totals fit the budget, with a bounded combinatorial fallback when greedy busts.",
+      "rationale": "Booking's UI doesn't compose results across destinations; cross-leg optimization happens locally over multiple absorbed search calls.",
+      "example": "booking-com-pp-cli trip plan --leg Rome:2026-07-10:2026-07-13 --leg Florence:2026-07-13:2026-07-16 --leg Venice:2026-07-16:2026-07-20 --budget 1800 --filters free_cancellation,breakfast,score\u003e=8 --agent",
+      "why_it_matters": "For multi-city European itineraries the agent can answer the budget-constrained question in one round-trip instead of asking the user to iterate per leg.",
+      "group": "Reachability mitigation"
+    },
+    {
+      "name": "Genius-tier price-impact estimator",
+      "command": "genius impact",
+      "description": "Runs an absorbed search twice — once with the authenticated cookie (Genius rates applied) and once anonymously — and diffs price-per-property to surface the Genius savings delta.",
+      "rationale": "Booking.com hides whether a given search benefited from Genius until you compare; only a CLI that owns both cookie + cookieless surf calls can compute it.",
+      "example": "booking-com-pp-cli genius impact --query Paris --checkin 2026-07-15 --checkout 2026-07-18 --adults 2 --agent",
+      "why_it_matters": "Use when an agent helps a user evaluate whether a Booking Genius tier is worth chasing. Reports the actual unlocked discount on a real search.",
+      "group": "Reachability mitigation"
+    },
+    {
+      "name": "Mobile-only rate detector",
+      "command": "deals mobile-rates",
+      "description": "Re-runs an absorbed search with a Chrome mobile UA on top of the desktop call and diffs to surface mobile-only discounts Booking hides from desktop users.",
+      "rationale": "Booking's mobile-only rates are a documented identity feature; no scraper exploits the desktop/mobile pricing gap because they only ship one UA.",
+      "example": "booking-com-pp-cli deals mobile-rates --query Paris --checkin 2026-07-15 --checkout 2026-07-18 --agent",
+      "why_it_matters": "When an agent is hunting savings, reach for this before recommending the desktop-quoted rate. Mobile rates can be 5-15 percent lower on the same hotel + dates.",
+      "group": "Reachability mitigation"
+    },
+    {
+      "name": "Destination price-band by month",
+      "command": "destinations price-band",
+      "description": "Aggregates price_history for a destination's synced properties and emits per-month median, min, and max nightly rate plus contributing property-count.",
+      "rationale": "Booking has no public seasonality endpoint; the per-month waterfall is a local aggregation only possible after `sync` builds the price_history backlog.",
+      "example": "booking-com-pp-cli destinations price-band --query Paris --year 2026 --nights 3 --agent",
+      "why_it_matters": "Use when planning a flexible-month trip. Returns the cheapest month + 'avoid this month' signal without manual searching.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Trips export for expense systems",
+      "command": "trips export",
+      "description": "Walks authenticated past-trip list, opens each trip detail, and emits a deterministic CSV (confirmation, property, checkin, checkout, currency, total, address) ready to paste into expense systems.",
+      "rationale": "Booking's web UI shows trips one-by-one; no scraper supports authenticated trip detail. Structured CSV is the agent-native shape for downstream automation.",
+      "example": "booking-com-pp-cli trips export --state past --since 2026-01-01 --format csv",
+      "why_it_matters": "Use Monday morning for last week's reimbursements. One call replaces clicking through every past trip.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Offline property FTS",
+      "command": "search",
+      "description": "After `sync` populates the local property store, FTS5 ranks free-text queries over name + description + amenity strings with BM25, no network call.",
+      "rationale": "Booking's hotel-name search is destination-locked; an offline FTS lets agents query 'boutique near louvre with rooftop' across already-synced properties.",
+      "example": "booking-com-pp-cli search \"boutique near louvre with rooftop\" --agent",
+      "why_it_matters": "After repeated `sync` calls have built a corpus, this lets an agent answer cross-destination property questions without re-hitting the network.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Review stats rollup",
+      "command": "reviews stats",
+      "description": "Local SQL group-by over synced reviews; counts and median score per score-band, language, and traveler-type bucket. Mechanical, no NLP.",
+      "rationale": "Booking's review API returns flat lists; aggregating sentiment buckets requires local rollup, the only way to answer 'is this hotel good for solo travelers?' without reading every review.",
+      "example": "booking-com-pp-cli reviews stats --slug auliviaopera --country fr --by score-band,language,traveler-type --agent",
+      "why_it_matters": "Reach for this when an agent is matching property fit to a traveler type. Returns a bucket distribution instead of forcing the agent to read 1000 reviews.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "narrative": {
+    "display_name": "Booking.com",
+    "headline": "Every Booking.com workflow, plus offline price history, wishlist drop alerts, and multi-leg planning no other Booking.com tool ships.",
+    "value_prop": "Search Booking.com, scrape hotel detail and reviews, watch prices over time, and read your trips, wishlist, and Genius rewards via a Chrome cookie import. Local SQLite price_history powers cheapest-date sweeps, price-drop watch, wishlist diff, and seasonal price-band rollups that the booking.com UI cannot answer.",
+    "auth_narrative": "Public search, hotel detail, reviews, destinations, and map markers run anonymously through Surf with a Chrome TLS fingerprint that clears Booking.com's AWS WAF challenge without a clearance cookie. Authenticated commands (trips, wishlist, rewards, profile) need a logged-in Chrome session: run `booking-com-pp-cli auth login --chrome` once and the CLI imports the booking.com session cookies so subsequent authenticated calls replay through Surf.",
+    "quickstart": [
+      {
+        "command": "booking-com-pp-cli hotels list --query Paris --checkin 2026-06-20 --checkout 2026-06-23 --adults 2 --json --select '[].name,[].price,[].review_score,[].url'",
+        "comment": "Headline hotel search — 25 SSR-extracted property cards with --select narrowing the response shape."
+      },
+      {
+        "command": "booking-com-pp-cli hotels get fr auliviaopera --checkin 2026-06-20 --checkout 2026-06-23 --json",
+        "comment": "Drill into a property: amenities, address, geo, rating from the JSON-LD Hotel schema."
+      },
+      {
+        "command": "booking-com-pp-cli prices cheapest --slug auliviaopera --country fr --window 2026-06-01..2026-08-31 --nights 3 --agent",
+        "comment": "Local price_history sweep — answers 'when is this hotel cheapest in summer?' in one call."
+      },
+      {
+        "command": "booking-com-pp-cli doctor --json",
+        "comment": "Verify auth + reachability before authenticated commands. Run `booking-com-pp-cli auth login --chrome` first if doctor reports missing cookies."
+      },
+      {
+        "command": "booking-com-pp-cli wishlist drops --since 168h --min-pct 5 --agent",
+        "comment": "Weekly digest of wishlist items whose price dropped at least 5 percent in the last 7 days."
+      },
+      {
+        "command": "booking-com-pp-cli trips deadlines --within 168h --agent",
+        "comment": "Monday-morning alarm: upcoming trips whose free-cancellation deadline is within 7 days."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "All search calls return HTTP 202 with 'Just a moment' HTML body",
+        "fix": "Booking.com refreshed its AWS WAF signature. Run `booking-com-pp-cli doctor` to confirm reachability; if the Surf+Chrome probe is failing, upgrade printing-press so the bundled Surf transport ships the latest Chrome TLS fingerprint."
+      },
+      {
+        "symptom": "Authenticated commands (trips, wishlist, rewards) redirect to the sign-in page",
+        "fix": "Your imported cookies expired. Re-run `booking-com-pp-cli auth login --chrome` after refreshing the booking.com tab in Chrome."
+      },
+      {
+        "symptom": "Map markers command returns 'CSRF token expired'",
+        "fix": "The internal /dml/graphql endpoint rotates the CSRF token every ~30 minutes. The CLI auto-refreshes by re-fetching the search-results page; pass `--no-cache` to force a fresh fetch on the next call."
+      },
+      {
+        "symptom": "`prices cheapest` returns fewer rows than --window days",
+        "fix": "Booking shows 'sold out' for some dates and drops them from the SSR card list. Inspect with `--include-unavailable` to see which dates were probed without prices."
+      },
+      {
+        "symptom": "`wishlist drops` returns empty even after observed price changes",
+        "fix": "Drop detection requires \u003e= 2 observations per item. Run `booking-com-pp-cli wishlist get` daily (or wire it to a cron) before `wishlist drops` will diff meaningfully."
+      }
+    ],
+    "when_to_use": "Use this CLI when an agent needs to search Booking.com, drill into hotel detail, compare candidates, or work with a user's logged-in Booking account (trips, wishlist, Genius rewards). It is the right choice for cheapest-date sweeps, price-drop tracking, and multi-leg itinerary planning — work that compounds across calls and benefits from local SQLite history. Reach for it instead of generic web-scraping tools because it owns Booking's AWS WAF clearance via Surf+Chrome TLS, the CSRF/cookie composition for /dml/graphql, and the Chrome cookie import for authenticated surfaces.",
+    "recipes": [
+      {
+        "title": "Cheapest week in Paris this summer",
+        "command": "booking-com-pp-cli prices cheapest-destination --query Paris --window 2026-06-01..2026-08-31 --nights 7 --max-price 200 --agent --select '[].property_name,[].checkin,[].price'",
+        "explanation": "Sweep every 7-night window in summer and return the cheapest property-and-date pairs under $200/night, with --select narrowing the response to the three fields an agent needs."
+      },
+      {
+        "title": "Wishlist drop digest for Sunday morning",
+        "command": "booking-com-pp-cli wishlist drops --since 168h --min-pct 5 --agent",
+        "explanation": "Walks the user's wishlist and returns only items whose latest price is at least 5 percent below the previous observation in the last week."
+      },
+      {
+        "title": "Compare two hotels with detailed deltas",
+        "command": "booking-com-pp-cli compare auliviaopera plazaathenee --checkin 2026-07-15 --checkout 2026-07-18 --agent",
+        "explanation": "Side-by-side amenities, price, score, distance, free-cancellation, and recent-review counts for two slug-identified properties."
+      },
+      {
+        "title": "Free-cancellation alarm for the week ahead",
+        "command": "booking-com-pp-cli trips deadlines --within 168h --agent",
+        "explanation": "Walks authenticated upcoming trips and surfaces those with a free-cancellation deadline in the next week, sorted by urgency."
+      },
+      {
+        "title": "Plan a 3-city Italian itinerary against a budget",
+        "command": "booking-com-pp-cli trip plan --leg Rome:2026-07-10:2026-07-13 --leg Florence:2026-07-13:2026-07-16 --leg Venice:2026-07-16:2026-07-20 --budget 1800 --filters free_cancellation,breakfast,score\u003e=8 --agent",
+        "explanation": "Searches each leg in parallel and picks the cheapest property combination per leg whose summed nightly totals fit the budget."
+      }
+    ],
+    "trigger_phrases": [
+      "search booking.com for hotels in",
+      "what's the cheapest week to stay in",
+      "track price drops on my booking.com wishlist",
+      "compare these two hotels",
+      "are any of my booking trips about to lose free cancellation",
+      "plan a multi-city trip on booking.com",
+      "use booking-com",
+      "run booking-com"
+    ]
+  }
+}

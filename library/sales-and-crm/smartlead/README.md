@@ -11,31 +11,37 @@ Printed by [@bossriceshark](https://github.com/bossriceshark) (bossriceshark).
 The recommended path installs both the `smartlead-pp-cli` binary and the `pp-smartlead` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
 
 ```bash
-npx -y @mvanhorn/printing-press install smartlead
+npx -y @mvanhorn/printing-press-library install smartlead
 ```
 
 For CLI only (no skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install smartlead --cli-only
+npx -y @mvanhorn/printing-press-library install smartlead --cli-only
 ```
 
 For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install smartlead --skill-only
+npx -y @mvanhorn/printing-press-library install smartlead --skill-only
 ```
 
 To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
 
 ```bash
-npx -y @mvanhorn/printing-press install smartlead --agent claude-code
-npx -y @mvanhorn/printing-press install smartlead --agent claude-code --agent codex
+npx -y @mvanhorn/printing-press-library install smartlead --agent claude-code
+npx -y @mvanhorn/printing-press-library install smartlead --agent claude-code --agent codex
 ```
 
-### Without Node
+### Without Node (Go fallback)
 
-The generated install path is category-agnostic until this CLI is published. If `npx` is not available before publish, install Node or use the category-specific Go fallback from the public-library entry after publish.
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.3 or newer):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/sales-and-crm/smartlead/cmd/smartlead-pp-cli@latest
+```
+
+This installs the CLI only — no skill.
 
 ### Pre-built binary
 
@@ -111,18 +117,14 @@ SmartLead authenticates with an API key passed as the api_key query parameter. S
 # Confirm the API key is set and SmartLead is reachable before anything else.
 smartlead-pp-cli doctor
 
-
 # Mirror campaigns, leads, email accounts, and statistics into the local SQLite store.
 smartlead-pp-cli sync
-
 
 # List every campaign now served instantly from the local mirror.
 smartlead-pp-cli campaigns list --json
 
-
 # Get the bounce/reply/silent-lead scorecard across all campaigns at once.
 smartlead-pp-cli health --json
-
 
 # Check whether a domain is already pitched before adding new leads.
 smartlead-pp-cli dupes --domain example.com --json
@@ -281,7 +283,6 @@ Run `smartlead-pp-cli --help` for the full command reference and flag list.
 | `which` | Find the command that implements a capability |
 | `profile` | Named sets of flags saved for reuse |
 | `agent-context` | Emit structured JSON describing this CLI for agents |
-
 
 ## Output Formats
 

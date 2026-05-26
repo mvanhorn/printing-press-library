@@ -15,7 +15,10 @@
       "command": "${__dirname}/bin/cf-domain-pp-mcp",
       "args": [],
       "env": {
-        "CLOUDFLARE_REGISTRAR_DOMAINS_BEARER_AUTH": "${user_config.cloudflare_registrar_domains_bearer_auth}"
+        "CLOUDFLARE_REGISTRAR_DOMAINS_BEARER_AUTH": "${user_config.cloudflare_registrar_domains_bearer_auth}",
+        "CLOUDFLARE_API_TOKEN": "${user_config.cloudflare_api_token}",
+        "ACCOUNT_ID": "${user_config.account_id}",
+        "CLOUDFLARE_ACCOUNT_ID": "${user_config.account_id}"
       }
     }
   },
@@ -40,13 +43,6 @@
       "description": "Cloudflare account ID used for Registrar requests.",
       "sensitive": false,
       "required": true
-    },
-    "cloudflare_account_id": {
-      "type": "string",
-      "title": "CLOUDFLARE_ACCOUNT_ID",
-      "description": "Cloudflare account ID fallback used for Registrar requests.",
-      "sensitive": false,
-      "required": false
     }
   },
   "compatibility": {

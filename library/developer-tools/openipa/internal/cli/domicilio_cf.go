@@ -20,7 +20,7 @@ func newDomicilioCfCmd(flags *rootFlags) *cobra.Command {
 		Use:         "cf",
 		Short:       "Domicilio digitale di un ente per codice fiscale",
 		Example:     "  openipa-pp-cli domicilio cf --cf example-value",
-		Annotations: map[string]string{"pp:endpoint": "domicilio.cf", "pp:method": "POST", "pp:path": "/WS23_DOM_DIG_CF.php"},
+		Annotations: map[string]string{"pp:endpoint": "domicilio.cf", "pp:method": "POST", "pp:path": "/ws/WS23DOMDIGCFServices/api/WS23_DOM_DIG_CF"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {
 				if !cmd.Flags().Changed("cf") && !flags.dryRun {
@@ -32,7 +32,7 @@ func newDomicilioCfCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 
-			path := "/WS23_DOM_DIG_CF.php"
+			path := "/ws/WS23DOMDIGCFServices/api/WS23_DOM_DIG_CF"
 			var body map[string]any
 			if stdinBody {
 				stdinData, err := io.ReadAll(os.Stdin)

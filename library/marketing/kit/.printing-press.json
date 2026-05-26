@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-19T16:14:50.829437Z",
+  "printing_press_version": "4.9.0",
+  "api_name": "kit",
+  "display_name": "Kit",
+  "cli_name": "kit-pp-cli",
+  "owner": "cathrynlavery",
+  "printer": "cathrynlavery",
+  "printer_name": "Cathryn Lavery",
+  "spec_url": "https://developers.kit.com/api-reference/v4.json",
+  "run_id": "20260519-111411",
+  "catalog_entry": "kit",
+  "category": "marketing",
+  "description": "Manage Kit subscribers, tags, forms, sequences, broadcasts, purchases, and email marketing automation data from the terminal.",
+  "mcp_binary": "kit-pp-mcp",
+  "mcp_tool_count": 72,
+  "mcp_ready": "full",
+  "api_version": "4.0",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "KIT_API_KEY"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "KIT_API_KEY",
+      "kind": "per_call",
+      "required": false,
+      "sensitive": true
+    }
+  ],
+  "auth_key_url": "https://app.kit.com/account_settings/developer_settings",
+  "novel_features": [
+    {
+      "name": "Creator Snapshot",
+      "command": "workflow creator-snapshot",
+      "description": "One-call read-only operating snapshot for Kit account, growth, audience, content, webhooks, and broadcast stats."
+    },
+    {
+      "name": "Audience Health",
+      "command": "workflow audience-health",
+      "description": "Read-only subscriber status counts, recent growth stats, and largest tags by subscriber count."
+    },
+    {
+      "name": "Content Inventory",
+      "command": "workflow content-inventory",
+      "description": "Read-only inventory of sequences, sequence emails, snippets, forms, templates, and recent broadcast stats."
+    },
+    {
+      "name": "Subscriber Lookup",
+      "command": "workflow subscriber-lookup",
+      "description": "Read-only subscriber dossier by email or id with profile, custom fields, tags, attribution, and email stats."
+    }
+  ]
+}

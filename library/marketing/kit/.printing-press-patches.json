@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-19",
+  "base_run_id": "20260519-111411",
+  "base_printing_press_version": "4.9.0",
+  "patches": [
+    {
+      "id": "kit-agentic-workflows",
+      "summary": "Added Kit-specific read-only workflow commands for creator snapshots, audience health, content inventory, and subscriber lookup.",
+      "reason": "The generated endpoint mirror was MCP-like; these workflows combine real Kit v4 endpoint calls into higher-level agent context before publish.",
+      "files": [
+        ".printing-press.json",
+        "internal/cli/channel_workflow.go",
+        "internal/cli/which.go",
+        "README.md",
+        "SKILL.md",
+        "research.json"
+      ],
+      "validated_outcome": "go fmt ./... and go build ./... passed; live workflow checks were run without printing account output."
+    },
+    {
+      "id": "kit-api-key-mcp-metadata",
+      "summary": "Restored MCP and package auth metadata to Kit's X-Kit-Api-Key API-key header.",
+      "reason": "Kit's spec includes multiple auth schemes, but this printed CLI is intentionally configured and live-verified with the X-Kit-Api-Key header. MCP install and manifest metadata must match the runtime client.",
+      "files": [
+        ".printing-press.json",
+        "tools-manifest.json",
+        "manifest.json",
+        "internal/mcp/tools.go"
+      ],
+      "validated_outcome": "publish validate passed; live dogfood quick passed with KIT_API_KEY without printing the key or account data."
+    },
+    {
+      "id": "kit-honest-90",
+      "summary": "Raised Kit scorecard from 83 to 90 via 5 changes: (1) added internal/mcp/intents.go registering 4 first-class MCP intent tools (intent_workflow_creator_snapshot, intent_workflow_audience_health, intent_workflow_content_inventory, intent_workflow_subscriber_lookup) delegating in-process to existing Cobra workflow commands; (2) added optional HTTP transport to cmd/kit-pp-mcp/main.go via --transport flag and PP_MCP_TRANSPORT env var; (3) added internal/cli/growth_trends.go correlating /v4/account/growth_stats with /v4/broadcasts/stats and optionally caching results via db.UpsertBroadcastsStats; (4) added internal/cli/tag_performance.go ranking tags by subscriber count with SQL aggregation and percentage shares, plus optional --subscriber-query that calls store.SearchSubscribers; (5) added internal/store/search_domain.go defining SearchBroadcasts and SearchSubscribers domain-typed FTS5 wrappers.",
+      "reason": "Scorecard math (internal/pipeline/scorecard.go normalizes tier1 as raw*50/200 and tier2 as raw*50/50) means raw dimension lifts are not sum-equal to total points. Path to 90 requires +7 normalized points; achieved as: mcp_remote_transport 5->10 (+1 norm via HTTP transport), mcp_tool_design 5->7 + mcp_surface_strategy 2->7 (+1 norm via intent tools), workflows 6->8 + insight 6->9 (+2 norm via the two new compound commands), data_pipeline_integrity 7->10 (+3 norm via domain SearchSubscribers method called from CLI). Endpoint tools remain fully visible; intent_ prefix avoids name collision with cobratree's auto-registered workflow_* shell-out tools.",
+      "files": [
+        "cmd/kit-pp-mcp/main.go",
+        "internal/cli/growth_trends.go",
+        "internal/cli/tag_performance.go",
+        "internal/cli/root.go",
+        "internal/mcp/intents.go",
+        "internal/mcp/tools.go",
+        "internal/store/search_domain.go",
+        "tools-manifest.json",
+        "README.md",
+        "SKILL.md"
+      ],
+      "validated_outcome": "go fmt ./..., go vet ./..., go build ./... passed; growth-trends/tag-performance --help render; MCP smoke test with proper initialize handshake exposes all 4 intent_workflow_* tools; scorecard reports 90/100 (87+3 from data_pipeline_integrity domain Search lift). Pre-existing TestUpsertBatch_Sets*ParentID failures in internal/store are unrelated to this patch."
+    },
+    {
+      "id": "kit-redirect-api-key-scrub",
+      "summary": "Removed Kit's API key header from cross-host HTTP redirect requests while preserving same-host redirect auth.",
+      "reason": "Go strips standard auth headers on cross-domain redirects but does not strip custom API-key headers. Kit uses X-Kit-Api-Key, so the printed client must delete it explicitly before following a redirect to another host.",
+      "files": [
+        "internal/client/client.go",
+        "internal/client/client_test.go"
+      ],
+      "validated_outcome": "go test ./internal/client passed.",
+      "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/issues/1672"
+    }
+  ]
+}

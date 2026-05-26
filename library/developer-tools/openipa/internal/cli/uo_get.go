@@ -20,7 +20,7 @@ func newUoGetCmd(flags *rootFlags) *cobra.Command {
 		Use:         "get",
 		Short:       "Dettagli di una singola UO per codice univoco",
 		Example:     "  openipa-pp-cli uo get --codice-uni example-value",
-		Annotations: map[string]string{"pp:endpoint": "uo.get", "pp:method": "POST", "pp:path": "/WS06_OU_CODUNI.php", "mcp:read-only": "true"},
+		Annotations: map[string]string{"pp:endpoint": "uo.get", "pp:method": "POST", "pp:path": "/ws/WS06OUCODUNIServices/api/WS06_OU_COD_UNI", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {
 				if !cmd.Flags().Changed("codice-uni") && !flags.dryRun {
@@ -32,7 +32,7 @@ func newUoGetCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 
-			path := "/WS06_OU_CODUNI.php"
+			path := "/ws/WS06OUCODUNIServices/api/WS06_OU_COD_UNI"
 			var body map[string]any
 			if stdinBody {
 				stdinData, err := io.ReadAll(os.Stdin)

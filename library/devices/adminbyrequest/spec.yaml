@@ -1,0 +1,382 @@
+name: adminbyrequest
+description: "Admin By Request endpoint privilege management CLI: audit log, events, inventory, requests approval, and offline PIN codes with a local SQLite mirror."
+version: "0.1.0"
+base_url: "https://dc1api.adminbyrequest.com"
+health_check_path: "/auditlog?take=1"
+
+# Note: tenants are pinned to one of dc1api-dc6api.adminbyrequest.com.
+# The doctor command should probe each data center to detect the right one.
+
+auth:
+  type: api_key
+  header: "apikey"
+  format: "{token}"
+  env_vars:
+    - ADMINBYREQUEST_API_KEY
+  in: header
+
+config:
+  format: toml
+  path: "~/.config/adminbyrequest-pp-cli/config.toml"
+
+resources:
+  auditlog:
+    description: "Admin session and elevation audit log entries"
+    endpoints:
+      list:
+        method: GET
+        path: "/auditlog"
+        description: "List audit log entries (admin sessions, app elevations, denied requests). Pagination is by id cursor."
+        params:
+          - name: startid
+            type: int
+            description: "Return entries with id less than this value (cursor; 0 = newest)"
+          - name: take
+            type: int
+            default: 10
+            description: "How many entries to return (max 1000)"
+          - name: wantscandetails
+            type: int
+            description: "Set to 1 to include malware scan result detail"
+          - name: type
+            type: string
+            description: "Filter by entry type (e.g. 'Admin Session', 'App Elevation')"
+          - name: status
+            type: string
+            description: "Filter by status (e.g. 'Finished', 'Denied', 'Pending')"
+          - name: settings
+            type: string
+            description: "Filter by AbR settings profile name (e.g. 'Global')"
+          - name: user
+            type: string
+            description: "Filter by user account (e.g. 'AZUREAD\\CHRISCOOMBES')"
+          - name: computer
+            type: string
+            description: "Filter by computer name"
+        response:
+          type: array
+          item: AuditLogEntry
+
+      delta:
+        method: GET
+        path: "/auditlog/delta"
+        description: "Delta query for audit log changes (use timeNow/deltaTime ticks for resumable sync)"
+        params:
+          - name: startid
+            type: int
+            description: "Last seen id (entries with id greater than this are returned)"
+          - name: take
+            type: int
+            default: 100
+            description: "How many entries per page"
+          - name: deltaTime
+            type: int
+            description: "Last poll's timeNow value to detect updates after initial pull"
+          - name: timeNow
+            type: int
+            description: "Current time in ticks (server returns its own timeNow when omitted)"
+        response:
+          type: object
+          item: AuditLogDelta
+
+  events:
+    description: "Security and operational events emitted by AbR clients"
+    endpoints:
+      list:
+        method: GET
+        path: "/events"
+        description: "List events. Use code filter to narrow to specific event types."
+        params:
+          - name: startid
+            type: int
+            description: "Return events with id less than this value (cursor; 0 = newest)"
+          - name: take
+            type: int
+            default: 10
+            description: "How many events to return"
+          - name: code
+            type: int
+            description: "Filter by event code (e.g. 40 = client installed)"
+          - name: level
+            type: int
+            description: "Filter by event level (severity)"
+          - name: computer
+            type: string
+            description: "Filter by computer name"
+        response:
+          type: array
+          item: EventEntry
+
+  inventory:
+    description: "Endpoint inventory: hardware, software, OS, AbR agent version"
+    endpoints:
+      list:
+        method: GET
+        path: "/inventory"
+        description: "List inventoried endpoints. Use wantsoftware/wanthardware to expand."
+        params:
+          - name: take
+            type: int
+            default: 10
+            description: "How many devices to return"
+          - name: startid
+            type: int
+            description: "Return devices with id less than this value (cursor)"
+          - name: wantsoftware
+            type: int
+            description: "Set to 1 to include installed software list per device"
+          - name: wanthardware
+            type: int
+            description: "Set to 1 to include hardware spec per device"
+          - name: sid
+            type: string
+            description: "Filter by owner SID"
+          - name: accountName
+            type: string
+            description: "Filter by owner account name"
+          - name: fullName
+            type: string
+            description: "Filter by owner full name"
+        response:
+          type: array
+          item: InventoryDevice
+
+      pin:
+        method: GET
+        path: "/inventory/{computer}/pin"
+        description: "Generate an offline elevation PIN code for a device. Pass --challenge for challenge-response mode."
+        params:
+          - name: computer
+            type: string
+            required: true
+            positional: true
+            description: "Computer name (matches inventory.name)"
+          - name: pintype
+            type: string
+            description: "PIN mode: 'challenge' (admin reads challenge to user, gets back code) or omit for numeric PIN"
+          - name: challenge
+            type: string
+            description: "Challenge code from the user when pintype=challenge"
+        response:
+          type: object
+          item: PinResult
+
+  requests:
+    description: "Pending, approved, and denied elevation requests"
+    endpoints:
+      list:
+        method: GET
+        path: "/requests"
+        description: "List elevation requests filtered by status."
+        params:
+          - name: status
+            type: string
+            description: "Status filter: pending, approved, or denied"
+            enum: [pending, approved, denied]
+          - name: startid
+            type: int
+            description: "Return requests with id less than this value (cursor)"
+          - name: take
+            type: int
+            default: 10
+            description: "How many requests to return"
+          - name: wantscandetails
+            type: int
+            description: "Set to 1 to include malware scan result detail"
+          - name: user
+            type: string
+            description: "Filter by user account"
+          - name: computer
+            type: string
+            description: "Filter by computer name"
+        response:
+          type: array
+          item: ElevationRequest
+
+      approve:
+        method: PUT
+        path: "/requests/{id}"
+        description: "Approve a pending elevation request."
+        params:
+          - name: id
+            type: int
+            required: true
+            positional: true
+            description: "Request ID"
+        body:
+          - name: status
+            type: string
+            required: true
+            default: "Approved"
+            description: "Decision: Approved"
+          - name: reason
+            type: string
+            description: "Approval note (admin's reason)"
+        response:
+          type: object
+          item: ElevationRequest
+
+      deny:
+        method: PUT
+        path: "/requests/{id}"
+        description: "Deny a pending elevation request."
+        params:
+          - name: id
+            type: int
+            required: true
+            positional: true
+            description: "Request ID"
+        body:
+          - name: status
+            type: string
+            required: true
+            default: "Denied"
+            description: "Decision: Denied"
+          - name: reason
+            type: string
+            description: "Denial reason (admin's note)"
+        response:
+          type: object
+          item: ElevationRequest
+
+extra_commands:
+  - name: correlate
+    args: "<auditlog-id>"
+    description: "Join an audit log entry to nearby events on the same computer (window in minutes)"
+  - name: report
+    description: "Render compliance reports from synced data"
+  - name: quota
+    description: "Track local API call count vs AbR's 100k/day quota"
+
+types:
+  AuditLogEntry:
+    fields:
+      - name: id
+        type: int
+      - name: traceNo
+        type: string
+      - name: settingsName
+        type: string
+      - name: type
+        type: string
+      - name: typeCode
+        type: int
+      - name: status
+        type: string
+      - name: statusCode
+        type: int
+      - name: reason
+        type: string
+      - name: approvedBy
+        type: string
+      - name: approvedByEmail
+        type: string
+      - name: deniedBy
+        type: string
+      - name: deniedByEmail
+        type: string
+      - name: deniedReason
+        type: string
+      - name: requestTime
+        type: string
+      - name: startTime
+        type: string
+      - name: endTime
+        type: string
+      - name: auditlogLink
+        type: string
+      - name: ssoValidated
+        type: bool
+
+  AuditLogDelta:
+    fields:
+      - name: entries
+        type: string
+      - name: timeNow
+        type: int
+      - name: deltaTime
+        type: int
+
+  EventEntry:
+    fields:
+      - name: id
+        type: int
+      - name: eventCode
+        type: int
+      - name: eventLevel
+        type: int
+      - name: eventText
+        type: string
+      - name: eventTime
+        type: string
+      - name: eventTimeUTC
+        type: string
+      - name: computerName
+        type: string
+      - name: userAccount
+        type: string
+      - name: userName
+        type: string
+      - name: auditLogURL
+        type: string
+      - name: additionalData
+        type: string
+
+  InventoryDevice:
+    fields:
+      - name: id
+        type: int
+      - name: name
+        type: string
+      - name: inventoryAvailable
+        type: bool
+      - name: inventoryDate
+        type: string
+      - name: abrClientVersion
+        type: string
+      - name: abrClientInstallDate
+        type: string
+      - name: notes
+        type: string
+
+  PinResult:
+    fields:
+      - name: pin
+        type: string
+      - name: validUntil
+        type: string
+      - name: challenge
+        type: string
+
+  ElevationRequest:
+    fields:
+      - name: id
+        type: int
+      - name: traceNo
+        type: string
+      - name: settingsName
+        type: string
+      - name: type
+        type: string
+      - name: typeCode
+        type: int
+      - name: status
+        type: string
+      - name: statusCode
+        type: int
+      - name: reason
+        type: string
+      - name: approvedBy
+        type: string
+      - name: approvedByEmail
+        type: string
+      - name: deniedBy
+        type: string
+      - name: deniedByEmail
+        type: string
+      - name: deniedReason
+        type: string
+      - name: requestTime
+        type: string
+      - name: auditlogLink
+        type: string

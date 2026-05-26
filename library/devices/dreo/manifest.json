@@ -1,0 +1,47 @@
+{
+  "manifest_version": "0.3",
+  "name": "dreo-pp-mcp",
+  "display_name": "Dreo",
+  "version": "4.8.0",
+  "description": "Control Dreo smart fans, heaters, air purifiers, humidifiers, and ACs from the command line.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/dreo-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/dreo-pp-mcp",
+      "args": [],
+      "env": {
+        "DREO_PASSWORD": "${user_config.dreo_password}",
+        "DREO_USERNAME": "${user_config.dreo_username}"
+      }
+    }
+  },
+  "user_config": {
+    "dreo_password": {
+      "type": "string",
+      "title": "DREO_PASSWORD",
+      "description": "Password for your Dreo account. The CLI MD5-hashes it before sending to Dreo and never persists the plaintext to disk; only the bearer access token is cached.",
+      "sensitive": true,
+      "required": true
+    },
+    "dreo_username": {
+      "type": "string",
+      "title": "DREO_USERNAME",
+      "description": "Email address you use to sign in to the Dreo iOS/Android app.",
+      "sensitive": false,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

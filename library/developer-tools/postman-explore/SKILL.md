@@ -24,7 +24,7 @@ This skill drives the `postman-explore-pp-cli` binary. **You must verify the CLI
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install postman-explore --cli-only
+   npx -y @mvanhorn/printing-press-library install postman-explore --cli-only
    ```
 2. Verify: `postman-explore-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.

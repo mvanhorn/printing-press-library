@@ -20,16 +20,18 @@ This skill drives the `domain-goat-pp-cli` binary. **You must verify the CLI is 
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install domain-goat --cli-only
+   npx -y @mvanhorn/printing-press-library install domain-goat --cli-only
    ```
 2. Verify: `domain-goat-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
 
-If the `npx` install fails before this CLI has a public-library category, install Node or use the category-specific Go fallback after publish.
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.3 or newer):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/developer-tools/domain-goat/cmd/domain-goat-pp-cli@latest
+```
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
-
-domain-goat absorbs everything dnstwist, openrdap, whois, and the abandoned domainr-cli ever did, then transcends with a local SQLite shortlist that knows your scores, your notes, your watch list, and 5-year renewal cost for every TLD — so you can find domains worth registering instead of just typing names into instant-domain-search.com five at a time.
 
 ## When to Use This CLI
 

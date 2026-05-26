@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Skill(printing-press-polish)",
+      "Bash(go build *)",
+      "Bash(go run *)"
+    ]
+  }
+}

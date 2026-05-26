@@ -1,0 +1,93 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-21T16:33:22.239675Z",
+  "printing_press_version": "4.9.0",
+  "api_name": "zoom",
+  "display_name": "Zoom",
+  "cli_name": "zoom-pp-cli",
+  "owner": "jacken",
+  "printer": "Holajack",
+  "printer_name": "Jacken",
+  "spec_path": "/Users/jackenholland/printing-press/.runstate/kind-wilbur-23a9ec-a2ff92f1/runs/20260519-094503/research/zoom-openapi-v2.json",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:7633bdbafa7183c789d40634ce1543759ffae2c81d3e950424703df5d7c2f8c4",
+  "run_id": "20260519-094503",
+  "mcp_binary": "zoom-pp-mcp",
+  "mcp_tool_count": 155,
+  "mcp_public_tool_count": 155,
+  "mcp_ready": "full",
+  "api_version": "2.0.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Find a quote across all transcripts",
+      "command": "find",
+      "description": "Search every locally-recorded and cloud-recorded Zoom transcript at once, with speaker filter, context windows, and a clickable deep link back to the exact second."
+    },
+    {
+      "name": "Storage audit of local recordings",
+      "command": "storage",
+      "description": "Group everything under ~/Documents/Zoom/ by month, topic, or partial-conversion status; cross-check against the cloud recordings list to flag duplicates safe to delete locally."
+    },
+    {
+      "name": "Recording drift detector",
+      "command": "recordings drift",
+      "description": "Set-difference between local and cloud recordings; flags cloud recordings approaching the org retention deadline and local double_click_to_convert partials whose cloud version is already complete."
+    },
+    {
+      "name": "Today's meeting load + conflicts",
+      "command": "today",
+      "description": "One screen: every meeting on your calendar today, every saved bookmark scheduled for today, every recording made today, and any overlapping intervals flagged as conflicts."
+    },
+    {
+      "name": "Bookmark from URL paste",
+      "command": "saved add-from-url",
+      "description": "Paste any Zoom URL shape (https://zoom.us/j/\u003cid\u003e?pwd=, zoommtg://, calendar-invite formats) and the CLI extracts ID + unencrypted password into a named saved bookmark in one step."
+    },
+    {
+      "name": "Schedule + bookmark in one shot",
+      "command": "schedule",
+      "description": "Create a cloud meeting (POST /users/me/meetings) and immediately persist the resulting ID + password into local saved_meetings, so future `zoom saved join \u003cname\u003e` works offline."
+    },
+    {
+      "name": "Speaker-time analytics on a recording",
+      "command": "recordings analyze",
+      "description": "Per-speaker total talk-seconds, longest monologue, and cue-overlap interruption count, computed from VTT cue timestamps and speaker labels."
+    },
+    {
+      "name": "Export a recording bundle",
+      "command": "recordings export",
+      "description": "Resolve a recording ID against local first, fall back to cloud (downloading if needed); package mp4 + vtt + chat.txt + a generated INDEX.md with timestamped table of contents into one folder."
+    },
+    {
+      "name": "My Notes — open the Zoom Notes web portal",
+      "command": "notes web",
+      "description": "Open https://zoom.us/notes (optionally scoped to a meeting) in the user's default browser — the only path to the live Notes UI since Zoom has no public REST endpoint for the My Notes feature."
+    },
+    {
+      "name": "My Notes — AI Companion meeting summary",
+      "command": "notes summary",
+      "description": "Fetches Zoom AI Companion's auto-generated meeting summary for a meeting UUID via the documented `/meetings/{uuid}/meeting_summary` endpoint (S2S OAuth gated)."
+    },
+    {
+      "name": "My Notes — AI Companion transcript",
+      "command": "notes transcript",
+      "description": "Fetches the AI Companion full transcript for a meeting UUID via the documented `/meetings/{uuid}/transcript` endpoint (S2S OAuth gated)."
+    },
+    {
+      "name": "My Notes — ingest exported PDF or DOCX",
+      "command": "notes ingest",
+      "description": "Parses a Notes PDF or DOCX exported from the Zoom web portal, extracts text + meeting metadata + headings, indexes them in a local SQLite `notes` table (FTS5 enabled)."
+    },
+    {
+      "name": "My Notes — search across ingested notes",
+      "command": "notes search",
+      "description": "FTS5 query across every Notes file that has been ingested, returns `meeting_topic + note_excerpt + source_file + match_offset` with optional `--since` / `--meeting-id` filters."
+    },
+    {
+      "name": "My Notes — extract to-do / action items",
+      "command": "notes todos",
+      "description": "Scans ingested notes for action-item patterns (`TODO:`, `Action:`, `[ ]`, `- [ ]`, `Action Item:`, `Next:`, `Follow up:`, `Owner:`) and emits a structured to-do list with source meeting topic + date + checkbox state."
+    }
+  ]
+}

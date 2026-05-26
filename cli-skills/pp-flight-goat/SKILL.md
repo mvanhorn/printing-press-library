@@ -29,7 +29,7 @@ This skill drives the `flight-goat-pp-cli` binary. **You must verify the CLI is 
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install flight-goat --cli-only
+   npx -y @mvanhorn/printing-press-library install flight-goat --cli-only
    ```
 2. Verify: `flight-goat-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.

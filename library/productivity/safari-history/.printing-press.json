@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-24T03:13:34Z",
+  "printing_press_version": "4.13.0",
+  "api_name": "safari-history",
+  "display_name": "Safari History",
+  "cli_name": "safari-history-pp-cli",
+  "owner": "vinnypasceri",
+  "printer": "vinnyp",
+  "printer_name": "Vinny Pasceri",
+  "spec_format": "sqlite",
+  "run_id": "20260523-231334",
+  "description": "Query local Safari browsing history from a snapshot index; no remote API spec.",
+  "mcp_binary": "safari-history-pp-mcp",
+  "mcp_tool_count": 19,
+  "mcp_public_tool_count": 19,
+  "mcp_ready": "full",
+  "api_version": "local",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Session Timeline Reconstruction",
+      "command": "timeline",
+      "description": "Reconstructs session-level browsing timelines from visit-time gaps and redirect chains."
+    },
+    {
+      "name": "Derived Dwell Estimate",
+      "command": "dwell",
+      "description": "Estimates per-domain time-on-site from visit-time gaps (Safari stores no native dwell)."
+    },
+    {
+      "name": "Navigation Graph",
+      "command": "graph",
+      "description": "Builds a page-node / referrer-edge navigation graph (JSON or Graphviz dot)."
+    }
+  ]
+}

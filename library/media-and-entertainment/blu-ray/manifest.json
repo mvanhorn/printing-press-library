@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "blu-ray-pp-mcp",
+  "display_name": "Blu-ray.com",
+  "version": "4.8.0",
+  "description": "Blu-ray.com disc database CLI — local catalog, listings, deals, news, and price-drop watchlist for every Blu-ray, 4K, DVD, and digital release.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/blu-ray-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/blu-ray-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

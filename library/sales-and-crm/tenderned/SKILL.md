@@ -20,16 +20,18 @@ This skill drives the `tenderned-pp-cli` binary. **You must verify the CLI is in
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install tenderned --cli-only
+   npx -y @mvanhorn/printing-press-library install tenderned --cli-only
    ```
 2. Verify: `tenderned-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
 
-If the `npx` install fails before this CLI has a public-library category, install Node or use the category-specific Go fallback after publish.
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.3 or newer):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/sales-and-crm/tenderned/cmd/tenderned-pp-cli@latest
+```
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
-
-TenderNed is the central Dutch national procurement platform; all 143,000+ live notices are CC-0 licensed and freely accessible. This CLI puts every publication, every contracting authority, and every attached bestek into a local SQLite store you can grep, join, and aggregate offline. The novel commands — buyer dossier, sub-threshold leads, closing-deadline view, CPV drift over time, tender-thread reconcile — are workflows the official web UI cannot do.
 
 ## When to Use This CLI
 

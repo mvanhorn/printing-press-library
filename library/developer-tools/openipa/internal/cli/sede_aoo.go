@@ -6,9 +6,27 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
+	"unicode/utf8"
 
 	"github.com/spf13/cobra"
 )
+
+// normalizeNome replicates the IPA portal's multi-word normalization:
+// "Prefettura di Palermo" → "Prefettura,Palermo" (tokens ≤2 chars dropped, joined by comma).
+func normalizeNome(s string) string {
+	words := strings.Fields(s)
+	kept := words[:0]
+	for _, w := range words {
+		if utf8.RuneCountInString(w) > 2 {
+			kept = append(kept, w)
+		}
+	}
+	if len(kept) == 0 {
+		return s
+	}
+	return strings.Join(kept, ",")
+}
 
 func newSedeAooCmd(flags *rootFlags) *cobra.Command {
 	var nome, cf, area, categoria, codiceEnte, codiceAoo string
@@ -29,7 +47,7 @@ func newSedeAooCmd(flags *rootFlags) *cobra.Command {
 			c := newPortaleClient(flags)
 
 			body := map[string]any{
-				"desAoo":            nilIfEmpty(nome),
+				"desAoo":            nilIfEmpty(normalizeNome(nome)),
 				"codiceFiscale":     nilIfEmpty(cf),
 				"area":              nilIfEmpty(area),
 				"codiceCategoria":   nilIfEmpty(categoria),

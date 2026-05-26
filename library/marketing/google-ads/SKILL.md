@@ -1,24 +1,14 @@
 ---
 name: pp-google-ads
 description: "Google Ads API for account discovery, GAQL reporting, campaigns, budgets, assets, conversions, audiences, planning, and billing operations. Trigger phrases: `pull a Google Ads report`, `GAQL query`, `check campaign performance`, `use google-ads`."
+license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"
 allowed-tools: "Read Bash"
 metadata:
   openclaw:
     requires:
-      env: ["GOOGLE_ADS_ACCESS_TOKEN", "GOOGLE_ADS_DEVELOPER_TOKEN"]
       bins:
         - google-ads-pp-cli
-    envVars:
-      - name: GOOGLE_ADS_ACCESS_TOKEN
-        required: true
-        description: "OAuth2 access token with the https://www.googleapis.com/auth/adwords scope."
-      - name: GOOGLE_ADS_DEVELOPER_TOKEN
-        required: true
-        description: "Google Ads developer token sent as the developer-token header."
-      - name: GOOGLE_ADS_LOGIN_CUSTOMER_ID
-        required: false
-        description: "Optional manager account ID sent as the login-customer-id header."
     install:
       - kind: go
         bins: [google-ads-pp-cli]
@@ -27,7 +17,24 @@ metadata:
 
 # Google Ads — Printing Press CLI
 
-Google Ads API for account discovery, GAQL reporting, campaigns, budgets, assets, conversions, audiences, planning, and billing operations.
+## Prerequisites: Install the CLI
+
+This skill drives the `google-ads-pp-cli` binary. **You must verify the CLI is installed before invoking any command from this skill.** If it is missing, install it first:
+
+1. Install via the Printing Press installer:
+   ```bash
+   npx -y @mvanhorn/printing-press-library install google-ads --cli-only
+   ```
+2. Verify: `google-ads-pp-cli --version`
+3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
+
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.3 or newer):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/marketing/google-ads/cmd/google-ads-pp-cli@latest
+```
+
+If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
 
 ## Command Reference
 
@@ -607,19 +614,8 @@ Use async submission without `--wait` when you want to fire-and-forget; use `--w
 Parse `$ARGUMENTS`:
 
 1. **Empty, `help`, or `--help`** → show `google-ads-pp-cli --help` output
-2. **Starts with `install`** → ends with `mcp` → MCP installation; otherwise → CLI installation
+2. **Starts with `install`** → ends with `mcp` → MCP installation; otherwise → see Prerequisites above
 3. **Anything else** → Direct Use (execute as CLI command with `--agent`)
-
-## CLI Installation
-
-1. Check Go is installed: `go version` (requires Go 1.26.3 or newer)
-2. Install:
-   ```bash
-   go install github.com/mvanhorn/printing-press-library/library/marketing/google-ads/cmd/google-ads-pp-cli@latest
-   ```
-3. Verify: `google-ads-pp-cli --version`
-4. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
-
 ## MCP Server Installation
 
 1. Install the MCP server:
@@ -635,7 +631,7 @@ Parse `$ARGUMENTS`:
 ## Direct Use
 
 1. Check if installed: `which google-ads-pp-cli`
-   If not found, offer to install (see CLI Installation above).
+   If not found, offer to install (see Prerequisites at the top of this skill).
 2. Match the user query to the best command from the Unique Capabilities and Command Reference above.
 3. Execute with the `--agent` flag:
    ```bash

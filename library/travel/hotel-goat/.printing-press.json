@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-24T04:27:49.636761Z",
+  "printing_press_version": "4.13.0",
+  "api_name": "hotel-goat",
+  "display_name": "Google Hotels",
+  "cli_name": "hotel-goat-pp-cli",
+  "owner": "kothari-nikunj",
+  "printer": "kothari-nikunj",
+  "printer_name": "kothari-nikunj",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:38650fb21b07f40fc75af68bf844919ccca5fc389f6006611b05e5af34ecd9c5",
+  "run_id": "20260523-203231",
+  "category": "travel",
+  "description": "Every Google Hotels feature, plus per-OTA price breakdown, local price-drift history, brand-loyalty filters, and date-flex windowing no other tool has.",
+  "mcp_binary": "hotel-goat-pp-mcp",
+  "mcp_tool_count": 2,
+  "mcp_public_tool_count": 2,
+  "mcp_ready": "full",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Agent-composable nested JSON via --select dotted paths",
+      "command": "hotels",
+      "description": "Dotted-path selection through nested results.prices[], results.booking_urls, results.images[]. Returns only the fields the agent needs."
+    }
+  ]
+}

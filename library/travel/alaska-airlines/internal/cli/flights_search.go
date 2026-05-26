@@ -21,6 +21,18 @@ func newFlightsSearchCmd(flags *rootFlags) *cobra.Command {
 	var flagL string
 	var flagRT string
 	var flagLocale string
+	// PATCH(amend-2026-05-19: award-search support) — added by /printing-press-amend.
+	// --award is the user-facing toggle. When set, the request adds
+	// ShoppingMethod=onlineaward plus the supplementary params Alaska's
+	// SvelteKit page sets when the user clicks "Switch to points":
+	// UPG=none, OT=Anytime, DT=Anytime. --shopping-method is an escape
+	// hatch for other ShoppingMethod values the site may add later;
+	// --upgrade controls the UPG param explicitly when a hand-tuned value
+	// is needed. Sniffed live 2026-05-19 against alaskaair.com — see
+	// .printing-press-patches.json entry "award-search-toggle".
+	var flagAward bool
+	var flagShoppingMethod string
+	var flagUpgrade string
 
 	cmd := &cobra.Command{
 		Use:         "search",
@@ -70,6 +82,33 @@ func newFlightsSearchCmd(flags *rootFlags) *cobra.Command {
 			}
 			if flagLocale != "" {
 				params["locale"] = fmt.Sprintf("%v", flagLocale)
+			}
+			// PATCH(amend-2026-05-19: award-search support) — when --award is set
+			// (or --shopping-method=onlineaward is explicit), add the params
+			// Alaska's award view requires. The browser sniff captured
+			// ShoppingMethod=onlineaward, UPG=none, OT=Anytime, DT=Anytime
+			// as the minimum delta from the cash request. We only set
+			// defaults when the user didn't explicitly override them, so a
+			// hand-tuned request can still flow through.
+			effectiveShoppingMethod := flagShoppingMethod
+			if flagAward && effectiveShoppingMethod == "" {
+				effectiveShoppingMethod = "onlineaward"
+			}
+			if effectiveShoppingMethod != "" {
+				params["ShoppingMethod"] = effectiveShoppingMethod
+				if _, ok := params["OT"]; !ok {
+					params["OT"] = "Anytime"
+				}
+				if _, ok := params["DT"]; !ok {
+					params["DT"] = "Anytime"
+				}
+			}
+			if flagUpgrade != "" {
+				params["UPG"] = flagUpgrade
+			} else if effectiveShoppingMethod != "" {
+				// Award + cashupgrade paths need UPG; default to "none" when
+				// the user didn't pick something explicit.
+				params["UPG"] = "none"
 			}
 			data, prov, err := resolveRead(cmd.Context(), c, flags, "flights", false, path, params, nil)
 			if err != nil {
@@ -124,6 +163,12 @@ func newFlightsSearchCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&flagL, "lap-infants", "0", "Lap-infant count")
 	cmd.Flags().StringVar(&flagRT, "round-trip", "true", "true for round-trip, false for one-way")
 	cmd.Flags().StringVar(&flagLocale, "locale", "en-us", "Locale string")
+	// PATCH(amend-2026-05-19: award-search support) — new flags exposing the
+	// ShoppingMethod toggle Alaska's site uses to switch the SvelteKit
+	// __data.json response from cash fares to award (miles+cash) fares.
+	cmd.Flags().BoolVar(&flagAward, "award", false, "Search award (miles+cash) fares instead of cash. Sets ShoppingMethod=onlineaward.")
+	cmd.Flags().StringVar(&flagShoppingMethod, "shopping-method", "", "Override ShoppingMethod query param explicitly (e.g. onlineaward, cashupgrade). When set, takes precedence over --award.")
+	cmd.Flags().StringVar(&flagUpgrade, "upgrade", "", "Override UPG query param (default: none when --award or --shopping-method is set)")
 
 	return cmd
 }

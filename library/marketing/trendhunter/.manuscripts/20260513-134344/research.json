@@ -1,0 +1,266 @@
+{
+  "api_name": "trendhunter",
+  "novelty_score": 8,
+  "alternatives": [
+    {
+      "name": "jbal/trendhunter",
+      "url": "https://github.com/jbal/trendhunter",
+      "language": "Python",
+      "install_method": "",
+      "stars": 2,
+      "last_updated": "",
+      "command_count": 5,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-13T14:15:00Z",
+  "novel_features": [
+    {
+      "name": "Trend digest",
+      "command": "digest",
+      "description": "Generate a week-over-week digest of new vs repeat trends in a category with top rising keywords.",
+      "rationale": "Requires a local first_seen timestamp on every trend - the website has no week view.",
+      "example": "trendhunter-pp-cli digest --since 7d --category eco --json",
+      "why_it_matters": "Agents pulling a weekly competitive scan can ask 'what's new in eco this week' without re-clicking 30 cards by hand.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Category watch",
+      "command": "watch",
+      "description": "Per-category new-only feed - fills the gap that TrendHunter's RSS is global-only.",
+      "rationale": "Synthesizes a category-scoped feed from synced category pages plus local dedup; per-category RSS upstream returns an empty channel.",
+      "example": "trendhunter-pp-cli watch --category gadgets --since 24h --json",
+      "why_it_matters": "Agents and indie scouts get a clean delta for one vertical without re-processing the global firehose.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "FAQ extraction",
+      "command": "faq",
+      "description": "Extract the FAQPage JSON-LD from a trend page into structured Q\u0026A.",
+      "rationale": "TrendHunter embeds FAQPage Q\u0026A on every /trends/\u003cslug\u003e page. No prior tool reads it; it's the highest-density agent-ready summary on the site.",
+      "example": "trendhunter-pp-cli faq ai-clone --json",
+      "why_it_matters": "Agents get a ready-to-quote Q\u0026A summary of each trend without prompting another LLM to summarize the article.",
+      "group": "Agent-native extraction"
+    },
+    {
+      "name": "Rising clusters",
+      "command": "cluster",
+      "description": "Surface rising keyword clusters via FTS5 co-occurrence with a rising-vs-prior-window delta.",
+      "rationale": "Pure local-corpus analytics - requires an FTS5 keywords + body_text index and joined first_seen windows that don't exist anywhere else.",
+      "example": "trendhunter-pp-cli cluster --window 30d --min-count 3 --json",
+      "why_it_matters": "Agents researching an emerging theme see which adjacent keywords are accelerating, not just the headline trends.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Author velocity",
+      "command": "authors",
+      "description": "Rank TrendHunter authors and futurists by time-windowed publish rate, not lifetime count.",
+      "rationale": "The site's /scoreboard tracks lifetime metrics only. With local first_seen per trend we can window the rate to any horizon.",
+      "example": "trendhunter-pp-cli authors --top 20 --since 30d --json",
+      "why_it_matters": "Find which trend hunters are currently active in your space, not just who has the biggest historical footprint.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Megatrend map",
+      "command": "megatrend-map",
+      "description": "Join the megatrend index, the related-trend graph, and keyword overlap into one view that maps free trends to a paid megatrend bucket.",
+      "rationale": "Combines three site surfaces (megatrends, related slugs, FAQ keywords) that the site itself never presents together.",
+      "example": "trendhunter-pp-cli megatrend-map ai-clone --json",
+      "why_it_matters": "Evaluators deciding whether a paid megatrend report is worth $295 can see which free trends ladder up to it.",
+      "group": "Graph and synthesis"
+    },
+    {
+      "name": "Agent brief",
+      "command": "brief",
+      "description": "One-shot agent brief: top-N ranked trends in a category, each with FAQ Q\u0026A and keywords, rendered as JSON or markdown.",
+      "rationale": "Bundles ranked corpus selection with FAQ extraction and a structured envelope tuned for LLM ingestion - no other tool does both halves.",
+      "example": "trendhunter-pp-cli brief --category ai --top 10 --format markdown",
+      "why_it_matters": "Plugs straight into an agent prompt as ground truth for a market memo, no glue code needed.",
+      "group": "Agent-native extraction"
+    },
+    {
+      "name": "Inbox cursor",
+      "command": "inbox",
+      "description": "Show trends seen since the last invocation of `inbox` - a per-machine cursor table.",
+      "rationale": "Stateful local feature that the website cannot offer because the cursor lives on the user's machine.",
+      "example": "trendhunter-pp-cli inbox --json",
+      "why_it_matters": "Build it into a Monday-morning routine and only ever see things you haven't seen before.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Business scout",
+      "command": "scout",
+      "description": "Pull top trends in a category, score each by relevance to a business profile, optionally route the scoring through a local LLM.",
+      "rationale": "Combines local corpus ranking with optional LLM scoring and emits a pipe-friendly shape designed for handoff to downstream research tools (like /last30days). No existing tool composes these three layers.",
+      "example": "trendhunter-pp-cli scout --category kitchen --business \"We sell smart ovens for home cooks\" --top 10 --llm",
+      "why_it_matters": "Agents researching a vertical get a ranked, business-scoped trend list ready to pipe into the next stage of their pipeline.",
+      "group": "Agent-native extraction"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Trend digest",
+      "command": "digest",
+      "description": "Generate a week-over-week digest of new vs repeat trends in a category with top rising keywords.",
+      "rationale": "Requires a local first_seen timestamp on every trend - the website has no week view.",
+      "example": "trendhunter-pp-cli digest --since 7d --category eco --json",
+      "why_it_matters": "Agents pulling a weekly competitive scan can ask 'what's new in eco this week' without re-clicking 30 cards by hand.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Category watch",
+      "command": "watch",
+      "description": "Per-category new-only feed - fills the gap that TrendHunter's RSS is global-only.",
+      "rationale": "Synthesizes a category-scoped feed from synced category pages plus local dedup; per-category RSS upstream returns an empty channel.",
+      "example": "trendhunter-pp-cli watch --category gadgets --since 24h --json",
+      "why_it_matters": "Agents and indie scouts get a clean delta for one vertical without re-processing the global firehose.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "FAQ extraction",
+      "command": "faq",
+      "description": "Extract the FAQPage JSON-LD from a trend page into structured Q\u0026A.",
+      "rationale": "TrendHunter embeds FAQPage Q\u0026A on every /trends/\u003cslug\u003e page. No prior tool reads it; it's the highest-density agent-ready summary on the site.",
+      "example": "trendhunter-pp-cli faq ai-clone --json",
+      "why_it_matters": "Agents get a ready-to-quote Q\u0026A summary of each trend without prompting another LLM to summarize the article.",
+      "group": "Agent-native extraction"
+    },
+    {
+      "name": "Rising clusters",
+      "command": "cluster",
+      "description": "Surface rising keyword clusters via FTS5 co-occurrence with a rising-vs-prior-window delta.",
+      "rationale": "Pure local-corpus analytics - requires an FTS5 keywords + body_text index and joined first_seen windows that don't exist anywhere else.",
+      "example": "trendhunter-pp-cli cluster --window 30d --min-count 3 --json",
+      "why_it_matters": "Agents researching an emerging theme see which adjacent keywords are accelerating, not just the headline trends.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Author velocity",
+      "command": "authors",
+      "description": "Rank TrendHunter authors and futurists by time-windowed publish rate, not lifetime count.",
+      "rationale": "The site's /scoreboard tracks lifetime metrics only. With local first_seen per trend we can window the rate to any horizon.",
+      "example": "trendhunter-pp-cli authors --top 20 --since 30d --json",
+      "why_it_matters": "Find which trend hunters are currently active in your space, not just who has the biggest historical footprint.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Megatrend map",
+      "command": "megatrend-map",
+      "description": "Join the megatrend index, the related-trend graph, and keyword overlap into one view that maps free trends to a paid megatrend bucket.",
+      "rationale": "Combines three site surfaces (megatrends, related slugs, FAQ keywords) that the site itself never presents together.",
+      "example": "trendhunter-pp-cli megatrend-map ai-clone --json",
+      "why_it_matters": "Evaluators deciding whether a paid megatrend report is worth $295 can see which free trends ladder up to it.",
+      "group": "Graph and synthesis"
+    },
+    {
+      "name": "Agent brief",
+      "command": "brief",
+      "description": "One-shot agent brief: top-N ranked trends in a category, each with FAQ Q\u0026A and keywords, rendered as JSON or markdown.",
+      "rationale": "Bundles ranked corpus selection with FAQ extraction and a structured envelope tuned for LLM ingestion - no other tool does both halves.",
+      "example": "trendhunter-pp-cli brief --category ai --top 10 --format markdown",
+      "why_it_matters": "Plugs straight into an agent prompt as ground truth for a market memo, no glue code needed.",
+      "group": "Agent-native extraction"
+    },
+    {
+      "name": "Inbox cursor",
+      "command": "inbox",
+      "description": "Show trends seen since the last invocation of `inbox` - a per-machine cursor table.",
+      "rationale": "Stateful local feature that the website cannot offer because the cursor lives on the user's machine.",
+      "example": "trendhunter-pp-cli inbox --json",
+      "why_it_matters": "Build it into a Monday-morning routine and only ever see things you haven't seen before.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Business scout",
+      "command": "scout",
+      "description": "Pull top trends in a category, score each by relevance to a business profile, optionally route the scoring through a local LLM.",
+      "rationale": "Combines local corpus ranking with optional LLM scoring and emits a pipe-friendly shape designed for handoff to downstream research tools (like /last30days). No existing tool composes these three layers.",
+      "example": "trendhunter-pp-cli scout --category kitchen --business \"We sell smart ovens for home cooks\" --top 10 --llm",
+      "why_it_matters": "Agents researching a vertical get a ranked, business-scoped trend list ready to pipe into the next stage of their pipeline.",
+      "group": "Agent-native extraction"
+    }
+  ],
+  "narrative": {
+    "display_name": "Trend Hunter",
+    "headline": "Every Trend Hunter feature, plus a local SQLite corpus, FTS5 search, FAQ Q\u0026A extraction, and agent-native JSON no other Trend Hunter tool offers.",
+    "value_prop": "trendhunter-pp-cli scrapes the free public TrendHunter surface (RSS feed, sitemap, category and trend pages, search results) into a local SQLite store, then exposes corpus-diff, rising-keyword clusters, time-windowed author velocity, FAQ Q\u0026A extraction, and a category-watch feed the site itself can't provide. No API key. No login. Stdlib HTTP transport - no headless browser.",
+    "quickstart": [
+      {
+        "command": "trendhunter-pp-cli pull",
+        "comment": "Pull the latest 30 trends + sitemap and write them to the local parsed store."
+      },
+      {
+        "command": "trendhunter-pp-cli search \"AI clone\" --json",
+        "comment": "Search the local corpus first, with a flag to fan-out live."
+      },
+      {
+        "command": "trendhunter-pp-cli digest --since 7d --category eco --json",
+        "comment": "Week-over-week digest with new vs repeat split."
+      },
+      {
+        "command": "trendhunter-pp-cli faq ai-clone --json",
+        "comment": "Pull the FAQ JSON-LD from any /trends/\u003cslug\u003e page."
+      },
+      {
+        "command": "trendhunter-pp-cli brief --category ai --top 10 --format markdown",
+        "comment": "One-shot agent brief: ranked trends with FAQ Q\u0026A."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "Search returns no results after install",
+        "fix": "Run `trendhunter-pp-cli pull` first - search is local-first and needs a corpus."
+      },
+      {
+        "symptom": "HTTP 403 on a fetch",
+        "fix": "Update the CLI; the default Chrome UA may be too old for the site's filter. `go install ...@latest` and try again."
+      },
+      {
+        "symptom": "Trend page redirects to a vertical microsite (cleanthesky.com etc)",
+        "fix": "The CLI follows redirects; the canonical /trends/\u003cslug\u003e URL still resolves and is what the local store records."
+      }
+    ],
+    "when_to_use": "Use this CLI when you want TrendHunter data inside an agent loop, a script, or a daily routine - rather than clicking the site by hand. It's strongest for week-over-week trend monitoring, FAQ-style trend summaries an LLM can quote, and corpus-wide keyword clustering. It's a free, no-auth scraper; for the official paid API surface, use TrendHunter's commercial offering instead.",
+    "recipes": [
+      {
+        "title": "Weekly trend memo for eco",
+        "command": "trendhunter-pp-cli digest --since 7d --category eco --json --select trends.title,trends.keywords,trends.first_seen",
+        "explanation": "Returns just the title, keywords, and first-seen timestamp for every new eco trend in the past week. Narrow surface; great for a slack post or LLM prompt."
+      },
+      {
+        "title": "Agent brief for AI",
+        "command": "trendhunter-pp-cli brief --category ai --top 10 --format markdown",
+        "explanation": "Top 10 AI trends, each with FAQ Q\u0026A and keywords, rendered as markdown ready to paste into a prompt."
+      },
+      {
+        "title": "Rising-keyword scan",
+        "command": "trendhunter-pp-cli cluster --window 30d --min-count 3 --json",
+        "explanation": "Surfaces keywords whose co-occurrence count rose vs the prior 30-day window."
+      },
+      {
+        "title": "Active futurists this month",
+        "command": "trendhunter-pp-cli authors --top 20 --since 30d --json",
+        "explanation": "Time-windowed publish velocity for trend hunters and futurists - the site's /scoreboard is lifetime-only."
+      },
+      {
+        "title": "Map a megatrend to free trends",
+        "command": "trendhunter-pp-cli megatrend-map ai-clone --json",
+        "explanation": "Joins the megatrend index, the related-trend graph, and keyword overlap to show which free trends ladder up to one megatrend bucket."
+      }
+    ],
+    "trigger_phrases": [
+      "what's trending on trendhunter",
+      "search trendhunter for",
+      "weekly trend digest",
+      "trend hunter FAQ for",
+      "rising keywords on trendhunter",
+      "active trend hunters this month",
+      "use trendhunter",
+      "run trendhunter-pp-cli"
+    ]
+  }
+}

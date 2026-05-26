@@ -25,7 +25,7 @@ This skill drives the `pcgs-pp-cli` binary. **You must verify the CLI is install
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install pcgs --cli-only
+   npx -y @mvanhorn/printing-press-library install pcgs --cli-only
    ```
 2. Verify: `pcgs-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
@@ -37,8 +37,6 @@ go install github.com/mvanhorn/printing-press-library/library/other/pcgs/cmd/pcg
 ```
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
-
-PCGS gives you 1,000 API calls per day per token. This CLI tracks every call locally, forecasts batch cost before you spend a single one, syncs only mutable market fields on refresh, and ingests CSV / JSON / JSONL / plain-text cert lists straight into a local SQLite cache. No community wrapper exists. This is the only PCGS CLI.
 
 ## When to Use This CLI
 
@@ -140,10 +138,10 @@ pcgs-pp-cli which "<capability in your own words>"
 ### Verify one cert and dump every field
 
 ```bash
-pcgs-pp-cli coin facts-cert 53972744 --json --select Name,Year,Grade,Population,PopHigher,PriceGuideValue,CoinFactsLink,IsValidRequest,ServerMessage
+pcgs-pp-cli coin facts-cert 53972744 --json --select data.Name,data.Year,data.Grade,data.Population,data.PopHigher,data.PriceGuideValue,data.CoinFactsLink,data.IsValidRequest,data.ServerMessage
 ```
 
-Single live call. The --json --select pair gives a deeply nested response trimmed to import-friendly fields without losing the IsValidRequest envelope.
+Single live call. The --json --select pair gives a deeply nested response trimmed to import-friendly fields without losing the IsValidRequest envelope. (Same `data.*` path syntax works for `coin batch` per JSONL line.)
 
 ### Plan a 500-cert batch
 
@@ -188,7 +186,7 @@ Picks the right input to sync: only the cached coins whose PriceGuideValue has n
 ### Bullion-floor analysis (compose with spot prices)
 
 ```bash
-pcgs-pp-cli coin facts-cert 53972744 --json | jq '.MetalContent, .Weight'
+pcgs-pp-cli coin facts-cert 53972744 --json | jq '.data.MetalContent, .data.Weight'
 ```
 
 Recipe R1 — pair this output with current Pt/Au/Ag/Pd spot prices to compute the bullion floor. The CLI gives you metal content and weight; you multiply by spot. See article: market-101-silver-dollars-on-the-move.
@@ -265,6 +263,44 @@ pcgs-pp-cli coin batch --file examples-pcgs-coin-list.csv --list-certs --json
 
 Recipe R10 — diff coin batch --list-certs's normalized cert list against your downstream collection's cert export to find mismatches, missing certs, or certs that no longer match PCGS truth.
 
+### Pair with numista-pp-cli for catalogue enrichment
+
+Reach for [`numista-pp-cli`](https://github.com/mvanhorn/printing-press-library/tree/main/library/other/numista) when you have a PCGS cert result in hand and want the community-maintained catalogue context PCGS doesn't carry: the Numista N# (type ID), mintage by year/mint, references to traditional catalogues (Krause, Schön, Yeoman), and collector links. PCGS is grading-service-authoritative (cert, grade, population, auction history); Numista is catalogue-authoritative. They're complementary, not redundant.
+
+**Direct cross-walk (recommended when you have a PCGSNo).** PCGS *is* one of Numista's reference catalogues, registered as catalogue id `1856` (code `PCGS`, title "PCGS CoinFacts"). When you have a PCGSNo on hand, two commands resolve the Numista N# in a single API call with no ambiguity:
+
+```bash
+# 1. Get the PCGSNo from PCGS (no Numista quota cost).
+pcgs-pp-cli coin facts-cert <cert-number> --json --select PCGSNo,Name,Year
+# → e.g. {"PCGSNo":"7130","Name":"1881-S Morgan Dollar","Year":"1881"}
+
+# 2. Look up the Numista N# directly via the catalogue cross-reference.
+numista-pp-cli types search --catalogue 1856 --number 7130 \
+  --agent --select types.id,types.title
+# → {"results":{"types":[{"id":1492,"title":"1 Dollar \"Morgan Dollar\""}]}}
+```
+
+One result, definitive — no text-match guessing.
+
+**Text-search fallback (when PCGSNo is missing or the catalogue lookup misses).** Some PCGS holders predate the modern numbering, and the `PCGS CoinFacts` Numista catalogue doesn't index every cert. When the direct lookup returns no types, fall back to a text search:
+
+```bash
+pcgs-pp-cli coin facts-cert <cert-number> --json --select Name,Year,CountryName
+# → e.g. {"Name":"1881-S Morgan Dollar","Year":"1881","CountryName":"United States"}
+
+numista-pp-cli types search --q "morgan dollar" --issuer united-states --date 1881 \
+  --agent --select types.id,types.title
+# → top result is usually the Numista N# you want.
+```
+
+Use Numista's `--date` (Gregorian calendar year) for the year PCGS returns, not `--year` (which Numista defines as the year *as written on the item* — relevant for non-Gregorian dating systems on world coins; for US coins they coincide).
+
+Notes:
+
+- Verify the catalogue ID at any time with `numista-pp-cli catalogues find pcgs` (local-only, no quota cost; requires that `numista-pp-cli catalogues` has been run at least once to populate the local cache).
+- This CLI does NOT depend on `numista-pp-cli`. No shell-out, no auto-detection — install it separately when you want catalogue enrichment.
+- `numista-pp-cli`'s SKILL.md has a matching "If your input is a PCGS cert" section so an agent landing in either CLI gets directed to the other when the workflow calls for it.
+
 ## Auth Setup
 
 Set `PCGS_AUTH_TOKEN` to the bearer token generated at https://www.pcgs.com/publicapi. Run `pcgs-pp-cli doctor` to confirm reachability. All commands authenticate identically — there is one auth mode.
@@ -288,7 +324,7 @@ Add `--agent` to any command. Expands to: `--json --compact --no-input --no-colo
 
 ### Response envelope
 
-Commands that read from the local store or the API wrap output in a provenance envelope:
+Most read commands wrap output in a provenance envelope:
 
 ```json
 {
@@ -298,6 +334,58 @@ Commands that read from the local store or the API wrap output in a provenance e
 ```
 
 Parse `.results` for data and `.meta.source` to know whether it's live or local. A human-readable `N results (live)` summary is printed to stderr only when stdout is a terminal AND no machine-format flag (`--json`, `--csv`, `--compact`, `--quiet`, `--plain`, `--select`) is set — piped/agent consumers and explicit-format runs get pure JSON on stdout.
+
+### Coin lookup shape (facts-cert + batch — unified)
+
+`coin facts-cert` and `coin batch` emit the same flat object shape, so one parser handles both surfaces. Single-cert returns one object; batch returns one JSONL line per cert.
+
+```json
+{
+  "cert_no": "50483263",
+  "data": {
+    "Name": "1881-S $1",
+    "Year": 1881,
+    "Grade": "MS65",
+    "PriceGuideValue": 425,
+    "year_mismatch": null,
+    ...
+  },
+  "_keep": {}
+}
+```
+
+`_keep` is always `{}` for single-cert lookups (it carries non-cert CSV columns through `coin batch` — set `_keep.box`, `_keep.slot`, etc. from your input row). Provenance for `coin facts-cert` moves to a stderr-only line in TTY mode; JSONL batch output has no provenance line.
+
+#### `PriceGuideValue: null` means PCGS hasn't priced this slab
+
+PCGS returns `PriceGuideValue: 0` for unpriced modern slabs — David Hall FDI, brand-new releases, anything that hasn't entered the price guide yet. To prevent silent undercounting in sums and totals, the CLI rewrites `0` to `null` in every coin response (`facts-cert`, `facts-grade`, `batch`). A genuinely zero-valued coin still receives `null` — those are vanishingly rare and the prior `0` was ambiguous either way.
+
+```bash
+# Unpriced David Hall PR70
+pcgs-pp-cli coin facts-cert 53972744 --agent | jq '.data.PriceGuideValue'   # null
+
+# Priced 1881-S Morgan
+pcgs-pp-cli coin facts-cert 50483263 --agent | jq '.data.PriceGuideValue'   # 425
+```
+
+#### `year_mismatch` flags Name-vs-Year disagreement
+
+PCGS occasionally returns a coin where the year prefix in `Name` (e.g., `2022-S $1 Silver Eagle`) disagrees with the integer `Year` field (e.g., `2021`). When the two disagree, the CLI injects a top-level `year_mismatch` object so the agent can decide which value to trust:
+
+```json
+{
+  "Name": "2022-S $1 Silver Eagle First Strike, DCAM",
+  "Year": 2021,
+  "year_mismatch": {"name_year": 2022, "year_field": 2021}
+}
+```
+
+Absent (or `null` via `jq`) when the values agree, when `Name` has no parsable year prefix, or when `Year` is zero/missing.
+
+```bash
+pcgs-pp-cli coin facts-cert 45987467 --agent | jq '.data.year_mismatch'   # {"name_year": 2022, "year_field": 2021}
+pcgs-pp-cli coin facts-cert 50483263 --agent | jq '.data.year_mismatch'   # null
+```
 
 ## Agent Feedback
 

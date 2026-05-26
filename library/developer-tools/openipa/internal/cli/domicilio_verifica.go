@@ -55,7 +55,7 @@ Utile prima di inviare comunicazioni ufficiali per verificare che la PEC sia val
 
 			// WS13_DOM_DIG: cerca per domicilio digitale (PEC attiva)
 			// Note: the param name has a space: "DOMICILIO DIGITALE"
-			raw13, _, err13 := c.Post("/WS13_DOM_DIG.php", map[string]any{"DOMICILIO DIGITALE": pec})
+			raw13, _, err13 := c.Post("/ws/WS13DOMDIGServices/api/WS13_DOM_DIG", map[string]any{"DOMICILIO DIGITALE": pec})
 			if err13 == nil {
 				items := ipaExtractItems(raw13)
 				if len(items) > 0 {
@@ -77,7 +77,7 @@ Utile prima di inviare comunicazioni ufficiali per verificare che la PEC sia val
 
 			// WS07_EMAIL: cerca anche per email generica
 			if result.Status == "sconosciuto" {
-				raw07, _, err07 := c.Post("/WS07_EMAIL.php", map[string]any{"EMAIL": pec})
+				raw07, _, err07 := c.Post("/ws/WS07EMAILServices/api/WS07_EMAIL", map[string]any{"EMAIL": pec})
 				if err07 == nil {
 					items := ipaExtractItems(raw07)
 					if len(items) > 0 {

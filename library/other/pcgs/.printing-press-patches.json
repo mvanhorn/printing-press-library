@@ -176,6 +176,51 @@
         "internal/mcp/intents_runner.go"
       ],
       "validated_outcome": "go build ./... && go vet ./..."
+    },
+    {
+      "id": "skill-cookbook-numista-catalogue-enrichment",
+      "summary": "Add a SKILL.md recipe pointing agents at numista-pp-cli for catalogue enrichment when they have a PCGS cert in hand and want Numista's N# / mintage / cross-references / collector context. Documents both the direct cross-walk (`numista-pp-cli types search --catalogue 1856 --number <PCGSNo>`, one-call definitive) and the text-search fallback for coins not indexed under the PCGS CoinFacts reference catalogue.",
+      "reason": "Reciprocal of the numista-pp-cli 'If your input is a PCGS cert' cookbook entry (PR #684). Agents landing in pcgs cold with a cert result and needing community-maintained catalogue context had no in-skill pointer to Numista as the complementary CLI. Initial draft of this entry incorrectly claimed PCGS was not a Numista reference catalogue (had only checked the swagger spec, which describes the /catalogues endpoint shape rather than the catalogue data itself); follow-up verification against the live API confirmed PCGS is registered as catalogue id 1856 ('PCGS CoinFacts') and the direct --catalogue 1856 --number <PCGSNo> cross-walk returns a single authoritative type for indexed certs (verified 2026-05-18 with PCGSNos 7130 -> N#1492 Morgan Dollar and 7787 -> N#13432 Coronet Head Quarter Eagle). Greptile policy gate on PR #687 also flagged two correctness issues now addressed: (1) the reciprocal-claim about numista-pp-cli's SKILL.md was unsupportable until PR #684 merges, so the text now references PR #684 explicitly as 'proposed' rather than asserting it exists; (2) the text-search example used --year (year as written on the item, can be Hijri etc. on non-US coins) for the Gregorian year PCGS returns, so the example now uses --date (Gregorian) per the swagger semantics.",
+      "files": [
+        "SKILL.md"
+      ],
+      "validated_outcome": "printing-press publish validate (SKILL.md narrative checks) and go build ./... pass. Live smokes: numista-pp-cli types search --catalogue 1856 --number 7130 -> N#1492; numista-pp-cli types search --catalogue 1856 --number 7787 -> N#13432."
+    },
+    {
+      "id": "amend-2026-05-18-quota-stdout-stderr-discipline",
+      "date": "2026-05-18",
+      "amend_run_id": "amend-2026-05-18T1916",
+      "summary": "Route the human --quota line to stderr when any machine-format flag is set (--json, --csv, --compact, --plain, --quiet, --agent, --select, --deliver) or when stdout is not a TTY; keep stdout-on-TTY for the interactive case; --quota-only (JSON) still goes to stdout.",
+      "reason": "AGENTS.md Priority 2 in pp-pcgs: `pcgs-pp-cli --quota --json 1>/tmp/out 2>/tmp/err` was writing the `[quota] X/1000 used...` line to /tmp/out, polluting jq / json.loads pipelines with `Extra data: line N column 1`. The PersistentPreRunE --quota short-circuit always wrote to cmd.OutOrStdout(); the pp-CLI agent-mode contract documented in SKILL.md requires human summaries to divert to stderr under any machine-format flag. Adds package-private isMachineOutputMode + stdoutIsTerminal helpers plus a TestIsMachineOutputMode table covering every gating flag. PersistentPostRunE was already correct (writes to os.Stderr unconditionally); added a clarifying source comment for symmetry. Direct-input scope from /printing-press-amend pcgs.",
+      "files": [
+        "internal/cli/root.go",
+        "internal/cli/root_test.go"
+      ],
+      "findings_addressed": ["F1"],
+      "patch_count": 4,
+      "validated_outcome": "go build ./... && go vet ./... && go test ./internal/cli/... -run TestIsMachineOutputMode all PASS; smoke: `pcgs-pp-cli --quota --json 2>/dev/null | wc -c` returns 0."
+    },
+    {
+      "id": "coin-response-transforms",
+      "summary": "Adds applyCoinResponseTransforms (new internal/cli/coin_response_transform.go): rewrites PriceGuideValue=0 to null on every coin record so unpriced modern slabs (David Hall FDI, brand-new releases) don't silently undercount in sums, and injects a top-level year_mismatch={name_year,year_field} when the year prefix parsed from Name disagrees with the Year field. Wired into coin facts-cert, coin facts-grade, and coin batch (live + cached paths).",
+      "reason": "PCGS returns PriceGuideValue=0 for unpriced bullion (4-of-31 certs on the 2026-05-18 inventory pass); mathematically indistinguishable from a zero-valued coin. PCGS also occasionally returns Name='2022-S ...' with Year=2021 (2-of-31 certs same pass); silent disagreement forces the agent to pick one field as canonical without knowing which. Both are documented in AGENTS.md P3 and P4 with the locked-in fixes used here.",
+      "files": [
+        "internal/cli/coin_response_transform.go",
+        "internal/cli/coin_facts-cert.go",
+        "internal/cli/coin_facts-grade.go",
+        "internal/cli/coin_batch.go"
+      ],
+      "validated_outcome": "go build ./... && go vet ./...; live smoke against pcgs-coin-list.csv (53972744 → PriceGuideValue=null; 45987467 → year_mismatch populated; 50483263 → PriceGuideValue numeric, year_mismatch absent)"
+    },
+    {
+      "id": "facts-cert-flat-shape",
+      "summary": "coin facts-cert now emits the same flat object shape that coin batch produces per JSONL line: {\"cert_no\": <n>, \"data\": {...coin fields...}, \"_keep\": {}}. Replaces the prior {meta, results} envelope (provenance moves to a stderr-only printProvenance line in TTY mode).",
+      "reason": "Previously the two surfaces emitted different shapes: facts-cert wrapped under meta+results while batch already used {cert_no, data, _keep}. An agent that knew how to parse one couldn't reuse that code for the other, and there was no _keep equivalent on facts-cert to round-trip non-cert context fields. Unifying on the batch shape (per AGENTS.md P1 locked-in decision) collapses the surface to one parser and trivially extends to a one-shot 'fetch one new cert and append to an existing batch result' workflow.",
+      "files": [
+        "internal/cli/coin_facts-cert.go",
+        "SKILL.md"
+      ],
+      "validated_outcome": "go build ./... && go vet ./...; live smoke: `coin facts-cert 50483263 --agent | jq '.data.Name'` returns \"1881-S $1\"; `coin batch --file pcgs-coin-list.csv --agent | head -1 | jq '.data.Name'` returns a coin name (no regression)"
     }
   ]
 }

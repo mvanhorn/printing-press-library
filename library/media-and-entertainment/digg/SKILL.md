@@ -20,16 +20,18 @@ This skill drives the `digg-pp-cli` binary. **You must verify the CLI is install
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install digg --cli-only
+   npx -y @mvanhorn/printing-press-library install digg --cli-only
    ```
 2. Verify: `digg-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
 
-If the `npx` install fails before this CLI has a public-library category, install Node or use the category-specific Go fallback after publish.
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.3 or newer):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/media-and-entertainment/digg/cmd/digg-pp-cli@latest
+```
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
-
-Digg is a curated AI-news leaderboard powered by tracked accounts on X and a parallel GitHub feed (stars / new / activity / recent). The web UI shows you today's snapshot. This CLI tails the pipeline events, keeps a local rank-history that survives daily overwrites, exposes Digg's own replacement rationale and gravity components, and surfaces the four GitHub feeds — so an agent can answer 'why this story?', 'what got dropped overnight?', and 'what AI repos are Digg-tracked accounts starring right now?' with one binary.
 
 ## When to Use This CLI
 
@@ -182,10 +184,16 @@ This CLI uses Chrome-compatible HTTP transport for browser-facing endpoints. It 
 
 **github** — GitHub feeds Digg surfaces alongside the X-account leaderboard
 
-- `digg-pp-cli github stars` — Top AI repos ranked by starring activity from Digg-tracked accounts. Returns repo_full_name, language, stargazers_count, recent starrers, breakout/novel/ai_related scores, and the model's one-sentence classification. Flag: `--limit`.
+- `digg-pp-cli github stars` — Top AI repos ranked by starring activity from Digg-tracked accounts. Returns repo_full_name, language, stargazers_count, recent starrers, breakout/novel/ai_related scores, and the model's one-sentence classification. Flags: `--limit`, `--min-starrers N` (keep only repos with >= N distinct starrers — smart-money convergence; applied BEFORE --limit).
 - `digg-pp-cli github new` — Recently first-seen repos with the Digg-tracked creator/starrer who first put them on Digg's radar (event_id, event_created_at, repo_full_name, creator). Flag: `--limit`.
 - `digg-pp-cli github activity` — Top GitHub contributor leaderboard: per-author rank, contribution count, and distinct repos count over Digg's tracking window. Flag: `--limit`.
 - `digg-pp-cli github recent` — Live activity feed: per-event entries with the GitHub URL and the user who acted. Flag: `--limit`.
+
+**rankings** — Sub-views of the /ai/x/rankings/companies snapshot
+
+- `digg-pp-cli rankings emerging` — Curated list of small AI companies (the "EMERGING STARTUPS — CURATED THIS SNAPSHOT" section). ~10 rows per snapshot. Each row carries `isEmergingStartup` (AI-judge verdict) and `emergingReasoning` (curator text). Flag: `--max-skip-ratio` (schema-drift tolerance; default 0.10).
+- `digg-pp-cli rankings movers` — Companies whose follower count shifted most since the last snapshot. Flags: `--direction up|down|both` (default both; direction stamped per row), `--max-skip-ratio`.
+- `digg-pp-cli rankings list` — Full company ranking (the "Companies followed by the AI 2K" section). Server-paginated; returns the initial-HTML slice. Flags: `--limit`, `--max-skip-ratio`.
 
 **search** — Topic search across the full Digg window
 

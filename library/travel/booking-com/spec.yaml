@@ -1,0 +1,681 @@
+name: booking-com
+display_name: Booking.com
+description: "Booking.com hotel search, detail, reviews, trips, wishlist, and rewards from the terminal. Local SQLite price history and cheapest-dates sweep no other Booking.com tool ships."
+cli_description: "Search Booking.com hotels, scrape details and reviews, watch prices over time, and read your trips, wishlist, and Genius rewards via cookie import."
+version: 0.1.0
+base_url: https://www.booking.com
+spec_source: browser-sniffed
+kind: synthetic
+license: MIT
+
+auth:
+  type: cookie
+  description: "Public search, hotel detail, reviews, and destination lookup require no auth. Authenticated features (My Trips, Saved/Wishlist, Genius rewards, profile) use cookie import via `auth login --chrome` — Booking.com gates these on `bkng` session cookies plus an `aws-waf-token` cookie that clears AWS WAF."
+  cookie_domains:
+    - .booking.com
+    - .secure.booking.com
+  cookies:
+    - aws-waf-token
+    - bkng
+    - bkng_sso_session
+    - cgumid
+    - bkng_prue
+  setup_command: auth login --chrome
+
+config:
+  format: toml
+  path: ~/.config/booking-com-pp-cli/config.toml
+
+cache:
+  enabled: true
+  ttl: 1h
+
+mcp:
+  transport:
+    - stdio
+    - http
+  endpoint_tools: visible
+
+resources:
+  destinations:
+    description: "Booking.com destination lookup. Resolves a free-text destination string (city, region, neighborhood, landmark) to a stable `dest_id` and `dest_type` that other commands can use."
+    endpoints:
+      autocomplete:
+        method: GET
+        path: /searchresults.html
+        description: "Trigger Booking.com's destination resolver by posting a search with `ss=<text>` and parsing the destination context the SSR HTML returns (dest_id, dest_type, country, urlname). Use this once per destination, then cache the result for subsequent search/cheapest-dates commands."
+        no_auth: true
+        params:
+          - name: ss
+            flag_name: query
+            aliases: [ss]
+            type: string
+            required: true
+            description: "Free-text destination (city, region, neighborhood, landmark)."
+          - name: lang
+            type: string
+            required: false
+            description: "Booking language code (default en-us)."
+        response:
+          type: object
+          item: Destination
+
+  hotels:
+    description: "Hotel/property search and detail. `hotels list` parses the SSR `/searchresults.html` page (25 cards per page via offset). `hotels get` parses individual `/hotel/<country>/<slug>.html` detail pages including JSON-LD Hotel schema."
+    endpoints:
+      list:
+        method: GET
+        path: /searchresults.html
+        description: "Search Booking.com hotels by destination + dates + guests + filters. Returns SSR-extracted property cards. Combine with `prices cheapest` (transcendence) to sweep nightly prices across a date window."
+        no_auth: true
+        params:
+          - name: ss
+            flag_name: query
+            aliases: [ss]
+            type: string
+            required: true
+            description: "Destination (city name, region, hotel name) or use `dest_id` after autocomplete."
+          - name: dest_id
+            type: string
+            required: false
+            description: "Booking.com numeric destination id (from `destinations autocomplete`)."
+          - name: dest_type
+            type: string
+            required: false
+            description: "Destination type tag from autocomplete (city, region, district, landmark, airport, hotel)."
+          - name: checkin
+            type: string
+            required: false
+            description: "Check-in date YYYY-MM-DD (defaults to tomorrow if absent)."
+          - name: checkout
+            type: string
+            required: false
+            description: "Check-out date YYYY-MM-DD (defaults to checkin+1 if absent)."
+          - name: group_adults
+            flag_name: adults
+            aliases: [group-adults]
+            type: int
+            required: false
+            description: "Number of adult guests (default 2)."
+          - name: group_children
+            flag_name: children
+            aliases: [group-children]
+            type: int
+            required: false
+            description: "Number of child guests (default 0)."
+          - name: no_rooms
+            flag_name: rooms
+            aliases: [no-rooms]
+            type: int
+            required: false
+            description: "Number of rooms requested (default 1)."
+          - name: offset
+            type: int
+            required: false
+            description: "Pagination offset, increments of 25 (default 0)."
+          - name: order
+            type: string
+            required: false
+            description: "Sort order: popularity, price, review_score_and_price, distance_from_search, class, class_asc, bayesian_review_score (default popularity)."
+          - name: nflt
+            type: string
+            required: false
+            description: "Booking filter expression, e.g. `class=4;ht_id=204;review_score=80` (joined by semicolons)."
+          - name: selected_currency
+            flag_name: currency
+            aliases: [selected-currency]
+            type: string
+            required: false
+            description: "ISO 4217 currency code for displayed prices (default USD)."
+          - name: lang
+            type: string
+            required: false
+            description: "Booking language code (default en-us)."
+        response:
+          type: array
+          item: PropertyCard
+        pagination:
+          type: offset
+          offset_param: offset
+          page_size: 25
+
+      get:
+        method: GET
+        path: /hotel/{country}/{slug}.html
+        description: "Fetch full hotel detail for a given country code + property slug. Parses Booking.com's JSON-LD Hotel schema for name, rating, review count, address, geo coordinates, and amenity highlights. Pass dates + guest count to get the live nightly price displayed for that stay."
+        no_auth: true
+        params:
+          - name: country
+            type: string
+            required: true
+            positional: true
+            description: "Two-letter country code (e.g. fr, us, gb)."
+          - name: slug
+            type: string
+            required: true
+            positional: true
+            description: "Hotel URL slug (e.g. auliviaopera)."
+          - name: checkin
+            type: string
+            required: false
+            description: "Check-in date YYYY-MM-DD (controls displayed price)."
+          - name: checkout
+            type: string
+            required: false
+            description: "Check-out date YYYY-MM-DD."
+          - name: group_adults
+            flag_name: adults
+            aliases: [group-adults]
+            type: int
+            required: false
+            description: "Adult guests (default 2)."
+          - name: group_children
+            flag_name: children
+            aliases: [group-children]
+            type: int
+            required: false
+            description: "Child guests."
+          - name: no_rooms
+            flag_name: rooms
+            aliases: [no-rooms]
+            type: int
+            required: false
+            description: "Rooms requested (default 1)."
+          - name: selected_currency
+            flag_name: currency
+            aliases: [selected-currency]
+            type: string
+            required: false
+            description: "ISO 4217 currency code (default USD)."
+        response:
+          type: object
+          item: Property
+
+  reviews:
+    description: "Hotel reviews. Booking.com renders the first review batch in the hotel detail HTML; further pages are at `/reviewlist.html` keyed by hotel slug."
+    endpoints:
+      list:
+        method: GET
+        path: /reviewlist.html
+        description: "Paginated reviews for a hotel. Returns review text, score, traveler type, language, stay date, and reviewer country. Supports score-band, language, and traveler-type filters."
+        no_auth: true
+        params:
+          - name: pagename
+            flag_name: slug
+            aliases: [pagename]
+            type: string
+            required: true
+            description: "Hotel slug (the `auliviaopera` part of /hotel/fr/auliviaopera.html)."
+          - name: cc1
+            flag_name: country
+            aliases: [cc1]
+            type: string
+            required: true
+            description: "Two-letter country code matching the hotel URL."
+          - name: page
+            type: int
+            required: false
+            description: "Review page number (1-indexed)."
+          - name: rows
+            flag_name: page-size
+            aliases: [rows]
+            type: int
+            required: false
+            description: "Reviews per page (Booking default 25)."
+          - name: order
+            type: string
+            required: false
+            description: "Sort: featuredreviews, newest_first, oldest_first, scoredesc, scoreasc."
+          - name: review_score_filter
+            flag_name: score-band
+            aliases: [review-score-filter]
+            type: string
+            required: false
+            description: "Score band filter: wonderful, good, ok, poor, very_poor."
+          - name: review_lang
+            flag_name: language
+            aliases: [review-lang]
+            type: string
+            required: false
+            description: "Two-letter review language filter."
+          - name: customer_type
+            flag_name: traveler-type
+            aliases: [customer-type]
+            type: string
+            required: false
+            description: "Traveler type filter: solo, couple, family_with_young_children, family_with_older_children, group_of_friends, group, business."
+        response:
+          type: array
+          item: Review
+
+  map:
+    description: "Map-view hotel pins for a search result set. Uses Booking.com's internal GraphQL endpoint (`/dml/graphql`, operation `MapMarkersDesktop`) with the CSRF token extracted from the search-results HTML."
+    endpoints:
+      markers:
+        method: POST
+        path: /dml/graphql
+        description: "Fetch map-marker data for a destination + date range: per-property latitude, longitude, summary price, and rating. Lighter payload than the full search; useful for spatial filtering before pulling detail."
+        no_auth: true
+        params:
+          - name: ss
+            flag_name: query
+            aliases: [ss]
+            type: string
+            required: false
+            description: "Destination (city, region, landmark)."
+          - name: dest_id
+            type: string
+            required: false
+            description: "Booking destination id (from autocomplete)."
+          - name: dest_type
+            type: string
+            required: false
+            description: "Destination type tag (city, region, district, landmark, airport, hotel)."
+          - name: checkin
+            type: string
+            required: false
+            description: "Check-in date YYYY-MM-DD."
+          - name: checkout
+            type: string
+            required: false
+            description: "Check-out date YYYY-MM-DD."
+          - name: group_adults
+            flag_name: adults
+            aliases: [group-adults]
+            type: int
+            required: false
+            description: "Adult guests."
+          - name: no_rooms
+            flag_name: rooms
+            aliases: [no-rooms]
+            type: int
+            required: false
+            description: "Rooms requested."
+          - name: selected_currency
+            flag_name: currency
+            aliases: [selected-currency]
+            type: string
+            required: false
+            description: "ISO currency."
+        response:
+          type: array
+          item: MapMarker
+
+  trips:
+    description: "Authenticated `My Trips` page at `secure.booking.com/mytrips.html`. Lists upcoming + past bookings with confirmation numbers, check-in/out dates, property name, and total price. Requires cookie import."
+    endpoints:
+      list:
+        method: GET
+        path: /mytrips.html
+        description: "List the authenticated user's upcoming and past Booking.com reservations. Reads from the SSR HTML so it does not burn API tokens."
+        no_auth: false
+        params:
+          - name: state
+            type: string
+            required: false
+            description: "Filter by trip state: upcoming, past, cancelled, all (default all)."
+        response:
+          type: array
+          item: Trip
+
+  wishlist:
+    description: "Authenticated `Saved` wishlist at `www.booking.com/mywishlist.html?wl_id=<id>`. The user's wishlist id is server-resolved from the session cookie. Returns the saved properties with last-seen price snapshots."
+    endpoints:
+      get:
+        method: GET
+        path: /mywishlist.html
+        description: "Fetch the authenticated user's wishlist. Returns each saved property's name, slug, country, last-seen price, and the date it was added."
+        no_auth: false
+        params:
+          - name: wl_id
+            flag_name: id
+            aliases: [wl-id]
+            type: string
+            required: false
+            description: "Specific wishlist id (most users have one; CLI auto-resolves if omitted)."
+        response:
+          type: array
+          item: WishlistItem
+
+  rewards:
+    description: "Authenticated Genius loyalty + Rewards Wallet status at `secure.booking.com/rewards_and_wallet.html`. Returns Genius level (1-3), unlocked discount tiers, available credit, and pending vouchers."
+    endpoints:
+      get:
+        method: GET
+        path: /rewards_and_wallet.html
+        description: "Get the authenticated user's Genius level, lifetime stays, current credit balance, pending vouchers, and the property categories Genius discounts currently apply to."
+        no_auth: false
+        params: []
+        response:
+          type: object
+          item: Rewards
+
+  account:
+    description: "Authenticated account/profile page at `secure.booking.com/mysettings.html`. Returns display name, Genius tier, account email (redacted), language, currency, and country."
+    endpoints:
+      get:
+        method: GET
+        path: /mysettings.html
+        description: "Read the authenticated user's display name, Genius tier (e.g. Level 3), preferred language, and preferred currency."
+        no_auth: false
+        params: []
+        response:
+          type: object
+          item: Profile
+
+  flights:
+    description: "Flights search at `flights.booking.com/flights/<ORIG>-<DEST>/`. Booking's flight search is powered by Etraveli but exposes a clean SSR URL pattern. Returns flight cards with carrier, departure/arrival times, layovers, duration, and price."
+    endpoints:
+      search:
+        method: GET
+        path: /flights/{origin}-{destination}/
+        description: "Search flights between two IATA airport codes. Returns SSR-extracted flight cards with carrier, times, layovers, and price for the requested date range and cabin class."
+        no_auth: true
+        params:
+          - name: origin
+            type: string
+            required: true
+            positional: true
+            description: "Origin IATA airport code (e.g. JFK)."
+          - name: destination
+            type: string
+            required: true
+            positional: true
+            description: "Destination IATA airport code (e.g. CDG)."
+          - name: depart
+            type: string
+            required: true
+            description: "Departure date YYYY-MM-DD."
+          - name: return
+            flag_name: return-date
+            aliases: [return]
+            type: string
+            required: false
+            description: "Return date YYYY-MM-DD (round-trip only)."
+          - name: type
+            flag_name: trip-type
+            aliases: [type]
+            type: string
+            required: false
+            description: "Trip type: ROUNDTRIP, ONEWAY, MULTICITY (default ROUNDTRIP)."
+          - name: adults
+            type: int
+            required: false
+            description: "Adult passengers (default 1)."
+          - name: cabinClass
+            flag_name: cabin
+            aliases: [cabin-class]
+            type: string
+            required: false
+            description: "Cabin class: ECONOMY, PREMIUM_ECONOMY, BUSINESS, FIRST (default ECONOMY)."
+          - name: sort
+            type: string
+            required: false
+            description: "Sort: BEST, CHEAPEST, FASTEST, EARLIEST (default BEST)."
+          - name: stops
+            type: string
+            required: false
+            description: "Filter by stops: NONE, ONE, TWO_PLUS."
+          - name: currency
+            type: string
+            required: false
+            description: "ISO currency code (default USD)."
+        response:
+          type: array
+          item: FlightOffer
+
+  attractions:
+    description: "Attractions, tours, and experiences at `www.booking.com/attractions/searchresults/<country>/<city>.html`. Returns activity cards with price, duration, rating, and product slug for detail lookups."
+    endpoints:
+      search:
+        method: GET
+        path: /attractions/searchresults/{country}/{city}.html
+        description: "Search attractions in a city. Returns SSR-extracted activity cards with price, rating, and product slug. Use `attractions get <country> <slug>` for full activity detail."
+        no_auth: true
+        params:
+          - name: country
+            type: string
+            required: true
+            positional: true
+            description: "Two-letter country code (e.g. fr)."
+          - name: city
+            type: string
+            required: true
+            positional: true
+            description: "City slug (lowercase, hyphenated, e.g. paris)."
+          - name: from_date
+            flag_name: from
+            aliases: [from-date]
+            type: string
+            required: false
+            description: "Activity date window start YYYY-MM-DD."
+          - name: to_date
+            flag_name: to
+            aliases: [to-date]
+            type: string
+            required: false
+            description: "Activity date window end YYYY-MM-DD."
+          - name: currency
+            type: string
+            required: false
+            description: "ISO currency code (default USD)."
+        response:
+          type: array
+          item: Attraction
+      get:
+        method: GET
+        path: /attractions/{country}/{slug}.html
+        description: "Fetch full attraction detail (description, inclusions, duration options, meeting point, cancellation policy, reviews summary)."
+        no_auth: true
+        params:
+          - name: country
+            type: string
+            required: true
+            positional: true
+            description: "Two-letter country code."
+          - name: slug
+            type: string
+            required: true
+            positional: true
+            description: "Attraction slug from `attractions search` (e.g. prjyfitkuhfz-one-day-admission-to-disneylandr-paris)."
+        response:
+          type: object
+          item: AttractionDetail
+
+  cars:
+    description: "Car rental landing at `www.booking.com/cars/index.html`. Booking.com cars is powered by Rentalcars and uses a self-posting form for search; deep-link results URLs are not supported. This resource exposes the top deals visible on the landing page and supplier landing pages (Hertz, Sixt, Avis, etc.) so agents can recommend pickup locations and known suppliers without claiming results we can't deliver."
+    endpoints:
+      list:
+        method: GET
+        path: /cars/index.html
+        description: "Read the car-rental landing page: featured deals, supported suppliers, and supported city-level pickup locations. Does NOT return live search results -- Booking.com cars does not support deep-link search URLs, so live pricing requires the web UI. Use this command to enumerate suppliers and locations, then direct the user to the Booking cars page for booking."
+        no_auth: true
+        params: []
+        response:
+          type: object
+          item: CarsLanding
+
+types:
+  Destination:
+    type: object
+    properties:
+      dest_id: {type: string, description: "Booking.com numeric destination id."}
+      dest_type: {type: string, description: "city, region, district, landmark, airport, hotel."}
+      name: {type: string}
+      country: {type: string}
+      country_code: {type: string}
+      urlname: {type: string, description: "URL-safe destination slug used in /searchresults.html URLs."}
+      latitude: {type: float}
+      longitude: {type: float}
+  PropertyCard:
+    type: object
+    properties:
+      name: {type: string}
+      slug: {type: string, description: "Hotel URL slug (e.g. auliviaopera)."}
+      country: {type: string, description: "Two-letter country code in the hotel URL."}
+      url: {type: string, description: "Full /hotel/<country>/<slug>.html URL."}
+      price: {type: float, description: "Lowest displayed nightly price for the requested stay."}
+      price_text: {type: string, description: "Raw price string as shown (e.g. '$177')."}
+      currency: {type: string}
+      review_score: {type: float, description: "Numeric review score, 0-10 scale."}
+      review_label: {type: string, description: "Score label (e.g. 'Very Good', 'Excellent')."}
+      review_count: {type: int}
+      stars: {type: int, description: "Star/class rating if shown."}
+      distance_km: {type: float, description: "Distance from search center."}
+      photo_url: {type: string}
+      free_cancellation: {type: bool}
+      no_prepayment: {type: bool}
+      breakfast_included: {type: bool}
+      sustainability: {type: bool}
+      genius_discount: {type: bool}
+  Property:
+    type: object
+    properties:
+      name: {type: string}
+      slug: {type: string}
+      country: {type: string}
+      address: {type: string}
+      city: {type: string}
+      postal_code: {type: string}
+      latitude: {type: float}
+      longitude: {type: float}
+      review_score: {type: float}
+      review_count: {type: int}
+      review_label: {type: string}
+      stars: {type: int}
+      hotel_type: {type: string, description: "Hotel, B&B, Apartment, Hostel, Aparthotel, Guesthouse, Villa, etc."}
+      price_range: {type: string}
+      currency: {type: string}
+      facilities: {type: array, item: string, description: "Top-listed amenities (Free WiFi, Bar, Elevator, ...)."}
+      description: {type: string}
+      photos: {type: array, item: string}
+      url: {type: string}
+  Review:
+    type: object
+    properties:
+      title: {type: string}
+      positive: {type: string}
+      negative: {type: string}
+      score: {type: float}
+      reviewer_name: {type: string}
+      reviewer_country: {type: string}
+      traveler_type: {type: string}
+      stay_date: {type: string}
+      review_date: {type: string}
+      language: {type: string}
+      helpful_votes: {type: int}
+  MapMarker:
+    type: object
+    properties:
+      property_id: {type: string}
+      slug: {type: string}
+      latitude: {type: float}
+      longitude: {type: float}
+      price: {type: float}
+      currency: {type: string}
+      review_score: {type: float}
+  Trip:
+    type: object
+    properties:
+      confirmation_number: {type: string}
+      property_name: {type: string}
+      property_slug: {type: string}
+      country: {type: string}
+      city: {type: string}
+      checkin: {type: string}
+      checkout: {type: string}
+      nights: {type: int}
+      total_price: {type: float}
+      currency: {type: string}
+      state: {type: string, description: "upcoming, past, or cancelled."}
+      booked_on: {type: string}
+  WishlistItem:
+    type: object
+    properties:
+      property_name: {type: string}
+      property_slug: {type: string}
+      country: {type: string}
+      city: {type: string}
+      last_seen_price: {type: float}
+      currency: {type: string}
+      added_on: {type: string}
+      photo_url: {type: string}
+      url: {type: string}
+  Rewards:
+    type: object
+    properties:
+      genius_level: {type: int}
+      genius_label: {type: string, description: "e.g. 'Level 3'."}
+      lifetime_stays: {type: int}
+      credit_balance: {type: float}
+      credit_currency: {type: string}
+      pending_vouchers: {type: int}
+      categories_discounted: {type: array, item: string}
+  Profile:
+    type: object
+    properties:
+      display_name: {type: string}
+      genius_level: {type: int}
+      genius_label: {type: string}
+      preferred_language: {type: string}
+      preferred_currency: {type: string}
+      preferred_country: {type: string}
+  FlightOffer:
+    type: object
+    properties:
+      offer_id: {type: string}
+      carrier: {type: string}
+      carrier_iata: {type: string}
+      flight_numbers: {type: array, item: string}
+      origin_iata: {type: string}
+      destination_iata: {type: string}
+      depart_time: {type: string}
+      arrive_time: {type: string}
+      duration_minutes: {type: int}
+      stops: {type: int}
+      layover_airports: {type: array, item: string}
+      cabin: {type: string}
+      price: {type: float}
+      currency: {type: string}
+      url: {type: string}
+  Attraction:
+    type: object
+    properties:
+      slug: {type: string}
+      country: {type: string}
+      name: {type: string}
+      category: {type: string}
+      duration_text: {type: string}
+      review_score: {type: float}
+      review_count: {type: int}
+      price_from: {type: float}
+      currency: {type: string}
+      photo_url: {type: string}
+      url: {type: string}
+  AttractionDetail:
+    type: object
+    properties:
+      slug: {type: string}
+      country: {type: string}
+      name: {type: string}
+      description: {type: string}
+      category: {type: string}
+      inclusions: {type: array, item: string}
+      duration_options: {type: array, item: string}
+      meeting_point: {type: string}
+      cancellation_policy: {type: string}
+      languages: {type: array, item: string}
+      review_score: {type: float}
+      review_count: {type: int}
+      price_from: {type: float}
+      currency: {type: string}
+      photos: {type: array, item: string}
+      url: {type: string}
+  CarsLanding:
+    type: object
+    properties:
+      featured_deals: {type: array, item: string, description: "Headline deal copy from the landing page."}
+      suppliers: {type: array, item: string, description: "Supplier brands with landing pages (Hertz, Sixt, Avis, Budget, etc.)."}
+      supplier_paths: {type: array, item: string, description: "Per-supplier landing-page paths (/cars/<supplier>/index.html)."}
+      pickup_cities: {type: array, item: string, description: "City landing pages exposed by Booking cars (/cars/city/<country>/<slug>.html)."}
+      web_ui_url: {type: string, description: "Pointer to the Booking cars web UI where live search runs."}

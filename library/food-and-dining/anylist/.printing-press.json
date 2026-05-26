@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-18T10:10:11.574635Z",
+  "printing_press_version": "4.6.1",
+  "api_name": "anylist",
+  "display_name": "AnyList",
+  "cli_name": "anylist-pp-cli",
+  "owner": "user",
+  "printer": "jeeves",
+  "printer_name": "Jeeves",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:996fefda842cc02c69ad53cbd0126c2fc396b71fbe1ff116ac9ae1d75b7f587a",
+  "run_id": "20260514-120439",
+  "category": "food-and-dining",
+  "description": "AnyList shopping, recipes, meal planning, and local grocery automation CLI.",
+  "mcp_binary": "anylist-pp-mcp",
+  "mcp_tool_count": 43,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "ANYLIST_ACCESS_TOKEN"
+  ],
+  "novel_features": [
+    {
+      "name": "Cross-Recipe Ingredient Search",
+      "command": "recipe search --ingredient",
+      "description": "Find every recipe that uses a given ingredient instantly — no scrolling, no guessing."
+    },
+    {
+      "name": "Recipe Filter by Metadata",
+      "command": "recipe filter",
+      "description": "Filter your entire recipe library by prep time, rating, serving count, and collection simultaneously."
+    },
+    {
+      "name": "Store-Partitioned Shopping Output",
+      "command": "list by-store",
+      "description": "Split a shopping list into per-store groups sorted by store aisle order — ready for multi-store shopping trips."
+    },
+    {
+      "name": "Cron-Safe Meal-Plan-to-List",
+      "command": "meal add-to-list",
+      "description": "Automatically build this week's shopping list from your meal plan — idempotent, quantity-merging, and safe to run on a schedule."
+    },
+    {
+      "name": "Recipe Add-to-List with Quantity Merge",
+      "command": "recipe add-to-list",
+      "description": "Add a recipe's ingredients to your list and automatically sum quantities when an ingredient is already present."
+    },
+    {
+      "name": "Missing-Ingredients Check",
+      "command": "recipe missing",
+      "description": "See exactly which ingredients you still need to buy before adding a recipe — skip what's already on your list."
+    },
+    {
+      "name": "Meal Plan Weekly Grid",
+      "command": "meal summary",
+      "description": "Render a Mon–Sun meal plan grid with Breakfast/Lunch/Dinner labels — pasteable into messages or scripts."
+    },
+    {
+      "name": "Weekly List Reset",
+      "command": "list reset",
+      "description": "Clear all checked items from a list in one command — idempotent and safe for cron to run after every shopping trip."
+    },
+    {
+      "name": "Cross-List Item Search",
+      "command": "item search",
+      "description": "Find any item across all your shopping lists at once — shows which list it's on and whether it's checked."
+    },
+    {
+      "name": "Sync Cache Staleness Check",
+      "command": "sync status",
+      "description": "Report how fresh your local cache is per entity type, with exit code 1 if any data is stale."
+    }
+  ]
+}

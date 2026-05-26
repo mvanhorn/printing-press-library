@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-19",
+  "base_run_id": "20260518-202518",
+  "base_printing_press_version": "4.8.0",
+  "patches": [
+    {
+      "id": "golangci-lint-v2-cleanup",
+      "summary": "Bring lint to 0 findings under golangci-lint v2 (config version field + 102 mechanical fixes across 128 files).",
+      "reason": "Pre-existing press-template debt: `.golangci.yml` lacks `version: \"2\"` (rejected by v2.x), and emitted code has bare `defer Close()` / `fmt.Fprintf` / bool-constant comparisons / dead helpers / `err == sql.ErrNoRows` patterns that fire errcheck, staticcheck, unused, ineffassign, and errorlint. The same template-level patterns appear across all 131 library CLIs — the durable fix belongs in `cli-printing-press` generator templates; this entry records the local sweep applied to ship this CLI lint-clean while the upstream fix is in flight.",
+      "files": [
+        ".golangci.yml",
+        "internal/cli/*.go",
+        "internal/client/client.go",
+        "internal/cliutil/*.go",
+        "internal/config/config.go",
+        "internal/mcp/tools.go",
+        "internal/store/store.go",
+        "internal/store/schema_version_test.go",
+        "internal/store/upsert_batch_test.go"
+      ],
+      "validated_outcome": "`golangci-lint run ./...` → 0 issues. `go build ./...`, `go vet ./...` clean. `go test ./...` shows two pre-existing failures in internal/store (parent_id columns absent in subusers_stats/subuser_access typed tables) that are unrelated to the lint sweep.",
+      "upstream_issue": "TODO: file against mvanhorn/cli-printing-press to fix generator templates for: (1) .golangci.yml version field, (2) defer Close patterns, (3) fmt.Fprintf error discard, (4) bool-constant comparisons, (5) dead Cloudflare-pattern MCP scaffold (mcpParamBinding/makeAPIHandler)."
+    },
+    {
+      "id": "elide-bundled-spec-yaml",
+      "summary": "Drop archived spec.yaml from publish artifacts; keep spec_format + spec_checksum + spec_source in manifest as reference.",
+      "reason": "Bundled twilio/sendgrid-oai spec is 37,685 lines / 1.4MB and pushed the PR over Greptile's automated-review size cap (PR was 511 files / 126K lines / 5.1MB; Greptile timed out 3x in a row even after auto-nudge). The spec is not read at runtime (`grep spec.yaml internal/ cmd/` returns nothing), 45 of 135 published library CLIs already ship without it per AGENTS.md (\"some CLIs have no archived spec on disk\"), and the manifest carries `spec_format: openapi3` + sha256 checksum + the bundle origin URL so the reference is durable and reproducible.",
+      "files": [
+        "spec.yaml (deleted)",
+        ".printing-press.json (spec_source filled in)"
+      ],
+      "validated_outcome": "Diff shrinks ~37,685 lines (-30%). spec_checksum stays in manifest so anyone wanting to verify the spec used at print time can re-bundle from twilio/sendgrid-oai and compare. No runtime impact (CLI is already generated; spec was a generation-time input)."
+    },
+    {
+      "id": "greptile-novel-feature-fixes",
+      "summary": "Address 6 real bugs in hand-coded novel features surfaced by Greptile review on PR #679.",
+      "reason": "Lint-cleanup sweep had inadvertently replaced unfinished or refactored variables with `_ = x` rather than completing the logic. Greptile correctly flagged the resulting dead code, ignored flags, and unbounded I/O. All fixes are functional repairs to the novel features themselves.",
+      "files": [
+        "internal/cli/suppression_diff.go",
+        "internal/cli/subusers_rollup.go",
+        "internal/cli/templates_lint.go",
+        "internal/cli/activity_tail.go",
+        "internal/cli/suppression_sync.go"
+      ],
+      "validated_outcome": "go build ./..., go vet ./..., golangci-lint v2 run ./... all clean. Fixes: (1) suppression diff three-way categorisation now exhaustive over (api,local,external) tuple with one category per email; (2) --metric flag on subusers rollup now actually filters output columns; (3) templates lint replaces os.Exit(2) with &cliError{code:2,...} so deferred db.Close()/file handles run; (4) dead firstPoll variable in activity tail removed (lobotomized when query strategy changed to msg_id dedup); (5) fetchURLCSV now uses bounded http.Client{Timeout: 30s} + NewRequestWithContext; (6) suppression sync paginates via offset+limit with maxPages safety cap, removing silent truncation at 500."
+    }
+  ]
+}

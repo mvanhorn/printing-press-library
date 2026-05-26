@@ -16,8 +16,18 @@ func newCoinFactsCertCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:         "facts-cert <certNo>",
-		Short:       "Full CoinFacts metadata for one PCGS cert number. The IsValidRequest + ServerMessage envelope tells you if the cert...",
-		Example:     "  pcgs-pp-cli coin facts-cert example-value",
+		Short:       "Full CoinFacts metadata for one PCGS cert number. Emits {cert_no, data, _keep} so the JSON shape matches `coin batch`.",
+		Long: "Full CoinFacts metadata for one PCGS cert number. The IsValidRequest + ServerMessage envelope tells you if the cert is recognized.\n\n" +
+			"Output shape under --json / --agent is the same flat object that `coin batch` emits per JSONL line:\n\n" +
+			"  {\n" +
+			"    \"cert_no\": \"50483263\",\n" +
+			"    \"data\": { \"Name\": \"1881-S $1\", \"PriceGuideValue\": 425, ... },\n" +
+			"    \"_keep\": {}\n" +
+			"  }\n\n" +
+			"_keep is always {} for single-cert lookups (it carries non-cert CSV columns through `coin batch`). The same parser works for both surfaces.\n\n" +
+			"PriceGuideValue: PCGS returns 0 for unpriced modern slabs (David Hall FDI, brand-new releases). This CLI rewrites 0 to null so downstream consumers can distinguish 'unpriced' from 'zero-valued'. A genuinely zero-valued coin still receives null — those are vanishingly rare.\n\n" +
+			"year_mismatch: when the year prefix parsed from Name disagrees with the integer Year field (PCGS occasionally returns Name='2022-S ...' but Year=2021), a top-level year_mismatch object is added: {\"name_year\": 2022, \"year_field\": 2021}. Absent (or null) when they agree.",
+		Example:     "  pcgs-pp-cli coin facts-cert 50483263 --agent | jq '.data.Name'",
 		Annotations: map[string]string{"pp:endpoint": "coin.facts-cert", "pp:method": "GET", "pp:path": "/coindetail/GetCoinFactsByCertNo/{certNo}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -47,31 +57,47 @@ func newCoinFactsCertCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
+			// PATCH(amend-2026-05-18: coin-response-transforms) — apply
+			// PriceGuideValue=0→null and year_mismatch transforms before any
+			// rendering path so all consumers see the corrected payload.
+			data = applyCoinResponseTransforms(data)
 			// Print provenance to stderr for human-facing output only.
 			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
-			// --select) and piped stdout suppress this line; the JSON envelope
-			// already carries meta.source for those consumers.
+			// --select) and piped stdout suppress this line.
 			// SYNC: keep this gate aligned with command_promoted.go.tmpl.
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags.
-			// --select wins over --compact when both are set; --compact only runs when
-			// no explicit fields were requested. Explicit format flags (--csv, --quiet,
-			// --plain) opt out of the auto-JSON path so piped consumers that asked for
-			// a non-JSON format reach the standard pipeline below.
+			// PATCH(amend-2026-05-18: facts-cert-flat-shape) — single-cert
+			// output now uses the same {cert_no, data, _keep} object that
+			// `coin batch` emits per JSONL line, so an agent that knows how
+			// to parse one surface can trivially reuse that code for the
+			// other. _keep is always {} on single-cert calls (it carries
+			// non-cert CSV columns through batch). Provenance, formerly in
+			// meta.source, moves to a single-line stderr message via
+			// printProvenance — the JSON envelope no longer carries it.
+			//
+			// --select applies AFTER wrapping so callers reference the new
+			// outer shape (--select data.Name, --select cert_no,data.Grade,
+			// etc.) and so the path scheme matches `coin batch`'s output
+			// without divergence. --compact applies to the inner data object
+			// (compact stripping is for the noisy coin record, not the
+			// envelope which only carries cert_no/data/_keep). The full flat
+			// envelope is preserved so that the shape invariant the agent
+			// contract depends on is never broken.
 			if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
-				filtered := data
-				if flags.selectFields != "" {
-					filtered = filterFields(filtered, flags.selectFields)
-				} else if flags.compact {
-					filtered = compactFields(filtered)
+				innerData := data
+				if flags.compact && flags.selectFields == "" {
+					innerData = compactFields(innerData)
 				}
-				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
+				wrapped, wrapErr := wrapCoinFlat(cert, innerData)
 				if wrapErr != nil {
 					return wrapErr
+				}
+				if flags.selectFields != "" {
+					wrapped = filterFields(wrapped, flags.selectFields)
 				}
 				return printOutput(cmd.OutOrStdout(), wrapped, true)
 			}
@@ -94,4 +120,34 @@ func newCoinFactsCertCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().BoolVar(&flagRetrieveAllData, "retrieve-all-data", true, "Ask PCGS to return the full CoinFacts payload (default: true).")
 
 	return cmd
+}
+
+// wrapCoinFlat returns the {cert_no, data, _keep} JSON shape used by both
+// `coin facts-cert` and `coin batch`. The single source of truth for the
+// canonical agent-facing object lives here so the two surfaces never drift.
+// _keep is always emitted as an empty object on single-cert calls; batch
+// invokes its own rowBase helper which fills _keep from non-cert CSV columns.
+//
+// PATCH(amend-2026-05-18: facts-cert-flat-shape) — added so the new flat
+// shape gets one declarative encoder rather than an inline map literal at
+// the call site, leaving room to lift this same helper into coin_batch.go
+// later for full deduplication.
+func wrapCoinFlat(certNo string, data json.RawMessage) (json.RawMessage, error) {
+	// json.RawMessage("{}") so encoders emit it as an object literal rather
+	// than the typed-nil empty array a literal map[string]any{} would.
+	var d any
+	if json.Valid(data) {
+		d = json.RawMessage(data)
+	} else {
+		// Same fallback shape as wrapWithProvenance: non-JSON payloads
+		// (XML/RSS/plain text) embed as a JSON string so the encoder
+		// doesn't choke and the consumer still receives the raw bytes.
+		d = string(data)
+	}
+	envelope := map[string]any{
+		"cert_no": certNo,
+		"data":    d,
+		"_keep":   json.RawMessage("{}"),
+	}
+	return json.Marshal(envelope)
 }

@@ -1,0 +1,51 @@
+version: 2
+project_name: obsidian-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: obsidian-pp-cli
+    main: ./cmd/obsidian-pp-cli
+    binary: obsidian-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X obsidian-pp-cli/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: obsidian-pp-mcp
+    main: ./cmd/obsidian-pp-mcp
+    binary: obsidian-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: obsidian-pp-cli
+    repository:
+      owner: drdriftwood
+      name: homebrew-tap
+    homepage: "https://github.com/drdriftwood/obsidian-pp-cli"
+    description: "SYNTHETIC OpenAPI 3.0 spec mapping Obsidian's official command-line interface (v1.12+) to virtual REST endpoints...."
+    install: |
+      bin.install "obsidian-pp-cli"
+      bin.install "obsidian-pp-mcp"

@@ -1,0 +1,51 @@
+version: 2
+project_name: conduyt-crm-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: conduyt-crm-pp-cli
+    main: ./cmd/conduyt-crm-pp-cli
+    binary: conduyt-crm-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/sales-and-crm/conduyt-crm/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: conduyt-crm-pp-mcp
+    main: ./cmd/conduyt-crm-pp-mcp
+    binary: conduyt-crm-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: conduyt-crm-pp-cli
+    repository:
+      owner: conduyt
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Manage Conduyt CRM contacts, deals, pipelines, automations, campaigns, invoices, and local insight reports from the terminal."
+    install: |
+      bin.install "conduyt-crm-pp-cli"
+      bin.install "conduyt-crm-pp-mcp"

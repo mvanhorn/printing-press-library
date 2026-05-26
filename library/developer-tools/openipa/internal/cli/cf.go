@@ -66,7 +66,7 @@ la compliance PA prima di emettere fatture o ordini.`,
 			wg.Add(1)
 			go func() {
 				defer wg.Done()
-				raw, _, callErr := c.Post("/WS01_SFE_CF.php", map[string]any{"CF": cf})
+				raw, _, callErr := c.Post("/ws/WS01SFECFServices/api/WS01_SFE_CF", map[string]any{"CF": cf})
 				mu.Lock()
 				defer mu.Unlock()
 				if callErr != nil {
@@ -87,7 +87,7 @@ la compliance PA prima di emettere fatture o ordini.`,
 			wg.Add(1)
 			go func() {
 				defer wg.Done()
-				raw, _, callErr := c.Post("/WS14_NSO_CF.php", map[string]any{"CF": cf})
+				raw, _, callErr := c.Post("/ws/WS14NSOCFServices/api/WS14_NSO_CF", map[string]any{"CF": cf})
 				mu.Lock()
 				defer mu.Unlock()
 				if callErr != nil {
@@ -108,7 +108,7 @@ la compliance PA prima di emettere fatture o ordini.`,
 			wg.Add(1)
 			go func() {
 				defer wg.Done()
-				raw, _, callErr := c.Post("/WS23_DOM_DIG_CF.php", map[string]any{"CF": cf})
+				raw, _, callErr := c.Post("/ws/WS23DOMDIGCFServices/api/WS23_DOM_DIG_CF", map[string]any{"CF": cf})
 				mu.Lock()
 				defer mu.Unlock()
 				if callErr != nil {

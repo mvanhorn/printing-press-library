@@ -1,0 +1,131 @@
+{
+  "api_name": "rappi",
+  "base_url": "https://www.rappi.com.mx",
+  "description": "Rappi Mexico CLI - browse public restaurants, stores, and product catalog from rappi.com.mx",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "catalog_browse_letter",
+      "description": "Browse the product catalog indexed by initial letter and page number. Required: letter, page. Returns array of product_link.",
+      "method": "GET",
+      "path": "/catalogo/products/{letter}-{page}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "letter",
+          "type": "string",
+          "location": "path",
+          "description": "Starting letter (a through z). Lower-case.",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "integer",
+          "location": "path",
+          "description": "Page number, starting at 1.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "promotions_list",
+      "description": "Public promotions landing page. Returns the promotions_page.",
+      "method": "GET",
+      "path": "/promociones",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "restaurants_get",
+      "description": "Fetch the restaurant detail page (name, cuisine, address, hours, geo, rating). Required: restaurant_id_slug. Returns the restaurant_detail.",
+      "method": "GET",
+      "path": "/restaurantes/{restaurant_id_slug}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "restaurant_id_slug",
+          "type": "string",
+          "location": "path",
+          "description": "Restaurant identifier in '\u003cnumeric-id\u003e-\u003cslug\u003e' form (e.g. 10000295-el-farolito). Get IDs from `restaurants list-city` output.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "restaurants_list_category",
+      "description": "List restaurants in a city filtered by cuisine category (hamburguesas, pizza, sushi, tacos, etc.). Required: city, category. Returns array of restaurant_link.",
+      "method": "GET",
+      "path": "/{city}/restaurantes/category/{category}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "city",
+          "type": "string",
+          "location": "path",
+          "description": "City slug (e.g. ciudad-de-mexico, guadalajara, monterrey).",
+          "required": true
+        },
+        {
+          "name": "category",
+          "type": "string",
+          "location": "path",
+          "description": "Cuisine slug. Known values - hamburguesas, pizza, sushi, tacos, pollo, mexicana, saludables, postres, cafe, pasteleria.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "restaurants_list_city",
+      "description": "List restaurants in a Mexican city (e.g. ciudad-de-mexico, guadalajara, monterrey). Required: city. Returns array of restaurant_link.",
+      "method": "GET",
+      "path": "/{city}/restaurantes",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "city",
+          "type": "string",
+          "location": "path",
+          "description": "City slug. Common values - ciudad-de-mexico, guadalajara, monterrey, naucalpan, leon, queretaro, puebla.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "stores_get",
+      "description": "Fetch a store detail page (name, type, address, branding). Required: store_id_slug. Returns the store_detail.",
+      "method": "GET",
+      "path": "/tiendas/{store_id_slug}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "store_id_slug",
+          "type": "string",
+          "location": "path",
+          "description": "Store identifier in '\u003cnumeric-id\u003e-\u003cslug\u003e' form (e.g. 1930163835-la-comer).",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "stores_list_by_type",
+      "description": "List stores by type (market for supermarkets, farmatodo for pharmacy, liquor, express, rappimall-parent). Required: store_type. Returns array of store_link.",
+      "method": "GET",
+      "path": "/tiendas/tipo/{store_type}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "store_type",
+          "type": "string",
+          "location": "path",
+          "description": "Store type slug. Known values - market (supermarkets), farmatodo (pharmacy), liquor, express, rappimall-parent.",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

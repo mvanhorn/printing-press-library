@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-11T01:34:46.302312Z",
+  "printing_press_version": "4.2.2",
+  "api_name": "clickup",
+  "display_name": "Clickup",
+  "cli_name": "clickup-pp-cli",
+  "owner": "kevin-magnan",
+  "printer": "kjmagnan1s",
+  "printer_name": "Kevin Magnan",
+  "spec_url": "https://developer.clickup.com/docs/open-api-spec",
+  "spec_path": "/Users/kevinmagnan/printing-press/.runstate/cli-printing-press-e4fb5925/current/clickup/clickup-merged-flat.json",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:3354e591a442dc0e575396fcb4b6e2e72bdb9c51fcd3543125acee207e054677",
+  "run_id": "20260510-202319",
+  "mcp_binary": "clickup-pp-mcp",
+  "mcp_tool_count": 172,
+  "mcp_ready": "full",
+  "api_version": "v2+v3",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "CLICKUP_AUTHORIZATION_TOKEN"
+  ],
+  "novel_features": [
+    {
+      "name": "Hierarchical Sync with Parent-ID Traversal",
+      "command": "sync",
+      "description": "Walks the full ClickUp hierarchy in dependency order (teams → spaces → folders → lists → tasks; teams → docs; teams → channels) and lands every record in the local SQLite store. Every parent-child relationship in the API is traversed automatically.",
+      "rationale": "ClickUp's API requires a parent ID for almost every list operation. The default printing-press sync layer assumes global list endpoints (/users, /repos), which fail on hierarchical APIs. The parent-traversal handler reads parent IDs from the local store, templates child paths, supports unionTargets for resources living under multiple parents (lists under both folders and spaces), and forces sequential execution so children never sync before parents.",
+      "example": "clickup-pp-cli sync --json --profile default",
+      "why_it_matters": "Reach for this when you want offline search, analytics, or any compound query across a ClickUp workspace's full structure. One command populates the entire tree.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Empty-Envelope Sync Fix",
+      "command": "sync",
+      "description": "Distinguishes \"recognized envelope with empty array\" from \"unrecognized response shape\" so tenants with zero records of a resource type sync cleanly instead of crashing. ClickUp returns {\"spaces\":[]} for workspaces with no spaces; the original framework treated this as a singular response and tried to upsert the wrapper as a single record, failing with \"missing id for space\".",
+      "rationale": "Generic to any hierarchical API where some tenants legitimately have zero of a resource type. Returns an empty-but-non-nil items slice when the envelope is recognized but empty, distinct from a nil slice for genuine singular responses.",
+      "example": "clickup-pp-cli sync --resources space --profile default --json",
+      "why_it_matters": "Without this, sync silently fails for any workspace with empty resource collections, leaving the local store partially populated.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Ergonomic v3 Aliases (docs + chat)",
+      "command": "docs",
+      "aliases": [
+        "chat"
+      ],
+      "description": "Top-level `docs` and `chat` commands with idiomatic verbs (search, get, pages, page, listing, create, edit, send, react, reply, members, followers, messages) replacing the spec-derived workspaces/docs/<verb>-public and workspaces/chat/get-channels paths. ~22 aliases total. Original verbs kept as Cobra aliases for back-compat.",
+      "rationale": "The generator names commands after API operationIds, which preserves a 1:1 mapping back to the spec but is rough on humans. ClickUp's v3 docs and chat surfaces are reachable via short, memorable verbs without losing the original paths.",
+      "example": "clickup-pp-cli docs search 9017321407 --json --profile default",
+      "why_it_matters": "Reach for `docs search`, `chat list`, `chat send` directly instead of remembering the deeply-nested workspaces tree. Especially useful when scripting against v3 endpoints.",
+      "group": "Agent-native plumbing"
+    }
+  ]
+}

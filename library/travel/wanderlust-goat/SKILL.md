@@ -24,20 +24,18 @@ This skill drives the `wanderlust-goat-pp-cli` binary. **You must verify the CLI
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install wanderlust-goat --cli-only
+   npx -y @mvanhorn/printing-press-library install wanderlust-goat --cli-only
    ```
 2. Verify: `wanderlust-goat-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
 
-If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.23+):
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.3 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/travel/wanderlust-goat/cmd/wanderlust-goat-pp-cli@latest
 ```
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
-
-Two-stage funnel: seed candidates from Google Places, then deep-research each against locale-aware sources (Tabelog/Naver/Le Fooding for the country you're in), trust-weight by source authority, kill-gate anything that's permanently closed, and return the 3-5 amazing things — not the comprehensive 40-row dump.
 
 ## When to Use This CLI
 

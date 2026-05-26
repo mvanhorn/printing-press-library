@@ -79,7 +79,7 @@ la struttura organizzativa completa di un ente IPA in un unico output.`,
 			wg.Add(1)
 			go func() {
 				defer wg.Done()
-				raw, _, callErr := c.Post("/WS05_AMM.php", map[string]any{"COD_AMM": codAmm})
+				raw, _, callErr := c.Post("/ws/WS05AMMServices/api/WS05_AMM", map[string]any{"COD_AMM": codAmm})
 				mu.Lock()
 				defer mu.Unlock()
 				if callErr != nil {
@@ -116,7 +116,7 @@ la struttura organizzativa completa di un ente IPA in un unico output.`,
 			wg.Add(1)
 			go func() {
 				defer wg.Done()
-				raw, _, callErr := c.Post("/WS02_AOO.php", map[string]any{"COD_AMM": codAmm})
+				raw, _, callErr := c.Post("/ws/WS02AOOServices/api/WS02_AOO", map[string]any{"COD_AMM": codAmm})
 				mu.Lock()
 				defer mu.Unlock()
 				if callErr != nil {
@@ -147,7 +147,7 @@ la struttura organizzativa completa di un ente IPA in un unico output.`,
 			wg.Add(1)
 			go func() {
 				defer wg.Done()
-				raw, _, callErr := c.Post("/WS03_OU.php", map[string]any{"COD_AMM": codAmm})
+				raw, _, callErr := c.Post("/ws/WS03OUServices/api/WS03_OU", map[string]any{"COD_AMM": codAmm})
 				mu.Lock()
 				defer mu.Unlock()
 				if callErr != nil {

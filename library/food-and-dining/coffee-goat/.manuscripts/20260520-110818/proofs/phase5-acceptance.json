@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "coffee-goat",
+  "run_id": "20260520-110818",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 61,
+  "tests_passed": 61,
+  "tests_skipped": 44,
+  "auth_context": {
+    "type": "none"
+  }
+}

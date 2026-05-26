@@ -15,7 +15,7 @@
       "command": "${__dirname}/bin/seats-aero-pp-mcp",
       "args": [],
       "env": {
-        "SEATS_AERO_PARTNER_PARTNER_AUTHORIZATION": "${user_config.seats_aero_partner_partner_authorization}"
+        "SEATS_AERO_API_KEY": "${user_config.seats_aero_api_key}"
       }
     }
   },

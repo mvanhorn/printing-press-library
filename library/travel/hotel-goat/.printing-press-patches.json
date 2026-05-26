@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-25",
+  "base_run_id": "20260523-203231",
+  "base_printing_press_version": "4.13.0",
+  "patches": [
+    {
+      "id": "hotel-goat-dryrun-before-flag-validation",
+      "summary": "Move the dryRunOK short-circuit ahead of required-flag validation in hotels/dates/near so verify-harness probes can short-circuit.",
+      "reason": "Three commands required positional args or --checkin/--checkout/--from/--to flags before the dry-run shortcut, so the verify-skill mock probes errored out instead of short-circuiting and the structural verify rate sat at 86% (3 of 21 commands red). Reordering the dryRunOK check ahead of the validation gate lifts verify to 100% without changing real-call behavior.",
+      "files": [
+        "internal/cli/dates.go",
+        "internal/cli/near.go",
+        "internal/cli/hotels_positional.go"
+      ],
+      "validated_outcome": "cli-printing-press publish validate --dir <hotel-goat> --json reports 11/11 checks PASS, verify pass rate 100%."
+    },
+    {
+      "id": "hotel-goat-dates-zero-price-sort",
+      "summary": "Fix dates.go SliceStable comparator to enforce strict weak ordering by routing zero-priced hotels to the end explicitly.",
+      "reason": "The original `pi < pj && pi > 0` comparator returns false for both less(i,j) and less(j,i) when pi > 0 and pj == 0, violating strict weak ordering. sort.SliceStable in that state may land a zero-priced hotel at index 0, mis-identifying it as 'cheapest'. New comparator: zero-priced rows go to the tail; otherwise standard ascending by price.",
+      "files": ["internal/cli/dates.go"],
+      "validated_outcome": "Greptile P1 finding on dates.go:120 resolved.",
+      "upstream_issue": "https://github.com/mvanhorn/printing-press-library/pull/849#discussion"
+    },
+    {
+      "id": "hotel-goat-brand-inference-deterministic",
+      "summary": "Make inferBrand deterministic by flattening sub-brand candidates and sorting by descending length before matching.",
+      "reason": "Go map iteration is randomized, so iterating brandPrefixes directly could return different sub-brands for the same hotel name across runs ('JW Marriott' could match 'JW Marriott' or just 'Marriott'). Longest-prefix-wins is both deterministic AND semantically correct — the more specific sub-brand should beat the parent chain.",
+      "files": ["internal/parser/google_hotels.go"],
+      "validated_outcome": "Greptile P2 finding on google_hotels.go:537 resolved."
+    },
+    {
+      "id": "hotel-goat-near-remove-dead-dryrun",
+      "summary": "Remove unreachable dry-run blocks in near.go that were stranded after the earlier dryRunOK-first reorder.",
+      "reason": "The dryRunOK short-circuit at the top of RunE made two inner dry-run blocks (lines 92-95 around geocoding, and lines 116-125 around the URL-emit envelope) unreachable. Removed both so the only live dry-run path is the early return.",
+      "files": ["internal/cli/near.go"],
+      "validated_outcome": "Greptile P2 finding on near.go:125 resolved."
+    },
+    {
+      "id": "hotel-goat-price-snapshots-timestamp-format",
+      "summary": "Format the `since` bound passed to ListPriceSnapshots as 'YYYY-MM-DD HH:MM:SS' to match what SQLite's CURRENT_TIMESTAMP writes.",
+      "reason": "Snapshot rows are written with `snapshotted_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP`, which produces 'YYYY-MM-DD HH:MM:SS' (space separator). The previous query bound `since` via time.RFC3339 ('YYYY-MM-DDTHH:MM:SSZ' with a 'T'), so the lexicographic `snapshotted_at >= ?` comparison silently excluded every row from the boundary day — 'T' sorts after every literal space-prefixed value. Aligning both sides on the SQLite text format fixes the recent-price-drift query.",
+      "files": ["internal/store/hotel_goat_migrations.go"],
+      "validated_outcome": "Greptile finding on hotel_goat_migrations.go ListPriceSnapshots resolved. go test ./internal/store/ passes."
+    },
+    {
+      "id": "hotel-goat-priceblock-bounds-check",
+      "summary": "Bounds-check priceBlock[1] and priceBlock[2] before indexing in tryParseHotel.",
+      "reason": "The file's contract is 'every index access is bounds-checked' but `priceBlock[1]` and `priceBlock[2]` were accessed unconditionally. Google's price block has varied shape — sometimes a single nested array, sometimes empty when no OTA returned a price. Without the len() guard the parser would panic on a short-shape response.",
+      "files": ["internal/parser/google_hotels.go"],
+      "validated_outcome": "Greptile finding on google_hotels.go priceBlock indexing resolved. go test ./internal/parser/ passes."
+    },
+    {
+      "id": "hotel-goat-snapshot-batch-log-and-continue",
+      "summary": "recordSnapshotsForResults now continues past row-level write failures instead of returning on the first one.",
+      "reason": "The function's docstring promises 'errors don't fail the user-facing command — we log to stderr and continue', but the loop body `return`-ed on first error, silently abandoning every subsequent hotel's price-snapshot row for that batch. Switched to log-once + count-then-summarize so the drift-history store doesn't go quietly incomplete.",
+      "files": ["internal/cli/hotel_helpers.go"],
+      "validated_outcome": "Greptile finding on hotel_helpers.go:recordSnapshotsForResults resolved."
+    }
+  ]
+}

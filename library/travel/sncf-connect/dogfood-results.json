@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "api_name": "sncf-connect",
+  "run_id": "20260521-213542",
+  "status": "fail",
+  "level": "full",
+  "matrix_size": 613,
+  "tests_passed": 590,
+  "tests_skipped": 564,
+  "tests_failed": 23,
+  "auth_context": {
+    "type": "api_key"
+  },
+  "failure_summary": {
+    "http_4xx": 18,
+    "http_5xx": 2,
+    "exit_nonzero": 2,
+    "output_mismatch": 1,
+    "commands": [
+      "board export",
+      "commute check",
+      "journeys",
+      "line-groups",
+      "lines",
+      "networks",
+      "places get",
+      "route-schedules",
+      "routes",
+      "stop-areas",
+      "stop-points",
+      "vehicle-journeys"
+    ]
+  }
+}

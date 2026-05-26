@@ -1,0 +1,563 @@
+{
+  "api_name": "usgs-earthquakes",
+  "base_url": "https://earthquake.usgs.gov/fdsnws/event/1",
+  "description": "Every USGS earthquake feed and event query in one terminal, with offline SQLite cache, agent-native output, and a live watch mode.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [
+    {
+      "name": "User-Agent",
+      "value": "usgs-earthquakes-pp-cli/0.1.0 (+https://github.com/mvanhorn/printing-press-library)"
+    }
+  ],
+  "tools": [
+    {
+      "name": "catalogs_list",
+      "description": "List all source catalogs known to the FDSN Event service (XML response).",
+      "method": "GET",
+      "path": "/catalogs",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "contributors_list",
+      "description": "List all data contributors known to the FDSN Event service (XML response).",
+      "method": "GET",
+      "path": "/contributors",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "events_count",
+      "description": "Count events matching the given filter, without returning event data (fast precheck before a full search). Optional: start, end, updated-after (plus 20 more). Returns the EventCount.",
+      "method": "GET",
+      "path": "/count",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "start",
+          "wire_name": "starttime",
+          "type": "string",
+          "location": "query",
+          "description": "Start time (ISO 8601)"
+        },
+        {
+          "name": "end",
+          "wire_name": "endtime",
+          "type": "string",
+          "location": "query",
+          "description": "End time (ISO 8601)"
+        },
+        {
+          "name": "updated-after",
+          "wire_name": "updatedafter",
+          "type": "string",
+          "location": "query",
+          "description": "Only events updated after this ISO 8601 timestamp"
+        },
+        {
+          "name": "min-magnitude",
+          "wire_name": "minmagnitude",
+          "type": "float",
+          "location": "query",
+          "description": "Minimum magnitude"
+        },
+        {
+          "name": "max-magnitude",
+          "wire_name": "maxmagnitude",
+          "type": "float",
+          "location": "query",
+          "description": "Maximum magnitude"
+        },
+        {
+          "name": "min-depth-km",
+          "wire_name": "mindepth",
+          "type": "float",
+          "location": "query",
+          "description": "Minimum depth in km"
+        },
+        {
+          "name": "max-depth-km",
+          "wire_name": "maxdepth",
+          "type": "float",
+          "location": "query",
+          "description": "Maximum depth in km"
+        },
+        {
+          "name": "min-latitude",
+          "wire_name": "minlatitude",
+          "type": "float",
+          "location": "query",
+          "description": "Min latitude"
+        },
+        {
+          "name": "max-latitude",
+          "wire_name": "maxlatitude",
+          "type": "float",
+          "location": "query",
+          "description": "Max latitude"
+        },
+        {
+          "name": "min-longitude",
+          "wire_name": "minlongitude",
+          "type": "float",
+          "location": "query",
+          "description": "Min longitude"
+        },
+        {
+          "name": "max-longitude",
+          "wire_name": "maxlongitude",
+          "type": "float",
+          "location": "query",
+          "description": "Max longitude"
+        },
+        {
+          "name": "latitude",
+          "type": "float",
+          "location": "query",
+          "description": "Center latitude for circle filter"
+        },
+        {
+          "name": "longitude",
+          "type": "float",
+          "location": "query",
+          "description": "Center longitude for circle filter"
+        },
+        {
+          "name": "max-radius-km",
+          "wire_name": "maxradiuskm",
+          "type": "float",
+          "location": "query",
+          "description": "Circle filter radius (km)"
+        },
+        {
+          "name": "alert",
+          "wire_name": "alertlevel",
+          "type": "string",
+          "location": "query",
+          "description": "PAGER alert level"
+        },
+        {
+          "name": "event-type",
+          "wire_name": "eventtype",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated event types"
+        },
+        {
+          "name": "catalog",
+          "type": "string",
+          "location": "query",
+          "description": "Source catalog"
+        },
+        {
+          "name": "contributor",
+          "type": "string",
+          "location": "query",
+          "description": "Data contributor"
+        },
+        {
+          "name": "min-felt",
+          "wire_name": "minfelt",
+          "type": "int",
+          "location": "query",
+          "description": "Minimum DYFI felt reports"
+        },
+        {
+          "name": "min-significance",
+          "wire_name": "minsig",
+          "type": "int",
+          "location": "query",
+          "description": "Minimum significance score"
+        },
+        {
+          "name": "min-mmi",
+          "wire_name": "minmmi",
+          "type": "float",
+          "location": "query",
+          "description": "Minimum ShakeMap MMI"
+        },
+        {
+          "name": "review-status",
+          "wire_name": "reviewstatus",
+          "type": "string",
+          "location": "query",
+          "description": "Review status"
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query",
+          "description": "Response format for count"
+        }
+      ]
+    },
+    {
+      "name": "events_get",
+      "description": "Fetch a single earthquake event by USGS event ID (e.g. us7000abcd). Required: event-id. Optional: format (default: geojson), include-all-origins, include-all-magnitudes (plus 1 more). Returns the EarthquakeFeature.",
+      "method": "GET",
+      "path": "/query",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "event-id",
+          "wire_name": "eventid",
+          "type": "string",
+          "location": "path",
+          "description": "USGS event ID (e.g. us7000abcd, nc73947885)",
+          "required": true
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query",
+          "description": "Response format"
+        },
+        {
+          "name": "include-all-origins",
+          "wire_name": "includeallorigins",
+          "type": "bool",
+          "location": "query",
+          "description": "Include every reported origin"
+        },
+        {
+          "name": "include-all-magnitudes",
+          "wire_name": "includeallmagnitudes",
+          "type": "bool",
+          "location": "query",
+          "description": "Include every reported magnitude"
+        },
+        {
+          "name": "include-arrivals",
+          "wire_name": "includearrivals",
+          "type": "bool",
+          "location": "query",
+          "description": "Include phase arrival data"
+        }
+      ]
+    },
+    {
+      "name": "events_search",
+      "description": "Search the USGS earthquake catalog with full FDSN parameter coverage. Optional: start, end, updated-after (plus 39 more). Returns array of EarthquakeFeature.",
+      "method": "GET",
+      "path": "/query",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "start",
+          "wire_name": "starttime",
+          "type": "string",
+          "location": "query",
+          "description": "Start time (ISO 8601, e.g. 2024-01-01 or 2024-01-01T00:00:00)"
+        },
+        {
+          "name": "end",
+          "wire_name": "endtime",
+          "type": "string",
+          "location": "query",
+          "description": "End time (ISO 8601, e.g. 2024-12-31T23:59:59)"
+        },
+        {
+          "name": "updated-after",
+          "wire_name": "updatedafter",
+          "type": "string",
+          "location": "query",
+          "description": "Only events whose record was updated after this ISO 8601 timestamp"
+        },
+        {
+          "name": "min-magnitude",
+          "wire_name": "minmagnitude",
+          "type": "float",
+          "location": "query",
+          "description": "Minimum magnitude (e.g. 4.5)"
+        },
+        {
+          "name": "max-magnitude",
+          "wire_name": "maxmagnitude",
+          "type": "float",
+          "location": "query",
+          "description": "Maximum magnitude"
+        },
+        {
+          "name": "magnitude-type",
+          "wire_name": "magnitudetype",
+          "type": "string",
+          "location": "query",
+          "description": "Magnitude type to compare against (mb, mw, ml, mww, mwc, mwp, mwr, mwb, etc.)"
+        },
+        {
+          "name": "min-depth-km",
+          "wire_name": "mindepth",
+          "type": "float",
+          "location": "query",
+          "description": "Minimum depth in km"
+        },
+        {
+          "name": "max-depth-km",
+          "wire_name": "maxdepth",
+          "type": "float",
+          "location": "query",
+          "description": "Maximum depth in km"
+        },
+        {
+          "name": "min-latitude",
+          "wire_name": "minlatitude",
+          "type": "float",
+          "location": "query",
+          "description": "Minimum latitude of bounding box"
+        },
+        {
+          "name": "max-latitude",
+          "wire_name": "maxlatitude",
+          "type": "float",
+          "location": "query",
+          "description": "Maximum latitude of bounding box"
+        },
+        {
+          "name": "min-longitude",
+          "wire_name": "minlongitude",
+          "type": "float",
+          "location": "query",
+          "description": "Minimum longitude of bounding box"
+        },
+        {
+          "name": "max-longitude",
+          "wire_name": "maxlongitude",
+          "type": "float",
+          "location": "query",
+          "description": "Maximum longitude of bounding box"
+        },
+        {
+          "name": "latitude",
+          "type": "float",
+          "location": "query",
+          "description": "Center latitude for circle filter (combine with --longitude and --max-radius-km)"
+        },
+        {
+          "name": "longitude",
+          "type": "float",
+          "location": "query",
+          "description": "Center longitude for circle filter"
+        },
+        {
+          "name": "max-radius-deg",
+          "wire_name": "maxradius",
+          "type": "float",
+          "location": "query",
+          "description": "Circle filter radius in degrees"
+        },
+        {
+          "name": "max-radius-km",
+          "wire_name": "maxradiuskm",
+          "type": "float",
+          "location": "query",
+          "description": "Circle filter radius in kilometers"
+        },
+        {
+          "name": "min-radius-deg",
+          "wire_name": "minradius",
+          "type": "float",
+          "location": "query",
+          "description": "Circle filter inner radius in degrees"
+        },
+        {
+          "name": "min-radius-km",
+          "wire_name": "minradiuskm",
+          "type": "float",
+          "location": "query",
+          "description": "Circle filter inner radius in kilometers"
+        },
+        {
+          "name": "event-id",
+          "wire_name": "eventid",
+          "type": "string",
+          "location": "query",
+          "description": "Look up a single event by USGS event ID (e.g. us7000abcd)"
+        },
+        {
+          "name": "event-type",
+          "wire_name": "eventtype",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated event types (earthquake, explosion, quarry, etc.). See `usgs-earthquakes metadata show` for the full list."
+        },
+        {
+          "name": "catalog",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated source catalogs (us, nc, ci, ak, hv, uu, uw, ...). See `usgs-earthquakes catalogs list` for the full list."
+        },
+        {
+          "name": "contributor",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated data contributors (us, nc, ci, ...). See `usgs-earthquakes contributors list`."
+        },
+        {
+          "name": "alert",
+          "wire_name": "alertlevel",
+          "type": "string",
+          "location": "query",
+          "description": "PAGER alert level (green/yellow/orange/red)"
+        },
+        {
+          "name": "min-mmi",
+          "wire_name": "minmmi",
+          "type": "float",
+          "location": "query",
+          "description": "Minimum ShakeMap MMI (Modified Mercalli Intensity)"
+        },
+        {
+          "name": "max-mmi",
+          "wire_name": "maxmmi",
+          "type": "float",
+          "location": "query",
+          "description": "Maximum ShakeMap MMI"
+        },
+        {
+          "name": "min-cdi",
+          "wire_name": "mincdi",
+          "type": "float",
+          "location": "query",
+          "description": "Minimum DYFI Community Decimal Intensity"
+        },
+        {
+          "name": "max-cdi",
+          "wire_name": "maxcdi",
+          "type": "float",
+          "location": "query",
+          "description": "Maximum DYFI Community Decimal Intensity"
+        },
+        {
+          "name": "min-felt",
+          "wire_name": "minfelt",
+          "type": "int",
+          "location": "query",
+          "description": "Minimum number of DYFI 'felt' reports"
+        },
+        {
+          "name": "min-significance",
+          "wire_name": "minsig",
+          "type": "int",
+          "location": "query",
+          "description": "Minimum significance score (0-1000); USGS combines magnitude, felt-reports, MMI, PAGER"
+        },
+        {
+          "name": "max-significance",
+          "wire_name": "maxsig",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum significance score (0-1000)"
+        },
+        {
+          "name": "product-type",
+          "wire_name": "producttype",
+          "type": "string",
+          "location": "query",
+          "description": "Filter to events with a given product type (shakemap, losspager, dyfi, focal-mechanism, moment-tensor). See `usgs-earthquakes metadata show` for the full list."
+        },
+        {
+          "name": "product-code",
+          "wire_name": "productcode",
+          "type": "string",
+          "location": "query",
+          "description": "Filter to events with a specific product code"
+        },
+        {
+          "name": "review-status",
+          "wire_name": "reviewstatus",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by analyst review status"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum events to return (FDSN cap: 20000)"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Pagination offset (1-based)"
+        },
+        {
+          "name": "order-by",
+          "wire_name": "orderby",
+          "type": "string",
+          "location": "query",
+          "description": "Sort order for results"
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query",
+          "description": "Response format. Default geojson is parsed for --json/--csv output; other formats are returned as raw text."
+        },
+        {
+          "name": "include-all-origins",
+          "wire_name": "includeallorigins",
+          "type": "bool",
+          "location": "query",
+          "description": "Include every reported origin per event (default: only preferred origin)"
+        },
+        {
+          "name": "include-all-magnitudes",
+          "wire_name": "includeallmagnitudes",
+          "type": "bool",
+          "location": "query",
+          "description": "Include every reported magnitude per event"
+        },
+        {
+          "name": "include-arrivals",
+          "wire_name": "includearrivals",
+          "type": "bool",
+          "location": "query",
+          "description": "Include phase arrival data"
+        },
+        {
+          "name": "include-deleted",
+          "wire_name": "includedeleted",
+          "type": "string",
+          "location": "query",
+          "description": "Include or restrict deleted events"
+        },
+        {
+          "name": "include-superseded",
+          "wire_name": "includesuperseded",
+          "type": "bool",
+          "location": "query",
+          "description": "Include superseded events"
+        }
+      ]
+    },
+    {
+      "name": "feeds_get",
+      "description": "Fetch a named GeoJSON summary feed. Use one of: significant_{hour|day|week|month}, 4.5_{hour|day|week|month}, 2.5_{hour|day|week|month}, 1.0_{hour|day|week|month}, all_{hour|day|week|month}. Required: feed. Returns the FeedDocument.",
+      "method": "GET",
+      "path": "/{feed}.geojson",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "feed",
+          "type": "string",
+          "location": "path",
+          "description": "Feed name in the form \u003clevel\u003e_\u003cperiod\u003e, e.g. significant_week, 4.5_day, all_hour",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "metadata_show",
+      "description": "Show enum dictionaries for catalogs, contributors, event types, product types, and magnitude types. Returns the ApplicationMetadata.",
+      "method": "GET",
+      "path": "/application.json",
+      "no_auth": true,
+      "params": []
+    }
+  ]
+}

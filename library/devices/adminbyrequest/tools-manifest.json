@@ -1,0 +1,331 @@
+{
+  "api_name": "adminbyrequest",
+  "base_url": "https://dc1api.adminbyrequest.com",
+  "description": "Admin By Request endpoint privilege management CLI: audit log, events, inventory, requests approval, and offline PIN codes with a local SQLite mirror.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "api_key",
+    "header": "apikey",
+    "format": "{ADMINBYREQUEST_API_KEY}",
+    "in": "header",
+    "env_vars": [
+      "ADMINBYREQUEST_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "ADMINBYREQUEST_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "auditlog_delta",
+      "description": "Delta query for audit log changes (use timeNow/deltaTime ticks for resumable sync). Optional: startid, take (default: 100), deltaTime (plus 1 more). Returns the AuditLogDelta.",
+      "method": "GET",
+      "path": "/auditlog/delta",
+      "params": [
+        {
+          "name": "startid",
+          "type": "int",
+          "location": "query",
+          "description": "Last seen id (entries with id greater than this are returned)"
+        },
+        {
+          "name": "take",
+          "type": "int",
+          "location": "query",
+          "description": "How many entries per page"
+        },
+        {
+          "name": "deltaTime",
+          "type": "int",
+          "location": "query",
+          "description": "Last poll's timeNow value to detect updates after initial pull"
+        },
+        {
+          "name": "timeNow",
+          "type": "int",
+          "location": "query",
+          "description": "Current time in ticks (server returns its own timeNow when omitted)"
+        }
+      ]
+    },
+    {
+      "name": "auditlog_list",
+      "description": "List audit log entries (admin sessions, app elevations, denied requests). Pagination is by id cursor. Optional: startid, take (default: 10), wantscandetails (plus 5 more). Returns array of AuditLogEntry.",
+      "method": "GET",
+      "path": "/auditlog",
+      "params": [
+        {
+          "name": "startid",
+          "type": "int",
+          "location": "query",
+          "description": "Return entries with id less than this value (cursor; 0 = newest)"
+        },
+        {
+          "name": "take",
+          "type": "int",
+          "location": "query",
+          "description": "How many entries to return (max 1000)"
+        },
+        {
+          "name": "wantscandetails",
+          "type": "int",
+          "location": "query",
+          "description": "Set to 1 to include malware scan result detail"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by entry type (e.g. 'Admin Session', 'App Elevation')"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by status (e.g. 'Finished', 'Denied', 'Pending')"
+        },
+        {
+          "name": "settings",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by AbR settings profile name (e.g. 'Global')"
+        },
+        {
+          "name": "user",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by user account (e.g. 'AZUREADCHRISCOOMBES')"
+        },
+        {
+          "name": "computer",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by computer name"
+        }
+      ]
+    },
+    {
+      "name": "events_list",
+      "description": "List events. Use code filter to narrow to specific event types. Optional: startid, take (default: 10), code (plus 2 more). Returns array of EventEntry.",
+      "method": "GET",
+      "path": "/events",
+      "params": [
+        {
+          "name": "startid",
+          "type": "int",
+          "location": "query",
+          "description": "Return events with id less than this value (cursor; 0 = newest)"
+        },
+        {
+          "name": "take",
+          "type": "int",
+          "location": "query",
+          "description": "How many events to return"
+        },
+        {
+          "name": "code",
+          "type": "int",
+          "location": "query",
+          "description": "Filter by event code (e.g. 40 = client installed)"
+        },
+        {
+          "name": "level",
+          "type": "int",
+          "location": "query",
+          "description": "Filter by event level (severity)"
+        },
+        {
+          "name": "computer",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by computer name"
+        }
+      ]
+    },
+    {
+      "name": "inventory_list",
+      "description": "List inventoried endpoints. Use wantsoftware/wanthardware to expand. Optional: take (default: 10), startid, wantsoftware (plus 4 more). Returns array of InventoryDevice.",
+      "method": "GET",
+      "path": "/inventory",
+      "params": [
+        {
+          "name": "take",
+          "type": "int",
+          "location": "query",
+          "description": "How many devices to return"
+        },
+        {
+          "name": "startid",
+          "type": "int",
+          "location": "query",
+          "description": "Return devices with id less than this value (cursor)"
+        },
+        {
+          "name": "wantsoftware",
+          "type": "int",
+          "location": "query",
+          "description": "Set to 1 to include installed software list per device"
+        },
+        {
+          "name": "wanthardware",
+          "type": "int",
+          "location": "query",
+          "description": "Set to 1 to include hardware spec per device"
+        },
+        {
+          "name": "sid",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by owner SID"
+        },
+        {
+          "name": "accountName",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by owner account name"
+        },
+        {
+          "name": "fullName",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by owner full name"
+        }
+      ]
+    },
+    {
+      "name": "inventory_pin",
+      "description": "Generate an offline elevation PIN code for a device. Pass --challenge for challenge-response mode. Required: computer. Optional: pintype, challenge. Returns the PinResult.",
+      "method": "GET",
+      "path": "/inventory/{computer}/pin",
+      "params": [
+        {
+          "name": "computer",
+          "type": "string",
+          "location": "path",
+          "description": "Computer name (matches inventory.name)",
+          "required": true
+        },
+        {
+          "name": "pintype",
+          "type": "string",
+          "location": "query",
+          "description": "PIN mode: 'challenge' (admin reads challenge to user, gets back code) or omit for numeric PIN"
+        },
+        {
+          "name": "challenge",
+          "type": "string",
+          "location": "query",
+          "description": "Challenge code from the user when pintype=challenge"
+        }
+      ]
+    },
+    {
+      "name": "requests_approve",
+      "description": "Approve a pending elevation request. Required: id, status (default: Approved). Optional: reason. Returns the updated ElevationRequest.",
+      "method": "PUT",
+      "path": "/requests/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Request ID",
+          "required": true
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "body",
+          "description": "Decision: Approved",
+          "required": true
+        },
+        {
+          "name": "reason",
+          "type": "string",
+          "location": "body",
+          "description": "Approval note (admin's reason)"
+        }
+      ]
+    },
+    {
+      "name": "requests_deny",
+      "description": "Deny a pending elevation request. Required: id, status (default: Denied). Optional: reason. Returns the updated ElevationRequest.",
+      "method": "PUT",
+      "path": "/requests/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Request ID",
+          "required": true
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "body",
+          "description": "Decision: Denied",
+          "required": true
+        },
+        {
+          "name": "reason",
+          "type": "string",
+          "location": "body",
+          "description": "Denial reason (admin's note)"
+        }
+      ]
+    },
+    {
+      "name": "requests_list",
+      "description": "List elevation requests filtered by status. Optional: status, startid, take (default: 10) (plus 3 more). Returns array of ElevationRequest.",
+      "method": "GET",
+      "path": "/requests",
+      "params": [
+        {
+          "name": "status",
+          "type": "string",
+          "location": "query",
+          "description": "Status filter: pending, approved, or denied"
+        },
+        {
+          "name": "startid",
+          "type": "int",
+          "location": "query",
+          "description": "Return requests with id less than this value (cursor)"
+        },
+        {
+          "name": "take",
+          "type": "int",
+          "location": "query",
+          "description": "How many requests to return"
+        },
+        {
+          "name": "wantscandetails",
+          "type": "int",
+          "location": "query",
+          "description": "Set to 1 to include malware scan result detail"
+        },
+        {
+          "name": "user",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by user account"
+        },
+        {
+          "name": "computer",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by computer name"
+        }
+      ]
+    }
+  ]
+}

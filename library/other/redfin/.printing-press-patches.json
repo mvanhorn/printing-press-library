@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "applied_at": "2026-05-12",
+  "applied_at": "2026-05-17",
   "base_run_id": "20260504-175601",
   "base_printing_press_version": "3.8.0",
   "patches": [
@@ -15,6 +15,40 @@
       ],
       "validated_outcome": "curl against /stingray/api/gis with sf=1,2,3,5,6,7 returns resultCode 0 + 5 homes; sf=7 (--sold-window 1y) returns resultCode 0 + 5 homes; the broken sf=1,3,5,7,9 still reproduces the 101 error.",
       "upstream_issue": "https://github.com/mvanhorn/printing-press-library/issues/482"
+    },
+    {
+      "id": "homes-no-auto-refresh",
+      "summary": "Remove `homes` from readCommandResources so the generic auto-refresh path no longer fires syncResource(\"homes\") against /stingray/api/gis.",
+      "reason": "The generic syncResource path builds params with only pageSize/cursor/since — none of the Stingray gis arguments (al, region_id, region_type, filters). Every `redfin-pp-cli homes` invocation produced a noisy `HTTP 400: Request was missing a required argument named 'al'` from the auto-refresh hook followed by a misleading `warning: using stale redfin-pp-cli cache` line on stderr — even on success. `homes` is a per-call search endpoint, not a list-all resource that can be backfilled into a local table; it should never have been registered for auto-refresh.",
+      "files": [
+        "internal/cli/auto_refresh.go",
+        "internal/cli/auto_refresh_test.go",
+        "README.md",
+        "SKILL.md"
+      ],
+      "validated_outcome": "TestReadCommandResources_HomesNotRegistered passes; `redfin-pp-cli homes --region-slug ... --dry-run` no longer emits sync_start/sync_error events on stderr; the auto-refresh hook short-circuits with `unregistered_command` for the homes path."
+    },
+    {
+      "id": "homes-client-side-filter",
+      "summary": "Apply price / beds / baths / sqft / year-built / lot-size / property-type bounds in the CLI after parsing the Stingray response, since the server ignores or only partially applies those query params.",
+      "reason": "Stingray's `/api/gis` endpoint accepts min_price, max_price, min_beds, min_baths, min_sqft, max_sqft, min_year_built, max_year_built, min_lot_size, and uipt in the query string but does not consistently honor them server-side. Verified against multiple city regions on 2026-05-17: a request with min_price=700000&max_price=900000 still returns below-band listings alongside the $700-900k matches, and a request with uipt=1 (house) still returns rows with other uiPropertyType codes. The website filters those rows out client-side in its React layer; the CLI was forwarding the same params and inheriting the same gap, so --price-min / --price-max / --type / --lot-min were silently advisory. We now filter after parsing.",
+      "files": [
+        "internal/cli/promoted_homes.go",
+        "internal/cli/promoted_homes_filter_test.go",
+        "internal/redfin/client.go",
+        "internal/redfin/client_test.go",
+        "internal/redfin/types.go"
+      ],
+      "validated_outcome": "Live search with --price-min 700000 --price-max 900000 --beds-min 3 --baths-min 2.5 --type house returns only listings with known prices inside the requested band and ui_property_type=1; no missing-price rows pass price bounds. TestFilterListings_* unit tests cover price bounds, zero-means-unbounded, sparse non-price field pass-through, max-bound enforcement, lot-min enforcement, UIPropertyType drops non-matching rows, UIPropertyType preserves unknown (gis-missing) rows, and no-filter pass-through."
+    },
+    {
+      "id": "retry-after-epoch-header",
+      "summary": "Parse future Unix epoch seconds and milliseconds in Retry-After headers before treating numeric values as delta seconds.",
+      "reason": "The generated helper tests cover epoch-form Retry-After values, but the parser treated any numeric string as delta seconds and capped future epoch values to 60s. This made full package tests fail even though a seven-second future epoch should resolve to roughly seven seconds.",
+      "files": [
+        "internal/cliutil/ratelimit.go"
+      ],
+      "validated_outcome": "go test ./... passes for the Redfin CLI module, including TestRetryAfter_EpochSeconds and TestRetryAfter_EpochMilliseconds."
     }
   ]
 }

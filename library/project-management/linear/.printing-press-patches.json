@@ -1,14 +1,17 @@
 {
   "schema_version": 1,
-  "applied_at": "2026-05-08",
-  "base_run_id": "20260507-000328",
-  "base_printing_press_version": "3.10.0",
+  "applied_at": "2026-05-19",
+  "base_run_id": "20260518-232543",
+  "base_printing_press_version": "4.9.0",
   "patches": [
     {
-      "id": "linear-auth-api-key-vs-oauth-token",
-      "summary": "Add auth set-api-key for Linear personal API keys; keep set-token for OAuth access_token.",
-      "reason": "AuthHeader must use api_key for personal keys and Bearer access_token for OAuth. set-api-key vs set-token; lin_api keys must not use set-token alone without Bearer wiring.",
-      "files": ["internal/cli/auth.go", "internal/config/config.go"]
+      "id": "doctor-credential-verify",
+      "summary": "Doctor now runs a real GraphQL `viewer` probe to verify credentials instead of emitting a WARN that asks the user to set a generator-side spec field.",
+      "reason": "The generated doctor template prints `WARN Credentials: present (not verified — set auth.verify_path in spec for an API acceptance check)`. The hint is wrong-audience (users don't own the spec) and offers no actionable next step. Linear has a universal cheap auth probe (`{ viewer { id displayName } }`), so we run it and classify into verified/invalid/probe-failed states. Probe failures fall back to INFO with a `Run linear-pp-cli me` hint.",
+      "files": [
+        "internal/cli/doctor.go"
+      ],
+      "validated_outcome": "Happy path renders `OK Credentials: verified (viewer: ...)`. Bad token renders `FAIL Credentials: ERROR invalid credentials: ...` and trips `--fail-on=error` (exit 1). Probe failures (5xx, transport errors) render `INFO Credentials: present, probe inconclusive. Run \\`linear-pp-cli me\\` ...` and do NOT trip --fail-on=error; sanitized probe detail is written to stderr."
     }
   ]
 }

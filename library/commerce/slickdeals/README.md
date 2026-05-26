@@ -24,26 +24,26 @@ Learn more at [Slickdeals](https://slickdeals.net).
 The recommended path installs both the `slickdeals-pp-cli` binary and the `pp-slickdeals` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
 
 ```bash
-npx -y @mvanhorn/printing-press install slickdeals
+npx -y @mvanhorn/printing-press-library install slickdeals
 ```
 
 For CLI only (no skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install slickdeals --cli-only
+npx -y @mvanhorn/printing-press-library install slickdeals --cli-only
 ```
 
 For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install slickdeals --skill-only
+npx -y @mvanhorn/printing-press-library install slickdeals --skill-only
 ```
 
 To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
 
 ```bash
-npx -y @mvanhorn/printing-press install slickdeals --agent claude-code
-npx -y @mvanhorn/printing-press install slickdeals --agent claude-code --agent codex
+npx -y @mvanhorn/printing-press-library install slickdeals --agent claude-code
+npx -y @mvanhorn/printing-press-library install slickdeals --agent claude-code --agent codex
 ```
 
 ### Without Node (Go fallback)

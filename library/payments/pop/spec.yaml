@@ -1,0 +1,455 @@
+openapi: 3.0.3
+info:
+  title: POP API
+  version: "1.0.0"
+  description: |
+    POP API for European electronic invoicing workflows.
+
+    This Printing Press blueprint intentionally exposes only the documented
+    8-operation surface used by the POP MCP README at
+    getpopapi/pop-mcp@07a4a19ad5e657fa94d16fe617b8288e5046c489:
+
+      - create-xml
+      - create-ubl
+      - create-pdf
+      - sdi-via-pop/document-notifications
+      - peppol/document-get
+      - sdi-via-pop/document-get
+      - sdi-via-pop/document-verify
+      - sdi-via-pop/document-preserve
+
+    The `data` payloads are intentionally modeled as free-form JSON objects so
+    the CLI can pass through the full POP invoice structure without freezing a
+    brittle nested schema in this catalog spec.
+    
+    Upstream POP MCP changes should be reviewed periodically and intentionally
+    synced into this print when the documented public surface evolves.
+servers:
+  - url: https://popapi.io/wp-json/api/v2
+    description: Production
+security:
+  - XApiKey: []
+tags:
+  - name: create-xml
+    description: Create Italian FatturaPA XML invoices and optionally submit them to SdI.
+  - name: create-ubl
+    description: Create PEPPOL UBL invoices and optionally submit them to the network.
+  - name: create-pdf
+    description: Create branded PDF invoices and optionally email them.
+  - name: document-notifications
+    description: Read SdI delivery and processing notifications for a submitted invoice.
+  - name: document-get
+    description: Retrieve PEPPOL or SdI documents by UUID.
+  - name: document-verify
+    description: Validate SdI XML before submission.
+  - name: document-preserve
+    description: Preserve accepted SdI documents in long-term storage.
+paths:
+  /create-xml:
+    post:
+      tags: [create-xml]
+      operationId: createXmlInvoice
+      summary: Create an Italian electronic invoice in FatturaPA XML format
+      description: |
+        Generate an Italian FatturaPA XML document and optionally submit it to
+        SdI. The `data` object must follow POP's invoice structure.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSdiInvoiceRequest'
+            examples:
+              xmlOnly:
+                summary: Generate XML without submission
+                value:
+                  data:
+                    id: 45
+                    filename: IT99900088876_00045
+                    type: invoice
+                    version: FPR12
+                    sdi_type: "0000000"
+                    customer_type: company
+                    transmitter_data:
+                      transmitter_id:
+                        country_id: IT
+                        id_code: "98765432109"
+                      progressive: "00045"
+                      transmitter_format: FPR12
+                      sdi_code: "0000000"
+                      transmitter_contact:
+                        phone: "+390612345678"
+                        email: billing@example.com
+                    transfer_lender:
+                      personal_data:
+                        tax_id_vat:
+                          country_id: IT
+                          id_code: "98765432109"
+                          tax_regime: RF01
+                        company_name: Bianchi SRL
+                      place:
+                        address: Via Roma 1
+                        zip_code: "00100"
+                        city: Roma
+                        province_id: RM
+                        country_id: IT
+                      contact:
+                        phone: "+390612345678"
+                        email: billing@example.com
+                    transferee_client:
+                      personal_data:
+                        tax_id_vat:
+                          country_id: IT
+                          id_code: "12345678901"
+                        company_name: Rossi SRL
+                        email: admin@rossi.example
+                      place:
+                        address: Via Milano 10
+                        zip_code: "20100"
+                        city: Milano
+                        province_id: MI
+                        country_id: IT
+                    invoice_body:
+                      general_data:
+                        doc_type: TD01
+                        currency: EUR
+                        date: "2026-05-18"
+                        invoice_number: WEB45/2026
+                      total_document_amount: "122.00"
+                    order_items:
+                      - description: Consulting services
+                        quantity: "1.00"
+                        unit: NR
+                        unit_price: "100.00"
+                        total_price: "100.00"
+                        rate: "22.00"
+                        total_tax: 22
+                    payment_data:
+                      terms_payment: TP02
+                      payment_details: MP05
+                      payment_amount: "122.00"
+                      beneficiary: Bianchi SRL
+                      financial_institution: POP Bank
+                      iban: IT60X0542811101000000123456
+      responses:
+        "200":
+          description: XML document or submission response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentResponse'
+            text/plain:
+              schema:
+                type: string
+  /create-ubl:
+    post:
+      tags: [create-ubl]
+      operationId: createUblInvoice
+      summary: Create a PEPPOL UBL invoice
+      description: |
+        Generate a PEPPOL BIS / UBL invoice and optionally submit it through
+        POP's PEPPOL integration.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePeppolInvoiceRequest'
+      responses:
+        "200":
+          description: UBL document or submission response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentResponse'
+            text/plain:
+              schema:
+                type: string
+  /create-pdf:
+    post:
+      tags: [create-pdf]
+      operationId: createPdfInvoice
+      summary: Create a PDF invoice
+      description: |
+        Generate a branded PDF invoice. Depending on account setup and payload,
+        POP may return a direct file, a URL, or a JSON response.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePdfInvoiceRequest'
+      responses:
+        "200":
+          description: PDF generation response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentResponse'
+            text/plain:
+              schema:
+                type: string
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+  /sdi-via-pop/document-notifications:
+    post:
+      tags: [document-notifications]
+      operationId: getInvoiceStatus
+      summary: Get SdI invoice notifications
+      description: Read POP's recorded SdI notifications for a submitted invoice UUID.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UuidIntegrationRequest'
+      responses:
+        "200":
+          description: Notification payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationsResponse'
+            text/plain:
+              schema:
+                type: string
+  /peppol/document-get:
+    post:
+      tags: [document-get]
+      operationId: getPeppolDocument
+      summary: Get a PEPPOL document
+      description: Retrieve a PEPPOL document from POP by UUID and optional zone.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PeppolDocumentGetRequest'
+      responses:
+        "200":
+          description: Document payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+            text/plain:
+              schema:
+                type: string
+  /sdi-via-pop/document-get:
+    post:
+      tags: [document-get]
+      operationId: getSdiDocument
+      summary: Get an SdI document
+      description: Retrieve a stored SdI document by UUID.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UuidIntegrationRequest'
+      responses:
+        "200":
+          description: Document payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+            text/plain:
+              schema:
+                type: string
+  /sdi-via-pop/document-verify:
+    post:
+      tags: [document-verify]
+      operationId: verifySdiDocument
+      summary: Verify an SdI XML document
+      description: Validate a Base64-encoded SdI XML document before submission.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VerifySdiDocumentRequest'
+      responses:
+        "200":
+          description: Verification result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+            text/plain:
+              schema:
+                type: string
+  /sdi-via-pop/document-preserve:
+    post:
+      tags: [document-preserve]
+      operationId: preserveSdiDocument
+      summary: Preserve an SdI document
+      description: Archive an accepted SdI document in POP's long-term storage.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UuidIntegrationRequest'
+      responses:
+        "200":
+          description: Preservation result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+            text/plain:
+              schema:
+                type: string
+components:
+  securitySchemes:
+    XApiKey:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: POP API key. Create one from a free POP account.
+  schemas:
+    GenericInvoiceData:
+      type: object
+      description: |
+        Full POP invoice payload. Pass the native POP invoice structure here.
+        For complex payloads, pass compact JSON through the `--data` flag.
+      additionalProperties: true
+    GenericIntegration:
+      type: object
+      description: POP integration override object.
+      additionalProperties: true
+    CommonInvoiceRequest:
+      type: object
+      required: [data]
+      properties:
+        data:
+          $ref: '#/components/schemas/GenericInvoiceData'
+        integration:
+          $ref: '#/components/schemas/GenericIntegration'
+        plugin_version:
+          type: string
+        site_title:
+          type: string
+        site_url:
+          type: string
+          format: uri
+      additionalProperties: false
+    CreateSdiInvoiceRequest:
+      allOf:
+        - $ref: '#/components/schemas/CommonInvoiceRequest'
+        - type: object
+          properties:
+            submit_to_sdi:
+              type: boolean
+              default: false
+              description: Submit to the Italian SdI after generating XML.
+    CreatePeppolInvoiceRequest:
+      allOf:
+        - $ref: '#/components/schemas/CommonInvoiceRequest'
+        - type: object
+          properties:
+            submit_to_peppol:
+              type: boolean
+              default: false
+              description: Submit to the PEPPOL network after generating UBL.
+    CreatePdfInvoiceRequest:
+      allOf:
+        - $ref: '#/components/schemas/CommonInvoiceRequest'
+        - type: object
+          properties:
+            send_email:
+              type: boolean
+              default: false
+              description: Send the generated PDF using the email settings inside `data`.
+    IntegrationPayload:
+      type: object
+      required: [uuid]
+      properties:
+        uuid:
+          type: string
+          format: uuid
+        zone:
+          type: string
+          minLength: 2
+          maxLength: 2
+          description: Optional PEPPOL access-point country code.
+      additionalProperties: false
+    UuidIntegrationRequest:
+      type: object
+      required: [integration]
+      properties:
+        integration:
+          $ref: '#/components/schemas/IntegrationPayload'
+      additionalProperties: false
+    PeppolDocumentGetRequest:
+      type: object
+      required: [integration]
+      properties:
+        integration:
+          $ref: '#/components/schemas/IntegrationPayload'
+      additionalProperties: false
+    VerifySdiDocumentRequest:
+      type: object
+      required: [integration]
+      properties:
+        integration:
+          type: object
+          required: [xml]
+          properties:
+            xml:
+              type: string
+              format: byte
+              description: Base64-encoded SdI XML payload.
+          additionalProperties: false
+        skip_business_check:
+          type: boolean
+          default: true
+      additionalProperties: false
+    GenericResponse:
+      type: object
+      description: POP response payload.
+      additionalProperties: true
+    DocumentResponse:
+      type: object
+      description: POP document creation response.
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        document_number:
+          type: string
+        pdf_url:
+          type: string
+          format: uri
+        integration:
+          type: object
+          properties:
+            uuid:
+              type: string
+              format: uuid
+            status:
+              type: string
+            type:
+              type: string
+          additionalProperties: true
+      additionalProperties: true
+    NotificationsResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        notifications:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+        data:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+      additionalProperties: true

@@ -9,26 +9,26 @@ nse-india-pp-cli fetches real-time NSE equity quotes, index constituents, corpor
 The recommended path installs both the `nse-india-pp-cli` binary and the `pp-nse-india` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
 
 ```bash
-npx -y @mvanhorn/printing-press install nse-india
+npx -y @mvanhorn/printing-press-library install nse-india
 ```
 
 For CLI only (no skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install nse-india --cli-only
+npx -y @mvanhorn/printing-press-library install nse-india --cli-only
 ```
 
 For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install nse-india --skill-only
+npx -y @mvanhorn/printing-press-library install nse-india --skill-only
 ```
 
 To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
 
 ```bash
-npx -y @mvanhorn/printing-press install nse-india --agent claude-code
-npx -y @mvanhorn/printing-press install nse-india --agent claude-code --agent codex
+npx -y @mvanhorn/printing-press-library install nse-india --agent claude-code
+npx -y @mvanhorn/printing-press-library install nse-india --agent claude-code --agent codex
 ```
 
 ### Without Node (Go fallback)

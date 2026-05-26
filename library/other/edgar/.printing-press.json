@@ -3,6 +3,8 @@
   "generated_at": "2026-05-13T21:38:29.8008086Z",
   "printing_press_version": "4.3.0",
   "api_name": "edgar",
+  "display_name": "EDGAR",
+  "description": "Fetch SEC EDGAR filings, insider activity, XBRL facts, and cached filing search results with agent-friendly output.",
   "cli_name": "edgar-pp-cli",
   "run_id": "20260513-115144",
   "printer": "magoo242",

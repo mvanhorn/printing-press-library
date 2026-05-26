@@ -1,0 +1,2241 @@
+{
+  "api_name": "kit",
+  "base_url": "https://api.kit.com",
+  "description": "",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "api_key",
+    "header": "X-Kit-Api-Key",
+    "env_vars": [
+      "KIT_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "KIT_API_KEY",
+        "kind": "per_call",
+        "required": false,
+        "sensitive": true
+      }
+    ],
+    "key_url": "https://app.kit.com/account_settings/developer_settings"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "account_list",
+      "description": "Get current account. Returns the AccountListResponse.",
+      "method": "GET",
+      "path": "/v4/account",
+      "params": []
+    },
+    {
+      "name": "account_list-colors",
+      "description": "List colors. Returns the AccountListColorsResponse.",
+      "method": "GET",
+      "path": "/v4/account/colors",
+      "params": []
+    },
+    {
+      "name": "account_list-creatorprofile",
+      "description": "Get Creator Profile. Returns the AccountListCreatorprofileResponse.",
+      "method": "GET",
+      "path": "/v4/account/creator_profile",
+      "params": []
+    },
+    {
+      "name": "account_list-emailstats",
+      "description": "Get email stats. Returns the AccountListEmailstatsResponse.",
+      "method": "GET",
+      "path": "/v4/account/email_stats",
+      "params": []
+    },
+    {
+      "name": "account_list-growthstats",
+      "description": "Get growth stats for a specific time period. Defaults to last 90 days.\u003cbr/\u003e\u003cbr/\u003eNOTE: We return your stats in your sending time zone. This endpoint does not return timestamps in UTC. Optional: ending, starting. Returns the AccountListGrowthstatsResponse.",
+      "method": "GET",
+      "path": "/v4/account/growth_stats",
+      "params": [
+        {
+          "name": "ending",
+          "type": "string",
+          "location": "query",
+          "description": "Get stats for time period ending on this date (format yyyy-mm-dd). Defaults to today."
+        },
+        {
+          "name": "starting",
+          "type": "string",
+          "location": "query",
+          "description": "Get stats for time period beginning on this date (format yyyy-mm-dd). Defaults to 90 days ago."
+        }
+      ]
+    },
+    {
+      "name": "account_update",
+      "description": "Update colors. Required: colors. Returns the updated AccountUpdateResponse.",
+      "method": "PUT",
+      "path": "/v4/account/colors",
+      "params": [
+        {
+          "name": "colors",
+          "type": "array",
+          "location": "body",
+          "description": "An array of up to 10 color hex codes",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "broadcasts_create",
+      "description": "Draft or schedule to send a broadcast to all or a subset of your subscribers.\u003cbr/\u003e\u003cbr/\u003eTo save a draft, set `send_at` to `null`.\u003cbr/\u003e\u003cbr/\u003eTo publish to the web, set `public` to `true`.\u003cbr/\u003e\u003cbr/\u003eTo schedule the broadcast for sending, provide a `send_at` timestamp. Scheduled broadcasts should contain a subject and your content, at a minimum.\u003cbr/\u003e\u003cbr/\u003eWe currently support targeting your subscribers based on segment or tag ids.\u003caside class='notice'\u003eStarting point templates are not currently supported.\u003c/aside\u003e. Required: content, description, preview_text, public, published_at, subject, subscriber_filter. Optional: email_address, email_template_id, send_at (plus 2 more). Returns the new BroadcastsCreateResponse.",
+      "method": "POST",
+      "path": "/v4/broadcasts",
+      "params": [
+        {
+          "name": "content",
+          "type": "string",
+          "location": "body",
+          "description": "The HTML content of the email.",
+          "required": true
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description",
+          "required": true
+        },
+        {
+          "name": "email_address",
+          "type": "string",
+          "location": "body",
+          "description": "The sending email address to use. Uses the account's sending email address if not provided."
+        },
+        {
+          "name": "email_template_id",
+          "type": "int",
+          "location": "body",
+          "description": "Id of the email template to use. Uses the account's default template if not provided. 'Starting point' template is not supported."
+        },
+        {
+          "name": "preview_text",
+          "type": "string",
+          "location": "body",
+          "description": "Preview text",
+          "required": true
+        },
+        {
+          "name": "public",
+          "type": "bool",
+          "location": "body",
+          "description": "`true` to publish this broadcast to the web. The broadcast will appear in a newsletter feed on your Creator Profile and Landing Pages.",
+          "required": true
+        },
+        {
+          "name": "published_at",
+          "type": "string",
+          "location": "body",
+          "description": "The published timestamp to display in ISO8601 format. If no timezone is provided, UTC is assumed.",
+          "required": true
+        },
+        {
+          "name": "send_at",
+          "type": "string",
+          "location": "body",
+          "description": "The scheduled send time for this broadcast in ISO8601 format. If no timezone is provided, UTC is assumed."
+        },
+        {
+          "name": "subject",
+          "type": "string",
+          "location": "body",
+          "description": "Subject",
+          "required": true
+        },
+        {
+          "name": "subscriber_filter",
+          "type": "array",
+          "location": "body",
+          "description": "Filters your subscribers. At this time, we only support using only one filter group type via the API (e.g. `all`, `any`, or `none` but no combinations). If nothing is provided, will default to all of your subscribers.",
+          "required": true
+        },
+        {
+          "name": "thumbnail_alt",
+          "type": "string",
+          "location": "body",
+          "description": "Thumbnail alt"
+        },
+        {
+          "name": "thumbnail_url",
+          "type": "string",
+          "location": "body",
+          "description": "Thumbnail url"
+        }
+      ]
+    },
+    {
+      "name": "broadcasts_delete",
+      "description": "Delete a broadcast. Required: id. Destructive.",
+      "method": "DELETE",
+      "path": "/v4/broadcasts/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "broadcasts_get",
+      "description": "Get a broadcast. Required: id. Returns the BroadcastsGetResponse.",
+      "method": "GET",
+      "path": "/v4/broadcasts/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "broadcasts_list",
+      "description": "List broadcasts. Optional: after, before, include_total_count (plus 3 more). Returns the BroadcastsListResponse.",
+      "method": "GET",
+      "path": "/v4/broadcasts",
+      "params": [
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "To fetch next page of results, use `?after=\u003cend_cursor\u003e`"
+        },
+        {
+          "name": "before",
+          "type": "string",
+          "location": "query",
+          "description": "To fetch previous page of results, use `?before=\u003cstart_cursor\u003e`"
+        },
+        {
+          "name": "include_total_count",
+          "type": "bool",
+          "location": "query",
+          "description": "Set to `true` to include the `total_count` in the response."
+        },
+        {
+          "name": "per_page",
+          "type": "string",
+          "location": "query",
+          "description": "Number of results per page. Default 500, maximum 1000."
+        },
+        {
+          "name": "sent_after",
+          "type": "string",
+          "location": "query",
+          "description": "Get broadcasts sent after this date (format yyyy-mm-dd)."
+        },
+        {
+          "name": "sent_before",
+          "type": "string",
+          "location": "query",
+          "description": "Get broadcasts sent before this date (format yyyy-mm-dd)."
+        }
+      ]
+    },
+    {
+      "name": "broadcasts_list-stats",
+      "description": "Get stats for a list of broadcasts. Optional: after, before, include_total_count (plus 3 more). Returns the BroadcastsListStatsResponse.",
+      "method": "GET",
+      "path": "/v4/broadcasts/stats",
+      "params": [
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "To fetch next page of results, use `?after=\u003cend_cursor\u003e`"
+        },
+        {
+          "name": "before",
+          "type": "string",
+          "location": "query",
+          "description": "To fetch previous page of results, use `?before=\u003cstart_cursor\u003e`"
+        },
+        {
+          "name": "include_total_count",
+          "type": "bool",
+          "location": "query",
+          "description": "Set to `true` to include the `total_count` in the response."
+        },
+        {
+          "name": "per_page",
+          "type": "string",
+          "location": "query",
+          "description": "Number of results per page. Default 500, maximum 1000."
+        },
+        {
+          "name": "sent_after",
+          "type": "string",
+          "location": "query",
+          "description": "Sent after"
+        },
+        {
+          "name": "sent_before",
+          "type": "string",
+          "location": "query",
+          "description": "Sent before"
+        }
+      ]
+    },
+    {
+      "name": "broadcasts_update",
+      "description": "Update an existing broadcast. Continue to draft or schedule to send a broadcast to all or a subset of your subscribers.\u003cbr/\u003e\u003cbr/\u003eTo save a draft, set `public` to false.\u003cbr/\u003e\u003cbr/\u003eTo schedule the broadcast for sending, set `public` to true and provide `send_at`. Scheduled broadcasts should contain a subject and your content, at a minimum.\u003cbr/\u003e\u003cbr/\u003eWe currently support targeting your subscribers based on segment or tag ids. Required: id, content, description, email_address, email_template_id, preview_text, public, published_at, send_at, subject, subscriber_filter, thumbnail_alt, thumbnail_url. Returns the updated BroadcastsUpdateResponse.",
+      "method": "PUT",
+      "path": "/v4/broadcasts/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "content",
+          "type": "string",
+          "location": "body",
+          "description": "The HTML content of the email.",
+          "required": true
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description",
+          "required": true
+        },
+        {
+          "name": "email_address",
+          "type": "string",
+          "location": "body",
+          "description": "The sending email address to use. Uses the account's sending email address if not provided.",
+          "required": true
+        },
+        {
+          "name": "email_template_id",
+          "type": "int",
+          "location": "body",
+          "description": "Id of the email template to use. Uses the account's default template if not provided. 'Starting point' template is not supported.",
+          "required": true
+        },
+        {
+          "name": "preview_text",
+          "type": "string",
+          "location": "body",
+          "description": "Preview text",
+          "required": true
+        },
+        {
+          "name": "public",
+          "type": "bool",
+          "location": "body",
+          "description": "`true` to publish this broadcast to the web. The broadcast will appear in a newsletter feed on your Creator Profile and Landing Pages.",
+          "required": true
+        },
+        {
+          "name": "published_at",
+          "type": "string",
+          "location": "body",
+          "description": "The published timestamp to display in ISO8601 format. If no timezone is provided, UTC is assumed.",
+          "required": true
+        },
+        {
+          "name": "send_at",
+          "type": "string",
+          "location": "body",
+          "description": "The scheduled send time for this broadcast in ISO8601 format. If no timezone is provided, UTC is assumed.",
+          "required": true
+        },
+        {
+          "name": "subject",
+          "type": "string",
+          "location": "body",
+          "description": "Subject",
+          "required": true
+        },
+        {
+          "name": "subscriber_filter",
+          "type": "array",
+          "location": "body",
+          "description": "Filters your subscribers. At this time, we only support using only one filter group type via the API (e.g. `all`, `any`, or `none` but no combinations). If nothing is provided, will default to all of your subscribers.",
+          "required": true
+        },
+        {
+          "name": "thumbnail_alt",
+          "type": "string",
+          "location": "body",
+          "description": "Thumbnail alt",
+          "required": true
+        },
+        {
+          "name": "thumbnail_url",
+          "type": "string",
+          "location": "body",
+          "description": "Thumbnail url",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "broadcasts_clicks_get",
+      "description": "NOTE: Pagination parameters control the list of clicks for the top level broadcast. Required: broadcast_id. Returns the ClicksGetResponse.",
+      "method": "GET",
+      "path": "/v4/broadcasts/{broadcast_id}/clicks",
+      "params": [
+        {
+          "name": "broadcast_id",
+          "type": "int",
+          "location": "path",
+          "description": "Broadcast id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "broadcasts_stats_get",
+      "description": "Get stats for a broadcast. Required: broadcast_id. Returns the StatsGetResponse.",
+      "method": "GET",
+      "path": "/v4/broadcasts/{broadcast_id}/stats",
+      "params": [
+        {
+          "name": "broadcast_id",
+          "type": "int",
+          "location": "path",
+          "description": "Broadcast id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "bulk_create",
+      "description": "See '[Bulk \u0026 async processing](#bulk-amp-async-processing)' for more information. Required: custom_fields. Optional: callback_url. Returns the new BulkCreateResponse.",
+      "method": "POST",
+      "path": "/v4/bulk/custom_fields",
+      "params": [
+        {
+          "name": "callback_url",
+          "type": "string",
+          "location": "body",
+          "description": "Callback url"
+        },
+        {
+          "name": "custom_fields",
+          "type": "array",
+          "location": "body",
+          "description": "Custom fields",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "bulk_create-customfields",
+      "description": "Bulk update subscriber custom field values. Required: callback_url, custom_field_values. Returns the new BulkCreateCustomfieldsResponse.",
+      "method": "POST",
+      "path": "/v4/bulk/custom_fields/subscribers",
+      "params": [
+        {
+          "name": "callback_url",
+          "type": "string",
+          "location": "body",
+          "description": "Callback url",
+          "required": true
+        },
+        {
+          "name": "custom_field_values",
+          "type": "array",
+          "location": "body",
+          "description": "Custom field values",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "bulk_create-forms",
+      "description": "Adding subscribers to double opt-in forms will trigger sending an Incentive Email. Subscribers already added to the specified form will not receive the Incentive Email again. For more information about double opt-in see '[Double opt-in](#double-opt-in)'. \u003cbr/\u003e\u003cbr/\u003eThe subscribers being added to the form must already exist. Subscribers can be created in bulk using the '[Bulk create subscriber](#bulk-create-subscribers)' endpoint.\u003cbr/\u003e\u003cbr/\u003eSee '[Bulk \u0026 async processing](#bulk-amp-async-processing)' for more information. Required: additions. Optional: callback_url. Returns the new BulkCreateFormsResponse.",
+      "method": "POST",
+      "path": "/v4/bulk/forms/subscribers",
+      "params": [
+        {
+          "name": "additions",
+          "type": "array",
+          "location": "body",
+          "description": "Additions",
+          "required": true
+        },
+        {
+          "name": "callback_url",
+          "type": "string",
+          "location": "body",
+          "description": "Callback url"
+        }
+      ]
+    },
+    {
+      "name": "bulk_create-subscribers",
+      "description": "See '[Bulk \u0026 async processing](#bulk-amp-async-processing)' for more information. Required: subscribers. Optional: callback_url. Returns the new BulkCreateSubscribersResponse.",
+      "method": "POST",
+      "path": "/v4/bulk/subscribers",
+      "params": [
+        {
+          "name": "callback_url",
+          "type": "string",
+          "location": "body",
+          "description": "Callback url"
+        },
+        {
+          "name": "subscribers",
+          "type": "array",
+          "location": "body",
+          "description": "Subscribers",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "bulk_create-tags",
+      "description": "See '[Bulk \u0026 async processing](#bulk-amp-async-processing)' for more information. Required: tags. Optional: callback_url. Returns the new BulkCreateTagsResponse.",
+      "method": "POST",
+      "path": "/v4/bulk/tags",
+      "params": [
+        {
+          "name": "callback_url",
+          "type": "string",
+          "location": "body",
+          "description": "Callback url"
+        },
+        {
+          "name": "tags",
+          "type": "array",
+          "location": "body",
+          "description": "Tags",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "bulk_create-tags-2",
+      "description": "The subscribers being tagged must already exist. Subscribers can be created in bulk using the '[Bulk create subscriber](#bulk-create-subscribers)' endpoint.\u003cbr/\u003e\u003cbr/\u003eSee '[Bulk \u0026 async processing](#bulk-amp-async-processing)' for more information. Required: taggings. Optional: callback_url. Returns the new BulkCreateTags2Response.",
+      "method": "POST",
+      "path": "/v4/bulk/tags/subscribers",
+      "params": [
+        {
+          "name": "callback_url",
+          "type": "string",
+          "location": "body",
+          "description": "Callback url"
+        },
+        {
+          "name": "taggings",
+          "type": "array",
+          "location": "body",
+          "description": "Taggings",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "bulk_delete",
+      "description": "See '[Bulk \u0026 async processing](#bulk-amp-async-processing)' for more information. Returns the BulkDeleteResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/v4/bulk/tags/subscribers",
+      "params": []
+    },
+    {
+      "name": "custom-fields_create",
+      "description": "Create a custom field for your account. The label field must be unique to your account. Whitespace will be removed from the beginning and the end of your label.\u003cbr/\u003e\u003cbr/\u003eAdditionally, a key field and a name field will be generated for you. The key is an ASCII-only, lowercased, underscored representation of your label. This key must be unique to your account. Keys are used in personalization tags in sequences and broadcasts. Names are unique identifiers for use in the HTML of custom forms. They are made up of a combination of ID and the key of the custom field prefixed with 'ck_field'. Required: label. Returns the new CustomFieldsCreateResponse.",
+      "method": "POST",
+      "path": "/v4/custom_fields",
+      "params": [
+        {
+          "name": "label",
+          "type": "string",
+          "location": "body",
+          "description": "Label",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "custom-fields_delete",
+      "description": "This will remove all data in this field from your subscribers. Required: id. Destructive.",
+      "method": "DELETE",
+      "path": "/v4/custom_fields/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "custom-fields_list",
+      "description": "A custom field allows you to collect subscriber information beyond the standard fields of first name and email address. An example would be a custom field called last name so you can get the full names of your subscribers.\u003cbr/\u003e\u003cbr/\u003eYou create a custom field, and then you're able to use that in your forms or emails. Optional: after, before, include_total_count (plus 1 more). Returns the CustomFieldsListResponse.",
+      "method": "GET",
+      "path": "/v4/custom_fields",
+      "params": [
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "To fetch next page of results, use `?after=\u003cend_cursor\u003e`"
+        },
+        {
+          "name": "before",
+          "type": "string",
+          "location": "query",
+          "description": "To fetch previous page of results, use `?before=\u003cstart_cursor\u003e`"
+        },
+        {
+          "name": "include_total_count",
+          "type": "bool",
+          "location": "query",
+          "description": "Set to `true` to include the `total_count` in the response."
+        },
+        {
+          "name": "per_page",
+          "type": "string",
+          "location": "query",
+          "description": "Number of results per page. Default 500, maximum 1000."
+        }
+      ]
+    },
+    {
+      "name": "custom-fields_update",
+      "description": "Updates a custom field label (see [Create a custom field](/api-reference/custom-fields/create-a-custom-field) for more information on labels). Note that the key will change but the name remains the same when the label is updated.\u003cbr/\u003e\u003cbr/\u003e\u003cstrong\u003eWarning: \u003c/strong\u003eAn update to a custom field will break all of the liquid personalization tags in emails that reference it - e.g. if you update a `Zip_Code` custom field to `Post_Code`, all liquid tags referencing `{{ subscriber.Zip_Code }}` would no longer work and need to be replaced with `{{ subscriber.Post_Code }}`. Required: id, label. Returns the updated CustomFieldsUpdateResponse.",
+      "method": "PUT",
+      "path": "/v4/custom_fields/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "label",
+          "type": "string",
+          "location": "body",
+          "description": "Label",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "email-templates_list",
+      "description": "List email templates. Optional: after, before, include_total_count (plus 1 more). Returns the EmailTemplatesListResponse.",
+      "method": "GET",
+      "path": "/v4/email_templates",
+      "params": [
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "To fetch next page of results, use `?after=\u003cend_cursor\u003e`"
+        },
+        {
+          "name": "before",
+          "type": "string",
+          "location": "query",
+          "description": "To fetch previous page of results, use `?before=\u003cstart_cursor\u003e`"
+        },
+        {
+          "name": "include_total_count",
+          "type": "bool",
+          "location": "query",
+          "description": "Set to `true` to include the `total_count` in the response."
+        },
+        {
+          "name": "per_page",
+          "type": "string",
+          "location": "query",
+          "description": "Number of results per page. Default 500, maximum 1000."
+        }
+      ]
+    },
+    {
+      "name": "forms_list",
+      "description": "List forms. Optional: after, before, include_total_count (plus 3 more). Returns the FormsListResponse.",
+      "method": "GET",
+      "path": "/v4/forms",
+      "params": [
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "To fetch next page of results, use `?after=\u003cend_cursor\u003e`"
+        },
+        {
+          "name": "before",
+          "type": "string",
+          "location": "query",
+          "description": "To fetch previous page of results, use `?before=\u003cstart_cursor\u003e`"
+        },
+        {
+          "name": "include_total_count",
+          "type": "bool",
+          "location": "query",
+          "description": "Set to `true` to include the `total_count` in the response."
+        },
+        {
+          "name": "per_page",
+          "type": "string",
+          "location": "query",
+          "description": "Number of results per page. Default 500, maximum 1000."
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "query",
+          "description": "Filter forms that have this status (`active`, `archived`, `trashed`, or `all`). Defaults to `active`."
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Filter forms and landing pages by type. Use `embed` for embedded forms. Use `hosted` for landing pages."
+        }
+      ]
+    },
+    {
+      "name": "forms_subscribers_create",
+      "description": "The subscriber being added to the form must already exist. Subscribers can be created using the '[Create a subscriber](#create-a-subscriber)' endpoint. Required: form_id, email_address. Optional: referrer. Returns the new SubscribersCreateResponse.",
+      "method": "POST",
+      "path": "/v4/forms/{form_id}/subscribers",
+      "params": [
+        {
+          "name": "form_id",
+          "type": "int",
+          "location": "path",
+          "description": "Form id",
+          "required": true
+        },
+        {
+          "name": "email_address",
+          "type": "string",
+          "location": "body",
+          "description": "Email address",
+          "required": true
+        },
+        {
+          "name": "referrer",
+          "type": "string",
+          "location": "body",
+          "description": "Referrer"
+        }
+      ]
+    },
+    {
+      "name": "forms_subscribers_create-forms",
+      "description": "The subscriber being added to the form must already exist. Subscribers can be created using the '[Create a subscriber](#create-a-subscriber)' endpoint. Required: form_id, id, referrer. Returns the new SubscribersCreateFormsResponse.",
+      "method": "POST",
+      "path": "/v4/forms/{form_id}/subscribers/{id}",
+      "params": [
+        {
+          "name": "form_id",
+          "type": "int",
+          "location": "path",
+          "description": "Form id",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "referrer",
+          "type": "string",
+          "location": "body",
+          "description": "Referrer",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "forms_subscribers_get",
+      "description": "List subscribers for a form. Required: form_id. Optional: added_after, added_before, after (plus 6 more). Returns the SubscribersGetResponse.",
+      "method": "GET",
+      "path": "/v4/forms/{form_id}/subscribers",
+      "params": [
+        {
+          "name": "added_after",
+          "type": "string",
+          "location": "query",
+          "description": "Filter subscribers who have been added to the form after this date (format yyyy-mm-dd)"
+        },
+        {
+          "name": "added_before",
+          "type": "string",
+          "location": "query",
+          "description": "Filter subscribers who have been added to the form before this date (format yyyy-mm-dd)"
+        },
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "To fetch next page of results, use `?after=\u003cend_cursor\u003e`"
+        },
+        {
+          "name": "before",
+          "type": "string",
+          "location": "query",
+          "description": "To fetch previous page of results, use `?before=\u003cstart_cursor\u003e`"
+        },
+        {
+          "name": "created_after",
+          "type": "string",
+          "location": "query",
+          "description": "Filter subscribers who have been created after this date (format yyyy-mm-dd)"
+        },
+        {
+          "name": "created_before",
+          "type": "string",
+          "location": "query",
+          "description": "Filter subscribers who have been created before this date (format yyyy-mm-dd)"
+        },
+        {
+          "name": "form_id",
+          "type": "int",
+          "location": "path",
+          "description": "Form id",
+          "required": true
+        },
+        {
+          "name": "include_total_count",
+          "type": "bool",
+          "location": "query",
+          "description": "Set to `true` to include the `total_count` in the response."
+        },
+        {
+          "name": "per_page",
+          "type": "string",
+          "location": "query",
+          "description": "Number of results per page. Default 500, maximum 1000."
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "query",
+          "description": "Filter subscribers who have this status (`active`, `inactive`, `bounced`, `complained`,..."
+        }
+      ]
+    },
+    {
+      "name": "posts_get",
+      "description": "Get a post. Required: id. Returns the PostsGetResponse.",
+      "method": "GET",
+      "path": "/v4/posts/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "posts_list",
+      "description": "List posts. Optional: after, before, include_content (plus 2 more). Returns the PostsListResponse.",
+      "method": "GET",
+      "path": "/v4/posts",
+      "params": [
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "To fetch next page of results, use `?after=\u003cend_cursor\u003e`"
+        },
+        {
+          "name": "before",
+          "type": "string",
+          "location": "query",
+          "description": "To fetch previous page of results, use `?before=\u003cstart_cursor\u003e`"
+        },
+        {
+          "name": "include_content",
+          "type": "bool",
+          "location": "query",
+          "description": "To include the `content` field on each post in the response, use `true`. Omitted by default because it significantly increases response size and latency for large collections."
+        },
+        {
+          "name": "include_total_count",
+          "type": "bool",
+          "location": "query",
+          "description": "Set to `true` to include the `total_count` in the response."
+        },
+        {
+          "name": "per_page",
+          "type": "string",
+          "location": "query",
+          "description": "Number of results per page. Default 500, maximum 1000."
+        }
+      ]
+    },
+    {
+      "name": "purchases_create",
+      "description": "Create a purchase. Required: purchase. Returns the new PurchasesCreateResponse.",
+      "method": "POST",
+      "path": "/v4/purchases",
+      "params": [
+        {
+          "name": "purchase",
+          "type": "object",
+          "location": "body",
+          "description": "Purchase",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "purchases_get",
+      "description": "Get a purchase. Required: id. Returns the PurchasesGetResponse.",
+      "method": "GET",
+      "path": "/v4/purchases/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "purchases_list",
+      "description": "List purchases. Optional: after, before, include_total_count (plus 1 more). Returns the PurchasesListResponse.",
+      "method": "GET",
+      "path": "/v4/purchases",
+      "params": [
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "To fetch next page of results, use `?after=\u003cend_cursor\u003e`"
+        },
+        {
+          "name": "before",
+          "type": "string",
+          "location": "query",
+          "description": "To fetch previous page of results, use `?before=\u003cstart_cursor\u003e`"
+        },
+        {
+          "name": "include_total_count",
+          "type": "bool",
+          "location": "query",
+          "description": "Set to `true` to include the `total_count` in the response."
+        },
+        {
+          "name": "per_page",
+          "type": "string",
+          "location": "query",
+          "description": "Number of results per page. Default 500, maximum 1000."
+        }
+      ]
+    },
+    {
+      "name": "segments_list",
+      "description": "List segments. Optional: after, before, include_total_count (plus 1 more). Returns the SegmentsListResponse.",
+      "method": "GET",
+      "path": "/v4/segments",
+      "params": [
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "To fetch next page of results, use `?after=\u003cend_cursor\u003e`"
+        },
+        {
+          "name": "before",
+          "type": "string",
+          "location": "query",
+          "description": "To fetch previous page of results, use `?before=\u003cstart_cursor\u003e`"
+        },
+        {
+          "name": "include_total_count",
+          "type": "bool",
+          "location": "query",
+          "description": "Set to `true` to include the `total_count` in the response."
+        },
+        {
+          "name": "per_page",
+          "type": "string",
+          "location": "query",
+          "description": "Number of results per page. Default 500, maximum 1000."
+        }
+      ]
+    },
+    {
+      "name": "sequences_create",
+      "description": "Creates an empty sequence — the container that holds sequence emails. After creating the shell, use [Create a sequence email](/api-reference/sequence-emails/create-a-sequence-email) to populate it. Only `name` is required. Every other field has a sensible default: Kit fills in the account's default sending address, a daily send schedule, and the account time zone — and any of these can be tuned later via [Update a sequence](/api-reference/sequences/update-a-sequence). Two behavioural toggles worth flagging up front. `repeat` controls whether a subscriber can re-enter the sequence: by default a subscriber receives the emails once and is marked complete, but with `repeat: true`, re-adding the same subscriber via a Visual Automation, Rule, Bulk Action, or Import resets their position to the start. Filters and exclusions still apply across restarts. `hold` (evergreen) keeps subscribers active in the sequence after they've received every published email — useful when you plan to add more emails later. Without `hold`, subscribers transition to Completed and won't pick up future additions. `exclude_subscriber_sources` lets you exclude subscribers acquired via specific tags, sequences, forms, or segments — they'll skip this sequence entirely. For end-user context, see the help articles on [creating and sending a sequence](https://help.kit.com/en/articles/2502629-creating-and-sending-a-sequence-in-kit), [restarting a sequence](https://help.kit.com/en/articles/5022528-restart-a-sequence), and [holding subscribers in evergreen sequences](https://help.kit.com/en/articles/5192801-how-to-hold-subscribers-in-evergreen-sequences). Optional: active, email_address, email_template_id (plus 7 more). Returns the new SequencesCreateResponse.",
+      "method": "POST",
+      "path": "/v4/sequences",
+      "params": [
+        {
+          "name": "active",
+          "type": "bool",
+          "location": "body",
+          "description": "`true` to activate the sequence, `false` to deactivate it."
+        },
+        {
+          "name": "email_address",
+          "type": "string",
+          "location": "body",
+          "description": "The sending email address to use. Uses the account's sending email address if not provided."
+        },
+        {
+          "name": "email_template_id",
+          "type": "int",
+          "location": "body",
+          "description": "Id of the email template to use."
+        },
+        {
+          "name": "exclude_subscriber_sources",
+          "type": "array",
+          "location": "body",
+          "description": "The subscriber sources to exclude from the sequence."
+        },
+        {
+          "name": "hold",
+          "type": "bool",
+          "location": "body",
+          "description": "When `true`, subscribers added via Visual Automations stay in the sequence after receiving the last email."
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "The name of the sequence."
+        },
+        {
+          "name": "repeat",
+          "type": "bool",
+          "location": "body",
+          "description": "When `true`, subscribers can restart the sequence multiple times."
+        },
+        {
+          "name": "send_days",
+          "type": "array",
+          "location": "body",
+          "description": "The days of the week to send the sequence on. Must be one of: `monday`, `tuesday`, `wednesday`, `thursday`, `friday`, `saturday`, `sunday`."
+        },
+        {
+          "name": "send_hour",
+          "type": "int",
+          "location": "body",
+          "description": "The hour of the day to send the sequence at. Must be an integer between 0 and 23."
+        },
+        {
+          "name": "time_zone",
+          "type": "string",
+          "location": "body",
+          "description": "The timezone to use for the sequence. Must be a valid IANA timezone string."
+        }
+      ]
+    },
+    {
+      "name": "sequences_delete",
+      "description": "Soft-deletes a sequence. The sequence is removed from active delivery immediately, with cleanup of associated state happening in the background. **Warning:** deleting a sequence with active subscribers stops deliveries to those subscribers — they will not receive remaining emails, and any Visual Automations referencing the sequence will need to be updated. Confirm the sequence is not in active use before deleting. If you want to pause rather than delete, use [Update a sequence](/api-reference/sequences/update-a-sequence) with `active: false` instead. Required: id. Destructive.",
+      "method": "DELETE",
+      "path": "/v4/sequences/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sequences_get",
+      "description": "Fetches a single sequence by `id`. Use this when you need the current schedule, the `active` / `repeat` / `hold` flags, the configured `email_address` and `email_template_id`, or `exclude_subscriber_sources` for a known sequence — for example, to confirm settings before adding subscribers or to render an editor. For the individual emails inside the sequence, use [List sequence emails](/api-reference/sequence-emails/list-sequence-emails). For the sequence model and field semantics, see [Create a sequence](/api-reference/sequences/create-a-sequence). Required: id. Returns the SequencesGetResponse.",
+      "method": "GET",
+      "path": "/v4/sequences/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sequences_list",
+      "description": "Returns every sequence on the account. A sequence is a self-contained set of automated emails — subscribers join, then receive each email in order, governed by per-email `delay_value` / `delay_unit` and the sequence's overall `send_days`, `send_hour`, and `time_zone` schedule. Each entry carries the schedule defaults plus three behavioural toggles: `active` (whether the sequence is delivering), `repeat` (whether subscribers can re-enter), and `hold` (whether subscribers stay active after receiving every published email — an evergreen pattern). See [Create a sequence](/api-reference/sequences/create-a-sequence) for the full sequence model. Once you have a sequence's `id`, [List sequence emails](/api-reference/sequence-emails/list-sequence-emails) returns the individual emails inside it. For end-user context on how creators build sequences, see the help articles on [creating and sending a sequence](https://help.kit.com/en/articles/2502629-creating-and-sending-a-sequence-in-kit) and [evergreen content](https://help.kit.com/en/articles/2502575-what-is-evergreen-content). Optional: after, before, include_total_count (plus 1 more).",
+      "method": "GET",
+      "path": "/v4/sequences",
+      "params": [
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "To fetch next page of results, use `?after=\u003cend_cursor\u003e`"
+        },
+        {
+          "name": "before",
+          "type": "string",
+          "location": "query",
+          "description": "To fetch previous page of results, use `?before=\u003cstart_cursor\u003e`"
+        },
+        {
+          "name": "include_total_count",
+          "type": "bool",
+          "location": "query",
+          "description": "Set to `true` to include the `total_count` in the response."
+        },
+        {
+          "name": "per_page",
+          "type": "string",
+          "location": "query",
+          "description": "Number of results per page. Default 500, maximum 1000."
+        }
+      ]
+    },
+    {
+      "name": "sequences_update",
+      "description": "Updates any sequence settings — `name`, `email_address`, schedule (`send_days`, `send_hour`, `time_zone`), `email_template_id`, `exclude_subscriber_sources`, or the `active` / `repeat` / `hold` flags. Only fields included in the request body change; everything else is preserved. Some changes have user-visible side effects on subscribers already in the sequence: **Note:** flipping `active` from `false` to `true` resumes delivery for queued subscribers. Flipping it back to `false` pauses the sequence — subscribers stay in their current position but no new emails are sent until it's reactivated. **Note:** changing the schedule (`send_days`, `send_hour`, or `time_zone`) only affects future sends. It does not retroactively reschedule emails already queued for delivery. **Warning:** turning off `repeat` while subscribers are mid-sequence does not stop them from finishing — but they won't be re-eligible to start over after completing. See [Create a sequence](/api-reference/sequences/create-a-sequence) for the full sequence model and what each field controls. Required: id. Optional: active, email_address, email_template_id (plus 7 more). Returns the updated SequencesUpdateResponse.",
+      "method": "PUT",
+      "path": "/v4/sequences/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "active",
+          "type": "bool",
+          "location": "body",
+          "description": "`true` to activate the sequence, `false` to deactivate it."
+        },
+        {
+          "name": "email_address",
+          "type": "string",
+          "location": "body",
+          "description": "The sending email address to use. Uses the account's sending email address if not provided."
+        },
+        {
+          "name": "email_template_id",
+          "type": "int",
+          "location": "body",
+          "description": "Id of the email template to use."
+        },
+        {
+          "name": "exclude_subscriber_sources",
+          "type": "array",
+          "location": "body",
+          "description": "The subscriber sources to exclude from the sequence."
+        },
+        {
+          "name": "hold",
+          "type": "bool",
+          "location": "body",
+          "description": "When `true`, subscribers added via Visual Automations stay in the sequence after receiving the last email."
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "The name of the sequence."
+        },
+        {
+          "name": "repeat",
+          "type": "bool",
+          "location": "body",
+          "description": "When `true`, subscribers can restart the sequence multiple times."
+        },
+        {
+          "name": "send_days",
+          "type": "array",
+          "location": "body",
+          "description": "The days of the week to send the sequence on. Must be one of: `monday`, `tuesday`, `wednesday`, `thursday`, `friday`, `saturday`, `sunday`."
+        },
+        {
+          "name": "send_hour",
+          "type": "int",
+          "location": "body",
+          "description": "The hour of the day to send the sequence at. Must be an integer between 0 and 23."
+        },
+        {
+          "name": "time_zone",
+          "type": "string",
+          "location": "body",
+          "description": "The timezone to use for the sequence. Must be a valid IANA timezone string."
+        }
+      ]
+    },
+    {
+      "name": "sequences_emails_create",
+      "description": "Adds a single email to a sequence. Each sequence email represents one step subscribers receive on their journey through the sequence — its `position` determines order, and `delay_value` / `delay_unit` / `send_days` determine when it fires relative to either the previous email or the subscriber's entry. `subject`, `delay_value`, and `delay_unit` are required. **Day-based** emails (`delay_unit: 'days'`) follow the parent sequence's `send_days` and `send_hour`; their per-email `send_days` (e.g. `['monday', 'wednesday']`) overrides the sequence schedule for that one email. **Hour-based** emails (`delay_unit: 'hours'`) ignore the sequence schedule and fire once the delay elapses — Kit checks for hour-delayed sends every 15 minutes — and always return `send_days` as `null`. New emails are created in draft (`published: false`) so they don't go out until you flip the flag. `position` is auto-assigned to the end of the sequence if omitted. `content` accepts HTML and can embed snippets with `{{ snippet.\u003ckey\u003e }}` — see [Create a snippet](/api-reference/snippets/create-a-snippet) — which Kit resolves at send time, so editing a snippet later updates every email referencing it without a re-publish. **Note:** only the first email in a sequence can be an immediate send (`delay_value: 0` with `delay_unit: 'days'`). Subsequent emails need a positive delay. **Warning:** publishing an immediate first email, or inserting a new email at a `position` earlier than where existing subscribers sit, processes those subscribers and triggers a send right away. Plan around active sequences carefully. For end-user context on how creators build sequences in the Kit UI, see the help article on [creating and sending a sequence](https://help.kit.com/en/articles/2502629-creating-and-sending-a-sequence-in-kit). Required: sequence_id, delay_unit, delay_value, subject. Optional: content, email_template_id, position (plus 3 more). Returns the new EmailsCreateResponse.",
+      "method": "POST",
+      "path": "/v4/sequences/{sequence_id}/emails",
+      "params": [
+        {
+          "name": "sequence_id",
+          "type": "int",
+          "location": "path",
+          "description": "Sequence id",
+          "required": true
+        },
+        {
+          "name": "content",
+          "type": "string",
+          "location": "body",
+          "description": "HTML body content of the email"
+        },
+        {
+          "name": "delay_unit",
+          "type": "string",
+          "location": "body",
+          "description": "Unit for the send delay. Use `days` for schedule-aware delivery, `hours` for a fixed hourly delay",
+          "required": true
+        },
+        {
+          "name": "delay_value",
+          "type": "int",
+          "location": "body",
+          "description": "Number of days or hours to wait before sending this email after the previous one",
+          "required": true
+        },
+        {
+          "name": "email_template_id",
+          "type": "int",
+          "location": "body",
+          "description": "ID of the email template to use for layout and styling"
+        },
+        {
+          "name": "position",
+          "type": "int",
+          "location": "body",
+          "description": "Zero-based position of the email in the sequence. Assigned automatically after the last email if omitted"
+        },
+        {
+          "name": "preview_text",
+          "type": "string",
+          "location": "body",
+          "description": "Preview text shown in email clients before the email is opened"
+        },
+        {
+          "name": "published",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether the email is active and will be sent to subscribers. Defaults to `false` (draft)"
+        },
+        {
+          "name": "send_days",
+          "type": "array",
+          "location": "body",
+          "description": "Days of the week this email may be sent. Defaults to all 7 days (inherits the sequence schedule). Pass a subset to restrict delivery, or `null` to reset to all days"
+        },
+        {
+          "name": "subject",
+          "type": "string",
+          "location": "body",
+          "description": "Subject line of the email",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sequences_emails_delete",
+      "description": "Permanently removes one email from a sequence. **Warning:** subscribers already queued to receive the deleted email will skip it — they'll continue to the next email in sequence order. This is intentional and not retryable. If subscribers need to receive the email's content, send a broadcast or re-add subscribers to the sequence (with `repeat: true`) before deleting. If you want to pause rather than delete, use [Update a sequence email](/api-reference/sequence-emails/update-a-sequence-email) with `published: false` instead. Required: id, sequence_id. Destructive.",
+      "method": "DELETE",
+      "path": "/v4/sequences/{sequence_id}/emails/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "sequence_id",
+          "type": "int",
+          "location": "path",
+          "description": "Sequence id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sequences_emails_get",
+      "description": "Returns every email inside a sequence, ordered by `position` (the order subscribers receive them). Each entry carries timing (`delay_value`, `delay_unit`, `send_days`), publish state (`published`), and metadata (`subject`, `preview_text`, `email_template_id`). **Tip:** the heavier `content` field is omitted by default to keep responses fast on sequences with many emails. Pass `include_content=true` when you need the body — for example, to render a preview, audit Liquid usage, or sync an external draft. For the field semantics — particularly how `delay_unit` and `send_days` interact, and what happens when subscribers hit a `published: false` email — see [Create a sequence email](/api-reference/sequence-emails/create-a-sequence-email). Required: sequence_id. Optional: after, before, include_content (plus 2 more).",
+      "method": "GET",
+      "path": "/v4/sequences/{sequence_id}/emails",
+      "params": [
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "To fetch next page of results, use `?after=\u003cend_cursor\u003e`"
+        },
+        {
+          "name": "before",
+          "type": "string",
+          "location": "query",
+          "description": "To fetch previous page of results, use `?before=\u003cstart_cursor\u003e`"
+        },
+        {
+          "name": "include_content",
+          "type": "string",
+          "location": "query",
+          "description": "Pass `true` to include the `content` field on each email in the response. Omitted by default because it increases response size for large sequences."
+        },
+        {
+          "name": "include_total_count",
+          "type": "bool",
+          "location": "query",
+          "description": "Set to `true` to include the `total_count` in the response."
+        },
+        {
+          "name": "per_page",
+          "type": "string",
+          "location": "query",
+          "description": "Number of results per page. Default 500, maximum 1000."
+        },
+        {
+          "name": "sequence_id",
+          "type": "int",
+          "location": "path",
+          "description": "Sequence id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sequences_emails_get-sequences",
+      "description": "Fetches a single sequence email by `id`. Unlike [List sequence emails](/api-reference/sequence-emails/list-sequence-emails), this endpoint **always returns the full `content`** — no `include_content` flag needed. Use this when you have an email's `id` and need the current body, timing, or publish state — for example, to render a preview before pushing an update via [Update a sequence email](/api-reference/sequence-emails/update-a-sequence-email). For the field semantics, see [Create a sequence email](/api-reference/sequence-emails/create-a-sequence-email). Required: id, sequence_id.",
+      "method": "GET",
+      "path": "/v4/sequences/{sequence_id}/emails/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "sequence_id",
+          "type": "int",
+          "location": "path",
+          "description": "Sequence id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sequences_emails_update",
+      "description": "Updates any field on a sequence email — `subject`, `preview_text`, `content`, `delay_value`, `delay_unit`, `send_days`, `position`, `email_template_id`, or `published`. Only fields included in the request body change; everything else is preserved. **Note:** pass `send_days: null` to revert a per-email schedule override and inherit the parent sequence's `send_days` again. The response will then return all 7 days, indicating no per-email restriction. **Warning:** sending `send_days` on an email with `delay_unit: 'hours'` returns `422` — `send_days` only applies to day-based emails. **Warning:** changing `position` while subscribers are actively progressing through the sequence can cause emails to be sent out of order or skipped. The same caution applies to flipping `published` on a `position: 0` email — it triggers Kit to process all queued subscribers for that email. For the sequence-email model and how `delay_unit` and `send_days` interact, see [Create a sequence email](/api-reference/sequence-emails/create-a-sequence-email). Required: id, sequence_id. Optional: content, delay_unit, delay_value (plus 6 more).",
+      "method": "PUT",
+      "path": "/v4/sequences/{sequence_id}/emails/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "sequence_id",
+          "type": "int",
+          "location": "path",
+          "description": "Sequence id",
+          "required": true
+        },
+        {
+          "name": "content",
+          "type": "string",
+          "location": "body",
+          "description": "New HTML body content of the email"
+        },
+        {
+          "name": "delay_unit",
+          "type": "string",
+          "location": "body",
+          "description": "New delay unit. Use `days` for schedule-aware delivery, `hours` for a fixed hourly delay"
+        },
+        {
+          "name": "delay_value",
+          "type": "int",
+          "location": "body",
+          "description": "New delay value"
+        },
+        {
+          "name": "email_template_id",
+          "type": "int",
+          "location": "body",
+          "description": "New email template ID for layout and styling. Pass `null` to clear"
+        },
+        {
+          "name": "position",
+          "type": "int",
+          "location": "body",
+          "description": "New zero-based position of the email in the sequence"
+        },
+        {
+          "name": "preview_text",
+          "type": "string",
+          "location": "body",
+          "description": "New preview text shown in email clients before the email is opened"
+        },
+        {
+          "name": "published",
+          "type": "bool",
+          "location": "body",
+          "description": "Pass `true` to publish a draft email or `false` to unpublish it"
+        },
+        {
+          "name": "send_days",
+          "type": "array",
+          "location": "body",
+          "description": "Days of the week this email may be sent. Pass a subset to restrict delivery, or `null` to reset to all days (inherits the sequence schedule)"
+        },
+        {
+          "name": "subject",
+          "type": "string",
+          "location": "body",
+          "description": "New subject line for the email"
+        }
+      ]
+    },
+    {
+      "name": "sequences_subscribers_create",
+      "description": "The subscriber being added to the sequence must already exist. Subscribers can be created using the '[Create a subscriber](#create-a-subscriber)' endpoint. Required: sequence_id, email_address. Returns the new SubscribersCreateResponse.",
+      "method": "POST",
+      "path": "/v4/sequences/{sequence_id}/subscribers",
+      "params": [
+        {
+          "name": "sequence_id",
+          "type": "int",
+          "location": "path",
+          "description": "Sequence id",
+          "required": true
+        },
+        {
+          "name": "email_address",
+          "type": "string",
+          "location": "body",
+          "description": "Email address",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sequences_subscribers_create-sequences",
+      "description": "The subscriber being added to the sequence must already exist. Subscribers can be created using the '[Create a subscriber](#create-a-subscriber)' endpoint. Required: id, sequence_id. Returns the new SubscribersCreateSequencesResponse.",
+      "method": "POST",
+      "path": "/v4/sequences/{sequence_id}/subscribers/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "sequence_id",
+          "type": "int",
+          "location": "path",
+          "description": "Sequence id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sequences_subscribers_get",
+      "description": "List subscribers for a sequence. Required: sequence_id. Optional: added_after, added_before, after (plus 6 more). Returns the SubscribersGetResponse.",
+      "method": "GET",
+      "path": "/v4/sequences/{sequence_id}/subscribers",
+      "params": [
+        {
+          "name": "added_after",
+          "type": "string",
+          "location": "query",
+          "description": "Filter subscribers who have been added to the form after this date (format yyyy-mm-dd)"
+        },
+        {
+          "name": "added_before",
+          "type": "string",
+          "location": "query",
+          "description": "Filter subscribers who have been added to the form before this date (format yyyy-mm-dd)"
+        },
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "To fetch next page of results, use `?after=\u003cend_cursor\u003e`"
+        },
+        {
+          "name": "before",
+          "type": "string",
+          "location": "query",
+          "description": "To fetch previous page of results, use `?before=\u003cstart_cursor\u003e`"
+        },
+        {
+          "name": "created_after",
+          "type": "string",
+          "location": "query",
+          "description": "Filter subscribers who have been created after this date (format yyyy-mm-dd)"
+        },
+        {
+          "name": "created_before",
+          "type": "string",
+          "location": "query",
+          "description": "Filter subscribers who have been created before this date (format yyyy-mm-dd)"
+        },
+        {
+          "name": "include_total_count",
+          "type": "bool",
+          "location": "query",
+          "description": "Set to `true` to include the `total_count` in the response."
+        },
+        {
+          "name": "per_page",
+          "type": "string",
+          "location": "query",
+          "description": "Number of results per page. Default 500, maximum 1000."
+        },
+        {
+          "name": "sequence_id",
+          "type": "int",
+          "location": "path",
+          "description": "Sequence id",
+          "required": true
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "query",
+          "description": "Filter subscribers who have this status (`active`, `inactive`, `bounced`, `complained`,..."
+        }
+      ]
+    },
+    {
+      "name": "snippets_create",
+      "description": "Snippets are reusable pieces of email content you can drop into a broadcast or sequence email using Liquid: `{{ snippet.key }}`. Update the snippet once and every email that references it picks up the new content on next send. There are two `snippet_type`s. **`inline`** snippets store plain-text content (with Liquid variable support like `{{ subscriber.first_name }}`) in the `content` field. **`block`** snippets store rich-text HTML — text, lists, images, buttons — in `document_attributes.value_html`. A snippet's type is fixed at creation: it cannot be changed via [Update a snippet](/api-reference/snippets/update-a-snippet). The response includes a `key` field. That's the identifier you use in Liquid — for example, a snippet returned with `'key': 'welcome-message'` is referenced inside a broadcast as `{{ snippet.welcome-message }}`. Keys are derived from the snippet name on creation. **Note:** the API rejects circular references — a snippet cannot reference itself, directly or transitively — with a `422` validation error. For end-user context on how creators build and edit snippets in the Kit UI, see the help articles on [content snippets](https://help.kit.com/en/articles/3812712-creating-and-using-content-snippets-in-your-kit-emails) and [code snippets for custom templates](https://help.kit.com/en/articles/2810398-code-snippets-for-custom-email-templates). Returns the new SnippetsCreateResponse.",
+      "method": "POST",
+      "path": "/v4/snippets",
+      "params": []
+    },
+    {
+      "name": "snippets_get",
+      "description": "Fetches a single snippet by `id`. Unlike [List snippets](/api-reference/snippets/list-snippets), this endpoint **always returns the full `content` and `document`** — no `include_content` flag needed. Use this when you have an `id` (e.g. stored from a prior create call) and need the current `key` and body — for example, to preview the resolved HTML or confirm a snippet still exists before referencing it as `{{ snippet.key }}` in a broadcast or sequence email. See [Create a snippet](/api-reference/snippets/create-a-snippet) for the snippet model. Required: id.",
+      "method": "GET",
+      "path": "/v4/snippets/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "snippets_list",
+      "description": "Returns every snippet on the account. Each snippet's `key` is the identifier used in Liquid — `{{ snippet.key }}` — when creating a broadcast or sequence email. See [Create a snippet](/api-reference/snippets/create-a-snippet) for how snippets work end-to-end. **Tip:** the heavier `content` and `document` fields are omitted by default to keep responses fast. Pass `include_content=true` when you need the body — for example, to render a preview or audit Liquid usage. Filter the result with `snippet_type` (`inline` or `block`) and `archived` (defaults to `false`, set `true` to list only archived snippets). Optional: after, archived, before (plus 4 more).",
+      "method": "GET",
+      "path": "/v4/snippets",
+      "params": [
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "To fetch next page of results, use `?after=\u003cend_cursor\u003e`"
+        },
+        {
+          "name": "archived",
+          "type": "string",
+          "location": "query",
+          "description": "When `true`, returns only archived snippets. Defaults to `false`."
+        },
+        {
+          "name": "before",
+          "type": "string",
+          "location": "query",
+          "description": "To fetch previous page of results, use `?before=\u003cstart_cursor\u003e`"
+        },
+        {
+          "name": "include_content",
+          "type": "bool",
+          "location": "query",
+          "description": "When `true`, includes both the `content` and `document` fields for each snippet in the response. Defaults to `false`."
+        },
+        {
+          "name": "include_total_count",
+          "type": "bool",
+          "location": "query",
+          "description": "Set to `true` to include the `total_count` in the response."
+        },
+        {
+          "name": "per_page",
+          "type": "string",
+          "location": "query",
+          "description": "Number of results per page. Default 500, maximum 1000."
+        },
+        {
+          "name": "snippet_type",
+          "type": "string",
+          "location": "query",
+          "description": "Filter snippets by type. Use `inline` for text snippets or `block` for rich-text block snippets."
+        }
+      ]
+    },
+    {
+      "name": "snippets_update",
+      "description": "Rename a snippet, replace its body, or archive/restore it. Updates apply on the next send of any email that references the snippet via `{{ snippet.key }}` — there's no per-email versioning, so a content change ripples to every broadcast or sequence email using that key. The request body must match the existing `snippet_type`. For an **`inline`** snippet, send `content` (and optionally `name`, `archived`). For a **`block`** snippet, send `document_attributes.value_html` (and optionally `name`, `archived`). Pass `archived: true` to archive, `false` to restore. **Warning:** `snippet_type` is immutable. Sending a different value, or sending the body shape for the wrong type, returns a `422` with `snippet_type cannot be changed`. See [Create a snippet](/api-reference/snippets/create-a-snippet) for the full snippet model and how `key` ties into Liquid. Required: id.",
+      "method": "PUT",
+      "path": "/v4/snippets/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "subscribers_create",
+      "description": "Behaves as an upsert. If a subscriber with the provided email address does not exist, it creates one with the specified first name and state. If a subscriber with the provided email address already exists, it updates the first name.\u003cbr/\u003e\u003cbr/\u003eIf you include a custom field key that does not exist on your account, the request returns an error. Use [List custom fields](/api-reference/custom-fields/list-custom-fields) to retrieve existing keys, or [Create a custom field](/api-reference/custom-fields/create-a-custom-field) to add new fields before setting them for subscribers.\u003cbr/\u003e\u003cbr/\u003e\u003cstrong\u003eNOTE:\u003c/strong\u003e Updating the subscriber state with this endpoint is not supported at this time.\u003cbr/\u003e\u003cstrong\u003eNOTE:\u003c/strong\u003e We support creating/updating a maximum of 140 custom fields at a time. Required: email_address. Optional: fields, first_name, state.",
+      "method": "POST",
+      "path": "/v4/subscribers",
+      "params": [
+        {
+          "name": "email_address",
+          "type": "string",
+          "location": "body",
+          "description": "Email address",
+          "required": true
+        },
+        {
+          "name": "fields",
+          "type": "object",
+          "location": "body",
+          "description": "Custom field values keyed by the custom field's `key` (e.g. `last_name`, not `Last Name`). Passing an unknown key returns a 422 error."
+        },
+        {
+          "name": "first_name",
+          "type": "string",
+          "location": "body",
+          "description": "First name"
+        },
+        {
+          "name": "state",
+          "type": "string",
+          "location": "body",
+          "description": "Create subscriber in this state (`active`, `bounced`, `cancelled`, `complained` or `inactive`). Defaults to `active`."
+        }
+      ]
+    },
+    {
+      "name": "subscribers_create-filter",
+      "description": "Filter subscribers based on engagement. Required: all. Returns the new SubscribersCreateFilterResponse.",
+      "method": "POST",
+      "path": "/v4/subscribers/filter",
+      "params": [
+        {
+          "name": "all",
+          "type": "array",
+          "location": "body",
+          "description": "Array of filter conditions where ALL must be met (AND logic)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "subscribers_get",
+      "description": "Get a subscriber. Required: id. Returns the SubscribersGetResponse.",
+      "method": "GET",
+      "path": "/v4/subscribers/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "subscribers_list",
+      "description": "List subscribers. Optional: after, before, created_after (plus 11 more). Returns the SubscribersListResponse.",
+      "method": "GET",
+      "path": "/v4/subscribers",
+      "params": [
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "To fetch next page of results, use `?after=\u003cend_cursor\u003e`"
+        },
+        {
+          "name": "before",
+          "type": "string",
+          "location": "query",
+          "description": "To fetch previous page of results, use `?before=\u003cstart_cursor\u003e`"
+        },
+        {
+          "name": "created_after",
+          "type": "string",
+          "location": "query",
+          "description": "Filter subscribers who have been created after this date (format yyyy-mm-dd)"
+        },
+        {
+          "name": "created_before",
+          "type": "string",
+          "location": "query",
+          "description": "Filter subscribers who have been created before this date (format yyyy-mm-dd)"
+        },
+        {
+          "name": "email_address",
+          "type": "string",
+          "location": "query",
+          "description": "Email address"
+        },
+        {
+          "name": "include",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated list of additional fields to include on each subscriber. Valid options: `attribution`, `tags`, `location`, `canceled_at`. `canceled_at` may only be used together with `status=cancelled`."
+        },
+        {
+          "name": "include_total_count",
+          "type": "bool",
+          "location": "query",
+          "description": "Set to `true` to include the `total_count` in the response."
+        },
+        {
+          "name": "per_page",
+          "type": "float",
+          "location": "query",
+          "description": "Number of results per page. Default 500, maximum 1000."
+        },
+        {
+          "name": "slim",
+          "type": "bool",
+          "location": "query",
+          "description": "When `true`, omits expensive optional fields from the response. Produces a faster, smaller response — useful when extra fields are not needed."
+        },
+        {
+          "name": "sort_field",
+          "type": "string",
+          "location": "query",
+          "description": "Sort field"
+        },
+        {
+          "name": "sort_order",
+          "type": "string",
+          "location": "query",
+          "description": "Sort order"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "query",
+          "description": "Filter subscribers who have this status (`active`, `inactive`, `bounced`, `complained`,..."
+        },
+        {
+          "name": "updated_after",
+          "type": "string",
+          "location": "query",
+          "description": "Filter subscribers who have been updated after this date (format yyyy-mm-dd)"
+        },
+        {
+          "name": "updated_before",
+          "type": "string",
+          "location": "query",
+          "description": "Filter subscribers who have been updated before this date (format yyyy-mm-dd)"
+        }
+      ]
+    },
+    {
+      "name": "subscribers_update",
+      "description": "If you include a custom field key that does not exist on your account, the request returns an error. Use [List custom fields](/api-reference/custom-fields/list-custom-fields) to retrieve existing keys, or [Create a custom field](/api-reference/custom-fields/create-a-custom-field) to add new fields before setting them for subscribers.\u003cbr/\u003e\u003cbr/\u003e\u003cstrong\u003eNOTE:\u003c/strong\u003e We support creating/updating a maximum of 140 custom fields at a time. Required: id, email_address. Optional: fields, first_name.",
+      "method": "PUT",
+      "path": "/v4/subscribers/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "email_address",
+          "type": "string",
+          "location": "body",
+          "description": "Email address",
+          "required": true
+        },
+        {
+          "name": "fields",
+          "type": "object",
+          "location": "body",
+          "description": "Custom field values keyed by the custom field's `key` (e.g. `last_name`, not `Last Name`). Passing an unknown key returns a 422 error."
+        },
+        {
+          "name": "first_name",
+          "type": "string",
+          "location": "body",
+          "description": "First name"
+        }
+      ]
+    },
+    {
+      "name": "subscribers_stats_get",
+      "description": "Retrieve email stats for a specific subscriber. You can filter the stats by providing `email_sent_after` and/or `email_sent_before` query parameters to limit the stats to emails sent within a specific date range. Note: this functionality was added in June 2025, so no data for events before that date will be included. Required: subscriber_id. Optional: email_sent_after, email_sent_before. Returns the StatsGetResponse.",
+      "method": "GET",
+      "path": "/v4/subscribers/{subscriber_id}/stats",
+      "params": [
+        {
+          "name": "email_sent_after",
+          "type": "string",
+          "location": "query",
+          "description": "Filter to stats for emails sent after this date (YYYY-MM-DD)/nNOTE: This functionality was added 2025-06-28 and will only include stats for emails sent before this date."
+        },
+        {
+          "name": "email_sent_before",
+          "type": "string",
+          "location": "query",
+          "description": "Filter to stats for emails sent before this date (YYYY-MM-DD)/nNote: this functionality was added in June 2025, so no data for events before that date will be included."
+        },
+        {
+          "name": "subscriber_id",
+          "type": "int",
+          "location": "path",
+          "description": "Subscriber id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "subscribers_tags_get",
+      "description": "List tags for a subscriber. Required: subscriber_id. Optional: after, before, include_total_count (plus 1 more). Returns the TagsGetResponse.",
+      "method": "GET",
+      "path": "/v4/subscribers/{subscriber_id}/tags",
+      "params": [
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "To fetch next page of results, use `?after=\u003cend_cursor\u003e`"
+        },
+        {
+          "name": "before",
+          "type": "string",
+          "location": "query",
+          "description": "To fetch previous page of results, use `?before=\u003cstart_cursor\u003e`"
+        },
+        {
+          "name": "include_total_count",
+          "type": "bool",
+          "location": "query",
+          "description": "Set to `true` to include the `total_count` in the response."
+        },
+        {
+          "name": "per_page",
+          "type": "string",
+          "location": "query",
+          "description": "Number of results per page. Default 500, maximum 1000."
+        },
+        {
+          "name": "subscriber_id",
+          "type": "int",
+          "location": "path",
+          "description": "Subscriber id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "subscribers_unsubscribe_create",
+      "description": "Unsubscribe subscriber. Required: id.",
+      "method": "POST",
+      "path": "/v4/subscribers/{id}/unsubscribe",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tags_create",
+      "description": "Create a tag. Required: name. Returns the new TagsCreateResponse.",
+      "method": "POST",
+      "path": "/v4/tags",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tags_list",
+      "description": "List tags. Optional: after, before, include_total_count (plus 1 more). Returns the TagsListResponse.",
+      "method": "GET",
+      "path": "/v4/tags",
+      "params": [
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "To fetch next page of results, use `?after=\u003cend_cursor\u003e`"
+        },
+        {
+          "name": "before",
+          "type": "string",
+          "location": "query",
+          "description": "To fetch previous page of results, use `?before=\u003cstart_cursor\u003e`"
+        },
+        {
+          "name": "include_total_count",
+          "type": "bool",
+          "location": "query",
+          "description": "Set to `true` to include the `total_count` in the response."
+        },
+        {
+          "name": "per_page",
+          "type": "string",
+          "location": "query",
+          "description": "Number of results per page. Default 500, maximum 1000."
+        }
+      ]
+    },
+    {
+      "name": "tags_update",
+      "description": "Update tag name. Required: id, name. Returns the updated TagsUpdateResponse.",
+      "method": "PUT",
+      "path": "/v4/tags/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tags_subscribers_create",
+      "description": "The subscriber being tagged must already exist. Subscribers can be created using the '[Create a subscriber](#create-a-subscriber)' endpoint. Required: tag_id, email_address. Returns the new SubscribersCreateResponse.",
+      "method": "POST",
+      "path": "/v4/tags/{tag_id}/subscribers",
+      "params": [
+        {
+          "name": "tag_id",
+          "type": "int",
+          "location": "path",
+          "description": "Tag id",
+          "required": true
+        },
+        {
+          "name": "email_address",
+          "type": "string",
+          "location": "body",
+          "description": "Email address",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tags_subscribers_create-tags",
+      "description": "The subscriber being tagged must already exist. Subscribers can be created using the '[Create a subscriber](#create-a-subscriber)' endpoint. Required: id, tag_id. Returns the new SubscribersCreateTagsResponse.",
+      "method": "POST",
+      "path": "/v4/tags/{tag_id}/subscribers/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "tag_id",
+          "type": "int",
+          "location": "path",
+          "description": "Tag id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tags_subscribers_delete",
+      "description": "Remove tag from subscriber by email address. Required: tag_id. Destructive.",
+      "method": "DELETE",
+      "path": "/v4/tags/{tag_id}/subscribers",
+      "params": [
+        {
+          "name": "tag_id",
+          "type": "int",
+          "location": "path",
+          "description": "Tag id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tags_subscribers_delete-tags",
+      "description": "Remove tag from subscriber. Required: id, tag_id. Destructive.",
+      "method": "DELETE",
+      "path": "/v4/tags/{tag_id}/subscribers/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "tag_id",
+          "type": "int",
+          "location": "path",
+          "description": "Tag id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tags_subscribers_get",
+      "description": "List subscribers for a tag. Required: tag_id. Optional: after, before, created_after (plus 6 more). Returns the SubscribersGetResponse.",
+      "method": "GET",
+      "path": "/v4/tags/{tag_id}/subscribers",
+      "params": [
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "To fetch next page of results, use `?after=\u003cend_cursor\u003e`"
+        },
+        {
+          "name": "before",
+          "type": "string",
+          "location": "query",
+          "description": "To fetch previous page of results, use `?before=\u003cstart_cursor\u003e`"
+        },
+        {
+          "name": "created_after",
+          "type": "string",
+          "location": "query",
+          "description": "Filter subscribers who have been created after this date (format yyyy-mm-dd)"
+        },
+        {
+          "name": "created_before",
+          "type": "string",
+          "location": "query",
+          "description": "Filter subscribers who have been created before this date (format yyyy-mm-dd)"
+        },
+        {
+          "name": "include_total_count",
+          "type": "bool",
+          "location": "query",
+          "description": "Set to `true` to include the `total_count` in the response."
+        },
+        {
+          "name": "per_page",
+          "type": "string",
+          "location": "query",
+          "description": "Number of results per page. Default 500, maximum 1000."
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "query",
+          "description": "Filter subscribers who have this status (`active`, `inactive`, `bounced`, `complained`,..."
+        },
+        {
+          "name": "tag_id",
+          "type": "int",
+          "location": "path",
+          "description": "Tag id",
+          "required": true
+        },
+        {
+          "name": "tagged_after",
+          "type": "string",
+          "location": "query",
+          "description": "Filter subscribers who have been tagged after this date (format yyyy-mm-dd)"
+        },
+        {
+          "name": "tagged_before",
+          "type": "string",
+          "location": "query",
+          "description": "Filter subscribers who have been tagged before this date (format yyyy-mm-dd)"
+        }
+      ]
+    },
+    {
+      "name": "webhooks_create",
+      "description": "Available event types:\u003cbr/\u003e- `subscriber.subscriber_activate`\u003cbr/\u003e- `subscriber.subscriber_unsubscribe`\u003cbr/\u003e- `subscriber.subscriber_bounce`\u003cbr/\u003e- `subscriber.subscriber_complain`\u003cbr/\u003e- `subscriber.form_subscribe`, required parameter `form_id` [Integer]\u003cbr/\u003e- `subscriber.course_subscribe`, required parameter `sequence_id` [Integer]\u003cbr/\u003e- `subscriber.course_complete`, required parameter `sequence_id` [Integer]\u003cbr/\u003e- `subscriber.link_click`, required parameter `initiator_value` [String] as a link URL\u003cbr/\u003e- `subscriber.product_purchase`, required parameter `product_id` [Integer]\u003cbr/\u003e- `subscriber.tag_add`, required parameter `tag_id` [Integer]\u003cbr/\u003e- `subscriber.tag_remove`, required parameter `tag_id` [Integer]\u003cbr/\u003e- `purchase.purchase_create`\u003cbr/\u003e- `custom_field.field_created`\u003cbr/\u003e- `custom_field.field_deleted`\u003cbr/\u003e- `custom_field.field_value_updated`, required parameter `custom_field_id` [Integer]. Required: event, target_url. Returns the new WebhooksCreateResponse.",
+      "method": "POST",
+      "path": "/v4/webhooks",
+      "params": [
+        {
+          "name": "event",
+          "type": "object",
+          "location": "body",
+          "description": "Event",
+          "required": true
+        },
+        {
+          "name": "target_url",
+          "type": "string",
+          "location": "body",
+          "description": "Target url",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "webhooks_delete",
+      "description": "Delete a webhook. Required: id. Destructive.",
+      "method": "DELETE",
+      "path": "/v4/webhooks/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "webhooks_list",
+      "description": "Webhooks are automations that will receive subscriber data when a subscriber event is triggered, such as when a subscriber completes a sequence.\u003cbr/\u003e\u003cbr/\u003eWhen a webhook is triggered, a `POST` request will be made to your URL with a JSON payload. Optional: after, before, include_total_count (plus 1 more). Returns the WebhooksListResponse.",
+      "method": "GET",
+      "path": "/v4/webhooks",
+      "params": [
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "To fetch next page of results, use `?after=\u003cend_cursor\u003e`"
+        },
+        {
+          "name": "before",
+          "type": "string",
+          "location": "query",
+          "description": "To fetch previous page of results, use `?before=\u003cstart_cursor\u003e`"
+        },
+        {
+          "name": "include_total_count",
+          "type": "bool",
+          "location": "query",
+          "description": "Set to `true` to include the `total_count` in the response."
+        },
+        {
+          "name": "per_page",
+          "type": "string",
+          "location": "query",
+          "description": "Number of results per page. Default 500, maximum 1000."
+        }
+      ]
+    }
+  ],
+  "intents": [
+    {
+      "name": "intent_workflow_creator_snapshot",
+      "kind": "intent",
+      "read_only": true,
+      "delegates_to": "workflow creator-snapshot",
+      "description": "Compound read-only operating snapshot for a Kit account: profile, growth stats, subscriber and tag counts, sample sequences/forms/custom fields/webhooks, and broadcast stats in a single response.",
+      "params": [
+        {"name": "starting", "type": "string", "description": "Growth-stat start date in yyyy-mm-dd format. Defaults to 90 days ago."},
+        {"name": "ending", "type": "string", "description": "Growth-stat end date in yyyy-mm-dd format. Defaults to today."},
+        {"name": "sample_size", "type": "number", "description": "Sample rows per collection (1-25, default 5)."}
+      ]
+    },
+    {
+      "name": "intent_workflow_audience_health",
+      "kind": "intent",
+      "read_only": true,
+      "delegates_to": "workflow audience-health",
+      "description": "Compound read-only audience report: subscriber status counts, recent growth stats, and largest tags by subscriber count.",
+      "params": [
+        {"name": "starting", "type": "string", "description": "Growth-stat start date in yyyy-mm-dd format."},
+        {"name": "ending", "type": "string", "description": "Growth-stat end date in yyyy-mm-dd format."},
+        {"name": "top_limit", "type": "number", "description": "Tags to inspect and rank by subscriber count (1-25, default 8)."}
+      ]
+    },
+    {
+      "name": "intent_workflow_content_inventory",
+      "kind": "intent",
+      "read_only": true,
+      "delegates_to": "workflow content-inventory",
+      "description": "Compound read-only inventory of sequences, sequence emails, snippets, forms, email templates, and recent broadcast stats.",
+      "params": [
+        {"name": "item_limit", "type": "number", "description": "Rows per content collection (1-50, default 10)."},
+        {"name": "sequence_limit", "type": "number", "description": "Sequences whose emails should be inspected (1-25, default 5)."},
+        {"name": "include_content", "type": "bool", "description": "Include sequence email body content when Kit returns it. Default false."}
+      ]
+    },
+    {
+      "name": "intent_workflow_subscriber_lookup",
+      "kind": "intent",
+      "read_only": true,
+      "delegates_to": "workflow subscriber-lookup",
+      "description": "Compound read-only subscriber dossier by email or Kit subscriber id: profile, custom fields, tags, attribution, and email engagement stats.",
+      "params": [
+        {"name": "email", "type": "string", "description": "Subscriber email address to look up. One of email or id is required."},
+        {"name": "id", "type": "string", "description": "Kit subscriber id to look up. One of email or id is required."},
+        {"name": "email_sent_after", "type": "string", "description": "Only include subscriber email stats after this yyyy-mm-dd date."},
+        {"name": "email_sent_before", "type": "string", "description": "Only include subscriber email stats before this yyyy-mm-dd date."}
+      ]
+    }
+  ]
+}

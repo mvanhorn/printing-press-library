@@ -1,6 +1,6 @@
 # SurgeGraph CLI
 
-**Every SurgeGraph workflow — research, write, publish, monitor — from the terminal or any agent, with a local SQLite that compounds week-over-week deltas the web app can't produce.**
+**SurgeGraph is the Answer Engine Optimization (AEO) platform that tracks AI citations, scores pages for citation readiness, and one-click fixes the gaps — now every workflow runs from the terminal or any agent.**
 
 SurgeGraph is an AI-search content operations cockpit. The web app shows point-in-time snapshots; this CLI keeps a local cache so you can run `visibility delta`, `prompts losers`, and `citation-domains rank-shift` over time. It compounds three split workflows — topic research, bulk writing, WordPress publishing — into a single `research gaps publish` pipeline, and ships every command as both CLI and MCP so the same agent that drafts an article can monitor the citations it generates.
 
@@ -11,26 +11,26 @@ Printed by [@ng-plentisoft](https://github.com/ng-plentisoft) (SurgeGraph Team).
 The recommended path installs both the `surgegraph-pp-cli` binary and the `pp-surgegraph` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
 
 ```bash
-npx -y @mvanhorn/printing-press install surgegraph
+npx -y @mvanhorn/printing-press-library install surgegraph
 ```
 
 For CLI only (no skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install surgegraph --cli-only
+npx -y @mvanhorn/printing-press-library install surgegraph --cli-only
 ```
 
 For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install surgegraph --skill-only
+npx -y @mvanhorn/printing-press-library install surgegraph --skill-only
 ```
 
 To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
 
 ```bash
-npx -y @mvanhorn/printing-press install surgegraph --agent claude-code
-npx -y @mvanhorn/printing-press install surgegraph --agent claude-code --agent codex
+npx -y @mvanhorn/printing-press-library install surgegraph --agent claude-code
+npx -y @mvanhorn/printing-press-library install surgegraph --agent claude-code --agent codex
 ```
 
 ### Without Node (Go fallback)

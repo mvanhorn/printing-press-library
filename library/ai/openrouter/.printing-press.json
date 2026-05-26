@@ -3,6 +3,7 @@
   "generated_at": "2026-05-09T17:28:02Z",
   "printing_press_version": "4.2.0",
   "api_name": "openrouter",
+  "display_name": "OpenRouter",
   "cli_name": "openrouter-pp-cli",
   "run_id": "20260509-165428",
   "novel_features": [
@@ -48,7 +49,7 @@
     }
   ],
   "printer": "rvdlaar",
-  "description": "Agent-first OpenRouter introspection \u2014 terse output for cron and AI agents (--agent and --llm modes), local SQLite catalog, free MCP server, per-caller cost attribution.",
+  "description": "Inspect OpenRouter models, providers, credits, activity, and cost attribution with local caching and agent-friendly output.",
   "category": "ai",
   "spec_url": "https://openrouter.ai/openapi.json",
   "printer_name": "Rick van de Laar",

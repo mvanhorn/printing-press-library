@@ -9,26 +9,26 @@ Digg is a curated AI-news leaderboard powered by tracked accounts on X and a par
 The recommended path installs both the `digg-pp-cli` binary and the `pp-digg` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
 
 ```bash
-npx -y @mvanhorn/printing-press install digg
+npx -y @mvanhorn/printing-press-library install digg
 ```
 
 For CLI only (no skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install digg --cli-only
+npx -y @mvanhorn/printing-press-library install digg --cli-only
 ```
 
 For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install digg --skill-only
+npx -y @mvanhorn/printing-press-library install digg --skill-only
 ```
 
 To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
 
 ```bash
-npx -y @mvanhorn/printing-press install digg --agent claude-code
-npx -y @mvanhorn/printing-press install digg --agent claude-code --agent codex
+npx -y @mvanhorn/printing-press-library install digg --agent claude-code
+npx -y @mvanhorn/printing-press-library install digg --agent claude-code --agent codex
 ```
 
 ### Without Node (Go fallback)
@@ -120,17 +120,26 @@ digg-pp-cli events --since 1h --type fast_climb
 # What got knocked out of the rankings overnight and Digg's own rationale for each
 digg-pp-cli replaced --since 24h
 
-
 # Top influencers tracked by Digg, ranked by Digg's score
 digg-pp-cli authors top --by influence --limit 25
-
 
 # Top AI repos by starring activity from Digg-tracked accounts
 digg-pp-cli github stars --limit 10 --json
 
+# Smart-money convergence — repos starred by >= 2 distinct AI-builder accounts
+digg-pp-cli github stars --min-starrers 2 --json
 
 # Live GitHub activity feed: who starred / committed / opened issues, in real time
 digg-pp-cli github recent --limit 20 --json
+
+# Curated emerging AI companies from the /ai/x/rankings/companies snapshot
+digg-pp-cli rankings emerging --json
+
+# Companies climbing fastest in follower count since the last snapshot
+digg-pp-cli rankings movers --direction up --json
+
+# Full company ranking (initial-HTML slice)
+digg-pp-cli rankings list --limit 20 --json
 
 ```
 
@@ -281,10 +290,18 @@ Top-level story feed (HTML page; CLI parses the embedded RSC stream)
 
 GitHub feeds Digg surfaces alongside the X-account leaderboard. Four flavors, each parsed from the embedded RSC stream.
 
-- **`digg-pp-cli github stars`** - Top AI repos ranked by starring activity from Digg-tracked accounts. Returns repo name, language, stargazers_count, recent starrer list, breakout_score, novel_score, ai_related_score, and the model's one-sentence classification.
+- **`digg-pp-cli github stars`** - Top AI repos ranked by starring activity from Digg-tracked accounts. Returns repo name, language, stargazers_count, recent starrer list, breakout_score, novel_score, ai_related_score, and the model's one-sentence classification. Flag: `--min-starrers N` filters to repos starred by >= N distinct accounts (smart-money convergence).
 - **`digg-pp-cli github new`** - Recently first-seen repos with the Digg-tracked creator/starrer who first put them on Digg's radar (event_id, event_created_at, repo_full_name, creator).
 - **`digg-pp-cli github activity`** - Top GitHub contributor leaderboard: per-author rank, contribution count, and distinct repos.
 - **`digg-pp-cli github recent`** - Live activity feed: per-event entries with the GitHub URL and the user who acted.
+
+### Rankings views
+
+Sub-views of the `/ai/x/rankings/companies` page, each parsed from a distinct section of the same RSC stream. Every command shares a schema-drift gate via `--max-skip-ratio` (default 0.10).
+
+- **`digg-pp-cli rankings emerging`** - Curated list of small AI companies (the "EMERGING STARTUPS — CURATED THIS SNAPSHOT" section). ~10 rows per snapshot. Each row carries `isEmergingStartup` (the AI judge's verdict) plus the curator's `emergingReasoning` text.
+- **`digg-pp-cli rankings movers`** - Companies whose follower count shifted most since the last snapshot. `--direction up|down|both` (default both, with direction tagged per row). ~10 rows per side.
+- **`digg-pp-cli rankings list`** - Full company ranking (the "Companies followed by the AI 2K" section). Server-paginated; returns the initial-HTML slice. `--limit` caps.
 
 ### search
 

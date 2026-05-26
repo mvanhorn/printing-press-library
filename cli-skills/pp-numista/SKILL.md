@@ -25,16 +25,18 @@ This skill drives the `numista-pp-cli` binary. **You must verify the CLI is inst
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install numista --cli-only
+   npx -y @mvanhorn/printing-press-library install numista --cli-only
    ```
 2. Verify: `numista-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
 
-If the `npx` install fails before this CLI has a public-library category, install Node or use the category-specific Go fallback after publish.
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.3 or newer):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/other/numista/cmd/numista-pp-cli@latest
+```
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
-
-This CLI wraps the Numista REST API in a Go single binary, persists every type, issuer, mint, catalogue, and collected item into a local SQLite store, and tracks the 2000-call monthly free-plan quota client-side so batches never run blind. Commands like `types series`, `collection value`, and `crawl issuer` only exist because the local cache lets the CLI compose dozens of calls into one quota-aware operation.
 
 ## When to Use This CLI
 
@@ -205,6 +207,43 @@ numista-pp-cli collection value 12345 --json --select totals.estimated_value,tot
 ```
 
 Joins your locally-cached collection against the prices table; refuses to start if remaining quota would be exceeded.
+
+### If your input is a PCGS cert
+
+Pair with [`pcgs-pp-cli`](https://github.com/mvanhorn/printing-press-library/tree/main/library/other/pcgs) when you're starting from a PCGS-graded coin and need its Numista catalogue ID (N#). PCGS is one of Numista's reference catalogues — registered as catalogue id `1856` (code `PCGS`, title "PCGS CoinFacts") — so a PCGSNo resolves to an N# in one API call with no text-match guessing.
+
+**Direct cross-walk (recommended when you have a PCGSNo).**
+
+```bash
+# 1. Get the PCGSNo from PCGS (no Numista quota cost).
+pcgs-pp-cli coin facts-cert <cert-number> --json --select PCGSNo,Name,Year
+# → e.g. {"PCGSNo":"7130","Name":"1881-S Morgan Dollar","Year":"1881"}
+
+# 2. Look up the Numista N# directly via the catalogue cross-reference.
+numista-pp-cli types search --catalogue 1856 --number 7130 \
+  --agent --select types.id,types.title
+# → {"results":{"types":[{"id":1492,"title":"1 Dollar \"Morgan Dollar\""}]}}
+```
+
+Verify the catalogue id at any time with `numista-pp-cli catalogues find pcgs` (local-only, no quota cost; requires that `numista-pp-cli catalogues` has been run at least once to populate the local cache).
+
+**Text-search fallback (no PCGSNo, or the catalogue lookup misses).** The PCGS CoinFacts reference catalogue doesn't index every cert. When `--catalogue 1856 --number <PCGSNo>` returns no types, fall back to text search:
+
+```bash
+pcgs-pp-cli coin facts-cert <cert-number> --json --select Name,Year,CountryName
+# → e.g. {"Name":"1881-S Morgan Dollar","Year":"1881","CountryName":"United States"}
+
+numista-pp-cli types search --q "morgan dollar" --issuer united-states --date 1881 \
+  --agent --select types.id,types.title
+# → top result is usually the Numista N# you want.
+```
+
+Use `--date` (Gregorian calendar year) for the year PCGS returns, not `--year` — Numista's `--year` is the year *as written on the item* (relevant for Hijri / Republican / other non-Gregorian dating on world coins; for US coins they coincide).
+
+Tips:
+
+- Issuer slugs are hyphenated (`united-states`, `south-africa`). Run `numista-pp-cli issuers find <name>` to look one up — local-only, no quota cost.
+- This CLI does NOT depend on `pcgs-pp-cli`. No shell-out, no auto-detection — install it separately when you want grade / cert / population data on the coin Numista returned.
 
 ## Auth Setup
 

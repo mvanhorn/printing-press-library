@@ -11,31 +11,37 @@ Printed by [@tmchow](https://github.com/tmchow) (Trevin Chow).
 The recommended path installs both the `emailoctopus-pp-cli` binary and the `pp-emailoctopus` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
 
 ```bash
-npx -y @mvanhorn/printing-press install emailoctopus
+npx -y @mvanhorn/printing-press-library install emailoctopus
 ```
 
 For CLI only (no skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install emailoctopus --cli-only
+npx -y @mvanhorn/printing-press-library install emailoctopus --cli-only
 ```
 
 For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install emailoctopus --skill-only
+npx -y @mvanhorn/printing-press-library install emailoctopus --skill-only
 ```
 
 To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
 
 ```bash
-npx -y @mvanhorn/printing-press install emailoctopus --agent claude-code
-npx -y @mvanhorn/printing-press install emailoctopus --agent claude-code --agent codex
+npx -y @mvanhorn/printing-press-library install emailoctopus --agent claude-code
+npx -y @mvanhorn/printing-press-library install emailoctopus --agent claude-code --agent codex
 ```
 
-### Without Node
+### Without Node (Go fallback)
 
-The generated install path is category-agnostic until this CLI is published. If `npx` is not available before publish, install Node or use the category-specific Go fallback from the public-library entry after publish.
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.3 or newer):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/marketing/emailoctopus/cmd/emailoctopus-pp-cli@latest
+```
+
+This installs the CLI only — no skill.
 
 ### Pre-built binary
 
@@ -111,18 +117,14 @@ Generate a v2 key at https://api.emailoctopus.com/developer/api-keys/create and 
 # Verify auth and reachability before doing anything else.
 emailoctopus-pp-cli doctor
 
-
 # Inventory your lists and grab the list_id you'll use below.
 emailoctopus-pp-cli lists list --json
-
 
 # Pull every list, contact, tag, field, and campaign into the local SQLite store.
 emailoctopus-pp-cli sync --full
 
-
 # Surface cold subscribers — the API has no equivalent.
 emailoctopus-pp-cli contacts engagement --list <list_id> --inactive-since 90d --json
-
 
 # Paste-ready campaign report in one command.
 emailoctopus-pp-cli campaigns digest 071f24b2-51cd-11f1-a3ce-11fd783017da --md
@@ -208,7 +210,6 @@ Run `emailoctopus-pp-cli --help` for the full command reference and flag list.
 An automation is a sequence of automated steps triggered by an event, such as when a contact subscribes to a list or is tagged.
 Automations allow you to automatically send emails, update fields, apply tags and more.
 
-
 ### campaigns
 
 A campaign is generally used to send a one-off, timely email to some or all of your subscribers. For example you may use a campaign to send the latest edition of your weekly newsletter, or to announce a new feature in your product.
@@ -225,7 +226,6 @@ A list is a collection of contacts. Every one of your contacts will exist inside
 - **`emailoctopus-pp-cli lists id-get`** - Get list
 - **`emailoctopus-pp-cli lists id-put`** - Update list
 - **`emailoctopus-pp-cli lists post`** - Create list
-
 
 ## Output Formats
 

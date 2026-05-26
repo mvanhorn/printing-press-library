@@ -1,0 +1,95 @@
+name: hotel-tonight
+display_name: HotelTonight
+category: travel
+description: "Last-minute hotel deals — geo search, deals, and markets via HotelTonight's mobile API"
+cli_description: "Last-minute hotel deals with a local price-history database no HotelTonight client has: snapshot deals over time, watch a city for drops, and rank by real % off."
+version: "0.1.0"
+base_url: "https://api.hoteltonight.com"
+
+auth:
+  type: none
+
+# HotelTonight's consumer API gates on app-identifying headers (not a token).
+# These are baked into every request by the generated client.
+required_headers:
+  - name: X-App-Platform
+    value: iphone
+  - name: X-App-Version
+    value: "2024.40"
+  - name: X-App-Country
+    value: US
+  - name: X-App-Currency
+    value: USD
+  - name: X-App-Device
+    value: iPhone
+  - name: X-App-Time-Zone
+    value: America/Los_Angeles
+
+resources:
+  inventory:
+    description: "Last-minute hotel deal inventory by location"
+    endpoints:
+      search:
+        method: GET
+        path: "/v6/inventory"
+        description: "Search last-minute hotel deals near a latitude/longitude for a date range"
+        params:
+          - name: latitude
+            type: string
+            required: true
+            description: "Latitude of the search center (e.g. 37.7749)"
+          - name: longitude
+            type: string
+            required: true
+            description: "Longitude of the search center (e.g. -122.4194)"
+          - name: check_in
+            type: string
+            description: "Check-in date YYYY-MM-DD (defaults to tonight on the server)"
+          - name: check_out
+            type: string
+            description: "Check-out date YYYY-MM-DD (defaults to tomorrow on the server)"
+          - name: rooms
+            type: int
+            description: "Number of rooms to search for"
+        response:
+          type: object
+          item: Inventory
+
+  markets:
+    description: "HotelTonight markets (cities where deals are offered)"
+    endpoints:
+      list:
+        method: GET
+        path: "/v2/market_cities"
+        description: "List HotelTonight's major markets with location, slug, and category prices"
+        response:
+          type: array
+          item: Market
+
+      get:
+        method: GET
+        path: "/v2/market_cities/{market_id}"
+        description: "Get a single market by its numeric id"
+        params:
+          - name: market_id
+            type: string
+            required: true
+            positional: true
+            description: "Numeric market city id (e.g. 1 for San Francisco, 72 for Austin)"
+        response:
+          type: object
+          item: Market
+
+      nearby:
+        method: GET
+        path: "/v2/market_cities/{market_id}/popular_market_cities"
+        description: "List popular/nearby markets for a given market id"
+        params:
+          - name: market_id
+            type: string
+            required: true
+            positional: true
+            description: "Numeric market city id to find nearby markets for"
+        response:
+          type: object
+          item: PopularMarkets

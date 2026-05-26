@@ -1,0 +1,51 @@
+version: 2
+project_name: apify-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: apify-pp-cli
+    main: ./cmd/apify-pp-cli
+    binary: apify-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/developer-tools/apify/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: apify-pp-mcp
+    main: ./cmd/apify-pp-mcp
+    binary: apify-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: apify-pp-cli
+    repository:
+      owner: kjmagnan1s
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Every Apify platform feature, plus a local SQLite store, cross-Actor search, novelty diffing, cost-aware runs, and..."
+    install: |
+      bin.install "apify-pp-cli"
+      bin.install "apify-pp-mcp"

@@ -1,0 +1,89 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-20T05:21:05.68573Z",
+  "printing_press_version": "4.9.0",
+  "api_name": "booking-com",
+  "display_name": "Booking.com",
+  "cli_name": "booking-com-pp-cli",
+  "owner": "mvanhorn",
+  "printer": "mvanhorn",
+  "printer_name": "Matt Van Horn",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:d6155f8aeff97938efedcdaadbbee4e3d426a0b8993fa8e6911ef4559f8c2398",
+  "run_id": "20260519-175228",
+  "description": "Search Booking.com hotels, scrape details and reviews, watch prices over time, and read your trips, wishlist, and Genius rewards via cookie import.",
+  "mcp_binary": "booking-com-pp-mcp",
+  "mcp_tool_count": 13,
+  "mcp_public_tool_count": 9,
+  "mcp_ready": "partial",
+  "api_version": "0.1.0",
+  "auth_type": "cookie",
+  "auth_description": "Public search, hotel detail, reviews, and destination lookup require no auth. Authenticated features (My Trips, Saved/Wishlist, Genius rewards, profile) use cookie import via `auth login --chrome` — Booking.com gates these on `bkng` session cookies plus an `aws-waf-token` cookie that clears AWS WAF.",
+  "novel_features": [
+    {
+      "name": "Cheapest-dates for one hotel",
+      "command": "prices cheapest",
+      "description": "Sweep candidate checkin dates for a fixed-night stay at one hotel and return the lowest nightly totals from local price_history."
+    },
+    {
+      "name": "Cheapest-dates for a destination",
+      "command": "prices cheapest-destination",
+      "description": "Sweep candidate checkins across a destination's top results and return the cheapest (property, date) pairs under a max-price ceiling."
+    },
+    {
+      "name": "Price-drop watch",
+      "command": "watch run",
+      "description": "Track a set of (hotel, checkin, checkout) tuples and surface only the ones whose latest price dropped a configurable percentage below their trailing median."
+    },
+    {
+      "name": "Wishlist price-drop digest",
+      "command": "wishlist drops",
+      "description": "Joins the authenticated wishlist with the local price_history and surfaces saved properties whose latest observed price is N% below the previous observation."
+    },
+    {
+      "name": "Compare two hotels side-by-side",
+      "command": "compare",
+      "description": "Fetches detail + reviews for two hotels in parallel and emits a paired struct (price, score, amenity Δ, distance, free-cancellation, breakfast, recent-review counts)."
+    },
+    {
+      "name": "Free-cancellation deadline alarm",
+      "command": "trips deadlines",
+      "description": "Walks authenticated upcoming trips, extracts the free-cancellation-until deadline from each trip detail, and returns trips whose deadline is within a configurable window."
+    },
+    {
+      "name": "Multi-leg itinerary planner",
+      "command": "trip plan",
+      "description": "Given multiple destination + date legs and a total budget, picks the cheapest property per leg whose summed nightly totals fit the budget, with a bounded combinatorial fallback when greedy busts."
+    },
+    {
+      "name": "Genius-tier price-impact estimator",
+      "command": "genius impact",
+      "description": "Runs an absorbed search twice — once with the authenticated cookie (Genius rates applied) and once anonymously — and diffs price-per-property to surface the Genius savings delta."
+    },
+    {
+      "name": "Mobile-only rate detector",
+      "command": "deals mobile-rates",
+      "description": "Re-runs an absorbed search with a Chrome mobile UA on top of the desktop call and diffs to surface mobile-only discounts Booking hides from desktop users."
+    },
+    {
+      "name": "Destination price-band by month",
+      "command": "destinations price-band",
+      "description": "Aggregates price_history for a destination's synced properties and emits per-month median, min, and max nightly rate plus contributing property-count."
+    },
+    {
+      "name": "Trips export for expense systems",
+      "command": "trips export",
+      "description": "Walks authenticated past-trip list, opens each trip detail, and emits a deterministic CSV (confirmation, property, checkin, checkout, currency, total, address) ready to paste into expense systems."
+    },
+    {
+      "name": "Offline property FTS",
+      "command": "search",
+      "description": "After `sync` populates the local property store, FTS5 ranks free-text queries over name + description + amenity strings with BM25, no network call."
+    },
+    {
+      "name": "Review stats rollup",
+      "command": "reviews stats",
+      "description": "Local SQL group-by over synced reviews; counts and median score per score-band, language, and traveler-type bucket. Mechanical, no NLP."
+    }
+  ]
+}

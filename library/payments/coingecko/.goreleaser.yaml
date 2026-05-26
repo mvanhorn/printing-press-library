@@ -45,7 +45,7 @@ brews:
       owner: hiten-shah
       name: homebrew-tap
     homepage: "https://github.com/mvanhorn/printing-press-library"
-    description: "CoinGecko public API for cryptocurrency data. Free tier, no API key required for basic endpoints."
+    description: "Fetch CoinGecko cryptocurrency prices, market data, coins, exchanges, and trend endpoints from the public API."
     install: |
       bin.install "coingecko-pp-cli"
       bin.install "coingecko-pp-mcp"

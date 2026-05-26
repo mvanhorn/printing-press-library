@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-19",
+  "base_run_id": "20260519-001814",
+  "base_printing_press_version": "4.9.0",
+  "patches": [
+    {
+      "file": "internal/cli/promoted_media.go",
+      "rationale": "NASA's /search rejects requests carrying only page/page_size; require a content param. Inject media_type=image as a default when no content filter is supplied so a bare 'media' invocation returns useful data instead of HTTP 400.",
+      "evidence": "live dogfood failure: GET /search returned HTTP 400: Expected 'q' text search parameter or other keywords."
+    },
+    {
+      "file": "internal/cli/sync.go",
+      "rationale": "Same NASA /search content-param requirement applies to framework sync targeting the media resource. Default media_type=image when no content param was supplied via --param. mirror search remains the recommended explicit populator.",
+      "evidence": "live dogfood failure on bare 'sync' and 'sync --json' invocations."
+    },
+    {
+      "file": "internal/cli/unused_in.go",
+      "rationale": "Hand-written novel command. Distinguish unknown-album invocations (zero album_members rows) from fully-downloaded albums by exiting non-zero with a usage error. Required so dogfood's error_path test passes against the invalid-arg sentinel.",
+      "evidence": "live dogfood failure: unused-in __printing_press_invalid__ returned exit 0 with empty result; error_path probes expect non-zero exit."
+    },
+    {
+      "file": "internal/cli/channel_workflow.go",
+      "rationale": "Suppress the per-resource summary line (`  media: N synced` on stderr) when --json is set so combined-output JSON consumers (dogfood json_fidelity) see only the structured response.",
+      "evidence": "live dogfood failure: workflow archive --json's combined output had a trailing prose line after the JSON object."
+    },
+    {
+      "file": "internal/cli/channel_workflow.go (additional)",
+      "rationale": "Workflow archive --json must emit a single JSON document on stdout. Sync's NDJSON event stream was writing to os.Stdout directly, polluting the document. Swap os.Stdout to /dev/null for the sync loop; restore before the summary JSON encode.",
+      "evidence": "live dogfood json_fidelity failure: combined output had 3 sync_* events on stdout preceding the summary JSON."
+    },
+    {
+      "file": "internal/cli/{nasa_shared.go, download.go, assets_best.go, captions_fetch.go, metadata_fetch.go}",
+      "rationale": "Address Greptile review (P1 + P2): direct CDN fetches now use an *http.Client honoring flags.timeout (was http.DefaultClient with no timeout). httpGetBody bounds the response body to 16 MiB via io.LimitReader to defend against misconfigured CDNs and HTML error pages.",
+      "evidence": "PR #695 Greptile review (score 3/5): P1 download.go:268-276 binary downloads bypass --timeout; P2 nasa_shared.go:202 io.ReadAll lacks size guard."
+    }
+  ]
+}

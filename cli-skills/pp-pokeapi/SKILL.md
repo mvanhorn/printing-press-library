@@ -29,7 +29,7 @@ This skill drives the `pokeapi-pp-cli` binary. **You must verify the CLI is inst
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install pokeapi --cli-only
+   npx -y @mvanhorn/printing-press-library install pokeapi --cli-only
    ```
 2. Verify: `pokeapi-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.

@@ -44,12 +44,18 @@ func ipaExtractItems(raw json.RawMessage) []map[string]any {
 		}
 	}
 
-	// Path 2: raw IPA response — data is the array
+	// Path 2: raw IPA response — data is the array or a single object.
+	// Some WS (WS18, WS19, WS22) return data as a single object when num_items=1;
+	// wrap in a slice so callers can treat all responses uniformly.
 	var ipaResp ipaEnvelopeInner
 	if json.Unmarshal(raw, &ipaResp) == nil && ipaResp.Data != nil {
 		var items []map[string]any
 		if json.Unmarshal(ipaResp.Data, &items) == nil {
 			return items
+		}
+		var item map[string]any
+		if json.Unmarshal(ipaResp.Data, &item) == nil {
+			return []map[string]any{item}
 		}
 	}
 

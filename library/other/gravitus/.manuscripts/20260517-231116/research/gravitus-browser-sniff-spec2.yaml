@@ -1,0 +1,48 @@
+name: gravitus
+description: Discovered API spec for gravitus
+version: 0.1.0
+base_url: https://gravitus.com
+spec_source: sniffed
+auth:
+    type: none
+    header: ""
+    format: ""
+    env_vars: []
+config:
+    format: toml
+    path: ~/.config/gravitus-pp-cli/config.toml
+resources:
+    users:
+        description: Operations on users
+        endpoints:
+            get_users:
+                method: GET
+                path: /users/{slug}/
+                description: Fetch structured metadata from /users/{slug}/
+                params:
+                    - name: page
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: slug
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The slug path segment
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: html
+                response_format: html
+                html_extract:
+                    mode: page
+                    link_prefixes:
+                        - /users
+                    limit: 50
+                pagination: null
+types: {}
