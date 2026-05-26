@@ -115,12 +115,10 @@ func computeFansSegment(ctx context.Context, db *sql.DB, f segmentFilters) ([]fa
 		if dateFiltered && !eligible[o.Event.ID] {
 			continue
 		}
-		if f.optedIn && !o.Fan.OptInPartners {
-			continue
-		}
-		// --min-qty is NOT applied here as a per-order filter — doing so would
-		// shrink total_spend/events_count to only the qualifying orders. It is a
-		// fan-level qualifier (g.maxQty) applied during row building below.
+		// --opted-in and --min-qty are NOT applied here as per-order filters —
+		// doing so would shrink total_spend/events_count to only the qualifying
+		// orders. Both are fan-level qualifiers (g.optedIn / g.maxQty) applied
+		// during row building below.
 		if wantEventName != "" {
 			name := strings.ToLower(o.Event.Name)
 			// Also check store event name in case the order's event name is truncated.

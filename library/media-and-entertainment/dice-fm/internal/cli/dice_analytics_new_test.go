@@ -194,6 +194,35 @@ func TestFansSegmentMinQtyAggregatesAllOrders(t *testing.T) {
 	}
 }
 
+// --opted-in qualifies a fan but must NOT reduce their total_spend/events_count
+// to only the orders where optInPartners was set — all of the fan's orders count.
+func TestFansSegmentOptedInAggregatesAllOrders(t *testing.T) {
+	s := seedStore(t, map[string]map[string]string{
+		"orders": {
+			// fanGB: an opted-in order ($100, evtA) qualifies for --opted-in, plus
+			// an order where opt-in was not set ($40, evtB). Both must count.
+			"o1": order("o1", "2026-01-10T10:00:00Z", "evtA", "Show A", fanGB, "Geo", "Brit", 10000, 0, 1, true, "London", "GB"),
+			"o2": order("o2", "2026-01-11T10:00:00Z", "evtB", "Show B", fanGB, "Geo", "Brit", 4000, 0, 1, false, "", ""),
+		},
+	})
+	rows, err := computeFansSegment(context.Background(), s.DB(), segmentFilters{optedIn: true})
+	if err != nil {
+		t.Fatalf("computeFansSegment: %v", err)
+	}
+	if len(rows) != 1 || rows[0].Email != fanGB {
+		t.Fatalf("want fanGB qualified by opted-in, got %+v", rows)
+	}
+	if !rows[0].OptedIn {
+		t.Errorf("opted_in = false, want true")
+	}
+	if rows[0].TotalSpend != 140.00 {
+		t.Errorf("total_spend = %v, want 140.00 (both orders, not just the opted-in one)", rows[0].TotalSpend)
+	}
+	if rows[0].EventsCount != 2 {
+		t.Errorf("events_count = %d, want 2 (both events, not just the opted-in one)", rows[0].EventsCount)
+	}
+}
+
 func TestFansSegmentTicketType(t *testing.T) {
 	// fanA has a "VIP" ticket; fanB has a "GA" ticket.
 	s := seedStore(t, map[string]map[string]string{
