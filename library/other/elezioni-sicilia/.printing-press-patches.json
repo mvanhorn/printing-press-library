@@ -6,8 +6,8 @@
   "patches": [
     {
       "id": "review-fixes",
-      "summary": "Fix riepilogo province aggregation, scraper default state, remove unused max(), fix watch interval warning, fix README/SKILL module paths, fix workflow archive.",
-      "reason": "Greptile P1: riepilogo overwrote PercAffluenza per-comune instead of weighted provincial average; TotaleElettori never populated. P1: ExtractScrutinioState default returned ScrutinioCompleto for unrecognized pages. P2: unused max() shadowing Go 1.21 builtin. P2: watch interval message omitted scraping overhead. Copilot: module paths pointed to library/government; workflow archive silently no-oped.",
+      "summary": "Fix riepilogo province aggregation (weighted avg + TotaleElettori + empty province table cell), scraper default state, remove unused max(), fix watch interval warning, fix module paths, fix workflow archive.",
+      "reason": "Greptile P1: riepilogo overwriting PercAffluenza per-comune; TotaleElettori never populated; table showed '%' for provinces with no data. P1: ExtractScrutinioState default returned ScrutinioCompleto. P2: unused max(). P2: watch interval omitted scraping overhead. Copilot: module paths; workflow archive silent no-op.",
       "files": [
         "internal/cli/riepilogo.go",
         "internal/scraper/scraper.go",
@@ -16,7 +16,7 @@
         "README.md",
         "SKILL.md"
       ],
-      "validated_outcome": "go build ./... passes; printing-press publish package passes all checks"
+      "validated_outcome": "go build ./... passes; all CI checks green"
     }
   ]
 }

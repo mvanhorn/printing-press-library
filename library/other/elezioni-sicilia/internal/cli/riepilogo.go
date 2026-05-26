@@ -102,7 +102,11 @@ in un riepilogo regionale strutturato.`,
 			fmt.Fprintf(cmd.OutOrStdout(), "Riepilogo Elezioni Comunali Sicilia %d\n\n", anno)
 			rows := make([][]string, len(result.Province))
 			for i, p := range result.Province {
-				rows[i] = []string{p.Provincia, fmt.Sprintf("%d", p.Comuni), p.PercAffluenza + "%"}
+				perc := "-"
+				if p.PercAffluenza != "" {
+					perc = p.PercAffluenza + "%"
+				}
+				rows[i] = []string{p.Provincia, fmt.Sprintf("%d", p.Comuni), perc}
 			}
 			return flags.printTable(cmd, []string{"PROVINCIA", "COMUNI", "% AFFLUENZA FINALE"}, rows)
 		},
