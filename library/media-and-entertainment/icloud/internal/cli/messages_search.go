@@ -153,8 +153,10 @@ func printSearchTable(cmd *cobra.Command, f *rootFlags, results []MessageRow) er
 	for _, m := range results {
 		date := m.Date.Format("2006-01-02 15:04")
 		text := m.Text
-		if len(text) > 100 {
-			text = text[:100] + "..."
+		// PATCH(messages-preview-rune-aware-truncate): slice at rune boundaries
+		// so emoji and CJK rows don't display as mojibake at the cell boundary.
+		if runes := []rune(text); len(runes) > 100 {
+			text = string(runes[:100]) + "..."
 		}
 		fmt.Fprintf(w, "%s\t%s\t%s\t%s\n",
 			date, senderLabel(m), displayChat(m), text,

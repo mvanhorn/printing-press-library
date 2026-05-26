@@ -76,6 +76,12 @@
       "summary": "checkMessagesSchema additionally probes chat_message_join and message_attachment_join.",
       "reason": "Every messages query joins chat_message_join, and `messages export` additionally touches message_attachment_join. A stripped or very old chat.db can be missing either without missing the primary tables, which made doctor report 'schema valid' but the first real query fail. Greptile G5 on PR #766.",
       "files": ["internal/cli/doctor.go"]
+    },
+    {
+      "id": "messages-preview-rune-aware-truncate",
+      "summary": "fillLastPreviews and printSearchTable slice text via []rune so previews don't split multi-byte UTF-8 runes at the truncation boundary.",
+      "reason": "Byte-index truncation (text[:maxLen]) on emoji or CJK previews left a half rune at the end, which both JSON encoders and terminals render as U+FFFD mojibake. Rune-aware slicing keeps the cut at a glyph boundary. Greptile P1 on PR #766.",
+      "files": ["internal/cli/messages_db.go", "internal/cli/messages_search.go"]
     }
   ]
 }

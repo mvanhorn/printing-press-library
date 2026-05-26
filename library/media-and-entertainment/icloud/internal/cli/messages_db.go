@@ -395,8 +395,12 @@ func fillLastPreviews(db *sql.DB, chats []ChatRow, maxLen int) error {
 		if text == "" {
 			continue
 		}
-		if maxLen > 0 && len(text) > maxLen {
-			text = text[:maxLen] + "..."
+		// PATCH(messages-preview-rune-aware-truncate): slice at rune boundaries
+		// so emoji and CJK previews don't end on a half rune and emit �.
+		if maxLen > 0 {
+			if runes := []rune(text); len(runes) > maxLen {
+				text = string(runes[:maxLen]) + "..."
+			}
 		}
 		chats[i].LastPreview = text
 	}
