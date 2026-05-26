@@ -1,0 +1,10 @@
+{
+  "name": "notebooklm-pp-cli",
+  "display_name": "NotebookLM",
+  "description": "Query and manage Google NotebookLM notebooks from the terminal",
+  "version": "1.0.0",
+  "api_name": "notebooklm",
+  "auth_type": "cookie",
+  "transport": "subprocess",
+  "subprocess_binary": "nlm"
+}

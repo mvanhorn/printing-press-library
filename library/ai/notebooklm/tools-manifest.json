@@ -1,0 +1,119 @@
+{
+  "api_name": "notebooklm",
+  "base_url": "subprocess:nlm",
+  "description": "Query and manage Google NotebookLM notebooks from the terminal",
+  "mcp_ready": "none",
+  "http_transport": "subprocess",
+  "auth": {
+    "type": "cookie",
+    "env_vars": [],
+    "setup_command": "nlm login",
+    "session_lifetime": "20m"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "notebooks_list",
+      "description": "List all NotebookLM notebooks with ID, title, and source count.",
+      "subcommand": "notebooks list",
+      "params": []
+    },
+    {
+      "name": "notebooks_get",
+      "description": "Get notebook details including source list. Required: notebook-id.",
+      "subcommand": "notebooks get",
+      "params": [{"name": "notebook-id", "type": "string", "required": true, "positional": true}]
+    },
+    {
+      "name": "notebooks_create",
+      "description": "Create a new notebook. Required: title.",
+      "subcommand": "notebooks create",
+      "params": [{"name": "title", "type": "string", "required": true, "positional": true}]
+    },
+    {
+      "name": "notebooks_describe",
+      "description": "Get AI-generated summary and suggested topics for a notebook. Required: notebook-id.",
+      "subcommand": "notebooks describe",
+      "params": [{"name": "notebook-id", "type": "string", "required": true, "positional": true}]
+    },
+    {
+      "name": "query",
+      "description": "Ask a question against a notebook's sources. Required: notebook-id, question.",
+      "subcommand": "query",
+      "params": [
+        {"name": "notebook-id", "type": "string", "required": true, "positional": true},
+        {"name": "question", "type": "string", "required": true, "positional": true}
+      ]
+    },
+    {
+      "name": "cross_query",
+      "description": "Query across multiple notebooks with aggregated citations. Required: question.",
+      "subcommand": "cross-query",
+      "params": [
+        {"name": "question", "type": "string", "required": true, "positional": true},
+        {"name": "notebooks", "type": "string", "required": false, "flag": "--notebooks"}
+      ]
+    },
+    {
+      "name": "sources_list",
+      "description": "List sources in a notebook. Required: notebook-id.",
+      "subcommand": "sources list",
+      "params": [{"name": "notebook-id", "type": "string", "required": true, "positional": true}]
+    },
+    {
+      "name": "sources_add",
+      "description": "Add a source to a notebook (URL, text, file, or Drive doc). Required: notebook-id, one of --url/--text/--file/--drive.",
+      "subcommand": "sources add",
+      "params": [
+        {"name": "notebook-id", "type": "string", "required": true, "positional": true},
+        {"name": "url", "type": "string", "required": false, "flag": "--url"},
+        {"name": "text", "type": "string", "required": false, "flag": "--text"},
+        {"name": "file", "type": "string", "required": false, "flag": "--file"},
+        {"name": "drive", "type": "string", "required": false, "flag": "--drive"}
+      ]
+    },
+    {
+      "name": "sources_content",
+      "description": "Get raw text content of a source. Required: source-id.",
+      "subcommand": "sources content",
+      "params": [{"name": "source-id", "type": "string", "required": true, "positional": true}]
+    },
+    {
+      "name": "sync",
+      "description": "Cache notebook source content to local SQLite for offline full-text search.",
+      "subcommand": "sync",
+      "params": [{"name": "notebook", "type": "string", "required": false, "flag": "--notebook"}]
+    },
+    {
+      "name": "search",
+      "description": "Full-text search across synced notebook data. Required: query. Run sync first.",
+      "subcommand": "search",
+      "params": [{"name": "query", "type": "string", "required": true, "positional": true}]
+    },
+    {
+      "name": "studio_create",
+      "description": "Create a studio artifact (audio, video, report, slides, etc). Required: notebook-id, --type.",
+      "subcommand": "studio create",
+      "params": [
+        {"name": "notebook-id", "type": "string", "required": true, "positional": true},
+        {"name": "type", "type": "string", "required": true, "flag": "--type"}
+      ]
+    },
+    {
+      "name": "research_start",
+      "description": "Start a research task (fast or deep mode). Required: notebook-id, query.",
+      "subcommand": "research start",
+      "params": [
+        {"name": "notebook-id", "type": "string", "required": true, "positional": true},
+        {"name": "query", "type": "string", "required": true, "positional": true},
+        {"name": "mode", "type": "string", "required": false, "flag": "--mode"}
+      ]
+    },
+    {
+      "name": "doctor",
+      "description": "Health check: verify nlm binary, auth status, and database accessibility.",
+      "subcommand": "doctor",
+      "params": []
+    }
+  ]
+}

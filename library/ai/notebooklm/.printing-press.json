@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-25T20:00:00Z",
+  "printing_press_version": "4.9.0",
+  "api_name": "notebooklm",
+  "display_name": "NotebookLM",
+  "cli_name": "notebooklm-pp-cli",
+  "owner": "markimus",
+  "printer": "mhintz1980",
+  "printer_name": "Markimus",
+  "spec_path": "spec.yaml",
+  "spec_format": "plan",
+  "run_id": "20260525-200000",
+  "mcp_binary": "notebooklm-pp-mcp",
+  "mcp_tool_count": 0,
+  "mcp_ready": "none",
+  "api_version": "0.1.0",
+  "auth_type": "cookie",
+  "auth_env_vars": [],
+  "transport": "subprocess",
+  "subprocess_binary": "nlm",
+  "subprocess_install": "pipx install notebooklm-mcp-cli",
+  "novel_features": [
+    {
+      "name": "sync",
+      "description": "Cache notebook source content to local SQLite with FTS5 full-text search for instant offline queries",
+      "commands": ["sync", "search"]
+    },
+    {
+      "name": "cross-notebook-query",
+      "description": "Query across multiple notebooks with aggregated citations",
+      "commands": ["cross-query"]
+    },
+    {
+      "name": "agent-mode",
+      "description": "Consistent --agent flag providing JSON + compact + non-interactive output for automated agents",
+      "commands": []
+    },
+    {
+      "name": "doctor",
+      "description": "Health check verifying nlm binary, auth status, and database accessibility",
+      "commands": ["doctor"]
+    }
+  ]
+}
