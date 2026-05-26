@@ -60,7 +60,9 @@ func runWatch(cmd *cobra.Command, flags *rootFlags, interval time.Duration, once
 		if state == nil || state.LastHistoryID == "" {
 			return usageErr(fmt.Errorf("watch: no Gmail history checkpoint; run bootstrap first"))
 		}
-		delta, err := gc.ListHistory(cmd.Context(), state.LastHistoryID, "")
+		// ListHistoryAll walks pagination; ListHistory alone would drop
+		// pages 2+ permanently because the checkpoint advances past them.
+		delta, err := gc.ListHistoryAll(cmd.Context(), state.LastHistoryID)
 		if err != nil {
 			if gmail.IsHistoryExpired(err) {
 				fmt.Fprintln(cmd.ErrOrStderr(), "watch: history expired; run bootstrap to reset the checkpoint")
@@ -180,7 +182,6 @@ func watchEventMatchesFilter(labels []string, filter string) bool {
 	if strings.HasPrefix(strings.ToLower(filter), "label:") {
 		want := strings.TrimSpace(strings.TrimPrefix(strings.ToLower(filter), "label:"))
 		return watchLabelsContain(labels, want)
-	}
 	}
 	return true
 }

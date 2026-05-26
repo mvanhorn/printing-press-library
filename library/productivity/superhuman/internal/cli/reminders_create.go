@@ -97,18 +97,27 @@ reminder if a reply arrives first.`,
 				// Step 1: read the thread so we can populate messageIds on
 				// the reminder value. Empty/missing messageIds causes the
 				// backend's reminder validator to reject the write with 400.
-				readBody := map[string]any{
-					"reads": []map[string]any{
-						{"path": fmt.Sprintf("users/%s/threads/%s", providerID, bodyThreadId)},
-					},
-				}
-				readData, _, rerr := c.Post("/v3/userdata.read", readBody)
-				if rerr != nil {
-					return classifyAPIError(fmt.Errorf("reminders create: read thread: %w", rerr), flags)
-				}
-				messageIDs, mErr := extractThreadMessageIDs(readData)
-				if mErr != nil {
-					return apiErr(fmt.Errorf("reminders create: extract messageIds from thread %s: %w", bodyThreadId, mErr))
+				// Skipped under --dry-run so no network call fires; the
+				// preview body carries a placeholder string in place of the
+				// real message ids.
+				var messageIDs []string
+				if flags.dryRun {
+					messageIDs = []string{"<dry-run: messageIds resolved from /v3/userdata.read in live mode>"}
+				} else {
+					readBody := map[string]any{
+						"reads": []map[string]any{
+							{"path": fmt.Sprintf("users/%s/threads/%s", providerID, bodyThreadId)},
+						},
+					}
+					readData, _, rerr := c.Post("/v3/userdata.read", readBody)
+					if rerr != nil {
+						return classifyAPIError(fmt.Errorf("reminders create: read thread: %w", rerr), flags)
+					}
+					ids, mErr := extractThreadMessageIDs(readData)
+					if mErr != nil {
+						return apiErr(fmt.Errorf("reminders create: extract messageIds from thread %s: %w", bodyThreadId, mErr))
+					}
+					messageIDs = ids
 				}
 				body = map[string]any{
 					"writes": []map[string]any{

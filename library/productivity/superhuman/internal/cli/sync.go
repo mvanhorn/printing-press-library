@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/spf13/cobra"
+	"io"
 	"net/url"
 	"os"
 	"regexp"
@@ -16,6 +17,18 @@ import (
 	"sync"
 	"sync/atomic"
 	"time"
+)
+
+// syncStdout and syncStderr are the writers used by syncResource and its
+// stdout/stderr emissions. Defaults route to the real os.Stdout /
+// os.Stderr; runSyncResourceQuiet (autorefresh path) swaps them under
+// syncOutputMu to a discard sink instead of swapping the process-global
+// os.Stdout / os.Stderr pointers. This bounds the redirect to the
+// goroutine inside the mutex and leaves any concurrent writer to the
+// real os.Stdout / os.Stderr untouched.
+var (
+	syncStdout io.Writer = os.Stdout
+	syncStderr io.Writer = os.Stderr
 )
 
 // unresolvedPathKeyRE matches `{key}` placeholders left in a sync path
@@ -147,7 +160,7 @@ Exit codes & warnings:
 						}
 					}
 				} else if humanFriendly {
-					fmt.Fprintln(os.Stderr, "warning: --latest-only ignored because --since is set; --since takes precedence")
+					fmt.Fprintln(syncStderr, "warning: --latest-only ignored because --since is set; --since takes precedence")
 				}
 			}
 			// effectiveLatestOnly drives the max_pages_cap_hit suppression
@@ -209,7 +222,7 @@ Exit codes & warnings:
 			for res := range results {
 				if res.Err != nil {
 					if humanFriendly {
-						fmt.Fprintf(os.Stderr, "  %s: error: %v\n", res.Resource, res.Err)
+						fmt.Fprintf(syncStderr, "  %s: error: %v\n", res.Resource, res.Err)
 					}
 					errCount++
 					if criticalResources[res.Resource] {
@@ -217,12 +230,12 @@ Exit codes & warnings:
 					}
 				} else if res.Warn != nil {
 					if humanFriendly {
-						fmt.Fprintf(os.Stderr, "  %s: warning: %v\n", res.Resource, res.Warn)
+						fmt.Fprintf(syncStderr, "  %s: warning: %v\n", res.Resource, res.Warn)
 					}
 					warnCount++
 				} else {
 					if humanFriendly {
-						fmt.Fprintf(os.Stderr, "  %s: %d synced (done)\n", res.Resource, res.Count)
+						fmt.Fprintf(syncStderr, "  %s: %d synced (done)\n", res.Resource, res.Count)
 					}
 					totalSynced += res.Count
 					successCount++
@@ -233,14 +246,14 @@ Exit codes & warnings:
 			totalResources := successCount + warnCount + errCount
 			if humanFriendly {
 				if warnCount > 0 {
-					fmt.Fprintf(os.Stderr, "Sync complete: %d records across %d resources (%d warned, %.1fs)\n",
+					fmt.Fprintf(syncStderr, "Sync complete: %d records across %d resources (%d warned, %.1fs)\n",
 						totalSynced, totalResources, warnCount, elapsed.Seconds())
 				} else {
-					fmt.Fprintf(os.Stderr, "Sync complete: %d records across %d resources (%.1fs)\n",
+					fmt.Fprintf(syncStderr, "Sync complete: %d records across %d resources (%.1fs)\n",
 						totalSynced, totalResources, elapsed.Seconds())
 				}
 			} else {
-				fmt.Fprintf(os.Stdout, `{"event":"sync_summary","total_records":%d,"resources":%d,"success":%d,"warned":%d,"errored":%d,"duration_ms":%d}`+"\n",
+				fmt.Fprintf(syncStdout, `{"event":"sync_summary","total_records":%d,"resources":%d,"success":%d,"warned":%d,"errored":%d,"duration_ms":%d}`+"\n",
 					totalSynced, totalResources, successCount, warnCount, errCount, elapsed.Milliseconds())
 			}
 
@@ -270,10 +283,10 @@ Exit codes & warnings:
 			if errCount > 0 && !strict && criticalErrCount == 0 && successCount > 0 {
 				if !humanFriendly {
 					msg := fmt.Sprintf("%d resource(s) failed but exit code is 0 because the new default treats non-critical failures as warnings. Pass --strict to restore the old behavior, or annotate critical resources with x-critical: true. See CHANGELOG.", errCount)
-					fmt.Fprintf(os.Stdout, `{"event":"sync_warning","reason":"exit_policy_default_changed","errored":%d,"message":"%s"}`+"\n",
+					fmt.Fprintf(syncStdout, `{"event":"sync_warning","reason":"exit_policy_default_changed","errored":%d,"message":"%s"}`+"\n",
 						errCount, strings.ReplaceAll(msg, `"`, `\"`))
 				} else {
-					fmt.Fprintf(os.Stderr, "warning: %d resource(s) failed but exit code is 0 because the new default treats non-critical failures as warnings. Pass --strict to restore the old behavior, or annotate critical resources with x-critical: true.\n", errCount)
+					fmt.Fprintf(syncStderr, "warning: %d resource(s) failed but exit code is 0 because the new default treats non-critical failures as warnings. Pass --strict to restore the old behavior, or annotate critical resources with x-critical: true.\n", errCount)
 				}
 			}
 			return nil
@@ -305,7 +318,7 @@ func syncResource(c interface {
 	started := time.Now()
 
 	if !humanFriendly {
-		fmt.Fprintf(os.Stdout, `{"event":"sync_start","resource":"%s"}`+"\n", resource)
+		fmt.Fprintf(syncStdout, `{"event":"sync_start","resource":"%s"}`+"\n", resource)
 	}
 
 	path, err := syncResourcePath(resource)
@@ -337,9 +350,9 @@ func syncResource(c interface {
 				Message:  fmt.Sprintf("path %s requires parent context (%s); resource skipped", path, strings.Join(missingKeys, ", ")),
 			}
 			payloadJSON, _ := json.Marshal(payload)
-			fmt.Fprintf(os.Stdout, "%s\n", payloadJSON)
+			fmt.Fprintf(syncStdout, "%s\n", payloadJSON)
 		} else {
-			fmt.Fprintf(os.Stderr, "  %s skipped (requires parent context: %s)\n",
+			fmt.Fprintf(syncStderr, "  %s skipped (requires parent context: %s)\n",
 				resource, strings.Join(missingKeys, ", "))
 		}
 		return syncResult{
@@ -369,9 +382,9 @@ func syncResource(c interface {
 	// when the user expected incremental behavior.
 	if effectiveSince != "" && sinceParam == "" {
 		if humanFriendly {
-			fmt.Fprintf(os.Stderr, "  %s: incremental sync ignored (endpoint declares no temporal filter; falling back to full pagination)\n", resource)
+			fmt.Fprintf(syncStderr, "  %s: incremental sync ignored (endpoint declares no temporal filter; falling back to full pagination)\n", resource)
 		} else {
-			fmt.Fprintf(os.Stdout, `{"event":"sync_warning","resource":"%s","reason":"resource_not_incremental","message":"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource"}`+"\n", resource)
+			fmt.Fprintf(syncStdout, `{"event":"sync_warning","resource":"%s","reason":"resource_not_incremental","message":"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource"}`+"\n", resource)
 		}
 		effectiveSince = ""
 	}
@@ -419,13 +432,13 @@ func syncResource(c interface {
 		if err != nil {
 			if w, ok := isSyncAccessWarning(err); ok {
 				if !humanFriendly {
-					fmt.Fprintf(os.Stdout, `{"event":"sync_warning","resource":"%s","status":%d,"reason":"%s","message":"%s"}`+"\n",
+					fmt.Fprintf(syncStdout, `{"event":"sync_warning","resource":"%s","status":%d,"reason":"%s","message":"%s"}`+"\n",
 						resource, w.Status, w.Reason, strings.ReplaceAll(w.Message, `"`, `\"`))
 				}
 				return syncResult{Resource: resource, Count: totalCount, Warn: fmt.Errorf("skipped %s: %s", resource, w.Reason), Duration: time.Since(started)}
 			}
 			if !humanFriendly {
-				fmt.Fprintln(os.Stdout, syncErrorJSON(resource, "", err))
+				fmt.Fprintln(syncStdout, syncErrorJSON(resource, "", err))
 			}
 			return syncResult{Resource: resource, Count: totalCount, Err: fmt.Errorf("fetching %s: %w", resource, err), Duration: time.Since(started)}
 		}
@@ -441,7 +454,7 @@ func syncResource(c interface {
 			// Single object response - try to store as-is
 			if err := upsertSingleObject(db, resource, data); err != nil {
 				if !humanFriendly {
-					fmt.Fprintln(os.Stdout, syncErrorJSON(resource, "", err))
+					fmt.Fprintln(syncStdout, syncErrorJSON(resource, "", err))
 				}
 				return syncResult{Resource: resource, Err: err, Duration: time.Since(started)}
 			}
@@ -463,7 +476,7 @@ func syncResource(c interface {
 		stored, extractFailures, err := upsertResourceBatch(db, resource, items)
 		if err != nil {
 			if !humanFriendly {
-				fmt.Fprintln(os.Stdout, syncErrorJSON(resource, "", err))
+				fmt.Fprintln(syncStdout, syncErrorJSON(resource, "", err))
 			}
 			return syncResult{Resource: resource, Count: totalCount, Err: fmt.Errorf("upserting batch for %s: %w", resource, err), Duration: time.Since(started)}
 		}
@@ -478,9 +491,9 @@ func syncResource(c interface {
 		// pattern, or an unrecognized primary-key field name.
 		if len(items) > 0 && stored == 0 {
 			if humanFriendly {
-				fmt.Fprintf(os.Stderr, "warning: %s returned %d items but stored 0 — the local store will be empty for this resource. Likely cause: scalar item shape rather than objects with extractable IDs.\n", resource, len(items))
+				fmt.Fprintf(syncStderr, "warning: %s returned %d items but stored 0 — the local store will be empty for this resource. Likely cause: scalar item shape rather than objects with extractable IDs.\n", resource, len(items))
 			} else {
-				fmt.Fprintf(os.Stdout, `{"event":"sync_anomaly","resource":"%s","consumed":%d,"stored":0,"reason":"all_items_failed_id_extraction"}`+"\n", resource, len(items))
+				fmt.Fprintf(syncStdout, `{"event":"sync_anomaly","resource":"%s","consumed":%d,"stored":0,"reason":"all_items_failed_id_extraction"}`+"\n", resource, len(items))
 			}
 			anomalyEmitted = true
 		} else if extractFailures > 0 && !anomalyEmitted {
@@ -489,9 +502,9 @@ func syncResource(c interface {
 			// sync run so users see the first occurrence of silent drops
 			// instead of waiting for total failure.
 			if humanFriendly {
-				fmt.Fprintf(os.Stderr, "\nwarning: %s had %d item(s) on this page with no extractable primary key — those rows were dropped silently. Annotate the spec with x-resource-id to fix.\n", resource, extractFailures)
+				fmt.Fprintf(syncStderr, "\nwarning: %s had %d item(s) on this page with no extractable primary key — those rows were dropped silently. Annotate the spec with x-resource-id to fix.\n", resource, extractFailures)
 			} else {
-				fmt.Fprintf(os.Stdout, `{"event":"sync_anomaly","resource":"%s","consumed":%d,"stored":%d,"count":%d,"reason":"primary_key_unresolved"}`+"\n", resource, len(items), stored, extractFailures)
+				fmt.Fprintf(syncStdout, `{"event":"sync_anomaly","resource":"%s","consumed":%d,"stored":%d,"count":%d,"reason":"primary_key_unresolved"}`+"\n", resource, len(items), stored, extractFailures)
 			}
 			anomalyEmitted = true
 		}
@@ -503,22 +516,22 @@ func syncResource(c interface {
 		currentRate := c.RateLimit()
 		if humanFriendly {
 			if currentRate > 0 {
-				fmt.Fprintf(os.Stderr, "\r  %s: %d synced [%.1f req/s]", resource, atomic.LoadInt64(&progressCount), currentRate)
+				fmt.Fprintf(syncStderr, "\r  %s: %d synced [%.1f req/s]", resource, atomic.LoadInt64(&progressCount), currentRate)
 			} else {
-				fmt.Fprintf(os.Stderr, "\r  %s: %d synced", resource, atomic.LoadInt64(&progressCount))
+				fmt.Fprintf(syncStderr, "\r  %s: %d synced", resource, atomic.LoadInt64(&progressCount))
 			}
 		} else {
 			if currentRate > 0 {
-				fmt.Fprintf(os.Stdout, `{"event":"sync_progress","resource":"%s","fetched":%d,"rate_rps":%.1f}`+"\n", resource, atomic.LoadInt64(&progressCount), currentRate)
+				fmt.Fprintf(syncStdout, `{"event":"sync_progress","resource":"%s","fetched":%d,"rate_rps":%.1f}`+"\n", resource, atomic.LoadInt64(&progressCount), currentRate)
 			} else {
-				fmt.Fprintf(os.Stdout, `{"event":"sync_progress","resource":"%s","fetched":%d}`+"\n", resource, atomic.LoadInt64(&progressCount))
+				fmt.Fprintf(syncStdout, `{"event":"sync_progress","resource":"%s","fetched":%d}`+"\n", resource, atomic.LoadInt64(&progressCount))
 			}
 		}
 
 		// Save cursor after each page for resumability
 		if err := db.SaveSyncState(resource, nextCursor, totalCount); err != nil {
 			// Non-fatal: log and continue
-			fmt.Fprintf(os.Stderr, "\nwarning: failed to save sync state for %s: %v\n", resource, err)
+			fmt.Fprintf(syncStderr, "\nwarning: failed to save sync state for %s: %v\n", resource, err)
 		}
 
 		pagesFetched++
@@ -531,9 +544,9 @@ func syncResource(c interface {
 		if maxPages > 0 && pagesFetched >= maxPages {
 			if !latestOnly {
 				if humanFriendly {
-					fmt.Fprintf(os.Stderr, "\n  %s: reached --max-pages limit (%d pages, %d items)\n", resource, maxPages, totalCount)
+					fmt.Fprintf(syncStderr, "\n  %s: reached --max-pages limit (%d pages, %d items)\n", resource, maxPages, totalCount)
 				} else {
-					fmt.Fprintf(os.Stdout, `{"event":"sync_warning","resource":"%s","reason":"max_pages_cap_hit","message":"reached --max-pages cap of %d; data may be truncated. Re-run with --max-pages 0 (unlimited) or higher to verify."}`+"\n", resource, maxPages)
+					fmt.Fprintf(syncStdout, `{"event":"sync_warning","resource":"%s","reason":"max_pages_cap_hit","message":"reached --max-pages cap of %d; data may be truncated. Re-run with --max-pages 0 (unlimited) or higher to verify."}`+"\n", resource, maxPages)
 				}
 			}
 			break
@@ -547,9 +560,9 @@ func syncResource(c interface {
 		// non-empty cursor on its own.
 		if nextCursor != "" && nextCursor == lastNextCursor {
 			if humanFriendly {
-				fmt.Fprintf(os.Stderr, "\n  %s: API returned the same next cursor across two pages; aborting to prevent budget waste.\n", resource)
+				fmt.Fprintf(syncStderr, "\n  %s: API returned the same next cursor across two pages; aborting to prevent budget waste.\n", resource)
 			} else {
-				fmt.Fprintf(os.Stdout, `{"event":"sync_warning","resource":"%s","reason":"stuck_pagination","message":"API returned the same next cursor across two pages for resource %s; aborting to prevent budget waste."}`+"\n", resource, resource)
+				fmt.Fprintf(syncStdout, `{"event":"sync_warning","resource":"%s","reason":"stuck_pagination","message":"API returned the same next cursor across two pages for resource %s; aborting to prevent budget waste."}`+"\n", resource, resource)
 			}
 			break
 		}
@@ -575,14 +588,14 @@ func syncResource(c interface {
 	// controlled repro.
 	if consumedTotal > 0 && totalCount == 0 && extractFailureTotal < consumedTotal {
 		if humanFriendly {
-			fmt.Fprintf(os.Stderr, "\nwarning: %s consumed %d items, extracted %d primary keys, but stored 0 rows — extraction succeeded yet nothing landed. Investigate FTS triggers / transaction rollback / encoding.\n", resource, consumedTotal, consumedTotal-extractFailureTotal)
+			fmt.Fprintf(syncStderr, "\nwarning: %s consumed %d items, extracted %d primary keys, but stored 0 rows — extraction succeeded yet nothing landed. Investigate FTS triggers / transaction rollback / encoding.\n", resource, consumedTotal, consumedTotal-extractFailureTotal)
 		} else {
-			fmt.Fprintf(os.Stdout, `{"event":"sync_anomaly","resource":"%s","consumed":%d,"stored":0,"extract_failures":%d,"reason":"stored_count_zero_after_extraction"}`+"\n", resource, consumedTotal, extractFailureTotal)
+			fmt.Fprintf(syncStdout, `{"event":"sync_anomaly","resource":"%s","consumed":%d,"stored":0,"extract_failures":%d,"reason":"stored_count_zero_after_extraction"}`+"\n", resource, consumedTotal, extractFailureTotal)
 		}
 	}
 
 	if !humanFriendly {
-		fmt.Fprintf(os.Stdout, `{"event":"sync_complete","resource":"%s","total":%d,"duration_ms":%d}`+"\n", resource, totalCount, time.Since(started).Milliseconds())
+		fmt.Fprintf(syncStdout, `{"event":"sync_complete","resource":"%s","total":%d,"duration_ms":%d}`+"\n", resource, totalCount, time.Since(started).Milliseconds())
 	}
 
 	return syncResult{Resource: resource, Count: totalCount, Duration: time.Since(started)}

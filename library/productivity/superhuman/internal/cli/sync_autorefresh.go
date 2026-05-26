@@ -7,7 +7,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"os"
+	"io"
 	"sync"
 	"time"
 
@@ -116,47 +116,30 @@ func runSuperhumanBackendRefreshImpl(ctx context.Context, flags *rootFlags) (Bac
 	return out, nil
 }
 
-// syncOutputMu serializes runSyncResourceQuiet so concurrent calls don't
-// race on the os.Stdout / os.Stderr swap. The CLI's autorefresh path only
-// ever calls this from a single goroutine in PersistentPreRunE, but the
-// mutex makes the global-pointer swap defensive against any future
-// concurrent caller.
+// syncOutputMu serializes runSyncResourceQuiet so concurrent autorefresh
+// invocations don't race on the package-local writer swap.
 var syncOutputMu sync.Mutex
 
-// PATCH(greptile-quiet-stdout): replacing process-global os.Stdout / os.Stderr
-// is unsafe in the presence of concurrent writers. The CLI's autorefresh path
-// is single-goroutine so the bounded-blast-radius case applies here, but the
-// safer fix is to avoid the global swap entirely. syncResource writes via
-// fmt.Fprintf(os.Stdout, ...) so a writer-parameter refactor is required;
-// that refactor is large because syncResource is shared with the user-facing
-// `sync` command. Until that ships, this helper:
-//
-//   1. Holds syncOutputMu for the entire swap, so no other autorefresh call
-//      can run concurrently.
-//   2. Honors any in-flight write that races with the swap by returning the
-//      result without redirecting if os.OpenFile fails.
-//   3. Restores os.Stdout / os.Stderr before returning even if fn panics.
-//
-// If concurrent writers ever exist in this process (e.g. a future `watch`
-// background goroutine inside the same command invocation), this helper
-// MUST be replaced with a writer-parameter version of syncResource before
-// the new call site lands.
+// PATCH(greptile-quiet-stdout): the prior implementation swapped the
+// process-global os.Stdout / os.Stderr pointers to /dev/null while
+// syncResource ran. That affected every goroutine in the process — any
+// concurrent logger, signal-handler, or parent-command write also went
+// to /dev/null during the window. The fix routes syncResource's output
+// through package-local writers (sync.go: syncStdout / syncStderr) that
+// default to the real os.Stdout / os.Stderr, and this helper swaps only
+// those writers. Concurrent writers to the real os.Stdout / os.Stderr
+// are unaffected.
 func runSyncResourceQuiet(fn func() syncResult) (result syncResult) {
 	syncOutputMu.Lock()
 	defer syncOutputMu.Unlock()
 
-	oldStdout := os.Stdout
-	oldStderr := os.Stderr
-	devNull, err := os.OpenFile(os.DevNull, os.O_WRONLY, 0)
-	if err != nil {
-		return fn()
-	}
-	defer devNull.Close()
-	os.Stdout = devNull
-	os.Stderr = devNull
+	prevStdout := syncStdout
+	prevStderr := syncStderr
+	syncStdout = io.Discard
+	syncStderr = io.Discard
 	defer func() {
-		os.Stdout = oldStdout
-		os.Stderr = oldStderr
+		syncStdout = prevStdout
+		syncStderr = prevStderr
 	}()
 	return fn()
 }
@@ -185,7 +168,10 @@ func runGmailHistoryRefreshImpl(ctx context.Context, flags *rootFlags) (GmailHis
 	}
 
 	gc := gmail.New(acct.Store, acct.Email, acct.GoogleID, acct.AccessToken)
-	delta, err := gc.ListHistory(ctx, state.LastHistoryID, "")
+	// ListHistoryAll walks pagination; ListHistory alone would drop
+	// pages 2+ permanently because the checkpoint advances to the current
+	// mailbox head reported by Gmail at the top of the response.
+	delta, err := gc.ListHistoryAll(ctx, state.LastHistoryID)
 	if err != nil {
 		if gmail.IsHistoryExpired(err) {
 			fallbackRows, fallbackHistory, fallbackErr := runGmailHistoryFallbackBootstrap(ctx, flags, gc, db, acct.Email)

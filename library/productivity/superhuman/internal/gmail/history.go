@@ -78,6 +78,13 @@ func IsHistoryExpired(err error) bool {
 }
 
 // ListHistory calls Gmail users.history.list for changes since startHistoryID.
+// Returns a single page; the caller is responsible for following
+// NextPageToken. Prefer ListHistoryAll when consuming every record since the
+// checkpoint (the common case for watch / auto-refresh) — calling
+// ListHistory alone permanently drops records on pages 2+ because the
+// returned HistoryID at the top level is the current mailbox head, so a
+// caller that saves it as the next checkpoint skips everything past page
+// one. Direct callers exist only for tests that need single-page granularity.
 func (c *Client) ListHistory(ctx context.Context, startHistoryID string, pageToken string) (*HistoryResponse, error) {
 	if startHistoryID == "" {
 		return nil, fmt.Errorf("gmail: ListHistory: startHistoryId is required")
@@ -97,4 +104,46 @@ func (c *Client) ListHistory(ctx context.Context, startHistoryID string, pageTok
 	}
 	raw.AccountEmail = c.Email
 	return &raw, nil
+}
+
+// historyMaxPages bounds ListHistoryAll's pagination walk. Gmail history
+// records are small and pages are capped at ~100 records each. A 50-page
+// walk covers ~5k records — enough to drain a multi-hour idle window
+// without spending the budget on a runaway response from a misbehaving
+// proxy that always returns a token.
+const historyMaxPages = 50
+
+// ListHistoryAll walks Gmail history pagination from startHistoryID and
+// returns a merged HistoryResponse with every record across all pages.
+// HistoryID on the returned envelope mirrors the LAST page's HistoryID
+// (the current mailbox head reported by Gmail) so callers can save it as
+// the next checkpoint without losing intermediate records.
+//
+// The walk caps at historyMaxPages to guard against runaway servers; if
+// the cap is hit the returned HistoryID is from the last received page
+// rather than the mailbox head, so the next invocation resumes from
+// there. NextPageToken on the returned envelope is non-empty when the
+// cap was hit; callers that want to drain the rest can re-invoke.
+func (c *Client) ListHistoryAll(ctx context.Context, startHistoryID string) (*HistoryResponse, error) {
+	merged := &HistoryResponse{AccountEmail: c.Email}
+	pageToken := ""
+	for page := 0; page < historyMaxPages; page++ {
+		resp, err := c.ListHistory(ctx, startHistoryID, pageToken)
+		if err != nil {
+			return nil, err
+		}
+		merged.History = append(merged.History, resp.History...)
+		if resp.HistoryID != "" {
+			merged.HistoryID = resp.HistoryID
+		}
+		merged.ResultSizeEstimate += resp.ResultSizeEstimate
+		if resp.NextPageToken == "" {
+			merged.NextPageToken = ""
+			return merged, nil
+		}
+		pageToken = resp.NextPageToken
+		merged.NextPageToken = resp.NextPageToken
+	}
+	// Cap hit — caller can re-invoke from merged.HistoryID to drain the rest.
+	return merged, nil
 }

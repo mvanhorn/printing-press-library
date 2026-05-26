@@ -60,6 +60,53 @@ func TestListHistory_RequiresStartHistoryID(t *testing.T) {
 	}
 }
 
+func TestListHistoryAll_FollowsNextPageToken(t *testing.T) {
+	calls := 0
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		calls++
+		switch r.URL.Query().Get("pageToken") {
+		case "":
+			_, _ = w.Write([]byte(`{
+				"history":[{"id":"100","messagesAdded":[{"message":{"id":"m1","threadId":"t1","historyId":"100"}}]}],
+				"historyId":"101",
+				"nextPageToken":"tok-2",
+				"resultSizeEstimate":1
+			}`))
+		case "tok-2":
+			_, _ = w.Write([]byte(`{
+				"history":[{"id":"102","messagesAdded":[{"message":{"id":"m2","threadId":"t2","historyId":"102"}}]}],
+				"historyId":"103",
+				"resultSizeEstimate":1
+			}`))
+		default:
+			t.Fatalf("unexpected pageToken %q", r.URL.Query().Get("pageToken"))
+		}
+	}))
+	defer srv.Close()
+	withBaseURL(t, srv.URL)
+
+	c := nonRefreshingClient(t)
+	res, err := c.ListHistoryAll(context.Background(), "99")
+	if err != nil {
+		t.Fatalf("ListHistoryAll: %v", err)
+	}
+	if calls != 2 {
+		t.Fatalf("expected 2 page calls, got %d", calls)
+	}
+	if len(res.History) != 2 {
+		t.Fatalf("merged history len = %d want 2", len(res.History))
+	}
+	if res.HistoryID != "103" {
+		t.Fatalf("HistoryID = %q want 103 (last page's value)", res.HistoryID)
+	}
+	if res.NextPageToken != "" {
+		t.Fatalf("NextPageToken should be empty when fully drained, got %q", res.NextPageToken)
+	}
+	if res.ResultSizeEstimate != 2 {
+		t.Fatalf("ResultSizeEstimate = %d want 2", res.ResultSizeEstimate)
+	}
+}
+
 func TestListHistory_ExpiredHistory404(t *testing.T) {
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Requested entity was not found.", http.StatusNotFound)

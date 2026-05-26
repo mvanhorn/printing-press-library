@@ -492,23 +492,28 @@ func runCancelSchedule(cmd *cobra.Command, flags *rootFlags, draftID string) err
 	if draftID == "" {
 		return usageErr(fmt.Errorf("send: --cancel-schedule requires a draft id"))
 	}
+
+	// Dry-run / verify short-circuits before account resolution so callers
+	// can preview the action shape without a configured account.
+	if flags.dryRun || cliutil.IsVerifyEnv() {
+		envelope := map[string]any{
+			"action":   "cancel_schedule",
+			"path":     sendEndpointWriteMessage,
+			"dry_run":  true,
+			"draft_id": draftID,
+			"note":     "live mode performs read-modify-write against the existing draft",
+		}
+		if acct, err := resolveActiveAccount(flags); err == nil {
+			envelope["read_path"] = fmt.Sprintf("users/%s/threads/%s/messages/%s/draft", acct.GoogleID, draftID, draftID)
+		}
+		return printJSONFiltered(cmd.OutOrStdout(), envelope, flags)
+	}
+
 	acct, err := resolveActiveAccount(flags)
 	if err != nil {
 		return authErr(err)
 	}
 	writePath := fmt.Sprintf("users/%s/threads/%s/messages/%s/draft", acct.GoogleID, draftID, draftID)
-
-	if flags.dryRun || cliutil.IsVerifyEnv() {
-		envelope := map[string]any{
-			"action":    "cancel_schedule",
-			"path":      sendEndpointWriteMessage,
-			"read_path": writePath,
-			"dry_run":   true,
-			"draft_id":  draftID,
-			"note":      "live mode performs read-modify-write against the existing draft",
-		}
-		return printJSONFiltered(cmd.OutOrStdout(), envelope, flags)
-	}
 
 	c, err := flags.newClient()
 	if err != nil {
