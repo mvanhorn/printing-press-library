@@ -30,7 +30,7 @@ export const execFileRunner: Runner = (command, args, options = {}) => {
         resolve({ code: 127, stdout, stderr });
         return;
       }
-      resolve({ code: 0, stdout, stderr });
+      resolve({ code: 126, stdout, stderr });
     });
     child.on("close", (code) => {
       resolve({ code: code ?? 0, stdout, stderr });
