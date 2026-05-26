@@ -93,6 +93,7 @@ URL surface doesn't accept them.`,
 	cmd.Flags().IntVar(&opts.Page, "page", 1, "Page number for pagination")
 	cmd.Flags().StringVar(&opts.Locale, "locale", "en", "Locale (en, de, fr, ...)")
 	cmd.Flags().BoolVar(&noSnapshots, "no-snapshots", false, "Don't append to local price_snapshots history")
+	cmd.Flags().StringVar(&opts.Source, "source", "both", "Cash-price source: google, trivago, or both (default: both)")
 	return cmd
 }
 

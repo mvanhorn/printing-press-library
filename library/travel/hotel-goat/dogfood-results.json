@@ -85,13 +85,13 @@
     ]
   },
   "source_client_check": {
-    "checked": 2
+    "checked": 5
   },
   "print_json_filtered_check": {
     "checked": 21
   },
   "test_presence": {
-    "checked": 1
+    "checked": 2
   },
   "naming_check": {
     "checked": 21

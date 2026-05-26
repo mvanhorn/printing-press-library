@@ -37,8 +37,14 @@ go install github.com/mvanhorn/printing-press-library/library/travel/hotel-goat/
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
 
-hotel-goat scrapes Google Hotels' server-rendered data without an API key. v1 ships:
-- `hotels <loc> <ci> <co>` — search with brand / hotel-class / price / rating / amenity filters
+hotel-goat fans out across **two cash-price sources** by default:
+- **Google Hotels** — scraped from the server-rendered page
+- **Trivago** — called via the public Trivago MCP server (no key); aggregates OTA rates from Booking.com, Expedia, Agoda, Hotels.com, Priceline, etc.
+
+Control which sources run with `--source google|trivago|both` on the `hotels` command. Default is `both`. Matched hotels (lat/lng within 250m and name token-overlap ≥ 0.5) get a unified `prices[]` array with one entry per source; Trivago-only properties are appended as standalone rows with `property_token` prefixed `trivago:`. When Trivago returns a different currency than Google (it geolocates server-side, often EUR), the source label is tagged `trivago/<OTA> [EUR]` so the agent never silently cross-compares.
+
+v1 ships:
+- `hotels <loc> <ci> <co>` — multi-source search with brand / hotel-class / price / rating / amenity / `--source` filters
 - `dates <loc> --from --to --nights N` — sweep a date window for the cheapest pair per stay
 - `near "<address>" --radius Nmi` — geo-radius around any address (auto-geocoded via OSM Nominatim)
 - `hotel show/reviews <token>` — single-property detail + reviews

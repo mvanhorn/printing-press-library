@@ -1,9 +1,17 @@
-# Google Hotels CLI
+# Hotel Goat — multi-source cash hotel CLI
 
-**Free Google Hotels CLI — per-hotel data with deep booking links, agent-native JSON, and local SQLite wishlist. No API key needed.**
+**Free hotel CLI — cash prices from Google Hotels + Trivago, deep booking links, agent-native JSON, and local SQLite wishlist. No API key needed.**
 
-hotel-goat scrapes Google Hotels' server-rendered data (the same data the Google Hotels web UI shows) without an API key. v1 ships:
-- `hotels <location> <ci> <co>` — search with rich filters (brand, hotel-class, max-price, min-rating, amenities, currency)
+hotel-goat fans out across two cash-price sources by default:
+- **Google Hotels** — scraped from the server-rendered page (same data the web UI shows)
+- **Trivago** — called via Trivago's public MCP server (`https://mcp.trivago.com/mcp`), which exposes OTA-aggregated rates from Booking.com, Expedia, Agoda, Hotels.com, Priceline, etc.
+
+Pick a single source with `--source google` or `--source trivago`; the default is `--source both`. When both sources see the same property (matched on lat/lng + name overlap), the OTA prices are merged into one `prices[]` array. Trivago-only properties are appended as standalone rows so the agent gets a wider candidate set.
+
+When Trivago's currency differs from Google's (Trivago is geolocated server-side, so it often returns EUR), the source label is tagged `trivago/<OTA> [EUR]` and the headline `price_per_night` is only overridden when currencies match — so an agent never silently compares 802 EUR against 160 USD as if they were the same scale.
+
+v1 ships:
+- `hotels <location> <ci> <co>` — multi-source search with rich filters (brand, hotel-class, max-price, min-rating, amenities, currency)
 - `dates <location> --from --to --nights N` — sweep a date window for the cheapest pair per stay
 - `near "<address>" --radius Nmi` — geo-radius search around any address (auto-geocoded via OpenStreetMap)
 - `hotel show <token>` / `hotel reviews <token>` — single-property detail + review breakdown
