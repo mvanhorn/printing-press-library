@@ -95,6 +95,19 @@ func TestBuildGraphQLBody_ResolvesEmbeddedQueryDocument(t *testing.T) {
 	}
 }
 
+func TestCartPlaceLiveOrderGateFlagsHiddenFromMCPSchema(t *testing.T) {
+	cmd := newCartPlaceCmd(&rootFlags{})
+	for _, name := range []string{"enable-live-order-placement", "owner-approved", "confirm"} {
+		flag := cmd.Flags().Lookup(name)
+		if flag == nil {
+			t.Fatalf("expected %s flag to remain available for direct CLI invocation", name)
+		}
+		if !flag.Hidden {
+			t.Fatalf("expected %s flag to be hidden from cobratree MCP schema", name)
+		}
+	}
+}
+
 func TestRawCreateOrderFromCartRequiresLiveOrderGates(t *testing.T) {
 	cmd := newGraphqlCreateCreateOrderFromCartCmd(&rootFlags{})
 	cmd.SetArgs([]string{"--variables", "{}"})

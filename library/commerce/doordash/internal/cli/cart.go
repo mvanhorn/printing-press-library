@@ -148,6 +148,11 @@ requires --enable-live-order-placement, --owner-approved, and --confirm %q.
 	// PATCH: Keep the approval gate generic for public-library users.
 	cmd.Flags().BoolVar(&ownerApproved, "owner-approved", false, "Affirm that the account owner explicitly approved this live order")
 	cmd.Flags().StringVar(&confirmation, "confirm", "", fmt.Sprintf("Exact confirmation phrase required for live order placement: %q", orderPlacementConfirmationPhrase))
+	// PATCH: Hide live-order gate flags from the MCP cobratree schema so agents
+	// cannot satisfy the confirmation gates through structured MCP arguments.
+	for _, name := range []string{"enable-live-order-placement", "owner-approved", "confirm"} {
+		_ = cmd.Flags().MarkHidden(name)
+	}
 	return cmd
 }
 
