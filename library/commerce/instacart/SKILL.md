@@ -93,53 +93,62 @@ When Instacart rejects a candidate with `notFoundBasketProduct` (autosuggest occ
 
 Authentication:
 
-- `instacart auth login` - extract session cookies from Chrome
-- `instacart auth status` - show current session state
-- `instacart auth logout` - clear saved cookies
-- `instacart auth paste` - paste cookie JSON manually (fallback for newer macOS Chrome)
-- `instacart auth import-file <path>` - load cookies from a browser-use export JSON
+- `instacart-pp-cli auth login` - extract session cookies from Chrome
+- `instacart-pp-cli auth status` - show current session state
+- `instacart-pp-cli auth logout` - clear saved cookies
+- `instacart-pp-cli auth paste` - paste cookie JSON manually (fallback for newer macOS Chrome)
+- `instacart-pp-cli auth import-file <path>` - load cookies from a browser-use export JSON
 
 Cart operations:
 
-- `instacart add <retailer> <query...>` - add a product by natural language
-- `instacart add <retailer> <query...> --no-history` - skip the history-first resolver
-- `instacart add --item-id <id> <retailer>` - add by exact Instacart item id
-- `instacart cart show <retailer>` - show current cart contents at a retailer
-- `instacart cart remove <item-id> <retailer>` - remove an item from a cart
-- `instacart carts list` - list every active cart across retailers
+- `instacart-pp-cli add <retailer> <query...>` - add a product by natural language
+- `instacart-pp-cli add <retailer> <query...> --no-history` - skip the history-first resolver
+- `instacart-pp-cli add --item-id <id> <retailer>` - add by exact Instacart item id
+- `instacart-pp-cli cart show <retailer>` - show current cart contents at a retailer
+- `instacart-pp-cli cart remove <item-id> <retailer>` - remove an item from a cart
+- `instacart-pp-cli carts list` - list every active cart across retailers
 
 Discovery:
 
-- `instacart search <query> --store <retailer>` - search products at a retailer
-- `instacart retailers list` - list retailers available at your address
-- `instacart retailers show <slug>` - cache one retailer locally
+- `instacart-pp-cli search <query> --store <retailer>` - search products at a retailer
+- `instacart-pp-cli retailers list` - list retailers available at your address
+- `instacart-pp-cli retailers show <slug>` - cache one retailer locally
+
+Location profiles:
+
+- `instacart-pp-cli config show` - print active location config
+- `instacart-pp-cli config set-address --id <uuid>` - derive coords from a known Instacart address ID
+- `instacart-pp-cli config set-coords --lat <N> --lon <N> --postal <zip>` - set coords directly
+- `instacart-pp-cli config profiles list` - list saved address profiles
+- `instacart-pp-cli config profiles import` - import saved Instacart addresses as profiles
+- `instacart-pp-cli config profiles use <name>` - switch the active profile
 
 Purchase history:
 
-- `instacart history import <path>` - load a JSONL order dump into the local DB (the working path)
-- `instacart history import - --json` - read from stdin, JSON output for agent pipelines
-- `instacart history import <path> --dry-run` - preview counts without writing
-- `instacart history list` - top purchased items by count + recency
-- `instacart history list --store <retailer> --limit 20` - filter + paginate
-- `instacart history search <query>` - FTS search your purchase history
-- `instacart history search <query> --store <retailer>` - scoped FTS search
-- `instacart history stats` - counts + per-retailer state
+- `instacart-pp-cli history import <path>` - load a JSONL order dump into the local DB (the working path)
+- `instacart-pp-cli history import - --json` - read from stdin, JSON output for agent pipelines
+- `instacart-pp-cli history import <path> --dry-run` - preview counts without writing
+- `instacart-pp-cli history list` - top purchased items by count + recency
+- `instacart-pp-cli history list --store <retailer> --limit 20` - filter + paginate
+- `instacart-pp-cli history search <query>` - FTS search your purchase history
+- `instacart-pp-cli history search <query> --store <retailer>` - scoped FTS search
+- `instacart-pp-cli history stats` - counts + per-retailer state
 
 Maintenance:
 
-- `instacart doctor` - health check: config, store, ops, history, session, live ping
-- `instacart capture` - refresh the GraphQL operation hash cache
-- `instacart capture --remote` - merge fresh hashes from the community registry
-- `instacart ops list` - show the operation-hash cache state
+- `instacart-pp-cli doctor` - health check: config, location, store, ops, history, session, live ping
+- `instacart-pp-cli capture` - refresh the GraphQL operation hash cache
+- `instacart-pp-cli capture --remote` - merge fresh hashes from the community registry
+- `instacart-pp-cli ops list` - show the operation-hash cache state
 
 ## Recipes
 
 ### First-time setup
 
 ```bash
-instacart auth login                # extract cookies from Chrome
-instacart doctor                    # verify auth + live ping
-instacart capture                   # seed built-in op hashes
+instacart-pp-cli auth login                # extract cookies from Chrome
+instacart-pp-cli doctor                    # verify auth + live ping
+instacart-pp-cli capture                   # seed built-in op hashes
 ```
 
 Then backfill history (optional but recommended; unlocks history-first `add`):
@@ -151,15 +160,15 @@ The skill drives the rest. See the "Backfill Flow" section below.
 ### Add something you buy all the time
 
 ```bash
-instacart add safeway "oat milk"    # resolves via local history if you have bought it before
+instacart-pp-cli add safeway "oat milk"    # resolves via local history if you have bought it before
 ```
 
-Look for `via history` in the output. If you see `via live`, the FTS match did not pass the confidence check; check `instacart history search "oat milk" --store safeway` to see what is actually in your history.
+Look for `via history` in the output. If you see `via live`, the FTS match did not pass the confidence check; check `instacart-pp-cli history search "oat milk" --store safeway` to see what is actually in your history.
 
 ### Force a fresh live search
 
 ```bash
-instacart add safeway "oat milk" --no-history --dry-run --json
+instacart-pp-cli add safeway "oat milk" --no-history --dry-run --json
 ```
 
 `--dry-run --json` is useful when debugging - the output includes `resolved_via` so you can see which path would have fired.
@@ -167,8 +176,8 @@ instacart add safeway "oat milk" --no-history --dry-run --json
 ### Daily top-up from recent history
 
 ```bash
-instacart history list --store safeway --limit 20 --json | jq -r '.[].name' \
-  | while read item; do instacart add safeway "$item" --yes --json; done
+instacart-pp-cli history list --store safeway --limit 20 --json | jq -r '.[].name' \
+  | while read item; do instacart-pp-cli add safeway "$item" --yes --json; done
 ```
 
 ## Auth Setup
@@ -176,8 +185,8 @@ instacart history list --store safeway --limit 20 --json | jq -r '.[].name' \
 Requires a logged-in Instacart session in Chrome. The CLI extracts cookies via kooky (no credential handling on our side). If Chrome is locked or you are on a system kooky cannot read:
 
 ```bash
-instacart auth paste         # paste the full cookie JSON manually
-instacart auth import-file <path>
+instacart-pp-cli auth paste         # paste the full cookie JSON manually
+instacart-pp-cli auth import-file <path>
 ```
 
 Session lives at `~/.config/instacart/session.json` (0600).
@@ -188,25 +197,25 @@ Instacart's GraphQL API requires location data (`latitude`/`longitude` or an `ad
 
 The post-`auth login` step auto-populates `address_id`, `postal_code`, `latitude`, and `longitude` from your default Instacart address. If that doesn't work, the agent should fall back to one of:
 
-- `instacart config set-address --id <uuid>` — derives coords from a known Instacart address ID via the cached `GetAddressById` op. Find the ID in the URL or a graphql variable on https://www.instacart.com/store/account/your-account (DevTools Network tab).
-- `instacart config set-coords --lat <N> --lon <N> [--postal <zip>]` — pass coordinates directly (Google Maps right-click → "What's here?" returns lat/lon).
-- `instacart config show` — confirm what's currently set.
+- `instacart-pp-cli config set-address --id <uuid>` — derives coords from a known Instacart address ID via the cached `GetAddressById` op. Find the ID in the URL or a graphql variable on https://www.instacart.com/store/account/your-account (DevTools Network tab).
+- `instacart-pp-cli config set-coords --lat <N> --lon <N> [--postal <zip>]` — pass coordinates directly (Google Maps right-click → "What's here?" returns lat/lon).
+- `instacart-pp-cli config show` — confirm what's currently set.
 
-`instacart doctor` surfaces a `location: fail` check whenever this is missing, so an agent driving the CLI can detect the broken state before invoking a real command.
+`instacart-pp-cli doctor` surfaces a `location: fail` check whenever this is missing, so an agent driving the CLI can detect the broken state before invoking a real command.
 
 ### Multiple addresses (named profiles)
 
 `config profiles` is a named-address store on top of the single active-location config. Use it when the user has more than one delivery address (home, work, vacation house) and wants to switch without re-running `config set-address` each time.
 
-- `instacart config profiles list` — show saved profiles; the active one is marked with `*`.
-- `instacart config profiles add <name> --id <address_id> [--label "..."] [--use]` — save a profile by Instacart address ID (uses `GetAddressById` to fill coords). Pass `--use` to also activate it.
-- `instacart config profiles add <name> --lat <N> --lon <N> [--postal <zip>] [--label "..."]` — save a profile by raw coordinates, no network call.
-- `instacart config profiles use <name>` — switch the active profile (copies its location onto the top-level config keys so every downstream call uses it).
-- `instacart config profiles show <name>` — print one profile.
-- `instacart config profiles rm <name>` — delete a profile. If it was active, the active profile is cleared and the existing top-level config still applies.
-- `instacart config profiles import [--prefix <p>] [--overwrite] [--use <name>]` — fetch every saved address from the user's Instacart account (via `CurrentUserAddresses`) and save each as a profile, slugifying the street address for the name.
+- `instacart-pp-cli config profiles list` — show saved profiles; the active one is marked with `*`.
+- `instacart-pp-cli config profiles add <name> --id <address_id> [--label "..."] [--use]` — save a profile by Instacart address ID (uses `GetAddressById` to fill coords). Pass `--use` to also activate it.
+- `instacart-pp-cli config profiles add <name> --lat <N> --lon <N> [--postal <zip>] [--label "..."]` — save a profile by raw coordinates, no network call.
+- `instacart-pp-cli config profiles use <name>` — switch the active profile (copies its location onto the top-level config keys so every downstream call uses it).
+- `instacart-pp-cli config profiles show <name>` — print one profile.
+- `instacart-pp-cli config profiles rm <name>` — delete a profile. If it was active, the active profile is cleared and the existing top-level config still applies.
+- `instacart-pp-cli config profiles import [--prefix <p>] [--overwrite] [--use <name>]` — fetch every saved address from the user's Instacart account (via `CurrentUserAddresses`) and save each as a profile, slugifying the street address for the name.
 
-Per-call override: pass `--profile <name>` to any command that needs location (e.g. `instacart --profile work add safeway "cold brew"`). This applies the named profile for that single call without changing the active profile.
+Per-call override: pass `--profile <name>` to any command that needs location (e.g. `instacart-pp-cli --profile work add safeway "cold brew"`). This applies the named profile for that single call without changing the active profile.
 
 When no profiles are defined, the CLI behaves exactly as before — `config set-coords` / `set-address` / `show` continue to drive the top-level location keys directly.
 
@@ -223,14 +232,13 @@ The CLI is agent-native by default. Pass `--json` on any command for machine-rea
 
 ### Filtering output
 
-`--select` accepts dotted paths to descend into nested responses; arrays traverse element-wise:
+The current shipped CLI does not expose a `--select` flag. Use `--json` and filter in the calling agent or script with `jq`/Python instead:
 
 ```bash
-instacart-pp-cli <command> --agent --select id,name
-instacart-pp-cli <command> --agent --select items.id,items.owner.name
+instacart-pp-cli search "milk" --store safeway --json | jq '.results[] | {id, name}'
 ```
 
-Use this to narrow huge payloads to the fields you actually need — critical for deeply nested API responses.
+Before using any optional output-shaping flag, verify it appears in `instacart-pp-cli --help` or the relevant subcommand help.
 
 
 ### Response envelope
@@ -252,7 +260,7 @@ Data-layer commands wrap output in `{"meta": {...}, "results": <data>}`. Parse `
 
 Given a free-form natural-language request:
 
-1. Empty, `help`, or `--help` -> run `instacart --help`
+1. Empty, `help`, or `--help` -> run `instacart-pp-cli --help`
 2. Starts with `install` -> CLI install; ends with `mcp` -> MCP install
 3. Matches a **backfill intent** -> run the Backfill Flow below. Trigger phrases include: "backfill my orders", "backfill my history", "sync my instacart history", "sync my instacart orders", "download my order history", "save my instacart history locally", "pull in my past orders", "import my recent orders".
 4. Anything else -> map to the best subcommand and run with `--json` when invoked from an agent
@@ -265,7 +273,7 @@ Setup check:
 
 1. Confirm `instacart-pp-cli` is on PATH. If not, install: `go install github.com/mvanhorn/printing-press-library/library/commerce/instacart/cmd/instacart-pp-cli@latest`.
 2. Probe `mcp__claude-in-chrome__tabs_context_mcp`. If the tool is unavailable, route to the DevTools fallback: fetch [`docs/backfill-devtools-fallback.md`](https://github.com/mvanhorn/printing-press-library/blob/main/library/commerce/instacart/docs/backfill-devtools-fallback.md) and walk the user through it. Stop.
-3. Run `instacart-pp-cli history stats --agent`. If orders > 0, this is a top-up run; the resume state will skip already-dumped orders automatically.
+3. Run `instacart-pp-cli history stats --json`. If orders > 0, this is a top-up run; the resume state will skip already-dumped orders automatically.
 
 Chrome MCP loop:
 
@@ -277,8 +285,8 @@ Chrome MCP loop:
 3. Inject `dumper.js` via `mcp__claude-in-chrome__javascript_tool`. Read back `total_ids` and `pending_extract`.
 4. For each order ID in the pending set, navigate to `/store/orders/<id>` then inject `extract-one.js`. Report progress to the user every 10 orders.
 5. When pending reaches 0, inject `export-jsonl.js`. It downloads `instacart-orders.jsonl` to the user's default Downloads folder.
-6. Run `instacart-pp-cli history import ~/Downloads/instacart-orders.jsonl --agent` in a Bash tool. Show the summary JSON to the user.
-7. Verify: `instacart-pp-cli history stats --agent`. Offer a follow-up sanity check: `instacart-pp-cli add <retailer> "<something they've bought>" --dry-run --json` and flag `resolved_via: "history"` when it appears.
+6. Run `instacart-pp-cli history import ~/Downloads/instacart-orders.jsonl --json` in a Bash tool. Show the summary JSON to the user.
+7. Verify: `instacart-pp-cli history stats --json`. Offer a follow-up sanity check: `instacart-pp-cli add <retailer> "<something they've bought>" --dry-run --json` and flag `resolved_via: "history"` when it appears.
 
 Error surfaces worth translating for the user:
 
@@ -288,7 +296,7 @@ Error surfaces worth translating for the user:
 ## Direct Use
 
 1. Check installed: `which instacart-pp-cli`
-2. Check auth: `instacart doctor`
-3. Capture GraphQL hashes: `instacart capture`
+2. Check auth and location: `instacart-pp-cli doctor --json`
+3. Capture GraphQL hashes: `instacart-pp-cli capture`
 4. (Optional but recommended) Backfill history — run the Backfill Flow above. Unlocks history-first `add` resolution.
 5. Run your command with `--json` if invoked from an agent

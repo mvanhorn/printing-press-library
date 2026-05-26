@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "applied_at": "2026-05-14",
+  "applied_at": "2026-05-25",
   "base_run_id": "2026-04-11T06:12:25Z",
   "base_printing_press_version": "1.2.1",
   "patches": [
@@ -41,6 +41,16 @@
         "SKILL.md"
       ],
       "validated_outcome": "Unit tests cover profile CRUD, --use side-effects, JSON output shape, slug generation, and the --profile root flag applying through newAppContext."
+    },
+    {
+      "id": "instacart-agent-docs-runtime-flags",
+      "summary": "Align Instacart agent-facing docs with the shipped CLI surface: `--json` is supported, while `--agent`, `--select`, `agent-context`, `which`, and `--no-input` are not.",
+      "reason": "The generated skill and local agent guide documented generator-era agent helpers that the current published Instacart CLI does not implement. Agents following those instructions hit unknown flag/command errors before reaching the real workflow.",
+      "files": [
+        "SKILL.md",
+        "AGENTS.md"
+      ],
+      "validated_outcome": "`go run ./cmd/instacart-pp-cli doctor --json` succeeds; probes for `--agent`, `--select`, `agent-context`, and `which` confirm those helpers are not shipped."
     }
   ]
 }

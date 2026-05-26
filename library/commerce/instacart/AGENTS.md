@@ -8,30 +8,30 @@ Start by asking the generated CLI for current runtime truth:
 
 ```bash
 instacart-pp-cli doctor --json
-instacart-pp-cli agent-context --pretty
+instacart-pp-cli config show --json
+instacart-pp-cli --help
 ```
 
-Use runtime discovery instead of relying on a copied command list:
+Use runtime discovery instead of relying on a copied command list. This CLI does not currently ship `agent-context` or `which`; inspect the relevant command help directly:
 
 ```bash
-instacart-pp-cli which "<capability>" --json
 instacart-pp-cli <command> --help
 ```
 
-Add `--agent` to command invocations for JSON, compact output, non-interactive defaults, no color, and confirmation-safe scripting:
+Use `--json` for machine-readable output. Do not pass `--agent` unless the installed binary's help explicitly lists it; current shipped builds reject it.
 
 ```bash
-instacart-pp-cli <command> --agent
+instacart-pp-cli <command> --json
 ```
 
 Before running an unfamiliar command that may mutate remote state, inspect its help and prefer a dry run:
 
 ```bash
 instacart-pp-cli <command> --help
-instacart-pp-cli <command> --dry-run --agent
+instacart-pp-cli <command> --dry-run --json
 ```
 
-Use `--yes --no-input` only after the target, arguments, and side effects are clear.
+Use `--yes` only after the target, arguments, and side effects are clear. Do not pass `--no-input` unless the installed binary's help explicitly lists it.
 
 For install, auth, examples, and longer product guidance, read `README.md` and `SKILL.md`. This file intentionally stays small so repo-local agents get invariant local guidance without duplicating the generated docs.
 
