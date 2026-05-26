@@ -50,9 +50,20 @@ If a `names.indexOf(<key>)` returns -1, the category doesn't carry that stat in 
 
 ## Team filter
 
-To filter athletes by team, the field on each athlete object is `teamShortName` (e.g., `"GSW"`, `"LAL"`, `"DET"`) or `teamId` (numeric, e.g., `"9"` for Warriors). There is NO `team.abbreviation` nested object on the athlete. Use `teamShortName` for clarity (matches what entity_lookups stores in the `value` column for the alias).
+The byathlete response wraps each athlete entry one level deep:
 
-Also available: `teams[]` (the athlete's team history this season - usually 1 entry), `teamName` (display, e.g., "Warriors"), `teamUId`.
+```
+.athletes[i] = {
+  athlete: {
+    id, displayName, teamShortName, teamId, teamName, teams[], teamUId, ...
+  },
+  categories: [ ... per-category stat arrays ... ]
+}
+```
+
+To filter by team, access `.athletes[i].athlete.teamShortName` (e.g., `"GSW"`, `"LAL"`, `"DET"`, `"NY"`) or `.athletes[i].athlete.teamId` (numeric string, e.g., `"9"` for Warriors, `"18"` for Knicks). NOT `.athletes[i].teamShortName` — there is no top-level team field on the entry. The 2026-05-25 Knicks session burned 1 call discovering the nesting; this note captures the fix.
+
+The athlete sub-object also carries `teams[]` (this-season team history, usually 1 entry), `teamName` (display, e.g., "Warriors"), and `teamUId`.
 
 ## Recall query normalization
 

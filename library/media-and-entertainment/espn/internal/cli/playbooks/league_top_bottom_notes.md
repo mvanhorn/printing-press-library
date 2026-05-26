@@ -50,6 +50,10 @@ MLS uses Eastern Conference and Western Conference; no divisions inside. For an 
 - `entries[i].stats[]` is keyed by name; pull win % via the entry whose `stats[j].name == "winPercent"`. Useful stat names: `wins`, `losses`, `gamesBehind`, `playoffSeed`, `streak`, `pointsFor`, `pointsAgainst`.
 - Float precision: two teams may show the same displayed win % but differ in higher precision. Sort by `wins` as the tiebreaker.
 
+## CLI gotcha: `--select` silently no-ops on nested standings paths
+
+The `standings` command's `--select` flag silently ignores dotted paths into `children.standings.entries.*`. The 2026-05-25 NBA session tried `--select children.standings.entries.team.abbreviation,children.standings.entries.stats` and got back the full ~325KB payload unfiltered. Do NOT rely on `--select` to trim the response for division-level data — pipe the full response through `jq` or `python3` for client-side extraction instead. Top-level `--select` paths (e.g., `--select name,abbreviation`) work, but anything reaching into the nested entries does not.
+
 ## Direction interpretation
 
 User words map to direction:

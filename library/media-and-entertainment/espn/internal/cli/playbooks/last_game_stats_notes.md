@@ -52,7 +52,7 @@ Both Carter Bryant and Stephen Curry sessions in 2026-05-25 dogfood burned 2 cal
 
 - Athlete stats live at `.players[teamIdx].statistics[0].athletes[playerIdx]` where teamIdx is 0 or 1 depending on which side the athlete played for.
 - Stat schema lives at `.players[teamIdx].statistics[0].keys[]` (machine-readable) and `.players[teamIdx].statistics[0].names[]` (human label). Athlete values are at `.athletes[i].stats[]` indexed positionally. Use `keys[]` not `labels[]` (labels carry duplicates in some sports).
-- A player who didn't play has `active: false` and `stats` may be empty strings or missing. Treat as DNP. MIN will be empty.
+- DNP signal: use `didNotPlay: true`, NOT `active: false`. The 2026-05-25 Stephen Curry session observed `active: false` with reason "COACH'S DECISION" on an athlete who played 36 minutes with full stats. `active` reflects roster status, not game participation. A real DNP has `didNotPlay: true` AND empty MIN. If `didNotPlay` is absent, check whether the `stats` array has non-empty entries before declaring DNP.
 - `+/-` comes from `stats[<plusMinus_index>]` where the index is found by `keys.indexOf("plusMinus")`.
 
 ## When you need both stats AND final score
