@@ -165,6 +165,7 @@ func newRootCmd(flags *rootFlags) *cobra.Command {
 		// background seed.
 		if !flags.noLearn && !shouldSkipLearnHook(cmd.CommandPath()) {
 			runLearnInitOnce(cmd.Context())
+			runPlaybookInitOnce(cmd.Context())
 		}
 		return nil
 	}
@@ -218,6 +219,8 @@ func newRootCmd(flags *rootFlags) *cobra.Command {
 	rootCmd.AddCommand(newLearningsCmd(flags, learnCfg))
 	rootCmd.AddCommand(newTeachPatternCmd(flags))
 	rootCmd.AddCommand(newTeachLookupCmd(flags))
+	rootCmd.AddCommand(newTeachPlaybookCmd(flags, learnCfg))
+	rootCmd.AddCommand(newPlaybookCmd(flags, learnCfg))
 
 	return rootCmd
 }

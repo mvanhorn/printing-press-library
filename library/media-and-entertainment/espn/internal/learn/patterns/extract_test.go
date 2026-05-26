@@ -177,6 +177,78 @@ func TestExtract_UnrelatedTeachesProduceNoPattern(t *testing.T) {
 	}
 }
 
+// TestQueryStructural_StripsAllEntities exercises U4 of plan
+// 2026-05-25-004. queryStructural now takes a slice of entities and
+// strips every one, not just members[0].queryEntities[0]. Without
+// this, multi-entity teaches lived in different structural groups
+// purely because the second entity differed.
+func TestQueryStructural_StripsAllEntities(t *testing.T) {
+	t.Parallel()
+	cases := []struct {
+		name     string
+		pattern  string
+		entities []string
+		want     string
+	}{
+		{
+			name:     "single entity",
+			pattern:  "mariners doing season",
+			entities: []string{"mariners"},
+			want:     "doing season",
+		},
+		{
+			name:     "two entities both stripped",
+			pattern:  "mariners vs yankees tonight",
+			entities: []string{"mariners", "yankees"},
+			want:     "tonight vs",
+		},
+		{
+			name:     "case-insensitive stripping",
+			pattern:  "Mariners vs Yankees tonight",
+			entities: []string{"Mariners", "Yankees"},
+			want:     "tonight vs",
+		},
+		{
+			name:     "empty entities leaves pattern",
+			pattern:  "doing season year",
+			entities: nil,
+			want:     "doing season year",
+		},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			got := queryStructural(tc.pattern, tc.entities)
+			if got != tc.want {
+				t.Errorf("queryStructural(%q, %v) = %q, want %q", tc.pattern, tc.entities, got, tc.want)
+			}
+		})
+	}
+}
+
+// TestExtract_MultiEntity_GroupsButSkipsInference confirms a
+// multi-entity teach lives in the same structural group as its
+// shape-peers (which would enable future multi-entity binding) but
+// does NOT emit a single-slot template, since tryExactBinding only
+// indexes queryEntities[0].
+func TestExtract_MultiEntity_NoSingleSlotPattern(t *testing.T) {
+	t.Parallel()
+	db := openExtractTestDB(t)
+	insertLookup(t, db, "team", "Mariners", "SEA")
+	insertLookup(t, db, "team", "Yankees", "NYY")
+	insertLookup(t, db, "team", "Mets", "NYM")
+	insertLookup(t, db, "team", "Cubs", "CHC")
+	insertLearning(t, db, "tonight mariners vs yankees", `["Mariners","Yankees"]`, "ev1", "events", "")
+	insertLearning(t, db, "tonight mets vs cubs", `["Mets","Cubs"]`, "ev2", "events", "")
+
+	if _, err := Extract(db, []string{"team"}); err != nil {
+		t.Fatalf("extract: %v", err)
+	}
+	rows, _ := List(db, ListFilter{})
+	if len(rows) != 0 {
+		t.Errorf("multi-entity members should not emit a single-slot pattern; got %+v", rows)
+	}
+}
+
 // TestExtract_Idempotent.
 func TestExtract_Idempotent(t *testing.T) {
 	t.Parallel()

@@ -30,11 +30,30 @@ const (
 const (
 	WarningLowConfidence      = "low_confidence"
 	WarningResourceNotInStore = "resource_not_in_store"
+	// WarningCrossAliasMatch flags hits where the literal entities
+	// don't overlap but the canonicals do (e.g., "49ers" query hit
+	// a "Niners" stored learning via entity_lookups). Surfaces the
+	// resolution path so agents can see when cross-alias fired.
+	WarningCrossAliasMatch = "cross_alias_match"
 )
 
 // Top-level recall envelope warnings.
 const (
 	TopWarningNoLearningsForQueryFamily = "no_learnings_for_query_family"
+	// WarningAmbiguousAlias fires when a single query entity resolves
+	// to multiple canonicals via entity_lookups (e.g., "Cards" could
+	// be Arizona Cardinals NFL or St. Louis Cardinals MLB). Surfaced
+	// at the envelope level so agents can disambiguate via context
+	// or --debug-mismatches.
+	WarningAmbiguousAlias = "ambiguous_alias"
+	// WarningSimilarShapeDifferentEntity prefixes envelope-level
+	// warnings whose suffix is the canonical name of a stored row
+	// that shares the query's structural shape but resolves to a
+	// different entity. Format: "similar_shape_different_entity:<canonical>".
+	// Surfaces in the default envelope so an agent doesn't read
+	// no_learnings_for_query_family when a structurally-similar row
+	// for a different entity exists.
+	WarningSimilarShapeDifferentEntity = "similar_shape_different_entity"
 )
 
 // Jaccard returns the token-set Jaccard coefficient of two string

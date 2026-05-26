@@ -1,0 +1,37 @@
+{
+  "query_family_examples": [
+    "$ATHLETE last game",
+    "how did $ATHLETE do last game",
+    "Carter Bryant last game"
+  ],
+  "steps": [
+    {
+      "cmd": "espn-pp-cli compare {athlete.name} {known_athlete_name} --sport $SPORT --league $LEAGUE --agent",
+      "purpose": "resolve $ATHLETE to athlete.id + athlete.team.id + athlete.teamAbbrev via the compare lookup",
+      "failure_modes": "in postseason, compare may return athlete1.team = '' for athletes whose team isn't currently in the playoffs"
+    },
+    {
+      "cmd": "espn-pp-cli teams $SPORT $LEAGUE {athlete.team.id} --agent",
+      "purpose": "team's recent events; pick last completed event",
+      "failure_modes": "in postseason, teams<id> returns events:[] for non-playoff teams. Use the scoreboard fallback below."
+    },
+    {
+      "cmd": "espn-pp-cli scoreboard $SPORT $LEAGUE --dates <regseason_end_window> --agent",
+      "purpose": "FALLBACK when step 1 or 2 returns empty in postseason. Scan a window covering the last 30 days of regular season + play-in, filter events for team's abbreviation, take latest completed.",
+      "fallback_for": "step 1 returns empty team OR step 2 returns events:[]"
+    },
+    {
+      "cmd": "espn-pp-cli boxscore {event.id} --sport $SPORT --league $LEAGUE --agent",
+      "purpose": "per-player stats line for the last completed event"
+    },
+    {
+      "client_side": "find_athlete_in_boxscore",
+      "args": {
+        "athlete_id": "$ATHLETE.id"
+      },
+      "purpose": "walk boxscore .players[teamIdx].statistics[0].athletes[playerIdx] to find the row"
+    }
+  ],
+  "entity_slots": ["$ATHLETE", "$SPORT", "$LEAGUE"],
+  "expected_tool_calls": 3
+}
