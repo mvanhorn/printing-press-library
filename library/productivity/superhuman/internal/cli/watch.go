@@ -178,8 +178,9 @@ func watchEventMatchesFilter(labels []string, filter string) bool {
 		return true
 	}
 	if strings.HasPrefix(strings.ToLower(filter), "label:") {
-		want := strings.TrimSpace(strings.TrimPrefix(filter, "label:"))
+		want := strings.TrimSpace(strings.TrimPrefix(strings.ToLower(filter), "label:"))
 		return watchLabelsContain(labels, want)
+	}
 	}
 	return true
 }
