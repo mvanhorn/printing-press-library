@@ -289,6 +289,27 @@ func TestListQualityScoreRequestsListProfileCounts(t *testing.T) {
 	}
 }
 
+func TestContentFatigueMatchesOpensByMessageIdentity(t *testing.T) {
+	base := time.Now().AddDate(0, 0, -20)
+	var rows []resourceRow
+	for i := 0; i < 10; i++ {
+		messageID := "msg-" + strconv.Itoa(i)
+		subject := "Message " + strconv.Itoa(i)
+		receivedAt := base.Add(time.Duration(i) * 24 * time.Hour)
+		rows = append(rows, emailEventRow("recv-"+strconv.Itoa(i), "p1", "Received Email", receivedAt, messageID, subject))
+		if i < 2 {
+			rows = append(rows, emailEventRow("open-"+strconv.Itoa(i), "p1", "Opened Email", receivedAt.Add(2*time.Hour), messageID, subject))
+		}
+	}
+	result := contentFatigue(rows, time.Time{}, 10)
+	if result["fatigued_profiles"] != 1 {
+		t.Fatalf("fatigued_profiles = %v, want 1: %#v", result["fatigued_profiles"], result)
+	}
+	if categories := result["categories"].(map[string]int); categories["sudden_drop"] != 1 {
+		t.Fatalf("categories = %#v, want one sudden_drop", categories)
+	}
+}
+
 func TestNovelPlanningHelpers(t *testing.T) {
 	strategy := briefToStrategy("Launch a subscription winback offer for high intent customers before Mother's Day.")
 	if strategy["summary"] == "" {
@@ -300,6 +321,20 @@ func TestNovelPlanningHelpers(t *testing.T) {
 	}
 	if got := stripTags("<p>Hello&nbsp;there</p>"); got != "Hello there" {
 		t.Fatalf("stripTags = %q", got)
+	}
+}
+
+func emailEventRow(id, profileID, metric string, when time.Time, messageID, subject string) resourceRow {
+	return resourceRow{
+		ID: id,
+		Data: map[string]any{"data": map[string]any{"attributes": map[string]any{
+			"datetime":    when.Format(time.RFC3339),
+			"metric_name": metric,
+			"properties": map[string]any{
+				"message_id": messageID,
+				"Subject":    subject,
+			},
+		}, "relationships": map[string]any{"profile": map[string]any{"data": map[string]any{"id": profileID}}}}},
 	}
 }
 

@@ -1089,7 +1089,9 @@ func contentFatigue(rows []resourceRow, since time.Time, minEmails int) map[stri
 			if opened[ev.ProfileID] == nil {
 				opened[ev.ProfileID] = map[string]bool{}
 			}
-			opened[ev.ProfileID][ev.MessageID+ev.Time.Format(time.RFC3339)] = true
+			if key := emailOpenKey(ev); key != "" {
+				opened[ev.ProfileID][key] = true
+			}
 		}
 	}
 	categories := map[string]int{"recent_fatigue": 0, "gradual_decline": 0, "sudden_drop": 0}
@@ -1114,7 +1116,7 @@ func contentFatigue(rows []resourceRow, since time.Time, minEmails int) map[stri
 		}
 		lastOpened := ""
 		for i := len(events) - 1; i >= 0; i-- {
-			if opened[profileID][events[i].MessageID+events[i].Time.Format(time.RFC3339)] {
+			if opened[profileID][emailOpenKey(events[i])] {
 				lastOpened = firstNonEmptyString(events[i].Subject, events[i].MessageName, events[i].CampaignName, events[i].FlowName)
 				break
 			}
@@ -1459,11 +1461,15 @@ func profileOpenRate(events []novelEmailEvent, opened map[string]bool) float64 {
 	}
 	count := 0
 	for _, ev := range events {
-		if opened[ev.MessageID+ev.Time.Format(time.RFC3339)] {
+		if opened[emailOpenKey(ev)] {
 			count++
 		}
 	}
 	return float64(count) / float64(len(events))
+}
+
+func emailOpenKey(event novelEmailEvent) string {
+	return firstNonEmptyString(event.MessageID, event.MessageName, event.Subject)
 }
 
 func rate(n, d float64) float64 {
