@@ -80,6 +80,10 @@ func newReceiptUploadCmd(flags *rootFlags) *cobra.Command {
 				fmt.Fprintf(cmd.OutOrStdout(), "duplicate (already uploaded as expense_id=%v); use --force to override\n", result["expense_id"])
 				return nil
 			}
+			if status == "race-skipped" {
+				fmt.Fprintf(cmd.ErrOrStderr(), "warning: a concurrent reservation is active for this file — another upload of the same content is in progress or a previous run crashed mid-upload; re-run after %s or use --force\n", zohotools.ReservationTTL)
+				return nil
+			}
 			fmt.Fprintf(cmd.OutOrStdout(), "uploaded expense_id=%v autoscan=%v\n", result["expense_id"], result["autoscan_status"])
 			return nil
 		},
