@@ -129,16 +129,17 @@ Requires synced data (run 'multimail-pp-cli sync --full' first).`,
 				// PATCH: Derive reply rate from mailboxes_emails.
 				// The reply endpoint is POST-only (no list GET), so sync
 				// cannot populate the reply table. Instead, count outbound
-				// emails with a thread_id — these are part of existing
-				// conversations. Use json_extract(data, '$.thread_id')
-				// from the API response (not the parent_id column, which
-				// stores the FK to the parent mailbox).
+				// emails with in_reply_to set — these are genuine replies
+				// to existing conversations. Using in_reply_to (not just
+				// thread_id) avoids counting thread-initiating outbound
+				// emails, which also have a thread_id but are new messages
+				// rather than replies.
 				var replyCount int
 				replyRow := db.DB().QueryRowContext(cmd.Context(),
 					`SELECT COUNT(*) FROM mailboxes_emails
 					WHERE mailboxes_id = ?
-					AND json_extract(data, '$.thread_id') IS NOT NULL
-					AND json_extract(data, '$.thread_id') != ''
+					AND json_extract(data, '$.in_reply_to') IS NOT NULL
+					AND json_extract(data, '$.in_reply_to') != ''
 					AND (json_extract(data, '$.direction') IN ('outbound', 'sent')
 					  OR LOWER(COALESCE(json_extract(data, '$.from'), '')) = LOWER(?))`,
 					mb.ID, mb.Name)

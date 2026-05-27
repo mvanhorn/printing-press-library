@@ -88,12 +88,13 @@ Requires synced data (run 'multimail-pp-cli sync --full' first).`,
 				// PATCH: Derive upgrade history from audit-log events.
 				// The upgrade endpoint is POST-only (no list GET), so sync
 				// cannot populate the upgrade table. Instead, look for
-				// audit-log entries with completed upgrade actions whose
-				// mailbox association matches this mailbox. Check $.mailbox_id
-				// and $.metadata.mailbox_id. $.resource_id is NOT checked —
-				// it stores the upgrade-object ID, not the mailbox ID.
-				// Exclude request/pending/reject actions to avoid counting
-				// unapproved or rejected upgrade requests.
+				// audit-log entries whose action matches the known completed-
+				// upgrade pattern. The MultiMail API uses
+				// 'mailbox.oversight_upgraded' for successful upgrades.
+				// Allowlist approach: only count actions matching known
+				// completion patterns. This avoids false positives from
+				// request, pending, rejected, denied, cancelled, or revoked
+				// actions that a denylist would miss.
 				var upgradeCount int
 				var lastUpgrade string
 				upgradeRow := db.DB().QueryRowContext(cmd.Context(),
@@ -101,13 +102,13 @@ Requires synced data (run 'multimail-pp-cli sync --full' first).`,
 						COALESCE(MAX(json_extract(data, '$.created_at')), '')
 					FROM resources
 					WHERE resource_type = 'audit-log'
-					AND json_extract(data, '$.action') LIKE '%upgrade%'
-					AND json_extract(data, '$.action') NOT LIKE '%request%'
-					AND json_extract(data, '$.action') NOT LIKE '%pending%'
-					AND json_extract(data, '$.action') NOT LIKE '%reject%'
+					AND (json_extract(data, '$.action') = 'mailbox.oversight_upgraded'
+					  OR json_extract(data, '$.action') LIKE '%upgrade_complete%'
+					  OR json_extract(data, '$.action') LIKE '%_upgraded')
 					AND (json_extract(data, '$.mailbox_id') = ?
+					  OR json_extract(data, '$.resource_id') = ?
 					  OR json_extract(data, '$.metadata.mailbox_id') = ?)`,
-					mb.ID, mb.ID)
+					mb.ID, mb.ID, mb.ID)
 				_ = upgradeRow.Scan(&upgradeCount, &lastUpgrade)
 
 				// Compute time-at-level: time since last upgrade, or since mailbox creation

@@ -116,31 +116,25 @@ Requires synced data (run 'multimail-pp-cli sync --full' first).`,
 					rate = float64(approved) / float64(total) * 100
 				}
 
-				// PATCH: Compute median latency by joining audit-log
-				// decisions with oversight items. The sync layer only
-				// fetches /v1/oversight/pending, so decided items never
-				// re-appear with updated status. Instead, correlate
-				// audit-log approve/reject events (which have the decision
-				// timestamp) with oversight items (which retain received_at)
-				// via resource_id. Mailbox association is checked on the
-				// oversight item ($.mailbox_id) and the audit-log entry
-				// ($.mailbox_id, $.metadata.mailbox_id). $.resource_id is
-				// NOT checked — it stores oversight-item IDs, not mailbox IDs.
+				// PATCH: Compute median oversight latency from decided
+				// emails in mailboxes_emails. The API returns approved_at
+				// (oversight decision timestamp) on each email. This is
+				// reliable because decided emails stay in the mailbox list
+				// endpoint — unlike oversight items which leave
+				// /v1/oversight/pending after decision. Latency =
+				// approved_at - received_at for each decided email.
 				medianLatency := "—"
 				latencyRows, lerr := db.DB().QueryContext(cmd.Context(),
 					`SELECT
-						COALESCE(json_extract(o.data, '$.received_at'), json_extract(o.data, '$.created_at'), ''),
-						json_extract(a.data, '$.created_at')
-					FROM resources a
-					JOIN resources o ON o.resource_type = 'oversight'
-						AND o.id = json_extract(a.data, '$.resource_id')
-					WHERE a.resource_type = 'audit-log'
-					AND (json_extract(a.data, '$.action') LIKE 'approve%'
-					  OR json_extract(a.data, '$.action') LIKE 'reject%')
-					AND (json_extract(o.data, '$.mailbox_id') = ?
-					  OR json_extract(a.data, '$.mailbox_id') = ?
-					  OR json_extract(a.data, '$.metadata.mailbox_id') = ?)
-					AND json_extract(a.data, '$.created_at') > ?`, mb.ID, mb.ID, mb.ID, cutoff)
+						COALESCE(json_extract(data, '$.received_at'), json_extract(data, '$.created_at'), ''),
+						json_extract(data, '$.approved_at')
+					FROM mailboxes_emails
+					WHERE mailboxes_id = ?
+					AND json_extract(data, '$.approved_at') IS NOT NULL
+					AND json_extract(data, '$.approved_at') != ''
+					AND COALESCE(json_extract(data, '$.received_at'), json_extract(data, '$.created_at'), '') != ''
+					AND COALESCE(json_extract(data, '$.received_at'), json_extract(data, '$.created_at'), synced_at) > ?`,
+					mb.ID, cutoff)
 				if lerr == nil {
 					var latencies []float64
 					for latencyRows.Next() {

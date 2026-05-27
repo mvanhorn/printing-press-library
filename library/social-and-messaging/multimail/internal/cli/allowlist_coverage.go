@@ -118,13 +118,21 @@ Requires synced data (run 'multimail-pp-cli sync --full' first).`,
 				// The send endpoint is POST-only (no list GET), so sync
 				// cannot populate the send table. Instead, count outbound
 				// emails from synced mailboxes_emails data.
+				// Only count emails that have at least one recipient field
+				// ($.to, $.recipient, or $.recipients) — emails with no
+				// recipients cannot be matched against the allowlist, so
+				// including them would silently inflate the gated count
+				// and deflate coverage_percent.
 				var recentSends int
 				sendRow := db.DB().QueryRowContext(cmd.Context(),
 					`SELECT COUNT(*) FROM mailboxes_emails
 					WHERE mailboxes_id = ?
 					AND COALESCE(json_extract(data, '$.received_at'), json_extract(data, '$.created_at'), synced_at) > ?
 					AND (json_extract(data, '$.direction') IN ('outbound', 'sent')
-					  OR LOWER(COALESCE(json_extract(data, '$.from'), '')) = LOWER(?))`,
+					  OR LOWER(COALESCE(json_extract(data, '$.from'), '')) = LOWER(?))
+					AND (json_extract(data, '$.to') IS NOT NULL
+					  OR json_extract(data, '$.recipient') IS NOT NULL
+					  OR json_extract(data, '$.recipients') IS NOT NULL)`,
 					mb.ID, cutoff, mb.Name)
 				_ = sendRow.Scan(&recentSends)
 
