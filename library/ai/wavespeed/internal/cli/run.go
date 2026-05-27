@@ -1505,13 +1505,25 @@ func collectURLStrings(data json.RawMessage) []string {
 				walk(item)
 			}
 		case map[string]any:
-			for _, item := range typed {
+			for key, item := range typed {
+				if isEchoedInputContainerKey(key) {
+					continue
+				}
 				walk(item)
 			}
 		}
 	}
 	walk(value)
 	return urls
+}
+
+func isEchoedInputContainerKey(key string) bool {
+	switch strings.ToLower(strings.TrimSpace(key)) {
+	case "input", "inputs":
+		return true
+	default:
+		return false
+	}
 }
 
 func outputFilename(rawURL string, index int) string {

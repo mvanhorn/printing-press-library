@@ -138,6 +138,31 @@ func TestDownloadOutputPath(t *testing.T) {
 	}
 }
 
+func TestCollectURLStringsSkipsEchoedInputs(t *testing.T) {
+	raw := json.RawMessage(`{
+		"data": {
+			"inputs": {
+				"image": "https://example.com/uploaded-input.png"
+			},
+			"outputs": [
+				"https://example.com/generated.png",
+				{"video": "https://example.com/generated.mp4"}
+			]
+		}
+	}`)
+
+	got := collectURLStrings(raw)
+	want := []string{"https://example.com/generated.png", "https://example.com/generated.mp4"}
+	if len(got) != len(want) {
+		t.Fatalf("urls = %#v", got)
+	}
+	for i := range want {
+		if got[i] != want[i] {
+			t.Fatalf("urls = %#v", got)
+		}
+	}
+}
+
 func TestReadRunInputsMediaConvenienceFlags(t *testing.T) {
 	opts := runCommandOptions{
 		prompt:    "animate this",

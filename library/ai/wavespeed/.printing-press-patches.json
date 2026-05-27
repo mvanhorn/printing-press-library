@@ -48,7 +48,7 @@
         "internal/cli/run_test.go",
         "internal/client/client.go"
       ],
-      "validated_outcome": "go test ./... passed after the publish-review fixes."
+      "validated_outcome": "go test ./... passed after the publish-review fixes, including mixed --set/--input-kv and echoed-input URL filtering."
     }
   ]
 }
