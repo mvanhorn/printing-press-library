@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"path/filepath"
+	"strconv"
 	"testing"
 	"time"
 
@@ -140,6 +141,34 @@ func TestNovelDedupAndDecay(t *testing.T) {
 	decay := flowDecay(flows, 90, 0.15)
 	if len(decay) != 1 || decay[0]["flagged"] != true {
 		t.Fatalf("flowDecay = %#v", decay)
+	}
+}
+
+func TestSendFatigueCountsAllOffendersBeforeTruncatingTopList(t *testing.T) {
+	base := time.Date(2026, 5, 27, 12, 0, 0, 0, time.UTC)
+	var rows []resourceRow
+	for profile := 0; profile < 30; profile++ {
+		profileID := "p" + strconv.Itoa(profile)
+		for n := 0; n < 3; n++ {
+			rows = append(rows, resourceRow{
+				ID: profileID + "-" + strconv.Itoa(n),
+				Data: map[string]any{"data": map[string]any{"attributes": map[string]any{
+					"datetime":    base.Add(time.Duration(n) * time.Hour).Format(time.RFC3339),
+					"metric_name": "Received Email",
+					"email":       profileID + "@example.com",
+				}, "relationships": map[string]any{"profile": map[string]any{"data": map[string]any{"id": profileID}}}}},
+			})
+		}
+	}
+	result := sendFatigue(rows, 3, 24*time.Hour, "24h", time.Time{})
+	if result["fatigued_profiles"] != 30 {
+		t.Fatalf("fatigued_profiles = %v, want 30", result["fatigued_profiles"])
+	}
+	if result["fatigued_percentage"] != 100.0 {
+		t.Fatalf("fatigued_percentage = %v, want 100.0", result["fatigued_percentage"])
+	}
+	if offenders := result["top_offenders"].([]map[string]any); len(offenders) != 25 {
+		t.Fatalf("len(top_offenders) = %d, want truncated top 25", len(offenders))
 	}
 }
 

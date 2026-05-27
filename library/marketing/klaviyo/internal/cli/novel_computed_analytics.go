@@ -523,15 +523,16 @@ func sendFatigue(rows []resourceRow, threshold int, window time.Duration, window
 	sort.Slice(offenders, func(i, j int) bool {
 		return anyInt(offenders[i]["emails_received"]) > anyInt(offenders[j]["emails_received"])
 	})
+	fatiguedCount := len(offenders)
 	if len(offenders) > 25 {
 		offenders = offenders[:25]
 	}
 	totalProfiles := len(received)
 	pct := 0.0
 	if totalProfiles > 0 {
-		pct = float64(len(offenders)) / float64(totalProfiles) * 100
+		pct = float64(fatiguedCount) / float64(totalProfiles) * 100
 	}
-	return map[string]any{"threshold": threshold, "window": windowLabel, "distribution": distribution, "fatigued_profiles": len(offenders), "fatigued_percentage": round1(pct), "top_offenders": offenders, "recommendation": fmt.Sprintf("%d profiles received %d+ emails in %s. Consider frequency capping or exclusion segments.", len(offenders), threshold, windowLabel)}
+	return map[string]any{"threshold": threshold, "window": windowLabel, "distribution": distribution, "fatigued_profiles": fatiguedCount, "fatigued_percentage": round1(pct), "top_offenders": offenders, "recommendation": fmt.Sprintf("%d profiles received %d+ emails in %s. Consider frequency capping or exclusion segments.", fatiguedCount, threshold, windowLabel)}
 }
 
 func maxEventsInWindow(events []novelEmailEvent, window time.Duration) int {
