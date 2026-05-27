@@ -133,10 +133,10 @@ pcgs-pp-cli which "<capability in your own words>"
 ### Verify one cert and dump every field
 
 ```bash
-pcgs-pp-cli coin facts-cert 53972744 --json --select Name,Year,Grade,Population,PopHigher,PriceGuideValue,CoinFactsLink,IsValidRequest,ServerMessage
+pcgs-pp-cli coin facts-cert 53972744 --json --select data.Name,data.Year,data.Grade,data.Population,data.PopHigher,data.PriceGuideValue,data.CoinFactsLink,data.IsValidRequest,data.ServerMessage
 ```
 
-Single live call. The --json --select pair gives a deeply nested response trimmed to import-friendly fields without losing the IsValidRequest envelope.
+Single live call. The --json --select pair gives a deeply nested response trimmed to import-friendly fields without losing the IsValidRequest envelope. (Same `data.*` path syntax works for `coin batch` per JSONL line.)
 
 ### Plan a 500-cert batch
 
@@ -181,7 +181,7 @@ Picks the right input to sync: only the cached coins whose PriceGuideValue has n
 ### Bullion-floor analysis (compose with spot prices)
 
 ```bash
-pcgs-pp-cli coin facts-cert 53972744 --json | jq '.MetalContent, .Weight'
+pcgs-pp-cli coin facts-cert 53972744 --json | jq '.data.MetalContent, .data.Weight'
 ```
 
 Recipe R1 — pair this output with current Pt/Au/Ag/Pd spot prices to compute the bullion floor. The CLI gives you metal content and weight; you multiply by spot. See article: market-101-silver-dollars-on-the-move.
@@ -319,7 +319,7 @@ Add `--agent` to any command. Expands to: `--json --compact --no-input --no-colo
 
 ### Response envelope
 
-Commands that read from the local store or the API wrap output in a provenance envelope:
+Most read commands wrap output in a provenance envelope:
 
 ```json
 {
@@ -329,6 +329,58 @@ Commands that read from the local store or the API wrap output in a provenance e
 ```
 
 Parse `.results` for data and `.meta.source` to know whether it's live or local. A human-readable `N results (live)` summary is printed to stderr only when stdout is a terminal AND no machine-format flag (`--json`, `--csv`, `--compact`, `--quiet`, `--plain`, `--select`) is set — piped/agent consumers and explicit-format runs get pure JSON on stdout.
+
+### Coin lookup shape (facts-cert + batch — unified)
+
+`coin facts-cert` and `coin batch` emit the same flat object shape, so one parser handles both surfaces. Single-cert returns one object; batch returns one JSONL line per cert.
+
+```json
+{
+  "cert_no": "50483263",
+  "data": {
+    "Name": "1881-S $1",
+    "Year": 1881,
+    "Grade": "MS65",
+    "PriceGuideValue": 425,
+    "year_mismatch": null,
+    ...
+  },
+  "_keep": {}
+}
+```
+
+`_keep` is always `{}` for single-cert lookups (it carries non-cert CSV columns through `coin batch` — set `_keep.box`, `_keep.slot`, etc. from your input row). Provenance for `coin facts-cert` moves to a stderr-only line in TTY mode; JSONL batch output has no provenance line.
+
+#### `PriceGuideValue: null` means PCGS hasn't priced this slab
+
+PCGS returns `PriceGuideValue: 0` for unpriced modern slabs — David Hall FDI, brand-new releases, anything that hasn't entered the price guide yet. To prevent silent undercounting in sums and totals, the CLI rewrites `0` to `null` in every coin response (`facts-cert`, `facts-grade`, `batch`). A genuinely zero-valued coin still receives `null` — those are vanishingly rare and the prior `0` was ambiguous either way.
+
+```bash
+# Unpriced David Hall PR70
+pcgs-pp-cli coin facts-cert 53972744 --agent | jq '.data.PriceGuideValue'   # null
+
+# Priced 1881-S Morgan
+pcgs-pp-cli coin facts-cert 50483263 --agent | jq '.data.PriceGuideValue'   # 425
+```
+
+#### `year_mismatch` flags Name-vs-Year disagreement
+
+PCGS occasionally returns a coin where the year prefix in `Name` (e.g., `2022-S $1 Silver Eagle`) disagrees with the integer `Year` field (e.g., `2021`). When the two disagree, the CLI injects a top-level `year_mismatch` object so the agent can decide which value to trust:
+
+```json
+{
+  "Name": "2022-S $1 Silver Eagle First Strike, DCAM",
+  "Year": 2021,
+  "year_mismatch": {"name_year": 2022, "year_field": 2021}
+}
+```
+
+Absent (or `null` via `jq`) when the values agree, when `Name` has no parsable year prefix, or when `Year` is zero/missing.
+
+```bash
+pcgs-pp-cli coin facts-cert 45987467 --agent | jq '.data.year_mismatch'   # {"name_year": 2022, "year_field": 2021}
+pcgs-pp-cli coin facts-cert 50483263 --agent | jq '.data.year_mismatch'   # null
+```
 
 ## Agent Feedback
 

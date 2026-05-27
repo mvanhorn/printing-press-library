@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "api_name": "shopify",
+  "run_id": "20260524-085902",
+  "status": "pass",
+  "level": "quick",
+  "matrix_size": 6,
+  "tests_passed": 6,
+  "tests_failed": 0,
+  "auth_context": {
+    "type": "api_key",
+    "api_key_available": true,
+    "browser_session_available": false
+  },
+  "tests": [
+    {
+      "name": "doctor reach",
+      "result": "pass",
+      "evidence": "OK API: reachable, OK Auth: configured against the test store"
+    },
+    {
+      "name": "orders list (basic)",
+      "result": "pass",
+      "evidence": "returned 5 orders with full GraphQL response"
+    },
+    {
+      "name": "bug #4 patch (orders list --query filtering)",
+      "result": "pass",
+      "evidence": "--query 'created_at:>2026-05-01' --first 5 returned only 2026-05 orders (#131057A, #131057B, etc) vs unfiltered returning oldest 2018 orders"
+    },
+    {
+      "name": "bug #1 patch (shopifyql funnel real columns)",
+      "result": "pass",
+      "evidence": "shopifyql funnel --days 7 returned 21634 sessions, 200 checkouts, 174 orders against the test store"
+    },
+    {
+      "name": "novel: report revenue-daily --days 3",
+      "result": "pass",
+      "evidence": "returned 3 days of revenue data, e.g. 2026-05-24 gross 10546.93 SGD across 8 orders"
+    },
+    {
+      "name": "sync products --since 7d (bug #2/#3 patches)",
+      "result": "pass",
+      "evidence": "ran end-to-end, products/customers/orders/abandoned-checkouts all synced; fulfillment-orders failed due to token scope (known operator config)"
+    }
+  ]
+}

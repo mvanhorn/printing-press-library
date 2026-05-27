@@ -1,0 +1,97 @@
+{
+  "timestamp": "2026-05-25T01:38:11.903416Z",
+  "cli_dir": "\u003ccli-dir\u003e/intercom",
+  "findings": [
+    {
+      "kind": "email",
+      "file": ".manuscripts/20260524-134520/research.json",
+      "line": 122,
+      "column": 47,
+      "matched_span": "mei@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 2606 reserves example.com for documentation use. The literal 'mei@example.com' appears as a teaching value in the CLI's quickstart / recipes / novel-feature `contact 360` example, showing agents the shape of the contact lookup argument; not a real workspace contact."
+    },
+    {
+      "kind": "email",
+      "file": ".manuscripts/20260524-134520/research.json",
+      "line": 160,
+      "column": 47,
+      "matched_span": "mei@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 2606 reserves example.com for documentation use. The literal 'mei@example.com' appears as a teaching value in the CLI's quickstart / recipes / novel-feature `contact 360` example, showing agents the shape of the contact lookup argument; not a real workspace contact."
+    },
+    {
+      "kind": "email",
+      "file": ".manuscripts/20260524-134520/research.json",
+      "line": 193,
+      "column": 49,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 2606 reserves example.com for documentation use. The literal 'user@example.com' appears as a teaching value in the CLI's quickstart / recipes / novel-feature `contact 360` example, showing agents the shape of the contact lookup argument; not a real workspace contact."
+    },
+    {
+      "kind": "email",
+      "file": ".manuscripts/20260524-134520/research.json",
+      "line": 238,
+      "column": 49,
+      "matched_span": "mei@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 2606 reserves example.com for documentation use. The literal 'mei@example.com' appears as a teaching value in the CLI's quickstart / recipes / novel-feature `contact 360` example, showing agents the shape of the contact lookup argument; not a real workspace contact."
+    },
+    {
+      "kind": "email",
+      "file": "README.md",
+      "line": 123,
+      "column": 29,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 2606 reserves example.com for documentation use. The literal 'user@example.com' appears as a teaching value in the CLI's quickstart / recipes / novel-feature `contact 360` example, showing agents the shape of the contact lookup argument; not a real workspace contact."
+    },
+    {
+      "kind": "email",
+      "file": "README.md",
+      "line": 158,
+      "column": 31,
+      "matched_span": "mei@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 2606 reserves example.com for documentation use. The literal 'mei@example.com' appears as a teaching value in the CLI's quickstart / recipes / novel-feature `contact 360` example, showing agents the shape of the contact lookup argument; not a real workspace contact."
+    },
+    {
+      "kind": "email",
+      "file": "README.md",
+      "line": 198,
+      "column": 29,
+      "matched_span": "mei@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 2606 reserves example.com for documentation use. The literal 'mei@example.com' appears as a teaching value in the CLI's quickstart / recipes / novel-feature `contact 360` example, showing agents the shape of the contact lookup argument; not a real workspace contact."
+    },
+    {
+      "kind": "email",
+      "file": "SKILL.md",
+      "line": 73,
+      "column": 31,
+      "matched_span": "mei@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 2606 reserves example.com for documentation use. The literal 'mei@example.com' appears as a teaching value in the CLI's quickstart / recipes / novel-feature `contact 360` example, showing agents the shape of the contact lookup argument; not a real workspace contact."
+    },
+    {
+      "kind": "email",
+      "file": "SKILL.md",
+      "line": 309,
+      "column": 29,
+      "matched_span": "mei@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "RFC 2606 reserves example.com for documentation use. The literal 'mei@example.com' appears as a teaching value in the CLI's quickstart / recipes / novel-feature `contact 360` example, showing agents the shape of the contact lookup argument; not a real workspace contact."
+    }
+  ],
+  "findings_count_before": 9
+}

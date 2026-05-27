@@ -1,0 +1,21 @@
+{
+  "api_name": "visit-detroit-blog",
+  "base_url": "https://EYQHJ2IY2M-dsn.algolia.net/1/indexes",
+  "description": "Detroit's official \"Inside the D\" blog as a CLI — every article searchable offline, sliced across category and neighborhood at once, with related-reads and exports the website can't produce.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "blogs_list",
+      "description": "List and filter Inside the D blog posts (sectionName:Blogs in the Visit Detroit content index).",
+      "method": "POST",
+      "path": "/prod-visit-detroit-listings/query",
+      "no_auth": true,
+      "params": []
+    }
+  ]
+}

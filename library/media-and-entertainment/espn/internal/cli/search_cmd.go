@@ -13,9 +13,9 @@ func newSearchCmd(flags *rootFlags) *cobra.Command {
 	var limit int
 
 	cmd := &cobra.Command{
-		Use:   "search <query>",
+		Use:         "search <query>",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short: "Full-text search across synced events and news",
+		Short:       "Full-text search across synced events and news",
 		Example: `  espn-pp-cli search "Lakers"
   espn-pp-cli search "touchdown" --sport football --limit 10
   espn-pp-cli search "trade" --json`,
@@ -83,18 +83,33 @@ func newSearchCmd(flags *rootFlags) *cobra.Command {
 				}
 			}
 
+			// pp:rerank-call-site-start
+			// Rerank layer: apply taught learnings AFTER dedup so
+			// boost/hide/alias act on the canonical merged slices. ESPN's
+			// search returns 3 raw-JSON groups (events / news / general);
+			// applyLearningsForSearch spawns one applier per group bound to
+			// the slice pointer so in-place splices are observed here.
+			var teachHint string
+			if !noLearnActive(flags) {
+				applied, hasHigh := applyLearningsForSearch(cmd.Context(), db, query, &events, &news, &extra)
+				teachHint = hintForApplied(applied, hasHigh)
+			}
+			// pp:rerank-call-site-end
+
 			type searchResults struct {
-				Events  []json.RawMessage `json:"events"`
-				News    []json.RawMessage `json:"news"`
-				General []json.RawMessage `json:"general,omitempty"`
-				Total   int               `json:"total"`
+				Events    []json.RawMessage `json:"events"`
+				News      []json.RawMessage `json:"news"`
+				General   []json.RawMessage `json:"general,omitempty"`
+				Total     int               `json:"total"`
+				TeachHint string            `json:"teach_hint,omitempty"`
 			}
 
 			results := searchResults{
-				Events:  events,
-				News:    news,
-				General: extra,
-				Total:   len(events) + len(news) + len(extra),
+				Events:    events,
+				News:      news,
+				General:   extra,
+				Total:     len(events) + len(news) + len(extra),
+				TeachHint: teachHint,
 			}
 
 			if results.Events == nil {

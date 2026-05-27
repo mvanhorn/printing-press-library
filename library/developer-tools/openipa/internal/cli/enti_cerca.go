@@ -20,7 +20,7 @@ func newEntiCercaCmd(flags *rootFlags) *cobra.Command {
 		Use:         "cerca",
 		Short:       "Cerca enti per nome o descrizione",
 		Example:     "  openipa-pp-cli enti cerca --nome example-value",
-		Annotations: map[string]string{"pp:endpoint": "enti.cerca", "pp:method": "POST", "pp:path": "/WS16_DES_AMM.php"},
+		Annotations: map[string]string{"pp:endpoint": "enti.cerca", "pp:method": "POST", "pp:path": "/ws/WS16DESAMMServices/api/WS16_DES_AMM"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {
 				if !cmd.Flags().Changed("nome") && !flags.dryRun {
@@ -32,7 +32,7 @@ func newEntiCercaCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 
-			path := "/WS16_DES_AMM.php"
+			path := "/ws/WS16DESAMMServices/api/WS16_DES_AMM"
 			var body map[string]any
 			if stdinBody {
 				stdinData, err := io.ReadAll(os.Stdin)

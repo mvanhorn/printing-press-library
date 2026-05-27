@@ -389,11 +389,21 @@ func resolveCommandVehicle(ctx context.Context, flags *rootFlags, cfg *config.Co
 // Tesla returns a much richer object; we only care about VIN + display_name
 // here. command_signing is a hint Tesla sometimes surfaces; absent we fall
 // back to a year-based heuristic via tesla_reachability's classifier.
+//
+// NOTE: the id field is json.RawMessage because /api/1/products returns a
+// heterogeneous array — vehicles use integer IDs (e.g. 3744559116524749) while
+// energy devices such as Wall Connectors use non-numeric string IDs (e.g.
+// "STE20240625-00048"). Typing the field as int64 causes json.Unmarshal to
+// fail on the entire response the moment any non-vehicle product is present;
+// json.Number is also insufficient because it rejects non-numeric strings via
+// isValidNumber. json.RawMessage implements json.Unmarshaler and accepts any
+// token without inspection, so the parse succeeds for every product shape.
+// No call site currently reads this field; routing keys off VIN.
 type productEntry struct {
-	VIN              string `json:"vin"`
-	DisplayName      string `json:"display_name"`
-	CommandSigning   string `json:"command_signing"`
-	VehicleCommandID int64  `json:"id"`
+	VIN              string          `json:"vin"`
+	DisplayName      string          `json:"display_name"`
+	CommandSigning   string          `json:"command_signing"`
+	VehicleCommandID json.RawMessage `json:"id"`
 }
 
 // fetchProductsList calls /api/1/products and returns the typed entries.
@@ -441,7 +451,19 @@ func fetchProductsList(ctx context.Context, flags *rootFlags, cfg *config.Config
 	}
 	// cfg is plumbed for future routing tweaks (e.g. consult cfg.Fleet.PublicKeyDomain).
 	_ = cfg
-	return env.Response, nil
+	// Drop energy devices (Wall Connector, Powerwall) — they have no VIN and
+	// can't receive vehicle commands. Leaving them in would let
+	// strings.EqualFold("", "") match an empty --vehicle against an empty VIN
+	// in resolveCommandVehicle's exact-match loop, silently routing the
+	// command to a non-vehicle target.
+	vehicles := env.Response[:0]
+	for _, p := range env.Response {
+		if strings.TrimSpace(p.VIN) == "" {
+			continue
+		}
+		vehicles = append(vehicles, p)
+	}
+	return vehicles, nil
 }
 
 // classifyVehicleClass maps a productEntry into REST-friendly vs signed-cmd.

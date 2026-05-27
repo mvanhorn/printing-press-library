@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "applied_at": "2026-05-17",
+  "applied_at": "2026-05-23",
   "base_run_id": "hand-written",
   "base_printing_press_version": "0.1.3",
   "patches": [
@@ -18,9 +18,70 @@
     },
     {
       "id": "doctor-sectioned-output",
-      "summary": "doctor.go emits System / Library / Assets sections with colored pass/fail checks.",
-      "reason": "Agents need to verify macOS, Photos.app, library path, schema, and asset count before running any query. A structured pre-flight keeps error surfaces small.",
+      "summary": "doctor.go emits System / Library / Assets / Messages sections with colored pass/fail checks.",
+      "reason": "Agents need to verify macOS, Photos.app, library path, schema, asset count, and chat.db access before running any query. A structured pre-flight keeps error surfaces small.",
       "files": ["internal/cli/doctor.go"]
+    },
+    {
+      "id": "messages-readonly-chatdb",
+      "summary": "messages_db.go opens ~/Library/Messages/chat.db read-only via the file: URI prefix with mode=ro and _query_only=1 PRAGMA.",
+      "reason": "chat.db is a system-owned SQLite database read by imagent in WAL mode. The file: URI prefix is load-bearing on modernc.org/sqlite; bare ?mode=ro is silently dropped and the driver returns a read-write handle. _query_only=1 is a second belt at the connection level.",
+      "files": ["internal/cli/messages_db.go"]
+    },
+    {
+      "id": "messages-attributedbody-heuristic",
+      "summary": "messages_decode.go vendors a ~150-line MIT-licensed heuristic typedstream parser for the attributedBody column.",
+      "reason": "Since macOS 11+, message.text is often NULL and the actual content lives in attributedBody (an NSArchiver typedstream blob, not a binary plist). The Go ecosystem's full typedstream parsers are GPL/AGPL-licensed; a small MIT-licensed heuristic ported from teslashibe/imessage-go covers the dominant message shape without license contamination or new go.mod entries.",
+      "files": ["internal/cli/messages_decode.go", "internal/cli/messages_decode_test.go"]
+    },
+    {
+      "id": "messages-fda-doctor-check",
+      "summary": "messages_db.go classifies EPERM and modernc.org/sqlite's SQLITE_CANTOPEN surrogate as a Full Disk Access denial; doctor.go's Messages section surfaces it with copy-paste remediation.",
+      "reason": "macOS TCC has no public Go API and modernc.org/sqlite does not always surface the underlying EPERM (it reports TCC denials as SQLITE_CANTOPEN with surrogate text 'out of memory (14)'). Detecting the broader error shape gives users a clear, actionable error instead of a confusing 'database is corrupt' message. The doctor section warns rather than fails so Photos-only users are not blocked.",
+      "files": ["internal/cli/messages_db.go", "internal/cli/doctor.go"]
+    },
+    {
+      "id": "messages-attributedbody-prefix-scan",
+      "summary": "messages_decode.go scans the first 20 bytes for the 'streamtyped' marker instead of requiring HasPrefix.",
+      "reason": "Real Apple NSArchiver typedstream blobs begin with a 2-byte version+length header (\\x04\\x0B) before the 'streamtyped' literal, so the marker sits at offset 2, not 0. The earlier HasPrefix check rejected every real chat.db row and the `decoded` text-source path was dead in production. Synthetic-only canonical test fixtures (buildCanonicalBlob) lock the new shape.",
+      "files": ["internal/cli/messages_decode.go", "internal/cli/messages_decode_test.go"],
+      "validated_outcome": "Real chat.db sample that previously returned 0 decoded / 9030 unrecoverable now returns 8998 decoded / 39 unrecoverable (the residual rows are legitimately tapback/effect rows without typedstream content)."
+    },
+    {
+      "id": "messages-control-byte-rune-denominator",
+      "summary": "looksLikeMessageText compares rune-counted control characters against utf8.RuneCountInString, not against byte length.",
+      "reason": "Emoji and CJK characters are multi-byte; using len(s) as the denominator inflated against a rune-counted numerator and slackened the 25%% rejection threshold below intent. Greptile G4 on PR #766.",
+      "files": ["internal/cli/messages_decode.go"]
+    },
+    {
+      "id": "messages-list-chats-since-nanosecond-conversion",
+      "summary": "listChats multiplies the seconds-domain --since threshold by 1_000_000_000 before comparing against MAX(m.date), matching searchMessages.",
+      "reason": "On modern macOS m.date is nanoseconds since the Cocoa epoch (~7e14 for current rows). Comparing it against a seconds-domain threshold (~7e8) made the predicate always true, so --since was a silent no-op on list-chats. Greptile G1 on PR #766.",
+      "files": ["internal/cli/messages_db.go"]
+    },
+    {
+      "id": "messages-like-escape-clause",
+      "summary": "searchMessages adds an explicit ESCAPE '\\' clause to the LIKE expression so escapeLike's backslash sequences are honored.",
+      "reason": "escapeLike writes \\%% and \\_ into the pattern but SQLite ignores the backslash without an explicit ESCAPE clause, treating it as a literal. Queries containing %% or _ silently missed matching rows from the SQL phase. Greptile G2 on PR #766.",
+      "files": ["internal/cli/messages_db.go"]
+    },
+    {
+      "id": "messages-db-flag-root-scope",
+      "summary": "--messages-db is registered on the root command's persistent flag set so doctor and other siblings can read the override.",
+      "reason": "Previously registered on the messages persistent flag set, which made `doctor --messages-db ...` exit with `unknown flag` even though doctor's body reads f.messagesDBPath and AGENTS.md documents the override at the root level. Greptile G3 on PR #766.",
+      "files": ["internal/cli/root.go", "internal/cli/messages.go"]
+    },
+    {
+      "id": "messages-doctor-junction-tables",
+      "summary": "checkMessagesSchema additionally probes chat_message_join and message_attachment_join.",
+      "reason": "Every messages query joins chat_message_join, and `messages export` additionally touches message_attachment_join. A stripped or very old chat.db can be missing either without missing the primary tables, which made doctor report 'schema valid' but the first real query fail. Greptile G5 on PR #766.",
+      "files": ["internal/cli/doctor.go"]
+    },
+    {
+      "id": "messages-preview-rune-aware-truncate",
+      "summary": "fillLastPreviews and printSearchTable slice text via []rune so previews don't split multi-byte UTF-8 runes at the truncation boundary.",
+      "reason": "Byte-index truncation (text[:maxLen]) on emoji or CJK previews left a half rune at the end, which both JSON encoders and terminals render as U+FFFD mojibake. Rune-aware slicing keeps the cut at a glyph boundary. Greptile P1 on PR #766.",
+      "files": ["internal/cli/messages_db.go", "internal/cli/messages_search.go"]
     }
   ]
 }

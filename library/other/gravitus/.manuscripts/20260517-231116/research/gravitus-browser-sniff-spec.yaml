@@ -1,0 +1,34 @@
+name: gravitus
+description: Discovered API spec for gravitus
+version: 0.1.0
+base_url: https://gravitus.com
+spec_source: sniffed
+auth:
+    type: none
+    header: ""
+    format: ""
+    env_vars: []
+config:
+    format: toml
+    path: ~/.config/gravitus-pp-cli/config.toml
+resources:
+    profile:
+        description: Operations on profile
+        endpoints:
+            list_profile:
+                method: GET
+                path: /profile/
+                description: Fetch structured links from /profile/
+                params: []
+                body: []
+                response:
+                    type: array
+                    item: html
+                response_format: html
+                html_extract:
+                    mode: links
+                    link_prefixes:
+                        - /users
+                    limit: 50
+                pagination: null
+types: {}

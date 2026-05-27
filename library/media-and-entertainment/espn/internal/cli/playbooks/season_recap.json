@@ -1,0 +1,37 @@
+{
+  "query_family_examples": [
+    "how did $TEAM end the season who led in ppg rpg spg",
+    "how did Warriors end the season",
+    "how did Pistons end the season who led in stats"
+  ],
+  "steps": [
+    {
+      "cmd": "espn-pp-cli standings $SPORT $LEAGUE --agent",
+      "purpose": "final record + division/conference standing for $TEAM (read notes for the dual-grouping shape per sport)"
+    },
+    {
+      "cmd": "curl -sk https://site.api.espn.com/apis/common/v3/sports/$SPORT/$LEAGUE/statistics/byathlete?limit=50&page={page}&seasontype=2",
+      "purpose": "per-game stats source for ranking $STATS",
+      "pagination": "auto; NBA ~12 pages, MLB ~30 pages"
+    },
+    {
+      "client_side": "filter_athletes_by_team",
+      "args": {
+        "team_field": "teamShortName",
+        "team_value": "$TEAM.short_name"
+      },
+      "purpose": "filter athletes whose teamShortName matches the resolved team abbreviation"
+    },
+    {
+      "client_side": "rank_by",
+      "args": {
+        "stats": "$STATS",
+        "schema_source": "top-level categories[].names[] (positional)",
+        "value_source": "per-athlete categories[i].totals[] (positional, same index)"
+      },
+      "purpose": "rank filtered athletes by $STATS using the corrected schema indexing"
+    }
+  ],
+  "entity_slots": ["$TEAM", "$SPORT", "$LEAGUE", "$STATS"],
+  "expected_tool_calls": 2
+}

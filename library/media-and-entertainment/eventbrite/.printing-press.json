@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-23T19:25:29.967049Z",
+  "printing_press_version": "4.12.0",
+  "api_name": "eventbrite",
+  "display_name": "Eventbrite",
+  "cli_name": "eventbrite-pp-cli",
+  "owner": "vinny-pasceri",
+  "printer": "vinnyp",
+  "printer_name": "Vinny Pasceri",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:8785474d388ff19f437d19211ed441c3e8faa7ac7828b215a3758659dc0f7dfc",
+  "run_id": "20260523-141335",
+  "category": "media-and-entertainment",
+  "description": "Every Eventbrite organizer endpoint, plus a local SQLite mirror of your events, orders, and attendees you can search offline — the cross-event search Eventbrite removed, restored over your own data.",
+  "mcp_binary": "eventbrite-pp-mcp",
+  "mcp_tool_count": 99,
+  "mcp_ready": "full",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "EVENTBRITE_API_KEY"
+  ],
+  "auth_key_url": "https://www.eventbrite.com/platform/api-keys",
+  "novel_features": [
+    {
+      "name": "Sales velocity board",
+      "command": "sales-velocity",
+      "description": "Ranks all your live events by tickets sold per day since on-sale and projects a sell-out date."
+    },
+    {
+      "name": "Repeat-attendee finder",
+      "command": "repeat-attendees",
+      "description": "Finds fans who bought into two or more of your events, across your whole synced history."
+    },
+    {
+      "name": "Discount-code performance",
+      "command": "discount-performance",
+      "description": "Per discount code: redemptions, type, and the redemption rate (share of the code's allotment used)."
+    },
+    {
+      "name": "Multi-org client roll-up",
+      "command": "org-rollup",
+      "description": "Single pane across every organization your token can see: events count, tickets sold, gross, and top event per org."
+    },
+    {
+      "name": "Door roster + check-in gap",
+      "command": "roster",
+      "description": "Offline attendee roster for one event with checked-in vs not-yet, VIP and comp flags, door-sorted."
+    },
+    {
+      "name": "Capacity headroom rollup",
+      "command": "capacity",
+      "description": "Sold vs total capacity and percent remaining across all your live events at once."
+    },
+    {
+      "name": "Refund / cancellation rate",
+      "command": "refund-rate",
+      "description": "Refunded and cancelled order counts, refunded revenue, and the rate per event or across the org."
+    },
+    {
+      "name": "Top buyers by spend",
+      "command": "top-buyers",
+      "description": "Ranks ticket buyers by total spend across all your events, not just by how many events they attended."
+    },
+    {
+      "name": "Attendee contact export",
+      "command": "fan-export",
+      "description": "Exports unique attendee contacts (email, name, events attended, check-in status), deduped across all your events and filterable by event."
+    }
+  ]
+}

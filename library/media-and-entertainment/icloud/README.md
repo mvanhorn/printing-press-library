@@ -74,16 +74,17 @@ Install the pp-icloud skill from https://github.com/mvanhorn/printing-press-libr
 ## Quick start
 
 ```bash
-icloud-pp-cli doctor              # verify library is readable
-icloud-pp-cli photos top          # top 25 heaviest files
-icloud-pp-cli photos storage      # breakdown by type and year
-icloud-pp-cli photos stats        # total size + item count
+icloud-pp-cli doctor                            # verify Photos + Messages access
+icloud-pp-cli photos top                        # top 25 heaviest files
+icloud-pp-cli messages list-chats --limit 10    # 10 most-recently-active chats
+icloud-pp-cli messages search "lunch"           # search your message history
 ```
 
 Pipe any command for automatic JSON:
 
 ```bash
 icloud-pp-cli photos top | jq '.[0:5]'
+icloud-pp-cli messages list-chats --agent | jq '[.[] | select(.is_group)]'
 ```
 
 ---
@@ -93,16 +94,34 @@ icloud-pp-cli photos top | jq '.[0:5]'
 ```
 icloud-pp-cli
   photos
-    top        Top N heaviest files (--limit, --type all|photo|video)
-    videos     Largest videos (--limit, --year, --month)
-    storage    Breakdown by media type and year
-    stats      Total items and library size
-  doctor       Verify Photos library is readable
+    top         Top N heaviest files (--limit, --type all|photo|video)
+    videos      Largest videos (--limit, --year, --month)
+    storage     Breakdown by media type and year
+    stats       Total items and library size
+    delete      Move items to Recently Deleted (requires --confirm)
+    download    Export originals to a local folder
+  messages
+    list-chats  Chats ordered by most-recent activity (--limit, --since, --include-empty)
+    search      Full-text search of message bodies (--chat, --handle, --from-me, --since, --until, --limit)
+    stats       Total messages / chats / handles + by-year + top handles
+    export      Export a chat or all chats to JSON (--chat, --out, --since, --until)
+  doctor        Pre-flight: System / Library / Assets / Messages
 ```
 
-All commands accept: `--json` `--compact` `--no-color` `--agent` `--library PATH`
+All commands accept: `--json` `--compact` `--no-color` `--agent`.
+`photos` commands also accept `--library PATH`; `messages` commands accept `--messages-db PATH`.
 
 `--agent` sets `--json --compact --no-color` in one flag — use it in AI workflows.
+
+## Messages: Full Disk Access required
+
+Reading `~/Library/Messages/chat.db` requires macOS Full Disk Access for the
+terminal app invoking the binary. If a messages command fails with
+"Full Disk Access not granted," open System Settings > Privacy & Security >
+Full Disk Access, add your terminal, quit and reopen the terminal, and rerun.
+
+`doctor` reports this automatically — the Messages section shows green when
+FDA is granted and a yellow warning (with remediation) when it is not.
 
 ---
 

@@ -1,0 +1,51 @@
+version: 2
+project_name: botsee-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: botsee-pp-cli
+    main: ./cmd/botsee-pp-cli
+    binary: botsee-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/marketing/botsee/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: botsee-pp-mcp
+    main: ./cmd/botsee-pp-mcp
+    binary: botsee-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: botsee-pp-cli
+    repository:
+      owner: grahac
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Have your agents measure and improve your brand's AI Visibility with botsee.io. API-first, agent-native."
+    install: |
+      bin.install "botsee-pp-cli"
+      bin.install "botsee-pp-mcp"

@@ -598,6 +598,76 @@ func readAll(r interface {
 	}
 }
 
+// TestProductEntry_UnmarshalsHeterogeneousIDs guards the Wall Connector fix:
+// /api/1/products returns an int id for vehicles and a non-numeric string id
+// for energy devices (e.g. "STE20240625-00048"). The router only consumes
+// VIN/display_name, but a typed mismatch on id aborts the whole unmarshal —
+// which historically broke `tesla command` for any account owning a Wall
+// Connector. json.RawMessage is the only stdlib type that swallows both
+// shapes; json.Number rejects non-numeric strings via isValidNumber.
+func TestProductEntry_UnmarshalsHeterogeneousIDs(t *testing.T) {
+	payload := []byte(`{"response":[
+		{"vin":"5YJ3000000000VIN1","display_name":"car","id":3744559116524749},
+		{"display_name":"Wall Connector","id":"STE20240625-00048"}
+	]}`)
+	var wrapper struct {
+		Response []productEntry `json:"response"`
+	}
+	if err := json.Unmarshal(payload, &wrapper); err != nil {
+		t.Fatalf("unmarshal failed: %v", err)
+	}
+	if len(wrapper.Response) != 2 {
+		t.Fatalf("got %d entries, want 2", len(wrapper.Response))
+	}
+	if wrapper.Response[0].VIN != "5YJ3000000000VIN1" {
+		t.Errorf("vehicle VIN: got %q", wrapper.Response[0].VIN)
+	}
+	if wrapper.Response[1].DisplayName != "Wall Connector" {
+		t.Errorf("wall connector display_name: got %q", wrapper.Response[1].DisplayName)
+	}
+}
+
+// TestFetchProductsList_FiltersEnergyDevices guards the second half of the
+// Wall Connector fix: even after the unmarshal succeeds, an entry with an
+// empty VIN would slip into resolveCommandVehicle's exact-match loop, where
+// strings.EqualFold("", "") returns true and silently routes commands at a
+// Wall Connector. fetchProductsList must drop empty-VIN entries at the
+// boundary so the downstream matching logic only ever sees vehicles.
+func TestFetchProductsList_FiltersEnergyDevices(t *testing.T) {
+	t.Setenv("HOME", t.TempDir())
+	mux := http.NewServeMux()
+	mux.HandleFunc("/api/1/products", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{"response":[
+			{"vin":"5YJ3000000000VIN1","display_name":"Snowflake","id":3744559116524749},
+			{"display_name":"Wall Connector","id":"STE20240625-00048"}
+		]}`))
+	})
+	srv := httptest.NewServer(mux)
+	defer srv.Close()
+	t.Setenv("TESLA_BASE_URL", srv.URL)
+
+	flags := commandTestFlags(t)
+	cfg, err := config.Load(flags.configPath)
+	if err != nil {
+		t.Fatalf("Load cfg: %v", err)
+	}
+	if err := cfg.SaveTokens("ownerapi", "", "ios-app-bearer", "ios-refresh", time.Now().Add(time.Hour)); err != nil {
+		t.Fatalf("SaveTokens: %v", err)
+	}
+
+	got, err := fetchProductsList(context.Background(), flags, cfg)
+	if err != nil {
+		t.Fatalf("fetchProductsList: %v", err)
+	}
+	if len(got) != 1 {
+		t.Fatalf("got %d entries, want 1 (Wall Connector should be filtered)", len(got))
+	}
+	if got[0].VIN != "5YJ3000000000VIN1" {
+		t.Errorf("surviving entry VIN: got %q, want vehicle VIN", got[0].VIN)
+	}
+}
+
 // Compile-time sanity: ensure config import isn't dropped if any test path
 // stops referencing it (defensive: simplifies refactors that move test setup
 // across files).

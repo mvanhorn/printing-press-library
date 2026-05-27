@@ -1,0 +1,109 @@
+name: gravitus
+description: Scrape and analyze your Gravitus strength training data from the terminal
+version: 0.1.0
+base_url: https://gravitus.com
+spec_source: sniffed
+
+auth:
+  type: cookie
+  header: Cookie
+  format: sessionid={token}
+  env_vars:
+    - GRAVITUS_SESSION_ID
+
+config:
+  format: toml
+  path: ~/.config/gravitus-pp-cli/config.toml
+
+http_transport: browser-chrome
+
+resources:
+  workouts:
+    description: Workout sessions with exercises, sets, reps, weight, and PRs
+    endpoints:
+      get:
+        method: GET
+        path: /workouts/{workout_id}/
+        description: Fetch full workout detail — exercises, sets, reps, weight, personal records
+        no_auth: false
+        params:
+          - name: workout_id
+            type: string
+            required: true
+            positional: true
+            description: Gravitus workout ID (numeric, from profile page)
+            flag_name: id
+        response:
+          type: object
+          item: html
+        response_format: html
+        html_extract:
+          mode: page
+
+  users:
+    description: User profile and paginated workout history
+    endpoints:
+      workouts:
+        method: GET
+        path: /users/{user_id}/
+        description: Fetch user profile and paginated workout history list
+        no_auth: false
+        params:
+          - name: user_id
+            type: string
+            required: true
+            positional: true
+            description: Gravitus user ID (numeric)
+            flag_name: user
+          - name: page
+            type: integer
+            required: false
+            positional: false
+            default: 1
+            description: Page of workout history (10 workouts per page)
+        response:
+          type: array
+          item: html
+        response_format: html
+        html_extract:
+          mode: links
+          link_prefixes:
+            - /workouts/
+          limit: 100
+
+  exercises:
+    description: Exercise history, personal records, and volume trends
+    endpoints:
+      get:
+        method: GET
+        path: /exercises/{exercise_slug}/
+        description: Fetch exercise history with PR timeline and volume data
+        no_auth: false
+        params:
+          - name: exercise_slug
+            type: string
+            required: true
+            positional: true
+            description: Exercise slug (e.g. bench-press, db-step-ups, squat)
+            flag_name: exercise
+        response:
+          type: object
+          item: html
+        response_format: html
+        html_extract:
+          mode: page
+
+  accounts:
+    description: Authentication — login and session management
+    endpoints:
+      login_page:
+        method: GET
+        path: /accounts/sign_in/
+        description: Fetch login page to retrieve CSRF token
+        no_auth: true
+        response:
+          type: object
+          item: html
+        response_format: html
+
+types: {}

@@ -289,6 +289,174 @@ Given `$ARGUMENTS`:
 3. **Anything else** → resolve `<sport> <league>` from user intent (e.g., "Lakers" → `basketball nba`), check `which espn-pp-cli` (offer install if missing), run with `--agent`.
 
 <!-- pr-218-features -->
+## Automatic learning
+
+Two-call protocol: `recall` before discovery, `teach &` before emitting. The CLI does entity-aware match validation AND surfaces stored playbooks for the query family; you read the envelope and follow the six-branch decision tree. Skipping either side costs you free recall hits in future sessions.
+
+### Step 1: `recall` before any discovery
+
+Before `scoreboard`, `teams`, `boxscore`, `search`, `standings`, or any other discovery command on a new user question, run:
+
+```bash
+espn-pp-cli recall "<user's question>" --agent
+```
+
+The response envelope:
+
+```json
+{
+  "query": "...",
+  "normalized": "game tonight",
+  "query_entities": ["Niners"],
+  "found": true | false,
+  "match_score": 0.0,
+  "results": [
+    { "resource_id": "...", "resource_type": "events|news|...", "venue": "...",
+      "confidence": 2, "entity_match": "exact|partial|unknown",
+      "source": "taught|preseed|pattern", "warnings": ["..."] }
+  ],
+  "mismatches": [ /* only when --debug-mismatches */ ],
+  "warnings": [ /* top-level */ ],
+  "playbook": {
+    "query_family": "...",
+    "playbook": {
+      "steps": [ { "cmd": "teams basketball nba {team.id}", "purpose": "..." }, ... ],
+      "entity_slots": ["$TEAM", "$STATS"],
+      "expected_tool_calls": 3
+    },
+    "slots_resolved": { "$TEAM": { "token": "pistons", "canonical": "Detroit Pistons" } },
+    "notes": "byathlete needs seasontype=2; categories has dup labels"
+  },
+  "notes": "byathlete needs seasontype=2; categories has dup labels"
+}
+```
+
+### Step 2: six-branch decision tree
+
+Read `playbook`, `notes`, `results[0]`, and warnings in that order:
+
+```
+if Playbook present:
+    -> READ Playbook.notes verbatim FIRST (workarounds + gotchas the CLI surface doesn't expose)
+    -> replay Playbook.steps in order, substituting Playbook.slots_resolved entries
+       for the entity slot tokens. If a step's slot is unresolved, fall back to
+       discovery for that step only.
+    -> the Playbook's expected_tool_calls is a budget; if you find yourself running
+       materially more, record the divergence via teach-playbook at end-of-session.
+
+elif Notes present (no Playbook):
+    -> read Notes verbatim before any discovery step; they carry known gotchas
+       for this query family even when no structured choreography exists yet.
+
+elif Found AND Results[0].EntityMatch == "exact" AND Results[0].Confidence >= 2:
+    -> skip discovery; fetch live data for Results[*].ResourceID in parallel
+       (e.g., espn-pp-cli boxscore <eid> for an event, espn-pp-cli teams ... for a team)
+
+elif Found AND Results[0].EntityMatch == "partial":
+    -> candidate hint, NOT a hit; read the resource title to validate before trusting
+
+elif (any row in Mismatches[] when --debug-mismatches was passed):
+    -> treat as cold start; the stored learning is for a different entity
+       (e.g., a "Cowboys" learning won't satisfy a "Niners" query — different canonical)
+
+else:  // Found == false, no playbook, no notes
+    -> cold start; run discovery normally; teach the answer afterward AND record
+       a playbook + notes via teach --playbook-file --playbook-notes-file so the
+       next session of the same family is faster.
+```
+
+Playbook and Notes are orthogonal to the per-resource path. A recall response can carry both a Playbook AND a Results[] hit — use both: the Playbook tells you which choreography to run; the resource hits short-circuit specific steps. Default to skipping `mismatches`; pass `--debug-mismatches` only when investigating cold-start surprises.
+
+### Step 3: always read `warnings`
+
+- `low_confidence`: row exists at `confidence<2`. Treat as a hint, not a skip-discovery hit.
+- `resource_not_in_store`: the local store doesn't have the resource the learning points at. The match validator couldn't classify entities — direct-fetch and re-evaluate.
+- Top-level `no_learnings_for_query_family`: the table had no rows above the Jaccard floor. Pure cold start.
+
+### Step 4: `teach &` after finalizing your response
+
+After assembling your user-facing response containing event/team IDs but BEFORE emitting it, fire the teach call in the background. Append a shell `&` so the call returns immediately and does not block the user-facing response:
+
+```bash
+espn-pp-cli teach --query "<user's question>" --resource-type <events|news|teams> --resource <id1> --resource <id2>
+# (append shell `&` to background it)
+```
+
+Silent on success. Teach the **most specific** resource — if the user asked "when's next Spurs game" and you walked the teams scoreboard to find event `401747632`, teach that event ID, not the team ID. The CLI uses the seeded entity_lookups (NFL/NBA/MLB/MLS team rosters with aliases like Niners/49ers/SF) for cross-alias resolution at recall time, so a teach under "Niners" will satisfy future "49ers" queries automatically.
+
+### Step 5: record a playbook when discovery took >5 calls
+
+If you ran more than 5 tool calls to answer the question AND you discovered workarounds the CLI didn't surface (silently-dropped flags, undocumented params, pagination tricks, payload gotchas), record them so the next session of the same query family skips that discovery. Two surfaces:
+
+```bash
+# Common case: along with the resource teach
+espn-pp-cli teach --query "<question>" --resource-type <type> --resource <id> \
+  --playbook-file ~/playbooks/season-recap.json \
+  --playbook-notes-file ~/playbooks/season-recap-notes.md
+# (append shell `&` to background it)
+
+# Standalone: notes-only or recipe-only
+espn-pp-cli teach-playbook --query "<question>" \
+  --playbook-file ~/playbooks/season-recap.json \
+  --notes "byathlete needs seasontype=2; categories has dup labels"
+```
+
+Playbook files are JSON with `steps`, `entity_slots`, `expected_tool_calls`. Notes files are markdown carrying the gotchas verbatim. Either field may be empty; both empty is rejected. Playbooks are keyed on the structural query family (entities stripped) so a recipe taught from "how did Warriors end the season" applies to Pistons, Heat, and every other team query of the same shape.
+
+When you DO find a playbook on a future recall, treat it as ground truth: replay the steps with `slots_resolved` substitutions, skip the discovery that the choreography already documents, and read `notes` before any step.
+
+### Step 6: `playbook amend &` when your debug response identifies a correction
+
+If your debug-protocol response identifies a concrete correction the notes or playbook should know — a workaround, an undocumented endpoint shape, a stale field name, observed schema drift, an empty-payload fallback — fire `playbook amend` BEFORE emitting your user-facing response. Same fire-and-forget posture as `teach`.
+
+```bash
+espn-pp-cli playbook amend \
+  --query "<exact recall query string>" \
+  --add-note "<your concrete correction>"
+# (append shell `&` to background it)
+```
+
+What counts as worth amending: a behavior you OBSERVED this session that future-you would benefit from knowing. Examples worth amending:
+- "summary endpoint wraps response in `{meta, results}` -- data lives at `.results.header`, not `.header`"
+- "compare returns empty `team` field for athletes whose team isn't in current playoffs"
+- "byathlete category index for avgRebounds drifted from general[9] to general[11] this season"
+
+What does NOT belong in notes:
+- The year-specific answer ("Curry shot 4-16 in his last game"). That's the response, not a learning.
+- Per-team or per-athlete data that the playbook already retrieves at runtime.
+- Statements that paraphrase what the existing notes already say.
+
+The amend command appends to the family's existing notes with a timestamped marker (`[amend YYYY-MM-DDTHH:MMZ]: <text>`). Multiple amends accumulate; the audit trail is visible. If no playbook exists yet for the family, amend creates a notes-only one (so cold-start corrections still land).
+
+### Worked examples
+
+1. **Cold: "when's next Spurs game?"** — `recall` returns `found=false`. Walk the teams scoreboard, find next upcoming Spurs event ID, answer. Teach the event:
+
+   ```bash
+   espn-pp-cli recall "when's next Spurs game?" --agent
+   # found=false -> discovery
+   espn-pp-cli teams basketball nba 24 --agent --select events.id,events.shortName,events.date
+   # ...answer "Tue May 26 SA @ OKC, event 401747632"...
+   espn-pp-cli teach --query "when's next Spurs game?" --resource-type events --resource 401747632
+   # (append shell `&` to background it)
+   ```
+
+2. **Warm: "Niners game tonight"** — `recall` returns `found=true`, `results[0].entity_match="exact"`, `results[0].confidence>=2`. Skip discovery; fetch the box score directly:
+
+   ```bash
+   espn-pp-cli recall "Niners game tonight" --agent
+   # found=true, results=[{resource_id: "401547432", entity_match: "exact"}]
+   espn-pp-cli boxscore 401547432 --agent
+   ```
+
+3. **Cross-alias hit: "49ers game tonight"** — never directly taught. `recall` resolves "49ers" → "San Francisco 49ers" canonical via entity_lookups (nfl_team kind), finds the "Niners game tonight" learning (same canonical), returns `found=true`. Skip discovery.
+
+4. **Entity mismatch: "Cowboys game tonight"** — has a Niners learning above the Jaccard floor on non-entity tokens (`game`, `tonight`), but the entity canonical differs (Dallas Cowboys ≠ San Francisco 49ers). Filtered into `mismatches`; recall returns `found=false`. Treat as cold start.
+
+When the loop is broken: `learnings list --warnings` surfaces local issues; `espn-pp-cli feedback "<what tripped you up>"` records the friction so the next print can fix it.
+
+---
+
 ## Agent Workflow Features
 
 This CLI exposes three shared agent-workflow capabilities patched in from cli-printing-press PR #218.

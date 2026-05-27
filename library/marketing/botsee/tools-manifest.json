@@ -1,0 +1,1119 @@
+{
+  "api_name": "botsee",
+  "base_url": "https://botsee.io",
+  "description": "Have your agents measure and improve your brand's AI Visibility with botsee.io. Run audits across every major LLM, see what's missing, then get specific recommendations and ready-to-publish content to close the gap. API-first, agent-native",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "BOTSEE_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "BOTSEE_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "account_get",
+      "description": "Returns account details including company name, site count, and owner information.",
+      "method": "GET",
+      "path": "/api/v1/account",
+      "params": []
+    },
+    {
+      "name": "analysis_get",
+      "description": "Returns analysis details including status. Poll this endpoint until status is 'completed' or 'failed'. Required: uuid.",
+      "method": "GET",
+      "path": "/api/v1/analysis/{uuid}",
+      "params": [
+        {
+          "name": "uuid",
+          "type": "string",
+          "location": "path",
+          "description": "Analysis UUID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "analysis_run",
+      "description": "Starts an analysis run. This is asynchronous - poll GET /api/v1/analysis/:uuid for status. Returns 202 Accepted. Required: site_uuid. Optional: models (default: [openai claude perplexity]), scope (default: site), target_uuids.",
+      "method": "POST",
+      "path": "/api/v1/analysis",
+      "params": [
+        {
+          "name": "models",
+          "type": "array",
+          "location": "body",
+          "description": "AI models: openai, claude, perplexity, gemini, grok"
+        },
+        {
+          "name": "scope",
+          "type": "string",
+          "location": "body",
+          "description": "Scope: 'site', 'customer_type', 'persona', or 'questions'"
+        },
+        {
+          "name": "site_uuid",
+          "type": "string",
+          "location": "body",
+          "description": "Site UUID to analyze",
+          "required": true
+        },
+        {
+          "name": "target_uuids",
+          "type": "array",
+          "location": "body",
+          "description": "Required for non-site scope. UUIDs of customer types, personas, or questions."
+        }
+      ]
+    },
+    {
+      "name": "analysis_competitors_analysis",
+      "description": "Returns competitors mentioned in responses, grouped by customer type. Each competitor includes appearance percentage (% of responses mentioning them), mentions count, average ranking, and confidence scores. Required: uuid.",
+      "method": "GET",
+      "path": "/api/v1/analysis/{uuid}/competitors",
+      "params": [
+        {
+          "name": "uuid",
+          "type": "string",
+          "location": "path",
+          "description": "Analysis UUID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "analysis_content_generate",
+      "description": "Generates a blog post from analysis results for a specific question. Costs 15 credits. Required: analysis_uuid, question_uuid. Optional: keywords, provider (default: gemini). Returns the new ContentGenerateResponse.",
+      "method": "POST",
+      "path": "/api/v1/analysis/{analysis_uuid}/content",
+      "params": [
+        {
+          "name": "analysis_uuid",
+          "type": "string",
+          "location": "path",
+          "description": "Analysis UUID",
+          "required": true
+        },
+        {
+          "name": "keywords",
+          "type": "array",
+          "location": "body",
+          "description": "Custom keywords to incorporate"
+        },
+        {
+          "name": "provider",
+          "type": "string",
+          "location": "body",
+          "description": "LLM provider: 'gemini' or 'claude'"
+        },
+        {
+          "name": "question_uuid",
+          "type": "string",
+          "location": "body",
+          "description": "Question UUID to base the post on",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "analysis_keyword-opportunities_analysis",
+      "description": "Returns questions where your brand's mention rate is below a threshold. Use this to discover which queries you should target with content. Results include a per-provider breakdown with the search keywords used and your brand's rank position. Required: uuid. Optional: threshold, rank_threshold.",
+      "method": "GET",
+      "path": "/api/v1/analysis/{uuid}/keyword_opportunities",
+      "params": [
+        {
+          "name": "uuid",
+          "type": "string",
+          "location": "path",
+          "description": "Analysis UUID",
+          "required": true
+        },
+        {
+          "name": "threshold",
+          "type": "float",
+          "location": "query",
+          "description": "Mention rate threshold (0.0–1.0). Questions where mention_rate \u003c threshold are returned. Default 1.0 returns any question where brand was missed at least once."
+        },
+        {
+          "name": "rank_threshold",
+          "type": "int",
+          "location": "query",
+          "description": "Also flag questions where brand appeared at rank worse than this value, even if mention rate meets the threshold."
+        }
+      ]
+    },
+    {
+      "name": "analysis_keywords_analysis",
+      "description": "Returns aggregated keywords/search terms from all responses. Required: uuid.",
+      "method": "GET",
+      "path": "/api/v1/analysis/{uuid}/keywords",
+      "params": [
+        {
+          "name": "uuid",
+          "type": "string",
+          "location": "path",
+          "description": "Analysis UUID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "analysis_recommendations_analysis",
+      "description": "Generates actionable recommendations from the analysis (cached after first call). Costs 5 credits the first time; subsequent calls return the cached result. Required: uuid. Returns the new RecommendationsAnalysisResponse.",
+      "method": "POST",
+      "path": "/api/v1/analysis/{uuid}/recommendations",
+      "params": [
+        {
+          "name": "uuid",
+          "type": "string",
+          "location": "path",
+          "description": "Analysis UUID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "analysis_responses_analysis",
+      "description": "Returns raw AI model responses for the analysis. Required: uuid.",
+      "method": "GET",
+      "path": "/api/v1/analysis/{uuid}/responses",
+      "params": [
+        {
+          "name": "uuid",
+          "type": "string",
+          "location": "path",
+          "description": "Analysis UUID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "analysis_source-opportunities_analysis",
+      "description": "Returns sources that AI cited in responses where your brand was NOT mentioned. These are high-value targets for outreach or content placement — getting coverage on these sources may improve your AI visibility. Required: uuid.",
+      "method": "GET",
+      "path": "/api/v1/analysis/{uuid}/source_opportunities",
+      "params": [
+        {
+          "name": "uuid",
+          "type": "string",
+          "location": "path",
+          "description": "Analysis UUID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "analysis_sources_analysis",
+      "description": "Returns aggregated sources cited across all responses, with own_company_mentioned flag. Required: uuid.",
+      "method": "GET",
+      "path": "/api/v1/analysis/{uuid}/sources",
+      "params": [
+        {
+          "name": "uuid",
+          "type": "string",
+          "location": "path",
+          "description": "Analysis UUID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "api-keys_create",
+      "description": "Creates a new API key. The raw key is returned only once in the response body — store it immediately. Optional: name (default: API Key). Returns the new ApiKeysCreateResponse.",
+      "method": "POST",
+      "path": "/api/v1/api-keys",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Human-readable name for the key."
+        }
+      ]
+    },
+    {
+      "name": "api-keys_delete",
+      "description": "Revokes an API key. You cannot revoke the key being used to make this request — use rotate or another key. Required: id. Destructive.",
+      "method": "DELETE",
+      "path": "/api/v1/api-keys/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "API key id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "api-keys_list",
+      "description": "Lists all API keys for the organization (raw key never returned). Returns the ApiKeysListResponse.",
+      "method": "GET",
+      "path": "/api/v1/api-keys",
+      "params": []
+    },
+    {
+      "name": "api-keys_reset",
+      "description": "Exchanges a one-time reset token (from email) for a fresh API key. Public endpoint — no Bearer auth required, the token authenticates the request. Required: token. Returns the new ApiKeysResetResponse. (public)",
+      "method": "POST",
+      "path": "/api/v1/api-keys/reset",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "token",
+          "type": "string",
+          "location": "body",
+          "description": "Single-use reset token from the reset email.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "api-keys_rotate_api-key",
+      "description": "Atomically creates a new API key with the same name and revokes the old one. Returns the new raw key once. Required: id.",
+      "method": "POST",
+      "path": "/api/v1/api-keys/{id}/rotate",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "API key id to rotate",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "billing_get-settings",
+      "description": "Returns the organization's billing settings and current credit balance.",
+      "method": "GET",
+      "path": "/api/v1/billing/settings",
+      "params": []
+    },
+    {
+      "name": "billing_topoff-via-x402",
+      "description": "Discovery call without payment headers returns 402 and does not require auth. Final paid retry requires API key (Authorization, x-api-key, or api_key query param) and supports both `payment` and `payment-signature` headers. Method-compatible with POST, PUT, PATCH, and DELETE. Optional: api_key, amount_cents. (public)",
+      "method": "POST",
+      "path": "/api/v1/billing/topups/usdc",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "api_key",
+          "type": "string",
+          "location": "query",
+          "description": "Alternative auth for facilitator-driven final paid retry"
+        },
+        {
+          "name": "amount_cents",
+          "type": "int",
+          "location": "body",
+          "description": "Amount in USD cents (250-100000, i.e., $2.50-$1000). Optional for discovery-only 402 challenge (defaults to configured discovery amount)."
+        }
+      ]
+    },
+    {
+      "name": "billing_update-settings",
+      "description": "Updates the organization's monthly spend limit. Other settings are read-only via this endpoint. Optional: monthly_spend_limit_cents. Returns the updated BillingUpdateSettingsResponse.",
+      "method": "PATCH",
+      "path": "/api/v1/billing/settings",
+      "params": [
+        {
+          "name": "monthly_spend_limit_cents",
+          "type": "int",
+          "location": "body",
+          "description": "Maximum spend per calendar month in cents. Cannot exceed max_monthly_spend_cents."
+        }
+      ]
+    },
+    {
+      "name": "botsee-auth_validate",
+      "description": "Validates the API key and returns organization info and credit balance.",
+      "method": "POST",
+      "path": "/api/v1/auth/validate",
+      "params": []
+    },
+    {
+      "name": "customer-types_delete",
+      "description": "Archives a customer type. Returns 204 No Content on success. Required: uuid. Destructive.",
+      "method": "DELETE",
+      "path": "/api/v1/customer-types/{uuid}",
+      "params": [
+        {
+          "name": "uuid",
+          "type": "string",
+          "location": "path",
+          "description": "Customer type UUID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "customer-types_get",
+      "description": "Returns a customer type with its personas. Required: uuid.",
+      "method": "GET",
+      "path": "/api/v1/customer-types/{uuid}",
+      "params": [
+        {
+          "name": "uuid",
+          "type": "string",
+          "location": "path",
+          "description": "Customer type UUID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "customer-types_update",
+      "description": "Updates a customer type. Only include fields you want to change. Required: uuid. Optional: description, name. Returns the updated CustomerTypesUpdateResponse.",
+      "method": "PUT",
+      "path": "/api/v1/customer-types/{uuid}",
+      "params": [
+        {
+          "name": "uuid",
+          "type": "string",
+          "location": "path",
+          "description": "Customer type UUID",
+          "required": true
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Updated description"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Updated customer type name"
+        }
+      ]
+    },
+    {
+      "name": "customer-types_personas_create",
+      "description": "Creates a persona manually. Costs 5 credits. Required: customer_type_uuid, description, name. Returns the new PersonasCreateResponse.",
+      "method": "POST",
+      "path": "/api/v1/customer-types/{customer_type_uuid}/personas",
+      "params": [
+        {
+          "name": "customer_type_uuid",
+          "type": "string",
+          "location": "path",
+          "description": "Customer type UUID",
+          "required": true
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Detailed persona description",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Persona name (e.g. 'CTO')",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "customer-types_personas_generate",
+      "description": "Uses AI to generate personas based on the customer type. Costs 5 credits per persona. Optionally pass `prompt` to steer the LLM toward a specific persona within the customer segment (requires `count: 1`). Required: customer_type_uuid. Optional: count (default: 3), prompt. Returns the new PersonasGenerateResponse.",
+      "method": "POST",
+      "path": "/api/v1/customer-types/{customer_type_uuid}/personas/generate",
+      "params": [
+        {
+          "name": "customer_type_uuid",
+          "type": "string",
+          "location": "path",
+          "description": "Customer type UUID",
+          "required": true
+        },
+        {
+          "name": "count",
+          "type": "int",
+          "location": "body",
+          "description": "Number of personas to generate"
+        },
+        {
+          "name": "prompt",
+          "type": "string",
+          "location": "body",
+          "description": "Free-text hint (max 2000 chars) that steers generation toward a specific persona. Only supported with count: 1. When omitted, the generator produces diverse personas across the customer segment."
+        }
+      ]
+    },
+    {
+      "name": "customer-types_personas_list",
+      "description": "Lists all personas for a customer type. Required: customer_type_uuid. Returns the PersonasListResponse.",
+      "method": "GET",
+      "path": "/api/v1/customer-types/{customer_type_uuid}/personas",
+      "params": [
+        {
+          "name": "customer_type_uuid",
+          "type": "string",
+          "location": "path",
+          "description": "Customer type UUID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "personas_delete",
+      "description": "Archives a persona. Returns 204 No Content on success. Required: uuid. Destructive.",
+      "method": "DELETE",
+      "path": "/api/v1/personas/{uuid}",
+      "params": [
+        {
+          "name": "uuid",
+          "type": "string",
+          "location": "path",
+          "description": "Persona UUID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "personas_get",
+      "description": "Returns a persona with its questions. Required: uuid.",
+      "method": "GET",
+      "path": "/api/v1/personas/{uuid}",
+      "params": [
+        {
+          "name": "uuid",
+          "type": "string",
+          "location": "path",
+          "description": "Persona UUID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "personas_update",
+      "description": "Updates a persona. Only include fields you want to change. Required: uuid. Optional: description, name. Returns the updated PersonasUpdateResponse.",
+      "method": "PUT",
+      "path": "/api/v1/personas/{uuid}",
+      "params": [
+        {
+          "name": "uuid",
+          "type": "string",
+          "location": "path",
+          "description": "Persona UUID",
+          "required": true
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Updated persona description"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Updated persona name"
+        }
+      ]
+    },
+    {
+      "name": "personas_questions_create",
+      "description": "Creates a question manually. Free operation. Required: persona_uuid, question. Optional: category (default: problem_solving), priority (default: medium). Returns the new QuestionsCreateResponse.",
+      "method": "POST",
+      "path": "/api/v1/personas/{persona_uuid}/questions",
+      "params": [
+        {
+          "name": "persona_uuid",
+          "type": "string",
+          "location": "path",
+          "description": "Persona UUID",
+          "required": true
+        },
+        {
+          "name": "category",
+          "type": "string",
+          "location": "body",
+          "description": "Question category"
+        },
+        {
+          "name": "priority",
+          "type": "string",
+          "location": "body",
+          "description": "Priority: low, medium, high"
+        },
+        {
+          "name": "question",
+          "type": "string",
+          "location": "body",
+          "description": "The question text to ask AI models",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "personas_questions_generate",
+      "description": "Uses AI to generate questions based on the persona and site context. Costs 10 credits flat. Required: persona_uuid. Optional: count (default: 5). Returns the new QuestionsGenerateResponse.",
+      "method": "POST",
+      "path": "/api/v1/personas/{persona_uuid}/questions/generate",
+      "params": [
+        {
+          "name": "persona_uuid",
+          "type": "string",
+          "location": "path",
+          "description": "Persona UUID",
+          "required": true
+        },
+        {
+          "name": "count",
+          "type": "int",
+          "location": "body",
+          "description": "Number of questions to generate"
+        }
+      ]
+    },
+    {
+      "name": "personas_questions_list",
+      "description": "Lists all questions for a persona. Required: persona_uuid. Returns the QuestionsListResponse.",
+      "method": "GET",
+      "path": "/api/v1/personas/{persona_uuid}/questions",
+      "params": [
+        {
+          "name": "persona_uuid",
+          "type": "string",
+          "location": "path",
+          "description": "Persona UUID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "pricing_get",
+      "description": "Returns the credit cost for each chargeable operation. Analysis costs are estimates; the actual debit is computed from real LLM usage at the documented multiplier after the run completes. (public)",
+      "method": "GET",
+      "path": "/api/v1/pricing",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "questions_delete",
+      "description": "Deletes a question. Returns 204 No Content on success. Required: uuid. Destructive.",
+      "method": "DELETE",
+      "path": "/api/v1/questions/{uuid}",
+      "params": [
+        {
+          "name": "uuid",
+          "type": "string",
+          "location": "path",
+          "description": "Question UUID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "questions_update",
+      "description": "Updates a question. Only include fields you want to change. Required: uuid. Optional: category, is_active, priority (plus 1 more). Returns the updated QuestionsUpdateResponse.",
+      "method": "PUT",
+      "path": "/api/v1/questions/{uuid}",
+      "params": [
+        {
+          "name": "uuid",
+          "type": "string",
+          "location": "path",
+          "description": "Question UUID",
+          "required": true
+        },
+        {
+          "name": "category",
+          "type": "string",
+          "location": "body",
+          "description": "Updated category"
+        },
+        {
+          "name": "is_active",
+          "type": "bool",
+          "location": "body",
+          "description": "Active/inactive toggle"
+        },
+        {
+          "name": "priority",
+          "type": "string",
+          "location": "body",
+          "description": "Updated priority"
+        },
+        {
+          "name": "question",
+          "type": "string",
+          "location": "body",
+          "description": "Updated question text"
+        }
+      ]
+    },
+    {
+      "name": "questions_results_question",
+      "description": "Returns analysis results for a specific question. Use the `fields` parameter to include additional data (keywords, competitors, sources, responses). Required: uuid. Optional: fields.",
+      "method": "GET",
+      "path": "/api/v1/questions/{uuid}/results",
+      "params": [
+        {
+          "name": "uuid",
+          "type": "string",
+          "location": "path",
+          "description": "Question UUID",
+          "required": true
+        },
+        {
+          "name": "fields",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated fields: keywords, competitors, sources, responses. Default: keywords only."
+        }
+      ]
+    },
+    {
+      "name": "rate-limits_get",
+      "description": "Returns the caller's current rate-limit state without consuming additional budget. Useful for agents that want to back off proactively before hitting 429.",
+      "method": "GET",
+      "path": "/api/v1/rate-limits",
+      "params": []
+    },
+    {
+      "name": "signup_via-cc",
+      "description": "Creates a credit-card signup token. USDC signups must use `/api/v1/signup/usdc`. Optional: company_name, contact_email, contact_name (plus 1 more). Returns the new SignupViaCcResponse. (public)",
+      "method": "POST",
+      "path": "/api/v1/signup",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "company_name",
+          "type": "string",
+          "location": "body",
+          "description": "Company name (optional)"
+        },
+        {
+          "name": "contact_email",
+          "type": "string",
+          "location": "body",
+          "description": "Contact email (optional)"
+        },
+        {
+          "name": "contact_name",
+          "type": "string",
+          "location": "body",
+          "description": "Contact person name (optional)"
+        },
+        {
+          "name": "payment_method",
+          "type": "string",
+          "location": "body",
+          "description": "Defaults to 'credit_card'. Use `/api/v1/signup/usdc` for USDC."
+        }
+      ]
+    },
+    {
+      "name": "signup_via-usdc-token",
+      "description": "Creates a USDC signup token. Use `no_email: true` for autonomous agent flows (no setup_url returned). Optional: company_name, contact_email, contact_name (plus 1 more). Returns the new SignupViaUsdcTokenResponse. (public)",
+      "method": "POST",
+      "path": "/api/v1/signup/usdc",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "company_name",
+          "type": "string",
+          "location": "body",
+          "description": "Company name (optional)"
+        },
+        {
+          "name": "contact_email",
+          "type": "string",
+          "location": "body",
+          "description": "Contact email (optional for USDC)"
+        },
+        {
+          "name": "contact_name",
+          "type": "string",
+          "location": "body",
+          "description": "Contact name (optional)"
+        },
+        {
+          "name": "no_email",
+          "type": "bool",
+          "location": "body",
+          "description": "Set to true for autonomous agents that skip email verification"
+        }
+      ]
+    },
+    {
+      "name": "signup_pay-usdc_signup-via-x402",
+      "description": "Call without `payment` header to get a 402 challenge and `payment-required` details. Use Pinch or Coinbase CDP Agentic Wallet to generate the payment header and retry. Required: token, amount_cents. Returns the new PayUsdcSignupViaX402Response. (public)",
+      "method": "POST",
+      "path": "/api/v1/signup/{token}/pay-usdc",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "token",
+          "type": "string",
+          "location": "path",
+          "description": "Signup token",
+          "required": true
+        },
+        {
+          "name": "amount_cents",
+          "type": "int",
+          "location": "body",
+          "description": "Amount in USD cents (250-100000, i.e., $2.50-$1000)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "signup_status_signup",
+      "description": "Polls the status of a signup token. Returns 'pending', 'completed', or 'expired'. Required: token. (public)",
+      "method": "GET",
+      "path": "/api/v1/signup/{token}/status",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "token",
+          "type": "string",
+          "location": "path",
+          "description": "Signup token",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_create",
+      "description": "Creates a new site. Auto-generates product_name and value_proposition from URL if not provided (5 credits). Required: url. Optional: domain, product_name, value_proposition. Returns the new SitesCreateResponse.",
+      "method": "POST",
+      "path": "/api/v1/sites",
+      "params": [
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "body",
+          "description": "Domain override (extracted from URL if not provided)"
+        },
+        {
+          "name": "product_name",
+          "type": "string",
+          "location": "body",
+          "description": "Product name (auto-generated from URL if not provided, costs 5 credits)"
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "body",
+          "description": "Full URL to analyze (e.g. 'https://example.com/products/foo')",
+          "required": true
+        },
+        {
+          "name": "value_proposition",
+          "type": "string",
+          "location": "body",
+          "description": "Value proposition (auto-generated from URL if not provided, costs 5 credits)"
+        }
+      ]
+    },
+    {
+      "name": "sites_delete",
+      "description": "Archives a site. Returns 204 No Content on success. Required: uuid. Destructive.",
+      "method": "DELETE",
+      "path": "/api/v1/sites/{uuid}",
+      "params": [
+        {
+          "name": "uuid",
+          "type": "string",
+          "location": "path",
+          "description": "Site UUID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_get",
+      "description": "Returns a site with its customer types and persona counts. Required: uuid.",
+      "method": "GET",
+      "path": "/api/v1/sites/{uuid}",
+      "params": [
+        {
+          "name": "uuid",
+          "type": "string",
+          "location": "path",
+          "description": "Site UUID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_list",
+      "description": "Returns a paginated list of sites for the organization. Optional: limit, cursor, include_archived.",
+      "method": "GET",
+      "path": "/api/v1/sites",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max results (1-100)"
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor from previous response"
+        },
+        {
+          "name": "include_archived",
+          "type": "bool",
+          "location": "query",
+          "description": "Include archived sites"
+        }
+      ]
+    },
+    {
+      "name": "sites_analysis_list-analyses",
+      "description": "Lists analysis runs for a site with optional filters. Required: site_uuid. Optional: limit, cursor, persona_uuid (plus 3 more). Returns the AnalysisListAnalysesResponse.",
+      "method": "GET",
+      "path": "/api/v1/sites/{site_uuid}/analysis",
+      "params": [
+        {
+          "name": "site_uuid",
+          "type": "string",
+          "location": "path",
+          "description": "Site UUID",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max results"
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor"
+        },
+        {
+          "name": "persona_uuid",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by persona"
+        },
+        {
+          "name": "model",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by model"
+        },
+        {
+          "name": "from",
+          "type": "string",
+          "location": "query",
+          "description": "Start date (ISO 8601)"
+        },
+        {
+          "name": "to",
+          "type": "string",
+          "location": "query",
+          "description": "End date (ISO 8601)"
+        }
+      ]
+    },
+    {
+      "name": "sites_customer-types_create",
+      "description": "Creates a customer type manually. Costs 5 credits. Required: site_uuid, name. Optional: description. Returns the new CustomerTypesCreateResponse.",
+      "method": "POST",
+      "path": "/api/v1/sites/{site_uuid}/customer-types",
+      "params": [
+        {
+          "name": "site_uuid",
+          "type": "string",
+          "location": "path",
+          "description": "Site UUID",
+          "required": true
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description of this market segment"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Customer type name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_customer-types_generate",
+      "description": "Uses AI to generate customer types based on the site's product and value proposition. Costs 5 credits per generated type. Required: site_uuid. Optional: count (default: 3). Returns the new CustomerTypesGenerateResponse.",
+      "method": "POST",
+      "path": "/api/v1/sites/{site_uuid}/customer-types/generate",
+      "params": [
+        {
+          "name": "site_uuid",
+          "type": "string",
+          "location": "path",
+          "description": "Site UUID",
+          "required": true
+        },
+        {
+          "name": "count",
+          "type": "int",
+          "location": "body",
+          "description": "Number of customer types to generate"
+        }
+      ]
+    },
+    {
+      "name": "sites_customer-types_list",
+      "description": "Lists all customer types for a site. Required: site_uuid. Returns the CustomerTypesListResponse.",
+      "method": "GET",
+      "path": "/api/v1/sites/{site_uuid}/customer-types",
+      "params": [
+        {
+          "name": "site_uuid",
+          "type": "string",
+          "location": "path",
+          "description": "Site UUID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "usage_by-key",
+      "description": "Returns credit usage breakdown per API key. Optional: from, to.",
+      "method": "GET",
+      "path": "/api/v1/usage/by-key",
+      "params": [
+        {
+          "name": "from",
+          "type": "string",
+          "location": "query",
+          "description": "Start date (ISO 8601)"
+        },
+        {
+          "name": "to",
+          "type": "string",
+          "location": "query",
+          "description": "End date (ISO 8601)"
+        }
+      ]
+    },
+    {
+      "name": "usage_get",
+      "description": "Returns credit balance, auto-charge settings, and paginated transaction history. Optional: limit, cursor, from (plus 1 more).",
+      "method": "GET",
+      "path": "/api/v1/usage",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max transactions to return"
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor"
+        },
+        {
+          "name": "from",
+          "type": "string",
+          "location": "query",
+          "description": "Start date (ISO 8601)"
+        },
+        {
+          "name": "to",
+          "type": "string",
+          "location": "query",
+          "description": "End date (ISO 8601)"
+        }
+      ]
+    },
+    {
+      "name": "webhooks_create",
+      "description": "Registers a webhook URL. Returns the webhook with its signing secret (shown only once). Required: url. Optional: events.",
+      "method": "POST",
+      "path": "/api/v1/webhooks",
+      "params": [
+        {
+          "name": "events",
+          "type": "array",
+          "location": "body",
+          "description": "Events to subscribe to. Call GET /api/v1/webhooks/events for the canonical catalog of currently-emitted event types and their payload schemas."
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "body",
+          "description": "HTTPS URL to receive webhook payloads",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "webhooks_delete",
+      "description": "Deletes a webhook. Returns 204 No Content on success. Required: uuid. Destructive.",
+      "method": "DELETE",
+      "path": "/api/v1/webhooks/{uuid}",
+      "params": [
+        {
+          "name": "uuid",
+          "type": "string",
+          "location": "path",
+          "description": "Webhook UUID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "webhooks_list",
+      "description": "Lists all registered webhooks for the organization. Returns the WebhooksListResponse.",
+      "method": "GET",
+      "path": "/api/v1/webhooks",
+      "params": []
+    },
+    {
+      "name": "webhooks_list-events",
+      "description": "Returns the catalog of event types this API can emit, with JSON Schemas per event. Use this to self-discover available events programmatically without parsing the full OpenAPI doc.",
+      "method": "GET",
+      "path": "/api/v1/webhooks/events",
+      "params": []
+    },
+    {
+      "name": "webhooks_test_webhook",
+      "description": "Fires a synthetic webhook.test event to the registered URL via the standard delivery worker. Useful for end-to-end testing of signature verification on the subscriber side. Returns 202 with the enqueued Oban job id. Required: uuid.",
+      "method": "POST",
+      "path": "/api/v1/webhooks/{uuid}/test",
+      "params": [
+        {
+          "name": "uuid",
+          "type": "string",
+          "location": "path",
+          "description": "Webhook UUID",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

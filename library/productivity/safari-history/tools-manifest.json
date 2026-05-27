@@ -1,0 +1,554 @@
+{
+  "api_name": "safari-history",
+  "base_url": "",
+  "description": "Read-only tools over a local Safari history snapshot index.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "search",
+      "description": "FTS search over URL/title/search terms.",
+      "method": "GET",
+      "path": "/search",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Search query",
+          "required": true
+        },
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "query",
+          "description": "Domain filter"
+        },
+        {
+          "name": "device",
+          "type": "string",
+          "location": "query",
+          "description": "Device filter"
+        },
+        {
+          "name": "since",
+          "type": "string",
+          "location": "query",
+          "description": "Since window"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Row limit"
+        }
+      ]
+    },
+    {
+      "name": "list",
+      "description": "Recent history list.",
+      "method": "GET",
+      "path": "/list",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "since",
+          "type": "string",
+          "location": "query",
+          "description": "Since window"
+        },
+        {
+          "name": "until",
+          "type": "string",
+          "location": "query",
+          "description": "Until window"
+        },
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "query",
+          "description": "Domain filter"
+        },
+        {
+          "name": "device",
+          "type": "string",
+          "location": "query",
+          "description": "Device filter"
+        },
+        {
+          "name": "transition",
+          "type": "string",
+          "location": "query",
+          "description": "Transition filter"
+        },
+        {
+          "name": "min_visits",
+          "type": "int",
+          "location": "query",
+          "description": "Minimum visits"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Row limit"
+        }
+      ]
+    },
+    {
+      "name": "domains",
+      "description": "Domain frequency ranking.",
+      "method": "GET",
+      "path": "/domains",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "since",
+          "type": "string",
+          "location": "query",
+          "description": "Since window"
+        },
+        {
+          "name": "device",
+          "type": "string",
+          "location": "query",
+          "description": "Device filter"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Row limit"
+        }
+      ]
+    },
+    {
+      "name": "searches",
+      "description": "Search terms from browser history.",
+      "method": "GET",
+      "path": "/searches",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "since",
+          "type": "string",
+          "location": "query",
+          "description": "Since window"
+        },
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "query",
+          "description": "Domain filter"
+        },
+        {
+          "name": "device",
+          "type": "string",
+          "location": "query",
+          "description": "Device filter"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Row limit"
+        }
+      ]
+    },
+    {
+      "name": "downloads",
+      "description": "Download history.",
+      "method": "GET",
+      "path": "/downloads",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "since",
+          "type": "string",
+          "location": "query",
+          "description": "Since window"
+        },
+        {
+          "name": "device",
+          "type": "string",
+          "location": "query",
+          "description": "Device filter"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Row limit"
+        }
+      ]
+    },
+    {
+      "name": "visited",
+      "description": "Check whether a URL or domain was visited.",
+      "method": "GET",
+      "path": "/visited",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "target",
+          "type": "string",
+          "location": "query",
+          "description": "URL or domain",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Row limit"
+        }
+      ]
+    },
+    {
+      "name": "report",
+      "description": "Activity report.",
+      "method": "GET",
+      "path": "/report",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "since",
+          "type": "string",
+          "location": "query",
+          "description": "Since window"
+        },
+        {
+          "name": "device",
+          "type": "string",
+          "location": "query",
+          "description": "Device filter"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Row limit"
+        }
+      ]
+    },
+    {
+      "name": "heatmap",
+      "description": "Hour x weekday activity grid.",
+      "method": "GET",
+      "path": "/heatmap",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "since",
+          "type": "string",
+          "location": "query",
+          "description": "Since window"
+        },
+        {
+          "name": "device",
+          "type": "string",
+          "location": "query",
+          "description": "Device filter"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Row limit"
+        }
+      ]
+    },
+    {
+      "name": "journeys",
+      "description": "Chrome journeys cluster listing.",
+      "method": "GET",
+      "path": "/journeys",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "since",
+          "type": "string",
+          "location": "query",
+          "description": "Since window"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Row limit"
+        }
+      ]
+    },
+    {
+      "name": "timeline",
+      "description": "Sessionized browsing timeline.",
+      "method": "GET",
+      "path": "/timeline",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "since",
+          "type": "string",
+          "location": "query",
+          "description": "Since window or date"
+        },
+        {
+          "name": "until",
+          "type": "string",
+          "location": "query",
+          "description": "Until date"
+        },
+        {
+          "name": "device",
+          "type": "string",
+          "location": "query",
+          "description": "Device filter"
+        },
+        {
+          "name": "gap",
+          "type": "string",
+          "location": "query",
+          "description": "Session gap"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Row limit"
+        }
+      ]
+    },
+    {
+      "name": "rabbitholes",
+      "description": "Detect productive-to-distracting drift.",
+      "method": "GET",
+      "path": "/rabbitholes",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "since",
+          "type": "string",
+          "location": "query",
+          "description": "Since window"
+        },
+        {
+          "name": "device",
+          "type": "string",
+          "location": "query",
+          "description": "Device filter"
+        },
+        {
+          "name": "gap",
+          "type": "string",
+          "location": "query",
+          "description": "Session gap"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Row limit"
+        }
+      ]
+    },
+    {
+      "name": "dwell",
+      "description": "Derived dwell-time estimate.",
+      "method": "GET",
+      "path": "/dwell",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "since",
+          "type": "string",
+          "location": "query",
+          "description": "Since window"
+        },
+        {
+          "name": "device",
+          "type": "string",
+          "location": "query",
+          "description": "Device filter"
+        },
+        {
+          "name": "gap",
+          "type": "string",
+          "location": "query",
+          "description": "Dwell cap gap"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Row limit"
+        }
+      ]
+    },
+    {
+      "name": "graph",
+      "description": "Navigation graph from visit referrers.",
+      "method": "GET",
+      "path": "/graph",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "since",
+          "type": "string",
+          "location": "query",
+          "description": "Since window"
+        },
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "query",
+          "description": "Domain filter"
+        },
+        {
+          "name": "device",
+          "type": "string",
+          "location": "query",
+          "description": "Device filter"
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query",
+          "description": "json|dot"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Row limit"
+        }
+      ]
+    },
+    {
+      "name": "profile",
+      "description": "Behavioral self-profile.",
+      "method": "GET",
+      "path": "/profile",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "since",
+          "type": "string",
+          "location": "query",
+          "description": "Since window"
+        },
+        {
+          "name": "device",
+          "type": "string",
+          "location": "query",
+          "description": "Device filter"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Row limit"
+        }
+      ]
+    },
+    {
+      "name": "devices",
+      "description": "List local/synced/imported/extension origin buckets.",
+      "method": "GET",
+      "path": "/devices",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Row limit"
+        }
+      ]
+    },
+    {
+      "name": "topic",
+      "description": "Merge FTS and journeys by topic.",
+      "method": "GET",
+      "path": "/topic",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "query",
+          "description": "Topic name",
+          "required": true
+        },
+        {
+          "name": "since",
+          "type": "string",
+          "location": "query",
+          "description": "Since window"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Row limit"
+        }
+      ]
+    },
+    {
+      "name": "sql",
+      "description": "Run SELECT-only SQL on snapshot.",
+      "method": "GET",
+      "path": "/sql",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "SELECT query",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Row limit"
+        }
+      ]
+    },
+    {
+      "name": "sync",
+      "description": "Snapshot and index browser history.",
+      "method": "POST",
+      "path": "/sync",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "profile",
+          "type": "string",
+          "location": "query",
+          "description": "Profile name"
+        }
+      ]
+    },
+    {
+      "name": "doctor",
+      "description": "Health-check source and snapshot.",
+      "method": "GET",
+      "path": "/doctor",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "profile",
+          "type": "string",
+          "location": "query",
+          "description": "Profile name"
+        }
+      ]
+    }
+  ]
+}

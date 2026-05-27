@@ -1,0 +1,257 @@
+{
+  "api_name": "intercom",
+  "novelty_score": 8,
+  "alternatives": [
+    {
+      "name": "intercom-client",
+      "url": "https://github.com/intercom/intercom-node",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 389,
+      "last_updated": "",
+      "command_count": 131,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "python-intercom",
+      "url": "https://github.com/intercom/python-intercom",
+      "language": "Python",
+      "install_method": "",
+      "stars": 243,
+      "last_updated": "",
+      "command_count": 131,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "kaosensei/intercom-mcp",
+      "url": "https://github.com/kaosensei/intercom-mcp",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 8,
+      "last_updated": "",
+      "command_count": 16,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "intercom-mcp-server",
+      "url": "https://github.com/intercom/intercom-mcp-server",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 5,
+      "last_updated": "",
+      "command_count": 6,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "raoulbia-ai/mcp-server-for-intercom",
+      "url": "https://github.com/raoulbia-ai/mcp-server-for-intercom",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 8,
+      "last_updated": "",
+      "command_count": 4,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "fabian1710/mcp-intercom",
+      "url": "https://github.com/fabian1710/mcp-intercom",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 8,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "kyoji2/intercom-cli",
+      "url": "https://github.com/kyoji2/intercom-cli",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 2,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "fast-intercom-mcp",
+      "url": "https://github.com/evolsb/fast-intercom-mcp",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 4,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-24T13:50:00Z",
+  "novel_features": [
+    {
+      "name": "Incident-tag dry-run",
+      "command": "conversations incident-tag",
+      "description": "Tag every conversation mentioning a phrase in a time window with one safe-by-default command.",
+      "rationale": "Calls /conversations/search server-side, then fans out tag mutations through the adaptive limiter; default is dry-run with a diff, --apply mutates.",
+      "example": "intercom-pp-cli conversations incident-tag --mentions \"checkout fails\" --since 24h --tag incident-2026-05-24 --apply",
+      "why_it_matters": "When an incident hits, tagging 50 conversations by hand is the bottleneck; this is the single command that closes the loop without spreadsheets.",
+      "group": "Incident response and bulk ops"
+    },
+    {
+      "name": "Articles git round-trip",
+      "command": "articles pull",
+      "description": "Flatten every help-center article into a markdown tree you can edit in git, then push changes back.",
+      "rationale": "Paginates /articles + /help_center/collections, writes \u003cid\u003e-\u003cslug\u003e.\u003clocale\u003e.md with YAML frontmatter; push diffs against the last-pull manifest and PATCHes only what changed.",
+      "example": "intercom-pp-cli articles pull --to ./articles/",
+      "why_it_matters": "Lets docs teams version-control help-center content alongside product code; multilingual articles land as sibling files.",
+      "group": "Help center as code"
+    },
+    {
+      "name": "Contact 360",
+      "command": "contact 360",
+      "description": "One nested payload joining a contact across companies, conversations, tickets, notes, and tags.",
+      "rationale": "Resolves the contact, then SQL-joins synced companies (via attached_companies), conversations (where contact is author), tickets, notes, and tags from the local store.",
+      "example": "intercom-pp-cli contact 360 mei@example.com --agent",
+      "why_it_matters": "Replaces 4-6 separate API calls and a mental merge; this is the lookup an agent makes before every triage decision.",
+      "group": "Local-only analytics"
+    },
+    {
+      "name": "SLA analytics",
+      "command": "conversations sla",
+      "description": "First-response and resolution-time metrics grouped by team or admin, computed over the local store.",
+      "rationale": "SQL over conversations join conversation_parts (min admin-author timestamp minus conversation created_at) join teams; emits JSON/CSV.",
+      "example": "intercom-pp-cli conversations sla --group-by team --metric first-response,resolution --since 7d --agent",
+      "why_it_matters": "Replaces the weekly export-to-spreadsheet ritual; the API alone can't compute this in one call.",
+      "group": "Local-only analytics"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Incident-tag dry-run",
+      "command": "conversations incident-tag",
+      "description": "Tag every conversation mentioning a phrase in a time window with one safe-by-default command.",
+      "rationale": "Calls /conversations/search server-side, then fans out tag mutations through the adaptive limiter; default is dry-run with a diff, --apply mutates.",
+      "example": "intercom-pp-cli conversations incident-tag --mentions \"checkout fails\" --since 24h --tag incident-2026-05-24 --apply",
+      "why_it_matters": "When an incident hits, tagging 50 conversations by hand is the bottleneck; this is the single command that closes the loop without spreadsheets.",
+      "group": "Incident response and bulk ops"
+    },
+    {
+      "name": "Articles git round-trip",
+      "command": "articles pull",
+      "description": "Flatten every help-center article into a markdown tree you can edit in git, then push changes back.",
+      "rationale": "Paginates /articles + /help_center/collections, writes \u003cid\u003e-\u003cslug\u003e.\u003clocale\u003e.md with YAML frontmatter; push diffs against the last-pull manifest and PATCHes only what changed.",
+      "example": "intercom-pp-cli articles pull --to ./articles/",
+      "why_it_matters": "Lets docs teams version-control help-center content alongside product code; multilingual articles land as sibling files.",
+      "group": "Help center as code"
+    },
+    {
+      "name": "Contact 360",
+      "command": "contact 360",
+      "description": "One nested payload joining a contact across companies, conversations, tickets, notes, and tags.",
+      "rationale": "Resolves the contact, then SQL-joins synced companies (via attached_companies), conversations (where contact is author), tickets, notes, and tags from the local store.",
+      "example": "intercom-pp-cli contact 360 mei@example.com --agent",
+      "why_it_matters": "Replaces 4-6 separate API calls and a mental merge; this is the lookup an agent makes before every triage decision.",
+      "group": "Local-only analytics"
+    },
+    {
+      "name": "SLA analytics",
+      "command": "conversations sla",
+      "description": "First-response and resolution-time metrics grouped by team or admin, computed over the local store.",
+      "rationale": "SQL over conversations join conversation_parts (min admin-author timestamp minus conversation created_at) join teams; emits JSON/CSV.",
+      "example": "intercom-pp-cli conversations sla --group-by team --metric first-response,resolution --since 7d --agent",
+      "why_it_matters": "Replaces the weekly export-to-spreadsheet ritual; the API alone can't compute this in one call.",
+      "group": "Local-only analytics"
+    }
+  ],
+  "narrative": {
+    "display_name": "Intercom",
+    "headline": "Every Intercom resource as a typed CLI with offline sync and EU/AU regions.",
+    "value_prop": "This CLI exposes the full Intercom REST API as a single Go binary. Every endpoint is a subcommand. A `sync` command mirrors conversations, contacts, companies, tickets, and articles into a local SQLite database so offline `search` and four headline transcendence commands — `incident-tag`, `articles pull/push`, `contact 360`, and `conversations sla` — answer the questions the API alone can't. Region-aware (`--region us|eu|au`) and built for agents (JSON-first, typed exit codes, MCP-mirrored).",
+    "auth_narrative": "Intercom uses Bearer access tokens (PAT-style). Export `INTERCOM_ACCESS_TOKEN` or run `intercom-pp-cli auth set-token \"\u003ctoken\u003e\"` to save it to your config. The CLI pins the `Intercom-Version: 2.13` header on every request. Tokens are workspace-scoped; pick the right region with `--region us|eu|au` or `INTERCOM_REGION`.",
+    "quickstart": [
+      {
+        "command": "intercom-pp-cli auth set-token \"$INTERCOM_ACCESS_TOKEN\"",
+        "comment": "Save your access token; or just export INTERCOM_ACCESS_TOKEN; verify with `doctor`."
+      },
+      {
+        "command": "intercom-pp-cli doctor",
+        "comment": "Confirm auth + reachability before anything destructive."
+      },
+      {
+        "command": "intercom-pp-cli sync --resources contacts,conversations,companies --since 30d",
+        "comment": "Mirror the four big resources into the local store so offline queries work."
+      },
+      {
+        "command": "intercom-pp-cli contact 360 user@example.com --agent",
+        "comment": "One nested payload joining a contact's companies, conversations, tickets, notes, and tags."
+      },
+      {
+        "command": "intercom-pp-cli conversations sla --group-by team --metric first-response,resolution --since 7d --agent",
+        "comment": "SLA metrics computed locally from synced conversations + parts."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 Unauthorized on every call",
+        "fix": "Your token might be wrong region. Re-set it with `intercom-pp-cli auth set-token \u003ctoken\u003e` and add `--region eu` (or `au`) on every command, or `export INTERCOM_REGION=eu`."
+      },
+      {
+        "symptom": "429 rate-limited mid-sync",
+        "fix": "Sync retries automatically with adaptive backoff respecting `X-RateLimit-Reset`. Re-run after a few seconds, or pass `--max-pages` to cap fan-out."
+      },
+      {
+        "symptom": "`conversations sla` returns empty rows",
+        "fix": "Run `sync --resources conversations,conversation_parts` first — SLA metrics need parts to compute first-response time."
+      },
+      {
+        "symptom": "`articles push` reports conflicts",
+        "fix": "Articles changed in Intercom since your last `pull`. Re-pull to refresh the manifest, then re-edit."
+      }
+    ],
+    "when_to_use": "Use intercom-pp-cli when you need to run the same Intercom operation across many records, when the official MCP doesn't reach your workspace (EU/AU), when you need offline analytics the API doesn't compute (first-response SLA, contact 360 joins), or when you're building an agent that triages, tags, or summarizes conversations and needs every Intercom action as a callable tool.",
+    "recipes": [
+      {
+        "title": "Tag every conversation mentioning an outage",
+        "command": "intercom-pp-cli conversations incident-tag --mentions \"checkout fails\" --since 24h --tag incident-2026-05-24 --apply",
+        "explanation": "Search server-side, dry-run by default, --apply fans out tag mutations through the adaptive limiter."
+      },
+      {
+        "title": "Find slow-response teams this week",
+        "command": "intercom-pp-cli conversations sla --group-by team --metric first-response,resolution --since 7d --agent --select team,first_response_p50_minutes,resolution_p90_hours",
+        "explanation": "Local SQL over conversations + parts; --select narrows the nested payload so agents don't burn context."
+      },
+      {
+        "title": "Pull every help-center article into a git-managed tree",
+        "command": "intercom-pp-cli articles pull --to ./articles/",
+        "explanation": "Each article lands as `\u003cid\u003e-\u003cslug\u003e.\u003clocale\u003e.md` with YAML frontmatter; commit the directory to git, edit locally, then run `intercom-pp-cli articles push --from ./articles/` to sync diffs back."
+      },
+      {
+        "title": "Resolve a contact before triaging",
+        "command": "intercom-pp-cli contact 360 mei@example.com --agent --select contact.id,companies,open_conversations,recent_tickets",
+        "explanation": "Joins five entities locally; replaces 4-6 separate API calls and removes the agent's need to template Intercom's nested search predicate."
+      },
+      {
+        "title": "List conversations updated this week with --select to keep payload small",
+        "command": "intercom-pp-cli conversations list --agent --select conversations.id,conversations.state,conversations.assignee.id,conversations.tags.id,conversations.title",
+        "explanation": "Generated endpoint mirror; `--select` uses dotted paths to walk Intercom's nested envelope so agents don't load 30 KB per conversation."
+      }
+    ],
+    "trigger_phrases": [
+      "search intercom conversations",
+      "tag intercom conversations in bulk",
+      "intercom contact 360",
+      "intercom SLA report",
+      "pull intercom articles",
+      "use intercom-pp-cli",
+      "run intercom-pp-cli"
+    ]
+  }
+}

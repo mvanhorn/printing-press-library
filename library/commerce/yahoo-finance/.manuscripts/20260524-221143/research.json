@@ -1,0 +1,369 @@
+{
+  "api_name": "yahoo-finance",
+  "novelty_score": 9,
+  "alternatives": [
+    {
+      "name": "yfinance",
+      "url": "https://github.com/ranaroussi/yfinance",
+      "language": "Python",
+      "install_method": "",
+      "stars": 14000,
+      "last_updated": "",
+      "command_count": 30,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "yahoo-finance2",
+      "url": "https://github.com/gadicc/yahoo-finance2",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 2800,
+      "last_updated": "",
+      "command_count": 15,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Alex2Yang97/yahoo-finance-mcp",
+      "url": "https://github.com/Alex2Yang97/yahoo-finance-mcp",
+      "language": "Python",
+      "install_method": "",
+      "stars": 262,
+      "last_updated": "",
+      "command_count": 9,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "kanishka-namdeo/yfnhanced-mcp",
+      "url": "https://github.com/kanishka-namdeo/yfnhanced-mcp",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 10,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "yahooquery",
+      "url": "https://github.com/dpguthrie/yahooquery",
+      "language": "Python",
+      "install_method": "",
+      "stars": 1000,
+      "last_updated": "",
+      "command_count": 20,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "BillGatesCat/yf",
+      "url": "https://github.com/BillGatesCat/yf",
+      "language": "Go",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 4,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "tabrindle/yahoo-finance-cli",
+      "url": "https://github.com/tabrindle/yahoo-finance-cli",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 3,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "scottjbarr/yahoofinance",
+      "url": "https://github.com/scottjbarr/yahoofinance",
+      "language": "Go",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 5,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [
+    "crumb-cookie-handshake",
+    "proxy-envelope"
+  ],
+  "recommendation": "proceed",
+  "researched_at": "2026-04-11T21:02:00Z",
+  "novel_features": [
+    {
+      "name": "Portfolio performance tracker",
+      "command": "portfolio perf",
+      "description": "Track YTD / 1Y / all-time returns on your holdings with cost basis, dividends, and current price baked in.",
+      "rationale": "Requires joining local cost-basis state with live quotes and historical dividends — no Yahoo endpoint provides this because cost basis only exists on the user's machine.",
+      "example": "yahoo-finance-pp-cli portfolio perf --agent",
+      "why_it_matters": "Reach for this when an agent needs to report 'how is my user's portfolio doing this year' — no single Yahoo Finance endpoint encodes cost basis.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Morning digest across watchlist",
+      "command": "digest",
+      "description": "One command: overnight news + biggest movers + earnings today + ex-div dates for everything on your watchlist.",
+      "rationale": "Aggregates data across quote, news, calendarEvents, and dailyGainers filtered by local watchlist — no single API call returns this view.",
+      "example": "yahoo-finance-pp-cli digest --watchlist tech --agent",
+      "why_it_matters": "Use as a single agent call for a 'daily market briefing' across a named set of tickers — replaces 4+ separate endpoint calls.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Dividend income + yield-on-cost",
+      "command": "portfolio dividends",
+      "description": "See total dividend income for the year, per-holding breakdown, and yield on cost.",
+      "rationale": "Joins local portfolio lots with cached dividend history. Yield-on-cost requires the original cost basis the user typed in.",
+      "example": "yahoo-finance-pp-cli portfolio dividends --year 2026 --agent",
+      "why_it_matters": "Reach for this when the user asks 'how much have I earned in dividends this year' or 'what's my real yield on my JNJ position'.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Options moneyness + DTE filter",
+      "command": "options-chain",
+      "description": "Filter an options chain to ATM/OTM/ITM contracts within a days-to-expiration window.",
+      "rationale": "Yahoo's options endpoint returns the full chain; computing moneyness against spot and DTE requires local processing.",
+      "example": "yahoo-finance-pp-cli options-chain AAPL --moneyness otm --max-dte 45 --agent",
+      "why_it_matters": "Use when an agent needs to surface 'OTM weekly puts on AAPL near earnings' without parsing a thousand-row chain.",
+      "group": "Agent-native compute"
+    },
+    {
+      "name": "Local SQL screener over synced fundamentals",
+      "command": "screen-local",
+      "description": "Run arbitrary P/E, P/B, yield, margin, and growth filters against the data you've synced locally.",
+      "rationale": "Yahoo's remote screener is limited to 12 predefined IDs. Arbitrary filters require a local fundamentals index.",
+      "example": "yahoo-finance-pp-cli screen-local --pe-max 15 --roe-min 0.15 --agent",
+      "why_it_matters": "Use to compose custom value/growth screens an agent can apply to a synced universe, far beyond Yahoo's 12 canned screens.",
+      "group": "Agent-native compute"
+    },
+    {
+      "name": "Chrome cookie import fallback",
+      "command": "auth login --chrome",
+      "description": "Import your live Chrome session cookies when Yahoo's crumb handshake is blocked from your IP.",
+      "rationale": "Works around residential and cloud IP rate limits that kill raw API access. No other Yahoo Finance tool offers this fallback.",
+      "example": "yahoo-finance-pp-cli auth login --chrome",
+      "why_it_matters": "Reach for this when an agent's `doctor` reports 429 from the host's IP — Chrome's session cookies unblock the crumb handshake.",
+      "group": "Reachability mitigation"
+    },
+    {
+      "name": "Insider net-buying signal screener",
+      "command": "insiders-net-buying",
+      "description": "Surface companies where insiders are net buyers in the last N days, filtered to your watchlist.",
+      "rationale": "Joins insider transactions × watchlist membership and computes buy/sell ratios — needs local state.",
+      "example": "yahoo-finance-pp-cli insiders-net-buying --recent 30d --watchlist tech --agent",
+      "why_it_matters": "Use when an agent needs a 'who's insiders actually buying' signal layer across the user's watchlist.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Total-return comparator",
+      "command": "compare",
+      "description": "Multi-symbol price-plus-dividend total return ranked over a range.",
+      "rationale": "Joins cached history × dividends to compute total return (price appreciation + reinvested dividends) — single-shot from local data.",
+      "example": "yahoo-finance-pp-cli compare AAPL MSFT NVDA --range 1y --include-divs --agent",
+      "why_it_matters": "Use when comparing actual holding-period returns rather than price-only deltas — the only Yahoo CLI that does this offline.",
+      "group": "Agent-native compute"
+    },
+    {
+      "name": "Covered-call screener over holdings",
+      "command": "options-covered-calls",
+      "description": "Scan your holdings for covered-call candidates by annualized yield and DTE.",
+      "rationale": "Joins portfolio_lots (shares \u003e=100) × options chains × spot quote. Computes annualized yield = (call_bid / spot) * (365/DTE).",
+      "example": "yahoo-finance-pp-cli options-covered-calls --min-yield-annualized 0.10 --max-dte 45 --agent",
+      "why_it_matters": "Use to surface 'wheel-strategy' covered-call candidates from the user's actual stock positions.",
+      "group": "Agent-native compute"
+    },
+    {
+      "name": "Watchlist correlation matrix",
+      "command": "watchlist correlate",
+      "description": "Pairwise Pearson correlation across the symbols in a named watchlist over a date range.",
+      "rationale": "Pulls cached daily closes for every symbol in the watchlist, computes pairwise correlation locally — portfolio-theory diversification check.",
+      "example": "yahoo-finance-pp-cli watchlist correlate tech --range 6m --agent",
+      "why_it_matters": "Use when an agent needs to flag concentration risk inside a watchlist — 'is this 'tech' watchlist actually 80% AAPL exposure'.",
+      "group": "Agent-native compute"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Portfolio performance tracker",
+      "command": "portfolio perf",
+      "description": "Track YTD / 1Y / all-time returns on your holdings with cost basis, dividends, and current price baked in.",
+      "rationale": "Requires joining local cost-basis state with live quotes and historical dividends — no Yahoo endpoint provides this because cost basis only exists on the user's machine.",
+      "example": "yahoo-finance-pp-cli portfolio perf --agent",
+      "why_it_matters": "Reach for this when an agent needs to report 'how is my user's portfolio doing this year' — no single Yahoo Finance endpoint encodes cost basis.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Morning digest across watchlist",
+      "command": "digest",
+      "description": "One command: overnight news + biggest movers + earnings today + ex-div dates for everything on your watchlist.",
+      "rationale": "Aggregates data across quote, news, calendarEvents, and dailyGainers filtered by local watchlist — no single API call returns this view.",
+      "example": "yahoo-finance-pp-cli digest --watchlist tech --agent",
+      "why_it_matters": "Use as a single agent call for a 'daily market briefing' across a named set of tickers — replaces 4+ separate endpoint calls.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Dividend income + yield-on-cost",
+      "command": "portfolio dividends",
+      "description": "See total dividend income for the year, per-holding breakdown, and yield on cost.",
+      "rationale": "Joins local portfolio lots with cached dividend history. Yield-on-cost requires the original cost basis the user typed in.",
+      "example": "yahoo-finance-pp-cli portfolio dividends --year 2026 --agent",
+      "why_it_matters": "Reach for this when the user asks 'how much have I earned in dividends this year' or 'what's my real yield on my JNJ position'.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Options moneyness + DTE filter",
+      "command": "options-chain",
+      "description": "Filter an options chain to ATM/OTM/ITM contracts within a days-to-expiration window.",
+      "rationale": "Yahoo's options endpoint returns the full chain; computing moneyness against spot and DTE requires local processing.",
+      "example": "yahoo-finance-pp-cli options-chain AAPL --moneyness otm --max-dte 45 --agent",
+      "why_it_matters": "Use when an agent needs to surface 'OTM weekly puts on AAPL near earnings' without parsing a thousand-row chain.",
+      "group": "Agent-native compute"
+    },
+    {
+      "name": "Local SQL screener over synced fundamentals",
+      "command": "screen-local",
+      "description": "Run arbitrary P/E, P/B, yield, margin, and growth filters against the data you've synced locally.",
+      "rationale": "Yahoo's remote screener is limited to 12 predefined IDs. Arbitrary filters require a local fundamentals index.",
+      "example": "yahoo-finance-pp-cli screen-local --pe-max 15 --roe-min 0.15 --agent",
+      "why_it_matters": "Use to compose custom value/growth screens an agent can apply to a synced universe, far beyond Yahoo's 12 canned screens.",
+      "group": "Agent-native compute"
+    },
+    {
+      "name": "Chrome cookie import fallback",
+      "command": "auth login --chrome",
+      "description": "Import your live Chrome session cookies when Yahoo's crumb handshake is blocked from your IP.",
+      "rationale": "Works around residential and cloud IP rate limits that kill raw API access. No other Yahoo Finance tool offers this fallback.",
+      "example": "yahoo-finance-pp-cli auth login --chrome",
+      "why_it_matters": "Reach for this when an agent's `doctor` reports 429 from the host's IP — Chrome's session cookies unblock the crumb handshake.",
+      "group": "Reachability mitigation"
+    },
+    {
+      "name": "Insider net-buying signal screener",
+      "command": "insiders-net-buying",
+      "description": "Surface companies where insiders are net buyers in the last N days, filtered to your watchlist.",
+      "rationale": "Joins insider transactions × watchlist membership and computes buy/sell ratios — needs local state.",
+      "example": "yahoo-finance-pp-cli insiders-net-buying --recent 30d --watchlist tech --agent",
+      "why_it_matters": "Use when an agent needs a 'who's insiders actually buying' signal layer across the user's watchlist.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Total-return comparator",
+      "command": "compare",
+      "description": "Multi-symbol price-plus-dividend total return ranked over a range.",
+      "rationale": "Joins cached history × dividends to compute total return (price appreciation + reinvested dividends) — single-shot from local data.",
+      "example": "yahoo-finance-pp-cli compare AAPL MSFT NVDA --range 1y --include-divs --agent",
+      "why_it_matters": "Use when comparing actual holding-period returns rather than price-only deltas — the only Yahoo CLI that does this offline.",
+      "group": "Agent-native compute"
+    },
+    {
+      "name": "Covered-call screener over holdings",
+      "command": "options-covered-calls",
+      "description": "Scan your holdings for covered-call candidates by annualized yield and DTE.",
+      "rationale": "Joins portfolio_lots (shares \u003e=100) × options chains × spot quote. Computes annualized yield = (call_bid / spot) * (365/DTE).",
+      "example": "yahoo-finance-pp-cli options-covered-calls --min-yield-annualized 0.10 --max-dte 45 --agent",
+      "why_it_matters": "Use to surface 'wheel-strategy' covered-call candidates from the user's actual stock positions.",
+      "group": "Agent-native compute"
+    },
+    {
+      "name": "Watchlist correlation matrix",
+      "command": "watchlist correlate",
+      "description": "Pairwise Pearson correlation across the symbols in a named watchlist over a date range.",
+      "rationale": "Pulls cached daily closes for every symbol in the watchlist, computes pairwise correlation locally — portfolio-theory diversification check.",
+      "example": "yahoo-finance-pp-cli watchlist correlate tech --range 6m --agent",
+      "why_it_matters": "Use when an agent needs to flag concentration risk inside a watchlist — 'is this 'tech' watchlist actually 80% AAPL exposure'.",
+      "group": "Agent-native compute"
+    }
+  ],
+  "narrative": {
+    "display_name": "Yahoo Finance",
+    "headline": "Every Yahoo Finance endpoint plus a SQLite portfolio, covered-call screener, and Chrome-cookie fallback the libraries don't ship.",
+    "value_prop": "yahoo-finance-pp-cli matches yfinance and yahoo-finance2 for raw endpoint coverage, then adds the things only a local store + agent-shaped CLI can do: cost-basis-aware portfolio performance, dividend income with yield-on-cost, a SQL-backed fundamentals screener, options moneyness + DTE filtering, and an `auth login --chrome` cookie escape hatch when Yahoo blocks your IP.",
+    "auth_narrative": "Yahoo Finance has no API key — it requires a crumb+cookie handshake. The CLI auto-fetches the crumb on first call and persists cookies to `~/.config/yahoo-finance-pp-cli/`. If your IP is rate-limited (cloud hosts and many international IPs are), run `auth login --chrome` to import a logged-in Chrome session so the crumb dance succeeds.",
+    "quickstart": [
+      {
+        "command": "yahoo-finance-pp-cli doctor",
+        "comment": "Confirms the crumb handshake works from your IP."
+      },
+      {
+        "command": "yahoo-finance-pp-cli quote list --symbols AAPL,MSFT,NVDA --json --select symbol,regularMarketPrice,regularMarketChangePercent",
+        "comment": "Three live quotes, JSON-shaped, agent-narrow."
+      },
+      {
+        "command": "yahoo-finance-pp-cli chart AAPL --interval 1d --json",
+        "comment": "Pulls daily chart for AAPL; auto-caches into the local SQLite store."
+      },
+      {
+        "command": "yahoo-finance-pp-cli digest --watchlist tech --agent",
+        "comment": "Cross-endpoint daily briefing for a named watchlist — the killer transcendence command."
+      },
+      {
+        "command": "yahoo-finance-pp-cli sql \"SELECT symbol, MAX(close) FROM history GROUP BY symbol\"",
+        "comment": "Compose raw SQL against synced data — uniqueness of the local store."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "HTTP 429 from query1.finance.yahoo.com",
+        "fix": "Run `yahoo-finance-pp-cli auth login --chrome` to import a logged-in Chrome session, then retry."
+      },
+      {
+        "symptom": "Crumb appears in error responses but request still fails",
+        "fix": "Delete the cached session: `rm ~/.config/yahoo-finance-pp-cli/session.json` and let the next call re-bootstrap."
+      },
+      {
+        "symptom": "Quotes look stale",
+        "fix": "Free tier is delayed up to 15 minutes; `--extended-hours` does not change that. Use a paid provider for sub-minute data."
+      },
+      {
+        "symptom": "`portfolio perf` shows zero positions",
+        "fix": "Seed your lots first: `yahoo-finance-pp-cli portfolio add AAPL 100 --purchase-date 2025-01-15 --cost-basis 175.00`."
+      }
+    ],
+    "when_to_use": "Reach for this CLI when an agent needs Yahoo Finance market data with deterministic JSON output, a local store that compounds across calls (portfolio, watchlist, history cache), or a working session from a rate-limited host. It is the only Yahoo Finance tool that joins your cost basis with live data and survives a 429 via a Chrome cookie fallback.",
+    "recipes": [
+      {
+        "title": "Daily market briefing across your watchlist",
+        "command": "yahoo-finance-pp-cli digest --watchlist tech --agent",
+        "explanation": "Single command returns overnight news, biggest movers, earnings today, and ex-div dates for the symbols in the named watchlist."
+      },
+      {
+        "title": "Year-to-date portfolio performance",
+        "command": "yahoo-finance-pp-cli portfolio perf --agent --select symbol,unrealized_pl,total_return_pct",
+        "explanation": "Joins cost basis with live quotes and reinvested dividends. The `--select` narrows the payload so an agent doesn't burn context on every row."
+      },
+      {
+        "title": "Find OTM puts on AAPL near 30 DTE",
+        "command": "yahoo-finance-pp-cli options-chain AAPL --moneyness otm --max-dte 45 --type puts --agent",
+        "explanation": "Filters the full chain client-side by moneyness and DTE; Yahoo's endpoint doesn't filter."
+      },
+      {
+        "title": "Custom SQL screen for cheap large caps",
+        "command": "yahoo-finance-pp-cli screen-local --pe-max 15 --roe-min 0.15 --market-cap-min 10000000000 --agent",
+        "explanation": "Runs against locally-synced fundamentals; Yahoo's remote screener has only 12 predefined IDs."
+      },
+      {
+        "title": "Raw SQL over the local store",
+        "command": "yahoo-finance-pp-cli sql \"SELECT symbol, ROUND(AVG(close), 2) AS avg_close FROM history WHERE date \u003e date('now','-30 days') GROUP BY symbol ORDER BY avg_close DESC LIMIT 10\"",
+        "explanation": "Demonstrates the SQLite path; useful when an agent needs aggregations that no canned command covers."
+      }
+    ],
+    "trigger_phrases": [
+      "quote AAPL",
+      "options on TSLA",
+      "what's my portfolio doing",
+      "dividend income this year",
+      "screen for value stocks",
+      "daily market briefing",
+      "use yahoo-finance",
+      "run yahoo-finance"
+    ]
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-21T14:55:36.327854Z",
+  "printing_press_version": "4.11.0",
+  "api_name": "art-goat",
+  "display_name": "Art Goat",
+  "cli_name": "art-goat-pp-cli",
+  "owner": "justinwfu",
+  "printer": "justinwfu",
+  "printer_name": "justinwfu",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:f6883c2dcccd3c66eb91c63be11ded56e67b30d4fb9a73e9aa62a3a8acf86934",
+  "run_id": "20260521-062440",
+  "mcp_binary": "art-goat-pp-mcp",
+  "mcp_tool_count": 1,
+  "mcp_ready": "full",
+  "api_version": "1.2.0",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "ART_GOAT_API_KEY",
+    "NASA_API_KEY"
+  ],
+  "novel_features": [
+    {
+      "name": "Contemplative timer sit",
+      "command": "sit",
+      "description": "Sit with one piece of art for a fixed period. Opens the image in your browser, shows the curator's description, runs a quiet timer, and captures your reflection in the journal."
+    },
+    {
+      "name": "Opinionated daily pick",
+      "command": "today",
+      "description": "Today's curated piece, chosen using anti-repeat against your sits and journal-aware diversity against your recent medium and culture choices. Includes a one-line 'why this today'."
+    },
+    {
+      "name": "Reframed practice metrics",
+      "command": "journal stats",
+      "description": "Practice statistics emphasising source breadth, medium variety, region coverage, and mood drift, with streak available at the bottom labeled 'if you want to know'."
+    },
+    {
+      "name": "Reflection full-text search",
+      "command": "journal search",
+      "description": "FTS5 over your reflection history. Surfaces every past sit whose text matches the query."
+    }
+  ],
+  "owner_name": "justinwfu"
+}

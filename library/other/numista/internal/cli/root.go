@@ -361,12 +361,16 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.AddCommand(newUsersPromotedCmd(flags))
 	rootCmd.AddCommand(newVersionCliCmd())
 
-	// PATCH(amend-2026-05-18: catalogue-discovery): wire hand-written
-	// 'catalogues find' subcommand AFTER newCataloguesPromotedCmd has added
-	// the generated parent so the attach helper finds it. No-ops cleanly if
-	// a future regeneration removes the 'catalogues' command, so this is
-	// safe across generator versions.
+	// PATCH(amend-2026-05-18: catalogue-discovery + issuer-discovery +
+	// types-search-help): Decorate generated commands with hand-written
+	// amendments AFTER all generated AddCommand calls have run so the
+	// children are present when the attach helpers walk the tree. Each
+	// helper no-ops cleanly if a future regeneration removes its target
+	// subcommand, so this wiring is safe to leave in place across
+	// generator versions.
 	attachCatalogueAmendments(rootCmd, flags)
+	attachIssuerAmendments(rootCmd, flags)
+	attachTypesSearchAmendments(rootCmd, flags)
 
 	return rootCmd
 }

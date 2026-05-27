@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "applied_at": "2026-05-16",
+  "applied_at": "2026-05-24",
   "base_run_id": "20260508-234057",
   "base_printing_press_version": "4.0.6",
   "patches": [
@@ -86,6 +86,26 @@
         "internal/diggstore/store.go"
       ],
       "validated_outcome": "go build / go test all green; smoke: writable-CTE rejected by driver mode=ro; `authors overlap karpathy sama --json` returns INTERSECT result; `sync --topics ai,technology --dry-run` reports both topics; `RecordReplacementsForTopics` scopes the 2-hour window query to the synced topics via WHERE topic IN (...) so a topic-subset sync no longer pollutes the replacements table."
+    },
+    {
+      "id": "rank-merge-first-non-zero-wins",
+      "summary": "Rank-bearing fields in mergeClusters (CurrentRank, PeakRank, PreviousRank, Delta) gate on accumulator==0 so first-non-zero-wins, instead of always overwriting on incoming non-zero.",
+      "reason": "Digg's /ai RSC stream emits the same clusterId in multiple sections (main leaderboard array, plus featured / weekly / pinned / sevenDaysStories blocks). The previous last-wins merge let secondary sections' rank=1 stamp the cluster's currentRank, displacing the live leaderboard rank. Symptom: `digg-pp-cli top` returned 7 distinct stories all stamped currentRank=1 and Karpathy pinned at rank 1 for 4+ days.",
+      "files": [
+        "internal/diggparse/parser.go",
+        "internal/diggparse/parser_rank_test.go"
+      ],
+      "validated_outcome": "TestMergeClustersFirstWinsForRankFields pins the fix against a real two-occurrence fixture; TestMergeClustersStillGapFillsZeroAccumulator and TestExtractClustersDedup confirm sparse-then-full enrichment still works; TestMergeClustersDistinctClustersPreserveOwnRanks confirms distinct clusters keep their own ranks."
+    },
+    {
+      "id": "peak-rank-9999-sentinel-normalization",
+      "summary": "ExtractClusters normalizes PeakRank=9999 to 0 at parse time (next to the existing Rank->CurrentRank normalization) so the sentinel does not block a later occurrence's legitimate PeakRank via the first-non-zero-wins merge guard, and so the json:peakRank,omitempty tag drops it from CLI JSON output.",
+      "reason": "9999 is Digg's internal placeholder for newly-detected clusters with no tracked all-time peak. Leaking it into CLI JSON forces every downstream agent to special-case the value. Normalizing at parse time (rather than at the output boundary) also prevents a sentinel occurrence from blocking a legitimate later PeakRank under the first-non-zero-wins merge guard introduced in the sibling rank-merge patch.",
+      "files": [
+        "internal/diggparse/parser.go",
+        "internal/diggparse/parser_rank_test.go"
+      ],
+      "validated_outcome": "TestExtractClustersNormalizesPeakRankSentinel verifies normalization + JSON omission; TestExtractClustersSentinelDoesNotBlockLaterPeakRank verifies the parse-time placement (sentinel-then-real interaction); TestExtractClustersPreservesLegitimatePeakRank confirms non-sentinel values pass through unchanged; TestExtractClustersOmitsAbsentPeakRank confirms absent-field behavior is unchanged."
     }
   ]
 }

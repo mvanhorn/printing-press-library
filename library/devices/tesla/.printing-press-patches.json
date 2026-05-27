@@ -164,6 +164,16 @@
       "upstream_issue": "doctor.go, tesla_reachability.go, agent_context.go all carry generator DO NOT EDIT headers; the edits are templated drift. R7 permits this with documentation. Future generator hook should make these extension points."
     },
     {
+      "id": "fix-products-parser-wall-connector-string-id",
+      "summary": "Handle Wall Connector accounts in /api/1/products: change productEntry.VehicleCommandID to json.RawMessage so the unmarshal succeeds, and filter empty-VIN entries in fetchProductsList so energy devices can't accidentally match an empty --vehicle in the exact-match loop.",
+      "reason": "Tesla's /api/1/products returns a heterogeneous array: vehicles have integer IDs, energy devices (Wall Connectors, Powerwalls) have non-numeric string IDs (e.g. \"STE20240625-00048\") and no VIN. int64 fails the parse for any account with a Wall Connector. json.Number is also insufficient — it rejects non-numeric strings via isValidNumber, so the runtime parse still fails even though the code compiles. json.RawMessage implements json.Unmarshaler and accepts any JSON token, which is the only stdlib type that works for both shapes without a custom unmarshaler. Once the parse succeeds, energy-device entries with empty VINs would still slip into resolveCommandVehicle, where strings.EqualFold(\"\", \"\") would match a Wall Connector against an empty --vehicle and silently route a vehicle command at a charger; dropping empty-VIN entries at the data-source boundary closes that hole without scattering nil checks across the matching loops.",
+      "files": [
+        "internal/cli/tesla_command.go"
+      ],
+      "validated_outcome": "go build ./... and go vet ./... pass. Two unit tests: heterogeneous-id unmarshal succeeds, and fetchProductsList against a mock /api/1/products containing a vehicle + Wall Connector returns only the vehicle.",
+      "upstream_issue": "https://github.com/mvanhorn/printing-press-library/issues/793"
+    },
+    {
       "id": "u7-pii-scrub",
       "summary": "Mechanical scrub of workspace identifiers from source, docs, and manifest files before first publish. Replaced workspace VINs with placeholders across source examples. Scrubbed absolute home paths from polish-state files. Verified the published tree has no workspace identifiers.",
       "reason": "R6: no real PII in any file that lands in the publish repo. Vehicle names Snowflake and Stella are explicitly accepted by the author for cookbook examples; everything else is workspace-specific.",

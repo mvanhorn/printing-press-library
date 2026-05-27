@@ -1,0 +1,1828 @@
+{
+  "api_name": "adguard-home",
+  "base_url": "",
+  "description": "AdGuard Home REST-ish API.  Our admin web interface is built on top of this REST-ish API.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "api_key",
+    "header": "Authorization",
+    "format": "Basic {ADGUARD_HOME_USERNAME}:{ADGUARD_HOME_PASSWORD}",
+    "env_vars": [
+      "ADGUARD_HOME_USERNAME",
+      "ADGUARD_HOME_PASSWORD"
+    ],
+    "env_var_specs": [
+      {
+        "name": "ADGUARD_HOME_USERNAME",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": false,
+        "inferred": true
+      },
+      {
+        "name": "ADGUARD_HOME_PASSWORD",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "access_list",
+      "description": "List (dis)allowed clients, blocked hosts, etc. Returns the AccessListResponse.",
+      "method": "GET",
+      "path": "/access/list",
+      "params": []
+    },
+    {
+      "name": "access_set",
+      "description": "Set (dis)allowed clients, blocked hosts, etc. Optional: allowed_clients, blocked_hosts, disallowed_clients.",
+      "method": "POST",
+      "path": "/access/set",
+      "params": [
+        {
+          "name": "allowed_clients",
+          "type": "array",
+          "location": "body",
+          "description": "The allowlist of clients: IP addresses, CIDRs, or ClientIDs."
+        },
+        {
+          "name": "blocked_hosts",
+          "type": "array",
+          "location": "body",
+          "description": "The blocklist of hosts."
+        },
+        {
+          "name": "disallowed_clients",
+          "type": "array",
+          "location": "body",
+          "description": "The blocklist of clients: IP addresses, CIDRs, or ClientIDs."
+        }
+      ]
+    },
+    {
+      "name": "adguard-home-profile_get",
+      "description": "Get. Returns the ProfileInfo.",
+      "method": "GET",
+      "path": "/profile",
+      "params": []
+    },
+    {
+      "name": "adguard-home-profile_update",
+      "description": "Updates current user info. Required: language, name, theme.",
+      "method": "PUT",
+      "path": "/profile/update",
+      "params": [
+        {
+          "name": "language",
+          "type": "string",
+          "location": "body",
+          "description": "Language",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        },
+        {
+          "name": "theme",
+          "type": "string",
+          "location": "body",
+          "description": "Interface theme",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "apple_mobile-config-do-h",
+      "description": "Get DNS over HTTPS .mobileconfig. Required: host. Optional: client_id.",
+      "method": "GET",
+      "path": "/apple/doh.mobileconfig",
+      "params": [
+        {
+          "name": "host",
+          "type": "string",
+          "location": "query",
+          "description": "Host for which the config is generated. If no host is provided, `tls.server_name` from the configuration file is used. If `tls.server_name` is not set, the API returns an error with a 500 status.",
+          "required": true
+        },
+        {
+          "name": "client_id",
+          "type": "string",
+          "location": "query",
+          "description": "ClientID."
+        }
+      ]
+    },
+    {
+      "name": "apple_mobile-config-do-t",
+      "description": "Get DNS over TLS .mobileconfig. Required: host. Optional: client_id.",
+      "method": "GET",
+      "path": "/apple/dot.mobileconfig",
+      "params": [
+        {
+          "name": "host",
+          "type": "string",
+          "location": "query",
+          "description": "Host for which the config is generated. If no host is provided, `tls.server_name` from the configuration file is used. If `tls.server_name` is not set, the API returns an error with a 500 status.",
+          "required": true
+        },
+        {
+          "name": "client_id",
+          "type": "string",
+          "location": "query",
+          "description": "ClientID."
+        }
+      ]
+    },
+    {
+      "name": "blocked-services_all",
+      "description": "Get available services to use for blocking. Returns the BlockedServicesAll.",
+      "method": "GET",
+      "path": "/blocked_services/all",
+      "params": []
+    },
+    {
+      "name": "blocked-services_available-services",
+      "description": "Deprecated: Use `GET /blocked_services/all` instead. Returns array of string.",
+      "method": "GET",
+      "path": "/blocked_services/services",
+      "params": []
+    },
+    {
+      "name": "blocked-services_list",
+      "description": "Deprecated: Use `GET /blocked_services/get` instead. Returns array of string.",
+      "method": "GET",
+      "path": "/blocked_services/list",
+      "params": []
+    },
+    {
+      "name": "blocked-services_schedule",
+      "description": "Get blocked services. Returns the BlockedServicesSchedule.",
+      "method": "GET",
+      "path": "/blocked_services/get",
+      "params": []
+    },
+    {
+      "name": "blocked-services_schedule-update",
+      "description": "Update blocked services. Optional: ids, schedule.",
+      "method": "PUT",
+      "path": "/blocked_services/update",
+      "params": [
+        {
+          "name": "ids",
+          "type": "array",
+          "location": "body",
+          "description": "The names of the blocked services."
+        },
+        {
+          "name": "schedule",
+          "type": "object",
+          "location": "body",
+          "description": "Sets periods of inactivity for filtering blocked services. The schedule contains 7 days (Sunday to Saturday) and a time zone."
+        }
+      ]
+    },
+    {
+      "name": "blocked-services_set",
+      "description": "Deprecated: Use `PUT /blocked_services/update` instead.",
+      "method": "POST",
+      "path": "/blocked_services/set",
+      "params": []
+    },
+    {
+      "name": "cache-clear_cache_clear",
+      "description": "Clear DNS cache.",
+      "method": "POST",
+      "path": "/cache_clear",
+      "params": []
+    },
+    {
+      "name": "clients_add",
+      "description": "Add a new client. Optional: blocked_services, blocked_services_schedule, filtering_enabled (plus 14 more).",
+      "method": "POST",
+      "path": "/clients/add",
+      "params": [
+        {
+          "name": "blocked_services",
+          "type": "array",
+          "location": "body",
+          "description": "Blocked services"
+        },
+        {
+          "name": "blocked_services_schedule",
+          "type": "object",
+          "location": "body",
+          "description": "Sets periods of inactivity for filtering blocked services. The schedule contains 7 days (Sunday to Saturday) and a time zone."
+        },
+        {
+          "name": "filtering_enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Filtering enabled"
+        },
+        {
+          "name": "ids",
+          "type": "array",
+          "location": "body",
+          "description": "IP, CIDR, MAC, or ClientID."
+        },
+        {
+          "name": "ignore_querylog",
+          "type": "bool",
+          "location": "body",
+          "description": "NOTE: If `ignore_querylog` is not set in HTTP API `GET /clients/add` request then default value (false) will be used. If `ignore_querylog` is not set in HTTP API `GET /clients/update` request then the existing value will not be changed. This behaviour can be changed in the future versions."
+        },
+        {
+          "name": "ignore_statistics",
+          "type": "bool",
+          "location": "body",
+          "description": "NOTE: If `ignore_statistics` is not set in HTTP API `GET /clients/add` request then default value (false) will be used. If `ignore_statistics` is not set in HTTP API `GET /clients/update` request then the existing value will not be changed. This behaviour can be changed in the future versions."
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        },
+        {
+          "name": "parental_enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Parental enabled"
+        },
+        {
+          "name": "safe_search",
+          "type": "object",
+          "location": "body",
+          "description": "Safe search settings."
+        },
+        {
+          "name": "safebrowsing_enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Safebrowsing enabled"
+        },
+        {
+          "name": "safesearch_enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Safesearch enabled"
+        },
+        {
+          "name": "tags",
+          "type": "array",
+          "location": "body",
+          "description": "Tags"
+        },
+        {
+          "name": "upstreams",
+          "type": "array",
+          "location": "body",
+          "description": "Upstreams"
+        },
+        {
+          "name": "upstreams_cache_enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "NOTE: If `upstreams_cache_enabled` is not set in HTTP API `GET /clients/add` request then default value (false) will be used. If `upstreams_cache_enabled` is not set in HTTP API `GET /clients/update` request then the existing value will not be changed. This behaviour can be changed in the future versions."
+        },
+        {
+          "name": "upstreams_cache_size",
+          "type": "int",
+          "location": "body",
+          "description": "NOTE: If `upstreams_cache_enabled` is not set in HTTP API `GET /clients/update` request then the existing value will not be changed. This behaviour can be changed in the future versions."
+        },
+        {
+          "name": "use_global_blocked_services",
+          "type": "bool",
+          "location": "body",
+          "description": "Use global blocked services"
+        },
+        {
+          "name": "use_global_settings",
+          "type": "bool",
+          "location": "body",
+          "description": "Use global settings"
+        }
+      ]
+    },
+    {
+      "name": "clients_delete",
+      "description": "Remove a client. Optional: name.",
+      "method": "POST",
+      "path": "/clients/delete",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        }
+      ]
+    },
+    {
+      "name": "clients_find",
+      "description": "Get information about clients by their IP addresses or ClientIDs. Optional: ip0. Returns array of ClientsFindEntry.",
+      "method": "GET",
+      "path": "/clients/find",
+      "params": [
+        {
+          "name": "ip0",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by IP address or ClientIDs. Parameters with names `ip1`, `ip2`, and so on are also accepted and interpreted as 'ip0 OR ip1 OR ip2'. TODO(a.garipov): Replace with a better query API."
+        }
+      ]
+    },
+    {
+      "name": "clients_search",
+      "description": "Retrieve information about clients by performing an exact match search using IP addresses, CIDRs, MAC addresses, or ClientIDs. Optional: clients. Returns array of ClientsFindEntry.",
+      "method": "POST",
+      "path": "/clients/search",
+      "params": [
+        {
+          "name": "clients",
+          "type": "array",
+          "location": "body",
+          "description": "Clients"
+        }
+      ]
+    },
+    {
+      "name": "clients_status",
+      "description": "Get information about configured clients. Returns the Clients.",
+      "method": "GET",
+      "path": "/clients",
+      "params": []
+    },
+    {
+      "name": "clients_update",
+      "description": "Update client information. Optional: data, name.",
+      "method": "POST",
+      "path": "/clients/update",
+      "params": [
+        {
+          "name": "data",
+          "type": "object",
+          "location": "body",
+          "description": "Client information."
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        }
+      ]
+    },
+    {
+      "name": "dhcp_add-static-lease",
+      "description": "Adds a static lease. Required: hostname, ip, mac.",
+      "method": "POST",
+      "path": "/dhcp/add_static_lease",
+      "params": [
+        {
+          "name": "hostname",
+          "type": "string",
+          "location": "body",
+          "description": "Hostname",
+          "required": true
+        },
+        {
+          "name": "ip",
+          "type": "string",
+          "location": "body",
+          "description": "Ip",
+          "required": true
+        },
+        {
+          "name": "mac",
+          "type": "string",
+          "location": "body",
+          "description": "Mac",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "dhcp_check-active",
+      "description": "Searches for an active DHCP server on the network. Optional: interface. Returns the new DhcpSearchResult.",
+      "method": "POST",
+      "path": "/dhcp/find_active_dhcp",
+      "params": [
+        {
+          "name": "interface",
+          "type": "string",
+          "location": "body",
+          "description": "The name of the network interface"
+        }
+      ]
+    },
+    {
+      "name": "dhcp_interfaces",
+      "description": "Gets the available interfaces. Returns the NetInterfaces.",
+      "method": "GET",
+      "path": "/dhcp/interfaces",
+      "params": []
+    },
+    {
+      "name": "dhcp_remove-static-lease",
+      "description": "Removes a static lease. Required: hostname, ip, mac.",
+      "method": "POST",
+      "path": "/dhcp/remove_static_lease",
+      "params": [
+        {
+          "name": "hostname",
+          "type": "string",
+          "location": "body",
+          "description": "Hostname",
+          "required": true
+        },
+        {
+          "name": "ip",
+          "type": "string",
+          "location": "body",
+          "description": "Ip",
+          "required": true
+        },
+        {
+          "name": "mac",
+          "type": "string",
+          "location": "body",
+          "description": "Mac",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "dhcp_reset",
+      "description": "Reset DHCP configuration.",
+      "method": "POST",
+      "path": "/dhcp/reset",
+      "params": []
+    },
+    {
+      "name": "dhcp_reset-leases",
+      "description": "Reset DHCP leases.",
+      "method": "POST",
+      "path": "/dhcp/reset_leases",
+      "params": []
+    },
+    {
+      "name": "dhcp_set-config",
+      "description": "Updates the current DHCP server configuration. Optional: enabled, interface_name, v4 (plus 1 more).",
+      "method": "POST",
+      "path": "/dhcp/set_config",
+      "params": [
+        {
+          "name": "enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Enabled"
+        },
+        {
+          "name": "interface_name",
+          "type": "string",
+          "location": "body",
+          "description": "Interface name"
+        },
+        {
+          "name": "v4",
+          "type": "object",
+          "location": "body",
+          "description": "V4"
+        },
+        {
+          "name": "v6",
+          "type": "object",
+          "location": "body",
+          "description": "V6"
+        }
+      ]
+    },
+    {
+      "name": "dhcp_status",
+      "description": "Gets the current DHCP settings and status. Returns the DhcpStatus.",
+      "method": "GET",
+      "path": "/dhcp/status",
+      "params": []
+    },
+    {
+      "name": "dhcp_update-static-lease",
+      "description": "Updates IP address, hostname of the static lease. IP version must be the same as previous. Required: hostname, ip, mac.",
+      "method": "POST",
+      "path": "/dhcp/update_static_lease",
+      "params": [
+        {
+          "name": "hostname",
+          "type": "string",
+          "location": "body",
+          "description": "Hostname",
+          "required": true
+        },
+        {
+          "name": "ip",
+          "type": "string",
+          "location": "body",
+          "description": "Ip",
+          "required": true
+        },
+        {
+          "name": "mac",
+          "type": "string",
+          "location": "body",
+          "description": "Mac",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "dns-config_dns_config",
+      "description": "Set general DNS parameters. Optional: blocked_response_ttl, blocking_ipv4, blocking_ipv6 (plus 26 more).",
+      "method": "POST",
+      "path": "/dns_config",
+      "params": [
+        {
+          "name": "blocked_response_ttl",
+          "type": "int",
+          "location": "body",
+          "description": "TTL for blocked responses."
+        },
+        {
+          "name": "blocking_ipv4",
+          "type": "string",
+          "location": "body",
+          "description": "Blocking ipv4"
+        },
+        {
+          "name": "blocking_ipv6",
+          "type": "string",
+          "location": "body",
+          "description": "Blocking ipv6"
+        },
+        {
+          "name": "blocking_mode",
+          "type": "string",
+          "location": "body",
+          "description": "Blocking mode"
+        },
+        {
+          "name": "bootstrap_dns",
+          "type": "array",
+          "location": "body",
+          "description": "Bootstrap servers, port is optional after colon. Empty value will reset it to default values."
+        },
+        {
+          "name": "cache_enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Enables or disables the DNS response cache. If `cache_enabled` is `true`, the companion field `cache_size` must be present and greater than 0, or the `dns.cache_size` setting in the configuration file must already be greater than 0."
+        },
+        {
+          "name": "cache_optimistic",
+          "type": "bool",
+          "location": "body",
+          "description": "Cache optimistic"
+        },
+        {
+          "name": "cache_size",
+          "type": "int",
+          "location": "body",
+          "description": "Cache size"
+        },
+        {
+          "name": "cache_ttl_max",
+          "type": "int",
+          "location": "body",
+          "description": "Cache ttl max"
+        },
+        {
+          "name": "cache_ttl_min",
+          "type": "int",
+          "location": "body",
+          "description": "Cache ttl min"
+        },
+        {
+          "name": "disable_ipv6",
+          "type": "bool",
+          "location": "body",
+          "description": "Disable ipv6"
+        },
+        {
+          "name": "dnssec_enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Dnssec enabled"
+        },
+        {
+          "name": "edns_cs_custom_ip",
+          "type": "string",
+          "location": "body",
+          "description": "Edns cs custom ip"
+        },
+        {
+          "name": "edns_cs_enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Edns cs enabled"
+        },
+        {
+          "name": "edns_cs_use_custom",
+          "type": "bool",
+          "location": "body",
+          "description": "Edns cs use custom"
+        },
+        {
+          "name": "fallback_dns",
+          "type": "array",
+          "location": "body",
+          "description": "List of fallback DNS servers used when upstream DNS servers are not responding. Empty value will clear the list."
+        },
+        {
+          "name": "local_ptr_upstreams",
+          "type": "array",
+          "location": "body",
+          "description": "Upstream servers, port is optional after colon. Empty value will reset it to default values."
+        },
+        {
+          "name": "protection_disabled_until",
+          "type": "string",
+          "location": "body",
+          "description": "Protection is pause until this time. Nullable."
+        },
+        {
+          "name": "protection_enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Protection enabled"
+        },
+        {
+          "name": "ratelimit",
+          "type": "int",
+          "location": "body",
+          "description": "Ratelimit"
+        },
+        {
+          "name": "ratelimit_subnet_subnet_len_ipv4",
+          "type": "int",
+          "location": "body",
+          "description": "Length of the subnet mask for IPv4 addresses."
+        },
+        {
+          "name": "ratelimit_subnet_subnet_len_ipv6",
+          "type": "int",
+          "location": "body",
+          "description": "Length of the subnet mask for IPv6 addresses."
+        },
+        {
+          "name": "ratelimit_whitelist",
+          "type": "array",
+          "location": "body",
+          "description": "List of IP addresses excluded from rate limiting."
+        },
+        {
+          "name": "resolve_clients",
+          "type": "bool",
+          "location": "body",
+          "description": "Resolve clients"
+        },
+        {
+          "name": "upstream_dns",
+          "type": "array",
+          "location": "body",
+          "description": "Upstream servers, port is optional after colon. Empty value will reset it to default values."
+        },
+        {
+          "name": "upstream_dns_file",
+          "type": "string",
+          "location": "body",
+          "description": "Upstream dns file"
+        },
+        {
+          "name": "upstream_mode",
+          "type": "string",
+          "location": "body",
+          "description": "Upstream modes enumeration."
+        },
+        {
+          "name": "upstream_timeout",
+          "type": "int",
+          "location": "body",
+          "description": "The number of seconds to wait for a response from the upstream server"
+        },
+        {
+          "name": "use_private_ptr_resolvers",
+          "type": "bool",
+          "location": "body",
+          "description": "Use private ptr resolvers"
+        }
+      ]
+    },
+    {
+      "name": "dns-info_dns_info",
+      "description": "Get general DNS parameters. Returns the DnsInfoDnsInfoResponse.",
+      "method": "GET",
+      "path": "/dns_info",
+      "params": []
+    },
+    {
+      "name": "filtering_add-url",
+      "description": "Add filter URL or an absolute file path. Optional: name, url, whitelist.",
+      "method": "POST",
+      "path": "/filtering/add_url",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "body",
+          "description": "URL or an absolute path to the file containing filtering rules."
+        },
+        {
+          "name": "whitelist",
+          "type": "bool",
+          "location": "body",
+          "description": "Whitelist"
+        }
+      ]
+    },
+    {
+      "name": "filtering_check-host",
+      "description": "Check if host name is filtered. Required: name. Optional: client, qtype. Returns the FilterCheckHostResponse.",
+      "method": "GET",
+      "path": "/filtering/check_host",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by host name",
+          "required": true
+        },
+        {
+          "name": "client",
+          "type": "string",
+          "location": "query",
+          "description": "Optional ClientID or client IP address"
+        },
+        {
+          "name": "qtype",
+          "type": "string",
+          "location": "query",
+          "description": "Optional DNS type"
+        }
+      ]
+    },
+    {
+      "name": "filtering_config",
+      "description": "Set filtering parameters. Optional: enabled, interval.",
+      "method": "POST",
+      "path": "/filtering/config",
+      "params": [
+        {
+          "name": "enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Enabled"
+        },
+        {
+          "name": "interval",
+          "type": "int",
+          "location": "body",
+          "description": "Interval"
+        }
+      ]
+    },
+    {
+      "name": "filtering_refresh",
+      "description": "Reload filtering rules from URLs. This might be needed if new URL was just added and you don't want to wait for automatic refresh to kick in. This API request is ratelimited, so you can call it freely as often as you like, it wont create unnecessary burden on servers that host the URL. This should work as intended, a `force` parameter is offered as last-resort attempt to make filter lists fresh. If you ever find yourself using `force` to make something work that otherwise wont, this is a bug and report it accordingly. Optional: whitelist. Returns the new FilterRefreshResponse.",
+      "method": "POST",
+      "path": "/filtering/refresh",
+      "params": [
+        {
+          "name": "whitelist",
+          "type": "bool",
+          "location": "body",
+          "description": "Whitelist"
+        }
+      ]
+    },
+    {
+      "name": "filtering_remove-url",
+      "description": "Remove filter URL. Optional: url, whitelist.",
+      "method": "POST",
+      "path": "/filtering/remove_url",
+      "params": [
+        {
+          "name": "url",
+          "type": "string",
+          "location": "body",
+          "description": "Previously added URL containing filtering rules"
+        },
+        {
+          "name": "whitelist",
+          "type": "bool",
+          "location": "body",
+          "description": "Whitelist"
+        }
+      ]
+    },
+    {
+      "name": "filtering_set-rules",
+      "description": "Set user-defined filter rules. Optional: rules.",
+      "method": "POST",
+      "path": "/filtering/set_rules",
+      "params": [
+        {
+          "name": "rules",
+          "type": "array",
+          "location": "body",
+          "description": "Rules"
+        }
+      ]
+    },
+    {
+      "name": "filtering_set-url",
+      "description": "Set URL parameters. Optional: data, url, whitelist.",
+      "method": "POST",
+      "path": "/filtering/set_url",
+      "params": [
+        {
+          "name": "data",
+          "type": "object",
+          "location": "body",
+          "description": "Filter update data"
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "body",
+          "description": "Url"
+        },
+        {
+          "name": "whitelist",
+          "type": "bool",
+          "location": "body",
+          "description": "Whitelist"
+        }
+      ]
+    },
+    {
+      "name": "filtering_status",
+      "description": "Get filtering parameters. Returns the FilterStatus.",
+      "method": "GET",
+      "path": "/filtering/status",
+      "params": []
+    },
+    {
+      "name": "i18n_change-language",
+      "description": "Change current language. Argument must be an ISO 639-1 two-letter code. Required: language.",
+      "method": "POST",
+      "path": "/i18n/change_language",
+      "params": [
+        {
+          "name": "language",
+          "type": "string",
+          "location": "body",
+          "description": "The current language or the language to set.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "i18n_current-language",
+      "description": "Get currently set language. Result is ISO 639-1 two-letter code. Empty result means default language. Returns the LanguageSettings.",
+      "method": "GET",
+      "path": "/i18n/current_language",
+      "params": []
+    },
+    {
+      "name": "install_check-config",
+      "description": "Checks configuration. Optional: dns, set_static_ip, web. Returns the new CheckConfigResponse.",
+      "method": "POST",
+      "path": "/install/check_config",
+      "params": [
+        {
+          "name": "dns",
+          "type": "object",
+          "location": "body",
+          "description": "Dns"
+        },
+        {
+          "name": "set_static_ip",
+          "type": "bool",
+          "location": "body",
+          "description": "Set static ip"
+        },
+        {
+          "name": "web",
+          "type": "object",
+          "location": "body",
+          "description": "Web"
+        }
+      ]
+    },
+    {
+      "name": "install_configure",
+      "description": "Applies the initial configuration. Required: dns, password, username, web.",
+      "method": "POST",
+      "path": "/install/configure",
+      "params": [
+        {
+          "name": "dns",
+          "type": "object",
+          "location": "body",
+          "description": "Port information",
+          "required": true
+        },
+        {
+          "name": "password",
+          "type": "string",
+          "location": "body",
+          "description": "Basic auth password",
+          "required": true
+        },
+        {
+          "name": "username",
+          "type": "string",
+          "location": "body",
+          "description": "Basic auth username",
+          "required": true
+        },
+        {
+          "name": "web",
+          "type": "object",
+          "location": "body",
+          "description": "Port information",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "install_get-addresses",
+      "description": "Gets the network interfaces information. Returns the AddressesInfo.",
+      "method": "GET",
+      "path": "/install/get_addresses",
+      "params": []
+    },
+    {
+      "name": "login_login",
+      "description": "Perform administrator log-in. Optional: name, password.",
+      "method": "POST",
+      "path": "/login",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "User name"
+        },
+        {
+          "name": "password",
+          "type": "string",
+          "location": "body",
+          "description": "Password"
+        }
+      ]
+    },
+    {
+      "name": "logout_logout",
+      "description": "Perform administrator log-out.",
+      "method": "GET",
+      "path": "/logout",
+      "params": []
+    },
+    {
+      "name": "parental_disable",
+      "description": "Disable parental filtering.",
+      "method": "POST",
+      "path": "/parental/disable",
+      "params": []
+    },
+    {
+      "name": "parental_enable",
+      "description": "Enable parental filtering.",
+      "method": "POST",
+      "path": "/parental/enable",
+      "params": []
+    },
+    {
+      "name": "parental_status",
+      "description": "Get parental filtering status. Returns the ParentalStatusResponse.",
+      "method": "GET",
+      "path": "/parental/status",
+      "params": []
+    },
+    {
+      "name": "protection_set",
+      "description": "Set protection state and duration. Required: enabled. Optional: duration.",
+      "method": "POST",
+      "path": "/protection",
+      "params": [
+        {
+          "name": "duration",
+          "type": "int",
+          "location": "body",
+          "description": "Duration of a pause, in milliseconds. Enabled should be false."
+        },
+        {
+          "name": "enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Enabled",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "querylog_get-query-log-config",
+      "description": "Get query log parameters. Returns the GetQueryLogConfigResponse.",
+      "method": "GET",
+      "path": "/querylog/config",
+      "params": []
+    },
+    {
+      "name": "querylog_put-query-log-config",
+      "description": "Set query log parameters. Required: anonymize_client_ip, enabled, ignored, interval. Optional: ignored_enabled.",
+      "method": "PUT",
+      "path": "/querylog/config/update",
+      "params": [
+        {
+          "name": "anonymize_client_ip",
+          "type": "bool",
+          "location": "body",
+          "description": "Anonymize clients' IP addresses",
+          "required": true
+        },
+        {
+          "name": "enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Is query log enabled",
+          "required": true
+        },
+        {
+          "name": "ignored",
+          "type": "array",
+          "location": "body",
+          "description": "List of host names, which should not be written to log",
+          "required": true
+        },
+        {
+          "name": "ignored_enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "If true, the host names in the `ignored` array are excluded from the query log."
+        },
+        {
+          "name": "interval",
+          "type": "float",
+          "location": "body",
+          "description": "Time period for query log rotation in milliseconds.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "querylog_query-log",
+      "description": "Get DNS server query log. Optional: older_than, offset, limit (plus 3 more). Returns array of QueryLogItem.",
+      "method": "GET",
+      "path": "/querylog",
+      "params": [
+        {
+          "name": "older_than",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by older than"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Specify the ranking number of the first item on the page. Even though it is possible to use 'offset' and 'older_than', we recommend choosing one of them and sticking to it."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit the number of records to be returned"
+        },
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by domain name or client IP"
+        },
+        {
+          "name": "response_status",
+          "type": "string",
+          "location": "query",
+          "description": "Deprecated: Use 'reason' parameter instead Filter by response status NOTE: This parameter cannot be used with 'reason' parameter."
+        },
+        {
+          "name": "reason",
+          "type": "array",
+          "location": "query",
+          "description": "Filter by response filtering reason. Multiple reasons can be provided. NOTE: This parameter cannot be used with 'response_status' parameter."
+        }
+      ]
+    },
+    {
+      "name": "querylog-clear_querylog_clear",
+      "description": "Clear query log.",
+      "method": "POST",
+      "path": "/querylog_clear",
+      "params": []
+    },
+    {
+      "name": "querylog-config_query-log-config",
+      "description": "Deprecated: Use `PUT /querylog/config/update` instead. Optional: anonymize_client_ip, enabled, interval.",
+      "method": "POST",
+      "path": "/querylog_config",
+      "params": [
+        {
+          "name": "anonymize_client_ip",
+          "type": "bool",
+          "location": "body",
+          "description": "Anonymize clients' IP addresses"
+        },
+        {
+          "name": "enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Is query log enabled"
+        },
+        {
+          "name": "interval",
+          "type": "float",
+          "location": "body",
+          "description": "Time period for query log rotation."
+        }
+      ]
+    },
+    {
+      "name": "querylog-info_query-log-info",
+      "description": "Deprecated: Use `GET /querylog/config` instead. NOTE: If `interval` was configured by editing configuration file or new HTTP API call `PUT /querylog/config/update` and it's not equal to previous allowed enum values then it will be equal to `90` days for compatibility reasons. Returns the QueryLogConfig.",
+      "method": "GET",
+      "path": "/querylog_info",
+      "params": []
+    },
+    {
+      "name": "rewrite_add",
+      "description": "Add a new Rewrite rule. Optional: answer, domain, enabled (default: true).",
+      "method": "POST",
+      "path": "/rewrite/add",
+      "params": [
+        {
+          "name": "answer",
+          "type": "string",
+          "location": "body",
+          "description": "value of A, AAAA or CNAME DNS record"
+        },
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "body",
+          "description": "Domain name"
+        },
+        {
+          "name": "enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Optional. If omitted on add, defaults to `true`. On update, omitted preserves previous value."
+        }
+      ]
+    },
+    {
+      "name": "rewrite_delete",
+      "description": "Remove a Rewrite rule. Optional: answer, domain, enabled (default: true).",
+      "method": "POST",
+      "path": "/rewrite/delete",
+      "params": [
+        {
+          "name": "answer",
+          "type": "string",
+          "location": "body",
+          "description": "value of A, AAAA or CNAME DNS record"
+        },
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "body",
+          "description": "Domain name"
+        },
+        {
+          "name": "enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Optional. If omitted on add, defaults to `true`. On update, omitted preserves previous value."
+        }
+      ]
+    },
+    {
+      "name": "rewrite_list",
+      "description": "Get list of Rewrite rules. Returns array of RewriteEntry.",
+      "method": "GET",
+      "path": "/rewrite/list",
+      "params": []
+    },
+    {
+      "name": "rewrite_settings-get",
+      "description": "Get rewrite settings. Returns the RewriteSettings.",
+      "method": "GET",
+      "path": "/rewrite/settings",
+      "params": []
+    },
+    {
+      "name": "rewrite_settings-update",
+      "description": "Update rewrite settings. Required: enabled.",
+      "method": "PUT",
+      "path": "/rewrite/settings/update",
+      "params": [
+        {
+          "name": "enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "indicates whether rewrites are applied",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "rewrite_update",
+      "description": "Update a Rewrite rule. Optional: target, update.",
+      "method": "PUT",
+      "path": "/rewrite/update",
+      "params": [
+        {
+          "name": "target",
+          "type": "object",
+          "location": "body",
+          "description": "Rewrite rule"
+        },
+        {
+          "name": "update",
+          "type": "object",
+          "location": "body",
+          "description": "Rewrite rule"
+        }
+      ]
+    },
+    {
+      "name": "safebrowsing_disable",
+      "description": "Disable safebrowsing.",
+      "method": "POST",
+      "path": "/safebrowsing/disable",
+      "params": []
+    },
+    {
+      "name": "safebrowsing_enable",
+      "description": "Enable safebrowsing.",
+      "method": "POST",
+      "path": "/safebrowsing/enable",
+      "params": []
+    },
+    {
+      "name": "safebrowsing_status",
+      "description": "Get safebrowsing status. Returns the SafebrowsingStatusResponse.",
+      "method": "GET",
+      "path": "/safebrowsing/status",
+      "params": []
+    },
+    {
+      "name": "safesearch_disable",
+      "description": "Disable safesearch.",
+      "method": "POST",
+      "path": "/safesearch/disable",
+      "params": []
+    },
+    {
+      "name": "safesearch_enable",
+      "description": "Enable safesearch.",
+      "method": "POST",
+      "path": "/safesearch/enable",
+      "params": []
+    },
+    {
+      "name": "safesearch_settings",
+      "description": "Update safesearch settings. Optional: bing, duckduckgo, ecosia (plus 5 more).",
+      "method": "PUT",
+      "path": "/safesearch/settings",
+      "params": [
+        {
+          "name": "bing",
+          "type": "bool",
+          "location": "body",
+          "description": "Bing"
+        },
+        {
+          "name": "duckduckgo",
+          "type": "bool",
+          "location": "body",
+          "description": "Duckduckgo"
+        },
+        {
+          "name": "ecosia",
+          "type": "bool",
+          "location": "body",
+          "description": "Ecosia"
+        },
+        {
+          "name": "enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Enabled"
+        },
+        {
+          "name": "google",
+          "type": "bool",
+          "location": "body",
+          "description": "Google"
+        },
+        {
+          "name": "pixabay",
+          "type": "bool",
+          "location": "body",
+          "description": "Pixabay"
+        },
+        {
+          "name": "yandex",
+          "type": "bool",
+          "location": "body",
+          "description": "Yandex"
+        },
+        {
+          "name": "youtube",
+          "type": "bool",
+          "location": "body",
+          "description": "Youtube"
+        }
+      ]
+    },
+    {
+      "name": "safesearch_status",
+      "description": "Get safesearch status. Returns the SafeSearchConfig.",
+      "method": "GET",
+      "path": "/safesearch/status",
+      "params": []
+    },
+    {
+      "name": "stats_get-config",
+      "description": "Get statistics parameters. Returns the GetStatsConfigResponse.",
+      "method": "GET",
+      "path": "/stats/config",
+      "params": []
+    },
+    {
+      "name": "stats_put-config",
+      "description": "Set statistics parameters. Required: enabled, ignored, interval. Optional: ignored_enabled.",
+      "method": "PUT",
+      "path": "/stats/config/update",
+      "params": [
+        {
+          "name": "enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Are statistics enabled",
+          "required": true
+        },
+        {
+          "name": "ignored",
+          "type": "array",
+          "location": "body",
+          "description": "List of host names, which should not be counted",
+          "required": true
+        },
+        {
+          "name": "ignored_enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "If true, the host names in the `ignored` array are excluded from the statistics."
+        },
+        {
+          "name": "interval",
+          "type": "float",
+          "location": "body",
+          "description": "Statistics rotation interval in milliseconds",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "stats_stats",
+      "description": "Get DNS server statistics. Optional: recent. Returns the Stats.",
+      "method": "GET",
+      "path": "/stats",
+      "params": [
+        {
+          "name": "recent",
+          "type": "int",
+          "location": "query",
+          "description": "The lookback period for statistics in milliseconds. The interval must be a multiple of one hour and must not be greater than the value of `statistics.interval`."
+        }
+      ]
+    },
+    {
+      "name": "stats-config_stats_config",
+      "description": "Deprecated: Use `PUT /stats/config/update` instead. Optional: interval.",
+      "method": "POST",
+      "path": "/stats_config",
+      "params": [
+        {
+          "name": "interval",
+          "type": "int",
+          "location": "body",
+          "description": "Time period to keep the data. `0` means that the statistics is disabled."
+        }
+      ]
+    },
+    {
+      "name": "stats-info_stats_info",
+      "description": "Deprecated: Use `GET /stats/config` instead. NOTE: If `interval` was configured by editing configuration file or new HTTP API call `PUT /stats/config/update` and it's not equal to previous allowed enum values then it will be equal to `90` days for compatibility reasons. Returns the StatsConfig.",
+      "method": "GET",
+      "path": "/stats_info",
+      "params": []
+    },
+    {
+      "name": "stats-reset_stats_reset",
+      "description": "Reset all statistics to zeroes.",
+      "method": "POST",
+      "path": "/stats_reset",
+      "params": []
+    },
+    {
+      "name": "status_status",
+      "description": "Get DNS server current status and general settings. Returns the ServerStatus.",
+      "method": "GET",
+      "path": "/status",
+      "params": []
+    },
+    {
+      "name": "test-upstream-dns_test_upstream_dns",
+      "description": "Test upstream configuration. Required: bootstrap_dns, upstream_dns. Optional: fallback_dns, private_upstream. Returns the new UpstreamsConfigResponse.",
+      "method": "POST",
+      "path": "/test_upstream_dns",
+      "params": [
+        {
+          "name": "bootstrap_dns",
+          "type": "array",
+          "location": "body",
+          "description": "Bootstrap DNS servers, port is optional after colon.",
+          "required": true
+        },
+        {
+          "name": "fallback_dns",
+          "type": "array",
+          "location": "body",
+          "description": "Fallback DNS servers, port is optional after colon."
+        },
+        {
+          "name": "private_upstream",
+          "type": "array",
+          "location": "body",
+          "description": "Local PTR resolvers, port is optional after colon."
+        },
+        {
+          "name": "upstream_dns",
+          "type": "array",
+          "location": "body",
+          "description": "Upstream DNS servers, port is optional after colon.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tls_configure",
+      "description": "Updates current TLS configuration. Optional: certificate_chain, certificate_path, dns_names (plus 20 more). Returns the new TlsConfig.",
+      "method": "POST",
+      "path": "/tls/configure",
+      "params": [
+        {
+          "name": "certificate_chain",
+          "type": "string",
+          "location": "body",
+          "description": "Base64 string with PEM-encoded certificates chain"
+        },
+        {
+          "name": "certificate_path",
+          "type": "string",
+          "location": "body",
+          "description": "Path to certificate file"
+        },
+        {
+          "name": "dns_names",
+          "type": "array",
+          "location": "body",
+          "description": "The value of SubjectAltNames field of the first certificate in the chain."
+        },
+        {
+          "name": "enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "enabled is the encryption (DoT/DoH/HTTPS) status"
+        },
+        {
+          "name": "force_https",
+          "type": "bool",
+          "location": "body",
+          "description": "if true, forces HTTP-\u003eHTTPS redirect"
+        },
+        {
+          "name": "issuer",
+          "type": "string",
+          "location": "body",
+          "description": "The issuer of the first certificate in the chain."
+        },
+        {
+          "name": "key_type",
+          "type": "string",
+          "location": "body",
+          "description": "Key type."
+        },
+        {
+          "name": "not_after",
+          "type": "string",
+          "location": "body",
+          "description": "The NotAfter field of the first certificate in the chain."
+        },
+        {
+          "name": "not_before",
+          "type": "string",
+          "location": "body",
+          "description": "The NotBefore field of the first certificate in the chain."
+        },
+        {
+          "name": "port_dns_over_quic",
+          "type": "int",
+          "location": "body",
+          "description": "DNS-over-QUIC port. If 0, DoQ will be disabled."
+        },
+        {
+          "name": "port_dns_over_tls",
+          "type": "int",
+          "location": "body",
+          "description": "DNS-over-TLS port. If 0, DoT will be disabled."
+        },
+        {
+          "name": "port_https",
+          "type": "int",
+          "location": "body",
+          "description": "HTTPS port. If 0, HTTPS will be disabled."
+        },
+        {
+          "name": "private_key",
+          "type": "string",
+          "location": "body",
+          "description": "Base64 string with PEM-encoded private key"
+        },
+        {
+          "name": "private_key_path",
+          "type": "string",
+          "location": "body",
+          "description": "Path to private key file"
+        },
+        {
+          "name": "private_key_saved",
+          "type": "bool",
+          "location": "body",
+          "description": "Set to true if the user has previously saved a private key as a string. This is used so that the server and the client don't have to send the private key between each other every time, which might lead to security issues."
+        },
+        {
+          "name": "serve_plain_dns",
+          "type": "bool",
+          "location": "body",
+          "description": "Set to true if plain DNS is allowed for incoming requests."
+        },
+        {
+          "name": "server_name",
+          "type": "string",
+          "location": "body",
+          "description": "server_name is the hostname of your HTTPS/TLS server"
+        },
+        {
+          "name": "subject",
+          "type": "string",
+          "location": "body",
+          "description": "The subject of the first certificate in the chain."
+        },
+        {
+          "name": "valid_cert",
+          "type": "bool",
+          "location": "body",
+          "description": "Set to true if the specified certificates chain is a valid chain of X509 certificates."
+        },
+        {
+          "name": "valid_chain",
+          "type": "bool",
+          "location": "body",
+          "description": "Set to true if the specified certificates chain is verified and issued by a known CA."
+        },
+        {
+          "name": "valid_key",
+          "type": "bool",
+          "location": "body",
+          "description": "Set to true if the key is a valid private key."
+        },
+        {
+          "name": "valid_pair",
+          "type": "bool",
+          "location": "body",
+          "description": "Set to true if both certificate and private key are correct."
+        },
+        {
+          "name": "warning_validation",
+          "type": "string",
+          "location": "body",
+          "description": "A validation warning message with the issue description."
+        }
+      ]
+    },
+    {
+      "name": "tls_status",
+      "description": "Returns TLS configuration and its status.",
+      "method": "GET",
+      "path": "/tls/status",
+      "params": []
+    },
+    {
+      "name": "tls_validate",
+      "description": "Checks if the current TLS configuration is valid. Optional: certificate_chain, certificate_path, dns_names (plus 20 more). Returns the new TlsConfig.",
+      "method": "POST",
+      "path": "/tls/validate",
+      "params": [
+        {
+          "name": "certificate_chain",
+          "type": "string",
+          "location": "body",
+          "description": "Base64 string with PEM-encoded certificates chain"
+        },
+        {
+          "name": "certificate_path",
+          "type": "string",
+          "location": "body",
+          "description": "Path to certificate file"
+        },
+        {
+          "name": "dns_names",
+          "type": "array",
+          "location": "body",
+          "description": "The value of SubjectAltNames field of the first certificate in the chain."
+        },
+        {
+          "name": "enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "enabled is the encryption (DoT/DoH/HTTPS) status"
+        },
+        {
+          "name": "force_https",
+          "type": "bool",
+          "location": "body",
+          "description": "if true, forces HTTP-\u003eHTTPS redirect"
+        },
+        {
+          "name": "issuer",
+          "type": "string",
+          "location": "body",
+          "description": "The issuer of the first certificate in the chain."
+        },
+        {
+          "name": "key_type",
+          "type": "string",
+          "location": "body",
+          "description": "Key type."
+        },
+        {
+          "name": "not_after",
+          "type": "string",
+          "location": "body",
+          "description": "The NotAfter field of the first certificate in the chain."
+        },
+        {
+          "name": "not_before",
+          "type": "string",
+          "location": "body",
+          "description": "The NotBefore field of the first certificate in the chain."
+        },
+        {
+          "name": "port_dns_over_quic",
+          "type": "int",
+          "location": "body",
+          "description": "DNS-over-QUIC port. If 0, DoQ will be disabled."
+        },
+        {
+          "name": "port_dns_over_tls",
+          "type": "int",
+          "location": "body",
+          "description": "DNS-over-TLS port. If 0, DoT will be disabled."
+        },
+        {
+          "name": "port_https",
+          "type": "int",
+          "location": "body",
+          "description": "HTTPS port. If 0, HTTPS will be disabled."
+        },
+        {
+          "name": "private_key",
+          "type": "string",
+          "location": "body",
+          "description": "Base64 string with PEM-encoded private key"
+        },
+        {
+          "name": "private_key_path",
+          "type": "string",
+          "location": "body",
+          "description": "Path to private key file"
+        },
+        {
+          "name": "private_key_saved",
+          "type": "bool",
+          "location": "body",
+          "description": "Set to true if the user has previously saved a private key as a string. This is used so that the server and the client don't have to send the private key between each other every time, which might lead to security issues."
+        },
+        {
+          "name": "serve_plain_dns",
+          "type": "bool",
+          "location": "body",
+          "description": "Set to true if plain DNS is allowed for incoming requests."
+        },
+        {
+          "name": "server_name",
+          "type": "string",
+          "location": "body",
+          "description": "server_name is the hostname of your HTTPS/TLS server"
+        },
+        {
+          "name": "subject",
+          "type": "string",
+          "location": "body",
+          "description": "The subject of the first certificate in the chain."
+        },
+        {
+          "name": "valid_cert",
+          "type": "bool",
+          "location": "body",
+          "description": "Set to true if the specified certificates chain is a valid chain of X509 certificates."
+        },
+        {
+          "name": "valid_chain",
+          "type": "bool",
+          "location": "body",
+          "description": "Set to true if the specified certificates chain is verified and issued by a known CA."
+        },
+        {
+          "name": "valid_key",
+          "type": "bool",
+          "location": "body",
+          "description": "Set to true if the key is a valid private key."
+        },
+        {
+          "name": "valid_pair",
+          "type": "bool",
+          "location": "body",
+          "description": "Set to true if both certificate and private key are correct."
+        },
+        {
+          "name": "warning_validation",
+          "type": "string",
+          "location": "body",
+          "description": "A validation warning message with the issue description."
+        }
+      ]
+    },
+    {
+      "name": "update_begin",
+      "description": "Begin auto-upgrade procedure.",
+      "method": "POST",
+      "path": "/update",
+      "params": []
+    },
+    {
+      "name": "version-json_get",
+      "description": "Gets information about the latest available version of AdGuard. Optional: recheck_now. Returns the new VersionInfo.",
+      "method": "POST",
+      "path": "/version.json",
+      "params": [
+        {
+          "name": "recheck_now",
+          "type": "bool",
+          "location": "body",
+          "description": "If false, server will check for a new version data only once in several hours."
+        }
+      ]
+    }
+  ]
+}

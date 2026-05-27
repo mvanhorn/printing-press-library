@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-23T14:28:36.34227Z",
+  "printing_press_version": "4.12.0",
+  "api_name": "wolt",
+  "display_name": "Wolt",
+  "cli_name": "wolt-pp-cli",
+  "category": "food-and-dining",
+  "description": "Browse Wolt food delivery from the terminal: cities, nearby venues, menus, prices, ETAs, and cross-venue comparisons.",
+  "owner": "Amit-Tabibi",
+  "owner_name": "Amit",
+  "printer": "Amit-Tabibi",
+  "printer_name": "Amit",
+  "run_id": "20260523T141801Z-fb7995c2",
+  "novel_features": [
+    {
+      "name": "Menu browsing with prices",
+      "command": "menu show",
+      "description": "Full venue menu: categories + items + prices + dietary preferences + availability. Discovered via the SSR-embedded React Query state behind the Wolt SPA."
+    },
+    {
+      "name": "Menu item search with price cap",
+      "command": "menu search",
+      "description": "Substring search within a venue's menu (name + description), sorted cheapest first, with --max-price filter in cents."
+    },
+    {
+      "name": "What's open right now and fast",
+      "command": "venues-now",
+      "description": "Filter nearby venues by open status + ETA cap + cuisine tag in one structured call. Replaces three SPA card-clicks."
+    },
+    {
+      "name": "Cross-venue comparison",
+      "command": "venues-compare",
+      "description": "Fan-out per-venue dynamic snapshots and join open status + next-close + delivery configs side by side."
+    },
+    {
+      "name": "Cuisine bottleneck",
+      "command": "cuisine-bottleneck",
+      "description": "Which cuisines have the longest average ETA right now near a coordinate — aggregates across nearby venues."
+    },
+    {
+      "name": "Order tracking by share link",
+      "command": "track",
+      "description": "Parse a Wolt order share URL and extract the order id. Stub — live JSON tracking endpoint not yet reverse-engineered."
+    }
+  ]
+}

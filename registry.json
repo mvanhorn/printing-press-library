@@ -2,6 +2,54 @@
   "schema_version": 2,
   "entries": [
     {
+      "name": "adguard-home",
+      "category": "monitoring",
+      "api": "AdGuard Home",
+      "description": "AdGuard Home REST-ish API. Our admin web interface is built on top of this REST-ish API.",
+      "search_terms": [
+        "adguard-home",
+        "AdGuard Home",
+        "adguard-home-pp-cli",
+        "DNS-level ad/tracker/malware blocking via AdGuard Home REST API for self-hosted network DNS management",
+        "DNS Health Report",
+        "health",
+        "Summarize AdGuard Home health from locally synced data: protection status, block rate, top blocked domains, stale sync detection, and query volume trends",
+        "Local Sync",
+        "sync",
+        "Sync API data to local SQLite for offline search and analysis with resumable incremental sync",
+        "Full-Text Search",
+        "search",
+        "Full-text search across synced data or live API with auto mode that falls back to local on network failure",
+        "Local Analytics",
+        "analytics",
+        "Analyze locally synced data with count, group-by, and summary operations",
+        "Archive Workflow",
+        "workflow archive",
+        "Sync all resources to local store for offline access and search in one command",
+        "Live Tail",
+        "tail",
+        "Stream live data changes by polling the API at configurable intervals, emitting NDJSON to stdout"
+      ],
+      "path": "library/monitoring/adguard-home",
+      "printer": "e-jung",
+      "printer_name": "Eric Jung",
+      "mcp": {
+        "binary": "adguard-home-pp-mcp",
+        "transports": [
+          "stdio"
+        ],
+        "tool_count": 81,
+        "public_tool_count": 0,
+        "auth_type": "api_key",
+        "env_vars": [
+          "ADGUARD_HOME_USERNAME",
+          "ADGUARD_HOME_PASSWORD"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
+      }
+    },
+    {
       "name": "adminbyrequest",
       "category": "devices",
       "api": "Admin By Request",
@@ -630,6 +678,47 @@
       }
     },
     {
+      "name": "art-goat",
+      "category": "media-and-entertainment",
+      "api": "Art Goat",
+      "description": "A contemplative daily art practice with museum and astronomy APIs as your gallery.",
+      "search_terms": [
+        "art-goat",
+        "Art Goat",
+        "art-goat-pp-cli",
+        "Contemplative timer sit",
+        "sit",
+        "Sit with one piece of art for a fixed period. Opens the image in your browser, shows the curator's description, runs a quiet timer, and captures your reflection in the journal.",
+        "Opinionated daily pick",
+        "today",
+        "Today's curated piece, chosen using anti-repeat against your sits and journal-aware diversity against your recent medium and culture choices. Includes a one-line 'why this today'.",
+        "Reframed practice metrics",
+        "journal stats",
+        "Practice statistics emphasising source breadth, medium variety, region coverage, and mood drift, with streak available at the bottom labeled 'if you want to know'.",
+        "Reflection full-text search",
+        "journal search",
+        "FTS5 over your reflection history. Surfaces every past sit whose text matches the query."
+      ],
+      "path": "library/media-and-entertainment/art-goat",
+      "printer": "justinwfu",
+      "printer_name": "justinwfu",
+      "mcp": {
+        "binary": "art-goat-pp-mcp",
+        "transports": [
+          "stdio"
+        ],
+        "tool_count": 1,
+        "public_tool_count": 0,
+        "auth_type": "api_key",
+        "env_vars": [
+          "ART_GOAT_API_KEY",
+          "NASA_API_KEY"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
+      }
+    },
+    {
       "name": "arxiv",
       "category": "other",
       "api": "arXiv",
@@ -925,6 +1014,46 @@
       }
     },
     {
+      "name": "botsee",
+      "category": "marketing",
+      "api": "Botsee",
+      "description": "Have your agents measure and improve your brand's AI Visibility with botsee.io. API-first, agent-native.",
+      "search_terms": [
+        "botsee",
+        "botsee-pp-cli",
+        "Have your agents measure and improve your brand's AI Visibility with botsee.io. Run audits across every major LLM, see what's missing, then get specific recommendations and ready-to-publish content to close the gap. API-first, agent-native",
+        "AI Visibility Audit (flagship)",
+        "ai-visibility-audit",
+        "One command runs the full BotSee audit: idempotent on existing sites, bootstraps customer types and personas and questions if missing, then runs analysis across every LLM and prints a structured visibility report.",
+        "Recommendations (top-level)",
+        "recommendations",
+        "Generate next-step recommendations from an analysis — promoted to top-level so agents can discover it without descending into the analysis subcommand tree.",
+        "Site config tree",
+        "site-config",
+        "Print the full customer-types -> personas -> questions tree for a site, with UUIDs and the actual edit commands users can copy-paste to add, update, or remove any node.",
+        "Cross-site sources rollup",
+        "sites-summary",
+        "Aggregate cited sources across every synced site, grouped by domain, with citation count, distinct sites citing each domain, and first-seen timestamp."
+      ],
+      "path": "library/marketing/botsee",
+      "printer": "grahac",
+      "printer_name": "grahac",
+      "mcp": {
+        "binary": "botsee-pp-mcp",
+        "transports": [
+          "stdio"
+        ],
+        "tool_count": 56,
+        "public_tool_count": 7,
+        "auth_type": "bearer_token",
+        "env_vars": [
+          "BOTSEE_API_KEY"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
+      }
+    },
+    {
       "name": "cal-com",
       "category": "productivity",
       "api": "Cal.com",
@@ -1034,6 +1163,43 @@
         ],
         "mcp_ready": "full",
         "spec_format": "openapi3"
+      }
+    },
+    {
+      "name": "chrome-history",
+      "category": "productivity",
+      "api": "Chrome History",
+      "description": "Reverse-engineered from the hand-built chrome-history-pp-cli command/data shape",
+      "search_terms": [
+        "chrome-history",
+        "Chrome History",
+        "chrome-history-pp-cli",
+        "Query local Chrome browsing history from a snapshot index; no remote API spec.",
+        "Chrome Journeys Topic Clusters",
+        "journeys",
+        "Surfaces Chrome's own Journeys topic clusters from local history databases.",
+        "Session Timeline Reconstruction",
+        "timeline",
+        "Reconstructs session-level browsing timelines using timestamp gaps and device filters.",
+        "Rabbithole Drift Detection",
+        "rabbitholes",
+        "Detects sessions that drift from productive starts into distracting browsing patterns."
+      ],
+      "path": "library/productivity/chrome-history",
+      "printer": "vinnyp",
+      "printer_name": "Vinny Pasceri",
+      "mcp": {
+        "binary": "chrome-history-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 19,
+        "public_tool_count": 19,
+        "auth_type": "none",
+        "env_vars": [],
+        "mcp_ready": "full",
+        "spec_format": "sqlite"
       }
     },
     {
@@ -1514,6 +1680,36 @@
         "env_vars": [
           "CUSTOMERIO_TOKEN"
         ],
+        "mcp_ready": "full",
+        "spec_format": "internal"
+      }
+    },
+    {
+      "name": "delta-trip",
+      "category": "travel",
+      "api": "Delta Trip Management",
+      "description": "Look up and manage Delta Air Lines trips by confirmation number — view all flights, seats, baggage, upgrade...",
+      "search_terms": [
+        "delta-trip",
+        "Delta Trip Management",
+        "delta-trip-pp-cli",
+        "Connection Risk Scoring",
+        "trip layover",
+        "Score every layover in a trip as OK, TIGHT, or HIGH with a per-connection recommended action — in one command, without parsing the full flights table."
+      ],
+      "path": "library/travel/delta-trip",
+      "printer": "paulbockewitz",
+      "printer_name": "Paul Bockewitz",
+      "mcp": {
+        "binary": "delta-trip-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 4,
+        "public_tool_count": 4,
+        "auth_type": "none",
+        "env_vars": [],
         "mcp_ready": "full",
         "spec_format": "internal"
       }
@@ -2189,6 +2385,62 @@
         "public_tool_count": 1,
         "auth_type": "none",
         "env_vars": [],
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
+      }
+    },
+    {
+      "name": "eventbrite",
+      "category": "media-and-entertainment",
+      "api": "Eventbrite",
+      "description": "Every Eventbrite organizer endpoint, plus a local SQLite mirror of your events, orders",
+      "search_terms": [
+        "eventbrite",
+        "eventbrite-pp-cli",
+        "Every Eventbrite organizer endpoint, plus a local SQLite mirror of your events, orders, and attendees you can search offline — the cross-event search Eventbrite removed, restored over your own data.",
+        "Sales velocity board",
+        "sales-velocity",
+        "Ranks all your live events by tickets sold per day since on-sale and projects a sell-out date.",
+        "Repeat-attendee finder",
+        "repeat-attendees",
+        "Finds fans who bought into two or more of your events, across your whole synced history.",
+        "Discount-code performance",
+        "discount-performance",
+        "Per discount code: redemptions, type, and the redemption rate (share of the code's allotment used).",
+        "Multi-org client roll-up",
+        "org-rollup",
+        "Single pane across every organization your token can see: events count, tickets sold, gross, and top event per org.",
+        "Door roster + check-in gap",
+        "roster",
+        "Offline attendee roster for one event with checked-in vs not-yet, VIP and comp flags, door-sorted.",
+        "Capacity headroom rollup",
+        "capacity",
+        "Sold vs total capacity and percent remaining across all your live events at once.",
+        "Refund / cancellation rate",
+        "refund-rate",
+        "Refunded and cancelled order counts, refunded revenue, and the rate per event or across the org.",
+        "Top buyers by spend",
+        "top-buyers",
+        "Ranks ticket buyers by total spend across all your events, not just by how many events they attended.",
+        "Attendee contact export",
+        "fan-export",
+        "Exports unique attendee contacts (email, name, events attended, check-in status), deduped across all your events and filterable by event."
+      ],
+      "path": "library/media-and-entertainment/eventbrite",
+      "printer": "vinnyp",
+      "printer_name": "Vinny Pasceri",
+      "mcp": {
+        "binary": "eventbrite-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 99,
+        "public_tool_count": 0,
+        "auth_type": "bearer_token",
+        "env_vars": [
+          "EVENTBRITE_API_KEY"
+        ],
         "mcp_ready": "full",
         "spec_format": "openapi3"
       }
@@ -2941,6 +3193,48 @@
       }
     },
     {
+      "name": "gravitus",
+      "category": "other",
+      "api": "Gravitus",
+      "description": "The only CLI that syncs your Gravitus strength data into your training dashboard.",
+      "search_terms": [
+        "gravitus",
+        "gravitus-pp-cli",
+        "Dashboard Sync",
+        "sync",
+        "Sync all Gravitus workouts into your training dashboard's SQLite database — writes LiftingSession records in the exact Prisma schema format with auth, pagination, and incremental support.",
+        "Data Export",
+        "export",
+        "Export your complete Gravitus training history to CSV or JSON — the first and only way to get your data out of Gravitus.",
+        "Plateau Detection",
+        "exercises plateau",
+        "Identifies exercises where estimated 1RM hasn't improved in N weeks — alert-style output for the dashboard coaching panel.",
+        "Weekly Volume",
+        "stats volume",
+        "Weekly total lifting volume (lbs) aggregated from all synced sessions — the same metric the dashboard LiftingSection displays.",
+        "Personal Records",
+        "exercises prs",
+        "All-time PRs across every exercise, extracted from PR markers on workout pages."
+      ],
+      "path": "library/other/gravitus",
+      "printer": "azaaron",
+      "printer_name": "mvanhorn",
+      "mcp": {
+        "binary": "gravitus-pp-mcp",
+        "transports": [
+          "stdio"
+        ],
+        "tool_count": 4,
+        "public_tool_count": 1,
+        "auth_type": "cookie",
+        "env_vars": [
+          "GRAVITUS_SESSION_ID"
+        ],
+        "mcp_ready": "partial",
+        "spec_format": "internal"
+      }
+    },
+    {
       "name": "greatclips",
       "category": "other",
       "api": "Great Clips",
@@ -3181,6 +3475,37 @@
       }
     },
     {
+      "name": "hotel-goat",
+      "category": "travel",
+      "api": "Google Hotels",
+      "description": "Every Google Hotels feature, plus per-OTA price breakdown, local price-drift history, brand-loyalty filters",
+      "search_terms": [
+        "hotel-goat",
+        "Google Hotels",
+        "hotel-goat-pp-cli",
+        "Every Google Hotels feature, plus per-OTA price breakdown, local price-drift history, brand-loyalty filters, and date-flex windowing no other tool has.",
+        "Agent-composable nested JSON via --select dotted paths",
+        "hotels",
+        "Dotted-path selection through nested results.prices[], results.booking_urls, results.images[]. Returns only the fields the agent needs."
+      ],
+      "path": "library/travel/hotel-goat",
+      "printer": "kothari-nikunj",
+      "printer_name": "kothari-nikunj",
+      "mcp": {
+        "binary": "hotel-goat-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 2,
+        "public_tool_count": 2,
+        "auth_type": "none",
+        "env_vars": [],
+        "mcp_ready": "full",
+        "spec_format": "internal"
+      }
+    },
+    {
       "name": "hotel-tonight",
       "category": "travel",
       "api": "HotelTonight",
@@ -3265,6 +3590,45 @@
       "path": "library/commerce/instacart",
       "printer": "mvanhorn",
       "printer_name": "Matt Van Horn"
+    },
+    {
+      "name": "intercom",
+      "category": "sales-and-crm",
+      "api": "Intercom",
+      "description": "Every Intercom resource as a typed CLI with offline sync and EU/AU regions.",
+      "search_terms": [
+        "intercom",
+        "intercom-pp-cli",
+        "Every Intercom resource as a typed CLI with offline sync and EU/AU regions.",
+        "Incident-tag dry-run",
+        "conversations incident-tag",
+        "Tag every conversation mentioning a phrase in a time window with one safe-by-default command.",
+        "Articles git round-trip",
+        "articles pull",
+        "Flatten every help-center article into a markdown tree you can edit in git, then push changes back.",
+        "Contact 360",
+        "One nested payload joining a contact across companies, conversations, tickets, notes, and tags.",
+        "SLA analytics",
+        "conversations sla",
+        "First-response and resolution-time metrics grouped by team or admin, computed over the local store."
+      ],
+      "path": "library/sales-and-crm/intercom",
+      "printer": "rob-coco",
+      "printer_name": "Rob Zehner",
+      "mcp": {
+        "binary": "intercom-pp-mcp",
+        "transports": [
+          "stdio"
+        ],
+        "tool_count": 133,
+        "public_tool_count": 0,
+        "auth_type": "bearer_token",
+        "env_vars": [
+          "INTERCOM_ACCESS_TOKEN"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
+      }
     },
     {
       "name": "jimmy-johns",
@@ -3848,6 +4212,84 @@
         "mcp_ready": "full",
         "spec_format": "openapi3"
       }
+    },
+    {
+      "name": "midjourney",
+      "category": "ai",
+      "api": "Midjourney",
+      "description": "Inspect Midjourney jobs, queue, folders, and discovery feeds from the terminal",
+      "search_terms": [
+        "midjourney",
+        "midjourney-pp-cli",
+        "Inspect Midjourney jobs, queue, folders, and discovery feeds from the terminal",
+        "Submit Midjourney image jobs",
+        "imagine",
+        "Submit Midjourney imagine jobs through the browser-observed /api/submit-jobs flow, including model/version, style, reference, draft, and tuning flags.",
+        "Rerun existing jobs",
+        "rerun",
+        "Submit the observed Midjourney reroll payload for an existing job ID.",
+        "Export rendered images",
+        "download",
+        "Export rendered Midjourney job images through Chrome CDP when direct CDN fetches are blocked by Cloudflare or CORS."
+      ],
+      "path": "library/ai/midjourney",
+      "printer": "dave-agent-cerebro",
+      "printer_name": "Dave Fano",
+      "mcp": {
+        "binary": "midjourney-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 12,
+        "public_tool_count": 0,
+        "auth_type": "api_key",
+        "env_vars": [
+          "MIDJOURNEY_COOKIE_HEADER"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "internal"
+      }
+    },
+    {
+      "name": "mobalytics-lol",
+      "category": "media-and-entertainment",
+      "api": "mobalytics-lol",
+      "description": "Every League of Legends aggregator, plus a local SQLite for cross-champion queries no single page surfaces.",
+      "search_terms": [
+        "mobalytics-lol",
+        "mobalytics-lol-pp-cli",
+        "Counter-pool analysis",
+        "counter-pool",
+        "Given our champion pool and the enemy pool, return the full matchup matrix ranked by WR delta with sample-size floor — the SQL coaches do in their head.",
+        "Patch meta-shift",
+        "meta-shift",
+        "Diff two tier_snapshots and list champions that gained or lost ≥1 tier or ≥2% WR since a prior patch, with sample-size guard.",
+        "Head-to-head champion compare",
+        "compare",
+        "Side-by-side join across tier, build, counters, and matchups for two champions — including item-overlap percentage.",
+        "ARAM batch item-set export",
+        "item-set",
+        "Write LoL client item-set JSON for N champions in ARAM mode in one command, refreshing all stale files in the client config folder.",
+        "Duo-finder with candidate-pool filter",
+        "duo-finder",
+        "Best support pairings for a given ADC, restricted to a candidate support pool — coaches' player pools are fixed.",
+        "Personal pool tier digest",
+        "pool-digest",
+        "For each champion in your pool: current tier, WR delta since last patch, top-1 counter, top-1 synergy — all in one composite query.",
+        "Power-spike phase filter",
+        "power-spike",
+        "List champions ranked by early/mid/late spike strength for a chosen role — inverts Mobalytics's per-champion data into a leaderboard.",
+        "Flex-pick detector",
+        "flex",
+        "Champions that are ≥A-tier in 2+ roles for the same patch and rank — the SQL no aggregator surfaces because they index by role first.",
+        "Region-split tier compare",
+        "tier-list",
+        "Same patch, same rank — three regions side-by-side. Surfaces pick-priority drift between KR/EUW/NA that no aggregator defaults to."
+      ],
+      "path": "library/media-and-entertainment/mobalytics-lol",
+      "printer": "QuantumGlitch",
+      "printer_name": "QuantumGlitch"
     },
     {
       "name": "monarch-money",
@@ -5843,6 +6285,43 @@
       }
     },
     {
+      "name": "safari-history",
+      "category": "productivity",
+      "api": "Safari History",
+      "description": "Reverse-engineered from the hand-built safari-history-pp-cli command/data shape",
+      "search_terms": [
+        "safari-history",
+        "Safari History",
+        "safari-history-pp-cli",
+        "Query local Safari browsing history from a snapshot index; no remote API spec.",
+        "Session Timeline Reconstruction",
+        "timeline",
+        "Reconstructs session-level browsing timelines from visit-time gaps and redirect chains.",
+        "Derived Dwell Estimate",
+        "dwell",
+        "Estimates per-domain time-on-site from visit-time gaps (Safari stores no native dwell).",
+        "Navigation Graph",
+        "graph",
+        "Builds a page-node / referrer-edge navigation graph (JSON or Graphviz dot)."
+      ],
+      "path": "library/productivity/safari-history",
+      "printer": "vinnyp",
+      "printer_name": "Vinny Pasceri",
+      "mcp": {
+        "binary": "safari-history-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 19,
+        "public_tool_count": 19,
+        "auth_type": "none",
+        "env_vars": [],
+        "mcp_ready": "full",
+        "spec_format": "sqlite"
+      }
+    },
+    {
       "name": "scrape-creators",
       "category": "developer-tools",
       "api": "Scrape Creators",
@@ -5997,6 +6476,68 @@
         "auth_type": "api_key",
         "env_vars": [
           "SEC_EDGAR_USER_AGENT"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "internal"
+      }
+    },
+    {
+      "name": "semrush",
+      "category": "marketing",
+      "api": "Semrush",
+      "description": "Every Semrush Analytics + Projects feature, plus a local SQLite store and cross-domain joins no other Semrush tool has.",
+      "search_terms": [
+        "semrush",
+        "semrush-pp-cli",
+        "Every Semrush Analytics + Projects feature, plus a local SQLite store and cross-domain joins no other Semrush tool has.",
+        "Weekly Drift Report",
+        "drift",
+        "Diff this week's domain + keyword snapshot against last week's to see what moved, without re-spending credits on the data you already pulled.",
+        "Snapshot Tag + Diff",
+        "snapshot",
+        "Tag the current local-store state of any resource (e.g. monday-baseline) and later diff any two tags to see exactly what moved between them.",
+        "Backlink Delta Since Last Sync",
+        "backlink new",
+        "Show only the referring domains and backlinks first seen in a window, so the 'did anything new link to us this week' question is a one-liner.",
+        "Budget Ledger",
+        "budget",
+        "Every API call's documented unit cost is logged locally; budget rolls up spend by day, command, resource, and projects month-end burn from the current balance probe.",
+        "Keyword Gap",
+        "Set-difference of organic keywords across two or more domains in the same database, with intersection and unique-to-each modes.",
+        "Backlink Gap",
+        "Find referring domains that link to a competitor but not to you, filtered by authority score.",
+        "Audit Triage",
+        "Rank Site Audit pages by weighted issue severity (errors x3, warnings x1, notices x0.1) so you fix the highest-impact pages first.",
+        "Position Drift",
+        "tracking drift",
+        "Window-function over Position Tracking snapshots: which keywords moved more than N positions, dropped off page 1, or entered page 1, per region and device.",
+        "Country Fan-out",
+        "domain regions",
+        "Run Domain Overview across multiple country databases in one shot, persist all rows with the database key so later cross-region drift queries work.",
+        "SERP Feature Monitor",
+        "serp-features",
+        "Time-series view of which SERP features (featured snippet, People Also Ask, video, image pack) have appeared and disappeared for a tracked keyword.",
+        "Cannibalization Detector",
+        "cannibalization",
+        "List phrases where the same domain ranks for multiple URLs (a known SEO problem) with the URLs and their respective positions.",
+        "Audit Regression Watch",
+        "audit regression",
+        "Diff the latest two Site Audit snapshots for a project: new issue IDs introduced, issues resolved, count delta per severity."
+      ],
+      "path": "library/marketing/semrush",
+      "printer": "Charles-Garrison",
+      "printer_name": "Charles Garrison",
+      "mcp": {
+        "binary": "semrush-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 97,
+        "public_tool_count": 0,
+        "auth_type": "api_key",
+        "env_vars": [
+          "SEMRUSH_API_KEY"
         ],
         "mcp_ready": "full",
         "spec_format": "internal"
@@ -6235,9 +6776,48 @@
       "search_terms": [
         "shopify",
         "shopify-pp-cli",
-        "Bulk operation runner",
-        "bulk-operations",
-        "Inspect the current Shopify bulk operation and launch bulk GraphQL export jobs from query text or a query file."
+        "Operate a Shopify store from the terminal with local sync, analytics, and bulk exports.",
+        "Sales Funnel from ShopifyQL",
+        "shopifyql funnel",
+        "Three-stage funnel over N days (sessions -> checkouts -> orders) computed via ShopifyQL with real response columns.",
+        "Raw ShopifyQL Query",
+        "shopifyql query",
+        "Run an arbitrary ShopifyQL query string and stream the JSON response.",
+        "Daily Sessions",
+        "shopifyql sessions",
+        "Online Store sessions per day for the last N days.",
+        "Conversion Rate",
+        "shopifyql conversion",
+        "Online Store conversion rate over the last N days, optionally per-day.",
+        "Daily Revenue Breakdown",
+        "report revenue-daily",
+        "Daily revenue, refunds, net, and order count over the last N days from the local orders store.",
+        "Channel Mix",
+        "report channel-mix",
+        "Revenue by sourceName (web, draft_order, pos, channel id) over the last N days.",
+        "Tag-Match Impact",
+        "report show-impact",
+        "Compare revenue for tag-matched orders against the rest over the last N days.",
+        "Attach Rate",
+        "report attach-rate",
+        "Percent of orders containing --anchor that also contain --attached, by case-insensitive line-item title substring.",
+        "Repeat-Purchase Lifecycle",
+        "report customer-lifecycle",
+        "Repeat-purchase distribution and median time-between-orders over the last N days.",
+        "Current Bulk Operation",
+        "bulk-operations current",
+        "Show the currently running or most recent Shopify bulk operation.",
+        "Run Bulk Query",
+        "bulk-operations run-query",
+        "Start a Shopify bulk operation from a GraphQL query string or file.",
+        "Order Tag Mutation",
+        "orders tag",
+        "Add or remove tags on a Shopify order by id or name.",
+        "Customer Tag Mutation",
+        "customers tag",
+        "Add or remove tags on a Shopify customer by id.",
+        "Auth Audit",
+        "Audit OAuth client_credentials setup and access-token freshness."
       ],
       "path": "library/commerce/shopify",
       "printer": "cathrynlavery",
@@ -6245,9 +6825,10 @@
       "mcp": {
         "binary": "shopify-pp-mcp",
         "transports": [
-          "stdio"
+          "stdio",
+          "http"
         ],
-        "tool_count": 10,
+        "tool_count": 12,
         "public_tool_count": 0,
         "auth_type": "api_key",
         "env_vars": [
@@ -6421,6 +7002,59 @@
         "auth_type": "api_key",
         "env_vars": [
           "SMARTLEAD_API_KEY"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
+      }
+    },
+    {
+      "name": "sncf-connect",
+      "category": "travel",
+      "api": "Navitia",
+      "description": "navitia.io is the open API for building cool stuff with mobility data.",
+      "search_terms": [
+        "sncf-connect",
+        "Navitia",
+        "sncf-connect-pp-cli",
+        "navitia.io is the open API for building cool stuff with mobility data.",
+        "Commute tracker",
+        "commute check",
+        "Save your commute route and check it each morning — next trains plus disruption status in one call, exits non-zero on disruption for cron scripting.",
+        "Disruption digest",
+        "disruptions digest",
+        "Morning brief of all disruptions across your saved lines, ranked by severity: blocked first, then delayed, then informational.",
+        "Isochrone station list",
+        "isochrone stations",
+        "Given a starting point and travel duration, list all train stations reachable within that time.",
+        "Accessibility report",
+        "journey accessibility",
+        "For a planned journey, show elevator and escalator status at each transfer station so you know before you travel.",
+        "Timetable frequency heatmap",
+        "timetable heatmap",
+        "See how many trains run each hour on a line at a stop — ASCII bar chart showing peak and off-peak density.",
+        "Board export",
+        "Export a full departure board as flat CSV or JSONL for pipeline ingestion — all fields, no formatting.",
+        "Vehicle journey trace",
+        "vehicle trace",
+        "Get the full ordered stop sequence for a specific train service — train's perspective, not traveler's.",
+        "Stop cluster",
+        "stops cluster",
+        "Group nearby stops within a radius using Haversine distance — useful for deduplicating station indexes and resolving ambiguous names."
+      ],
+      "path": "library/travel/sncf-connect",
+      "printer": "jmbernabotto",
+      "printer_name": "jmbernabotto",
+      "mcp": {
+        "binary": "sncf-connect-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 269,
+        "public_tool_count": 0,
+        "auth_type": "api_key",
+        "env_vars": [
+          "SNCF_API_KEY"
         ],
         "mcp_ready": "full",
         "spec_format": "openapi3"
@@ -7692,6 +8326,46 @@
       }
     },
     {
+      "name": "visit-detroit-blog",
+      "category": "travel",
+      "api": "Visit Detroit Blog",
+      "description": "Detroit's official \\\"Inside the D\\\" blog as a CLI — every article searchable offline",
+      "search_terms": [
+        "visit-detroit-blog",
+        "Visit Detroit Blog",
+        "visit-detroit-blog-pp-cli",
+        "Detroit's official \"Inside the D\" blog as a CLI — every article searchable offline, sliced across category and neighborhood at once, with related-reads and exports the website can't produce.",
+        "Cross-axis filter (category × neighborhood × date)",
+        "blogs list",
+        "Filter Detroit articles by category AND neighborhood AND date window in one query — the slice the website's single-facet search can't express.",
+        "Related reads",
+        "blogs related",
+        "Find the articles that share the most categories and neighborhoods with a given post, ranked.",
+        "Coverage map (category × neighborhood cross-tab)",
+        "blogs coverage",
+        "Cross-tabulate article counts across every category and every neighborhood to see where coverage is dense or thin.",
+        "Reading list export",
+        "blogs reading-list",
+        "Materialize an ordered, deduped reading list (markdown/json/csv) from any filter to a file — with an option to drop sponsored posts for a neutral handout."
+      ],
+      "path": "library/travel/visit-detroit-blog",
+      "printer": "stanrails",
+      "printer_name": "stanrails",
+      "mcp": {
+        "binary": "visit-detroit-blog-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 1,
+        "public_tool_count": 1,
+        "auth_type": "none",
+        "env_vars": [],
+        "mcp_ready": "full",
+        "spec_format": "internal"
+      }
+    },
+    {
       "name": "wanderlust-goat",
       "category": "travel",
       "api": "Wanderlust GOAT",
@@ -7863,6 +8537,38 @@
       }
     },
     {
+      "name": "wolt",
+      "category": "food-and-dining",
+      "api": "Wolt",
+      "description": "Browse-only Wolt consumer CLI.",
+      "search_terms": [
+        "wolt",
+        "wolt-pp-cli",
+        "Browse Wolt food delivery from the terminal: cities, nearby venues, menus, prices, ETAs, and cross-venue comparisons.",
+        "Menu browsing with prices",
+        "menu show",
+        "Full venue menu: categories + items + prices + dietary preferences + availability. Discovered via the SSR-embedded React Query state behind the Wolt SPA.",
+        "Menu item search with price cap",
+        "menu search",
+        "Substring search within a venue's menu (name + description), sorted cheapest first, with --max-price filter in cents.",
+        "What's open right now and fast",
+        "venues-now",
+        "Filter nearby venues by open status + ETA cap + cuisine tag in one structured call. Replaces three SPA card-clicks.",
+        "Cross-venue comparison",
+        "venues-compare",
+        "Fan-out per-venue dynamic snapshots and join open status + next-close + delivery configs side by side.",
+        "Cuisine bottleneck",
+        "cuisine-bottleneck",
+        "Which cuisines have the longest average ETA right now near a coordinate — aggregates across nearby venues.",
+        "Order tracking by share link",
+        "track",
+        "Parse a Wolt order share URL and extract the order id. Stub — live JSON tracking endpoint not yet reverse-engineered."
+      ],
+      "path": "library/food-and-dining/wolt",
+      "printer": "Amit-Tabibi",
+      "printer_name": "Amit"
+    },
+    {
       "name": "x-twitter",
       "category": "social-and-messaging",
       "api": "X (Twitter)",
@@ -7904,7 +8610,39 @@
       "description": "Quotes, charts, fundamentals, options chains, and a local portfolio/watchlist tracker against Yahoo Finance — no API key, with Chrome-session fallback for rate-limited IPs",
       "search_terms": [
         "yahoo-finance",
-        "yahoo-finance-pp-cli"
+        "Yahoo Finance",
+        "yahoo-finance-pp-cli",
+        "Every Yahoo Finance endpoint plus a SQLite portfolio, covered-call screener, and Chrome-cookie fallback the libraries don't ship.",
+        "Portfolio performance tracker",
+        "portfolio perf",
+        "Track YTD / 1Y / all-time returns on your holdings with cost basis, dividends, and current price baked in.",
+        "Morning digest across watchlist",
+        "digest",
+        "One command: overnight news + biggest movers + earnings today + ex-div dates for everything on your watchlist.",
+        "Dividend income + yield-on-cost",
+        "portfolio dividends",
+        "See total dividend income for the year, per-holding breakdown, and yield on cost.",
+        "Options moneyness + DTE filter",
+        "options-chain",
+        "Filter an options chain to ATM/OTM/ITM contracts within a days-to-expiration window.",
+        "Local SQL screener over synced fundamentals",
+        "screen-local",
+        "Run arbitrary P/E, P/B, yield, margin, and growth filters against the data you've synced locally.",
+        "Chrome cookie import fallback",
+        "auth login --chrome",
+        "Import your live Chrome session cookies when Yahoo's crumb handshake is blocked from your IP.",
+        "Insider net-buying signal screener",
+        "insiders-net-buying",
+        "Surface companies where insiders are net buyers in the last N days, filtered to your watchlist.",
+        "Total-return comparator",
+        "compare",
+        "Multi-symbol price-plus-dividend total return ranked over a range.",
+        "Covered-call screener over holdings",
+        "options-covered-calls",
+        "Scan your holdings for covered-call candidates by annualized yield and DTE.",
+        "Watchlist correlation matrix",
+        "watchlist correlate",
+        "Pairwise Pearson correlation across the symbols in a named watchlist over a date range."
       ],
       "path": "library/commerce/yahoo-finance",
       "printer": "tmchow",
@@ -7912,10 +8650,11 @@
       "mcp": {
         "binary": "yahoo-finance-pp-mcp",
         "transports": [
-          "stdio"
+          "stdio",
+          "http"
         ],
         "tool_count": 11,
-        "public_tool_count": 0,
+        "public_tool_count": 11,
         "auth_type": "none",
         "env_vars": [],
         "mcp_ready": "full",
