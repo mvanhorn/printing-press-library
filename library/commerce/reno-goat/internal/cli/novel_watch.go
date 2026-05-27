@@ -68,14 +68,22 @@ func newWatchAddCmd(flags *rootFlags) *cobra.Command {
 			if title != "" {
 				titleVal = title
 			}
+			// Only pass threshold as non-nil when explicitly set, so the
+			// ON CONFLICT clause preserves the existing value on re-add
+			// (e.g. `watch add URL --title "x"` shouldn't reset threshold).
+			var thresholdVal any
+			if cmd.Flags().Changed("threshold") {
+				thresholdVal = threshold
+			}
 
 			_, err = db.Exec(
 				`INSERT INTO watches (product_url, source, threshold_pct, current_price, original_price, title)
-				 VALUES (?, ?, ?, ?, ?, ?)
-				 ON CONFLICT(product_url) DO UPDATE SET threshold_pct = excluded.threshold_pct,
+				 VALUES (?, ?, COALESCE(?, 10.0), ?, ?, ?)
+				 ON CONFLICT(product_url) DO UPDATE SET
+				   threshold_pct = COALESCE(excluded.threshold_pct, watches.threshold_pct),
 				   current_price = COALESCE(excluded.current_price, watches.current_price),
 				   title = COALESCE(excluded.title, watches.title)`,
-				productURL, source, threshold, priceVal, origVal, titleVal,
+				productURL, source, thresholdVal, priceVal, origVal, titleVal,
 			)
 			if err != nil {
 				return fmt.Errorf("adding watch: %w", err)
