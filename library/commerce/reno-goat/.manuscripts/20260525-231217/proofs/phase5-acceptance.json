@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "api_name": "reno-goat",
+  "cli_name": "reno-goat-pp-cli",
+  "run_id": "20260525-231217",
+  "status": "pass",
+  "level": "quick",
+  "matrix_size": 9,
+  "tests_passed": 9,
+  "tests_skipped": 0,
+  "tests_failed": 0,
+  "auth_context": {
+    "type": "none",
+    "api_key_available": false,
+    "browser_session_available": false
+  },
+  "live_tests": {
+    "westelm_search": "pass",
+    "rejuvenation_search": "pass",
+    "shopify_dtc_search": "pass",
+    "fanout_search": "pass",
+    "room_routing": "pass",
+    "category_routing": "pass",
+    "sort_price_asc": "pass",
+    "sources_command": "pass",
+    "doctor": "pass"
+  },
+  "skipped_tests": [
+    "ferguson_search: requires anonymous JWT from page load",
+    "article_search: APQ hashes not yet discovered",
+    "watch_price_refetch: source-specific parsing needed"
+  ]
+}

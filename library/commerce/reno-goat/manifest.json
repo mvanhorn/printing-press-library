@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "reno-goat-pp-mcp",
+  "display_name": "Reno Goat",
+  "version": "4.14.0",
+  "description": "Search, compare, price-watch, and project-track renovation and interior products across 11 retailers — category-routed to Ferguson, West Elm, Rejuvenation, Article, Shopify DTC, and more. No API keys required.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/reno-goat-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/reno-goat-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

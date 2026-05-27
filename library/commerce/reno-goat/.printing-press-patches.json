@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-27",
+  "base_run_id": "20260525-231217",
+  "base_printing_press_version": "4.14.0",
+  "patches": [
+    {
+      "id": "fanout-search",
+      "summary": "Wired parent product-search RunE to fan-out search when positional query arg is present.",
+      "reason": "The generator emits product-search as a parent group with per-source subcommands. The fan-out novel feature needs the parent command to dispatch concurrent searches across all sources when a bare query is given.",
+      "files": ["internal/cli/product-search.go"]
+    },
+    {
+      "id": "lowes-stub-source",
+      "summary": "Added Lowe's as stub source with standalone autocomplete and store locator commands.",
+      "reason": "Printing Press printer protocol (probe-reachability + browser-sniff on Firefox HAR) confirmed autocomplete and store locator are standard_http (User-Agent only, no auth). Product search is SSR behind Akamai; recommendation engine (pythia-recs-svc, 14 endpoints) requires browser session cookies. Lowe's is stub — not in the fan-out — because only utility endpoints (suggest, stores) are viable, not product search.",
+      "files": [
+        "internal/cli/novel_lowes.go",
+        "internal/cli/novel_sources.go",
+        "internal/cli/novel_store.go",
+        "internal/cli/suggest.go",
+        "internal/cli/stores.go"
+      ]
+    },
+    {
+      "id": "home-depot-stub",
+      "summary": "Added Home Depot as stub with ssr_only transport and assessment notes.",
+      "reason": "Printing Press printer protocol confirmed all HD endpoints (autocomplete, store finder, GraphQL) return 403. Firefox HAR captured zero www.homedepot.com requests — HD renders everything server-side. No viable path without HTML scraping.",
+      "files": ["internal/cli/novel_sources.go", "internal/cli/novel_store.go"]
+    },
+    {
+      "id": "infer-source-fix",
+      "summary": "Added missing fergusonhome.com to inferSource domain map (Greptile P1).",
+      "reason": "Ferguson products from fergusonhome.com were classified as 'unknown' source. Also added lowes.com and homedepot.com domains.",
+      "files": ["internal/cli/novel_store.go"]
+    },
+    {
+      "id": "rename-home-goat-to-reno-goat",
+      "summary": "Renamed CLI from home-goat to reno-goat across all files, directories, and module path.",
+      "reason": "Reviewer feedback on PR #855 — 'home-goat' was too ambiguous for a home renovation/furnishing CLI.",
+      "files": ["go.mod", "cmd/reno-goat-pp-cli/main.go", "cmd/reno-goat-pp-mcp/main.go", ".printing-press.json"]
+    }
+  ]
+}

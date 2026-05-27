@@ -1,0 +1,365 @@
+{
+  "verify": {
+    "mode": "mock",
+    "total": 45,
+    "passed": 45,
+    "failed": 0,
+    "critical": 0,
+    "pass_rate": 100,
+    "data_pipeline": true,
+    "data_pipeline_detail": "PASS: sync completed (table validation skipped — sql command unavailable)",
+    "freshness": {
+      "enabled": false,
+      "verdict": "SKIP",
+      "detail": "cache freshness helper not emitted"
+    },
+    "verdict": "PASS",
+    "results": [
+      {
+        "command": "agent-context",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "analytics",
+        "kind": "data-layer",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "api",
+        "kind": "local",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "categories",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": false,
+        "score": 2
+      },
+      {
+        "command": "compare",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "deals",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": false,
+        "score": 2
+      },
+      {
+        "command": "doctor",
+        "kind": "local",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "export",
+        "kind": "data-layer",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "feedback",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "find-related",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "find-similar",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "history",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "import",
+        "kind": "data-layer",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "product-search",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "profile",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": false,
+        "score": 2
+      },
+      {
+        "command": "project",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": false,
+        "score": 2
+      },
+      {
+        "command": "save",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "saved",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "search",
+        "kind": "data-layer",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "sources",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "sync",
+        "kind": "data-layer",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "tail",
+        "kind": "data-layer",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "watch",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": false,
+        "score": 2
+      },
+      {
+        "command": "which",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "workflow",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": false,
+        "score": 2
+      }
+    ],
+    "path_param_probes": [
+      {
+        "command": "product-search all",
+        "positionals": [
+          "mock-query"
+        ],
+        "passed": true
+      },
+      {
+        "command": "product-search article-search",
+        "positionals": [
+          "mock-query"
+        ],
+        "passed": true
+      },
+      {
+        "command": "product-search ferguson-search",
+        "positionals": [
+          "mock-query"
+        ],
+        "passed": true
+      },
+      {
+        "command": "product-search rejuvenation-search",
+        "positionals": [
+          "mock-query"
+        ],
+        "passed": true
+      },
+      {
+        "command": "product-search shopify-search",
+        "positionals": [
+          "mock-query"
+        ],
+        "passed": true
+      },
+      {
+        "command": "product-search westelm-search",
+        "positionals": [
+          "mock-query"
+        ],
+        "passed": true
+      },
+      {
+        "command": "profile delete",
+        "positionals": [
+          "mock-query"
+        ],
+        "passed": true
+      },
+      {
+        "command": "profile save",
+        "positionals": [
+          "mock-query"
+        ],
+        "passed": true
+      },
+      {
+        "command": "profile show",
+        "positionals": [
+          "mock-query"
+        ],
+        "passed": true
+      },
+      {
+        "command": "profile use",
+        "positionals": [
+          "mock-query"
+        ],
+        "passed": true
+      },
+      {
+        "command": "project add",
+        "positionals": [
+          "mock-query",
+          "mock-value"
+        ],
+        "passed": true
+      },
+      {
+        "command": "project budget",
+        "positionals": [
+          "mock-query"
+        ],
+        "passed": true
+      },
+      {
+        "command": "project create",
+        "positionals": [
+          "mock-query"
+        ],
+        "passed": true
+      },
+      {
+        "command": "project delete",
+        "positionals": [
+          "mock-query"
+        ],
+        "passed": true
+      },
+      {
+        "command": "project remove",
+        "positionals": [
+          "mock-query",
+          "mock-value"
+        ],
+        "passed": true
+      },
+      {
+        "command": "project show",
+        "positionals": [
+          "mock-query"
+        ],
+        "passed": true
+      },
+      {
+        "command": "saved remove",
+        "positionals": [
+          "mock-value"
+        ],
+        "passed": true
+      },
+      {
+        "command": "watch add",
+        "positionals": [
+          "mock-value"
+        ],
+        "passed": true
+      },
+      {
+        "command": "watch history",
+        "positionals": [
+          "mock-value"
+        ],
+        "passed": true
+      },
+      {
+        "command": "watch remove",
+        "positionals": [
+          "mock-value"
+        ],
+        "passed": true
+      }
+    ],
+    "binary": "/Users/auser/printing-press/library/reno-goat/reno-goat"
+  }
+}
