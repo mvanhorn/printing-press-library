@@ -232,6 +232,13 @@ func TestAPIDisplayName(t *testing.T) {
 			slug:  "clarity",
 			want:  "Microsoft Clarity",
 		},
+		{
+			name:  "PP-prefixed brand without shared tail is preserved",
+			pp:    printingPressManifest{APIName: "pp-labs", DisplayName: "Acme Widgets"},
+			prior: RegistryEntry{API: "PP Labs"},
+			slug:  "pp-labs",
+			want:  "PP Labs",
+		},
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {

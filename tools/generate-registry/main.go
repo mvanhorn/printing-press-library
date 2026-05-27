@@ -722,10 +722,14 @@ func isStaleAPIValue(prior, displayName, slug string) bool {
 	if prior == titleCaseSlug(slug) {
 		return true
 	}
-	// A "PP "-prefixed prior is a printing-press infix artifact that
-	// leaked into the api label (e.g. "PP Clarity"); a corrected
-	// display_name without that prefix supersedes it.
-	if strings.HasPrefix(prior, "PP ") && !strings.HasPrefix(displayName, "PP ") {
+	// A "PP "-prefixed prior is a printing-press infix artifact when the
+	// prior is exactly "PP " + the tail of the corrected display_name
+	// (e.g. prior="PP Clarity", display="Microsoft Clarity", tail="Clarity").
+	// Scoping to that structural match supersedes the leaked prefix while
+	// leaving a legitimately curated brand that merely starts with "PP "
+	// (e.g. "PP Labs") untouched when the display_name doesn't share its tail.
+	if strings.HasPrefix(prior, "PP ") && !strings.HasPrefix(displayName, "PP ") &&
+		strings.HasSuffix(displayName, strings.TrimPrefix(prior, "PP ")) {
 		return true
 	}
 	if strings.HasSuffix(displayName, " "+prior) && !strings.Contains(prior, " ") {
