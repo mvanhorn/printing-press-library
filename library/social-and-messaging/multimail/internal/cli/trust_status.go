@@ -92,8 +92,8 @@ Requires synced data (run 'multimail-pp-cli sync --full' first).`,
 				// mailbox association matches this mailbox. Check $.mailbox_id
 				// and $.metadata.mailbox_id. $.resource_id is NOT checked —
 				// it stores the upgrade-object ID, not the mailbox ID.
-				// Exclude request/pending actions to avoid counting
-				// unapproved upgrade requests.
+				// Exclude request/pending/reject actions to avoid counting
+				// unapproved or rejected upgrade requests.
 				var upgradeCount int
 				var lastUpgrade string
 				upgradeRow := db.DB().QueryRowContext(cmd.Context(),
@@ -104,6 +104,7 @@ Requires synced data (run 'multimail-pp-cli sync --full' first).`,
 					AND json_extract(data, '$.action') LIKE '%upgrade%'
 					AND json_extract(data, '$.action') NOT LIKE '%request%'
 					AND json_extract(data, '$.action') NOT LIKE '%pending%'
+					AND json_extract(data, '$.action') NOT LIKE '%reject%'
 					AND (json_extract(data, '$.mailbox_id') = ?
 					  OR json_extract(data, '$.metadata.mailbox_id') = ?)`,
 					mb.ID, mb.ID)
