@@ -144,11 +144,17 @@ func runFanoutSearch(cmd *cobra.Command, flags *rootFlags, query, categoryFlag, 
 		failedSources = append(failedSources, e.Source)
 	}
 
-	// Apply price filters.
+	// Apply price filters. When a source only sets PriceMin (single-priced
+	// product, no variant range), PriceMax is the zero value. Fall back to
+	// PriceMin so single-priced items aren't silently dropped by --min-price.
 	if minPrice > 0 || maxPrice > 0 {
 		filtered := make([]NormalizedProduct, 0, len(allProducts))
 		for _, p := range allProducts {
-			if minPrice > 0 && p.PriceMax < minPrice {
+			hi := p.PriceMax
+			if hi == 0 {
+				hi = p.PriceMin
+			}
+			if minPrice > 0 && hi < minPrice {
 				continue
 			}
 			if maxPrice > 0 && p.PriceMin > maxPrice {
