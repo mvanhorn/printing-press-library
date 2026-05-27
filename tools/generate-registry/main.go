@@ -965,17 +965,22 @@ func renderCatalogTable(entries []RegistryEntry) string {
 }
 
 // printerSuffix returns the markdown suffix that visibly credits the
-// printer in the catalog row's description cell. Renders as
-// `<br><sub>Printed by @handle</sub>` when a Printer is set; empty
-// otherwise. Folded into the description cell rather than added as a
-// new column to avoid widening the existing 4-column table (every
-// entry has a description; not every entry has a printer until the
-// backfill follow-up issue ships).
+// printer in the catalog row's description cell. Renders the prose
+// display name when one is set and links it to the GitHub handle stored
+// in Printer; falls back to `@handle` when no display name is present.
+// Folded into the description cell rather than added as a new column to
+// avoid widening the existing 4-column table (every entry has a
+// description; not every entry has a printer until the backfill
+// follow-up issue ships).
 func printerSuffix(e RegistryEntry) string {
 	if e.Printer == "" {
 		return ""
 	}
-	return fmt.Sprintf("<br><sub>Printed by [@%s](https://github.com/%s)</sub>", e.Printer, e.Printer)
+	label := strings.TrimSpace(e.PrinterName)
+	if label == "" {
+		label = "@" + e.Printer
+	}
+	return fmt.Sprintf("<br><sub>Printed by [%s](https://github.com/%s)</sub>", label, e.Printer)
 }
 
 // renderCatalogCounts returns the "N CLIs across M categories." line
