@@ -22,6 +22,6 @@ func newListsCmd(flags *rootFlags) *cobra.Command {
 	cmd.AddCommand(newListsProfilesCmd(flags))
 	cmd.AddCommand(newListsRelationshipsCmd(flags))
 	cmd.AddCommand(newListsTagsCmd(flags))
-	cmd.AddCommand(newListsAuditCmd(flags))
+	cmd.AddCommand(newListsAuditCmd(flags)) // PATCH: wire curated list audit workflow.
 	return cmd
 }

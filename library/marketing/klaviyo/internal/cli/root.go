@@ -240,19 +240,19 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.AddCommand(newAttributionCmd(flags))
 	rootCmd.AddCommand(newDedupCmd(flags))
 	rootCmd.AddCommand(newReconcileCmd(flags))
-	rootCmd.AddCommand(newFlowCannibalizationCmd(flags))
-	rootCmd.AddCommand(newSendFatigueCmd(flags))
-	rootCmd.AddCommand(newSubjectLineAnalysisCmd(flags))
-	rootCmd.AddCommand(newOptimalSendTimeCmd(flags))
-	rootCmd.AddCommand(newRevenuePerEmailCmd(flags))
-	rootCmd.AddCommand(newSegmentVelocityCmd(flags))
-	rootCmd.AddCommand(newFlowPathAnalysisCmd(flags))
-	rootCmd.AddCommand(newCampaignTimeDecayCmd(flags))
-	rootCmd.AddCommand(newListQualityScoreCmd(flags))
-	rootCmd.AddCommand(newContentFatigueCmd(flags))
+	rootCmd.AddCommand(newFlowCannibalizationCmd(flags)) // PATCH: wire curated computed analytics command.
+	rootCmd.AddCommand(newSendFatigueCmd(flags))         // PATCH: wire curated computed analytics command.
+	rootCmd.AddCommand(newSubjectLineAnalysisCmd(flags)) // PATCH: wire curated computed analytics command.
+	rootCmd.AddCommand(newOptimalSendTimeCmd(flags))     // PATCH: wire curated computed analytics command.
+	rootCmd.AddCommand(newRevenuePerEmailCmd(flags))     // PATCH: wire curated computed analytics command.
+	rootCmd.AddCommand(newSegmentVelocityCmd(flags))     // PATCH: wire curated computed analytics command.
+	rootCmd.AddCommand(newFlowPathAnalysisCmd(flags))    // PATCH: wire curated computed analytics command.
+	rootCmd.AddCommand(newCampaignTimeDecayCmd(flags))   // PATCH: wire curated computed analytics command.
+	rootCmd.AddCommand(newListQualityScoreCmd(flags))    // PATCH: wire curated computed analytics command.
+	rootCmd.AddCommand(newContentFatigueCmd(flags))      // PATCH: wire curated computed analytics command.
 	rootCmd.AddCommand(newPlanCmd(flags))
-	rootCmd.AddCommand(newReportCmd(flags))
-	rootCmd.AddCommand(newUniversalContentCmd(flags))
+	rootCmd.AddCommand(newReportCmd(flags))           // PATCH: wire curated report command group.
+	rootCmd.AddCommand(newUniversalContentCmd(flags)) // PATCH: wire curated universal content command group.
 	rootCmd.AddCommand(newAPICmd(flags))
 	rootCmd.AddCommand(newBackInStockSubscriptionsPromotedCmd(flags))
 	rootCmd.AddCommand(newCampaignClonePromotedCmd(flags))

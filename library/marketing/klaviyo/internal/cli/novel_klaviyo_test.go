@@ -1,10 +1,13 @@
 package cli
 
 import (
+	"context"
 	"encoding/json"
+	"path/filepath"
 	"testing"
 	"time"
 
+	"github.com/mvanhorn/printing-press-library/library/marketing/klaviyo/internal/store"
 	"github.com/spf13/cobra"
 )
 
@@ -137,6 +140,60 @@ func TestNovelDedupAndDecay(t *testing.T) {
 	decay := flowDecay(flows, 90, 0.15)
 	if len(decay) != 1 || decay[0]["flagged"] != true {
 		t.Fatalf("flowDecay = %#v", decay)
+	}
+}
+
+func TestSegmentVelocityHonorsLastWindow(t *testing.T) {
+	ctx := context.Background()
+	db, err := store.OpenWithContext(ctx, filepath.Join(t.TempDir(), "klaviyo.db"))
+	if err != nil {
+		t.Fatalf("open store: %v", err)
+	}
+	defer db.Close()
+	if _, err := db.DB().ExecContext(ctx, `CREATE TABLE IF NOT EXISTS segment_snapshots (segment_id TEXT NOT NULL, snapshot_date TEXT NOT NULL, name TEXT, count INTEGER NOT NULL, recorded_at DATETIME DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY(segment_id, snapshot_date))`); err != nil {
+		t.Fatalf("create snapshots table: %v", err)
+	}
+	oldDate := segmentSnapshotDate(time.Now().AddDate(0, 0, -60), "daily")
+	recentDate := segmentSnapshotDate(time.Now().AddDate(0, 0, -10), "daily")
+	if _, err := db.DB().ExecContext(ctx, `INSERT INTO segment_snapshots(segment_id, snapshot_date, name, count) VALUES (?, ?, ?, ?), (?, ?, ?, ?)`, "seg-1", oldDate, "VIP", 100, "seg-1", recentDate, "VIP", 150); err != nil {
+		t.Fatalf("seed snapshots: %v", err)
+	}
+	client := &fakeCouponPoolClient{responses: []json.RawMessage{rawJSON(`{"data":{"id":"seg-1","attributes":{"name":"VIP","profile_count":160}}}`)}}
+	result, err := segmentVelocity(ctx, client, db, []string{"seg-1"}, "30d", "daily")
+	if err != nil {
+		t.Fatalf("segmentVelocity() error = %v", err)
+	}
+	segments := result["segments"].([]map[string]any)
+	if len(segments) != 1 {
+		t.Fatalf("segments = %#v, want one segment", segments)
+	}
+	trend := segments[0]["weekly_trend"].([]int)
+	if len(trend) != 2 || trend[0] != 150 || trend[1] != 160 {
+		t.Fatalf("trend = %#v, want recent/current only", trend)
+	}
+	if segments[0]["size_30d_ago"] != 150 || segments[0]["change"] != 10 {
+		t.Fatalf("windowed row = %#v", segments[0])
+	}
+}
+
+func TestCampaignEventMatchesSkipsUnattributedOrders(t *testing.T) {
+	tests := []struct {
+		name  string
+		event novelEmailEvent
+		want  bool
+	}{
+		{name: "matching id", event: novelEmailEvent{CampaignID: "camp-1"}, want: true},
+		{name: "different id", event: novelEmailEvent{CampaignID: "camp-2"}, want: false},
+		{name: "matching fallback name", event: novelEmailEvent{CampaignName: "Spring Sale"}, want: true},
+		{name: "different fallback name", event: novelEmailEvent{CampaignName: "Summer Sale"}, want: false},
+		{name: "unattributed", event: novelEmailEvent{}, want: false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := campaignEventMatches(tt.event, "camp-1", "Spring Sale"); got != tt.want {
+				t.Fatalf("campaignEventMatches() = %v, want %v", got, tt.want)
+			}
+		})
 	}
 }
 
@@ -447,6 +504,14 @@ func (f *fakeCouponPoolClient) Get(path string, params map[string]string) (json.
 	resp := f.responses[0]
 	f.responses = f.responses[1:]
 	return resp, nil
+}
+
+func (f *fakeCouponPoolClient) Post(_ string, _ any) (json.RawMessage, int, error) {
+	return nil, 0, nil
+}
+
+func (f *fakeCouponPoolClient) Patch(_ string, _ any) (json.RawMessage, int, error) {
+	return nil, 0, nil
 }
 
 func rawJSON(s string) json.RawMessage {

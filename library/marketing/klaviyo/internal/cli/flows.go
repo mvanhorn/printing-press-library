@@ -21,12 +21,12 @@ func newFlowsCmd(flags *rootFlags) *cobra.Command {
 	cmd.AddCommand(newFlowsFlowActionsCmd(flags))
 	cmd.AddCommand(newFlowsRelationshipsCmd(flags))
 	cmd.AddCommand(newFlowsTagsCmd(flags))
-	cmd.AddCommand(newFlowsExportCmd(flags))
-	cmd.AddCommand(newFlowsCloneCmd(flags))
-	cmd.AddCommand(newFlowsDeployCmd(flags))
-	cmd.AddCommand(newFlowsPauseCmd(flags))
-	cmd.AddCommand(newFlowsResumeCmd(flags))
-	cmd.AddCommand(newFlowsHealthCmd(flags))
-	cmd.AddCommand(newFlowsAuditCmd(flags))
+	cmd.AddCommand(newFlowsExportCmd(flags)) // PATCH: wire curated flow export workflow.
+	cmd.AddCommand(newFlowsCloneCmd(flags))  // PATCH: wire curated flow clone workflow.
+	cmd.AddCommand(newFlowsDeployCmd(flags)) // PATCH: wire curated flow deploy workflow.
+	cmd.AddCommand(newFlowsPauseCmd(flags))  // PATCH: wire curated flow pause workflow.
+	cmd.AddCommand(newFlowsResumeCmd(flags)) // PATCH: wire curated flow resume workflow.
+	cmd.AddCommand(newFlowsHealthCmd(flags)) // PATCH: wire curated flow health workflow.
+	cmd.AddCommand(newFlowsAuditCmd(flags))  // PATCH: wire curated flow audit workflow.
 	return cmd
 }

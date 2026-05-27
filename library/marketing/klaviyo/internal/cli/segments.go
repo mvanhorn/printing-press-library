@@ -22,8 +22,8 @@ func newSegmentsCmd(flags *rootFlags) *cobra.Command {
 	cmd.AddCommand(newSegmentsProfilesCmd(flags))
 	cmd.AddCommand(newSegmentsRelationshipsCmd(flags))
 	cmd.AddCommand(newSegmentsTagsCmd(flags))
-	cmd.AddCommand(newSegmentsBuildCmd(flags))
-	cmd.AddCommand(newSegmentsOverlapCmd(flags))
-	cmd.AddCommand(newSegmentsRFMCmd(flags))
+	cmd.AddCommand(newSegmentsBuildCmd(flags))   // PATCH: wire curated segment builder workflow.
+	cmd.AddCommand(newSegmentsOverlapCmd(flags)) // PATCH: wire curated segment overlap workflow.
+	cmd.AddCommand(newSegmentsRFMCmd(flags))     // PATCH: wire curated RFM workflow.
 	return cmd
 }

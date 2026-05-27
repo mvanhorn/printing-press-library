@@ -20,6 +20,6 @@ func newTagsCmd(flags *rootFlags) *cobra.Command {
 	cmd.AddCommand(newTagsUpdateCmd(flags))
 	cmd.AddCommand(newTagsRelationshipsCmd(flags))
 	cmd.AddCommand(newTagsTagGroupCmd(flags))
-	cmd.AddCommand(newTagsAuditCmd(flags))
+	cmd.AddCommand(newTagsAuditCmd(flags)) // PATCH: wire curated tag audit workflow.
 	return cmd
 }

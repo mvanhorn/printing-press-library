@@ -18,7 +18,7 @@ func newTemplatesCmd(flags *rootFlags) *cobra.Command {
 	cmd.AddCommand(newTemplatesGetCmd(flags))
 	cmd.AddCommand(newTemplatesGetIdCmd(flags))
 	cmd.AddCommand(newTemplatesUpdateCmd(flags))
-	cmd.AddCommand(newTemplatesUpdateImageCmd(flags))
-	cmd.AddCommand(newTemplatesAuditCmd(flags))
+	cmd.AddCommand(newTemplatesUpdateImageCmd(flags)) // PATCH: wire curated image update workflow.
+	cmd.AddCommand(newTemplatesAuditCmd(flags))       // PATCH: wire curated template audit workflow.
 	return cmd
 }

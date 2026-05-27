@@ -381,6 +381,13 @@ func parseNovelDuration(value string) (time.Duration, error) {
 	return time.ParseDuration(value)
 }
 
+func titleASCII(value string) string {
+	if value == "" {
+		return value
+	}
+	return strings.ToUpper(value[:1]) + value[1:]
+}
+
 func eventsFromRows(rows []resourceRow, metric string, since time.Time) []novelEmailEvent {
 	var out []novelEmailEvent
 	for _, row := range rows {
@@ -743,7 +750,7 @@ func optimalSendTime(c flowClient, since, until time.Time, timezoneName, metric 
 				rate = clamp01(a.engagement / a.received)
 			}
 			heatmap[day][hour] = round3(rate)
-			windows = append(windows, map[string]any{"day": strings.Title(day), "hour": hour, "engagement_rate": round3(rate)})
+			windows = append(windows, map[string]any{"day": titleASCII(day), "hour": hour, "engagement_rate": round3(rate)})
 		}
 	}
 	sort.Slice(windows, func(i, j int) bool {
@@ -830,12 +837,12 @@ func segmentVelocity(ctx context.Context, c flowClient, db *store.Store, ids []s
 	if _, err := db.DB().ExecContext(ctx, `CREATE TABLE IF NOT EXISTS segment_snapshots (segment_id TEXT NOT NULL, snapshot_date TEXT NOT NULL, name TEXT, count INTEGER NOT NULL, recorded_at DATETIME DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY(segment_id, snapshot_date))`); err != nil {
 		return nil, err
 	}
-	_, _ = sinceFromLast(last)
-	snapshotDate := time.Now().Format("2006-01-02")
-	if interval == "weekly" {
-		y, w := time.Now().ISOWeek()
-		snapshotDate = fmt.Sprintf("%04d-W%02d", y, w)
+	sinceTime, err := sinceFromLast(last)
+	if err != nil {
+		return nil, err
 	}
+	snapshotDate := segmentSnapshotDate(time.Now(), interval)
+	minSnapshotDate := segmentSnapshotDate(sinceTime, interval)
 	var results []map[string]any
 	for _, id := range ids {
 		resp, err := c.Get("/api/segments/"+url.PathEscape(id), map[string]string{"fields[segment]": "name,profile_count,profile_count_estimate"})
@@ -847,7 +854,7 @@ func segmentVelocity(ctx context.Context, c flowClient, db *store.Store, ids []s
 		if _, err := db.DB().ExecContext(ctx, `INSERT OR REPLACE INTO segment_snapshots(segment_id, snapshot_date, name, count) VALUES (?, ?, ?, ?)`, id, snapshotDate, name, count); err != nil {
 			return nil, err
 		}
-		rows, err := db.DB().QueryContext(ctx, `SELECT snapshot_date, count FROM segment_snapshots WHERE segment_id = ? ORDER BY snapshot_date`, id)
+		rows, err := db.DB().QueryContext(ctx, `SELECT snapshot_date, count FROM segment_snapshots WHERE segment_id = ? AND snapshot_date >= ? ORDER BY snapshot_date`, id, minSnapshotDate)
 		if err != nil {
 			return nil, err
 		}
@@ -865,7 +872,13 @@ func segmentVelocity(ctx context.Context, c flowClient, db *store.Store, ids []s
 			}
 			trend = append(trend, n)
 		}
-		rows.Close()
+		if err := rows.Err(); err != nil {
+			rows.Close()
+			return nil, err
+		}
+		if err := rows.Close(); err != nil {
+			return nil, err
+		}
 		change := count - firstCount
 		pct := 0.0
 		if firstCount > 0 {
@@ -884,6 +897,14 @@ func segmentVelocity(ctx context.Context, c flowClient, db *store.Store, ids []s
 		results = append(results, row)
 	}
 	return map[string]any{"segments": results}, nil
+}
+
+func segmentSnapshotDate(t time.Time, interval string) string {
+	if interval == "weekly" {
+		y, w := t.ISOWeek()
+		return fmt.Sprintf("%04d-W%02d", y, w)
+	}
+	return t.Format("2006-01-02")
 }
 
 func flowPathAnalysis(c flowClient, flowID string, since, until time.Time) (map[string]any, error) {
@@ -952,10 +973,7 @@ func campaignTimeDecay(c flowClient, campaignID string) (map[string]any, error) 
 	totalRevenue := 0.0
 	totalConversions := 0
 	for _, event := range events {
-		if campaignID != "" && event.CampaignID != "" && event.CampaignID != campaignID {
-			continue
-		}
-		if campaignID != "" && event.CampaignID == "" && event.CampaignName != "" && !strings.EqualFold(event.CampaignName, name) {
+		if !campaignEventMatches(event, campaignID, name) {
 			continue
 		}
 		delta := event.Time.Sub(sentAt)
@@ -977,6 +995,19 @@ func campaignTimeDecay(c flowClient, campaignID string) (map[string]any, error) 
 		curve[b]["revenue"] = round2(anyFloat(curve[b]["revenue"]))
 	}
 	return map[string]any{"campaign": name, "campaign_id": campaignID, "sent_at": sentAt.Format(time.RFC3339), "total_conversions": totalConversions, "total_revenue": round2(totalRevenue), "decay_curve": curve, "insight": campaignDecayInsight(curve)}, nil
+}
+
+func campaignEventMatches(event novelEmailEvent, campaignID, campaignName string) bool {
+	if campaignID == "" {
+		return true
+	}
+	if event.CampaignID != "" {
+		return event.CampaignID == campaignID
+	}
+	if event.CampaignName != "" {
+		return strings.EqualFold(event.CampaignName, campaignName)
+	}
+	return false
 }
 
 func listQualityScore(c flowClient, since, until time.Time) (map[string]any, error) {

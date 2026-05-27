@@ -23,6 +23,6 @@ func newCampaignsCmd(flags *rootFlags) *cobra.Command {
 	cmd.AddCommand(newCampaignsTagsCmd(flags))
 	cmd.AddCommand(newCampaignsDeployCmd(flags))
 	cmd.AddCommand(newCampaignsImageSwapCmd(flags))
-	cmd.AddCommand(newCampaignsScheduleConflictsCmd(flags))
+	cmd.AddCommand(newCampaignsScheduleConflictsCmd(flags)) // PATCH: wire curated campaign conflict workflow.
 	return cmd
 }

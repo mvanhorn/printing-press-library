@@ -22,11 +22,11 @@ func newProfilesCmd(flags *rootFlags) *cobra.Command {
 	cmd.AddCommand(newProfilesPushTokensCmd(flags))
 	cmd.AddCommand(newProfilesRelationshipsCmd(flags))
 	cmd.AddCommand(newProfilesSegmentsCmd(flags))
-	cmd.AddCommand(newProfilesStatsCmd(flags))
-	cmd.AddCommand(newProfilesTopSpendersCmd(flags))
-	cmd.AddCommand(newProfilesNeverPurchasedCmd(flags))
-	cmd.AddCommand(newProfilesChurningCmd(flags))
-	cmd.AddCommand(newProfilesPruneCmd(flags))
-	cmd.AddCommand(newProfilesExportSuppressionsCmd(flags))
+	cmd.AddCommand(newProfilesStatsCmd(flags))              // PATCH: wire curated profile stats workflow.
+	cmd.AddCommand(newProfilesTopSpendersCmd(flags))        // PATCH: wire curated top-spenders workflow.
+	cmd.AddCommand(newProfilesNeverPurchasedCmd(flags))     // PATCH: wire curated never-purchased workflow.
+	cmd.AddCommand(newProfilesChurningCmd(flags))           // PATCH: wire curated churn-risk workflow.
+	cmd.AddCommand(newProfilesPruneCmd(flags))              // PATCH: wire curated profile prune workflow.
+	cmd.AddCommand(newProfilesExportSuppressionsCmd(flags)) // PATCH: wire curated suppression export workflow.
 	return cmd
 }
