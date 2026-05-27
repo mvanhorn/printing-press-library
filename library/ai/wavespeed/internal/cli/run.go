@@ -470,7 +470,11 @@ func uploadMediaBinary(ctx context.Context, c *client.Client, filePath string, s
 	req.Header.Set("Accept", "application/json")
 	req.Header.Set("User-Agent", "wavespeed-pp-cli/1.0.0")
 	if c.Config != nil {
-		if auth := c.Config.AuthHeader(); auth != "" {
+		auth, err := c.AuthHeader(ctx)
+		if err != nil {
+			return nil, err
+		}
+		if auth != "" {
 			req.Header.Set("Authorization", auth)
 		}
 		for k, v := range c.Config.Headers {

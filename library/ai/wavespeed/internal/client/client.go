@@ -106,6 +106,10 @@ func (c *Client) RateLimit() float64 {
 	return c.limiter.Rate()
 }
 
+func (c *Client) AuthHeader(ctx context.Context) (string, error) {
+	return c.authHeader(ctx)
+}
+
 // DoRaw executes a caller-built request through the configured HTTP client
 // while preserving cross-cutting client policy such as proactive rate limiting
 // and adaptive limiter feedback.
