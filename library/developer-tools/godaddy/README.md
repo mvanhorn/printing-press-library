@@ -334,7 +334,7 @@ Environment overrides:
 
 - `GODADDY_API_KEY` + `GODADDY_API_SECRET` build the `sso-key` header.
 - `GODADDY_AUTH_HEADER` provides the full `Authorization` value directly.
-- `GODADDY_BASE_URL` or `GODADDY_API_BASE_URL` overrides the default OTE API host.
+- `GODADDY_BASE_URL` or `GODADDY_API_BASE_URL` overrides the default production API host.
 - `GODADDY_ALLOW_WRITES=1` is required for live account-changing requests. Use `--dry-run` to preview without sending.
 
 Static request headers can be configured under `headers`; per-command header overrides take precedence.

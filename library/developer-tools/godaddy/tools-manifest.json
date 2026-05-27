@@ -1,6 +1,6 @@
 {
   "api_name": "godaddy",
-  "base_url": "https://api.ote-godaddy.com",
+  "base_url": "https://api.godaddy.com",
   "description": "Combined CLI for multiple API services",
   "mcp_ready": "full",
   "http_transport": "standard",

@@ -22,7 +22,7 @@ type Config struct {
 
 func Load(configPath string) (*Config, error) {
 	cfg := &Config{
-		BaseURL: "https://api.ote-godaddy.com",
+		BaseURL: "https://api.godaddy.com",
 	}
 
 	// Resolve config path

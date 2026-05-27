@@ -97,6 +97,25 @@ func TestAnnotateGoDaddyRisk_ReadAndValidationMetadata(t *testing.T) {
 	if !strings.Contains(validationCmd.Long, "Validation/search route") {
 		t.Fatalf("domains validate help missing validation warning: %q", validationCmd.Long)
 	}
+
+	certValidateCmd := mustFindCommand(t, root, "certificates", "validate")
+	if got := certValidateCmd.Annotations["pp:risk"]; got == riskValidation {
+		t.Fatalf("certificates validate pp:risk = %q, want a gated write risk", got)
+	}
+	if got := certValidateCmd.Annotations["pp:barrier"]; got != "requires_GODADDY_ALLOW_WRITES" {
+		t.Fatalf("certificates validate pp:barrier = %q, want requires_GODADDY_ALLOW_WRITES", got)
+	}
+	if strings.Contains(certValidateCmd.Long, "safe to call without GODADDY_ALLOW_WRITES") {
+		t.Fatalf("certificates validate help should not claim no write barrier: %q", certValidateCmd.Long)
+	}
+
+	acmeValidateCmd := mustFindCommand(t, root, "agents", "verify-acme", "validate-registration")
+	if got := acmeValidateCmd.Annotations["pp:risk"]; got == riskValidation {
+		t.Fatalf("agents verify-acme validate-registration pp:risk = %q, want a gated write risk", got)
+	}
+	if got := acmeValidateCmd.Annotations["pp:barrier"]; got != "requires_GODADDY_ALLOW_WRITES" {
+		t.Fatalf("agents verify-acme validate-registration pp:barrier = %q, want requires_GODADDY_ALLOW_WRITES", got)
+	}
 }
 
 func mustFindCommand(t *testing.T, root *cobra.Command, path ...string) *cobra.Command {

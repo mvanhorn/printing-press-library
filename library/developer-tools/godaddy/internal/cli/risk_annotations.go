@@ -73,7 +73,7 @@ func classifyGoDaddyRouteRisk(cmd *cobra.Command) (routeRisk, bool) {
 	if method == "GET" || cmd.Annotations["mcp:read-only"] == "true" {
 		return routeRisk{Class: riskRead, Barrier: "none"}, true
 	}
-	if isValidationRoute(method, path, lower) {
+	if isUngatedValidationRoute(method, path) {
 		return routeRisk{
 			Class:   riskValidation,
 			Barrier: "none",
@@ -129,17 +129,25 @@ func endpointMetadata(cmd *cobra.Command) (method, path, endpoint string) {
 	return strings.ToUpper(cmd.Annotations["pp:method"]), cmd.Annotations["pp:path"], cmd.Annotations["pp:endpoint"]
 }
 
-func isValidationRoute(method, path, lower string) bool {
+func isUngatedValidationRoute(method, path string) bool {
 	if method != "POST" {
 		return false
 	}
 	path = strings.ToLower(path)
-	return strings.Contains(path, "/validate") ||
-		strings.Contains(path, "/available") ||
-		strings.Contains(path, "/schema") ||
-		strings.Contains(path, "/suggest") ||
-		strings.Contains(path, "/resolution") ||
-		containsAny(lower, "validate", "available", "schema", "suggest", "resolution")
+	switch path {
+	case "/v1/agents/resolution",
+		"/v1/domains/available",
+		"/v1/domains/contacts/validate",
+		"/v1/domains/purchase/validate":
+		return true
+	}
+	if strings.HasSuffix(path, "/transfer/validate") && strings.Contains(path, "/domains/") {
+		return true
+	}
+	if strings.HasSuffix(path, "/domains/register/validate") {
+		return true
+	}
+	return false
 }
 
 func isDNSRecordReplace(method, path string) bool {
