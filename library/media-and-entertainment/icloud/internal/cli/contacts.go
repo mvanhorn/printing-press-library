@@ -120,16 +120,58 @@ on run argv
 		set p1 to person id (item 1 of argv)
 		set p2 to person id (item 2 of argv)
 		repeat with ph in (get phones of p2)
-			make new phone at end of phones of p1 with properties {label: label of ph, value: value of ph}
+			set v to value of ph
+			set isDup to false
+			repeat with existing in (phones of p1)
+				if value of existing is v then
+					set isDup to true
+					exit repeat
+				end if
+			end repeat
+			if not isDup then
+				make new phone at end of phones of p1 with properties {label: label of ph, value: v}
+			end if
 		end repeat
 		repeat with em in (get emails of p2)
-			make new email at end of emails of p1 with properties {label: label of em, value: value of em}
+			set v to value of em
+			set isDup to false
+			repeat with existing in (emails of p1)
+				if value of existing is v then
+					set isDup to true
+					exit repeat
+				end if
+			end repeat
+			if not isDup then
+				make new email at end of emails of p1 with properties {label: label of em, value: v}
+			end if
 		end repeat
 		repeat with u in (get urls of p2)
-			make new url at end of urls of p1 with properties {label: label of u, value: value of u}
+			set v to value of u
+			set isDup to false
+			repeat with existing in (urls of p1)
+				if value of existing is v then
+					set isDup to true
+					exit repeat
+				end if
+			end repeat
+			if not isDup then
+				make new url at end of urls of p1 with properties {label: label of u, value: v}
+			end if
 		end repeat
 		repeat with addr in (get addresses of p2)
-			make new address at end of addresses of p1 with properties {label: label of addr, street: street of addr, city: city of addr, state: state of addr, zip: zip of addr, country: country of addr}
+			set s to street of addr
+			set c to city of addr
+			set z to zip of addr
+			set isDup to false
+			repeat with existing in (addresses of p1)
+				if (street of existing is s) and (city of existing is c) and (zip of existing is z) then
+					set isDup to true
+					exit repeat
+				end if
+			end repeat
+			if not isDup then
+				make new address at end of addresses of p1 with properties {label: label of addr, street: s, city: c, state: state of addr, zip: z, country: country of addr}
+			end if
 		end repeat
 		set n2 to note of p2
 		if n2 is not missing value and n2 is not "" then
