@@ -90,34 +90,14 @@ Requires synced data (run 'multimail-pp-cli sync --full' first).`,
 					`SELECT COUNT(*) FROM mailboxes_emails WHERE mailboxes_id = ?`, mb.ID)
 				_ = totalRow.Scan(&totalEmails)
 
-				// Unread count — check whether the 'read' field exists in any
-				// email for this mailbox; only fall back to 'is_read' when the
-				// primary field is absent entirely (not when the count is zero,
-				// which is a legitimate "all read" state).
+				// Unread count — MultiMail EmailSummary uses a status enum, not
+				// boolean read/is_read fields. Count the documented unread state.
 				var unreadCount int
-				var hasReadField int
-				readFieldCheck := db.DB().QueryRowContext(cmd.Context(),
+				unreadRow := db.DB().QueryRowContext(cmd.Context(),
 					`SELECT COUNT(*) FROM mailboxes_emails
 					WHERE mailboxes_id = ?
-					AND json_extract(data, '$.read') IS NOT NULL`, mb.ID)
-				_ = readFieldCheck.Scan(&hasReadField)
-
-				if hasReadField > 0 {
-					// Primary field exists — count unread via 'read'
-					unreadRow := db.DB().QueryRowContext(cmd.Context(),
-						`SELECT COUNT(*) FROM mailboxes_emails
-						WHERE mailboxes_id = ?
-						AND json_extract(data, '$.read') = 0`, mb.ID)
-					_ = unreadRow.Scan(&unreadCount)
-				} else {
-					// Fallback: 'read' field absent — try 'is_read'
-					unreadFallback := db.DB().QueryRowContext(cmd.Context(),
-						`SELECT COUNT(*) FROM mailboxes_emails
-						WHERE mailboxes_id = ?
-						AND (json_extract(data, '$.is_read') = 0
-						  OR json_extract(data, '$.is_read') = 'false')`, mb.ID)
-					_ = unreadFallback.Scan(&unreadCount)
-				}
+					AND json_extract(data, '$.status') = 'unread'`, mb.ID)
+				_ = unreadRow.Scan(&unreadCount)
 
 				// Oldest unread email age
 				var oldestUnread string
@@ -125,12 +105,10 @@ Requires synced data (run 'multimail-pp-cli sync --full' first).`,
 					`SELECT MIN(COALESCE(json_extract(data, '$.received_at'), json_extract(data, '$.created_at'), synced_at))
 					FROM mailboxes_emails
 					WHERE mailboxes_id = ?
-					AND (json_extract(data, '$.read') = 0
-					  OR json_extract(data, '$.is_read') = 0
-					  OR json_extract(data, '$.is_read') = 'false')`, mb.ID)
+					AND json_extract(data, '$.status') = 'unread'`, mb.ID)
 				var oldestTS string
 				if oldestRow.Scan(&oldestTS) == nil && oldestTS != "" {
-					if t, err := time.Parse(time.RFC3339, oldestTS); err == nil {
+					if t, ok := parseAPITime(oldestTS); ok {
 						d := time.Since(t)
 						switch {
 						case d < time.Hour:

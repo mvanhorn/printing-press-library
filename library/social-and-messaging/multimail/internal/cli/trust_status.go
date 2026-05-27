@@ -116,7 +116,7 @@ Requires synced data (run 'multimail-pp-cli sync --full' first).`,
 					refTime = mb.CreatedAt
 				}
 				if refTime != "" {
-					if t, err := time.Parse(time.RFC3339, refTime); err == nil {
+					if t, ok := parseAPITime(refTime); ok {
 						d := time.Since(t)
 						switch {
 						case d < 24*time.Hour:

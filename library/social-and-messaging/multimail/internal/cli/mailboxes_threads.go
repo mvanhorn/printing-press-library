@@ -15,5 +15,6 @@ func newMailboxesThreadsCmd(flags *rootFlags) *cobra.Command {
 	}
 
 	cmd.AddCommand(newMailboxesThreadsGetCmd(flags))
+	cmd.AddCommand(newThreadsStaleCmd(flags))
 	return cmd
 }

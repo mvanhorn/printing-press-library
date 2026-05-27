@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "applied_at": "2026-05-24",
+  "applied_at": "2026-05-27",
   "base_run_id": "20260523-201101",
   "base_printing_press_version": "4.14.0",
   "patches": [
@@ -179,6 +179,51 @@
       "files": [
         "internal/cli/inbox_health.go",
         "internal/cli/threads_stale.go"
+      ]
+    },
+    {
+      "id": "multimail-api-time-parsing",
+      "summary": "Parse both RFC3339 timestamps and MultiMail epoch numeric timestamps in novel-command age metrics.",
+      "reason": "Mailbox.created_at is documented as epoch milliseconds, so RFC3339-only parsing made trust status time_at_level permanently blank when no upgrade audit event existed.",
+      "files": [
+        "internal/cli/time_parse_helpers.go",
+        "internal/cli/trust_status.go",
+        "internal/cli/inbox_health.go"
+      ]
+    },
+    {
+      "id": "inbox-health-status-unread",
+      "summary": "Use EmailSummary.status = 'unread' for unread_count and oldest_unread.",
+      "reason": "The MultiMail email schema has a status enum and no read/is_read boolean fields, so the old JSON paths made unread metrics permanently zero or blank.",
+      "files": [
+        "internal/cli/inbox_health.go"
+      ]
+    },
+    {
+      "id": "mcp-block-db-flag",
+      "summary": "Block the --db flag from MCP structured parameters.",
+      "reason": "Cobra flags are exposed as MCP parameters; allowing --db lets an MCP caller redirect analytics commands to arbitrary local SQLite paths outside the intended per-command surface.",
+      "files": [
+        "internal/mcp/cobratree/shellout.go",
+        "internal/mcp/cobratree/typemap.go"
+      ]
+    },
+    {
+      "id": "register-novel-subcommands",
+      "summary": "Register coverage, stale, and velocity novel commands under their documented parent command groups.",
+      "reason": "The command constructors existed but were not attached to the Cobra tree, so dogfood flagged them as unregistered and users could not invoke the documented commands.",
+      "files": [
+        "internal/cli/mailboxes_allowlist.go",
+        "internal/cli/mailboxes_threads.go",
+        "internal/cli/oversight.go"
+      ]
+    },
+    {
+      "id": "skill-install-section-canonical",
+      "summary": "Restore the canonical SKILL.md install fallback text.",
+      "reason": "verify-skill treats the install section as generator-owned and failed while the placeholder category-specific fallback text remained.",
+      "files": [
+        "SKILL.md"
       ]
     }
   ]

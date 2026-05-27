@@ -54,6 +54,7 @@ var blockedRootFlags = map[string]bool{
 	"base-url": true,
 	"client":   true,
 	"config":   true,
+	"db":       true,
 	"deliver":  true,
 	"profile":  true,
 	"token":    true,

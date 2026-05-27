@@ -1,6 +1,7 @@
 {
-  "dir": "/Users/auser/printing-press/library/multimail",
-  "spec_path": "/tmp/multimail-openapi-2026-05-23.json",
+  "dir": "\u003ccli-dir\u003e/multimail",
+  "spec_path": "\u003ccli-dir\u003e/spec.json",
+  "spec_source": "bundled",
   "verdict": "PASS",
   "path_check": {
     "tested": 7,
@@ -18,18 +19,26 @@
     "pass": true,
     "detail": "browser-session auth not required"
   },
+  "oauth_scope_coverage_check": {
+    "checked": 0,
+    "covered": 0,
+    "skipped": true,
+    "detail": "no OAuth-scoped endpoints in spec"
+  },
   "dead_flags": {
-    "total": 19,
+    "total": 21,
     "dead": 0
   },
   "dead_functions": {
-    "total": 57,
+    "total": 66,
     "dead": 0
   },
   "pipeline_check": {
     "sync_calls_domain": true,
     "search_calls_domain": false,
     "domain_tables": 1,
+    "sync_file_emitted": true,
+    "sync_resources_present": true,
     "detail": "sync uses domain-specific Upsert methods; search uses generic Search only; 1 domain tables found"
   },
   "example_check": {
@@ -40,8 +49,8 @@
   },
   "wiring_check": {
     "command_tree": {
-      "defined": 144,
-      "registered": 144
+      "defined": 145,
+      "registered": 145
     },
     "config_consistency": {
       "consistent": true
@@ -73,13 +82,17 @@
     "skipped": true
   },
   "print_json_filtered_check": {
-    "checked": 135
+    "checked": 138
   },
   "test_presence": {
     "checked": 0
   },
   "naming_check": {
-    "checked": 135
+    "checked": 138
+  },
+  "sync_param_drop_check": {
+    "checked": 0,
+    "skipped": true
   },
   "issues": null
 }

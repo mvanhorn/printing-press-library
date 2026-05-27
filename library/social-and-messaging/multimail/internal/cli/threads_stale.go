@@ -38,7 +38,7 @@ follow-up.
 
 When the threads table has data (from CLI thread operations), it uses
 that directly. Otherwise, it derives threads from synced emails by
-grouping on parent_id — any email chain with 2+ messages is a thread.
+grouping on thread_id — any email chain with 2+ messages is a thread.
 
 Requires synced data (run 'multimail-pp-cli sync --full' first).`,
 		Example: strings.Trim(`

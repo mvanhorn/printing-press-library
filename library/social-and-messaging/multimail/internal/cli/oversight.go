@@ -17,5 +17,6 @@ func newOversightCmd(flags *rootFlags) *cobra.Command {
 
 	cmd.AddCommand(newOversightCreateCmd(flags))
 	cmd.AddCommand(newOversightListCmd(flags))
+	cmd.AddCommand(newOversightVelocityCmd(flags))
 	return cmd
 }

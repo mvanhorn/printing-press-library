@@ -17,5 +17,6 @@ func newMailboxesAllowlistCmd(flags *rootFlags) *cobra.Command {
 	cmd.AddCommand(newMailboxesAllowlistCreateCmd(flags))
 	cmd.AddCommand(newMailboxesAllowlistDeleteCmd(flags))
 	cmd.AddCommand(newMailboxesAllowlistGetCmd(flags))
+	cmd.AddCommand(newAllowlistCoverageCmd(flags))
 	return cmd
 }
