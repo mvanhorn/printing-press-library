@@ -39,6 +39,17 @@
       "summary": "Renamed CLI from home-goat to reno-goat across all files, directories, and module path.",
       "reason": "Reviewer feedback on PR #855 — 'home-goat' was too ambiguous for a home renovation/furnishing CLI.",
       "files": ["go.mod", "cmd/reno-goat-pp-cli/main.go", "cmd/reno-goat-pp-mcp/main.go", ".printing-press.json"]
+    },
+    {
+      "id": "greptile-p1-p2-fixes",
+      "summary": "Resolved all Greptile P1 and P2 findings: search_history writes, context propagation, timeout flags, FK cascade, Shopify error pipeline.",
+      "reason": "Greptile review flagged: search_history never written (P1), HEAD requests ignoring cmd context and --timeout flag (P2), price_history missing ON DELETE CASCADE (P2), Shopify errors bypassing fanout pipeline (P2).",
+      "files": [
+        "internal/cli/novel_fanout_search.go",
+        "internal/cli/novel_watch.go",
+        "internal/cli/novel_saved.go",
+        "internal/cli/novel_store.go"
+      ]
     }
   ]
 }
