@@ -22,5 +22,11 @@ func newProfilesCmd(flags *rootFlags) *cobra.Command {
 	cmd.AddCommand(newProfilesPushTokensCmd(flags))
 	cmd.AddCommand(newProfilesRelationshipsCmd(flags))
 	cmd.AddCommand(newProfilesSegmentsCmd(flags))
+	cmd.AddCommand(newProfilesStatsCmd(flags))
+	cmd.AddCommand(newProfilesTopSpendersCmd(flags))
+	cmd.AddCommand(newProfilesNeverPurchasedCmd(flags))
+	cmd.AddCommand(newProfilesChurningCmd(flags))
+	cmd.AddCommand(newProfilesPruneCmd(flags))
+	cmd.AddCommand(newProfilesExportSuppressionsCmd(flags))
 	return cmd
 }

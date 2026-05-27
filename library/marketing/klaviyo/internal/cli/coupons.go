@@ -20,5 +20,6 @@ func newCouponsCmd(flags *rootFlags) *cobra.Command {
 	cmd.AddCommand(newCouponsUpdateCmd(flags))
 	cmd.AddCommand(newCouponsCouponCodesCmd(flags))
 	cmd.AddCommand(newCouponsRelationshipsCmd(flags))
+	cmd.AddCommand(newCouponsCheckPoolsCmd(flags))
 	return cmd
 }
