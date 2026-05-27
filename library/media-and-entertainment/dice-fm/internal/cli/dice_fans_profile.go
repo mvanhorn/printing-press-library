@@ -106,9 +106,15 @@ func computeFanProfile(ctx context.Context, db *sql.DB, email string) (fanProfil
 		}, nil
 	}
 
-	// Sort orders chronologically to find first/last.
+	// Sort orders chronologically to find first/last. Push orders with an
+	// empty purchasedAt to the end so a missing date never wins the first/last
+	// position over a real timestamp.
 	sort.Slice(fanOrders, func(i, j int) bool {
-		return fanOrders[i].purchasedAt < fanOrders[j].purchasedAt
+		pi, pj := fanOrders[i].purchasedAt, fanOrders[j].purchasedAt
+		if (pi == "") != (pj == "") {
+			return pj == "" // non-empty sorts before empty
+		}
+		return pi < pj
 	})
 
 	var totalCents, vipCents int64
