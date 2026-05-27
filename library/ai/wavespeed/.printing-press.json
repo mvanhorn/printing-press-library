@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-27T21:49:05.872475Z",
+  "printing_press_version": "4.18.1",
+  "api_name": "wavespeed",
+  "display_name": "WaveSpeed",
+  "cli_name": "wavespeed-pp-cli",
+  "owner": "cathrynlavery",
+  "printer": "cathrynlavery",
+  "printer_name": "Cathryn Lavery",
+  "spec_path": "wavespeed-spec.yaml",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:b50d97a8c28e654959756607ead7c7ccfb98d9edf9e26eaf7613bcb132c45f0e",
+  "run_id": "20260527-214905",
+  "category": "ai",
+  "description": "Docs-derived OpenAPI spec for WaveSpeed AI's REST API.",
+  "mcp_binary": "wavespeed-pp-mcp",
+  "mcp_tool_count": 9,
+  "mcp_ready": "full",
+  "api_version": "1.0.0",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "WAVESPEED_API_KEY"
+  ],
+  "auth_key_url": "https://wavespeed.ai/accesskey",
+  "auth_title": "WaveSpeed API key",
+  "auth_description": "API key from WaveSpeed access key settings",
+  "novel_features": [
+    {
+      "name": "Dynamic model runner",
+      "command": "run",
+      "description": "Submit WaveSpeed model runs with prompt shorthand, JSON input merging, schema help, price estimates, waiting, downloads, aliases, and local media file upload coercion."
+    },
+    {
+      "name": "Dynamic model schema help",
+      "command": "schema",
+      "description": "Fetch the live WaveSpeed model catalog and print api_schema.api_schemas[0].request_schema for a model or project alias."
+    },
+    {
+      "name": "Media upload helper",
+      "command": "upload",
+      "description": "Upload local image, video, or audio files to WaveSpeed media storage for use as model input URLs."
+    },
+    {
+      "name": "Output downloader",
+      "command": "download",
+      "description": "Download generated output URLs with directory, exact-path, or templated-path destinations."
+    },
+    {
+      "name": "Model price estimate",
+      "command": "price",
+      "description": "Estimate WaveSpeed model pricing with the same input syntax used by run, without submitting a prediction."
+    },
+    {
+      "name": "Project aliases",
+      "command": "aliases",
+      "description": "Read wavespeed.json aliases, default model, and output directory settings for repeatable local workflows."
+    }
+  ]
+}

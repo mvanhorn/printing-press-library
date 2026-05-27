@@ -1,0 +1,1166 @@
+{
+  "dir": "/Users/cathrynlavery/printing-press/library/wavespeed",
+  "binary": "/Users/cathrynlavery/printing-press/library/wavespeed/wavespeed-pp-cli",
+  "level": "full",
+  "verdict": "PASS",
+  "matrix_size": 74,
+  "passed": 74,
+  "failed": 0,
+  "skipped": 51,
+  "commands": [
+    "account-balance",
+    "aliases",
+    "api",
+    "billings",
+    "doctor",
+    "download",
+    "export",
+    "feedback list",
+    "import",
+    "init",
+    "media-uploads",
+    "model-pricing",
+    "models",
+    "prediction-deletions",
+    "prediction-results",
+    "predictions",
+    "price",
+    "profile delete",
+    "profile list",
+    "profile save",
+    "profile show",
+    "profile use",
+    "run",
+    "schema",
+    "sync",
+    "upload",
+    "usage-stats",
+    "which",
+    "workflow archive",
+    "workflow status"
+  ],
+  "tests": [
+    {
+      "command": "account-balance",
+      "kind": "help",
+      "args": [
+        "account-balance",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Retrieve the authenticated account balance.\n\nUsage:\n  wavespeed-pp-cli account-balance [flags]\n\nAliases:\n  account-balance, balance\n\nExamples:\n  wavespeed-pp-cli account-balance\n\nFlags:\n  -h, --help   help for account-balance\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'wavespeed-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "account-balance",
+      "kind": "happy_path",
+      "args": [
+        "account-balance"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"code\": 200,\n    \"message\": \"success\",\n    \"data\": {\n      \"balance\": 111\n    }\n  }\n}\n"
+    },
+    {
+      "command": "account-balance",
+      "kind": "json_fidelity",
+      "args": [
+        "account-balance",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"code\": 200,\n    \"message\": \"success\",\n    \"data\": {\n      \"balance\": 111\n    }\n  }\n}\n"
+    },
+    {
+      "command": "account-balance",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "aliases",
+      "kind": "help",
+      "args": [
+        "aliases",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List aliases from the nearest wavespeed.json found by walking from the current directory upward.\n\nUsage:\n  wavespeed-pp-cli aliases [flags]\n\nExamples:\n  wavespeed-pp-cli aliases\n  wavespeed-pp-cli aliases --json\n\nFlags:\n  -h, --help   help for aliases\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'wavespeed-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "aliases",
+      "kind": "happy_path",
+      "args": [
+        "aliases"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"aliases\": [],\n  \"config_path\": \"\"\n}\n"
+    },
+    {
+      "command": "aliases",
+      "kind": "json_fidelity",
+      "args": [
+        "aliases",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"aliases\": [],\n  \"config_path\": \"\"\n}\n"
+    },
+    {
+      "command": "aliases",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "api",
+      "kind": "help",
+      "args": [
+        "api",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Browse and call any API endpoint using the raw interface names.\n\nThe friendly top-level commands cover the most common operations.\nThis command provides access to ALL endpoints for power users and\nagents that need full API coverage.\n\nRun 'api' with no arguments to list all interfaces.\nRun 'api \u003cinterface\u003e' to see that interface's methods.\n\nUsage:\n  wavespeed-pp-cli api [interface] [flags]\n\nExamples:\n  # List all available interfaces\n  wavespeed-pp-cli api\n\n  # Show methods for a specific interface\n  wavespeed-pp-cli api \u003cinterface-name\u003e\n\nFlags:\n  -h, --help   help for api\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'wavespeed-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "api",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "api",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "api",
+      "kind": "error_path",
+      "args": [
+        "api",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: interface \"__printing_press_invalid__\" not found. Run 'wavespeed-pp-cli api' to list all interfaces\n"
+    },
+    {
+      "command": "billings",
+      "kind": "help",
+      "args": [
+        "billings",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Search billing records for the authenticated account.\n\nUsage:\n  wavespeed-pp-cli billings [flags]\n\nExamples:\n  wavespeed-pp-cli billings\n\nFlags:\n      --created-after string    Created after\n      --created-before string   Created before\n  -h, --help                    help for billings\n      --page string             Page (default \"1\")\n      --page-size int           Page size (default 20)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'wavespeed-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "billings",
+      "kind": "happy_path",
+      "args": [
+        "billings"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"code\": 200,\n    \"data\": {\n      \"items\": [],\n      \"page\": 1,\n      \"total\": 0\n    },\n    \"message\": \"success\"\n  }\n}\n"
+    },
+    {
+      "command": "billings",
+      "kind": "json_fidelity",
+      "args": [
+        "billings",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"code\": 200,\n    \"data\": {\n      \"items\": [],\n      \"page\": 1,\n      \"total\": 0\n    },\n    \"message\": \"success\"\n  }\n}\n"
+    },
+    {
+      "command": "billings",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "doctor",
+      "kind": "help",
+      "args": [
+        "doctor",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Check CLI health\n\nUsage:\n  wavespeed-pp-cli doctor [flags]\n\nExamples:\n  wavespeed-pp-cli doctor\n  wavespeed-pp-cli doctor --json\n  wavespeed-pp-cli doctor --fail-on warn\n\nFlags:\n      --fail-on string   Exit non-zero when a health level is reached: stale, error. Default is never.\n  -h, --help             help for doctor\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'wavespeed-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "happy_path",
+      "args": [
+        "doctor"
+      ],
+      "status": "pass",
+      "output_sample": "  OK Config: ok\n  OK Auth: configured\n  OK Env Vars: OK 1/1 available\n  OK Verify Mode: normal operation\n  OK API: reachable (HTTP 404 at /)\n  INFO Credentials: present, not verified. Run any read command to confirm the token works end-to-end.\n  config_path: /var/folders/_5/2zb6vq_j54vctjyh6fq3cnh40000gn/T/printing-press-subprocess-1774560143/.config/wavespeed-pp-cli/config.toml\n  base_url: https://api.wavespeed.ai/api/v3\n  auth_source: env:WAVESPEED_API_KEY\n  version: 1.0.0\n  INFO Cache: unknown\n    db_path: /var/folders/_5/2zb6vq_j54vctjyh6fq3cnh40000gn/T/printing-press-subprocess-1774560143/.local/share/wavespeed-pp-cli/data.db\n    schema_version: 2\n    db_bytes: 151552\n    stale_after: 6h0m0s\n    hint: sync_state is empty; run 'wavespeed-pp-cli sync' to hydrate.\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "json_fidelity",
+      "args": [
+        "doctor",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"agentcookie\": \"not detected (optional)\",\n  \"api\": \"reachable (HTTP 404 at /)\",\n  \"auth\": \"configured\",\n  \"auth_source\": \"env:WAVESPEED_API_KEY\",\n  \"base_url\": \"https://api.wavespeed.ai/api/v3\",\n  \"cache\": {\n    \"db_bytes\": 151552,\n    \"db_path\": \"/var/folders/_5/2zb6vq_j54vctjyh6fq3cnh40000gn/T/printing-press-subprocess-1774560143/.local/share/wavespeed-pp-cli/data.db\",\n    \"hint\": \"sync_state is empty; run 'wavespeed-pp-cli sync' to hydrate.\",\n    \"resources\": null,\n    \"schema_version\": 2,\n    \"stale_after\": \"6h0m0s\",\n    \"status\": \"unknown\"\n  },\n  \"config\": \"ok\",\n  \"config_path\": \"/var/folders/_5/2zb6vq_j54vctjyh6fq3cnh40000gn/T/printing-press-subprocess-1774560143/.config/wavespeed-pp-cli/config.toml\",\n  \"credentials\": \"present, not verified. Run any read command to confirm the token works end-to-end.\",\n  \"env_vars\": \"OK 1/1 available\",\n  \"verify_mode\": \"normal operation\",\n  \"version\": \"1.0.0\"\n}\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "download",
+      "kind": "help",
+      "args": [
+        "download",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Download one or more WaveSpeed output URLs. Use --output for an exact file path or template, or --output-dir for directory downloads.\n\nUsage:\n  wavespeed-pp-cli download \u003curl\u003e... [flags]\n\nExamples:\n  wavespeed-pp-cli download https://example.com/output.png\n  wavespeed-pp-cli download https://example.com/a.png https://example.com/b.png --output-dir ./outputs\n  wavespeed-pp-cli download https://example.com/a.png --output ./out/final.png\n\nFlags:\n  -h, --help                help for download\n  -o, --output string       Exact output file path or template such as ./out/{index}.{ext}\n      --output-dir string   Directory for downloaded files (default \".\")\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'wavespeed-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "download",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [download] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "download",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [download] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "download",
+      "kind": "error_path",
+      "args": [
+        "download",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: download URL must start with http:// or https://, got \"__printing_press_invalid__\"\n"
+    },
+    {
+      "command": "export",
+      "kind": "help",
+      "args": [
+        "export",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Export paginated API data to a local file. Supports JSONL (one JSON object\nper line, streaming-friendly) and JSON (array). JSONL is recommended for\nlarge datasets as it has no memory pressure.\n\nUsage:\n  wavespeed-pp-cli export \u003cresource\u003e [id] [flags]\n\nExamples:\n  # Export all items as JSONL (streaming, recommended for large datasets)\n  wavespeed-pp-cli export \u003cresource\u003e --format jsonl --output data.jsonl\n\n  # Export with limit\n  wavespeed-pp-cli export \u003cresource\u003e --format jsonl --limit 1000\n\n  # Pipe to another tool\n  wavespeed-pp-cli export \u003cresource\u003e --format jsonl | jq '.id'\n\nFlags:\n      --format string   Output format: jsonl or json (default \"jsonl\")\n  -h, --help            help for export\n      --limit int       Maximum records to export (0 = unlimited)\n      --no-cache        Bypass response cache for fresh data\n  -o, --output string   Output file path (default: stdout)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'wavespeed-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "export",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [export] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "export",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [export] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "export",
+      "kind": "error_path",
+      "args": [
+        "export",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: unknown resource \"__printing_press_invalid__\"; valid: models\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "help",
+      "args": [
+        "feedback",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List recent feedback entries\n\nUsage:\n  wavespeed-pp-cli feedback list [flags]\n\nExamples:\n  wavespeed-pp-cli feedback list\n  wavespeed-pp-cli feedback list --limit 5\n  wavespeed-pp-cli feedback list --json\n\nFlags:\n  -h, --help        help for list\n      --limit int   Maximum number of recent entries to return (default 20)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'wavespeed-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "happy_path",
+      "args": [
+        "feedback",
+        "list"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "feedback list",
+      "kind": "json_fidelity",
+      "args": [
+        "feedback",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "import",
+      "kind": "help",
+      "args": [
+        "import",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Import data from a JSONL file by issuing POST requests for each record.\nEach line must be a valid JSON object. Failed records are logged to stderr\nbut do not stop the import.\n\nUsage:\n  wavespeed-pp-cli import \u003cresource\u003e [flags]\n\nExamples:\n  # Import from a JSONL file\n  wavespeed-pp-cli import \u003cresource\u003e --input data.jsonl\n\n  # Dry-run to preview without sending\n  wavespeed-pp-cli import \u003cresource\u003e --input data.jsonl --dry-run\n\n  # Import from stdin\n  cat data.jsonl | wavespeed-pp-cli import \u003cresource\u003e --input -\n\nFlags:\n      --batch-size int   Records per batch (future: batch API support) (default 1)\n      --dry-run          Preview import without sending requests\n  -h, --help             help for import\n  -i, --input string     Input JSONL file path (use - for stdin)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'wavespeed-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "import",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [import] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "import",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [import] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "import",
+      "kind": "error_path",
+      "args": [
+        "import",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: required flag(s) \"input\" not set\n"
+    },
+    {
+      "command": "init",
+      "kind": "help",
+      "args": [
+        "init",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Write a starter wavespeed.json project config in the current directory when one is not already present in the current directory or its parents.\n\nUsage:\n  wavespeed-pp-cli init [flags]\n\nExamples:\n  wavespeed-pp-cli init\n  wavespeed-pp-cli init --json\n\nFlags:\n  -h, --help   help for init\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'wavespeed-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "init",
+      "kind": "happy_path",
+      "args": [
+        "init"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"created\": true,\n  \"path\": \"wavespeed.json\"\n}\n"
+    },
+    {
+      "command": "init",
+      "kind": "json_fidelity",
+      "args": [
+        "init",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"created\": false,\n  \"path\": \"/Users/cathrynlavery/printing-press/library/wavespeed/wavespeed.json\"\n}\n"
+    },
+    {
+      "command": "init",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "media-uploads",
+      "kind": "help",
+      "args": [
+        "media-uploads",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Upload a binary file to WaveSpeed media storage.\n\nUsage:\n  wavespeed-pp-cli media-uploads [flags]\n\nExamples:\n  wavespeed-pp-cli media-uploads\n\nFlags:\n  -h, --help   help for media-uploads\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'wavespeed-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "media-uploads",
+      "kind": "happy_path",
+      "args": [
+        "media-uploads",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"dry_run\": true\n  }\n}\nPOST https://api.wavespeed.ai/api/v3/media/upload/binary\n  Body:\n{}\n  Authorization: ****hBC0\n\n(dry run - no request sent)\n"
+    },
+    {
+      "command": "media-uploads",
+      "kind": "json_fidelity",
+      "args": [
+        "media-uploads",
+        "--dry-run",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"dry_run\": true\n  }\n}\nPOST https://api.wavespeed.ai/api/v3/media/upload/binary\n  Body:\n{}\n  Authorization: ****hBC0\n\n(dry run - no request sent)\n"
+    },
+    {
+      "command": "media-uploads",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "media-uploads",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command dry-run only"
+    },
+    {
+      "command": "model-pricing",
+      "kind": "help",
+      "args": [
+        "model-pricing",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Estimate the unit price for a model run using the same inputs that will be submitted to the model endpoint.\n\nUsage:\n  wavespeed-pp-cli model-pricing [flags]\n\nExamples:\n  wavespeed-pp-cli model-pricing --model-id 550e8400-e29b-41d4-a716-446655440000\n\nFlags:\n  -h, --help              help for model-pricing\n      --inputs string     Inputs\n      --model-id string   Model id\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'wavespeed-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "model-pricing",
+      "kind": "happy_path",
+      "args": [
+        "model-pricing",
+        "--model-id",
+        "550e8400-e29b-41d4-a716-446655440000",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"dry_run\": true\n  }\n}\nPOST https://api.wavespeed.ai/api/v3/model/pricing\n  Body:\n{\n    \"model_id\": \"550e8400-e29b-41d4-a716-446655440000\"\n  }\n  Authorization: ****hBC0\n\n(dry run - no request sent)\n"
+    },
+    {
+      "command": "model-pricing",
+      "kind": "json_fidelity",
+      "args": [
+        "model-pricing",
+        "--model-id",
+        "550e8400-e29b-41d4-a716-446655440000",
+        "--dry-run",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"dry_run\": true\n  }\n}\nPOST https://api.wavespeed.ai/api/v3/model/pricing\n  Body:\n{\n    \"model_id\": \"550e8400-e29b-41d4-a716-446655440000\"\n  }\n  Authorization: ****hBC0\n\n(dry run - no request sent)\n"
+    },
+    {
+      "command": "model-pricing",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "model-pricing",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command dry-run only"
+    },
+    {
+      "command": "models",
+      "kind": "help",
+      "args": [
+        "models",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List available WaveSpeed models and their API schemas. Optionally pass a search query and filter by model type/category.\n\nUsage:\n  wavespeed-pp-cli models [flags]\n\nExamples:\n  wavespeed-pp-cli models\n  wavespeed-pp-cli models z-image --json\n  wavespeed-pp-cli models --type text-to-image --popular\n\nFlags:\n      --category string   Alias for --type\n  -h, --help              help for models\n      --popular           Sort popular models first when sort metadata is available\n      --refresh           Refresh the model catalog instead of using the local HTTP cache\n      --type string       Filter models by type/category\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'wavespeed-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "models",
+      "kind": "happy_path",
+      "args": [
+        "models"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"code\":200,\"data\":[{\"api_schema\":{\"api_schemas\":[{\"api_path\":\"/api/v3/google/veo3.1-fast/reference-to-video\",\"method\":\"POST\",\"request_schema\":{\"properties\":{\"aspect_ratio\":{\"default\":\"16:9\",\"description\":\"Aspect ratio of the generated video.\",\"enum\":[\"16:9\",\"9:16\"],\"type\":\"string\",\"x-ui-component\":\"select\"},\"generate_audio\":{\"default\":false,\"description\":\"Whether to generate audio.\",\"type\":\"boolean\"},\"images\":{\"description\":\"Reference images used as asset references. Upload 1 to 3 PNG, JPEG, JPG, or WebP images.\",\"items\":{\"type\":\"string\"},\"maxItems\":3,\"minItems\":1,\"type\":\"array\",\"x-ui-component\":\"uploaders\",\"x-ui-component-props\":{\"accept\":\"image/*\"}},\"negative_prompt\":{\"description\":\"Negative prompt for the generation.\",\"type\":\"string\",\"x-rows\":2,\"x-ui-component\":\"textarea\"},\"prompt\":{\"description\":\"Positive prompt describing the desired video motion, scene, and camera behavior.\",\"type\":\"string\",\"x-rows\":4,\"x-ui-component\":\"textarea\"},\"resolution\":{\"default\":\"720p\",\"description\":\"Video resolution.\",\"enum\":[\"720p\",\"1080p\"],\"type\":\"string\",\"x-ui-component\":\"select\"},\"seed\":{\"default\":-1,\"description\":\"The random seed to use for the generation.\",\"type\":\"integer\"}},\"required\":[\"prompt\",\"images\"],\"type\":\"object\",\"x-order-properties\":[\"prompt\",\"images\",\"aspect_ratio\",\"resolution\",\"generate_audio\",\"negative_prompt\",\"seed\"]},\"server\":\"https://api.wavespeed.ai\",\"type\":\"model_run\"}]},\"base_price\":0.64,\"description\":\"Google Veo 3.1 Fast Reference-to-Video generates 8-second videos from up to three reference images using the official Veo predictLongRunning endpoint with referenceImages assets.\",\"formula\":\"{ \\\"total_price\\\": ((generate_audio ? (resolution = \\\"1080p\\\" ? 120000 : 100000) : (resolution = \\\"1080p\\\" ? 100000 : 80000)) * 8) }\",\"model_id\":\"google/veo3.1-fast/reference-to-video\",\"name\":\"\u003credacted\u003e\",\"sort_order\":20011,\"type\":\"image-to-video\"},{\"api_schema\":{\"api_schemas\":[{\"api_path\":\"/api/v3/skywork-ai/skyreels-v4/reference-to-video\",\"method\":\"POST\",\"request_schema\":{\"properties\":{\"aspect_ratio\":{\"default\":\"16:9\",\"description\":\"Aspect ratio of the generated video.\",\"enum\":[\"16:9\",\"9:16\",\"1:1\"],\"type\":\"string\"},\"duration\":{\"default\":5,\"description\":\"Duration of the generated video in seconds.\",\"maximum\":15,\"minimum\":3,\"step\":1,\"type\":\"integer\",\"x-ui-component\":\"slider\"},\"images\":{\"description\":\"Reference image URLs. Upload up to 3 images.\",\"items\":{\"type\":\"string\"},\"maxItems\":3,\"type\":\"array\",\"x-ui-component\":\"uploaders\",\"x-ui-component-props\":{\"accept\":\"image/*\"}},\"mode\":{\"default\":\"std\",\"description\":\"Quality/performance mode. Fast mode currently requires sound to be false.\",\"enum\":[\"std\",\"fast\"],\"type\":\"string\"},\"prompt\":{\"description\":\"The prompt describing the generated video. Reference tags are added automatically when missing.\",\"type\":\"string\",\"x-rows\":4,\"x-ui-component\":\"textarea\"},\"ref_videos\":{\"description\":\"Optional reference video URL. Upload at most 1 video.\",\"items\":{\"type\":\"string\"},\"maxItems\":1,\"type\":\"array\",\"x-ui-component\":\"uploaders\",\"x-ui-component-props\":{\"accept\":\"video/*\"}},\"resolution\":{\"default\":\"1080p\",\"description\":\"Output video resolution.\",\"enum\":[\"480p\",\"720p\",\"1080p\"],\"type\":\"string\"},\"sound\":{\"default\":false,\"description\":\"Whether to generate sound effects with the video.\",\"type\":\"boolean\"}},\"required\":[\"prompt\"],\"type\":\"object\",\"x-order-properties\":[\"prompt\",\"images\",\"ref_videos\",\"aspect_ratio\",\"duration\",\"resolution\",\"sound\",\"mode\"]},\"server\":\"https://api.wavespeed.ai\",\"type\":\"model_run\"}]},\"base_price\":0.1,\"description\":\"SkyReels V4 Reference to Video generates videos from reference images or a reference video and a text prompt using the SkyReels V4 omni-video workflow.\",\"formula\":\"{\\\"total_price\\\": base_price * $number(duration) * (($exists(ref_videos) and $count(ref_videos) \u003e 0) ? ((mode = \\\"fast\\\") ? ((resolution = \\\"1080p\\\") ? 5 : (resolution = \\\"720p\\\") ? 2 : 1.5) : ((resolution = \\\"1080p\\\") ? 6.25 : (resolution = \\\"720p\\\") ? 2.5 : 1.8)) : ((mode = \\\"fast\\\") ? ((resolution = \\\"1080p\\\") ? 2.75 : (resolution = \\\"720p\\\") ? 1.1 : 0.8) : ((resolution = …[truncated]"
+    },
+    {
+      "command": "models",
+      "kind": "json_fidelity",
+      "args": [
+        "models",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"code\":200,\"data\":[{\"api_schema\":{\"api_schemas\":[{\"api_path\":\"/api/v3/google/veo3.1-fast/reference-to-video\",\"method\":\"POST\",\"request_schema\":{\"properties\":{\"aspect_ratio\":{\"default\":\"16:9\",\"description\":\"Aspect ratio of the generated video.\",\"enum\":[\"16:9\",\"9:16\"],\"type\":\"string\",\"x-ui-component\":\"select\"},\"generate_audio\":{\"default\":false,\"description\":\"Whether to generate audio.\",\"type\":\"boolean\"},\"images\":{\"description\":\"Reference images used as asset references. Upload 1 to 3 PNG, JPEG, JPG, or WebP images.\",\"items\":{\"type\":\"string\"},\"maxItems\":3,\"minItems\":1,\"type\":\"array\",\"x-ui-component\":\"uploaders\",\"x-ui-component-props\":{\"accept\":\"image/*\"}},\"negative_prompt\":{\"description\":\"Negative prompt for the generation.\",\"type\":\"string\",\"x-rows\":2,\"x-ui-component\":\"textarea\"},\"prompt\":{\"description\":\"Positive prompt describing the desired video motion, scene, and camera behavior.\",\"type\":\"string\",\"x-rows\":4,\"x-ui-component\":\"textarea\"},\"resolution\":{\"default\":\"720p\",\"description\":\"Video resolution.\",\"enum\":[\"720p\",\"1080p\"],\"type\":\"string\",\"x-ui-component\":\"select\"},\"seed\":{\"default\":-1,\"description\":\"The random seed to use for the generation.\",\"type\":\"integer\"}},\"required\":[\"prompt\",\"images\"],\"type\":\"object\",\"x-order-properties\":[\"prompt\",\"images\",\"aspect_ratio\",\"resolution\",\"generate_audio\",\"negative_prompt\",\"seed\"]},\"server\":\"https://api.wavespeed.ai\",\"type\":\"model_run\"}]},\"base_price\":0.64,\"description\":\"Google Veo 3.1 Fast Reference-to-Video generates 8-second videos from up to three reference images using the official Veo predictLongRunning endpoint with referenceImages assets.\",\"formula\":\"{ \\\"total_price\\\": ((generate_audio ? (resolution = \\\"1080p\\\" ? 120000 : 100000) : (resolution = \\\"1080p\\\" ? 100000 : 80000)) * 8) }\",\"model_id\":\"google/veo3.1-fast/reference-to-video\",\"name\":\"\u003credacted\u003e\",\"sort_order\":20011,\"type\":\"image-to-video\"},{\"api_schema\":{\"api_schemas\":[{\"api_path\":\"/api/v3/skywork-ai/skyreels-v4/reference-to-video\",\"method\":\"POST\",\"request_schema\":{\"properties\":{\"aspect_ratio\":{\"default\":\"16:9\",\"description\":\"Aspect ratio of the generated video.\",\"enum\":[\"16:9\",\"9:16\",\"1:1\"],\"type\":\"string\"},\"duration\":{\"default\":5,\"description\":\"Duration of the generated video in seconds.\",\"maximum\":15,\"minimum\":3,\"step\":1,\"type\":\"integer\",\"x-ui-component\":\"slider\"},\"images\":{\"description\":\"Reference image URLs. Upload up to 3 images.\",\"items\":{\"type\":\"string\"},\"maxItems\":3,\"type\":\"array\",\"x-ui-component\":\"uploaders\",\"x-ui-component-props\":{\"accept\":\"image/*\"}},\"mode\":{\"default\":\"std\",\"description\":\"Quality/performance mode. Fast mode currently requires sound to be false.\",\"enum\":[\"std\",\"fast\"],\"type\":\"string\"},\"prompt\":{\"description\":\"The prompt describing the generated video. Reference tags are added automatically when missing.\",\"type\":\"string\",\"x-rows\":4,\"x-ui-component\":\"textarea\"},\"ref_videos\":{\"description\":\"Optional reference video URL. Upload at most 1 video.\",\"items\":{\"type\":\"string\"},\"maxItems\":1,\"type\":\"array\",\"x-ui-component\":\"uploaders\",\"x-ui-component-props\":{\"accept\":\"video/*\"}},\"resolution\":{\"default\":\"1080p\",\"description\":\"Output video resolution.\",\"enum\":[\"480p\",\"720p\",\"1080p\"],\"type\":\"string\"},\"sound\":{\"default\":false,\"description\":\"Whether to generate sound effects with the video.\",\"type\":\"boolean\"}},\"required\":[\"prompt\"],\"type\":\"object\",\"x-order-properties\":[\"prompt\",\"images\",\"ref_videos\",\"aspect_ratio\",\"duration\",\"resolution\",\"sound\",\"mode\"]},\"server\":\"https://api.wavespeed.ai\",\"type\":\"model_run\"}]},\"base_price\":0.1,\"description\":\"SkyReels V4 Reference to Video generates videos from reference images or a reference video and a text prompt using the SkyReels V4 omni-video workflow.\",\"formula\":\"{\\\"total_price\\\": base_price * $number(duration) * (($exists(ref_videos) and $count(ref_videos) \u003e 0) ? ((mode = \\\"fast\\\") ? ((resolution = \\\"1080p\\\") ? 5 : (resolution = \\\"720p\\\") ? 2 : 1.5) : ((resolution = \\\"1080p\\\") ? 6.25 : (resolution = \\\"720p\\\") ? 2.5 : 1.8)) : ((mode = \\\"fast\\\") ? ((resolution = \\\"1080p\\\") ? 2.75 : (resolution = \\\"720p\\\") ? 1.1 : 0.8) : ((resolution = …[truncated]"
+    },
+    {
+      "command": "models",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "prediction-deletions",
+      "kind": "help",
+      "args": [
+        "prediction-deletions",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Delete one or more predictions from history.\n\nUsage:\n  wavespeed-pp-cli prediction-deletions [flags]\n\nAliases:\n  prediction-deletions, delete\n\nExamples:\n  wavespeed-pp-cli prediction-deletions\n\nFlags:\n  -h, --help         help for prediction-deletions\n      --ids string   Ids\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'wavespeed-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "prediction-deletions",
+      "kind": "happy_path",
+      "args": [
+        "prediction-deletions",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"dry_run\": true\n  }\n}\nPOST https://api.wavespeed.ai/api/v3/predictions/delete\n  Body:\n{}\n  Authorization: ****hBC0\n\n(dry run - no request sent)\n"
+    },
+    {
+      "command": "prediction-deletions",
+      "kind": "json_fidelity",
+      "args": [
+        "prediction-deletions",
+        "--dry-run",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"dry_run\": true\n  }\n}\nPOST https://api.wavespeed.ai/api/v3/predictions/delete\n  Body:\n{}\n  Authorization: ****hBC0\n\n(dry run - no request sent)\n"
+    },
+    {
+      "command": "prediction-deletions",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "prediction-deletions",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command dry-run only"
+    },
+    {
+      "command": "prediction-results",
+      "kind": "help",
+      "args": [
+        "prediction-results",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Retrieve the latest status and result payload for a prediction task.\n\nUsage:\n  wavespeed-pp-cli prediction-results \u003ctask_id\u003e [flags]\n\nAliases:\n  prediction-results, show\n\nExamples:\n  wavespeed-pp-cli prediction-results 550e8400-e29b-41d4-a716-446655440000\n\nFlags:\n  -h, --help   help for prediction-results\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'wavespeed-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "prediction-results",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [prediction-results] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "prediction-results",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [prediction-results] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "prediction-results",
+      "kind": "error_path",
+      "args": [
+        "prediction-results",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 5,
+      "output_sample": "Error: GET /predictions/__printing_press_invalid__/result returned HTTP 400: {\"code\":400,\"message\":\"prediction __printing_press_invalid__ not found\"}\n"
+    },
+    {
+      "command": "predictions",
+      "kind": "help",
+      "args": [
+        "predictions",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Query recent prediction history. The API history window is limited; sync accumulates across runs.\n\nUsage:\n  wavespeed-pp-cli predictions [flags]\n\nAliases:\n  predictions, history\n\nExamples:\n  wavespeed-pp-cli predictions\n\nFlags:\n      --created-after string    Created after\n      --created-before string   Created before\n  -h, --help                    help for predictions\n      --include-inputs          Include inputs (default true)\n      --model string            Model\n      --page int                Page (default 1)\n      --page-size int           Page size (default 20)\n      --status string           Status\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'wavespeed-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "predictions",
+      "kind": "happy_path",
+      "args": [
+        "predictions"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"code\": 200,\n    \"message\": \"success\",\n    \"data\": {\n      \"page\": 1,\n      \"items\": null\n    }\n  }\n}\n"
+    },
+    {
+      "command": "predictions",
+      "kind": "json_fidelity",
+      "args": [
+        "predictions",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"code\": 200,\n    \"message\": \"success\",\n    \"data\": {\n      \"page\": 1,\n      \"items\": null\n    }\n  }\n}\n"
+    },
+    {
+      "command": "predictions",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "price",
+      "kind": "help",
+      "args": [
+        "price",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Estimate the price for a WaveSpeed model run using the same input syntax as run. This calls WaveSpeed's pricing endpoint and does not submit a prediction.\n\nUsage:\n  wavespeed-pp-cli price [model-or-alias] [flags]\n\nExamples:\n  wavespeed-pp-cli price wavespeed-ai/z-image/turbo -p \"a product photo\"\n  wavespeed-pp-cli price hero -i size=1024*1024 -i output_format=png --json\n\nFlags:\n      --end-image string              Shortcut for input.end_image; accepts URL or @local-file\n  -h, --help                          help for price\n      --image string                  Shortcut for input.image; accepts URL or @local-file\n      --images stringArray            Shortcut for input.images array; repeat for multiple URLs or @local-files\n      --input string                  JSON object to merge into the model input (default \"{}\")\n      --input-file string             Read model input JSON from a file, or '-' for stdin\n  -i, --input-kv stringArray          Additional model input as key=value (repeatable); values parse as JSON when possible\n      --last-image string             Shortcut for input.last_image; accepts URL or @local-file\n      --model-id string               Model ID or alias to run; useful for MCP callers\n  -p, --prompt string                 Prompt text mapped to input.prompt\n      --reference-image stringArray   Shortcut for input.reference_images array; repeat for multiple URLs or @local-files\n      --reference-video stringArray   Shortcut for input.reference_videos array; repeat for multiple URLs or @local-files\n      --set stringArray               Additional model input as key=value (repeatable); alias for --input-kv\n      --sync                          Set input.enable_sync_mode=true for models that support synchronous responses\n      --video string                  Shortcut for input.video; accepts URL or @local-file\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'wavespeed-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "price",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [price] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "price",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [price] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "price",
+      "kind": "error_path",
+      "args": [
+        "price",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: \"__printing_press_invalid__\" is not a slash-delimited model ID and is not an alias in wavespeed.json\n"
+    },
+    {
+      "command": "profile delete",
+      "kind": "help",
+      "args": [
+        "profile",
+        "delete",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Remove a profile\n\nUsage:\n  wavespeed-pp-cli profile delete \u003cname\u003e [flags]\n\nExamples:\n  wavespeed-pp-cli profile delete my-defaults --yes\n  wavespeed-pp-cli profile delete old-profile --yes --json\n\nFlags:\n  -h, --help   help for delete\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'wavespeed-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile delete",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile list",
+      "kind": "help",
+      "args": [
+        "profile",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List saved profiles\n\nUsage:\n  wavespeed-pp-cli profile list [flags]\n\nExamples:\n  wavespeed-pp-cli profile list\n  wavespeed-pp-cli profile list --json\n\nFlags:\n  -h, --help   help for list\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'wavespeed-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "happy_path",
+      "args": [
+        "profile",
+        "list"
+      ],
+      "status": "pass",
+      "output_sample": "NAME  FIELDS  DESCRIPTION\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "json_fidelity",
+      "args": [
+        "profile",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "profile save",
+      "kind": "help",
+      "args": [
+        "profile",
+        "save",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Captures every flag explicitly set on the invocation and stores\nthem under \u003cname\u003e. To update an existing profile, run save again; the\nentry is replaced.\n\nTo avoid creating empty profiles, at least one non-default flag must be\npresent (other than --profile and --config).\n\nUsage:\n  wavespeed-pp-cli profile save \u003cname\u003e [--\u003cflag\u003e \u003cvalue\u003e ...] [flags]\n\nExamples:\n  wavespeed-pp-cli profile save my-defaults --json --compact\n  wavespeed-pp-cli profile save tonight-defaults --region US\n\nFlags:\n      --description string   Short description shown in 'profile list'\n  -h, --help                 help for save\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'wavespeed-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile save",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "save",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: no non-default flags set - pass at least one flag to save into \"__printing_press_invalid__\"\n"
+    },
+    {
+      "command": "profile show",
+      "kind": "help",
+      "args": [
+        "profile",
+        "show",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show a profile's values as JSON\n\nUsage:\n  wavespeed-pp-cli profile show \u003cname\u003e [flags]\n\nExamples:\n  wavespeed-pp-cli profile show my-defaults\n  wavespeed-pp-cli profile show tonight-defaults --json\n\nFlags:\n  -h, --help   help for show\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'wavespeed-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile show",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "show",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: profile \"__printing_press_invalid__\" not found\n"
+    },
+    {
+      "command": "profile use",
+      "kind": "help",
+      "args": [
+        "profile",
+        "use",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Print the flag values a profile will apply (does not execute anything)\n\nUsage:\n  wavespeed-pp-cli profile use \u003cname\u003e [flags]\n\nExamples:\n  wavespeed-pp-cli profile use my-defaults\n  wavespeed-pp-cli profile use tonight-defaults --json\n\nFlags:\n  -h, --help   help for use\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'wavespeed-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile use",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "use",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: profile \"__printing_press_invalid__\" not found\n"
+    },
+    {
+      "command": "run",
+      "kind": "help",
+      "args": [
+        "run",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Submit a generation task to a WaveSpeed model. Model IDs are slash-delimited API paths such as wavespeed-ai/hunyuan-video/t2v. Non-slash names resolve through wavespeed.json aliases.\n\nUsage:\n  wavespeed-pp-cli run [model-or-alias] [flags]\n\nAliases:\n  run, submit\n\nExamples:\n  wavespeed-pp-cli run wavespeed-ai/flux-dev -p \"a studio product photo\" --wait\n  wavespeed-pp-cli run hero -i size=1024 -i enable_base64_output=false --price --wait --download ./outputs/{index}.{ext}\n  wavespeed-pp-cli run --model-id wavespeed-ai/flux-dev --prompt \"agent-friendly MCP call\" --price-only\n\nFlags:\n      --download string[=\"true\"]      Download output URLs; optional path/template such as ./out/{index}.{ext}\n      --download-dir string           Directory for files saved by --download without a path (default \".\")\n      --end-image string              Shortcut for input.end_image; accepts URL or @local-file\n  -h, --help                          help for run\n      --help-model                    Print this model's request schema instead of submitting a run\n      --image string                  Shortcut for input.image; accepts URL or @local-file\n      --images stringArray            Shortcut for input.images array; repeat for multiple URLs or @local-files\n      --input string                  JSON object to merge into the model input (default \"{}\")\n      --input-file string             Read model input JSON from a file, or '-' for stdin\n  -i, --input-kv stringArray          Additional model input as key=value (repeatable); values parse as JSON when possible\n      --last-image string             Shortcut for input.last_image; accepts URL or @local-file\n      --model-id string               Model ID or alias to run; useful for MCP callers\n      --poll-interval duration        Initial polling interval for --wait (default 2s)\n      --price                         Estimate model pricing before submitting\n      --price-only                    Estimate model pricing without submitting\n  -p, --prompt string                 Prompt text mapped to input.prompt\n      --reference-image stringArray   Shortcut for input.reference_images array; repeat for multiple URLs or @local-files\n      --reference-video stringArray   Shortcut for input.reference_videos array; repeat for multiple URLs or @local-files\n      --schema                        Print this model's request schema instead of submitting a run\n      --set stringArray               Additional model input as key=value (repeatable); alias for --input-kv\n      --sync                          Set input.enable_sync_mode=true for models that support synchronous responses\n      --video string                  Shortcut for input.video; accepts URL or @local-file\n      --wait                          Poll until the prediction reaches a terminal status\n      --wait-timeout duration         Maximum time to wait for a terminal prediction status (default 5m0s)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --n…[truncated]"
+    },
+    {
+      "command": "run",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [run] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "run",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [run] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "run",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "run",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [run] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "schema",
+      "kind": "help",
+      "args": [
+        "schema",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Print the request schema for a WaveSpeed model by fetching the dynamic /models catalog and reading api_schema.api_schemas[0].request_schema. Non-slash names resolve through wavespeed.json aliases.\n\nUsage:\n  wavespeed-pp-cli schema [model-or-alias] [flags]\n\nExamples:\n  wavespeed-pp-cli schema wavespeed-ai/flux-dev\n  wavespeed-pp-cli schema hero --json\n\nFlags:\n  -h, --help   help for schema\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'wavespeed-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "schema",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [schema] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "schema",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [schema] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "schema",
+      "kind": "error_path",
+      "args": [
+        "schema",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: \"__printing_press_invalid__\" is not a slash-delimited model ID and is not an alias in wavespeed.json\n"
+    },
+    {
+      "command": "sync",
+      "kind": "help",
+      "args": [
+        "sync",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Sync data from the API into a local SQLite database. Supports resumable\nincremental sync (only fetches new data since last sync) and full resync.\nOnce synced, use the 'search' command for instant full-text search.\n\nExit codes \u0026 warnings:\n  Resources the API denies access to (HTTP 403, or HTTP 400 with an\n  access-policy body) are reported as warnings rather than failing the\n  run. In --json mode each is emitted as a {\"event\":\"sync_warning\",...}\n  line carrying status, reason, and message fields, and a final\n  {\"event\":\"sync_summary\",...} aggregates the run.\n\n  Exit 0 when at least one resource synced and no resource flagged in\n  the spec as critical (x-critical: true) failed; non-critical failures\n  emit {\"event\":\"sync_warning\",\"reason\":\"exit_policy_default_changed\",\n  ...} so callers can detect that a partial failure was tolerated. Pass\n  --strict to exit non-zero on any per-resource failure. Exit is always\n  non-zero when every selected resource failed, regardless of --strict.\n\nResource scoping:\n  --resources runs the named top-level resources, plus any parent-keyed\n  dependent whose own name is listed OR whose parent table is listed.\n  Naming a parent therefore cascades to its dependents (so \"sync this\n  parent and its children\" works without listing every nested resource\n  by hand). There is no flag today to suppress the cascade for a named\n  parent. To run a dependent without re-syncing its parent, list only\n  the dependent by name; the parent table must already be populated\n  from a prior sync.\n\nUsage:\n  wavespeed-pp-cli sync [flags]\n\nExamples:\n  # Sync all resources\n  wavespeed-pp-cli sync\n\n  # Sync specific resources only\n  wavespeed-pp-cli sync --resources channels,messages\n\n  # Full resync (ignore previous checkpoint)\n  wavespeed-pp-cli sync --full\n\n  # Incremental sync: only records from the last 7 days\n  wavespeed-pp-cli sync --since 7d\n\n  # Parallel sync with 8 workers\n  wavespeed-pp-cli sync --concurrency 8\n\n  # Latest-only: refresh head of each resource, no historical backfill\n  wavespeed-pp-cli sync --latest-only\n\nFlags:\n      --concurrency int              Number of parallel sync workers (default 4)\n      --db string                    Database path (default: ~/.local/share/wavespeed-pp-cli/data.db)\n      --full                         Full resync (ignore previous checkpoint)\n      --global-param stringArray     Extra query param to inject into every sync request including dependent path-scoped calls (repeatable, key=value). Use when an API requires a scope on every call regardless of path nesting.\n  -h, --help                         help for sync\n      --latest-only                  Refresh head of each resource only; clears resume cursor and caps pages at 1. Mutually exclusive with --since (--since wins).\n      --max-pages int                Maximum pages to fetch per resource (0 = unlimited; cap-hit emits a sync_warning event)\n      --param stringArray            Extra query param to inject into flat-list sync requests (repeatable, key=value). Skipped on path-scoped dependent requests so a top-level scope like workspace=\u003cid\u003e does not double up on /parents/\u003cid\u003e/children calls. Use --global-param to inject everywhere. Avoid pagination keys (limit/since/cursor) — overriding them corrupts resume state.\n      --resource-param stringArray   Per-resource extra query param (repeatable, resource:key=value). Wins over --param and --global-param when keys conflict.\n      --resources strings            Comma-separated resource types to sync. Naming a parent also runs its parent-keyed dependents (see Long help for scoping).\n      --since string                 Incremental sync duration (e.g. 7d, 24h, 1w, 30m)\n      --strict                       Exit non-zero on any per-resource failure (default: only critical failures or all-resource failure exit non-zero).\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-ze…[truncated]"
+    },
+    {
+      "command": "sync",
+      "kind": "happy_path",
+      "args": [
+        "sync"
+      ],
+      "status": "pass",
+      "output_sample": "{\"event\":\"sync_start\",\"resource\":\"models\"}\n{\"event\":\"sync_progress\",\"resource\":\"models\",\"fetched\":993}\n{\"event\":\"sync_complete\",\"resource\":\"models\",\"total\":993,\"duration_ms\":1496}\n{\"event\":\"sync_summary\",\"total_records\":993,\"resources\":1,\"success\":1,\"warned\":0,\"errored\":0,\"duration_ms\":1496}\n"
+    },
+    {
+      "command": "sync",
+      "kind": "json_fidelity",
+      "args": [
+        "sync",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"event\":\"sync_start\",\"resource\":\"models\"}\n{\"event\":\"sync_warning\",\"resource\":\"models\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_progress\",\"resource\":\"models\",\"fetched\":993}\n{\"event\":\"sync_complete\",\"resource\":\"models\",\"total\":993,\"duration_ms\":1469}\n{\"event\":\"sync_summary\",\"total_records\":993,\"resources\":1,\"success\":1,\"warned\":0,\"errored\":0,\"duration_ms\":1469}\n"
+    },
+    {
+      "command": "sync",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "upload",
+      "kind": "help",
+      "args": [
+        "upload",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Upload local image, video, or audio files to WaveSpeed media storage and print the returned URLs for use with run -i image=\u003curl\u003e or other model-specific media fields.\n\nUsage:\n  wavespeed-pp-cli upload \u003cfile\u003e... [flags]\n\nExamples:\n  wavespeed-pp-cli upload ./input.png\n  wavespeed-pp-cli upload ./a.png ./b.png --json\n\nFlags:\n  -h, --help   help for upload\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'wavespeed-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "upload",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [upload] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "upload",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [upload] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "upload",
+      "kind": "error_path",
+      "args": [
+        "upload",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 5,
+      "output_sample": "Error: reading upload file: stat __printing_press_invalid__: no such file or directory\n"
+    },
+    {
+      "command": "usage-stats",
+      "kind": "help",
+      "args": [
+        "usage-stats",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Retrieve usage statistics for the authenticated account.\n\nUsage:\n  wavespeed-pp-cli usage-stats [flags]\n\nExamples:\n  wavespeed-pp-cli usage-stats\n\nFlags:\n      --created-after string    Created after\n      --created-before string   Created before\n  -h, --help                    help for usage-stats\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'wavespeed-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "usage-stats",
+      "kind": "happy_path",
+      "args": [
+        "usage-stats"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"code\": 200,\n    \"message\": \"success\",\n    \"data\": {\n      \"per_model_usage\": [],\n      \"daily_usage\": [],\n      \"summary\": {\n        \"total_cost\": 0,\n        \"total_requests\": 0,\n        \"success_requests\": 0\n      }\n    }\n  }\n}\n"
+    },
+    {
+      "command": "usage-stats",
+      "kind": "json_fidelity",
+      "args": [
+        "usage-stats",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"code\": 200,\n    \"message\": \"success\",\n    \"data\": {\n      \"per_model_usage\": [],\n      \"daily_usage\": [],\n      \"summary\": {\n        \"total_cost\": 0,\n        \"total_requests\": 0,\n        \"success_requests\": 0\n      }\n    }\n  }\n}\n"
+    },
+    {
+      "command": "usage-stats",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "which",
+      "kind": "help",
+      "args": [
+        "which",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "which resolves a natural-language capability query (for example, \"search messages\" or \"stale tickets\") to the best matching command from this CLI's curated feature index.\n\nExit codes:\n  0  at least one match found\n  2  no confident match - the query did not score against any indexed capability; fall back to '--help' or 'search' if this CLI has one\n\nUsage:\n  wavespeed-pp-cli which [query] [flags]\n\nExamples:\n  wavespeed-pp-cli which \"stale tickets\"\n  wavespeed-pp-cli which \"bottleneck\"\n  wavespeed-pp-cli which --limit 1 \"send message\"\n  wavespeed-pp-cli which                                # list the full capability index\n\nFlags:\n  -h, --help        help for which\n      --limit int   Maximum number of matches to return (default 3)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'wavespeed-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "which",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [which] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "which",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [which] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "which",
+      "kind": "error_path",
+      "args": [
+        "which",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"matches\": []\n}\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "help",
+      "args": [
+        "workflow",
+        "archive",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Archive fetches all syncable resources from the API and stores them in a\nlocal SQLite database. Supports incremental sync (only new data since last run)\nand full resync. After archiving, use 'search' for instant full-text search.\n\nUsage:\n  wavespeed-pp-cli workflow archive [flags]\n\nExamples:\n  # Archive all resources\n  wavespeed-pp-cli workflow archive\n\n  # Full re-archive (ignore previous sync state)\n  wavespeed-pp-cli workflow archive --full\n\nFlags:\n      --db string   Database path (default: ~/.local/share/wavespeed-pp-cli/data.db)\n      --full        Full re-archive (ignore previous sync state)\n  -h, --help        help for archive\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'wavespeed-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "happy_path",
+      "args": [
+        "workflow",
+        "archive"
+      ],
+      "status": "pass",
+      "output_sample": "{\"event\":\"sync_start\",\"resource\":\"models\"}\n{\"event\":\"sync_warning\",\"resource\":\"models\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_progress\",\"resource\":\"models\",\"fetched\":993}\n{\"event\":\"sync_complete\",\"resource\":\"models\",\"total\":993,\"duration_ms\":1478}\nArchived 993 items across 1 resources to /var/folders/_5/2zb6vq_j54vctjyh6fq3cnh40000gn/T/printing-press-subprocess-1774560143/.local/share/wavespeed-pp-cli/data.db\n  models: 993 synced\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "json_fidelity",
+      "args": [
+        "workflow",
+        "archive",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"resources_synced\": 1,\n  \"store_path\": \"/var/folders/_5/2zb6vq_j54vctjyh6fq3cnh40000gn/T/printing-press-subprocess-1774560143/.local/share/wavespeed-pp-cli/data.db\",\n  \"timestamp\": \"2026-05-27T22:26:29Z\",\n  \"total_items\": 993\n}\n{\"event\":\"sync_start\",\"resource\":\"models\"}\n{\"event\":\"sync_warning\",\"resource\":\"models\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_progress\",\"resource\":\"models\",\"fetched\":993}\n{\"event\":\"sync_complete\",\"resource\":\"models\",\"total\":993,\"duration_ms\":1482}\n  models: 993 synced\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "workflow status",
+      "kind": "help",
+      "args": [
+        "workflow",
+        "status",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show local archive status and sync state for all resources\n\nUsage:\n  wavespeed-pp-cli workflow status [flags]\n\nExamples:\n  # Show archive status\n  wavespeed-pp-cli workflow status\n\n  # Show status as JSON\n  wavespeed-pp-cli workflow status --json\n\nFlags:\n      --db string   Database path\n  -h, --help        help for status\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'wavespeed-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "happy_path",
+      "args": [
+        "workflow",
+        "status"
+      ],
+      "status": "pass",
+      "output_sample": "Archive Status:\n  account_balance                1 items\n  models                         993 items\n\n  Total: 994 items\n  Store: /var/folders/_5/2zb6vq_j54vctjyh6fq3cnh40000gn/T/printing-press-subprocess-1774560143/.local/share/wavespeed-pp-cli/data.db\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "json_fidelity",
+      "args": [
+        "workflow",
+        "status",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"account_balance\": 1,\n  \"models\": 993\n}\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    }
+  ],
+  "ran_at": "2026-05-27T22:26:19.610904Z"
+}
