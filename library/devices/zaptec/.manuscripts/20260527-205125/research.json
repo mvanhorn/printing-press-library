@@ -1,0 +1,231 @@
+{
+  "api_name": "zaptec",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "custom-components/zaptec",
+      "url": "https://github.com/custom-components/zaptec",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "evcc-io/evcc",
+      "url": "https://github.com/evcc-io/evcc",
+      "language": "Go",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-27T20:51:25Z",
+  "novel_features": [
+    {
+      "name": "Energy \u0026 cost rollup",
+      "command": "cost",
+      "description": "See total kWh and cost for your charging over any period, rolled up by month or by charger.",
+      "rationale": "The Zaptec portal only shows session-by-session; a monthly total requires aggregating the local session store, which no single API call returns.",
+      "example": "zaptec-pp-cli cost --by month --from 2026-01-01 --agent",
+      "why_it_matters": "Reach for this when the user asks how much they charged or what it cost over a period — it answers from local history instead of N paginated API calls.",
+      "group": "Local history that compounds"
+    },
+    {
+      "name": "What's-charging-now snapshot",
+      "command": "live",
+      "description": "One table showing every charger's mode (charging/connected/finished/offline) with decoded power, current, and phase.",
+      "rationale": "Joins synced charger rows with a live state fetch and decodes numeric observation IDs via the baked constants table — there is no portal or Home Assistant single-view equivalent.",
+      "example": "zaptec-pp-cli live --agent",
+      "why_it_matters": "Reach for this for an instant fleet status check instead of clicking through chargers one by one in the portal.",
+      "group": "Decoded fleet visibility"
+    },
+    {
+      "name": "Load-balancing headroom",
+      "command": "current headroom",
+      "description": "Show how many amps of the installation's breaker limit are uncommitted versus actively drawn.",
+      "rationale": "Subtracts decoded active per-charger draw from the installation's max available-current; operators otherwise tune the 15-minute-guarded limit blind.",
+      "example": "zaptec-pp-cli current headroom 11111111-2222-3333-4444-555555555555 --agent",
+      "why_it_matters": "Reach for this before raising or lowering an installation's available current so the change is informed by real draw.",
+      "group": "Decoded fleet visibility"
+    },
+    {
+      "name": "Stale / offline charger watch",
+      "command": "chargers stale",
+      "description": "List chargers that are offline, disconnected, or haven't reported within a threshold.",
+      "rationale": "A pure local query over synced charger/state rows; the Home Assistant integration polls but offers no offline alerting.",
+      "example": "zaptec-pp-cli chargers stale --minutes 30 --agent",
+      "why_it_matters": "Reach for this to catch dead or stuck chargers before a resident or driver complains.",
+      "group": "Local history that compounds"
+    },
+    {
+      "name": "Firmware drift",
+      "command": "firmware drift",
+      "description": "Group an installation's chargers by firmware version and flag the ones behind the fleet majority.",
+      "rationale": "Turns the raw firmware list into an upgrade decision by computing the modal version across the fleet locally.",
+      "example": "zaptec-pp-cli firmware drift 11111111-2222-3333-4444-555555555555 --agent",
+      "why_it_matters": "Reach for this before scheduling firmware upgrades to see which chargers actually need one.",
+      "group": "Decoded fleet visibility"
+    },
+    {
+      "name": "Session anomaly scan",
+      "command": "sessions anomalies",
+      "description": "Flag charging sessions with near-zero energy, abnormally long duration, or zero cost.",
+      "rationale": "Threshold SQL over the local session table surfaces quality issues no incumbent tool reports.",
+      "example": "zaptec-pp-cli sessions anomalies --since 2026-04-01 --agent",
+      "why_it_matters": "Reach for this to audit charging-session quality and catch stuck or mis-metered sessions.",
+      "group": "Local history that compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Energy \u0026 cost rollup",
+      "command": "cost",
+      "description": "See total kWh and cost for your charging over any period, rolled up by month or by charger.",
+      "rationale": "The Zaptec portal only shows session-by-session; a monthly total requires aggregating the local session store, which no single API call returns.",
+      "example": "zaptec-pp-cli cost --by month --from 2026-01-01 --agent",
+      "why_it_matters": "Reach for this when the user asks how much they charged or what it cost over a period — it answers from local history instead of N paginated API calls.",
+      "group": "Local history that compounds"
+    },
+    {
+      "name": "What's-charging-now snapshot",
+      "command": "live",
+      "description": "One table showing every charger's mode (charging/connected/finished/offline) with decoded power, current, and phase.",
+      "rationale": "Joins synced charger rows with a live state fetch and decodes numeric observation IDs via the baked constants table — there is no portal or Home Assistant single-view equivalent.",
+      "example": "zaptec-pp-cli live --agent",
+      "why_it_matters": "Reach for this for an instant fleet status check instead of clicking through chargers one by one in the portal.",
+      "group": "Decoded fleet visibility"
+    },
+    {
+      "name": "Load-balancing headroom",
+      "command": "current headroom",
+      "description": "Show how many amps of the installation's breaker limit are uncommitted versus actively drawn.",
+      "rationale": "Subtracts decoded active per-charger draw from the installation's max available-current; operators otherwise tune the 15-minute-guarded limit blind.",
+      "example": "zaptec-pp-cli current headroom 11111111-2222-3333-4444-555555555555 --agent",
+      "why_it_matters": "Reach for this before raising or lowering an installation's available current so the change is informed by real draw.",
+      "group": "Decoded fleet visibility"
+    },
+    {
+      "name": "Stale / offline charger watch",
+      "command": "chargers stale",
+      "description": "List chargers that are offline, disconnected, or haven't reported within a threshold.",
+      "rationale": "A pure local query over synced charger/state rows; the Home Assistant integration polls but offers no offline alerting.",
+      "example": "zaptec-pp-cli chargers stale --minutes 30 --agent",
+      "why_it_matters": "Reach for this to catch dead or stuck chargers before a resident or driver complains.",
+      "group": "Local history that compounds"
+    },
+    {
+      "name": "Firmware drift",
+      "command": "firmware drift",
+      "description": "Group an installation's chargers by firmware version and flag the ones behind the fleet majority.",
+      "rationale": "Turns the raw firmware list into an upgrade decision by computing the modal version across the fleet locally.",
+      "example": "zaptec-pp-cli firmware drift 11111111-2222-3333-4444-555555555555 --agent",
+      "why_it_matters": "Reach for this before scheduling firmware upgrades to see which chargers actually need one.",
+      "group": "Decoded fleet visibility"
+    },
+    {
+      "name": "Session anomaly scan",
+      "command": "sessions anomalies",
+      "description": "Flag charging sessions with near-zero energy, abnormally long duration, or zero cost.",
+      "rationale": "Threshold SQL over the local session table surfaces quality issues no incumbent tool reports.",
+      "example": "zaptec-pp-cli sessions anomalies --since 2026-04-01 --agent",
+      "why_it_matters": "Reach for this to audit charging-session quality and catch stuck or mis-metered sessions.",
+      "group": "Local history that compounds"
+    }
+  ],
+  "narrative": {
+    "display_name": "Zaptec",
+    "headline": "The only command-line tool for Zaptec Go chargers — pause and resume charging, read live state in plain English, and track energy and cost from a local database.",
+    "value_prop": "Control and monitor your Zaptec charger from the terminal or a cron job, without opening the portal app or running Home Assistant. Decodes the API's numeric observation and command IDs for you, syncs your charging history into a local SQLite store, and answers questions the portal can't — like monthly kWh and cost rollups (cost), instant fleet status (live), and offline-charger detection (chargers stale).",
+    "auth_narrative": "Zaptec uses OAuth2 password grant. Run `zaptec-pp-cli auth login` with your Zaptec portal username and password (or set ZAPTEC_USERNAME and ZAPTEC_PASSWORD); the CLI exchanges them for a bearer token at https://api.zaptec.com/oauth/token, caches it locally, and refreshes it when it expires.",
+    "quickstart": [
+      {
+        "command": "zaptec-pp-cli auth login",
+        "comment": "Exchange your Zaptec username/password for a cached bearer token"
+      },
+      {
+        "command": "zaptec-pp-cli chargers list",
+        "comment": "Find your charger and copy its id"
+      },
+      {
+        "command": "zaptec-pp-cli state CHARGER_ID",
+        "comment": "See decoded live state: mode, power, current, energy"
+      },
+      {
+        "command": "zaptec-pp-cli pause CHARGER_ID --dry-run",
+        "comment": "Preview a pause command before sending it"
+      },
+      {
+        "command": "zaptec-pp-cli sync",
+        "comment": "Pull charging history into the local store for cost analytics"
+      },
+      {
+        "command": "zaptec-pp-cli cost --by month --agent",
+        "comment": "Monthly kWh and cost rollup the portal never shows"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 Unauthorized on every call",
+        "fix": "Run `zaptec-pp-cli auth login` again — the cached token expired or the credentials changed."
+      },
+      {
+        "symptom": "429 Too Many Requests",
+        "fix": "The API caps at 10 req/s per account; the client backs off automatically, but avoid tight loops over many chargers."
+      },
+      {
+        "symptom": "current set refuses or warns about the 15-minute guard",
+        "fix": "Zaptec enforces a 15-minute minimum between installation available-current updates; wait or pass the override flag if you accept the risk."
+      },
+      {
+        "symptom": "state shows raw numeric ids instead of names",
+        "fix": "Run `zaptec-pp-cli sync` (or `constants`) to refresh the baked decode tables from /api/constants."
+      }
+    ],
+    "when_to_use": "Use this CLI when an agent needs to inspect or control a Zaptec EV charger non-interactively: checking whether a car is charging, pausing or resuming charging in response to electricity prices, reading decoded charger telemetry, or answering energy and cost questions from charging history. It is the right tool whenever the task involves a Zaptec Go/Go2/Pro charger and a terminal or script rather than the phone app.",
+    "recipes": [
+      {
+        "title": "Pause charging when prices spike",
+        "command": "zaptec-pp-cli pause CHARGER_ID",
+        "explanation": "Send a StopCharging command from a price-watching cron job; add --dry-run first to preview."
+      },
+      {
+        "title": "Monthly cost report",
+        "command": "zaptec-pp-cli cost --by month --from 2026-01-01 --agent",
+        "explanation": "Roll up local session history into per-month kWh and cost totals as structured JSON."
+      },
+      {
+        "title": "Trim a verbose charger state",
+        "command": "zaptec-pp-cli state CHARGER_ID --agent --select name,value",
+        "explanation": "state returns decoded observation rows (state_id, name, value, unit); --select name,value keeps just the readable pairs so an agent doesn't carry the full payload."
+      },
+      {
+        "title": "Catch offline chargers",
+        "command": "zaptec-pp-cli chargers stale --minutes 30 --agent",
+        "explanation": "List chargers that haven't reported recently before a resident complains."
+      },
+      {
+        "title": "Plan a firmware rollout",
+        "command": "zaptec-pp-cli firmware drift INSTALLATION_ID --agent",
+        "explanation": "See which chargers are behind the fleet's majority firmware version before upgrading."
+      }
+    ],
+    "trigger_phrases": [
+      "pause my zaptec charger",
+      "is my car charging",
+      "how much did I charge this month",
+      "zaptec charger status",
+      "resume charging",
+      "use zaptec",
+      "run zaptec"
+    ]
+  }
+}

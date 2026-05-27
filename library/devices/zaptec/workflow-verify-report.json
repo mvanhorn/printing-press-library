@@ -1,0 +1,8 @@
+{
+  "dir": "C:/Users/pimme/printing-press/.runstate/zaptec-e1e67852/runs/20260527-205125/working/zaptec-pp-cli",
+  "workflows": null,
+  "verdict": "workflow-pass",
+  "issues": [
+    "no workflow manifest found, skipping"
+  ]
+}

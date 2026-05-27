@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-27T19:37:50.5525979Z",
+  "printing_press_version": "4.3.0",
+  "api_name": "zaptec",
+  "cli_name": "zaptec-pp-cli",
+  "run_id": "20260527-205125",
+  "printer": "Pimmetjeoss",
+  "printer_name": "Pimmetjeoss",
+  "category": "devices",
+  "description": "The only command-line tool for Zaptec Go chargers \u00e2\u20ac\u201d pause and resume charging, read live state in plain English, and track energy and cost from a local database.",
+  "spec_url": "https://api.zaptec.com/swagger/v1/swagger.json",
+  "novel_features": [
+    {
+      "name": "Energy & cost rollup",
+      "command": "cost",
+      "description": "See total kWh and cost for your charging over any period, rolled up by month or by charger."
+    },
+    {
+      "name": "What's-charging-now snapshot",
+      "command": "live",
+      "description": "One table showing every charger's mode (charging/connected/finished/offline) with decoded power, current, and phase."
+    },
+    {
+      "name": "Load-balancing headroom",
+      "command": "current headroom",
+      "description": "Show how many amps of the installation's breaker limit are uncommitted versus actively drawn."
+    },
+    {
+      "name": "Stale / offline charger watch",
+      "command": "chargers stale",
+      "description": "List chargers that are offline, disconnected, or haven't reported within a threshold."
+    },
+    {
+      "name": "Firmware drift",
+      "command": "firmware drift",
+      "description": "Group an installation's chargers by firmware version and flag the ones behind the fleet majority."
+    },
+    {
+      "name": "Session anomaly scan",
+      "command": "sessions anomalies",
+      "description": "Flag charging sessions with near-zero energy, abnormally long duration, or zero cost."
+    }
+  ]
+}
