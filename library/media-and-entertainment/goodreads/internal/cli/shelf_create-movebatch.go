@@ -21,7 +21,8 @@ func newShelfCreateMovebatchCmd(flags *rootFlags) *cobra.Command {
 		Example:     "  goodreads-pp-cli shelf create-movebatch",
 		Annotations: map[string]string{"pp:endpoint": "shelf.create-movebatch", "pp:method": "POST", "pp:path": "/shelf/move_batch"},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if !stdinBody {
+			if !stdinBody && !flags.dryRun {
+				return usageErr(fmt.Errorf("%s requires --stdin with a JSON request body for live execution; rerun with --dry-run to preview", cmd.CommandPath()))
 			}
 			c, err := flags.newClient()
 			if err != nil {

@@ -21,7 +21,8 @@ func newReviewCreateCmd(flags *rootFlags) *cobra.Command {
 		Example:     "  goodreads-pp-cli review create",
 		Annotations: map[string]string{"pp:endpoint": "review.create", "pp:method": "POST", "pp:path": "/review/update_session_shelf_settings"},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if !stdinBody {
+			if !stdinBody && !flags.dryRun {
+				return usageErr(fmt.Errorf("%s requires --stdin with a JSON request body for live execution; rerun with --dry-run to preview", cmd.CommandPath()))
 			}
 			c, err := flags.newClient()
 			if err != nil {

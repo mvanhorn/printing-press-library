@@ -21,7 +21,8 @@ func newNotificationsCreateCmd(flags *rootFlags) *cobra.Command {
 		Example:     "  goodreads-pp-cli notifications create",
 		Annotations: map[string]string{"pp:endpoint": "notifications.create", "pp:method": "POST", "pp:path": "/notifications/track"},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if !stdinBody {
+			if !stdinBody && !flags.dryRun {
+				return usageErr(fmt.Errorf("%s requires --stdin with a JSON request body for live execution; rerun with --dry-run to preview", cmd.CommandPath()))
 			}
 			c, err := flags.newClient()
 			if err != nil {

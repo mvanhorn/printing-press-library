@@ -24,7 +24,8 @@ func newShelfCreateMovebatch2Cmd(flags *rootFlags) *cobra.Command {
 			if len(args) == 0 {
 				return cmd.Help()
 			}
-			if !stdinBody {
+			if !stdinBody && !flags.dryRun {
+				return usageErr(fmt.Errorf("%s requires --stdin with a JSON request body for live execution; rerun with --dry-run to preview", cmd.CommandPath()))
 			}
 			c, err := flags.newClient()
 			if err != nil {
