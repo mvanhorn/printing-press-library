@@ -1,0 +1,49 @@
+# Recommended starter normalization config.
+#
+# This file declares the RECOMMENDED entities and their shapes; rules/vocab are
+# left empty for the operator or agent to fill in. Declaring an entity here does
+# not by itself classify it — it recommends the shape to wire.
+#
+# Wired today:
+#   - ticket_type : classified by `normalize --tiers`
+#   - venue       : classified by `normalize --venues`
+#
+# Recommended shapes whose classification the operator wires (fill in sources /
+# rules / vocab before they classify anything):
+#   - price_tier   (attributes)
+#   - artist       (alias)
+#   - genre        (vocab)
+#   - ticket_pool  (alias)
+version: 1
+entities:
+  ticket_type:
+    source: tickets.ticketType.name
+    shape: attributes
+    attributes: [access_class, sales_stage, entry_window_type, entry_window_time, group_size, comp_flag]
+    rules: []
+  price_tier:
+    source: tickets.ticketType.price
+    shape: attributes
+    attributes: [price_band]
+    rules: []
+  venue:
+    source: events.venues[*].name
+    shape: attributes
+    attributes: [complex, room]
+    rules: []
+  artist:
+    source: events.artists[*].name
+    shape: alias
+    rules: []
+  genre:
+    source: events.genres[*]
+    shape: vocab
+    vocab: []
+    rules: []
+    # Drop a leading namespace prefix (e.g. dj:afrohouse, gig:afrohouse) before
+    # canonicalization so namespaced genre values fold to a bare canonical form.
+    strip_pattern: '^[a-z]+:'
+  ticket_pool:
+    source: events.ticketPools[*].name
+    shape: alias
+    rules: []

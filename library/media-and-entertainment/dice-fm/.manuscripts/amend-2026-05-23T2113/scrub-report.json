@@ -1,0 +1,22 @@
+{
+  "amend_run_id": "amend-2026-05-23T2113",
+  "target_cli": "dice-fm-pp-cli",
+  "credential_scan": "clean",
+  "stoplist_config": "~/.printing-press/amend-config.yaml (empty lists)",
+  "tokens_replaced": 0,
+  "artifacts_scanned": [
+    "internal/cli/dice_capacity.go",
+    "internal/cli/dice_discount_performance.go",
+    "internal/cli/dice_transcend_test.go",
+    "internal/cli/root.go",
+    "internal/cli/which.go",
+    ".printing-press-patches.json",
+    "proofs/20260523-211310-amend-dice-fm-pp-cli.md"
+  ],
+  "unrecognized_capitalized_phrases": [
+    {"phrase": "Early Bird", "verdict": "safe — generic price-tier fixture name"},
+    {"phrase": "Lo Yal", "verdict": "false positive — substring of pre-existing fanLoyal=loyal@example.com constant"}
+  ],
+  "go_source_check": "clean",
+  "notes": "All test fixtures use RFC2606 example.com emails and generic placeholder names. No credentials, no real entities."
+}
