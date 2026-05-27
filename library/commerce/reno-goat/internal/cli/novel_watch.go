@@ -286,15 +286,13 @@ func newWatchCheckCmd(flags *rootFlags) *cobra.Command {
 					result["status"] = "ok"
 				}
 
-				// Record a price_history entry. For v1, we can only detect
-				// reachability; actual price scraping requires source-specific
-				// parsing. Record the existing current_price as a continuity
-				// entry so the history table isn't empty.
+				// Report the current price in the check result when available.
+				// price_history is seeded by watch add --price; v1 cannot
+				// scrape live prices, so we don't insert duplicate continuity
+				// rows here. When v2 adds source-specific price parsing,
+				// this block should INSERT the newly fetched price and UPDATE
+				// watches.current_price.
 				if w.currentPrice.Valid {
-					_, _ = db.Exec(
-						`INSERT INTO price_history (watch_id, price) VALUES (?, ?)`,
-						w.id, w.currentPrice.Float64,
-					)
 					result["price"] = w.currentPrice.Float64
 				}
 
