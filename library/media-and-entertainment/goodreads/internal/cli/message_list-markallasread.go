@@ -17,7 +17,7 @@ func newMessageListMarkallasreadCmd(flags *rootFlags) *cobra.Command {
 		Use:         "list-markallasread",
 		Short:       "Mark all visible inbox messages read.",
 		Example:     "  goodreads-pp-cli message list-markallasread",
-		Annotations: map[string]string{"pp:endpoint": "message.list-markallasread", "pp:method": "GET", "pp:path": "/message/mark_all_as_read", "mcp:read-only": "true"},
+		Annotations: map[string]string{"pp:endpoint": "message.list-markallasread", "pp:method": "GET", "pp:path": "/message/mark_all_as_read", "mcp:read-only": "false"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
