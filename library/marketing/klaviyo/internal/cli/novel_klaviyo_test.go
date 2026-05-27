@@ -205,6 +205,15 @@ func TestSegmentVelocityHonorsLastWindow(t *testing.T) {
 	}
 }
 
+func TestSegmentBaselineKeyPreservesDurationUnit(t *testing.T) {
+	if got := segmentBaselineKey("30d"); got != "size_30d_ago" {
+		t.Fatalf("segmentBaselineKey(30d) = %q", got)
+	}
+	if got := segmentBaselineKey("168h"); got != "size_168h_ago" {
+		t.Fatalf("segmentBaselineKey(168h) = %q", got)
+	}
+}
+
 func TestCampaignEventMatchesSkipsUnattributedOrders(t *testing.T) {
 	tests := []struct {
 		name  string
@@ -216,13 +225,41 @@ func TestCampaignEventMatchesSkipsUnattributedOrders(t *testing.T) {
 		{name: "matching fallback name", event: novelEmailEvent{CampaignName: "Spring Sale"}, want: true},
 		{name: "different fallback name", event: novelEmailEvent{CampaignName: "Summer Sale"}, want: false},
 		{name: "unattributed", event: novelEmailEvent{}, want: false},
+		{name: "empty target id", event: novelEmailEvent{CampaignID: "camp-1"}, want: false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := campaignEventMatches(tt.event, "camp-1", "Spring Sale"); got != tt.want {
+			campaignID := "camp-1"
+			if tt.name == "empty target id" {
+				campaignID = ""
+			}
+			if got := campaignEventMatches(tt.event, campaignID, "Spring Sale"); got != tt.want {
 				t.Fatalf("campaignEventMatches() = %v, want %v", got, tt.want)
 			}
 		})
+	}
+}
+
+func TestSubjectCuriosityGapIsSpecific(t *testing.T) {
+	if hasCuriosityGap("Use this code before midnight") {
+		t.Fatal("generic 'this' subject should not count as curiosity gap")
+	}
+	if !hasCuriosityGap("Here's what your cart is missing") {
+		t.Fatal("specific curiosity phrase should count")
+	}
+}
+
+func TestFetchMetricEventsDoesNotRequestUnusedSideloads(t *testing.T) {
+	client := &fakeCouponPoolClient{responses: []json.RawMessage{rawJSON(`{"data":[],"links":{}}`)}}
+	_, err := fetchMetricEvents(client, "metric-1", time.Date(2026, 5, 1, 0, 0, 0, 0, time.UTC), time.Date(2026, 5, 2, 0, 0, 0, 0, time.UTC), 10)
+	if err != nil {
+		t.Fatalf("fetchMetricEvents() error = %v", err)
+	}
+	if len(client.requests) != 1 {
+		t.Fatalf("requests = %#v, want one request", client.requests)
+	}
+	if _, has := client.requests[0].params["include"]; has {
+		t.Fatalf("fetchMetricEvents requested unused include param: %#v", client.requests[0].params)
 	}
 }
 

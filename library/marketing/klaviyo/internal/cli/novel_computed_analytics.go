@@ -664,10 +664,7 @@ func subjectPatterns(emails []subjectEmail) []map[string]any {
 			l := strings.ToLower(s)
 			return strings.Contains(l, "last") || strings.Contains(l, "final") || strings.Contains(l, "ends") || strings.Contains(l, "expires") || strings.Contains(l, "limited")
 		},
-		"curiosity_gap": func(s string) bool {
-			l := strings.ToLower(s)
-			return strings.Contains(s, "...") || strings.Contains(l, "this") || strings.Contains(l, "here's")
-		},
+		"curiosity_gap": hasCuriosityGap,
 	}
 	var rows []map[string]any
 	for name, check := range checks {
@@ -688,6 +685,29 @@ func subjectPatterns(emails []subjectEmail) []map[string]any {
 	}
 	sort.Slice(rows, func(i, j int) bool { return fmt.Sprint(rows[i]["pattern"]) < fmt.Sprint(rows[j]["pattern"]) })
 	return rows
+}
+
+func hasCuriosityGap(subject string) bool {
+	l := strings.ToLower(subject)
+	if strings.Contains(subject, "...") {
+		return true
+	}
+	for _, phrase := range []string{
+		"here's what",
+		"here is what",
+		"you'll never guess",
+		"you will never guess",
+		"you won't believe",
+		"you will not believe",
+		"what happened next",
+		"the secret to",
+		"guess what",
+	} {
+		if strings.Contains(l, phrase) {
+			return true
+		}
+	}
+	return false
 }
 
 func subjectRows(emails []subjectEmail, limit int) []map[string]any {
@@ -891,7 +911,7 @@ func segmentVelocity(ctx context.Context, c flowClient, db *store.Store, ids []s
 		} else if pct < -2 {
 			direction = "shrinking"
 		}
-		row := map[string]any{"name": name, "segment_id": id, "current_size": count, "size_" + strings.TrimSuffix(last, "d") + "d_ago": firstCount, "change": change, "change_pct": round1(pct), "direction": direction, "weekly_trend": trend}
+		row := map[string]any{"name": name, "segment_id": id, "current_size": count, segmentBaselineKey(last): firstCount, "change": change, "change_pct": round1(pct), "direction": direction, "weekly_trend": trend}
 		if len(trend) < 3 {
 			row["message"] = "baseline recorded, run again later for trend data"
 		}
@@ -906,6 +926,14 @@ func segmentSnapshotDate(t time.Time, interval string) string {
 		return fmt.Sprintf("%04d-W%02d", y, w)
 	}
 	return t.Format("2006-01-02")
+}
+
+func segmentBaselineKey(last string) string {
+	label := strings.ReplaceAll(strings.ToLower(strings.TrimSpace(last)), " ", "")
+	if label == "" {
+		label = "window"
+	}
+	return "size_" + label + "_ago"
 }
 
 func flowPathAnalysis(c flowClient, flowID string, since, until time.Time) (map[string]any, error) {
@@ -1000,7 +1028,7 @@ func campaignTimeDecay(c flowClient, campaignID string) (map[string]any, error) 
 
 func campaignEventMatches(event novelEmailEvent, campaignID, campaignName string) bool {
 	if campaignID == "" {
-		return true
+		return false
 	}
 	if event.CampaignID != "" {
 		return event.CampaignID == campaignID
@@ -1234,7 +1262,7 @@ func rollupBranch(stats map[string]map[string]float64, ids []string, label strin
 
 func fetchMetricEvents(c flowClient, metricID string, since, until time.Time, limit int) ([]novelEmailEvent, error) {
 	filter := fmt.Sprintf("equals(metric_id,\"%s\"),greater-or-equal(datetime,%s),less-than(datetime,%s)", metricID, since.Format(time.RFC3339), until.Format(time.RFC3339))
-	items, err := fetchAllJSONAPI(c, "/api/events", map[string]string{"filter": filter, "include": "metric,profile", "page[size]": "200", "sort": "datetime"}, limit)
+	items, err := fetchAllJSONAPI(c, "/api/events", map[string]string{"filter": filter, "page[size]": "200", "sort": "datetime"}, limit)
 	if err != nil {
 		return nil, err
 	}
