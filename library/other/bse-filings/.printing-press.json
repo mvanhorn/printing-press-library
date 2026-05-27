@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-27T10:43:41.246114Z",
+  "printing_press_version": "4.5.2",
+  "api_name": "bse-filings",
+  "display_name": "BSE Filings",
+  "cli_name": "bse-filings-pp-cli",
+  "owner": "rushyant-m",
+  "printer": "rushyantm",
+  "printer_name": "Rushyant M",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:e379c82e9948d83ece896b0fb6d87e6c38a4f4c3a5e364ea9eed213fc8505d8a",
+  "run_id": "20260527-134421",
+  "category": "other",
+  "description": "Mirror BSE corporate filings into a local store and grep concalls, detect thesis drift, and track results across your holdings.",
+  "mcp_binary": "bse-filings-pp-mcp",
+  "mcp_tool_count": 6,
+  "mcp_public_tool_count": 6,
+  "mcp_ready": "full",
+  "api_version": "1.0.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Portfolio concall grep",
+      "command": "concall-grep",
+      "description": "Full-text search a phrase across every concall transcript in your portfolio and get the scrip, paragraph, and filing date back."
+    },
+    {
+      "name": "Thesis drift",
+      "command": "thesis-drift",
+      "description": "Per-quarter frequency of guidance keywords (margin, demand, debt, guidance verbs) across a company's last N concalls, showing which terms are rising or falling."
+    },
+    {
+      "name": "Cross-holding phrase sweep",
+      "command": "cross",
+      "description": "Find a phrase appearing across two or more holdings in one quarter, grouped by sector — a sector-wide shift detector."
+    },
+    {
+      "name": "Due-soon calendar",
+      "command": "due-soon",
+      "description": "Holdings with results, board meetings, or AGM due in the next N days, merged from two BSE endpoints into one list."
+    },
+    {
+      "name": "Results outcomes (2-wave join)",
+      "command": "outcomes",
+      "description": "Beat/miss tagging for results filings, joining the detailed-financials numbers to the headline outcome filing on quarter."
+    },
+    {
+      "name": "Stale-thesis scan",
+      "command": "stale",
+      "description": "Holdings with no filing activity in N days — silence as a signal."
+    },
+    {
+      "name": "Critical-news watch",
+      "command": "critical",
+      "description": "Every holding that filed a Regulation-30 critical-news (material) disclosure in the last N days, in one call."
+    },
+    {
+      "name": "Concall extract",
+      "command": "concall",
+      "description": "Fetch, parse, and store a single concall PDF, then print only the paragraphs matching a phrase instead of the whole transcript."
+    }
+  ]
+}

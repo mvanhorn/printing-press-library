@@ -1,0 +1,51 @@
+version: 2
+project_name: bse-filings-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: bse-filings-pp-cli
+    main: ./cmd/bse-filings-pp-cli
+    binary: bse-filings-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/other/bse-filings/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: bse-filings-pp-mcp
+    main: ./cmd/bse-filings-pp-mcp
+    binary: bse-filings-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: bse-filings-pp-cli
+    repository:
+      owner: rushyant-m
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Mirrors BSE corporate filings into a local SQLite store and answers the cross-holding, tone-drift, and calendar..."
+    install: |
+      bin.install "bse-filings-pp-cli"
+      bin.install "bse-filings-pp-mcp"

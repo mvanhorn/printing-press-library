@@ -1,0 +1,15 @@
+{
+  "reachability": { "mode": "standard_http", "notes": "Requires Referer: https://www.bseindia.com/ and a browser User-Agent. Without headers: 301 redirect to members page. With headers: 200 JSON." },
+  "endpoints_confirmed": [
+    "GET api.bseindia.com/BseIndiaAPI/api/AnnSubCategoryGetData/w (announcements, per scrip)",
+    "GET api.bseindia.com/BseIndiaAPI/api/Corpforthresults/w (forthcoming results)",
+    "GET www.bseindia.com/xml-data/corpfiling/AttachLive/<name>.pdf (attachment PDFs, application/pdf)"
+  ],
+  "endpoints_from_sdk_source": [
+    "GET /DefaultData/w (forthcoming corp actions: board meetings, AGM, dividends)",
+    "GET /PeerSmartSearch/w (name/symbol/ISIN -> scrip code)",
+    "GET /TabResults_PAR/w (results snapshot numbers)",
+    "GET /getScripHeaderData/w (OHLC quote)",
+    "GET /ComHeadernew/w (equity metadata: sector/company)"
+  ]
+}

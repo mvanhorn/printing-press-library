@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-27",
+  "base_run_id": "20260527-134421",
+  "base_printing_press_version": "4.5.2",
+  "patches": [
+    {
+      "id": "screaming-snake-field-lookup",
+      "summary": "Add an UPPER_SNAKE_CASE fallback tier to store.go LookupFieldValue so typed-column extraction resolves BSE's SCREAMING_SNAKE_CASE response keys (SCRIP_CD, NEWS_DT, CRITICALNEWS, NEWSSUB).",
+      "reason": "Generator bug: LookupFieldValue only tried snake/camel/Pascal casing, so every typed/indexed column was written NULL for BSE's all-caps keys, silently breaking stale/critical/concall/outcomes which read typed columns. Fixed locally as an additive last-tier fallback; filed upstream to the Printing Press.",
+      "files": ["internal/store/store.go"],
+      "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/issues/TBD-screaming-snake-field-lookup"
+    },
+    {
+      "id": "holdings-aware-sync",
+      "summary": "Replace the generic newSyncCmd with a holdings-aware sync (newBSESyncCmd) that iterates the holdings table and fetches announcements per scrip; BSE's announcements feed returns empty without a scrip code.",
+      "reason": "The generated generic sync calls the announcements endpoint with no scrip and gets an empty body. BSE keys filings on scrip_code, so sync must loop holdings. syncResource is retained for workflow archive of the non-announcement resources.",
+      "files": ["internal/cli/sync.go", "internal/cli/root.go", "internal/cli/channel_workflow.go"]
+    },
+    {
+      "id": "workflow-archive-announcements-exclude-and-json",
+      "summary": "Exclude announcements from workflow archive's generic resource list (synced per-holding by sync instead) and route syncResource's NDJSON progress stream to stderr under --json so the summary object is valid JSON.",
+      "reason": "Generic syncResource errors with 'missing id for announcements' (per-scrip endpoint) and its os.Stdout NDJSON events interleaved with the final summary object, producing invalid --json output.",
+      "files": ["internal/cli/channel_workflow.go"]
+    },
+    {
+      "id": "numeric-scrip-validation",
+      "summary": "Validate that scrip-code positionals are numeric on quote / results-snapshot (generated promoted commands) and the hand-written concall / thesis-drift, returning exit 2 for non-numeric input; add a --dry-run request-shape preview to the two promoted commands.",
+      "reason": "BSE returns HTTP 200 with empty/placeholder data for invalid scrip codes, so a non-numeric arg produced a confusing empty response (exit 0) instead of an actionable usage error. Scrip codes are always numeric.",
+      "files": ["internal/cli/promoted_quote.go", "internal/cli/promoted_results-snapshot.go"]
+    },
+    {
+      "id": "atomic-concall-replace",
+      "summary": "ReplaceConcallChunks performs the concall delete+insert inside a single transaction (Greptile P1), plus UNIQUE(filing_id, paragraph_n) on concall_chunks and UNIQUE(filing_id) on results_outcomes with INSERT OR REPLACE (Greptile P2).",
+      "reason": "Greptile findings on the publish PR: the original two-transaction delete-then-insert was silently destructive on a crash, and the tables lacked dedup constraints.",
+      "files": ["internal/store/bse_tables.go", "internal/cli/bse_concall.go"]
+    },
+    {
+      "id": "critical-days-unparseable-date",
+      "summary": "critical --days now excludes rows whose news_dt is unparseable (!ok || t.Before(cutoff)) instead of letting them leak through the window filter.",
+      "reason": "Greptile P1 on the publish PR: the original ok && t.Before(cutoff) condition meant any malformed/empty date bypassed the --days window.",
+      "files": ["internal/cli/bse_queries.go"]
+    }
+  ]
+}

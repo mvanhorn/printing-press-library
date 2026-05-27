@@ -1,0 +1,9 @@
+{
+  "timestamp": "2026-05-27T09:27:11.596024Z",
+  "cli_dir": "\u003ccli-dir\u003e/bse-filings-pp-cli",
+  "findings": null,
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-05-27T09:27:11.596024Z"
+  }
+}

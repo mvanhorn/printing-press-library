@@ -1,0 +1,221 @@
+{
+  "api_name": "bse-filings",
+  "base_url": "https://api.bseindia.com/BseIndiaAPI/api",
+  "description": "BSE (Bombay Stock Exchange) corporate filings — announcements, results, board meetings, corp actions, and concall transcript PDFs.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [
+    {
+      "name": "Referer",
+      "value": "https://www.bseindia.com/"
+    },
+    {
+      "name": "User-Agent",
+      "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+    }
+  ],
+  "tools": [
+    {
+      "name": "announcements_list",
+      "description": "List corporate announcements for a scrip within a date window, optionally filtered by category. Optional: scrip, category (default: -1), subcategory (plus 5 more). Returns array of filing.",
+      "method": "GET",
+      "path": "/AnnSubCategoryGetData/w",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "scrip",
+          "wire_name": "strScrip",
+          "type": "string",
+          "location": "query",
+          "description": "BSE scrip code (numeric, e.g. 500325 for Reliance). Primary key for all filing queries.",
+          "aliases": [
+            "str-scrip"
+          ]
+        },
+        {
+          "name": "category",
+          "wire_name": "strCat",
+          "type": "string",
+          "location": "query",
+          "description": "Category filter: -1 (all), Result, Board Meeting, Corp. Action, AGM/EGM, Company Update, New Listing, Others."
+        },
+        {
+          "name": "subcategory",
+          "type": "string",
+          "location": "query",
+          "description": "Optional sub-category filter within a category."
+        },
+        {
+          "name": "from",
+          "wire_name": "strPrevDate",
+          "type": "string",
+          "location": "query",
+          "description": "From date, YYYYMMDD."
+        },
+        {
+          "name": "to",
+          "wire_name": "strToDate",
+          "type": "string",
+          "location": "query",
+          "description": "To date, YYYYMMDD."
+        },
+        {
+          "name": "segment",
+          "wire_name": "strType",
+          "type": "string",
+          "location": "query",
+          "description": "Segment: C (equity), D (debt), M (MF/ETF)."
+        },
+        {
+          "name": "strSearch",
+          "type": "string",
+          "location": "query",
+          "description": "Search mode flag used by the BSE feed (default P)."
+        },
+        {
+          "name": "page",
+          "wire_name": "pageno",
+          "type": "integer",
+          "location": "query",
+          "description": "Page number for pagination."
+        }
+      ]
+    },
+    {
+      "name": "corp_actions_list",
+      "description": "List forthcoming corporate actions (board meetings, AGM, dividends) for a scrip or segment. Optional: scrip, segment (default: Equity), from (plus 2 more). Returns array of corp_action.",
+      "method": "GET",
+      "path": "/DefaultData/w",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "scrip",
+          "wire_name": "scripcode",
+          "type": "string",
+          "location": "query",
+          "description": "BSE scrip code to scope results (blank = all)."
+        },
+        {
+          "name": "segment",
+          "type": "string",
+          "location": "query",
+          "description": "Market segment (Equity, Debt, MF)."
+        },
+        {
+          "name": "from",
+          "wire_name": "Fdate",
+          "type": "string",
+          "location": "query",
+          "description": "From date, YYYYMMDD."
+        },
+        {
+          "name": "to",
+          "wire_name": "TDate",
+          "type": "string",
+          "location": "query",
+          "description": "To date, YYYYMMDD."
+        },
+        {
+          "name": "purpose",
+          "wire_name": "Purposecode",
+          "type": "string",
+          "location": "query",
+          "description": "Purpose code filter (board meeting, dividend, etc.)."
+        }
+      ]
+    },
+    {
+      "name": "quote_get",
+      "description": "Fetch the latest OHLC quote and header data for a scrip. Required: scripcode. Returns the quote.",
+      "method": "GET",
+      "path": "/getScripHeaderData/w",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "scripcode",
+          "type": "string",
+          "location": "path",
+          "description": "BSE scrip code.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "results_calendar_list",
+      "description": "List forthcoming result announcements, optionally scoped to a scrip or date window. Optional: scrip, from, to. Returns array of calendar_event.",
+      "method": "GET",
+      "path": "/Corpforthresults/w",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "scrip",
+          "wire_name": "scripcode",
+          "type": "string",
+          "location": "query",
+          "description": "BSE scrip code to scope the calendar (blank = all)."
+        },
+        {
+          "name": "from",
+          "wire_name": "fromdate",
+          "type": "string",
+          "location": "query",
+          "description": "From date, YYYYMMDD."
+        },
+        {
+          "name": "to",
+          "wire_name": "todate",
+          "type": "string",
+          "location": "query",
+          "description": "To date, YYYYMMDD."
+        }
+      ]
+    },
+    {
+      "name": "results_snapshot_get",
+      "description": "Fetch the quarterly financial-results snapshot (revenue, profit, etc.) for a scrip. Required: scripcode. Optional: tabtype (default: 1). Returns the results_snapshot.",
+      "method": "GET",
+      "path": "/TabResults_PAR/w",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "scripcode",
+          "type": "string",
+          "location": "path",
+          "description": "BSE scrip code.",
+          "required": true
+        },
+        {
+          "name": "tabtype",
+          "type": "string",
+          "location": "query",
+          "description": "Results table type selector."
+        }
+      ]
+    },
+    {
+      "name": "scrips_search",
+      "description": "Resolve a company name, ticker symbol, or ISIN to its BSE scrip code. Required: text. Optional: Type (default: ALL). Returns array of scrip_match.",
+      "method": "GET",
+      "path": "/PeerSmartSearch/w",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "text",
+          "type": "string",
+          "location": "path",
+          "description": "Company name, symbol, or ISIN to resolve.",
+          "required": true
+        },
+        {
+          "name": "Type",
+          "type": "string",
+          "location": "query",
+          "description": "Search scope (ALL, EQ, etc.)."
+        }
+      ]
+    }
+  ]
+}

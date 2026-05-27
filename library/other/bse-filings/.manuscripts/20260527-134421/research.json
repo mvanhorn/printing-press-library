@@ -1,0 +1,329 @@
+{
+  "api_name": "bse-filings",
+  "novelty_score": 8,
+  "alternatives": [
+    {
+      "name": "BseIndiaApi (bse)",
+      "url": "https://github.com/BennyThadikaran/BseIndiaApi",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 8,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "awesome-stock-skills",
+      "url": "https://github.com/samyakjain0606/awesome-stock-skills",
+      "language": "Markdown",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 5,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "nse-bse-mcp",
+      "url": "https://github.com/bshada/nse-bse-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 4,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "finstack-mcp",
+      "url": "https://github.com/finstacklabs/finstack-mcp",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 4,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Indian-Stock-Exchange-MCP",
+      "url": "https://github.com/anuragkrishna/Indian-Stock-Exchange-MCP",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 3,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "bsedata",
+      "url": "https://github.com/sdabhi23/bsedata",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 3,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "bseindia",
+      "url": "https://github.com/RuchiTanmay/bseindia",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 3,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Live-NSE-BSE-MCP",
+      "url": "https://github.com/GirishKumarDV/Live-NSE-BSE-MCP",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 3,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-27T13:50:00Z",
+  "novel_features": [
+    {
+      "name": "Portfolio concall grep",
+      "command": "concall-grep",
+      "description": "Full-text search a phrase across every concall transcript in your portfolio and get the scrip, paragraph, and filing date back.",
+      "rationale": "FTS5 runs over the local concall_chunks table joined to holdings; BSE ships no transcript search at all.",
+      "example": "bse-filings-pp-cli concall-grep \"margin pressure\" --since 90d",
+      "why_it_matters": "Reach for this when an agent needs the exact sentence management used about a theme across many companies, not a 40-page PDF.",
+      "group": "Portfolio-wide signal"
+    },
+    {
+      "name": "Thesis drift",
+      "command": "thesis-drift",
+      "description": "Per-quarter frequency of guidance keywords (margin, demand, debt, guidance verbs) across a company's last N concalls, showing which terms are rising or falling.",
+      "rationale": "Mechanical term-frequency counts across concall_chunks grouped by quarter; no API or competitor ships tone drift.",
+      "example": "bse-filings-pp-cli thesis-drift 500325 --terms margin,demand,debt --last 4",
+      "why_it_matters": "Use this to detect thesis decay — when management's language shifts before the numbers do.",
+      "group": "Thesis decay"
+    },
+    {
+      "name": "Cross-holding phrase sweep",
+      "command": "cross",
+      "description": "Find a phrase appearing across two or more holdings in one quarter, grouped by sector — a sector-wide shift detector.",
+      "rationale": "Cross-holding FTS5 join grouped by holdings.sector; aggregators summarize single companies, none diff language across a set.",
+      "example": "bse-filings-pp-cli cross \"rural recovery\" --holdings-only --since 60d",
+      "why_it_matters": "Pick this when the question is sector-level: which companies all started saying the same thing this quarter.",
+      "group": "Portfolio-wide signal"
+    },
+    {
+      "name": "Due-soon calendar",
+      "command": "due-soon",
+      "description": "Holdings with results, board meetings, or AGM due in the next N days, merged from two BSE endpoints into one list.",
+      "rationale": "Merges Corpforthresults and DefaultData and filters to your holdings; the BSE site cannot combine them.",
+      "example": "bse-filings-pp-cli due-soon --within 7d --kind results,board",
+      "why_it_matters": "Use before an earnings week to see every holding with a calendar event coming up.",
+      "group": "Calendar \u0026 silence"
+    },
+    {
+      "name": "Results outcomes (2-wave join)",
+      "command": "outcomes",
+      "description": "Beat/miss tagging for results filings, joining the detailed-financials numbers to the headline outcome filing on quarter.",
+      "rationale": "Joins results_outcomes (TabResults_PAR) to filings on quarter, reconciling the headline + detailed-financials waves no single call returns.",
+      "example": "bse-filings-pp-cli outcomes --quarter Q4FY26 --beat",
+      "why_it_matters": "Reach for this after a results wave to line up reported numbers against what management said.",
+      "group": "Thesis decay"
+    },
+    {
+      "name": "Stale-thesis scan",
+      "command": "stale",
+      "description": "Holdings with no filing activity in N days — silence as a signal.",
+      "rationale": "Local MAX(filed_at) per holding vs a threshold; BSE has no \"who has been quiet\" endpoint.",
+      "example": "bse-filings-pp-cli stale --no-filing-since 90d",
+      "why_it_matters": "Use to surface holdings that have gone unusually quiet, which can precede a surprise.",
+      "group": "Calendar \u0026 silence"
+    },
+    {
+      "name": "Critical-news watch",
+      "command": "critical",
+      "description": "Every holding that filed a Regulation-30 critical-news (material) disclosure in the last N days, in one call.",
+      "rationale": "Portfolio-wide filter on the CRITICALNEWS flag in the local store; BSE forces one scrip at a time.",
+      "example": "bse-filings-pp-cli critical --days 7",
+      "why_it_matters": "Pick this for material-disclosure triage across the whole portfolio at once.",
+      "group": "Portfolio-wide signal"
+    },
+    {
+      "name": "Concall extract",
+      "command": "concall",
+      "description": "Fetch, parse, and store a single concall PDF, then print only the paragraphs matching a phrase instead of the whole transcript.",
+      "rationale": "PDF to chunks in SQLite plus a --mentions paragraph filter; returns three paragraphs, not forty pages, saving agent context.",
+      "example": "bse-filings-pp-cli concall 500325 --quarter Q4FY26 --mentions capex",
+      "why_it_matters": "Use when a bot needs the relevant passage of a call without ingesting the full PDF.",
+      "group": "Transcript plumbing"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Portfolio concall grep",
+      "command": "concall-grep",
+      "description": "Full-text search a phrase across every concall transcript in your portfolio and get the scrip, paragraph, and filing date back.",
+      "rationale": "FTS5 runs over the local concall_chunks table joined to holdings; BSE ships no transcript search at all.",
+      "example": "bse-filings-pp-cli concall-grep \"margin pressure\" --since 90d",
+      "why_it_matters": "Reach for this when an agent needs the exact sentence management used about a theme across many companies, not a 40-page PDF.",
+      "group": "Portfolio-wide signal"
+    },
+    {
+      "name": "Thesis drift",
+      "command": "thesis-drift",
+      "description": "Per-quarter frequency of guidance keywords (margin, demand, debt, guidance verbs) across a company's last N concalls, showing which terms are rising or falling.",
+      "rationale": "Mechanical term-frequency counts across concall_chunks grouped by quarter; no API or competitor ships tone drift.",
+      "example": "bse-filings-pp-cli thesis-drift 500325 --terms margin,demand,debt --last 4",
+      "why_it_matters": "Use this to detect thesis decay — when management's language shifts before the numbers do.",
+      "group": "Thesis decay"
+    },
+    {
+      "name": "Cross-holding phrase sweep",
+      "command": "cross",
+      "description": "Find a phrase appearing across two or more holdings in one quarter, grouped by sector — a sector-wide shift detector.",
+      "rationale": "Cross-holding FTS5 join grouped by holdings.sector; aggregators summarize single companies, none diff language across a set.",
+      "example": "bse-filings-pp-cli cross \"rural recovery\" --holdings-only --since 60d",
+      "why_it_matters": "Pick this when the question is sector-level: which companies all started saying the same thing this quarter.",
+      "group": "Portfolio-wide signal"
+    },
+    {
+      "name": "Due-soon calendar",
+      "command": "due-soon",
+      "description": "Holdings with results, board meetings, or AGM due in the next N days, merged from two BSE endpoints into one list.",
+      "rationale": "Merges Corpforthresults and DefaultData and filters to your holdings; the BSE site cannot combine them.",
+      "example": "bse-filings-pp-cli due-soon --within 7d --kind results,board",
+      "why_it_matters": "Use before an earnings week to see every holding with a calendar event coming up.",
+      "group": "Calendar \u0026 silence"
+    },
+    {
+      "name": "Results outcomes (2-wave join)",
+      "command": "outcomes",
+      "description": "Beat/miss tagging for results filings, joining the detailed-financials numbers to the headline outcome filing on quarter.",
+      "rationale": "Joins results_outcomes (TabResults_PAR) to filings on quarter, reconciling the headline + detailed-financials waves no single call returns.",
+      "example": "bse-filings-pp-cli outcomes --quarter Q4FY26 --beat",
+      "why_it_matters": "Reach for this after a results wave to line up reported numbers against what management said.",
+      "group": "Thesis decay"
+    },
+    {
+      "name": "Stale-thesis scan",
+      "command": "stale",
+      "description": "Holdings with no filing activity in N days — silence as a signal.",
+      "rationale": "Local MAX(filed_at) per holding vs a threshold; BSE has no \"who has been quiet\" endpoint.",
+      "example": "bse-filings-pp-cli stale --no-filing-since 90d",
+      "why_it_matters": "Use to surface holdings that have gone unusually quiet, which can precede a surprise.",
+      "group": "Calendar \u0026 silence"
+    },
+    {
+      "name": "Critical-news watch",
+      "command": "critical",
+      "description": "Every holding that filed a Regulation-30 critical-news (material) disclosure in the last N days, in one call.",
+      "rationale": "Portfolio-wide filter on the CRITICALNEWS flag in the local store; BSE forces one scrip at a time.",
+      "example": "bse-filings-pp-cli critical --days 7",
+      "why_it_matters": "Pick this for material-disclosure triage across the whole portfolio at once.",
+      "group": "Portfolio-wide signal"
+    },
+    {
+      "name": "Concall extract",
+      "command": "concall",
+      "description": "Fetch, parse, and store a single concall PDF, then print only the paragraphs matching a phrase instead of the whole transcript.",
+      "rationale": "PDF to chunks in SQLite plus a --mentions paragraph filter; returns three paragraphs, not forty pages, saving agent context.",
+      "example": "bse-filings-pp-cli concall 500325 --quarter Q4FY26 --mentions capex",
+      "why_it_matters": "Use when a bot needs the relevant passage of a call without ingesting the full PDF.",
+      "group": "Transcript plumbing"
+    }
+  ],
+  "narrative": {
+    "display_name": "BSE Filings",
+    "headline": "Mirrors BSE corporate filings into a local SQLite store and answers the cross-holding, tone-drift, and calendar questions the BSE site cannot.",
+    "value_prop": "BSE Filings syncs every tracked holding's announcements, results, board meetings, and concall transcripts into a local FTS5 database. It turns eight quarters of concall language into a greppable, drift-detectable signal across an entire portfolio — concall-grep finds a phrase across every holding, thesis-drift shows when management's language is shifting, and due-soon merges two BSE calendars the site keeps apart. Built for IMstockbox Council bots as a subprocess and for an operator at the terminal.",
+    "auth_narrative": "No API key or login. BSE's JSON API is reachable with browser Referer and User-Agent headers, which the client sets automatically. If a request 301-redirects to a members page, the headers were stripped — re-run with the bundled client, not a bare curl.",
+    "quickstart": [
+      {
+        "command": "bse-filings-pp-cli holdings list",
+        "comment": "see the seeded holding universe (scrip codes) before syncing"
+      },
+      {
+        "command": "bse-filings-pp-cli sync",
+        "comment": "pull every filing for every holding since the last cursor into ~/.bse-filings/filings.db"
+      },
+      {
+        "command": "bse-filings-pp-cli due-soon --within 7d",
+        "comment": "which holdings have results or board meetings in the next week"
+      },
+      {
+        "command": "bse-filings-pp-cli concall-grep \"margin pressure\" --since 90d",
+        "comment": "find the phrase across every synced concall"
+      },
+      {
+        "command": "bse-filings-pp-cli thesis-drift 500325 --terms margin,demand,debt --last 4",
+        "comment": "watch how RELIANCE's guidance language moved over four quarters"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "Command returns empty and you expected filings",
+        "fix": "Run `bse-filings-pp-cli sync` first — concall-grep, cross, stale, and sql read the local store, which is empty until sync populates it."
+      },
+      {
+        "symptom": "Sync returns nothing for a scrip",
+        "fix": "Confirm the scrip code with `bse-filings-pp-cli holdings list`; BSE keys on numeric scrip_code, not the ticker symbol."
+      },
+      {
+        "symptom": "A request 301-redirects to a members page",
+        "fix": "The Referer/User-Agent headers were stripped; use the CLI's own client (it sets them) rather than a bare HTTP call."
+      },
+      {
+        "symptom": "A concall command shows an empty transcript",
+        "fix": "That PDF is a scanned image; the parse path flags it as needing OCR and skips it rather than crashing."
+      }
+    ],
+    "when_to_use": "Reach for BSE Filings when an agent or operator needs to ask compound questions across an Indian-equity portfolio that the BSE website answers one company at a time: searching concall transcripts for a phrase, detecting tone drift across quarters, finding sector-wide language shifts, or merging the results and board-meeting calendars. It is the right tool for earnings-season triage and thesis-decay monitoring, not for live quotes or order placement.",
+    "recipes": [
+      {
+        "title": "Earnings-week triage",
+        "command": "bse-filings-pp-cli due-soon --within 7d --kind results,board",
+        "explanation": "Lists holdings with a results or board-meeting event in the next seven days, merged from both BSE calendars."
+      },
+      {
+        "title": "Thesis-decay check before a Council call",
+        "command": "bse-filings-pp-cli thesis-drift 532540 --terms demand,pricing,guidance --last 4",
+        "explanation": "Shows the per-quarter frequency of guidance terms across TCS's last four concalls so a softening narrative is visible."
+      },
+      {
+        "title": "Sector-wide language shift",
+        "command": "bse-filings-pp-cli cross \"input cost\" --min-holdings 2 --since 60d",
+        "explanation": "Surfaces the same phrase appearing across two or more holdings in the window — an emerging sector theme."
+      },
+      {
+        "title": "Agent-narrowed announcements feed",
+        "command": "bse-filings-pp-cli critical --days 14 --agent --select scrip_name,title,filed_at,attachment_url",
+        "explanation": "Returns only the four high-gravity fields per critical filing so an agent does not parse the full record."
+      },
+      {
+        "title": "Power-user SQL over the mirror",
+        "command": "bse-filings-pp-cli sql \"SELECT scrip_cd, COUNT(*) AS filings FROM announcements GROUP BY scrip_cd ORDER BY filings DESC\"",
+        "explanation": "Direct read-only SQLite query against the local filings mirror for ad-hoc aggregation."
+      }
+    ],
+    "trigger_phrases": [
+      "search BSE concalls for a phrase",
+      "what's due this week for my holdings",
+      "thesis drift for RELIANCE",
+      "which holdings filed critical news",
+      "beat or miss this quarter",
+      "use bse-filings",
+      "run bse-filings"
+    ]
+  }
+}

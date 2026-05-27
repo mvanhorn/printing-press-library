@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "bse-filings-pp-mcp",
+  "display_name": "BSE Filings",
+  "version": "4.5.2",
+  "description": "Mirror BSE corporate filings into a local store and grep concalls, detect thesis drift, and track results across your holdings.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/bse-filings-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/bse-filings-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}
