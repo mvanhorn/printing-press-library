@@ -222,11 +222,22 @@ without the write gate when ROBINHOOD_BROKERAGE_TOKEN or ROBINHOOD_COOKIE is set
 				return apiErr(err)
 			}
 			if flags.asJSON {
-				return flags.printJSON(cmd, result)
+				if err := flags.printJSON(cmd, result); err != nil {
+					return err
+				}
+			} else {
+				fmt.Fprintf(cmd.OutOrStdout(), "%d %s %s %s\n", result.Status, result.StatusText, result.Method, result.URL)
+				if result.Body != "" {
+					fmt.Fprintln(cmd.OutOrStdout(), result.Body)
+				}
 			}
-			fmt.Fprintf(cmd.OutOrStdout(), "%d %s %s %s\n", result.Status, result.StatusText, result.Method, result.URL)
-			if result.Body != "" {
-				fmt.Fprintln(cmd.OutOrStdout(), result.Body)
+			// Propagate HTTP failures as a non-zero exit, mirroring how the
+			// crypto commands surface errors via classifyAPIError. Without this,
+			// a 401/403/404/500 from the brokerage API printed but exited 0,
+			// so scripts could not detect a failed live request. Dry runs set
+			// OK=true, so previews are unaffected.
+			if !result.OK {
+				return apiErr(fmt.Errorf("brokerage request failed: %d %s", result.Status, result.StatusText))
 			}
 			return nil
 		},

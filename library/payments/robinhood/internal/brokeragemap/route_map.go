@@ -327,7 +327,10 @@ func Execute(ctx context.Context, plan Plan, options ExecuteOptions) (ExecuteRes
 	} else if resp.StatusCode >= 200 && resp.StatusCode < 300 {
 		limiter.OnSuccess()
 	}
-	data, _ := io.ReadAll(resp.Body)
+	data, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return ExecuteResult{}, fmt.Errorf("reading response: %w", err)
+	}
 	max := options.MaxBodyBytes
 	if max <= 0 {
 		max = 4000
