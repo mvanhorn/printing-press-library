@@ -622,6 +622,12 @@ func newContactsMergeCmd(f *rootFlags) *cobra.Command {
 			if absorbed == nil {
 				return fmt.Errorf("contact not found: %s", args[1])
 			}
+			// Self-merge would have AppleScript copy values onto the same
+			// scripting object and then `delete p2` — which deletes the
+			// shared contact outright. Refuse before any side effects.
+			if primary.ID == absorbed.ID {
+				return fmt.Errorf("contact 1 and contact 2 resolve to the same contact (%s) — nothing to merge", primary.ID)
+			}
 
 			// Compute what would be added
 			phoneSet := map[string]bool{}
