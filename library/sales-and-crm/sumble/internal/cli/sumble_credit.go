@@ -45,7 +45,7 @@ var creditCosts = map[string]endpointCost{
 	"postings.find":                    {key: "postings.find", perRow: 2, perRowWithDsc: 3, note: "2 credits per job, 3 with descriptions"},
 	"postings.get":                     {key: "postings.get", flat: 1, note: "1 credit per job"},
 	"postings.find-related-people":     {key: "postings.find-related-people", perRow: 1, note: "1 credit per person returned"},
-	"technologies.find":                {key: "technologies.find", perRow: 1, note: "1 credit only if at least one match, else free"},
+	"technologies.find":                {key: "technologies.find", flat: 1, note: "1 credit if at least one match, else free"},
 	"organization-lists.list":          {key: "organization-lists.list", perRow: 1, note: "1 credit per list returned"},
 	"organization-lists.get":           {key: "organization-lists.get", perRow: 1, note: "1 credit per organization returned"},
 	"contact-lists.list":               {key: "contact-lists.list", perRow: 1, note: "1 credit per list returned"},
