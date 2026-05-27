@@ -1,0 +1,2017 @@
+{
+  "api_name": "g2",
+  "base_url": "https://{defaultHost}",
+  "description": "Every G2 Marketplace surface, plus a credit-aware local mirror, full-text review search, and buyer-intent triage no other G2 tool offers.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "G2_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "G2_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "buyer-intent_get-global-interactions",
+      "description": "**Requires `buyer_intent.read` scope.** Query buyer intent data across one or more products in a single request. Pass product_id to specify which products, or omit to use your assigned products. Supports multi-product queries — the data is not scoped to a single subject product. Optional: dimensions, measures, subject_product_ids (plus 3 more). Returns array of BuyerIntentGetGlobalInteractionsItem.",
+      "method": "GET",
+      "path": "/api/v2/buyer_intent",
+      "params": [
+        {
+          "name": "dimensions",
+          "type": "array",
+          "location": "query",
+          "description": "Comma separated list of dimensions"
+        },
+        {
+          "name": "measures",
+          "type": "array",
+          "location": "query",
+          "description": "Comma separated list of measures"
+        },
+        {
+          "name": "subject_product_ids",
+          "type": "string",
+          "location": "query",
+          "description": "One or more product IDs, UUIDs, or URL slugs (comma-separated) that scope the permissions of this query. Defaults to your assigned products."
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort field with optional direction prefix. Use '-' for descending (e.g., '-day')"
+        },
+        {
+          "name": "page[size]",
+          "type": "int",
+          "location": "query",
+          "description": "Number of records per page (default: 10, max: 100)"
+        },
+        {
+          "name": "dimension_filters",
+          "type": "object",
+          "location": "query",
+          "description": "Filters represented as query object (e.g., dimension_filters[company_name_cont]=Acme)"
+        }
+      ]
+    },
+    {
+      "name": "categories_get",
+      "description": "**No scope required.**. Optional: filter[updated_at_gt], filter[updated_at_lt], filter[created_at_gt] (plus 7 more). Returns array of CategoriesGetItem.",
+      "method": "GET",
+      "path": "/api/v2/categories",
+      "params": [
+        {
+          "name": "filter[updated_at_gt]",
+          "type": "string",
+          "location": "query",
+          "description": "Filter records updated after this date"
+        },
+        {
+          "name": "filter[updated_at_lt]",
+          "type": "string",
+          "location": "query",
+          "description": "Filter records updated before this date"
+        },
+        {
+          "name": "filter[created_at_gt]",
+          "type": "string",
+          "location": "query",
+          "description": "Filter records created after this date"
+        },
+        {
+          "name": "filter[created_at_lt]",
+          "type": "string",
+          "location": "query",
+          "description": "Filter records created before this date"
+        },
+        {
+          "name": "filter[name_eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by exact name match"
+        },
+        {
+          "name": "filter[name_cont]",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by partial name match"
+        },
+        {
+          "name": "filter[slug_eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by exact slug match"
+        },
+        {
+          "name": "filter[slug_cont]",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by partial slug match"
+        },
+        {
+          "name": "fields[categories]",
+          "type": "array",
+          "location": "query",
+          "description": "Comma separated list of fields for categories to include in response"
+        },
+        {
+          "name": "include",
+          "type": "array",
+          "location": "query",
+          "description": "Comma-separated list of relationships to include (e.g. products,children,ancestors,descendants,parent)"
+        }
+      ]
+    },
+    {
+      "name": "categories_get-all-category-features",
+      "description": "List all category product features grouped by category. Optional: filter[product_uuid_eq], filter[is_verified_eq], filter[functionality_eq] (plus 6 more). Returns the CategoriesGetAllCategoryFeaturesResponse.",
+      "method": "GET",
+      "path": "/api/v2/categories/features",
+      "params": [
+        {
+          "name": "filter[product_uuid_eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by G2 product ID"
+        },
+        {
+          "name": "filter[is_verified_eq]",
+          "type": "bool",
+          "location": "query",
+          "description": "Filter is verified eq"
+        },
+        {
+          "name": "filter[functionality_eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by functionality"
+        },
+        {
+          "name": "filter[created_at_gt]",
+          "type": "string",
+          "location": "query",
+          "description": "Min created_at value (RFC3339 format)"
+        },
+        {
+          "name": "filter[created_at_lt]",
+          "type": "string",
+          "location": "query",
+          "description": "Max created_at value (RFC3339 format)"
+        },
+        {
+          "name": "filter[updated_at_gt]",
+          "type": "string",
+          "location": "query",
+          "description": "Min updated_at value (RFC3339 format)"
+        },
+        {
+          "name": "filter[updated_at_lt]",
+          "type": "string",
+          "location": "query",
+          "description": "Max updated_at value (RFC3339 format)"
+        },
+        {
+          "name": "fields[product_features]",
+          "type": "array",
+          "location": "query",
+          "description": "Comma separated list of fields for product_features to include in response"
+        },
+        {
+          "name": "include",
+          "type": "array",
+          "location": "query",
+          "description": "Comma-separated list of relationships to include (e.g. product)"
+        }
+      ]
+    },
+    {
+      "name": "categories_get-category",
+      "description": "Shows a single category. Required: id. Optional: fields[categories], include. Returns the CategoriesGetCategoryResponse.",
+      "method": "GET",
+      "path": "/api/v2/categories/{id}",
+      "params": [
+        {
+          "name": "fields[categories]",
+          "type": "array",
+          "location": "query",
+          "description": "Comma separated list of fields for categories to include in response"
+        },
+        {
+          "name": "include",
+          "type": "array",
+          "location": "query",
+          "description": "Comma-separated list of relationships to include (e.g. products,children,ancestors,descendants,parent)"
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Category UUID or Slug",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "categories_features_get-category",
+      "description": "**Requires `product_features.read` scope.**. Required: category_id. Optional: filter[product_uuid_eq], filter[is_verified_eq], filter[functionality_eq] (plus 6 more). Returns the FeaturesGetCategoryResponse.",
+      "method": "GET",
+      "path": "/api/v2/categories/{category_id}/features",
+      "params": [
+        {
+          "name": "category_id",
+          "type": "string",
+          "location": "path",
+          "description": "Category UUID or Slug",
+          "required": true
+        },
+        {
+          "name": "filter[product_uuid_eq]",
+          "type": "string",
+          "location": "query",
+          "description": "G2 product ID"
+        },
+        {
+          "name": "filter[is_verified_eq]",
+          "type": "bool",
+          "location": "query",
+          "description": "Filter is verified eq"
+        },
+        {
+          "name": "filter[functionality_eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by functionality"
+        },
+        {
+          "name": "filter[created_at_gt]",
+          "type": "string",
+          "location": "query",
+          "description": "Min created_at value (RFC3339 format)"
+        },
+        {
+          "name": "filter[created_at_lt]",
+          "type": "string",
+          "location": "query",
+          "description": "Max created_at value (RFC3339 format)"
+        },
+        {
+          "name": "filter[updated_at_gt]",
+          "type": "string",
+          "location": "query",
+          "description": "Min updated_at value (RFC3339 format)"
+        },
+        {
+          "name": "filter[updated_at_lt]",
+          "type": "string",
+          "location": "query",
+          "description": "Max updated_at value (RFC3339 format)"
+        },
+        {
+          "name": "fields[product_features]",
+          "type": "array",
+          "location": "query",
+          "description": "Comma separated list of fields for product_features to include in response"
+        },
+        {
+          "name": "include",
+          "type": "array",
+          "location": "query",
+          "description": "Comma-separated list of relationships to include (e.g. product)"
+        }
+      ]
+    },
+    {
+      "name": "market-signals_get-index",
+      "description": "**Requires `market_signals.read` scope.** Retrieve buyer intent signals (interactions) for specific categories. Returns one result per buyer intent interaction within the specified date range. Each interaction includes the category UUID, company name, and domain. If no dates are provided, defaults to today for both start and end date. Results are paginated using cursor-based pagination (default 25, max 100 per page). Required: category_ids[]. Optional: start_date, end_date, page[size] (plus 2 more).",
+      "method": "GET",
+      "path": "/api/v2/market_signals",
+      "params": [
+        {
+          "name": "category_ids[]",
+          "type": "array",
+          "location": "query",
+          "description": "List of category UUIDs or slugs",
+          "required": true
+        },
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "query",
+          "description": "Start date of range to check for signals (YYYY-MM-DD). Defaults to today."
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "location": "query",
+          "description": "End date of range to check for signals (YYYY-MM-DD). Defaults to today."
+        },
+        {
+          "name": "page[size]",
+          "type": "int",
+          "location": "query",
+          "description": "Number of results per page. Defaults to 25, max 100."
+        },
+        {
+          "name": "page[after]",
+          "type": "string",
+          "location": "query",
+          "description": "Cursor for fetching the next page of results."
+        },
+        {
+          "name": "page[before]",
+          "type": "string",
+          "location": "query",
+          "description": "Cursor for fetching the previous page of results."
+        }
+      ]
+    },
+    {
+      "name": "organization_credit-account_get-organization",
+      "description": "**No scope required.** Retrieve API metering credit account details including balance and total credits. Use `?include=deductions` to include the last month of deductions in the response. Required: organization_id. Optional: fields[credit_account], include. Returns the CreditAccountGetOrganizationResponse.",
+      "method": "GET",
+      "path": "/api/v2/organization/{organization_id}/credit_account",
+      "params": [
+        {
+          "name": "organization_id",
+          "type": "string",
+          "location": "path",
+          "description": "Organization UUID or slug",
+          "required": true
+        },
+        {
+          "name": "fields[credit_account]",
+          "type": "array",
+          "location": "query",
+          "description": "Comma separated list of fields for credit_account to include in response"
+        },
+        {
+          "name": "include",
+          "type": "array",
+          "location": "query",
+          "description": "Comma-separated list of relationships to include (e.g. deductions)"
+        }
+      ]
+    },
+    {
+      "name": "organization_credit-deductions_get-organization",
+      "description": "**No scope required.** Retrieve credit account deductions aggregated by month and year. Use filter parameters to narrow results: - `filter[month]`: Filter by month (1-12) - `filter[year]`: Filter by year (e.g., 2024). Required: organization_id. Optional: filter[month], filter[year], fields[credit_deduction_aggregations]. Returns array of CreditDeductionsGetOrganizationItem.",
+      "method": "GET",
+      "path": "/api/v2/organization/{organization_id}/credit_deductions",
+      "params": [
+        {
+          "name": "organization_id",
+          "type": "string",
+          "location": "path",
+          "description": "Organization UUID or slug",
+          "required": true
+        },
+        {
+          "name": "filter[month]",
+          "type": "int",
+          "location": "query",
+          "description": "Filter by month (1-12)"
+        },
+        {
+          "name": "filter[year]",
+          "type": "int",
+          "location": "query",
+          "description": "Filter by year"
+        },
+        {
+          "name": "fields[credit_deduction_aggregations]",
+          "type": "array",
+          "location": "query",
+          "description": "Comma separated list of fields for credit_deduction_aggregations to include in response"
+        }
+      ]
+    },
+    {
+      "name": "partners_data-subscriptions_create-partner",
+      "description": "**Requires `data_subscriptions.write` scope.** Data Subscriptions require a Partner ID and appropriate scope. Contact G2 for a unique Partner ID. Required: partner_id, data.",
+      "method": "POST",
+      "path": "/api/v2/partners/{partner_id}/data_subscriptions",
+      "params": [
+        {
+          "name": "partner_id",
+          "type": "string",
+          "location": "path",
+          "description": "Partner id",
+          "required": true
+        },
+        {
+          "name": "data",
+          "type": "object",
+          "location": "body",
+          "description": "Data",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "partners_data-subscriptions_delete-partner",
+      "description": "**Requires `data_subscriptions.write` scope.** Data Subscriptions require a Partner ID and appropriate scope. Contact G2 for a unique Partner ID. Required: partner_id, data_subscription_id. Destructive.",
+      "method": "DELETE",
+      "path": "/api/v2/partners/{partner_id}/data_subscriptions/{data_subscription_id}",
+      "params": [
+        {
+          "name": "partner_id",
+          "type": "string",
+          "location": "path",
+          "description": "Partner id",
+          "required": true
+        },
+        {
+          "name": "data_subscription_id",
+          "type": "string",
+          "location": "path",
+          "description": "Data subscription id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "partners_data-subscriptions_get-partner",
+      "description": "**Requires `data_subscriptions.read` scope.** Data Subscriptions require a Partner ID and appropriate scope. Contact G2 for a unique Partner ID. Required: partner_id. Optional: fields[data_subscriptions]. Returns array of DataSubscriptionsGetPartnerItem.",
+      "method": "GET",
+      "path": "/api/v2/partners/{partner_id}/data_subscriptions",
+      "params": [
+        {
+          "name": "partner_id",
+          "type": "string",
+          "location": "path",
+          "description": "Partner id",
+          "required": true
+        },
+        {
+          "name": "fields[data_subscriptions]",
+          "type": "array",
+          "location": "query",
+          "description": "Comma separated list of fields for data_subscriptions to include in response"
+        }
+      ]
+    },
+    {
+      "name": "product-mappings_create",
+      "description": "Create a product mapping. Optional: data.",
+      "method": "POST",
+      "path": "/api/v2/product_mappings",
+      "params": [
+        {
+          "name": "data",
+          "type": "object",
+          "location": "body",
+          "description": "Data"
+        }
+      ]
+    },
+    {
+      "name": "product-mappings_get",
+      "description": "List of product mappings. Optional: filter[product_id], filter[external_id], filter[deleted_at_lt] (plus 6 more). Returns array of ProductMappingsGetItem.",
+      "method": "GET",
+      "path": "/api/v2/product_mappings",
+      "params": [
+        {
+          "name": "filter[product_id]",
+          "type": "string",
+          "location": "query",
+          "description": "G2 product ID"
+        },
+        {
+          "name": "filter[external_id]",
+          "type": "string",
+          "location": "query",
+          "description": "Non-G2 ID mapped to the G2 product"
+        },
+        {
+          "name": "filter[deleted_at_lt]",
+          "type": "string",
+          "location": "query",
+          "description": "Max deleted_at value (RFC3339 format)"
+        },
+        {
+          "name": "filter[deleted_at_gt]",
+          "type": "string",
+          "location": "query",
+          "description": "Min deleted_at value (RFC3339 format)"
+        },
+        {
+          "name": "filter[created_at_gt]",
+          "type": "string",
+          "location": "query",
+          "description": "Min created_at value (RFC3339 format)"
+        },
+        {
+          "name": "filter[created_at_lt]",
+          "type": "string",
+          "location": "query",
+          "description": "Max created_at value (RFC3339 format)"
+        },
+        {
+          "name": "filter[updated_at_gt]",
+          "type": "string",
+          "location": "query",
+          "description": "Min updated_at value (RFC3339 format)"
+        },
+        {
+          "name": "filter[updated_at_lt]",
+          "type": "string",
+          "location": "query",
+          "description": "Max updated_at value (RFC3339 format)"
+        },
+        {
+          "name": "fields[product_mappings]",
+          "type": "array",
+          "location": "query",
+          "description": "Comma separated list of fields for product_mappings to include in response"
+        }
+      ]
+    },
+    {
+      "name": "product-mappings_update",
+      "description": "Update a product mapping. Required: id. Optional: data.",
+      "method": "PUT",
+      "path": "/api/v2/product_mappings/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Product mapping ID",
+          "required": true
+        },
+        {
+          "name": "data",
+          "type": "object",
+          "location": "body",
+          "description": "Data"
+        }
+      ]
+    },
+    {
+      "name": "product-ratings_get",
+      "description": "**Requires `products.ratings.read` scope.**. Required: product_id. Optional: fields[products]. Returns the ProductRatingsGetResponse.",
+      "method": "GET",
+      "path": "/api/v2/product_ratings/{product_id}",
+      "params": [
+        {
+          "name": "product_id",
+          "type": "string",
+          "location": "path",
+          "description": "G2 Product UUID or Slug",
+          "required": true
+        },
+        {
+          "name": "fields[products]",
+          "type": "array",
+          "location": "query",
+          "description": "Comma separated list of fields for products to include in response"
+        }
+      ]
+    },
+    {
+      "name": "products_get",
+      "description": "**Requires `products.read` scope.**. Optional: filter[category_id][], filter[product_id][], filter[review_count_gteq] (plus 10 more). Returns array of ProductsGetItem.",
+      "method": "GET",
+      "path": "/api/v2/products",
+      "params": [
+        {
+          "name": "filter[category_id][]",
+          "type": "array",
+          "location": "query",
+          "description": "Filter products by category id"
+        },
+        {
+          "name": "filter[product_id][]",
+          "type": "array",
+          "location": "query",
+          "description": "Filter products by one or more product UUIDs"
+        },
+        {
+          "name": "filter[review_count_gteq]",
+          "type": "string",
+          "location": "query",
+          "description": "Filter products by minimum review count"
+        },
+        {
+          "name": "filter[slug][]",
+          "type": "array",
+          "location": "query",
+          "description": "Filter products by one or more product slugs (exact match)"
+        },
+        {
+          "name": "filter[star_rating][]",
+          "type": "array",
+          "location": "query",
+          "description": "Filter products by star rating"
+        },
+        {
+          "name": "filter[vendor_name]",
+          "type": "string",
+          "location": "query",
+          "description": "Filter products by vendor name"
+        },
+        {
+          "name": "filter[product_name_cont]",
+          "type": "string",
+          "location": "query",
+          "description": "Filter products by partial name match"
+        },
+        {
+          "name": "filter[product_name_eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Filter products by exact name match"
+        },
+        {
+          "name": "filter[public_detail_url][]",
+          "type": "array",
+          "location": "query",
+          "description": "Filter products by exact vendor website URL (case-sensitive)"
+        },
+        {
+          "name": "filter[public_detail_url_cont][]",
+          "type": "array",
+          "location": "query",
+          "description": "Filter by partial URL/domain match (substring)"
+        },
+        {
+          "name": "filter[query]",
+          "type": "string",
+          "location": "query",
+          "description": "Search for products using full-text search"
+        },
+        {
+          "name": "fields[products]",
+          "type": "array",
+          "location": "query",
+          "description": "Comma separated list of fields for products to include in response"
+        },
+        {
+          "name": "include",
+          "type": "array",
+          "location": "query",
+          "description": "Comma-separated list of relationships to include (e.g. categories,discussions,screenshots,vendor)"
+        }
+      ]
+    },
+    {
+      "name": "products_get-all-features",
+      "description": "List all product features grouped by product. Optional: filter[updated_at_gt], filter[updated_at_lt], filter[created_at_gt] (plus 7 more). Returns the ProductsGetAllFeaturesResponse.",
+      "method": "GET",
+      "path": "/api/v2/products/features",
+      "params": [
+        {
+          "name": "filter[updated_at_gt]",
+          "type": "string",
+          "location": "query",
+          "description": "Filter records updated after this date"
+        },
+        {
+          "name": "filter[updated_at_lt]",
+          "type": "string",
+          "location": "query",
+          "description": "Filter records updated before this date"
+        },
+        {
+          "name": "filter[created_at_gt]",
+          "type": "string",
+          "location": "query",
+          "description": "Filter records created after this date"
+        },
+        {
+          "name": "filter[created_at_lt]",
+          "type": "string",
+          "location": "query",
+          "description": "Filter records created before this date"
+        },
+        {
+          "name": "filter[category_uuid_eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by category UUID"
+        },
+        {
+          "name": "filter[product_uuid_eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by product UUID"
+        },
+        {
+          "name": "filter[functionality_eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by feature functionality type"
+        },
+        {
+          "name": "filter[is_verified_eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by verification status"
+        },
+        {
+          "name": "fields[product_features]",
+          "type": "array",
+          "location": "query",
+          "description": "Comma separated list of fields for product_features to include in response"
+        },
+        {
+          "name": "include",
+          "type": "array",
+          "location": "query",
+          "description": "Comma-separated list of relationships to include (e.g. category)"
+        }
+      ]
+    },
+    {
+      "name": "products_get-productid",
+      "description": "**Requires `products.read` scope.**. Required: product_id. Optional: fields[products], include. Returns the ProductsGetProductidResponse.",
+      "method": "GET",
+      "path": "/api/v2/products/{product_id}",
+      "params": [
+        {
+          "name": "fields[products]",
+          "type": "array",
+          "location": "query",
+          "description": "Comma separated list of fields for products to include in response"
+        },
+        {
+          "name": "include",
+          "type": "array",
+          "location": "query",
+          "description": "Comma-separated list of relationships to include (e.g. categories,discussions,screenshots,vendor)"
+        },
+        {
+          "name": "product_id",
+          "type": "string",
+          "location": "path",
+          "description": "The UUID or slug of the product",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "products_buyer-intent_get-interactions",
+      "description": "**Requires `buyer_intent.read` scope.** Query buyer intent data using an analytical query interface. ## Query Language This endpoint uses an OLAP-style query language that supports: - **Dimensions**: Group and categorize data (e.g., company_name, company_domain, day) - **Measures**: Aggregate numerical values (e.g., total_activity, visitor_count) - **Filters**: Apply conditions to limit results ### Filter Operators Filters use the format `dimension_filters[name_suffix]` where `name` is the dimension name and `suffix` indicates the operation: - `_eq`: Equals (exact match) - `_not_eq`: Not equals - `_cont`: Contains (substring match) - `_not_cont`: Does not contain - `_gt`: Greater than - `_gteq`: Greater than or equal - `_lt`: Less than - `_lteq`: Less than or equal - `_present`: Field has a value - `_empty`: Field is empty ### Time Series vs Aggregated Data - **Aggregated**: Request dimensions without `day` for company-level summaries - **Time Series**: Include `day` dimension for daily breakdowns over time ### Sorting Results Use the `sort` parameter to order results by any dimension or measure: - **Ascending**: `sort=company_name` or `sort=total_activity` - **Descending**: `sort=-company_intent_score` (prefix with `-`) - **Default**: Results are sorted by `-company_intent_score` (highest intent first) Available sort fields include all dimensions and measures listed above. ### Signal Types The `signal_type` dimension identifies the type of buyer activity on G2 (e.g., `profile`, `pricing`, `compare`). ### Competitive Signals Results include activity on both your product and competitor products in your categories. Compare `left_product_id` to `subject_product_id` to distinguish the two: - **`left_product_id` = `subject_product_id`**: Direct signal — activity on your product. - **`left_product_id` ≠ `subject_product_id`**: Competitive signal — activity on a competitor. The `signal_type` indicates what the buyer did (e.g., viewed the competitor's `profile` or `pricing` page). Use `left_product_name` / `left_product_slug` to identify the competitor. ### Examples - Company summary: `dimensions=company_name,company_domain\u0026measures=total_activity` - Time series: `dimensions=company_name,day\u0026measures=company_intent_score` - Filtered: `dimension_filters[company_name_cont]=Acme\u0026dimensions=company_name` - Sorted by activity: `dimensions=company_name\u0026measures=total_activity\u0026sort=-total_activity` - Competitive activity: `dimensions=company_name,signal_type,left_product_name,left_product_id\u0026measures=total_activity`. Required: subject_product_id. Optional: dimensions, measures, sort (plus 2 more). Returns array of BuyerIntentGetInteractionsItem.",
+      "method": "GET",
+      "path": "/api/v2/products/{subject_product_id}/buyer_intent",
+      "params": [
+        {
+          "name": "subject_product_id",
+          "type": "string",
+          "location": "path",
+          "description": "Identifier for the subject product",
+          "required": true
+        },
+        {
+          "name": "dimensions",
+          "type": "array",
+          "location": "query",
+          "description": "Comma separated list of dimensions"
+        },
+        {
+          "name": "measures",
+          "type": "array",
+          "location": "query",
+          "description": "Comma separated list of measures"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort field with optional direction prefix. Use '-' for descending (e.g., '-day')"
+        },
+        {
+          "name": "page[size]",
+          "type": "int",
+          "location": "query",
+          "description": "Number of records per page (default: 10, max: 100)"
+        },
+        {
+          "name": "dimension_filters",
+          "type": "object",
+          "location": "query",
+          "description": "Filters represented as query object (e.g., dimension_filters[company_name_cont]=Acme)"
+        }
+      ]
+    },
+    {
+      "name": "products_competitors_get-product",
+      "description": "Lists competitors related to given product. Required: product_id. Optional: per, filter[category_uuid_eq], fields[products] (plus 1 more). Returns array of CompetitorsGetProductItem.",
+      "method": "GET",
+      "path": "/api/v2/products/{product_id}/competitors",
+      "params": [
+        {
+          "name": "product_id",
+          "type": "string",
+          "location": "path",
+          "description": "Product UUID or Slug",
+          "required": true
+        },
+        {
+          "name": "per",
+          "type": "int",
+          "location": "query",
+          "description": "Number of records to return (max 50)"
+        },
+        {
+          "name": "filter[category_uuid_eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Filter competitors by category UUID"
+        },
+        {
+          "name": "fields[products]",
+          "type": "array",
+          "location": "query",
+          "description": "Comma separated list of fields for products to include in response"
+        },
+        {
+          "name": "include",
+          "type": "array",
+          "location": "query",
+          "description": "Comma-separated list of relationships to include (e.g. categories)"
+        }
+      ]
+    },
+    {
+      "name": "products_discussions_get-product",
+      "description": "**Requires `products.discussions.read` scope.**. Required: product_id. Optional: fields[discussions], include. Returns array of DiscussionsGetProductItem.",
+      "method": "GET",
+      "path": "/api/v2/products/{product_id}/discussions",
+      "params": [
+        {
+          "name": "product_id",
+          "type": "string",
+          "location": "path",
+          "description": "Product UUID or Slug",
+          "required": true
+        },
+        {
+          "name": "fields[discussions]",
+          "type": "array",
+          "location": "query",
+          "description": "Comma separated list of fields for discussions to include in response"
+        },
+        {
+          "name": "include",
+          "type": "array",
+          "location": "query",
+          "description": "Comma-separated list of relationships to include (e.g. user,comments)"
+        }
+      ]
+    },
+    {
+      "name": "products_downloads_get-product",
+      "description": "**Requires `products.downloads.read` scope.**. Required: product_id. Optional: filter[created_at_gt], filter[created_at_lt], filter[updated_at_gt] (plus 3 more). Returns array of DownloadsGetProductItem.",
+      "method": "GET",
+      "path": "/api/v2/products/{product_id}/downloads",
+      "params": [
+        {
+          "name": "product_id",
+          "type": "string",
+          "location": "path",
+          "description": "Product id",
+          "required": true
+        },
+        {
+          "name": "filter[created_at_gt]",
+          "type": "string",
+          "location": "query",
+          "description": "Min time for when a record was created. Using rfc3339 format."
+        },
+        {
+          "name": "filter[created_at_lt]",
+          "type": "string",
+          "location": "query",
+          "description": "Max time for when a record was last updated. Using rfc3339 format."
+        },
+        {
+          "name": "filter[updated_at_gt]",
+          "type": "string",
+          "location": "query",
+          "description": "Min time for when a record was last updated. Using rfc3339 format."
+        },
+        {
+          "name": "filter[updated_at_lt]",
+          "type": "string",
+          "location": "query",
+          "description": "Max time for when a record was last updated. Using rfc3339 format."
+        },
+        {
+          "name": "fields[downloads]",
+          "type": "array",
+          "location": "query",
+          "description": "Comma separated list of fields for downloads to include in response"
+        },
+        {
+          "name": "include",
+          "type": "array",
+          "location": "query",
+          "description": "Comma-separated list of relationships to include (e.g. product,vendor)"
+        }
+      ]
+    },
+    {
+      "name": "products_features_get-product",
+      "description": "**Requires `product_features.read` scope.**. Required: product_id. Optional: filter[updated_at_gt], filter[updated_at_lt], filter[created_at_gt] (plus 7 more). Returns the FeaturesGetProductResponse.",
+      "method": "GET",
+      "path": "/api/v2/products/{product_id}/features",
+      "params": [
+        {
+          "name": "product_id",
+          "type": "string",
+          "location": "path",
+          "description": "Product UUID or Slug",
+          "required": true
+        },
+        {
+          "name": "filter[updated_at_gt]",
+          "type": "string",
+          "location": "query",
+          "description": "Filter records updated after this date"
+        },
+        {
+          "name": "filter[updated_at_lt]",
+          "type": "string",
+          "location": "query",
+          "description": "Filter records updated before this date"
+        },
+        {
+          "name": "filter[created_at_gt]",
+          "type": "string",
+          "location": "query",
+          "description": "Filter records created after this date"
+        },
+        {
+          "name": "filter[created_at_lt]",
+          "type": "string",
+          "location": "query",
+          "description": "Filter records created before this date"
+        },
+        {
+          "name": "filter[category_uuid_eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by category UUID"
+        },
+        {
+          "name": "filter[product_uuid_eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by product UUID"
+        },
+        {
+          "name": "filter[functionality_eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by feature functionality type"
+        },
+        {
+          "name": "filter[is_verified_eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by verification status"
+        },
+        {
+          "name": "fields[product_features]",
+          "type": "array",
+          "location": "query",
+          "description": "Comma separated list of fields for product_features to include in response"
+        },
+        {
+          "name": "include",
+          "type": "array",
+          "location": "query",
+          "description": "Comma-separated list of relationships to include (e.g. category)"
+        }
+      ]
+    },
+    {
+      "name": "products_integration-reviews_get-product",
+      "description": "**Requires `integration_reviews.read` scope.**. Required: product_id. Optional: filter[product_uuid_eq], filter[nps_eq], filter[nps_gt] (plus 3 more). Returns array of IntegrationReviewsGetProductItem.",
+      "method": "GET",
+      "path": "/api/v2/products/{product_id}/integration_reviews",
+      "params": [
+        {
+          "name": "product_id",
+          "type": "string",
+          "location": "path",
+          "description": "Primary Product UUID or Slug",
+          "required": true
+        },
+        {
+          "name": "filter[product_uuid_eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by integration product UUID"
+        },
+        {
+          "name": "filter[nps_eq]",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by exact NPS score (0-10)"
+        },
+        {
+          "name": "filter[nps_gt]",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by NPS greater than"
+        },
+        {
+          "name": "filter[nps_lt]",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by NPS less than"
+        },
+        {
+          "name": "fields[integration_reviews]",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated list of fields to include. Available fields: nps, description, product_name, primary_product_name, user_name, created_at, updated_at"
+        },
+        {
+          "name": "include",
+          "type": "array",
+          "location": "query",
+          "description": "Comma-separated list of relationships to include (e.g. product,primary_product,user)"
+        }
+      ]
+    },
+    {
+      "name": "products_reviews_get-product",
+      "description": "**Requires `products.reviews.read` scope.** For filters that require integer IDs, the appropriate IDs are available in the meta aggregates of this endpoint. Suggestion: Query reviews for your product and then use filtering based on data returned to narrow results. Required: product_id. Optional: filter[updated_at_gt], filter[updated_at_lt], filter[created_at_gt] (plus 13 more). Returns array of ReviewsGetProductItem.",
+      "method": "GET",
+      "path": "/api/v2/products/{product_id}/reviews",
+      "params": [
+        {
+          "name": "product_id",
+          "type": "string",
+          "location": "path",
+          "description": "Product UUID or Slug",
+          "required": true
+        },
+        {
+          "name": "filter[updated_at_gt]",
+          "type": "string",
+          "location": "query",
+          "description": "Filter records updated after this date"
+        },
+        {
+          "name": "filter[updated_at_lt]",
+          "type": "string",
+          "location": "query",
+          "description": "Filter records updated before this date"
+        },
+        {
+          "name": "filter[created_at_gt]",
+          "type": "string",
+          "location": "query",
+          "description": "Filter records created after this date"
+        },
+        {
+          "name": "filter[created_at_lt]",
+          "type": "string",
+          "location": "query",
+          "description": "Filter records created before this date"
+        },
+        {
+          "name": "filter[category_ids][]",
+          "type": "array",
+          "location": "query",
+          "description": "Filter reviews by category IDs"
+        },
+        {
+          "name": "filter[comment_answer_values_exclude]",
+          "type": "string",
+          "location": "query",
+          "description": "Exclude reviews with specific comment answer values"
+        },
+        {
+          "name": "filter[company_segment][]",
+          "type": "array",
+          "location": "query",
+          "description": "Filter by company size segment - Company Segment ID: `179` =\u003e `Small-Business` *(0-50 employees)* - Company Segment ID: `180` =\u003e `Mid-Market` *(51-1000 employees)* - Company Segment ID: `181` =\u003e `Enterprise` *(1001-Infinity employees)*"
+        },
+        {
+          "name": "filter[country][]",
+          "type": "array",
+          "location": "query",
+          "description": "Filter by country names"
+        },
+        {
+          "name": "filter[industry][]",
+          "type": "array",
+          "location": "query",
+          "description": "Filter by industry IDs"
+        },
+        {
+          "name": "filter[nps_score][]",
+          "type": "array",
+          "location": "query",
+          "description": "Filter by NPS scores (0-10)"
+        },
+        {
+          "name": "filter[region][]",
+          "type": "array",
+          "location": "query",
+          "description": "Filter by geographic regions"
+        },
+        {
+          "name": "filter[role][]",
+          "type": "array",
+          "location": "query",
+          "description": "Filter by user role IDs"
+        },
+        {
+          "name": "filter[removed]",
+          "type": "string",
+          "location": "query",
+          "description": "Filter to show only removed reviews"
+        },
+        {
+          "name": "serializer",
+          "type": "string",
+          "location": "query",
+          "description": "Serializer type (market_intelligence or default)"
+        },
+        {
+          "name": "fields[reviews]",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated list of fields to include. Available fields vary based on context: - Default (standard serializer): answers, attribution, comments_present, country_name, default_sort, is_public, official_response_present, percent_complete, product_name, published_at, regions, review_incentive, slug, source, star_rating, submitted_at, title, url, user_updated_at, verified_current_user. - With serializer=market_intelligence: answers, category_names, company_segment_name, country_code, country_name, feature_ratings, industry_name, primary_region_name, product_name, rating, switched_from_products, switched_theme, title, url, user_company_name, user_updated_at. - With filter[removed]=true: product_name, removed_at, slug, submitted_at"
+        },
+        {
+          "name": "include",
+          "type": "array",
+          "location": "query",
+          "description": "Comma-separated list of relationships to include (e.g. user)"
+        }
+      ]
+    },
+    {
+      "name": "products_screenshots_get-product",
+      "description": "**Requires `products.screenshots.read` scope.**. Required: product_id. Optional: filter[created_at_gt], filter[created_at_lt], filter[updated_at_gt] (plus 3 more). Returns array of ScreenshotsGetProductItem.",
+      "method": "GET",
+      "path": "/api/v2/products/{product_id}/screenshots",
+      "params": [
+        {
+          "name": "product_id",
+          "type": "string",
+          "location": "path",
+          "description": "Product id",
+          "required": true
+        },
+        {
+          "name": "filter[created_at_gt]",
+          "type": "string",
+          "location": "query",
+          "description": "Min time for when a record was created. Using rfc3339 format."
+        },
+        {
+          "name": "filter[created_at_lt]",
+          "type": "string",
+          "location": "query",
+          "description": "Max time for when a record was last updated. Using rfc3339 format."
+        },
+        {
+          "name": "filter[updated_at_gt]",
+          "type": "string",
+          "location": "query",
+          "description": "Min time for when a record was last updated. Using rfc3339 format."
+        },
+        {
+          "name": "filter[updated_at_lt]",
+          "type": "string",
+          "location": "query",
+          "description": "Max time for when a record was last updated. Using rfc3339 format."
+        },
+        {
+          "name": "fields[screenshots]",
+          "type": "array",
+          "location": "query",
+          "description": "Comma separated list of fields for screenshots to include in response"
+        },
+        {
+          "name": "include",
+          "type": "array",
+          "location": "query",
+          "description": "Comma-separated list of relationships to include (e.g. product,vendor)"
+        }
+      ]
+    },
+    {
+      "name": "products_snippets_get-product",
+      "description": "**Requires `products.snippets.read` scope.**. Required: product_id. Optional: filter[nps_score], filter[company_segment], filter[industry] (plus 5 more). Returns array of SnippetsGetProductItem.",
+      "method": "GET",
+      "path": "/api/v2/products/{product_id}/snippets",
+      "params": [
+        {
+          "name": "product_id",
+          "type": "string",
+          "location": "path",
+          "description": "Product UUID or Slug",
+          "required": true
+        },
+        {
+          "name": "filter[nps_score]",
+          "type": "string",
+          "location": "query",
+          "description": "Filter nps score"
+        },
+        {
+          "name": "filter[company_segment]",
+          "type": "string",
+          "location": "query",
+          "description": "Filter company segment"
+        },
+        {
+          "name": "filter[industry]",
+          "type": "string",
+          "location": "query",
+          "description": "Filter industry"
+        },
+        {
+          "name": "filter[category_ids]",
+          "type": "string",
+          "location": "query",
+          "description": "Filter category ids"
+        },
+        {
+          "name": "filter[role]",
+          "type": "string",
+          "location": "query",
+          "description": "Filter role"
+        },
+        {
+          "name": "filter[tags]",
+          "type": "string",
+          "location": "query",
+          "description": "Filter tags"
+        },
+        {
+          "name": "fields[snippets]",
+          "type": "array",
+          "location": "query",
+          "description": "Comma separated list of fields for snippets to include in response"
+        },
+        {
+          "name": "include",
+          "type": "array",
+          "location": "query",
+          "description": "Comma-separated list of relationships to include (e.g. user,review)"
+        }
+      ]
+    },
+    {
+      "name": "products_video-reviews_get-product",
+      "description": "**Requires `products.video_reviews.read` scope.**. Required: product_id. Optional: filter[updated_at_gt], filter[updated_at_lt], filter[created_at_gt] (plus 3 more). Returns array of VideoReviewsGetProductItem.",
+      "method": "GET",
+      "path": "/api/v2/products/{product_id}/video_reviews",
+      "params": [
+        {
+          "name": "product_id",
+          "type": "string",
+          "location": "path",
+          "description": "Product UUID or Slug",
+          "required": true
+        },
+        {
+          "name": "filter[updated_at_gt]",
+          "type": "string",
+          "location": "query",
+          "description": "Filter records updated after this date"
+        },
+        {
+          "name": "filter[updated_at_lt]",
+          "type": "string",
+          "location": "query",
+          "description": "Filter records updated before this date"
+        },
+        {
+          "name": "filter[created_at_gt]",
+          "type": "string",
+          "location": "query",
+          "description": "Filter records created after this date"
+        },
+        {
+          "name": "filter[created_at_lt]",
+          "type": "string",
+          "location": "query",
+          "description": "Filter records created before this date"
+        },
+        {
+          "name": "fields[video_reviews]",
+          "type": "array",
+          "location": "query",
+          "description": "Comma separated list of fields for video_reviews to include in response"
+        },
+        {
+          "name": "include",
+          "type": "array",
+          "location": "query",
+          "description": "Comma-separated list of relationships to include (e.g. product,vendor)"
+        }
+      ]
+    },
+    {
+      "name": "products_videos_get-product",
+      "description": "**Requires `products.videos.read` scope.**. Required: product_id. Optional: filter[created_at_gt], filter[created_at_lt], filter[updated_at_gt] (plus 3 more). Returns array of VideosGetProductItem.",
+      "method": "GET",
+      "path": "/api/v2/products/{product_id}/videos",
+      "params": [
+        {
+          "name": "product_id",
+          "type": "string",
+          "location": "path",
+          "description": "Product UUID or Slug",
+          "required": true
+        },
+        {
+          "name": "filter[created_at_gt]",
+          "type": "string",
+          "location": "query",
+          "description": "Min time for when a record was created. Using rfc3339 format."
+        },
+        {
+          "name": "filter[created_at_lt]",
+          "type": "string",
+          "location": "query",
+          "description": "Max time for when a record was last updated. Using rfc3339 format."
+        },
+        {
+          "name": "filter[updated_at_gt]",
+          "type": "string",
+          "location": "query",
+          "description": "Min time for when a record was last updated. Using rfc3339 format."
+        },
+        {
+          "name": "filter[updated_at_lt]",
+          "type": "string",
+          "location": "query",
+          "description": "Max time for when a record was last updated. Using rfc3339 format."
+        },
+        {
+          "name": "fields[product_videos]",
+          "type": "array",
+          "location": "query",
+          "description": "Comma separated list of fields for product_videos to include in response"
+        },
+        {
+          "name": "include",
+          "type": "array",
+          "location": "query",
+          "description": "Comma-separated list of relationships to include (e.g. product,vendor)"
+        }
+      ]
+    },
+    {
+      "name": "questions_get",
+      "description": "**Requires `questions.read` scope.**. Optional: filter[updated_at_gt], filter[updated_at_lt], filter[created_at_gt] (plus 3 more). Returns array of QuestionsGetItem.",
+      "method": "GET",
+      "path": "/api/v2/questions",
+      "params": [
+        {
+          "name": "filter[updated_at_gt]",
+          "type": "string",
+          "location": "query",
+          "description": "Filter records updated after this date"
+        },
+        {
+          "name": "filter[updated_at_lt]",
+          "type": "string",
+          "location": "query",
+          "description": "Filter records updated before this date"
+        },
+        {
+          "name": "filter[created_at_gt]",
+          "type": "string",
+          "location": "query",
+          "description": "Filter records created after this date"
+        },
+        {
+          "name": "filter[created_at_lt]",
+          "type": "string",
+          "location": "query",
+          "description": "Filter records created before this date"
+        },
+        {
+          "name": "fields[questions]",
+          "type": "array",
+          "location": "query",
+          "description": "Comma separated list of fields for questions to include in response"
+        },
+        {
+          "name": "include",
+          "type": "array",
+          "location": "query",
+          "description": "Comma-separated list of relationships to include (e.g. categories)"
+        }
+      ]
+    },
+    {
+      "name": "questions_get-id",
+      "description": "**Requires `questions.read` scope.**. Required: id. Optional: fields[questions], include. Returns the QuestionsGetIdResponse.",
+      "method": "GET",
+      "path": "/api/v2/questions/{id}",
+      "params": [
+        {
+          "name": "fields[questions]",
+          "type": "array",
+          "location": "query",
+          "description": "Comma separated list of fields for questions to include in response"
+        },
+        {
+          "name": "include",
+          "type": "array",
+          "location": "query",
+          "description": "Comma-separated list of relationships to include (e.g. categories)"
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Question ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "reports_get-grid",
+      "description": "**Requires `reports.read` scope.**. Required: product_id. Optional: filter[category_id], filter[quarter], fields[grid_reports]. Returns array of ReportsGetGridItem.",
+      "method": "GET",
+      "path": "/api/v2/reports/grid/{product_id}",
+      "params": [
+        {
+          "name": "product_id",
+          "type": "string",
+          "location": "path",
+          "description": "Product UUID or slug",
+          "required": true
+        },
+        {
+          "name": "filter[category_id]",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by category UUID or slug"
+        },
+        {
+          "name": "filter[quarter]",
+          "type": "string",
+          "location": "query",
+          "description": "Report quarter in YYYY-QN format (e.g., 2025-Q4). Defaults to most recent published quarter."
+        },
+        {
+          "name": "fields[grid_reports]",
+          "type": "array",
+          "location": "query",
+          "description": "Comma separated list of fields for grid_reports to include in response"
+        }
+      ]
+    },
+    {
+      "name": "sandbox_get-buyer-intent-interactions",
+      "description": "**No scope is required to access this sandbox endpoint** **⚠️ Sandbox API**: This endpoint is a sandbox endpoint and is data limited. Only data between 6 months to 1 year ago will be available. Query buyer intent data using an analytical query interface. ## Query Language This endpoint uses an OLAP-style query language that supports: - **Dimensions**: Group and categorize data (e.g., company_name, company_domain, day) - **Measures**: Aggregate numerical values (e.g., total_activity, visitor_count) - **Filters**: Apply conditions to limit results ### Filter Operators Filters use the format `dimension_filters[name_suffix]` where `name` is the dimension name and `suffix` indicates the operation: - `_eq`: Equals (exact match) - `_not_eq`: Not equals - `_cont`: Contains (substring match) - `_not_cont`: Does not contain - `_gt`: Greater than - `_gteq`: Greater than or equal - `_lt`: Less than - `_lteq`: Less than or equal - `_present`: Field has a value - `_empty`: Field is empty ### Time Series vs Aggregated Data - **Aggregated**: Request dimensions without `day` for company-level summaries - **Time Series**: Include `day` dimension for daily breakdowns over time ### Sorting Results Use the `sort` parameter to order results by any dimension or measure: - **Ascending**: `sort=company_name` or `sort=total_activity` - **Descending**: `sort=-company_intent_score` (prefix with `-`) - **Default**: Results are sorted by `-company_intent_score` (highest intent first) Available sort fields include all dimensions and measures listed above. ### Examples - Company summary: `dimensions=company_name,company_domain\u0026measures=total_activity` - Time series: `dimensions=company_name,day\u0026measures=company_intent_score` - Filtered: `dimension_filters[company_name_cont]=Acme\u0026dimensions=company_name` - Sorted by activity: `dimensions=company_name\u0026measures=total_activity\u0026sort=-total_activity`. Required: subject_product_id. Optional: dimensions, measures, sort (plus 2 more). Returns array of SandboxGetBuyerIntentInteractionsItem.",
+      "method": "GET",
+      "path": "/api/sandbox/products/{subject_product_id}/buyer_intent",
+      "params": [
+        {
+          "name": "subject_product_id",
+          "type": "string",
+          "location": "path",
+          "description": "Identifier for the subject product",
+          "required": true
+        },
+        {
+          "name": "dimensions",
+          "type": "array",
+          "location": "query",
+          "description": "Comma separated list of dimensions"
+        },
+        {
+          "name": "measures",
+          "type": "array",
+          "location": "query",
+          "description": "Comma separated list of measures"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort field with optional direction prefix. Use '-' for descending (e.g., '-day')"
+        },
+        {
+          "name": "page[size]",
+          "type": "int",
+          "location": "query",
+          "description": "Number of records per page (default: 10, max: 100)"
+        },
+        {
+          "name": "dimension_filters",
+          "type": "object",
+          "location": "query",
+          "description": "Filters represented as query object (e.g., dimension_filters[company_name_cont]=Acme)"
+        }
+      ]
+    },
+    {
+      "name": "screenshots_get",
+      "description": "**Requires `screenshots.read` scope.**. Optional: filter[created_at_gt], filter[created_at_lt], filter[updated_at_gt] (plus 3 more). Returns array of ScreenshotsGetItem.",
+      "method": "GET",
+      "path": "/api/v2/screenshots",
+      "params": [
+        {
+          "name": "filter[created_at_gt]",
+          "type": "string",
+          "location": "query",
+          "description": "Min time for when a record was created. Using rfc3339 format."
+        },
+        {
+          "name": "filter[created_at_lt]",
+          "type": "string",
+          "location": "query",
+          "description": "Max time for when a record was last updated. Using rfc3339 format."
+        },
+        {
+          "name": "filter[updated_at_gt]",
+          "type": "string",
+          "location": "query",
+          "description": "Min time for when a record was last updated. Using rfc3339 format."
+        },
+        {
+          "name": "filter[updated_at_lt]",
+          "type": "string",
+          "location": "query",
+          "description": "Max time for when a record was last updated. Using rfc3339 format."
+        },
+        {
+          "name": "fields[screenshots]",
+          "type": "array",
+          "location": "query",
+          "description": "Comma separated list of fields for screenshots to include in response"
+        },
+        {
+          "name": "include",
+          "type": "array",
+          "location": "query",
+          "description": "Comma-separated list of relationships to include (e.g. product,vendor)"
+        }
+      ]
+    },
+    {
+      "name": "screenshots_get-id",
+      "description": "**Requires `screenshots.read` scope.**. Required: id. Optional: fields[screenshots], include. Returns the ScreenshotsGetIdResponse.",
+      "method": "GET",
+      "path": "/api/v2/screenshots/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "fields[screenshots]",
+          "type": "array",
+          "location": "query",
+          "description": "Comma separated list of fields for screenshots to include in response"
+        },
+        {
+          "name": "include",
+          "type": "array",
+          "location": "query",
+          "description": "Comma-separated list of relationships to include (e.g. product,vendor)"
+        }
+      ]
+    },
+    {
+      "name": "user_get-current",
+      "description": "Returns the currently authenticated user. Optional: fields[users].",
+      "method": "GET",
+      "path": "/api/v2/user",
+      "params": [
+        {
+          "name": "fields[users]",
+          "type": "array",
+          "location": "query",
+          "description": "Comma separated list of fields for users to include in response"
+        }
+      ]
+    },
+    {
+      "name": "users_add-product-to-research-board",
+      "description": "Add a product to a research board. Required: research_board_uuid. Optional: data. Returns the new UsersAddProductToResearchBoardResponse.",
+      "method": "POST",
+      "path": "/api/v2/users/me/research_boards/{research_board_uuid}/products",
+      "params": [
+        {
+          "name": "research_board_uuid",
+          "type": "string",
+          "location": "path",
+          "description": "Research board UUID",
+          "required": true
+        },
+        {
+          "name": "data",
+          "type": "object",
+          "location": "body",
+          "description": "Data"
+        }
+      ]
+    },
+    {
+      "name": "users_batch-add-products-to-research-board",
+      "description": "Add multiple products to a research board. Required: research_board_uuid. Optional: data. Returns array of UsersBatchAddProductsToResearchBoardItem.",
+      "method": "POST",
+      "path": "/api/v2/users/me/research_boards/{research_board_uuid}/products/batch_create",
+      "params": [
+        {
+          "name": "research_board_uuid",
+          "type": "string",
+          "location": "path",
+          "description": "Research board UUID",
+          "required": true
+        },
+        {
+          "name": "data",
+          "type": "array",
+          "location": "body",
+          "description": "Data"
+        }
+      ]
+    },
+    {
+      "name": "users_batch-remove-products-from-research-board",
+      "description": "Remove multiple products from a research board. Required: research_board_uuid. Optional: data. Returns the new UsersBatchRemoveProductsFromResearchBoardResponse.",
+      "method": "POST",
+      "path": "/api/v2/users/me/research_boards/{research_board_uuid}/products/batch_destroy",
+      "params": [
+        {
+          "name": "research_board_uuid",
+          "type": "string",
+          "location": "path",
+          "description": "Research board UUID",
+          "required": true
+        },
+        {
+          "name": "data",
+          "type": "array",
+          "location": "body",
+          "description": "Data"
+        }
+      ]
+    },
+    {
+      "name": "users_create-research-board",
+      "description": "Create a research board. Optional: data. Returns the new UsersCreateResearchBoardResponse.",
+      "method": "POST",
+      "path": "/api/v2/users/me/research_boards",
+      "params": [
+        {
+          "name": "data",
+          "type": "object",
+          "location": "body",
+          "description": "Data"
+        }
+      ]
+    },
+    {
+      "name": "users_delete-research-board",
+      "description": "Delete a research board. Required: uuid. Destructive.",
+      "method": "DELETE",
+      "path": "/api/v2/users/me/research_boards/{uuid}",
+      "params": [
+        {
+          "name": "uuid",
+          "type": "string",
+          "location": "path",
+          "description": "Research board UUID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "users_get-current-product-review",
+      "description": "**⚠️ G2 is currently restricting access to this endpoint.** This endpoint retrieves the review for a specific product owned by the current user. Required: product_id. Optional: fields[reviews], include. Returns the UsersGetCurrentProductReviewResponse.",
+      "method": "GET",
+      "path": "/api/v2/users/me/products/{product_id}/review",
+      "params": [
+        {
+          "name": "product_id",
+          "type": "string",
+          "location": "path",
+          "description": "Product id",
+          "required": true
+        },
+        {
+          "name": "fields[reviews]",
+          "type": "array",
+          "location": "query",
+          "description": "Comma separated list of fields for reviews to include in response"
+        },
+        {
+          "name": "include",
+          "type": "array",
+          "location": "query",
+          "description": "Comma-separated list of relationships to include (e.g. user,answers)"
+        }
+      ]
+    },
+    {
+      "name": "users_get-current-products",
+      "description": "**⚠️ G2 is currently restricting access to this endpoint.** This endpoint shows subscription-specific product information, of products that the current account has ownership of. Optional: fields[products], include, filter[product_id][] (plus 1 more). Returns array of UsersGetCurrentProductsItem.",
+      "method": "GET",
+      "path": "/api/v2/users/me/products",
+      "params": [
+        {
+          "name": "fields[products]",
+          "type": "array",
+          "location": "query",
+          "description": "Comma separated list of fields for products to include in response"
+        },
+        {
+          "name": "include",
+          "type": "array",
+          "location": "query",
+          "description": "Comma-separated list of relationships to include (e.g. categories,subscribed_categories)"
+        },
+        {
+          "name": "filter[product_id][]",
+          "type": "array",
+          "location": "query",
+          "description": "Filter by one or more product UUIDs"
+        },
+        {
+          "name": "filter[slug][]",
+          "type": "array",
+          "location": "query",
+          "description": "Filter by one or more product slugs"
+        }
+      ]
+    },
+    {
+      "name": "users_get-research-board",
+      "description": "Get a research board. Required: uuid. Returns the UsersGetResearchBoardResponse.",
+      "method": "GET",
+      "path": "/api/v2/users/me/research_boards/{uuid}",
+      "params": [
+        {
+          "name": "uuid",
+          "type": "string",
+          "location": "path",
+          "description": "Research board UUID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "users_list-research-board-products",
+      "description": "List products on a research board. Required: research_board_uuid. Optional: fields[products]. Returns array of UsersListResearchBoardProductsItem.",
+      "method": "GET",
+      "path": "/api/v2/users/me/research_boards/{research_board_uuid}/products",
+      "params": [
+        {
+          "name": "research_board_uuid",
+          "type": "string",
+          "location": "path",
+          "description": "Research board UUID",
+          "required": true
+        },
+        {
+          "name": "fields[products]",
+          "type": "array",
+          "location": "query",
+          "description": "Comma separated list of fields for products to include in response"
+        }
+      ]
+    },
+    {
+      "name": "users_list-research-boards",
+      "description": "List research boards for current user. Optional: fields[research_boards], include, page[size] (plus 2 more). Returns array of UsersListResearchBoardsItem.",
+      "method": "GET",
+      "path": "/api/v2/users/me/research_boards",
+      "params": [
+        {
+          "name": "fields[research_boards]",
+          "type": "array",
+          "location": "query",
+          "description": "Comma separated list of fields for research_boards to include in response"
+        },
+        {
+          "name": "include",
+          "type": "array",
+          "location": "query",
+          "description": "Comma-separated list of relationships to include (e.g. products)"
+        },
+        {
+          "name": "page[size]",
+          "type": "int",
+          "location": "query",
+          "description": "Number of records to return"
+        },
+        {
+          "name": "page[after]",
+          "type": "string",
+          "location": "query",
+          "description": "Cursor for next page"
+        },
+        {
+          "name": "page[before]",
+          "type": "string",
+          "location": "query",
+          "description": "Cursor for previous page"
+        }
+      ]
+    },
+    {
+      "name": "users_remove-product-from-research-board",
+      "description": "Remove a product from a research board. Required: research_board_uuid, id. Destructive.",
+      "method": "DELETE",
+      "path": "/api/v2/users/me/research_boards/{research_board_uuid}/products/{id}",
+      "params": [
+        {
+          "name": "research_board_uuid",
+          "type": "string",
+          "location": "path",
+          "description": "Research board UUID",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Product UUID or slug",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "users_submit-current-product-review",
+      "description": "**⚠️ G2 is currently restricting access to this endpoint.** This endpoint allows the user to submit or update a review for a specific product. The review is based on predefined questions and answers.'. Required: product_id, answers. Optional: fields[reviews], include, landing_page_id (plus 4 more). Returns the new UsersSubmitCurrentProductReviewResponse.",
+      "method": "POST",
+      "path": "/api/v2/users/me/products/{product_id}/review",
+      "params": [
+        {
+          "name": "product_id",
+          "type": "string",
+          "location": "path",
+          "description": "Product id",
+          "required": true
+        },
+        {
+          "name": "fields[reviews]",
+          "type": "array",
+          "location": "query",
+          "description": "Comma separated list of fields for reviews to include in response"
+        },
+        {
+          "name": "include",
+          "type": "array",
+          "location": "query",
+          "description": "Comma-separated list of relationships to include (e.g. user,answers)"
+        },
+        {
+          "name": "answers",
+          "type": "array",
+          "location": "body",
+          "description": "Answers",
+          "required": true
+        },
+        {
+          "name": "landing_page_id",
+          "type": "string",
+          "location": "body",
+          "description": "Landing page id"
+        },
+        {
+          "name": "privacy_policy_accepted",
+          "type": "bool",
+          "location": "body",
+          "description": "Privacy policy accepted"
+        },
+        {
+          "name": "source_type",
+          "type": "string",
+          "location": "body",
+          "description": "Source type"
+        },
+        {
+          "name": "terms_accepted",
+          "type": "bool",
+          "location": "body",
+          "description": "Terms accepted"
+        },
+        {
+          "name": "utm_param_id",
+          "type": "string",
+          "location": "body",
+          "description": "Utm param id"
+        }
+      ]
+    },
+    {
+      "name": "users_update-research-board",
+      "description": "Update a research board. Required: uuid. Optional: data. Returns the updated UsersUpdateResearchBoardResponse.",
+      "method": "PATCH",
+      "path": "/api/v2/users/me/research_boards/{uuid}",
+      "params": [
+        {
+          "name": "uuid",
+          "type": "string",
+          "location": "path",
+          "description": "Research board UUID",
+          "required": true
+        },
+        {
+          "name": "data",
+          "type": "object",
+          "location": "body",
+          "description": "Data"
+        }
+      ]
+    },
+    {
+      "name": "vendors_get",
+      "description": "**Requires `vendors.read` scope.**. Optional: filter[updated_at_gt], filter[updated_at_lt], filter[created_at_gt] (plus 3 more). Returns array of VendorsGetItem.",
+      "method": "GET",
+      "path": "/api/v2/vendors",
+      "params": [
+        {
+          "name": "filter[updated_at_gt]",
+          "type": "string",
+          "location": "query",
+          "description": "Filter records updated after this date"
+        },
+        {
+          "name": "filter[updated_at_lt]",
+          "type": "string",
+          "location": "query",
+          "description": "Filter records updated before this date"
+        },
+        {
+          "name": "filter[created_at_gt]",
+          "type": "string",
+          "location": "query",
+          "description": "Filter records created after this date"
+        },
+        {
+          "name": "filter[created_at_lt]",
+          "type": "string",
+          "location": "query",
+          "description": "Filter records created before this date"
+        },
+        {
+          "name": "fields[vendors]",
+          "type": "array",
+          "location": "query",
+          "description": "Comma separated list of fields for vendors to include in response"
+        },
+        {
+          "name": "include",
+          "type": "array",
+          "location": "query",
+          "description": "Comma-separated list of relationships to include (e.g. products)"
+        }
+      ]
+    },
+    {
+      "name": "vendors_get-id",
+      "description": "**Requires `vendors.read` scope.**. Required: id. Optional: fields[vendors], include. Returns the VendorsGetIdResponse.",
+      "method": "GET",
+      "path": "/api/v2/vendors/{id}",
+      "params": [
+        {
+          "name": "fields[vendors]",
+          "type": "array",
+          "location": "query",
+          "description": "Comma separated list of fields for vendors to include in response"
+        },
+        {
+          "name": "include",
+          "type": "array",
+          "location": "query",
+          "description": "Comma-separated list of relationships to include (e.g. products)"
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Vendor UUID or Slug",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

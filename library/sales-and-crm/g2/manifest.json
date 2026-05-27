@@ -1,0 +1,46 @@
+{
+  "manifest_version": "0.3",
+  "name": "g2-pp-mcp",
+  "display_name": "G2",
+  "version": "4.15.0",
+  "description": "Every G2 Marketplace surface, plus a credit-aware local mirror, full-text review search, and buyer-intent triage no other G2 tool offers.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/g2-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/g2-pp-mcp",
+      "args": [],
+      "env": {
+        "G2_API_KEY": "${user_config.g2_api_key}",
+        "G2_DEFAULT_HOST": "${user_config.g2_default_host}"
+      }
+    }
+  },
+  "user_config": {
+    "g2_api_key": {
+      "type": "string",
+      "title": "G2_API_KEY",
+      "description": "Sets G2_API_KEY for the G2 MCP server.",
+      "sensitive": true,
+      "required": true
+    },
+    "g2_default_host": {
+      "type": "string",
+      "title": "G2_DEFAULT_HOST",
+      "description": "Sets G2_DEFAULT_HOST for the endpoint template variable {defaultHost}.",
+      "default": "data.g2.com"
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

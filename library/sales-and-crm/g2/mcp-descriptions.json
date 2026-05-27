@@ -1,0 +1,6 @@
+{
+  "descriptions": {
+    "product-mappings_create": "Create a product mapping that links a G2 product to a partner's external product id, used by data subscriptions to enrich downstream syndication. Required body fields: data.type ('product_mappings'), data.attributes.external_id (your system's id), data.attributes.product_id (the G2 product UUID). Optional: data.attributes.match_score (0-1) and data.attributes.partner_product_name. Returns the new mapping's id, match_score, timestamps, and resolved product_name. Use this once per pairing before pulling reviews or syndication content for that external product.",
+    "users_delete-research-board": "Delete a research board owned by the authenticated G2 user, identified by the board's uuid. Destructive: the board and its product memberships are removed; the products themselves remain. Required: uuid (path). Returns HTTP 204 with no body. Pair with users_research-boards_list to discover board uuids; use users_research-boards_products_batch-remove if you only need to clear the products inside the board instead of removing the board itself."
+  }
+}

@@ -1,0 +1,310 @@
+{
+  "api_name": "g2",
+  "novelty_score": 8,
+  "alternatives": [
+    {
+      "name": "Anthropic G2 MCP Server",
+      "url": "https://documentation.g2.com/docs/g2-mcp-server",
+      "language": "TypeScript (closed-source, hosted)",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 14,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "G2 Postman Workspace",
+      "url": "https://www.postman.com/g2-demo",
+      "language": "Postman",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 8,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "biegehydra/Advanced-G2-Scraper",
+      "url": "https://github.com/biegehydra/Advanced-G2-Scraper",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 3,
+      "last_updated": "",
+      "command_count": 4,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "G2 Scraper (RapidAPI)",
+      "url": "https://g2scraper.com/",
+      "language": "HTTP service",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 6,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-25T12:55:00Z",
+  "novel_features": [
+    {
+      "name": "Cross-product weekly diff",
+      "command": "watch products",
+      "description": "Diff star ratings, new review counts, and badge changes across a list of products since a given window.",
+      "rationale": "Requires snapshotting products plus reviews in a local SQLite store and joining against a prior snapshot — no single G2 API call returns this.",
+      "example": "g2-pp-cli watch products --product datadog,new-relic,dynatrace --since 7d --json",
+      "why_it_matters": "Reach for this when a competitive-intel or PMM workflow asks for a head-to-head delta over a window. Replaces tab-by-tab eyeballing of multiple G2 pages.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Credit-burn forecast",
+      "command": "credits forecast",
+      "description": "Project month-end credit spend from trailing 14-day usage and refuse sync runs that would exceed remaining credits.",
+      "rationale": "Requires a local mirror of credit_deductions; G2 surfaces a raw balance but no projection or budget guard.",
+      "example": "g2-pp-cli credits forecast --json",
+      "why_it_matters": "Pick this before a heavy sync to avoid mid-month throttling on credit-metered endpoints.",
+      "group": "Reachability mitigation"
+    },
+    {
+      "name": "Multi-product review FTS",
+      "command": "search",
+      "description": "Full-text search across locally synced reviews, scoped by product list and structured filters (rating, segment).",
+      "rationale": "G2's site search is sentiment-shaped, not technical-fit-shaped; framework search over SQLite FTS5 inverts that.",
+      "example": "g2-pp-cli search \"rate limit\" --type reviews --limit 20 --json",
+      "why_it_matters": "Use when a buyer or competitive analyst wants to grep verbatims across many products' review corpora.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Alternatives-signal switching threats",
+      "command": "alt-track",
+      "description": "Rank companies showing Alternatives-signal buyer intent against your product, weighted by visit count and employee size.",
+      "rationale": "G2's website paywalls this view; even the API doesn't return it ranked. Requires local SQLite query against buyer_intent_events.",
+      "example": "g2-pp-cli alt-track my-product --since 30d --csv",
+      "why_it_matters": "Pick this when sales needs a ranked list of accounts evaluating switching away from your product.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Category rising-challenger detector",
+      "command": "analytics",
+      "description": "Per category, surface products in the top growth quartile by 30-day review velocity that aren't yet top quartile by absolute review count.",
+      "rationale": "Requires joining products, categories, and reviews in local SQLite with a custom velocity metric.",
+      "example": "g2-pp-cli analytics --type products --group-by category --limit 20 --json",
+      "why_it_matters": "Reach for this when a PMM or competitive-intel analyst wants early signals on momentum players in a market.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Buyer-intent triage CSV",
+      "command": "buyer-intent list",
+      "description": "Filter buyer-intent rows by recency and minimum score and flatten nested firmographics into a sales-ready CSV.",
+      "rationale": "The raw API returns deeply nested JSON; the flat CSV projection with firmographics is what sales teams actually want.",
+      "example": "g2-pp-cli buyer-intent list --since 24h --min-score 50 --csv",
+      "why_it_matters": "Pick this for a daily cron that pushes high-intent companies into the team's CRM or Slack.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Reviews x competitors top-cons",
+      "command": "analytics",
+      "description": "For each product in a list, return the lowest-rated reviews and their cons verbatims as JSON for downstream summarization.",
+      "rationale": "Cross-product aggregation in local SQLite; no single API call returns a competitor-by-competitor cons matrix.",
+      "example": "g2-pp-cli analytics --type reviews --group-by product --limit 10 --json",
+      "why_it_matters": "Use when competitive intel needs to ground a complaint roundup across competitors; pipe the JSON to a summarizer of choice.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Syndication-eligible review filter",
+      "command": "reviews list",
+      "description": "Filter synced reviews for the syndication-eligible flag, scoped by product and a recency window.",
+      "rationale": "G2's web UI buries this filter; surfacing it via a flag lets marketing sites auto-pull eligible reviews.",
+      "example": "g2-pp-cli reviews list --product my-product --syndication-eligible --since 7d --json",
+      "why_it_matters": "Pick this when wiring a marketing site or landing page to auto-refresh approved review quotes.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Market-signal weekly diff",
+      "command": "watch market-signals",
+      "description": "Diff locally snapshotted market_signals for a category over a window; emit intent-score and visits-count deltas.",
+      "rationale": "Requires holding prior snapshots; the API returns a current state, not deltas.",
+      "example": "g2-pp-cli watch market-signals --category devops-monitoring --since 7d --json",
+      "why_it_matters": "Reach for this during a Friday competitive-intel report to spot category-level momentum changes.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Cross-product weekly diff",
+      "command": "watch products",
+      "description": "Diff star ratings, new review counts, and badge changes across a list of products since a given window.",
+      "rationale": "Requires snapshotting products plus reviews in a local SQLite store and joining against a prior snapshot — no single G2 API call returns this.",
+      "example": "g2-pp-cli watch products --product datadog,new-relic,dynatrace --since 7d --json",
+      "why_it_matters": "Reach for this when a competitive-intel or PMM workflow asks for a head-to-head delta over a window. Replaces tab-by-tab eyeballing of multiple G2 pages.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Credit-burn forecast",
+      "command": "credits forecast",
+      "description": "Project month-end credit spend from trailing 14-day usage and refuse sync runs that would exceed remaining credits.",
+      "rationale": "Requires a local mirror of credit_deductions; G2 surfaces a raw balance but no projection or budget guard.",
+      "example": "g2-pp-cli credits forecast --json",
+      "why_it_matters": "Pick this before a heavy sync to avoid mid-month throttling on credit-metered endpoints.",
+      "group": "Reachability mitigation"
+    },
+    {
+      "name": "Multi-product review FTS",
+      "command": "search",
+      "description": "Full-text search across locally synced reviews, scoped by product list and structured filters (rating, segment).",
+      "rationale": "G2's site search is sentiment-shaped, not technical-fit-shaped; framework search over SQLite FTS5 inverts that.",
+      "example": "g2-pp-cli search \"rate limit\" --type reviews --limit 20 --json",
+      "why_it_matters": "Use when a buyer or competitive analyst wants to grep verbatims across many products' review corpora.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Alternatives-signal switching threats",
+      "command": "alt-track",
+      "description": "Rank companies showing Alternatives-signal buyer intent against your product, weighted by visit count and employee size.",
+      "rationale": "G2's website paywalls this view; even the API doesn't return it ranked. Requires local SQLite query against buyer_intent_events.",
+      "example": "g2-pp-cli alt-track my-product --since 30d --csv",
+      "why_it_matters": "Pick this when sales needs a ranked list of accounts evaluating switching away from your product.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Category rising-challenger detector",
+      "command": "analytics",
+      "description": "Per category, surface products in the top growth quartile by 30-day review velocity that aren't yet top quartile by absolute review count.",
+      "rationale": "Requires joining products, categories, and reviews in local SQLite with a custom velocity metric.",
+      "example": "g2-pp-cli analytics --type products --group-by category --limit 20 --json",
+      "why_it_matters": "Reach for this when a PMM or competitive-intel analyst wants early signals on momentum players in a market.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Buyer-intent triage CSV",
+      "command": "buyer-intent list",
+      "description": "Filter buyer-intent rows by recency and minimum score and flatten nested firmographics into a sales-ready CSV.",
+      "rationale": "The raw API returns deeply nested JSON; the flat CSV projection with firmographics is what sales teams actually want.",
+      "example": "g2-pp-cli buyer-intent list --since 24h --min-score 50 --csv",
+      "why_it_matters": "Pick this for a daily cron that pushes high-intent companies into the team's CRM or Slack.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Reviews x competitors top-cons",
+      "command": "analytics",
+      "description": "For each product in a list, return the lowest-rated reviews and their cons verbatims as JSON for downstream summarization.",
+      "rationale": "Cross-product aggregation in local SQLite; no single API call returns a competitor-by-competitor cons matrix.",
+      "example": "g2-pp-cli analytics --type reviews --group-by product --limit 10 --json",
+      "why_it_matters": "Use when competitive intel needs to ground a complaint roundup across competitors; pipe the JSON to a summarizer of choice.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Syndication-eligible review filter",
+      "command": "reviews list",
+      "description": "Filter synced reviews for the syndication-eligible flag, scoped by product and a recency window.",
+      "rationale": "G2's web UI buries this filter; surfacing it via a flag lets marketing sites auto-pull eligible reviews.",
+      "example": "g2-pp-cli reviews list --product my-product --syndication-eligible --since 7d --json",
+      "why_it_matters": "Pick this when wiring a marketing site or landing page to auto-refresh approved review quotes.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Market-signal weekly diff",
+      "command": "watch market-signals",
+      "description": "Diff locally snapshotted market_signals for a category over a window; emit intent-score and visits-count deltas.",
+      "rationale": "Requires holding prior snapshots; the API returns a current state, not deltas.",
+      "example": "g2-pp-cli watch market-signals --category devops-monitoring --since 7d --json",
+      "why_it_matters": "Reach for this during a Friday competitive-intel report to spot category-level momentum changes.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "narrative": {
+    "display_name": "G2",
+    "headline": "Every G2 Marketplace surface, plus a credit-aware local mirror, full-text review search, and buyer-intent triage no other G2 tool offers.",
+    "value_prop": "g2-pp-cli unifies the v2 OpenAPI surface and the legacy syndication API behind one auth layer, mirrors products, reviews, vendors, categories, and buyer-intent into a local SQLite store, and adds workflows the Anthropic G2 MCP and every scraper miss: credit-burn forecasting (`credits forecast`), Alternatives-signal switching threats (`alt-track`), cross-product weekly diffs (`watch products`), and FTS over synced reviews.",
+    "auth_narrative": "G2 ships two authentication surfaces. The v2 API uses OAuth 2.0 (`G2_CLIENT_ID` + `G2_CLIENT_SECRET`) plus an `AccountAPIToken` header (`G2_ACCOUNT_API_TOKEN`). The legacy syndication API (products, reviews, vendors, product_mappings, hashed_users) uses an `api_token` query parameter (`G2_SYNDICATION_TOKEN`). `g2-pp-cli auth login` walks you through both and stores them in `~/.config/g2-pp-cli/auth.json`. A paid G2 Sell-tier subscription is required for production endpoints; the developer portal at `my.g2.com/developers` provides a 1,000-call/month starter quota.",
+    "quickstart": [
+      {
+        "command": "g2-pp-cli doctor --dry-run",
+        "comment": "Validate auth, list granted OAuth scopes, and surface credit balance without burning a call."
+      },
+      {
+        "command": "g2-pp-cli sync --resources products,categories --since 30d --json",
+        "comment": "Mirror products and categories into the local SQLite store."
+      },
+      {
+        "command": "g2-pp-cli sync --resources products,products_reviews --since 7d --json",
+        "comment": "Sync products then their reviews (hierarchical); FTS index updates automatically."
+      },
+      {
+        "command": "g2-pp-cli search \"rate limit\" --type reviews --limit 20 --json",
+        "comment": "Full-text search across synced reviews."
+      },
+      {
+        "command": "g2-pp-cli buyer-intent list --since 24h --min-score 50 --csv",
+        "comment": "Daily buyer-intent triage flattened into a CSV ready for the CRM."
+      },
+      {
+        "command": "g2-pp-cli credits forecast --json",
+        "comment": "Project month-end credit spend before scheduling more sync runs."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 Unauthorized on v2 endpoints",
+        "fix": "Re-run `g2-pp-cli auth login` and confirm the OAuth scopes you registered include the resource you are calling (e.g., `buyer_intent.read`)."
+      },
+      {
+        "symptom": "401 on syndication endpoints (/api/2018-01-01/syndication/...)",
+        "fix": "Syndication uses a separate `api_token` query parameter, not OAuth. Set `G2_SYNDICATION_TOKEN` or re-run `g2-pp-cli auth login --syndication`."
+      },
+      {
+        "symptom": "429 Too Many Requests / credit exhaustion mid-run",
+        "fix": "Check `g2-pp-cli credits balance --json` and forecast burn with `g2-pp-cli credits forecast --json`. Add `--budget-check` to future sync calls to abort early."
+      },
+      {
+        "symptom": "Reviews show empty `reviewer` field",
+        "fix": "G2 intentionally hashes reviewer identities. The `hashed_users` payload exposes segment, industry, and country only. This is expected, not a bug."
+      },
+      {
+        "symptom": "Sync returns 0 rows for products you can see on g2.com",
+        "fix": "Your developer-portal app must include `products.read` (and for reviews, `products.reviews.read`). Re-register at `my.g2.com/developers` with the full scope list."
+      }
+    ],
+    "when_to_use": "Reach for g2-pp-cli when a PMM, sales-ops, competitive-intel, or buyer-side workflow needs more than a chat-based MCP. The CLI keeps a local SQLite mirror of products, reviews, vendors, categories, and buyer-intent events so cron jobs, dashboards, and `claude`-piped agent workflows can run offline against a fresh corpus. Use it when credit-burn matters, when cross-product diffs are involved, or when full-text search over review bodies is the actual question.",
+    "recipes": [
+      {
+        "title": "Monday morning competitive snapshot",
+        "command": "g2-pp-cli watch products --product datadog,new-relic,dynatrace --since 7d --json --select \"product,star_delta,new_reviews\"",
+        "explanation": "Joins yesterday's `products` snapshot with new `reviews` rows to produce a flat star-delta-by-competitor view; `--select` keeps the agent context short."
+      },
+      {
+        "title": "Daily buyer-intent triage to CSV",
+        "command": "g2-pp-cli buyer-intent list --since 24h --min-score 50 --csv \u003e intent-$(date +%Y%m%d).csv",
+        "explanation": "Cron-friendly: emits a flat CSV with company, domain, employees, industry, intent_score, page_type, signal_type."
+      },
+      {
+        "title": "Switching-threat list for sales",
+        "command": "g2-pp-cli alt-track my-product --since 30d --csv",
+        "explanation": "Surfaces companies showing Alternatives-signal intent against your product, ranked by visit count and employee size. The website paywalls this view."
+      },
+      {
+        "title": "Find rate-limit complaints across competitors",
+        "command": "g2-pp-cli search \"rate limit\" --type reviews --limit 50 --json --select \"product_id,title,rating,cons\"",
+        "explanation": "FTS5 query across all synced reviews; pair with `--select` to keep nested response payloads manageable for downstream agents."
+      },
+      {
+        "title": "Pre-sync credit check",
+        "command": "g2-pp-cli credits forecast --json",
+        "explanation": "Reads the local `credit_ledger`, projects month-end burn from the trailing 14-day average, and exits non-zero if a planned sync would exceed the remaining quota."
+      }
+    ],
+    "trigger_phrases": [
+      "show me G2 reviews for",
+      "what does G2 buyer intent say about",
+      "competitive watch on G2",
+      "g2 alt-track",
+      "use g2-pp-cli",
+      "run g2-pp-cli"
+    ]
+  }
+}

@@ -1,0 +1,51 @@
+version: 2
+project_name: g2-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: g2-pp-cli
+    main: ./cmd/g2-pp-cli
+    binary: g2-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/sales-and-crm/g2/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: g2-pp-mcp
+    main: ./cmd/g2-pp-mcp
+    binary: g2-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: g2-pp-cli
+    repository:
+      owner: rahul-bansal
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Every G2 Marketplace surface, plus a credit-aware local mirror, full-text review search"
+    install: |
+      bin.install "g2-pp-cli"
+      bin.install "g2-pp-mcp"

@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-27",
+  "base_run_id": "20260525-181450",
+  "base_printing_press_version": "4.15.0",
+  "patches": [
+    {
+      "id": "g2-oauth-scopes",
+      "summary": "Added g2OAuthScopes() helper and an 'auth scopes' subcommand that surfaces every OAuth scope declared by the G2 v2 spec.",
+      "reason": "The G2 spec calls for openid, profile, buyer_intent.read, screenshots.read, product_features.read, market_signals.read, data_subscriptions.read, data_subscriptions.read_write, and partner:partner-id.read across 29 operations. Without surfacing these in auth.go, the dogfood OAuth scope coverage gate failed (0/29). Users registering OAuth apps in the G2 developer portal also need to know which scopes to request.",
+      "files": ["internal/cli/auth.go"],
+      "validated_outcome": "Polish dogfood verdict: FAIL -> PASS (OAuth scope coverage 29/29)."
+    },
+    {
+      "id": "g2-mcp-descriptions",
+      "summary": "Added mcp-descriptions.json overrides for two thin tool descriptions (product-mappings_create, users_delete-research-board).",
+      "reason": "The spec-derived descriptions for these two MCP tools were too sparse for agent decision-making. The overrides describe required body shape, destructive semantics, and recommended pairing with related tools.",
+      "files": ["mcp-descriptions.json", "tools-manifest.json", "internal/mcp/tools.go"],
+      "validated_outcome": "Tools-audit pending findings: 3 -> 0; MCP Desc Quality: 9/10 -> 10/10."
+    }
+  ]
+}

@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-25T13:40:42.653162Z",
+  "printing_press_version": "4.15.0",
+  "api_name": "g2",
+  "display_name": "G2",
+  "cli_name": "g2-pp-cli",
+  "owner": "rahul-bansal",
+  "printer": "rahulbansal16",
+  "printer_name": "Rahul Bansal",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:332a992ccb565592ae6a369f348663783a225a64f55c13b4b2a14dc7b5b42d4b",
+  "run_id": "20260525-181450",
+  "category": "sales-and-crm",
+  "description": "Every G2 Marketplace surface, plus a credit-aware local mirror, full-text review search, and buyer-intent triage no other G2 tool offers.",
+  "mcp_binary": "g2-pp-mcp",
+  "mcp_tool_count": 51,
+  "mcp_ready": "full",
+  "api_version": "v2",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "G2_API_KEY"
+  ],
+  "endpoint_template_vars": [
+    "defaultHost"
+  ],
+  "endpoint_template_var_defaults": {
+    "defaultHost": "data.g2.com"
+  },
+  "novel_features": [
+    {
+      "name": "Cross-product weekly diff",
+      "command": "watch products",
+      "description": "Diff star ratings, new review counts, and badge changes across a list of products since a given window."
+    },
+    {
+      "name": "Credit-burn forecast",
+      "command": "credits forecast",
+      "description": "Project month-end credit spend from trailing 14-day usage and refuse sync runs that would exceed remaining credits."
+    },
+    {
+      "name": "Multi-product review FTS",
+      "command": "search",
+      "description": "Full-text search across locally synced reviews, scoped by product list and structured filters (rating, segment)."
+    },
+    {
+      "name": "Alternatives-signal switching threats",
+      "command": "alt-track",
+      "description": "Rank companies showing Alternatives-signal buyer intent against your product, weighted by visit count and employee size."
+    },
+    {
+      "name": "Category rising-challenger detector",
+      "command": "analytics",
+      "description": "Per category, surface products in the top growth quartile by 30-day review velocity that aren't yet top quartile by absolute review count."
+    },
+    {
+      "name": "Buyer-intent triage CSV",
+      "command": "buyer-intent list",
+      "description": "Filter buyer-intent rows by recency and minimum score and flatten nested firmographics into a sales-ready CSV."
+    },
+    {
+      "name": "Reviews x competitors top-cons",
+      "command": "analytics",
+      "description": "For each product in a list, return the lowest-rated reviews and their cons verbatims as JSON for downstream summarization."
+    },
+    {
+      "name": "Syndication-eligible review filter",
+      "command": "reviews list",
+      "description": "Filter synced reviews for the syndication-eligible flag, scoped by product and a recency window."
+    },
+    {
+      "name": "Market-signal weekly diff",
+      "command": "watch market-signals",
+      "description": "Diff locally snapshotted market_signals for a category over a window; emit intent-score and visits-count deltas."
+    }
+  ]
+}

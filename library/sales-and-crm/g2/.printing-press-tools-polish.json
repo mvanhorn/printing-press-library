@@ -1,0 +1,19 @@
+{
+  "timestamp": "2026-05-25T13:39:26.479328Z",
+  "cli_dir": "\u003ccli-dir\u003e/g2-pp-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "version",
+      "file": "root.go",
+      "line": 336,
+      "evidence": "Print version",
+      "status": "accepted",
+      "note": "Standard 'version' command; 'Print version' is the universally recognized phrasing — agents understand it without elaboration and adding a longer Short would be noise"
+    }
+  ],
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-05-25T13:38:37.740523Z"
+  }
+}
