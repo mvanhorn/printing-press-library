@@ -134,9 +134,6 @@ func buildAgentContext(rootCmd *cobra.Command) agentContext {
 		},
 	}
 	authMode := "bearer_or_cookie"
-	if authMode == "" {
-		authMode = "none"
-	}
 	profiles := ListProfileNames()
 	if profiles == nil {
 		profiles = []string{}

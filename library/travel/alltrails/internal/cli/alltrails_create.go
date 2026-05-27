@@ -21,7 +21,8 @@ func newAlltrailsCreateCmd(flags *rootFlags) *cobra.Command {
 		Example:     "  alltrails-pp-cli alltrails create",
 		Annotations: map[string]string{"pp:endpoint": "alltrails.create", "pp:method": "POST", "pp:path": "/api/alltrails/v3/activities/upload"},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if !stdinBody {
+			if !stdinBody && !flags.dryRun {
+				return usageErr(fmt.Errorf("%s requires --stdin with a JSON request body for live execution; rerun with --dry-run to preview", cmd.CommandPath()))
 			}
 			c, err := flags.newClient()
 			if err != nil {
