@@ -767,7 +767,7 @@ func (s *contactStore) UpsertOne(c *Contact) error {
 		emailTokens = append(emailTokens, em.Value)
 	}
 
-	body := strings.Join(filterEmpty(c.FirstName, c.LastName, c.Organization, c.JobTitle, c.Note,
+	body := strings.Join(filterEmpty(c.FirstName, c.MiddleName, c.LastName, c.Organization, c.JobTitle, c.Note,
 		strings.Join(phoneTokens, " "), strings.Join(emailTokens, " ")), " ")
 	if _, err := tx.Exec(`INSERT INTO contacts_fts (id, body) VALUES (?, ?)`, c.ID, body); err != nil {
 		return fmt.Errorf("upsert: insert fts: %w", err)

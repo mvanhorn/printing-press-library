@@ -612,9 +612,15 @@ func newContactsMergeCmd(f *rootFlags) *cobra.Command {
 			if err != nil {
 				return fmt.Errorf("contact 1: %w", err)
 			}
+			if primary == nil {
+				return fmt.Errorf("contact not found: %s", args[0])
+			}
 			absorbed, err := store.GetByAny(args[1])
 			if err != nil {
 				return fmt.Errorf("contact 2: %w", err)
+			}
+			if absorbed == nil {
+				return fmt.Errorf("contact not found: %s", args[1])
 			}
 
 			// Compute what would be added
