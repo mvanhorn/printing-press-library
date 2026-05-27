@@ -1040,7 +1040,7 @@ func campaignEventMatches(event novelEmailEvent, campaignID, campaignName string
 }
 
 func listQualityScore(c flowClient, since, until time.Time) (map[string]any, error) {
-	lists, err := fetchAllJSONAPI(c, "/api/lists", map[string]string{"fields[list]": "name,created,updated", "page[size]": "10"}, 0)
+	lists, err := fetchAllJSONAPI(c, "/api/lists", map[string]string{"fields[list]": "name,created,updated,profile_count,profiles_count,profile_count_estimate", "page[size]": "10"}, 0)
 	if err != nil {
 		return nil, err
 	}

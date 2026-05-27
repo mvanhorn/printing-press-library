@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"testing"
 	"time"
 
@@ -260,6 +261,31 @@ func TestFetchMetricEventsDoesNotRequestUnusedSideloads(t *testing.T) {
 	}
 	if _, has := client.requests[0].params["include"]; has {
 		t.Fatalf("fetchMetricEvents requested unused include param: %#v", client.requests[0].params)
+	}
+}
+
+func TestListQualityScoreRequestsListProfileCounts(t *testing.T) {
+	client := &fakeCouponPoolClient{responses: []json.RawMessage{
+		rawJSON(`{"data":[{"id":"list-1","attributes":{"name":"Main","profile_count":100}}],"links":{}}`),
+		rawJSON(`{"data":[],"links":{}}`),
+		rawJSON(`{"data":[],"links":{}}`),
+		rawJSON(`{"data":[],"links":{}}`),
+		rawJSON(`{"data":[],"links":{}}`),
+		rawJSON(`{"data":[],"links":{}}`),
+		rawJSON(`{"data":[],"links":{}}`),
+		rawJSON(`{"data":[],"links":{}}`),
+	}}
+	result, err := listQualityScore(client, time.Date(2026, 5, 1, 0, 0, 0, 0, time.UTC), time.Date(2026, 5, 2, 0, 0, 0, 0, time.UTC))
+	if err != nil {
+		t.Fatalf("listQualityScore() error = %v", err)
+	}
+	lists := result["lists"].([]map[string]any)
+	if len(lists) != 1 || lists[0]["size"] != 100 {
+		t.Fatalf("list quality rows = %#v", lists)
+	}
+	fields := client.requests[0].params["fields[list]"]
+	if !strings.Contains(fields, "profile_count") || !strings.Contains(fields, "profiles_count") {
+		t.Fatalf("fields[list] = %q, want profile count fields", fields)
 	}
 }
 
