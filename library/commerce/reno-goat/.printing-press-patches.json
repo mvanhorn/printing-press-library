@@ -50,6 +50,18 @@
         "internal/cli/novel_saved.go",
         "internal/cli/novel_store.go"
       ]
+    },
+    {
+      "id": "shopify-dtc-domain-fix",
+      "summary": "Fixed inferSource to map myshopify.com → shopify-dtc instead of shopify.com → shopify.",
+      "reason": "Greptile P1: containsDomain checks for '.shopify.com' but Shopify DTC stores use 'myshopify.com' — the char before 'shopify' is 'y' not '.', so the match silently failed. All five DTC stores were classified as 'unknown'.",
+      "files": ["internal/cli/novel_store.go"]
+    },
+    {
+      "id": "watch-add-price-seeding",
+      "summary": "Added --price and --title flags to watch add; seeds current_price, original_price, and price_history on insert.",
+      "reason": "Greptile P1: watch add never stored current_price, so the currentPrice.Valid guard in watch check never fired and price_history stayed empty. watch history returned zero rows. The --price flag seeds both the watches row and a baseline price_history entry.",
+      "files": ["internal/cli/novel_watch.go"]
     }
   ]
 }

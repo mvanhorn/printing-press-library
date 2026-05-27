@@ -115,7 +115,7 @@ func inferSource(productURL string) string {
 		"westelm.com":           "west-elm",
 		"rejuvenation.com":      "rejuvenation",
 		"article.com":           "article",
-		"shopify.com":           "shopify",
+		"myshopify.com":         "shopify-dtc",
 		"lowes.com":             "lowes",
 		"homedepot.com":         "home-depot",
 	}

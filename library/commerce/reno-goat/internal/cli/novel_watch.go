@@ -32,11 +32,13 @@ func newWatchCmd(flags *rootFlags) *cobra.Command {
 
 func newWatchAddCmd(flags *rootFlags) *cobra.Command {
 	var threshold float64
+	var price float64
+	var title string
 
 	cmd := &cobra.Command{
 		Use:     "add <product-url>",
 		Short:   "Add a product to the price watch list",
-		Example: "  reno-goat-pp-cli watch add https://www.westelm.com/products/mid-century-sofa --threshold 15",
+		Example: "  reno-goat-pp-cli watch add https://www.westelm.com/products/mid-century-sofa --threshold 15 --price 1299",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -54,13 +56,39 @@ func newWatchAddCmd(flags *rootFlags) *cobra.Command {
 			}
 			defer db.Close()
 
+			// Store current_price and original_price when provided so that
+			// watch check can record price_history continuity entries and
+			// watch history returns meaningful data from the start.
+			var priceVal, origVal any
+			if price > 0 {
+				priceVal = price
+				origVal = price
+			}
+			var titleVal any
+			if title != "" {
+				titleVal = title
+			}
+
 			_, err = db.Exec(
-				`INSERT INTO watches (product_url, source, threshold_pct) VALUES (?, ?, ?)
-				 ON CONFLICT(product_url) DO UPDATE SET threshold_pct = excluded.threshold_pct`,
-				productURL, source, threshold,
+				`INSERT INTO watches (product_url, source, threshold_pct, current_price, original_price, title)
+				 VALUES (?, ?, ?, ?, ?, ?)
+				 ON CONFLICT(product_url) DO UPDATE SET threshold_pct = excluded.threshold_pct,
+				   current_price = COALESCE(excluded.current_price, watches.current_price),
+				   title = COALESCE(excluded.title, watches.title)`,
+				productURL, source, threshold, priceVal, origVal, titleVal,
 			)
 			if err != nil {
 				return fmt.Errorf("adding watch: %w", err)
+			}
+
+			// Seed price_history with the initial price so watch history
+			// has a baseline entry from the start.
+			if price > 0 {
+				// Get the watch ID (may be from INSERT or existing row after conflict).
+				var watchID int64
+				if err := db.QueryRow(`SELECT id FROM watches WHERE product_url = ?`, productURL).Scan(&watchID); err == nil {
+					_, _ = db.Exec(`INSERT INTO price_history (watch_id, price) VALUES (?, ?)`, watchID, price)
+				}
 			}
 
 			result := map[string]any{
@@ -69,10 +97,18 @@ func newWatchAddCmd(flags *rootFlags) *cobra.Command {
 				"source":      source,
 				"threshold":   threshold,
 			}
+			if price > 0 {
+				result["price"] = price
+			}
+			if title != "" {
+				result["title"] = title
+			}
 			return printJSONFiltered(cmd.OutOrStdout(), result, flags)
 		},
 	}
 	cmd.Flags().Float64Var(&threshold, "threshold", 10.0, "Price drop percentage to trigger an alert")
+	cmd.Flags().Float64Var(&price, "price", 0, "Current product price (seeds price history for tracking)")
+	cmd.Flags().StringVar(&title, "title", "", "Product title for display in watch list")
 	return cmd
 }
 
