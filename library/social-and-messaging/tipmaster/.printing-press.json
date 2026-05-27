@@ -1,0 +1,22 @@
+{
+  "schema_version": 2,
+  "name": "tipmaster",
+  "api": "TipMaster API",
+  "description": "Zero-custody RLUSD tip bot for Farcaster. Resolve Farcaster usernames to XRPL wallet addresses, browse the weekly tipping leaderboard, and query account status. The agent-native Web3 phonebook for the Farcaster social graph.",
+  "category": "social",
+  "search_terms": ["Farcaster", "RLUSD", "XRPL", "tip bot", "crypto tipping", "zero custody", "P2P payments", "Xaman", "social", "Web3", "leaderboard", "wallet resolution"],
+  "printer": "timwal78",
+  "printer_name": "Script Master Labs",
+  "spec_url": "https://tipmaster.onrender.com/openapi.json",
+  "base_url": "https://tipmaster.onrender.com",
+  "mcp": {
+    "binary": "tipmaster-pp-cli",
+    "transports": ["stdio"],
+    "tool_count": 4,
+    "public_tool_count": 4,
+    "auth_type": "none",
+    "env_vars": ["TIPMASTER_BASE_URL"],
+    "mcp_ready": "full",
+    "spec_format": "openapi3"
+  }
+}

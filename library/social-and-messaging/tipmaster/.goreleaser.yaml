@@ -1,0 +1,27 @@
+version: 2
+project_name: tipmaster-pp-cli
+before:
+  hooks:
+    - go mod tidy
+builds:
+  - main: .
+    binary: tipmaster-pp-cli
+    env: [CGO_ENABLED=0]
+    goos: [linux, darwin, windows]
+    goarch: [amd64, arm64]
+archives:
+  - format: tar.gz
+    format_overrides:
+      - goos: windows
+        format: zip
+    name_template: "{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}"
+checksum:
+  name_template: checksums.txt
+release:
+  github:
+    owner: mvanhorn
+    name: printing-press-library
+changelog:
+  sort: asc
+  filters:
+    exclude: ['^docs:', '^test:', Merge]

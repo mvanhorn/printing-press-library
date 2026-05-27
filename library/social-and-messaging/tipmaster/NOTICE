@@ -1,0 +1,9 @@
+Copyright 2026 Timothy Walton / Script Master Labs
+
+This product includes software developed by Script Master Labs.
+Ghost Layer, TipMaster, and SqueezeOS are proprietary services
+operated by Script Master Labs (https://www.scriptmasterlabs.com).
+
+Third-party dependencies:
+  github.com/spf13/cobra — Apache License 2.0
+  github.com/spf13/pflag — BSD 3-Clause License

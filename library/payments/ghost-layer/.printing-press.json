@@ -1,0 +1,22 @@
+{
+  "schema_version": 2,
+  "name": "ghost-layer",
+  "api": "Ghost Layer API",
+  "description": "Proprietary dual-chain toll gateway for autonomous AI agents. Bridge RLUSD (XRPL) and USDC (Base/EVM), mint X402-BEAST-KEY URITokens on Xahau, query the x402 product catalog, and monitor the 54-block execution matrix. The licensed entry point to the Script Master Labs agent economy.",
+  "category": "payments",
+  "search_terms": ["XRPL", "RLUSD", "Base", "USDC", "x402", "HTTP 402", "cross-chain", "bridge", "Xahau", "URIToken", "dNFT", "AI agents", "micropayments", "toll gateway", "EIP-3009"],
+  "printer": "timwal78",
+  "printer_name": "Script Master Labs",
+  "spec_url": "https://ghost-layer.onrender.com/.well-known/openapi.json",
+  "base_url": "https://ghost-layer.onrender.com",
+  "mcp": {
+    "binary": "ghost-layer-pp-cli",
+    "transports": ["stdio"],
+    "tool_count": 7,
+    "public_tool_count": 5,
+    "auth_type": "none",
+    "env_vars": ["GHOST_LAYER_WALLET", "GHOST_LAYER_BASE_URL"],
+    "mcp_ready": "full",
+    "spec_format": "openapi3"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "schema_version": 2,
+  "name": "squeezeos",
+  "api": "SqueezeOS API",
+  "description": "Institutional-grade AI market intelligence. Squeeze scanner, options flow, AI council verdicts, signal marketplace, futures prediction market, and conditional settlement contracts. Pay per call with RLUSD on the XRP Ledger via 402Proof.",
+  "category": "finance",
+  "search_terms": ["squeeze", "options flow", "market intelligence", "RLUSD", "XRPL", "AI trading", "council verdict", "signal marketplace", "futures", "settlement", "IWM", "0DTE", "institutional"],
+  "printer": "timwal78",
+  "printer_name": "Script Master Labs",
+  "spec_url": "https://squeezeos-api.onrender.com/.well-known/openapi.json",
+  "base_url": "https://squeezeos-api.onrender.com",
+  "mcp": {
+    "binary": "squeezeos-pp-cli",
+    "transports": ["stdio"],
+    "tool_count": 14,
+    "public_tool_count": 6,
+    "auth_type": "bearer_token",
+    "env_vars": ["SQUEEZEOS_TOKEN", "SQUEEZEOS_BASE_URL"],
+    "mcp_ready": "full",
+    "spec_format": "openapi3"
+  }
+}
