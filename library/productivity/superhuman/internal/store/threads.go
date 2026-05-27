@@ -41,8 +41,9 @@ type ThreadSummary struct {
 // always got the full history regardless of the time window they
 // requested. ThreadFilter now carries a Since field and the filter is
 // applied post-aggregation against thread.LastMessageAt.
-func (s *Store) ListThreadsByParticipants(ctx context.Context, emails []string, since time.Time) ([]ThreadSummary, error) {
+func (s *Store) ListThreadsByParticipants(ctx context.Context, accountEmail string, emails []string, since time.Time) ([]ThreadSummary, error) {
 	return s.ListThreadsFiltered(ctx, ThreadFilter{
+		AccountEmail: accountEmail,
 		Participants: emails,
 		Since:        since,
 	})
