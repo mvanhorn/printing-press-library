@@ -107,7 +107,19 @@ func migrateNovelDB(db *sql.DB) error {
 }
 
 // inferSource extracts a source identifier from a product URL based on known domains.
+// For Shopify DTC stores, returns "shopify-dtc/<store-domain>" to match the
+// normalizeShopify output in fan-out search results.
 func inferSource(productURL string) string {
+	// Shopify DTC: extract store domain from <store>.myshopify.com URLs
+	// to produce "shopify-dtc/<store>" matching normalizeShopify's Source field.
+	if idx := strings.Index(productURL, ".myshopify.com"); idx > 0 {
+		// Walk backward from idx to find the subdomain start (after "://").
+		prefix := productURL[:idx]
+		if slashIdx := strings.LastIndex(prefix, "/"); slashIdx >= 0 {
+			return "shopify-dtc/" + prefix[slashIdx+1:]
+		}
+	}
+
 	sources := map[string]string{
 		"fergusonhome.com":      "ferguson",
 		"fergusonshowrooms.com": "ferguson",
@@ -115,7 +127,6 @@ func inferSource(productURL string) string {
 		"westelm.com":           "west-elm",
 		"rejuvenation.com":      "rejuvenation",
 		"article.com":           "article",
-		"myshopify.com":         "shopify-dtc",
 		"lowes.com":             "lowes",
 		"homedepot.com":         "home-depot",
 	}

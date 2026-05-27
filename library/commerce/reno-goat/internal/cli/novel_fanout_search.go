@@ -211,7 +211,13 @@ func sortProducts(products []NormalizedProduct, sortFlag string) {
 		})
 	case "price-desc":
 		sort.Slice(products, func(i, j int) bool {
-			return products[i].PriceMax > products[j].PriceMax
+			hi := func(p NormalizedProduct) float64 {
+				if p.PriceMax > 0 {
+					return p.PriceMax
+				}
+				return p.PriceMin
+			}
+			return hi(products[i]) > hi(products[j])
 		})
 	case "rating":
 		sort.Slice(products, func(i, j int) bool {

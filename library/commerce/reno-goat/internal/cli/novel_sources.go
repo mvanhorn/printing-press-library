@@ -134,7 +134,7 @@ var categoryToSources = map[string][]string{
 	"foundational": {"ferguson", "rejuvenation"},
 	"appliances":   {"ferguson"},
 	"furniture":    {"west-elm", "article", "shopify-dtc"},
-	"decor":        {"west-elm", "rejuvenation", "shopify-dtc"},
+	"decor":        {"west-elm", "article", "rejuvenation", "shopify-dtc"},
 }
 
 // roomToCategories maps a room type to the categories typically needed
