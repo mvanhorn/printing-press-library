@@ -58,7 +58,7 @@ func migrateNovelDB(db *sql.DB) error {
 		)`,
 		`CREATE TABLE IF NOT EXISTS price_history (
 			id INTEGER PRIMARY KEY,
-			watch_id INTEGER REFERENCES watches(id),
+			watch_id INTEGER REFERENCES watches(id) ON DELETE CASCADE,
 			price REAL NOT NULL,
 			on_sale BOOLEAN DEFAULT 0,
 			checked_at DATETIME DEFAULT CURRENT_TIMESTAMP

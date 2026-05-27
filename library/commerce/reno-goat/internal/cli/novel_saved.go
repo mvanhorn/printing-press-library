@@ -202,7 +202,7 @@ func runStaleCheck(cmd *cobra.Command, db *sql.DB, flags *rootFlags) error {
 		}, flags)
 	}
 
-	httpClient := &http.Client{Timeout: 10 * time.Second}
+	httpClient := &http.Client{Timeout: flags.timeout}
 	var results []map[string]any
 
 	for _, s := range savedList {
@@ -220,7 +220,13 @@ func runStaleCheck(cmd *cobra.Command, db *sql.DB, flags *rootFlags) error {
 		}
 
 		// Check reachability via HEAD request
-		resp, err := httpClient.Head(s.productURL)
+		headReq, headErr := http.NewRequestWithContext(cmd.Context(), "HEAD", s.productURL, nil)
+		if headErr != nil {
+			result["status"] = "error"
+			results = append(results, result)
+			continue
+		}
+		resp, err := httpClient.Do(headReq)
 		reachable := err == nil && resp != nil && resp.StatusCode < 400
 		if resp != nil && resp.Body != nil {
 			resp.Body.Close()

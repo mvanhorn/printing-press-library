@@ -208,10 +208,11 @@ func newWatchCheckCmd(flags *rootFlags) *cobra.Command {
 				return nil
 			}
 
-			httpClient := &http.Client{Timeout: 10 * time.Second}
+			httpClient := &http.Client{Timeout: flags.timeout}
 			var results []map[string]any
 
 			for _, w := range watchList {
+				now := time.Now().UTC().Format(time.RFC3339)
 				result := map[string]any{
 					"id":          w.id,
 					"product_url": w.productURL,
@@ -222,13 +223,19 @@ func newWatchCheckCmd(flags *rootFlags) *cobra.Command {
 				}
 
 				// Check if URL is reachable
-				resp, err := httpClient.Head(w.productURL)
+				headReq, headErr := http.NewRequestWithContext(cmd.Context(), "HEAD", w.productURL, nil)
+				if headErr != nil {
+					result["reachable"] = false
+					result["status"] = "error"
+					result["checked_at"] = now
+					results = append(results, result)
+					continue
+				}
+				resp, err := httpClient.Do(headReq)
 				reachable := err == nil && resp != nil && resp.StatusCode < 400
 				if resp != nil && resp.Body != nil {
 					resp.Body.Close()
 				}
-
-				now := time.Now().UTC().Format(time.RFC3339)
 				result["reachable"] = reachable
 				result["checked_at"] = now
 

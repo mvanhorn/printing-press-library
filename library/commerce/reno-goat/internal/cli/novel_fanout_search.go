@@ -172,6 +172,18 @@ func runFanoutSearch(cmd *cobra.Command, flags *rootFlags, query, categoryFlag, 
 		Room:           room,
 	}
 
+	// Record search to history (best-effort; ignore errors).
+	if histDB, histErr := openNovelDB(); histErr == nil {
+		_, _ = histDB.Exec(
+			`INSERT INTO search_history (query, categories, sources_queried, result_count) VALUES (?, ?, ?, ?)`,
+			query,
+			strings.Join(categories, ","),
+			strings.Join(queriedSources, ","),
+			len(allProducts),
+		)
+		histDB.Close()
+	}
+
 	// Output.
 	if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 		return printJSONFiltered(cmd.OutOrStdout(), envelope, flags)
@@ -594,15 +606,21 @@ func searchShopifyAll(ctx context.Context, httpClient *http.Client, query string
 		cliutil.WithConcurrency(len(shopifyStores)),
 	)
 
-	// Report per-store errors on stderr (these are sub-source partial failures).
-	for _, e := range errs {
-		fmt.Fprintf(os.Stderr, "warn: shopify/%s: %s\n", e.Source, shortFanoutErrMsg(e.Err))
-	}
-
 	var all []NormalizedProduct
 	for _, r := range results {
 		all = append(all, r.Value...)
 	}
+
+	// If all stores failed, return the first error.
+	if len(all) == 0 && len(errs) > 0 {
+		return nil, fmt.Errorf("shopify: all %d stores failed (first: %s)", len(errs), shortFanoutErrMsg(errs[0].Err))
+	}
+
+	// Partial failures: report on stderr but don't fail the overall search.
+	for _, e := range errs {
+		fmt.Fprintf(os.Stderr, "warn: shopify/%s: %s\n", e.Source, shortFanoutErrMsg(e.Err))
+	}
+
 	return all, nil
 }
 
