@@ -38,6 +38,17 @@
         "internal/cli/promoted_prediction-deletions.go"
       ],
       "validated_outcome": "models z-image --json returned filtered live catalog results; publish verify passed."
+    },
+    {
+      "id": "wavespeed-publish-review-hardening",
+      "summary": "Hardened custom run input aliases and raw media transfer paths after public-library review.",
+      "reason": "The hand-authored run surface needed separate --set backing storage and custom upload/download requests needed to honor configured client rate limiting and timeout policy.",
+      "files": [
+        "internal/cli/run.go",
+        "internal/cli/run_test.go",
+        "internal/client/client.go"
+      ],
+      "validated_outcome": "go test ./... passed after the publish-review fixes."
     }
   ]
 }

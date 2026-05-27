@@ -106,6 +106,23 @@ func (c *Client) RateLimit() float64 {
 	return c.limiter.Rate()
 }
 
+// DoRaw executes a caller-built request through the configured HTTP client
+// while preserving cross-cutting client policy such as proactive rate limiting
+// and adaptive limiter feedback.
+func (c *Client) DoRaw(req *http.Request) (*http.Response, error) {
+	c.limiter.Wait()
+	resp, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	if resp.StatusCode == http.StatusTooManyRequests {
+		c.limiter.OnRateLimit()
+	} else if resp.StatusCode < http.StatusBadRequest {
+		c.limiter.OnSuccess()
+	}
+	return resp, nil
+}
+
 func (c *Client) Get(ctx context.Context, path string, params map[string]string) (json.RawMessage, error) {
 	return c.GetWithHeaders(ctx, path, params, nil)
 }

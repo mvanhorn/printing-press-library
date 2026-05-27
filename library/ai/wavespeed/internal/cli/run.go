@@ -27,6 +27,7 @@ type runCommandOptions struct {
 	input       string
 	inputFile   string
 	inputKV     []string
+	setKV       []string
 	prompt      string
 	modelID     string
 	image       string
@@ -147,7 +148,7 @@ func newRunCmd(flags *rootFlags) *cobra.Command {
 			var downloads []downloadedFile
 			if cmd.Flags().Changed("download") {
 				downloadSpec := runDownloadSpec(opts, project, cmd.Flags().Changed("download-dir"))
-				downloads, err = downloadRunOutputs(cmd.Context(), unwrapWaveSpeedData(result), downloadSpec)
+				downloads, err = downloadRunOutputs(cmd.Context(), c, unwrapWaveSpeedData(result), downloadSpec)
 				if err != nil {
 					return err
 				}
@@ -396,7 +397,11 @@ func newDownloadCmd(flags *rootFlags) *cobra.Command {
 			if cmd.Flags().Changed("output") {
 				spec = output
 			}
-			downloads, err := downloadRunOutputs(cmd.Context(), json.RawMessage(raw), spec)
+			c, err := flags.newClient()
+			if err != nil {
+				return err
+			}
+			downloads, err := downloadRunOutputs(cmd.Context(), c, json.RawMessage(raw), spec)
 			if err != nil {
 				return err
 			}
@@ -473,7 +478,7 @@ func uploadMediaBinary(ctx context.Context, c *client.Client, filePath string, s
 		}
 	}
 
-	resp, err := c.HTTPClient.Do(req)
+	resp, err := c.DoRaw(req)
 	if err != nil {
 		return nil, err
 	}
@@ -713,7 +718,7 @@ func addRunInputFlags(cmd *cobra.Command, opts *runCommandOptions) {
 	cmd.Flags().StringVar(&opts.input, "input", "{}", "JSON object to merge into the model input")
 	cmd.Flags().StringVar(&opts.inputFile, "input-file", "", "Read model input JSON from a file, or '-' for stdin")
 	cmd.Flags().StringArrayVarP(&opts.inputKV, "input-kv", "i", nil, "Additional model input as key=value (repeatable); values parse as JSON when possible")
-	cmd.Flags().StringArrayVar(&opts.inputKV, "set", nil, "Additional model input as key=value (repeatable); alias for --input-kv")
+	cmd.Flags().StringArrayVar(&opts.setKV, "set", nil, "Additional model input as key=value (repeatable); alias for --input-kv")
 	cmd.Flags().StringVarP(&opts.prompt, "prompt", "p", "", "Prompt text mapped to input.prompt")
 	cmd.Flags().StringVar(&opts.image, "image", "", "Shortcut for input.image; accepts URL or @local-file")
 	cmd.Flags().StringArrayVar(&opts.images, "images", nil, "Shortcut for input.images array; repeat for multiple URLs or @local-files")
@@ -752,7 +757,7 @@ func readRunInputs(opts runCommandOptions, defaults map[string]any, changed map[
 		}
 		mergeMap(inputs, inlineInputs)
 	}
-	for _, item := range opts.inputKV {
+	for _, item := range append(append([]string{}, opts.inputKV...), opts.setKV...) {
 		key, value, err := parseInputKV(item)
 		if err != nil {
 			return nil, err
@@ -1388,7 +1393,7 @@ type downloadedFile struct {
 	Path string `json:"path"`
 }
 
-func downloadRunOutputs(ctx context.Context, data json.RawMessage, spec string) ([]downloadedFile, error) {
+func downloadRunOutputs(ctx context.Context, c *client.Client, data json.RawMessage, spec string) ([]downloadedFile, error) {
 	urls := collectURLStrings(data)
 	if len(urls) == 0 {
 		return nil, nil
@@ -1396,14 +1401,13 @@ func downloadRunOutputs(ctx context.Context, data json.RawMessage, spec string) 
 	if spec == "" || spec == "true" {
 		spec = "."
 	}
-	httpClient := &http.Client{Timeout: 2 * time.Minute}
 	downloads := make([]downloadedFile, 0, len(urls))
 	for i, rawURL := range urls {
 		req, err := http.NewRequestWithContext(ctx, http.MethodGet, rawURL, nil)
 		if err != nil {
 			return downloads, fmt.Errorf("building download request: %w", err)
 		}
-		resp, err := httpClient.Do(req)
+		resp, err := c.DoRaw(req)
 		if err != nil {
 			return downloads, fmt.Errorf("downloading %s: %w", rawURL, err)
 		}

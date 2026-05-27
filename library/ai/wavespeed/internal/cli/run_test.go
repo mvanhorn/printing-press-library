@@ -56,6 +56,21 @@ func TestReadRunInputsMergesInDocumentedOrder(t *testing.T) {
 	}
 }
 
+func TestReadRunInputsCombinesSetAndInputKV(t *testing.T) {
+	opts := runCommandOptions{
+		inputKV: []string{"one=1"},
+		setKV:   []string{"two=2"},
+	}
+
+	got, err := readRunInputs(opts, nil, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got["one"] != int64(1) || got["two"] != int64(2) {
+		t.Fatalf("inputs = %#v", got)
+	}
+}
+
 func TestResolveProjectModel(t *testing.T) {
 	project := wavespeedProjectConfig{
 		DefaultModel: "wavespeed-ai/default",
