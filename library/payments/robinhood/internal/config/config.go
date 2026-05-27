@@ -94,9 +94,6 @@ func (c *Config) AuthHeader() string {
 	if token == "" {
 		return ""
 	}
-	if c.RobinhoodApiKey == "" {
-		return ""
-	}
 	return token
 }
 

@@ -78,12 +78,14 @@ func newBrokerageRoutesCmd(flags *rootFlags, browser bool, unifiedOpt ...bool) *
 		Short:       short,
 		Annotations: map[string]string{"mcp:read-only": "true", "mcp:risk": "read"},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			routes, err := brokeragemap.Routes()
+			var routes []brokeragemap.Route
+			var err error
 			if unified {
 				routes, err = brokeragemap.UnifiedRoutes()
-			}
-			if browser {
+			} else if browser {
 				routes, err = brokeragemap.BrowserRoutes()
+			} else {
+				routes, err = brokeragemap.Routes()
 			}
 			if err != nil {
 				return err
@@ -211,9 +213,10 @@ without the write gate when ROBINHOOD_BROKERAGE_TOKEN or ROBINHOOD_COOKIE is set
 				bodyBytes = nil
 			}
 			result, err := brokeragemap.Execute(cmd.Context(), plan, brokeragemap.ExecuteOptions{
-				DryRun:   dryRun,
-				Body:     bodyBytes,
-				FullBody: full,
+				DryRun:    dryRun,
+				Body:      bodyBytes,
+				FullBody:  full,
+				RateLimit: flags.rateLimit,
 			})
 			if err != nil {
 				return apiErr(err)

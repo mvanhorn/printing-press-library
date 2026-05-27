@@ -8,6 +8,7 @@ import (
 	"embed"
 	"encoding/json"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/payments/robinhood/internal/cliutil"
 	"io"
 	"net/http"
 	"os"
@@ -72,6 +73,7 @@ type ExecuteOptions struct {
 	Body         []byte
 	FullBody     bool
 	MaxBodyBytes int
+	RateLimit    float64
 }
 
 type ExecuteResult struct {
@@ -312,12 +314,19 @@ func Execute(ctx context.Context, plan Plan, options ExecuteOptions) (ExecuteRes
 	if len(options.Body) > 0 && plan.Method != http.MethodGet {
 		req.Header.Set("Content-Type", "application/json")
 	}
+	limiter := cliutil.NewAdaptiveLimiter(options.RateLimit)
+	limiter.Wait()
 	client := &http.Client{Timeout: 30 * time.Second}
 	resp, err := client.Do(req)
 	if err != nil {
 		return ExecuteResult{}, err
 	}
 	defer resp.Body.Close()
+	if resp.StatusCode == http.StatusTooManyRequests {
+		limiter.OnRateLimit()
+	} else if resp.StatusCode >= 200 && resp.StatusCode < 300 {
+		limiter.OnSuccess()
+	}
 	data, _ := io.ReadAll(resp.Body)
 	max := options.MaxBodyBytes
 	if max <= 0 {
