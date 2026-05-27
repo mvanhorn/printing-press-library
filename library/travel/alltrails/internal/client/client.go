@@ -92,9 +92,16 @@ func New(cfg *config.Config, timeout time.Duration, rateLimit float64) *Client {
 			}
 		} else {
 			// Cross-host hop: Go strips standard auth headers (Authorization,
-			// Cookie) but not custom ones, so a custom API-key header would be
-			// forwarded verbatim to the redirect target. Delete it explicitly.
+			// Cookie) but not custom ones, so custom credential headers such as
+			// x-csrftoken (from ALLTRAILS_CSRF_TOKEN) would be forwarded
+			// verbatim to the redirect target. Delete Authorization and every
+			// configured custom header explicitly so none leak cross-host.
 			req.Header.Del("Authorization")
+			if c.Config != nil {
+				for k := range c.Config.Headers {
+					req.Header.Del(k)
+				}
+			}
 		}
 		return nil
 	}
@@ -203,6 +210,23 @@ func (c *Client) cacheKey(path string, params map[string]string) string {
 		if authHeader := c.Config.AuthHeader(); authHeader != "" {
 			authHash := sha256.Sum256([]byte(authHeader))
 			key += "|auth=" + hex.EncodeToString(authHash[:8])
+		}
+		// Cookie / CSRF and any other credential headers carry session
+		// identity but never flow through AuthHeader() (which only returns the
+		// Bearer token). Without mixing them in, two cookie-auth sessions that
+		// share a base URL and config path collide on the same cache key — a
+		// re-login within the 5-minute TTL would serve the previous session's
+		// responses. Hash each header value in deterministic (sorted) order.
+		if len(c.Config.Headers) > 0 {
+			headerKeys := make([]string, 0, len(c.Config.Headers))
+			for k := range c.Config.Headers {
+				headerKeys = append(headerKeys, k)
+			}
+			sort.Strings(headerKeys)
+			for _, k := range headerKeys {
+				vHash := sha256.Sum256([]byte(c.Config.Headers[k]))
+				key += "|h:" + k + "=" + hex.EncodeToString(vHash[:8])
+			}
 		}
 		if c.Config.Path != "" {
 			key += "|config_path=" + c.Config.Path

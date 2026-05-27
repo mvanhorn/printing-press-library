@@ -95,19 +95,6 @@ func (c *Config) AuthHeader() string {
 	return ""
 }
 
-func applyAuthFormat(format string, replacements map[string]string) string {
-	if format == "" {
-		return ""
-	}
-	for key, value := range replacements {
-		format = strings.ReplaceAll(format, "{"+key+"}", value)
-	}
-	if strings.Contains(format, "{") {
-		return ""
-	}
-	return format
-}
-
 func (c *Config) save() error {
 	dir := filepath.Dir(c.Path)
 	if err := os.MkdirAll(dir, 0o700); err != nil {
@@ -119,6 +106,3 @@ func (c *Config) save() error {
 	}
 	return os.WriteFile(c.Path, data, 0o600)
 }
-
-// Ensure strings import is used
-var _ = strings.ReplaceAll
