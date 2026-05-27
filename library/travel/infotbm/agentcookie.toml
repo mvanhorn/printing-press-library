@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "infotbm-pp-cli"
+display_name = "TBM Bordeaux"
+description = "Every Bordeaux tram, bus, and ferry schedule offline in SQLite, plus real-time arrivals, ghost service detection, and journey planning no other Bordeaux transit tool offers."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/infotbm-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+INFOTBM_API_KEY = true

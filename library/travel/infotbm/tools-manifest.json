@@ -1,0 +1,387 @@
+{
+  "api_name": "infotbm",
+  "base_url": "https://bdx.mecatran.com/utw/ws",
+  "description": "Every Bordeaux tram, bus, and ferry schedule offline in SQLite, plus real-time arrivals, ghost service detection, and journey planning no other Bordeaux transit tool offers.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "api_key",
+    "header": "apiKey",
+    "in": "query",
+    "env_vars": [
+      "INFOTBM_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "INFOTBM_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "agencies_list",
+      "description": "Transit agencies in the Bordeaux network. Optional: includeRoutes.",
+      "method": "GET",
+      "path": "/gtfs/agencies/bordeaux",
+      "params": [
+        {
+          "name": "includeRoutes",
+          "type": "boolean",
+          "location": "query",
+          "description": "Include routes served by each agency"
+        }
+      ]
+    },
+    {
+      "name": "alerts_list",
+      "description": "Active service disruption alerts. Optional: lang, channel.",
+      "method": "GET",
+      "path": "/alerts/active/bordeaux",
+      "params": [
+        {
+          "name": "lang",
+          "wire_name": "preferredLang",
+          "type": "string",
+          "location": "query",
+          "description": "Preferred language for alert text (default fr)"
+        },
+        {
+          "name": "channel",
+          "type": "string",
+          "location": "query",
+          "description": "Alert channel filter"
+        }
+      ]
+    },
+    {
+      "name": "fares_list",
+      "description": "Fare structure including pricing and transfer rules.",
+      "method": "GET",
+      "path": "/gtfs/fares/bordeaux",
+      "params": []
+    },
+    {
+      "name": "feed-info_get",
+      "description": "GTFS feed metadata including validity dates and timestamps.",
+      "method": "GET",
+      "path": "/gtfs/feed-info/bordeaux",
+      "params": []
+    },
+    {
+      "name": "kml_export",
+      "description": "KML geographic data export with route geometry and stop locations. Optional: includeStops, route.",
+      "method": "GET",
+      "path": "/layer/kml/feed/bordeaux",
+      "params": [
+        {
+          "name": "includeStops",
+          "type": "boolean",
+          "location": "query",
+          "description": "Include stop markers in KML"
+        },
+        {
+          "name": "route",
+          "wire_name": "routeId",
+          "type": "string",
+          "location": "query",
+          "description": "Export only a specific route"
+        }
+      ]
+    },
+    {
+      "name": "realtime_stop",
+      "description": "Real-time departure information at a specific stop. Required: stopId. Optional: lookahead, includeAlerts, lang.",
+      "method": "GET",
+      "path": "/realtime/stop/bordeaux/{stopId}",
+      "params": [
+        {
+          "name": "stopId",
+          "type": "string",
+          "location": "path",
+          "description": "Stop identifier (e.g., BEQUI for Quinconces)",
+          "required": true
+        },
+        {
+          "name": "lookahead",
+          "wire_name": "lookAheadSec",
+          "type": "integer",
+          "location": "query",
+          "description": "How far ahead to look in seconds (default 3600)"
+        },
+        {
+          "name": "includeAlerts",
+          "type": "boolean",
+          "location": "query",
+          "description": "Include alerts affecting this stop"
+        },
+        {
+          "name": "lang",
+          "wire_name": "preferredLang",
+          "type": "string",
+          "location": "query",
+          "description": "Preferred language for text (default fr)"
+        }
+      ]
+    },
+    {
+      "name": "realtime_vehicles",
+      "description": "Real-time vehicle positions across the network. Optional: route.",
+      "method": "GET",
+      "path": "/realtime/vehicles/bordeaux",
+      "params": [
+        {
+          "name": "route",
+          "wire_name": "routeId",
+          "type": "string",
+          "location": "query",
+          "description": "Filter vehicles by route ID"
+        }
+      ]
+    },
+    {
+      "name": "routes_list",
+      "description": "All transit routes/lines in the TBM network. Optional: code, name, lat (plus 3 more).",
+      "method": "GET",
+      "path": "/gtfs/routes/bordeaux",
+      "params": [
+        {
+          "name": "code",
+          "wire_name": "codeQuery",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by route short code (e.g., A, B, 1, 15)"
+        },
+        {
+          "name": "name",
+          "wire_name": "nameQuery",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by route name substring"
+        },
+        {
+          "name": "lat",
+          "wire_name": "latitude",
+          "type": "number",
+          "location": "query",
+          "description": "Filter routes near this latitude"
+        },
+        {
+          "name": "lon",
+          "wire_name": "longitude",
+          "type": "number",
+          "location": "query",
+          "description": "Filter routes near this longitude"
+        },
+        {
+          "name": "radius",
+          "wire_name": "radiusMeters",
+          "type": "integer",
+          "location": "query",
+          "description": "Search radius in meters (use with lat/lon)"
+        },
+        {
+          "name": "includePatterns",
+          "type": "boolean",
+          "location": "query",
+          "description": "Include route patterns (stop sequences)"
+        }
+      ]
+    },
+    {
+      "name": "server-info_get",
+      "description": "API version and build information. (public)",
+      "method": "GET",
+      "path": "/server-info",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "siri_check-status",
+      "description": "SIRI service health check. (public)",
+      "method": "GET",
+      "path": "/siri/2.0/bordeaux/check-status.json",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "siri_estimated-timetable",
+      "description": "Estimated real-time timetable for a line. Required: line. Optional: AccountKey.",
+      "method": "GET",
+      "path": "/siri/2.0/bordeaux/estimated-timetable.json",
+      "params": [
+        {
+          "name": "AccountKey",
+          "type": "string",
+          "location": "query",
+          "description": "SIRI account key"
+        },
+        {
+          "name": "line",
+          "wire_name": "LineRef",
+          "type": "string",
+          "location": "query",
+          "description": "Line reference for timetable",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "siri_general-message",
+      "description": "General service messages and disruption information. Optional: AccountKey.",
+      "method": "GET",
+      "path": "/siri/2.0/bordeaux/general-message.json",
+      "params": [
+        {
+          "name": "AccountKey",
+          "type": "string",
+          "location": "query",
+          "description": "SIRI account key"
+        }
+      ]
+    },
+    {
+      "name": "siri_lines-discovery",
+      "description": "Discover all lines with destinations and transport modes. Optional: AccountKey.",
+      "method": "GET",
+      "path": "/siri/2.0/bordeaux/lines-discovery.json",
+      "params": [
+        {
+          "name": "AccountKey",
+          "type": "string",
+          "location": "query",
+          "description": "SIRI account key"
+        }
+      ]
+    },
+    {
+      "name": "siri_stop-monitoring",
+      "description": "Real-time arrival/departure monitoring at a stop. Required: stop. Optional: AccountKey, max-visits, line.",
+      "method": "GET",
+      "path": "/siri/2.0/bordeaux/stop-monitoring.json",
+      "params": [
+        {
+          "name": "AccountKey",
+          "type": "string",
+          "location": "query",
+          "description": "SIRI account key"
+        },
+        {
+          "name": "stop",
+          "wire_name": "MonitoringRef",
+          "type": "string",
+          "location": "query",
+          "description": "Stop point reference to monitor",
+          "required": true
+        },
+        {
+          "name": "max-visits",
+          "wire_name": "MaximumStopVisits",
+          "type": "integer",
+          "location": "query",
+          "description": "Maximum number of upcoming visits to return"
+        },
+        {
+          "name": "line",
+          "wire_name": "LineRef",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by line reference"
+        }
+      ]
+    },
+    {
+      "name": "siri_stoppoints-discovery",
+      "description": "Discover all stop points with coordinates and serving lines. Optional: AccountKey, max-stops, line.",
+      "method": "GET",
+      "path": "/siri/2.0/bordeaux/stoppoints-discovery.json",
+      "params": [
+        {
+          "name": "AccountKey",
+          "type": "string",
+          "location": "query",
+          "description": "SIRI account key"
+        },
+        {
+          "name": "max-stops",
+          "wire_name": "MaximumStops",
+          "type": "integer",
+          "location": "query",
+          "description": "Maximum number of stops to return"
+        },
+        {
+          "name": "line",
+          "wire_name": "LineRef",
+          "type": "string",
+          "location": "query",
+          "description": "Filter stops by line reference"
+        }
+      ]
+    },
+    {
+      "name": "stops_list",
+      "description": "All transit stops in the TBM network. Optional: code, name, lat (plus 5 more).",
+      "method": "GET",
+      "path": "/gtfs/stops/bordeaux",
+      "params": [
+        {
+          "name": "code",
+          "wire_name": "codeQuery",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by stop code"
+        },
+        {
+          "name": "name",
+          "wire_name": "nameQuery",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by stop name substring"
+        },
+        {
+          "name": "lat",
+          "wire_name": "latitude",
+          "type": "number",
+          "location": "query",
+          "description": "Filter stops near this latitude"
+        },
+        {
+          "name": "lon",
+          "wire_name": "longitude",
+          "type": "number",
+          "location": "query",
+          "description": "Filter stops near this longitude"
+        },
+        {
+          "name": "radius",
+          "wire_name": "radiusMeters",
+          "type": "integer",
+          "location": "query",
+          "description": "Search radius in meters (use with lat/lon)"
+        },
+        {
+          "name": "includeStops",
+          "type": "boolean",
+          "location": "query",
+          "description": "Include child stops within stop areas"
+        },
+        {
+          "name": "includeStations",
+          "type": "boolean",
+          "location": "query",
+          "description": "Include station-level stops"
+        },
+        {
+          "name": "includeRoutes",
+          "type": "boolean",
+          "location": "query",
+          "description": "Include routes serving each stop"
+        }
+      ]
+    }
+  ]
+}

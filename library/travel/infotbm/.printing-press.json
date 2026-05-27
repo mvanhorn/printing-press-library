@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-27T19:52:30.451789Z",
+  "printing_press_version": "4.18.1",
+  "api_name": "infotbm",
+  "display_name": "TBM Bordeaux",
+  "cli_name": "infotbm-pp-cli",
+  "owner": "user",
+  "printer": "pawlclawbot",
+  "spec_path": "infotbm-spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:b2f8488d10401876f640b185f76fa0bab48d0663d4925ae376b0c936a020f47b",
+  "run_id": "20260527-173454",
+  "category": "travel",
+  "description": "Every Bordeaux tram, bus, and ferry schedule offline in SQLite, plus real-time arrivals, ghost service detection, and journey planning no other Bordeaux transit tool offers.",
+  "mcp_binary": "infotbm-pp-mcp",
+  "mcp_tool_count": 16,
+  "mcp_public_tool_count": 2,
+  "mcp_ready": "full",
+  "api_version": "1.0",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "INFOTBM_API_KEY"
+  ],
+  "novel_features": [
+    {
+      "name": "Ghost Service Detector",
+      "command": "schedule diff",
+      "description": "Surface trips that are scheduled in GTFS but absent from live real-time data — the buses that exist on paper but never showed up"
+    },
+    {
+      "name": "Last Viable Departure",
+      "command": "trips last-departure",
+      "description": "Find the latest departure from a stop that still reaches your destination before a cutoff time"
+    },
+    {
+      "name": "Delay-Triggered Reroute",
+      "command": "trips reroute",
+      "description": "When your current connection is delayed, compute the best alternate onward path using live vehicle data"
+    },
+    {
+      "name": "Alert Impact Filter",
+      "command": "alerts impact",
+      "description": "Filter all active disruptions to only those affecting your specific lines or stops"
+    },
+    {
+      "name": "Line Stop Sequence",
+      "command": "lines stops",
+      "description": "Print the ordered stop list for a line and direction, optionally with scheduled departure times"
+    },
+    {
+      "name": "Timetable Change Diff",
+      "command": "schedule changes",
+      "description": "Compare GTFS sync snapshots to detect added, removed, or modified routes on a line"
+    },
+    {
+      "name": "Journey Planner",
+      "command": "trips plan",
+      "description": "Plan multi-modal journeys across tram, bus, and ferry using local GTFS data with live disruption awareness"
+    },
+    {
+      "name": "Headway Frequency Report",
+      "command": "lines frequency",
+      "description": "Compute average headways per hour from the SIRI estimated timetable"
+    }
+  ],
+  "printer_name": "pawlclawbot"
+}
