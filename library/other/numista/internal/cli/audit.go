@@ -11,8 +11,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/other/numista/internal/store"
+	"github.com/spf13/cobra"
 )
 
 func newAuditCmd(flags *rootFlags) *cobra.Command {

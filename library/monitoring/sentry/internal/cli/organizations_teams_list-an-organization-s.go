@@ -17,10 +17,10 @@ func newOrganizationsTeamsListAnOrganizationSCmd(flags *rootFlags) *cobra.Comman
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "list-an-organization-s <organization_id_or_slug>",
-		Aliases: []string{"get"},
-		Short: "Returns a list of teams bound to a organization.",
-		Example: "  sentry-pp-cli organizations teams list-an-organization-s example-value",
+		Use:         "list-an-organization-s <organization_id_or_slug>",
+		Aliases:     []string{"get"},
+		Short:       "Returns a list of teams bound to a organization.",
+		Example:     "  sentry-pp-cli organizations teams list-an-organization-s example-value",
 		Annotations: map[string]string{"pp:endpoint": "teams.list-an-organization-s", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -35,7 +35,7 @@ func newOrganizationsTeamsListAnOrganizationSCmd(flags *rootFlags) *cobra.Comman
 			path = replacePathParam(path, "organization_id_or_slug", args[0])
 			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "teams", path, map[string]string{
 				"detailed": fmt.Sprintf("%v", flagDetailed),
-				"cursor": fmt.Sprintf("%v", flagCursor),
+				"cursor":   fmt.Sprintf("%v", flagCursor),
 			}, nil, flagAll, "cursor", "", "")
 			if err != nil {
 				return classifyAPIError(err)

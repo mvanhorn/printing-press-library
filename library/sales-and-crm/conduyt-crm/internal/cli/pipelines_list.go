@@ -14,9 +14,9 @@ import (
 func newPipelinesListCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "list",
-		Short: "List pipelines with stages",
-		Example: "  conduyt-crm-pp-cli pipelines list",
+		Use:         "list",
+		Short:       "List pipelines with stages",
+		Example:     "  conduyt-crm-pp-cli pipelines list",
 		Annotations: map[string]string{"pp:endpoint": "pipelines.list", "pp:method": "GET", "pp:path": "/pipelines", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

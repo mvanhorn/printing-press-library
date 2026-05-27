@@ -270,10 +270,10 @@ reactions that are unique to or more frequent in the combination.`,
 			}
 
 			output := map[string]interface{}{
-				"drugs":               drugList,
-				"combo_reports":       comboReportCount,
+				"drugs":                 drugList,
+				"combo_reports":         comboReportCount,
 				"single_drug_baselines": bSummaries,
-				"reactions":           polyResults,
+				"reactions":             polyResults,
 			}
 
 			if flags.asJSON {

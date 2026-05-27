@@ -14,10 +14,10 @@ import (
 func newProjectClassificationLevelGetDefaultProjectClassificationCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-default-project-classification <projectIdOrKey>",
-		Aliases: []string{"get"},
-		Short: "Returns the default data classification for a project. **[Permissions](#permissions) required:** * *Browse Projects*...",
-		Example: "  jira-pp-cli project classification-level get-default-project-classification your-token-here",
+		Use:         "get-default-project-classification <projectIdOrKey>",
+		Aliases:     []string{"get"},
+		Short:       "Returns the default data classification for a project. **[Permissions](#permissions) required:** * *Browse Projects*...",
+		Example:     "  jira-pp-cli project classification-level get-default-project-classification your-token-here",
 		Annotations: map[string]string{"pp:endpoint": "classification-level.get-default-project-classification", "pp:method": "GET", "pp:path": "/rest/api/3/project/{projectIdOrKey}/classification-level/default", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

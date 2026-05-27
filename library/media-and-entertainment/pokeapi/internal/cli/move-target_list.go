@@ -18,9 +18,9 @@ func newMoveTargetListCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "list",
-		Short: "Targets moves can be directed at during battle. Targets can be Pokémon, environments or even other moves.",
-		Example: "  pokeapi-pp-cli move-target list",
+		Use:         "list",
+		Short:       "Targets moves can be directed at during battle. Targets can be Pokémon, environments or even other moves.",
+		Example:     "  pokeapi-pp-cli move-target list",
 		Annotations: map[string]string{"pp:endpoint": "move-target.list", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
@@ -30,9 +30,9 @@ func newMoveTargetListCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/api/v2/move-target/"
 			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "move-target", path, map[string]string{
-				"limit": fmt.Sprintf("%v", flagLimit),
+				"limit":  fmt.Sprintf("%v", flagLimit),
 				"offset": fmt.Sprintf("%v", flagOffset),
-				"q": fmt.Sprintf("%v", flagQ),
+				"q":      fmt.Sprintf("%v", flagQ),
 			}, nil, flagAll, "offset", "", "")
 			if err != nil {
 				return classifyAPIError(err)

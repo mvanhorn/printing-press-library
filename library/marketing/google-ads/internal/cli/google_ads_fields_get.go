@@ -14,9 +14,9 @@ import (
 func newGoogleAdsFieldsGetCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get <resourceName>",
-		Short: "Returns just the requested field.",
-		Example: "  google-ads-pp-cli google_ads_fields get example-resource",
+		Use:         "get <resourceName>",
+		Short:       "Returns just the requested field.",
+		Example:     "  google-ads-pp-cli google_ads_fields get example-resource",
 		Annotations: map[string]string{"pp:endpoint": "google_ads_fields.get", "pp:method": "GET", "pp:path": "/v22/{resourceName}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

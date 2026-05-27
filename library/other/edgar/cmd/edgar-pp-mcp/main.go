@@ -7,8 +7,8 @@ import (
 	"fmt"
 	"os"
 
-	mcptools "github.com/mvanhorn/printing-press-library/library/other/edgar/internal/mcp"
 	"github.com/mark3labs/mcp-go/server"
+	mcptools "github.com/mvanhorn/printing-press-library/library/other/edgar/internal/mcp"
 )
 
 func main() {

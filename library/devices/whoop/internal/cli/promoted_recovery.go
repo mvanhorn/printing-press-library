@@ -19,10 +19,10 @@ func newRecoveryPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "recovery",
-		Short: "Get all recoveries for a user, paginated. Results are sorted by start time of the related sleep in descending order.",
-		Long:  "Shortcut for 'recovery get-collection'. Get all recoveries for a user, paginated. Results are sorted by start time of the related sleep in descending order.",
-		Example: "  whoop-pp-cli recovery",
+		Use:         "recovery",
+		Short:       "Get all recoveries for a user, paginated. Results are sorted by start time of the related sleep in descending order.",
+		Long:        "Shortcut for 'recovery get-collection'. Get all recoveries for a user, paginated. Results are sorted by start time of the related sleep in descending order.",
+		Example:     "  whoop-pp-cli recovery",
 		Annotations: map[string]string{"pp:endpoint": "recovery.get-collection", "pp:method": "GET", "pp:path": "/v2/recovery", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
@@ -32,9 +32,9 @@ func newRecoveryPromotedCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/v2/recovery"
 			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "recovery", path, map[string]string{
-				"limit": fmt.Sprintf("%v", flagLimit),
-				"start": fmt.Sprintf("%v", flagStart),
-				"end": fmt.Sprintf("%v", flagEnd),
+				"limit":     fmt.Sprintf("%v", flagLimit),
+				"start":     fmt.Sprintf("%v", flagStart),
+				"end":       fmt.Sprintf("%v", flagEnd),
 				"nextToken": fmt.Sprintf("%v", flagNextToken),
 			}, nil, flagAll, "", "", "")
 			if err != nil {

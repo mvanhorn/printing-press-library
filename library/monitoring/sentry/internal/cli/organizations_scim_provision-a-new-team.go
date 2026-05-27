@@ -17,9 +17,9 @@ func newOrganizationsScimProvisionANewTeamCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "provision-a-new-team <organization_id_or_slug>",
-		Short: "Create a new team bound to an organization via a SCIM Groups POST Request. The slug will have a normalization of...",
-		Example: "  sentry-pp-cli organizations scim provision-a-new-team example-value --displayName example-resource",
+		Use:         "provision-a-new-team <organization_id_or_slug>",
+		Short:       "Create a new team bound to an organization via a SCIM Groups POST Request. The slug will have a normalization of...",
+		Example:     "  sentry-pp-cli organizations scim provision-a-new-team example-value --displayName example-resource",
 		Annotations: map[string]string{"pp:endpoint": "scim.provision-a-new-team"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -68,7 +68,9 @@ func newOrganizationsScimProvisionANewTeamCmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

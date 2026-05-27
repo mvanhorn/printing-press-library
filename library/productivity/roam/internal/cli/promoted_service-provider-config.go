@@ -14,10 +14,10 @@ import (
 func newServiceProviderConfigPromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "service-provider-config",
-		Short: "Returns Roam's SCIM capabilities and supported features. Use this endpoint to discover which SCIM operations are...",
-		Long:  "Shortcut for 'service-provider-config 03-metadata'. Returns Roam's SCIM capabilities and supported features. Use this endpoint to discover which SCIM operations are...",
-		Example: "  roam-pp-cli service-provider-config",
+		Use:         "service-provider-config",
+		Short:       "Returns Roam's SCIM capabilities and supported features. Use this endpoint to discover which SCIM operations are...",
+		Long:        "Shortcut for 'service-provider-config 03-metadata'. Returns Roam's SCIM capabilities and supported features. Use this endpoint to discover which SCIM operations are...",
+		Example:     "  roam-pp-cli service-provider-config",
 		Annotations: map[string]string{"pp:endpoint": "service-provider-config.03-metadata", "pp:method": "GET", "pp:path": "/ServiceProviderConfig", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

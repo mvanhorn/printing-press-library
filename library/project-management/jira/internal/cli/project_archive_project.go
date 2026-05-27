@@ -16,10 +16,10 @@ func newProjectArchiveProjectCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "project <projectIdOrKey>",
-		Aliases: []string{"create"},
-		Short: "Archives a project. You can't delete a project if it's archived. To delete an archived project, restore the project...",
-		Example: "  jira-pp-cli project archive project your-token-here",
+		Use:         "project <projectIdOrKey>",
+		Aliases:     []string{"create"},
+		Short:       "Archives a project. You can't delete a project if it's archived. To delete an archived project, restore the project...",
+		Example:     "  jira-pp-cli project archive project your-token-here",
 		Annotations: map[string]string{"pp:endpoint": "archive.project", "pp:method": "POST", "pp:path": "/rest/api/3/project/{projectIdOrKey}/archive"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -62,7 +62,9 @@ func newProjectArchiveProjectCmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

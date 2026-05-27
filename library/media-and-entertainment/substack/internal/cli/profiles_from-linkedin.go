@@ -14,9 +14,9 @@ import (
 func newProfilesFromLinkedinCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "from-linkedin <linkedin_handle>",
-		Short: "Look up a Substack profile from a LinkedIn handle",
-		Example: "  substack-pp-cli profiles from-linkedin https://example.com/resource",
+		Use:         "from-linkedin <linkedin_handle>",
+		Short:       "Look up a Substack profile from a LinkedIn handle",
+		Example:     "  substack-pp-cli profiles from-linkedin https://example.com/resource",
 		Annotations: map[string]string{"pp:endpoint": "profiles.from-linkedin", "pp:method": "GET", "pp:path": "/profile/search/linkedin/{linkedin_handle}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

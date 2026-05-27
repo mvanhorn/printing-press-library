@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"sort"
 
-	"github.com/spf13/cobra"
 	moba "github.com/mvanhorn/printing-press-library/library/media-and-entertainment/mobalytics-lol/internal/mobalytics"
+	"github.com/spf13/cobra"
 )
 
 // newCounterPoolCmd cross-joins our champion pool with theirs and ranks

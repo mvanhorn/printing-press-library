@@ -18,10 +18,10 @@ func newCustomersCampaignAssetsPromotedCmd(flags *rootFlags) *cobra.Command {
 	var bodyResponseContentType string
 
 	cmd := &cobra.Command{
-		Use:   "customers-campaign-assets <customerId>",
-		Short: "Creates, updates, or removes campaign assets. Operation statuses are returned.",
-		Long:  "Shortcut for 'customers_campaign_assets mutate'. Creates, updates, or removes campaign assets. Operation statuses are returned.",
-		Example: "  google-ads-pp-cli customers-campaign-assets",
+		Use:         "customers-campaign-assets <customerId>",
+		Short:       "Creates, updates, or removes campaign assets. Operation statuses are returned.",
+		Long:        "Shortcut for 'customers_campaign_assets mutate'. Creates, updates, or removes campaign assets. Operation statuses are returned.",
+		Example:     "  google-ads-pp-cli customers-campaign-assets",
 		Annotations: map[string]string{"pp:endpoint": "customers_campaign_assets.mutate", "pp:method": "POST", "pp:path": "/v22/customers/{customerId}/campaignAssets:mutate"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

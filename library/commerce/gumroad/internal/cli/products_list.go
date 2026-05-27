@@ -15,9 +15,9 @@ func newProductsListCmd(flags *rootFlags) *cobra.Command {
 	var flagPageKey string
 
 	cmd := &cobra.Command{
-		Use:   "list",
-		Short: "Retrieve all existing products for the authenticated user.",
-		Example: "  gumroad-pp-cli products list",
+		Use:         "list",
+		Short:       "Retrieve all existing products for the authenticated user.",
+		Example:     "  gumroad-pp-cli products list",
 		Annotations: map[string]string{"pp:endpoint": "products.list", "pp:method": "GET", "pp:path": "/products", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

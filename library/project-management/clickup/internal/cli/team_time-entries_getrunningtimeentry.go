@@ -15,9 +15,9 @@ func newTeamTimeEntriesGetrunningtimeentryCmd(flags *rootFlags) *cobra.Command {
 	var flagAssignee float64
 
 	cmd := &cobra.Command{
-		Use:   "getrunningtimeentry <team_id>",
-		Short: "View a time entry that's currently tracking time for the authenticated user. ***Note:** A time entry that has a...",
-		Example: "  clickup-pp-cli team time-entries getrunningtimeentry 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "getrunningtimeentry <team_id>",
+		Short:       "View a time entry that's currently tracking time for the authenticated user. ***Note:** A time entry that has a...",
+		Example:     "  clickup-pp-cli team time-entries getrunningtimeentry 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "time-entries.getrunningtimeentry", "pp:method": "GET", "pp:path": "/v2/team/{team_id}/time_entries/current", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

@@ -20,9 +20,9 @@ func newCustomersGenerateSuggestedTargetingInsightsCmd(flags *rootFlags) *cobra.
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "generate-suggested-targeting-insights <customerId>",
-		Short: "Returns a collection of targeting insights (e.g. targetable audiences) that are relevant to the requested audience.",
-		Example: "  google-ads-pp-cli customers generate_suggested_targeting_insights 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "generate-suggested-targeting-insights <customerId>",
+		Short:       "Returns a collection of targeting insights (e.g. targetable audiences) that are relevant to the requested audience.",
+		Example:     "  google-ads-pp-cli customers generate_suggested_targeting_insights 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "customers.generate_suggested_targeting_insights", "pp:method": "POST", "pp:path": "/v22/customers/{customerId}:generateSuggestedTargetingInsights"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -89,7 +89,9 @@ func newCustomersGenerateSuggestedTargetingInsightsCmd(flags *rootFlags) *cobra.
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

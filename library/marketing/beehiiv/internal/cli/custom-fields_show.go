@@ -14,9 +14,9 @@ import (
 func newCustomFieldsShowCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "show <publicationId> <id>",
-		Short: "Get custom field <Badge intent='info' minimal outlined>OAuth Scope: custom_fields:read</Badge>",
-		Example: "  beehiiv-pp-cli custom-fields show 550e8400-e29b-41d4-a716-446655440000 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "show <publicationId> <id>",
+		Short:       "Get custom field <Badge intent='info' minimal outlined>OAuth Scope: custom_fields:read</Badge>",
+		Example:     "  beehiiv-pp-cli custom-fields show 550e8400-e29b-41d4-a716-446655440000 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "custom-fields.show", "pp:method": "GET", "pp:path": "/publications/{publicationId}/custom_fields/{id}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

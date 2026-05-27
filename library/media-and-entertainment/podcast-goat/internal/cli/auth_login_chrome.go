@@ -144,8 +144,8 @@ func newAuthServicesCmd(flags *rootFlags) *cobra.Command {
 				raw, err := os.ReadFile(source.CookieFile(svc))
 				if err == nil {
 					var env struct {
-						CapturedAt string                 `json:"captured_at"`
-						Cookies    []source.CookieRecord  `json:"cookies"`
+						CapturedAt string                `json:"captured_at"`
+						Cookies    []source.CookieRecord `json:"cookies"`
 					}
 					_ = json.Unmarshal(raw, &env)
 					r.CapturedAt = env.CapturedAt

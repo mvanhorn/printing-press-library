@@ -14,9 +14,9 @@ import (
 func newCustomersSmartCampaignSettingsGetSmartCampaignStatusCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-smart-campaign-status <resourceName>",
-		Short: "Returns the status of the requested Smart campaign.",
-		Example: "  google-ads-pp-cli customers_smart_campaign_settings get_smart_campaign_status example-resource",
+		Use:         "get-smart-campaign-status <resourceName>",
+		Short:       "Returns the status of the requested Smart campaign.",
+		Example:     "  google-ads-pp-cli customers_smart_campaign_settings get_smart_campaign_status example-resource",
 		Annotations: map[string]string{"pp:endpoint": "customers_smart_campaign_settings.get_smart_campaign_status", "pp:method": "GET", "pp:path": "/v22/{resourceName}:getSmartCampaignStatus", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

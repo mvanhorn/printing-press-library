@@ -154,12 +154,13 @@ func (a *Adapter) resolveByURL(ctx context.Context, episodeURL string) (*SearchH
 // hostHintsFromURL extracts publisher-name hint words from a URL host. Used
 // to reject spoken.md hits whose `podcast` field has nothing to do with the
 // host the user pointed us at. Examples:
-//   acquired.fm                 → ["acquired"]
-//   www.lexfridman.com          → ["lex", "fridman"]
-//   tim.blog                    → ["tim"]
-//   www.hubermanlab.com         → ["huberman", "lab"]
-//   open.spotify.com            → []   (skip — Spotify is a hosting platform, not the publisher)
-//   podcasts.apple.com          → []   (same)
+//
+//	acquired.fm                 → ["acquired"]
+//	www.lexfridman.com          → ["lex", "fridman"]
+//	tim.blog                    → ["tim"]
+//	www.hubermanlab.com         → ["huberman", "lab"]
+//	open.spotify.com            → []   (skip — Spotify is a hosting platform, not the publisher)
+//	podcasts.apple.com          → []   (same)
 func hostHintsFromURL(u string) []string {
 	if u == "" {
 		return nil

@@ -14,10 +14,10 @@ import (
 func newPokemonColorRetrieveCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "retrieve <id>",
-		Aliases: []string{"get"},
-		Short: "Colors used for sorting Pokémon in a Pokédex. The color listed in the Pokédex is usually the color most apparent...",
-		Example: "  pokeapi-pp-cli pokemon-color retrieve 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "retrieve <id>",
+		Aliases:     []string{"get"},
+		Short:       "Colors used for sorting Pokémon in a Pokédex. The color listed in the Pokédex is usually the color most apparent...",
+		Example:     "  pokeapi-pp-cli pokemon-color retrieve 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "pokemon-color.retrieve", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

@@ -14,10 +14,10 @@ import (
 func newProjectsMembersListAProjectSOrganizationCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "list-a-project-s-organization <organization_id_or_slug> <project_id_or_slug>",
-		Aliases: []string{"get"},
-		Short: "Returns a list of active organization members that belong to any team assigned to the project.",
-		Example: "  sentry-pp-cli projects members list-a-project-s-organization example-value example-value",
+		Use:         "list-a-project-s-organization <organization_id_or_slug> <project_id_or_slug>",
+		Aliases:     []string{"get"},
+		Short:       "Returns a list of active organization members that belong to any team assigned to the project.",
+		Example:     "  sentry-pp-cli projects members list-a-project-s-organization example-value example-value",
 		Annotations: map[string]string{"pp:endpoint": "members.list-a-project-s-organization", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

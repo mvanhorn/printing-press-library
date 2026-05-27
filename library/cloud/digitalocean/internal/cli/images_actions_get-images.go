@@ -14,9 +14,9 @@ import (
 func newImagesActionsGetImagesCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-images",
-		Short: "Get images",
-		Example: "  digitalocean-pp-cli images actions get-images",
+		Use:         "get-images",
+		Short:       "Get images",
+		Example:     "  digitalocean-pp-cli images actions get-images",
 		Annotations: map[string]string{"pp:endpoint": "actions.get-images", "pp:method": "GET", "pp:path": "/v2/images/{image_id}/actions/{action_id}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

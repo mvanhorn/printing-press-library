@@ -14,9 +14,9 @@ import (
 func newTeamGetTokenUsageCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-token-usage",
-		Short: "Get remaining tokens for the authenticated team (Extract only)",
-		Example: "  firecrawl-pp-cli team get-token-usage",
+		Use:         "get-token-usage",
+		Short:       "Get remaining tokens for the authenticated team (Extract only)",
+		Example:     "  firecrawl-pp-cli team get-token-usage",
 		Annotations: map[string]string{"pp:endpoint": "team.get-token-usage", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

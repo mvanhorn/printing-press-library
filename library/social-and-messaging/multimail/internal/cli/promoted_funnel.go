@@ -15,10 +15,10 @@ func newFunnelPromotedCmd(flags *rootFlags) *cobra.Command {
 	var bodyEvent string
 
 	cmd := &cobra.Command{
-		Use:   "funnel",
-		Short: "Pricing page beacon hit via navigator.sendBeacon to track open/submit/error events on the signup modal....",
-		Long:  "Shortcut for 'funnel create'. Pricing page beacon hit via navigator.sendBeacon to track open/submit/error events on the signup modal....",
-		Example: "  multimail-pp-cli funnel --event example-value",
+		Use:         "funnel",
+		Short:       "Pricing page beacon hit via navigator.sendBeacon to track open/submit/error events on the signup modal....",
+		Long:        "Shortcut for 'funnel create'. Pricing page beacon hit via navigator.sendBeacon to track open/submit/error events on the signup modal....",
+		Example:     "  multimail-pp-cli funnel --event example-value",
 		Annotations: map[string]string{"pp:endpoint": "funnel.create", "pp:method": "POST", "pp:path": "/v1/funnel/event"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("event") && !flags.dryRun {

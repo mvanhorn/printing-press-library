@@ -61,11 +61,11 @@ Uses a configurable time window (default 90 days) before and after each recall.`
 			}
 
 			type recallInfo struct {
-				ReportDate     string `json:"report_date"`
-				RecallingFirm  string `json:"recalling_firm"`
-				Classification string `json:"classification"`
-				Reason         string `json:"reason_for_recall"`
-				Status         string `json:"status"`
+				ReportDate     string    `json:"report_date"`
+				RecallingFirm  string    `json:"recalling_firm"`
+				Classification string    `json:"classification"`
+				Reason         string    `json:"reason_for_recall"`
+				Status         string    `json:"status"`
 				ParsedDate     time.Time `json:"-"`
 			}
 
@@ -191,11 +191,11 @@ Uses a configurable time window (default 90 days) before and after each recall.`
 			}
 
 			result := map[string]interface{}{
-				"drug":         drug,
-				"window_days":  windowDays,
+				"drug":          drug,
+				"window_days":   windowDays,
 				"total_recalls": len(recalls),
 				"total_events":  len(eventDates),
-				"correlations": correlations,
+				"correlations":  correlations,
 			}
 
 			if flags.asJSON {

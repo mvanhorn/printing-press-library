@@ -6,11 +6,11 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/pdok-location/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/pdok-location/internal/store"
 	"github.com/spf13/cobra"
 	"net/url"
 	"os"
-	"github.com/mvanhorn/printing-press-library/library/developer-tools/pdok-location/internal/cliutil"
-	"github.com/mvanhorn/printing-press-library/library/developer-tools/pdok-location/internal/store"
 	"regexp"
 	"strconv"
 	"strings"

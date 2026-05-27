@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/marketing/trendhunter/internal/client"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"io"
@@ -18,7 +19,6 @@ import (
 	"strings"
 	"text/tabwriter"
 	"time"
-	"github.com/mvanhorn/printing-press-library/library/marketing/trendhunter/internal/client"
 	"unicode"
 )
 

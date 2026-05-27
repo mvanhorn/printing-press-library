@@ -22,10 +22,10 @@ func newChatUpdatePromotedCmd(flags *rootFlags) *cobra.Command {
 	var bodyTimestamp int
 
 	cmd := &cobra.Command{
-		Use:   "chat-update",
-		Short: "Edit a previously posted bot message. The updated message can contain plain markdown text or rich [Block...",
-		Long:  "Shortcut for 'chat-update chat_update'. Edit a previously posted bot message. The updated message can contain plain markdown text or rich [Block...",
-		Example: "  roam-pp-cli chat-update --chat example-value",
+		Use:         "chat-update",
+		Short:       "Edit a previously posted bot message. The updated message can contain plain markdown text or rich [Block...",
+		Long:        "Shortcut for 'chat-update chat_update'. Edit a previously posted bot message. The updated message can contain plain markdown text or rich [Block...",
+		Example:     "  roam-pp-cli chat-update --chat example-value",
 		Annotations: map[string]string{"pp:endpoint": "chat-update.chat_update", "pp:method": "POST", "pp:path": "/chat.update"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("chat") && !flags.dryRun {

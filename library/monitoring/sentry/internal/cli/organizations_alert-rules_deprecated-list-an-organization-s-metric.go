@@ -14,10 +14,10 @@ import (
 func newOrganizationsAlertRulesDeprecatedListAnOrganizationSMetricCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "deprecated-list-an-organization-s-metric <organization_id_or_slug>",
-		Aliases: []string{"get"},
-		Short: "## Deprecated 🚧 Use [Fetch an Organization's Monitors](/api/monitors/fetch-an-organizations-monitors) and [Fetch...",
-		Example: "  sentry-pp-cli organizations alert-rules deprecated-list-an-organization-s-metric example-value",
+		Use:         "deprecated-list-an-organization-s-metric <organization_id_or_slug>",
+		Aliases:     []string{"get"},
+		Short:       "## Deprecated 🚧 Use [Fetch an Organization's Monitors](/api/monitors/fetch-an-organizations-monitors) and [Fetch...",
+		Example:     "  sentry-pp-cli organizations alert-rules deprecated-list-an-organization-s-metric example-value",
 		Annotations: map[string]string{"pp:endpoint": "alert-rules.deprecated-list-an-organization-s-metric", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

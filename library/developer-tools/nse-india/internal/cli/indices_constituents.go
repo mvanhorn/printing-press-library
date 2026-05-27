@@ -15,9 +15,9 @@ func newIndicesConstituentsCmd(flags *rootFlags) *cobra.Command {
 	var flagIndex string
 
 	cmd := &cobra.Command{
-		Use:   "constituents",
-		Short: "Live prices for all constituent stocks in an index with 52w range, 1Y/30D% change",
-		Example: "  nse-india-pp-cli indices constituents --index example-value",
+		Use:         "constituents",
+		Short:       "Live prices for all constituent stocks in an index with 52w range, 1Y/30D% change",
+		Example:     "  nse-india-pp-cli indices constituents --index example-value",
 		Annotations: map[string]string{"pp:endpoint": "indices.constituents", "pp:method": "GET", "pp:path": "/api/equity-stockIndices", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("index") && !flags.dryRun {

@@ -8,8 +8,8 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/productivity/marianatek/internal/store"
+	"github.com/spf13/cobra"
 )
 
 func newRegularsCmd(flags *rootFlags) *cobra.Command {

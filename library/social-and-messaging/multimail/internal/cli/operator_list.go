@@ -14,9 +14,9 @@ import (
 func newOperatorListCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "list",
-		Short: "Requires admin scope. Reports whether the current browser has an active operator-session cookie.",
-		Example: "  multimail-pp-cli operator list",
+		Use:         "list",
+		Short:       "Requires admin scope. Reports whether the current browser has an active operator-session cookie.",
+		Example:     "  multimail-pp-cli operator list",
 		Annotations: map[string]string{"pp:endpoint": "operator.list", "pp:method": "GET", "pp:path": "/v1/operator/session", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

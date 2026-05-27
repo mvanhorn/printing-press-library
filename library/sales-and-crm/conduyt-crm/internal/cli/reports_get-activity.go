@@ -14,10 +14,10 @@ import (
 func newReportsGetActivityCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-activity",
-		Aliases: []string{"list"},
-		Short: "Activity report",
-		Example: "  conduyt-crm-pp-cli reports get-activity",
+		Use:         "get-activity",
+		Aliases:     []string{"list"},
+		Short:       "Activity report",
+		Example:     "  conduyt-crm-pp-cli reports get-activity",
 		Annotations: map[string]string{"pp:endpoint": "reports.get-activity", "pp:method": "GET", "pp:path": "/reports/activity", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

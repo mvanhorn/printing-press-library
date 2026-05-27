@@ -14,10 +14,10 @@ import (
 func newRecommendationsPromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "recommendations <publication_id>",
-		Short: "List the publications a publication recommends",
-		Long:  "Shortcut for 'recommendations from'. List the publications a publication recommends",
-		Example: "  substack-pp-cli recommendations 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "recommendations <publication_id>",
+		Short:       "List the publications a publication recommends",
+		Long:        "Shortcut for 'recommendations from'. List the publications a publication recommends",
+		Example:     "  substack-pp-cli recommendations 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "recommendations.from", "pp:method": "GET", "pp:path": "https://{publication}.substack.com/api/v1/recommendations/from/{publication_id}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

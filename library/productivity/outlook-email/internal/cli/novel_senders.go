@@ -59,14 +59,14 @@ Sort order: count DESC, then unread DESC.
 				return apiErr(err)
 			}
 			type senderRow struct {
-				Sender          string    `json:"sender"`
-				Name            string    `json:"display_name,omitempty"`
-				Count           int       `json:"count"`
-				Unread          int       `json:"unread_count"`
-				FirstReceivedAt time.Time `json:"first_received_at"`
-				LastReceivedAt  time.Time `json:"last_received_at"`
-				DominantFolder  string    `json:"dominant_folder"`
-				LikelyBulk      bool      `json:"likely_bulk"`
+				Sender          string         `json:"sender"`
+				Name            string         `json:"display_name,omitempty"`
+				Count           int            `json:"count"`
+				Unread          int            `json:"unread_count"`
+				FirstReceivedAt time.Time      `json:"first_received_at"`
+				LastReceivedAt  time.Time      `json:"last_received_at"`
+				DominantFolder  string         `json:"dominant_folder"`
+				LikelyBulk      bool           `json:"likely_bulk"`
 				FolderCounts    map[string]int `json:"folder_counts,omitempty"`
 			}
 			agg := map[string]*senderRow{}
@@ -210,7 +210,7 @@ Silent window must end at "now" and be no larger than the baseline window.
 				return apiErr(err)
 			}
 			active := map[string]struct {
-				name string
+				name  string
 				count int
 				last  time.Time
 			}{}
@@ -233,11 +233,11 @@ Silent window must end at "now" and be no larger than the baseline window.
 				}
 			}
 			type quietRow struct {
-				Sender             string    `json:"sender"`
-				Name               string    `json:"display_name,omitempty"`
-				BaselineCount      int       `json:"baseline_count"`
-				LastReceivedAt     time.Time `json:"last_received_at"`
-				DaysSinceLast      int       `json:"days_since_last"`
+				Sender         string    `json:"sender"`
+				Name           string    `json:"display_name,omitempty"`
+				BaselineCount  int       `json:"baseline_count"`
+				LastReceivedAt time.Time `json:"last_received_at"`
+				DaysSinceLast  int       `json:"days_since_last"`
 			}
 			now := time.Now().UTC()
 			out := []quietRow{}

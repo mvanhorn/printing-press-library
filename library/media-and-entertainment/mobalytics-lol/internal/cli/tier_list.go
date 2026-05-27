@@ -7,8 +7,8 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/spf13/cobra"
 	moba "github.com/mvanhorn/printing-press-library/library/media-and-entertainment/mobalytics-lol/internal/mobalytics"
+	"github.com/spf13/cobra"
 )
 
 // newTierListCmd is the headline command: a flat tier list scraped from

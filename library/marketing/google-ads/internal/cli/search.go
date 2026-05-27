@@ -118,8 +118,8 @@ In local mode: searches locally synced data only.`,
 					return err
 				}
 				data, _, getErr := c.Post("/v22/googleAdsFields:search", map[string]any{
-					"query": query,
-					"pageSize": 10,
+					"query":     query,
+					"pageSize":  10,
 					"pageToken": "",
 				})
 				if getErr == nil {

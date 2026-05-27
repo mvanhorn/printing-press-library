@@ -14,9 +14,9 @@ import (
 func newKubernetesListOptionsCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "list-options",
-		Short: "List options",
-		Example: "  digitalocean-pp-cli kubernetes list-options",
+		Use:         "list-options",
+		Short:       "List options",
+		Example:     "  digitalocean-pp-cli kubernetes list-options",
 		Annotations: map[string]string{"pp:endpoint": "kubernetes.list-options", "pp:method": "GET", "pp:path": "/v2/kubernetes/options", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

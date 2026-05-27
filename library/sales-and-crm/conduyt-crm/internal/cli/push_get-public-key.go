@@ -14,10 +14,10 @@ import (
 func newPushGetPublicKeyCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-public-key",
-		Aliases: []string{"list"},
-		Short: "Get VAPID public key for web push",
-		Example: "  conduyt-crm-pp-cli push get-public-key",
+		Use:         "get-public-key",
+		Aliases:     []string{"list"},
+		Short:       "Get VAPID public key for web push",
+		Example:     "  conduyt-crm-pp-cli push get-public-key",
 		Annotations: map[string]string{"pp:endpoint": "push.get-public-key", "pp:method": "GET", "pp:path": "/push/public-key", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

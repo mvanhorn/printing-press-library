@@ -870,18 +870,18 @@ func TestParseDiggAge_RejectsMalformed(t *testing.T) {
 		"",
 		"   ",
 		"abc",
-		"5",        // no unit
-		"d",        // no number
-		"5y",       // unknown unit (years not supported)
-		"5x",       // unknown unit
-		"5.5d",     // not an integer
-		"five-d",   // not parseable as int
-		"5dd",      // double-suffix
-		"-3d",      // negative
-		"0d",       // zero
-		"0h",       // zero
-		"-1h",      // negative
-		"1.5h",     // non-integer
+		"5",      // no unit
+		"d",      // no number
+		"5y",     // unknown unit (years not supported)
+		"5x",     // unknown unit
+		"5.5d",   // not an integer
+		"five-d", // not parseable as int
+		"5dd",    // double-suffix
+		"-3d",    // negative
+		"0d",     // zero
+		"0h",     // zero
+		"-1h",    // negative
+		"1.5h",   // non-integer
 	}
 	for _, in := range bad {
 		in := in

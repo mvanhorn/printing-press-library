@@ -14,10 +14,10 @@ import (
 func newOrganizationsRelayUsageListAnOrganizationSTrustedRelaysCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "list-an-organization-s-trusted-relays <organization_id_or_slug>",
-		Aliases: []string{"get"},
-		Short: "Return a list of trusted relays bound to an organization.",
-		Example: "  sentry-pp-cli organizations relay-usage list-an-organization-s-trusted-relays example-value",
+		Use:         "list-an-organization-s-trusted-relays <organization_id_or_slug>",
+		Aliases:     []string{"get"},
+		Short:       "Return a list of trusted relays bound to an organization.",
+		Example:     "  sentry-pp-cli organizations relay-usage list-an-organization-s-trusted-relays example-value",
 		Annotations: map[string]string{"pp:endpoint": "relay-usage.list-an-organization-s-trusted-relays", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

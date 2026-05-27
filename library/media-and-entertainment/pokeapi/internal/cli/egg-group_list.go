@@ -18,9 +18,9 @@ func newEggGroupListCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "list",
-		Short: "Egg Groups are categories which determine which Pokémon are able to interbreed. Pokémon may belong to either one...",
-		Example: "  pokeapi-pp-cli egg-group list",
+		Use:         "list",
+		Short:       "Egg Groups are categories which determine which Pokémon are able to interbreed. Pokémon may belong to either one...",
+		Example:     "  pokeapi-pp-cli egg-group list",
 		Annotations: map[string]string{"pp:endpoint": "egg-group.list", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
@@ -30,9 +30,9 @@ func newEggGroupListCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/api/v2/egg-group/"
 			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "egg-group", path, map[string]string{
-				"limit": fmt.Sprintf("%v", flagLimit),
+				"limit":  fmt.Sprintf("%v", flagLimit),
 				"offset": fmt.Sprintf("%v", flagOffset),
-				"q": fmt.Sprintf("%v", flagQ),
+				"q":      fmt.Sprintf("%v", flagQ),
 			}, nil, flagAll, "offset", "", "")
 			if err != nil {
 				return classifyAPIError(err)

@@ -14,9 +14,9 @@ import (
 func newArGetInvoiceCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-invoice <invoiceId>",
-		Short: "Retrieve details of an invoice by its ID",
-		Example: "  mercury-pp-cli ar get-invoice 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "get-invoice <invoiceId>",
+		Short:       "Retrieve details of an invoice by its ID",
+		Example:     "  mercury-pp-cli ar get-invoice 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "ar.get-invoice", "pp:method": "GET", "pp:path": "/ar/invoices/{invoiceId}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

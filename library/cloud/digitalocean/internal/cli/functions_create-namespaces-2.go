@@ -16,9 +16,9 @@ func newFunctionsCreateNamespaces2Cmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "create-namespaces-2",
-		Short: "Create namespaces 2",
-		Example: "  digitalocean-pp-cli functions create-namespaces-2",
+		Use:         "create-namespaces-2",
+		Short:       "Create namespaces 2",
+		Example:     "  digitalocean-pp-cli functions create-namespaces-2",
 		Annotations: map[string]string{"pp:endpoint": "functions.create-namespaces-2", "pp:method": "POST", "pp:path": "/v2/functions/namespaces/{namespace_id}/triggers"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {
@@ -57,7 +57,9 @@ func newFunctionsCreateNamespaces2Cmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

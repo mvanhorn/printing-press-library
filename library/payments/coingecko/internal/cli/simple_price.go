@@ -20,10 +20,10 @@ func newSimplePriceCmd(flags *rootFlags) *cobra.Command {
 	var flagIncludeLastUpdatedAt string
 
 	cmd := &cobra.Command{
-		Use:   "price",
-		Aliases: []string{"list"},
-		Short: "Get price of coins",
-		Example: "  coingecko-pp-cli simple price",
+		Use:         "price",
+		Aliases:     []string{"list"},
+		Short:       "Get price of coins",
+		Example:     "  coingecko-pp-cli simple price",
 		Annotations: map[string]string{"pp:endpoint": "simple.price", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("ids") && !flags.dryRun {
@@ -33,7 +33,7 @@ func newSimplePriceCmd(flags *rootFlags) *cobra.Command {
 				return fmt.Errorf("required flag \"%s\" not set", "vs-currencies")
 			}
 			if cmd.Flags().Changed("include-market-cap") {
-				allowedIncludeMarketCap := []string{ "true", "false" }
+				allowedIncludeMarketCap := []string{"true", "false"}
 				validIncludeMarketCap := false
 				for _, v := range allowedIncludeMarketCap {
 					if flagIncludeMarketCap == v {
@@ -46,7 +46,7 @@ func newSimplePriceCmd(flags *rootFlags) *cobra.Command {
 				}
 			}
 			if cmd.Flags().Changed("include-24hr-vol") {
-				allowedInclude24hrVol := []string{ "true", "false" }
+				allowedInclude24hrVol := []string{"true", "false"}
 				validInclude24hrVol := false
 				for _, v := range allowedInclude24hrVol {
 					if flagInclude24hrVol == v {
@@ -59,7 +59,7 @@ func newSimplePriceCmd(flags *rootFlags) *cobra.Command {
 				}
 			}
 			if cmd.Flags().Changed("include-24hr-change") {
-				allowedInclude24hrChange := []string{ "true", "false" }
+				allowedInclude24hrChange := []string{"true", "false"}
 				validInclude24hrChange := false
 				for _, v := range allowedInclude24hrChange {
 					if flagInclude24hrChange == v {
@@ -72,7 +72,7 @@ func newSimplePriceCmd(flags *rootFlags) *cobra.Command {
 				}
 			}
 			if cmd.Flags().Changed("include-last-updated-at") {
-				allowedIncludeLastUpdatedAt := []string{ "true", "false" }
+				allowedIncludeLastUpdatedAt := []string{"true", "false"}
 				validIncludeLastUpdatedAt := false
 				for _, v := range allowedIncludeLastUpdatedAt {
 					if flagIncludeLastUpdatedAt == v {

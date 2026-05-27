@@ -131,7 +131,7 @@ func (s *Store) UpsertPlaybook(in UpsertPlaybookInput) (int64, bool, error) {
 // for the same family cannot race-overwrite each other's notes.
 //
 // Returns the row id, an insert/update bool, and any error. The
-// SQLite UPDATE uses COALESCE(notes_text, '') || ? so an absent or
+// SQLite UPDATE uses COALESCE(notes_text, ”) || ? so an absent or
 // NULL existing notes_text appends cleanly without a separate
 // read+rewrite step.
 func (s *Store) AppendPlaybookNotes(family, marker string) (int64, bool, error) {

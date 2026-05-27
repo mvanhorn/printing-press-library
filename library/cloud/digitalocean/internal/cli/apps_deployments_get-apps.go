@@ -14,9 +14,9 @@ import (
 func newAppsDeploymentsGetAppsCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-apps",
-		Short: "Get apps",
-		Example: "  digitalocean-pp-cli apps deployments get-apps",
+		Use:         "get-apps",
+		Short:       "Get apps",
+		Example:     "  digitalocean-pp-cli apps deployments get-apps",
 		Annotations: map[string]string{"pp:endpoint": "deployments.get-apps", "pp:method": "GET", "pp:path": "/v2/apps/{app_id}/deployments/{deployment_id}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

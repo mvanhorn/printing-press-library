@@ -11,8 +11,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/commerce/yahoo-finance/internal/optionsmath"
+	"github.com/spf13/cobra"
 )
 
 type coveredCallRow struct {

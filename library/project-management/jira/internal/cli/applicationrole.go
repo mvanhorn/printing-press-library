@@ -9,8 +9,8 @@ import (
 
 func newApplicationroleCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "applicationrole",
-		Short: "Manage applicationrole",
+		Use:    "applicationrole",
+		Short:  "Manage applicationrole",
 		Hidden: true,
 	}
 

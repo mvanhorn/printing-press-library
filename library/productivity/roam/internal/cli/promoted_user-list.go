@@ -18,10 +18,10 @@ func newUserListPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "user-list",
-		Short: "List all users in the account. Users are returned in the order they were added to the account. **Access:**...",
-		Long:  "Shortcut for 'user-list user_list'. List all users in the account. Users are returned in the order they were added to the account. **Access:**...",
-		Example: "  roam-pp-cli user-list",
+		Use:         "user-list",
+		Short:       "List all users in the account. Users are returned in the order they were added to the account. **Access:**...",
+		Long:        "Shortcut for 'user-list user_list'. List all users in the account. Users are returned in the order they were added to the account. **Access:**...",
+		Example:     "  roam-pp-cli user-list",
 		Annotations: map[string]string{"pp:endpoint": "user-list.user_list", "pp:method": "GET", "pp:path": "/user.list", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
@@ -31,7 +31,7 @@ func newUserListPromotedCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/user.list"
 			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "user-list", path, map[string]string{
-				"limit": fmt.Sprintf("%v", flagLimit),
+				"limit":  fmt.Sprintf("%v", flagLimit),
 				"cursor": fmt.Sprintf("%v", flagCursor),
 				"expand": fmt.Sprintf("%v", flagExpand),
 			}, nil, flagAll, "cursor", "", "")

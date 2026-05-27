@@ -14,9 +14,9 @@ import (
 func newAutomationsListEventsCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "list-events",
-		Short: "List available trigger events",
-		Example: "  conduyt-crm-pp-cli automations list-events",
+		Use:         "list-events",
+		Short:       "List available trigger events",
+		Example:     "  conduyt-crm-pp-cli automations list-events",
 		Annotations: map[string]string{"pp:endpoint": "automations.list-events", "pp:method": "GET", "pp:path": "/automations/events", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

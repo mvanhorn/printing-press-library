@@ -24,7 +24,7 @@ func newProfilesMeCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 
-			path := "/subscriptions"  // patched: Substack /profile not a JSON endpoint; /subscriptions returns user-scoped data and the canonical user_id
+			path := "/subscriptions" // patched: Substack /profile not a JSON endpoint; /subscriptions returns user-scoped data and the canonical user_id
 			params := map[string]string{}
 			data, prov, err := resolveRead(cmd.Context(), c, flags, "profiles", false, path, params, nil)
 			if err != nil {

@@ -4,8 +4,8 @@
 package cli
 
 import (
-	"github.com/mvanhorn/printing-press-library/library/marketing/botsee/internal/config"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/marketing/botsee/internal/config"
 	"github.com/spf13/cobra"
 	"os"
 )

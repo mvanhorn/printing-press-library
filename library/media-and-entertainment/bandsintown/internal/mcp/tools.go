@@ -12,13 +12,13 @@ import (
 	"strings"
 	"time"
 
+	mcplib "github.com/mark3labs/mcp-go/mcp"
+	"github.com/mark3labs/mcp-go/server"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/bandsintown/internal/cli"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/bandsintown/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/bandsintown/internal/config"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/bandsintown/internal/mcp/cobratree"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/bandsintown/internal/store"
-	mcplib "github.com/mark3labs/mcp-go/mcp"
-	"github.com/mark3labs/mcp-go/server"
 )
 
 // RegisterTools registers all API operations as MCP tools.

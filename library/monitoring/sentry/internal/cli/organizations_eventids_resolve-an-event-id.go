@@ -14,10 +14,10 @@ import (
 func newOrganizationsEventidsResolveAnEventIdCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "resolve-an-event-id <organization_id_or_slug> <event_id>",
-		Aliases: []string{"get"},
-		Short: "This resolves an event ID to the project slug and internal issue ID and internal event ID.",
-		Example: "  sentry-pp-cli organizations eventids resolve-an-event-id example-value 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "resolve-an-event-id <organization_id_or_slug> <event_id>",
+		Aliases:     []string{"get"},
+		Short:       "This resolves an event ID to the project slug and internal issue ID and internal event ID.",
+		Example:     "  sentry-pp-cli organizations eventids resolve-an-event-id example-value 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "eventids.resolve-an-event-id", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

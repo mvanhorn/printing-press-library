@@ -14,10 +14,10 @@ import (
 func newProjectClassificationConfigGetProjectCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-project <projectIdOrKey>",
-		Aliases: []string{"get"},
-		Short: "Returns the consolidated classification configuration for a project's admin settings page. This includes permitted...",
-		Example: "  jira-pp-cli project classification-config get-project your-token-here",
+		Use:         "get-project <projectIdOrKey>",
+		Aliases:     []string{"get"},
+		Short:       "Returns the consolidated classification configuration for a project's admin settings page. This includes permitted...",
+		Example:     "  jira-pp-cli project classification-config get-project your-token-here",
 		Annotations: map[string]string{"pp:endpoint": "classification-config.get-project", "pp:method": "GET", "pp:path": "/rest/api/3/project/{projectIdOrKey}/classification-config", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

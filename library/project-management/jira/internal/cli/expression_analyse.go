@@ -19,14 +19,14 @@ func newExpressionAnalyseCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "analyse",
-		Aliases: []string{"create"},
-		Short: "Analyses and validates Jira expressions. As an experimental feature, this operation can also attempt to type-check...",
-		Example: "  jira-pp-cli expression analyse",
+		Use:         "analyse",
+		Aliases:     []string{"create"},
+		Short:       "Analyses and validates Jira expressions. As an experimental feature, this operation can also attempt to type-check...",
+		Example:     "  jira-pp-cli expression analyse",
 		Annotations: map[string]string{"pp:endpoint": "expression.analyse", "pp:method": "POST", "pp:path": "/rest/api/3/expression/analyse"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if cmd.Flags().Changed("check") {
-				allowedCheck := []string{ "syntax", "type", "complexity" }
+				allowedCheck := []string{"syntax", "type", "complexity"}
 				validCheck := false
 				for _, v := range allowedCheck {
 					if flagCheck == v {
@@ -91,7 +91,9 @@ func newExpressionAnalyseCmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

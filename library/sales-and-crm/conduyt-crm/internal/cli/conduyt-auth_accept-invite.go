@@ -20,10 +20,10 @@ func newConduytAuthAcceptInviteCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "accept-invite",
-		Aliases: []string{"create"},
-		Short: "Accept a team invitation",
-		Example: "  conduyt-crm-pp-cli conduyt-auth accept-invite --password example-value",
+		Use:         "accept-invite",
+		Aliases:     []string{"create"},
+		Short:       "Accept a team invitation",
+		Example:     "  conduyt-crm-pp-cli conduyt-auth accept-invite --password example-value",
 		Annotations: map[string]string{"pp:endpoint": "conduyt-auth.accept-invite", "pp:method": "POST", "pp:path": "/auth/accept-invite"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {
@@ -80,7 +80,9 @@ func newConduytAuthAcceptInviteCmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

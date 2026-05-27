@@ -16,10 +16,10 @@ func newProjectsHooksListAProjectSServiceCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "list-a-project-s-service <organization_id_or_slug> <project_id_or_slug>",
-		Aliases: []string{"get"},
-		Short: "Return a list of service hooks bound to a project.",
-		Example: "  sentry-pp-cli projects hooks list-a-project-s-service example-value example-value",
+		Use:         "list-a-project-s-service <organization_id_or_slug> <project_id_or_slug>",
+		Aliases:     []string{"get"},
+		Short:       "Return a list of service hooks bound to a project.",
+		Example:     "  sentry-pp-cli projects hooks list-a-project-s-service example-value example-value",
 		Annotations: map[string]string{"pp:endpoint": "hooks.list-a-project-s-service", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

@@ -6,8 +6,8 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/commerce/ucp/internal/registry"
+	"github.com/spf13/cobra"
 )
 
 func newMerchantsCmd(flags *rootFlags) *cobra.Command {

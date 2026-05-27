@@ -18,10 +18,10 @@ func newDevicePmaPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagDecisionCode string
 
 	cmd := &cobra.Command{
-		Use:   "device-pma",
-		Short: "Search premarket approval records",
-		Long:  "Shortcut for 'device-pma list'. Search premarket approval records",
-		Example: "  openfda-pp-cli device-pma",
+		Use:         "device-pma",
+		Short:       "Search premarket approval records",
+		Long:        "Shortcut for 'device-pma list'. Search premarket approval records",
+		Example:     "  openfda-pp-cli device-pma",
 		Annotations: map[string]string{"pp:endpoint": "device-pma.list", "pp:method": "GET", "pp:path": "/device/pma.json", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

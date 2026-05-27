@@ -9,8 +9,8 @@ import (
 
 func newIssuesecurityschemesCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "issuesecurityschemes",
-		Short: "Manage issuesecurityschemes",
+		Use:    "issuesecurityschemes",
+		Short:  "Manage issuesecurityschemes",
 		Hidden: true,
 	}
 

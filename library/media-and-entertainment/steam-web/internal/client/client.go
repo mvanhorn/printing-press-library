@@ -9,6 +9,8 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/steam-web/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/steam-web/internal/config"
 	"io"
 	"math"
 	"net/http"
@@ -16,8 +18,6 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
-	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/steam-web/internal/cliutil"
-	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/steam-web/internal/config"
 	"strings"
 	"time"
 )

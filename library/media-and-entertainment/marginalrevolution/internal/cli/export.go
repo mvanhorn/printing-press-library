@@ -12,6 +12,7 @@ import (
 
 	"github.com/spf13/cobra"
 )
+
 func newExportCmd(flags *rootFlags) *cobra.Command {
 	var format string
 	var outputFile string

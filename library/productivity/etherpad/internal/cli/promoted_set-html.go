@@ -17,10 +17,10 @@ func newSetHtmlPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagAuthorId string
 
 	cmd := &cobra.Command{
-		Use:   "set-html",
-		Short: "sets the text of a pad with HTML",
-		Long:  "Shortcut for 'set-html set-htmlusing-post'. sets the text of a pad with HTML",
-		Example: "  etherpad-pp-cli set-html",
+		Use:         "set-html",
+		Short:       "sets the text of a pad with HTML",
+		Long:        "Shortcut for 'set-html set-htmlusing-post'. sets the text of a pad with HTML",
+		Example:     "  etherpad-pp-cli set-html",
 		Annotations: map[string]string{"pp:endpoint": "set-html.set-htmlusing-post", "pp:method": "POST", "pp:path": "/setHTML"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

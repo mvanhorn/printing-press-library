@@ -14,9 +14,9 @@ import (
 func newSecurityListSettingsCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "list-settings",
-		Short: "List settings",
-		Example: "  digitalocean-pp-cli security list-settings",
+		Use:         "list-settings",
+		Short:       "List settings",
+		Example:     "  digitalocean-pp-cli security list-settings",
 		Annotations: map[string]string{"pp:endpoint": "security.list-settings", "pp:method": "GET", "pp:path": "/v2/security/settings", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

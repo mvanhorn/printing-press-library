@@ -14,9 +14,9 @@ import (
 func newUserGetProfileBasicCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-profile-basic",
-		Short: "Retrieves the basic profile information (name, email) for the authenticated user.",
-		Example: "  whoop-pp-cli user get-profile-basic",
+		Use:         "get-profile-basic",
+		Short:       "Retrieves the basic profile information (name, email) for the authenticated user.",
+		Example:     "  whoop-pp-cli user get-profile-basic",
 		Annotations: map[string]string{"pp:endpoint": "user.get-profile-basic", "pp:method": "GET", "pp:path": "/v2/user/profile/basic", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

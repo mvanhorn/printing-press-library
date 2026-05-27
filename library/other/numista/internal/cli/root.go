@@ -16,11 +16,11 @@ import (
 	"text/tabwriter"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/other/numista/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/other/numista/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/other/numista/internal/config"
 	"github.com/mvanhorn/printing-press-library/library/other/numista/internal/store"
+	"github.com/spf13/cobra"
 )
 
 var version = "1.0.0"

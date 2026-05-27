@@ -15,10 +15,10 @@ func newUserauditlogListPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagDate string
 
 	cmd := &cobra.Command{
-		Use:   "userauditlog-list",
-		Short: "Get a list of user audit log entries for the account. **Access:** Organization only. **Required scope:**...",
-		Long:  "Shortcut for 'userauditlog-list userauditlog_list'. Get a list of user audit log entries for the account. **Access:** Organization only. **Required scope:**...",
-		Example: "  roam-pp-cli userauditlog-list",
+		Use:         "userauditlog-list",
+		Short:       "Get a list of user audit log entries for the account. **Access:** Organization only. **Required scope:**...",
+		Long:        "Shortcut for 'userauditlog-list userauditlog_list'. Get a list of user audit log entries for the account. **Access:** Organization only. **Required scope:**...",
+		Example:     "  roam-pp-cli userauditlog-list",
 		Annotations: map[string]string{"pp:endpoint": "userauditlog-list.userauditlog_list", "pp:method": "GET", "pp:path": "/userauditlog.list", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

@@ -29,10 +29,10 @@ func newOrganizationsDiscoverCreateANewSavedQueryCmd(flags *rootFlags) *cobra.Co
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "create-a-new-saved-query <organization_id_or_slug>",
-		Aliases: []string{"create"},
-		Short: "Create a new saved query for the given organization.",
-		Example: "  sentry-pp-cli organizations discover create-a-new-saved-query example-value --name example-resource",
+		Use:         "create-a-new-saved-query <organization_id_or_slug>",
+		Aliases:     []string{"create"},
+		Short:       "Create a new saved query for the given organization.",
+		Example:     "  sentry-pp-cli organizations discover create-a-new-saved-query example-value --name example-resource",
 		Annotations: map[string]string{"pp:endpoint": "discover.create-a-new-saved-query"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -129,7 +129,9 @@ func newOrganizationsDiscoverCreateANewSavedQueryCmd(flags *rootFlags) *cobra.Co
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

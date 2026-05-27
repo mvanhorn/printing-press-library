@@ -200,8 +200,8 @@ func TestChemistryVerdict_MixedDirections(t *testing.T) {
 // TestChemistryVerdict_SameDirection ensures the verdict stays single-word
 // when every out-of-range metric is on the same side (e.g. pH low + salt low).
 func TestChemistryVerdict_SameDirection(t *testing.T) {
-	ph := 7.0      // low
-	salt := 2400   // low
+	ph := 7.0    // low
+	salt := 2400 // low
 	v, r := ChemistryVerdict(&ph, nil, &salt)
 	if v != "low" {
 		t.Errorf("expected low when every metric is low, got %s", v)

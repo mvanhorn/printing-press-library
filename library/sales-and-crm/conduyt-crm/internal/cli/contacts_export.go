@@ -14,9 +14,9 @@ import (
 func newContactsExportCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "export",
-		Short: "Export contacts as CSV",
-		Example: "  conduyt-crm-pp-cli contacts export",
+		Use:         "export",
+		Short:       "Export contacts as CSV",
+		Example:     "  conduyt-crm-pp-cli contacts export",
 		Annotations: map[string]string{"pp:endpoint": "contacts.export", "pp:method": "GET", "pp:path": "/contacts/export", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

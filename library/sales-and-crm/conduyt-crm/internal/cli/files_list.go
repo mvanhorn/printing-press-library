@@ -16,13 +16,13 @@ func newFilesListCmd(flags *rootFlags) *cobra.Command {
 	var flagEntityId string
 
 	cmd := &cobra.Command{
-		Use:   "list",
-		Short: "List file attachments",
-		Example: "  conduyt-crm-pp-cli files list",
+		Use:         "list",
+		Short:       "List file attachments",
+		Example:     "  conduyt-crm-pp-cli files list",
 		Annotations: map[string]string{"pp:endpoint": "files.list", "pp:method": "GET", "pp:path": "/files", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if cmd.Flags().Changed("entity-type") {
-				allowedEntityType := []string{ "contact", "deal", "company" }
+				allowedEntityType := []string{"contact", "deal", "company"}
 				validEntityType := false
 				for _, v := range allowedEntityType {
 					if flagEntityType == v {

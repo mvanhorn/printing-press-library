@@ -14,9 +14,9 @@ import (
 func newFormsListCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "list",
-		Short: "List forms",
-		Example: "  conduyt-crm-pp-cli forms list",
+		Use:         "list",
+		Short:       "List forms",
+		Example:     "  conduyt-crm-pp-cli forms list",
 		Annotations: map[string]string{"pp:endpoint": "forms.list", "pp:method": "GET", "pp:path": "/forms", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

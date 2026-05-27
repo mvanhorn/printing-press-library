@@ -12,19 +12,19 @@ import (
 // AP2Mandate is the common shape for IntentMandate, CartMandate, PaymentMandate.
 // Each has metadata + a body that an external AP2 CLI/agent signs.
 type AP2Mandate struct {
-	Type      string          `json:"type"`               // "intent" | "cart" | "payment"
+	Type      string          `json:"type"` // "intent" | "cart" | "payment"
 	MandateID string          `json:"mandate_id"`
 	IssuedAt  string          `json:"issued_at"`
 	ExpiresAt string          `json:"expires_at,omitempty"`
-	Subject   string          `json:"subject"`   // user agent identifier or pseudonym
+	Subject   string          `json:"subject"` // user agent identifier or pseudonym
 	Body      json.RawMessage `json:"body"`
-	BodyHash  string          `json:"body_hash"` // SHA-256 of canonicalized body
+	BodyHash  string          `json:"body_hash"`           // SHA-256 of canonicalized body
 	Signature string          `json:"signature,omitempty"` // filled in by AP2 CLI
 }
 
 // IntentMandateBody describes what the user authorized in plain language.
 type IntentMandateBody struct {
-	Description      string   `json:"description"`        // e.g. "Buy a durable dog rope toy under $30"
+	Description      string   `json:"description"` // e.g. "Buy a durable dog rope toy under $30"
 	MaxAmountCents   int      `json:"max_amount_cents"`
 	Currency         string   `json:"currency"`
 	AllowedMerchants []string `json:"allowed_merchants,omitempty"`

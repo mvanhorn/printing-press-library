@@ -15,9 +15,9 @@ func newPostsRankedAuthorsCmd(flags *rootFlags) *cobra.Command {
 	var flagPublic bool
 
 	cmd := &cobra.Command{
-		Use:   "ranked-authors",
-		Short: "Ranked list of authors for a publication",
-		Example: "  substack-pp-cli posts ranked-authors",
+		Use:         "ranked-authors",
+		Short:       "Ranked list of authors for a publication",
+		Example:     "  substack-pp-cli posts ranked-authors",
 		Annotations: map[string]string{"pp:endpoint": "posts.ranked-authors", "pp:method": "GET", "pp:path": "https://{publication}.substack.com/api/v1/publication/users/ranked", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

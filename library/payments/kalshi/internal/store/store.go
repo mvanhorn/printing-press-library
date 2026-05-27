@@ -2084,7 +2084,7 @@ var resourceIDFieldOverrides = map[string]string{
 	"events":                "event_ticker",
 	"fcm":                   "order_id",
 	"historical":            "fill_id",
-	"markets":                "ticker",
+	"markets":               "ticker",
 	"portfolio":             "fill_id",
 	"portfolio-settlements": "ticker",
 	"series":                "series_ticker",

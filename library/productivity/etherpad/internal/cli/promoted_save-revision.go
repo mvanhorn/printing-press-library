@@ -16,10 +16,10 @@ func newSaveRevisionPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagRev string
 
 	cmd := &cobra.Command{
-		Use:   "save-revision",
-		Short: "saves a revision of a pad",
-		Long:  "Shortcut for 'save-revision using-post'. saves a revision of a pad",
-		Example: "  etherpad-pp-cli save-revision",
+		Use:         "save-revision",
+		Short:       "saves a revision of a pad",
+		Long:        "Shortcut for 'save-revision using-post'. saves a revision of a pad",
+		Example:     "  etherpad-pp-cli save-revision",
 		Annotations: map[string]string{"pp:endpoint": "save-revision.using-post", "pp:method": "POST", "pp:path": "/saveRevision"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

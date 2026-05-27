@@ -15,10 +15,10 @@ func newGetPublicStatusPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagPadID string
 
 	cmd := &cobra.Command{
-		Use:   "get-public-status",
-		Short: "return true of false",
-		Long:  "Shortcut for 'get-public-status using-post'. return true of false",
-		Example: "  etherpad-pp-cli get-public-status",
+		Use:         "get-public-status",
+		Short:       "return true of false",
+		Long:        "Shortcut for 'get-public-status using-post'. return true of false",
+		Example:     "  etherpad-pp-cli get-public-status",
 		Annotations: map[string]string{"pp:endpoint": "get-public-status.using-post", "pp:method": "POST", "pp:path": "/getPublicStatus"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

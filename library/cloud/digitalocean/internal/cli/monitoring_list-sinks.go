@@ -14,9 +14,9 @@ import (
 func newMonitoringListSinksCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "list-sinks",
-		Short: "List sinks",
-		Example: "  digitalocean-pp-cli monitoring list-sinks",
+		Use:         "list-sinks",
+		Short:       "List sinks",
+		Example:     "  digitalocean-pp-cli monitoring list-sinks",
 		Annotations: map[string]string{"pp:endpoint": "monitoring.list-sinks", "pp:method": "GET", "pp:path": "/v2/monitoring/sinks", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

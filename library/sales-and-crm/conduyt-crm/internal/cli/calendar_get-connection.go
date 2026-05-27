@@ -14,10 +14,10 @@ import (
 func newCalendarGetConnectionCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-connection <id>",
-		Aliases: []string{"get"},
-		Short: "Get a calendar connection by ID",
-		Example: "  conduyt-crm-pp-cli calendar get-connection 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "get-connection <id>",
+		Aliases:     []string{"get"},
+		Short:       "Get a calendar connection by ID",
+		Example:     "  conduyt-crm-pp-cli calendar get-connection 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "calendar.get-connection", "pp:method": "GET", "pp:path": "/calendar/connections/{id}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

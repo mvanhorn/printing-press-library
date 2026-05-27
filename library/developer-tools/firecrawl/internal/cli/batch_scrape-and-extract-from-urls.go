@@ -32,10 +32,10 @@ func newBatchScrapeAndExtractFromUrlsCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "scrape-and-extract-from-urls",
-		Aliases: []string{"create"},
-		Short: "Scrape multiple URLs and optionally extract information using an LLM",
-		Example: "  firecrawl-pp-cli batch scrape-and-extract-from-urls",
+		Use:         "scrape-and-extract-from-urls",
+		Aliases:     []string{"create"},
+		Short:       "Scrape multiple URLs and optionally extract information using an LLM",
+		Example:     "  firecrawl-pp-cli batch scrape-and-extract-from-urls",
 		Annotations: map[string]string{"pp:endpoint": "batch.scrape-and-extract-from-urls"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {
@@ -141,7 +141,9 @@ func newBatchScrapeAndExtractFromUrlsCmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

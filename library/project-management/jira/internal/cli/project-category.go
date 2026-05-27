@@ -9,8 +9,8 @@ import (
 
 func newProjectCategoryCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "project-category",
-		Short: "Manage project category",
+		Use:    "project-category",
+		Short:  "Manage project category",
 		Hidden: true,
 	}
 

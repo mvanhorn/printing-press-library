@@ -16,10 +16,10 @@ func newMoversPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagKey string
 
 	cmd := &cobra.Command{
-		Use:   "movers",
-		Short: "Most active intraday securities ranked by volume or traded value",
-		Long:  "Shortcut for 'movers active'. Most active intraday securities ranked by volume or traded value",
-		Example: "  nse-india-pp-cli movers",
+		Use:         "movers",
+		Short:       "Most active intraday securities ranked by volume or traded value",
+		Long:        "Shortcut for 'movers active'. Most active intraday securities ranked by volume or traded value",
+		Example:     "  nse-india-pp-cli movers",
 		Annotations: map[string]string{"pp:endpoint": "movers.active", "pp:method": "GET", "pp:path": "/api/live-analysis-most-active-securities", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

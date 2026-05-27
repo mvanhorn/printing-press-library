@@ -14,10 +14,10 @@ import (
 func newCreateGroupPromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "create-group",
-		Short: "creates a new group",
-		Long:  "Shortcut for 'create-group using-post'. creates a new group",
-		Example: "  etherpad-pp-cli create-group",
+		Use:         "create-group",
+		Short:       "creates a new group",
+		Long:        "Shortcut for 'create-group using-post'. creates a new group",
+		Example:     "  etherpad-pp-cli create-group",
 		Annotations: map[string]string{"pp:endpoint": "create-group.using-post", "pp:method": "POST", "pp:path": "/createGroup"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

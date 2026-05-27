@@ -29,8 +29,8 @@ import (
 // whether a row's text was recovered from the typedstream blob, from the
 // message.text column, or could not be decoded at all.
 const (
-	textSourceDecoded      = "decoded"
-	textSourceTextColumn   = "text_column"
+	textSourceDecoded       = "decoded"
+	textSourceTextColumn    = "text_column"
 	textSourceUnrecoverable = "unrecoverable"
 )
 

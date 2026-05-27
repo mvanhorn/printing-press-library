@@ -17,9 +17,9 @@ func newPostsArchiveCmd(flags *rootFlags) *cobra.Command {
 	var flagOffset string
 
 	cmd := &cobra.Command{
-		Use:   "archive",
-		Short: "Public archive of a publication's posts",
-		Example: "  substack-pp-cli posts archive",
+		Use:         "archive",
+		Short:       "Public archive of a publication's posts",
+		Example:     "  substack-pp-cli posts archive",
 		Annotations: map[string]string{"pp:endpoint": "posts.archive", "pp:method": "GET", "pp:path": "https://{publication}.substack.com/api/v1/archive", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

@@ -17,10 +17,10 @@ func newCustomersLocalServicesLeadsPromotedCmd(flags *rootFlags) *cobra.Command 
 	var bodySurveySatisfied string
 
 	cmd := &cobra.Command{
-		Use:   "customers-local-services-leads <resourceName>",
-		Short: "RPC to provide feedback on Local Services Lead resources.",
-		Long:  "Shortcut for 'customers_local_services_leads provide_lead_feedback'. RPC to provide feedback on Local Services Lead resources.",
-		Example: "  google-ads-pp-cli customers-local-services-leads",
+		Use:         "customers-local-services-leads <resourceName>",
+		Short:       "RPC to provide feedback on Local Services Lead resources.",
+		Long:        "Shortcut for 'customers_local_services_leads provide_lead_feedback'. RPC to provide feedback on Local Services Lead resources.",
+		Example:     "  google-ads-pp-cli customers-local-services-leads",
 		Annotations: map[string]string{"pp:endpoint": "customers_local_services_leads.provide_lead_feedback", "pp:method": "POST", "pp:path": "/v22/{resourceName}:provideLeadFeedback"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

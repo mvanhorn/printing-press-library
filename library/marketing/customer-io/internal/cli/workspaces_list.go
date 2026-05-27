@@ -14,9 +14,9 @@ import (
 func newWorkspacesListCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "list",
-		Short: "Read the current account, including environment_ids visible to the SA token",
-		Example: "  customer-io-pp-cli workspaces list",
+		Use:         "list",
+		Short:       "Read the current account, including environment_ids visible to the SA token",
+		Example:     "  customer-io-pp-cli workspaces list",
 		Annotations: map[string]string{"pp:endpoint": "workspaces.list", "pp:method": "GET", "pp:path": "/v1/accounts/current", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

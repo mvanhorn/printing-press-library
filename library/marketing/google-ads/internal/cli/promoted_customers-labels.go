@@ -18,10 +18,10 @@ func newCustomersLabelsPromotedCmd(flags *rootFlags) *cobra.Command {
 	var bodyValidateOnly bool
 
 	cmd := &cobra.Command{
-		Use:   "customers-labels <customerId>",
-		Short: "Creates, updates, or removes labels. Operation statuses are returned.",
-		Long:  "Shortcut for 'customers_labels mutate'. Creates, updates, or removes labels. Operation statuses are returned.",
-		Example: "  google-ads-pp-cli customers-labels",
+		Use:         "customers-labels <customerId>",
+		Short:       "Creates, updates, or removes labels. Operation statuses are returned.",
+		Long:        "Shortcut for 'customers_labels mutate'. Creates, updates, or removes labels. Operation statuses are returned.",
+		Example:     "  google-ads-pp-cli customers-labels",
 		Annotations: map[string]string{"pp:endpoint": "customers_labels.mutate", "pp:method": "POST", "pp:path": "/v22/customers/{customerId}/labels:mutate"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

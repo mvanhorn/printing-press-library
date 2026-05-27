@@ -21,9 +21,9 @@ func newIssueLinkTypeCreateCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "create",
-		Short: "Creates an issue link type. Use this operation to create descriptions of the reasons why issues are linked. The...",
-		Example: "  jira-pp-cli issue-link-type create",
+		Use:         "create",
+		Short:       "Creates an issue link type. Use this operation to create descriptions of the reasons why issues are linked. The...",
+		Example:     "  jira-pp-cli issue-link-type create",
 		Annotations: map[string]string{"pp:endpoint": "issue-link-type.create", "pp:method": "POST", "pp:path": "/rest/api/3/issueLinkType"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {
@@ -77,7 +77,9 @@ func newIssueLinkTypeCreateCmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

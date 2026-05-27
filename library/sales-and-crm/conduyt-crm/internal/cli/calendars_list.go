@@ -14,9 +14,9 @@ import (
 func newCalendarsListCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "list",
-		Short: "List internal calendars",
-		Example: "  conduyt-crm-pp-cli calendars list",
+		Use:         "list",
+		Short:       "List internal calendars",
+		Example:     "  conduyt-crm-pp-cli calendars list",
 		Annotations: map[string]string{"pp:endpoint": "calendars.list", "pp:method": "GET", "pp:path": "/calendars", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

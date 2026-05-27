@@ -16,9 +16,9 @@ func newGenAiCreateGenai23Cmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "create-genai-23",
-		Short: "Create genai 23",
-		Example: "  digitalocean-pp-cli gen-ai create-genai-23",
+		Use:         "create-genai-23",
+		Short:       "Create genai 23",
+		Example:     "  digitalocean-pp-cli gen-ai create-genai-23",
 		Annotations: map[string]string{"pp:endpoint": "gen-ai.create-genai-23", "pp:method": "POST", "pp:path": "/v2/gen-ai/agents/{agent_uuid}/knowledge_bases/{knowledge_base_uuid}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {
@@ -57,7 +57,9 @@ func newGenAiCreateGenai23Cmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

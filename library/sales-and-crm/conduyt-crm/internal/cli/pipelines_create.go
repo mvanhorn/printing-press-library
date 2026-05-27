@@ -19,9 +19,9 @@ func newPipelinesCreateCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "create",
-		Short: "Requires owner or admin role. Subject to plan limits.",
-		Example: "  conduyt-crm-pp-cli pipelines create --name example-resource",
+		Use:         "create",
+		Short:       "Requires owner or admin role. Subject to plan limits.",
+		Example:     "  conduyt-crm-pp-cli pipelines create --name example-resource",
 		Annotations: map[string]string{"pp:endpoint": "pipelines.create", "pp:method": "POST", "pp:path": "/pipelines"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {
@@ -76,7 +76,9 @@ func newPipelinesCreateCmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

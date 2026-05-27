@@ -4,10 +4,10 @@
 package cli
 
 import (
-	"github.com/mvanhorn/printing-press-library/library/travel/booking-com/internal/cliutil"
-	"github.com/mvanhorn/printing-press-library/library/travel/booking-com/internal/store"
 	"encoding/json"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/travel/booking-com/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/travel/booking-com/internal/store"
 	"github.com/spf13/cobra"
 	"net/url"
 	"os"

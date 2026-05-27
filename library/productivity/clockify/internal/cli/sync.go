@@ -4,10 +4,10 @@
 package cli
 
 import (
-	"github.com/mvanhorn/printing-press-library/library/productivity/clockify/internal/cliutil"
-	"github.com/mvanhorn/printing-press-library/library/productivity/clockify/internal/store"
 	"encoding/json"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/productivity/clockify/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/productivity/clockify/internal/store"
 	"github.com/spf13/cobra"
 	"net/url"
 	"os"

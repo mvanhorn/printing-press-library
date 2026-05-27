@@ -14,9 +14,9 @@ import (
 func newIndicesListCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "list",
-		Short: "List all available NSE indices with short and long names",
-		Example: "  nse-india-pp-cli indices list",
+		Use:         "list",
+		Short:       "List all available NSE indices with short and long names",
+		Example:     "  nse-india-pp-cli indices list",
 		Annotations: map[string]string{"pp:endpoint": "indices.list", "pp:method": "GET", "pp:path": "/api/index-names", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

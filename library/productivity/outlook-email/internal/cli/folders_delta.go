@@ -17,9 +17,9 @@ func newFoldersDeltaCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "delta",
-		Short: "Delta-sync of the mail folder hierarchy",
-		Example: "  outlook-email-pp-cli folders delta",
+		Use:         "delta",
+		Short:       "Delta-sync of the mail folder hierarchy",
+		Example:     "  outlook-email-pp-cli folders delta",
 		Annotations: map[string]string{"pp:endpoint": "folders.delta", "pp:method": "GET", "pp:path": "/me/mailFolders/delta", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
@@ -30,7 +30,7 @@ func newFoldersDeltaCmd(flags *rootFlags) *cobra.Command {
 			path := "/me/mailFolders/delta"
 			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "folders", path, map[string]string{
 				"$deltatoken": fmt.Sprintf("%v", flagDeltatoken),
-				"$top": fmt.Sprintf("%v", flagTop),
+				"$top":        fmt.Sprintf("%v", flagTop),
 			}, nil, flagAll, "", "", "")
 			if err != nil {
 				return classifyAPIError(err, flags)

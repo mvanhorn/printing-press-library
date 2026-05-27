@@ -15,10 +15,10 @@ func newGetSavedRevisionsCountPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagPadID string
 
 	cmd := &cobra.Command{
-		Use:   "get-saved-revisions-count",
-		Short: "returns the number of saved revisions of a pad",
-		Long:  "Shortcut for 'get-saved-revisions-count using-post'. returns the number of saved revisions of a pad",
-		Example: "  etherpad-pp-cli get-saved-revisions-count",
+		Use:         "get-saved-revisions-count",
+		Short:       "returns the number of saved revisions of a pad",
+		Long:        "Shortcut for 'get-saved-revisions-count using-post'. returns the number of saved revisions of a pad",
+		Example:     "  etherpad-pp-cli get-saved-revisions-count",
 		Annotations: map[string]string{"pp:endpoint": "get-saved-revisions-count.using-post", "pp:method": "POST", "pp:path": "/getSavedRevisionsCount"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

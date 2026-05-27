@@ -14,10 +14,10 @@ import (
 func newItemRetrieveCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "retrieve <id>",
-		Aliases: []string{"get"},
-		Short: "An item is an object in the games which the player can pick up, keep in their bag, and use in some manner. They have...",
-		Example: "  pokeapi-pp-cli item retrieve 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "retrieve <id>",
+		Aliases:     []string{"get"},
+		Short:       "An item is an object in the games which the player can pick up, keep in their bag, and use in some manner. They have...",
+		Example:     "  pokeapi-pp-cli item retrieve 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "item.retrieve", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

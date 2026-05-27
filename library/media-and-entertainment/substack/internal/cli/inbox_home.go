@@ -16,9 +16,9 @@ func newInboxHomeCmd(flags *rootFlags) *cobra.Command {
 	var flagCursor string
 
 	cmd := &cobra.Command{
-		Use:   "home",
-		Short: "Authenticated home feed",
-		Example: "  substack-pp-cli inbox home",
+		Use:         "home",
+		Short:       "Authenticated home feed",
+		Example:     "  substack-pp-cli inbox home",
 		Annotations: map[string]string{"pp:endpoint": "inbox.home", "pp:method": "GET", "pp:path": "/reader/feed", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

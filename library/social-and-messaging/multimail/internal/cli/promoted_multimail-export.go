@@ -14,10 +14,10 @@ import (
 func newMultimailExportPromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "multimail-export",
-		Short: "Requires admin scope. Rate limited to 1 request per hour.",
-		Long:  "Shortcut for 'multimail-export list'. Requires admin scope. Rate limited to 1 request per hour.",
-		Example: "  multimail-pp-cli multimail-export",
+		Use:         "multimail-export",
+		Short:       "Requires admin scope. Rate limited to 1 request per hour.",
+		Long:        "Shortcut for 'multimail-export list'. Requires admin scope. Rate limited to 1 request per hour.",
+		Example:     "  multimail-pp-cli multimail-export",
 		Annotations: map[string]string{"pp:endpoint": "multimail-export.list", "pp:method": "GET", "pp:path": "/v1/export", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

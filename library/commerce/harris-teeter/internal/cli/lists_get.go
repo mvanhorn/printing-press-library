@@ -14,9 +14,9 @@ import (
 func newListsGetCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get <list_id>",
-		Short: "Get a shopping list by ID.",
-		Example: "  harris-teeter-pp-cli lists get 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "get <list_id>",
+		Short:       "Get a shopping list by ID.",
+		Example:     "  harris-teeter-pp-cli lists get 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "lists.get", "pp:method": "GET", "pp:path": "/atlas/v1/shopping-list/v1/shopping-lists/{list_id}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

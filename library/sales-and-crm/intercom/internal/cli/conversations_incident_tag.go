@@ -8,8 +8,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/sales-and-crm/intercom/internal/cliutil"
+	"github.com/spf13/cobra"
 )
 
 func newConversationsIncidentTagCmd(flags *rootFlags) *cobra.Command {
@@ -193,7 +193,7 @@ func newConversationsIncidentTagCmd(flags *rootFlags) *cobra.Command {
 				"tagged":           tagged,
 				"failed":           failed,
 				"total_count_hint": totalHint,
-				"limit_reached":    (tagged + failed) >= limit && totalHint > matched,
+				"limit_reached":    (tagged+failed) >= limit && totalHint > matched,
 			}
 			return printJSONFiltered(cmd.OutOrStdout(), summary, flags)
 		},

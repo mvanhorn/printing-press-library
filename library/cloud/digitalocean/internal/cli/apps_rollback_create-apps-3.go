@@ -16,9 +16,9 @@ func newAppsRollbackCreateApps3Cmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "create-apps-3",
-		Short: "Create apps 3",
-		Example: "  digitalocean-pp-cli apps rollback create-apps-3",
+		Use:         "create-apps-3",
+		Short:       "Create apps 3",
+		Example:     "  digitalocean-pp-cli apps rollback create-apps-3",
 		Annotations: map[string]string{"pp:endpoint": "rollback.create-apps-3", "pp:method": "POST", "pp:path": "/v2/apps/{app_id}/rollback/validate"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {
@@ -57,7 +57,9 @@ func newAppsRollbackCreateApps3Cmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

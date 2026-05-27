@@ -14,9 +14,9 @@ import (
 func newTagsListCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "list",
-		Short: "List all tags for the publication",
-		Example: "  substack-pp-cli tags list",
+		Use:         "list",
+		Short:       "List all tags for the publication",
+		Example:     "  substack-pp-cli tags list",
 		Annotations: map[string]string{"pp:endpoint": "tags.list", "pp:method": "GET", "pp:path": "https://{publication}.substack.com/api/v1/publication/post-tag", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

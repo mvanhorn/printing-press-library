@@ -15,10 +15,10 @@ func newConduytSearchPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagQ string
 
 	cmd := &cobra.Command{
-		Use:   "conduyt-search",
-		Short: "Global search across contacts, companies, and deals",
-		Long:  "Shortcut for 'conduyt-search global'. Global search across contacts, companies, and deals",
-		Example: "  conduyt-crm-pp-cli conduyt-search --q example-value",
+		Use:         "conduyt-search",
+		Short:       "Global search across contacts, companies, and deals",
+		Long:        "Shortcut for 'conduyt-search global'. Global search across contacts, companies, and deals",
+		Example:     "  conduyt-crm-pp-cli conduyt-search --q example-value",
 		Annotations: map[string]string{"pp:endpoint": "conduyt-search.global", "pp:method": "GET", "pp:path": "/search", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("q") && !flags.dryRun {

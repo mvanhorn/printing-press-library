@@ -14,9 +14,9 @@ import (
 func newSettingsGetTwilioCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-twilio",
-		Short: "Get Twilio configuration",
-		Example: "  conduyt-crm-pp-cli settings get-twilio",
+		Use:         "get-twilio",
+		Short:       "Get Twilio configuration",
+		Example:     "  conduyt-crm-pp-cli settings get-twilio",
 		Annotations: map[string]string{"pp:endpoint": "settings.get-twilio", "pp:method": "GET", "pp:path": "/settings/twilio", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

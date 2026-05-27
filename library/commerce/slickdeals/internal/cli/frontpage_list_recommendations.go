@@ -19,9 +19,9 @@ func newFrontpageListRecommendationsCmd(flags *rootFlags) *cobra.Command {
 	var flagUseFrontpageBadge int
 
 	cmd := &cobra.Command{
-		Use:   "list-recommendations",
-		Short: "GET /frontpage/recommendation-carousel/recommendations",
-		Example: "  slickdeals-pp-cli frontpage list-recommendations",
+		Use:         "list-recommendations",
+		Short:       "GET /frontpage/recommendation-carousel/recommendations",
+		Example:     "  slickdeals-pp-cli frontpage list-recommendations",
 		Annotations: map[string]string{"pp:endpoint": "frontpage.list_recommendations", "pp:method": "GET", "pp:path": "/frontpage/recommendation-carousel/recommendations", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

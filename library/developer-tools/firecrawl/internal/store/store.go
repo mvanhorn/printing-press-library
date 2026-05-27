@@ -716,6 +716,7 @@ func sqliteFieldValue(v any) any {
 func lookupFieldValue(obj map[string]any, snakeKey string) any {
 	return LookupFieldValue(obj, snakeKey)
 }
+
 // upsertCrawlTx writes the typed-table portion of a crawl upsert
 // inside an existing transaction. The caller is responsible for the generic
 // resources insert (via upsertGenericResourceTx) and for committing the tx.
@@ -774,6 +775,7 @@ func (s *Store) UpsertCrawl(data json.RawMessage) error {
 
 	return tx.Commit()
 }
+
 // upsertErrorsTx writes the typed-table portion of a errors upsert
 // inside an existing transaction. The caller is responsible for the generic
 // resources insert (via upsertGenericResourceTx) and for committing the tx.
@@ -824,6 +826,7 @@ func (s *Store) UpsertErrors(data json.RawMessage) error {
 
 	return tx.Commit()
 }
+
 // upsertDeepResearchTx writes the typed-table portion of a deep_research upsert
 // inside an existing transaction. The caller is responsible for the generic
 // resources insert (via upsertGenericResourceTx) and for committing the tx.
@@ -879,6 +882,7 @@ func (s *Store) UpsertDeepResearch(data json.RawMessage) error {
 
 	return tx.Commit()
 }
+
 // upsertMapTx writes the typed-table portion of a map upsert
 // inside an existing transaction. The caller is responsible for the generic
 // resources insert (via upsertGenericResourceTx) and for committing the tx.
@@ -935,6 +939,7 @@ func (s *Store) UpsertMap(data json.RawMessage) error {
 
 	return tx.Commit()
 }
+
 // upsertFirecrawlSearchTx writes the typed-table portion of a firecrawl_search upsert
 // inside an existing transaction. The caller is responsible for the generic
 // resources insert (via upsertGenericResourceTx) and for committing the tx.
@@ -990,6 +995,7 @@ func (s *Store) UpsertFirecrawlSearch(data json.RawMessage) error {
 
 	return tx.Commit()
 }
+
 // upsertExtractTx writes the typed-table portion of a extract upsert
 // inside an existing transaction. The caller is responsible for the generic
 // resources insert (via upsertGenericResourceTx) and for committing the tx.
@@ -1045,6 +1051,7 @@ func (s *Store) UpsertExtract(data json.RawMessage) error {
 
 	return tx.Commit()
 }
+
 // upsertLlmstxtTx writes the typed-table portion of a llmstxt upsert
 // inside an existing transaction. The caller is responsible for the generic
 // resources insert (via upsertGenericResourceTx) and for committing the tx.
@@ -1097,6 +1104,7 @@ func (s *Store) UpsertLlmstxt(data json.RawMessage) error {
 
 	return tx.Commit()
 }
+
 // upsertScrapeTx writes the typed-table portion of a scrape upsert
 // inside an existing transaction. The caller is responsible for the generic
 // resources insert (via upsertGenericResourceTx) and for committing the tx.

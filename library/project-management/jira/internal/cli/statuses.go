@@ -9,8 +9,8 @@ import (
 
 func newStatusesCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "statuses",
-		Short: "Manage statuses",
+		Use:    "statuses",
+		Short:  "Manage statuses",
 		Hidden: true,
 	}
 

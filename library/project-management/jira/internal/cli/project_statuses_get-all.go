@@ -14,10 +14,10 @@ import (
 func newProjectStatusesGetAllCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-all <projectIdOrKey>",
-		Aliases: []string{"get"},
-		Short: "Returns the valid statuses for a project. The statuses are grouped by issue type, as each project has a set of valid...",
-		Example: "  jira-pp-cli project statuses get-all your-token-here",
+		Use:         "get-all <projectIdOrKey>",
+		Aliases:     []string{"get"},
+		Short:       "Returns the valid statuses for a project. The statuses are grouped by issue type, as each project has a set of valid...",
+		Example:     "  jira-pp-cli project statuses get-all your-token-here",
 		Annotations: map[string]string{"pp:endpoint": "statuses.get-all", "pp:method": "GET", "pp:path": "/rest/api/3/project/{projectIdOrKey}/statuses", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

@@ -16,9 +16,9 @@ func newCorporateAnnualReportsCmd(flags *rootFlags) *cobra.Command {
 	var flagSymbol string
 
 	cmd := &cobra.Command{
-		Use:   "annual-reports",
-		Short: "Annual reports with direct PDF download URLs, going back multiple years",
-		Example: "  nse-india-pp-cli corporate annual-reports --symbol example-value",
+		Use:         "annual-reports",
+		Short:       "Annual reports with direct PDF download URLs, going back multiple years",
+		Example:     "  nse-india-pp-cli corporate annual-reports --symbol example-value",
 		Annotations: map[string]string{"pp:endpoint": "corporate.annual_reports", "pp:method": "GET", "pp:path": "/api/annual-reports", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("symbol") && !flags.dryRun {

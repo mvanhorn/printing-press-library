@@ -4,12 +4,12 @@
 package cli
 
 import (
-	"github.com/mvanhorn/printing-press-library/library/devices/adminbyrequest/internal/client"
-	"github.com/mvanhorn/printing-press-library/library/devices/adminbyrequest/internal/cliutil"
 	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/devices/adminbyrequest/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/devices/adminbyrequest/internal/cliutil"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"io"

@@ -14,10 +14,10 @@ import (
 func newCasedocsContentZipGetCaseDocsZipCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-case-docs-zip <caseid>",
-		Aliases: []string{"get"},
-		Short: "Parameters can be one of the following: rnXXXXXXX for US registration number, snXXXXXXXX for US serial number,...",
-		Example: "  uspto-tsdr-pp-cli casedocs content-zip get-case-docs-zip 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "get-case-docs-zip <caseid>",
+		Aliases:     []string{"get"},
+		Short:       "Parameters can be one of the following: rnXXXXXXX for US registration number, snXXXXXXXX for US serial number,...",
+		Example:     "  uspto-tsdr-pp-cli casedocs content-zip get-case-docs-zip 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "content-zip.get-case-docs-zip", "pp:method": "GET", "pp:path": "/casedocs/{caseid}/content.zip", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

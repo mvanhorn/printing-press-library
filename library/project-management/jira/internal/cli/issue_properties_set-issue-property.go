@@ -16,10 +16,10 @@ func newIssuePropertiesSetIssuePropertyCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "set-issue-property <issueIdOrKey> <propertyKey>",
-		Aliases: []string{"update"},
-		Short: "Sets the value of an issue's property. Use this resource to store custom data against an issue. The value of the...",
-		Example: "  jira-pp-cli issue properties set-issue-property your-token-here your-token-here",
+		Use:         "set-issue-property <issueIdOrKey> <propertyKey>",
+		Aliases:     []string{"update"},
+		Short:       "Sets the value of an issue's property. Use this resource to store custom data against an issue. The value of the...",
+		Example:     "  jira-pp-cli issue properties set-issue-property your-token-here your-token-here",
 		Annotations: map[string]string{"pp:endpoint": "properties.set-issue-property", "pp:method": "PUT", "pp:path": "/rest/api/3/issue/{issueIdOrKey}/properties/{propertyKey}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -66,7 +66,9 @@ func newIssuePropertiesSetIssuePropertyCmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

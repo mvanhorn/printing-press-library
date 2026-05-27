@@ -14,9 +14,9 @@ import (
 func newReservedIpsGetCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get",
-		Short: "Get",
-		Example: "  digitalocean-pp-cli reserved-ips get",
+		Use:         "get",
+		Short:       "Get",
+		Example:     "  digitalocean-pp-cli reserved-ips get",
 		Annotations: map[string]string{"pp:endpoint": "reserved-ips.get", "pp:method": "GET", "pp:path": "/v2/reserved_ips/{reserved_ip}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

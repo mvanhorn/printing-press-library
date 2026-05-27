@@ -13,14 +13,14 @@ import (
 	"strings"
 	"time"
 
+	mcplib "github.com/mark3labs/mcp-go/mcp"
+	"github.com/mark3labs/mcp-go/server"
 	"github.com/mvanhorn/printing-press-library/library/marketing/emailoctopus/internal/cli"
 	"github.com/mvanhorn/printing-press-library/library/marketing/emailoctopus/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/marketing/emailoctopus/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/marketing/emailoctopus/internal/config"
 	"github.com/mvanhorn/printing-press-library/library/marketing/emailoctopus/internal/mcp/cobratree"
 	"github.com/mvanhorn/printing-press-library/library/marketing/emailoctopus/internal/store"
-	mcplib "github.com/mark3labs/mcp-go/mcp"
-	"github.com/mark3labs/mcp-go/server"
 )
 
 // RegisterTools registers all API operations as MCP tools.

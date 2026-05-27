@@ -18,9 +18,9 @@ func newMachineListCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "list",
-		Short: "Machines are the representation of items that teach moves to Pokémon. They vary from version to version, so it is...",
-		Example: "  pokeapi-pp-cli machine list",
+		Use:         "list",
+		Short:       "Machines are the representation of items that teach moves to Pokémon. They vary from version to version, so it is...",
+		Example:     "  pokeapi-pp-cli machine list",
 		Annotations: map[string]string{"pp:endpoint": "machine.list", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
@@ -30,9 +30,9 @@ func newMachineListCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/api/v2/machine/"
 			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "machine", path, map[string]string{
-				"limit": fmt.Sprintf("%v", flagLimit),
+				"limit":  fmt.Sprintf("%v", flagLimit),
 				"offset": fmt.Sprintf("%v", flagOffset),
-				"q": fmt.Sprintf("%v", flagQ),
+				"q":      fmt.Sprintf("%v", flagQ),
 			}, nil, flagAll, "offset", "", "")
 			if err != nil {
 				return classifyAPIError(err)

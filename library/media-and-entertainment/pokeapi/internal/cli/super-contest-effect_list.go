@@ -18,9 +18,9 @@ func newSuperContestEffectListCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "list",
-		Short: "Super contest effects refer to the effects of moves when used in super contests.",
-		Example: "  pokeapi-pp-cli super-contest-effect list",
+		Use:         "list",
+		Short:       "Super contest effects refer to the effects of moves when used in super contests.",
+		Example:     "  pokeapi-pp-cli super-contest-effect list",
 		Annotations: map[string]string{"pp:endpoint": "super-contest-effect.list", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
@@ -30,9 +30,9 @@ func newSuperContestEffectListCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/api/v2/super-contest-effect/"
 			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "super-contest-effect", path, map[string]string{
-				"limit": fmt.Sprintf("%v", flagLimit),
+				"limit":  fmt.Sprintf("%v", flagLimit),
 				"offset": fmt.Sprintf("%v", flagOffset),
-				"q": fmt.Sprintf("%v", flagQ),
+				"q":      fmt.Sprintf("%v", flagQ),
 			}, nil, flagAll, "offset", "", "")
 			if err != nil {
 				return classifyAPIError(err)

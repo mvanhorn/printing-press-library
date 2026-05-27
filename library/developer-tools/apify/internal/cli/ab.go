@@ -3,10 +3,11 @@
 // and overlap percentage.
 //
 // The "judge" picks the winner:
-//   novelty       — fewer duplicates against the local store wins
-//   cost-per-item — total USD / total items wins
-//   cost-per-novel — total USD / novel items wins
-//   item-count    — most items wins (raw volume)
+//
+//	novelty       — fewer duplicates against the local store wins
+//	cost-per-item — total USD / total items wins
+//	cost-per-novel — total USD / novel items wins
+//	item-count    — most items wins (raw volume)
 package cli
 
 import (
@@ -134,9 +135,9 @@ Examples:
 			winner := pickWinner(resA, resB, judge)
 
 			return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
-				"actor_a":      actorA,
-				"actor_b":      actorB,
-				"input_bytes":  len(inputBytes),
+				"actor_a":     actorA,
+				"actor_b":     actorB,
+				"input_bytes": len(inputBytes),
 				"results": map[string]any{
 					actorA: resA,
 					actorB: resB,

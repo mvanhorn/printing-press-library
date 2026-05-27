@@ -14,10 +14,10 @@ import (
 func newChatGetMessageCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-message <id> <messageId>",
-		Aliases: []string{"get"},
-		Short: "Get a chat message by ID",
-		Example: "  conduyt-crm-pp-cli chat get-message 550e8400-e29b-41d4-a716-446655440000 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "get-message <id> <messageId>",
+		Aliases:     []string{"get"},
+		Short:       "Get a chat message by ID",
+		Example:     "  conduyt-crm-pp-cli chat get-message 550e8400-e29b-41d4-a716-446655440000 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "chat.get-message", "pp:method": "GET", "pp:path": "/chat/channels/{id}/messages/{messageId}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

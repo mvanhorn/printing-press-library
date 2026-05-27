@@ -7,15 +7,15 @@ import (
 	"strings"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/other/gravitus/internal/scraper"
+	"github.com/spf13/cobra"
 )
 
 func newExercisesGravitusCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "exercises",
-		Short: "Analyze exercises — personal records, plateaus, and history",
-		RunE:  parentNoSubcommandRunE(flags),
+		Use:         "exercises",
+		Short:       "Analyze exercises — personal records, plateaus, and history",
+		RunE:        parentNoSubcommandRunE(flags),
 		Annotations: map[string]string{"mcp:read-only": "true"},
 	}
 	cmd.AddCommand(newExercisesPRsCmd(flags))
@@ -174,12 +174,12 @@ func newExercisesPlateauCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			type PlateauRow struct {
-				ExerciseName  string  `json:"exercise_name"`
-				ExerciseSlug  string  `json:"exercise_slug"`
-				LastPRDate    string  `json:"last_pr_date"`
-				WeeksStalled  int     `json:"weeks_stalled"`
-				BestEst1RM    float64 `json:"best_estimated_1rm"`
-				RecentEst1RM  float64 `json:"recent_estimated_1rm"`
+				ExerciseName string  `json:"exercise_name"`
+				ExerciseSlug string  `json:"exercise_slug"`
+				LastPRDate   string  `json:"last_pr_date"`
+				WeeksStalled int     `json:"weeks_stalled"`
+				BestEst1RM   float64 `json:"best_estimated_1rm"`
+				RecentEst1RM float64 `json:"recent_estimated_1rm"`
 			}
 
 			var plateaus []PlateauRow

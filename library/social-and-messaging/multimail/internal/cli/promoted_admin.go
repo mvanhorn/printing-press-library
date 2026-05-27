@@ -16,10 +16,10 @@ func newAdminPromotedCmd(flags *rootFlags) *cobra.Command {
 	var bodyTenantId string
 
 	cmd := &cobra.Command{
-		Use:   "admin",
-		Short: "Admin-only. Creates a new API key and emails it to the tenant's oversight email. Used when welcome email failed or...",
-		Long:  "Shortcut for 'admin create'. Admin-only. Creates a new API key and emails it to the tenant's oversight email. Used when welcome email failed or...",
-		Example: "  multimail-pp-cli admin --reason example-value",
+		Use:         "admin",
+		Short:       "Admin-only. Creates a new API key and emails it to the tenant's oversight email. Used when welcome email failed or...",
+		Long:        "Shortcut for 'admin create'. Admin-only. Creates a new API key and emails it to the tenant's oversight email. Used when welcome email failed or...",
+		Example:     "  multimail-pp-cli admin --reason example-value",
 		Annotations: map[string]string{"pp:endpoint": "admin.create", "pp:method": "POST", "pp:path": "/v1/admin/recover-key"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("reason") && !flags.dryRun {

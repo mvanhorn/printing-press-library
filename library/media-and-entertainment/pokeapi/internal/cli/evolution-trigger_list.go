@@ -18,9 +18,9 @@ func newEvolutionTriggerListCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "list",
-		Short: "Evolution triggers are the events and conditions that cause a Pokémon to evolve. Check out...",
-		Example: "  pokeapi-pp-cli evolution-trigger list",
+		Use:         "list",
+		Short:       "Evolution triggers are the events and conditions that cause a Pokémon to evolve. Check out...",
+		Example:     "  pokeapi-pp-cli evolution-trigger list",
 		Annotations: map[string]string{"pp:endpoint": "evolution-trigger.list", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
@@ -30,9 +30,9 @@ func newEvolutionTriggerListCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/api/v2/evolution-trigger/"
 			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "evolution-trigger", path, map[string]string{
-				"limit": fmt.Sprintf("%v", flagLimit),
+				"limit":  fmt.Sprintf("%v", flagLimit),
 				"offset": fmt.Sprintf("%v", flagOffset),
-				"q": fmt.Sprintf("%v", flagQ),
+				"q":      fmt.Sprintf("%v", flagQ),
 			}, nil, flagAll, "offset", "", "")
 			if err != nil {
 				return classifyAPIError(err)

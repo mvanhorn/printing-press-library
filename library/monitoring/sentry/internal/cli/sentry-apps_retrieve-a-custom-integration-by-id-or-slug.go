@@ -14,10 +14,10 @@ import (
 func newSentryAppsRetrieveACustomIntegrationByIdOrSlugCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "retrieve-a-custom-integration-by-id-or-slug <sentry_app_id_or_slug>",
-		Aliases: []string{"get"},
-		Short: "Retrieve a custom integration.",
-		Example: "  sentry-pp-cli sentry-apps retrieve-a-custom-integration-by-id-or-slug example-value",
+		Use:         "retrieve-a-custom-integration-by-id-or-slug <sentry_app_id_or_slug>",
+		Aliases:     []string{"get"},
+		Short:       "Retrieve a custom integration.",
+		Example:     "  sentry-pp-cli sentry-apps retrieve-a-custom-integration-by-id-or-slug example-value",
 		Annotations: map[string]string{"pp:endpoint": "sentry-apps.retrieve-a-custom-integration-by-id-or-slug", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

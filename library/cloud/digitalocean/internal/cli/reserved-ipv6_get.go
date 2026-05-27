@@ -14,9 +14,9 @@ import (
 func newReservedIpv6GetCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get",
-		Short: "Get",
-		Example: "  digitalocean-pp-cli reserved-ipv6 get",
+		Use:         "get",
+		Short:       "Get",
+		Example:     "  digitalocean-pp-cli reserved-ipv6 get",
 		Annotations: map[string]string{"pp:endpoint": "reserved-ipv6.get", "pp:method": "GET", "pp:path": "/v2/reserved_ipv6/{reserved_ipv6}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

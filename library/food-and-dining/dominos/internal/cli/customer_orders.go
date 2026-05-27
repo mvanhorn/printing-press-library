@@ -18,9 +18,9 @@ func newCustomerOrdersCmd(flags *rootFlags) *cobra.Command {
 	var flagLang string
 
 	cmd := &cobra.Command{
-		Use:   "orders [customerID]",
-		Short: "List the customer's recent orders (defaults to your saved CustomerID after `auth login`)",
-		Example: "  dominos-pp-cli customer orders            # uses saved CustomerID\n  dominos-pp-cli customer orders <customerID>  # explicit override",
+		Use:         "orders [customerID]",
+		Short:       "List the customer's recent orders (defaults to your saved CustomerID after `auth login`)",
+		Example:     "  dominos-pp-cli customer orders            # uses saved CustomerID\n  dominos-pp-cli customer orders <customerID>  # explicit override",
 		Annotations: map[string]string{"pp:endpoint": "customer.orders", "pp:method": "GET", "pp:path": "/power/customer/{customerID}/order", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// Resolve customerID: positional arg wins; otherwise fall back to

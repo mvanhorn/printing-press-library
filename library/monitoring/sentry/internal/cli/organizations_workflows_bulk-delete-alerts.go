@@ -17,10 +17,10 @@ func newOrganizationsWorkflowsBulkDeleteAlertsCmd(flags *rootFlags) *cobra.Comma
 	var flagProject string
 
 	cmd := &cobra.Command{
-		Use:   "bulk-delete-alerts <organization_id_or_slug>",
-		Aliases: []string{"delete"},
-		Short: "⚠️ This endpoint is currently in **beta** and may be subject to change. It is supported by [New Monitors and...",
-		Example: "  sentry-pp-cli organizations workflows bulk-delete-alerts example-value",
+		Use:         "bulk-delete-alerts <organization_id_or_slug>",
+		Aliases:     []string{"delete"},
+		Short:       "⚠️ This endpoint is currently in **beta** and may be subject to change. It is supported by [New Monitors and...",
+		Example:     "  sentry-pp-cli organizations workflows bulk-delete-alerts example-value",
 		Annotations: map[string]string{"pp:endpoint": "workflows.bulk-delete-alerts"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -47,7 +47,9 @@ func newOrganizationsWorkflowsBulkDeleteAlertsCmd(flags *rootFlags) *cobra.Comma
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

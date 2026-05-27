@@ -14,10 +14,10 @@ import (
 func newCheckTokenPromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "check-token",
-		Short: "returns ok when the current API token is valid",
-		Long:  "Shortcut for 'check-token using-post'. returns ok when the current API token is valid",
-		Example: "  etherpad-pp-cli check-token",
+		Use:         "check-token",
+		Short:       "returns ok when the current API token is valid",
+		Long:        "Shortcut for 'check-token using-post'. returns ok when the current API token is valid",
+		Example:     "  etherpad-pp-cli check-token",
 		Annotations: map[string]string{"pp:endpoint": "check-token.using-post", "pp:method": "POST", "pp:path": "/checkToken"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

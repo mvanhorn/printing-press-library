@@ -10,8 +10,8 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/spf13/cobra"
 	moba "github.com/mvanhorn/printing-press-library/library/media-and-entertainment/mobalytics-lol/internal/mobalytics"
+	"github.com/spf13/cobra"
 )
 
 // clientItemsetRoot returns the LoL client config root for the current OS,

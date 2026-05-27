@@ -24,16 +24,16 @@ func newSiteAuditPageExplorerCmd(flags *rootFlags) *cobra.Command {
 	var flagProjectId string
 
 	cmd := &cobra.Command{
-		Use:   "page-explorer",
-		Short: "Page explorer",
-		Example: "  ahrefs-pp-cli site_audit page_explorer",
+		Use:         "page-explorer",
+		Short:       "Page explorer",
+		Example:     "  ahrefs-pp-cli site_audit page_explorer",
 		Annotations: map[string]string{"pp:endpoint": "site_audit.page_explorer", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("project-id") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "project-id")
 			}
 			if cmd.Flags().Changed("filter-mode") {
-				allowedFilterMode := []string{ "added", "new", "removed", "missing", "no_change" }
+				allowedFilterMode := []string{"added", "new", "removed", "missing", "no_change"}
 				validFilterMode := false
 				for _, v := range allowedFilterMode {
 					if flagFilterMode == v {

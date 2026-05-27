@@ -15,10 +15,10 @@ func newTrackingPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagPhone string
 
 	cmd := &cobra.Command{
-		Use:   "tracking",
-		Short: "Track an order by phone number",
-		Long:  "Shortcut for 'tracking track'. Track an order by phone number",
-		Example: "  dominos-pp-cli tracking",
+		Use:         "tracking",
+		Short:       "Track an order by phone number",
+		Long:        "Shortcut for 'tracking track'. Track an order by phone number",
+		Example:     "  dominos-pp-cli tracking",
 		Annotations: map[string]string{"pp:endpoint": "tracking.track", "pp:method": "GET", "pp:path": "/power/tracker", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("phone") && !flags.dryRun {

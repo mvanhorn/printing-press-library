@@ -14,9 +14,9 @@ import (
 func newVpcPeeringsListCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "list",
-		Short: "List",
-		Example: "  digitalocean-pp-cli vpc-peerings list",
+		Use:         "list",
+		Short:       "List",
+		Example:     "  digitalocean-pp-cli vpc-peerings list",
 		Annotations: map[string]string{"pp:endpoint": "vpc-peerings.list", "pp:method": "GET", "pp:path": "/v2/vpc_peerings", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

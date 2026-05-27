@@ -18,10 +18,10 @@ func newFieldconfigurationCreateFieldConfigurationCmd(flags *rootFlags) *cobra.C
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "create-field-configuration",
-		Aliases: []string{"create"},
-		Short: "Deprecated, use [ Field schemes](https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-field-schemes/...",
-		Example: "  jira-pp-cli fieldconfiguration create-field-configuration --name example-resource",
+		Use:         "create-field-configuration",
+		Aliases:     []string{"create"},
+		Short:       "Deprecated, use [ Field schemes](https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-field-schemes/...",
+		Example:     "  jira-pp-cli fieldconfiguration create-field-configuration --name example-resource",
 		Annotations: map[string]string{"pp:endpoint": "fieldconfiguration.create-field-configuration", "pp:method": "POST", "pp:path": "/rest/api/3/fieldconfiguration"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {
@@ -69,7 +69,9 @@ func newFieldconfigurationCreateFieldConfigurationCmd(flags *rootFlags) *cobra.C
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

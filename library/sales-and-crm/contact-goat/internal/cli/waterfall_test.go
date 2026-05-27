@@ -153,11 +153,11 @@ func TestExtractDropleadsRecordsCatchAllStatus(t *testing.T) {
 
 func TestClassifyTargetKinds(t *testing.T) {
 	cases := map[string]string{
-		"alice@stripe.com":                          "email",
+		"alice@stripe.com": "email",
 		"https://www.linkedin.com/in/patrickcollison": "linkedin_url",
-		"http://linkedin.com/in/foo/":               "linkedin_url",
-		"Mike Craig":                                "name",
-		"just-a-handle":                             "name",
+		"http://linkedin.com/in/foo/":                 "linkedin_url",
+		"Mike Craig":                                  "name",
+		"just-a-handle":                               "name",
 	}
 	for in, want := range cases {
 		if got := classifyTarget(in); got != want {

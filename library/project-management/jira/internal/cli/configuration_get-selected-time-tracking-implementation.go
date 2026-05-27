@@ -14,9 +14,9 @@ import (
 func newConfigurationGetSelectedTimeTrackingImplementationCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-selected-time-tracking-implementation",
-		Short: "Returns the time tracking provider that is currently selected. Note that if time tracking is disabled, then a...",
-		Example: "  jira-pp-cli configuration get-selected-time-tracking-implementation",
+		Use:         "get-selected-time-tracking-implementation",
+		Short:       "Returns the time tracking provider that is currently selected. Note that if time tracking is disabled, then a...",
+		Example:     "  jira-pp-cli configuration get-selected-time-tracking-implementation",
 		Annotations: map[string]string{"pp:endpoint": "configuration.get-selected-time-tracking-implementation", "pp:method": "GET", "pp:path": "/rest/api/3/configuration/timetracking", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

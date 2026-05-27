@@ -17,9 +17,9 @@ func newMailboxesUpgradeCreateCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "create <mailboxId>",
-		Short: "Requires send scope. Codes are single-use and expire after 24 hours.",
-		Example: "  multimail-pp-cli mailboxes upgrade create 550e8400-e29b-41d4-a716-446655440000 --code example-value",
+		Use:         "create <mailboxId>",
+		Short:       "Requires send scope. Codes are single-use and expire after 24 hours.",
+		Example:     "  multimail-pp-cli mailboxes upgrade create 550e8400-e29b-41d4-a716-446655440000 --code example-value",
 		Annotations: map[string]string{"pp:endpoint": "upgrade.create", "pp:method": "POST", "pp:path": "/v1/mailboxes/{mailboxId}/upgrade"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -68,7 +68,9 @@ func newMailboxesUpgradeCreateCmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

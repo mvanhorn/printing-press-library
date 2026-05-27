@@ -15,18 +15,18 @@ import (
 )
 
 type Config struct {
-	BaseURL        string `toml:"base_url"`
-	OIDCIssuer     string `toml:"oidc_issuer,omitempty"`
-	AuthHeaderVal  string `toml:"auth_header"`
+	BaseURL        string            `toml:"base_url"`
+	OIDCIssuer     string            `toml:"oidc_issuer,omitempty"`
+	AuthHeaderVal  string            `toml:"auth_header"`
 	Headers        map[string]string `toml:"headers,omitempty"`
-	AuthSource     string `toml:"-"`
-	AccessToken    string `toml:"access_token"`
-	RefreshToken   string `toml:"refresh_token"`
-	TokenExpiry    time.Time `toml:"token_expiry"`
-	ClientID       string `toml:"client_id"`
-	ClientSecret   string `toml:"client_secret"`
-	Path           string `toml:"-"`
-	EtherpadOpenid string `toml:"openid"`
+	AuthSource     string            `toml:"-"`
+	AccessToken    string            `toml:"access_token"`
+	RefreshToken   string            `toml:"refresh_token"`
+	TokenExpiry    time.Time         `toml:"token_expiry"`
+	ClientID       string            `toml:"client_id"`
+	ClientSecret   string            `toml:"client_secret"`
+	Path           string            `toml:"-"`
+	EtherpadOpenid string            `toml:"openid"`
 	// fileOpenid snapshots the on-disk `openid` value Load() reads from
 	// the TOML config before any $ETHERPAD_OPENID override. save() uses
 	// it to write back the user's persisted value even when the running

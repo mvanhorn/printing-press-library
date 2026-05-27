@@ -20,10 +20,10 @@ func newDrugApprovalsPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagApplicationNumber string
 
 	cmd := &cobra.Command{
-		Use:   "drug-approvals",
-		Short: "Search approved drug products",
-		Long:  "Shortcut for 'drug-approvals list'. Search approved drug products",
-		Example: "  openfda-pp-cli drug-approvals",
+		Use:         "drug-approvals",
+		Short:       "Search approved drug products",
+		Long:        "Shortcut for 'drug-approvals list'. Search approved drug products",
+		Example:     "  openfda-pp-cli drug-approvals",
 		Annotations: map[string]string{"pp:endpoint": "drug-approvals.list", "pp:method": "GET", "pp:path": "/drug/drugsfda.json", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

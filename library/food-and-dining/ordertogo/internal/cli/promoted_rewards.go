@@ -14,10 +14,10 @@ import (
 func newRewardsPromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "rewards",
-		Short: "List your reward points across all restaurants (endpoint shape inferred from web 'My Rewards' panel)",
-		Long:  "Shortcut for 'rewards list'. List your reward points across all restaurants (endpoint shape inferred from web 'My Rewards' panel)",
-		Example: "  ordertogo-pp-cli rewards",
+		Use:         "rewards",
+		Short:       "List your reward points across all restaurants (endpoint shape inferred from web 'My Rewards' panel)",
+		Long:        "Shortcut for 'rewards list'. List your reward points across all restaurants (endpoint shape inferred from web 'My Rewards' panel)",
+		Example:     "  ordertogo-pp-cli rewards",
 		Annotations: map[string]string{"pp:endpoint": "rewards.list", "pp:method": "GET", "pp:path": "/m/api/rewards", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

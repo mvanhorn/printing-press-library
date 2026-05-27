@@ -14,9 +14,9 @@ import (
 func newAccountCurrentCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "current",
-		Short: "Get the authenticated user's profile (name, email, preferences).",
-		Example: "  jimmy-johns-pp-cli account current",
+		Use:         "current",
+		Short:       "Get the authenticated user's profile (name, email, preferences).",
+		Example:     "  jimmy-johns-pp-cli account current",
 		Annotations: map[string]string{"pp:endpoint": "account.current", "pp:method": "GET", "pp:path": "/users/current", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

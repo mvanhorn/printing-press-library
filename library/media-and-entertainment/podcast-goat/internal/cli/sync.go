@@ -6,11 +6,11 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/podcast-goat/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/podcast-goat/internal/store"
 	"github.com/spf13/cobra"
 	"net/url"
 	"os"
-	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/podcast-goat/internal/cliutil"
-	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/podcast-goat/internal/store"
 	"regexp"
 	"strconv"
 	"strings"

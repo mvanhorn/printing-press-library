@@ -14,10 +14,10 @@ import (
 func newFeedPromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "feed",
-		Short: "Returns the current public RSS feed. The feed is XML/RSS and does not require authentication.",
-		Long:  "Shortcut for 'feed get'. Returns the current public RSS feed. The feed is XML/RSS and does not require authentication.",
-		Example: "  marginalrevolution-pp-cli feed",
+		Use:         "feed",
+		Short:       "Returns the current public RSS feed. The feed is XML/RSS and does not require authentication.",
+		Long:        "Shortcut for 'feed get'. Returns the current public RSS feed. The feed is XML/RSS and does not require authentication.",
+		Example:     "  marginalrevolution-pp-cli feed",
 		Annotations: map[string]string{"pp:endpoint": "feed.get", "pp:method": "GET", "pp:path": "/feed", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

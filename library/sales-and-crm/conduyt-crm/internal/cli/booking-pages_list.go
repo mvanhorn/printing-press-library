@@ -14,9 +14,9 @@ import (
 func newBookingPagesListCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "list",
-		Short: "List booking pages",
-		Example: "  conduyt-crm-pp-cli booking-pages list",
+		Use:         "list",
+		Short:       "List booking pages",
+		Example:     "  conduyt-crm-pp-cli booking-pages list",
 		Annotations: map[string]string{"pp:endpoint": "booking-pages.list", "pp:method": "GET", "pp:path": "/booking-pages", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

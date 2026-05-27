@@ -22,10 +22,10 @@ func newFieldOptionCreateIssueFieldCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "create-issue-field <fieldKey>",
-		Aliases: []string{"create"},
-		Short: "Creates an option for a select list issue field. Note that this operation **only works for issue field select list...",
-		Example: "  jira-pp-cli field option create-issue-field your-token-here --value example-value",
+		Use:         "create-issue-field <fieldKey>",
+		Aliases:     []string{"create"},
+		Short:       "Creates an option for a select list issue field. Note that this operation **only works for issue field select list...",
+		Example:     "  jira-pp-cli field option create-issue-field your-token-here --value example-value",
 		Annotations: map[string]string{"pp:endpoint": "option.create-issue-field", "pp:method": "POST", "pp:path": "/rest/api/3/field/{fieldKey}/option"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -127,7 +127,9 @@ func newFieldOptionCreateIssueFieldCmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

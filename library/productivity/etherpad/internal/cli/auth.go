@@ -78,7 +78,7 @@ func newAuthLoginCmd(flags *rootFlags) *cobra.Command {
 				"access_type":   {"offline"},
 				"prompt":        {"consent"},
 			}
-			scopes := []string{"admin", "email", "openid", "profile",  }
+			scopes := []string{"admin", "email", "openid", "profile"}
 			if len(scopes) > 0 {
 				params.Set("scope", strings.Join(scopes, " "))
 			}

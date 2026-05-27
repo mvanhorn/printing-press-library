@@ -17,9 +17,9 @@ func newOrdersPlaceCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "place",
-		Short: "Place an order for delivery or carryout",
-		Example: "  dominos-pp-cli orders place",
+		Use:         "place",
+		Short:       "Place an order for delivery or carryout",
+		Example:     "  dominos-pp-cli orders place",
 		Annotations: map[string]string{"pp:endpoint": "orders.place", "pp:method": "POST", "pp:path": "/power/place-order"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {
@@ -68,7 +68,9 @@ func newOrdersPlaceCmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

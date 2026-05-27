@@ -16,10 +16,10 @@ func newGroupRemovePromotedCmd(flags *rootFlags) *cobra.Command {
 	var bodyMembers string
 
 	cmd := &cobra.Command{
-		Use:   "group-remove",
-		Short: "Remove one or more group members. Apps may remove members from a group if one of the following conditions is true:...",
-		Long:  "Shortcut for 'group-remove group_remove'. Remove one or more group members. Apps may remove members from a group if one of the following conditions is true:...",
-		Example: "  roam-pp-cli group-remove --group example-value",
+		Use:         "group-remove",
+		Short:       "Remove one or more group members. Apps may remove members from a group if one of the following conditions is true:...",
+		Long:        "Shortcut for 'group-remove group_remove'. Remove one or more group members. Apps may remove members from a group if one of the following conditions is true:...",
+		Example:     "  roam-pp-cli group-remove --group example-value",
 		Annotations: map[string]string{"pp:endpoint": "group-remove.group_remove", "pp:method": "POST", "pp:path": "/group.remove"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("group") && !flags.dryRun {

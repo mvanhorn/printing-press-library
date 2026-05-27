@@ -14,9 +14,9 @@ import (
 func newProductsOfferCodesGetCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get <product_id> <id>",
-		Short: "Retrieve details of a specific offer code of a product.",
-		Example: "  gumroad-pp-cli products offer-codes get 550e8400-e29b-41d4-a716-446655440000 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "get <product_id> <id>",
+		Short:       "Retrieve details of a specific offer code of a product.",
+		Example:     "  gumroad-pp-cli products offer-codes get 550e8400-e29b-41d4-a716-446655440000 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "offer-codes.get", "pp:method": "GET", "pp:path": "/products/{product_id}/offer_codes/{id}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

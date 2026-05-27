@@ -16,10 +16,10 @@ func newOrganizationsSentryAppInstallationsListAnOrganizationSIntegrationPlatfor
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "list-an-organization-s-integration-platform-installations <organization_id_or_slug>",
-		Aliases: []string{"get"},
-		Short: "Return a list of integration platform installations for a given organization.",
-		Example: "  sentry-pp-cli organizations sentry-app-installations list-an-organization-s-integration-platform-installations example-value",
+		Use:         "list-an-organization-s-integration-platform-installations <organization_id_or_slug>",
+		Aliases:     []string{"get"},
+		Short:       "Return a list of integration platform installations for a given organization.",
+		Example:     "  sentry-pp-cli organizations sentry-app-installations list-an-organization-s-integration-platform-installations example-value",
 		Annotations: map[string]string{"pp:endpoint": "sentry-app-installations.list-an-organization-s-integration-platform-installations", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

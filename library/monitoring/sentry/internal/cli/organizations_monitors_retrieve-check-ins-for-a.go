@@ -16,9 +16,9 @@ func newOrganizationsMonitorsRetrieveCheckInsForACmd(flags *rootFlags) *cobra.Co
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "retrieve-check-ins-for-a <organization_id_or_slug> <monitor_id_or_slug>",
-		Short: "Retrieve a list of check-ins for a monitor",
-		Example: "  sentry-pp-cli organizations monitors retrieve-check-ins-for-a example-value example-value",
+		Use:         "retrieve-check-ins-for-a <organization_id_or_slug> <monitor_id_or_slug>",
+		Short:       "Retrieve a list of check-ins for a monitor",
+		Example:     "  sentry-pp-cli organizations monitors retrieve-check-ins-for-a example-value example-value",
 		Annotations: map[string]string{"pp:endpoint": "monitors.retrieve-check-ins-for-a", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

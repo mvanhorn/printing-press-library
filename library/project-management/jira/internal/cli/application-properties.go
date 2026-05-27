@@ -9,8 +9,8 @@ import (
 
 func newApplicationPropertiesCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "application-properties",
-		Short: "Manage application properties",
+		Use:    "application-properties",
+		Short:  "Manage application properties",
 		Hidden: true,
 	}
 

@@ -20,10 +20,10 @@ func newCommentReplyCreateThreadedCommentCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "create-threaded-comment <comment_id>",
-		Aliases: []string{"create"},
-		Short: "Create a threaded comment.",
-		Example: "  clickup-pp-cli comment reply create-threaded-comment 550e8400-e29b-41d4-a716-446655440000 --comment-text example-value",
+		Use:         "create-threaded-comment <comment_id>",
+		Aliases:     []string{"create"},
+		Short:       "Create a threaded comment.",
+		Example:     "  clickup-pp-cli comment reply create-threaded-comment 550e8400-e29b-41d4-a716-446655440000 --comment-text example-value",
 		Annotations: map[string]string{"pp:endpoint": "reply.create-threaded-comment", "pp:method": "POST", "pp:path": "/v2/comment/{comment_id}/reply"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -84,7 +84,9 @@ func newCommentReplyCreateThreadedCommentCmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

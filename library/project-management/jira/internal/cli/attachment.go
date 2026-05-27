@@ -9,8 +9,8 @@ import (
 
 func newAttachmentCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "attachment",
-		Short: "Manage attachment",
+		Use:    "attachment",
+		Short:  "Manage attachment",
 		Hidden: true,
 	}
 

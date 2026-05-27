@@ -26,9 +26,9 @@ func newCoverageCmd(flags *rootFlags) *cobra.Command {
 	var location string
 
 	cmd := &cobra.Command{
-		Use:   "coverage [<company>]",
+		Use:         "coverage [<company>]",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short: "Show who you know at a company or in a location (LinkedIn + Happenstance)",
+		Short:       "Show who you know at a company or in a location (LinkedIn + Happenstance)",
 		Long: `Cross-source "who do I know at X" query.
 
 Scope: <company> positional OR --location <city>, not both. Company mode

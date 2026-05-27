@@ -27,13 +27,13 @@ const agentContextSchemaVersion = "4"
 // (2026-04-13 Wrangler post): agents can introspect the live CLI without
 // parsing --help or reading source.
 type agentContext struct {
-	SchemaVersion              string                          `json:"schema_version"`
-	CLI                        agentContextCLI                 `json:"cli"`
-	Auth                       agentContextAuth                `json:"auth"`
-	Discovery                  *agentContextDiscovery          `json:"discovery,omitempty"`
-	Commands                   map[string]agentContextCommand  `json:"commands"`
-	AvailableProfiles          []string                        `json:"available_profiles"`
-	FeedbackEndpointConfigured bool                            `json:"feedback_endpoint_configured"`
+	SchemaVersion              string                         `json:"schema_version"`
+	CLI                        agentContextCLI                `json:"cli"`
+	Auth                       agentContextAuth               `json:"auth"`
+	Discovery                  *agentContextDiscovery         `json:"discovery,omitempty"`
+	Commands                   map[string]agentContextCommand `json:"commands"`
+	AvailableProfiles          []string                       `json:"available_profiles"`
+	FeedbackEndpointConfigured bool                           `json:"feedback_endpoint_configured"`
 }
 
 type agentContextCLI struct {

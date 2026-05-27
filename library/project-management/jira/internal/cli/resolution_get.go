@@ -14,10 +14,10 @@ import (
 func newResolutionGetCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get",
-		Aliases: []string{"list"},
-		Short: "Returns a list of all issue resolution values. **[Permissions](#permissions) required:** Permission to access Jira.",
-		Example: "  jira-pp-cli resolution get",
+		Use:         "get",
+		Aliases:     []string{"list"},
+		Short:       "Returns a list of all issue resolution values. **[Permissions](#permissions) required:** Permission to access Jira.",
+		Example:     "  jira-pp-cli resolution get",
 		Annotations: map[string]string{"pp:endpoint": "resolution.get", "pp:method": "GET", "pp:path": "/rest/api/3/resolution", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

@@ -81,7 +81,7 @@ func Execute() error {
 
 func newRootCmd(flags *rootFlags) *cobra.Command {
 	rootCmd := &cobra.Command{
-		Use:   "digg-pp-cli",
+		Use: "digg-pp-cli",
 		// PATCH(digg-rename-and-github-feeds): drop "Digg AI" / "1000" branding; add github feeds to highlights.
 		Short: `Read-only CLI for Digg — the AI story leaderboard, GitHub feeds, and ingestion pipeline events on digg.com.`,
 		Long: `Read-only CLI for Digg — the AI story leaderboard, GitHub feeds, and ingestion pipeline events on digg.com.

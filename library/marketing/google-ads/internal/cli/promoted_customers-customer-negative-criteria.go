@@ -18,10 +18,10 @@ func newCustomersCustomerNegativeCriteriaPromotedCmd(flags *rootFlags) *cobra.Co
 	var bodyResponseContentType string
 
 	cmd := &cobra.Command{
-		Use:   "customers-customer-negative-criteria <customerId>",
-		Short: "Creates or removes criteria. Operation statuses are returned.",
-		Long:  "Shortcut for 'customers_customer_negative_criteria mutate'. Creates or removes criteria. Operation statuses are returned.",
-		Example: "  google-ads-pp-cli customers-customer-negative-criteria",
+		Use:         "customers-customer-negative-criteria <customerId>",
+		Short:       "Creates or removes criteria. Operation statuses are returned.",
+		Long:        "Shortcut for 'customers_customer_negative_criteria mutate'. Creates or removes criteria. Operation statuses are returned.",
+		Example:     "  google-ads-pp-cli customers-customer-negative-criteria",
 		Annotations: map[string]string{"pp:endpoint": "customers_customer_negative_criteria.mutate", "pp:method": "POST", "pp:path": "/v22/customers/{customerId}/customerNegativeCriteria:mutate"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

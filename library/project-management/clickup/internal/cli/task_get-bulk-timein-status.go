@@ -17,10 +17,10 @@ func newTaskGetBulkTimeinStatusCmd(flags *rootFlags) *cobra.Command {
 	var flagTeamId float64
 
 	cmd := &cobra.Command{
-		Use:   "get-bulk-timein-status",
-		Aliases: []string{"list"},
-		Short: "View how long two or more tasks have been in each status. The Total time in Status ClickApp must first be enabled by...",
-		Example: "  clickup-pp-cli task get-bulk-timein-status --task-ids example-value",
+		Use:         "get-bulk-timein-status",
+		Aliases:     []string{"list"},
+		Short:       "View how long two or more tasks have been in each status. The Total time in Status ClickApp must first be enabled by...",
+		Example:     "  clickup-pp-cli task get-bulk-timein-status --task-ids example-value",
 		Annotations: map[string]string{"pp:endpoint": "task.get-bulk-timein-status", "pp:method": "GET", "pp:path": "/v2/task/bulk_time_in_status/task_ids", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("task-ids") && !flags.dryRun {

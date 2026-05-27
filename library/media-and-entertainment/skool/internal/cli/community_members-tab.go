@@ -17,9 +17,9 @@ func newCommunityMembersTabCmd(flags *rootFlags) *cobra.Command {
 	var flagT string
 
 	cmd := &cobra.Command{
-		Use:   "members-tab",
-		Short: "Members tab data (community page rendered with t=members)",
-		Example: "  skool-pp-cli community members-tab --community example-value",
+		Use:         "members-tab",
+		Short:       "Members tab data (community page rendered with t=members)",
+		Example:     "  skool-pp-cli community members-tab --community example-value",
 		Annotations: map[string]string{"pp:endpoint": "community.members-tab", "pp:method": "GET", "pp:path": "/_next/data/{buildId}/{community}.json", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("community") && !flags.dryRun {

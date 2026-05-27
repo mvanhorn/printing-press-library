@@ -14,10 +14,10 @@ import (
 func newWorkspacesIdentifyCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "identify",
-		Aliases: []string{"list"},
-		Short: "Identify workspace <Badge intent='info' minimal outlined>OAuth Scope: identify:read</Badge>",
-		Example: "  beehiiv-pp-cli workspaces identify",
+		Use:         "identify",
+		Aliases:     []string{"list"},
+		Short:       "Identify workspace <Badge intent='info' minimal outlined>OAuth Scope: identify:read</Badge>",
+		Example:     "  beehiiv-pp-cli workspaces identify",
 		Annotations: map[string]string{"pp:endpoint": "workspaces.identify", "pp:method": "GET", "pp:path": "/workspaces/identify", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

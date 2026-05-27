@@ -19,10 +19,10 @@ import (
 
 // fundingResult is the JSON shape for `funding <co>`.
 type fundingResult struct {
-	Domain       string           `json:"domain,omitempty"`
-	Query        string           `json:"query,omitempty"`
-	Filings      []fundingFiling  `json:"form_d_filings"`
-	CIKSummaries []cikSummary     `json:"cik_summaries,omitempty"`
+	Domain       string          `json:"domain,omitempty"`
+	Query        string          `json:"query,omitempty"`
+	Filings      []fundingFiling `json:"form_d_filings"`
+	CIKSummaries []cikSummary    `json:"cik_summaries,omitempty"`
 	// IsAmbiguous is true when the name search matched filings spanning
 	// more than one SEC CIK. Common false-positive sources: VC funds and
 	// long-dormant Delaware shell corps that share a stem with the
@@ -90,9 +90,9 @@ func newFundingCmd(flags *rootFlags) *cobra.Command {
 	var cikFilter string
 
 	cmd := &cobra.Command{
-		Use:   "funding [co]",
+		Use:         "funding [co]",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short: "SEC EDGAR Form D filings + YC batch lookup. The killer feature for US private fundraising.",
+		Short:       "SEC EDGAR Form D filings + YC batch lookup. The killer feature for US private fundraising.",
 		Long: `funding fetches every Form D filing the SEC has for a company name, parses the structured XML, and reports offering amount, filing date, exemption claimed, and related persons.
 
 Form D is filed by US private companies raising capital under Reg D (506(b) or 506(c)). The data is free and public — Crunchbase Pro charges thousands/year for what's essentially a wrapper around this same source.
@@ -718,9 +718,9 @@ func newFundingTrendCmd(flags *rootFlags) *cobra.Command {
 	var maxFilings int
 
 	cmd := &cobra.Command{
-		Use:   "funding-trend [co]",
+		Use:         "funding-trend [co]",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short: "Time series of Form D filings showing fundraising cadence over years.",
+		Short:       "Time series of Form D filings showing fundraising cadence over years.",
 		Long: `funding-trend renders a year-by-year count of Form D filings for a company. Useful for spotting fundraising gaps or a startup that quietly stopped raising.
 
 Output bins by filing year and shows offering amount totals per year.`,

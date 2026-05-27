@@ -15,10 +15,10 @@ func newCustomersCustomerUserAccessesPromotedCmd(flags *rootFlags) *cobra.Comman
 	var bodyOperation string
 
 	cmd := &cobra.Command{
-		Use:   "customers-customer-user-accesses <customerId>",
-		Short: "Updates, removes permission of a user on a given customer. Operation statuses are returned.",
-		Long:  "Shortcut for 'customers_customer_user_accesses mutate'. Updates, removes permission of a user on a given customer. Operation statuses are returned.",
-		Example: "  google-ads-pp-cli customers-customer-user-accesses",
+		Use:         "customers-customer-user-accesses <customerId>",
+		Short:       "Updates, removes permission of a user on a given customer. Operation statuses are returned.",
+		Long:        "Shortcut for 'customers_customer_user_accesses mutate'. Updates, removes permission of a user on a given customer. Operation statuses are returned.",
+		Example:     "  google-ads-pp-cli customers-customer-user-accesses",
 		Annotations: map[string]string{"pp:endpoint": "customers_customer_user_accesses.mutate", "pp:method": "POST", "pp:path": "/v22/customers/{customerId}/customerUserAccesses:mutate"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

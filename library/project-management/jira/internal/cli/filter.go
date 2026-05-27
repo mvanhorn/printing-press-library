@@ -9,8 +9,8 @@ import (
 
 func newFilterCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "filter",
-		Short: "This resource represents [filters](https://confluence.atlassian.com/x/eQiiLQ). Use it to get, create, update, or...",
+		Use:    "filter",
+		Short:  "This resource represents [filters](https://confluence.atlassian.com/x/eQiiLQ). Use it to get, create, update, or...",
 		Hidden: true,
 	}
 

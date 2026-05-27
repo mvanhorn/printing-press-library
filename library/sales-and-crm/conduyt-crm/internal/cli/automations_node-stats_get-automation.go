@@ -14,10 +14,10 @@ import (
 func newAutomationsNodeStatsGetAutomationCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-automation <id>",
-		Aliases: []string{"get"},
-		Short: "Get per-node execution stats for an automation",
-		Example: "  conduyt-crm-pp-cli automations node-stats get-automation 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "get-automation <id>",
+		Aliases:     []string{"get"},
+		Short:       "Get per-node execution stats for an automation",
+		Example:     "  conduyt-crm-pp-cli automations node-stats get-automation 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "node-stats.get-automation", "pp:method": "GET", "pp:path": "/automations/{id}/node-stats", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

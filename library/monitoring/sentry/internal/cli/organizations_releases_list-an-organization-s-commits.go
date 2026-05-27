@@ -16,9 +16,9 @@ func newOrganizationsReleasesListAnOrganizationSCommitsCmd(flags *rootFlags) *co
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "list-an-organization-s-commits <organization_id_or_slug> <version>",
-		Short: "List an organization release's commits.",
-		Example: "  sentry-pp-cli organizations releases list-an-organization-s-commits example-value example-value",
+		Use:         "list-an-organization-s-commits <organization_id_or_slug> <version>",
+		Short:       "List an organization release's commits.",
+		Example:     "  sentry-pp-cli organizations releases list-an-organization-s-commits example-value example-value",
 		Annotations: map[string]string{"pp:endpoint": "releases.list-an-organization-s-commits", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

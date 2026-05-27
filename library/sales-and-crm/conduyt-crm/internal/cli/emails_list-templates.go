@@ -17,9 +17,9 @@ func newEmailsListTemplatesCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "list-templates",
-		Short: "List email templates",
-		Example: "  conduyt-crm-pp-cli emails list-templates",
+		Use:         "list-templates",
+		Short:       "List email templates",
+		Example:     "  conduyt-crm-pp-cli emails list-templates",
 		Annotations: map[string]string{"pp:endpoint": "emails.list-templates", "pp:method": "GET", "pp:path": "/emails/templates", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
@@ -29,7 +29,7 @@ func newEmailsListTemplatesCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/emails/templates"
 			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "emails", path, map[string]string{
-				"page": fmt.Sprintf("%v", flagPage),
+				"page":     fmt.Sprintf("%v", flagPage),
 				"per_page": fmt.Sprintf("%v", flagPerPage),
 			}, nil, flagAll, "", "", "")
 			if err != nil {

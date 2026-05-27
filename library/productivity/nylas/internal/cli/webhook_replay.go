@@ -12,9 +12,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/productivity/nylas/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/productivity/nylas/internal/store"
+	"github.com/spf13/cobra"
 )
 
 // replayResult is one delivery attempt's outcome, reported as JSON.

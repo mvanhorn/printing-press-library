@@ -6,10 +6,10 @@ package client
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/openipa/internal/cliutil"
 	"io"
 	"math"
 	"net/http"
-	"github.com/mvanhorn/printing-press-library/library/developer-tools/openipa/internal/cliutil"
 	"os"
 	"strings"
 	"time"

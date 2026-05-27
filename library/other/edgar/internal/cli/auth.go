@@ -4,8 +4,8 @@
 package cli
 
 import (
-	"github.com/mvanhorn/printing-press-library/library/other/edgar/internal/config"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/other/edgar/internal/config"
 	"github.com/spf13/cobra"
 	"os"
 )

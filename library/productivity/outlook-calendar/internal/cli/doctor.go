@@ -13,10 +13,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/productivity/outlook-calendar/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/productivity/outlook-calendar/internal/config"
 	"github.com/mvanhorn/printing-press-library/library/productivity/outlook-calendar/internal/store"
+	"github.com/spf13/cobra"
 )
 
 // looksLikeDoctorInterstitial reports whether the response body matches a known

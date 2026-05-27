@@ -39,15 +39,15 @@ func ensureWatchlistsTable(ctx context.Context, db *sql.DB) error {
 }
 
 type watchlist struct {
-	Name           string   `json:"name"`
-	Description    string   `json:"description,omitempty"`
-	VenueIDs       []string `json:"venue_ids,omitempty"`
-	AttractionIDs  []string `json:"attraction_ids,omitempty"`
-	Segments       []string `json:"segments,omitempty"`
-	Genres         []string `json:"genres,omitempty"`
-	DMAIDs         []string `json:"dma_ids,omitempty"`
-	CreatedAt      string   `json:"created_at,omitempty"`
-	UpdatedAt      string   `json:"updated_at,omitempty"`
+	Name          string   `json:"name"`
+	Description   string   `json:"description,omitempty"`
+	VenueIDs      []string `json:"venue_ids,omitempty"`
+	AttractionIDs []string `json:"attraction_ids,omitempty"`
+	Segments      []string `json:"segments,omitempty"`
+	Genres        []string `json:"genres,omitempty"`
+	DMAIDs        []string `json:"dma_ids,omitempty"`
+	CreatedAt     string   `json:"created_at,omitempty"`
+	UpdatedAt     string   `json:"updated_at,omitempty"`
 }
 
 func newEventsWatchlistCmd(flags *rootFlags) *cobra.Command {
@@ -153,9 +153,9 @@ func newEventsWatchlistSaveCmd(flags *rootFlags) *cobra.Command {
 
 func newEventsWatchlistLsCmd(flags *rootFlags) *cobra.Command {
 	return &cobra.Command{
-		Use:   "ls",
-		Short: "List saved watchlists",
-		Example: "  ticketmaster-pp-cli events watchlist ls --json",
+		Use:         "ls",
+		Short:       "List saved watchlists",
+		Example:     "  ticketmaster-pp-cli events watchlist ls --json",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {
@@ -213,9 +213,9 @@ func newEventsWatchlistLsCmd(flags *rootFlags) *cobra.Command {
 
 func newEventsWatchlistRmCmd(flags *rootFlags) *cobra.Command {
 	return &cobra.Command{
-		Use:   "rm <name>",
-		Short: "Remove a named watchlist",
-		Example: "  ticketmaster-pp-cli events watchlist rm seattle",
+		Use:         "rm <name>",
+		Short:       "Remove a named watchlist",
+		Example:     "  ticketmaster-pp-cli events watchlist rm seattle",
 		Annotations: map[string]string{"mcp:read-only": "false"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

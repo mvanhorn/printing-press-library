@@ -19,10 +19,10 @@ func newJiraVersionRemoveAndSwapDeleteAndReplaceVersionCmd(flags *rootFlags) *co
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "delete-and-replace-version <id>",
-		Aliases: []string{"create"},
-		Short: "Deletes a project version. Alternative versions can be provided to update issues that use the deleted version in...",
-		Example: "  jira-pp-cli jira-version remove-and-swap delete-and-replace-version 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "delete-and-replace-version <id>",
+		Aliases:     []string{"create"},
+		Short:       "Deletes a project version. Alternative versions can be provided to update issues that use the deleted version in...",
+		Example:     "  jira-pp-cli jira-version remove-and-swap delete-and-replace-version 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "remove-and-swap.delete-and-replace-version", "pp:method": "POST", "pp:path": "/rest/api/3/version/{id}/removeAndSwap"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -78,7 +78,9 @@ func newJiraVersionRemoveAndSwapDeleteAndReplaceVersionCmd(flags *rootFlags) *co
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

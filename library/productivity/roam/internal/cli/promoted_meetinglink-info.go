@@ -15,10 +15,10 @@ func newMeetinglinkInfoPromotedCmd(flags *rootFlags) *cobra.Command {
 	var bodyId string
 
 	cmd := &cobra.Command{
-		Use:   "meetinglink-info",
-		Short: "Get a meeting link. **Access:** Organization only. **Required scope:** `meetinglink:read` --- **OpenAPI Spec:**...",
-		Long:  "Shortcut for 'meetinglink-info meetinglink_info'. Get a meeting link. **Access:** Organization only. **Required scope:** `meetinglink:read` --- **OpenAPI Spec:**...",
-		Example: "  roam-pp-cli meetinglink-info --id 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "meetinglink-info",
+		Short:       "Get a meeting link. **Access:** Organization only. **Required scope:** `meetinglink:read` --- **OpenAPI Spec:**...",
+		Long:        "Shortcut for 'meetinglink-info meetinglink_info'. Get a meeting link. **Access:** Organization only. **Required scope:** `meetinglink:read` --- **OpenAPI Spec:**...",
+		Example:     "  roam-pp-cli meetinglink-info --id 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "meetinglink-info.meetinglink_info", "pp:method": "POST", "pp:path": "/meetinglink.info"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("id") && !flags.dryRun {

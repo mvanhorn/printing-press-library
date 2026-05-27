@@ -17,10 +17,10 @@ func newCustomersAssetGroupListingGroupFiltersPromotedCmd(flags *rootFlags) *cob
 	var bodyResponseContentType string
 
 	cmd := &cobra.Command{
-		Use:   "customers-asset-group-listing-group-filters <customerId>",
-		Short: "Creates, updates or removes asset group listing group filters. Operation statuses are returned.",
-		Long:  "Shortcut for 'customers_asset_group_listing_group_filters mutate'. Creates, updates or removes asset group listing group filters. Operation statuses are returned.",
-		Example: "  google-ads-pp-cli customers-asset-group-listing-group-filters",
+		Use:         "customers-asset-group-listing-group-filters <customerId>",
+		Short:       "Creates, updates or removes asset group listing group filters. Operation statuses are returned.",
+		Long:        "Shortcut for 'customers_asset_group_listing_group_filters mutate'. Creates, updates or removes asset group listing group filters. Operation statuses are returned.",
+		Example:     "  google-ads-pp-cli customers-asset-group-listing-group-filters",
 		Annotations: map[string]string{"pp:endpoint": "customers_asset_group_listing_group_filters.mutate", "pp:method": "POST", "pp:path": "/v22/customers/{customerId}/assetGroupListingGroupFilters:mutate"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

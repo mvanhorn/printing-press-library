@@ -18,11 +18,11 @@ import (
 
 func newDigestCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "digest <airport>",
+		Use:         "digest <airport>",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short:   "One-command daily brief: departures, delays, weather, disruptions",
-		Example: `  flight-goat-pp-cli digest SEA`,
-		Args:    cobra.ExactArgs(1),
+		Short:       "One-command daily brief: departures, delays, weather, disruptions",
+		Example:     `  flight-goat-pp-cli digest SEA`,
+		Args:        cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			airport := upperCode(args[0])
 

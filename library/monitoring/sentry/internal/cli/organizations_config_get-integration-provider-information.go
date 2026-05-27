@@ -15,10 +15,10 @@ func newOrganizationsConfigGetIntegrationProviderInformationCmd(flags *rootFlags
 	var flagProviderKey string
 
 	cmd := &cobra.Command{
-		Use:   "get-integration-provider-information <organization_id_or_slug>",
-		Aliases: []string{"get"},
-		Short: "Get integration provider information about all available integrations for an organization.",
-		Example: "  sentry-pp-cli organizations config get-integration-provider-information example-value",
+		Use:         "get-integration-provider-information <organization_id_or_slug>",
+		Aliases:     []string{"get"},
+		Short:       "Get integration provider information about all available integrations for an organization.",
+		Example:     "  sentry-pp-cli organizations config get-integration-provider-information example-value",
 		Annotations: map[string]string{"pp:endpoint": "config.get-integration-provider-information", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

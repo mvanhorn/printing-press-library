@@ -15,9 +15,9 @@ func newFlightsGetCountBySearchCmd(flags *rootFlags) *cobra.Command {
 	var flagQuery string
 
 	cmd := &cobra.Command{
-		Use:   "get-count-by-search",
-		Short: "Full search query documentation is available at the /flights/search endpoint.",
-		Example: "  flight-goat-pp-cli flights get-count-by-search",
+		Use:         "get-count-by-search",
+		Short:       "Full search query documentation is available at the /flights/search endpoint.",
+		Example:     "  flight-goat-pp-cli flights get-count-by-search",
 		Annotations: map[string]string{"pp:endpoint": "flights.get-count-by-search", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

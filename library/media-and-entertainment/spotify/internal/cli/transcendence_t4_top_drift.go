@@ -15,8 +15,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/spotify/internal/cliutil"
+	"github.com/spf13/cobra"
 )
 
 func newTopDriftCmd(flags *rootFlags) *cobra.Command {

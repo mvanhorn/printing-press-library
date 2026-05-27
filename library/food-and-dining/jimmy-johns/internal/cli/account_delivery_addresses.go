@@ -14,9 +14,9 @@ import (
 func newAccountDeliveryAddressesCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "delivery-addresses",
-		Short: "List the authenticated user's saved delivery addresses.",
-		Example: "  jimmy-johns-pp-cli account delivery-addresses",
+		Use:         "delivery-addresses",
+		Short:       "List the authenticated user's saved delivery addresses.",
+		Example:     "  jimmy-johns-pp-cli account delivery-addresses",
 		Annotations: map[string]string{"pp:endpoint": "account.delivery_addresses", "pp:method": "GET", "pp:path": "/users/current/deliveryAddresses", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

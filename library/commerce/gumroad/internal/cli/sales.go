@@ -9,8 +9,8 @@ import (
 
 func newSalesCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "sales",
-		Short: "Manage sales",
+		Use:    "sales",
+		Short:  "Manage sales",
 		Hidden: true,
 	}
 

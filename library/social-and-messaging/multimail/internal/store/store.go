@@ -790,6 +790,7 @@ func sqliteFieldValue(v any) any {
 func lookupFieldValue(obj map[string]any, snakeKey string) any {
 	return LookupFieldValue(obj, snakeKey)
 }
+
 // upsertAccountTx writes the typed-table portion of a account upsert
 // inside an existing transaction. The caller is responsible for the generic
 // resources insert (via upsertGenericResourceTx) and for committing the tx.
@@ -852,6 +853,7 @@ func (s *Store) UpsertAccount(data json.RawMessage) error {
 
 	return tx.Commit()
 }
+
 // upsertAdminTx writes the typed-table portion of a admin upsert
 // inside an existing transaction. The caller is responsible for the generic
 // resources insert (via upsertGenericResourceTx) and for committing the tx.
@@ -907,6 +909,7 @@ func (s *Store) UpsertAdmin(data json.RawMessage) error {
 
 	return tx.Commit()
 }
+
 // upsertBillingTx writes the typed-table portion of a billing upsert
 // inside an existing transaction. The caller is responsible for the generic
 // resources insert (via upsertGenericResourceTx) and for committing the tx.
@@ -962,6 +965,7 @@ func (s *Store) UpsertBilling(data json.RawMessage) error {
 
 	return tx.Commit()
 }
+
 // upsertDomainsTx writes the typed-table portion of a domains upsert
 // inside an existing transaction. The caller is responsible for the generic
 // resources insert (via upsertGenericResourceTx) and for committing the tx.
@@ -1019,6 +1023,7 @@ func (s *Store) UpsertDomains(data json.RawMessage) error {
 
 	return tx.Commit()
 }
+
 // upsertVerifyTx writes the typed-table portion of a verify upsert
 // inside an existing transaction. The caller is responsible for the generic
 // resources insert (via upsertGenericResourceTx) and for committing the tx.
@@ -1069,6 +1074,7 @@ func (s *Store) UpsertVerify(data json.RawMessage) error {
 
 	return tx.Commit()
 }
+
 // upsertNotSpamTx writes the typed-table portion of a not_spam upsert
 // inside an existing transaction. The caller is responsible for the generic
 // resources insert (via upsertGenericResourceTx) and for committing the tx.
@@ -1119,6 +1125,7 @@ func (s *Store) UpsertNotSpam(data json.RawMessage) error {
 
 	return tx.Commit()
 }
+
 // upsertReportSpamTx writes the typed-table portion of a report_spam upsert
 // inside an existing transaction. The caller is responsible for the generic
 // resources insert (via upsertGenericResourceTx) and for committing the tx.
@@ -1169,6 +1176,7 @@ func (s *Store) UpsertReportSpam(data json.RawMessage) error {
 
 	return tx.Commit()
 }
+
 // upsertMailboxesEmailsTx writes the typed-table portion of a mailboxes_emails upsert
 // inside an existing transaction. The caller is responsible for the generic
 // resources insert (via upsertGenericResourceTx) and for committing the tx.
@@ -1220,6 +1228,7 @@ func (s *Store) UpsertMailboxesEmails(data json.RawMessage) error {
 
 	return tx.Commit()
 }
+
 // upsertReplyTx writes the typed-table portion of a reply upsert
 // inside an existing transaction. The caller is responsible for the generic
 // resources insert (via upsertGenericResourceTx) and for committing the tx.
@@ -1270,6 +1279,7 @@ func (s *Store) UpsertReply(data json.RawMessage) error {
 
 	return tx.Commit()
 }
+
 // upsertRequestUpgradeTx writes the typed-table portion of a request_upgrade upsert
 // inside an existing transaction. The caller is responsible for the generic
 // resources insert (via upsertGenericResourceTx) and for committing the tx.
@@ -1320,6 +1330,7 @@ func (s *Store) UpsertRequestUpgrade(data json.RawMessage) error {
 
 	return tx.Commit()
 }
+
 // upsertSendTx writes the typed-table portion of a send upsert
 // inside an existing transaction. The caller is responsible for the generic
 // resources insert (via upsertGenericResourceTx) and for committing the tx.
@@ -1370,6 +1381,7 @@ func (s *Store) UpsertSend(data json.RawMessage) error {
 
 	return tx.Commit()
 }
+
 // upsertThreadsTx writes the typed-table portion of a threads upsert
 // inside an existing transaction. The caller is responsible for the generic
 // resources insert (via upsertGenericResourceTx) and for committing the tx.
@@ -1420,6 +1432,7 @@ func (s *Store) UpsertThreads(data json.RawMessage) error {
 
 	return tx.Commit()
 }
+
 // upsertUpgradeTx writes the typed-table portion of a upgrade upsert
 // inside an existing transaction. The caller is responsible for the generic
 // resources insert (via upsertGenericResourceTx) and for committing the tx.
@@ -1470,6 +1483,7 @@ func (s *Store) UpsertUpgrade(data json.RawMessage) error {
 
 	return tx.Commit()
 }
+
 // upsertOperatorTx writes the typed-table portion of a operator upsert
 // inside an existing transaction. The caller is responsible for the generic
 // resources insert (via upsertGenericResourceTx) and for committing the tx.
@@ -1522,6 +1536,7 @@ func (s *Store) UpsertOperator(data json.RawMessage) error {
 
 	return tx.Commit()
 }
+
 // upsertSlugCheckTx writes the typed-table portion of a slug_check upsert
 // inside an existing transaction. The caller is responsible for the generic
 // resources insert (via upsertGenericResourceTx) and for committing the tx.
@@ -1575,6 +1590,7 @@ func (s *Store) UpsertSlugCheck(data json.RawMessage) error {
 
 	return tx.Commit()
 }
+
 // upsertWebhooksTx writes the typed-table portion of a webhooks upsert
 // inside an existing transaction. The caller is responsible for the generic
 // resources insert (via upsertGenericResourceTx) and for committing the tx.
@@ -1639,18 +1655,18 @@ func (s *Store) UpsertWebhooks(data json.RawMessage) error {
 // child path-item annotated with x-resource-id resolves the same as a flat
 // path-item.
 var resourceIDFieldOverrides = map[string]string{
-	"account": "id",
-	"api-keys": "id",
-	"audit-log": "id",
-	"contacts": "id",
-	"domains": "id",
-	"emails": "id",
-	"mailboxes": "id",
-	"mailboxes_emails": "id",
-	"oversight": "id",
-	"suppression": "id",
+	"account":            "id",
+	"api-keys":           "id",
+	"audit-log":          "id",
+	"contacts":           "id",
+	"domains":            "id",
+	"emails":             "id",
+	"mailboxes":          "id",
+	"mailboxes_emails":   "id",
+	"oversight":          "id",
+	"suppression":        "id",
 	"webhook-deliveries": "id",
-	"webhooks": "id",
+	"webhooks":           "id",
 }
 
 // genericIDFieldFallbacks is the runtime safety net for resources that did

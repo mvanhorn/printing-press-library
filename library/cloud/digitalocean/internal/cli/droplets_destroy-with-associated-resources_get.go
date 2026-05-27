@@ -14,9 +14,9 @@ import (
 func newDropletsDestroyWithAssociatedResourcesGetCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get",
-		Short: "Get",
-		Example: "  digitalocean-pp-cli droplets destroy-with-associated-resources get",
+		Use:         "get",
+		Short:       "Get",
+		Example:     "  digitalocean-pp-cli droplets destroy-with-associated-resources get",
 		Annotations: map[string]string{"pp:endpoint": "destroy-with-associated-resources.get", "pp:method": "GET", "pp:path": "/v2/droplets/{droplet_id}/destroy_with_associated_resources", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

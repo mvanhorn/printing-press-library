@@ -17,10 +17,10 @@ func newFieldOptionGetAllIssueFieldCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "get-all-issue-field <fieldKey>",
-		Aliases: []string{"get"},
-		Short: "Returns a [paginated](#pagination) list of all the options of a select list issue field. A select list issue field...",
-		Example: "  jira-pp-cli field option get-all-issue-field your-token-here",
+		Use:         "get-all-issue-field <fieldKey>",
+		Aliases:     []string{"get"},
+		Short:       "Returns a [paginated](#pagination) list of all the options of a select list issue field. A select list issue field...",
+		Example:     "  jira-pp-cli field option get-all-issue-field your-token-here",
 		Annotations: map[string]string{"pp:endpoint": "option.get-all-issue-field", "pp:method": "GET", "pp:path": "/rest/api/3/field/{fieldKey}/option", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -37,7 +37,7 @@ func newFieldOptionGetAllIssueFieldCmd(flags *rootFlags) *cobra.Command {
 			}
 			path = replacePathParam(path, "fieldKey", args[2])
 			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "option", path, map[string]string{
-				"startAt": fmt.Sprintf("%v", flagStartAt),
+				"startAt":    fmt.Sprintf("%v", flagStartAt),
 				"maxResults": fmt.Sprintf("%v", flagMaxResults),
 			}, nil, flagAll, "", "", "")
 			if err != nil {

@@ -15,10 +15,10 @@ func newProjectsMonitorsDeleteAOrEnvironmentsForAProjectCmd(flags *rootFlags) *c
 	var flagEnvironment string
 
 	cmd := &cobra.Command{
-		Use:   "delete-a-or-environments-for-a-project <organization_id_or_slug> <project_id_or_slug> <monitor_id_or_slug>",
-		Aliases: []string{"delete"},
-		Short: "Delete a monitor or monitor environments.",
-		Example: "  sentry-pp-cli projects monitors delete-a-or-environments-for-a-project example-value example-value example-value",
+		Use:         "delete-a-or-environments-for-a-project <organization_id_or_slug> <project_id_or_slug> <monitor_id_or_slug>",
+		Aliases:     []string{"delete"},
+		Short:       "Delete a monitor or monitor environments.",
+		Example:     "  sentry-pp-cli projects monitors delete-a-or-environments-for-a-project example-value example-value example-value",
 		Annotations: map[string]string{"pp:endpoint": "monitors.delete-a-or-environments-for-a-project"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -53,7 +53,9 @@ func newProjectsMonitorsDeleteAOrEnvironmentsForAProjectCmd(flags *rootFlags) *c
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

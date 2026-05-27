@@ -14,9 +14,9 @@ import (
 func newChangefilesListCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "list",
-		Short: "List all available changefile dates. Each date has downloadable files containing every entity record that was...",
-		Example: "  openalex-pp-cli changefiles list",
+		Use:         "list",
+		Short:       "List all available changefile dates. Each date has downloadable files containing every entity record that was...",
+		Example:     "  openalex-pp-cli changefiles list",
 		Annotations: map[string]string{"pp:endpoint": "changefiles.list", "pp:method": "GET", "pp:path": "/changefiles", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

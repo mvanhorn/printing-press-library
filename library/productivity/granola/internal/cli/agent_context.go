@@ -39,12 +39,12 @@ type agentContext struct {
 // behavior added by the auto-refresh hook. Stable JSON shape — bumping
 // any field is a SchemaVersion bump.
 type agentContextAutoRefresh struct {
-	Default      string   `json:"default"`        // "on"
-	Flag         string   `json:"flag"`           // "--no-refresh"
-	Env          string   `json:"env"`            // "GRANOLA_NO_AUTO_REFRESH"
-	ProfileField string   `json:"profile_field"`  // "no-refresh"
-	Surfaces     []string `json:"surfaces"`       // ["cache","api"]
-	SkipList     []string `json:"skip_list"`      // command names that bypass refresh
+	Default      string   `json:"default"`       // "on"
+	Flag         string   `json:"flag"`          // "--no-refresh"
+	Env          string   `json:"env"`           // "GRANOLA_NO_AUTO_REFRESH"
+	ProfileField string   `json:"profile_field"` // "no-refresh"
+	Surfaces     []string `json:"surfaces"`      // ["cache","api"]
+	SkipList     []string `json:"skip_list"`     // command names that bypass refresh
 }
 
 type agentContextCLI struct {

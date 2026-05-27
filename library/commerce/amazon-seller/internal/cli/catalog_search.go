@@ -26,9 +26,9 @@ func newCatalogSearchCmd(flags *rootFlags) *cobra.Command {
 	var flagIncludedData string
 
 	cmd := &cobra.Command{
-		Use:   "search",
-		Short: "Search catalog items. Provide marketplaceIds plus one valid search mode such as keywords or identifiers with...",
-		Example: "  amazon-seller-pp-cli catalog search",
+		Use:         "search",
+		Short:       "Search catalog items. Provide marketplaceIds plus one valid search mode such as keywords or identifiers with...",
+		Example:     "  amazon-seller-pp-cli catalog search",
 		Annotations: map[string]string{"pp:endpoint": "catalog.search", "pp:method": "GET", "pp:path": "/catalog/2022-04-01/items", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("marketplace-ids") && !flags.dryRun {

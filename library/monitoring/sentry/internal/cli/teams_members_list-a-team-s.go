@@ -16,10 +16,10 @@ func newTeamsMembersListATeamSCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "list-a-team-s <organization_id_or_slug> <team_id_or_slug>",
-		Aliases: []string{"get"},
-		Short: "List all members on a team. The response will not include members with pending invites.",
-		Example: "  sentry-pp-cli teams members list-a-team-s example-value example-value",
+		Use:         "list-a-team-s <organization_id_or_slug> <team_id_or_slug>",
+		Aliases:     []string{"get"},
+		Short:       "List all members on a team. The response will not include members with pending invites.",
+		Example:     "  sentry-pp-cli teams members list-a-team-s example-value example-value",
 		Annotations: map[string]string{"pp:endpoint": "members.list-a-team-s", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

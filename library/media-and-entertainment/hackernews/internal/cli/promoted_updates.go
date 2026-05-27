@@ -14,10 +14,10 @@ import (
 func newUpdatesPromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "updates",
-		Short: "Items and user profiles that have changed recently",
-		Long:  "Shortcut for 'updates list'. Items and user profiles that have changed recently",
-		Example: "  hackernews-pp-cli updates",
+		Use:         "updates",
+		Short:       "Items and user profiles that have changed recently",
+		Long:        "Shortcut for 'updates list'. Items and user profiles that have changed recently",
+		Example:     "  hackernews-pp-cli updates",
 		Annotations: map[string]string{"pp:endpoint": "updates.list", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

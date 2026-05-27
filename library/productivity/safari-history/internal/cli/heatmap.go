@@ -6,10 +6,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/productivity/safari-history/internal/output"
 	"github.com/mvanhorn/printing-press-library/library/productivity/safari-history/internal/source"
 	"github.com/mvanhorn/printing-press-library/library/productivity/safari-history/internal/store"
+	"github.com/spf13/cobra"
 )
 
 func newHeatmapCmd(opts *RootOptions) *cobra.Command {

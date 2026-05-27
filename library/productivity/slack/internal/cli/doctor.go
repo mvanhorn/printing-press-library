@@ -11,8 +11,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/productivity/slack/internal/config"
+	"github.com/spf13/cobra"
 )
 
 func newDoctorCmd(flags *rootFlags) *cobra.Command {

@@ -64,16 +64,16 @@ type RepostContext struct {
 // Media URLs are deduplicated within a post and ordered by first
 // appearance in the DOM. RepostContext is nil except on retweets/quotes.
 type ClusterPost struct {
-	PostXID    string             `json:"post_x_id"`
-	PostType   string             `json:"post_type,omitempty"`
-	PostedAt   string             `json:"posted_at,omitempty"`
-	Author     ClusterPostAuthor  `json:"author"`
-	XURL       string             `json:"xUrl,omitempty"`
-	Body       *string            `json:"body"`
-	BodyLoaded bool               `json:"body_loaded"`
-	MediaURLs  []string           `json:"media_urls"`
-	Repost     *RepostContext     `json:"repost_context"`
-	RawJSON    json.RawMessage    `json:"-"`
+	PostXID    string            `json:"post_x_id"`
+	PostType   string            `json:"post_type,omitempty"`
+	PostedAt   string            `json:"posted_at,omitempty"`
+	Author     ClusterPostAuthor `json:"author"`
+	XURL       string            `json:"xUrl,omitempty"`
+	Body       *string           `json:"body"`
+	BodyLoaded bool              `json:"body_loaded"`
+	MediaURLs  []string          `json:"media_urls"`
+	Repost     *RepostContext    `json:"repost_context"`
+	RawJSON    json.RawMessage   `json:"-"`
 }
 
 // rscPost mirrors the JSON shape inside the RSC `posts` array. Lives

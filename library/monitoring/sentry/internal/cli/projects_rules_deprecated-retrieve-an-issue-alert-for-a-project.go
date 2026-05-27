@@ -14,9 +14,9 @@ import (
 func newProjectsRulesDeprecatedRetrieveAnIssueAlertForAProjectCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "deprecated-retrieve-an-issue-alert-for-a-project <organization_id_or_slug> <project_id_or_slug> <rule_id>",
-		Short: "## Deprecated 🚧 Use [Fetch an Alert](/api/monitors/fetch-an-alert) instead. Return details on an individual issue...",
-		Example: "  sentry-pp-cli projects rules deprecated-retrieve-an-issue-alert-for-a-project example-value example-value 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "deprecated-retrieve-an-issue-alert-for-a-project <organization_id_or_slug> <project_id_or_slug> <rule_id>",
+		Short:       "## Deprecated 🚧 Use [Fetch an Alert](/api/monitors/fetch-an-alert) instead. Return details on an individual issue...",
+		Example:     "  sentry-pp-cli projects rules deprecated-retrieve-an-issue-alert-for-a-project example-value example-value 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "rules.deprecated-retrieve-an-issue-alert-for-a-project", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

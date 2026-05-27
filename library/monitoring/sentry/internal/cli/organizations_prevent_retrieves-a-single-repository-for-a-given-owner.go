@@ -14,9 +14,9 @@ import (
 func newOrganizationsPreventRetrievesASingleRepositoryForAGivenOwnerCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "retrieves-a-single-repository-for-a-given-owner <organization_id_or_slug> <owner> <repository>",
-		Short: "Retrieves repository data for a single repository.",
-		Example: "  sentry-pp-cli organizations prevent retrieves-a-single-repository-for-a-given-owner example-value example-value example-value",
+		Use:         "retrieves-a-single-repository-for-a-given-owner <organization_id_or_slug> <owner> <repository>",
+		Short:       "Retrieves repository data for a single repository.",
+		Example:     "  sentry-pp-cli organizations prevent retrieves-a-single-repository-for-a-given-owner example-value example-value example-value",
 		Annotations: map[string]string{"pp:endpoint": "prevent.retrieves-a-single-repository-for-a-given-owner", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

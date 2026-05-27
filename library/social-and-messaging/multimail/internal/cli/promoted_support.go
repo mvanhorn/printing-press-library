@@ -19,10 +19,10 @@ func newSupportPromotedCmd(flags *rootFlags) *cobra.Command {
 	var bodySubject string
 
 	cmd := &cobra.Command{
-		Use:   "support",
-		Short: "Public endpoint. Requires a solved ALTCHA proof-of-work payload. Sends a message to support@multimail.dev.",
-		Long:  "Shortcut for 'support create'. Public endpoint. Requires a solved ALTCHA proof-of-work payload. Sends a message to support@multimail.dev.",
-		Example: "  multimail-pp-cli support --email user@example.com",
+		Use:         "support",
+		Short:       "Public endpoint. Requires a solved ALTCHA proof-of-work payload. Sends a message to support@multimail.dev.",
+		Long:        "Shortcut for 'support create'. Public endpoint. Requires a solved ALTCHA proof-of-work payload. Sends a message to support@multimail.dev.",
+		Example:     "  multimail-pp-cli support --email user@example.com",
 		Annotations: map[string]string{"pp:endpoint": "support.create", "pp:method": "POST", "pp:path": "/v1/support"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("email") && !flags.dryRun {

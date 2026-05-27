@@ -16,10 +16,10 @@ func newListCommentGetListCmd(flags *rootFlags) *cobra.Command {
 	var flagStartId string
 
 	cmd := &cobra.Command{
-		Use:   "get-list <list_id>",
-		Aliases: []string{"get"},
-		Short: "View the comments added to a List. If you do not include the `start` and `start_id` parameters, this endpoint will...",
-		Example: "  clickup-pp-cli list comment get-list 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "get-list <list_id>",
+		Aliases:     []string{"get"},
+		Short:       "View the comments added to a List. If you do not include the `start` and `start_id` parameters, this endpoint will...",
+		Example:     "  clickup-pp-cli list comment get-list 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "comment.get-list", "pp:method": "GET", "pp:path": "/v2/list/{list_id}/comment", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

@@ -17,9 +17,9 @@ func newFieldContextRemoveCustomFieldFromProjectsCmd(flags *rootFlags) *cobra.Co
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "remove-custom-field-from-projects <fieldId> <contextId>",
-		Short: "Removes a custom field context from projects. A custom field context without any projects applies to all projects....",
-		Example: "  jira-pp-cli field context remove-custom-field-from-projects 550e8400-e29b-41d4-a716-446655440000 42",
+		Use:         "remove-custom-field-from-projects <fieldId> <contextId>",
+		Short:       "Removes a custom field context from projects. A custom field context without any projects applies to all projects....",
+		Example:     "  jira-pp-cli field context remove-custom-field-from-projects 550e8400-e29b-41d4-a716-446655440000 42",
 		Annotations: map[string]string{"pp:endpoint": "context.remove-custom-field-from-projects", "pp:method": "POST", "pp:path": "/rest/api/3/field/{fieldId}/context/{contextId}/project/remove"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -76,7 +76,9 @@ func newFieldContextRemoveCustomFieldFromProjectsCmd(flags *rootFlags) *cobra.Co
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

@@ -16,9 +16,9 @@ func newOrdersListCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "list",
-		Short: "List your order history across all restaurants (returns latest N orders, server-paginated)",
-		Example: "  ordertogo-pp-cli orders list",
+		Use:         "list",
+		Short:       "List your order history across all restaurants (returns latest N orders, server-paginated)",
+		Example:     "  ordertogo-pp-cli orders list",
 		Annotations: map[string]string{"pp:endpoint": "orders.list", "pp:method": "POST", "pp:path": "/m/api/getmicmeshorders", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {
@@ -57,7 +57,9 @@ func newOrdersListCmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

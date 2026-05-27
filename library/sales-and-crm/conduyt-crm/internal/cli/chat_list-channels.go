@@ -14,10 +14,10 @@ import (
 func newChatListChannelsCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "list-channels",
-		Aliases: []string{"list"},
-		Short: "List chat channels",
-		Example: "  conduyt-crm-pp-cli chat list-channels",
+		Use:         "list-channels",
+		Aliases:     []string{"list"},
+		Short:       "List chat channels",
+		Example:     "  conduyt-crm-pp-cli chat list-channels",
 		Annotations: map[string]string{"pp:endpoint": "chat.list-channels", "pp:method": "GET", "pp:path": "/chat/channels", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

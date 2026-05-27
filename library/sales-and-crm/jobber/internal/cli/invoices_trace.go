@@ -9,8 +9,8 @@ import (
 	"math"
 	"strconv"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/sales-and-crm/jobber/internal/store"
+	"github.com/spf13/cobra"
 )
 
 type invoiceTraceRow struct {

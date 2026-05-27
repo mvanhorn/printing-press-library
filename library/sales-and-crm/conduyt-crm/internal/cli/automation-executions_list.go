@@ -17,9 +17,9 @@ func newAutomationExecutionsListCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "list",
-		Short: "List automation execution logs",
-		Example: "  conduyt-crm-pp-cli automation-executions list",
+		Use:         "list",
+		Short:       "List automation execution logs",
+		Example:     "  conduyt-crm-pp-cli automation-executions list",
 		Annotations: map[string]string{"pp:endpoint": "automation-executions.list", "pp:method": "GET", "pp:path": "/automation-executions", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
@@ -29,7 +29,7 @@ func newAutomationExecutionsListCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/automation-executions"
 			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "automation-executions", path, map[string]string{
-				"page": fmt.Sprintf("%v", flagPage),
+				"page":     fmt.Sprintf("%v", flagPage),
 				"per_page": fmt.Sprintf("%v", flagPerPage),
 			}, nil, flagAll, "", "", "")
 			if err != nil {

@@ -14,9 +14,9 @@ import (
 func newDomainsGetCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get",
-		Short: "Get",
-		Example: "  digitalocean-pp-cli domains get",
+		Use:         "get",
+		Short:       "Get",
+		Example:     "  digitalocean-pp-cli domains get",
 		Annotations: map[string]string{"pp:endpoint": "domains.get", "pp:method": "GET", "pp:path": "/v2/domains/{domain_name}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

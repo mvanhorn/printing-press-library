@@ -20,9 +20,9 @@ func newGroupAddUserToCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "add-user-to",
-		Short: "Adds a user to a group. **[Permissions](#permissions) required:** Site administration (that is, member of the...",
-		Example: "  jira-pp-cli group add-user-to",
+		Use:         "add-user-to",
+		Short:       "Adds a user to a group. **[Permissions](#permissions) required:** Site administration (that is, member of the...",
+		Example:     "  jira-pp-cli group add-user-to",
 		Annotations: map[string]string{"pp:endpoint": "group.add-user-to", "pp:method": "POST", "pp:path": "/rest/api/3/group/user"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {
@@ -67,7 +67,9 @@ func newGroupAddUserToCmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

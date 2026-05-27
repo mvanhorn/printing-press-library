@@ -14,9 +14,9 @@ import (
 func newOperatorsFlightsGetOperatorCountCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-operator-count <id>",
-		Short: "Returns counts of both airborne and recently operated flights for operator.",
-		Example: "  flight-goat-pp-cli operators flights get-operator-count 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "get-operator-count <id>",
+		Short:       "Returns counts of both airborne and recently operated flights for operator.",
+		Example:     "  flight-goat-pp-cli operators flights get-operator-count 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "flights.get-operator-count", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

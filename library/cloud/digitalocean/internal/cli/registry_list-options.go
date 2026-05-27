@@ -14,9 +14,9 @@ import (
 func newRegistryListOptionsCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "list-options",
-		Short: "List options",
-		Example: "  digitalocean-pp-cli registry list-options",
+		Use:         "list-options",
+		Short:       "List options",
+		Example:     "  digitalocean-pp-cli registry list-options",
 		Annotations: map[string]string{"pp:endpoint": "registry.list-options", "pp:method": "GET", "pp:path": "/v2/registry/options", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

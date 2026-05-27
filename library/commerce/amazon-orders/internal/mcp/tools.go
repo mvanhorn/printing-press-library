@@ -12,14 +12,14 @@ import (
 	"strings"
 	"time"
 
+	mcplib "github.com/mark3labs/mcp-go/mcp"
+	"github.com/mark3labs/mcp-go/server"
 	"github.com/mvanhorn/printing-press-library/library/commerce/amazon-orders/internal/cli"
 	"github.com/mvanhorn/printing-press-library/library/commerce/amazon-orders/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/commerce/amazon-orders/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/commerce/amazon-orders/internal/config"
 	"github.com/mvanhorn/printing-press-library/library/commerce/amazon-orders/internal/mcp/cobratree"
 	"github.com/mvanhorn/printing-press-library/library/commerce/amazon-orders/internal/store"
-	mcplib "github.com/mark3labs/mcp-go/mcp"
-	"github.com/mark3labs/mcp-go/server"
 )
 
 // RegisterTools registers all API operations as MCP tools.

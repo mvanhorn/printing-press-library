@@ -20,11 +20,11 @@ import (
 // Source values surfaced in Result.Source. These match the strings the
 // CLI emits in the comparator envelope's meta.cpp_baseline_source field.
 const (
-	SourceOverride        = "override"
-	SourceTPGLive         = "tpg-live"
-	SourceTPGCached       = "tpg-cached"
-	SourceFallbackStale   = "fallback-stale"
-	SourceFallbackConst   = "fallback-constant"
+	SourceOverride      = "override"
+	SourceTPGLive       = "tpg-live"
+	SourceTPGCached     = "tpg-cached"
+	SourceFallbackStale = "fallback-stale"
+	SourceFallbackConst = "fallback-constant"
 )
 
 // LookupOptions controls the fallback chain. Zero-value is the normal

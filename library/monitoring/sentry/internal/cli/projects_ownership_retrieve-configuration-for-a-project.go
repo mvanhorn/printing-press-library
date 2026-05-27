@@ -14,10 +14,10 @@ import (
 func newProjectsOwnershipRetrieveConfigurationForAProjectCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "retrieve-configuration-for-a-project <organization_id_or_slug> <project_id_or_slug>",
-		Aliases: []string{"get"},
-		Short: "Returns details on a project's ownership configuration.",
-		Example: "  sentry-pp-cli projects ownership retrieve-configuration-for-a-project example-value example-value",
+		Use:         "retrieve-configuration-for-a-project <organization_id_or_slug> <project_id_or_slug>",
+		Aliases:     []string{"get"},
+		Short:       "Returns details on a project's ownership configuration.",
+		Example:     "  sentry-pp-cli projects ownership retrieve-configuration-for-a-project example-value example-value",
 		Annotations: map[string]string{"pp:endpoint": "ownership.retrieve-configuration-for-a-project", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

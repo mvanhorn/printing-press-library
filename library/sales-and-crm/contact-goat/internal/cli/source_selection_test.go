@@ -25,7 +25,7 @@ import (
 //
 //   - POST /search          -> {"id":"abc123"}
 //   - GET  /search/{id}     -> first poll RUNNING; second poll COMPLETED
-//                              with two SearchResult rows
+//     with two SearchResult rows
 //   - GET  /users/me        -> {"email","name","friends":[]}
 //
 // Tests pass the server URL via api.WithBaseURL so no real network

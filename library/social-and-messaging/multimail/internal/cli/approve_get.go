@@ -14,9 +14,9 @@ import (
 func newApproveGetCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get <token>",
-		Short: "Render hosted approval page for oversight decisions",
-		Example: "  multimail-pp-cli approve get your-token-here",
+		Use:         "get <token>",
+		Short:       "Render hosted approval page for oversight decisions",
+		Example:     "  multimail-pp-cli approve get your-token-here",
 		Annotations: map[string]string{"pp:endpoint": "approve.get", "pp:method": "GET", "pp:path": "/v1/approve/{token}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

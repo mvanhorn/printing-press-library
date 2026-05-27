@@ -20,10 +20,10 @@ func newGroupCreatePromotedCmd(flags *rootFlags) *cobra.Command {
 	var bodyPrivate bool
 
 	cmd := &cobra.Command{
-		Use:   "group-create",
-		Short: "Create a group address that can be used for chat. Groups which specify an admin will operate in an 'Admin only'...",
-		Long:  "Shortcut for 'group-create group_create'. Create a group address that can be used for chat. Groups which specify an admin will operate in an 'Admin only'...",
-		Example: "  roam-pp-cli group-create --name example-resource",
+		Use:         "group-create",
+		Short:       "Create a group address that can be used for chat. Groups which specify an admin will operate in an 'Admin only'...",
+		Long:        "Shortcut for 'group-create group_create'. Create a group address that can be used for chat. Groups which specify an admin will operate in an 'Admin only'...",
+		Example:     "  roam-pp-cli group-create --name example-resource",
 		Annotations: map[string]string{"pp:endpoint": "group-create.group_create", "pp:method": "POST", "pp:path": "/group.create"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("name") && !flags.dryRun {

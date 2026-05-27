@@ -14,10 +14,10 @@ import (
 func newEmailDomainsGetCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get",
-		Aliases: []string{"list"},
-		Short: "Get email domain configuration",
-		Example: "  conduyt-crm-pp-cli email-domains get",
+		Use:         "get",
+		Aliases:     []string{"list"},
+		Short:       "Get email domain configuration",
+		Example:     "  conduyt-crm-pp-cli email-domains get",
 		Annotations: map[string]string{"pp:endpoint": "email-domains.get", "pp:method": "GET", "pp:path": "/email-domains", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

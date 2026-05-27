@@ -9,8 +9,8 @@ import (
 
 func newWebhookCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "webhook",
-		Short: "This resource represents webhooks. Webhooks are calls sent to a URL when an event occurs in Jira for issues...",
+		Use:    "webhook",
+		Short:  "This resource represents webhooks. Webhooks are calls sent to a URL when an event occurs in Jira for issues...",
 		Hidden: true,
 	}
 

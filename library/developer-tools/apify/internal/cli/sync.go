@@ -4,10 +4,10 @@
 package cli
 
 import (
-	"github.com/mvanhorn/printing-press-library/library/developer-tools/apify/internal/cliutil"
-	"github.com/mvanhorn/printing-press-library/library/developer-tools/apify/internal/store"
 	"encoding/json"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/apify/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/apify/internal/store"
 	"github.com/spf13/cobra"
 	"net/url"
 	"os"

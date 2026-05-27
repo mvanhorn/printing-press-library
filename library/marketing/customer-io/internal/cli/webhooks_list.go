@@ -14,9 +14,9 @@ import (
 func newWebhooksListCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "list <environment_id>",
-		Short: "List Reporting Webhooks",
-		Example: "  customer-io-pp-cli webhooks list 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "list <environment_id>",
+		Short:       "List Reporting Webhooks",
+		Example:     "  customer-io-pp-cli webhooks list 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "webhooks.list", "pp:method": "GET", "pp:path": "/v1/environments/{environment_id}/webhook_configurations", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

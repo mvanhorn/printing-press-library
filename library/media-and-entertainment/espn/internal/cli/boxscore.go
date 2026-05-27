@@ -21,9 +21,9 @@ func newBoxscoreCmd(flags *rootFlags) *cobra.Command {
 	var sport, league string
 
 	cmd := &cobra.Command{
-		Use:   "boxscore <event_id>",
+		Use:         "boxscore <event_id>",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short: "Full box score for a specific event id",
+		Short:       "Full box score for a specific event id",
 		Example: `  espn-pp-cli boxscore 401547417 --sport football --league nfl
   espn-pp-cli boxscore 401584793 --sport basketball --league nba --agent
   espn-pp-cli boxscore 401569551`,

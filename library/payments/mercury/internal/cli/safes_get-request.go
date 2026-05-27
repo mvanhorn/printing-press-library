@@ -14,10 +14,10 @@ import (
 func newSafesGetRequestCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-request <safeRequestId>",
-		Aliases: []string{"get"},
-		Short: "Retrieve a specific SAFE request by its ID.",
-		Example: "  mercury-pp-cli safes get-request 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "get-request <safeRequestId>",
+		Aliases:     []string{"get"},
+		Short:       "Retrieve a specific SAFE request by its ID.",
+		Example:     "  mercury-pp-cli safes get-request 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "safes.get-request", "pp:method": "GET", "pp:path": "/safes/{safeRequestId}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

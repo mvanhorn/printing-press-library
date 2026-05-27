@@ -14,9 +14,9 @@ import (
 func newOrganizationsAlertRulesDeprecatedRetrieveAMetricForAnOrganizationCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "deprecated-retrieve-a-metric-for-an-organization <organization_id_or_slug> <alert_rule_id>",
-		Short: "## Deprecated 🚧 Use [Fetch a Monitor](/api/monitors/fetch-a-monitor) and [Fetch an...",
-		Example: "  sentry-pp-cli organizations alert-rules deprecated-retrieve-a-metric-for-an-organization example-value 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "deprecated-retrieve-a-metric-for-an-organization <organization_id_or_slug> <alert_rule_id>",
+		Short:       "## Deprecated 🚧 Use [Fetch a Monitor](/api/monitors/fetch-a-monitor) and [Fetch an...",
+		Example:     "  sentry-pp-cli organizations alert-rules deprecated-retrieve-a-metric-for-an-organization example-value 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "alert-rules.deprecated-retrieve-a-metric-for-an-organization", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

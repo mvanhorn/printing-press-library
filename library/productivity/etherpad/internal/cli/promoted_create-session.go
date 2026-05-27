@@ -17,10 +17,10 @@ func newCreateSessionPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagValidUntil string
 
 	cmd := &cobra.Command{
-		Use:   "create-session",
-		Short: "creates a new session. validUntil is an unix timestamp in seconds",
-		Long:  "Shortcut for 'create-session using-post'. creates a new session. validUntil is an unix timestamp in seconds",
-		Example: "  etherpad-pp-cli create-session",
+		Use:         "create-session",
+		Short:       "creates a new session. validUntil is an unix timestamp in seconds",
+		Long:        "Shortcut for 'create-session using-post'. creates a new session. validUntil is an unix timestamp in seconds",
+		Example:     "  etherpad-pp-cli create-session",
 		Annotations: map[string]string{"pp:endpoint": "create-session.using-post", "pp:method": "POST", "pp:path": "/createSession"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

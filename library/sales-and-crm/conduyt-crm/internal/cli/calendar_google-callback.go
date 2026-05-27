@@ -14,10 +14,10 @@ import (
 func newCalendarGoogleCallbackCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "google-callback",
-		Aliases: []string{"list"},
-		Short: "Google Calendar OAuth callback",
-		Example: "  conduyt-crm-pp-cli calendar google-callback",
+		Use:         "google-callback",
+		Aliases:     []string{"list"},
+		Short:       "Google Calendar OAuth callback",
+		Example:     "  conduyt-crm-pp-cli calendar google-callback",
 		Annotations: map[string]string{"pp:endpoint": "calendar.google-callback", "pp:method": "GET", "pp:path": "/calendar/callback/google", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

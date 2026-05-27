@@ -14,10 +14,10 @@ import (
 func newProjectEmailGetProjectCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-project <projectId>",
-		Aliases: []string{"get"},
-		Short: "Returns the [project's sender email address](https://confluence.atlassian.com/x/dolKLg)....",
-		Example: "  jira-pp-cli project email get-project 42",
+		Use:         "get-project <projectId>",
+		Aliases:     []string{"get"},
+		Short:       "Returns the [project's sender email address](https://confluence.atlassian.com/x/dolKLg)....",
+		Example:     "  jira-pp-cli project email get-project 42",
 		Annotations: map[string]string{"pp:endpoint": "email.get-project", "pp:method": "GET", "pp:path": "/rest/api/3/project/{projectId}/email", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

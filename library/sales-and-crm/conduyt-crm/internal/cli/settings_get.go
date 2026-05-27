@@ -14,10 +14,10 @@ import (
 func newSettingsGetCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get",
-		Aliases: []string{"list"},
-		Short: "Get account settings",
-		Example: "  conduyt-crm-pp-cli settings get",
+		Use:         "get",
+		Aliases:     []string{"list"},
+		Short:       "Get account settings",
+		Example:     "  conduyt-crm-pp-cli settings get",
 		Annotations: map[string]string{"pp:endpoint": "settings.get", "pp:method": "GET", "pp:path": "/settings", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

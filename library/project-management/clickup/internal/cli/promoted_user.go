@@ -14,10 +14,10 @@ import (
 func newUserPromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "user",
-		Short: "View the details of the authenticated user's ClickUp account.",
-		Long:  "Shortcut for 'user get-authorized'. View the details of the authenticated user's ClickUp account.",
-		Example: "  clickup-pp-cli user",
+		Use:         "user",
+		Short:       "View the details of the authenticated user's ClickUp account.",
+		Long:        "Shortcut for 'user get-authorized'. View the details of the authenticated user's ClickUp account.",
+		Example:     "  clickup-pp-cli user",
 		Annotations: map[string]string{"pp:endpoint": "user.get-authorized", "pp:method": "GET", "pp:path": "/v2/user", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

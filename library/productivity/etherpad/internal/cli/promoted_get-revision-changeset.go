@@ -16,10 +16,10 @@ func newGetRevisionChangesetPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagRev string
 
 	cmd := &cobra.Command{
-		Use:   "get-revision-changeset",
-		Short: "returns the changeset at a given revision of a pad",
-		Long:  "Shortcut for 'get-revision-changeset using-post'. returns the changeset at a given revision of a pad",
-		Example: "  etherpad-pp-cli get-revision-changeset",
+		Use:         "get-revision-changeset",
+		Short:       "returns the changeset at a given revision of a pad",
+		Long:        "Shortcut for 'get-revision-changeset using-post'. returns the changeset at a given revision of a pad",
+		Example:     "  etherpad-pp-cli get-revision-changeset",
 		Annotations: map[string]string{"pp:endpoint": "get-revision-changeset.using-post", "pp:method": "POST", "pp:path": "/getRevisionChangeset"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

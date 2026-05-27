@@ -14,10 +14,10 @@ import (
 func newForgeGetAppPropertyKeysCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-app-property-keys",
-		Aliases: []string{"list"},
-		Short: "Returns all property keys for the Forge app. **[Permissions](#permissions) required:** Only Forge apps can make this...",
-		Example: "  jira-pp-cli forge get-app-property-keys",
+		Use:         "get-app-property-keys",
+		Aliases:     []string{"list"},
+		Short:       "Returns all property keys for the Forge app. **[Permissions](#permissions) required:** Only Forge apps can make this...",
+		Example:     "  jira-pp-cli forge get-app-property-keys",
 		Annotations: map[string]string{"pp:endpoint": "forge.get-app-property-keys", "pp:method": "GET", "pp:path": "/rest/forge/1/app/properties", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

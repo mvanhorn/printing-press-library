@@ -8,8 +8,8 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/productivity/nylas/internal/store"
+	"github.com/spf13/cobra"
 )
 
 // gravityRow is one ranked counterparty in the cross-grant interaction

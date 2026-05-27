@@ -9,6 +9,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"github.com/enetx/surf"
 	"io"
 	"math"
 	"net/http"
@@ -18,7 +19,6 @@ import (
 	"sort"
 	"strings"
 	"time"
-	"github.com/enetx/surf"
 
 	"github.com/mvanhorn/printing-press-library/library/monitoring/sentry/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/monitoring/sentry/internal/config"
@@ -33,8 +33,6 @@ type Client struct {
 	cacheDir   string
 	limiter    *cliutil.AdaptiveLimiter
 }
-
-
 
 // APIError carries HTTP status information for structured exit codes.
 type APIError struct {
@@ -445,7 +443,6 @@ func sanitizeJSONResponse(body []byte) []byte {
 	}
 	return body
 }
-
 
 // maskToken redacts all but the last 4 characters of a token for safe display.
 func maskToken(token string) string {

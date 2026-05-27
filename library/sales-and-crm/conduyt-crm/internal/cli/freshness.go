@@ -85,4 +85,3 @@ func EnsureFresh(ctx context.Context, db *sql.DB, resources []string, policy Pol
 	}
 	return DecisionFresh, nil
 }
-

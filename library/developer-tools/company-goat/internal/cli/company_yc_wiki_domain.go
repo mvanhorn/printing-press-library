@@ -18,9 +18,9 @@ func newYCCmd(flags *rootFlags) *cobra.Command {
 	var t targetFlags
 
 	cmd := &cobra.Command{
-		Use:   "yc [co]",
+		Use:         "yc [co]",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short: "Y Combinator directory entry if backed: batch, status, location, description.",
+		Short:       "Y Combinator directory entry if backed: batch, status, location, description.",
 		Long: `yc looks up the resolved company in the Y Combinator directory snapshot. Returns batch, status (Active/Acquired/Public/Inactive), location, team size, and the YC one-liner description.
 
 Source: yc-oss/api daily snapshot of YC's Algolia index.`,
@@ -97,9 +97,9 @@ func newWikiCmd(flags *rootFlags) *cobra.Command {
 	var t targetFlags
 
 	cmd := &cobra.Command{
-		Use:   "wiki [co]",
+		Use:         "wiki [co]",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short: "Wikidata company facts: founded date, founders, HQ, industry, key people.",
+		Short:       "Wikidata company facts: founded date, founders, HQ, industry, key people.",
 		Long: `wiki looks up the resolved company on Wikidata via its official-website (P856) property. Returns structured facts: founded date, headquarters location, country, industry, founders.
 
 Wikidata coverage of early-stage startups is sparse; established companies are well-represented.`,
@@ -173,9 +173,9 @@ func newDomainCmd(flags *rootFlags) *cobra.Command {
 	var t targetFlags
 
 	cmd := &cobra.Command{
-		Use:   "domain [co]",
+		Use:         "domain [co]",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short: "Domain age via RDAP/WHOIS, DNS records, and CNAME-based hosting hint.",
+		Short:       "Domain age via RDAP/WHOIS, DNS records, and CNAME-based hosting hint.",
 		Long: `domain returns RDAP registration data (age, registrar, status) plus DNS records (CNAME, A, NS) and a hosting hint derived from the CNAME (Vercel/Netlify/Heroku/Cloudflare Pages/AWS/GCP/etc.).
 
 Useful for "is this a modern startup stack" signals — a Vercel/Cloudflare CNAME on a small startup is a strong "modern, JS-heavy team" hint.`,

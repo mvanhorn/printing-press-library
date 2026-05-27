@@ -21,10 +21,10 @@ func newCasedocsGetBundleInfoPdfCmd(flags *rootFlags) *cobra.Command {
 	var flagDate string
 
 	cmd := &cobra.Command{
-		Use:   "get-bundle-info-pdf",
-		Aliases: []string{"list"},
-		Short: "Digits can be entered in one of the first four parameters. rnXXXXXXX for US registration number, snXXXXXXXX for US...",
-		Example: "  uspto-tsdr-pp-cli casedocs get-bundle-info-pdf",
+		Use:         "get-bundle-info-pdf",
+		Aliases:     []string{"list"},
+		Short:       "Digits can be entered in one of the first four parameters. rnXXXXXXX for US registration number, snXXXXXXXX for US...",
+		Example:     "  uspto-tsdr-pp-cli casedocs get-bundle-info-pdf",
 		Annotations: map[string]string{"pp:endpoint": "casedocs.get-bundle-info-pdf", "pp:method": "GET", "pp:path": "/casedocs/bundle.pdf", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

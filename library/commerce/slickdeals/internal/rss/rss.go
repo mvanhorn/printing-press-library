@@ -425,6 +425,7 @@ func extractThumbScore(encoded string) int { return ExtractThumbs(encoded) }
 // Two merchant patterns coexist in Slickdeals' HTML:
 //   - data-store-slug="amazon"          (new style, slug form)
 //   - data-product-exitWebsite="amazon.com" (legacy, hostname form)
+//
 // We try slug first and fall through to hostname. ExtractMerchant returns
 // whichever it finds; callers that specifically need one form use the
 // dedicated regexes below.

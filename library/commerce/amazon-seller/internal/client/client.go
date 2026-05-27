@@ -9,6 +9,8 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/commerce/amazon-seller/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/commerce/amazon-seller/internal/config"
 	"io"
 	"math"
 	"net/http"
@@ -19,8 +21,6 @@ import (
 	"strings"
 	"sync"
 	"time"
-	"github.com/mvanhorn/printing-press-library/library/commerce/amazon-seller/internal/cliutil"
-	"github.com/mvanhorn/printing-press-library/library/commerce/amazon-seller/internal/config"
 )
 
 type Client struct {
@@ -36,8 +36,6 @@ type Client struct {
 	// Config field writes / file persistence.
 	ccMu *sync.Mutex
 }
-
-
 
 // APIError carries HTTP status information for structured exit codes.
 type APIError struct {
@@ -473,7 +471,6 @@ func sanitizeJSONResponse(body []byte) []byte {
 	}
 	return body
 }
-
 
 // maskToken redacts all but the last 4 characters of a token for safe display.
 func maskToken(token string) string {

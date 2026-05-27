@@ -35,10 +35,10 @@ import (
 
 func newAttachmentsStaleCmd(flags *rootFlags) *cobra.Command {
 	var (
-		dbPath  string
-		days    int
-		minMB   float64
-		top     int
+		dbPath   string
+		days     int
+		minMB    float64
+		top      int
 		bySender string
 	)
 	cmd := &cobra.Command{
@@ -49,7 +49,7 @@ Joins the local attachments table (size, name, contentType, last_modified)
 with the parent message's received_date_time. Useful when the mailbox is at
 quota and you need to find the biggest oldest files to delete first.
 
-Run `+"`sync --resource attachments`"+` first to populate the attachment metadata
+Run ` + "`sync --resource attachments`" + ` first to populate the attachment metadata
 rows. Without those, the query returns empty.
 `),
 		Example: strings.TrimSpace(`
@@ -94,28 +94,28 @@ rows. Without those, the query returns empty.
 			}
 			defer rows.Close()
 			type item struct {
-				ID         string  `json:"id"`
-				Name       string  `json:"name"`
-				ContentType string `json:"content_type,omitempty"`
-				SizeBytes  int64   `json:"size_bytes"`
-				SizeMB     float64 `json:"size_mb"`
-				ParentID   string  `json:"parent_message_id"`
-				Subject    string  `json:"subject,omitempty"`
-				ReceivedAt time.Time `json:"received_at,omitempty"`
-				Sender     string  `json:"sender,omitempty"`
-				AgeDays    int     `json:"age_days"`
+				ID          string    `json:"id"`
+				Name        string    `json:"name"`
+				ContentType string    `json:"content_type,omitempty"`
+				SizeBytes   int64     `json:"size_bytes"`
+				SizeMB      float64   `json:"size_mb"`
+				ParentID    string    `json:"parent_message_id"`
+				Subject     string    `json:"subject,omitempty"`
+				ReceivedAt  time.Time `json:"received_at,omitempty"`
+				Sender      string    `json:"sender,omitempty"`
+				AgeDays     int       `json:"age_days"`
 			}
 			out := []item{}
 			now := time.Now().UTC()
 			for rows.Next() {
 				var (
-					it          item
-					name        sql.NullString
-					ctype       sql.NullString
-					size        sql.NullInt64
-					subject     sql.NullString
-					recv        sql.NullString
-					sender      sql.NullString
+					it      item
+					name    sql.NullString
+					ctype   sql.NullString
+					size    sql.NullInt64
+					subject sql.NullString
+					recv    sql.NullString
+					sender  sql.NullString
 				)
 				if err := rows.Scan(&it.ID, &name, &ctype, &size, &it.ParentID, &subject, &recv, &sender); err != nil {
 					return apiErr(err)
@@ -149,12 +149,12 @@ rows. Without those, the query returns empty.
 				out = out[:top]
 			}
 			env := map[string]any{
-				"count":        totalCount,
-				"total_bytes":  totalBytes,
-				"total_mb":     float64(totalBytes) / (1024 * 1024),
-				"cutoff":       cutoff.Format(time.RFC3339),
-				"min_mb":       minMB,
-				"items":        out,
+				"count":       totalCount,
+				"total_bytes": totalBytes,
+				"total_mb":    float64(totalBytes) / (1024 * 1024),
+				"cutoff":      cutoff.Format(time.RFC3339),
+				"min_mb":      minMB,
+				"items":       out,
 			}
 			return printJSONFiltered(cmd.OutOrStdout(), env, flags)
 		},
@@ -186,7 +186,7 @@ more than one row. Modes:
   message-id       group by internet_message_id (same RFC 822 message in multiple folders)
   subject-sender   group by LOWER(subject) + from address + LOWER(to addresses)
 
-`+"`subject-sender`"+` is the noisiest mode and intentional — newsletters often arrive
+` + "`subject-sender`" + ` is the noisiest mode and intentional — newsletters often arrive
 with identical subjects but different message-ids; this catches them.
 `),
 		Example: strings.TrimSpace(`
@@ -218,12 +218,12 @@ with identical subjects but different message-ids; this catches them.
 				return apiErr(err)
 			}
 			type group struct {
-				Key          string   `json:"key"`
-				Count        int      `json:"count"`
-				MessageIDs   []string `json:"message_ids"`
+				Key           string   `json:"key"`
+				Count         int      `json:"count"`
+				MessageIDs    []string `json:"message_ids"`
 				ParentFolders []string `json:"parent_folders"`
-				Subject      string   `json:"subject"`
-				Sender       string   `json:"sender,omitempty"`
+				Subject       string   `json:"subject"`
+				Sender        string   `json:"sender,omitempty"`
 			}
 			by_ := by
 			groups := map[string]*group{}
@@ -390,11 +390,11 @@ mutate the mailbox.
 			}
 			totalCount := len(ids)
 			plan := map[string]any{
-				"to_folder":   toFolder,
-				"count":       totalCount,
-				"per_sender":  perSender,
-				"will_move":   ids,
-				"execute":     execute,
+				"to_folder":  toFolder,
+				"count":      totalCount,
+				"per_sender": perSender,
+				"will_move":  ids,
+				"execute":    execute,
 			}
 			_ = fromQuery // reserved for future "use local FTS query" path
 

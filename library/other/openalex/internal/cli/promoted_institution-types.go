@@ -23,10 +23,10 @@ func newInstitutionTypesPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "institution-types",
-		Short: "Get a list of institution types (education, healthcare, company, etc.).",
-		Long:  "Shortcut for 'institution-types list'. Get a list of institution types (education, healthcare, company, etc.).",
-		Example: "  openalex-pp-cli institution-types",
+		Use:         "institution-types",
+		Short:       "Get a list of institution types (education, healthcare, company, etc.).",
+		Long:        "Shortcut for 'institution-types list'. Get a list of institution types (education, healthcare, company, etc.).",
+		Example:     "  openalex-pp-cli institution-types",
 		Annotations: map[string]string{"pp:endpoint": "institution-types.list", "pp:method": "GET", "pp:path": "/institution-types", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
@@ -36,13 +36,13 @@ func newInstitutionTypesPromotedCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/institution-types"
 			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "institution-types", path, map[string]string{
-				"filter": fmt.Sprintf("%v", flagFilter),
-				"sort": fmt.Sprintf("%v", flagSort),
-				"search": fmt.Sprintf("%v", flagSearch),
+				"filter":   fmt.Sprintf("%v", flagFilter),
+				"sort":     fmt.Sprintf("%v", flagSort),
+				"search":   fmt.Sprintf("%v", flagSearch),
 				"per_page": fmt.Sprintf("%v", flagPerPage),
-				"page": fmt.Sprintf("%v", flagPage),
-				"cursor": fmt.Sprintf("%v", flagCursor),
-				"sample": fmt.Sprintf("%v", flagSample),
+				"page":     fmt.Sprintf("%v", flagPage),
+				"cursor":   fmt.Sprintf("%v", flagCursor),
+				"sample":   fmt.Sprintf("%v", flagSample),
 				"group_by": fmt.Sprintf("%v", flagGroupBy),
 			}, nil, flagAll, "cursor", "", "")
 			if err != nil {

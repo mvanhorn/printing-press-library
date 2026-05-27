@@ -18,9 +18,9 @@ func newPickerListMediaItemsCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "list-media-items",
-		Short: "List media items picked by the user during a Picker session.",
-		Example: "  google-photos-pp-cli picker list_media_items",
+		Use:         "list-media-items",
+		Short:       "List media items picked by the user during a Picker session.",
+		Example:     "  google-photos-pp-cli picker list_media_items",
 		Annotations: map[string]string{"pp:endpoint": "picker.list_media_items", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("session-id") && !flags.dryRun {
@@ -34,7 +34,7 @@ func newPickerListMediaItemsCmd(flags *rootFlags) *cobra.Command {
 			path := "https://photospicker.googleapis.com/v1/mediaItems"
 			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "picker", path, map[string]string{
 				"sessionId": fmt.Sprintf("%v", flagSessionId),
-				"pageSize": fmt.Sprintf("%v", flagPageSize),
+				"pageSize":  fmt.Sprintf("%v", flagPageSize),
 				"pageToken": fmt.Sprintf("%v", flagPageToken),
 			}, nil, flagAll, "pageToken", "nextPageToken", "")
 			if err != nil {

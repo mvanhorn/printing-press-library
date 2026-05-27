@@ -9,8 +9,8 @@ import (
 
 func newSettingsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "settings",
-		Short: "Manage settings",
+		Use:    "settings",
+		Short:  "Manage settings",
 		Hidden: true,
 	}
 

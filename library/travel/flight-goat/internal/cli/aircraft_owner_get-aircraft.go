@@ -14,10 +14,10 @@ import (
 func newAircraftOwnerGetAircraftCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-aircraft <ident>",
-		Aliases: []string{"get"},
-		Short: "Returns information about the owner of an aircraft, given a flight number or aircraft registration. Data returned...",
-		Example: "  flight-goat-pp-cli aircraft owner get-aircraft example-value",
+		Use:         "get-aircraft <ident>",
+		Aliases:     []string{"get"},
+		Short:       "Returns information about the owner of an aircraft, given a flight number or aircraft registration. Data returned...",
+		Example:     "  flight-goat-pp-cli aircraft owner get-aircraft example-value",
 		Annotations: map[string]string{"pp:endpoint": "owner.get-aircraft", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

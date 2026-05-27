@@ -13,14 +13,14 @@ import (
 	"strings"
 	"time"
 
+	mcplib "github.com/mark3labs/mcp-go/mcp"
+	"github.com/mark3labs/mcp-go/server"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/eventbrite/internal/cli"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/eventbrite/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/eventbrite/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/eventbrite/internal/config"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/eventbrite/internal/mcp/cobratree"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/eventbrite/internal/store"
-	mcplib "github.com/mark3labs/mcp-go/mcp"
-	"github.com/mark3labs/mcp-go/server"
 )
 
 // RegisterTools registers all API operations as MCP tools.

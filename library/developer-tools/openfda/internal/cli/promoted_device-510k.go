@@ -20,10 +20,10 @@ func newDevice510kPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagDecisionDateTo string
 
 	cmd := &cobra.Command{
-		Use:   "device-510k",
-		Short: "Search 510(k) clearance records",
-		Long:  "Shortcut for 'device-510k list'. Search 510(k) clearance records",
-		Example: "  openfda-pp-cli device-510k",
+		Use:         "device-510k",
+		Short:       "Search 510(k) clearance records",
+		Long:        "Shortcut for 'device-510k list'. Search 510(k) clearance records",
+		Example:     "  openfda-pp-cli device-510k",
 		Annotations: map[string]string{"pp:endpoint": "device-510k.list", "pp:method": "GET", "pp:path": "/device/510k.json", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

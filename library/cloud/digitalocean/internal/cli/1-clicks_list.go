@@ -14,9 +14,9 @@ import (
 func newV1ClicksListCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "list",
-		Short: "List",
-		Example: "  digitalocean-pp-cli 1-clicks list",
+		Use:         "list",
+		Short:       "List",
+		Example:     "  digitalocean-pp-cli 1-clicks list",
 		Annotations: map[string]string{"pp:endpoint": "1-clicks.list", "pp:method": "GET", "pp:path": "/v2/1-clicks", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

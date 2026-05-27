@@ -18,9 +18,9 @@ func newScreensUpdateCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "update <screenId>",
-		Short: "Updates a screen. Only screens used in classic projects can be updated. **[Permissions](#permissions) required:**...",
-		Example: "  jira-pp-cli screens update 42",
+		Use:         "update <screenId>",
+		Short:       "Updates a screen. Only screens used in classic projects can be updated. **[Permissions](#permissions) required:**...",
+		Example:     "  jira-pp-cli screens update 42",
 		Annotations: map[string]string{"pp:endpoint": "screens.update", "pp:method": "PUT", "pp:path": "/rest/api/3/screens/{screenId}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -69,7 +69,9 @@ func newScreensUpdateCmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

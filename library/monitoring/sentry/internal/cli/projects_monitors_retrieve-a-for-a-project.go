@@ -14,10 +14,10 @@ import (
 func newProjectsMonitorsRetrieveAForAProjectCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "retrieve-a-for-a-project <organization_id_or_slug> <project_id_or_slug> <monitor_id_or_slug>",
-		Aliases: []string{"get"},
-		Short: "Retrieves details for a monitor.",
-		Example: "  sentry-pp-cli projects monitors retrieve-a-for-a-project example-value example-value example-value",
+		Use:         "retrieve-a-for-a-project <organization_id_or_slug> <project_id_or_slug> <monitor_id_or_slug>",
+		Aliases:     []string{"get"},
+		Short:       "Retrieves details for a monitor.",
+		Example:     "  sentry-pp-cli projects monitors retrieve-a-for-a-project example-value example-value example-value",
 		Annotations: map[string]string{"pp:endpoint": "monitors.retrieve-a-for-a-project", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

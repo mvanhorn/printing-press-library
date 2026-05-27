@@ -18,9 +18,9 @@ func newJqlGetPrecomputationsByIdCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "get-precomputations-by-id",
-		Short: "Returns function precomputations by IDs, along with information about when they were created, updated, and last...",
-		Example: "  jira-pp-cli jql get-precomputations-by-id",
+		Use:         "get-precomputations-by-id",
+		Short:       "Returns function precomputations by IDs, along with information about when they were created, updated, and last...",
+		Example:     "  jira-pp-cli jql get-precomputations-by-id",
 		Annotations: map[string]string{"pp:endpoint": "jql.get-precomputations-by-id", "pp:method": "POST", "pp:path": "/rest/api/3/jql/function/computation/search"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if cmd.Flags().Changed("order-by") {
@@ -72,7 +72,9 @@ func newJqlGetPrecomputationsByIdCmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

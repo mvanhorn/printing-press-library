@@ -14,10 +14,10 @@ import (
 func newWebhooksTestsWebhooksCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "webhooks <publicationId> <endpointId>",
-		Aliases: []string{"get"},
-		Short: "Test webhook <Badge intent='info' minimal outlined>OAuth Scope: webhooks:read</Badge>",
-		Example: "  beehiiv-pp-cli webhooks tests webhooks 550e8400-e29b-41d4-a716-446655440000 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "webhooks <publicationId> <endpointId>",
+		Aliases:     []string{"get"},
+		Short:       "Test webhook <Badge intent='info' minimal outlined>OAuth Scope: webhooks:read</Badge>",
+		Example:     "  beehiiv-pp-cli webhooks tests webhooks 550e8400-e29b-41d4-a716-446655440000 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "tests.webhooks", "pp:method": "GET", "pp:path": "/publications/{publicationId}/webhooks/{endpointId}/tests", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

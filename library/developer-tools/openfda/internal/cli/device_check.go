@@ -77,12 +77,12 @@ CSV must have a header row with at least one of: product_code, device_name.`,
 			}
 
 			type deviceRisk struct {
-				DeviceName    string `json:"device_name"`
-				ProductCode   string `json:"product_code,omitempty"`
-				RecallCount   int    `json:"recall_count"`
-				EventCount    int    `json:"event_count"`
-				RiskLevel     string `json:"risk_level"`
-				LatestRecall  string `json:"latest_recall,omitempty"`
+				DeviceName   string `json:"device_name"`
+				ProductCode  string `json:"product_code,omitempty"`
+				RecallCount  int    `json:"recall_count"`
+				EventCount   int    `json:"event_count"`
+				RiskLevel    string `json:"risk_level"`
+				LatestRecall string `json:"latest_recall,omitempty"`
 			}
 
 			var results []deviceRisk

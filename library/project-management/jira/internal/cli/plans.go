@@ -9,8 +9,8 @@ import (
 
 func newPlansCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "plans",
-		Short: "This resource represents plans. Use it to get, create, duplicate, update, trash and archive plans.",
+		Use:    "plans",
+		Short:  "This resource represents plans. Use it to get, create, duplicate, update, trash and archive plans.",
 		Hidden: true,
 	}
 

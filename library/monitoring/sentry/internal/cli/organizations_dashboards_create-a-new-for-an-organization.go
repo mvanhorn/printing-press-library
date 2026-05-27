@@ -24,10 +24,10 @@ func newOrganizationsDashboardsCreateANewForAnOrganizationCmd(flags *rootFlags) 
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "create-a-new-for-an-organization <organization_id_or_slug>",
-		Aliases: []string{"create"},
-		Short: "Create a new dashboard for the given Organization",
-		Example: "  sentry-pp-cli organizations dashboards create-a-new-for-an-organization example-value --title example-resource",
+		Use:         "create-a-new-for-an-organization <organization_id_or_slug>",
+		Aliases:     []string{"create"},
+		Short:       "Create a new dashboard for the given Organization",
+		Example:     "  sentry-pp-cli organizations dashboards create-a-new-for-an-organization example-value --title example-resource",
 		Annotations: map[string]string{"pp:endpoint": "dashboards.create-a-new-for-an-organization"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -101,7 +101,9 @@ func newOrganizationsDashboardsCreateANewForAnOrganizationCmd(flags *rootFlags) 
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

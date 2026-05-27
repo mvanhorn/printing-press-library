@@ -6,10 +6,10 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/spf13/cobra"
-	"net/url"
 	"github.com/mvanhorn/printing-press-library/library/other/numista/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/other/numista/internal/store"
+	"github.com/spf13/cobra"
+	"net/url"
 	"os"
 	"regexp"
 	"strconv"

@@ -15,9 +15,9 @@ import (
 	"strings"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/anylist/internal/anylist/pb"
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/anylist/internal/config"
-	"github.com/google/uuid"
 	"google.golang.org/protobuf/proto"
 )
 

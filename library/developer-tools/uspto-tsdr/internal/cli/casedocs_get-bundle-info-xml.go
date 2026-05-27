@@ -21,9 +21,9 @@ func newCasedocsGetBundleInfoXmlCmd(flags *rootFlags) *cobra.Command {
 	var flagSort string
 
 	cmd := &cobra.Command{
-		Use:   "get-bundle-info-xml",
-		Short: "Digits can be entered in one of the first four parameters. rnXXXXXXX for US registration number, snXXXXXXXX for US...",
-		Example: "  uspto-tsdr-pp-cli casedocs get-bundle-info-xml",
+		Use:         "get-bundle-info-xml",
+		Short:       "Digits can be entered in one of the first four parameters. rnXXXXXXX for US registration number, snXXXXXXXX for US...",
+		Example:     "  uspto-tsdr-pp-cli casedocs get-bundle-info-xml",
 		Annotations: map[string]string{"pp:endpoint": "casedocs.get-bundle-info-xml", "pp:method": "GET", "pp:path": "/casedocs/bundle.xml", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

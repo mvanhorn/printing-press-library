@@ -14,10 +14,10 @@ import (
 func newAccountCardsGetAccountCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-account <accountId>",
-		Aliases: []string{"get"},
-		Short: "Retrieve all debit and credit cards associated with a specific account.",
-		Example: "  mercury-pp-cli account cards get-account 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "get-account <accountId>",
+		Aliases:     []string{"get"},
+		Short:       "Retrieve all debit and credit cards associated with a specific account.",
+		Example:     "  mercury-pp-cli account cards get-account 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "cards.get-account", "pp:method": "GET", "pp:path": "/account/{accountId}/cards", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

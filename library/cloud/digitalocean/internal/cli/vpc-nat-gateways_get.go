@@ -14,9 +14,9 @@ import (
 func newVpcNatGatewaysGetCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get",
-		Short: "Get",
-		Example: "  digitalocean-pp-cli vpc-nat-gateways get",
+		Use:         "get",
+		Short:       "Get",
+		Example:     "  digitalocean-pp-cli vpc-nat-gateways get",
 		Annotations: map[string]string{"pp:endpoint": "vpc-nat-gateways.get", "pp:method": "GET", "pp:path": "/v2/vpc_nat_gateways/{id}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

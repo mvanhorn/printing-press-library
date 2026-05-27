@@ -17,14 +17,14 @@ func newUsagePromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagBreakdown string
 
 	cmd := &cobra.Command{
-		Use:   "usage",
-		Short: "Requires read scope. Returns usage counts for the current billing period.",
-		Long:  "Shortcut for 'usage list'. Requires read scope. Returns usage counts for the current billing period.",
-		Example: "  multimail-pp-cli usage",
+		Use:         "usage",
+		Short:       "Requires read scope. Returns usage counts for the current billing period.",
+		Long:        "Shortcut for 'usage list'. Requires read scope. Returns usage counts for the current billing period.",
+		Example:     "  multimail-pp-cli usage",
 		Annotations: map[string]string{"pp:endpoint": "usage.list", "pp:method": "GET", "pp:path": "/v1/usage", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if cmd.Flags().Changed("breakdown") {
-				allowedBreakdown := []string{ "daily" }
+				allowedBreakdown := []string{"daily"}
 				validBreakdown := false
 				for _, v := range allowedBreakdown {
 					if flagBreakdown == v {

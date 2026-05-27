@@ -6,11 +6,11 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/commerce/ucp/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/commerce/ucp/internal/registry"
 	"github.com/mvanhorn/printing-press-library/library/commerce/ucp/internal/transport"
 	"github.com/mvanhorn/printing-press-library/library/commerce/ucp/internal/ucp"
+	"github.com/spf13/cobra"
 )
 
 func newSearchCmd(flags *rootFlags) *cobra.Command {

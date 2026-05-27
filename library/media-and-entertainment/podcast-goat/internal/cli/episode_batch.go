@@ -26,14 +26,14 @@ import (
 
 // batchResult is one row in the batch summary. Carried over channels.
 type batchResult struct {
-	URL          string `json:"url"`
-	Status       string `json:"status"` // pass | fail | skip
-	Source       string `json:"source,omitempty"`
-	Segments     int    `json:"segments,omitempty"`
-	DurationMs   int64  `json:"duration_ms"`
-	Error        string `json:"error,omitempty"`
-	OutPath      string `json:"out_path,omitempty"`
-	CostCredits  float64 `json:"cost_credits,omitempty"`
+	URL         string  `json:"url"`
+	Status      string  `json:"status"` // pass | fail | skip
+	Source      string  `json:"source,omitempty"`
+	Segments    int     `json:"segments,omitempty"`
+	DurationMs  int64   `json:"duration_ms"`
+	Error       string  `json:"error,omitempty"`
+	OutPath     string  `json:"out_path,omitempty"`
+	CostCredits float64 `json:"cost_credits,omitempty"`
 }
 
 const (
@@ -43,13 +43,13 @@ const (
 
 func newEpisodeBatchCmd(flags *rootFlags) *cobra.Command {
 	var (
-		flagConcurrency      int
-		flagOutDir           string
-		flagPaid             bool
-		flagProvider         string
-		flagAutoPaid         bool
-		flagContinueOnError  bool
-		flagFormat           string // md | json | jsonl (per-file shape; default md)
+		flagConcurrency     int
+		flagOutDir          string
+		flagPaid            bool
+		flagProvider        string
+		flagAutoPaid        bool
+		flagContinueOnError bool
+		flagFormat          string // md | json | jsonl (per-file shape; default md)
 	)
 
 	cmd := &cobra.Command{

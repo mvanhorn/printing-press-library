@@ -9,8 +9,8 @@ import (
 	"os"
 	"strings"
 
-	mcptools "github.com/mvanhorn/printing-press-library/library/productivity/clockify/internal/mcp"
 	"github.com/mark3labs/mcp-go/server"
+	mcptools "github.com/mvanhorn/printing-press-library/library/productivity/clockify/internal/mcp"
 )
 
 // Transport selection order: --transport flag, then PP_MCP_TRANSPORT env,

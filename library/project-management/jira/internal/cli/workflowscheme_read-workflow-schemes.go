@@ -23,9 +23,9 @@ func newWorkflowschemeReadWorkflowSchemesCmd(flags *rootFlags) *cobra.Command {
 	var flagWaitInterval time.Duration
 
 	cmd := &cobra.Command{
-		Use:   "read-workflow-schemes",
-		Short: "Returns a list of workflow schemes by providing workflow scheme IDs or project IDs. **[Permissions](#permissions)...",
-		Example: "  jira-pp-cli workflowscheme read-workflow-schemes",
+		Use:         "read-workflow-schemes",
+		Short:       "Returns a list of workflow schemes by providing workflow scheme IDs or project IDs. **[Permissions](#permissions)...",
+		Example:     "  jira-pp-cli workflowscheme read-workflow-schemes",
 		Annotations: map[string]string{"pp:endpoint": "workflowscheme.read-workflow-schemes", "pp:method": "POST", "pp:path": "/rest/api/3/workflowscheme/read"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {
@@ -119,7 +119,9 @@ func newWorkflowschemeReadWorkflowSchemesCmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

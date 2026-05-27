@@ -650,6 +650,7 @@ func sqliteFieldValue(v any) any {
 func lookupFieldValue(obj map[string]any, snakeKey string) any {
 	return LookupFieldValue(obj, snakeKey)
 }
+
 // upsertAirbnbListingTx writes the typed-table portion of a airbnb_listing upsert
 // inside an existing transaction. The caller is responsible for the generic
 // resources insert (via upsertGenericResourceTx) and for committing the tx.
@@ -711,6 +712,7 @@ func (s *Store) UpsertAirbnbListing(data json.RawMessage) error {
 
 	return tx.Commit()
 }
+
 // upsertAirbnbWishlistTx writes the typed-table portion of a airbnb_wishlist upsert
 // inside an existing transaction. The caller is responsible for the generic
 // resources insert (via upsertGenericResourceTx) and for committing the tx.
@@ -761,6 +763,7 @@ func (s *Store) UpsertAirbnbWishlist(data json.RawMessage) error {
 
 	return tx.Commit()
 }
+
 // upsertHostTx writes the typed-table portion of a host upsert
 // inside an existing transaction. The caller is responsible for the generic
 // resources insert (via upsertGenericResourceTx) and for committing the tx.
@@ -823,8 +826,7 @@ func (s *Store) UpsertHost(data json.RawMessage) error {
 // Includes both flat resources and dependent (parent-child) resources so a
 // child path-item annotated with x-resource-id resolves the same as a flat
 // path-item.
-var resourceIDFieldOverrides = map[string]string{
-}
+var resourceIDFieldOverrides = map[string]string{}
 
 // genericIDFieldFallbacks is the runtime safety net for resources that did
 // NOT receive a templated IDField. API-specific names belong in spec

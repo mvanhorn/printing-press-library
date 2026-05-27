@@ -14,9 +14,9 @@ import (
 func newEpisodesGetCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get <episode_id>",
-		Short: "Get an episode by ID",
-		Example: "  podscan-pp-cli episodes get 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "get <episode_id>",
+		Short:       "Get an episode by ID",
+		Example:     "  podscan-pp-cli episodes get 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "episodes.get", "pp:method": "GET", "pp:path": "/episodes/{episode_id}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

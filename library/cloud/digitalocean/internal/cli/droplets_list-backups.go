@@ -14,9 +14,9 @@ import (
 func newDropletsListBackupsCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "list-backups",
-		Short: "List backups",
-		Example: "  digitalocean-pp-cli droplets list-backups",
+		Use:         "list-backups",
+		Short:       "List backups",
+		Example:     "  digitalocean-pp-cli droplets list-backups",
 		Annotations: map[string]string{"pp:endpoint": "droplets.list-backups", "pp:method": "GET", "pp:path": "/v2/droplets/backups/policies", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

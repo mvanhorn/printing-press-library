@@ -17,10 +17,10 @@ func newRedactRedactCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "redact",
-		Aliases: []string{"create"},
-		Short: "Submit a job to redact issue field data. This will trigger the redaction of the data in the specified fields...",
-		Example: "  jira-pp-cli redact redact",
+		Use:         "redact",
+		Aliases:     []string{"create"},
+		Short:       "Submit a job to redact issue field data. This will trigger the redaction of the data in the specified fields...",
+		Example:     "  jira-pp-cli redact redact",
 		Annotations: map[string]string{"pp:endpoint": "redact.redact", "pp:method": "POST", "pp:path": "/rest/api/3/redact"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {
@@ -66,7 +66,9 @@ func newRedactRedactCmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

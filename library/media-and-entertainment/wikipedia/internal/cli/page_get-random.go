@@ -14,10 +14,10 @@ import (
 func newPageGetRandomCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-random",
-		Aliases: []string{"list"},
-		Short: "Returns a random Wikipedia article summary.",
-		Example: "  wikipedia-pp-cli page get-random",
+		Use:         "get-random",
+		Aliases:     []string{"list"},
+		Short:       "Returns a random Wikipedia article summary.",
+		Example:     "  wikipedia-pp-cli page get-random",
 		Annotations: map[string]string{"pp:endpoint": "page.get-random", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

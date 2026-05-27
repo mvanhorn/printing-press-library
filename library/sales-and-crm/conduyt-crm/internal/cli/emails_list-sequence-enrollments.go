@@ -17,9 +17,9 @@ func newEmailsListSequenceEnrollmentsCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "list-sequence-enrollments <id>",
-		Short: "List enrollments for a sequence",
-		Example: "  conduyt-crm-pp-cli emails list-sequence-enrollments 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "list-sequence-enrollments <id>",
+		Short:       "List enrollments for a sequence",
+		Example:     "  conduyt-crm-pp-cli emails list-sequence-enrollments 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "emails.list-sequence-enrollments", "pp:method": "GET", "pp:path": "/emails/sequences/{id}/enrollments", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -33,7 +33,7 @@ func newEmailsListSequenceEnrollmentsCmd(flags *rootFlags) *cobra.Command {
 			path := "/emails/sequences/{id}/enrollments"
 			path = replacePathParam(path, "id", args[0])
 			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "emails", path, map[string]string{
-				"page": fmt.Sprintf("%v", flagPage),
+				"page":     fmt.Sprintf("%v", flagPage),
 				"per_page": fmt.Sprintf("%v", flagPerPage),
 			}, nil, flagAll, "", "", "")
 			if err != nil {

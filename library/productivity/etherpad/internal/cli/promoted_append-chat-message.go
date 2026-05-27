@@ -18,10 +18,10 @@ func newAppendChatMessagePromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagTime string
 
 	cmd := &cobra.Command{
-		Use:   "append-chat-message",
-		Short: "appends a chat message",
-		Long:  "Shortcut for 'append-chat-message using-post'. appends a chat message",
-		Example: "  etherpad-pp-cli append-chat-message",
+		Use:         "append-chat-message",
+		Short:       "appends a chat message",
+		Long:        "Shortcut for 'append-chat-message using-post'. appends a chat message",
+		Example:     "  etherpad-pp-cli append-chat-message",
 		Annotations: map[string]string{"pp:endpoint": "append-chat-message.using-post", "pp:method": "POST", "pp:path": "/appendChatMessage"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

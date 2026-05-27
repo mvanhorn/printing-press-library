@@ -16,9 +16,9 @@ func newOrganizationsReleasesListAnOrganizationSFilesCmd(flags *rootFlags) *cobr
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "list-an-organization-s-files <organization_id_or_slug> <version>",
-		Short: "Return a list of files for a given release.",
-		Example: "  sentry-pp-cli organizations releases list-an-organization-s-files example-value example-value",
+		Use:         "list-an-organization-s-files <organization_id_or_slug> <version>",
+		Short:       "Return a list of files for a given release.",
+		Example:     "  sentry-pp-cli organizations releases list-an-organization-s-files example-value example-value",
 		Annotations: map[string]string{"pp:endpoint": "releases.list-an-organization-s-files", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

@@ -18,8 +18,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/productivity/obsidian/internal/store"
+	"github.com/spf13/cobra"
 )
 
 func newVaultSQLCmd(flags *rootFlags) *cobra.Command {

@@ -14,9 +14,9 @@ import (
 func newRewardsSummaryCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "summary",
-		Short: "Get the authenticated user's rewards points balance and recent activity.",
-		Example: "  jimmy-johns-pp-cli rewards summary",
+		Use:         "summary",
+		Short:       "Get the authenticated user's rewards points balance and recent activity.",
+		Example:     "  jimmy-johns-pp-cli rewards summary",
 		Annotations: map[string]string{"pp:endpoint": "rewards.summary", "pp:method": "GET", "pp:path": "/users/current/rewards", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

@@ -9,8 +9,8 @@ import (
 
 func newFilesCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "files",
-		Short: "Manage files",
+		Use:    "files",
+		Short:  "Manage files",
 		Hidden: true,
 	}
 

@@ -14,10 +14,10 @@ import (
 func newProjectsRetrieveACmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "retrieve-a <organization_id_or_slug> <project_id_or_slug>",
-		Aliases: []string{"get"},
-		Short: "Return details on an individual project.",
-		Example: "  sentry-pp-cli projects retrieve-a example-value example-value",
+		Use:         "retrieve-a <organization_id_or_slug> <project_id_or_slug>",
+		Aliases:     []string{"get"},
+		Short:       "Return details on an individual project.",
+		Example:     "  sentry-pp-cli projects retrieve-a example-value example-value",
 		Annotations: map[string]string{"pp:endpoint": "projects.retrieve-a", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

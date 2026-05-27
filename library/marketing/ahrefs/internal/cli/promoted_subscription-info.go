@@ -14,10 +14,10 @@ import (
 func newSubscriptionInfoPromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "subscription-info",
-		Short: "Limits and usage",
-		Long:  "Shortcut for 'subscription_info limits_and_usage'. Limits and usage",
-		Example: "  ahrefs-pp-cli subscription-info",
+		Use:         "subscription-info",
+		Short:       "Limits and usage",
+		Long:        "Shortcut for 'subscription_info limits_and_usage'. Limits and usage",
+		Example:     "  ahrefs-pp-cli subscription-info",
 		Annotations: map[string]string{"pp:endpoint": "subscription_info.limits_and_usage", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

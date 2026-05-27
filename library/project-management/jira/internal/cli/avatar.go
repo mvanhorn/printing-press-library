@@ -9,8 +9,8 @@ import (
 
 func newAvatarCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "avatar",
-		Short: "This resource represents system and custom avatars. Use it to obtain the details of system or custom avatars, add...",
+		Use:    "avatar",
+		Short:  "This resource represents system and custom avatars. Use it to obtain the details of system or custom avatars, add...",
 		Hidden: true,
 	}
 

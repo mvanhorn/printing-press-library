@@ -14,10 +14,10 @@ import (
 func newEmbeddingsPromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "embeddings",
-		Short: "Create",
-		Long:  "Shortcut for 'embeddings create'. Create",
-		Example: "  digitalocean-pp-cli embeddings",
+		Use:         "embeddings",
+		Short:       "Create",
+		Long:        "Shortcut for 'embeddings create'. Create",
+		Example:     "  digitalocean-pp-cli embeddings",
 		Annotations: map[string]string{"pp:endpoint": "embeddings.create", "pp:method": "POST", "pp:path": "/v1/embeddings"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

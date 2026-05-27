@@ -15,10 +15,10 @@ func newGetAttributePoolPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagPadID string
 
 	cmd := &cobra.Command{
-		Use:   "get-attribute-pool",
-		Short: "returns the attribute pool of a pad",
-		Long:  "Shortcut for 'get-attribute-pool using-post'. returns the attribute pool of a pad",
-		Example: "  etherpad-pp-cli get-attribute-pool",
+		Use:         "get-attribute-pool",
+		Short:       "returns the attribute pool of a pad",
+		Long:        "Shortcut for 'get-attribute-pool using-post'. returns the attribute pool of a pad",
+		Example:     "  etherpad-pp-cli get-attribute-pool",
 		Annotations: map[string]string{"pp:endpoint": "get-attribute-pool.using-post", "pp:method": "POST", "pp:path": "/getAttributePool"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

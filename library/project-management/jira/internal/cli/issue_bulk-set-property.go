@@ -21,9 +21,9 @@ func newIssueBulkSetPropertyCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "bulk-set-property <propertyKey>",
-		Short: "Sets a property value on multiple issues. The value set can be a constant or determined by a [Jira...",
-		Example: "  jira-pp-cli issue bulk-set-property your-token-here",
+		Use:         "bulk-set-property <propertyKey>",
+		Short:       "Sets a property value on multiple issues. The value set can be a constant or determined by a [Jira...",
+		Example:     "  jira-pp-cli issue bulk-set-property your-token-here",
 		Annotations: map[string]string{"pp:endpoint": "issue.bulk-set-property", "pp:method": "PUT", "pp:path": "/rest/api/3/issue/properties/{propertyKey}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -91,7 +91,9 @@ func newIssueBulkSetPropertyCmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

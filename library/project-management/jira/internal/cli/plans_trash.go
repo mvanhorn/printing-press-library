@@ -16,9 +16,9 @@ func newPlansTrashCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "trash <planId>",
-		Short: "Moves a plan to trash. **[Permissions](#permissions) required:** *Administer Jira* [global...",
-		Example: "  jira-pp-cli plans trash 42",
+		Use:         "trash <planId>",
+		Short:       "Moves a plan to trash. **[Permissions](#permissions) required:** *Administer Jira* [global...",
+		Example:     "  jira-pp-cli plans trash 42",
 		Annotations: map[string]string{"pp:endpoint": "plans.trash", "pp:method": "PUT", "pp:path": "/rest/api/3/plans/plan/{planId}/trash"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -61,7 +61,9 @@ func newPlansTrashCmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

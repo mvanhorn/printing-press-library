@@ -17,9 +17,9 @@ func newMailboxesRequestUpgradeCreateCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "create <mailboxId>",
-		Short: "Requires send scope. Emails a one-time upgrade code to the operator. Rate-limited to 3 requests per hour per mailbox.",
-		Example: "  multimail-pp-cli mailboxes request-upgrade create 550e8400-e29b-41d4-a716-446655440000 --target-mode example-value",
+		Use:         "create <mailboxId>",
+		Short:       "Requires send scope. Emails a one-time upgrade code to the operator. Rate-limited to 3 requests per hour per mailbox.",
+		Example:     "  multimail-pp-cli mailboxes request-upgrade create 550e8400-e29b-41d4-a716-446655440000 --target-mode example-value",
 		Annotations: map[string]string{"pp:endpoint": "request-upgrade.create", "pp:method": "POST", "pp:path": "/v1/mailboxes/{mailboxId}/request-upgrade"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -68,7 +68,9 @@ func newMailboxesRequestUpgradeCreateCmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

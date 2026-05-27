@@ -17,9 +17,9 @@ func newDripCampaignsListCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "list",
-		Short: "List SMS drip campaigns",
-		Example: "  conduyt-crm-pp-cli drip-campaigns list",
+		Use:         "list",
+		Short:       "List SMS drip campaigns",
+		Example:     "  conduyt-crm-pp-cli drip-campaigns list",
 		Annotations: map[string]string{"pp:endpoint": "drip-campaigns.list", "pp:method": "GET", "pp:path": "/drip-campaigns", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
@@ -29,7 +29,7 @@ func newDripCampaignsListCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/drip-campaigns"
 			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "drip-campaigns", path, map[string]string{
-				"page": fmt.Sprintf("%v", flagPage),
+				"page":     fmt.Sprintf("%v", flagPage),
 				"per_page": fmt.Sprintf("%v", flagPerPage),
 			}, nil, flagAll, "", "", "")
 			if err != nil {

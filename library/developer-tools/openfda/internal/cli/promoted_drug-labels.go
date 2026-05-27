@@ -21,10 +21,10 @@ func newDrugLabelsPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagProductType string
 
 	cmd := &cobra.Command{
-		Use:   "drug-labels",
-		Short: "Search drug product labels",
-		Long:  "Shortcut for 'drug-labels list'. Search drug product labels",
-		Example: "  openfda-pp-cli drug-labels",
+		Use:         "drug-labels",
+		Short:       "Search drug product labels",
+		Long:        "Shortcut for 'drug-labels list'. Search drug product labels",
+		Example:     "  openfda-pp-cli drug-labels",
 		Annotations: map[string]string{"pp:endpoint": "drug-labels.list", "pp:method": "GET", "pp:path": "/drug/label.json", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

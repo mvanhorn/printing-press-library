@@ -14,10 +14,10 @@ import (
 func newEggGroupRetrieveCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "retrieve <id>",
-		Aliases: []string{"get"},
-		Short: "Egg Groups are categories which determine which Pokémon are able to interbreed. Pokémon may belong to either one...",
-		Example: "  pokeapi-pp-cli egg-group retrieve 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "retrieve <id>",
+		Aliases:     []string{"get"},
+		Short:       "Egg Groups are categories which determine which Pokémon are able to interbreed. Pokémon may belong to either one...",
+		Example:     "  pokeapi-pp-cli egg-group retrieve 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "egg-group.retrieve", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

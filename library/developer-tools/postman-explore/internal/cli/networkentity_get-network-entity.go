@@ -14,10 +14,10 @@ import (
 func newNetworkentityGetNetworkEntityCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-network-entity <id>",
-		Aliases: []string{"get"},
-		Short: "Returns full entity record by internal numeric id (the `id` field from `listNetworkEntities`, NOT the `entityId` UUID).",
-		Example: "  postman-explore-pp-cli networkentity get-network-entity 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "get-network-entity <id>",
+		Aliases:     []string{"get"},
+		Short:       "Returns full entity record by internal numeric id (the `id` field from `listNetworkEntities`, NOT the `entityId` UUID).",
+		Example:     "  postman-explore-pp-cli networkentity get-network-entity 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "networkentity.get-network-entity"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

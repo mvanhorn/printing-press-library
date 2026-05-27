@@ -14,16 +14,16 @@ import (
 )
 
 type Config struct {
-	BaseURL        string `toml:"base_url"`
-	AuthHeaderVal  string `toml:"auth_header"`
-	AuthSource     string `toml:"-"`
-	AccessToken    string `toml:"access_token"`
-	RefreshToken   string `toml:"refresh_token"`
-	TokenExpiry    time.Time `toml:"token_expiry"`
-	ClientID       string `toml:"client_id"`
-	ClientSecret   string `toml:"client_secret"`
-	Path           string `toml:"-"`
-	CustomerioToken string `toml:"token"`
+	BaseURL         string    `toml:"base_url"`
+	AuthHeaderVal   string    `toml:"auth_header"`
+	AuthSource      string    `toml:"-"`
+	AccessToken     string    `toml:"access_token"`
+	RefreshToken    string    `toml:"refresh_token"`
+	TokenExpiry     time.Time `toml:"token_expiry"`
+	ClientID        string    `toml:"client_id"`
+	ClientSecret    string    `toml:"client_secret"`
+	Path            string    `toml:"-"`
+	CustomerioToken string    `toml:"token"`
 }
 
 func Load(configPath string) (*Config, error) {

@@ -14,9 +14,9 @@ import (
 func newListsListCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "list",
-		Short: "List shopping lists for the current logged-in account.",
-		Example: "  harris-teeter-pp-cli lists list",
+		Use:         "list",
+		Short:       "List shopping lists for the current logged-in account.",
+		Example:     "  harris-teeter-pp-cli lists list",
 		Annotations: map[string]string{"pp:endpoint": "lists.list", "pp:method": "GET", "pp:path": "/atlas/v1/shopping-list/v1/shopping-lists", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

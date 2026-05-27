@@ -14,9 +14,9 @@ import (
 func newPublishersGetCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get <id>",
-		Short: "Retrieve a single publisher by OpenAlex ID.",
-		Example: "  openalex-pp-cli publishers get 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "get <id>",
+		Short:       "Retrieve a single publisher by OpenAlex ID.",
+		Example:     "  openalex-pp-cli publishers get 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "publishers.get", "pp:method": "GET", "pp:path": "/publishers/{id}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

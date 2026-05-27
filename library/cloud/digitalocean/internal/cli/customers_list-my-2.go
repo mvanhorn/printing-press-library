@@ -14,9 +14,9 @@ import (
 func newCustomersListMy2Cmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "list-my-2",
-		Short: "List my 2",
-		Example: "  digitalocean-pp-cli customers list-my-2",
+		Use:         "list-my-2",
+		Short:       "List my 2",
+		Example:     "  digitalocean-pp-cli customers list-my-2",
 		Annotations: map[string]string{"pp:endpoint": "customers.list-my-2", "pp:method": "GET", "pp:path": "/v2/customers/my/invoices", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

@@ -14,9 +14,9 @@ import (
 func newMonitoringGetCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get",
-		Short: "Get",
-		Example: "  digitalocean-pp-cli monitoring get",
+		Use:         "get",
+		Short:       "Get",
+		Example:     "  digitalocean-pp-cli monitoring get",
 		Annotations: map[string]string{"pp:endpoint": "monitoring.get", "pp:method": "GET", "pp:path": "/v2/monitoring/alerts/{alert_uuid}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

@@ -14,10 +14,10 @@ import (
 func newSafesDocumentGetSafeRequestCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-safe-request <safeRequestId>",
-		Aliases: []string{"get"},
-		Short: "Download the PDF document for a specific SAFE request. Returns binary PDF data with a Content-Disposition header.",
-		Example: "  mercury-pp-cli safes document get-safe-request 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "get-safe-request <safeRequestId>",
+		Aliases:     []string{"get"},
+		Short:       "Download the PDF document for a specific SAFE request. Returns binary PDF data with a Content-Disposition header.",
+		Example:     "  mercury-pp-cli safes document get-safe-request 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "document.get-safe-request", "pp:method": "GET", "pp:path": "/safes/{safeRequestId}/document", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

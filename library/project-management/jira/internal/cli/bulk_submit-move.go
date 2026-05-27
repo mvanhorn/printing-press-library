@@ -23,9 +23,9 @@ func newBulkSubmitMoveCmd(flags *rootFlags) *cobra.Command {
 	var flagWaitInterval time.Duration
 
 	cmd := &cobra.Command{
-		Use:   "submit-move",
-		Short: "Use this API to submit a bulk issue move request. You can move multiple issues from multiple projects in a single...",
-		Example: "  jira-pp-cli bulk submit-move",
+		Use:         "submit-move",
+		Short:       "Use this API to submit a bulk issue move request. You can move multiple issues from multiple projects in a single...",
+		Example:     "  jira-pp-cli bulk submit-move",
 		Annotations: map[string]string{"pp:endpoint": "bulk.submit-move", "pp:method": "POST", "pp:path": "/rest/api/3/bulk/issues/move"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {
@@ -115,7 +115,9 @@ func newBulkSubmitMoveCmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

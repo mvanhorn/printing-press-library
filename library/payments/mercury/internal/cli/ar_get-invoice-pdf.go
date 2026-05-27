@@ -14,9 +14,9 @@ import (
 func newArGetInvoicePdfCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-invoice-pdf <invoiceId>",
-		Short: "Downloads a PDF file for the specified invoice. The response includes a Content-Disposition header set to...",
-		Example: "  mercury-pp-cli ar get-invoice-pdf 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "get-invoice-pdf <invoiceId>",
+		Short:       "Downloads a PDF file for the specified invoice. The response includes a Content-Disposition header set to...",
+		Example:     "  mercury-pp-cli ar get-invoice-pdf 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "ar.get-invoice-pdf", "pp:method": "GET", "pp:path": "/ar/invoices/{invoiceId}/pdf", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

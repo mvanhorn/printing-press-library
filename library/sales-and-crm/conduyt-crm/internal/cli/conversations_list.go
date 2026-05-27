@@ -17,9 +17,9 @@ func newConversationsListCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "list",
-		Short: "List conversation threads",
-		Example: "  conduyt-crm-pp-cli conversations list",
+		Use:         "list",
+		Short:       "List conversation threads",
+		Example:     "  conduyt-crm-pp-cli conversations list",
 		Annotations: map[string]string{"pp:endpoint": "conversations.list", "pp:method": "GET", "pp:path": "/conversations", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
@@ -29,7 +29,7 @@ func newConversationsListCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/conversations"
 			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "conversations", path, map[string]string{
-				"page": fmt.Sprintf("%v", flagPage),
+				"page":     fmt.Sprintf("%v", flagPage),
 				"per_page": fmt.Sprintf("%v", flagPerPage),
 			}, nil, flagAll, "", "", "")
 			if err != nil {

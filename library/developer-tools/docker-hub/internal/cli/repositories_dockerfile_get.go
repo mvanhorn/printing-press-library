@@ -14,9 +14,9 @@ import (
 func newRepositoriesDockerfileGetCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get <namespace> <repository>",
-		Short: "Retrieve the Dockerfile used to build this image. Available for many official and automated images.",
-		Example: "  docker-hub-pp-cli repositories dockerfile get example-resource example-value",
+		Use:         "get <namespace> <repository>",
+		Short:       "Retrieve the Dockerfile used to build this image. Available for many official and automated images.",
+		Example:     "  docker-hub-pp-cli repositories dockerfile get example-resource example-value",
 		Annotations: map[string]string{"pp:endpoint": "dockerfile.get", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

@@ -14,9 +14,9 @@ import (
 func newPaymentBraintreeTokenCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "braintree-token",
-		Short: "Returns a Braintree client token used by the DropIn UI to mint a single-use payment nonce. Hand-driven by chromedp...",
-		Example: "  ordertogo-pp-cli payment braintree-token",
+		Use:         "braintree-token",
+		Short:       "Returns a Braintree client token used by the DropIn UI to mint a single-use payment nonce. Hand-driven by chromedp...",
+		Example:     "  ordertogo-pp-cli payment braintree-token",
 		Annotations: map[string]string{"pp:endpoint": "payment.braintree_token", "pp:method": "GET", "pp:path": "/m/generateBrainTreeClientToken", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

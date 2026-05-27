@@ -16,10 +16,10 @@ func newProjectsTagsListASValuesCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "list-a-s-values <organization_id_or_slug> <project_id_or_slug> <key>",
-		Aliases: []string{"get"},
-		Short: "Return a list of values associated with this key. The `query` parameter can be used to to perform a 'contains' match...",
-		Example: "  sentry-pp-cli projects tags list-a-s-values example-value example-value your-token-here",
+		Use:         "list-a-s-values <organization_id_or_slug> <project_id_or_slug> <key>",
+		Aliases:     []string{"get"},
+		Short:       "Return a list of values associated with this key. The `query` parameter can be used to to perform a 'contains' match...",
+		Example:     "  sentry-pp-cli projects tags list-a-s-values example-value example-value your-token-here",
 		Annotations: map[string]string{"pp:endpoint": "tags.list-a-s-values", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

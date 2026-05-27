@@ -23,9 +23,9 @@ func newFoodRecallsListCmd(flags *rootFlags) *cobra.Command {
 	var flagDateTo string
 
 	cmd := &cobra.Command{
-		Use:   "list",
-		Short: "Search food recall enforcement reports",
-		Example: "  openfda-pp-cli food-recalls list",
+		Use:         "list",
+		Short:       "Search food recall enforcement reports",
+		Example:     "  openfda-pp-cli food-recalls list",
 		Annotations: map[string]string{"pp:endpoint": "food-recalls.list", "pp:method": "GET", "pp:path": "/food/enforcement.json", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

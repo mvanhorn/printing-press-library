@@ -12,9 +12,9 @@ import (
 	"text/tabwriter"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/pdok-location/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/pdok-location/internal/config"
+	"github.com/spf13/cobra"
 )
 
 var version = "1.0.0"

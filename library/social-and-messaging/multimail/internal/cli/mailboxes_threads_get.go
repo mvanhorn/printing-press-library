@@ -14,9 +14,9 @@ import (
 func newMailboxesThreadsGetCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get <mailboxId> <threadId>",
-		Short: "Returns thread metadata and all emails in the thread (without body content). Requires read scope.",
-		Example: "  multimail-pp-cli mailboxes threads get 550e8400-e29b-41d4-a716-446655440000 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "get <mailboxId> <threadId>",
+		Short:       "Returns thread metadata and all emails in the thread (without body content). Requires read scope.",
+		Example:     "  multimail-pp-cli mailboxes threads get 550e8400-e29b-41d4-a716-446655440000 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "threads.get", "pp:method": "GET", "pp:path": "/v1/mailboxes/{mailboxId}/threads/{threadId}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

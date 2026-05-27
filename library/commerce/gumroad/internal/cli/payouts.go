@@ -9,8 +9,8 @@ import (
 
 func newPayoutsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "payouts",
-		Short: "Manage payouts",
+		Use:    "payouts",
+		Short:  "Manage payouts",
 		Hidden: true,
 	}
 

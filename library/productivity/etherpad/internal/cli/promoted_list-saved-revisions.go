@@ -15,10 +15,10 @@ func newListSavedRevisionsPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagPadID string
 
 	cmd := &cobra.Command{
-		Use:   "list-saved-revisions",
-		Short: "returns the list of saved revisions of a pad",
-		Long:  "Shortcut for 'list-saved-revisions using-post'. returns the list of saved revisions of a pad",
-		Example: "  etherpad-pp-cli list-saved-revisions",
+		Use:         "list-saved-revisions",
+		Short:       "returns the list of saved revisions of a pad",
+		Long:        "Shortcut for 'list-saved-revisions using-post'. returns the list of saved revisions of a pad",
+		Example:     "  etherpad-pp-cli list-saved-revisions",
 		Annotations: map[string]string{"pp:endpoint": "list-saved-revisions.using-post", "pp:method": "POST", "pp:path": "/listSavedRevisions"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

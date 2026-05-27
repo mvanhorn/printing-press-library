@@ -4,11 +4,11 @@
 package cli
 
 import (
-	"github.com/mvanhorn/printing-press-library/library/productivity/cal-com/internal/client"
-	"github.com/mvanhorn/printing-press-library/library/productivity/cal-com/internal/cliutil"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/productivity/cal-com/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/productivity/cal-com/internal/cliutil"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"io"

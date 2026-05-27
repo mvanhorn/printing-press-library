@@ -18,9 +18,9 @@ func newItemFlingEffectListCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "list",
-		Short: "The various effects of the move'Fling' when used with different items.",
-		Example: "  pokeapi-pp-cli item-fling-effect list",
+		Use:         "list",
+		Short:       "The various effects of the move'Fling' when used with different items.",
+		Example:     "  pokeapi-pp-cli item-fling-effect list",
 		Annotations: map[string]string{"pp:endpoint": "item-fling-effect.list", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
@@ -30,9 +30,9 @@ func newItemFlingEffectListCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/api/v2/item-fling-effect/"
 			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "item-fling-effect", path, map[string]string{
-				"limit": fmt.Sprintf("%v", flagLimit),
+				"limit":  fmt.Sprintf("%v", flagLimit),
 				"offset": fmt.Sprintf("%v", flagOffset),
-				"q": fmt.Sprintf("%v", flagQ),
+				"q":      fmt.Sprintf("%v", flagQ),
 			}, nil, flagAll, "offset", "", "")
 			if err != nil {
 				return classifyAPIError(err)

@@ -17,10 +17,10 @@ func newAppendTextPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagAuthorId string
 
 	cmd := &cobra.Command{
-		Use:   "append-text",
-		Short: "appends text to a pad",
-		Long:  "Shortcut for 'append-text using-post'. appends text to a pad",
-		Example: "  etherpad-pp-cli append-text",
+		Use:         "append-text",
+		Short:       "appends text to a pad",
+		Long:        "Shortcut for 'append-text using-post'. appends text to a pad",
+		Example:     "  etherpad-pp-cli append-text",
 		Annotations: map[string]string{"pp:endpoint": "append-text.using-post", "pp:method": "POST", "pp:path": "/appendText"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

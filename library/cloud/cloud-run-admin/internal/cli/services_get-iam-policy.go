@@ -15,10 +15,10 @@ func newServicesGetIamPolicyCmd(flags *rootFlags) *cobra.Command {
 	var flagOptionsRequestedPolicyVersion int
 
 	cmd := &cobra.Command{
-		Use:   "get-iam-policy <resource>",
-		Aliases: []string{"get"},
-		Short: "Gets the IAM Access Control policy currently in effect for the given Cloud Run Service. This result does not include...",
-		Example: "  cloud-run-admin-pp-cli services get-iam-policy example-value",
+		Use:         "get-iam-policy <resource>",
+		Aliases:     []string{"get"},
+		Short:       "Gets the IAM Access Control policy currently in effect for the given Cloud Run Service. This result does not include...",
+		Example:     "  cloud-run-admin-pp-cli services get-iam-policy example-value",
 		Annotations: map[string]string{"pp:endpoint": "services.get-iam-policy", "pp:method": "GET", "pp:path": "/v2/{resource}:getIamPolicy", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

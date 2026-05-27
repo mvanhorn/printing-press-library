@@ -15,10 +15,10 @@ func newTeamsPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagCursor string
 
 	cmd := &cobra.Command{
-		Use:   "teams",
-		Short: "List all teams accessible to your account",
-		Long:  "Shortcut for 'teams list'. List all teams accessible to your account",
-		Example: "  fathom-pp-cli teams",
+		Use:         "teams",
+		Short:       "List all teams accessible to your account",
+		Long:        "Shortcut for 'teams list'. List all teams accessible to your account",
+		Example:     "  fathom-pp-cli teams",
 		Annotations: map[string]string{"pp:endpoint": "teams.list", "pp:method": "GET", "pp:path": "/teams", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

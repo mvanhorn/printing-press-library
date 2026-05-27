@@ -14,10 +14,10 @@ import (
 func newCdpSourcesPromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "cdp-sources",
-		Short: "List CDP sources",
-		Long:  "Shortcut for 'cdp_sources list'. List CDP sources",
-		Example: "  customer-io-pp-cli cdp-sources",
+		Use:         "cdp-sources",
+		Short:       "List CDP sources",
+		Long:        "Shortcut for 'cdp_sources list'. List CDP sources",
+		Example:     "  customer-io-pp-cli cdp-sources",
 		Annotations: map[string]string{"pp:endpoint": "cdp_sources.list", "pp:method": "GET", "pp:path": "/cdp/api/sources", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

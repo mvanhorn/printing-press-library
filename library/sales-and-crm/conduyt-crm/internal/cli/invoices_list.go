@@ -17,9 +17,9 @@ func newInvoicesListCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "list",
-		Short: "List invoices",
-		Example: "  conduyt-crm-pp-cli invoices list",
+		Use:         "list",
+		Short:       "List invoices",
+		Example:     "  conduyt-crm-pp-cli invoices list",
 		Annotations: map[string]string{"pp:endpoint": "invoices.list", "pp:method": "GET", "pp:path": "/invoices", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
@@ -29,7 +29,7 @@ func newInvoicesListCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/invoices"
 			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "invoices", path, map[string]string{
-				"page": fmt.Sprintf("%v", flagPage),
+				"page":     fmt.Sprintf("%v", flagPage),
 				"per_page": fmt.Sprintf("%v", flagPerPage),
 			}, nil, flagAll, "", "", "")
 			if err != nil {

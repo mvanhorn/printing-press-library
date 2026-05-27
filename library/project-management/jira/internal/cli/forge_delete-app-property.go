@@ -14,10 +14,10 @@ import (
 func newForgeDeleteAppPropertyCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "delete-app-property <propertyKey>",
-		Aliases: []string{"delete"},
-		Short: "Deletes a Forge app's property. **[Permissions](#permissions) required:** Only Forge apps can make this request....",
-		Example: "  jira-pp-cli forge delete-app-property your-token-here",
+		Use:         "delete-app-property <propertyKey>",
+		Aliases:     []string{"delete"},
+		Short:       "Deletes a Forge app's property. **[Permissions](#permissions) required:** Only Forge apps can make this request....",
+		Example:     "  jira-pp-cli forge delete-app-property your-token-here",
 		Annotations: map[string]string{"pp:endpoint": "forge.delete-app-property", "pp:method": "DELETE", "pp:path": "/rest/forge/1/app/properties/{propertyKey}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -44,7 +44,9 @@ func newForgeDeleteAppPropertyCmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

@@ -19,9 +19,9 @@ func newPayoutsListCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "list",
-		Short: "Retrieve payouts for the authenticated user. Requires view_payouts scope.",
-		Example: "  gumroad-pp-cli payouts list",
+		Use:         "list",
+		Short:       "Retrieve payouts for the authenticated user. Requires view_payouts scope.",
+		Example:     "  gumroad-pp-cli payouts list",
 		Annotations: map[string]string{"pp:endpoint": "payouts.list", "pp:method": "GET", "pp:path": "/payouts", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
@@ -31,9 +31,9 @@ func newPayoutsListCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/payouts"
 			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "payouts", path, map[string]string{
-				"after": fmt.Sprintf("%v", flagAfter),
-				"before": fmt.Sprintf("%v", flagBefore),
-				"page_key": fmt.Sprintf("%v", flagPageKey),
+				"after":            fmt.Sprintf("%v", flagAfter),
+				"before":           fmt.Sprintf("%v", flagBefore),
+				"page_key":         fmt.Sprintf("%v", flagPageKey),
 				"include_upcoming": fmt.Sprintf("%v", flagIncludeUpcoming),
 			}, nil, flagAll, "after", "", "")
 			if err != nil {

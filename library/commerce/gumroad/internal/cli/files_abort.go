@@ -18,10 +18,10 @@ func newFilesAbortCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "abort",
-		Aliases: []string{"create"},
-		Short: "Cancel a multipart upload started by /files/presign. Requires edit_products scope.",
-		Example: "  gumroad-pp-cli files abort --key your-token-here",
+		Use:         "abort",
+		Aliases:     []string{"create"},
+		Short:       "Cancel a multipart upload started by /files/presign. Requires edit_products scope.",
+		Example:     "  gumroad-pp-cli files abort --key your-token-here",
 		Annotations: map[string]string{"pp:endpoint": "files.abort", "pp:method": "POST", "pp:path": "/files/abort"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {
@@ -72,7 +72,9 @@ func newFilesAbortCmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

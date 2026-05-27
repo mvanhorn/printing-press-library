@@ -13,8 +13,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/sales-and-crm/intercom/internal/cliutil"
+	"github.com/spf13/cobra"
 )
 
 type articleManifest struct {

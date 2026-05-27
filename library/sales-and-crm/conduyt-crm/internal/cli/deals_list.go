@@ -23,13 +23,13 @@ func newDealsListCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "list",
-		Short: "Returns deals with Kanban-optimized sort order (stage, sortOrder, then requested sort).",
-		Example: "  conduyt-crm-pp-cli deals list",
+		Use:         "list",
+		Short:       "Returns deals with Kanban-optimized sort order (stage, sortOrder, then requested sort).",
+		Example:     "  conduyt-crm-pp-cli deals list",
 		Annotations: map[string]string{"pp:endpoint": "deals.list", "pp:method": "GET", "pp:path": "/deals", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if cmd.Flags().Changed("status") {
-				allowedStatus := []string{ "open", "won", "lost" }
+				allowedStatus := []string{"open", "won", "lost"}
 				validStatus := false
 				for _, v := range allowedStatus {
 					if flagStatus == v {
@@ -42,7 +42,7 @@ func newDealsListCmd(flags *rootFlags) *cobra.Command {
 				}
 			}
 			if cmd.Flags().Changed("sort") {
-				allowedSort := []string{ "createdAt", "updatedAt", "title", "value" }
+				allowedSort := []string{"createdAt", "updatedAt", "title", "value"}
 				validSort := false
 				for _, v := range allowedSort {
 					if flagSort == v {
@@ -55,7 +55,7 @@ func newDealsListCmd(flags *rootFlags) *cobra.Command {
 				}
 			}
 			if cmd.Flags().Changed("order") {
-				allowedOrder := []string{ "asc", "desc" }
+				allowedOrder := []string{"asc", "desc"}
 				validOrder := false
 				for _, v := range allowedOrder {
 					if flagOrder == v {
@@ -74,14 +74,14 @@ func newDealsListCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/deals"
 			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "deals", path, map[string]string{
-				"page": fmt.Sprintf("%v", flagPage),
-				"per_page": fmt.Sprintf("%v", flagPerPage),
-				"pipeline": fmt.Sprintf("%v", flagPipeline),
-				"stage": fmt.Sprintf("%v", flagStage),
-				"status": fmt.Sprintf("%v", flagStatus),
+				"page":        fmt.Sprintf("%v", flagPage),
+				"per_page":    fmt.Sprintf("%v", flagPerPage),
+				"pipeline":    fmt.Sprintf("%v", flagPipeline),
+				"stage":       fmt.Sprintf("%v", flagStage),
+				"status":      fmt.Sprintf("%v", flagStatus),
 				"assigned_to": fmt.Sprintf("%v", flagAssignedTo),
-				"sort": fmt.Sprintf("%v", flagSort),
-				"order": fmt.Sprintf("%v", flagOrder),
+				"sort":        fmt.Sprintf("%v", flagSort),
+				"order":       fmt.Sprintf("%v", flagOrder),
 			}, nil, flagAll, "", "", "")
 			if err != nil {
 				return classifyAPIError(err, flags)

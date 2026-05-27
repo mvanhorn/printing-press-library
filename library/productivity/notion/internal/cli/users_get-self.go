@@ -14,9 +14,9 @@ import (
 func newUsersGetSelfCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-self",
-		Short: "Retrieve your token's bot user",
-		Example: "  notion-pp-cli users get-self",
+		Use:         "get-self",
+		Short:       "Retrieve your token's bot user",
+		Example:     "  notion-pp-cli users get-self",
 		Annotations: map[string]string{"pp:endpoint": "users.get-self", "pp:method": "GET", "pp:path": "/v1/users/me", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

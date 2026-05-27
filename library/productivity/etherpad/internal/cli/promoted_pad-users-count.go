@@ -15,10 +15,10 @@ func newPadUsersCountPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagPadID string
 
 	cmd := &cobra.Command{
-		Use:   "pad-users-count",
-		Short: "returns the number of user that are currently editing this pad",
-		Long:  "Shortcut for 'pad-users-count using-post'. returns the number of user that are currently editing this pad",
-		Example: "  etherpad-pp-cli pad-users-count",
+		Use:         "pad-users-count",
+		Short:       "returns the number of user that are currently editing this pad",
+		Long:        "Shortcut for 'pad-users-count using-post'. returns the number of user that are currently editing this pad",
+		Example:     "  etherpad-pp-cli pad-users-count",
 		Annotations: map[string]string{"pp:endpoint": "pad-users-count.using-post", "pp:method": "POST", "pp:path": "/padUsersCount"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

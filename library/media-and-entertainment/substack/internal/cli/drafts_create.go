@@ -21,9 +21,9 @@ func newDraftsCreateCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "create",
-		Short: "Create a new draft",
-		Example: "  substack-pp-cli drafts create",
+		Use:         "create",
+		Short:       "Create a new draft",
+		Example:     "  substack-pp-cli drafts create",
 		Annotations: map[string]string{"pp:endpoint": "drafts.create", "pp:method": "POST", "pp:path": "https://{publication}.substack.com/api/v1/drafts"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {
@@ -77,7 +77,9 @@ func newDraftsCreateCmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

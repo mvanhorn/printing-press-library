@@ -16,9 +16,9 @@ func newWebhooksStripeInvoiceCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "stripe-invoice",
-		Short: "Stripe invoice webhook",
-		Example: "  conduyt-crm-pp-cli webhooks stripe-invoice",
+		Use:         "stripe-invoice",
+		Short:       "Stripe invoice webhook",
+		Example:     "  conduyt-crm-pp-cli webhooks stripe-invoice",
 		Annotations: map[string]string{"pp:endpoint": "webhooks.stripe-invoice", "pp:method": "POST", "pp:path": "/webhooks/stripe-invoice"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {
@@ -57,7 +57,9 @@ func newWebhooksStripeInvoiceCmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

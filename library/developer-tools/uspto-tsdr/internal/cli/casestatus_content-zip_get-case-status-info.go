@@ -14,10 +14,10 @@ import (
 func newCasestatusContentZipGetCaseStatusInfoCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-case-status-info <caseid>",
-		Aliases: []string{"get"},
-		Short: "Parameters can be one of the following: rnXXXXXXX for US registration number, snXXXXXXXX for US serial number,...",
-		Example: "  uspto-tsdr-pp-cli casestatus content-zip get-case-status-info 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "get-case-status-info <caseid>",
+		Aliases:     []string{"get"},
+		Short:       "Parameters can be one of the following: rnXXXXXXX for US registration number, snXXXXXXXX for US serial number,...",
+		Example:     "  uspto-tsdr-pp-cli casestatus content-zip get-case-status-info 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "content-zip.get-case-status-info", "pp:method": "GET", "pp:path": "/casestatus/{caseid}/content.zip", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

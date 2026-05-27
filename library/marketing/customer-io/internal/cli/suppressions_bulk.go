@@ -133,14 +133,14 @@ Default audit path: ~/.config/customer-io-pp-cli/audit/suppressions-YYYYMMDD.jso
 					}
 				}
 				rec := map[string]any{
-					"timestamp":  time.Now().UTC().Format(time.RFC3339Nano),
-					"op":         op,
-					"recipient":  id,
-					"reason":     reason,
-					"status":     status,
-					"error":      apiErrMsg,
-					"endpoint":   path,
-					"dry_run":    flags.dryRun,
+					"timestamp": time.Now().UTC().Format(time.RFC3339Nano),
+					"op":        op,
+					"recipient": id,
+					"reason":    reason,
+					"status":    status,
+					"error":     apiErrMsg,
+					"endpoint":  path,
+					"dry_run":   flags.dryRun,
 				}
 				results = append(results, rec)
 				_ = appendJSONL(audit, rec)

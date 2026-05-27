@@ -42,10 +42,10 @@ func newStatsCmd(f *rootFlags) *cobra.Command {
 }
 
 type statsJSON struct {
-	TotalItems int64            `json:"total_items"`
-	TotalSizeGB float64         `json:"total_size_gb"`
-	TotalSizeBytes int64        `json:"total_size_bytes"`
-	ByType     []storageRowJSON `json:"by_type"`
+	TotalItems     int64            `json:"total_items"`
+	TotalSizeGB    float64          `json:"total_size_gb"`
+	TotalSizeBytes int64            `json:"total_size_bytes"`
+	ByType         []storageRowJSON `json:"by_type"`
 }
 
 func printStatsJSON(cmd *cobra.Command, count, sizeBytes int64, byType []StorageRow) error {

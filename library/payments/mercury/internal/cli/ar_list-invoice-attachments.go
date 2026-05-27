@@ -14,9 +14,9 @@ import (
 func newArListInvoiceAttachmentsCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "list-invoice-attachments <invoiceId>",
-		Short: "Retrieve a list of all attachments for a specific invoice",
-		Example: "  mercury-pp-cli ar list-invoice-attachments 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "list-invoice-attachments <invoiceId>",
+		Short:       "Retrieve a list of all attachments for a specific invoice",
+		Example:     "  mercury-pp-cli ar list-invoice-attachments 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "ar.list-invoice-attachments", "pp:method": "GET", "pp:path": "/ar/invoices/{invoiceId}/attachments", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

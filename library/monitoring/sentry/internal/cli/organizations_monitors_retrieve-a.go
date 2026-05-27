@@ -15,10 +15,10 @@ func newOrganizationsMonitorsRetrieveACmd(flags *rootFlags) *cobra.Command {
 	var flagEnvironment string
 
 	cmd := &cobra.Command{
-		Use:   "retrieve-a <organization_id_or_slug> <monitor_id_or_slug>",
-		Aliases: []string{"get"},
-		Short: "Retrieves details for a monitor.",
-		Example: "  sentry-pp-cli organizations monitors retrieve-a example-value example-value",
+		Use:         "retrieve-a <organization_id_or_slug> <monitor_id_or_slug>",
+		Aliases:     []string{"get"},
+		Short:       "Retrieves details for a monitor.",
+		Example:     "  sentry-pp-cli organizations monitors retrieve-a example-value example-value",
 		Annotations: map[string]string{"pp:endpoint": "monitors.retrieve-a", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

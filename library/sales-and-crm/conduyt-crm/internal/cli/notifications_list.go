@@ -17,9 +17,9 @@ func newNotificationsListCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "list",
-		Short: "List notifications",
-		Example: "  conduyt-crm-pp-cli notifications list",
+		Use:         "list",
+		Short:       "List notifications",
+		Example:     "  conduyt-crm-pp-cli notifications list",
 		Annotations: map[string]string{"pp:endpoint": "notifications.list", "pp:method": "GET", "pp:path": "/notifications", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
@@ -29,7 +29,7 @@ func newNotificationsListCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/notifications"
 			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "notifications", path, map[string]string{
-				"page": fmt.Sprintf("%v", flagPage),
+				"page":     fmt.Sprintf("%v", flagPage),
 				"per_page": fmt.Sprintf("%v", flagPerPage),
 			}, nil, flagAll, "", "", "")
 			if err != nil {

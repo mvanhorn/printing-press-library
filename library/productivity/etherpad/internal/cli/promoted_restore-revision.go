@@ -17,10 +17,10 @@ func newRestoreRevisionPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagAuthorId string
 
 	cmd := &cobra.Command{
-		Use:   "restore-revision",
-		Short: "restores a pad to a specific revision",
-		Long:  "Shortcut for 'restore-revision using-post'. restores a pad to a specific revision",
-		Example: "  etherpad-pp-cli restore-revision",
+		Use:         "restore-revision",
+		Short:       "restores a pad to a specific revision",
+		Long:        "Shortcut for 'restore-revision using-post'. restores a pad to a specific revision",
+		Example:     "  etherpad-pp-cli restore-revision",
 		Annotations: map[string]string{"pp:endpoint": "restore-revision.using-post", "pp:method": "POST", "pp:path": "/restoreRevision"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

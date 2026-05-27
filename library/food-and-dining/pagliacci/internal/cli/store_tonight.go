@@ -10,8 +10,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/pagliacci/internal/client"
+	"github.com/spf13/cobra"
 )
 
 // TonightRow is one candidate store with delivery ETA and today's window.

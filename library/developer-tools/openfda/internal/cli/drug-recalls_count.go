@@ -21,9 +21,9 @@ func newDrugRecallsCountCmd(flags *rootFlags) *cobra.Command {
 	var flagDateTo string
 
 	cmd := &cobra.Command{
-		Use:   "count",
-		Short: "Count drug recalls by field",
-		Example: "  openfda-pp-cli drug-recalls count --firm \"Pfizer\" --field classification",
+		Use:         "count",
+		Short:       "Count drug recalls by field",
+		Example:     "  openfda-pp-cli drug-recalls count --firm \"Pfizer\" --field classification",
 		Annotations: map[string]string{"pp:endpoint": "drug-recalls.count", "pp:method": "GET", "pp:path": "/drug/enforcement.json", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("field") && !flags.dryRun {

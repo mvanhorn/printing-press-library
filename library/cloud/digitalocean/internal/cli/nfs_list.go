@@ -14,9 +14,9 @@ import (
 func newNfsListCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "list",
-		Short: "List",
-		Example: "  digitalocean-pp-cli nfs list",
+		Use:         "list",
+		Short:       "List",
+		Example:     "  digitalocean-pp-cli nfs list",
 		Annotations: map[string]string{"pp:endpoint": "nfs.list", "pp:method": "GET", "pp:path": "/v2/nfs", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

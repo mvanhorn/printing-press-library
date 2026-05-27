@@ -29,10 +29,10 @@ func newOrganizationsAlertRulesDeprecatedCreateAMetricForAnOrganizationCmd(flags
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "deprecated-create-a-metric-for-an-organization <organization_id_or_slug>",
-		Aliases: []string{"create"},
-		Short: "## Deprecated 🚧 Use [Create a Monitor for a Project](/api/monitors/create-a-monitor-for-a-project) and [Create an...",
-		Example: "  sentry-pp-cli organizations alert-rules deprecated-create-a-metric-for-an-organization example-value --aggregate example-value",
+		Use:         "deprecated-create-a-metric-for-an-organization <organization_id_or_slug>",
+		Aliases:     []string{"create"},
+		Short:       "## Deprecated 🚧 Use [Create a Monitor for a Project](/api/monitors/create-a-monitor-for-a-project) and [Create an...",
+		Example:     "  sentry-pp-cli organizations alert-rules deprecated-create-a-metric-for-an-organization example-value --aggregate example-value",
 		Annotations: map[string]string{"pp:endpoint": "alert-rules.deprecated-create-a-metric-for-an-organization"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -140,7 +140,9 @@ func newOrganizationsAlertRulesDeprecatedCreateAMetricForAnOrganizationCmd(flags
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

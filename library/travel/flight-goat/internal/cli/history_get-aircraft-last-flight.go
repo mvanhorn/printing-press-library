@@ -14,10 +14,10 @@ import (
 func newHistoryGetAircraftLastFlightCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-aircraft-last-flight <registration>",
-		Aliases: []string{"get"},
-		Short: "Returns flight info status summary for an aircraft's last known flight given its registration. The search is limited...",
-		Example: "  flight-goat-pp-cli history get-aircraft-last-flight example-value",
+		Use:         "get-aircraft-last-flight <registration>",
+		Aliases:     []string{"get"},
+		Short:       "Returns flight info status summary for an aircraft's last known flight given its registration. The search is limited...",
+		Example:     "  flight-goat-pp-cli history get-aircraft-last-flight example-value",
 		Annotations: map[string]string{"pp:endpoint": "history.get-aircraft-last-flight", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

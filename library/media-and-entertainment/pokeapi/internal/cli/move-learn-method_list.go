@@ -18,9 +18,9 @@ func newMoveLearnMethodListCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "list",
-		Short: "Methods by which Pokémon can learn moves.",
-		Example: "  pokeapi-pp-cli move-learn-method list",
+		Use:         "list",
+		Short:       "Methods by which Pokémon can learn moves.",
+		Example:     "  pokeapi-pp-cli move-learn-method list",
 		Annotations: map[string]string{"pp:endpoint": "move-learn-method.list", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
@@ -30,9 +30,9 @@ func newMoveLearnMethodListCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/api/v2/move-learn-method/"
 			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "move-learn-method", path, map[string]string{
-				"limit": fmt.Sprintf("%v", flagLimit),
+				"limit":  fmt.Sprintf("%v", flagLimit),
 				"offset": fmt.Sprintf("%v", flagOffset),
-				"q": fmt.Sprintf("%v", flagQ),
+				"q":      fmt.Sprintf("%v", flagQ),
 			}, nil, flagAll, "offset", "", "")
 			if err != nil {
 				return classifyAPIError(err)

@@ -5,12 +5,12 @@ package client
 
 import (
 	"bytes"
-	"github.com/mvanhorn/printing-press-library/library/commerce/craigslist/internal/cliutil"
-	"github.com/mvanhorn/printing-press-library/library/commerce/craigslist/internal/config"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/commerce/craigslist/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/commerce/craigslist/internal/config"
 	"io"
 	"math"
 	"net/http"

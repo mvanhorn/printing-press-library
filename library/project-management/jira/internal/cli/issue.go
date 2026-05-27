@@ -9,8 +9,8 @@ import (
 
 func newIssueCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "issue",
-		Short: "This resource represents Jira issues. Use it to: * create or edit issues, individually or in bulk. * retrieve...",
+		Use:    "issue",
+		Short:  "This resource represents Jira issues. Use it to: * create or edit issues, individually or in bulk. * retrieve...",
 		Hidden: true,
 	}
 

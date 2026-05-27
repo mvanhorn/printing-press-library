@@ -15,9 +15,9 @@ func newStoriesAskCmd(flags *rootFlags) *cobra.Command {
 	var flagLimit int
 
 	cmd := &cobra.Command{
-		Use:   "ask",
-		Short: "Get the latest Ask HN posts",
-		Example: "  hackernews-pp-cli stories ask",
+		Use:         "ask",
+		Short:       "Get the latest Ask HN posts",
+		Example:     "  hackernews-pp-cli stories ask",
 		Annotations: map[string]string{"pp:endpoint": "stories.ask", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

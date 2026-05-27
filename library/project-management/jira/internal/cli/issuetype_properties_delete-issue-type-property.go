@@ -14,10 +14,10 @@ import (
 func newIssuetypePropertiesDeleteIssueTypePropertyCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "delete-issue-type-property <issueTypeId> <propertyKey>",
-		Aliases: []string{"delete"},
-		Short: "Deletes the [issue type property](https://developer.atlassian.com/cloud/jira/platform/storing-data-without-a-database...",
-		Example: "  jira-pp-cli issuetype properties delete-issue-type-property 550e8400-e29b-41d4-a716-446655440000 your-token-here",
+		Use:         "delete-issue-type-property <issueTypeId> <propertyKey>",
+		Aliases:     []string{"delete"},
+		Short:       "Deletes the [issue type property](https://developer.atlassian.com/cloud/jira/platform/storing-data-without-a-database...",
+		Example:     "  jira-pp-cli issuetype properties delete-issue-type-property 550e8400-e29b-41d4-a716-446655440000 your-token-here",
 		Annotations: map[string]string{"pp:endpoint": "properties.delete-issue-type-property", "pp:method": "DELETE", "pp:path": "/rest/api/3/issuetype/{issueTypeId}/properties/{propertyKey}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -48,7 +48,9 @@ func newIssuetypePropertiesDeleteIssueTypePropertyCmd(flags *rootFlags) *cobra.C
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

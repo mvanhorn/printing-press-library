@@ -19,10 +19,10 @@ func newNotionSearchPromotedCmd(flags *rootFlags) *cobra.Command {
 	var bodyStartCursor string
 
 	cmd := &cobra.Command{
-		Use:   "notion-search",
-		Short: "Search by title",
-		Long:  "Shortcut for 'notion-search post'. Search by title",
-		Example: "  notion-pp-cli notion-search",
+		Use:         "notion-search",
+		Short:       "Search by title",
+		Long:        "Shortcut for 'notion-search post'. Search by title",
+		Example:     "  notion-pp-cli notion-search",
 		Annotations: map[string]string{"pp:endpoint": "notion-search.post", "pp:method": "POST", "pp:path": "/v1/search"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

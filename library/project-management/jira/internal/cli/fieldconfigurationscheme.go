@@ -9,8 +9,8 @@ import (
 
 func newFieldconfigurationschemeCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "fieldconfigurationscheme",
-		Short: "Manage fieldconfigurationscheme",
+		Use:    "fieldconfigurationscheme",
+		Short:  "Manage fieldconfigurationscheme",
 		Hidden: true,
 	}
 

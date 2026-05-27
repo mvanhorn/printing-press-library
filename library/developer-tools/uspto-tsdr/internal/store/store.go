@@ -735,6 +735,7 @@ func sqliteFieldValue(v any) any {
 func lookupFieldValue(obj map[string]any, snakeKey string) any {
 	return LookupFieldValue(obj, snakeKey)
 }
+
 // upsertCasedocContentPdfTx writes the typed-table portion of a casedoc_content_pdf upsert
 // inside an existing transaction. The caller is responsible for the generic
 // resources insert (via upsertGenericResourceTx) and for committing the tx.
@@ -785,6 +786,7 @@ func (s *Store) UpsertCasedocContentPdf(data json.RawMessage) error {
 
 	return tx.Commit()
 }
+
 // upsertCasedocContentZipTx writes the typed-table portion of a casedoc_content_zip upsert
 // inside an existing transaction. The caller is responsible for the generic
 // resources insert (via upsertGenericResourceTx) and for committing the tx.
@@ -835,6 +837,7 @@ func (s *Store) UpsertCasedocContentZip(data json.RawMessage) error {
 
 	return tx.Commit()
 }
+
 // upsertCasedocDownloadPdfTx writes the typed-table portion of a casedoc_download_pdf upsert
 // inside an existing transaction. The caller is responsible for the generic
 // resources insert (via upsertGenericResourceTx) and for committing the tx.
@@ -885,6 +888,7 @@ func (s *Store) UpsertCasedocDownloadPdf(data json.RawMessage) error {
 
 	return tx.Commit()
 }
+
 // upsertCasedocDownloadZipTx writes the typed-table portion of a casedoc_download_zip upsert
 // inside an existing transaction. The caller is responsible for the generic
 // resources insert (via upsertGenericResourceTx) and for committing the tx.
@@ -935,6 +939,7 @@ func (s *Store) UpsertCasedocDownloadZip(data json.RawMessage) error {
 
 	return tx.Commit()
 }
+
 // upsertCasedocInfoTx writes the typed-table portion of a casedoc_info upsert
 // inside an existing transaction. The caller is responsible for the generic
 // resources insert (via upsertGenericResourceTx) and for committing the tx.
@@ -985,6 +990,7 @@ func (s *Store) UpsertCasedocInfo(data json.RawMessage) error {
 
 	return tx.Commit()
 }
+
 // upsertMediaTx writes the typed-table portion of a media upsert
 // inside an existing transaction. The caller is responsible for the generic
 // resources insert (via upsertGenericResourceTx) and for committing the tx.
@@ -1035,6 +1041,7 @@ func (s *Store) UpsertMedia(data json.RawMessage) error {
 
 	return tx.Commit()
 }
+
 // upsertBundleTx writes the typed-table portion of a bundle upsert
 // inside an existing transaction. The caller is responsible for the generic
 // resources insert (via upsertGenericResourceTx) and for committing the tx.
@@ -1085,6 +1092,7 @@ func (s *Store) UpsertBundle(data json.RawMessage) error {
 
 	return tx.Commit()
 }
+
 // upsertCasedocsContentPdfTx writes the typed-table portion of a casedocs_content_pdf upsert
 // inside an existing transaction. The caller is responsible for the generic
 // resources insert (via upsertGenericResourceTx) and for committing the tx.
@@ -1135,6 +1143,7 @@ func (s *Store) UpsertCasedocsContentPdf(data json.RawMessage) error {
 
 	return tx.Commit()
 }
+
 // upsertCasedocsContentZipTx writes the typed-table portion of a casedocs_content_zip upsert
 // inside an existing transaction. The caller is responsible for the generic
 // resources insert (via upsertGenericResourceTx) and for committing the tx.
@@ -1185,6 +1194,7 @@ func (s *Store) UpsertCasedocsContentZip(data json.RawMessage) error {
 
 	return tx.Commit()
 }
+
 // upsertCasedocsDownloadPdfTx writes the typed-table portion of a casedocs_download_pdf upsert
 // inside an existing transaction. The caller is responsible for the generic
 // resources insert (via upsertGenericResourceTx) and for committing the tx.
@@ -1235,6 +1245,7 @@ func (s *Store) UpsertCasedocsDownloadPdf(data json.RawMessage) error {
 
 	return tx.Commit()
 }
+
 // upsertCasedocsDownloadZipTx writes the typed-table portion of a casedocs_download_zip upsert
 // inside an existing transaction. The caller is responsible for the generic
 // resources insert (via upsertGenericResourceTx) and for committing the tx.
@@ -1285,6 +1296,7 @@ func (s *Store) UpsertCasedocsDownloadZip(data json.RawMessage) error {
 
 	return tx.Commit()
 }
+
 // upsertCasedocsInfoTx writes the typed-table portion of a casedocs_info upsert
 // inside an existing transaction. The caller is responsible for the generic
 // resources insert (via upsertGenericResourceTx) and for committing the tx.
@@ -1335,6 +1347,7 @@ func (s *Store) UpsertCasedocsInfo(data json.RawMessage) error {
 
 	return tx.Commit()
 }
+
 // upsertContentHtmlTx writes the typed-table portion of a content_html upsert
 // inside an existing transaction. The caller is responsible for the generic
 // resources insert (via upsertGenericResourceTx) and for committing the tx.
@@ -1385,6 +1398,7 @@ func (s *Store) UpsertContentHtml(data json.RawMessage) error {
 
 	return tx.Commit()
 }
+
 // upsertCasestatusContentPdfTx writes the typed-table portion of a casestatus_content_pdf upsert
 // inside an existing transaction. The caller is responsible for the generic
 // resources insert (via upsertGenericResourceTx) and for committing the tx.
@@ -1435,6 +1449,7 @@ func (s *Store) UpsertCasestatusContentPdf(data json.RawMessage) error {
 
 	return tx.Commit()
 }
+
 // upsertCasestatusContentZipTx writes the typed-table portion of a casestatus_content_zip upsert
 // inside an existing transaction. The caller is responsible for the generic
 // resources insert (via upsertGenericResourceTx) and for committing the tx.
@@ -1485,6 +1500,7 @@ func (s *Store) UpsertCasestatusContentZip(data json.RawMessage) error {
 
 	return tx.Commit()
 }
+
 // upsertCasestatusDownloadPdfTx writes the typed-table portion of a casestatus_download_pdf upsert
 // inside an existing transaction. The caller is responsible for the generic
 // resources insert (via upsertGenericResourceTx) and for committing the tx.
@@ -1535,6 +1551,7 @@ func (s *Store) UpsertCasestatusDownloadPdf(data json.RawMessage) error {
 
 	return tx.Commit()
 }
+
 // upsertCasestatusDownloadZipTx writes the typed-table portion of a casestatus_download_zip upsert
 // inside an existing transaction. The caller is responsible for the generic
 // resources insert (via upsertGenericResourceTx) and for committing the tx.
@@ -1585,6 +1602,7 @@ func (s *Store) UpsertCasestatusDownloadZip(data json.RawMessage) error {
 
 	return tx.Commit()
 }
+
 // upsertCasestatusInfoTx writes the typed-table portion of a casestatus_info upsert
 // inside an existing transaction. The caller is responsible for the generic
 // resources insert (via upsertGenericResourceTx) and for committing the tx.
@@ -1635,6 +1653,7 @@ func (s *Store) UpsertCasestatusInfo(data json.RawMessage) error {
 
 	return tx.Commit()
 }
+
 // upsertV1Tx writes the typed-table portion of a v1 upsert
 // inside an existing transaction. The caller is responsible for the generic
 // resources insert (via upsertGenericResourceTx) and for committing the tx.

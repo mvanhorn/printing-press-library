@@ -13,9 +13,9 @@ var (
 )
 
 var rootCmd = &cobra.Command{
-	Use:   "agent-capture",
-		Annotations: map[string]string{"mcp:read-only": "true"},
-	Short: "Record, screenshot, and convert macOS windows and screens for AI agent evidence",
+	Use:         "agent-capture",
+	Annotations: map[string]string{"mcp:read-only": "true"},
+	Short:       "Record, screenshot, and convert macOS windows and screens for AI agent evidence",
 	Long: `agent-capture consolidates macOS screen capture, window recording, GIF conversion,
 frame stitching, and styled code screenshots into one agent-native CLI.
 
@@ -49,9 +49,9 @@ func init() {
 }
 
 var versionCmd = &cobra.Command{
-	Use:   "version",
-		Annotations: map[string]string{"mcp:read-only": "true"},
-	Short: "Print the version of agent-capture",
+	Use:         "version",
+	Annotations: map[string]string{"mcp:read-only": "true"},
+	Short:       "Print the version of agent-capture",
 	Run: func(cmd *cobra.Command, args []string) {
 		if jsonOutput {
 			fmt.Fprintf(os.Stdout, `{"version":"%s"}`+"\n", version)

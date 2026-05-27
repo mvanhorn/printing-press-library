@@ -21,10 +21,10 @@ func newOrganizationsWorkflowsCreateAnAlertForAnOrganizationCmd(flags *rootFlags
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "create-an-alert-for-an-organization <organization_id_or_slug>",
-		Aliases: []string{"create"},
-		Short: "⚠️ This endpoint is currently in **beta** and may be subject to change. It is supported by [New Monitors and...",
-		Example: "  sentry-pp-cli organizations workflows create-an-alert-for-an-organization example-value --name example-resource",
+		Use:         "create-an-alert-for-an-organization <organization_id_or_slug>",
+		Aliases:     []string{"create"},
+		Short:       "⚠️ This endpoint is currently in **beta** and may be subject to change. It is supported by [New Monitors and...",
+		Example:     "  sentry-pp-cli organizations workflows create-an-alert-for-an-organization example-value --name example-resource",
 		Annotations: map[string]string{"pp:endpoint": "workflows.create-an-alert-for-an-organization"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -85,7 +85,9 @@ func newOrganizationsWorkflowsCreateAnAlertForAnOrganizationCmd(flags *rootFlags
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

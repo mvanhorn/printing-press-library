@@ -4,9 +4,9 @@
 package cli
 
 import (
+	"fmt"
 	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/bird/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/bird/internal/config"
-	"fmt"
 	"github.com/spf13/cobra"
 	"os"
 	"os/exec"

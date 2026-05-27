@@ -16,10 +16,10 @@ func newProductsSubscribersListCmd(flags *rootFlags) *cobra.Command {
 	var flagPageKey string
 
 	cmd := &cobra.Command{
-		Use:   "list <product_id>",
-		Aliases: []string{"get"},
-		Short: "Retrieve active subscribers for one product. Requires view_sales scope.",
-		Example: "  gumroad-pp-cli products subscribers list 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "list <product_id>",
+		Aliases:     []string{"get"},
+		Short:       "Retrieve active subscribers for one product. Requires view_sales scope.",
+		Example:     "  gumroad-pp-cli products subscribers list 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "subscribers.list", "pp:method": "GET", "pp:path": "/products/{product_id}/subscribers", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

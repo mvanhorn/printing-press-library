@@ -14,10 +14,10 @@ import (
 func newListFieldGetAccessibleCustomCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-accessible-custom <list_id>",
-		Aliases: []string{"get"},
-		Short: "View the Custom Fields you have access to in a specific List.",
-		Example: "  clickup-pp-cli list field get-accessible-custom 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "get-accessible-custom <list_id>",
+		Aliases:     []string{"get"},
+		Short:       "View the Custom Fields you have access to in a specific List.",
+		Example:     "  clickup-pp-cli list field get-accessible-custom 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "field.get-accessible-custom", "pp:method": "GET", "pp:path": "/v2/list/{list_id}/field", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

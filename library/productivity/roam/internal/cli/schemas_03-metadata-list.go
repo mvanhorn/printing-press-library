@@ -14,10 +14,10 @@ import (
 func newSchemasV03MetadataListCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "03-metadata-list",
-		Aliases: []string{"list"},
-		Short: "Returns all SCIM schemas supported by Roam, including the core User and Group schemas plus Roam's custom role...",
-		Example: "  roam-pp-cli schemas 03-metadata-list",
+		Use:         "03-metadata-list",
+		Aliases:     []string{"list"},
+		Short:       "Returns all SCIM schemas supported by Roam, including the core User and Group schemas plus Roam's custom role...",
+		Example:     "  roam-pp-cli schemas 03-metadata-list",
 		Annotations: map[string]string{"pp:endpoint": "schemas.03-metadata-list", "pp:method": "GET", "pp:path": "/Schemas", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

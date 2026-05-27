@@ -6,9 +6,9 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/ordertogo/internal/store"
 	"github.com/spf13/cobra"
 	"net/url"
-	"github.com/mvanhorn/printing-press-library/library/food-and-dining/ordertogo/internal/store"
 	"os"
 	"regexp"
 	"strconv"

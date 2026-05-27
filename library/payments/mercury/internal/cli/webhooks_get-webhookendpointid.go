@@ -14,9 +14,9 @@ import (
 func newWebhooksGetWebhookendpointidCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-webhookendpointid <webhookEndpointId>",
-		Short: "Retrieve details of a specific webhook endpoint by ID",
-		Example: "  mercury-pp-cli webhooks get-webhookendpointid 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "get-webhookendpointid <webhookEndpointId>",
+		Short:       "Retrieve details of a specific webhook endpoint by ID",
+		Example:     "  mercury-pp-cli webhooks get-webhookendpointid 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "webhooks.get-webhookendpointid", "pp:method": "GET", "pp:path": "/webhooks/{webhookEndpointId}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

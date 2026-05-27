@@ -14,9 +14,9 @@ import (
 func newContactsFindDuplicateCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "find-duplicate",
-		Short: "Find duplicate contacts",
-		Example: "  conduyt-crm-pp-cli contacts find-duplicate",
+		Use:         "find-duplicate",
+		Short:       "Find duplicate contacts",
+		Example:     "  conduyt-crm-pp-cli contacts find-duplicate",
 		Annotations: map[string]string{"pp:endpoint": "contacts.find-duplicate", "pp:method": "GET", "pp:path": "/contacts/duplicates", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

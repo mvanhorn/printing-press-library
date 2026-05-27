@@ -14,9 +14,9 @@ import (
 func newApiKeysListCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "list",
-		Short: "Returns API key metadata. Never returns the full key.",
-		Example: "  conduyt-crm-pp-cli api-keys list",
+		Use:         "list",
+		Short:       "Returns API key metadata. Never returns the full key.",
+		Example:     "  conduyt-crm-pp-cli api-keys list",
 		Annotations: map[string]string{"pp:endpoint": "api-keys.list", "pp:method": "GET", "pp:path": "/api-keys", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

@@ -14,10 +14,10 @@ import (
 func newChatDeleteMessageCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "delete-message <id> <messageId>",
-		Aliases: []string{"delete"},
-		Short: "Delete a chat message",
-		Example: "  conduyt-crm-pp-cli chat delete-message 550e8400-e29b-41d4-a716-446655440000 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "delete-message <id> <messageId>",
+		Aliases:     []string{"delete"},
+		Short:       "Delete a chat message",
+		Example:     "  conduyt-crm-pp-cli chat delete-message 550e8400-e29b-41d4-a716-446655440000 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "chat.delete-message", "pp:method": "DELETE", "pp:path": "/chat/channels/{id}/messages/{messageId}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -48,7 +48,9 @@ func newChatDeleteMessageCmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

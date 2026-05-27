@@ -15,10 +15,10 @@ func newOnairGuestInfoPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagId string
 
 	cmd := &cobra.Command{
-		Use:   "onair-guest-info",
-		Short: "Returns details for a single On-Air event guest. **Access:** Organization and Personal. **Required scope:**...",
-		Long:  "Shortcut for 'onair-guest-info onair_guest_info'. Returns details for a single On-Air event guest. **Access:** Organization and Personal. **Required scope:**...",
-		Example: "  roam-pp-cli onair-guest-info --id 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "onair-guest-info",
+		Short:       "Returns details for a single On-Air event guest. **Access:** Organization and Personal. **Required scope:**...",
+		Long:        "Shortcut for 'onair-guest-info onair_guest_info'. Returns details for a single On-Air event guest. **Access:** Organization and Personal. **Required scope:**...",
+		Example:     "  roam-pp-cli onair-guest-info --id 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "onair-guest-info.onair_guest_info", "pp:method": "GET", "pp:path": "/onair.guest.info", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("id") && !flags.dryRun {

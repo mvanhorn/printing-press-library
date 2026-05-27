@@ -736,6 +736,7 @@ func sqliteFieldValue(v any) any {
 func lookupFieldValue(obj map[string]any, snakeKey string) any {
 	return LookupFieldValue(obj, snakeKey)
 }
+
 // upsertAttachmentsTx writes the typed-table portion of a attachments upsert
 // inside an existing transaction. The caller is responsible for the generic
 // resources insert (via upsertGenericResourceTx) and for committing the tx.
@@ -792,6 +793,7 @@ func (s *Store) UpsertAttachments(data json.RawMessage) error {
 
 	return tx.Commit()
 }
+
 // upsertCategoriesTx writes the typed-table portion of a categories upsert
 // inside an existing transaction. The caller is responsible for the generic
 // resources insert (via upsertGenericResourceTx) and for committing the tx.
@@ -843,6 +845,7 @@ func (s *Store) UpsertCategories(data json.RawMessage) error {
 
 	return tx.Commit()
 }
+
 // upsertFoldersTx writes the typed-table portion of a folders upsert
 // inside an existing transaction. The caller is responsible for the generic
 // resources insert (via upsertGenericResourceTx) and for committing the tx.
@@ -915,6 +918,7 @@ func (s *Store) UpsertFolders(data json.RawMessage) error {
 
 	return tx.Commit()
 }
+
 // upsertInferenceTx writes the typed-table portion of a inference upsert
 // inside an existing transaction. The caller is responsible for the generic
 // resources insert (via upsertGenericResourceTx) and for committing the tx.
@@ -965,6 +969,7 @@ func (s *Store) UpsertInference(data json.RawMessage) error {
 
 	return tx.Commit()
 }
+
 // upsertMailboxSettingsTx writes the typed-table portion of a mailbox_settings upsert
 // inside an existing transaction. The caller is responsible for the generic
 // resources insert (via upsertGenericResourceTx) and for committing the tx.
@@ -1018,6 +1023,7 @@ func (s *Store) UpsertMailboxSettings(data json.RawMessage) error {
 
 	return tx.Commit()
 }
+
 // upsertMessagesTx writes the typed-table portion of a messages upsert
 // inside an existing transaction. The caller is responsible for the generic
 // resources insert (via upsertGenericResourceTx) and for committing the tx.
@@ -1083,6 +1089,7 @@ func (s *Store) UpsertMessages(data json.RawMessage) error {
 
 	return tx.Commit()
 }
+
 // upsertRulesTx writes the typed-table portion of a rules upsert
 // inside an existing transaction. The caller is responsible for the generic
 // resources insert (via upsertGenericResourceTx) and for committing the tx.
@@ -1147,8 +1154,7 @@ func (s *Store) UpsertRules(data json.RawMessage) error {
 // Includes both flat resources and dependent (parent-child) resources so a
 // child path-item annotated with x-resource-id resolves the same as a flat
 // path-item.
-var resourceIDFieldOverrides = map[string]string{
-}
+var resourceIDFieldOverrides = map[string]string{}
 
 // genericIDFieldFallbacks is the runtime safety net for resources that did
 // NOT receive a templated IDField. API-specific names belong in spec

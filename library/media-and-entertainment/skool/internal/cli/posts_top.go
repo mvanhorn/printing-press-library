@@ -73,12 +73,12 @@ Available --by signals:
 				UserID    string `json:"userId"`
 				PostType  string `json:"postType"`
 				Metadata  struct {
-					Content   string `json:"content"`
-					Comments  int    `json:"comments"`
-					Upvotes   int    `json:"upvotes"`
-					Upvoted   bool   `json:"upvoted"`
-					Attachments string `json:"attachments"`
-					Medias    json.RawMessage `json:"medias"`
+					Content     string          `json:"content"`
+					Comments    int             `json:"comments"`
+					Upvotes     int             `json:"upvotes"`
+					Upvoted     bool            `json:"upvoted"`
+					Attachments string          `json:"attachments"`
+					Medias      json.RawMessage `json:"medias"`
 				} `json:"metadata"`
 				User struct {
 					Name      string `json:"name"`

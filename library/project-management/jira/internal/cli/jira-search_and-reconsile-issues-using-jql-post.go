@@ -24,10 +24,10 @@ func newJiraSearchAndReconsileIssuesUsingJqlPostCmd(flags *rootFlags) *cobra.Com
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "and-reconsile-issues-using-jql-post",
-		Aliases: []string{"create"},
-		Short: "Searches for issues using [JQL](https://confluence.atlassian.com/x/egORLQ). Recent updates might not be immediately...",
-		Example: "  jira-pp-cli jira-search and-reconsile-issues-using-jql-post",
+		Use:         "and-reconsile-issues-using-jql-post",
+		Aliases:     []string{"create"},
+		Short:       "Searches for issues using [JQL](https://confluence.atlassian.com/x/egORLQ). Recent updates might not be immediately...",
+		Example:     "  jira-pp-cli jira-search and-reconsile-issues-using-jql-post",
 		Annotations: map[string]string{"pp:endpoint": "jira-search.and-reconsile-issues-using-jql-post", "pp:method": "POST", "pp:path": "/rest/api/3/search/jql"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {
@@ -106,7 +106,9 @@ func newJiraSearchAndReconsileIssuesUsingJqlPostCmd(flags *rootFlags) *cobra.Com
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

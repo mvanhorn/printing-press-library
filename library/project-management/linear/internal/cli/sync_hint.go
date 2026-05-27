@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/project-management/linear/internal/store"
+	"github.com/spf13/cobra"
 )
 
 // defaultMaxAge is the threshold above which a store-backed read is

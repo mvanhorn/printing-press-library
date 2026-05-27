@@ -14,10 +14,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/other/gravitus/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/other/gravitus/internal/config"
 	"github.com/mvanhorn/printing-press-library/library/other/gravitus/internal/store"
+	"github.com/spf13/cobra"
 )
 
 // looksLikeDoctorInterstitial reports whether the response body matches a known

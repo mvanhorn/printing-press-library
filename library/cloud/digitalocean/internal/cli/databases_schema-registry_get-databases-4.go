@@ -14,9 +14,9 @@ import (
 func newDatabasesSchemaRegistryGetDatabases4Cmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-databases-4",
-		Short: "Get databases 4",
-		Example: "  digitalocean-pp-cli databases schema-registry get-databases-4",
+		Use:         "get-databases-4",
+		Short:       "Get databases 4",
+		Example:     "  digitalocean-pp-cli databases schema-registry get-databases-4",
 		Annotations: map[string]string{"pp:endpoint": "schema-registry.get-databases-4", "pp:method": "GET", "pp:path": "/v2/databases/{database_cluster_uuid}/schema-registry/{subject_name}/versions/{version}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

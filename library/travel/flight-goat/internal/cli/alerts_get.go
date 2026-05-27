@@ -14,9 +14,9 @@ import (
 func newAlertsGetCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get <id>",
-		Short: "Returns the configuration data for an alert with the specified ID.",
-		Example: "  flight-goat-pp-cli alerts get 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "get <id>",
+		Short:       "Returns the configuration data for an alert with the specified ID.",
+		Example:     "  flight-goat-pp-cli alerts get 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "alerts.get", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

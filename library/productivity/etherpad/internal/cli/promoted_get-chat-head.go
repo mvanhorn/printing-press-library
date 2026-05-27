@@ -15,10 +15,10 @@ func newGetChatHeadPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagPadID string
 
 	cmd := &cobra.Command{
-		Use:   "get-chat-head",
-		Short: "returns the chatHead (chat-message) of the pad",
-		Long:  "Shortcut for 'get-chat-head using-post'. returns the chatHead (chat-message) of the pad",
-		Example: "  etherpad-pp-cli get-chat-head",
+		Use:         "get-chat-head",
+		Short:       "returns the chatHead (chat-message) of the pad",
+		Long:        "Shortcut for 'get-chat-head using-post'. returns the chatHead (chat-message) of the pad",
+		Example:     "  etherpad-pp-cli get-chat-head",
 		Annotations: map[string]string{"pp:endpoint": "get-chat-head.using-post", "pp:method": "POST", "pp:path": "/getChatHead"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

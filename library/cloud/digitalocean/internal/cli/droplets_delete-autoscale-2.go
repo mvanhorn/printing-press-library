@@ -14,9 +14,9 @@ import (
 func newDropletsDeleteAutoscale2Cmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "delete-autoscale-2",
-		Short: "Delete autoscale 2",
-		Example: "  digitalocean-pp-cli droplets delete-autoscale-2",
+		Use:         "delete-autoscale-2",
+		Short:       "Delete autoscale 2",
+		Example:     "  digitalocean-pp-cli droplets delete-autoscale-2",
 		Annotations: map[string]string{"pp:endpoint": "droplets.delete-autoscale-2", "pp:method": "DELETE", "pp:path": "/v2/droplets/autoscale/{autoscale_pool_id}/dangerous"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
@@ -39,7 +39,9 @@ func newDropletsDeleteAutoscale2Cmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

@@ -14,9 +14,9 @@ import (
 func newServicesRevisionsGetCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get <name>",
-		Short: "Gets information about a Revision.",
-		Example: "  cloud-run-admin-pp-cli services revisions get example-resource",
+		Use:         "get <name>",
+		Short:       "Gets information about a Revision.",
+		Example:     "  cloud-run-admin-pp-cli services revisions get example-resource",
 		Annotations: map[string]string{"pp:endpoint": "revisions.get", "pp:method": "GET", "pp:path": "/v2/{name}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

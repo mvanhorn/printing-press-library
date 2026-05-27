@@ -14,9 +14,9 @@ import (
 func newImportsGetCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get <id>",
-		Short: "Get import job status",
-		Example: "  conduyt-crm-pp-cli imports get 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "get <id>",
+		Short:       "Get import job status",
+		Example:     "  conduyt-crm-pp-cli imports get 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "imports.get", "pp:method": "GET", "pp:path": "/imports/{id}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

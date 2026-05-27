@@ -21,9 +21,9 @@ func newConduytAuthRegisterCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "register",
-		Short: "Creates a new user and account. Rate limited to 3 requests per hour per IP.",
-		Example: "  conduyt-crm-pp-cli conduyt-auth register --account-name example-resource",
+		Use:         "register",
+		Short:       "Creates a new user and account. Rate limited to 3 requests per hour per IP.",
+		Example:     "  conduyt-crm-pp-cli conduyt-auth register --account-name example-resource",
 		Annotations: map[string]string{"pp:endpoint": "conduyt-auth.register", "pp:method": "POST", "pp:path": "/auth/register"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {
@@ -86,7 +86,9 @@ func newConduytAuthRegisterCmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

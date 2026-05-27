@@ -14,9 +14,9 @@ import (
 func newConfigurationGetAvailableTimeTrackingImplementationsCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-available-time-tracking-implementations",
-		Short: "Returns all time tracking providers. By default, Jira only has one time tracking provider: *JIRA provided time...",
-		Example: "  jira-pp-cli configuration get-available-time-tracking-implementations",
+		Use:         "get-available-time-tracking-implementations",
+		Short:       "Returns all time tracking providers. By default, Jira only has one time tracking provider: *JIRA provided time...",
+		Example:     "  jira-pp-cli configuration get-available-time-tracking-implementations",
 		Annotations: map[string]string{"pp:endpoint": "configuration.get-available-time-tracking-implementations", "pp:method": "GET", "pp:path": "/rest/api/3/configuration/timetracking/list", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

@@ -14,9 +14,9 @@ import (
 func newDedicatedInferencesAcceleratorsGetCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get",
-		Short: "Get",
-		Example: "  digitalocean-pp-cli dedicated-inferences accelerators get",
+		Use:         "get",
+		Short:       "Get",
+		Example:     "  digitalocean-pp-cli dedicated-inferences accelerators get",
 		Annotations: map[string]string{"pp:endpoint": "accelerators.get", "pp:method": "GET", "pp:path": "/v2/dedicated-inferences/{dedicated_inference_id}/accelerators", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

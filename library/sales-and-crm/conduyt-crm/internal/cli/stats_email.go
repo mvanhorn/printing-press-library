@@ -41,13 +41,13 @@ func newInsightsEmailStatsCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			type templateStats struct {
-				Template string  `json:"template"`
-				Sent     int     `json:"sent"`
-				Opened   int     `json:"opened"`
-				Clicked  int     `json:"clicked"`
-				Replied  int     `json:"replied"`
-				Bounced  int     `json:"bounced"`
-				OpenRate string  `json:"open_rate"`
+				Template  string `json:"template"`
+				Sent      int    `json:"sent"`
+				Opened    int    `json:"opened"`
+				Clicked   int    `json:"clicked"`
+				Replied   int    `json:"replied"`
+				Bounced   int    `json:"bounced"`
+				OpenRate  string `json:"open_rate"`
 				ClickRate string `json:"click_rate"`
 				ReplyRate string `json:"reply_rate"`
 			}

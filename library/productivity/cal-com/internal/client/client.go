@@ -5,12 +5,12 @@ package client
 
 import (
 	"bytes"
-	"github.com/mvanhorn/printing-press-library/library/productivity/cal-com/internal/cliutil"
-	"github.com/mvanhorn/printing-press-library/library/productivity/cal-com/internal/config"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/productivity/cal-com/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/productivity/cal-com/internal/config"
 	"io"
 	"math"
 	"net/http"

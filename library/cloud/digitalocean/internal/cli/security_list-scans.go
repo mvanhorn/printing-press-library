@@ -14,9 +14,9 @@ import (
 func newSecurityListScansCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "list-scans",
-		Short: "List scans",
-		Example: "  digitalocean-pp-cli security list-scans",
+		Use:         "list-scans",
+		Short:       "List scans",
+		Example:     "  digitalocean-pp-cli security list-scans",
 		Annotations: map[string]string{"pp:endpoint": "security.list-scans", "pp:method": "GET", "pp:path": "/v2/security/scans/latest", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

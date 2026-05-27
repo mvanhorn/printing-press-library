@@ -37,14 +37,14 @@ const DefaultResearchBudget = 5
 // renderers used by coverage / hp people work without branching on
 // source).
 type hpnResearchEnvelope struct {
-	ResearchID string                `json:"research_id"`
-	URL        string                `json:"url,omitempty"`
-	Subject    string                `json:"subject"`
-	Status     string                `json:"status"`
-	Source     string                `json:"source"`
-	Completed  bool                  `json:"completed"`
-	Profile    *api.ResearchProfile  `json:"profile,omitempty"`
-	Person     *client.Person        `json:"person,omitempty"`
+	ResearchID string               `json:"research_id"`
+	URL        string               `json:"url,omitempty"`
+	Subject    string               `json:"subject"`
+	Status     string               `json:"status"`
+	Source     string               `json:"source"`
+	Completed  bool                 `json:"completed"`
+	Profile    *api.ResearchProfile `json:"profile,omitempty"`
+	Person     *client.Person       `json:"person,omitempty"`
 }
 
 func newAPIHpnResearchCmd(flags *rootFlags) *cobra.Command {
@@ -54,9 +54,9 @@ func newAPIHpnResearchCmd(flags *rootFlags) *cobra.Command {
 	)
 
 	cmd := &cobra.Command{
-		Use:   "research <description>",
+		Use:         "research <description>",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short: "Run a Happenstance deep-research dossier (costs 1 credit on completion)",
+		Short:       "Run a Happenstance deep-research dossier (costs 1 credit on completion)",
 		Long: `Run a deep-research dossier against the Happenstance public API.
 
 Pass a natural-language description that names the subject and gives
@@ -124,9 +124,9 @@ gather them later via ` + "`api hpn research get <id>`" + `.`,
 
 func newAPIHpnResearchGetCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "get <research_id>",
+		Use:         "get <research_id>",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short: "Re-fetch an existing research dossier by id (free)",
+		Short:       "Re-fetch an existing research dossier by id (free)",
 		Long: `Calls GET /v1/research/{id} and renders the dossier in the same shape
 as ` + "`api hpn research`" + `. Free probe — no credits spent.`,
 		Example: `  contact-goat-pp-cli api hpn research get rsh_abc123`,

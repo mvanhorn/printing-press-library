@@ -14,10 +14,10 @@ import (
 func newBulkGetStatusCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-status",
-		Aliases: []string{"list"},
-		Short: "Get bulk operation status",
-		Example: "  conduyt-crm-pp-cli bulk get-status",
+		Use:         "get-status",
+		Aliases:     []string{"list"},
+		Short:       "Get bulk operation status",
+		Example:     "  conduyt-crm-pp-cli bulk get-status",
 		Annotations: map[string]string{"pp:endpoint": "bulk.get-status", "pp:method": "GET", "pp:path": "/bulk", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

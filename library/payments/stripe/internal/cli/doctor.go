@@ -13,10 +13,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/payments/stripe/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/payments/stripe/internal/config"
 	"github.com/mvanhorn/printing-press-library/library/payments/stripe/internal/store"
+	"github.com/spf13/cobra"
 )
 
 // looksLikeDoctorInterstitial reports whether the response body matches a known

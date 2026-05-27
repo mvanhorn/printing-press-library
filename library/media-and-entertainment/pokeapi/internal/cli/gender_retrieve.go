@@ -14,10 +14,10 @@ import (
 func newGenderRetrieveCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "retrieve <id>",
-		Aliases: []string{"get"},
-		Short: "Genders were introduced in Generation II for the purposes of breeding Pokémon but can also result in visual...",
-		Example: "  pokeapi-pp-cli gender retrieve 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "retrieve <id>",
+		Aliases:     []string{"get"},
+		Short:       "Genders were introduced in Generation II for the purposes of breeding Pokémon but can also result in visual...",
+		Example:     "  pokeapi-pp-cli gender retrieve 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "gender.retrieve", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

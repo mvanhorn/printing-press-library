@@ -19,10 +19,10 @@ func newConfigGetFieldAssociationSchemesCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "get-field-association-schemes",
-		Aliases: []string{"list"},
-		Short: "REST endpoint for retrieving a paginated list of field association schemes with optional filtering. This endpoint...",
-		Example: "  jira-pp-cli config get-field-association-schemes",
+		Use:         "get-field-association-schemes",
+		Aliases:     []string{"list"},
+		Short:       "REST endpoint for retrieving a paginated list of field association schemes with optional filtering. This endpoint...",
+		Example:     "  jira-pp-cli config get-field-association-schemes",
 		Annotations: map[string]string{"pp:endpoint": "config.get-field-association-schemes", "pp:method": "GET", "pp:path": "/rest/api/3/config/fieldschemes", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
@@ -32,9 +32,9 @@ func newConfigGetFieldAssociationSchemesCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/rest/api/3/config/fieldschemes"
 			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "config", path, map[string]string{
-				"projectId": fmt.Sprintf("%v", flagProjectId),
-				"query": fmt.Sprintf("%v", flagQuery),
-				"startAt": fmt.Sprintf("%v", flagStartAt),
+				"projectId":  fmt.Sprintf("%v", flagProjectId),
+				"query":      fmt.Sprintf("%v", flagQuery),
+				"startAt":    fmt.Sprintf("%v", flagStartAt),
 				"maxResults": fmt.Sprintf("%v", flagMaxResults),
 			}, nil, flagAll, "", "", "")
 			if err != nil {

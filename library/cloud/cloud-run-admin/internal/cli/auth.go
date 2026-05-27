@@ -76,7 +76,7 @@ func newAuthLoginCmd(flags *rootFlags) *cobra.Command {
 				"access_type":   {"offline"},
 				"prompt":        {"consent"},
 			}
-			scopes := []string{"https://www.googleapis.com/auth/cloud-platform",  }
+			scopes := []string{"https://www.googleapis.com/auth/cloud-platform"}
 			if len(scopes) > 0 {
 				params.Set("scope", strings.Join(scopes, " "))
 			}

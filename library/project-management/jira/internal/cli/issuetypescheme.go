@@ -9,8 +9,8 @@ import (
 
 func newIssuetypeschemeCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "issuetypescheme",
-		Short: "Manage issuetypescheme",
+		Use:    "issuetypescheme",
+		Short:  "Manage issuetypescheme",
 		Hidden: true,
 	}
 

@@ -14,10 +14,10 @@ import (
 func newModelsPromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "models",
-		Short: "List",
-		Long:  "Shortcut for 'models list'. List",
-		Example: "  digitalocean-pp-cli models",
+		Use:         "models",
+		Short:       "List",
+		Long:        "Shortcut for 'models list'. List",
+		Example:     "  digitalocean-pp-cli models",
 		Annotations: map[string]string{"pp:endpoint": "models.list", "pp:method": "GET", "pp:path": "/v1/models", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

@@ -28,9 +28,9 @@ func newKeywordsExplorerOverviewCmd(flags *rootFlags) *cobra.Command {
 	var flagKeywordListId string
 
 	cmd := &cobra.Command{
-		Use:   "overview",
-		Short: "Overview",
-		Example: "  ahrefs-pp-cli keywords_explorer overview",
+		Use:         "overview",
+		Short:       "Overview",
+		Example:     "  ahrefs-pp-cli keywords_explorer overview",
 		Annotations: map[string]string{"pp:endpoint": "keywords_explorer.overview", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("select") && !flags.dryRun {
@@ -40,7 +40,7 @@ func newKeywordsExplorerOverviewCmd(flags *rootFlags) *cobra.Command {
 				return fmt.Errorf("required flag \"%s\" not set", "country")
 			}
 			if cmd.Flags().Changed("target-mode") {
-				allowedTargetMode := []string{ "exact", "prefix", "domain", "subdomains" }
+				allowedTargetMode := []string{"exact", "prefix", "domain", "subdomains"}
 				validTargetMode := false
 				for _, v := range allowedTargetMode {
 					if flagTargetMode == v {
@@ -53,7 +53,7 @@ func newKeywordsExplorerOverviewCmd(flags *rootFlags) *cobra.Command {
 				}
 			}
 			if cmd.Flags().Changed("target-position") {
-				allowedTargetPosition := []string{ "in_top10", "in_top100" }
+				allowedTargetPosition := []string{"in_top10", "in_top100"}
 				validTargetPosition := false
 				for _, v := range allowedTargetPosition {
 					if flagTargetPosition == v {
@@ -66,7 +66,7 @@ func newKeywordsExplorerOverviewCmd(flags *rootFlags) *cobra.Command {
 				}
 			}
 			if cmd.Flags().Changed("search-engine") {
-				allowedSearchEngine := []string{ "google" }
+				allowedSearchEngine := []string{"google"}
 				validSearchEngine := false
 				for _, v := range allowedSearchEngine {
 					if flagSearchEngine == v {

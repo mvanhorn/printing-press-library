@@ -14,9 +14,9 @@ import (
 func newDropletsKernelsGetCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get",
-		Short: "Get",
-		Example: "  digitalocean-pp-cli droplets kernels get",
+		Use:         "get",
+		Short:       "Get",
+		Example:     "  digitalocean-pp-cli droplets kernels get",
 		Annotations: map[string]string{"pp:endpoint": "kernels.get", "pp:method": "GET", "pp:path": "/v2/droplets/{droplet_id}/kernels", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

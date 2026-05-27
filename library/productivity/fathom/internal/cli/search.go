@@ -139,11 +139,11 @@ Run 'fathom-pp-cli sync --full' first to populate the local store.`,
 			defer rows.Close()
 
 			type searchResult struct {
-				Title       string `json:"title"`
-				Date        string `json:"date,omitempty"`
-				URL         string `json:"url,omitempty"`
+				Title        string `json:"title"`
+				Date         string `json:"date,omitempty"`
+				URL          string `json:"url,omitempty"`
 				ResourceType string `json:"resource_type,omitempty"`
-				Snippet     string `json:"snippet"`
+				Snippet      string `json:"snippet"`
 			}
 
 			var results []searchResult

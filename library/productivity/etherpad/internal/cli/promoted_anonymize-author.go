@@ -15,10 +15,10 @@ func newAnonymizeAuthorPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagAuthorID string
 
 	cmd := &cobra.Command{
-		Use:   "anonymize-author",
-		Short: "anonymizes an author across all their edits",
-		Long:  "Shortcut for 'anonymize-author using-post'. anonymizes an author across all their edits",
-		Example: "  etherpad-pp-cli anonymize-author",
+		Use:         "anonymize-author",
+		Short:       "anonymizes an author across all their edits",
+		Long:        "Shortcut for 'anonymize-author using-post'. anonymizes an author across all their edits",
+		Example:     "  etherpad-pp-cli anonymize-author",
 		Annotations: map[string]string{"pp:endpoint": "anonymize-author.using-post", "pp:method": "POST", "pp:path": "/anonymizeAuthor"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

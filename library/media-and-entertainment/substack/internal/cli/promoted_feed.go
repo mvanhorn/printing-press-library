@@ -14,10 +14,10 @@ import (
 func newFeedPromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "feed",
-		Short: "RSS XML feed (returns XML; use `--raw` to dump)",
-		Long:  "Shortcut for 'feed rss'. RSS XML feed (returns XML; use `--raw` to dump)",
-		Example: "  substack-pp-cli feed",
+		Use:         "feed",
+		Short:       "RSS XML feed (returns XML; use `--raw` to dump)",
+		Long:        "Shortcut for 'feed rss'. RSS XML feed (returns XML; use `--raw` to dump)",
+		Example:     "  substack-pp-cli feed",
 		Annotations: map[string]string{"pp:endpoint": "feed.rss", "pp:method": "GET", "pp:path": "https://{publication}.substack.com/feed", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

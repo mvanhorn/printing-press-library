@@ -9,8 +9,8 @@ import (
 
 func newIssueLinkCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "issue-link",
-		Short: "This resource represents links between issues. Use it to get, create, and delete links between issues. To use it,...",
+		Use:    "issue-link",
+		Short:  "This resource represents links between issues. Use it to get, create, and delete links between issues. To use it,...",
 		Hidden: true,
 	}
 

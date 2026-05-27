@@ -12,8 +12,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/commerce/yahoo-finance/internal/cliutil"
+	"github.com/spf13/cobra"
 )
 
 // newInsidersExtCmd is a parent command holding the `net-buying` subcommand.

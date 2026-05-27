@@ -14,9 +14,9 @@ import (
 func newDatabasesListOptionsCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "list-options",
-		Short: "List options",
-		Example: "  digitalocean-pp-cli databases list-options",
+		Use:         "list-options",
+		Short:       "List options",
+		Example:     "  digitalocean-pp-cli databases list-options",
 		Annotations: map[string]string{"pp:endpoint": "databases.list-options", "pp:method": "GET", "pp:path": "/v2/databases/options", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

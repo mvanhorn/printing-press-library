@@ -16,9 +16,9 @@ func newWebApiListMissedDealsCmd(flags *rootFlags) *cobra.Command {
 	var flagShowExpired bool
 
 	cmd := &cobra.Command{
-		Use:   "list-missed-deals",
-		Short: "GET /web-api/frontpage/missed-deals/",
-		Example: "  slickdeals-pp-cli web-api list-missed-deals",
+		Use:         "list-missed-deals",
+		Short:       "GET /web-api/frontpage/missed-deals/",
+		Example:     "  slickdeals-pp-cli web-api list-missed-deals",
 		Annotations: map[string]string{"pp:endpoint": "web-api.list_missed_deals", "pp:method": "GET", "pp:path": "/web-api/frontpage/missed-deals/", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

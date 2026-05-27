@@ -16,9 +16,9 @@ func newConduytAuthLogoutCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "logout",
-		Short: "Log out (destroy session)",
-		Example: "  conduyt-crm-pp-cli conduyt-auth logout",
+		Use:         "logout",
+		Short:       "Log out (destroy session)",
+		Example:     "  conduyt-crm-pp-cli conduyt-auth logout",
 		Annotations: map[string]string{"pp:endpoint": "conduyt-auth.logout", "pp:method": "POST", "pp:path": "/auth/logout"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {
@@ -57,7 +57,9 @@ func newConduytAuthLogoutCmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

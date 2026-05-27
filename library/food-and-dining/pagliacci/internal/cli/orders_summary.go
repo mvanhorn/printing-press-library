@@ -9,8 +9,8 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/pagliacci/internal/store"
+	"github.com/spf13/cobra"
 )
 
 // SummaryByStore is the per-store rollup row in the orders summary output.

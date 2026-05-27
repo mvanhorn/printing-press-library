@@ -19,17 +19,17 @@ func newConditionSetsIndexCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "index <publicationId>",
-		Aliases: []string{"get"},
-		Short: "Retrieve all active condition sets for a publication. Condition sets define reusable audience segments for targeting...",
-		Example: "  beehiiv-pp-cli condition-sets index 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "index <publicationId>",
+		Aliases:     []string{"get"},
+		Short:       "Retrieve all active condition sets for a publication. Condition sets define reusable audience segments for targeting...",
+		Example:     "  beehiiv-pp-cli condition-sets index 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "condition-sets.index", "pp:method": "GET", "pp:path": "/publications/{publicationId}/condition_sets", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
 			}
 			if cmd.Flags().Changed("purpose") {
-				allowedPurpose := []string{ "dynamic_content" }
+				allowedPurpose := []string{"dynamic_content"}
 				validPurpose := false
 				for _, v := range allowedPurpose {
 					if flagPurpose == v {
@@ -49,9 +49,9 @@ func newConditionSetsIndexCmd(flags *rootFlags) *cobra.Command {
 			path := "/publications/{publicationId}/condition_sets"
 			path = replacePathParam(path, "publicationId", args[0])
 			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "condition-sets", path, map[string]string{
-				"limit": fmt.Sprintf("%v", flagLimit),
-				"cursor": fmt.Sprintf("%v", flagCursor),
-				"page": fmt.Sprintf("%v", flagPage),
+				"limit":   fmt.Sprintf("%v", flagLimit),
+				"cursor":  fmt.Sprintf("%v", flagCursor),
+				"page":    fmt.Sprintf("%v", flagPage),
 				"purpose": fmt.Sprintf("%v", flagPurpose),
 			}, nil, flagAll, "cursor", "", "has_more")
 			if err != nil {

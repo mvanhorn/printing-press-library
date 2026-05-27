@@ -14,18 +14,18 @@ import (
 )
 
 type Config struct {
-	BaseURL        string `toml:"base_url"`
-	AuthHeaderVal  string `toml:"auth_header"`
-	AuthSource     string `toml:"-"`
-	AccessToken    string `toml:"access_token"`
-	RefreshToken   string `toml:"refresh_token"`
-	TokenExpiry    time.Time `toml:"token_expiry"`
-	ClientID       string `toml:"client_id"`
-	ClientSecret   string `toml:"client_secret"`
-	Path           string `toml:"-"`
-	DominosUsername string `toml:"username"`
-	DominosPassword string `toml:"password"`
-	DominosToken string `toml:"token"`
+	BaseURL         string    `toml:"base_url"`
+	AuthHeaderVal   string    `toml:"auth_header"`
+	AuthSource      string    `toml:"-"`
+	AccessToken     string    `toml:"access_token"`
+	RefreshToken    string    `toml:"refresh_token"`
+	TokenExpiry     time.Time `toml:"token_expiry"`
+	ClientID        string    `toml:"client_id"`
+	ClientSecret    string    `toml:"client_secret"`
+	Path            string    `toml:"-"`
+	DominosUsername string    `toml:"username"`
+	DominosPassword string    `toml:"password"`
+	DominosToken    string    `toml:"token"`
 	// DominosCustomerID is the long base64-style identifier harvested from
 	// sessionStorage.Customer.CustomerID during `auth login`. It defaults
 	// to the customer-id-bearing commands (customer orders, customer loyalty)

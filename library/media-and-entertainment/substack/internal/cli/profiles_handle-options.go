@@ -14,9 +14,9 @@ import (
 func newProfilesHandleOptionsCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "handle-options",
-		Short: "Available handle suggestions for the current user",
-		Example: "  substack-pp-cli profiles handle-options",
+		Use:         "handle-options",
+		Short:       "Available handle suggestions for the current user",
+		Example:     "  substack-pp-cli profiles handle-options",
 		Annotations: map[string]string{"pp:endpoint": "profiles.handle-options", "pp:method": "GET", "pp:path": "/handle/options", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

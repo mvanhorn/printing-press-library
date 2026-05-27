@@ -18,10 +18,10 @@ func newSegmentsMembersSegmentsListCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "segments-list <publicationId> <segmentId>",
-		Aliases: []string{"get"},
-		Short: "List all members in a segment with full subscription data. Each member is returned as a subscription object...",
-		Example: "  beehiiv-pp-cli segments members segments-list 550e8400-e29b-41d4-a716-446655440000 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "segments-list <publicationId> <segmentId>",
+		Aliases:     []string{"get"},
+		Short:       "List all members in a segment with full subscription data. Each member is returned as a subscription object...",
+		Example:     "  beehiiv-pp-cli segments members segments-list 550e8400-e29b-41d4-a716-446655440000 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "members.segments-list", "pp:method": "GET", "pp:path": "/publications/{publicationId}/segments/{segmentId}/members", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -39,8 +39,8 @@ func newSegmentsMembersSegmentsListCmd(flags *rootFlags) *cobra.Command {
 			}
 			path = replacePathParam(path, "segmentId", args[1])
 			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "members", path, map[string]string{
-				"limit": fmt.Sprintf("%v", flagLimit),
-				"page": fmt.Sprintf("%v", flagPage),
+				"limit":    fmt.Sprintf("%v", flagLimit),
+				"page":     fmt.Sprintf("%v", flagPage),
 				"expand[]": fmt.Sprintf("%v", flagExpand),
 			}, nil, flagAll, "", "", "")
 			if err != nil {

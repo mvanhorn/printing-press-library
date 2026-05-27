@@ -16,9 +16,9 @@ func newNotesListByProfileCmd(flags *rootFlags) *cobra.Command {
 	var flagCursor string
 
 	cmd := &cobra.Command{
-		Use:   "list-by-profile <profile_user_id>",
-		Short: "List Notes by a profile (cursor pagination)",
-		Example: "  substack-pp-cli notes list-by-profile 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "list-by-profile <profile_user_id>",
+		Short:       "List Notes by a profile (cursor pagination)",
+		Example:     "  substack-pp-cli notes list-by-profile 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "notes.list-by-profile", "pp:method": "GET", "pp:path": "/reader/feed/profile/{profile_user_id}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

@@ -15,10 +15,10 @@ func newAudienceInsightsPromotedCmd(flags *rootFlags) *cobra.Command {
 	var bodyInsightsApplicationInfo string
 
 	cmd := &cobra.Command{
-		Use:   "audience-insights",
-		Short: "Lists date ranges for which audience insights data can be requested.",
-		Long:  "Shortcut for 'audience_insights list_insights_eligible_dates'. Lists date ranges for which audience insights data can be requested.",
-		Example: "  google-ads-pp-cli audience-insights",
+		Use:         "audience-insights",
+		Short:       "Lists date ranges for which audience insights data can be requested.",
+		Long:        "Shortcut for 'audience_insights list_insights_eligible_dates'. Lists date ranges for which audience insights data can be requested.",
+		Example:     "  google-ads-pp-cli audience-insights",
 		Annotations: map[string]string{"pp:endpoint": "audience_insights.list_insights_eligible_dates", "pp:method": "POST", "pp:path": "/v22/audienceInsights:listInsightsEligibleDates"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

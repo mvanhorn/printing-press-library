@@ -14,9 +14,9 @@ import (
 func newOrderUpsellCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "upsell",
-		Short: "Get upsell suggestions for the current cart (sides, drinks, cookies).",
-		Example: "  jimmy-johns-pp-cli order upsell",
+		Use:         "upsell",
+		Short:       "Get upsell suggestions for the current cart (sides, drinks, cookies).",
+		Example:     "  jimmy-johns-pp-cli order upsell",
 		Annotations: map[string]string{"pp:endpoint": "order.upsell", "pp:method": "GET", "pp:path": "/order/upsell", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

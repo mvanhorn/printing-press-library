@@ -14,9 +14,9 @@ import (
 func newDatabasesLogsinkGetCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get",
-		Short: "Get",
-		Example: "  digitalocean-pp-cli databases logsink get",
+		Use:         "get",
+		Short:       "Get",
+		Example:     "  digitalocean-pp-cli databases logsink get",
 		Annotations: map[string]string{"pp:endpoint": "logsink.get", "pp:method": "GET", "pp:path": "/v2/databases/{database_cluster_uuid}/logsink", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

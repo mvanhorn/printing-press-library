@@ -6,9 +6,9 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/productivity/opensnow/internal/store"
 	"github.com/spf13/cobra"
 	"net/url"
-	"github.com/mvanhorn/printing-press-library/library/productivity/opensnow/internal/store"
 	"os"
 	"regexp"
 	"strconv"

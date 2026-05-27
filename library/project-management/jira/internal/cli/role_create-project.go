@@ -18,10 +18,10 @@ func newRoleCreateProjectCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "create-project",
-		Aliases: []string{"create"},
-		Short: "Creates a new project role with no [default actors](#api-rest-api-3-resolution-get). You can use the [Add default...",
-		Example: "  jira-pp-cli role create-project",
+		Use:         "create-project",
+		Aliases:     []string{"create"},
+		Short:       "Creates a new project role with no [default actors](#api-rest-api-3-resolution-get). You can use the [Add default...",
+		Example:     "  jira-pp-cli role create-project",
 		Annotations: map[string]string{"pp:endpoint": "role.create-project", "pp:method": "POST", "pp:path": "/rest/api/3/role"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {
@@ -66,7 +66,9 @@ func newRoleCreateProjectCmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

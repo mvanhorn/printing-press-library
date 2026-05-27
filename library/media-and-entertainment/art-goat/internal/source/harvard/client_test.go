@@ -225,9 +225,9 @@ func TestCultureToRegion(t *testing.T) {
 		{"Dutch", "Europe"},
 		{"Mexican", "Mesoamerica"},
 		{"Mayan", "Mesoamerica"},
-		{"South American", "South America"},   // must NOT fall into "american" → "North America"
+		{"South American", "South America"}, // must NOT fall into "american" → "North America"
 		{"South America", "South America"},
-		{"Peruvian", "South America"},          // moved out of Mesoamerica (Peru is Andean)
+		{"Peruvian", "South America"}, // moved out of Mesoamerica (Peru is Andean)
 		{"Brazilian", "South America"},
 		{"Argentine", "South America"},
 		{"Andean", "South America"},

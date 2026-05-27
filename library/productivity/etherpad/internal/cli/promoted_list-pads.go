@@ -15,10 +15,10 @@ func newListPadsPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagGroupID string
 
 	cmd := &cobra.Command{
-		Use:   "list-pads",
-		Short: "returns all pads of this group",
-		Long:  "Shortcut for 'list-pads using-post'. returns all pads of this group",
-		Example: "  etherpad-pp-cli list-pads",
+		Use:         "list-pads",
+		Short:       "returns all pads of this group",
+		Long:        "Shortcut for 'list-pads using-post'. returns all pads of this group",
+		Example:     "  etherpad-pp-cli list-pads",
 		Annotations: map[string]string{"pp:endpoint": "list-pads.using-post", "pp:method": "POST", "pp:path": "/listPads"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

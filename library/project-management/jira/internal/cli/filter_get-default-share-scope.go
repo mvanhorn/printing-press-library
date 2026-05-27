@@ -14,10 +14,10 @@ import (
 func newFilterGetDefaultShareScopeCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-default-share-scope",
-		Aliases: []string{"list"},
-		Short: "Returns the default sharing settings for new filters and dashboards for a user. **[Permissions](#permissions)...",
-		Example: "  jira-pp-cli filter get-default-share-scope",
+		Use:         "get-default-share-scope",
+		Aliases:     []string{"list"},
+		Short:       "Returns the default sharing settings for new filters and dashboards for a user. **[Permissions](#permissions)...",
+		Example:     "  jira-pp-cli filter get-default-share-scope",
 		Annotations: map[string]string{"pp:endpoint": "filter.get-default-share-scope", "pp:method": "GET", "pp:path": "/rest/api/3/filter/defaultShareScope", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

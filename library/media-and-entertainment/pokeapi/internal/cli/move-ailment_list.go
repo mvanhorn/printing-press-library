@@ -18,9 +18,9 @@ func newMoveAilmentListCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "list",
-		Short: "Move Ailments are status conditions caused by moves used during battle. See...",
-		Example: "  pokeapi-pp-cli move-ailment list",
+		Use:         "list",
+		Short:       "Move Ailments are status conditions caused by moves used during battle. See...",
+		Example:     "  pokeapi-pp-cli move-ailment list",
 		Annotations: map[string]string{"pp:endpoint": "move-ailment.list", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
@@ -30,9 +30,9 @@ func newMoveAilmentListCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/api/v2/move-ailment/"
 			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "move-ailment", path, map[string]string{
-				"limit": fmt.Sprintf("%v", flagLimit),
+				"limit":  fmt.Sprintf("%v", flagLimit),
 				"offset": fmt.Sprintf("%v", flagOffset),
-				"q": fmt.Sprintf("%v", flagQ),
+				"q":      fmt.Sprintf("%v", flagQ),
 			}, nil, flagAll, "offset", "", "")
 			if err != nil {
 				return classifyAPIError(err)

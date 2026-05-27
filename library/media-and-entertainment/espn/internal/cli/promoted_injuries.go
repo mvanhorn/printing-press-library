@@ -15,9 +15,9 @@ import (
 
 func newInjuriesPromotedCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "injuries <sport> <league>",
+		Use:         "injuries <sport> <league>",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short: "Active injury reports for a league",
+		Short:       "Active injury reports for a league",
 		Example: `  espn-pp-cli injuries football nfl
   espn-pp-cli injuries basketball nba --agent
   espn-pp-cli injuries baseball mlb --json`,

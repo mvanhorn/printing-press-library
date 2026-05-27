@@ -14,9 +14,9 @@ import (
 func newDropletsGetAutoscaleCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-autoscale",
-		Short: "Get autoscale",
-		Example: "  digitalocean-pp-cli droplets get-autoscale",
+		Use:         "get-autoscale",
+		Short:       "Get autoscale",
+		Example:     "  digitalocean-pp-cli droplets get-autoscale",
 		Annotations: map[string]string{"pp:endpoint": "droplets.get-autoscale", "pp:method": "GET", "pp:path": "/v2/droplets/autoscale/{autoscale_pool_id}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

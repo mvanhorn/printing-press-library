@@ -18,9 +18,9 @@ func newFieldconfigurationschemeGetFieldConfigurationSchemeMappingsCmd(flags *ro
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "get-field-configuration-scheme-mappings",
-		Short: "Deprecated, use [ Field schemes](https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-field-schemes/...",
-		Example: "  jira-pp-cli fieldconfigurationscheme get-field-configuration-scheme-mappings",
+		Use:         "get-field-configuration-scheme-mappings",
+		Short:       "Deprecated, use [ Field schemes](https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-field-schemes/...",
+		Example:     "  jira-pp-cli fieldconfigurationscheme get-field-configuration-scheme-mappings",
 		Annotations: map[string]string{"pp:endpoint": "fieldconfigurationscheme.get-field-configuration-scheme-mappings", "pp:method": "GET", "pp:path": "/rest/api/3/fieldconfigurationscheme/mapping", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
@@ -30,8 +30,8 @@ func newFieldconfigurationschemeGetFieldConfigurationSchemeMappingsCmd(flags *ro
 
 			path := "/rest/api/3/fieldconfigurationscheme/mapping"
 			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "fieldconfigurationscheme", path, map[string]string{
-				"startAt": fmt.Sprintf("%v", flagStartAt),
-				"maxResults": fmt.Sprintf("%v", flagMaxResults),
+				"startAt":                    fmt.Sprintf("%v", flagStartAt),
+				"maxResults":                 fmt.Sprintf("%v", flagMaxResults),
 				"fieldConfigurationSchemeId": fmt.Sprintf("%v", flagFieldConfigurationSchemeId),
 			}, nil, flagAll, "", "", "")
 			if err != nil {

@@ -9,8 +9,8 @@ import (
 
 func newJqlCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "jql",
-		Short: "This resource represents JQL search auto-complete details. Use it to obtain JQL search auto-complete data and...",
+		Use:    "jql",
+		Short:  "This resource represents JQL search auto-complete details. Use it to obtain JQL search auto-complete data and...",
 		Hidden: true,
 	}
 

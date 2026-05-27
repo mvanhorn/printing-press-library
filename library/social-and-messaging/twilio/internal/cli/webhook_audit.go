@@ -5,12 +5,12 @@ package cli
 import (
 	"context"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/twilio/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/twilio/internal/store"
 	"net/http"
 	"strings"
 	"sync"
 	"time"
-	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/twilio/internal/cliutil"
-	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/twilio/internal/store"
 
 	"github.com/spf13/cobra"
 )

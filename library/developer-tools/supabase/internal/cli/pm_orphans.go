@@ -8,8 +8,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/supabase/internal/store"
+	"github.com/spf13/cobra"
 )
 
 func newOrphansCmd(flags *rootFlags) *cobra.Command {

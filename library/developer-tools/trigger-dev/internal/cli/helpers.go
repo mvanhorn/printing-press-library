@@ -7,6 +7,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/trigger-dev/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/trigger-dev/internal/cliutil"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"io"
@@ -17,8 +19,6 @@ import (
 	"strings"
 	"text/tabwriter"
 	"time"
-	"github.com/mvanhorn/printing-press-library/library/developer-tools/trigger-dev/internal/client"
-	"github.com/mvanhorn/printing-press-library/library/developer-tools/trigger-dev/internal/cliutil"
 	"unicode"
 )
 

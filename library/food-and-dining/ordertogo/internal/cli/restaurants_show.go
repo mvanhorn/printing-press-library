@@ -15,9 +15,9 @@ func newRestaurantsShowCmd(flags *rootFlags) *cobra.Command {
 	var flagSlug string
 
 	cmd := &cobra.Command{
-		Use:   "show",
-		Short: "Show restaurant detail - hours, address, phone, location code, multi-location chain mapping",
-		Example: "  ordertogo-pp-cli restaurants show --slug example-value",
+		Use:         "show",
+		Short:       "Show restaurant detail - hours, address, phone, location code, multi-location chain mapping",
+		Example:     "  ordertogo-pp-cli restaurants show --slug example-value",
 		Annotations: map[string]string{"pp:endpoint": "restaurants.show", "pp:method": "GET", "pp:path": "/m/api/restaurants/{slug}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("slug") && !flags.dryRun {

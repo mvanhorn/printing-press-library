@@ -12,8 +12,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/productivity/slack/internal/store"
+	"github.com/spf13/cobra"
 )
 
 func openAnalyticsStore() (*store.Store, error) {

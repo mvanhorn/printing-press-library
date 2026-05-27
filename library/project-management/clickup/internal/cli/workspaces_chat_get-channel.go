@@ -15,17 +15,17 @@ func newWorkspacesChatGetChannelCmd(flags *rootFlags) *cobra.Command {
 	var flagDescriptionFormat string
 
 	cmd := &cobra.Command{
-		Use:   "get-channel <workspace_id> <channel_id>",
-		Aliases: []string{"get"},
-		Short: "This endpoint retrieves a specific Channel given its ID.",
-		Example: "  clickup-pp-cli workspaces chat get-channel 550e8400-e29b-41d4-a716-446655440000 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "get-channel <workspace_id> <channel_id>",
+		Aliases:     []string{"get"},
+		Short:       "This endpoint retrieves a specific Channel given its ID.",
+		Example:     "  clickup-pp-cli workspaces chat get-channel 550e8400-e29b-41d4-a716-446655440000 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "chat.get-channel", "pp:method": "GET", "pp:path": "/v3/workspaces/{workspace_id}/chat/channels/{channel_id}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
 			}
 			if cmd.Flags().Changed("description-format") {
-				allowedDescriptionFormat := []string{ "text/md", "text/plain" }
+				allowedDescriptionFormat := []string{"text/md", "text/plain"}
 				validDescriptionFormat := false
 				for _, v := range allowedDescriptionFormat {
 					if flagDescriptionFormat == v {

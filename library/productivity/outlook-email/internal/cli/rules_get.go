@@ -14,9 +14,9 @@ import (
 func newRulesGetCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get <rule_id>",
-		Short: "Get a single inbox rule",
-		Example: "  outlook-email-pp-cli rules get 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "get <rule_id>",
+		Short:       "Get a single inbox rule",
+		Example:     "  outlook-email-pp-cli rules get 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "rules.get", "pp:method": "GET", "pp:path": "/me/mailFolders/inbox/messageRules/{rule_id}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

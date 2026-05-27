@@ -17,9 +17,9 @@ func newSiteExplorerDomainRatingCmd(flags *rootFlags) *cobra.Command {
 	var flagDate string
 
 	cmd := &cobra.Command{
-		Use:   "domain-rating",
-		Short: "Point-in-time snapshot. Domain rating",
-		Example: "  ahrefs-pp-cli site_explorer domain_rating",
+		Use:         "domain-rating",
+		Short:       "Point-in-time snapshot. Domain rating",
+		Example:     "  ahrefs-pp-cli site_explorer domain_rating",
 		Annotations: map[string]string{"pp:endpoint": "site_explorer.domain_rating", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("target") && !flags.dryRun {
@@ -29,7 +29,7 @@ func newSiteExplorerDomainRatingCmd(flags *rootFlags) *cobra.Command {
 				return fmt.Errorf("required flag \"%s\" not set", "date")
 			}
 			if cmd.Flags().Changed("protocol") {
-				allowedProtocol := []string{ "both", "http", "https" }
+				allowedProtocol := []string{"both", "http", "https"}
 				validProtocol := false
 				for _, v := range allowedProtocol {
 					if flagProtocol == v {

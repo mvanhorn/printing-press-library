@@ -17,10 +17,10 @@ func newLabelPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "label",
-		Short: "Returns a [paginated](#pagination) list of labels.",
-		Long:  "Shortcut for 'label get-all'. Returns a [paginated](#pagination) list of labels.",
-		Example: "  jira-pp-cli label",
+		Use:         "label",
+		Short:       "Returns a [paginated](#pagination) list of labels.",
+		Long:        "Shortcut for 'label get-all'. Returns a [paginated](#pagination) list of labels.",
+		Example:     "  jira-pp-cli label",
 		Annotations: map[string]string{"pp:endpoint": "label.get-all", "pp:method": "GET", "pp:path": "/rest/api/3/label", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
@@ -30,7 +30,7 @@ func newLabelPromotedCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/rest/api/3/label"
 			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "label", path, map[string]string{
-				"startAt": fmt.Sprintf("%v", flagStartAt),
+				"startAt":    fmt.Sprintf("%v", flagStartAt),
 				"maxResults": fmt.Sprintf("%v", flagMaxResults),
 			}, nil, flagAll, "", "", "")
 			if err != nil {

@@ -25,10 +25,10 @@ func newOnairEventUpdatePromotedCmd(flags *rootFlags) *cobra.Command {
 	var bodyTitle string
 
 	cmd := &cobra.Command{
-		Use:   "onair-event-update",
-		Short: "Updates an existing On-Air event. Only the fields provided in the request body are updated; omitted fields remain...",
-		Long:  "Shortcut for 'onair-event-update onair_event_update'. Updates an existing On-Air event. Only the fields provided in the request body are updated; omitted fields remain...",
-		Example: "  roam-pp-cli onair-event-update --id 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "onair-event-update",
+		Short:       "Updates an existing On-Air event. Only the fields provided in the request body are updated; omitted fields remain...",
+		Long:        "Shortcut for 'onair-event-update onair_event_update'. Updates an existing On-Air event. Only the fields provided in the request body are updated; omitted fields remain...",
+		Example:     "  roam-pp-cli onair-event-update --id 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "onair-event-update.onair_event_update", "pp:method": "POST", "pp:path": "/onair.event.update"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("id") && !flags.dryRun {

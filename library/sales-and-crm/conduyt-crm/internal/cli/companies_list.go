@@ -22,13 +22,13 @@ func newCompaniesListCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "list",
-		Short: "List companies",
-		Example: "  conduyt-crm-pp-cli companies list",
+		Use:         "list",
+		Short:       "List companies",
+		Example:     "  conduyt-crm-pp-cli companies list",
 		Annotations: map[string]string{"pp:endpoint": "companies.list", "pp:method": "GET", "pp:path": "/companies", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if cmd.Flags().Changed("size") {
-				allowedSize := []string{ "1-10", "11-50", "51-200", "201-500", "501-1000", "1001+" }
+				allowedSize := []string{"1-10", "11-50", "51-200", "201-500", "501-1000", "1001+"}
 				validSize := false
 				for _, v := range allowedSize {
 					if flagSize == v {
@@ -41,7 +41,7 @@ func newCompaniesListCmd(flags *rootFlags) *cobra.Command {
 				}
 			}
 			if cmd.Flags().Changed("sort") {
-				allowedSort := []string{ "createdAt", "updatedAt", "name" }
+				allowedSort := []string{"createdAt", "updatedAt", "name"}
 				validSort := false
 				for _, v := range allowedSort {
 					if flagSort == v {
@@ -54,7 +54,7 @@ func newCompaniesListCmd(flags *rootFlags) *cobra.Command {
 				}
 			}
 			if cmd.Flags().Changed("order") {
-				allowedOrder := []string{ "asc", "desc" }
+				allowedOrder := []string{"asc", "desc"}
 				validOrder := false
 				for _, v := range allowedOrder {
 					if flagOrder == v {
@@ -73,13 +73,13 @@ func newCompaniesListCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/companies"
 			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "companies", path, map[string]string{
-				"page": fmt.Sprintf("%v", flagPage),
+				"page":     fmt.Sprintf("%v", flagPage),
 				"per_page": fmt.Sprintf("%v", flagPerPage),
-				"search": fmt.Sprintf("%v", flagSearch),
+				"search":   fmt.Sprintf("%v", flagSearch),
 				"industry": fmt.Sprintf("%v", flagIndustry),
-				"size": fmt.Sprintf("%v", flagSize),
-				"sort": fmt.Sprintf("%v", flagSort),
-				"order": fmt.Sprintf("%v", flagOrder),
+				"size":     fmt.Sprintf("%v", flagSize),
+				"sort":     fmt.Sprintf("%v", flagSort),
+				"order":    fmt.Sprintf("%v", flagOrder),
 			}, nil, flagAll, "", "", "")
 			if err != nil {
 				return classifyAPIError(err, flags)

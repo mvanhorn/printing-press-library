@@ -16,9 +16,9 @@ func newPayoutsGetUpcomingCmd(flags *rootFlags) *cobra.Command {
 	var flagIncludeTransactions bool
 
 	cmd := &cobra.Command{
-		Use:   "get-upcoming",
-		Short: "Retrieve upcoming payouts. Requires view_payouts scope.",
-		Example: "  gumroad-pp-cli payouts get-upcoming",
+		Use:         "get-upcoming",
+		Short:       "Retrieve upcoming payouts. Requires view_payouts scope.",
+		Example:     "  gumroad-pp-cli payouts get-upcoming",
 		Annotations: map[string]string{"pp:endpoint": "payouts.get-upcoming", "pp:method": "GET", "pp:path": "/payouts/upcoming", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

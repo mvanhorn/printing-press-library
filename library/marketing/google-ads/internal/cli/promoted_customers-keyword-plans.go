@@ -17,10 +17,10 @@ func newCustomersKeywordPlansPromotedCmd(flags *rootFlags) *cobra.Command {
 	var bodyValidateOnly bool
 
 	cmd := &cobra.Command{
-		Use:   "customers-keyword-plans <customerId>",
-		Short: "Creates, updates, or removes keyword plans. Operation statuses are returned.",
-		Long:  "Shortcut for 'customers_keyword_plans mutate'. Creates, updates, or removes keyword plans. Operation statuses are returned.",
-		Example: "  google-ads-pp-cli customers-keyword-plans",
+		Use:         "customers-keyword-plans <customerId>",
+		Short:       "Creates, updates, or removes keyword plans. Operation statuses are returned.",
+		Long:        "Shortcut for 'customers_keyword_plans mutate'. Creates, updates, or removes keyword plans. Operation statuses are returned.",
+		Example:     "  google-ads-pp-cli customers-keyword-plans",
 		Annotations: map[string]string{"pp:endpoint": "customers_keyword_plans.mutate", "pp:method": "POST", "pp:path": "/v22/customers/{customerId}/keywordPlans:mutate"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

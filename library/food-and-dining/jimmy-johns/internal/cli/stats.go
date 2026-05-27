@@ -11,15 +11,15 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/jimmy-johns/internal/store"
+	"github.com/spf13/cobra"
 )
 
 type statsResult struct {
-	MenuItemCount int                  `json:"menu_item_count"`
-	StoreCount    int                  `json:"store_count"`
-	ByCategory    map[string]int       `json:"by_category,omitempty"`
-	Notes         []string             `json:"notes,omitempty"`
+	MenuItemCount int            `json:"menu_item_count"`
+	StoreCount    int            `json:"store_count"`
+	ByCategory    map[string]int `json:"by_category,omitempty"`
+	Notes         []string       `json:"notes,omitempty"`
 }
 
 func newStatsCmd(flags *rootFlags) *cobra.Command {

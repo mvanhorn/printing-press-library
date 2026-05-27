@@ -14,9 +14,9 @@ import (
 func newVpcNatGatewaysListCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "list",
-		Short: "List",
-		Example: "  digitalocean-pp-cli vpc-nat-gateways list",
+		Use:         "list",
+		Short:       "List",
+		Example:     "  digitalocean-pp-cli vpc-nat-gateways list",
 		Annotations: map[string]string{"pp:endpoint": "vpc-nat-gateways.list", "pp:method": "GET", "pp:path": "/v2/vpc_nat_gateways", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

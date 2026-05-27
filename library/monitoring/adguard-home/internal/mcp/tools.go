@@ -13,14 +13,14 @@ import (
 	"strings"
 	"time"
 
+	mcplib "github.com/mark3labs/mcp-go/mcp"
+	"github.com/mark3labs/mcp-go/server"
 	"github.com/mvanhorn/printing-press-library/library/monitoring/adguard-home/internal/cli"
 	"github.com/mvanhorn/printing-press-library/library/monitoring/adguard-home/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/monitoring/adguard-home/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/monitoring/adguard-home/internal/config"
 	"github.com/mvanhorn/printing-press-library/library/monitoring/adguard-home/internal/mcp/cobratree"
 	"github.com/mvanhorn/printing-press-library/library/monitoring/adguard-home/internal/store"
-	mcplib "github.com/mark3labs/mcp-go/mcp"
-	"github.com/mark3labs/mcp-go/server"
 )
 
 // RegisterTools registers all API operations as MCP tools.

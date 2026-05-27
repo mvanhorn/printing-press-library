@@ -14,9 +14,9 @@ import (
 func newKubernetesGetClusters3Cmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-clusters-3",
-		Short: "Get clusters 3",
-		Example: "  digitalocean-pp-cli kubernetes get-clusters-3",
+		Use:         "get-clusters-3",
+		Short:       "Get clusters 3",
+		Example:     "  digitalocean-pp-cli kubernetes get-clusters-3",
 		Annotations: map[string]string{"pp:endpoint": "kubernetes.get-clusters-3", "pp:method": "GET", "pp:path": "/v2/kubernetes/clusters/{cluster_id}/destroy_with_associated_resources", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

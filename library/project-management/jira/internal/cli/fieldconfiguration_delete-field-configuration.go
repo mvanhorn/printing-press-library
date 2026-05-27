@@ -14,10 +14,10 @@ import (
 func newFieldconfigurationDeleteFieldConfigurationCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "delete-field-configuration <id>",
-		Aliases: []string{"delete"},
-		Short: "Deprecated, use [ Field schemes](https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-field-schemes/...",
-		Example: "  jira-pp-cli fieldconfiguration delete-field-configuration 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "delete-field-configuration <id>",
+		Aliases:     []string{"delete"},
+		Short:       "Deprecated, use [ Field schemes](https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-field-schemes/...",
+		Example:     "  jira-pp-cli fieldconfiguration delete-field-configuration 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "fieldconfiguration.delete-field-configuration", "pp:method": "DELETE", "pp:path": "/rest/api/3/fieldconfiguration/{id}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -44,7 +44,9 @@ func newFieldconfigurationDeleteFieldConfigurationCmd(flags *rootFlags) *cobra.C
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

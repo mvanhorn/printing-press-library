@@ -14,9 +14,9 @@ import (
 func newAccountGetCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get",
-		Short: "Get",
-		Example: "  digitalocean-pp-cli account get",
+		Use:         "get",
+		Short:       "Get",
+		Example:     "  digitalocean-pp-cli account get",
 		Annotations: map[string]string{"pp:endpoint": "account.get", "pp:method": "GET", "pp:path": "/v2/account/keys/{ssh_key_identifier}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

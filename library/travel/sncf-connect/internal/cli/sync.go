@@ -6,9 +6,9 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/travel/sncf-connect/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/travel/sncf-connect/internal/store"
+	"github.com/spf13/cobra"
 	"net/url"
 	"os"
 	"regexp"

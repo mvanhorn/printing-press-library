@@ -9,8 +9,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/supabase/internal/store"
+	"github.com/spf13/cobra"
 )
 
 // newAuthAdminCmd is the top-level `auth-admin` parent — Supabase Auth Admin

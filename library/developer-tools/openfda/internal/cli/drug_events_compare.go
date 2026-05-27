@@ -50,9 +50,9 @@ of the top N reactions for each drug.`,
 			}
 
 			type drugProfile struct {
-				Drug       string                `json:"drug"`
+				Drug         string              `json:"drug"`
 				TotalReports int                 `json:"total_reports"`
-				Reactions  []reactionFrequency   `json:"reactions"`
+				Reactions    []reactionFrequency `json:"reactions"`
 			}
 
 			var profiles []drugProfile

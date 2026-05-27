@@ -15,10 +15,10 @@ func newCreateGroupIfNotExistsForPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagGroupMapper string
 
 	cmd := &cobra.Command{
-		Use:   "create-group-if-not-exists-for",
-		Short: "this functions helps you to map your application group ids to Etherpad group ids",
-		Long:  "Shortcut for 'create-group-if-not-exists-for using-post'. this functions helps you to map your application group ids to Etherpad group ids",
-		Example: "  etherpad-pp-cli create-group-if-not-exists-for",
+		Use:         "create-group-if-not-exists-for",
+		Short:       "this functions helps you to map your application group ids to Etherpad group ids",
+		Long:        "Shortcut for 'create-group-if-not-exists-for using-post'. this functions helps you to map your application group ids to Etherpad group ids",
+		Example:     "  etherpad-pp-cli create-group-if-not-exists-for",
 		Annotations: map[string]string{"pp:endpoint": "create-group-if-not-exists-for.using-post", "pp:method": "POST", "pp:path": "/createGroupIfNotExistsFor"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

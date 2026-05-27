@@ -6,8 +6,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/productivity/resend/internal/store"
+	"github.com/spf13/cobra"
 )
 
 func newDeliverabilityCmd(flags *rootFlags) *cobra.Command {
@@ -89,17 +89,17 @@ sends as well as raw counts.`,
 			out := cmd.OutOrStdout()
 			if flags.asJSON {
 				return printJSONFiltered(out, map[string]any{
-					"window":             windowSpec,
-					"cutoff":             cutoff,
-					"sent":               sent,
-					"delivered":          delivered,
-					"bounced":            bounced,
-					"complained":         complained,
-					"suppressed":         suppressed,
-					"bounce_rate":        bounceRate,
-					"complaint_rate":     complaintRate,
-					"suppression_count":  suppressed,
-					"suppression_rate":   suppressionRate,
+					"window":            windowSpec,
+					"cutoff":            cutoff,
+					"sent":              sent,
+					"delivered":         delivered,
+					"bounced":           bounced,
+					"complained":        complained,
+					"suppressed":        suppressed,
+					"bounce_rate":       bounceRate,
+					"complaint_rate":    complaintRate,
+					"suppression_count": suppressed,
+					"suppression_rate":  suppressionRate,
 				}, flags)
 			}
 			fmt.Fprintf(out, "Deliverability over last %s (since %s)\n\n", windowSpec, cutoff)

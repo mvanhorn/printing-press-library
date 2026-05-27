@@ -14,10 +14,10 @@ import (
 func newMoveDamageClassRetrieveCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "retrieve <id>",
-		Aliases: []string{"get"},
-		Short: "Damage classes moves can have, e.g. physical, special, or non-damaging.",
-		Example: "  pokeapi-pp-cli move-damage-class retrieve 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "retrieve <id>",
+		Aliases:     []string{"get"},
+		Short:       "Damage classes moves can have, e.g. physical, special, or non-damaging.",
+		Example:     "  pokeapi-pp-cli move-damage-class retrieve 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "move-damage-class.retrieve", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

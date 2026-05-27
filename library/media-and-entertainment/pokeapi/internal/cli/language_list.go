@@ -18,9 +18,9 @@ func newLanguageListCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "list",
-		Short: "Languages for translations of API resource information.",
-		Example: "  pokeapi-pp-cli language list",
+		Use:         "list",
+		Short:       "Languages for translations of API resource information.",
+		Example:     "  pokeapi-pp-cli language list",
 		Annotations: map[string]string{"pp:endpoint": "language.list", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
@@ -30,9 +30,9 @@ func newLanguageListCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/api/v2/language/"
 			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "language", path, map[string]string{
-				"limit": fmt.Sprintf("%v", flagLimit),
+				"limit":  fmt.Sprintf("%v", flagLimit),
 				"offset": fmt.Sprintf("%v", flagOffset),
-				"q": fmt.Sprintf("%v", flagQ),
+				"q":      fmt.Sprintf("%v", flagQ),
 			}, nil, flagAll, "offset", "", "")
 			if err != nil {
 				return classifyAPIError(err)

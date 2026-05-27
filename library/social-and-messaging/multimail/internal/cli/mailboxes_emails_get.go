@@ -25,16 +25,16 @@ func newMailboxesEmailsGetCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "get <mailboxId>",
-		Short: "Requires read scope. Returns paginated email summaries (no body content).",
-		Example: "  multimail-pp-cli mailboxes emails get 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "get <mailboxId>",
+		Short:       "Requires read scope. Returns paginated email summaries (no body content).",
+		Example:     "  multimail-pp-cli mailboxes emails get 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "emails.get", "pp:method": "GET", "pp:path": "/v1/mailboxes/{mailboxId}/emails", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
 			}
 			if cmd.Flags().Changed("status") {
-				allowedStatus := []string{ "unread", "read", "archived", "deleted", "pending_send_approval", "pending_inbound_approval", "rejected", "cancelled", "send_failed", "scheduled", "spam_flagged", "spam_quarantined" }
+				allowedStatus := []string{"unread", "read", "archived", "deleted", "pending_send_approval", "pending_inbound_approval", "rejected", "cancelled", "send_failed", "scheduled", "spam_flagged", "spam_quarantined"}
 				validStatus := false
 				for _, v := range allowedStatus {
 					if flagStatus == v {
@@ -47,7 +47,7 @@ func newMailboxesEmailsGetCmd(flags *rootFlags) *cobra.Command {
 				}
 			}
 			if cmd.Flags().Changed("direction") {
-				allowedDirection := []string{ "inbound", "outbound" }
+				allowedDirection := []string{"inbound", "outbound"}
 				validDirection := false
 				for _, v := range allowedDirection {
 					if flagDirection == v {
@@ -60,7 +60,7 @@ func newMailboxesEmailsGetCmd(flags *rootFlags) *cobra.Command {
 				}
 			}
 			if cmd.Flags().Changed("has-attachments") {
-				allowedHasAttachments := []string{ "true", "false" }
+				allowedHasAttachments := []string{"true", "false"}
 				validHasAttachments := false
 				for _, v := range allowedHasAttachments {
 					if flagHasAttachments == v {
@@ -80,16 +80,16 @@ func newMailboxesEmailsGetCmd(flags *rootFlags) *cobra.Command {
 			path := "/v1/mailboxes/{mailboxId}/emails"
 			path = replacePathParam(path, "mailboxId", args[0])
 			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "emails", path, map[string]string{
-				"status": fmt.Sprintf("%v", flagStatus),
-				"limit": fmt.Sprintf("%v", flagLimit),
-				"cursor": fmt.Sprintf("%v", flagCursor),
-				"sender": fmt.Sprintf("%v", flagSender),
+				"status":           fmt.Sprintf("%v", flagStatus),
+				"limit":            fmt.Sprintf("%v", flagLimit),
+				"cursor":           fmt.Sprintf("%v", flagCursor),
+				"sender":           fmt.Sprintf("%v", flagSender),
 				"subject_contains": fmt.Sprintf("%v", flagSubjectContains),
-				"date_after": fmt.Sprintf("%v", flagDateAfter),
-				"date_before": fmt.Sprintf("%v", flagDateBefore),
-				"direction": fmt.Sprintf("%v", flagDirection),
-				"has_attachments": fmt.Sprintf("%v", flagHasAttachments),
-				"since_id": fmt.Sprintf("%v", flagSinceId),
+				"date_after":       fmt.Sprintf("%v", flagDateAfter),
+				"date_before":      fmt.Sprintf("%v", flagDateBefore),
+				"direction":        fmt.Sprintf("%v", flagDirection),
+				"has_attachments":  fmt.Sprintf("%v", flagHasAttachments),
+				"since_id":         fmt.Sprintf("%v", flagSinceId),
 			}, nil, flagAll, "cursor", "", "")
 			if err != nil {
 				return classifyAPIError(err, flags)

@@ -13,13 +13,13 @@ import (
 	"strings"
 	"time"
 
+	mcplib "github.com/mark3labs/mcp-go/mcp"
+	"github.com/mark3labs/mcp-go/server"
 	"github.com/mvanhorn/printing-press-library/library/devices/dreo/internal/cli"
 	"github.com/mvanhorn/printing-press-library/library/devices/dreo/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/devices/dreo/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/devices/dreo/internal/config"
 	"github.com/mvanhorn/printing-press-library/library/devices/dreo/internal/mcp/cobratree"
-	mcplib "github.com/mark3labs/mcp-go/mcp"
-	"github.com/mark3labs/mcp-go/server"
 )
 
 // RegisterTools registers all API operations as MCP tools.

@@ -48,16 +48,16 @@ func writeSyncState(actor string, ok bool, itemsHydrated int) {
 // newRunCmd returns the top-level `run` command.
 func newRunCmd(flags *rootFlags) *cobra.Command {
 	var (
-		input          string
-		wait           bool
-		timeoutSecs    int
-		memoryMB       int
-		onlyNew        bool
-		format         string
-		maxCost        float64
-		noProjection   bool
-		preset         string
-		buildTag       string
+		input           string
+		wait            bool
+		timeoutSecs     int
+		memoryMB        int
+		onlyNew         bool
+		format          string
+		maxCost         float64
+		noProjection    bool
+		preset          string
+		buildTag        string
 		webhookOverride string
 	)
 

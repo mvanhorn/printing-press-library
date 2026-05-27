@@ -193,9 +193,9 @@ func TestAppendTelemetry_FiltersSentinels(t *testing.T) {
 		BodiesOfWater: []omnilogic.TelemetryBOW{
 			{
 				SystemID:  "10",
-				WaterTemp: &bad, // filtered
-				PH:        &badPH, // filtered
-				ORP:       &badORP, // filtered
+				WaterTemp: &bad,     // filtered
+				PH:        &badPH,   // filtered
+				ORP:       &badORP,  // filtered
 				SaltPPM:   &badSalt, // filtered
 			},
 			{

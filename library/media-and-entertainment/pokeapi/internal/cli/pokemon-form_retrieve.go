@@ -14,10 +14,10 @@ import (
 func newPokemonFormRetrieveCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "retrieve <id>",
-		Aliases: []string{"get"},
-		Short: "Some Pokémon may appear in one of multiple, visually different forms. These differences are purely cosmetic. For...",
-		Example: "  pokeapi-pp-cli pokemon-form retrieve 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "retrieve <id>",
+		Aliases:     []string{"get"},
+		Short:       "Some Pokémon may appear in one of multiple, visually different forms. These differences are purely cosmetic. For...",
+		Example:     "  pokeapi-pp-cli pokemon-form retrieve 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "pokemon-form.retrieve", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

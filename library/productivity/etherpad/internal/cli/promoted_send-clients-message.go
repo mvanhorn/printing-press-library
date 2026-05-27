@@ -16,10 +16,10 @@ func newSendClientsMessagePromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagMsg string
 
 	cmd := &cobra.Command{
-		Use:   "send-clients-message",
-		Short: "sends a custom message of type msg to the pad",
-		Long:  "Shortcut for 'send-clients-message using-post'. sends a custom message of type msg to the pad",
-		Example: "  etherpad-pp-cli send-clients-message",
+		Use:         "send-clients-message",
+		Short:       "sends a custom message of type msg to the pad",
+		Long:        "Shortcut for 'send-clients-message using-post'. sends a custom message of type msg to the pad",
+		Example:     "  etherpad-pp-cli send-clients-message",
 		Annotations: map[string]string{"pp:endpoint": "send-clients-message.using-post", "pp:method": "POST", "pp:path": "/sendClientsMessage"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

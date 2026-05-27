@@ -17,10 +17,10 @@ func newMypreferencesSetLocaleCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "set-locale",
-		Aliases: []string{"update"},
-		Short: "Deprecated, use [ Update a user profile](https://developer.atlassian.com/cloud/admin/user-management/rest/#api-users-...",
-		Example: "  jira-pp-cli mypreferences set-locale",
+		Use:         "set-locale",
+		Aliases:     []string{"update"},
+		Short:       "Deprecated, use [ Update a user profile](https://developer.atlassian.com/cloud/admin/user-management/rest/#api-users-...",
+		Example:     "  jira-pp-cli mypreferences set-locale",
 		Annotations: map[string]string{"pp:endpoint": "mypreferences.set-locale", "pp:method": "PUT", "pp:path": "/rest/api/3/mypreferences/locale"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {
@@ -62,7 +62,9 @@ func newMypreferencesSetLocaleCmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

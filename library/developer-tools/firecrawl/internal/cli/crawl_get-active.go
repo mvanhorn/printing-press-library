@@ -14,10 +14,10 @@ import (
 func newCrawlGetActiveCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-active",
-		Aliases: []string{"list"},
-		Short: "Get all active crawls for the authenticated team",
-		Example: "  firecrawl-pp-cli crawl get-active",
+		Use:         "get-active",
+		Aliases:     []string{"list"},
+		Short:       "Get all active crawls for the authenticated team",
+		Example:     "  firecrawl-pp-cli crawl get-active",
 		Annotations: map[string]string{"pp:endpoint": "crawl.get-active", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

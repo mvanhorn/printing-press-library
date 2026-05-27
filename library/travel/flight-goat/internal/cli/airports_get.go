@@ -14,9 +14,9 @@ import (
 func newAirportsGetCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get <id>",
-		Short: "Returns information about an airport given an ICAO or LID airport code such as KLAX, KIAH, O07, etc. Data returned...",
-		Example: "  flight-goat-pp-cli airports get 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "get <id>",
+		Short:       "Returns information about an airport given an ICAO or LID airport code such as KLAX, KIAH, O07, etc. Data returned...",
+		Example:     "  flight-goat-pp-cli airports get 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "airports.get", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

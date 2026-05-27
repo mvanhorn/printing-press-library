@@ -13,11 +13,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/commerce/yahoo-finance/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/commerce/yahoo-finance/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/commerce/yahoo-finance/internal/config"
 	"github.com/mvanhorn/printing-press-library/library/commerce/yahoo-finance/internal/store"
+	"github.com/spf13/cobra"
 )
 
 // looksLikeDoctorInterstitial reports whether the response body matches a known

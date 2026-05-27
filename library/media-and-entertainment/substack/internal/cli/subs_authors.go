@@ -14,9 +14,9 @@ import (
 func newSubsAuthorsCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "authors",
-		Short: "List bylined authors of a publication",
-		Example: "  substack-pp-cli subs authors",
+		Use:         "authors",
+		Short:       "List bylined authors of a publication",
+		Example:     "  substack-pp-cli subs authors",
 		Annotations: map[string]string{"pp:endpoint": "subs.authors", "pp:method": "GET", "pp:path": "https://{publication}.substack.com/api/v1/publication/users", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

@@ -15,9 +15,9 @@ func newTeamSpaceGetCmd(flags *rootFlags) *cobra.Command {
 	var flagArchived bool
 
 	cmd := &cobra.Command{
-		Use:   "get <team_id>",
-		Short: "View the Spaces avialable in a Workspace. You can only get member info in private Spaces.",
-		Example: "  clickup-pp-cli team space get 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "get <team_id>",
+		Short:       "View the Spaces avialable in a Workspace. You can only get member info in private Spaces.",
+		Example:     "  clickup-pp-cli team space get 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "space.get", "pp:method": "GET", "pp:path": "/v2/team/{team_id}/space", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

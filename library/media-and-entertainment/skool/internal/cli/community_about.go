@@ -16,9 +16,9 @@ func newCommunityAboutCmd(flags *rootFlags) *cobra.Command {
 	var flagG string
 
 	cmd := &cobra.Command{
-		Use:   "about",
-		Short: "About page (rules, owner, member count)",
-		Example: "  skool-pp-cli community about --community example-value",
+		Use:         "about",
+		Short:       "About page (rules, owner, member count)",
+		Example:     "  skool-pp-cli community about --community example-value",
 		Annotations: map[string]string{"pp:endpoint": "community.about", "pp:method": "GET", "pp:path": "/_next/data/{buildId}/{community}/about.json", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("community") && !flags.dryRun {

@@ -14,9 +14,9 @@ import (
 func newVolumesSnapshotsGetCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get",
-		Short: "Get",
-		Example: "  digitalocean-pp-cli volumes snapshots get",
+		Use:         "get",
+		Short:       "Get",
+		Example:     "  digitalocean-pp-cli volumes snapshots get",
 		Annotations: map[string]string{"pp:endpoint": "snapshots.get", "pp:method": "GET", "pp:path": "/v2/volumes/{volume_id}/snapshots", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

@@ -14,9 +14,9 @@ import (
 func newAppsComponentsGetCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get",
-		Short: "Get",
-		Example: "  digitalocean-pp-cli apps components get",
+		Use:         "get",
+		Short:       "Get",
+		Example:     "  digitalocean-pp-cli apps components get",
 		Annotations: map[string]string{"pp:endpoint": "components.get", "pp:method": "GET", "pp:path": "/v2/apps/{app_id}/components/{component_name}/exec", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

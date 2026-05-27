@@ -18,10 +18,10 @@ func newCustomersAdParametersPromotedCmd(flags *rootFlags) *cobra.Command {
 	var bodyResponseContentType string
 
 	cmd := &cobra.Command{
-		Use:   "customers-ad-parameters <customerId>",
-		Short: "Creates, updates, or removes ad parameters. Operation statuses are returned.",
-		Long:  "Shortcut for 'customers_ad_parameters mutate'. Creates, updates, or removes ad parameters. Operation statuses are returned.",
-		Example: "  google-ads-pp-cli customers-ad-parameters",
+		Use:         "customers-ad-parameters <customerId>",
+		Short:       "Creates, updates, or removes ad parameters. Operation statuses are returned.",
+		Long:        "Shortcut for 'customers_ad_parameters mutate'. Creates, updates, or removes ad parameters. Operation statuses are returned.",
+		Example:     "  google-ads-pp-cli customers-ad-parameters",
 		Annotations: map[string]string{"pp:endpoint": "customers_ad_parameters.mutate", "pp:method": "POST", "pp:path": "/v22/customers/{customerId}/adParameters:mutate"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

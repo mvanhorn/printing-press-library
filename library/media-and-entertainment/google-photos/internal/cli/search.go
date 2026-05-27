@@ -118,11 +118,11 @@ In local mode: searches locally synced data only.`,
 					return err
 				}
 				data, _, getErr := c.Post("/v1/mediaItems:search", map[string]any{
-					"q": query,
-					"albumId": "",
-					"filters": map[string]any{},
-					"orderBy": "",
-					"pageSize": 25,
+					"q":         query,
+					"albumId":   "",
+					"filters":   map[string]any{},
+					"orderBy":   "",
+					"pageSize":  25,
 					"pageToken": "",
 				})
 				if getErr == nil {

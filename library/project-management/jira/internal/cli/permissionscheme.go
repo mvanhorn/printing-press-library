@@ -9,8 +9,8 @@ import (
 
 func newPermissionschemeCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "permissionscheme",
-		Short: "Manage permissionscheme",
+		Use:    "permissionscheme",
+		Short:  "Manage permissionscheme",
 		Hidden: true,
 	}
 

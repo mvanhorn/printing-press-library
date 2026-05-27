@@ -8,6 +8,8 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/substack/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/substack/internal/config"
 	"github.com/spf13/cobra"
 	"io"
 	"net/http"
@@ -17,8 +19,6 @@ import (
 	"runtime"
 	"sort"
 	"strings"
-	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/substack/internal/cliutil"
-	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/substack/internal/config"
 	"time"
 )
 

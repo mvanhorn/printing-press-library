@@ -9,8 +9,8 @@ import (
 
 func newMypreferencesCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "mypreferences",
-		Short: "Manage mypreferences",
+		Use:    "mypreferences",
+		Short:  "Manage mypreferences",
 		Hidden: true,
 	}
 

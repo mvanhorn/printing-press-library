@@ -14,9 +14,9 @@ import (
 func newRegistriesGarbageCollectionGetCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get",
-		Short: "Get",
-		Example: "  digitalocean-pp-cli registries garbage-collection get",
+		Use:         "get",
+		Short:       "Get",
+		Example:     "  digitalocean-pp-cli registries garbage-collection get",
 		Annotations: map[string]string{"pp:endpoint": "garbage-collection.get", "pp:method": "GET", "pp:path": "/v2/registries/{registry_name}/garbage-collection", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

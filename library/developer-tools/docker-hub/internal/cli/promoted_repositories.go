@@ -14,10 +14,10 @@ import (
 func newRepositoriesPromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "repositories <namespace> <repository>",
-		Short: "Full metadata for a Docker Hub repository including pull count, stars, description, and last update time.",
-		Long:  "Shortcut for 'repositories get-repository'. Full metadata for a Docker Hub repository including pull count, stars, description, and last update time.",
-		Example: "  docker-hub-pp-cli repositories",
+		Use:         "repositories <namespace> <repository>",
+		Short:       "Full metadata for a Docker Hub repository including pull count, stars, description, and last update time.",
+		Long:        "Shortcut for 'repositories get-repository'. Full metadata for a Docker Hub repository including pull count, stars, description, and last update time.",
+		Example:     "  docker-hub-pp-cli repositories",
 		Annotations: map[string]string{"pp:endpoint": "repositories.get-repository", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

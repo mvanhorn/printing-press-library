@@ -14,10 +14,10 @@ import (
 func newOrganizationPromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "organization",
-		Short: "Retrieve information about your organization including EIN, legal business name, and DBAs.",
-		Long:  "Shortcut for 'organization get'. Retrieve information about your organization including EIN, legal business name, and DBAs.",
-		Example: "  mercury-pp-cli organization",
+		Use:         "organization",
+		Short:       "Retrieve information about your organization including EIN, legal business name, and DBAs.",
+		Long:        "Shortcut for 'organization get'. Retrieve information about your organization including EIN, legal business name, and DBAs.",
+		Example:     "  mercury-pp-cli organization",
 		Annotations: map[string]string{"pp:endpoint": "organization.get", "pp:method": "GET", "pp:path": "/organization", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

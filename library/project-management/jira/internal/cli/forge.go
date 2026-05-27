@@ -9,8 +9,8 @@ import (
 
 func newForgeCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "forge",
-		Short: "Manage forge",
+		Use:    "forge",
+		Short:  "Manage forge",
 		Hidden: true,
 	}
 

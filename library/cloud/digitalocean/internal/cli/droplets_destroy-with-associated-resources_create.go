@@ -16,9 +16,9 @@ func newDropletsDestroyWithAssociatedResourcesCreateCmd(flags *rootFlags) *cobra
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "create",
-		Short: "Create",
-		Example: "  digitalocean-pp-cli droplets destroy-with-associated-resources create",
+		Use:         "create",
+		Short:       "Create",
+		Example:     "  digitalocean-pp-cli droplets destroy-with-associated-resources create",
 		Annotations: map[string]string{"pp:endpoint": "destroy-with-associated-resources.create", "pp:method": "POST", "pp:path": "/v2/droplets/{droplet_id}/destroy_with_associated_resources/retry"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {
@@ -57,7 +57,9 @@ func newDropletsDestroyWithAssociatedResourcesCreateCmd(flags *rootFlags) *cobra
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

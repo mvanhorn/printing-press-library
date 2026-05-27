@@ -9,8 +9,8 @@ import (
 
 func newDataPolicyCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "data-policy",
-		Short: "Manage data policy",
+		Use:    "data-policy",
+		Short:  "Manage data policy",
 		Hidden: true,
 	}
 

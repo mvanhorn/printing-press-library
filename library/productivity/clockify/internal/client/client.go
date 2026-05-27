@@ -5,13 +5,13 @@ package client
 
 import (
 	"bytes"
-	"github.com/mvanhorn/printing-press-library/library/productivity/clockify/internal/cliutil"
-	"github.com/mvanhorn/printing-press-library/library/productivity/clockify/internal/config"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/productivity/clockify/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/productivity/clockify/internal/config"
 	"io"
 	"math"
 	"mime/multipart"

@@ -14,9 +14,9 @@ import (
 func newAtlassianConnectAddonPropertiesResourceGetAddonPropertyGetCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "addon-properties-resource-get-addon-property-get <addonKey> <propertyKey>",
-		Short: "Returns the key and value of an app's property. The property key...",
-		Example: "  jira-pp-cli atlassian-connect addon-properties-resource-get-addon-property-get your-token-here your-token-here",
+		Use:         "addon-properties-resource-get-addon-property-get <addonKey> <propertyKey>",
+		Short:       "Returns the key and value of an app's property. The property key...",
+		Example:     "  jira-pp-cli atlassian-connect addon-properties-resource-get-addon-property-get your-token-here your-token-here",
 		Annotations: map[string]string{"pp:endpoint": "atlassian-connect.addon-properties-resource-get-addon-property-get", "pp:method": "GET", "pp:path": "/rest/atlassian-connect/1/addons/{addonKey}/properties/{propertyKey}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

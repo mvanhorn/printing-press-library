@@ -14,9 +14,9 @@ import (
 func newSubsCountCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "count",
-		Short: "Get subscriber count (read off the launch-checklist payload)",
-		Example: "  substack-pp-cli subs count",
+		Use:         "count",
+		Short:       "Get subscriber count (read off the launch-checklist payload)",
+		Example:     "  substack-pp-cli subs count",
 		Annotations: map[string]string{"pp:endpoint": "subs.count", "pp:method": "GET", "pp:path": "https://{publication}.substack.com/api/v1/publication_launch_checklist", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

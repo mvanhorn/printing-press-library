@@ -18,10 +18,10 @@ func newCustomersExperimentArmsPromotedCmd(flags *rootFlags) *cobra.Command {
 	var bodyResponseContentType string
 
 	cmd := &cobra.Command{
-		Use:   "customers-experiment-arms <customerId>",
-		Short: "Creates, updates, or removes experiment arms. Operation statuses are returned.",
-		Long:  "Shortcut for 'customers_experiment_arms mutate'. Creates, updates, or removes experiment arms. Operation statuses are returned.",
-		Example: "  google-ads-pp-cli customers-experiment-arms",
+		Use:         "customers-experiment-arms <customerId>",
+		Short:       "Creates, updates, or removes experiment arms. Operation statuses are returned.",
+		Long:        "Shortcut for 'customers_experiment_arms mutate'. Creates, updates, or removes experiment arms. Operation statuses are returned.",
+		Example:     "  google-ads-pp-cli customers-experiment-arms",
 		Annotations: map[string]string{"pp:endpoint": "customers_experiment_arms.mutate", "pp:method": "POST", "pp:path": "/v22/customers/{customerId}/experimentArms:mutate"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

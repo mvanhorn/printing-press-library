@@ -15,10 +15,10 @@ func newSystemPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagUrl string
 
 	cmd := &cobra.Command{
-		Use:   "system",
-		Short: "Sign a Google Maps URL for client-side use (used internally by store finder)",
-		Long:  "Shortcut for 'system sign_map_url'. Sign a Google Maps URL for client-side use (used internally by store finder)",
-		Example: "  jimmy-johns-pp-cli system --url https://example.com/resource",
+		Use:         "system",
+		Short:       "Sign a Google Maps URL for client-side use (used internally by store finder)",
+		Long:        "Shortcut for 'system sign_map_url'. Sign a Google Maps URL for client-side use (used internally by store finder)",
+		Example:     "  jimmy-johns-pp-cli system --url https://example.com/resource",
 		Annotations: map[string]string{"pp:endpoint": "system.sign_map_url", "pp:method": "GET", "pp:path": "/maps/signUrl", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("url") && !flags.dryRun {

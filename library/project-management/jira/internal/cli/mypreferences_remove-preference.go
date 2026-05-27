@@ -15,10 +15,10 @@ func newMypreferencesRemovePreferenceCmd(flags *rootFlags) *cobra.Command {
 	var flagKey string
 
 	cmd := &cobra.Command{
-		Use:   "remove-preference",
-		Aliases: []string{"delete"},
-		Short: "Deletes a preference of the user, which restores the default value of system defined settings. Note that these keys...",
-		Example: "  jira-pp-cli mypreferences remove-preference --key your-token-here",
+		Use:         "remove-preference",
+		Aliases:     []string{"delete"},
+		Short:       "Deletes a preference of the user, which restores the default value of system defined settings. Note that these keys...",
+		Example:     "  jira-pp-cli mypreferences remove-preference --key your-token-here",
 		Annotations: map[string]string{"pp:endpoint": "mypreferences.remove-preference", "pp:method": "DELETE", "pp:path": "/rest/api/3/mypreferences"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("key") && !flags.dryRun {
@@ -44,7 +44,9 @@ func newMypreferencesRemovePreferenceCmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

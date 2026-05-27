@@ -16,9 +16,9 @@ func newAppsCreateMetricsCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "create-metrics",
-		Short: "Create metrics",
-		Example: "  digitalocean-pp-cli apps create-metrics",
+		Use:         "create-metrics",
+		Short:       "Create metrics",
+		Example:     "  digitalocean-pp-cli apps create-metrics",
 		Annotations: map[string]string{"pp:endpoint": "apps.create-metrics", "pp:method": "POST", "pp:path": "/v2/apps/metrics/bandwidth_daily"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {
@@ -57,7 +57,9 @@ func newAppsCreateMetricsCmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

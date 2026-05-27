@@ -14,10 +14,10 @@ import (
 func newGlobalPromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "global",
-		Short: "Get global crypto market data",
-		Long:  "Shortcut for 'global global'. Get global crypto market data",
-		Example: "  coingecko-pp-cli global",
+		Use:         "global",
+		Short:       "Get global crypto market data",
+		Long:        "Shortcut for 'global global'. Get global crypto market data",
+		Example:     "  coingecko-pp-cli global",
 		Annotations: map[string]string{"pp:endpoint": "global.global", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

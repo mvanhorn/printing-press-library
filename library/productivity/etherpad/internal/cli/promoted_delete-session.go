@@ -15,10 +15,10 @@ func newDeleteSessionPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagSessionID string
 
 	cmd := &cobra.Command{
-		Use:   "delete-session",
-		Short: "deletes a session",
-		Long:  "Shortcut for 'delete-session using-post'. deletes a session",
-		Example: "  etherpad-pp-cli delete-session",
+		Use:         "delete-session",
+		Short:       "deletes a session",
+		Long:        "Shortcut for 'delete-session using-post'. deletes a session",
+		Example:     "  etherpad-pp-cli delete-session",
 		Annotations: map[string]string{"pp:endpoint": "delete-session.using-post", "pp:method": "POST", "pp:path": "/deleteSession"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

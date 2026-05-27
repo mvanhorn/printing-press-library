@@ -15,10 +15,10 @@ func newWorkspacesPublicationsBySubscriptionEmailCmd(flags *rootFlags) *cobra.Co
 	var flagExpand string
 
 	cmd := &cobra.Command{
-		Use:   "publications-by-subscription-email <email>",
-		Aliases: []string{"get"},
-		Short: "Retrieve all publications in the workspace that have a subscription for the specified email address. The workspace...",
-		Example: "  beehiiv-pp-cli workspaces publications-by-subscription-email user@example.com",
+		Use:         "publications-by-subscription-email <email>",
+		Aliases:     []string{"get"},
+		Short:       "Retrieve all publications in the workspace that have a subscription for the specified email address. The workspace...",
+		Example:     "  beehiiv-pp-cli workspaces publications-by-subscription-email user@example.com",
 		Annotations: map[string]string{"pp:endpoint": "workspaces.publications-by-subscription-email", "pp:method": "GET", "pp:path": "/workspaces/publications/by_subscription_email/{email}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

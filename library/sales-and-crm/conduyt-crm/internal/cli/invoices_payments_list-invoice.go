@@ -14,10 +14,10 @@ import (
 func newInvoicesPaymentsListInvoiceCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "list-invoice <id>",
-		Aliases: []string{"get"},
-		Short: "List payments for an invoice",
-		Example: "  conduyt-crm-pp-cli invoices payments list-invoice 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "list-invoice <id>",
+		Aliases:     []string{"get"},
+		Short:       "List payments for an invoice",
+		Example:     "  conduyt-crm-pp-cli invoices payments list-invoice 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "payments.list-invoice", "pp:method": "GET", "pp:path": "/invoices/{id}/payments", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

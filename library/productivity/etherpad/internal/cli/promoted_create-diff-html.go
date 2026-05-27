@@ -17,10 +17,10 @@ func newCreateDiffHtmlPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagEndRev string
 
 	cmd := &cobra.Command{
-		Use:   "create-diff-html",
-		Short: "returns an HTML diff between two revisions of a pad",
-		Long:  "Shortcut for 'create-diff-html create-diff-htmlusing-post'. returns an HTML diff between two revisions of a pad",
-		Example: "  etherpad-pp-cli create-diff-html",
+		Use:         "create-diff-html",
+		Short:       "returns an HTML diff between two revisions of a pad",
+		Long:        "Shortcut for 'create-diff-html create-diff-htmlusing-post'. returns an HTML diff between two revisions of a pad",
+		Example:     "  etherpad-pp-cli create-diff-html",
 		Annotations: map[string]string{"pp:endpoint": "create-diff-html.create-diff-htmlusing-post", "pp:method": "POST", "pp:path": "/createDiffHTML"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

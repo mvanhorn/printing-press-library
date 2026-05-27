@@ -8,9 +8,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/ordertogo/internal/config"
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/ordertogo/internal/store"
+	"github.com/spf13/cobra"
 )
 
 func newOrdersPlanCmd(flags *rootFlags) *cobra.Command {

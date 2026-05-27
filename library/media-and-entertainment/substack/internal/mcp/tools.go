@@ -15,8 +15,8 @@ import (
 	mcplib "github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/substack/internal/cli"
-	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/substack/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/substack/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/substack/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/substack/internal/config"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/substack/internal/mcp/cobratree"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/substack/internal/store"
@@ -31,7 +31,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/categories", []mcpParamBinding{ }, []string{ }),
+		makeAPIHandler("GET", "/categories", []mcpParamBinding{}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("categories_list-publications",
@@ -42,7 +42,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/category/public/{category_id}/all", []mcpParamBinding{{PublicName: "category_id", WireName: "category_id", Location: "path"},{PublicName: "page", WireName: "page", Location: "query"}, }, []string{"category_id", }),
+		makeAPIHandler("GET", "/category/public/{category_id}/all", []mcpParamBinding{{PublicName: "category_id", WireName: "category_id", Location: "path"}, {PublicName: "page", WireName: "page", Location: "query"}}, []string{"category_id"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("comments_get",
@@ -52,7 +52,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/reader/comment/{comment_id}", []mcpParamBinding{{PublicName: "comment-id", WireName: "comment_id", Location: "path"}, }, []string{"comment_id", }),
+		makeAPIHandler("GET", "/reader/comment/{comment_id}", []mcpParamBinding{{PublicName: "comment-id", WireName: "comment_id", Location: "path"}}, []string{"comment_id"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("comments_list",
@@ -62,7 +62,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/post/{post_id}/comments", []mcpParamBinding{{PublicName: "post-id", WireName: "post_id", Location: "path"}, }, []string{"post_id", }),
+		makeAPIHandler("GET", "/post/{post_id}/comments", []mcpParamBinding{{PublicName: "post-id", WireName: "post_id", Location: "path"}}, []string{"post_id"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("discover_search-publications",
@@ -73,7 +73,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/publication/search", []mcpParamBinding{{PublicName: "query", WireName: "query", Location: "query"},{PublicName: "limit", WireName: "limit", Location: "query"}, }, []string{ }),
+		makeAPIHandler("GET", "/publication/search", []mcpParamBinding{{PublicName: "query", WireName: "query", Location: "query"}, {PublicName: "limit", WireName: "limit", Location: "query"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("drafts_create",
@@ -86,7 +86,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "https://{publication}.substack.com/api/v1/drafts", []mcpParamBinding{{PublicName: "title", WireName: "draft_title", Location: "body"},{PublicName: "subtitle", WireName: "draft_subtitle", Location: "body"},{PublicName: "body", WireName: "draft_body", Location: "body"},{PublicName: "section-id", WireName: "draft_section_id", Location: "body"},{PublicName: "type", WireName: "type", Location: "body"}, }, []string{ }),
+		makeAPIHandler("POST", "https://{publication}.substack.com/api/v1/drafts", []mcpParamBinding{{PublicName: "title", WireName: "draft_title", Location: "body"}, {PublicName: "subtitle", WireName: "draft_subtitle", Location: "body"}, {PublicName: "body", WireName: "draft_body", Location: "body"}, {PublicName: "section-id", WireName: "draft_section_id", Location: "body"}, {PublicName: "type", WireName: "type", Location: "body"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("drafts_delete",
@@ -95,7 +95,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(true),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("DELETE", "https://{publication}.substack.com/api/v1/drafts/{draft_id}", []mcpParamBinding{{PublicName: "draft-id", WireName: "draft_id", Location: "path"}, }, []string{"draft_id", }),
+		makeAPIHandler("DELETE", "https://{publication}.substack.com/api/v1/drafts/{draft_id}", []mcpParamBinding{{PublicName: "draft-id", WireName: "draft_id", Location: "path"}}, []string{"draft_id"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("drafts_get",
@@ -105,7 +105,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "https://{publication}.substack.com/api/v1/drafts/{draft_id}", []mcpParamBinding{{PublicName: "draft-id", WireName: "draft_id", Location: "path"}, }, []string{"draft_id", }),
+		makeAPIHandler("GET", "https://{publication}.substack.com/api/v1/drafts/{draft_id}", []mcpParamBinding{{PublicName: "draft-id", WireName: "draft_id", Location: "path"}}, []string{"draft_id"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("drafts_list",
@@ -117,7 +117,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "https://{publication}.substack.com/api/v1/drafts", []mcpParamBinding{{PublicName: "filter", WireName: "filter", Location: "query"},{PublicName: "limit", WireName: "limit", Location: "query"},{PublicName: "offset", WireName: "offset", Location: "query"}, }, []string{ }),
+		makeAPIHandler("GET", "https://{publication}.substack.com/api/v1/drafts", []mcpParamBinding{{PublicName: "filter", WireName: "filter", Location: "query"}, {PublicName: "limit", WireName: "limit", Location: "query"}, {PublicName: "offset", WireName: "offset", Location: "query"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("drafts_prepublish",
@@ -126,7 +126,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "https://{publication}.substack.com/api/v1/drafts/{draft_id}/prepublish", []mcpParamBinding{{PublicName: "draft-id", WireName: "draft_id", Location: "path"}, }, []string{"draft_id", }),
+		makeAPIHandler("POST", "https://{publication}.substack.com/api/v1/drafts/{draft_id}/prepublish", []mcpParamBinding{{PublicName: "draft-id", WireName: "draft_id", Location: "path"}}, []string{"draft_id"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("drafts_publish",
@@ -137,7 +137,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "https://{publication}.substack.com/api/v1/drafts/{draft_id}/publish", []mcpParamBinding{{PublicName: "draft-id", WireName: "draft_id", Location: "path"},{PublicName: "send", WireName: "send", Location: "body"},{PublicName: "share_automatically", WireName: "share_automatically", Location: "body"}, }, []string{"draft_id", }),
+		makeAPIHandler("POST", "https://{publication}.substack.com/api/v1/drafts/{draft_id}/publish", []mcpParamBinding{{PublicName: "draft-id", WireName: "draft_id", Location: "path"}, {PublicName: "send", WireName: "send", Location: "body"}, {PublicName: "share_automatically", WireName: "share_automatically", Location: "body"}}, []string{"draft_id"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("drafts_schedule",
@@ -147,7 +147,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "https://{publication}.substack.com/api/v1/drafts/{draft_id}/schedule", []mcpParamBinding{{PublicName: "draft-id", WireName: "draft_id", Location: "path"},{PublicName: "post-date", WireName: "post_date", Location: "body"}, }, []string{"draft_id", }),
+		makeAPIHandler("POST", "https://{publication}.substack.com/api/v1/drafts/{draft_id}/schedule", []mcpParamBinding{{PublicName: "draft-id", WireName: "draft_id", Location: "path"}, {PublicName: "post-date", WireName: "post_date", Location: "body"}}, []string{"draft_id"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("drafts_update",
@@ -158,7 +158,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("body", mcplib.Description("New post body")),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("PUT", "https://{publication}.substack.com/api/v1/drafts/{draft_id}", []mcpParamBinding{{PublicName: "draft-id", WireName: "draft_id", Location: "path"},{PublicName: "title", WireName: "draft_title", Location: "body"},{PublicName: "subtitle", WireName: "draft_subtitle", Location: "body"},{PublicName: "body", WireName: "draft_body", Location: "body"}, }, []string{"draft_id", }),
+		makeAPIHandler("PUT", "https://{publication}.substack.com/api/v1/drafts/{draft_id}", []mcpParamBinding{{PublicName: "draft-id", WireName: "draft_id", Location: "path"}, {PublicName: "title", WireName: "draft_title", Location: "body"}, {PublicName: "subtitle", WireName: "draft_subtitle", Location: "body"}, {PublicName: "body", WireName: "draft_body", Location: "body"}}, []string{"draft_id"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("feed_rss",
@@ -167,7 +167,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "https://{publication}.substack.com/feed", []mcpParamBinding{ }, []string{ }),
+		makeAPIHandler("GET", "https://{publication}.substack.com/feed", []mcpParamBinding{}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("images_upload",
@@ -176,7 +176,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "https://{publication}.substack.com/api/v1/image", []mcpParamBinding{{PublicName: "image", WireName: "image", Location: "body"}, }, []string{ }),
+		makeAPIHandler("POST", "https://{publication}.substack.com/api/v1/image", []mcpParamBinding{{PublicName: "image", WireName: "image", Location: "body"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("inbox_home",
@@ -187,7 +187,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/reader/feed", []mcpParamBinding{{PublicName: "types", WireName: "types", Location: "query"},{PublicName: "cursor", WireName: "cursor", Location: "query"}, }, []string{ }),
+		makeAPIHandler("GET", "/reader/feed", []mcpParamBinding{{PublicName: "types", WireName: "types", Location: "query"}, {PublicName: "cursor", WireName: "cursor", Location: "query"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("inbox_reader-posts",
@@ -196,7 +196,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/reader/posts", []mcpParamBinding{ }, []string{ }),
+		makeAPIHandler("GET", "/reader/posts", []mcpParamBinding{}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("notes_create",
@@ -207,7 +207,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/comment/feed", []mcpParamBinding{{PublicName: "bodyJson", WireName: "bodyJson", Location: "body"},{PublicName: "type", WireName: "type", Location: "body"},{PublicName: "tabId", WireName: "tabId", Location: "body"}, }, []string{ }),
+		makeAPIHandler("POST", "/comment/feed", []mcpParamBinding{{PublicName: "bodyJson", WireName: "bodyJson", Location: "body"}, {PublicName: "type", WireName: "type", Location: "body"}, {PublicName: "tabId", WireName: "tabId", Location: "body"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("notes_get",
@@ -217,7 +217,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/reader/comment/{note_id}", []mcpParamBinding{{PublicName: "note-id", WireName: "note_id", Location: "path"}, }, []string{"note_id", }),
+		makeAPIHandler("GET", "/reader/comment/{note_id}", []mcpParamBinding{{PublicName: "note-id", WireName: "note_id", Location: "path"}}, []string{"note_id"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("notes_list-by-profile",
@@ -229,7 +229,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/reader/feed/profile/{profile_user_id}", []mcpParamBinding{{PublicName: "user-id", WireName: "profile_user_id", Location: "path"},{PublicName: "types", WireName: "types", Location: "query"},{PublicName: "cursor", WireName: "cursor", Location: "query"}, }, []string{"profile_user_id", }),
+		makeAPIHandler("GET", "/reader/feed/profile/{profile_user_id}", []mcpParamBinding{{PublicName: "user-id", WireName: "profile_user_id", Location: "path"}, {PublicName: "types", WireName: "types", Location: "query"}, {PublicName: "cursor", WireName: "cursor", Location: "query"}}, []string{"profile_user_id"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("notes_reply",
@@ -239,7 +239,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/comment/feed", []mcpParamBinding{{PublicName: "parent_id", WireName: "parent_id", Location: "body"},{PublicName: "bodyJson", WireName: "bodyJson", Location: "body"}, }, []string{ }),
+		makeAPIHandler("POST", "/comment/feed", []mcpParamBinding{{PublicName: "parent_id", WireName: "parent_id", Location: "body"}, {PublicName: "bodyJson", WireName: "bodyJson", Location: "body"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("posts_archive",
@@ -251,7 +251,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "https://{publication}.substack.com/api/v1/archive", []mcpParamBinding{{PublicName: "sort", WireName: "sort", Location: "query"},{PublicName: "limit", WireName: "limit", Location: "query"},{PublicName: "offset", WireName: "offset", Location: "query"}, }, []string{ }),
+		makeAPIHandler("GET", "https://{publication}.substack.com/api/v1/archive", []mcpParamBinding{{PublicName: "sort", WireName: "sort", Location: "query"}, {PublicName: "limit", WireName: "limit", Location: "query"}, {PublicName: "offset", WireName: "offset", Location: "query"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("posts_get-by-slug",
@@ -261,7 +261,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "https://{publication}.substack.com/api/v1/posts/{slug}", []mcpParamBinding{{PublicName: "slug", WireName: "slug", Location: "path"}, }, []string{"slug", }),
+		makeAPIHandler("GET", "https://{publication}.substack.com/api/v1/posts/{slug}", []mcpParamBinding{{PublicName: "slug", WireName: "slug", Location: "path"}}, []string{"slug"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("posts_list-published",
@@ -272,7 +272,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "https://{publication}.substack.com/api/v1/post_management/published", []mcpParamBinding{{PublicName: "limit", WireName: "limit", Location: "query"},{PublicName: "offset", WireName: "offset", Location: "query"}, }, []string{ }),
+		makeAPIHandler("GET", "https://{publication}.substack.com/api/v1/post_management/published", []mcpParamBinding{{PublicName: "limit", WireName: "limit", Location: "query"}, {PublicName: "offset", WireName: "offset", Location: "query"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("posts_ranked-authors",
@@ -282,7 +282,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "https://{publication}.substack.com/api/v1/publication/users/ranked", []mcpParamBinding{{PublicName: "public", WireName: "public", Location: "query"}, }, []string{ }),
+		makeAPIHandler("GET", "https://{publication}.substack.com/api/v1/publication/users/ranked", []mcpParamBinding{{PublicName: "public", WireName: "public", Location: "query"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("profiles_from-linkedin",
@@ -292,7 +292,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/profile/search/linkedin/{linkedin_handle}", []mcpParamBinding{{PublicName: "linkedin-handle", WireName: "linkedin_handle", Location: "path"}, }, []string{"linkedin_handle", }),
+		makeAPIHandler("GET", "/profile/search/linkedin/{linkedin_handle}", []mcpParamBinding{{PublicName: "linkedin-handle", WireName: "linkedin_handle", Location: "path"}}, []string{"linkedin_handle"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("profiles_get-by-handle",
@@ -302,7 +302,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/user/{handle}/public_profile", []mcpParamBinding{{PublicName: "handle", WireName: "handle", Location: "path"}, }, []string{"handle", }),
+		makeAPIHandler("GET", "/user/{handle}/public_profile", []mcpParamBinding{{PublicName: "handle", WireName: "handle", Location: "path"}}, []string{"handle"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("profiles_get-by-id",
@@ -312,7 +312,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/user/{user_id}/public_profile", []mcpParamBinding{{PublicName: "user-id", WireName: "user_id", Location: "path"}, }, []string{"user_id", }),
+		makeAPIHandler("GET", "/user/{user_id}/public_profile", []mcpParamBinding{{PublicName: "user-id", WireName: "user_id", Location: "path"}}, []string{"user_id"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("profiles_handle-options",
@@ -321,7 +321,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/handle/options", []mcpParamBinding{ }, []string{ }),
+		makeAPIHandler("GET", "/handle/options", []mcpParamBinding{}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("profiles_posts",
@@ -332,7 +332,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/profile/posts", []mcpParamBinding{{PublicName: "user-id", WireName: "profile_user_id", Location: "query"},{PublicName: "limit", WireName: "limit", Location: "query"}, }, []string{ }),
+		makeAPIHandler("GET", "/profile/posts", []mcpParamBinding{{PublicName: "user-id", WireName: "profile_user_id", Location: "query"}, {PublicName: "limit", WireName: "limit", Location: "query"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("profiles_self",
@@ -341,7 +341,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/user/profile/self", []mcpParamBinding{ }, []string{ }),
+		makeAPIHandler("GET", "/user/profile/self", []mcpParamBinding{}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("recommendations_from",
@@ -351,7 +351,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "https://{publication}.substack.com/api/v1/recommendations/from/{publication_id}", []mcpParamBinding{{PublicName: "publication-id", WireName: "publication_id", Location: "path"}, }, []string{"publication_id", }),
+		makeAPIHandler("GET", "https://{publication}.substack.com/api/v1/recommendations/from/{publication_id}", []mcpParamBinding{{PublicName: "publication-id", WireName: "publication_id", Location: "path"}}, []string{"publication_id"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("sections_list",
@@ -360,7 +360,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "https://{publication}.substack.com/api/v1/subscriptions", []mcpParamBinding{ }, []string{ }),
+		makeAPIHandler("GET", "https://{publication}.substack.com/api/v1/subscriptions", []mcpParamBinding{}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("settings_get",
@@ -369,7 +369,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/settings", []mcpParamBinding{ }, []string{ }),
+		makeAPIHandler("GET", "/settings", []mcpParamBinding{}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("settings_ping",
@@ -378,7 +378,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("value_text", mcplib.Description("Setting value (default `inbox`)")),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("PUT", "/user-setting", []mcpParamBinding{{PublicName: "type", WireName: "type", Location: "body"},{PublicName: "value_text", WireName: "value_text", Location: "body"}, }, []string{ }),
+		makeAPIHandler("PUT", "/user-setting", []mcpParamBinding{{PublicName: "type", WireName: "type", Location: "body"}, {PublicName: "value_text", WireName: "value_text", Location: "body"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("subs_authors",
@@ -387,7 +387,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "https://{publication}.substack.com/api/v1/publication/users", []mcpParamBinding{ }, []string{ }),
+		makeAPIHandler("GET", "https://{publication}.substack.com/api/v1/publication/users", []mcpParamBinding{}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("subs_count",
@@ -396,7 +396,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "https://{publication}.substack.com/api/v1/publication_launch_checklist", []mcpParamBinding{ }, []string{ }),
+		makeAPIHandler("GET", "https://{publication}.substack.com/api/v1/publication_launch_checklist", []mcpParamBinding{}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("tags_create",
@@ -405,7 +405,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "https://{publication}.substack.com/api/v1/publication/post-tag", []mcpParamBinding{{PublicName: "name", WireName: "name", Location: "body"}, }, []string{ }),
+		makeAPIHandler("POST", "https://{publication}.substack.com/api/v1/publication/post-tag", []mcpParamBinding{{PublicName: "name", WireName: "name", Location: "body"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("tags_list",
@@ -414,7 +414,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "https://{publication}.substack.com/api/v1/publication/post-tag", []mcpParamBinding{ }, []string{ }),
+		makeAPIHandler("GET", "https://{publication}.substack.com/api/v1/publication/post-tag", []mcpParamBinding{}, []string{}),
 	)
 	// Search tool — faster than iterating list endpoints for finding specific items
 	s.AddTool(
@@ -612,6 +612,7 @@ func dbPath() string {
 	home, _ := os.UserHomeDir()
 	return filepath.Join(home, ".local", "share", "substack-pp-cli", "data.db")
 }
+
 // Note: MCP tools use their own dbPath() because they are in a separate package (main, not cli).
 // The CLI's defaultDBPath() in the cli package uses the same canonical path.
 
@@ -748,102 +749,102 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 		// tool_surface tells agents which surface a capability lives on.
 		"tool_surface": "MCP exposes typed endpoint tools plus a runtime mirror of user-facing CLI commands. Endpoint tools keep typed schemas; command-mirror tools shell out to the companion substack-pp-cli binary.",
 		"auth": map[string]any{
-			"type": "cookie",
+			"type":    "cookie",
 			"key_url": "https://substack.com/sign-in",
 		},
 		"resources": []map[string]any{
 			{
-				"name": "categories",
+				"name":        "categories",
 				"description": "Site-wide Substack category list — culture, technology, food, etc.",
-				"endpoints": []string{"list", "list-publications",  },
-				"syncable": true,
+				"endpoints":   []string{"list", "list-publications"},
+				"syncable":    true,
 			},
 			{
-				"name": "comments",
+				"name":        "comments",
 				"description": "Long-form post comments (distinct from Notes)",
-				"endpoints": []string{"get", "list",  },
-				"searchable": true,
+				"endpoints":   []string{"get", "list"},
+				"searchable":  true,
 			},
 			{
-				"name": "discover",
+				"name":        "discover",
 				"description": "Discovery surfaces — search publications, embed metadata",
-				"endpoints": []string{"search-publications",  },
-				"searchable": true,
+				"endpoints":   []string{"search-publications"},
+				"searchable":  true,
 			},
 			{
-				"name": "drafts",
+				"name":        "drafts",
 				"description": "Drafts CRUD + publish + schedule",
-				"endpoints": []string{"create", "delete", "get", "list", "prepublish", "publish", "schedule", "update",  },
-				"syncable": true,
-				"searchable": true,
+				"endpoints":   []string{"create", "delete", "get", "list", "prepublish", "publish", "schedule", "update"},
+				"syncable":    true,
+				"searchable":  true,
 			},
 			{
-				"name": "feed",
+				"name":        "feed",
 				"description": "RSS feed for a publication",
-				"endpoints": []string{"rss",  },
+				"endpoints":   []string{"rss"},
 			},
 			{
-				"name": "images",
+				"name":        "images",
 				"description": "Image upload (data-URI JSON, not multipart)",
-				"endpoints": []string{"upload",  },
-				"searchable": true,
+				"endpoints":   []string{"upload"},
+				"searchable":  true,
 			},
 			{
-				"name": "inbox",
+				"name":        "inbox",
 				"description": "Authenticated reader feed (home feed) — Notes + posts surfaced for the current user",
-				"endpoints": []string{"home", "reader-posts",  },
-				"syncable": true,
-				"searchable": true,
+				"endpoints":   []string{"home", "reader-posts"},
+				"syncable":    true,
+				"searchable":  true,
 			},
 			{
-				"name": "notes",
+				"name":        "notes",
 				"description": "Substack Notes — short-form posts (Substack treats Notes as comments internally)",
-				"endpoints": []string{"create", "get", "list-by-profile", "reply",  },
-				"searchable": true,
+				"endpoints":   []string{"create", "get", "list-by-profile", "reply"},
+				"searchable":  true,
 			},
 			{
-				"name": "posts",
+				"name":        "posts",
 				"description": "Long-form posts and archives on a specific publication",
-				"endpoints": []string{"archive", "get-by-slug", "list-published", "ranked-authors",  },
-				"syncable": true,
-				"searchable": true,
+				"endpoints":   []string{"archive", "get-by-slug", "list-published", "ranked-authors"},
+				"syncable":    true,
+				"searchable":  true,
 			},
 			{
-				"name": "profiles",
+				"name":        "profiles",
 				"description": "Substack profiles — your own and other writers'",
-				"endpoints": []string{"from-linkedin", "get-by-handle", "get-by-id", "handle-options", "posts", "self",  },
-				"syncable": true,
-				"searchable": true,
+				"endpoints":   []string{"from-linkedin", "get-by-handle", "get-by-id", "handle-options", "posts", "self"},
+				"syncable":    true,
+				"searchable":  true,
 			},
 			{
-				"name": "recommendations",
+				"name":        "recommendations",
 				"description": "Substack Recommendations — outbound (publications I recommend)",
-				"endpoints": []string{"from",  },
+				"endpoints":   []string{"from"},
 			},
 			{
-				"name": "sections",
+				"name":        "sections",
 				"description": "Sections of a publication (newsletters can have multiple)",
-				"endpoints": []string{"list",  },
-				"syncable": true,
+				"endpoints":   []string{"list"},
+				"syncable":    true,
 			},
 			{
-				"name": "settings",
+				"name":        "settings",
 				"description": "Account settings + connectivity probe (used by doctor)",
-				"endpoints": []string{"get", "ping",  },
-				"searchable": true,
+				"endpoints":   []string{"get", "ping"},
+				"searchable":  true,
 			},
 			{
-				"name": "subs",
+				"name":        "subs",
 				"description": "Subscriber count + publication metadata",
-				"endpoints": []string{"authors", "count",  },
-				"syncable": true,
+				"endpoints":   []string{"authors", "count"},
+				"syncable":    true,
 			},
 			{
-				"name": "tags",
+				"name":        "tags",
 				"description": "Post tags",
-				"endpoints": []string{"create", "list",  },
-				"syncable": true,
-				"searchable": true,
+				"endpoints":   []string{"create", "list"},
+				"syncable":    true,
+				"searchable":  true,
 			},
 		},
 		"query_tips": []string{

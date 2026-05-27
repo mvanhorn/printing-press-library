@@ -13,8 +13,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/suno/internal/cliutil"
+	"github.com/spf13/cobra"
 )
 
 // PATCH(greptile #577 P2): bound CDN downloads. Stale or hung URLs would block

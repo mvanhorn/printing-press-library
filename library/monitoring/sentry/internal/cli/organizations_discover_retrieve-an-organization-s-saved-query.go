@@ -14,9 +14,9 @@ import (
 func newOrganizationsDiscoverRetrieveAnOrganizationSSavedQueryCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "retrieve-an-organization-s-saved-query <organization_id_or_slug> <query_id>",
-		Short: "Retrieve a saved query.",
-		Example: "  sentry-pp-cli organizations discover retrieve-an-organization-s-saved-query example-value 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "retrieve-an-organization-s-saved-query <organization_id_or_slug> <query_id>",
+		Short:       "Retrieve a saved query.",
+		Example:     "  sentry-pp-cli organizations discover retrieve-an-organization-s-saved-query example-value 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "discover.retrieve-an-organization-s-saved-query", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

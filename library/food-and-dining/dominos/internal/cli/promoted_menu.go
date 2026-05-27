@@ -16,10 +16,10 @@ func newMenuPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagStructured bool
 
 	cmd := &cobra.Command{
-		Use:   "menu <storeID>",
-		Short: "Get the full menu for a store with categories, products, variants, and toppings",
-		Long:  "Shortcut for 'menu get_menu'. Get the full menu for a store with categories, products, variants, and toppings",
-		Example: "  dominos-pp-cli menu",
+		Use:         "menu <storeID>",
+		Short:       "Get the full menu for a store with categories, products, variants, and toppings",
+		Long:        "Shortcut for 'menu get_menu'. Get the full menu for a store with categories, products, variants, and toppings",
+		Example:     "  dominos-pp-cli menu",
 		Annotations: map[string]string{"pp:endpoint": "menu.get_menu", "pp:method": "GET", "pp:path": "/power/store/{storeID}/menu", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

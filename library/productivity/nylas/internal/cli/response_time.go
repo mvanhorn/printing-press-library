@@ -8,8 +8,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/productivity/nylas/internal/store"
+	"github.com/spf13/cobra"
 )
 
 // rtBucket is one row of the response-time report. p50 and p90 are

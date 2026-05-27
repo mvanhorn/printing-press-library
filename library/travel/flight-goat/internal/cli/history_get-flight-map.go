@@ -22,9 +22,9 @@ func newHistoryGetFlightMapCmd(flags *rootFlags) *cobra.Command {
 	var flagBoundingBox string
 
 	cmd := &cobra.Command{
-		Use:   "get-flight-map <id>",
-		Short: "Returns a historical flight's track as a base64-encoded image. Image can contain a variety of additional data layers...",
-		Example: "  flight-goat-pp-cli history get-flight-map 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "get-flight-map <id>",
+		Short:       "Returns a historical flight's track as a base64-encoded image. Image can contain a variety of additional data layers...",
+		Example:     "  flight-goat-pp-cli history get-flight-map 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "history.get-flight-map", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

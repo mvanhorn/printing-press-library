@@ -47,9 +47,9 @@ func newTagsListCmd(flags *rootFlags) *cobra.Command {
 func newTagsCreateCmd(flags *rootFlags) *cobra.Command {
 	var name, slug string
 	cmd := &cobra.Command{
-		Use:   "create",
-		Short: "Create a new post-tag for the publication.",
-		Example: `  substack-creator-pp-cli tags create --subdomain mypub --name "Markets" --slug markets --json`,
+		Use:         "create",
+		Short:       "Create a new post-tag for the publication.",
+		Example:     `  substack-creator-pp-cli tags create --subdomain mypub --name "Markets" --slug markets --json`,
 		Annotations: map[string]string{"pp:endpoint": "tags.create", "pp:method": "POST", "pp:path": "/publication/post-tag"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {

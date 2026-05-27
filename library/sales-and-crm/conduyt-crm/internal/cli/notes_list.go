@@ -19,9 +19,9 @@ func newNotesListCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "list",
-		Short: "List notes",
-		Example: "  conduyt-crm-pp-cli notes list",
+		Use:         "list",
+		Short:       "List notes",
+		Example:     "  conduyt-crm-pp-cli notes list",
 		Annotations: map[string]string{"pp:endpoint": "notes.list", "pp:method": "GET", "pp:path": "/notes", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
@@ -31,10 +31,10 @@ func newNotesListCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/notes"
 			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "notes", path, map[string]string{
-				"page": fmt.Sprintf("%v", flagPage),
-				"per_page": fmt.Sprintf("%v", flagPerPage),
+				"page":       fmt.Sprintf("%v", flagPage),
+				"per_page":   fmt.Sprintf("%v", flagPerPage),
 				"contact_id": fmt.Sprintf("%v", flagContactId),
-				"deal_id": fmt.Sprintf("%v", flagDealId),
+				"deal_id":    fmt.Sprintf("%v", flagDealId),
 			}, nil, flagAll, "", "", "")
 			if err != nil {
 				return classifyAPIError(err, flags)

@@ -16,10 +16,10 @@ func newChatTypingPromotedCmd(flags *rootFlags) *cobra.Command {
 	var bodyThreadTimestamp int
 
 	cmd := &cobra.Command{
-		Use:   "chat-typing",
-		Short: "Notify other chat participants that you are working on a response. If they have the chat open, they will see '(Bot...",
-		Long:  "Shortcut for 'chat-typing chat_typing'. Notify other chat participants that you are working on a response. If they have the chat open, they will see '(Bot...",
-		Example: "  roam-pp-cli chat-typing --chat example-value",
+		Use:         "chat-typing",
+		Short:       "Notify other chat participants that you are working on a response. If they have the chat open, they will see '(Bot...",
+		Long:        "Shortcut for 'chat-typing chat_typing'. Notify other chat participants that you are working on a response. If they have the chat open, they will see '(Bot...",
+		Example:     "  roam-pp-cli chat-typing --chat example-value",
 		Annotations: map[string]string{"pp:endpoint": "chat-typing.chat_typing", "pp:method": "POST", "pp:path": "/chat.typing"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("chat") && !flags.dryRun {

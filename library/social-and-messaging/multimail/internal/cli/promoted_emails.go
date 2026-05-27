@@ -18,14 +18,14 @@ func newEmailsPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "emails",
-		Short: "Requires read scope. Without a status filter, returns spam_flagged and spam_quarantined emails across all tenant...",
-		Long:  "Shortcut for 'emails list'. Requires read scope. Without a status filter, returns spam_flagged and spam_quarantined emails across all tenant...",
-		Example: "  multimail-pp-cli emails",
+		Use:         "emails",
+		Short:       "Requires read scope. Without a status filter, returns spam_flagged and spam_quarantined emails across all tenant...",
+		Long:        "Shortcut for 'emails list'. Requires read scope. Without a status filter, returns spam_flagged and spam_quarantined emails across all tenant...",
+		Example:     "  multimail-pp-cli emails",
 		Annotations: map[string]string{"pp:endpoint": "emails.list", "pp:method": "GET", "pp:path": "/v1/emails", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if cmd.Flags().Changed("status") {
-				allowedStatus := []string{ "spam_flagged", "spam_quarantined" }
+				allowedStatus := []string{"spam_flagged", "spam_quarantined"}
 				validStatus := false
 				for _, v := range allowedStatus {
 					if flagStatus == v {
@@ -45,7 +45,7 @@ func newEmailsPromotedCmd(flags *rootFlags) *cobra.Command {
 			path := "/v1/emails"
 			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "emails", path, map[string]string{
 				"status": fmt.Sprintf("%v", flagStatus),
-				"limit": fmt.Sprintf("%v", flagLimit),
+				"limit":  fmt.Sprintf("%v", flagLimit),
 				"cursor": fmt.Sprintf("%v", flagCursor),
 			}, nil, flagAll, "cursor", "", "")
 			if err != nil {

@@ -15,9 +15,9 @@ func newTeamUserGetCmd(flags *rootFlags) *cobra.Command {
 	var flagIncludeShared bool
 
 	cmd := &cobra.Command{
-		Use:   "get <team_id> <user_id>",
-		Short: "View information about a user in a Workspace. ***Note:** This endpoint is only available to Workspaces on our...",
-		Example: "  clickup-pp-cli team user get 550e8400-e29b-41d4-a716-446655440000 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "get <team_id> <user_id>",
+		Short:       "View information about a user in a Workspace. ***Note:** This endpoint is only available to Workspaces on our...",
+		Example:     "  clickup-pp-cli team user get 550e8400-e29b-41d4-a716-446655440000 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "user.get", "pp:method": "GET", "pp:path": "/v2/team/{team_id}/user/{user_id}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

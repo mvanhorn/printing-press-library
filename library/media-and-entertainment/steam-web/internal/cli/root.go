@@ -13,9 +13,9 @@ import (
 	"text/tabwriter"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/steam-web/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/steam-web/internal/config"
+	"github.com/spf13/cobra"
 )
 
 var version = "1.0.0"

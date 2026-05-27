@@ -14,9 +14,9 @@ import (
 func newUsersGetUseridCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-userid <userId>",
-		Short: "Get user by ID",
-		Example: "  mercury-pp-cli users get-userid 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "get-userid <userId>",
+		Short:       "Get user by ID",
+		Example:     "  mercury-pp-cli users get-userid 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "users.get-userid", "pp:method": "GET", "pp:path": "/users/{userId}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

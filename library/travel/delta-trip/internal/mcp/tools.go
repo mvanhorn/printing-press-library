@@ -13,13 +13,13 @@ import (
 	"strings"
 	"time"
 
+	mcplib "github.com/mark3labs/mcp-go/mcp"
+	"github.com/mark3labs/mcp-go/server"
 	"github.com/mvanhorn/printing-press-library/library/travel/delta-trip/internal/cli"
 	"github.com/mvanhorn/printing-press-library/library/travel/delta-trip/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/travel/delta-trip/internal/config"
 	"github.com/mvanhorn/printing-press-library/library/travel/delta-trip/internal/mcp/cobratree"
 	"github.com/mvanhorn/printing-press-library/library/travel/delta-trip/internal/store"
-	mcplib "github.com/mark3labs/mcp-go/mcp"
-	"github.com/mark3labs/mcp-go/server"
 )
 
 // RegisterTools registers all API operations as MCP tools.

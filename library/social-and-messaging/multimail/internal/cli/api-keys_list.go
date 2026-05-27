@@ -14,9 +14,9 @@ import (
 func newApiKeysListCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "list",
-		Short: "Requires admin scope. Returns key prefix, scopes, and metadata.",
-		Example: "  multimail-pp-cli api-keys list",
+		Use:         "list",
+		Short:       "Requires admin scope. Returns key prefix, scopes, and metadata.",
+		Example:     "  multimail-pp-cli api-keys list",
 		Annotations: map[string]string{"pp:endpoint": "api-keys.list", "pp:method": "GET", "pp:path": "/v1/api-keys", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

@@ -14,10 +14,10 @@ import (
 func newResourceTypesPromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "resource-types",
-		Short: "Returns the list of resource types supported by Roam: `User` and `Group`. **No authentication required** for this...",
-		Long:  "Shortcut for 'resource-types 03-metadata'. Returns the list of resource types supported by Roam: `User` and `Group`. **No authentication required** for this...",
-		Example: "  roam-pp-cli resource-types",
+		Use:         "resource-types",
+		Short:       "Returns the list of resource types supported by Roam: `User` and `Group`. **No authentication required** for this...",
+		Long:        "Shortcut for 'resource-types 03-metadata'. Returns the list of resource types supported by Roam: `User` and `Group`. **No authentication required** for this...",
+		Example:     "  roam-pp-cli resource-types",
 		Annotations: map[string]string{"pp:endpoint": "resource-types.03-metadata", "pp:method": "GET", "pp:path": "/ResourceTypes", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

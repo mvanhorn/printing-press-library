@@ -14,10 +14,10 @@ import (
 func newGiftcardsPromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "giftcards",
-		Short: "List your giftcards across all restaurants (endpoint shape inferred from web 'My Giftcards' panel)",
-		Long:  "Shortcut for 'giftcards list'. List your giftcards across all restaurants (endpoint shape inferred from web 'My Giftcards' panel)",
-		Example: "  ordertogo-pp-cli giftcards",
+		Use:         "giftcards",
+		Short:       "List your giftcards across all restaurants (endpoint shape inferred from web 'My Giftcards' panel)",
+		Long:        "Shortcut for 'giftcards list'. List your giftcards across all restaurants (endpoint shape inferred from web 'My Giftcards' panel)",
+		Example:     "  ordertogo-pp-cli giftcards",
 		Annotations: map[string]string{"pp:endpoint": "giftcards.list", "pp:method": "GET", "pp:path": "/m/api/giftcards", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

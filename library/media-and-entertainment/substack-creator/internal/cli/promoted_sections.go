@@ -25,7 +25,7 @@ func newSectionsPromotedCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 
-			path := "/publication/sections"  // patched: per-subdomain endpoint
+			path := "/publication/sections" // patched: per-subdomain endpoint
 			if len(args) < 1 {
 				// JSON envelope: {error, usage}. Written first; the
 				// usageErr return preserves exit code 2 across modes.

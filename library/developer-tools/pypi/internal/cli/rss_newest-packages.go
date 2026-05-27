@@ -14,10 +14,10 @@ import (
 func newRssNewestPackagesCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "newest-packages",
-		Aliases: []string{"list"},
-		Short: "RSS feed of the newest packages added to PyPI.",
-		Example: "  pypi-pp-cli rss newest-packages",
+		Use:         "newest-packages",
+		Aliases:     []string{"list"},
+		Short:       "RSS feed of the newest packages added to PyPI.",
+		Example:     "  pypi-pp-cli rss newest-packages",
 		Annotations: map[string]string{"pp:endpoint": "rss.newest-packages", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

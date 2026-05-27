@@ -16,10 +16,10 @@ func newOrganizationsReleasesListASDeploysCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "list-a-s-deploys <organization_id_or_slug> <version>",
-		Aliases: []string{"get"},
-		Short: "Returns a list of deploys based on the organization, version, and project.",
-		Example: "  sentry-pp-cli organizations releases list-a-s-deploys example-value example-value",
+		Use:         "list-a-s-deploys <organization_id_or_slug> <version>",
+		Aliases:     []string{"get"},
+		Short:       "Returns a list of deploys based on the organization, version, and project.",
+		Example:     "  sentry-pp-cli organizations releases list-a-s-deploys example-value example-value",
 		Annotations: map[string]string{"pp:endpoint": "releases.list-a-s-deploys", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

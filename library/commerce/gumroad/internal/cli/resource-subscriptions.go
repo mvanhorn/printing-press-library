@@ -9,8 +9,8 @@ import (
 
 func newResourceSubscriptionsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "resource-subscriptions",
-		Short: "Manage resource subscriptions",
+		Use:    "resource-subscriptions",
+		Short:  "Manage resource subscriptions",
 		Hidden: true,
 	}
 

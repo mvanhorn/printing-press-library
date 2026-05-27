@@ -18,10 +18,10 @@ func newCustomersAdGroupCriteriaPromotedCmd(flags *rootFlags) *cobra.Command {
 	var bodyResponseContentType string
 
 	cmd := &cobra.Command{
-		Use:   "customers-ad-group-criteria <customerId>",
-		Short: "Creates, updates, or removes criteria. Operation statuses are returned.",
-		Long:  "Shortcut for 'customers_ad_group_criteria mutate'. Creates, updates, or removes criteria. Operation statuses are returned.",
-		Example: "  google-ads-pp-cli customers-ad-group-criteria",
+		Use:         "customers-ad-group-criteria <customerId>",
+		Short:       "Creates, updates, or removes criteria. Operation statuses are returned.",
+		Long:        "Shortcut for 'customers_ad_group_criteria mutate'. Creates, updates, or removes criteria. Operation statuses are returned.",
+		Example:     "  google-ads-pp-cli customers-ad-group-criteria",
 		Annotations: map[string]string{"pp:endpoint": "customers_ad_group_criteria.mutate", "pp:method": "POST", "pp:path": "/v22/customers/{customerId}/adGroupCriteria:mutate"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

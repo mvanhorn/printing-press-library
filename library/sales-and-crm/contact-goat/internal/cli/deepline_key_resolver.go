@@ -173,7 +173,7 @@ func discoverDeeplineKeyFromSiblingCLIWithSkips() (key, path string, skips []str
 //
 //   - Lstat — symlink whose target leaves $HOME is rejected.
 //   - Mode  — group or world WRITE access is rejected. Read access is
-//             accepted because the upstream sibling CLI writes mode 0644.
+//     accepted because the upstream sibling CLI writes mode 0644.
 //   - Parse — non-quoted KEY=VALUE per line, comments and blanks ignored.
 //   - Prefix — value must start with "dlp_".
 //   - Empty — DEEPLINE_API_KEY="" falls through (no error, no key).

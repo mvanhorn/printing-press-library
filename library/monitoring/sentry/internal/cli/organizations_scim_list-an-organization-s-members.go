@@ -18,10 +18,10 @@ func newOrganizationsScimListAnOrganizationSMembersCmd(flags *rootFlags) *cobra.
 	var flagExcludedAttributes string
 
 	cmd := &cobra.Command{
-		Use:   "list-an-organization-s-members <organization_id_or_slug>",
-		Aliases: []string{"get"},
-		Short: "Returns a paginated list of members bound to a organization with a SCIM Users GET Request.",
-		Example: "  sentry-pp-cli organizations scim list-an-organization-s-members example-value",
+		Use:         "list-an-organization-s-members <organization_id_or_slug>",
+		Aliases:     []string{"get"},
+		Short:       "Returns a paginated list of members bound to a organization with a SCIM Users GET Request.",
+		Example:     "  sentry-pp-cli organizations scim list-an-organization-s-members example-value",
 		Annotations: map[string]string{"pp:endpoint": "scim.list-an-organization-s-members", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

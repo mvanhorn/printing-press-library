@@ -14,9 +14,9 @@ import (
 func newPartnerNetworkConnectGetCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get",
-		Short: "Get",
-		Example: "  digitalocean-pp-cli partner-network-connect get",
+		Use:         "get",
+		Short:       "Get",
+		Example:     "  digitalocean-pp-cli partner-network-connect get",
 		Annotations: map[string]string{"pp:endpoint": "partner-network-connect.get", "pp:method": "GET", "pp:path": "/v2/partner_network_connect/attachments/{pa_id}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

@@ -14,9 +14,9 @@ import (
 func newGenAiGetGenai26Cmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-genai-26",
-		Short: "Get genai 26",
-		Example: "  digitalocean-pp-cli gen-ai get-genai-26",
+		Use:         "get-genai-26",
+		Short:       "Get genai 26",
+		Example:     "  digitalocean-pp-cli gen-ai get-genai-26",
 		Annotations: map[string]string{"pp:endpoint": "gen-ai.get-genai-26", "pp:method": "GET", "pp:path": "/v2/gen-ai/evaluation_runs/{evaluation_run_uuid}/results/{prompt_id}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

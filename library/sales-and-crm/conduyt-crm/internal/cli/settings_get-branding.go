@@ -14,9 +14,9 @@ import (
 func newSettingsGetBrandingCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-branding",
-		Short: "Get white-label branding settings",
-		Example: "  conduyt-crm-pp-cli settings get-branding",
+		Use:         "get-branding",
+		Short:       "Get white-label branding settings",
+		Example:     "  conduyt-crm-pp-cli settings get-branding",
 		Annotations: map[string]string{"pp:endpoint": "settings.get-branding", "pp:method": "GET", "pp:path": "/settings/branding", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

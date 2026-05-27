@@ -14,9 +14,9 @@ import (
 func newDatabasesOnlineMigrationGetCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get",
-		Short: "Get",
-		Example: "  digitalocean-pp-cli databases online-migration get",
+		Use:         "get",
+		Short:       "Get",
+		Example:     "  digitalocean-pp-cli databases online-migration get",
 		Annotations: map[string]string{"pp:endpoint": "online-migration.get", "pp:method": "GET", "pp:path": "/v2/databases/{database_cluster_uuid}/online-migration", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

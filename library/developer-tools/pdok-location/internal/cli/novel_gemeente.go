@@ -10,9 +10,9 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/pdok-location/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/pdok-location/internal/store"
+	"github.com/spf13/cobra"
 )
 
 // gemeenteRow / provincieRow are the lightweight projections used by the

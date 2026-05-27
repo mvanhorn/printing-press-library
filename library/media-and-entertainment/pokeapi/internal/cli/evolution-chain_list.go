@@ -18,9 +18,9 @@ func newEvolutionChainListCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "list",
-		Short: "Evolution chains are essentially family trees. They start with the lowest stage within a family and detail evolution...",
-		Example: "  pokeapi-pp-cli evolution-chain list",
+		Use:         "list",
+		Short:       "Evolution chains are essentially family trees. They start with the lowest stage within a family and detail evolution...",
+		Example:     "  pokeapi-pp-cli evolution-chain list",
 		Annotations: map[string]string{"pp:endpoint": "evolution-chain.list", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
@@ -30,9 +30,9 @@ func newEvolutionChainListCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/api/v2/evolution-chain/"
 			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "evolution-chain", path, map[string]string{
-				"limit": fmt.Sprintf("%v", flagLimit),
+				"limit":  fmt.Sprintf("%v", flagLimit),
 				"offset": fmt.Sprintf("%v", flagOffset),
-				"q": fmt.Sprintf("%v", flagQ),
+				"q":      fmt.Sprintf("%v", flagQ),
 			}, nil, flagAll, "offset", "", "")
 			if err != nil {
 				return classifyAPIError(err)

@@ -14,9 +14,9 @@ import (
 func newImagesListCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "list",
-		Short: "List",
-		Example: "  digitalocean-pp-cli images list",
+		Use:         "list",
+		Short:       "List",
+		Example:     "  digitalocean-pp-cli images list",
 		Annotations: map[string]string{"pp:endpoint": "images.list", "pp:method": "GET", "pp:path": "/v2/images", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

@@ -14,9 +14,9 @@ import (
 func newAddOnsGetCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get",
-		Short: "Get",
-		Example: "  digitalocean-pp-cli add-ons get",
+		Use:         "get",
+		Short:       "Get",
+		Example:     "  digitalocean-pp-cli add-ons get",
 		Annotations: map[string]string{"pp:endpoint": "add-ons.get", "pp:method": "GET", "pp:path": "/v2/add-ons/saas/{resource_uuid}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

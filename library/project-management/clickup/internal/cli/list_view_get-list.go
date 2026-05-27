@@ -14,10 +14,10 @@ import (
 func newListViewGetListCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-list <list_id>",
-		Aliases: []string{"get"},
-		Short: "View the task and page views available for a List. Views and required views are separate responses.",
-		Example: "  clickup-pp-cli list view get-list 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "get-list <list_id>",
+		Aliases:     []string{"get"},
+		Short:       "View the task and page views available for a List. Views and required views are separate responses.",
+		Example:     "  clickup-pp-cli list view get-list 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "view.get-list", "pp:method": "GET", "pp:path": "/v2/list/{list_id}/view", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

@@ -16,10 +16,10 @@ func newUserInfoPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagExpand string
 
 	cmd := &cobra.Command{
-		Use:   "user-info",
-		Short: "Get detailed information about a single user by ID. **Access:** Organization only. **Required scope:** `user:read`...",
-		Long:  "Shortcut for 'user-info user_info'. Get detailed information about a single user by ID. **Access:** Organization only. **Required scope:** `user:read`...",
-		Example: "  roam-pp-cli user-info --id 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "user-info",
+		Short:       "Get detailed information about a single user by ID. **Access:** Organization only. **Required scope:** `user:read`...",
+		Long:        "Shortcut for 'user-info user_info'. Get detailed information about a single user by ID. **Access:** Organization only. **Required scope:** `user:read`...",
+		Example:     "  roam-pp-cli user-info --id 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "user-info.user_info", "pp:method": "GET", "pp:path": "/user.info", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("id") && !flags.dryRun {

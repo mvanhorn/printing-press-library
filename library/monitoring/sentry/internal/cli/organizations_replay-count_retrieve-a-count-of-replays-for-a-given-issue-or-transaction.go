@@ -20,10 +20,10 @@ func newOrganizationsReplayCountRetrieveACountOfReplaysForAGivenIssueOrTransacti
 	var flagQuery string
 
 	cmd := &cobra.Command{
-		Use:   "retrieve-a-count-of-replays-for-a-given-issue-or-transaction <organization_id_or_slug>",
-		Aliases: []string{"get"},
-		Short: "Return a count of replays for a list of issue or transaction IDs. The `query` parameter is required. It is a search...",
-		Example: "  sentry-pp-cli organizations replay-count retrieve-a-count-of-replays-for-a-given-issue-or-transaction example-value",
+		Use:         "retrieve-a-count-of-replays-for-a-given-issue-or-transaction <organization_id_or_slug>",
+		Aliases:     []string{"get"},
+		Short:       "Return a count of replays for a list of issue or transaction IDs. The `query` parameter is required. It is a search...",
+		Example:     "  sentry-pp-cli organizations replay-count retrieve-a-count-of-replays-for-a-given-issue-or-transaction example-value",
 		Annotations: map[string]string{"pp:endpoint": "replay-count.retrieve-a-count-of-replays-for-a-given-issue-or-transaction", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

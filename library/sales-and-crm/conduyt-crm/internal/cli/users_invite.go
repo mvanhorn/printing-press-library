@@ -18,10 +18,10 @@ func newUsersInviteCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "invite",
-		Aliases: []string{"create"},
-		Short: "Invite a team member",
-		Example: "  conduyt-crm-pp-cli users invite --email user@example.com",
+		Use:         "invite",
+		Aliases:     []string{"create"},
+		Short:       "Invite a team member",
+		Example:     "  conduyt-crm-pp-cli users invite --email user@example.com",
 		Annotations: map[string]string{"pp:endpoint": "users.invite", "pp:method": "POST", "pp:path": "/users/invite"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {
@@ -72,7 +72,9 @@ func newUsersInviteCmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

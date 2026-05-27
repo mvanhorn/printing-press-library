@@ -14,9 +14,9 @@ import (
 func newScreensDeleteCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "delete <screenId>",
-		Short: "Deletes a screen. A screen cannot be deleted if it is used in a screen scheme, workflow, or workflow draft. Only...",
-		Example: "  jira-pp-cli screens delete 42",
+		Use:         "delete <screenId>",
+		Short:       "Deletes a screen. A screen cannot be deleted if it is used in a screen scheme, workflow, or workflow draft. Only...",
+		Example:     "  jira-pp-cli screens delete 42",
 		Annotations: map[string]string{"pp:endpoint": "screens.delete", "pp:method": "DELETE", "pp:path": "/rest/api/3/screens/{screenId}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -43,7 +43,9 @@ func newScreensDeleteCmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

@@ -14,10 +14,10 @@ import (
 func newAircraftPromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "aircraft <type>",
-		Short: "Returns information about an aircraft type, given an ICAO aircraft type designator string. Data returned includes...",
-		Long:  "Shortcut for 'aircraft get-flight-type'. Returns information about an aircraft type, given an ICAO aircraft type designator string. Data returned includes...",
-		Example: "  flight-goat-pp-cli aircraft",
+		Use:         "aircraft <type>",
+		Short:       "Returns information about an aircraft type, given an ICAO aircraft type designator string. Data returned includes...",
+		Long:        "Shortcut for 'aircraft get-flight-type'. Returns information about an aircraft type, given an ICAO aircraft type designator string. Data returned includes...",
+		Example:     "  flight-goat-pp-cli aircraft",
 		Annotations: map[string]string{"pp:endpoint": "aircraft.get-flight-type", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

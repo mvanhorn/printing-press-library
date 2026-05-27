@@ -14,9 +14,9 @@ import (
 func newIntegrationsListCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "list",
-		Short: "List active integrations",
-		Example: "  conduyt-crm-pp-cli integrations list",
+		Use:         "list",
+		Short:       "List active integrations",
+		Example:     "  conduyt-crm-pp-cli integrations list",
 		Annotations: map[string]string{"pp:endpoint": "integrations.list", "pp:method": "GET", "pp:path": "/integrations", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

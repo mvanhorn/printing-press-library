@@ -15,10 +15,10 @@ func newOperatorsCanonicalGetOperatorsCmd(flags *rootFlags) *cobra.Command {
 	var flagCountryCode string
 
 	cmd := &cobra.Command{
-		Use:   "get-operators <id>",
-		Aliases: []string{"get"},
-		Short: "Returns all possible matches for a given operator code (ICAO or IATA). An optional country code can be provided to...",
-		Example: "  flight-goat-pp-cli operators canonical get-operators 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "get-operators <id>",
+		Aliases:     []string{"get"},
+		Short:       "Returns all possible matches for a given operator code (ICAO or IATA). An optional country code can be provided to...",
+		Example:     "  flight-goat-pp-cli operators canonical get-operators 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "canonical.get-operators", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

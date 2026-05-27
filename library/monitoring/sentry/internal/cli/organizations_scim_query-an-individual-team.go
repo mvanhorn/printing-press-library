@@ -14,9 +14,9 @@ import (
 func newOrganizationsScimQueryAnIndividualTeamCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "query-an-individual-team <team_id_or_slug> <organization_id_or_slug>",
-		Short: "Query an individual team with a SCIM Group GET Request. - Note that the members field will only contain up to 10000...",
-		Example: "  sentry-pp-cli organizations scim query-an-individual-team example-value example-value",
+		Use:         "query-an-individual-team <team_id_or_slug> <organization_id_or_slug>",
+		Short:       "Query an individual team with a SCIM Group GET Request. - Note that the members field will only contain up to 10000...",
+		Example:     "  sentry-pp-cli organizations scim query-an-individual-team example-value example-value",
 		Annotations: map[string]string{"pp:endpoint": "scim.query-an-individual-team", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

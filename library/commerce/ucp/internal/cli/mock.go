@@ -8,8 +8,8 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/commerce/ucp/internal/mock"
+	"github.com/spf13/cobra"
 )
 
 func newMockCmd(flags *rootFlags) *cobra.Command {
@@ -28,9 +28,9 @@ func newMockServeCmd(flags *rootFlags) *cobra.Command {
 	var addr string
 
 	cmd := &cobra.Command{
-		Use:    "serve",
-		Short:  "Start the bundled pure-Go reference UCP merchant on a local port",
-		Hidden: true,
+		Use:     "serve",
+		Short:   "Start the bundled pure-Go reference UCP merchant on a local port",
+		Hidden:  true,
 		Example: `  ucp-pp-cli mock serve --port 8080`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {

@@ -38,9 +38,9 @@ func newJiraVersionCreateCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "create",
-		Short: "Creates a project version. This operation can be accessed anonymously. **[Permissions](#permissions) required:**...",
-		Example: "  jira-pp-cli jira-version create",
+		Use:         "create",
+		Short:       "Creates a project version. This operation can be accessed anonymously. **[Permissions](#permissions) required:**...",
+		Example:     "  jira-pp-cli jira-version create",
 		Annotations: map[string]string{"pp:endpoint": "jira-version.create", "pp:method": "POST", "pp:path": "/rest/api/3/version"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {
@@ -159,7 +159,9 @@ func newJiraVersionCreateCmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

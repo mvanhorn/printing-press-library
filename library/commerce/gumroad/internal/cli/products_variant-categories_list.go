@@ -14,9 +14,9 @@ import (
 func newProductsVariantCategoriesListCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "list <product_id>",
-		Short: "Retrieve all existing variant categories of a product.",
-		Example: "  gumroad-pp-cli products variant-categories list 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "list <product_id>",
+		Short:       "Retrieve all existing variant categories of a product.",
+		Example:     "  gumroad-pp-cli products variant-categories list 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "variant-categories.list", "pp:method": "GET", "pp:path": "/products/{product_id}/variant_categories", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

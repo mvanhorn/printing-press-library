@@ -6,10 +6,10 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/travel/pointhound/internal/store"
 	"github.com/spf13/cobra"
 	"net/url"
 	"os"
-	"github.com/mvanhorn/printing-press-library/library/travel/pointhound/internal/store"
 	"regexp"
 	"strconv"
 	"strings"

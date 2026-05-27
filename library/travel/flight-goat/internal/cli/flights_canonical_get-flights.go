@@ -16,17 +16,17 @@ func newFlightsCanonicalGetFlightsCmd(flags *rootFlags) *cobra.Command {
 	var flagCountryCode string
 
 	cmd := &cobra.Command{
-		Use:   "get-flights <ident>",
-		Aliases: []string{"get"},
-		Short: "When the ident parameter is a code that could map to multiple other codes, this endpoint returns an array of...",
-		Example: "  flight-goat-pp-cli flights canonical get-flights example-value",
+		Use:         "get-flights <ident>",
+		Aliases:     []string{"get"},
+		Short:       "When the ident parameter is a code that could map to multiple other codes, this endpoint returns an array of...",
+		Example:     "  flight-goat-pp-cli flights canonical get-flights example-value",
 		Annotations: map[string]string{"pp:endpoint": "canonical.get-flights", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
 			}
 			if cmd.Flags().Changed("ident-type") {
-				allowedIdentType := []string{ "designator", "registration" }
+				allowedIdentType := []string{"designator", "registration"}
 				validIdentType := false
 				for _, v := range allowedIdentType {
 					if flagIdentType == v {

@@ -712,6 +712,7 @@ func sqliteFieldValue(v any) any {
 func lookupFieldValue(obj map[string]any, snakeKey string) any {
 	return LookupFieldValue(obj, snakeKey)
 }
+
 // upsertCatalogTx writes the typed-table portion of a catalog upsert
 // inside an existing transaction. The caller is responsible for the generic
 // resources insert (via upsertGenericResourceTx) and for committing the tx.
@@ -774,6 +775,7 @@ func (s *Store) UpsertCatalog(data json.RawMessage) error {
 
 	return tx.Commit()
 }
+
 // upsertFbaInventoryTx writes the typed-table portion of a fba_inventory upsert
 // inside an existing transaction. The caller is responsible for the generic
 // resources insert (via upsertGenericResourceTx) and for committing the tx.
@@ -831,6 +833,7 @@ func (s *Store) UpsertFbaInventory(data json.RawMessage) error {
 
 	return tx.Commit()
 }
+
 // upsertListingsTx writes the typed-table portion of a listings upsert
 // inside an existing transaction. The caller is responsible for the generic
 // resources insert (via upsertGenericResourceTx) and for committing the tx.
@@ -898,6 +901,7 @@ func (s *Store) UpsertListings(data json.RawMessage) error {
 
 	return tx.Commit()
 }
+
 // upsertOrdersTx writes the typed-table portion of a orders upsert
 // inside an existing transaction. The caller is responsible for the generic
 // resources insert (via upsertGenericResourceTx) and for committing the tx.
@@ -958,6 +962,7 @@ func (s *Store) UpsertOrders(data json.RawMessage) error {
 
 	return tx.Commit()
 }
+
 // upsertReportsTx writes the typed-table portion of a reports upsert
 // inside an existing transaction. The caller is responsible for the generic
 // resources insert (via upsertGenericResourceTx) and for committing the tx.
@@ -1029,8 +1034,7 @@ func (s *Store) UpsertReports(data json.RawMessage) error {
 // Includes both flat resources and dependent (parent-child) resources so a
 // child path-item annotated with x-resource-id resolves the same as a flat
 // path-item.
-var resourceIDFieldOverrides = map[string]string{
-}
+var resourceIDFieldOverrides = map[string]string{}
 
 // genericIDFieldFallbacks is the runtime safety net for resources that did
 // NOT receive a templated IDField. API-specific names belong in spec

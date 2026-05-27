@@ -52,11 +52,11 @@ func newMessagesStatsCmd(f *rootFlags) *cobra.Command {
 }
 
 type messagesStatsJSON struct {
-	TotalMessages int64           `json:"total_messages"`
-	TotalChats    int64           `json:"total_chats"`
-	TotalHandles  int64           `json:"total_handles"`
-	ByYear        []YearStats     `json:"by_year,omitempty"`
-	TopHandles    []HandleStats   `json:"top_handles,omitempty"`
+	TotalMessages int64         `json:"total_messages"`
+	TotalChats    int64         `json:"total_chats"`
+	TotalHandles  int64         `json:"total_handles"`
+	ByYear        []YearStats   `json:"by_year,omitempty"`
+	TopHandles    []HandleStats `json:"top_handles,omitempty"`
 }
 
 func printMessagesStatsJSON(cmd *cobra.Command, f *rootFlags, t MessagesTotals, byYear []YearStats, byHandle []HandleStats) error {

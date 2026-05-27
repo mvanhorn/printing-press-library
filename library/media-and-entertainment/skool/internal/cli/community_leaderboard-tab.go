@@ -17,9 +17,9 @@ func newCommunityLeaderboardTabCmd(flags *rootFlags) *cobra.Command {
 	var flagT string
 
 	cmd := &cobra.Command{
-		Use:   "leaderboard-tab",
-		Short: "Leaderboard tab (community page rendered with t=leaderboard)",
-		Example: "  skool-pp-cli community leaderboard-tab --community example-value",
+		Use:         "leaderboard-tab",
+		Short:       "Leaderboard tab (community page rendered with t=leaderboard)",
+		Example:     "  skool-pp-cli community leaderboard-tab --community example-value",
 		Annotations: map[string]string{"pp:endpoint": "community.leaderboard-tab", "pp:method": "GET", "pp:path": "/_next/data/{buildId}/{community}.json", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("community") && !flags.dryRun {

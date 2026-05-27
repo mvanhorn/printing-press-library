@@ -37,10 +37,10 @@ func newPermissionschemeUpdatePermissionSchemeCmd(flags *rootFlags) *cobra.Comma
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "update-permission-scheme <schemeId>",
-		Aliases: []string{"update"},
-		Short: "Updates a permission scheme. Below are some important things to note when using this resource: * If a permissions...",
-		Example: "  jira-pp-cli permissionscheme update-permission-scheme 42 --name example-resource",
+		Use:         "update-permission-scheme <schemeId>",
+		Aliases:     []string{"update"},
+		Short:       "Updates a permission scheme. Below are some important things to note when using this resource: * If a permissions...",
+		Example:     "  jira-pp-cli permissionscheme update-permission-scheme 42 --name example-resource",
 		Annotations: map[string]string{"pp:endpoint": "permissionscheme.update-permission-scheme", "pp:method": "PUT", "pp:path": "/rest/api/3/permissionscheme/{schemeId}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -174,7 +174,9 @@ func newPermissionschemeUpdatePermissionSchemeCmd(flags *rootFlags) *cobra.Comma
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

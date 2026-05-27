@@ -15,10 +15,10 @@ func newViewTaskGetViewCmd(flags *rootFlags) *cobra.Command {
 	var flagPage string
 
 	cmd := &cobra.Command{
-		Use:   "get-view <view_id>",
-		Aliases: []string{"get"},
-		Short: "See all visible tasks in a view in ClickUp.",
-		Example: "  clickup-pp-cli view task get-view 550e8400-e29b-41d4-a716-446655440000 --page 42",
+		Use:         "get-view <view_id>",
+		Aliases:     []string{"get"},
+		Short:       "See all visible tasks in a view in ClickUp.",
+		Example:     "  clickup-pp-cli view task get-view 550e8400-e29b-41d4-a716-446655440000 --page 42",
 		Annotations: map[string]string{"pp:endpoint": "task.get-view", "pp:method": "GET", "pp:path": "/v2/view/{view_id}/task", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

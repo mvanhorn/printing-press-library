@@ -15,14 +15,14 @@ func newCategoryListCategoriesCmd(flags *rootFlags) *cobra.Command {
 	var flagSort string
 
 	cmd := &cobra.Command{
-		Use:   "list-categories",
-		Aliases: []string{"list"},
-		Short: "Returns all categories used to organize the API network (e.g., AI, E-commerce, Communication, DevOps). Categories...",
-		Example: "  postman-explore-pp-cli category list-categories",
+		Use:         "list-categories",
+		Aliases:     []string{"list"},
+		Short:       "Returns all categories used to organize the API network (e.g., AI, E-commerce, Communication, DevOps). Categories...",
+		Example:     "  postman-explore-pp-cli category list-categories",
 		Annotations: map[string]string{"pp:endpoint": "category.list-categories"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if cmd.Flags().Changed("sort") {
-				allowedSort := []string{ "spotlighted" }
+				allowedSort := []string{"spotlighted"}
 				validSort := false
 				for _, v := range allowedSort {
 					if flagSort == v {

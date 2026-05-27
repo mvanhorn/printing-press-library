@@ -9,10 +9,10 @@ import (
 func TestParseSinceRejectsNegative(t *testing.T) {
 	t.Parallel()
 	cases := []struct {
-		name     string
-		in       string
-		wantErr  bool
-		wantDur  time.Duration
+		name    string
+		in      string
+		wantErr bool
+		wantDur time.Duration
 	}{
 		{"empty is zero", "", false, 0},
 		{"positive days", "7d", false, 7 * 24 * time.Hour},

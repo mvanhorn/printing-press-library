@@ -20,9 +20,9 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/mvanhorn/printing-press-library/library/food-and-dining/anylist/internal/client"
 	mcplib "github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/anylist/internal/client"
 )
 
 // RegisterIntents adds the spec-declared intent tools to the MCP server.

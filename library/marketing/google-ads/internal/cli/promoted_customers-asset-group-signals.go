@@ -18,10 +18,10 @@ func newCustomersAssetGroupSignalsPromotedCmd(flags *rootFlags) *cobra.Command {
 	var bodyResponseContentType string
 
 	cmd := &cobra.Command{
-		Use:   "customers-asset-group-signals <customerId>",
-		Short: "Creates or removes asset group signals. Operation statuses are returned.",
-		Long:  "Shortcut for 'customers_asset_group_signals mutate'. Creates or removes asset group signals. Operation statuses are returned.",
-		Example: "  google-ads-pp-cli customers-asset-group-signals",
+		Use:         "customers-asset-group-signals <customerId>",
+		Short:       "Creates or removes asset group signals. Operation statuses are returned.",
+		Long:        "Shortcut for 'customers_asset_group_signals mutate'. Creates or removes asset group signals. Operation statuses are returned.",
+		Example:     "  google-ads-pp-cli customers-asset-group-signals",
 		Annotations: map[string]string{"pp:endpoint": "customers_asset_group_signals.mutate", "pp:method": "POST", "pp:path": "/v22/customers/{customerId}/assetGroupSignals:mutate"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

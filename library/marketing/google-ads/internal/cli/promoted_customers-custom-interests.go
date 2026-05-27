@@ -16,10 +16,10 @@ func newCustomersCustomInterestsPromotedCmd(flags *rootFlags) *cobra.Command {
 	var bodyValidateOnly bool
 
 	cmd := &cobra.Command{
-		Use:   "customers-custom-interests <customerId>",
-		Short: "Creates or updates custom interests. Operation statuses are returned.",
-		Long:  "Shortcut for 'customers_custom_interests mutate'. Creates or updates custom interests. Operation statuses are returned.",
-		Example: "  google-ads-pp-cli customers-custom-interests",
+		Use:         "customers-custom-interests <customerId>",
+		Short:       "Creates or updates custom interests. Operation statuses are returned.",
+		Long:        "Shortcut for 'customers_custom_interests mutate'. Creates or updates custom interests. Operation statuses are returned.",
+		Example:     "  google-ads-pp-cli customers-custom-interests",
 		Annotations: map[string]string{"pp:endpoint": "customers_custom_interests.mutate", "pp:method": "POST", "pp:path": "/v22/customers/{customerId}/customInterests:mutate"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

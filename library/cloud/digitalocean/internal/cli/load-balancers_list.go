@@ -14,9 +14,9 @@ import (
 func newLoadBalancersListCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "list",
-		Short: "List",
-		Example: "  digitalocean-pp-cli load-balancers list",
+		Use:         "list",
+		Short:       "List",
+		Example:     "  digitalocean-pp-cli load-balancers list",
 		Annotations: map[string]string{"pp:endpoint": "load-balancers.list", "pp:method": "GET", "pp:path": "/v2/load_balancers", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

@@ -15,9 +15,9 @@ func newChangefilesGetCmd(flags *rootFlags) *cobra.Command {
 	var flagDate string
 
 	cmd := &cobra.Command{
-		Use:   "get",
-		Short: "Get details for a specific date's changefile, including which entity types changed, how many records, and download...",
-		Example: "  openalex-pp-cli changefiles get --date 2026-01-15",
+		Use:         "get",
+		Short:       "Get details for a specific date's changefile, including which entity types changed, how many records, and download...",
+		Example:     "  openalex-pp-cli changefiles get --date 2026-01-15",
 		Annotations: map[string]string{"pp:endpoint": "changefiles.get", "pp:method": "GET", "pp:path": "/changefiles/{date}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("date") && !flags.dryRun {

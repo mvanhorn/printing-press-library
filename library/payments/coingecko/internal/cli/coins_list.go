@@ -15,13 +15,13 @@ func newCoinsListCmd(flags *rootFlags) *cobra.Command {
 	var flagIncludePlatform string
 
 	cmd := &cobra.Command{
-		Use:   "list",
-		Short: "List all coins with id, symbol, and name",
-		Example: "  coingecko-pp-cli coins list",
+		Use:         "list",
+		Short:       "List all coins with id, symbol, and name",
+		Example:     "  coingecko-pp-cli coins list",
 		Annotations: map[string]string{"pp:endpoint": "coins.list", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if cmd.Flags().Changed("include-platform") {
-				allowedIncludePlatform := []string{ "true", "false" }
+				allowedIncludePlatform := []string{"true", "false"}
 				validIncludePlatform := false
 				for _, v := range allowedIncludePlatform {
 					if flagIncludePlatform == v {

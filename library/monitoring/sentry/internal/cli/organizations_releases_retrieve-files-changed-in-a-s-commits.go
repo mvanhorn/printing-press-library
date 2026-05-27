@@ -14,9 +14,9 @@ import (
 func newOrganizationsReleasesRetrieveFilesChangedInASCommitsCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "retrieve-files-changed-in-a-s-commits <organization_id_or_slug> <version>",
-		Short: "Retrieve files changed in a release's commits",
-		Example: "  sentry-pp-cli organizations releases retrieve-files-changed-in-a-s-commits example-value example-value",
+		Use:         "retrieve-files-changed-in-a-s-commits <organization_id_or_slug> <version>",
+		Short:       "Retrieve files changed in a release's commits",
+		Example:     "  sentry-pp-cli organizations releases retrieve-files-changed-in-a-s-commits example-value example-value",
 		Annotations: map[string]string{"pp:endpoint": "releases.retrieve-files-changed-in-a-s-commits", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

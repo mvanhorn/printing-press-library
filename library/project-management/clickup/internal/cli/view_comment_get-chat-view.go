@@ -16,10 +16,10 @@ func newViewCommentGetChatViewCmd(flags *rootFlags) *cobra.Command {
 	var flagStartId string
 
 	cmd := &cobra.Command{
-		Use:   "get-chat-view <view_id>",
-		Aliases: []string{"get"},
-		Short: "View comments from a Chat view. If you do not include the `start` and `start_id` parameters, this endpoint will...",
-		Example: "  clickup-pp-cli view comment get-chat-view 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "get-chat-view <view_id>",
+		Aliases:     []string{"get"},
+		Short:       "View comments from a Chat view. If you do not include the `start` and `start_id` parameters, this endpoint will...",
+		Example:     "  clickup-pp-cli view comment get-chat-view 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "comment.get-chat-view", "pp:method": "GET", "pp:path": "/v2/view/{view_id}/comment", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

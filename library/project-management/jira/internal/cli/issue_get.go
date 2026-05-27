@@ -20,9 +20,9 @@ func newIssueGetCmd(flags *rootFlags) *cobra.Command {
 	var flagFailFast bool
 
 	cmd := &cobra.Command{
-		Use:   "get <issueIdOrKey>",
-		Short: "Returns the details for an issue. The issue is identified by its ID or key, however, if the identifier doesn't match...",
-		Example: "  jira-pp-cli issue get your-token-here",
+		Use:         "get <issueIdOrKey>",
+		Short:       "Returns the details for an issue. The issue is identified by its ID or key, however, if the identifier doesn't match...",
+		Example:     "  jira-pp-cli issue get your-token-here",
 		Annotations: map[string]string{"pp:endpoint": "issue.get", "pp:method": "GET", "pp:path": "/rest/api/3/issue/{issueIdOrKey}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

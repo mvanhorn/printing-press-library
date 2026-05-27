@@ -112,15 +112,15 @@ type TelemetryEquipmentState struct {
 }
 
 type Chemistry struct {
-	MspSystemID int       `json:"msp_system_id"`
-	BowName     string    `json:"bow_name"`
-	PH          *float64  `json:"ph,omitempty"`
-	ORP         *int      `json:"orp,omitempty"`
-	SaltPPM     *int      `json:"salt_ppm,omitempty"`
-	WaterTemp   *int      `json:"water_temp,omitempty"`
-	AirTemp     *int      `json:"air_temp,omitempty"`
-	Verdict     string    `json:"verdict"`
-	Reasons     []string  `json:"reasons,omitempty"`
+	MspSystemID int      `json:"msp_system_id"`
+	BowName     string   `json:"bow_name"`
+	PH          *float64 `json:"ph,omitempty"`
+	ORP         *int     `json:"orp,omitempty"`
+	SaltPPM     *int     `json:"salt_ppm,omitempty"`
+	WaterTemp   *int     `json:"water_temp,omitempty"`
+	AirTemp     *int     `json:"air_temp,omitempty"`
+	Verdict     string   `json:"verdict"`
+	Reasons     []string `json:"reasons,omitempty"`
 	// NotEquipped names the sensors this site doesn't have (per capabilities
 	// config). When populated, those readings are omitted from PH/ORP/SaltPPM
 	// even if Hayward returned a -1, and the verdict logic ignores them.

@@ -12,6 +12,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/commerce/ucp/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/commerce/ucp/internal/config"
 	"io"
 	"math"
 	"net/http"
@@ -21,8 +23,6 @@ import (
 	"sort"
 	"strings"
 	"time"
-	"github.com/mvanhorn/printing-press-library/library/commerce/ucp/internal/cliutil"
-	"github.com/mvanhorn/printing-press-library/library/commerce/ucp/internal/config"
 )
 
 const BinaryResponseHeader = "X-Printing-Press-Binary-Response"

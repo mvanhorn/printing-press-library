@@ -7,8 +7,8 @@ import (
 	"fmt"
 	"os"
 
-	mcptools "github.com/mvanhorn/printing-press-library/library/sales-and-crm/contact-goat/internal/mcp"
 	"github.com/mark3labs/mcp-go/server"
+	mcptools "github.com/mvanhorn/printing-press-library/library/sales-and-crm/contact-goat/internal/mcp"
 )
 
 func main() {

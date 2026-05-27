@@ -17,10 +17,10 @@ func newCustomersAdGroupAdLabelsPromotedCmd(flags *rootFlags) *cobra.Command {
 	var bodyPartialFailure bool
 
 	cmd := &cobra.Command{
-		Use:   "customers-ad-group-ad-labels <customerId>",
-		Short: "Creates and removes ad group ad labels. Operation statuses are returned.",
-		Long:  "Shortcut for 'customers_ad_group_ad_labels mutate'. Creates and removes ad group ad labels. Operation statuses are returned.",
-		Example: "  google-ads-pp-cli customers-ad-group-ad-labels",
+		Use:         "customers-ad-group-ad-labels <customerId>",
+		Short:       "Creates and removes ad group ad labels. Operation statuses are returned.",
+		Long:        "Shortcut for 'customers_ad_group_ad_labels mutate'. Creates and removes ad group ad labels. Operation statuses are returned.",
+		Example:     "  google-ads-pp-cli customers-ad-group-ad-labels",
 		Annotations: map[string]string{"pp:endpoint": "customers_ad_group_ad_labels.mutate", "pp:method": "POST", "pp:path": "/v22/customers/{customerId}/adGroupAdLabels:mutate"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

@@ -14,10 +14,10 @@ import (
 func newCasedocsDownloadPdfGetCaseDocsPdfDownloadCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-case-docs-pdf-download <caseid>",
-		Aliases: []string{"get"},
-		Short: "Parameters can be one of the following: rnXXXXXXX for US registration number, snXXXXXXXX for US serial number,...",
-		Example: "  uspto-tsdr-pp-cli casedocs download-pdf get-case-docs-pdf-download 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "get-case-docs-pdf-download <caseid>",
+		Aliases:     []string{"get"},
+		Short:       "Parameters can be one of the following: rnXXXXXXX for US registration number, snXXXXXXXX for US serial number,...",
+		Example:     "  uspto-tsdr-pp-cli casedocs download-pdf get-case-docs-pdf-download 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "download-pdf.get-case-docs-pdf-download", "pp:method": "GET", "pp:path": "/casedocs/{caseid}/download.pdf", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

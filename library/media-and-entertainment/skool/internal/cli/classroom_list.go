@@ -16,9 +16,9 @@ func newClassroomListCmd(flags *rootFlags) *cobra.Command {
 	var flagG string
 
 	cmd := &cobra.Command{
-		Use:   "list",
-		Short: "List all courses in a community",
-		Example: "  skool-pp-cli classroom list --community example-value",
+		Use:         "list",
+		Short:       "List all courses in a community",
+		Example:     "  skool-pp-cli classroom list --community example-value",
 		Annotations: map[string]string{"pp:endpoint": "classroom.list", "pp:method": "GET", "pp:path": "/_next/data/{buildId}/{community}/classroom.json", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("community") && !flags.dryRun {

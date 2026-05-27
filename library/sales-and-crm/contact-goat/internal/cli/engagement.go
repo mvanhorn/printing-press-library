@@ -45,9 +45,9 @@ func newEngagementCmd(flags *rootFlags) *cobra.Command {
 	var sinceWindow string
 
 	cmd := &cobra.Command{
-		Use:   "engagement <person-id-or-url>",
+		Use:         "engagement <person-id-or-url>",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short: "Score last-touch engagement with a person across all sources",
+		Short:       "Score last-touch engagement with a person across all sources",
 		Long: `Compute a 0-100 engagement score based on the most recent interaction with
 a person across LinkedIn (messages, profile views), Happenstance (research,
 feed appearances), and Deepline (enrich calls).

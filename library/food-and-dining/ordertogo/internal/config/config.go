@@ -17,15 +17,15 @@ import (
 )
 
 type Config struct {
-	BaseURL           string            `toml:"base_url"`
-	AuthHeaderVal     string            `toml:"auth_header"`
-	Headers           map[string]string `toml:"headers,omitempty"`
-	AuthSource        string            `toml:"-"`
-	AccessToken       string            `toml:"access_token"`
-	RefreshToken      string            `toml:"refresh_token"`
-	TokenExpiry       time.Time         `toml:"token_expiry"`
-	ClientID          string            `toml:"client_id"`
-	ClientSecret      string            `toml:"client_secret"`
+	BaseURL             string            `toml:"base_url"`
+	AuthHeaderVal       string            `toml:"auth_header"`
+	Headers             map[string]string `toml:"headers,omitempty"`
+	AuthSource          string            `toml:"-"`
+	AccessToken         string            `toml:"access_token"`
+	RefreshToken        string            `toml:"refresh_token"`
+	TokenExpiry         time.Time         `toml:"token_expiry"`
+	ClientID            string            `toml:"client_id"`
+	ClientSecret        string            `toml:"client_secret"`
 	DefaultRestaurant   string            `toml:"default_restaurant"`
 	DefaultLocationCode string            `toml:"default_location_code"`
 	DefaultMax          float64           `toml:"default_max"`

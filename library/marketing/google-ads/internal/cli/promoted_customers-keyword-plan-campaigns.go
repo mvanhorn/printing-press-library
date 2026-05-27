@@ -17,10 +17,10 @@ func newCustomersKeywordPlanCampaignsPromotedCmd(flags *rootFlags) *cobra.Comman
 	var bodyPartialFailure bool
 
 	cmd := &cobra.Command{
-		Use:   "customers-keyword-plan-campaigns <customerId>",
-		Short: "Creates, updates, or removes Keyword Plan campaigns. Operation statuses are returned.",
-		Long:  "Shortcut for 'customers_keyword_plan_campaigns mutate'. Creates, updates, or removes Keyword Plan campaigns. Operation statuses are returned.",
-		Example: "  google-ads-pp-cli customers-keyword-plan-campaigns",
+		Use:         "customers-keyword-plan-campaigns <customerId>",
+		Short:       "Creates, updates, or removes Keyword Plan campaigns. Operation statuses are returned.",
+		Long:        "Shortcut for 'customers_keyword_plan_campaigns mutate'. Creates, updates, or removes Keyword Plan campaigns. Operation statuses are returned.",
+		Example:     "  google-ads-pp-cli customers-keyword-plan-campaigns",
 		Annotations: map[string]string{"pp:endpoint": "customers_keyword_plan_campaigns.mutate", "pp:method": "POST", "pp:path": "/v22/customers/{customerId}/keywordPlanCampaigns:mutate"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

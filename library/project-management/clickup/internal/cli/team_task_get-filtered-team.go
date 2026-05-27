@@ -37,10 +37,10 @@ func newTeamTaskGetFilteredTeamCmd(flags *rootFlags) *cobra.Command {
 	var flagCustomItems string
 
 	cmd := &cobra.Command{
-		Use:   "get-filtered-team <team_Id>",
-		Aliases: []string{"get"},
-		Short: "View the tasks that meet specific criteria from a Workspace. Responses are limited to 100 tasks per page. You can...",
-		Example: "  clickup-pp-cli team task get-filtered-team 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "get-filtered-team <team_Id>",
+		Aliases:     []string{"get"},
+		Short:       "View the tasks that meet specific criteria from a Workspace. Responses are limited to 100 tasks per page. You can...",
+		Example:     "  clickup-pp-cli team task get-filtered-team 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "task.get-filtered-team", "pp:method": "GET", "pp:path": "/v2/team/{team_Id}/task", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

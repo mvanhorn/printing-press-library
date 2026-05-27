@@ -14,9 +14,9 @@ import (
 func newRegistryListSubscriptionCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "list-subscription",
-		Short: "List subscription",
-		Example: "  digitalocean-pp-cli registry list-subscription",
+		Use:         "list-subscription",
+		Short:       "List subscription",
+		Example:     "  digitalocean-pp-cli registry list-subscription",
 		Annotations: map[string]string{"pp:endpoint": "registry.list-subscription", "pp:method": "GET", "pp:path": "/v2/registry/subscription", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

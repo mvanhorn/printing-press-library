@@ -15,8 +15,8 @@ func newCoinFactsBarcodeCmd(flags *rootFlags) *cobra.Command {
 	var flagGradingService string
 
 	cmd := &cobra.Command{
-		Use:         "facts-barcode <barcode>",
-		Short:       "CoinFacts metadata by holder barcode. Supports PCGS and competitor-service barcodes (NGC, ANACS, ICG, SEGS).",
+		Use:   "facts-barcode <barcode>",
+		Short: "CoinFacts metadata by holder barcode. Supports PCGS and competitor-service barcodes (NGC, ANACS, ICG, SEGS).",
 		Long: "CoinFacts metadata by holder barcode. Supports PCGS and competitor-service barcodes (NGC, ANACS, ICG, SEGS).\n\n" +
 			"Response transforms (same as `coin facts-cert`): PriceGuideValue: 0 is rewritten to null so unpriced modern slabs don't silently undercount sums; year_mismatch is injected when the year prefix parsed from Name disagrees with the Year field; the noisy Images stub array is stripped — fetch image URLs via `pcgs-pp-cli coin images <cert>`. HasObverseImage / HasReverseImage / HasTrueViewImage / ImageReady booleans are preserved.",
 		Example:     "  pcgs-pp-cli coin facts-barcode example-value --service example-value",

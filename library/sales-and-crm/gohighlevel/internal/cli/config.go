@@ -13,9 +13,9 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/mvanhorn/printing-press-library/library/sales-and-crm/gohighlevel/internal/cliutil"
 	"github.com/pelletier/go-toml/v2"
 	"github.com/spf13/cobra"
-	"github.com/mvanhorn/printing-press-library/library/sales-and-crm/gohighlevel/internal/cliutil"
 )
 
 // locationOverride is set by the global --location flag (registered in

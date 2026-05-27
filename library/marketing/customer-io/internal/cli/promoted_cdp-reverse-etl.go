@@ -14,10 +14,10 @@ import (
 func newCdpReverseEtlPromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "cdp-reverse-etl",
-		Short: "List Reverse-ETL syncs",
-		Long:  "Shortcut for 'cdp_reverse_etl list'. List Reverse-ETL syncs",
-		Example: "  customer-io-pp-cli cdp-reverse-etl",
+		Use:         "cdp-reverse-etl",
+		Short:       "List Reverse-ETL syncs",
+		Long:        "Shortcut for 'cdp_reverse_etl list'. List Reverse-ETL syncs",
+		Example:     "  customer-io-pp-cli cdp-reverse-etl",
 		Annotations: map[string]string{"pp:endpoint": "cdp_reverse_etl.list", "pp:method": "GET", "pp:path": "/cdp/api/reverse_etl/syncs", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

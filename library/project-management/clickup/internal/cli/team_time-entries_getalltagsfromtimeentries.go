@@ -14,10 +14,10 @@ import (
 func newTeamTimeEntriesGetalltagsfromtimeentriesCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "getalltagsfromtimeentries <team_id>",
-		Aliases: []string{"get"},
-		Short: "View all the labels that have been applied to time entries in a Workspace.",
-		Example: "  clickup-pp-cli team time-entries getalltagsfromtimeentries 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "getalltagsfromtimeentries <team_id>",
+		Aliases:     []string{"get"},
+		Short:       "View all the labels that have been applied to time entries in a Workspace.",
+		Example:     "  clickup-pp-cli team time-entries getalltagsfromtimeentries 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "time-entries.getalltagsfromtimeentries", "pp:method": "GET", "pp:path": "/v2/team/{team_id}/time_entries/tags", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

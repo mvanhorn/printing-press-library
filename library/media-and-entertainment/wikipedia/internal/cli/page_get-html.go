@@ -14,10 +14,10 @@ import (
 func newPageGetHtmlCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-html <title>",
-		Aliases: []string{"get"},
-		Short: "Returns the full article body as styled HTML.",
-		Example: "  wikipedia-pp-cli page get-html example-resource",
+		Use:         "get-html <title>",
+		Aliases:     []string{"get"},
+		Short:       "Returns the full article body as styled HTML.",
+		Example:     "  wikipedia-pp-cli page get-html example-resource",
 		Annotations: map[string]string{"pp:endpoint": "page.get-html", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

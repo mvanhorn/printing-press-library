@@ -17,10 +17,10 @@ func newPodcastsEpisodesListPodcastCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "list-podcast <podcast_id>",
-		Aliases: []string{"get"},
-		Short: "List episodes for a podcast",
-		Example: "  podscan-pp-cli podcasts episodes list-podcast 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "list-podcast <podcast_id>",
+		Aliases:     []string{"get"},
+		Short:       "List episodes for a podcast",
+		Example:     "  podscan-pp-cli podcasts episodes list-podcast 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "episodes.list-podcast", "pp:method": "GET", "pp:path": "/podcasts/{podcast_id}/episodes", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -35,7 +35,7 @@ func newPodcastsEpisodesListPodcastCmd(flags *rootFlags) *cobra.Command {
 			path = replacePathParam(path, "podcast_id", args[0])
 			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "episodes", path, map[string]string{
 				"per_page": fmt.Sprintf("%v", flagPerPage),
-				"page": fmt.Sprintf("%v", flagPage),
+				"page":     fmt.Sprintf("%v", flagPage),
 			}, nil, flagAll, "", "", "")
 			if err != nil {
 				return classifyAPIError(err, flags)

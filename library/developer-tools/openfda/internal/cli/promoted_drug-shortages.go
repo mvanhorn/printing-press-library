@@ -18,10 +18,10 @@ func newDrugShortagesPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagDesignation string
 
 	cmd := &cobra.Command{
-		Use:   "drug-shortages",
-		Short: "Search drug shortages",
-		Long:  "Shortcut for 'drug-shortages list'. Search drug shortages",
-		Example: "  openfda-pp-cli drug-shortages",
+		Use:         "drug-shortages",
+		Short:       "Search drug shortages",
+		Long:        "Shortcut for 'drug-shortages list'. Search drug shortages",
+		Example:     "  openfda-pp-cli drug-shortages",
 		Annotations: map[string]string{"pp:endpoint": "drug-shortages.list", "pp:method": "GET", "pp:path": "/drug/shortages.json", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

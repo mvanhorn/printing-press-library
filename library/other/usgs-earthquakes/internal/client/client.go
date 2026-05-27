@@ -10,6 +10,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/other/usgs-earthquakes/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/other/usgs-earthquakes/internal/config"
 	"html"
 	"io"
 	"math"
@@ -19,8 +21,6 @@ import (
 	"sort"
 	"strings"
 	"time"
-	"github.com/mvanhorn/printing-press-library/library/other/usgs-earthquakes/internal/cliutil"
-	"github.com/mvanhorn/printing-press-library/library/other/usgs-earthquakes/internal/config"
 )
 
 const BinaryResponseHeader = "X-Printing-Press-Binary-Response"

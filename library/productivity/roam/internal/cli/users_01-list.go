@@ -17,10 +17,10 @@ func newUsersV01ListCmd(flags *rootFlags) *cobra.Command {
 	var flagCount int
 
 	cmd := &cobra.Command{
-		Use:   "01-list",
-		Aliases: []string{"list"},
-		Short: "Returns a paginated list of users in your Roam organization. **Filtering:** Supports SCIM filter expressions, e.g.,...",
-		Example: "  roam-pp-cli users 01-list",
+		Use:         "01-list",
+		Aliases:     []string{"list"},
+		Short:       "Returns a paginated list of users in your Roam organization. **Filtering:** Supports SCIM filter expressions, e.g.,...",
+		Example:     "  roam-pp-cli users 01-list",
 		Annotations: map[string]string{"pp:endpoint": "users.01-list", "pp:method": "GET", "pp:path": "/Users", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

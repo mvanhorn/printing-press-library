@@ -25,9 +25,9 @@ func newOrdersSearchCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "search",
-		Short: "Search orders. Provide exactly one of createdAfter or lastUpdatedAfter; Amazon returns 400 for invalid combinations.",
-		Example: "  amazon-seller-pp-cli orders search",
+		Use:         "search",
+		Short:       "Search orders. Provide exactly one of createdAfter or lastUpdatedAfter; Amazon returns 400 for invalid combinations.",
+		Example:     "  amazon-seller-pp-cli orders search",
 		Annotations: map[string]string{"pp:endpoint": "orders.search", "pp:method": "GET", "pp:path": "/orders/2026-01-01/orders", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
@@ -37,16 +37,16 @@ func newOrdersSearchCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/orders/2026-01-01/orders"
 			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "orders", path, map[string]string{
-				"createdAfter": fmt.Sprintf("%v", flagCreatedAfter),
-				"createdBefore": fmt.Sprintf("%v", flagCreatedBefore),
-				"lastUpdatedAfter": fmt.Sprintf("%v", flagLastUpdatedAfter),
-				"lastUpdatedBefore": fmt.Sprintf("%v", flagLastUpdatedBefore),
-				"marketplaceIds": fmt.Sprintf("%v", flagMarketplaceIds),
+				"createdAfter":        fmt.Sprintf("%v", flagCreatedAfter),
+				"createdBefore":       fmt.Sprintf("%v", flagCreatedBefore),
+				"lastUpdatedAfter":    fmt.Sprintf("%v", flagLastUpdatedAfter),
+				"lastUpdatedBefore":   fmt.Sprintf("%v", flagLastUpdatedBefore),
+				"marketplaceIds":      fmt.Sprintf("%v", flagMarketplaceIds),
 				"fulfillmentStatuses": fmt.Sprintf("%v", flagFulfillmentStatuses),
-				"fulfilledBy": fmt.Sprintf("%v", flagFulfilledBy),
-				"maxResultsPerPage": fmt.Sprintf("%v", flagMaxResultsPerPage),
-				"paginationToken": fmt.Sprintf("%v", flagPaginationToken),
-				"includedData": fmt.Sprintf("%v", flagIncludedData),
+				"fulfilledBy":         fmt.Sprintf("%v", flagFulfilledBy),
+				"maxResultsPerPage":   fmt.Sprintf("%v", flagMaxResultsPerPage),
+				"paginationToken":     fmt.Sprintf("%v", flagPaginationToken),
+				"includedData":        fmt.Sprintf("%v", flagIncludedData),
 			}, nil, flagAll, "paginationToken", "pagination.nextToken", "")
 			if err != nil {
 				return classifyAPIError(err, flags)

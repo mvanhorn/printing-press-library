@@ -9,6 +9,8 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/spotify/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/spotify/internal/config"
 	"github.com/spf13/cobra"
 	"net"
 	"net/http"
@@ -16,8 +18,6 @@ import (
 	"os"
 	"os/exec"
 	"runtime"
-	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/spotify/internal/cliutil"
-	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/spotify/internal/config"
 	"strings"
 	"time"
 )

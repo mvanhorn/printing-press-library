@@ -17,9 +17,9 @@ func newCalendarListEventsCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "list-events",
-		Short: "List synced calendar events",
-		Example: "  conduyt-crm-pp-cli calendar list-events",
+		Use:         "list-events",
+		Short:       "List synced calendar events",
+		Example:     "  conduyt-crm-pp-cli calendar list-events",
 		Annotations: map[string]string{"pp:endpoint": "calendar.list-events", "pp:method": "GET", "pp:path": "/calendar/events", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
@@ -29,7 +29,7 @@ func newCalendarListEventsCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/calendar/events"
 			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "calendar", path, map[string]string{
-				"page": fmt.Sprintf("%v", flagPage),
+				"page":     fmt.Sprintf("%v", flagPage),
 				"per_page": fmt.Sprintf("%v", flagPerPage),
 			}, nil, flagAll, "", "", "")
 			if err != nil {

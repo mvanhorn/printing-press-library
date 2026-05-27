@@ -9,8 +9,8 @@ import (
 
 func newLicenseCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "license",
-		Short: "Manage license",
+		Use:    "license",
+		Short:  "Manage license",
 		Hidden: true,
 	}
 

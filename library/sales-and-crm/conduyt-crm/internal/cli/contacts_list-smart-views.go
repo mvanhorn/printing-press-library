@@ -14,9 +14,9 @@ import (
 func newContactsListSmartViewsCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "list-smart-views",
-		Short: "List available smart view definitions",
-		Example: "  conduyt-crm-pp-cli contacts list-smart-views",
+		Use:         "list-smart-views",
+		Short:       "List available smart view definitions",
+		Example:     "  conduyt-crm-pp-cli contacts list-smart-views",
 		Annotations: map[string]string{"pp:endpoint": "contacts.list-smart-views", "pp:method": "GET", "pp:path": "/contacts/smart-views", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

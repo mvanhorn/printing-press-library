@@ -14,10 +14,10 @@ import (
 func newSlugCheckPromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "slug-check <slug>",
-		Short: "Check if a slug is available for registration. Returns suggestions if taken or reserved. No auth required.",
-		Long:  "Shortcut for 'slug-check get'. Check if a slug is available for registration. Returns suggestions if taken or reserved. No auth required.",
-		Example: "  multimail-pp-cli slug-check example-value",
+		Use:         "slug-check <slug>",
+		Short:       "Check if a slug is available for registration. Returns suggestions if taken or reserved. No auth required.",
+		Long:        "Shortcut for 'slug-check get'. Check if a slug is available for registration. Returns suggestions if taken or reserved. No auth required.",
+		Example:     "  multimail-pp-cli slug-check example-value",
 		Annotations: map[string]string{"pp:endpoint": "slug-check.get", "pp:method": "GET", "pp:path": "/v1/slug-check/{slug}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

@@ -109,7 +109,6 @@ func GetTrip(ctx context.Context, confirmationNo, firstName, lastName string) (*
 	body := apiBody
 	mu.Unlock()
 
-
 	result, err := parseTravelReservations(body, conf)
 	if err != nil {
 		// JSON parse failed; try DOM.

@@ -16,10 +16,10 @@ func newCustomersCampaignLifecycleGoalPromotedCmd(flags *rootFlags) *cobra.Comma
 	var bodyValidateOnly bool
 
 	cmd := &cobra.Command{
-		Use:   "customers-campaign-lifecycle-goal <customerId>",
-		Short: "Process the given campaign lifecycle configurations.",
-		Long:  "Shortcut for 'customers_campaign_lifecycle_goal configure_campaign_lifecycle_goals'. Process the given campaign lifecycle configurations.",
-		Example: "  google-ads-pp-cli customers-campaign-lifecycle-goal",
+		Use:         "customers-campaign-lifecycle-goal <customerId>",
+		Short:       "Process the given campaign lifecycle configurations.",
+		Long:        "Shortcut for 'customers_campaign_lifecycle_goal configure_campaign_lifecycle_goals'. Process the given campaign lifecycle configurations.",
+		Example:     "  google-ads-pp-cli customers-campaign-lifecycle-goal",
 		Annotations: map[string]string{"pp:endpoint": "customers_campaign_lifecycle_goal.configure_campaign_lifecycle_goals", "pp:method": "POST", "pp:path": "/v22/customers/{customerId}/campaignLifecycleGoal:configureCampaignLifecycleGoals"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

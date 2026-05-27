@@ -15,10 +15,10 @@ func newLobbyListPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagHandle string
 
 	cmd := &cobra.Command{
-		Use:   "lobby-list",
-		Short: "Lists active lobbies in your account. A lobby URL has the form `ro.am/{handle}` or `ro.am/{handle}/{slug}`. - The...",
-		Long:  "Shortcut for 'lobby-list lobby_list'. Lists active lobbies in your account. A lobby URL has the form `ro.am/{handle}` or `ro.am/{handle}/{slug}`. - The...",
-		Example: "  roam-pp-cli lobby-list",
+		Use:         "lobby-list",
+		Short:       "Lists active lobbies in your account. A lobby URL has the form `ro.am/{handle}` or `ro.am/{handle}/{slug}`. - The...",
+		Long:        "Shortcut for 'lobby-list lobby_list'. Lists active lobbies in your account. A lobby URL has the form `ro.am/{handle}` or `ro.am/{handle}/{slug}`. - The...",
+		Example:     "  roam-pp-cli lobby-list",
 		Annotations: map[string]string{"pp:endpoint": "lobby-list.lobby_list", "pp:method": "GET", "pp:path": "/lobby.list", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

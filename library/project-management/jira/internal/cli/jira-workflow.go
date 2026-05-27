@@ -9,8 +9,8 @@ import (
 
 func newJiraWorkflowCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "jira-workflow",
-		Short: "Manage jira cloud platform workflow",
+		Use:    "jira-workflow",
+		Short:  "Manage jira cloud platform workflow",
 		Hidden: true,
 	}
 

@@ -17,10 +17,10 @@ func newAvailabilitySetCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "set",
-		Aliases: []string{"update"},
-		Short: "Set availability rules",
-		Example: "  conduyt-crm-pp-cli availability set",
+		Use:         "set",
+		Aliases:     []string{"update"},
+		Short:       "Set availability rules",
+		Example:     "  conduyt-crm-pp-cli availability set",
 		Annotations: map[string]string{"pp:endpoint": "availability.set", "pp:method": "PUT", "pp:path": "/availability"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {
@@ -69,7 +69,9 @@ func newAvailabilitySetCmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

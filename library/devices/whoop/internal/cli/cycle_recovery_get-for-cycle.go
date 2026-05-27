@@ -14,10 +14,10 @@ import (
 func newCycleRecoveryGetForCycleCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-for-cycle <cycleId>",
-		Aliases: []string{"get"},
-		Short: "Get the recovery for a cycle",
-		Example: "  whoop-pp-cli cycle recovery get-for-cycle 42",
+		Use:         "get-for-cycle <cycleId>",
+		Aliases:     []string{"get"},
+		Short:       "Get the recovery for a cycle",
+		Example:     "  whoop-pp-cli cycle recovery get-for-cycle 42",
 		Annotations: map[string]string{"pp:endpoint": "recovery.get-for-cycle", "pp:method": "GET", "pp:path": "/v2/cycle/{cycleId}/recovery", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

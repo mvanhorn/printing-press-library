@@ -14,9 +14,9 @@ import (
 func newProfilesSelfCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "self",
-		Short: "Get the authenticated user's profile",
-		Example: "  substack-pp-cli profiles self",
+		Use:         "self",
+		Short:       "Get the authenticated user's profile",
+		Example:     "  substack-pp-cli profiles self",
 		Annotations: map[string]string{"pp:endpoint": "profiles.self", "pp:method": "GET", "pp:path": "/user/profile/self", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

@@ -14,9 +14,9 @@ import (
 func newOperatorsGetCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get <id>",
-		Short: "Returns information for an operator such as their name, ICAO/IATA codes, headquarter location, etc.",
-		Example: "  flight-goat-pp-cli operators get 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "get <id>",
+		Short:       "Returns information for an operator such as their name, ICAO/IATA codes, headquarter location, etc.",
+		Example:     "  flight-goat-pp-cli operators get 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "operators.get", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

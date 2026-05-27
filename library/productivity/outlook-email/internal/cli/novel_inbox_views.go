@@ -150,10 +150,10 @@ func groupSince(rows []messageRow, mode string) map[string]int {
 
 func newFlaggedCmd(flags *rootFlags) *cobra.Command {
 	var (
-		dbPath    string
+		dbPath      string
 		overdueOnly bool
-		top       int
-		windowArg string
+		top         int
+		windowArg   string
 	)
 	cmd := &cobra.Command{
 		Use:   "flagged",
@@ -256,9 +256,9 @@ never aggregates.
 				items = items[:top]
 			}
 			out := map[string]any{
-				"count":  totalCount, // PR #408 P1: snapshot BEFORE truncation
-				"items":  items,
-				"as_of":  now.Format(time.RFC3339),
+				"count": totalCount, // PR #408 P1: snapshot BEFORE truncation
+				"items": items,
+				"as_of": now.Format(time.RFC3339),
 			}
 			return printJSONFiltered(cmd.OutOrStdout(), out, flags)
 		},
@@ -389,16 +389,16 @@ conversations — this is local-store-only.
 				return apiErr(err)
 			}
 			type convo struct {
-				ID            string    `json:"conversation_id"`
-				Subject       string    `json:"subject"`
-				MessageCount  int       `json:"message_count"`
-				UnreadCount   int       `json:"unread_count"`
-				Participants  []string  `json:"participants"`
-				FirstAt       time.Time `json:"first_at"`
-				LastAt        time.Time `json:"last_at"`
-				LastFrom      string    `json:"last_from"`
-				LastIsFromMe  bool      `json:"last_is_from_me"`
-				FlaggedAny    bool      `json:"flagged_any"`
+				ID           string    `json:"conversation_id"`
+				Subject      string    `json:"subject"`
+				MessageCount int       `json:"message_count"`
+				UnreadCount  int       `json:"unread_count"`
+				Participants []string  `json:"participants"`
+				FirstAt      time.Time `json:"first_at"`
+				LastAt       time.Time `json:"last_at"`
+				LastFrom     string    `json:"last_from"`
+				LastIsFromMe bool      `json:"last_is_from_me"`
+				FlaggedAny   bool      `json:"flagged_any"`
 			}
 			byID := map[string]*convo{}
 			pset := map[string]map[string]struct{}{}

@@ -14,9 +14,9 @@ import (
 func newDocumentTemplatesListCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "list",
-		Short: "List document templates",
-		Example: "  conduyt-crm-pp-cli document-templates list",
+		Use:         "list",
+		Short:       "List document templates",
+		Example:     "  conduyt-crm-pp-cli document-templates list",
 		Annotations: map[string]string{"pp:endpoint": "document-templates.list", "pp:method": "GET", "pp:path": "/document-templates", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

@@ -17,9 +17,9 @@ func newCustomersOperationsWaitCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "wait <name>",
-		Short: "Waits until the specified long-running operation is done or reaches at most a specified timeout, returning the...",
-		Example: "  google-ads-pp-cli customers_operations wait example-resource",
+		Use:         "wait <name>",
+		Short:       "Waits until the specified long-running operation is done or reaches at most a specified timeout, returning the...",
+		Example:     "  google-ads-pp-cli customers_operations wait example-resource",
 		Annotations: map[string]string{"pp:endpoint": "customers_operations.wait", "pp:method": "POST", "pp:path": "/v22/{name}:wait"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -65,7 +65,9 @@ func newCustomersOperationsWaitCmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

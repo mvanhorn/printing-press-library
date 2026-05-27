@@ -9,8 +9,8 @@ import (
 
 func newUiModificationsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "ui-modifications",
-		Short: "Manage ui modifications",
+		Use:    "ui-modifications",
+		Short:  "Manage ui modifications",
 		Hidden: true,
 	}
 

@@ -17,10 +17,10 @@ func newDeviceUdiPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagDeviceDescription string
 
 	cmd := &cobra.Command{
-		Use:   "device-udi",
-		Short: "Search unique device identifiers",
-		Long:  "Shortcut for 'device-udi list'. Search unique device identifiers",
-		Example: "  openfda-pp-cli device-udi",
+		Use:         "device-udi",
+		Short:       "Search unique device identifiers",
+		Long:        "Shortcut for 'device-udi list'. Search unique device identifiers",
+		Example:     "  openfda-pp-cli device-udi",
 		Annotations: map[string]string{"pp:endpoint": "device-udi.list", "pp:method": "GET", "pp:path": "/device/udi.json", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

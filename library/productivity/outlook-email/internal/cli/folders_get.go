@@ -14,9 +14,9 @@ import (
 func newFoldersGetCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get <folder_id>",
-		Short: "Get a mail folder by id or well-known name",
-		Example: "  outlook-email-pp-cli folders get 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "get <folder_id>",
+		Short:       "Get a mail folder by id or well-known name",
+		Example:     "  outlook-email-pp-cli folders get 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "folders.get", "pp:method": "GET", "pp:path": "/me/mailFolders/{folder_id}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

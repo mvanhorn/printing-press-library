@@ -14,9 +14,9 @@ import (
 func newRepositoriesTagsGetCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get <namespace> <repository> <tag>",
-		Short: "Full details for a specific tag including multi-architecture image digests and total size.",
-		Example: "  docker-hub-pp-cli repositories tags get example-resource example-value example-value",
+		Use:         "get <namespace> <repository> <tag>",
+		Short:       "Full details for a specific tag including multi-architecture image digests and total size.",
+		Example:     "  docker-hub-pp-cli repositories tags get example-resource example-value example-value",
 		Annotations: map[string]string{"pp:endpoint": "tags.get", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

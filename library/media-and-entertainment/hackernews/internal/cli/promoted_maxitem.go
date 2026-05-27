@@ -14,10 +14,10 @@ import (
 func newMaxitemPromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "maxitem",
-		Short: "Returns the largest item ID currently assigned by Hacker News",
-		Long:  "Shortcut for 'maxitem get'. Returns the largest item ID currently assigned by Hacker News",
-		Example: "  hackernews-pp-cli maxitem",
+		Use:         "maxitem",
+		Short:       "Returns the largest item ID currently assigned by Hacker News",
+		Long:        "Shortcut for 'maxitem get'. Returns the largest item ID currently assigned by Hacker News",
+		Example:     "  hackernews-pp-cli maxitem",
 		Annotations: map[string]string{"pp:endpoint": "maxitem.get", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

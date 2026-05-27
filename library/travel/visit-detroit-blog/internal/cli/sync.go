@@ -7,6 +7,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/travel/visit-detroit-blog/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/travel/visit-detroit-blog/internal/store"
 	"github.com/spf13/cobra"
 	"net/url"
 	"os"
@@ -16,8 +18,6 @@ import (
 	"sync"
 	"sync/atomic"
 	"time"
-	"github.com/mvanhorn/printing-press-library/library/travel/visit-detroit-blog/internal/cliutil"
-	"github.com/mvanhorn/printing-press-library/library/travel/visit-detroit-blog/internal/store"
 )
 
 // unresolvedPathKeyRE matches `{key}` placeholders left in a sync path

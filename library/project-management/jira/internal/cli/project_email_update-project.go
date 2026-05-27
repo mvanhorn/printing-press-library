@@ -18,10 +18,10 @@ func newProjectEmailUpdateProjectCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "update-project <projectId>",
-		Aliases: []string{"update"},
-		Short: "Sets the [project's sender email address](https://confluence.atlassian.com/x/dolKLg). If `emailAddress` is an empty...",
-		Example: "  jira-pp-cli project email update-project 42",
+		Use:         "update-project <projectId>",
+		Aliases:     []string{"update"},
+		Short:       "Sets the [project's sender email address](https://confluence.atlassian.com/x/dolKLg). If `emailAddress` is an empty...",
+		Example:     "  jira-pp-cli project email update-project 42",
 		Annotations: map[string]string{"pp:endpoint": "email.update-project", "pp:method": "PUT", "pp:path": "/rest/api/3/project/{projectId}/email"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -74,7 +74,9 @@ func newProjectEmailUpdateProjectCmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

@@ -17,9 +17,9 @@ func newDraftsListCmd(flags *rootFlags) *cobra.Command {
 	var flagOffset string
 
 	cmd := &cobra.Command{
-		Use:   "list",
-		Short: "List drafts",
-		Example: "  substack-pp-cli drafts list",
+		Use:         "list",
+		Short:       "List drafts",
+		Example:     "  substack-pp-cli drafts list",
 		Annotations: map[string]string{"pp:endpoint": "drafts.list", "pp:method": "GET", "pp:path": "https://{publication}.substack.com/api/v1/drafts", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

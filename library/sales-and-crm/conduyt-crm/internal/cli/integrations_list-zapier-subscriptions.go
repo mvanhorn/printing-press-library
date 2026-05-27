@@ -14,9 +14,9 @@ import (
 func newIntegrationsListZapierSubscriptionsCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "list-zapier-subscriptions",
-		Short: "List Zapier webhook subscriptions",
-		Example: "  conduyt-crm-pp-cli integrations list-zapier-subscriptions",
+		Use:         "list-zapier-subscriptions",
+		Short:       "List Zapier webhook subscriptions",
+		Example:     "  conduyt-crm-pp-cli integrations list-zapier-subscriptions",
 		Annotations: map[string]string{"pp:endpoint": "integrations.list-zapier-subscriptions", "pp:method": "GET", "pp:path": "/integrations/zapier/subscribe", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

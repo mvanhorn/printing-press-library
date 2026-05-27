@@ -4,11 +4,11 @@
 package cli
 
 import (
-	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/bandsintown/internal/client"
 	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/bandsintown/internal/client"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"io"

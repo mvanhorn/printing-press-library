@@ -14,10 +14,10 @@ import (
 func newMarketPromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "market",
-		Short: "Real-time market status for all segments (Capital Market, Currency, F&O, WDM) with current NIFTY level",
-		Long:  "Shortcut for 'market status'. Real-time market status for all segments (Capital Market, Currency, F&O, WDM) with current NIFTY level",
-		Example: "  nse-india-pp-cli market",
+		Use:         "market",
+		Short:       "Real-time market status for all segments (Capital Market, Currency, F&O, WDM) with current NIFTY level",
+		Long:        "Shortcut for 'market status'. Real-time market status for all segments (Capital Market, Currency, F&O, WDM) with current NIFTY level",
+		Example:     "  nse-india-pp-cli market",
 		Annotations: map[string]string{"pp:endpoint": "market.status", "pp:method": "GET", "pp:path": "/api/marketStatus", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

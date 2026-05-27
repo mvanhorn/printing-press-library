@@ -92,16 +92,16 @@ func parseDateFlag(s string) (time.Time, error) {
 }
 
 type listChatsEntryJSON struct {
-	GUID            string  `json:"guid"`
-	ChatIdentifier  string  `json:"chat_identifier"`
-	DisplayName     string  `json:"display_name,omitempty"`
-	Participants    int     `json:"participants"`
-	MessageCount    int64   `json:"message_count"`
-	LastMessageDate string  `json:"last_message_date,omitempty"`
-	LastPreview     string  `json:"last_preview,omitempty"`
-	IsGroup         bool    `json:"is_group"`
-	Style           int     `json:"style,omitempty"`
-	ROWID           int64   `json:"rowid,omitempty"`
+	GUID            string `json:"guid"`
+	ChatIdentifier  string `json:"chat_identifier"`
+	DisplayName     string `json:"display_name,omitempty"`
+	Participants    int    `json:"participants"`
+	MessageCount    int64  `json:"message_count"`
+	LastMessageDate string `json:"last_message_date,omitempty"`
+	LastPreview     string `json:"last_preview,omitempty"`
+	IsGroup         bool   `json:"is_group"`
+	Style           int    `json:"style,omitempty"`
+	ROWID           int64  `json:"rowid,omitempty"`
 }
 
 func printListChatsJSON(cmd *cobra.Command, f *rootFlags, chats []ChatRow) error {

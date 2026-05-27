@@ -4,14 +4,14 @@
 package client
 
 import (
-	"github.com/mvanhorn/printing-press-library/library/other/american-reindustrialization/internal/cliutil"
-	"github.com/mvanhorn/printing-press-library/library/other/american-reindustrialization/internal/config"
 	"bytes"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/other/american-reindustrialization/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/other/american-reindustrialization/internal/config"
 	"io"
 	"math"
 	"net/http"

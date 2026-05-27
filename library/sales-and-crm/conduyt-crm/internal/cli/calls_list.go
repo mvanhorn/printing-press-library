@@ -17,9 +17,9 @@ func newCallsListCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "list",
-		Short: "List call records",
-		Example: "  conduyt-crm-pp-cli calls list",
+		Use:         "list",
+		Short:       "List call records",
+		Example:     "  conduyt-crm-pp-cli calls list",
 		Annotations: map[string]string{"pp:endpoint": "calls.list", "pp:method": "GET", "pp:path": "/calls", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
@@ -29,7 +29,7 @@ func newCallsListCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/calls"
 			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "calls", path, map[string]string{
-				"page": fmt.Sprintf("%v", flagPage),
+				"page":     fmt.Sprintf("%v", flagPage),
 				"per_page": fmt.Sprintf("%v", flagPerPage),
 			}, nil, flagAll, "", "", "")
 			if err != nil {

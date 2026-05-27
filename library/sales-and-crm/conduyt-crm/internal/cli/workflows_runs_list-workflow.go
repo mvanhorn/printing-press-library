@@ -17,9 +17,9 @@ func newWorkflowsRunsListWorkflowCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "list-workflow <id>",
-		Short: "List runs for a workflow",
-		Example: "  conduyt-crm-pp-cli workflows runs list-workflow 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "list-workflow <id>",
+		Short:       "List runs for a workflow",
+		Example:     "  conduyt-crm-pp-cli workflows runs list-workflow 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "runs.list-workflow", "pp:method": "GET", "pp:path": "/workflows/{id}/runs", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -33,7 +33,7 @@ func newWorkflowsRunsListWorkflowCmd(flags *rootFlags) *cobra.Command {
 			path := "/workflows/{id}/runs"
 			path = replacePathParam(path, "id", args[0])
 			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "runs", path, map[string]string{
-				"page": fmt.Sprintf("%v", flagPage),
+				"page":     fmt.Sprintf("%v", flagPage),
 				"per_page": fmt.Sprintf("%v", flagPerPage),
 			}, nil, flagAll, "", "", "")
 			if err != nil {

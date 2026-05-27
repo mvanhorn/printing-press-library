@@ -3,8 +3,8 @@
 package cli
 
 import (
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/other/numista/internal/store"
+	"github.com/spf13/cobra"
 )
 
 // PATCH: local watchlist mutation with zero API cost.

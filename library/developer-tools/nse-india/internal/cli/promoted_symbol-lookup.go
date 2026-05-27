@@ -15,10 +15,10 @@ func newSymbolLookupPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagQ string
 
 	cmd := &cobra.Command{
-		Use:   "symbol-lookup",
-		Short: "Search symbols by company name or ticker — returns equity, MF, index matches",
-		Long:  "Shortcut for 'symbol_lookup autocomplete'. Search symbols by company name or ticker — returns equity, MF, index matches",
-		Example: "  nse-india-pp-cli symbol-lookup --query example-value",
+		Use:         "symbol-lookup",
+		Short:       "Search symbols by company name or ticker — returns equity, MF, index matches",
+		Long:        "Shortcut for 'symbol_lookup autocomplete'. Search symbols by company name or ticker — returns equity, MF, index matches",
+		Example:     "  nse-india-pp-cli symbol-lookup --query example-value",
 		Annotations: map[string]string{"pp:endpoint": "symbol_lookup.autocomplete", "pp:method": "GET", "pp:path": "/api/search/autocomplete", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("query") && !flags.dryRun {

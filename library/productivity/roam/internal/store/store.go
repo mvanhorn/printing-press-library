@@ -973,6 +973,7 @@ func sqliteFieldValue(v any) any {
 func lookupFieldValue(obj map[string]any, snakeKey string) any {
 	return LookupFieldValue(obj, snakeKey)
 }
+
 // upsertGroupCreateTx writes the typed-table portion of a group_create upsert
 // inside an existing transaction. The caller is responsible for the generic
 // resources insert (via upsertGenericResourceTx) and for committing the tx.
@@ -1025,6 +1026,7 @@ func (s *Store) UpsertGroupCreate(data json.RawMessage) error {
 
 	return tx.Commit()
 }
+
 // upsertGroupsTx writes the typed-table portion of a groups upsert
 // inside an existing transaction. The caller is responsible for the generic
 // resources insert (via upsertGenericResourceTx) and for committing the tx.
@@ -1078,6 +1080,7 @@ func (s *Store) UpsertGroups(data json.RawMessage) error {
 
 	return tx.Commit()
 }
+
 // upsertGroupsListTx writes the typed-table portion of a groups_list upsert
 // inside an existing transaction. The caller is responsible for the generic
 // resources insert (via upsertGenericResourceTx) and for committing the tx.
@@ -1128,6 +1131,7 @@ func (s *Store) UpsertGroupsList(data json.RawMessage) error {
 
 	return tx.Commit()
 }
+
 // upsertItemUploadTx writes the typed-table portion of a item_upload upsert
 // inside an existing transaction. The caller is responsible for the generic
 // resources insert (via upsertGenericResourceTx) and for committing the tx.
@@ -1186,6 +1190,7 @@ func (s *Store) UpsertItemUpload(data json.RawMessage) error {
 
 	return tx.Commit()
 }
+
 // upsertMagicastInfoTx writes the typed-table portion of a magicast_info upsert
 // inside an existing transaction. The caller is responsible for the generic
 // resources insert (via upsertGenericResourceTx) and for committing the tx.
@@ -1239,6 +1244,7 @@ func (s *Store) UpsertMagicastInfo(data json.RawMessage) error {
 
 	return tx.Commit()
 }
+
 // upsertMeetinglinkInfoTx writes the typed-table portion of a meetinglink_info upsert
 // inside an existing transaction. The caller is responsible for the generic
 // resources insert (via upsertGenericResourceTx) and for committing the tx.
@@ -1293,6 +1299,7 @@ func (s *Store) UpsertMeetinglinkInfo(data json.RawMessage) error {
 
 	return tx.Commit()
 }
+
 // upsertOnairEventCreateTx writes the typed-table portion of a onair_event_create upsert
 // inside an existing transaction. The caller is responsible for the generic
 // resources insert (via upsertGenericResourceTx) and for committing the tx.
@@ -1353,6 +1360,7 @@ func (s *Store) UpsertOnairEventCreate(data json.RawMessage) error {
 
 	return tx.Commit()
 }
+
 // upsertOnairEventInfoTx writes the typed-table portion of a onair_event_info upsert
 // inside an existing transaction. The caller is responsible for the generic
 // resources insert (via upsertGenericResourceTx) and for committing the tx.
@@ -1413,6 +1421,7 @@ func (s *Store) UpsertOnairEventInfo(data json.RawMessage) error {
 
 	return tx.Commit()
 }
+
 // upsertOnairEventUpdateTx writes the typed-table portion of a onair_event_update upsert
 // inside an existing transaction. The caller is responsible for the generic
 // resources insert (via upsertGenericResourceTx) and for committing the tx.
@@ -1473,6 +1482,7 @@ func (s *Store) UpsertOnairEventUpdate(data json.RawMessage) error {
 
 	return tx.Commit()
 }
+
 // upsertOnairGuestInfoTx writes the typed-table portion of a onair_guest_info upsert
 // inside an existing transaction. The caller is responsible for the generic
 // resources insert (via upsertGenericResourceTx) and for committing the tx.
@@ -1529,6 +1539,7 @@ func (s *Store) UpsertOnairGuestInfo(data json.RawMessage) error {
 
 	return tx.Commit()
 }
+
 // upsertOnairGuestUpdateTx writes the typed-table portion of a onair_guest_update upsert
 // inside an existing transaction. The caller is responsible for the generic
 // resources insert (via upsertGenericResourceTx) and for committing the tx.
@@ -1585,6 +1596,7 @@ func (s *Store) UpsertOnairGuestUpdate(data json.RawMessage) error {
 
 	return tx.Commit()
 }
+
 // upsertResourceTypesTx writes the typed-table portion of a resource_types upsert
 // inside an existing transaction. The caller is responsible for the generic
 // resources insert (via upsertGenericResourceTx) and for committing the tx.
@@ -1637,6 +1649,7 @@ func (s *Store) UpsertResourceTypes(data json.RawMessage) error {
 
 	return tx.Commit()
 }
+
 // upsertSchemasTx writes the typed-table portion of a schemas upsert
 // inside an existing transaction. The caller is responsible for the generic
 // resources insert (via upsertGenericResourceTx) and for committing the tx.
@@ -1691,6 +1704,7 @@ func (s *Store) UpsertSchemas(data json.RawMessage) error {
 
 	return tx.Commit()
 }
+
 // upsertTranscriptInfoTx writes the typed-table portion of a transcript_info upsert
 // inside an existing transaction. The caller is responsible for the generic
 // resources insert (via upsertGenericResourceTx) and for committing the tx.
@@ -1746,6 +1760,7 @@ func (s *Store) UpsertTranscriptInfo(data json.RawMessage) error {
 
 	return tx.Commit()
 }
+
 // upsertUserInfoTx writes the typed-table portion of a user_info upsert
 // inside an existing transaction. The caller is responsible for the generic
 // resources insert (via upsertGenericResourceTx) and for committing the tx.
@@ -1803,6 +1818,7 @@ func (s *Store) UpsertUserInfo(data json.RawMessage) error {
 
 	return tx.Commit()
 }
+
 // upsertUserLookupTx writes the typed-table portion of a user_lookup upsert
 // inside an existing transaction. The caller is responsible for the generic
 // resources insert (via upsertGenericResourceTx) and for committing the tx.
@@ -1859,6 +1875,7 @@ func (s *Store) UpsertUserLookup(data json.RawMessage) error {
 
 	return tx.Commit()
 }
+
 // upsertUsersTx writes the typed-table portion of a users upsert
 // inside an existing transaction. The caller is responsible for the generic
 // resources insert (via upsertGenericResourceTx) and for committing the tx.
@@ -1929,14 +1946,14 @@ func (s *Store) UpsertUsers(data json.RawMessage) error {
 // child path-item annotated with x-resource-id resolves the same as a flat
 // path-item.
 var resourceIDFieldOverrides = map[string]string{
-	"chat-list": "id",
-	"groups-list": "id",
-	"lobby-list": "id",
-	"magicast-list": "id",
-	"meeting-list": "meetingId",
-	"onair-event-list": "id",
-	"transcript-list": "id",
-	"user-list": "id",
+	"chat-list":         "id",
+	"groups-list":       "id",
+	"lobby-list":        "id",
+	"magicast-list":     "id",
+	"meeting-list":      "meetingId",
+	"onair-event-list":  "id",
+	"transcript-list":   "id",
+	"user-list":         "id",
 	"userauditlog-list": "name",
 }
 
@@ -2092,6 +2109,7 @@ func (s *Store) UpsertBatch(resourceType string, items []json.RawMessage) (int, 
 	}
 	return stored, extractFailures, nil
 }
+
 // SearchOnairEventCreate searches the onair_event_create_fts index with optional filters.
 func (s *Store) SearchOnairEventCreate(query string, limit int) ([]json.RawMessage, error) {
 	if limit <= 0 {
@@ -2119,6 +2137,7 @@ func (s *Store) SearchOnairEventCreate(query string, limit int) ([]json.RawMessa
 	}
 	return results, rows.Err()
 }
+
 // SearchOnairEventInfo searches the onair_event_info_fts index with optional filters.
 func (s *Store) SearchOnairEventInfo(query string, limit int) ([]json.RawMessage, error) {
 	if limit <= 0 {
@@ -2146,6 +2165,7 @@ func (s *Store) SearchOnairEventInfo(query string, limit int) ([]json.RawMessage
 	}
 	return results, rows.Err()
 }
+
 // SearchOnairEventUpdate searches the onair_event_update_fts index with optional filters.
 func (s *Store) SearchOnairEventUpdate(query string, limit int) ([]json.RawMessage, error) {
 	if limit <= 0 {
@@ -2173,6 +2193,7 @@ func (s *Store) SearchOnairEventUpdate(query string, limit int) ([]json.RawMessa
 	}
 	return results, rows.Err()
 }
+
 // SearchSchemas searches the schemas_fts index with optional filters.
 func (s *Store) SearchSchemas(query string, limit int) ([]json.RawMessage, error) {
 	if limit <= 0 {

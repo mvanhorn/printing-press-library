@@ -14,9 +14,9 @@ import (
 func newReportsListCustomCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "list-custom",
-		Short: "List saved custom reports",
-		Example: "  conduyt-crm-pp-cli reports list-custom",
+		Use:         "list-custom",
+		Short:       "List saved custom reports",
+		Example:     "  conduyt-crm-pp-cli reports list-custom",
 		Annotations: map[string]string{"pp:endpoint": "reports.list-custom", "pp:method": "GET", "pp:path": "/reports/custom", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

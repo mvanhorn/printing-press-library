@@ -20,9 +20,9 @@ func newDashboardGadgetUpdateCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "update <dashboardId> <gadgetId>",
-		Short: "Changes the title, position, and color of the gadget on a dashboard. **[Permissions](#permissions) required:** None.",
-		Example: "  jira-pp-cli dashboard gadget update 42 42",
+		Use:         "update <dashboardId> <gadgetId>",
+		Short:       "Changes the title, position, and color of the gadget on a dashboard. **[Permissions](#permissions) required:** None.",
+		Example:     "  jira-pp-cli dashboard gadget update 42 42",
 		Annotations: map[string]string{"pp:endpoint": "gadget.update", "pp:method": "PUT", "pp:path": "/rest/api/3/dashboard/{dashboardId}/gadget/{gadgetId}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -93,7 +93,9 @@ func newDashboardGadgetUpdateCmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

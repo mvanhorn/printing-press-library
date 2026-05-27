@@ -14,10 +14,10 @@ import (
 func newSubscribersPromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "subscribers <id>",
-		Short: "Retrieve details of a subscriber. Requires view_sales scope.",
-		Long:  "Shortcut for 'subscribers get'. Retrieve details of a subscriber. Requires view_sales scope.",
-		Example: "  gumroad-pp-cli subscribers 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "subscribers <id>",
+		Short:       "Retrieve details of a subscriber. Requires view_sales scope.",
+		Long:        "Shortcut for 'subscribers get'. Retrieve details of a subscriber. Requires view_sales scope.",
+		Example:     "  gumroad-pp-cli subscribers 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "subscribers.get", "pp:method": "GET", "pp:path": "/subscribers/{id}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

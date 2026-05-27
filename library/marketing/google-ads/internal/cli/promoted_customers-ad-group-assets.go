@@ -18,10 +18,10 @@ func newCustomersAdGroupAssetsPromotedCmd(flags *rootFlags) *cobra.Command {
 	var bodyPartialFailure bool
 
 	cmd := &cobra.Command{
-		Use:   "customers-ad-group-assets <customerId>",
-		Short: "Creates, updates, or removes ad group assets. Operation statuses are returned.",
-		Long:  "Shortcut for 'customers_ad_group_assets mutate'. Creates, updates, or removes ad group assets. Operation statuses are returned.",
-		Example: "  google-ads-pp-cli customers-ad-group-assets",
+		Use:         "customers-ad-group-assets <customerId>",
+		Short:       "Creates, updates, or removes ad group assets. Operation statuses are returned.",
+		Long:        "Shortcut for 'customers_ad_group_assets mutate'. Creates, updates, or removes ad group assets. Operation statuses are returned.",
+		Example:     "  google-ads-pp-cli customers-ad-group-assets",
 		Annotations: map[string]string{"pp:endpoint": "customers_ad_group_assets.mutate", "pp:method": "POST", "pp:path": "/v22/customers/{customerId}/adGroupAssets:mutate"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

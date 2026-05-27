@@ -15,9 +15,9 @@ func newStoriesBestCmd(flags *rootFlags) *cobra.Command {
 	var flagLimit int
 
 	cmd := &cobra.Command{
-		Use:   "best",
-		Short: "Get the highest-voted stories on Hacker News",
-		Example: "  hackernews-pp-cli stories best",
+		Use:         "best",
+		Short:       "Get the highest-voted stories on Hacker News",
+		Example:     "  hackernews-pp-cli stories best",
 		Annotations: map[string]string{"pp:endpoint": "stories.best", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

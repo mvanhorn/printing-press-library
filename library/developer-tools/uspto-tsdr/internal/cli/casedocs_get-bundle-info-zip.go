@@ -18,9 +18,9 @@ func newCasedocsGetBundleInfoZipCmd(flags *rootFlags) *cobra.Command {
 	var flagIr string
 
 	cmd := &cobra.Command{
-		Use:   "get-bundle-info-zip",
-		Short: "Parameters can be one of the following: rnXXXXXXX for US registration number, snXXXXXXXX for US serial number,...",
-		Example: "  uspto-tsdr-pp-cli casedocs get-bundle-info-zip",
+		Use:         "get-bundle-info-zip",
+		Short:       "Parameters can be one of the following: rnXXXXXXX for US registration number, snXXXXXXXX for US serial number,...",
+		Example:     "  uspto-tsdr-pp-cli casedocs get-bundle-info-zip",
 		Annotations: map[string]string{"pp:endpoint": "casedocs.get-bundle-info-zip", "pp:method": "GET", "pp:path": "/casedocs/bundle.zip", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

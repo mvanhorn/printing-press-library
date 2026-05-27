@@ -2,9 +2,9 @@ package cli
 
 import (
 	"database/sql"
-	"github.com/mvanhorn/printing-press-library/library/productivity/roam/internal/store"
 	"encoding/json"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/productivity/roam/internal/store"
 
 	"github.com/spf13/cobra"
 )
@@ -78,11 +78,11 @@ to populate the local store first.`,
 			}
 
 			result := map[string]any{
-				"event_id":         eventID,
-				"invited_count":    len(invited),
-				"attended_count":   len(attended),
-				"invited_no_show":  noShows,
-				"walk_ins":         walkIns,
+				"event_id":        eventID,
+				"invited_count":   len(invited),
+				"attended_count":  len(attended),
+				"invited_no_show": noShows,
+				"walk_ins":        walkIns,
 			}
 			w := cmd.OutOrStdout()
 			if flags.asJSON || !isTerminal(w) {

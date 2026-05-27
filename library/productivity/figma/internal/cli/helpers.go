@@ -6,9 +6,9 @@ package cli
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/mvanhorn/printing-press-library/library/productivity/figma/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/productivity/figma/internal/cliutil"
-	"fmt"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"io"

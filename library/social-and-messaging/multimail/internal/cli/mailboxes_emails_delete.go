@@ -14,9 +14,9 @@ import (
 func newMailboxesEmailsDeleteCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "delete <mailboxId> <emailId> <key>",
-		Short: "Requires send scope.",
-		Example: "  multimail-pp-cli mailboxes emails delete 550e8400-e29b-41d4-a716-446655440000 550e8400-e29b-41d4-a716-446655440000 your-token-here",
+		Use:         "delete <mailboxId> <emailId> <key>",
+		Short:       "Requires send scope.",
+		Example:     "  multimail-pp-cli mailboxes emails delete 550e8400-e29b-41d4-a716-446655440000 550e8400-e29b-41d4-a716-446655440000 your-token-here",
 		Annotations: map[string]string{"pp:endpoint": "emails.delete", "pp:method": "DELETE", "pp:path": "/v1/mailboxes/{mailboxId}/emails/{emailId}/tags/{key}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -51,7 +51,9 @@ func newMailboxesEmailsDeleteCmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

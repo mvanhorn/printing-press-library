@@ -15,9 +15,9 @@ func newPollsShowCmd(flags *rootFlags) *cobra.Command {
 	var flagExpand string
 
 	cmd := &cobra.Command{
-		Use:   "show <publicationId> <pollId>",
-		Short: "Retrieve detailed information about a specific poll belonging to a publication. Use `expand[]=stats` for aggregate...",
-		Example: "  beehiiv-pp-cli polls show 550e8400-e29b-41d4-a716-446655440000 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "show <publicationId> <pollId>",
+		Short:       "Retrieve detailed information about a specific poll belonging to a publication. Use `expand[]=stats` for aggregate...",
+		Example:     "  beehiiv-pp-cli polls show 550e8400-e29b-41d4-a716-446655440000 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "polls.show", "pp:method": "GET", "pp:path": "/publications/{publicationId}/polls/{pollId}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

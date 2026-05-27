@@ -14,9 +14,9 @@ import (
 func newTeamListTemplateGetCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get <team_id>",
-		Short: "View the List templates available in a Workspace. Use this endpoint to retrieve List template IDs for use with the...",
-		Example: "  clickup-pp-cli team list-template get 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "get <team_id>",
+		Short:       "View the List templates available in a Workspace. Use this endpoint to retrieve List template IDs for use with the...",
+		Example:     "  clickup-pp-cli team list-template get 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "list-template.get", "pp:method": "GET", "pp:path": "/v2/team/{team_id}/list_template", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

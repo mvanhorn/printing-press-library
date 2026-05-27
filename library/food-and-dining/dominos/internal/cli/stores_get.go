@@ -14,9 +14,9 @@ import (
 func newStoresGetCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get <storeID>",
-		Short: "Get detailed store information including hours, capabilities, and wait times",
-		Example: "  dominos-pp-cli stores get 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "get <storeID>",
+		Short:       "Get detailed store information including hours, capabilities, and wait times",
+		Example:     "  dominos-pp-cli stores get 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "stores.get", "pp:method": "GET", "pp:path": "/power/store/{storeID}/profile", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

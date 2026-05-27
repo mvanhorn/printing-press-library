@@ -14,9 +14,9 @@ import (
 func newSuppressionListCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "list",
-		Short: "Returns addresses suppressed due to bounces, spam complaints, or manual unsubscribes. Requires admin scope.",
-		Example: "  multimail-pp-cli suppression list",
+		Use:         "list",
+		Short:       "Returns addresses suppressed due to bounces, spam complaints, or manual unsubscribes. Requires admin scope.",
+		Example:     "  multimail-pp-cli suppression list",
 		Annotations: map[string]string{"pp:endpoint": "suppression.list", "pp:method": "GET", "pp:path": "/v1/suppression", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

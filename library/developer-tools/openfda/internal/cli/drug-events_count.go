@@ -23,9 +23,9 @@ func newDrugEventsCountCmd(flags *rootFlags) *cobra.Command {
 	var flagSex string
 
 	cmd := &cobra.Command{
-		Use:   "count",
-		Short: "Count adverse events by field",
-		Example: "  openfda-pp-cli drug-events count --drug ozempic --field patient.reaction.reactionmeddrapt.exact",
+		Use:         "count",
+		Short:       "Count adverse events by field",
+		Example:     "  openfda-pp-cli drug-events count --drug ozempic --field patient.reaction.reactionmeddrapt.exact",
 		Annotations: map[string]string{"pp:endpoint": "drug-events.count", "pp:method": "GET", "pp:path": "/drug/event.json", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("field") && !flags.dryRun {

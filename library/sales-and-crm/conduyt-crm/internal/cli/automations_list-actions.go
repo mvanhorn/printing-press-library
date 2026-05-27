@@ -14,9 +14,9 @@ import (
 func newAutomationsListActionsCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "list-actions",
-		Short: "List available automation actions",
-		Example: "  conduyt-crm-pp-cli automations list-actions",
+		Use:         "list-actions",
+		Short:       "List available automation actions",
+		Example:     "  conduyt-crm-pp-cli automations list-actions",
 		Annotations: map[string]string{"pp:endpoint": "automations.list-actions", "pp:method": "GET", "pp:path": "/automations/actions", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

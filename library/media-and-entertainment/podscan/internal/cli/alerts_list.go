@@ -14,9 +14,9 @@ import (
 func newAlertsListCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "list",
-		Short: "List configured alerts",
-		Example: "  podscan-pp-cli alerts list",
+		Use:         "list",
+		Short:       "List configured alerts",
+		Example:     "  podscan-pp-cli alerts list",
 		Annotations: map[string]string{"pp:endpoint": "alerts.list", "pp:method": "GET", "pp:path": "/alerts", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

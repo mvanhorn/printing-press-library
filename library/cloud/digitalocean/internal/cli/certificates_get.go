@@ -14,9 +14,9 @@ import (
 func newCertificatesGetCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get",
-		Short: "Get",
-		Example: "  digitalocean-pp-cli certificates get",
+		Use:         "get",
+		Short:       "Get",
+		Example:     "  digitalocean-pp-cli certificates get",
 		Annotations: map[string]string{"pp:endpoint": "certificates.get", "pp:method": "GET", "pp:path": "/v2/certificates/{certificate_id}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

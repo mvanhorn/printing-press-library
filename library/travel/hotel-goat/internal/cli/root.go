@@ -12,10 +12,10 @@ import (
 	"text/tabwriter"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/travel/hotel-goat/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/travel/hotel-goat/internal/config"
 	"github.com/mvanhorn/printing-press-library/library/travel/hotel-goat/internal/parser"
+	"github.com/spf13/cobra"
 )
 
 var version = "1.0.0"

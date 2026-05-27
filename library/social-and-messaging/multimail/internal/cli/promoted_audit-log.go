@@ -17,10 +17,10 @@ func newAuditLogPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "audit-log",
-		Short: "Returns audit log entries with cursor pagination. Requires admin scope.",
-		Long:  "Shortcut for 'audit-log list'. Returns audit log entries with cursor pagination. Requires admin scope.",
-		Example: "  multimail-pp-cli audit-log",
+		Use:         "audit-log",
+		Short:       "Returns audit log entries with cursor pagination. Requires admin scope.",
+		Long:        "Shortcut for 'audit-log list'. Returns audit log entries with cursor pagination. Requires admin scope.",
+		Example:     "  multimail-pp-cli audit-log",
 		Annotations: map[string]string{"pp:endpoint": "audit-log.list", "pp:method": "GET", "pp:path": "/v1/audit-log", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
@@ -30,7 +30,7 @@ func newAuditLogPromotedCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/v1/audit-log"
 			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "audit-log", path, map[string]string{
-				"limit": fmt.Sprintf("%v", flagLimit),
+				"limit":  fmt.Sprintf("%v", flagLimit),
 				"cursor": fmt.Sprintf("%v", flagCursor),
 			}, nil, flagAll, "cursor", "", "")
 			if err != nil {

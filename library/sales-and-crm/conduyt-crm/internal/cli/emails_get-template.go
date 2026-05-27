@@ -14,9 +14,9 @@ import (
 func newEmailsGetTemplateCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-template <id>",
-		Short: "Get an email template by ID",
-		Example: "  conduyt-crm-pp-cli emails get-template 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "get-template <id>",
+		Short:       "Get an email template by ID",
+		Example:     "  conduyt-crm-pp-cli emails get-template 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "emails.get-template", "pp:method": "GET", "pp:path": "/emails/templates/{id}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

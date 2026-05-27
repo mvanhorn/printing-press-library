@@ -14,9 +14,9 @@ import (
 func newAccountListCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "list",
-		Short: "Get current tenant info and usage",
-		Example: "  multimail-pp-cli account list",
+		Use:         "list",
+		Short:       "Get current tenant info and usage",
+		Example:     "  multimail-pp-cli account list",
 		Annotations: map[string]string{"pp:endpoint": "account.list", "pp:method": "GET", "pp:path": "/v1/account", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

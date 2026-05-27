@@ -16,9 +16,9 @@ func newDropletsCreateAutoscaleCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "create-autoscale",
-		Short: "Create autoscale",
-		Example: "  digitalocean-pp-cli droplets create-autoscale",
+		Use:         "create-autoscale",
+		Short:       "Create autoscale",
+		Example:     "  digitalocean-pp-cli droplets create-autoscale",
 		Annotations: map[string]string{"pp:endpoint": "droplets.create-autoscale", "pp:method": "POST", "pp:path": "/v2/droplets/autoscale"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {
@@ -57,7 +57,9 @@ func newDropletsCreateAutoscaleCmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

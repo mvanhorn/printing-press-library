@@ -17,9 +17,9 @@ func newUserGetPropertyCmd(flags *rootFlags) *cobra.Command {
 	var flagUsername string
 
 	cmd := &cobra.Command{
-		Use:   "get-property <propertyKey>",
-		Short: "Returns the value of a user's property. If no property key is provided [Get user property...",
-		Example: "  jira-pp-cli user get-property your-token-here",
+		Use:         "get-property <propertyKey>",
+		Short:       "Returns the value of a user's property. If no property key is provided [Get user property...",
+		Example:     "  jira-pp-cli user get-property your-token-here",
 		Annotations: map[string]string{"pp:endpoint": "user.get-property", "pp:method": "GET", "pp:path": "/rest/api/3/user/properties/{propertyKey}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

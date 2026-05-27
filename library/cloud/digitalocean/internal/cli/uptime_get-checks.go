@@ -14,9 +14,9 @@ import (
 func newUptimeGetChecksCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-checks",
-		Short: "Get checks",
-		Example: "  digitalocean-pp-cli uptime get-checks",
+		Use:         "get-checks",
+		Short:       "Get checks",
+		Example:     "  digitalocean-pp-cli uptime get-checks",
 		Annotations: map[string]string{"pp:endpoint": "uptime.get-checks", "pp:method": "GET", "pp:path": "/v2/uptime/checks/{check_id}/alerts", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

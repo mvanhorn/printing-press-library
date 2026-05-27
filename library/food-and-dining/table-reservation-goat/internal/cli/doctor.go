@@ -12,11 +12,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/table-reservation-goat/internal/config"
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/table-reservation-goat/internal/source/auth"
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/table-reservation-goat/internal/source/opentable"
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/table-reservation-goat/internal/store"
+	"github.com/spf13/cobra"
 )
 
 func newDoctorCmd(flags *rootFlags) *cobra.Command {

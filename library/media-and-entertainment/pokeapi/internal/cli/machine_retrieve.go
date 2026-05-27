@@ -14,10 +14,10 @@ import (
 func newMachineRetrieveCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "retrieve <id>",
-		Aliases: []string{"get"},
-		Short: "Machines are the representation of items that teach moves to Pokémon. They vary from version to version, so it is...",
-		Example: "  pokeapi-pp-cli machine retrieve 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "retrieve <id>",
+		Aliases:     []string{"get"},
+		Short:       "Machines are the representation of items that teach moves to Pokémon. They vary from version to version, so it is...",
+		Example:     "  pokeapi-pp-cli machine retrieve 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "machine.retrieve", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

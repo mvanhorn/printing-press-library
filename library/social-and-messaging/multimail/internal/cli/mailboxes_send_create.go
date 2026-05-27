@@ -25,9 +25,9 @@ func newMailboxesSendCreateCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "create <mailboxId>",
-		Short: "Send email (provide markdown, we convert to HTML)",
-		Example: "  multimail-pp-cli mailboxes send create 550e8400-e29b-41d4-a716-446655440000 --markdown example-value",
+		Use:         "create <mailboxId>",
+		Short:       "Send email (provide markdown, we convert to HTML)",
+		Example:     "  multimail-pp-cli mailboxes send create 550e8400-e29b-41d4-a716-446655440000 --markdown example-value",
 		Annotations: map[string]string{"pp:endpoint": "send.create", "pp:method": "POST", "pp:path": "/v1/mailboxes/{mailboxId}/send"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -122,7 +122,9 @@ func newMailboxesSendCreateCmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

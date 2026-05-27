@@ -15,10 +15,10 @@ func newTaxFormsPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagYear int
 
 	cmd := &cobra.Command{
-		Use:   "tax-forms",
-		Short: "Retrieve 1099 tax forms for the authenticated user. Requires view_tax_data scope.",
-		Long:  "Shortcut for 'tax-forms list'. Retrieve 1099 tax forms for the authenticated user. Requires view_tax_data scope.",
-		Example: "  gumroad-pp-cli tax-forms",
+		Use:         "tax-forms",
+		Short:       "Retrieve 1099 tax forms for the authenticated user. Requires view_tax_data scope.",
+		Long:        "Shortcut for 'tax-forms list'. Retrieve 1099 tax forms for the authenticated user. Requires view_tax_data scope.",
+		Example:     "  gumroad-pp-cli tax-forms",
 		Annotations: map[string]string{"pp:endpoint": "tax-forms.list", "pp:method": "GET", "pp:path": "/tax_forms", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

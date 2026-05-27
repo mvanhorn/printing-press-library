@@ -14,9 +14,9 @@ import (
 func newPublicCrawlerIpsCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "crawler-ips",
-		Short: "Crawler IP addresses",
-		Example: "  ahrefs-pp-cli public crawler_ips",
+		Use:         "crawler-ips",
+		Short:       "Crawler IP addresses",
+		Example:     "  ahrefs-pp-cli public crawler_ips",
 		Annotations: map[string]string{"pp:endpoint": "public.crawler_ips", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

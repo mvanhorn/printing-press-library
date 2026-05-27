@@ -14,10 +14,10 @@ import (
 func newProjectsFiltersListAProjectSDataCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "list-a-project-s-data <organization_id_or_slug> <project_id_or_slug>",
-		Aliases: []string{"get"},
-		Short: "Retrieve a list of filters for a given project. `active` will be either a boolean or a list for the legacy browser...",
-		Example: "  sentry-pp-cli projects filters list-a-project-s-data example-value example-value",
+		Use:         "list-a-project-s-data <organization_id_or_slug> <project_id_or_slug>",
+		Aliases:     []string{"get"},
+		Short:       "Retrieve a list of filters for a given project. `active` will be either a boolean or a list for the legacy browser...",
+		Example:     "  sentry-pp-cli projects filters list-a-project-s-data example-value example-value",
 		Annotations: map[string]string{"pp:endpoint": "filters.list-a-project-s-data", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

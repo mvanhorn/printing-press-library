@@ -31,10 +31,10 @@ func newContactPromotedCmd(flags *rootFlags) *cobra.Command {
 	var bodyZip string
 
 	cmd := &cobra.Command{
-		Use:   "contact",
-		Short: "Creates or updates a contact by email or phone match. Designed for inbound webhook integrations.",
-		Long:  "Shortcut for 'contact upsert'. Creates or updates a contact by email or phone match. Designed for inbound webhook integrations.",
-		Example: "  conduyt-crm-pp-cli contact",
+		Use:         "contact",
+		Short:       "Creates or updates a contact by email or phone match. Designed for inbound webhook integrations.",
+		Long:        "Shortcut for 'contact upsert'. Creates or updates a contact by email or phone match. Designed for inbound webhook integrations.",
+		Example:     "  conduyt-crm-pp-cli contact",
 		Annotations: map[string]string{"pp:endpoint": "contact.upsert", "pp:method": "POST", "pp:path": "/contact"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

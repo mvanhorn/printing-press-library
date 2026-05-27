@@ -14,9 +14,9 @@ import (
 func newGenAiDeleteGenai13Cmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "delete-genai-13",
-		Short: "Delete genai 13",
-		Example: "  digitalocean-pp-cli gen-ai delete-genai-13",
+		Use:         "delete-genai-13",
+		Short:       "Delete genai 13",
+		Example:     "  digitalocean-pp-cli gen-ai delete-genai-13",
 		Annotations: map[string]string{"pp:endpoint": "gen-ai.delete-genai-13", "pp:method": "DELETE", "pp:path": "/v2/gen-ai/agents/{parent_agent_uuid}/child_agents/{child_agent_uuid}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
@@ -39,7 +39,9 @@ func newGenAiDeleteGenai13Cmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

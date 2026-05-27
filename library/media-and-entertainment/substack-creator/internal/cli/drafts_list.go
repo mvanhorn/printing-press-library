@@ -25,7 +25,7 @@ func newDraftsListCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 
-			path := "/drafts"  // patched: Substack creator drafts endpoint, requires --subdomain
+			path := "/drafts" // patched: Substack creator drafts endpoint, requires --subdomain
 			params := map[string]string{}
 			if flagLimit != 0 {
 				params["limit"] = fmt.Sprintf("%v", flagLimit)

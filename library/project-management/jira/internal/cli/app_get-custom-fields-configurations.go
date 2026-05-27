@@ -24,10 +24,10 @@ func newAppGetCustomFieldsConfigurationsCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "get-custom-fields-configurations",
-		Aliases: []string{"create"},
-		Short: "Returns a [paginated](#pagination) list of configurations for list of custom fields of a...",
-		Example: "  jira-pp-cli app get-custom-fields-configurations",
+		Use:         "get-custom-fields-configurations",
+		Aliases:     []string{"create"},
+		Short:       "Returns a [paginated](#pagination) list of configurations for list of custom fields of a...",
+		Example:     "  jira-pp-cli app get-custom-fields-configurations",
 		Annotations: map[string]string{"pp:endpoint": "app.get-custom-fields-configurations", "pp:method": "POST", "pp:path": "/rest/api/3/app/field/context/configuration/list"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {
@@ -76,7 +76,9 @@ func newAppGetCustomFieldsConfigurationsCmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

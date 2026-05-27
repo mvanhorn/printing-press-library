@@ -127,9 +127,9 @@ func newAnalyticsMeetingCmd(flags *rootFlags) *cobra.Command {
 	var dbPath string
 
 	cmd := &cobra.Command{
-		Use:     "meeting <id>",
-		Short:   "Get per-meeting speaker analytics from local store",
-		Example: `  fireflies-pp-cli analytics meeting abc123 --json`,
+		Use:         "meeting <id>",
+		Short:       "Get per-meeting speaker analytics from local store",
+		Example:     `  fireflies-pp-cli analytics meeting abc123 --json`,
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

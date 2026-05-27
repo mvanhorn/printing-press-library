@@ -17,9 +17,9 @@ func newSiteAuditIssuesCmd(flags *rootFlags) *cobra.Command {
 	var flagProjectId string
 
 	cmd := &cobra.Command{
-		Use:   "issues",
-		Short: "Project Issues",
-		Example: "  ahrefs-pp-cli site_audit issues",
+		Use:         "issues",
+		Short:       "Project Issues",
+		Example:     "  ahrefs-pp-cli site_audit issues",
 		Annotations: map[string]string{"pp:endpoint": "site_audit.issues", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("project-id") && !flags.dryRun {

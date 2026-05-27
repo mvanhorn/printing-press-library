@@ -19,10 +19,10 @@ func newEmailDomainsAddCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "add",
-		Aliases: []string{"create"},
-		Short: "Add a custom email domain",
-		Example: "  conduyt-crm-pp-cli email-domains add --domain example-value",
+		Use:         "add",
+		Aliases:     []string{"create"},
+		Short:       "Add a custom email domain",
+		Example:     "  conduyt-crm-pp-cli email-domains add --domain example-value",
 		Annotations: map[string]string{"pp:endpoint": "email-domains.add", "pp:method": "POST", "pp:path": "/email-domains"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {
@@ -73,7 +73,9 @@ func newEmailDomainsAddCmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

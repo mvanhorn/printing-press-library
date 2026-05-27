@@ -4,9 +4,9 @@
 package cli
 
 import (
-	"github.com/mvanhorn/printing-press-library/library/developer-tools/domain-goat/internal/store"
 	"encoding/json"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/domain-goat/internal/store"
 	"github.com/spf13/cobra"
 	"net/url"
 	"os"

@@ -17,9 +17,9 @@ func newGraphqlCreateCartCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "create-cart",
-		Short: "Create a new shopping cart",
-		Example: "  dominos-pp-cli graphql create_cart --operationName example-resource",
+		Use:         "create-cart",
+		Short:       "Create a new shopping cart",
+		Example:     "  dominos-pp-cli graphql create_cart --operationName example-resource",
 		Annotations: map[string]string{"pp:endpoint": "graphql.create_cart", "pp:method": "POST", "pp:path": "/web-bff/graphql"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {
@@ -61,7 +61,9 @@ func newGraphqlCreateCartCmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

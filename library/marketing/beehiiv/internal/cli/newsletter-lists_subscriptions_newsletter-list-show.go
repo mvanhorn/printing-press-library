@@ -14,9 +14,9 @@ import (
 func newNewsletterListsSubscriptionsNewsletterListShowCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "newsletter-list-show <publicationId> <newsletterListId> <newsletterListSubscriptionId>",
-		Short: "<Note title='Currently in beta' icon='b'> Newsletter Lists is currently in beta, the API is subject to change....",
-		Example: "  beehiiv-pp-cli newsletter-lists subscriptions newsletter-list-show 550e8400-e29b-41d4-a716-446655440000 550e8400-e29b-41d4-a716-446655440000 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "newsletter-list-show <publicationId> <newsletterListId> <newsletterListSubscriptionId>",
+		Short:       "<Note title='Currently in beta' icon='b'> Newsletter Lists is currently in beta, the API is subject to change....",
+		Example:     "  beehiiv-pp-cli newsletter-lists subscriptions newsletter-list-show 550e8400-e29b-41d4-a716-446655440000 550e8400-e29b-41d4-a716-446655440000 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "subscriptions.newsletter-list-show", "pp:method": "GET", "pp:path": "/publications/{publicationId}/newsletter_lists/{newsletterListId}/subscriptions/{newsletterListSubscriptionId}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

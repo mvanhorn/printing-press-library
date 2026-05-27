@@ -15,9 +15,9 @@ func newUserGetEmailBulkCmd(flags *rootFlags) *cobra.Command {
 	var flagAccountId string
 
 	cmd := &cobra.Command{
-		Use:   "get-email-bulk",
-		Short: "Returns a user's email address regardless of the user's profile visibility settings. For Connect apps, this API is...",
-		Example: "  jira-pp-cli user get-email-bulk --account-id 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "get-email-bulk",
+		Short:       "Returns a user's email address regardless of the user's profile visibility settings. For Connect apps, this API is...",
+		Example:     "  jira-pp-cli user get-email-bulk --account-id 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "user.get-email-bulk", "pp:method": "GET", "pp:path": "/rest/api/3/user/email/bulk", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("account-id") && !flags.dryRun {

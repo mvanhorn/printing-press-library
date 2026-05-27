@@ -17,10 +17,10 @@ func newMovePadPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagForce string
 
 	cmd := &cobra.Command{
-		Use:   "move-pad",
-		Short: "moves a pad — copy then delete the original",
-		Long:  "Shortcut for 'move-pad using-post'. moves a pad — copy then delete the original",
-		Example: "  etherpad-pp-cli move-pad",
+		Use:         "move-pad",
+		Short:       "moves a pad — copy then delete the original",
+		Long:        "Shortcut for 'move-pad using-post'. moves a pad — copy then delete the original",
+		Example:     "  etherpad-pp-cli move-pad",
 		Annotations: map[string]string{"pp:endpoint": "move-pad.using-post", "pp:method": "POST", "pp:path": "/movePad"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

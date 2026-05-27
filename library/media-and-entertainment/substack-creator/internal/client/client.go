@@ -9,6 +9,8 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/substack-creator/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/substack-creator/internal/config"
 	"io"
 	"math"
 	"net/http"
@@ -16,8 +18,6 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
-	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/substack-creator/internal/cliutil"
-	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/substack-creator/internal/config"
 	"time"
 )
 
@@ -30,9 +30,9 @@ type Client struct {
 	// Subdomain, when set, routes API calls to <subdomain>.substack.com/api/v1
 	// instead of substack.com/api/v1. Required for Creator-facing endpoints
 	// (drafts, posts list, subscriber count, publication info, sections, notes).
-	Subdomain  string
-	cacheDir   string
-	limiter    *cliutil.AdaptiveLimiter
+	Subdomain string
+	cacheDir  string
+	limiter   *cliutil.AdaptiveLimiter
 }
 
 // APIError carries HTTP status information for structured exit codes.

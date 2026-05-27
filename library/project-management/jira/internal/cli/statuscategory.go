@@ -9,8 +9,8 @@ import (
 
 func newStatuscategoryCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "statuscategory",
-		Short: "Manage statuscategory",
+		Use:    "statuscategory",
+		Short:  "Manage statuscategory",
 		Hidden: true,
 	}
 

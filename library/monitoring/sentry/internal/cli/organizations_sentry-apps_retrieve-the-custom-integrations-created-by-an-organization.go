@@ -14,10 +14,10 @@ import (
 func newOrganizationsSentryAppsRetrieveTheCustomIntegrationsCreatedByAnOrganizationCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "retrieve-the-custom-integrations-created-by-an-organization <organization_id_or_slug>",
-		Aliases: []string{"get"},
-		Short: "Retrieve the custom integrations for an organization",
-		Example: "  sentry-pp-cli organizations sentry-apps retrieve-the-custom-integrations-created-by-an-organization example-value",
+		Use:         "retrieve-the-custom-integrations-created-by-an-organization <organization_id_or_slug>",
+		Aliases:     []string{"get"},
+		Short:       "Retrieve the custom integrations for an organization",
+		Example:     "  sentry-pp-cli organizations sentry-apps retrieve-the-custom-integrations-created-by-an-organization example-value",
 		Annotations: map[string]string{"pp:endpoint": "sentry-apps.retrieve-the-custom-integrations-created-by-an-organization", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

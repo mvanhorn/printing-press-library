@@ -146,10 +146,10 @@ Second paragraph."
   echo '{"draft_title":"X","draft_bylines":[{"id":1234}], ...}' | \
     substack-creator-pp-cli drafts create --subdomain mypub-paid --stdin`,
 		Annotations: map[string]string{
-			"pp:endpoint":   "drafts.create",
-			"pp:method":     "POST",
-			"pp:path":       "/drafts",
-			"pp:novel-ext":  "full-field-coverage",
+			"pp:endpoint":  "drafts.create",
+			"pp:method":    "POST",
+			"pp:path":      "/drafts",
+			"pp:novel-ext": "full-field-coverage",
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {

@@ -14,9 +14,9 @@ import (
 func newAppsJobInvocationsGetAppsCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-apps",
-		Short: "Get apps",
-		Example: "  digitalocean-pp-cli apps job-invocations get-apps",
+		Use:         "get-apps",
+		Short:       "Get apps",
+		Example:     "  digitalocean-pp-cli apps job-invocations get-apps",
 		Annotations: map[string]string{"pp:endpoint": "job-invocations.get-apps", "pp:method": "GET", "pp:path": "/v2/apps/{app_id}/job-invocations/{job_invocation_id}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

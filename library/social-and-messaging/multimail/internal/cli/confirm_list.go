@@ -14,9 +14,9 @@ import (
 func newConfirmListCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "list",
-		Short: "Redirect to frontend confirmation page at multimail.dev/confirm",
-		Example: "  multimail-pp-cli confirm list",
+		Use:         "list",
+		Short:       "Redirect to frontend confirmation page at multimail.dev/confirm",
+		Example:     "  multimail-pp-cli confirm list",
 		Annotations: map[string]string{"pp:endpoint": "confirm.list", "pp:method": "GET", "pp:path": "/v1/confirm", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

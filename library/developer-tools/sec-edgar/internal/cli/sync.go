@@ -6,11 +6,11 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/sec-edgar/internal/store"
 	"github.com/spf13/cobra"
 	"net/url"
 	"os"
 	"regexp"
-	"github.com/mvanhorn/printing-press-library/library/developer-tools/sec-edgar/internal/store"
 	"strconv"
 	"strings"
 	"sync"

@@ -18,9 +18,9 @@ func newKeywordsExplorerVolumeHistoryCmd(flags *rootFlags) *cobra.Command {
 	var flagKeyword string
 
 	cmd := &cobra.Command{
-		Use:   "volume-history",
-		Short: "Time-series. Volume history",
-		Example: "  ahrefs-pp-cli keywords_explorer volume_history",
+		Use:         "volume-history",
+		Short:       "Time-series. Volume history",
+		Example:     "  ahrefs-pp-cli keywords_explorer volume_history",
 		Annotations: map[string]string{"pp:endpoint": "keywords_explorer.volume_history", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("country") && !flags.dryRun {

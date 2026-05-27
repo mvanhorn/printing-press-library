@@ -14,9 +14,9 @@ import (
 func newCardsGetCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get <cardId>",
-		Short: "Retrieve details of a specific card by its ID.",
-		Example: "  mercury-pp-cli cards get 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "get <cardId>",
+		Short:       "Retrieve details of a specific card by its ID.",
+		Example:     "  mercury-pp-cli cards get 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "cards.get", "pp:method": "GET", "pp:path": "/cards/{cardId}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

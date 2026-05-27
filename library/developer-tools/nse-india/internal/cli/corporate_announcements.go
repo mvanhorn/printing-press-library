@@ -16,9 +16,9 @@ func newCorporateAnnouncementsCmd(flags *rootFlags) *cobra.Command {
 	var flagSymbol string
 
 	cmd := &cobra.Command{
-		Use:   "announcements",
-		Short: "Exchange filings — board meetings, results, AGM, investor meets, disclosure intimations",
-		Example: "  nse-india-pp-cli corporate announcements --symbol example-value",
+		Use:         "announcements",
+		Short:       "Exchange filings — board meetings, results, AGM, investor meets, disclosure intimations",
+		Example:     "  nse-india-pp-cli corporate announcements --symbol example-value",
 		Annotations: map[string]string{"pp:endpoint": "corporate.announcements", "pp:method": "GET", "pp:path": "/api/corporate-announcements", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("symbol") && !flags.dryRun {

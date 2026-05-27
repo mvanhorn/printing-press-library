@@ -15,10 +15,10 @@ func newListSessionsOfAuthorPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagAuthorID string
 
 	cmd := &cobra.Command{
-		Use:   "list-sessions-of-author",
-		Short: "returns all sessions of an author",
-		Long:  "Shortcut for 'list-sessions-of-author using-post'. returns all sessions of an author",
-		Example: "  etherpad-pp-cli list-sessions-of-author",
+		Use:         "list-sessions-of-author",
+		Short:       "returns all sessions of an author",
+		Long:        "Shortcut for 'list-sessions-of-author using-post'. returns all sessions of an author",
+		Example:     "  etherpad-pp-cli list-sessions-of-author",
 		Annotations: map[string]string{"pp:endpoint": "list-sessions-of-author.using-post", "pp:method": "POST", "pp:path": "/listSessionsOfAuthor"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

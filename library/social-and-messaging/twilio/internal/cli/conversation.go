@@ -4,8 +4,8 @@ package cli
 
 import (
 	"fmt"
-	"strings"
 	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/twilio/internal/store"
+	"strings"
 
 	"github.com/spf13/cobra"
 )

@@ -14,10 +14,10 @@ import (
 func newTeamFieldGetTeamAvailableCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-team-available <team_id>",
-		Aliases: []string{"get"},
-		Short: "View the Custom Fields you have access to in a specific Workspace. Get Workspace Custom Fields only returns Custom...",
-		Example: "  clickup-pp-cli team field get-team-available 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "get-team-available <team_id>",
+		Aliases:     []string{"get"},
+		Short:       "View the Custom Fields you have access to in a specific Workspace. Get Workspace Custom Fields only returns Custom...",
+		Example:     "  clickup-pp-cli team field get-team-available 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "field.get-team-available", "pp:method": "GET", "pp:path": "/v2/team/{team_id}/field", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

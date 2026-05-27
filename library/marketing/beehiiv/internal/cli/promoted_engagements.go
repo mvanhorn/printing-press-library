@@ -19,14 +19,14 @@ func newEngagementsPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagDirection string
 
 	cmd := &cobra.Command{
-		Use:   "engagements <publicationId>",
-		Short: "Retrieve email engagement metrics for a specific publication over a defined date range and granularity.<br><br> By...",
-		Long:  "Shortcut for 'engagements index'. Retrieve email engagement metrics for a specific publication over a defined date range and granularity.<br><br> By...",
-		Example: "  beehiiv-pp-cli engagements 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "engagements <publicationId>",
+		Short:       "Retrieve email engagement metrics for a specific publication over a defined date range and granularity.<br><br> By...",
+		Long:        "Shortcut for 'engagements index'. Retrieve email engagement metrics for a specific publication over a defined date range and granularity.<br><br> By...",
+		Example:     "  beehiiv-pp-cli engagements 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "engagements.index", "pp:method": "GET", "pp:path": "/publications/{publicationId}/engagements", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if cmd.Flags().Changed("granularity") {
-				allowedGranularity := []string{ "day", "week", "month" }
+				allowedGranularity := []string{"day", "week", "month"}
 				validGranularity := false
 				for _, v := range allowedGranularity {
 					if flagGranularity == v {
@@ -39,7 +39,7 @@ func newEngagementsPromotedCmd(flags *rootFlags) *cobra.Command {
 				}
 			}
 			if cmd.Flags().Changed("email-type") {
-				allowedEmailType := []string{ "all", "post", "message" }
+				allowedEmailType := []string{"all", "post", "message"}
 				validEmailType := false
 				for _, v := range allowedEmailType {
 					if flagEmailType == v {
@@ -52,7 +52,7 @@ func newEngagementsPromotedCmd(flags *rootFlags) *cobra.Command {
 				}
 			}
 			if cmd.Flags().Changed("direction") {
-				allowedDirection := []string{ "asc", "desc" }
+				allowedDirection := []string{"asc", "desc"}
 				validDirection := false
 				for _, v := range allowedDirection {
 					if flagDirection == v {

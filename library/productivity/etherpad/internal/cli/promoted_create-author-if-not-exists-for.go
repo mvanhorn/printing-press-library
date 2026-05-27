@@ -16,10 +16,10 @@ func newCreateAuthorIfNotExistsForPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagName string
 
 	cmd := &cobra.Command{
-		Use:   "create-author-if-not-exists-for",
-		Short: "this functions helps you to map your application author ids to Etherpad author ids",
-		Long:  "Shortcut for 'create-author-if-not-exists-for using-post'. this functions helps you to map your application author ids to Etherpad author ids",
-		Example: "  etherpad-pp-cli create-author-if-not-exists-for",
+		Use:         "create-author-if-not-exists-for",
+		Short:       "this functions helps you to map your application author ids to Etherpad author ids",
+		Long:        "Shortcut for 'create-author-if-not-exists-for using-post'. this functions helps you to map your application author ids to Etherpad author ids",
+		Example:     "  etherpad-pp-cli create-author-if-not-exists-for",
 		Annotations: map[string]string{"pp:endpoint": "create-author-if-not-exists-for.using-post", "pp:method": "POST", "pp:path": "/createAuthorIfNotExistsFor"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

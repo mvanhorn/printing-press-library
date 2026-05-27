@@ -17,10 +17,10 @@ func newProjectGetAllCmd(flags *rootFlags) *cobra.Command {
 	var flagProperties string
 
 	cmd := &cobra.Command{
-		Use:   "get-all",
-		Aliases: []string{"list"},
-		Short: "Returns all projects visible to the user. Deprecated, use [ Get projects...",
-		Example: "  jira-pp-cli project get-all",
+		Use:         "get-all",
+		Aliases:     []string{"list"},
+		Short:       "Returns all projects visible to the user. Deprecated, use [ Get projects...",
+		Example:     "  jira-pp-cli project get-all",
 		Annotations: map[string]string{"pp:endpoint": "project.get-all", "pp:method": "GET", "pp:path": "/rest/api/3/project", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

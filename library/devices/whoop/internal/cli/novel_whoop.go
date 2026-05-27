@@ -209,8 +209,8 @@ func newDigestCmd(flags *rootFlags) *cobra.Command {
 	var redact bool
 	var format string
 	cmd := &cobra.Command{
-		Use:   "digest",
-		Short: "Coach-mode shareable digest (Markdown or JSON)",
+		Use:         "digest",
+		Short:       "Coach-mode shareable digest (Markdown or JSON)",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		Example:     `  whoop-pp-cli digest --since 7d --redact-pii`,
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -359,12 +359,12 @@ func newClassifyCmd(flags *rootFlags) *cobra.Command {
 				}
 				if bestSport != w.sportID && counts[bestSport] >= 3 {
 					flagged = append(flagged, map[string]any{
-						"workout_id":   w.id,
-						"assigned":     w.sportID,
-						"suggested":    bestSport,
-						"avg_hr":       w.avgHR,
-						"distance":     round1(bestDist),
-						"strain":       w.strain,
+						"workout_id": w.id,
+						"assigned":   w.sportID,
+						"suggested":  bestSport,
+						"avg_hr":     w.avgHR,
+						"distance":   round1(bestDist),
+						"strain":     w.strain,
 					})
 				}
 			}
@@ -431,7 +431,7 @@ func newCorrelateCmd(flags *rootFlags) *cobra.Command {
 			r := pearson(xs, ys)
 			return emit(cmd, flags, map[string]any{
 				"a": args[0], "b": args[1], "lag_days": lag,
-				"n": len(xs), "r": round1(r * 100) / 100,
+				"n": len(xs), "r": round1(r*100) / 100,
 				"interpretation": pearsonInterp(r),
 			})
 		},
@@ -531,12 +531,12 @@ func newSleepDebtCmd(flags *rootFlags) *cobra.Command {
 				band = "red"
 			}
 			return emit(cmd, flags, map[string]any{
-				"window_days":          14,
-				"sleep_debt_pct_pts":   round1(debt),
-				"observations":         n,
-				"baseline_recovery":    round1(recAvg),
-				"predicted_recovery":   round1(predicted),
-				"predicted_band":       band,
+				"window_days":        14,
+				"sleep_debt_pct_pts": round1(debt),
+				"observations":       n,
+				"baseline_recovery":  round1(recAvg),
+				"predicted_recovery": round1(predicted),
+				"predicted_band":     band,
 			})
 		},
 	}
@@ -558,7 +558,7 @@ func newStrainBudgetCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 			defer db.Close()
-			weekStart := time.Now().Truncate(24 * time.Hour).AddDate(0, 0, -int(time.Now().Weekday()))
+			weekStart := time.Now().Truncate(24*time.Hour).AddDate(0, 0, -int(time.Now().Weekday()))
 			cycles, err := loadMetricSeries(db, "strain", weekStart)
 			if err != nil {
 				return err
@@ -595,13 +595,13 @@ func newStrainBudgetCmd(flags *rootFlags) *cobra.Command {
 			}
 			ceiling := round1(perDay * scale)
 			return emit(cmd, flags, map[string]any{
-				"weekly_target":      weeklyTarget,
-				"used_so_far":        round1(used),
-				"days_left":          daysLeft,
-				"todays_ceiling":     ceiling,
-				"latest_recovery":    round1(latestRec),
-				"recovery_band":      band,
-				"explain":            fmt.Sprintf("Remaining strain %.1f over %d days = %.1f/day, scaled by %s recovery (x%.1f)", remaining, daysLeft, perDay, band, scale),
+				"weekly_target":   weeklyTarget,
+				"used_so_far":     round1(used),
+				"days_left":       daysLeft,
+				"todays_ceiling":  ceiling,
+				"latest_recovery": round1(latestRec),
+				"recovery_band":   band,
+				"explain":         fmt.Sprintf("Remaining strain %.1f over %d days = %.1f/day, scaled by %s recovery (x%.1f)", remaining, daysLeft, perDay, band, scale),
 			})
 		},
 	}
@@ -779,12 +779,12 @@ func newJournalCmd(flags *rootFlags) *cobra.Command {
 				return emit(cmd, flags, map[string]any{"matches": 0})
 			}
 			return emit(cmd, flags, map[string]any{
-				"question":           question,
-				"yes_n":              len(withYes),
-				"no_n":               len(withNo),
-				"yes_avg_recovery":   round1(mean(withYes)),
-				"no_avg_recovery":    round1(mean(withNo)),
-				"delta":              round1(mean(withYes) - mean(withNo)),
+				"question":         question,
+				"yes_n":            len(withYes),
+				"no_n":             len(withNo),
+				"yes_avg_recovery": round1(mean(withYes)),
+				"no_avg_recovery":  round1(mean(withNo)),
+				"delta":            round1(mean(withYes) - mean(withNo)),
 			})
 		},
 	}

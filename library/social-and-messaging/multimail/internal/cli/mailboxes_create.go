@@ -20,9 +20,9 @@ func newMailboxesCreateCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "create",
-		Short: "Requires admin scope. Address can be a local part (appended to tenant subdomain) or full address on a verified...",
-		Example: "  multimail-pp-cli mailboxes create --address-local example-value",
+		Use:         "create",
+		Short:       "Requires admin scope. Address can be a local part (appended to tenant subdomain) or full address on a verified...",
+		Example:     "  multimail-pp-cli mailboxes create --address-local example-value",
 		Annotations: map[string]string{"pp:endpoint": "mailboxes.create", "pp:method": "POST", "pp:path": "/v1/mailboxes"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {
@@ -76,7 +76,9 @@ func newMailboxesCreateCmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

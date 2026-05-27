@@ -82,12 +82,12 @@ Useful for understanding frequency patterns for commute planning.`,
 				enc := json.NewEncoder(os.Stdout)
 				enc.SetIndent("", "  ")
 				return enc.Encode(map[string]any{
-					"line":     lineURI,
-					"stop":     stopURI,
-					"date":     date,
-					"coverage": coverage,
+					"line":      lineURI,
+					"stop":      stopURI,
+					"date":      date,
+					"coverage":  coverage,
 					"peak_hour": peak,
-					"buckets":  out,
+					"buckets":   out,
 				})
 			}
 

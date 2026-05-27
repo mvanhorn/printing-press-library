@@ -14,10 +14,10 @@ import (
 func newItemUploadPromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "item-upload",
-		Short: "Upload a file so that it can be sent as a chat message attachment. The returned object contains an item ID which can...",
-		Long:  "Shortcut for 'item-upload item_upload'. Upload a file so that it can be sent as a chat message attachment. The returned object contains an item ID which can...",
-		Example: "  roam-pp-cli item-upload",
+		Use:         "item-upload",
+		Short:       "Upload a file so that it can be sent as a chat message attachment. The returned object contains an item ID which can...",
+		Long:        "Shortcut for 'item-upload item_upload'. Upload a file so that it can be sent as a chat message attachment. The returned object contains an item ID which can...",
+		Example:     "  roam-pp-cli item-upload",
 		Annotations: map[string]string{"pp:endpoint": "item-upload.item_upload", "pp:method": "POST", "pp:path": "/item.upload"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

@@ -17,10 +17,10 @@ func newSetTextPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagAuthorId string
 
 	cmd := &cobra.Command{
-		Use:   "set-text",
-		Short: "sets the text of a pad",
-		Long:  "Shortcut for 'set-text using-post'. sets the text of a pad",
-		Example: "  etherpad-pp-cli set-text",
+		Use:         "set-text",
+		Short:       "sets the text of a pad",
+		Long:        "Shortcut for 'set-text using-post'. sets the text of a pad",
+		Example:     "  etherpad-pp-cli set-text",
 		Annotations: map[string]string{"pp:endpoint": "set-text.using-post", "pp:method": "POST", "pp:path": "/setText"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

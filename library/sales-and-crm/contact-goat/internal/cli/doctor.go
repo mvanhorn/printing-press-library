@@ -302,11 +302,11 @@ func checkHappenstanceGraphCoverage(flags *rootFlags, report map[string]any) {
 	var resp struct {
 		Statuses struct {
 			LinkedInExt []struct {
-				Status         string `json:"status"`
-				IsActive       bool   `json:"isActive"`
-				IsError        bool   `json:"isError"`
-				LastRefreshed  string `json:"last_refreshed"`
-				Timestamp      string `json:"timestamp"`
+				Status        string `json:"status"`
+				IsActive      bool   `json:"isActive"`
+				IsError       bool   `json:"isError"`
+				LastRefreshed string `json:"last_refreshed"`
+				Timestamp     string `json:"timestamp"`
 			} `json:"linkedin_ext"`
 		} `json:"statuses"`
 		HasAnyUploads       bool `json:"hasAnyUploads"`

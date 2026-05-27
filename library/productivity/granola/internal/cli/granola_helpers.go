@@ -12,9 +12,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/productivity/granola/internal/granola"
 	"github.com/mvanhorn/printing-press-library/library/productivity/granola/internal/store"
+	"github.com/spf13/cobra"
 )
 
 // openGranolaCache loads the local cache file. Returns a typed error if

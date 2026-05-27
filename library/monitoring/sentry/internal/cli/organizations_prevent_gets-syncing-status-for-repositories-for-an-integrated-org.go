@@ -14,10 +14,10 @@ import (
 func newOrganizationsPreventGetsSyncingStatusForRepositoriesForAnIntegratedOrgCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "gets-syncing-status-for-repositories-for-an-integrated-org <organization_id_or_slug> <owner>",
-		Aliases: []string{"get"},
-		Short: "Gets syncing status for repositories for an integrated organization.",
-		Example: "  sentry-pp-cli organizations prevent gets-syncing-status-for-repositories-for-an-integrated-org example-value example-value",
+		Use:         "gets-syncing-status-for-repositories-for-an-integrated-org <organization_id_or_slug> <owner>",
+		Aliases:     []string{"get"},
+		Short:       "Gets syncing status for repositories for an integrated organization.",
+		Example:     "  sentry-pp-cli organizations prevent gets-syncing-status-for-repositories-for-an-integrated-org example-value example-value",
 		Annotations: map[string]string{"pp:endpoint": "prevent.gets-syncing-status-for-repositories-for-an-integrated-org", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

@@ -15,9 +15,9 @@ func newFrontpageListJsonCmd(flags *rootFlags) *cobra.Command {
 	var flagNuxt int
 
 	cmd := &cobra.Command{
-		Use:   "list-json",
-		Short: "GET /frontpage/promoted-content/json",
-		Example: "  slickdeals-pp-cli frontpage list-json",
+		Use:         "list-json",
+		Short:       "GET /frontpage/promoted-content/json",
+		Example:     "  slickdeals-pp-cli frontpage list-json",
 		Annotations: map[string]string{"pp:endpoint": "frontpage.list_json", "pp:method": "GET", "pp:path": "/frontpage/promoted-content/json", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

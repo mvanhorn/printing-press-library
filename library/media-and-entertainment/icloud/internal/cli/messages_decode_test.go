@@ -178,8 +178,8 @@ func TestDecodeAttributedBody_InvalidUTF8(t *testing.T) {
 	blob = append(blob, []byte("streamtyped")...)
 	blob = append(blob, 0x04, 0x0b)
 	blob = append(blob, typedStreamStringTag)
-	blob = append(blob, 0x05)                                  // direct length 5
-	blob = append(blob, 0xff, 0xfe, 0xfd, 0xfc, 0xfb)          // invalid UTF-8
+	blob = append(blob, 0x05)                         // direct length 5
+	blob = append(blob, 0xff, 0xfe, 0xfd, 0xfc, 0xfb) // invalid UTF-8
 	text, source := decodeAttributedBody(blob)
 	if source == textSourceDecoded {
 		t.Errorf("invalid UTF-8 should not decode, got (%q, %q)", text, source)

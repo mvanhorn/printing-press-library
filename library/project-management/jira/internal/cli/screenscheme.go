@@ -9,8 +9,8 @@ import (
 
 func newScreenschemeCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "screenscheme",
-		Short: "Manage screenscheme",
+		Use:    "screenscheme",
+		Short:  "Manage screenscheme",
 		Hidden: true,
 	}
 

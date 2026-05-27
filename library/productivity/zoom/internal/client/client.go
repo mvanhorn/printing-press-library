@@ -10,6 +10,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/productivity/zoom/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/productivity/zoom/internal/config"
 	"io"
 	"math"
 	"net/http"
@@ -18,8 +20,6 @@ import (
 	"sort"
 	"strings"
 	"time"
-	"github.com/mvanhorn/printing-press-library/library/productivity/zoom/internal/cliutil"
-	"github.com/mvanhorn/printing-press-library/library/productivity/zoom/internal/config"
 )
 
 const BinaryResponseHeader = "X-Printing-Press-Binary-Response"

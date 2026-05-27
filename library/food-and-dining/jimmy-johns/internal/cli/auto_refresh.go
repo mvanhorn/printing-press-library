@@ -20,10 +20,10 @@ import (
 // Populated from generated syncable resource commands and any custom
 // command-path coverage declared in spec.Cache.Commands.
 var readCommandResources = map[string][]string{
-	"jimmy-johns-pp-cli menu":        {"menu"},
-	"jimmy-johns-pp-cli menu list":   {"menu"},
-	"jimmy-johns-pp-cli menu get":    {"menu"},
-	"jimmy-johns-pp-cli menu search": {"menu"},
+	"jimmy-johns-pp-cli menu":          {"menu"},
+	"jimmy-johns-pp-cli menu list":     {"menu"},
+	"jimmy-johns-pp-cli menu get":      {"menu"},
+	"jimmy-johns-pp-cli menu search":   {"menu"},
 	"jimmy-johns-pp-cli stores":        {"stores"},
 	"jimmy-johns-pp-cli stores list":   {"stores"},
 	"jimmy-johns-pp-cli stores get":    {"stores"},

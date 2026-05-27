@@ -8,10 +8,10 @@ import "testing"
 
 func TestAuthHeaderBearerPrefix(t *testing.T) {
 	cases := []struct {
-		name        string
-		authHeader  string
-		oauthRaw    string
-		wantHeader  string
+		name       string
+		authHeader string
+		oauthRaw   string
+		wantHeader string
 	}{
 		{"auth_header verbatim", "Bearer abc", "ignored", "Bearer abc"},
 		{"auth_header verbatim non-bearer", "Token xyz", "ignored", "Token xyz"},

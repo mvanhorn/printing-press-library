@@ -15,13 +15,13 @@ func newCustomFieldsListCmd(flags *rootFlags) *cobra.Command {
 	var flagEntityType string
 
 	cmd := &cobra.Command{
-		Use:   "list",
-		Short: "List custom field definitions",
-		Example: "  conduyt-crm-pp-cli custom-fields list",
+		Use:         "list",
+		Short:       "List custom field definitions",
+		Example:     "  conduyt-crm-pp-cli custom-fields list",
 		Annotations: map[string]string{"pp:endpoint": "custom-fields.list", "pp:method": "GET", "pp:path": "/custom-fields", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if cmd.Flags().Changed("entity-type") {
-				allowedEntityType := []string{ "contact", "deal" }
+				allowedEntityType := []string{"contact", "deal"}
 				validEntityType := false
 				for _, v := range allowedEntityType {
 					if flagEntityType == v {

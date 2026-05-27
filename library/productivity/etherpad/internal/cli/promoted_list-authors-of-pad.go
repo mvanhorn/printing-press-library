@@ -15,10 +15,10 @@ func newListAuthorsOfPadPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagPadID string
 
 	cmd := &cobra.Command{
-		Use:   "list-authors-of-pad",
-		Short: "returns an array of authors who contributed to this pad",
-		Long:  "Shortcut for 'list-authors-of-pad using-post'. returns an array of authors who contributed to this pad",
-		Example: "  etherpad-pp-cli list-authors-of-pad",
+		Use:         "list-authors-of-pad",
+		Short:       "returns an array of authors who contributed to this pad",
+		Long:        "Shortcut for 'list-authors-of-pad using-post'. returns an array of authors who contributed to this pad",
+		Example:     "  etherpad-pp-cli list-authors-of-pad",
 		Annotations: map[string]string{"pp:endpoint": "list-authors-of-pad.using-post", "pp:method": "POST", "pp:path": "/listAuthorsOfPad"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

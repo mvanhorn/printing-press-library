@@ -16,9 +16,9 @@ func newCalendarWebhookMicrosoftCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "webhook-microsoft",
-		Short: "Microsoft Calendar webhook",
-		Example: "  conduyt-crm-pp-cli calendar webhook-microsoft",
+		Use:         "webhook-microsoft",
+		Short:       "Microsoft Calendar webhook",
+		Example:     "  conduyt-crm-pp-cli calendar webhook-microsoft",
 		Annotations: map[string]string{"pp:endpoint": "calendar.webhook-microsoft", "pp:method": "POST", "pp:path": "/calendar/webhooks/microsoft"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {
@@ -57,7 +57,9 @@ func newCalendarWebhookMicrosoftCmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

@@ -18,9 +18,9 @@ func newClassroomGetCourseCmd(flags *rootFlags) *cobra.Command {
 	var flagMd string
 
 	cmd := &cobra.Command{
-		Use:   "get-course",
-		Short: "Get a single course with its modules and lessons",
-		Example: "  skool-pp-cli classroom get-course --community example-value --course example-value",
+		Use:         "get-course",
+		Short:       "Get a single course with its modules and lessons",
+		Example:     "  skool-pp-cli classroom get-course --community example-value --course example-value",
 		Annotations: map[string]string{"pp:endpoint": "classroom.get-course", "pp:method": "GET", "pp:path": "/_next/data/{buildId}/{community}/classroom/{course_slug}.json", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("community") && !flags.dryRun {

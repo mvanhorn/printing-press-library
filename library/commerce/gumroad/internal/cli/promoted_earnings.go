@@ -15,10 +15,10 @@ func newEarningsPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagYear int
 
 	cmd := &cobra.Command{
-		Use:   "earnings",
-		Short: "Retrieve an annual earnings breakdown for the authenticated user. Requires view_tax_data scope.",
-		Long:  "Shortcut for 'earnings get'. Retrieve an annual earnings breakdown for the authenticated user. Requires view_tax_data scope.",
-		Example: "  gumroad-pp-cli earnings --year 42",
+		Use:         "earnings",
+		Short:       "Retrieve an annual earnings breakdown for the authenticated user. Requires view_tax_data scope.",
+		Long:        "Shortcut for 'earnings get'. Retrieve an annual earnings breakdown for the authenticated user. Requires view_tax_data scope.",
+		Example:     "  gumroad-pp-cli earnings --year 42",
 		Annotations: map[string]string{"pp:endpoint": "earnings.get", "pp:method": "GET", "pp:path": "/earnings", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("year") && !flags.dryRun {

@@ -20,10 +20,10 @@ func newTeamsExternalTeamsCreateAnCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "create-an <organization_id_or_slug> <team_id_or_slug>",
-		Aliases: []string{"create"},
-		Short: "Link a team from an external provider to a Sentry team.",
-		Example: "  sentry-pp-cli teams external-teams create-an example-value example-value --external-name example-resource",
+		Use:         "create-an <organization_id_or_slug> <team_id_or_slug>",
+		Aliases:     []string{"create"},
+		Short:       "Link a team from an external provider to a Sentry team.",
+		Example:     "  sentry-pp-cli teams external-teams create-an example-value example-value --external-name example-resource",
 		Annotations: map[string]string{"pp:endpoint": "external-teams.create-an"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -91,7 +91,9 @@ func newTeamsExternalTeamsCreateAnCmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

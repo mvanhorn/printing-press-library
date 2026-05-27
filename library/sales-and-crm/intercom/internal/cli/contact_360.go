@@ -9,8 +9,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/sales-and-crm/intercom/internal/store"
+	"github.com/spf13/cobra"
 )
 
 type contact360 struct {

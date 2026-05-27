@@ -15,9 +15,9 @@ func newMediaItemsBatchGetCmd(flags *rootFlags) *cobra.Command {
 	var flagMediaItemIds string
 
 	cmd := &cobra.Command{
-		Use:   "batch-get",
-		Short: "Get multiple app-created media items by ID.",
-		Example: "  google-photos-pp-cli media_items batch_get",
+		Use:         "batch-get",
+		Short:       "Get multiple app-created media items by ID.",
+		Example:     "  google-photos-pp-cli media_items batch_get",
 		Annotations: map[string]string{"pp:endpoint": "media_items.batch_get", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("media-item-ids") && !flags.dryRun {

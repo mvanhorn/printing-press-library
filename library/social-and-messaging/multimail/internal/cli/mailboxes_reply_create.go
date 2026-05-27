@@ -21,9 +21,9 @@ func newMailboxesReplyCreateCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "create <mailboxId> <emailId>",
-		Short: "Requires send scope. Supports attachments and idempotency keys.",
-		Example: "  multimail-pp-cli mailboxes reply create 550e8400-e29b-41d4-a716-446655440000 550e8400-e29b-41d4-a716-446655440000 --markdown example-value",
+		Use:         "create <mailboxId> <emailId>",
+		Short:       "Requires send scope. Supports attachments and idempotency keys.",
+		Example:     "  multimail-pp-cli mailboxes reply create 550e8400-e29b-41d4-a716-446655440000 550e8400-e29b-41d4-a716-446655440000 --markdown example-value",
 		Annotations: map[string]string{"pp:endpoint": "reply.create", "pp:method": "POST", "pp:path": "/v1/mailboxes/{mailboxId}/reply/{emailId}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -100,7 +100,9 @@ func newMailboxesReplyCreateCmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

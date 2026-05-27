@@ -18,9 +18,9 @@ func newSiteAuditProjectsCmd(flags *rootFlags) *cobra.Command {
 	var flagProjectId string
 
 	cmd := &cobra.Command{
-		Use:   "projects",
-		Short: "Project Health Scores",
-		Example: "  ahrefs-pp-cli site_audit projects",
+		Use:         "projects",
+		Short:       "Project Health Scores",
+		Example:     "  ahrefs-pp-cli site_audit projects",
 		Annotations: map[string]string{"pp:endpoint": "site_audit.projects", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

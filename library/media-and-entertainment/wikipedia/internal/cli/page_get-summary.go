@@ -15,9 +15,9 @@ func newPageGetSummaryCmd(flags *rootFlags) *cobra.Command {
 	var flagRedirect bool
 
 	cmd := &cobra.Command{
-		Use:   "get-summary <title>",
-		Short: "Returns a page summary including title, extract text, thumbnail, and coordinates.",
-		Example: "  wikipedia-pp-cli page get-summary example-resource",
+		Use:         "get-summary <title>",
+		Short:       "Returns a page summary including title, extract text, thumbnail, and coordinates.",
+		Example:     "  wikipedia-pp-cli page get-summary example-resource",
 		Annotations: map[string]string{"pp:endpoint": "page.get-summary", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

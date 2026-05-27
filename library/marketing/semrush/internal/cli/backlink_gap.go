@@ -166,7 +166,7 @@ func newBacklinkGapCmd(flags *rootFlags) *cobra.Command {
 				"hit_count":       totalHitCount,
 				"hit_count_shown": len(hits),
 				"truncated":       truncated,
-				"hits":       hits,
+				"hits":            hits,
 			}
 			raw, err := json.Marshal(out)
 			if err != nil {

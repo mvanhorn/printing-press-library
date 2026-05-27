@@ -118,12 +118,12 @@ In local mode: searches locally synced data only.`,
 					return err
 				}
 				data, _, getErr := c.Post("/search", map[string]any{
-					"query": query,
+					"query":             query,
 					"ignoreInvalidURLs": false,
-					"limit": 5,
-					"location": "",
-					"tbs": "",
-					"timeout": 60000,
+					"limit":             5,
+					"location":          "",
+					"tbs":               "",
+					"timeout":           60000,
 				})
 				if getErr == nil {
 					// Live search succeeded

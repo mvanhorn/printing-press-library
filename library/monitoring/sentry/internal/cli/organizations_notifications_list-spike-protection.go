@@ -17,10 +17,10 @@ func newOrganizationsNotificationsListSpikeProtectionCmd(flags *rootFlags) *cobr
 	var flagTriggerType string
 
 	cmd := &cobra.Command{
-		Use:   "list-spike-protection <organization_id_or_slug>",
-		Aliases: []string{"get"},
-		Short: "Returns all Spike Protection Notification Actions for an organization. Notification Actions notify a set of members...",
-		Example: "  sentry-pp-cli organizations notifications list-spike-protection example-value",
+		Use:         "list-spike-protection <organization_id_or_slug>",
+		Aliases:     []string{"get"},
+		Short:       "Returns all Spike Protection Notification Actions for an organization. Notification Actions notify a set of members...",
+		Example:     "  sentry-pp-cli organizations notifications list-spike-protection example-value",
 		Annotations: map[string]string{"pp:endpoint": "notifications.list-spike-protection", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

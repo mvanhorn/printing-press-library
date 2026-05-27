@@ -16,9 +16,9 @@ func newWebhooksCreatePostmarkinboundCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "create-postmarkinbound",
-		Short: "Receives inbound emails from Postmark. Authenticated via HTTP Basic Auth with the Postmark webhook secret. Not a...",
-		Example: "  multimail-pp-cli webhooks create-postmarkinbound",
+		Use:         "create-postmarkinbound",
+		Short:       "Receives inbound emails from Postmark. Authenticated via HTTP Basic Auth with the Postmark webhook secret. Not a...",
+		Example:     "  multimail-pp-cli webhooks create-postmarkinbound",
 		Annotations: map[string]string{"pp:endpoint": "webhooks.create-postmarkinbound", "pp:method": "POST", "pp:path": "/v1/webhooks/postmark-inbound"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {
@@ -57,7 +57,9 @@ func newWebhooksCreatePostmarkinboundCmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

@@ -14,9 +14,9 @@ import (
 func newRecommendationsStartMyCartCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "start-my-cart",
-		Short: "Get the Start My Cart product recommendations shown on the homepage.",
-		Example: "  harris-teeter-pp-cli recommendations start-my-cart",
+		Use:         "start-my-cart",
+		Short:       "Get the Start My Cart product recommendations shown on the homepage.",
+		Example:     "  harris-teeter-pp-cli recommendations start-my-cart",
 		Annotations: map[string]string{"pp:endpoint": "recommendations.start_my_cart", "pp:method": "GET", "pp:path": "/atlas/v1/recommendations/v1/start-my-cart", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

@@ -14,10 +14,10 @@ import (
 func newPublicGetBookingPageCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-booking-page <slug>",
-		Aliases: []string{"get"},
-		Short: "Get a public booking page by slug",
-		Example: "  conduyt-crm-pp-cli public get-booking-page example-value",
+		Use:         "get-booking-page <slug>",
+		Aliases:     []string{"get"},
+		Short:       "Get a public booking page by slug",
+		Example:     "  conduyt-crm-pp-cli public get-booking-page example-value",
 		Annotations: map[string]string{"pp:endpoint": "public.get-booking-page", "pp:method": "GET", "pp:path": "/public/booking/{slug}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

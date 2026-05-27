@@ -16,9 +16,9 @@ func newProfilesPostsCmd(flags *rootFlags) *cobra.Command {
 	var flagLimit int
 
 	cmd := &cobra.Command{
-		Use:   "posts",
-		Short: "All posts by an author across publications",
-		Example: "  substack-pp-cli profiles posts --user-id 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "posts",
+		Short:       "All posts by an author across publications",
+		Example:     "  substack-pp-cli profiles posts --user-id 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "profiles.posts", "pp:method": "GET", "pp:path": "/profile/posts", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("user-id") && !flags.dryRun {

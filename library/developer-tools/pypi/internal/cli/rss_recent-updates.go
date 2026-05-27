@@ -14,9 +14,9 @@ import (
 func newRssRecentUpdatesCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "recent-updates",
-		Short: "RSS feed of the most recently updated packages on PyPI.",
-		Example: "  pypi-pp-cli rss recent-updates",
+		Use:         "recent-updates",
+		Short:       "RSS feed of the most recently updated packages on PyPI.",
+		Example:     "  pypi-pp-cli rss recent-updates",
 		Annotations: map[string]string{"pp:endpoint": "rss.recent-updates", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

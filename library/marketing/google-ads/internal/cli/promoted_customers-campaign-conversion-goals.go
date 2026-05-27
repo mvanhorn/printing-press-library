@@ -16,10 +16,10 @@ func newCustomersCampaignConversionGoalsPromotedCmd(flags *rootFlags) *cobra.Com
 	var bodyValidateOnly bool
 
 	cmd := &cobra.Command{
-		Use:   "customers-campaign-conversion-goals <customerId>",
-		Short: "Creates, updates or removes campaign conversion goals. Operation statuses are returned.",
-		Long:  "Shortcut for 'customers_campaign_conversion_goals mutate'. Creates, updates or removes campaign conversion goals. Operation statuses are returned.",
-		Example: "  google-ads-pp-cli customers-campaign-conversion-goals",
+		Use:         "customers-campaign-conversion-goals <customerId>",
+		Short:       "Creates, updates or removes campaign conversion goals. Operation statuses are returned.",
+		Long:        "Shortcut for 'customers_campaign_conversion_goals mutate'. Creates, updates or removes campaign conversion goals. Operation statuses are returned.",
+		Example:     "  google-ads-pp-cli customers-campaign-conversion-goals",
 		Annotations: map[string]string{"pp:endpoint": "customers_campaign_conversion_goals.mutate", "pp:method": "POST", "pp:path": "/v22/customers/{customerId}/campaignConversionGoals:mutate"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

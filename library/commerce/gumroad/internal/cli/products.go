@@ -9,8 +9,8 @@ import (
 
 func newProductsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "products",
-		Short: "Manage products",
+		Use:    "products",
+		Short:  "Manage products",
 		Hidden: true,
 	}
 

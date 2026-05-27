@@ -18,9 +18,9 @@ func newItemCategoryListCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "list",
-		Short: "Item categories determine where items will be placed in the players bag.",
-		Example: "  pokeapi-pp-cli item-category list",
+		Use:         "list",
+		Short:       "Item categories determine where items will be placed in the players bag.",
+		Example:     "  pokeapi-pp-cli item-category list",
 		Annotations: map[string]string{"pp:endpoint": "item-category.list", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
@@ -30,9 +30,9 @@ func newItemCategoryListCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/api/v2/item-category/"
 			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "item-category", path, map[string]string{
-				"limit": fmt.Sprintf("%v", flagLimit),
+				"limit":  fmt.Sprintf("%v", flagLimit),
 				"offset": fmt.Sprintf("%v", flagOffset),
-				"q": fmt.Sprintf("%v", flagQ),
+				"q":      fmt.Sprintf("%v", flagQ),
 			}, nil, flagAll, "offset", "", "")
 			if err != nil {
 				return classifyAPIError(err)

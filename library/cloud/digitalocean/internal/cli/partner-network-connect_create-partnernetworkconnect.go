@@ -16,9 +16,9 @@ func newPartnerNetworkConnectCreatePartnernetworkconnectCmd(flags *rootFlags) *c
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "create-partnernetworkconnect",
-		Short: "Create partnernetworkconnect",
-		Example: "  digitalocean-pp-cli partner-network-connect create-partnernetworkconnect",
+		Use:         "create-partnernetworkconnect",
+		Short:       "Create partnernetworkconnect",
+		Example:     "  digitalocean-pp-cli partner-network-connect create-partnernetworkconnect",
 		Annotations: map[string]string{"pp:endpoint": "partner-network-connect.create-partnernetworkconnect", "pp:method": "POST", "pp:path": "/v2/partner_network_connect/attachments/{pa_id}/service_key"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {
@@ -57,7 +57,9 @@ func newPartnerNetworkConnectCreatePartnernetworkconnectCmd(flags *rootFlags) *c
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

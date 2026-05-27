@@ -51,13 +51,13 @@ type pcTranscript struct {
 }
 
 type rssItem struct {
-	GUID        string          `xml:"guid"`
-	Title       string          `xml:"title"`
-	Link        string          `xml:"link"`
-	PubDate     string          `xml:"pubDate"`
-	Description string          `xml:"description"`
-	Duration    string          `xml:"http://www.itunes.com/dtds/podcast-1.0.dtd duration"`
-	Transcripts []pcTranscript  `xml:"https://podcastindex.org/namespace/1.0 transcript"`
+	GUID        string         `xml:"guid"`
+	Title       string         `xml:"title"`
+	Link        string         `xml:"link"`
+	PubDate     string         `xml:"pubDate"`
+	Description string         `xml:"description"`
+	Duration    string         `xml:"http://www.itunes.com/dtds/podcast-1.0.dtd duration"`
+	Transcripts []pcTranscript `xml:"https://podcastindex.org/namespace/1.0 transcript"`
 }
 
 type rssChannel struct {

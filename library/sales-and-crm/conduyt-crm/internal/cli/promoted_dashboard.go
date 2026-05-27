@@ -14,10 +14,10 @@ import (
 func newDashboardPromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "dashboard",
-		Short: "Get dashboard summary metrics",
-		Long:  "Shortcut for 'dashboard get'. Get dashboard summary metrics",
-		Example: "  conduyt-crm-pp-cli dashboard",
+		Use:         "dashboard",
+		Short:       "Get dashboard summary metrics",
+		Long:        "Shortcut for 'dashboard get'. Get dashboard summary metrics",
+		Example:     "  conduyt-crm-pp-cli dashboard",
 		Annotations: map[string]string{"pp:endpoint": "dashboard.get", "pp:method": "GET", "pp:path": "/dashboard", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

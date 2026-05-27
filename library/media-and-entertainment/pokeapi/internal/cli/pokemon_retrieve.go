@@ -14,10 +14,10 @@ import (
 func newPokemonRetrieveCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "retrieve <id>",
-		Aliases: []string{"get"},
-		Short: "Pokémon are the creatures that inhabit the world of the Pokémon games. They can be caught using Pokéballs and...",
-		Example: "  pokeapi-pp-cli pokemon retrieve 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "retrieve <id>",
+		Aliases:     []string{"get"},
+		Short:       "Pokémon are the creatures that inhabit the world of the Pokémon games. They can be caught using Pokéballs and...",
+		Example:     "  pokeapi-pp-cli pokemon retrieve 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "pokemon.retrieve", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

@@ -16,9 +16,9 @@ func newProductsSuggestionsCmd(flags *rootFlags) *cobra.Command {
 	var flagFilterLocationId string
 
 	cmd := &cobra.Command{
-		Use:   "suggestions",
-		Short: "Get search suggestions for a query and location.",
-		Example: "  harris-teeter-pp-cli products suggestions",
+		Use:         "suggestions",
+		Short:       "Get search suggestions for a query and location.",
+		Example:     "  harris-teeter-pp-cli products suggestions",
 		Annotations: map[string]string{"pp:endpoint": "products.suggestions", "pp:method": "GET", "pp:path": "/atlas/v1/search/v1/suggestions", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

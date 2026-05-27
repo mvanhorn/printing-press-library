@@ -568,6 +568,7 @@ func LookupFieldValue(obj map[string]any, snakeKey string) any {
 func lookupFieldValue(obj map[string]any, snakeKey string) any {
 	return LookupFieldValue(obj, snakeKey)
 }
+
 // upsertRecipesTx writes the typed-table portion of a recipes upsert
 // inside an existing transaction. The caller is responsible for the generic
 // resources insert (via upsertGenericResourceTx) and for committing the tx.
@@ -619,6 +620,7 @@ func (s *Store) UpsertRecipes(data json.RawMessage) error {
 
 	return tx.Commit()
 }
+
 // upsertArticlesTx writes the typed-table portion of a articles upsert
 // inside an existing transaction. The caller is responsible for the generic
 // resources insert (via upsertGenericResourceTx) and for committing the tx.
@@ -680,8 +682,7 @@ func (s *Store) UpsertArticles(data json.RawMessage) error {
 // Includes both flat resources and dependent (parent-child) resources so a
 // child path-item annotated with x-resource-id resolves the same as a flat
 // path-item.
-var resourceIDFieldOverrides = map[string]string{
-}
+var resourceIDFieldOverrides = map[string]string{}
 
 // genericIDFieldFallbacks is the runtime safety net for resources that did
 // NOT receive a templated IDField. API-specific names belong in spec

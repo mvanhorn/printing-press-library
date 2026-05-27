@@ -14,10 +14,10 @@ import (
 func newCustomersThirdPartyAppAnalyticsLinksPromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "customers-third-party-app-analytics-links <resourceName>",
-		Short: "Regenerate ThirdPartyAppAnalyticsLink.shareable_link_id that should be provided to the third party when setting up...",
-		Long:  "Shortcut for 'customers_third_party_app_analytics_links regenerate_shareable_link_id'. Regenerate ThirdPartyAppAnalyticsLink.shareable_link_id that should be provided to the third party when setting up...",
-		Example: "  google-ads-pp-cli customers-third-party-app-analytics-links",
+		Use:         "customers-third-party-app-analytics-links <resourceName>",
+		Short:       "Regenerate ThirdPartyAppAnalyticsLink.shareable_link_id that should be provided to the third party when setting up...",
+		Long:        "Shortcut for 'customers_third_party_app_analytics_links regenerate_shareable_link_id'. Regenerate ThirdPartyAppAnalyticsLink.shareable_link_id that should be provided to the third party when setting up...",
+		Example:     "  google-ads-pp-cli customers-third-party-app-analytics-links",
 		Annotations: map[string]string{"pp:endpoint": "customers_third_party_app_analytics_links.regenerate_shareable_link_id", "pp:method": "POST", "pp:path": "/v22/{resourceName}:regenerateShareableLinkId"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

@@ -17,9 +17,9 @@ func newImportsUploadFileCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "upload-file",
-		Short: "Upload a CSV file for import",
-		Example: "  conduyt-crm-pp-cli imports upload-file",
+		Use:         "upload-file",
+		Short:       "Upload a CSV file for import",
+		Example:     "  conduyt-crm-pp-cli imports upload-file",
 		Annotations: map[string]string{"pp:endpoint": "imports.upload-file", "pp:method": "POST", "pp:path": "/imports/upload"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {
@@ -61,7 +61,9 @@ func newImportsUploadFileCmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

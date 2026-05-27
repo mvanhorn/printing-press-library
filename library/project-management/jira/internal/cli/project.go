@@ -9,8 +9,8 @@ import (
 
 func newProjectCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "project",
-		Short: "This resource represents projects. Use it to get, create, update, and delete projects. Also get statuses available...",
+		Use:    "project",
+		Short:  "This resource represents projects. Use it to get, create, update, and delete projects. Also get statuses available...",
 		Hidden: true,
 	}
 

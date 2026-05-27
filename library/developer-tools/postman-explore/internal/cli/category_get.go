@@ -14,9 +14,9 @@ import (
 func newCategoryGetCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get <slug>",
-		Short: "Returns full details for a category by its URL slug (e.g., `artificial-intelligence`, `developer-productivity`,...",
-		Example: "  postman-explore-pp-cli category get example-value",
+		Use:         "get <slug>",
+		Short:       "Returns full details for a category by its URL slug (e.g., `artificial-intelligence`, `developer-productivity`,...",
+		Example:     "  postman-explore-pp-cli category get example-value",
 		Annotations: map[string]string{"pp:endpoint": "category.get"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

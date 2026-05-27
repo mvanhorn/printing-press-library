@@ -16,9 +16,9 @@ func newPostsListPublishedCmd(flags *rootFlags) *cobra.Command {
 	var flagOffset string
 
 	cmd := &cobra.Command{
-		Use:   "list-published",
-		Short: "List published posts on the publication (auth required)",
-		Example: "  substack-pp-cli posts list-published",
+		Use:         "list-published",
+		Short:       "List published posts on the publication (auth required)",
+		Example:     "  substack-pp-cli posts list-published",
 		Annotations: map[string]string{"pp:endpoint": "posts.list-published", "pp:method": "GET", "pp:path": "https://{publication}.substack.com/api/v1/post_management/published", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

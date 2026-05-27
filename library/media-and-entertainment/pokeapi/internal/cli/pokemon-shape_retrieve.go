@@ -14,10 +14,10 @@ import (
 func newPokemonShapeRetrieveCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "retrieve <id>",
-		Aliases: []string{"get"},
-		Short: "Shapes used for sorting Pokémon in a Pokédex.",
-		Example: "  pokeapi-pp-cli pokemon-shape retrieve 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "retrieve <id>",
+		Aliases:     []string{"get"},
+		Short:       "Shapes used for sorting Pokémon in a Pokédex.",
+		Example:     "  pokeapi-pp-cli pokemon-shape retrieve 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "pokemon-shape.retrieve", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

@@ -16,10 +16,10 @@ func newProjectsReleasesListAProjectSCommitsCmd(flags *rootFlags) *cobra.Command
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "list-a-project-s-commits <organization_id_or_slug> <project_id_or_slug> <version>",
-		Aliases: []string{"get"},
-		Short: "List a project release's commits.",
-		Example: "  sentry-pp-cli projects releases list-a-project-s-commits example-value example-value example-value",
+		Use:         "list-a-project-s-commits <organization_id_or_slug> <project_id_or_slug> <version>",
+		Aliases:     []string{"get"},
+		Short:       "List a project release's commits.",
+		Example:     "  sentry-pp-cli projects releases list-a-project-s-commits example-value example-value example-value",
 		Annotations: map[string]string{"pp:endpoint": "releases.list-a-project-s-commits", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

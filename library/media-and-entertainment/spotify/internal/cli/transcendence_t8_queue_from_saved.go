@@ -20,8 +20,8 @@ package cli
 import (
 	"fmt"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/spotify/internal/cliutil"
+	"github.com/spf13/cobra"
 )
 
 func newQueueCmd(flags *rootFlags) *cobra.Command {

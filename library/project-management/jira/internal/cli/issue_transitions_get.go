@@ -19,9 +19,9 @@ func newIssueTransitionsGetCmd(flags *rootFlags) *cobra.Command {
 	var flagSortByOpsBarAndStatus bool
 
 	cmd := &cobra.Command{
-		Use:   "get <issueIdOrKey>",
-		Short: "Returns either all transitions or a transition that can be performed by the user on an issue, based on the issue's...",
-		Example: "  jira-pp-cli issue transitions get your-token-here",
+		Use:         "get <issueIdOrKey>",
+		Short:       "Returns either all transitions or a transition that can be performed by the user on an issue, based on the issue's...",
+		Example:     "  jira-pp-cli issue transitions get your-token-here",
 		Annotations: map[string]string{"pp:endpoint": "transitions.get", "pp:method": "GET", "pp:path": "/rest/api/3/issue/{issueIdOrKey}/transitions", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

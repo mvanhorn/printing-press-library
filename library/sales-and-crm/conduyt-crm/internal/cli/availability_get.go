@@ -14,10 +14,10 @@ import (
 func newAvailabilityGetCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get",
-		Aliases: []string{"list"},
-		Short: "Get current user's availability rules",
-		Example: "  conduyt-crm-pp-cli availability get",
+		Use:         "get",
+		Aliases:     []string{"list"},
+		Short:       "Get current user's availability rules",
+		Example:     "  conduyt-crm-pp-cli availability get",
 		Annotations: map[string]string{"pp:endpoint": "availability.get", "pp:method": "GET", "pp:path": "/availability", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

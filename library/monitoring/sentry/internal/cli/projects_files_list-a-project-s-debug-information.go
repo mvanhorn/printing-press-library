@@ -14,10 +14,10 @@ import (
 func newProjectsFilesListAProjectSDebugInformationCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "list-a-project-s-debug-information <organization_id_or_slug> <project_id_or_slug>",
-		Aliases: []string{"get"},
-		Short: "Retrieve a list of debug information files for a given project.",
-		Example: "  sentry-pp-cli projects files list-a-project-s-debug-information example-value example-value",
+		Use:         "list-a-project-s-debug-information <organization_id_or_slug> <project_id_or_slug>",
+		Aliases:     []string{"get"},
+		Short:       "Retrieve a list of debug information files for a given project.",
+		Example:     "  sentry-pp-cli projects files list-a-project-s-debug-information example-value example-value",
 		Annotations: map[string]string{"pp:endpoint": "files.list-a-project-s-debug-information", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

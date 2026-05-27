@@ -14,9 +14,9 @@ import (
 func newReportsGetPipelineCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-pipeline",
-		Short: "Pipeline performance report",
-		Example: "  conduyt-crm-pp-cli reports get-pipeline",
+		Use:         "get-pipeline",
+		Short:       "Pipeline performance report",
+		Example:     "  conduyt-crm-pp-cli reports get-pipeline",
 		Annotations: map[string]string{"pp:endpoint": "reports.get-pipeline", "pp:method": "GET", "pp:path": "/reports/pipeline", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

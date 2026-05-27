@@ -19,9 +19,9 @@ func newDraftsUpdateCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "update <draft_id>",
-		Short: "Update an existing draft",
-		Example: "  substack-pp-cli drafts update 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "update <draft_id>",
+		Short:       "Update an existing draft",
+		Example:     "  substack-pp-cli drafts update 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "drafts.update", "pp:method": "PUT", "pp:path": "https://{publication}.substack.com/api/v1/drafts/{draft_id}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -73,7 +73,9 @@ func newDraftsUpdateCmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

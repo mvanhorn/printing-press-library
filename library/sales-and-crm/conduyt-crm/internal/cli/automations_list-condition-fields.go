@@ -14,9 +14,9 @@ import (
 func newAutomationsListConditionFieldsCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "list-condition-fields",
-		Short: "List available condition fields for triggers",
-		Example: "  conduyt-crm-pp-cli automations list-condition-fields",
+		Use:         "list-condition-fields",
+		Short:       "List available condition fields for triggers",
+		Example:     "  conduyt-crm-pp-cli automations list-condition-fields",
 		Annotations: map[string]string{"pp:endpoint": "automations.list-condition-fields", "pp:method": "GET", "pp:path": "/automations/condition-fields", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

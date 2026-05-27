@@ -18,10 +18,10 @@ func newCustomersAdsPromotedCmd(flags *rootFlags) *cobra.Command {
 	var bodyValidateOnly bool
 
 	cmd := &cobra.Command{
-		Use:   "customers-ads <customerId>",
-		Short: "Updates ads. Operation statuses are returned. Updating ads is not supported for TextAd, ExpandedDynamicSearchAd,...",
-		Long:  "Shortcut for 'customers_ads mutate'. Updates ads. Operation statuses are returned. Updating ads is not supported for TextAd, ExpandedDynamicSearchAd,...",
-		Example: "  google-ads-pp-cli customers-ads",
+		Use:         "customers-ads <customerId>",
+		Short:       "Updates ads. Operation statuses are returned. Updating ads is not supported for TextAd, ExpandedDynamicSearchAd,...",
+		Long:        "Shortcut for 'customers_ads mutate'. Updates ads. Operation statuses are returned. Updating ads is not supported for TextAd, ExpandedDynamicSearchAd,...",
+		Example:     "  google-ads-pp-cli customers-ads",
 		Annotations: map[string]string{"pp:endpoint": "customers_ads.mutate", "pp:method": "POST", "pp:path": "/v22/customers/{customerId}/ads:mutate"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

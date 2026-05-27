@@ -14,10 +14,10 @@ import (
 func newDialerGetHistoryCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-history",
-		Aliases: []string{"list"},
-		Short: "Get recent call history",
-		Example: "  conduyt-crm-pp-cli dialer get-history",
+		Use:         "get-history",
+		Aliases:     []string{"list"},
+		Short:       "Get recent call history",
+		Example:     "  conduyt-crm-pp-cli dialer get-history",
 		Annotations: map[string]string{"pp:endpoint": "dialer.get-history", "pp:method": "GET", "pp:path": "/dialer/history", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

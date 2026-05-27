@@ -18,9 +18,9 @@ func newPokeathlonStatListCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "list",
-		Short: "Pokeathlon Stats are different attributes of a Pokémon's performance in Pokéathlons. In Pokéathlons, competitions...",
-		Example: "  pokeapi-pp-cli pokeathlon-stat list",
+		Use:         "list",
+		Short:       "Pokeathlon Stats are different attributes of a Pokémon's performance in Pokéathlons. In Pokéathlons, competitions...",
+		Example:     "  pokeapi-pp-cli pokeathlon-stat list",
 		Annotations: map[string]string{"pp:endpoint": "pokeathlon-stat.list", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
@@ -30,9 +30,9 @@ func newPokeathlonStatListCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/api/v2/pokeathlon-stat/"
 			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "pokeathlon-stat", path, map[string]string{
-				"limit": fmt.Sprintf("%v", flagLimit),
+				"limit":  fmt.Sprintf("%v", flagLimit),
 				"offset": fmt.Sprintf("%v", flagOffset),
-				"q": fmt.Sprintf("%v", flagQ),
+				"q":      fmt.Sprintf("%v", flagQ),
 			}, nil, flagAll, "offset", "", "")
 			if err != nil {
 				return classifyAPIError(err)

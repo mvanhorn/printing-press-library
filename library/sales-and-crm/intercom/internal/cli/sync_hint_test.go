@@ -11,8 +11,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/sales-and-crm/intercom/internal/store"
+	"github.com/spf13/cobra"
 )
 
 func newSyncHintTestStore(t *testing.T) *store.Store {

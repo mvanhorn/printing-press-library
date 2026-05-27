@@ -15,9 +15,9 @@ func newHistoryGetFlightTrackCmd(flags *rootFlags) *cobra.Command {
 	var flagIncludeEstimatedPositions bool
 
 	cmd := &cobra.Command{
-		Use:   "get-flight-track <id>",
-		Short: "Returns the track for a historical flight as an array of positions. Data is available from now back to...",
-		Example: "  flight-goat-pp-cli history get-flight-track 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "get-flight-track <id>",
+		Short:       "Returns the track for a historical flight as an array of positions. Data is available from now back to...",
+		Example:     "  flight-goat-pp-cli history get-flight-track 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "history.get-flight-track", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

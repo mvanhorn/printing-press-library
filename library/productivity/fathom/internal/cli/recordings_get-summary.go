@@ -16,9 +16,9 @@ func newRecordingsGetSummaryCmd(flags *rootFlags) *cobra.Command {
 	var flagDestinationUrl string
 
 	cmd := &cobra.Command{
-		Use:   "get-summary",
-		Short: "Get AI-generated meeting summary in markdown format",
-		Example: "  fathom-pp-cli recordings get-summary --recording-id 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "get-summary",
+		Short:       "Get AI-generated meeting summary in markdown format",
+		Example:     "  fathom-pp-cli recordings get-summary --recording-id 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "recordings.get-summary", "pp:method": "GET", "pp:path": "/recordings/{recording_id}/summary", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("recording-id") && !flags.dryRun {

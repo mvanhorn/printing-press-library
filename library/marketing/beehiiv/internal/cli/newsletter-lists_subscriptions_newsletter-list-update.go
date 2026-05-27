@@ -17,10 +17,10 @@ func newNewsletterListsSubscriptionsNewsletterListUpdateCmd(flags *rootFlags) *c
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "newsletter-list-update <publicationId> <newsletterListId> <newsletterListSubscriptionId>",
-		Aliases: []string{"update"},
-		Short: "<Note title='Currently in beta' icon='b'> Newsletter Lists is currently in beta, the API is subject to change....",
-		Example: "  beehiiv-pp-cli newsletter-lists subscriptions newsletter-list-update 550e8400-e29b-41d4-a716-446655440000 550e8400-e29b-41d4-a716-446655440000 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "newsletter-list-update <publicationId> <newsletterListId> <newsletterListSubscriptionId>",
+		Aliases:     []string{"update"},
+		Short:       "<Note title='Currently in beta' icon='b'> Newsletter Lists is currently in beta, the API is subject to change....",
+		Example:     "  beehiiv-pp-cli newsletter-lists subscriptions newsletter-list-update 550e8400-e29b-41d4-a716-446655440000 550e8400-e29b-41d4-a716-446655440000 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "subscriptions.newsletter-list-update", "pp:method": "PATCH", "pp:path": "/publications/{publicationId}/newsletter_lists/{newsletterListId}/subscriptions/{newsletterListSubscriptionId}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -74,7 +74,9 @@ func newNewsletterListsSubscriptionsNewsletterListUpdateCmd(flags *rootFlags) *c
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

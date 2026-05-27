@@ -16,10 +16,10 @@ func newOrganizationsMembersListAnOrganizationSCmd(flags *rootFlags) *cobra.Comm
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "list-an-organization-s <organization_id_or_slug>",
-		Aliases: []string{"get"},
-		Short: "List all organization members. Response includes pending invites that are approved by organization owners or...",
-		Example: "  sentry-pp-cli organizations members list-an-organization-s example-value",
+		Use:         "list-an-organization-s <organization_id_or_slug>",
+		Aliases:     []string{"get"},
+		Short:       "List all organization members. Response includes pending invites that are approved by organization owners or...",
+		Example:     "  sentry-pp-cli organizations members list-an-organization-s example-value",
 		Annotations: map[string]string{"pp:endpoint": "members.list-an-organization-s", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

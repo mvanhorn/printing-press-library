@@ -14,10 +14,10 @@ import (
 func newPokeapiVersion2PromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "pokeapi-version-2 <id>",
-		Short: "Versions of the games, e.g., Red, Blue or Yellow.",
-		Long:  "Shortcut for 'pokeapi-version-2 game-version-retrieve'. Versions of the games, e.g., Red, Blue or Yellow.",
-		Example: "  pokeapi-pp-cli pokeapi-version-2",
+		Use:         "pokeapi-version-2 <id>",
+		Short:       "Versions of the games, e.g., Red, Blue or Yellow.",
+		Long:        "Shortcut for 'pokeapi-version-2 game-version-retrieve'. Versions of the games, e.g., Red, Blue or Yellow.",
+		Example:     "  pokeapi-pp-cli pokeapi-version-2",
 		Annotations: map[string]string{"pp:endpoint": "pokeapi-version-2.game-version-retrieve", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

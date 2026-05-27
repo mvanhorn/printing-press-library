@@ -14,9 +14,9 @@ import (
 func newReportsGetRevenueCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-revenue",
-		Short: "Revenue report",
-		Example: "  conduyt-crm-pp-cli reports get-revenue",
+		Use:         "get-revenue",
+		Short:       "Revenue report",
+		Example:     "  conduyt-crm-pp-cli reports get-revenue",
 		Annotations: map[string]string{"pp:endpoint": "reports.get-revenue", "pp:method": "GET", "pp:path": "/reports/revenue", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

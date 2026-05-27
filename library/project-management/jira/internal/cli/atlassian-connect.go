@@ -9,8 +9,8 @@ import (
 
 func newAtlassianConnectCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "atlassian-connect",
-		Short: "Manage atlassian connect",
+		Use:    "atlassian-connect",
+		Short:  "Manage atlassian connect",
 		Hidden: true,
 	}
 

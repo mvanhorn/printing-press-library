@@ -122,14 +122,14 @@ func newInsightsDealVelocityCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			result := map[string]any{
-				"total_deals":      totalDeals,
-				"won":              wonDeals,
-				"lost":             lostDeals,
-				"win_rate":         fmt.Sprintf("%.1f%%", winRate),
-				"total_value":      totalValue,
-				"won_value":        wonValue,
-				"avg_cycle_days":   fmt.Sprintf("%.1f", avgCycle),
-				"stages":           metrics,
+				"total_deals":    totalDeals,
+				"won":            wonDeals,
+				"lost":           lostDeals,
+				"win_rate":       fmt.Sprintf("%.1f%%", winRate),
+				"total_value":    totalValue,
+				"won_value":      wonValue,
+				"avg_cycle_days": fmt.Sprintf("%.1f", avgCycle),
+				"stages":         metrics,
 			}
 
 			if flags.asJSON {

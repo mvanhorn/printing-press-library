@@ -18,9 +18,9 @@ func newPalParkAreaListCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "list",
-		Short: "Areas used for grouping Pokémon encounters in Pal Park. They're like habitats that are specific to Pal Park.",
-		Example: "  pokeapi-pp-cli pal-park-area list",
+		Use:         "list",
+		Short:       "Areas used for grouping Pokémon encounters in Pal Park. They're like habitats that are specific to Pal Park.",
+		Example:     "  pokeapi-pp-cli pal-park-area list",
 		Annotations: map[string]string{"pp:endpoint": "pal-park-area.list", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
@@ -30,9 +30,9 @@ func newPalParkAreaListCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/api/v2/pal-park-area/"
 			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "pal-park-area", path, map[string]string{
-				"limit": fmt.Sprintf("%v", flagLimit),
+				"limit":  fmt.Sprintf("%v", flagLimit),
 				"offset": fmt.Sprintf("%v", flagOffset),
-				"q": fmt.Sprintf("%v", flagQ),
+				"q":      fmt.Sprintf("%v", flagQ),
 			}, nil, flagAll, "offset", "", "")
 			if err != nil {
 				return classifyAPIError(err)

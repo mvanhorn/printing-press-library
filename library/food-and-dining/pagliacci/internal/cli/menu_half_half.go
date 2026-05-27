@@ -8,8 +8,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/pagliacci/internal/client"
+	"github.com/spf13/cobra"
 )
 
 // HalfHalfResult is the structured output of `menu half-half`.

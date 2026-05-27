@@ -14,9 +14,9 @@ import (
 func newReportsGetTeamCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-team",
-		Short: "Team performance report",
-		Example: "  conduyt-crm-pp-cli reports get-team",
+		Use:         "get-team",
+		Short:       "Team performance report",
+		Example:     "  conduyt-crm-pp-cli reports get-team",
 		Annotations: map[string]string{"pp:endpoint": "reports.get-team", "pp:method": "GET", "pp:path": "/reports/team", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

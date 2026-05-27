@@ -14,9 +14,9 @@ import (
 func newSimpleSupportedVsCurrenciesCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "supported-vs-currencies",
-		Short: "List supported vs currencies",
-		Example: "  coingecko-pp-cli simple supported-vs-currencies",
+		Use:         "supported-vs-currencies",
+		Short:       "List supported vs currencies",
+		Example:     "  coingecko-pp-cli simple supported-vs-currencies",
 		Annotations: map[string]string{"pp:endpoint": "simple.supported-vs-currencies", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

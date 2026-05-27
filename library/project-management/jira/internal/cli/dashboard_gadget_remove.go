@@ -14,10 +14,10 @@ import (
 func newDashboardGadgetRemoveCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "remove <dashboardId> <gadgetId>",
-		Aliases: []string{"delete"},
-		Short: "Removes a dashboard gadget from a dashboard. When a gadget is removed from a dashboard, other gadgets in the same...",
-		Example: "  jira-pp-cli dashboard gadget remove 42 42",
+		Use:         "remove <dashboardId> <gadgetId>",
+		Aliases:     []string{"delete"},
+		Short:       "Removes a dashboard gadget from a dashboard. When a gadget is removed from a dashboard, other gadgets in the same...",
+		Example:     "  jira-pp-cli dashboard gadget remove 42 42",
 		Annotations: map[string]string{"pp:endpoint": "gadget.remove", "pp:method": "DELETE", "pp:path": "/rest/api/3/dashboard/{dashboardId}/gadget/{gadgetId}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -48,7 +48,9 @@ func newDashboardGadgetRemoveCmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

@@ -9,8 +9,8 @@ import (
 	"sort"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/project-management/linear/internal/store"
+	"github.com/spf13/cobra"
 )
 
 func newMilestonesCmd(flags *rootFlags) *cobra.Command {

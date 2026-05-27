@@ -18,10 +18,10 @@ func newCreateGroupPadPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagAuthorId string
 
 	cmd := &cobra.Command{
-		Use:   "create-group-pad",
-		Short: "creates a new pad in this group",
-		Long:  "Shortcut for 'create-group-pad using-post'. creates a new pad in this group",
-		Example: "  etherpad-pp-cli create-group-pad",
+		Use:         "create-group-pad",
+		Short:       "creates a new pad in this group",
+		Long:        "Shortcut for 'create-group-pad using-post'. creates a new pad in this group",
+		Example:     "  etherpad-pp-cli create-group-pad",
 		Annotations: map[string]string{"pp:endpoint": "create-group-pad.using-post", "pp:method": "POST", "pp:path": "/createGroupPad"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

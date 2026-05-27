@@ -14,9 +14,9 @@ import (
 func newFunctionsGetNamespacesCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-namespaces",
-		Short: "Get namespaces",
-		Example: "  digitalocean-pp-cli functions get-namespaces",
+		Use:         "get-namespaces",
+		Short:       "Get namespaces",
+		Example:     "  digitalocean-pp-cli functions get-namespaces",
 		Annotations: map[string]string{"pp:endpoint": "functions.get-namespaces", "pp:method": "GET", "pp:path": "/v2/functions/namespaces/{namespace_id}/keys", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

@@ -14,11 +14,11 @@ import (
 func newSearchAllPromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:    "search-all",
-		Hidden: true,
-		Short: "Search collections, workspaces, requests, flows, and teams by free-text query. With no `queryIndices` set, the...",
-		Long:  "Shortcut for 'search-all search_all'. Search collections, workspaces, requests, flows, and teams by free-text query. With no `queryIndices` set, the...",
-		Example: "  postman-explore-pp-cli search-all",
+		Use:         "search-all",
+		Hidden:      true,
+		Short:       "Search collections, workspaces, requests, flows, and teams by free-text query. With no `queryIndices` set, the...",
+		Long:        "Shortcut for 'search-all search_all'. Search collections, workspaces, requests, flows, and teams by free-text query. With no `queryIndices` set, the...",
+		Example:     "  postman-explore-pp-cli search-all",
 		Annotations: map[string]string{"pp:endpoint": "search-all.search_all", "mcp:hidden": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

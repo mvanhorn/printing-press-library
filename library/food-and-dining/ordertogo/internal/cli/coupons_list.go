@@ -14,9 +14,9 @@ import (
 func newCouponsListCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "list",
-		Short: "List active coupons for your account (endpoint shape inferred from web 'My Coupons' panel)",
-		Example: "  ordertogo-pp-cli coupons list",
+		Use:         "list",
+		Short:       "List active coupons for your account (endpoint shape inferred from web 'My Coupons' panel)",
+		Example:     "  ordertogo-pp-cli coupons list",
 		Annotations: map[string]string{"pp:endpoint": "coupons.list", "pp:method": "GET", "pp:path": "/m/api/coupons", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

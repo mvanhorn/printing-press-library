@@ -14,10 +14,10 @@ import (
 func newSeerPromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "seer",
-		Short: "Get list of actively used LLM model names from Seer. Returns the list of AI models that are currently used in...",
-		Long:  "Shortcut for 'seer list-ai-models'. Get list of actively used LLM model names from Seer. Returns the list of AI models that are currently used in...",
-		Example: "  sentry-pp-cli seer",
+		Use:         "seer",
+		Short:       "Get list of actively used LLM model names from Seer. Returns the list of AI models that are currently used in...",
+		Long:        "Shortcut for 'seer list-ai-models'. Get list of actively used LLM model names from Seer. Returns the list of AI models that are currently used in...",
+		Example:     "  sentry-pp-cli seer",
 		Annotations: map[string]string{"pp:endpoint": "seer.list-ai-models", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

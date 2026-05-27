@@ -89,7 +89,9 @@ native streaming instead of polling.`,
 	return cmd
 }
 
-func fetchAndEmit(c interface{ Get(string, map[string]string) (json.RawMessage, error) }, path string, enc *json.Encoder) error {
+func fetchAndEmit(c interface {
+	Get(string, map[string]string) (json.RawMessage, error)
+}, path string, enc *json.Encoder) error {
 	data, err := c.Get(path, nil)
 	if err != nil {
 		return err

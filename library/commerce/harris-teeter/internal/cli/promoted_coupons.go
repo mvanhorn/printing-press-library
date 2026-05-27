@@ -20,10 +20,10 @@ func newCouponsPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagProjections string
 
 	cmd := &cobra.Command{
-		Use:   "coupons",
-		Short: "List available digital coupons, optionally filtered by UPC.",
-		Long:  "Shortcut for 'coupons list'. List available digital coupons, optionally filtered by UPC.",
-		Example: "  harris-teeter-pp-cli coupons",
+		Use:         "coupons",
+		Short:       "List available digital coupons, optionally filtered by UPC.",
+		Long:        "Shortcut for 'coupons list'. List available digital coupons, optionally filtered by UPC.",
+		Example:     "  harris-teeter-pp-cli coupons",
 		Annotations: map[string]string{"pp:endpoint": "coupons.list", "pp:method": "GET", "pp:path": "/atlas/v1/savings-coupons/v1/coupons", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

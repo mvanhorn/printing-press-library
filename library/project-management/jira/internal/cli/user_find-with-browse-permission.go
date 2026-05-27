@@ -22,9 +22,9 @@ func newUserFindWithBrowsePermissionCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "find-with-browse-permission",
-		Short: "Returns a list of users who fulfill these criteria: * their user attributes match a search string. * they have...",
-		Example: "  jira-pp-cli user find-with-browse-permission",
+		Use:         "find-with-browse-permission",
+		Short:       "Returns a list of users who fulfill these criteria: * their user attributes match a search string. * they have...",
+		Example:     "  jira-pp-cli user find-with-browse-permission",
 		Annotations: map[string]string{"pp:endpoint": "user.find-with-browse-permission", "pp:method": "GET", "pp:path": "/rest/api/3/user/viewissue/search", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
@@ -34,12 +34,12 @@ func newUserFindWithBrowsePermissionCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/rest/api/3/user/viewissue/search"
 			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "user", path, map[string]string{
-				"query": fmt.Sprintf("%v", flagQuery),
-				"username": fmt.Sprintf("%v", flagUsername),
-				"accountId": fmt.Sprintf("%v", flagAccountId),
-				"issueKey": fmt.Sprintf("%v", flagIssueKey),
+				"query":      fmt.Sprintf("%v", flagQuery),
+				"username":   fmt.Sprintf("%v", flagUsername),
+				"accountId":  fmt.Sprintf("%v", flagAccountId),
+				"issueKey":   fmt.Sprintf("%v", flagIssueKey),
 				"projectKey": fmt.Sprintf("%v", flagProjectKey),
-				"startAt": fmt.Sprintf("%v", flagStartAt),
+				"startAt":    fmt.Sprintf("%v", flagStartAt),
 				"maxResults": fmt.Sprintf("%v", flagMaxResults),
 			}, nil, flagAll, "", "", "")
 			if err != nil {

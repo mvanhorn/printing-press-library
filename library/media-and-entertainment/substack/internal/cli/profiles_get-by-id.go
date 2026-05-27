@@ -14,9 +14,9 @@ import (
 func newProfilesGetByIdCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-by-id <user_id>",
-		Short: "Get a public profile by numeric user ID",
-		Example: "  substack-pp-cli profiles get-by-id 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "get-by-id <user_id>",
+		Short:       "Get a public profile by numeric user ID",
+		Example:     "  substack-pp-cli profiles get-by-id 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "profiles.get-by-id", "pp:method": "GET", "pp:path": "/user/{user_id}/public_profile", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

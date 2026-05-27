@@ -14,9 +14,9 @@ import (
 func newBulkSubscriptionUpdatesShowCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "show <publicationId> <id>",
-		Short: "Get subscription update <Badge intent='info' minimal outlined>OAuth Scope: subscriptions:read</Badge>",
-		Example: "  beehiiv-pp-cli bulk-subscription-updates show 550e8400-e29b-41d4-a716-446655440000 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "show <publicationId> <id>",
+		Short:       "Get subscription update <Badge intent='info' minimal outlined>OAuth Scope: subscriptions:read</Badge>",
+		Example:     "  beehiiv-pp-cli bulk-subscription-updates show 550e8400-e29b-41d4-a716-446655440000 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "bulk-subscription-updates.show", "pp:method": "GET", "pp:path": "/publications/{publicationId}/bulk_subscription_updates/{id}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

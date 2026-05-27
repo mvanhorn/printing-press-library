@@ -14,9 +14,9 @@ import (
 func newConfirmGetCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get <code>",
-		Short: "Redirect to frontend confirmation page with code prefilled",
-		Example: "  multimail-pp-cli confirm get example-value",
+		Use:         "get <code>",
+		Short:       "Redirect to frontend confirmation page with code prefilled",
+		Example:     "  multimail-pp-cli confirm get example-value",
 		Annotations: map[string]string{"pp:endpoint": "confirm.get", "pp:method": "GET", "pp:path": "/v1/confirm/{code}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

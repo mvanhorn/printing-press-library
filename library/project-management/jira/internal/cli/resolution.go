@@ -9,8 +9,8 @@ import (
 
 func newResolutionCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "resolution",
-		Short: "Manage resolution",
+		Use:    "resolution",
+		Short:  "Manage resolution",
 		Hidden: true,
 	}
 

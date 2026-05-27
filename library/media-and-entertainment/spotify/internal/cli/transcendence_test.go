@@ -17,8 +17,8 @@ import (
 	"testing"
 	"time"
 
-	_ "modernc.org/sqlite"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/spotify/internal/store"
+	_ "modernc.org/sqlite"
 )
 
 // newTestStore creates a fresh in-memory SQLite store with the

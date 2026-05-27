@@ -111,10 +111,10 @@ Run 'sync --full' first to populate the local store.`,
 			}
 
 			type velocityResult struct {
-				Domain  string       `json:"domain"`
-				Trend   string       `json:"trend"`
-				Months  []monthEntry `json:"months"`
-				Total   int          `json:"total_meetings"`
+				Domain string       `json:"domain"`
+				Trend  string       `json:"trend"`
+				Months []monthEntry `json:"months"`
+				Total  int          `json:"total_meetings"`
 			}
 
 			total := 0

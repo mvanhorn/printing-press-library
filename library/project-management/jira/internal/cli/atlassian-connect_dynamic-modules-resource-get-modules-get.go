@@ -14,10 +14,10 @@ import (
 func newAtlassianConnectDynamicModulesResourceGetModulesGetCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "dynamic-modules-resource-get-modules-get",
-		Aliases: []string{"list"},
-		Short: "Returns all modules registered dynamically by the calling app. **[Permissions](#permissions) required:** Only...",
-		Example: "  jira-pp-cli atlassian-connect dynamic-modules-resource-get-modules-get",
+		Use:         "dynamic-modules-resource-get-modules-get",
+		Aliases:     []string{"list"},
+		Short:       "Returns all modules registered dynamically by the calling app. **[Permissions](#permissions) required:** Only...",
+		Example:     "  jira-pp-cli atlassian-connect dynamic-modules-resource-get-modules-get",
 		Annotations: map[string]string{"pp:endpoint": "atlassian-connect.dynamic-modules-resource-get-modules-get", "pp:method": "GET", "pp:path": "/rest/atlassian-connect/1/app/module/dynamic", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

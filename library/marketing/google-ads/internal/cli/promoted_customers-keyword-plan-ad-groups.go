@@ -17,10 +17,10 @@ func newCustomersKeywordPlanAdGroupsPromotedCmd(flags *rootFlags) *cobra.Command
 	var bodyPartialFailure bool
 
 	cmd := &cobra.Command{
-		Use:   "customers-keyword-plan-ad-groups <customerId>",
-		Short: "Creates, updates, or removes Keyword Plan ad groups. Operation statuses are returned.",
-		Long:  "Shortcut for 'customers_keyword_plan_ad_groups mutate'. Creates, updates, or removes Keyword Plan ad groups. Operation statuses are returned.",
-		Example: "  google-ads-pp-cli customers-keyword-plan-ad-groups",
+		Use:         "customers-keyword-plan-ad-groups <customerId>",
+		Short:       "Creates, updates, or removes Keyword Plan ad groups. Operation statuses are returned.",
+		Long:        "Shortcut for 'customers_keyword_plan_ad_groups mutate'. Creates, updates, or removes Keyword Plan ad groups. Operation statuses are returned.",
+		Example:     "  google-ads-pp-cli customers-keyword-plan-ad-groups",
 		Annotations: map[string]string{"pp:endpoint": "customers_keyword_plan_ad_groups.mutate", "pp:method": "POST", "pp:path": "/v22/customers/{customerId}/keywordPlanAdGroups:mutate"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

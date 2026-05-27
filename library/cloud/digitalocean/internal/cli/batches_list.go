@@ -14,9 +14,9 @@ import (
 func newBatchesListCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "list",
-		Short: "List",
-		Example: "  digitalocean-pp-cli batches list",
+		Use:         "list",
+		Short:       "List",
+		Example:     "  digitalocean-pp-cli batches list",
 		Annotations: map[string]string{"pp:endpoint": "batches.list", "pp:method": "GET", "pp:path": "/v1/batches", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

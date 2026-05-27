@@ -82,12 +82,12 @@ Run 'sync --full' first to populate the local store.`,
 			}
 
 			type meetingBrief struct {
-				Title       string   `json:"title"`
-				Date        string   `json:"date"`
-				URL         string   `json:"url"`
-				Participants []string `json:"participants"`
-				SummarySnippet *string `json:"summary_snippet,omitempty"`
-				OpenActions  []string `json:"open_action_items"`
+				Title          string   `json:"title"`
+				Date           string   `json:"date"`
+				URL            string   `json:"url"`
+				Participants   []string `json:"participants"`
+				SummarySnippet *string  `json:"summary_snippet,omitempty"`
+				OpenActions    []string `json:"open_action_items"`
 			}
 
 			results := make([]meetingBrief, 0)
@@ -111,8 +111,13 @@ Run 'sync --full' first to populate the local store.`,
 					snippet = &s
 				}
 				results = append(results, meetingBrief{
-					Title:          m.meetingTitle(),
-					Date:           func() string { if len(m.CreatedAt) >= 10 { return m.CreatedAt[:10] }; return m.CreatedAt }(), // PATCH(created-at-guard): guard against empty/short CreatedAt
+					Title: m.meetingTitle(),
+					Date: func() string {
+						if len(m.CreatedAt) >= 10 {
+							return m.CreatedAt[:10]
+						}
+						return m.CreatedAt
+					}(), // PATCH(created-at-guard): guard against empty/short CreatedAt
 					URL:            m.ShareURL,
 					Participants:   participants,
 					SummarySnippet: snippet,

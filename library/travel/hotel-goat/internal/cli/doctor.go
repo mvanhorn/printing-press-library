@@ -13,11 +13,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/travel/hotel-goat/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/travel/hotel-goat/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/travel/hotel-goat/internal/config"
 	"github.com/mvanhorn/printing-press-library/library/travel/hotel-goat/internal/store"
+	"github.com/spf13/cobra"
 )
 
 // looksLikeDoctorInterstitial reports whether the response body matches a known

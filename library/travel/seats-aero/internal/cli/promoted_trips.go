@@ -14,10 +14,10 @@ import (
 func newTripsPromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "trips <id>",
-		Short: "Get detailed trip information by revalidation/trip ID from search or availability results.",
-		Long:  "Shortcut for 'trips get'. Get detailed trip information by revalidation/trip ID from search or availability results.",
-		Example: "  seats-aero-pp-cli trips",
+		Use:         "trips <id>",
+		Short:       "Get detailed trip information by revalidation/trip ID from search or availability results.",
+		Long:        "Shortcut for 'trips get'. Get detailed trip information by revalidation/trip ID from search or availability results.",
+		Example:     "  seats-aero-pp-cli trips",
 		Annotations: map[string]string{"pp:endpoint": "trips.get", "pp:method": "GET", "pp:path": "/trips/{id}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

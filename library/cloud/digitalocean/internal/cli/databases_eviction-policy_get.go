@@ -14,9 +14,9 @@ import (
 func newDatabasesEvictionPolicyGetCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get",
-		Short: "Get",
-		Example: "  digitalocean-pp-cli databases eviction-policy get",
+		Use:         "get",
+		Short:       "Get",
+		Example:     "  digitalocean-pp-cli databases eviction-policy get",
 		Annotations: map[string]string{"pp:endpoint": "eviction-policy.get", "pp:method": "GET", "pp:path": "/v2/databases/{database_cluster_uuid}/eviction_policy", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

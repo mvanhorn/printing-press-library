@@ -14,9 +14,9 @@ import (
 func newDedicatedInferencesListDedicatedinferences2Cmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "list-dedicatedinferences-2",
-		Short: "List dedicatedinferences 2",
-		Example: "  digitalocean-pp-cli dedicated-inferences list-dedicatedinferences-2",
+		Use:         "list-dedicatedinferences-2",
+		Short:       "List dedicatedinferences 2",
+		Example:     "  digitalocean-pp-cli dedicated-inferences list-dedicatedinferences-2",
 		Annotations: map[string]string{"pp:endpoint": "dedicated-inferences.list-dedicatedinferences-2", "pp:method": "GET", "pp:path": "/v2/dedicated-inferences/sizes", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

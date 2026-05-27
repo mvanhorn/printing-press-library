@@ -30,7 +30,7 @@ func TestUpsertTyped_ColumnOrdering(t *testing.T) {
 		table      string               // typed table name
 		fkColumn   string               // FK or extra column to verify (empty if none to check)
 		fkValue    string               // expected FK value
-		hasDataCol bool                  // whether to verify the data column
+		hasDataCol bool                 // whether to verify the data column
 	}
 
 	const testID = "test-upsert-001"

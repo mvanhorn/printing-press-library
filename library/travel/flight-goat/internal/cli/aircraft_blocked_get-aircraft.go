@@ -14,10 +14,10 @@ import (
 func newAircraftBlockedGetAircraftCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-aircraft <ident>",
-		Aliases: []string{"get"},
-		Short: "Given an aircraft identification, returns true if the aircraft is blocked from public tracking per request from the...",
-		Example: "  flight-goat-pp-cli aircraft blocked get-aircraft example-value",
+		Use:         "get-aircraft <ident>",
+		Aliases:     []string{"get"},
+		Short:       "Given an aircraft identification, returns true if the aircraft is blocked from public tracking per request from the...",
+		Example:     "  flight-goat-pp-cli aircraft blocked get-aircraft example-value",
 		Annotations: map[string]string{"pp:endpoint": "blocked.get-aircraft", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

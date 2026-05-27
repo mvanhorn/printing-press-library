@@ -17,10 +17,10 @@ func newWebhookSubscribePromotedCmd(flags *rootFlags) *cobra.Command {
 	var bodyUrl string
 
 	cmd := &cobra.Command{
-		Use:   "webhook-subscribe",
-		Short: "Create or update a webhook subscription for a given event. If a subscription already exists for the same event and...",
-		Long:  "Shortcut for 'webhook-subscribe webhook_subscribe'. Create or update a webhook subscription for a given event. If a subscription already exists for the same event and...",
-		Example: "  roam-pp-cli webhook-subscribe --event example-value",
+		Use:         "webhook-subscribe",
+		Short:       "Create or update a webhook subscription for a given event. If a subscription already exists for the same event and...",
+		Long:        "Shortcut for 'webhook-subscribe webhook_subscribe'. Create or update a webhook subscription for a given event. If a subscription already exists for the same event and...",
+		Example:     "  roam-pp-cli webhook-subscribe --event example-value",
 		Annotations: map[string]string{"pp:endpoint": "webhook-subscribe.webhook_subscribe", "pp:method": "POST", "pp:path": "/webhook.subscribe"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("event") && !flags.dryRun {

@@ -18,10 +18,10 @@ func newCustomersRecommendationSubscriptionsPromotedCmd(flags *rootFlags) *cobra
 	var bodyResponseContentType string
 
 	cmd := &cobra.Command{
-		Use:   "customers-recommendation-subscriptions <customerId>",
-		Short: "Mutates given subscription with corresponding apply parameters.",
-		Long:  "Shortcut for 'customers_recommendation_subscriptions mutate_recommendation_subscription'. Mutates given subscription with corresponding apply parameters.",
-		Example: "  google-ads-pp-cli customers-recommendation-subscriptions",
+		Use:         "customers-recommendation-subscriptions <customerId>",
+		Short:       "Mutates given subscription with corresponding apply parameters.",
+		Long:        "Shortcut for 'customers_recommendation_subscriptions mutate_recommendation_subscription'. Mutates given subscription with corresponding apply parameters.",
+		Example:     "  google-ads-pp-cli customers-recommendation-subscriptions",
 		Annotations: map[string]string{"pp:endpoint": "customers_recommendation_subscriptions.mutate_recommendation_subscription", "pp:method": "POST", "pp:path": "/v22/customers/{customerId}/recommendationSubscriptions:mutateRecommendationSubscription"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

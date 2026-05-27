@@ -14,9 +14,9 @@ import (
 func newDatabasesBackupsGetCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get",
-		Short: "Get",
-		Example: "  digitalocean-pp-cli databases backups get",
+		Use:         "get",
+		Short:       "Get",
+		Example:     "  digitalocean-pp-cli databases backups get",
 		Annotations: map[string]string{"pp:endpoint": "backups.get", "pp:method": "GET", "pp:path": "/v2/databases/{database_cluster_uuid}/backups", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

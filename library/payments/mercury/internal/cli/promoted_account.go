@@ -14,10 +14,10 @@ import (
 func newAccountPromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "account <accountId>",
-		Short: "Get account by ID",
-		Long:  "Shortcut for 'account get'. Get account by ID",
-		Example: "  mercury-pp-cli account",
+		Use:         "account <accountId>",
+		Short:       "Get account by ID",
+		Long:        "Shortcut for 'account get'. Get account by ID",
+		Example:     "  mercury-pp-cli account",
 		Annotations: map[string]string{"pp:endpoint": "account.get", "pp:method": "GET", "pp:path": "/account/{accountId}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

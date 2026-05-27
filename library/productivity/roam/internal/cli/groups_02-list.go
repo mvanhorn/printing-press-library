@@ -17,10 +17,10 @@ func newGroupsV02ListCmd(flags *rootFlags) *cobra.Command {
 	var flagCount int
 
 	cmd := &cobra.Command{
-		Use:   "02-list",
-		Aliases: []string{"list"},
-		Short: "Returns a paginated list of groups in your Roam organization. **Pagination:** Use `startIndex` (1-based) and `count`...",
-		Example: "  roam-pp-cli groups 02-list",
+		Use:         "02-list",
+		Aliases:     []string{"list"},
+		Short:       "Returns a paginated list of groups in your Roam organization. **Pagination:** Use `startIndex` (1-based) and `count`...",
+		Example:     "  roam-pp-cli groups 02-list",
 		Annotations: map[string]string{"pp:endpoint": "groups.02-list", "pp:method": "GET", "pp:path": "/Groups", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

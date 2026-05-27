@@ -9,8 +9,8 @@ import (
 
 func newWorkflowsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "workflows",
-		Short: "This resource represents workflows. Use it to: * Get workflows * Create workflows * Update workflows * Delete...",
+		Use:    "workflows",
+		Short:  "This resource represents workflows. Use it to: * Get workflows * Create workflows * Update workflows * Delete...",
 		Hidden: true,
 	}
 

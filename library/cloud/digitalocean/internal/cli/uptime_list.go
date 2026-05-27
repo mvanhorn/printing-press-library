@@ -14,9 +14,9 @@ import (
 func newUptimeListCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "list",
-		Short: "List",
-		Example: "  digitalocean-pp-cli uptime list",
+		Use:         "list",
+		Short:       "List",
+		Example:     "  digitalocean-pp-cli uptime list",
 		Annotations: map[string]string{"pp:endpoint": "uptime.list", "pp:method": "GET", "pp:path": "/v2/uptime/checks", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

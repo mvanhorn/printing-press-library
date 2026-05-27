@@ -12,9 +12,9 @@ import (
 )
 
 var batchCmd = &cobra.Command{
-	Use:   "batch",
-		Annotations: map[string]string{"mcp:read-only": "true"},
-	Short: "Screenshot multiple apps in one command",
+	Use:         "batch",
+	Annotations: map[string]string{"mcp:read-only": "true"},
+	Short:       "Screenshot multiple apps in one command",
 	Long: `Capture screenshots of multiple applications in a single invocation.
 Useful for multi-app evidence where you need to show several windows.`,
 	Example: `  # Screenshot three apps

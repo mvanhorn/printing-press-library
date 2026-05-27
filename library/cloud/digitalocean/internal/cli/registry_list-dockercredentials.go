@@ -14,9 +14,9 @@ import (
 func newRegistryListDockercredentialsCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "list-dockercredentials",
-		Short: "List dockercredentials",
-		Example: "  digitalocean-pp-cli registry list-dockercredentials",
+		Use:         "list-dockercredentials",
+		Short:       "List dockercredentials",
+		Example:     "  digitalocean-pp-cli registry list-dockercredentials",
 		Annotations: map[string]string{"pp:endpoint": "registry.list-dockercredentials", "pp:method": "GET", "pp:path": "/v2/registry/docker-credentials", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

@@ -16,10 +16,10 @@ func newSendMailPromotedCmd(flags *rootFlags) *cobra.Command {
 	var bodySaveToSentItems bool
 
 	cmd := &cobra.Command{
-		Use:   "send-mail",
-		Short: "Compose and send a message without first saving to drafts",
-		Long:  "Shortcut for 'send_mail send'. Compose and send a message without first saving to drafts",
-		Example: "  outlook-email-pp-cli send-mail",
+		Use:         "send-mail",
+		Short:       "Compose and send a message without first saving to drafts",
+		Long:        "Shortcut for 'send_mail send'. Compose and send a message without first saving to drafts",
+		Example:     "  outlook-email-pp-cli send-mail",
 		Annotations: map[string]string{"pp:endpoint": "send_mail.send", "pp:method": "POST", "pp:path": "/me/sendMail"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("message") && !flags.dryRun {

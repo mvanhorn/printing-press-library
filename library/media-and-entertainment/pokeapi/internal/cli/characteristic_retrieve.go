@@ -14,10 +14,10 @@ import (
 func newCharacteristicRetrieveCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "retrieve <id>",
-		Aliases: []string{"get"},
-		Short: "Characteristics indicate which stat contains a Pokémon's highest IV. A Pokémon's Characteristic is determined by...",
-		Example: "  pokeapi-pp-cli characteristic retrieve 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "retrieve <id>",
+		Aliases:     []string{"get"},
+		Short:       "Characteristics indicate which stat contains a Pokémon's highest IV. A Pokémon's Characteristic is determined by...",
+		Example:     "  pokeapi-pp-cli characteristic retrieve 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "characteristic.retrieve", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

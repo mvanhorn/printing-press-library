@@ -15,10 +15,10 @@ func newCreateAuthorPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagName string
 
 	cmd := &cobra.Command{
-		Use:   "create-author",
-		Short: "creates a new author",
-		Long:  "Shortcut for 'create-author using-post'. creates a new author",
-		Example: "  etherpad-pp-cli create-author",
+		Use:         "create-author",
+		Short:       "creates a new author",
+		Long:        "Shortcut for 'create-author using-post'. creates a new author",
+		Example:     "  etherpad-pp-cli create-author",
 		Annotations: map[string]string{"pp:endpoint": "create-author.using-post", "pp:method": "POST", "pp:path": "/createAuthor"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

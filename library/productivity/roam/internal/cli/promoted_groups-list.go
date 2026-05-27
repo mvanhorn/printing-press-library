@@ -14,10 +14,10 @@ import (
 func newGroupsListPromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "groups-list",
-		Short: "Lists all public, non-archived groups in your home Roam. **Access:** Organization only. **Required scope:**...",
-		Long:  "Shortcut for 'groups-list list-groups'. Lists all public, non-archived groups in your home Roam. **Access:** Organization only. **Required scope:**...",
-		Example: "  roam-pp-cli groups-list",
+		Use:         "groups-list",
+		Short:       "Lists all public, non-archived groups in your home Roam. **Access:** Organization only. **Required scope:**...",
+		Long:        "Shortcut for 'groups-list list-groups'. Lists all public, non-archived groups in your home Roam. **Access:** Organization only. **Required scope:**...",
+		Example:     "  roam-pp-cli groups-list",
 		Annotations: map[string]string{"pp:endpoint": "groups-list.list-groups", "pp:method": "GET", "pp:path": "/groups.list", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

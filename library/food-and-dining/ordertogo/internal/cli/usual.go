@@ -8,8 +8,8 @@ import (
 	"sort"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/ordertogo/internal/store"
+	"github.com/spf13/cobra"
 )
 
 type usualOutput struct {

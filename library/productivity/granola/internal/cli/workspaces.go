@@ -5,8 +5,8 @@ package cli
 import (
 	"encoding/json"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/productivity/granola/internal/granola"
+	"github.com/spf13/cobra"
 )
 
 func newWorkspacesCmd(flags *rootFlags) *cobra.Command {

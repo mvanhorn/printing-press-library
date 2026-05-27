@@ -16,10 +16,10 @@ func newDeletePadPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagDeletionToken string
 
 	cmd := &cobra.Command{
-		Use:   "delete-pad",
-		Short: "deletes a pad",
-		Long:  "Shortcut for 'delete-pad using-post'. deletes a pad",
-		Example: "  etherpad-pp-cli delete-pad",
+		Use:         "delete-pad",
+		Short:       "deletes a pad",
+		Long:        "Shortcut for 'delete-pad using-post'. deletes a pad",
+		Example:     "  etherpad-pp-cli delete-pad",
 		Annotations: map[string]string{"pp:endpoint": "delete-pad.using-post", "pp:method": "POST", "pp:path": "/deletePad"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

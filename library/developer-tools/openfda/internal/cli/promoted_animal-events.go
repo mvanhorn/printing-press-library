@@ -17,10 +17,10 @@ func newAnimalEventsPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagDrug string
 
 	cmd := &cobra.Command{
-		Use:   "animal-events",
-		Short: "Search animal adverse event reports",
-		Long:  "Shortcut for 'animal-events list'. Search animal adverse event reports",
-		Example: "  openfda-pp-cli animal-events",
+		Use:         "animal-events",
+		Short:       "Search animal adverse event reports",
+		Long:        "Shortcut for 'animal-events list'. Search animal adverse event reports",
+		Example:     "  openfda-pp-cli animal-events",
 		Annotations: map[string]string{"pp:endpoint": "animal-events.list", "pp:method": "GET", "pp:path": "/animalandveterinary/event.json", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

@@ -14,9 +14,9 @@ import (
 func newNfsGetSnapshotsCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-snapshots",
-		Short: "Get snapshots",
-		Example: "  digitalocean-pp-cli nfs get-snapshots",
+		Use:         "get-snapshots",
+		Short:       "Get snapshots",
+		Example:     "  digitalocean-pp-cli nfs get-snapshots",
 		Annotations: map[string]string{"pp:endpoint": "nfs.get-snapshots", "pp:method": "GET", "pp:path": "/v2/nfs/snapshots/{nfs_snapshot_id}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

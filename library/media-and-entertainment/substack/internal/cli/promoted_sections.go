@@ -14,10 +14,10 @@ import (
 func newSectionsPromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "sections",
-		Short: "List sections + subscriptions",
-		Long:  "Shortcut for 'sections list'. List sections + subscriptions",
-		Example: "  substack-pp-cli sections",
+		Use:         "sections",
+		Short:       "List sections + subscriptions",
+		Long:        "Shortcut for 'sections list'. List sections + subscriptions",
+		Example:     "  substack-pp-cli sections",
 		Annotations: map[string]string{"pp:endpoint": "sections.list", "pp:method": "GET", "pp:path": "https://{publication}.substack.com/api/v1/subscriptions", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

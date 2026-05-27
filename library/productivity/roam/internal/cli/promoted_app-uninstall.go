@@ -14,10 +14,10 @@ import (
 func newAppUninstallPromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "app-uninstall",
-		Short: "Revoke an access token and uninstall your app. On successful response, your access token will no longer be...",
-		Long:  "Shortcut for 'app-uninstall uninstall-app'. Revoke an access token and uninstall your app. On successful response, your access token will no longer be...",
-		Example: "  roam-pp-cli app-uninstall",
+		Use:         "app-uninstall",
+		Short:       "Revoke an access token and uninstall your app. On successful response, your access token will no longer be...",
+		Long:        "Shortcut for 'app-uninstall uninstall-app'. Revoke an access token and uninstall your app. On successful response, your access token will no longer be...",
+		Example:     "  roam-pp-cli app-uninstall",
 		Annotations: map[string]string{"pp:endpoint": "app-uninstall.uninstall-app", "pp:method": "POST", "pp:path": "/app.uninstall"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

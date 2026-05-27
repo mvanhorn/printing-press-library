@@ -17,9 +17,9 @@ func newWorkspacesChatCreateDirectMessageChannelCmd(flags *rootFlags) *cobra.Com
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "create-direct-message-channel <workspace_id>",
-		Short: "This endpoint creates a new Direct Message between up to 15 users. If a Direct Message between those users already...",
-		Example: "  clickup-pp-cli workspaces chat create-direct-message-channel 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "create-direct-message-channel <workspace_id>",
+		Short:       "This endpoint creates a new Direct Message between up to 15 users. If a Direct Message between those users already...",
+		Example:     "  clickup-pp-cli workspaces chat create-direct-message-channel 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "chat.create-direct-message-channel", "pp:method": "POST", "pp:path": "/v3/workspaces/{workspace_id}/chat/channels/direct_message"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -69,7 +69,9 @@ func newWorkspacesChatCreateDirectMessageChannelCmd(flags *rootFlags) *cobra.Com
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

@@ -21,10 +21,10 @@ func newProjectTemplateEditTemplateCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "edit-template",
-		Aliases: []string{"update"},
-		Short: "Edit custom template This API endpoint allows you to edit an existing customised template. ***Note: Custom Templates...",
-		Example: "  jira-pp-cli project-template edit-template",
+		Use:         "edit-template",
+		Aliases:     []string{"update"},
+		Short:       "Edit custom template This API endpoint allows you to edit an existing customised template. ***Note: Custom Templates...",
+		Example:     "  jira-pp-cli project-template edit-template",
 		Annotations: map[string]string{"pp:endpoint": "project-template.edit-template", "pp:method": "PUT", "pp:path": "/rest/api/3/project-template/edit-template"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {
@@ -84,7 +84,9 @@ func newProjectTemplateEditTemplateCmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

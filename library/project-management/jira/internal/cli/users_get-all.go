@@ -18,10 +18,10 @@ func newUsersGetAllCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "get-all",
-		Aliases: []string{"list"},
-		Short: "Returns a list of all users, including active users, inactive users and previously deleted users that have an...",
-		Example: "  jira-pp-cli users get-all",
+		Use:         "get-all",
+		Aliases:     []string{"list"},
+		Short:       "Returns a list of all users, including active users, inactive users and previously deleted users that have an...",
+		Example:     "  jira-pp-cli users get-all",
 		Annotations: map[string]string{"pp:endpoint": "users.get-all", "pp:method": "GET", "pp:path": "/rest/api/3/users/search", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
@@ -31,9 +31,9 @@ func newUsersGetAllCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/rest/api/3/users/search"
 			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "users", path, map[string]string{
-				"startAt": fmt.Sprintf("%v", flagStartAt),
+				"startAt":    fmt.Sprintf("%v", flagStartAt),
 				"maxResults": fmt.Sprintf("%v", flagMaxResults),
-				"expand": fmt.Sprintf("%v", flagExpand),
+				"expand":     fmt.Sprintf("%v", flagExpand),
 			}, nil, flagAll, "", "", "")
 			if err != nil {
 				return classifyAPIError(err, flags)

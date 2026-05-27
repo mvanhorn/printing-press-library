@@ -12,14 +12,14 @@ import (
 	"strings"
 	"time"
 
+	mcplib "github.com/mark3labs/mcp-go/mcp"
+	"github.com/mark3labs/mcp-go/server"
 	"github.com/mvanhorn/printing-press-library/library/commerce/ebay/internal/cli"
 	"github.com/mvanhorn/printing-press-library/library/commerce/ebay/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/commerce/ebay/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/commerce/ebay/internal/config"
 	"github.com/mvanhorn/printing-press-library/library/commerce/ebay/internal/mcp/cobratree"
 	"github.com/mvanhorn/printing-press-library/library/commerce/ebay/internal/store"
-	mcplib "github.com/mark3labs/mcp-go/mcp"
-	"github.com/mark3labs/mcp-go/server"
 )
 
 // RegisterTools registers all API operations as MCP tools.

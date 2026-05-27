@@ -14,9 +14,9 @@ import (
 func newAccountSavedPaymentsCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "saved-payments",
-		Short: "List the authenticated user's saved payment methods.",
-		Example: "  jimmy-johns-pp-cli account saved-payments",
+		Use:         "saved-payments",
+		Short:       "List the authenticated user's saved payment methods.",
+		Example:     "  jimmy-johns-pp-cli account saved-payments",
 		Annotations: map[string]string{"pp:endpoint": "account.saved_payments", "pp:method": "GET", "pp:path": "/users/current/savedPayments", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

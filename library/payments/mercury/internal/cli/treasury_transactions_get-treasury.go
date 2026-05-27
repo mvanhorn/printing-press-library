@@ -18,17 +18,17 @@ func newTreasuryTransactionsGetTreasuryCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "get-treasury <treasuryId>",
-		Aliases: []string{"get"},
-		Short: "Retrieve paginated treasury transactions for a specific treasury account.",
-		Example: "  mercury-pp-cli treasury transactions get-treasury 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "get-treasury <treasuryId>",
+		Aliases:     []string{"get"},
+		Short:       "Retrieve paginated treasury transactions for a specific treasury account.",
+		Example:     "  mercury-pp-cli treasury transactions get-treasury 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "transactions.get-treasury", "pp:method": "GET", "pp:path": "/treasury/{treasuryId}/transactions", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
 			}
 			if cmd.Flags().Changed("order") {
-				allowedOrder := []string{ "asc", "desc" }
+				allowedOrder := []string{"asc", "desc"}
 				validOrder := false
 				for _, v := range allowedOrder {
 					if flagOrder == v {
@@ -48,8 +48,8 @@ func newTreasuryTransactionsGetTreasuryCmd(flags *rootFlags) *cobra.Command {
 			path := "/treasury/{treasuryId}/transactions"
 			path = replacePathParam(path, "treasuryId", args[0])
 			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "transactions", path, map[string]string{
-				"limit": fmt.Sprintf("%v", flagLimit),
-				"order": fmt.Sprintf("%v", flagOrder),
+				"limit":  fmt.Sprintf("%v", flagLimit),
+				"order":  fmt.Sprintf("%v", flagOrder),
 				"cursor": fmt.Sprintf("%v", flagCursor),
 			}, nil, flagAll, "cursor", "", "")
 			if err != nil {

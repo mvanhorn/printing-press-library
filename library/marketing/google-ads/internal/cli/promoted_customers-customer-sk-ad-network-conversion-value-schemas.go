@@ -17,10 +17,10 @@ func newCustomersCustomerSkAdNetworkConversionValueSchemasPromotedCmd(flags *roo
 	var bodyOperation string
 
 	cmd := &cobra.Command{
-		Use:   "customers-customer-sk-ad-network-conversion-value-schemas <customerId>",
-		Short: "Creates or updates the CustomerSkAdNetworkConversionValueSchema.",
-		Long:  "Shortcut for 'customers_customer_sk_ad_network_conversion_value_schemas mutate'. Creates or updates the CustomerSkAdNetworkConversionValueSchema.",
-		Example: "  google-ads-pp-cli customers-customer-sk-ad-network-conversion-value-schemas",
+		Use:         "customers-customer-sk-ad-network-conversion-value-schemas <customerId>",
+		Short:       "Creates or updates the CustomerSkAdNetworkConversionValueSchema.",
+		Long:        "Shortcut for 'customers_customer_sk_ad_network_conversion_value_schemas mutate'. Creates or updates the CustomerSkAdNetworkConversionValueSchema.",
+		Example:     "  google-ads-pp-cli customers-customer-sk-ad-network-conversion-value-schemas",
 		Annotations: map[string]string{"pp:endpoint": "customers_customer_sk_ad_network_conversion_value_schemas.mutate", "pp:method": "POST", "pp:path": "/v22/customers/{customerId}/customerSkAdNetworkConversionValueSchemas:mutate"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

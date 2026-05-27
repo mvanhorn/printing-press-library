@@ -5,13 +5,13 @@ package client
 
 import (
 	"bytes"
-	"github.com/mvanhorn/printing-press-library/library/food-and-dining/coffee-goat/internal/cliutil"
-	"github.com/mvanhorn/printing-press-library/library/food-and-dining/coffee-goat/internal/config"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/coffee-goat/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/coffee-goat/internal/config"
 	"io"
 	"math"
 	"net/http"

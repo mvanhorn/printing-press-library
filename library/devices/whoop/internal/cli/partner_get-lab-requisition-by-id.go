@@ -14,10 +14,10 @@ import (
 func newPartnerGetLabRequisitionByIdCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-lab-requisition-by-id <id>",
-		Aliases: []string{"get"},
-		Short: "Retrieves a lab requisition with its associated service requests by its unique identifier. The requesting partner...",
-		Example: "  whoop-pp-cli partner get-lab-requisition-by-id 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "get-lab-requisition-by-id <id>",
+		Aliases:     []string{"get"},
+		Short:       "Retrieves a lab requisition with its associated service requests by its unique identifier. The requesting partner...",
+		Example:     "  whoop-pp-cli partner get-lab-requisition-by-id 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "partner.get-lab-requisition-by-id", "pp:method": "GET", "pp:path": "/v2/partner/requisition/{id}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

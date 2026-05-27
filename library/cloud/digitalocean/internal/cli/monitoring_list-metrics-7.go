@@ -14,9 +14,9 @@ import (
 func newMonitoringListMetrics7Cmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "list-metrics-7",
-		Short: "List metrics 7",
-		Example: "  digitalocean-pp-cli monitoring list-metrics-7",
+		Use:         "list-metrics-7",
+		Short:       "List metrics 7",
+		Example:     "  digitalocean-pp-cli monitoring list-metrics-7",
 		Annotations: map[string]string{"pp:endpoint": "monitoring.list-metrics-7", "pp:method": "GET", "pp:path": "/v2/monitoring/metrics/droplet/filesystem_size", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

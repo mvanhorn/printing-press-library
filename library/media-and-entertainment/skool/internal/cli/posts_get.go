@@ -18,9 +18,9 @@ func newPostsGetCmd(flags *rootFlags) *cobra.Command {
 	var flagP string
 
 	cmd := &cobra.Command{
-		Use:   "get",
-		Short: "Get a post detail page including comment tree",
-		Example: "  skool-pp-cli posts get --community example-value --slug example-resource",
+		Use:         "get",
+		Short:       "Get a post detail page including comment tree",
+		Example:     "  skool-pp-cli posts get --community example-value --slug example-resource",
 		Annotations: map[string]string{"pp:endpoint": "posts.get", "pp:method": "GET", "pp:path": "/_next/data/{buildId}/{community}/{post_name}.json", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

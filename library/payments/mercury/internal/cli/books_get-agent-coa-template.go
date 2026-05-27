@@ -15,17 +15,17 @@ func newBooksGetAgentCoaTemplateCmd(flags *rootFlags) *cobra.Command {
 	var flagExpand string
 
 	cmd := &cobra.Command{
-		Use:   "get-agent-coa-template <coaTemplateId>",
-		Aliases: []string{"get"},
-		Short: "Retrieve details of a specific Chart of Accounts template.",
-		Example: "  mercury-pp-cli books get-agent-coa-template 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "get-agent-coa-template <coaTemplateId>",
+		Aliases:     []string{"get"},
+		Short:       "Retrieve details of a specific Chart of Accounts template.",
+		Example:     "  mercury-pp-cli books get-agent-coa-template 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "books.get-agent-coa-template", "pp:method": "GET", "pp:path": "/books/agent-coa-template/{coaTemplateId}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
 			}
 			if cmd.Flags().Changed("expand") {
-				allowedExpand := []string{ "ledgers" }
+				allowedExpand := []string{"ledgers"}
 				validExpand := false
 				for _, v := range allowedExpand {
 					if flagExpand == v {

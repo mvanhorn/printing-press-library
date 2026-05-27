@@ -17,16 +17,16 @@ func newCustomersBatchJobsListResultsCmd(flags *rootFlags) *cobra.Command {
 	var flagPageSize int
 
 	cmd := &cobra.Command{
-		Use:   "list-results <resourceName>",
-		Short: "Returns the results of the batch job. The job must be done. Supports standard list paging.",
-		Example: "  google-ads-pp-cli customers_batch_jobs list_results example-resource",
+		Use:         "list-results <resourceName>",
+		Short:       "Returns the results of the batch job. The job must be done. Supports standard list paging.",
+		Example:     "  google-ads-pp-cli customers_batch_jobs list_results example-resource",
 		Annotations: map[string]string{"pp:endpoint": "customers_batch_jobs.list_results", "pp:method": "GET", "pp:path": "/v22/{resourceName}:listResults", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
 			}
 			if cmd.Flags().Changed("response-content-type") {
-				allowedResponseContentType := []string{ "UNSPECIFIED", "RESOURCE_NAME_ONLY", "MUTABLE_RESOURCE" }
+				allowedResponseContentType := []string{"UNSPECIFIED", "RESOURCE_NAME_ONLY", "MUTABLE_RESOURCE"}
 				validResponseContentType := false
 				for _, v := range allowedResponseContentType {
 					if flagResponseContentType == v {

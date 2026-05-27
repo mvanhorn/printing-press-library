@@ -19,10 +19,10 @@ func newOrganizationsReleaseThresholdStatusesRetrieveStatusesOfReleaseThresholds
 	var flagRelease string
 
 	cmd := &cobra.Command{
-		Use:   "retrieve-statuses-of-release-thresholds-alpha <organization_id_or_slug>",
-		Aliases: []string{"get"},
-		Short: "**`[WARNING]`**: This API is an experimental Alpha feature and is subject to change! List all derived statuses of...",
-		Example: "  sentry-pp-cli organizations release-threshold-statuses retrieve-statuses-of-release-thresholds-alpha example-value",
+		Use:         "retrieve-statuses-of-release-thresholds-alpha <organization_id_or_slug>",
+		Aliases:     []string{"get"},
+		Short:       "**`[WARNING]`**: This API is an experimental Alpha feature and is subject to change! List all derived statuses of...",
+		Example:     "  sentry-pp-cli organizations release-threshold-statuses retrieve-statuses-of-release-thresholds-alpha example-value",
 		Annotations: map[string]string{"pp:endpoint": "release-threshold-statuses.retrieve-statuses-of-release-thresholds-alpha", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

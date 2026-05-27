@@ -14,10 +14,10 @@ import (
 func newPingPromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "ping",
-		Short: "Check API server status",
-		Long:  "Shortcut for 'ping ping'. Check API server status",
-		Example: "  coingecko-pp-cli ping",
+		Use:         "ping",
+		Short:       "Check API server status",
+		Long:        "Shortcut for 'ping ping'. Check API server status",
+		Example:     "  coingecko-pp-cli ping",
 		Annotations: map[string]string{"pp:endpoint": "ping.ping", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

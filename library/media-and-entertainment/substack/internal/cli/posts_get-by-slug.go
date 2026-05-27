@@ -14,9 +14,9 @@ import (
 func newPostsGetBySlugCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-by-slug <slug>",
-		Short: "Get a published post by URL slug",
-		Example: "  substack-pp-cli posts get-by-slug example-value",
+		Use:         "get-by-slug <slug>",
+		Short:       "Get a published post by URL slug",
+		Example:     "  substack-pp-cli posts get-by-slug example-value",
 		Annotations: map[string]string{"pp:endpoint": "posts.get-by-slug", "pp:method": "GET", "pp:path": "https://{publication}.substack.com/api/v1/posts/{slug}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

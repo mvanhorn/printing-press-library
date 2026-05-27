@@ -16,10 +16,10 @@ func newTextPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagAbstract string
 
 	cmd := &cobra.Command{
-		Use:   "text",
-		Short: "**DEPRECATED:** This endpoint is deprecated and not recommended for new projects. It will not receive updates or...",
-		Long:  "Shortcut for 'text classify'. **DEPRECATED:** This endpoint is deprecated and not recommended for new projects. It will not receive updates or...",
-		Example: "  openalex-pp-cli text",
+		Use:         "text",
+		Short:       "**DEPRECATED:** This endpoint is deprecated and not recommended for new projects. It will not receive updates or...",
+		Long:        "Shortcut for 'text classify'. **DEPRECATED:** This endpoint is deprecated and not recommended for new projects. It will not receive updates or...",
+		Example:     "  openalex-pp-cli text",
 		Annotations: map[string]string{"pp:endpoint": "text.classify", "pp:method": "GET", "pp:path": "/text/topics", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

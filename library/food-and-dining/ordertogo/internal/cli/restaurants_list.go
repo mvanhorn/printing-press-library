@@ -8,8 +8,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/ordertogo/internal/config"
+	"github.com/spf13/cobra"
 )
 
 func newRestaurantsListCmd(flags *rootFlags) *cobra.Command {

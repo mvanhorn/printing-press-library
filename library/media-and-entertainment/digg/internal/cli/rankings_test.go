@@ -394,4 +394,3 @@ func TestRankings_RegisteredInRoot(t *testing.T) {
 		t.Fatal("'rankings' command not registered on root")
 	}
 }
-

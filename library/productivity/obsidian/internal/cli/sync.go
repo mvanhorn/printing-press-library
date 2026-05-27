@@ -25,10 +25,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/spf13/cobra"
-	"gopkg.in/yaml.v3"
 	"github.com/mvanhorn/printing-press-library/library/productivity/obsidian/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/productivity/obsidian/internal/store"
+	"github.com/spf13/cobra"
+	"gopkg.in/yaml.v3"
 )
 
 // wikilinkRE captures [[Target]] and [[Target|Alias]] forms. The capture

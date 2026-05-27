@@ -17,9 +17,9 @@ func newPlansUpdateCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "update <planId>",
-		Short: "Updates any of the following details of a plan using [JSON Patch](https://datatracker.ietf.org/doc/html/rfc6902). *...",
-		Example: "  jira-pp-cli plans update 42",
+		Use:         "update <planId>",
+		Short:       "Updates any of the following details of a plan using [JSON Patch](https://datatracker.ietf.org/doc/html/rfc6902). *...",
+		Example:     "  jira-pp-cli plans update 42",
 		Annotations: map[string]string{"pp:endpoint": "plans.update", "pp:method": "PUT", "pp:path": "/rest/api/3/plans/plan/{planId}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -62,7 +62,9 @@ func newPlansUpdateCmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

@@ -39,11 +39,11 @@ type fathomSummary struct {
 }
 
 type fathomActionItem struct {
-	Description        string         `json:"description"`
-	UserGenerated      bool           `json:"user_generated"`
-	Completed          bool           `json:"completed"`
-	RecordingTimestamp string         `json:"recording_timestamp"`
-	RecordingPlayback  string         `json:"recording_playback_url"`
+	Description        string          `json:"description"`
+	UserGenerated      bool            `json:"user_generated"`
+	Completed          bool            `json:"completed"`
+	RecordingTimestamp string          `json:"recording_timestamp"`
+	RecordingPlayback  string          `json:"recording_playback_url"`
 	Assignee           *fathomAssignee `json:"assignee"`
 }
 

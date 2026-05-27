@@ -570,11 +570,11 @@ func parseInline(s string) []*pmNode {
 }
 
 var (
-	imagePat       = regexp.MustCompile(`!\[([^\]]*)\]\(([^)]+)\)`)
-	linkPat        = regexp.MustCompile(`\[([^\]]+)\]\(([^)]+)\)`)
-	boldPat        = regexp.MustCompile(`\*\*([^*]+)\*\*`)
-	italicPat      = regexp.MustCompile(`\*([^*\s][^*]*[^*\s]|\S)\*`)
-	codePat        = regexp.MustCompile("`([^`]+)`")
+	imagePat  = regexp.MustCompile(`!\[([^\]]*)\]\(([^)]+)\)`)
+	linkPat   = regexp.MustCompile(`\[([^\]]+)\]\(([^)]+)\)`)
+	boldPat   = regexp.MustCompile(`\*\*([^*]+)\*\*`)
+	italicPat = regexp.MustCompile(`\*([^*\s][^*]*[^*\s]|\S)\*`)
+	codePat   = regexp.MustCompile("`([^`]+)`")
 	// Inline LaTeX requires the opening $ to be followed by a non-space, non-digit
 	// character and the closing $ to be preceded by a non-space character. This
 	// avoids matching across monetary dollar signs like "$10 and $20" — the

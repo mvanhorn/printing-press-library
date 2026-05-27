@@ -16,10 +16,10 @@ func newCalendarPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagG string
 
 	cmd := &cobra.Command{
-		Use:   "calendar",
-		Short: "List upcoming and recent calendar events",
-		Long:  "Shortcut for 'calendar list'. List upcoming and recent calendar events",
-		Example: "  skool-pp-cli calendar --community example-value",
+		Use:         "calendar",
+		Short:       "List upcoming and recent calendar events",
+		Long:        "Shortcut for 'calendar list'. List upcoming and recent calendar events",
+		Example:     "  skool-pp-cli calendar --community example-value",
 		Annotations: map[string]string{"pp:endpoint": "calendar.list", "pp:method": "GET", "pp:path": "/_next/data/{buildId}/{community}/calendar.json", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("community") && !flags.dryRun {

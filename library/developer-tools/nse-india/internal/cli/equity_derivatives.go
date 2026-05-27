@@ -18,9 +18,9 @@ func newEquityDerivativesCmd(flags *rootFlags) *cobra.Command {
 	var flagSymbol string
 
 	cmd := &cobra.Command{
-		Use:   "derivatives",
-		Short: "F&O data — futures (3 expiries with OI, volume, turnover) and options contracts (CE/PE by strike and expiry)",
-		Example: "  nse-india-pp-cli equity derivatives --function-name example-resource --symbol example-value",
+		Use:         "derivatives",
+		Short:       "F&O data — futures (3 expiries with OI, volume, turnover) and options contracts (CE/PE by strike and expiry)",
+		Example:     "  nse-india-pp-cli equity derivatives --function-name example-resource --symbol example-value",
 		Annotations: map[string]string{"pp:endpoint": "equity.derivatives", "pp:method": "GET", "pp:path": "/api/NextApi/apiClient/GetQuoteApi", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("symbol") && !flags.dryRun {

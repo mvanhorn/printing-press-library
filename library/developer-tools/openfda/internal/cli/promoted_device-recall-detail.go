@@ -17,10 +17,10 @@ func newDeviceRecallDetailPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagRootCause string
 
 	cmd := &cobra.Command{
-		Use:   "device-recall-detail",
-		Short: "Search device recall action details",
-		Long:  "Shortcut for 'device-recall-detail list'. Search device recall action details",
-		Example: "  openfda-pp-cli device-recall-detail",
+		Use:         "device-recall-detail",
+		Short:       "Search device recall action details",
+		Long:        "Shortcut for 'device-recall-detail list'. Search device recall action details",
+		Example:     "  openfda-pp-cli device-recall-detail",
 		Annotations: map[string]string{"pp:endpoint": "device-recall-detail.list", "pp:method": "GET", "pp:path": "/device/recall.json", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

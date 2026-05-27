@@ -12,14 +12,14 @@ import (
 	"strings"
 	"time"
 
+	mcplib "github.com/mark3labs/mcp-go/mcp"
+	"github.com/mark3labs/mcp-go/server"
 	"github.com/mvanhorn/printing-press-library/library/productivity/freshservice/internal/cli"
 	"github.com/mvanhorn/printing-press-library/library/productivity/freshservice/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/productivity/freshservice/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/productivity/freshservice/internal/config"
 	"github.com/mvanhorn/printing-press-library/library/productivity/freshservice/internal/mcp/cobratree"
 	"github.com/mvanhorn/printing-press-library/library/productivity/freshservice/internal/store"
-	mcplib "github.com/mark3labs/mcp-go/mcp"
-	"github.com/mark3labs/mcp-go/server"
 )
 
 // RegisterTools registers all API operations as MCP tools.

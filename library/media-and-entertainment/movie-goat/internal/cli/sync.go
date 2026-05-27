@@ -6,8 +6,8 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/movie-goat/internal/store"
+	"github.com/spf13/cobra"
 	"net/url"
 	"os"
 	"regexp"

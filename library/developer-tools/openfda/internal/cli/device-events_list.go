@@ -22,9 +22,9 @@ func newDeviceEventsListCmd(flags *rootFlags) *cobra.Command {
 	var flagDateTo string
 
 	cmd := &cobra.Command{
-		Use:   "list",
-		Short: "Search device adverse event reports",
-		Example: "  openfda-pp-cli device-events list",
+		Use:         "list",
+		Short:       "Search device adverse event reports",
+		Example:     "  openfda-pp-cli device-events list",
 		Annotations: map[string]string{"pp:endpoint": "device-events.list", "pp:method": "GET", "pp:path": "/device/event.json", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

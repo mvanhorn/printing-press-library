@@ -14,10 +14,10 @@ import (
 func newSafesGetRequestsCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-requests",
-		Aliases: []string{"list"},
-		Short: "Retrieve all SAFE (Simple Agreement for Future Equity) requests for your organization.",
-		Example: "  mercury-pp-cli safes get-requests",
+		Use:         "get-requests",
+		Aliases:     []string{"list"},
+		Short:       "Retrieve all SAFE (Simple Agreement for Future Equity) requests for your organization.",
+		Example:     "  mercury-pp-cli safes get-requests",
 		Annotations: map[string]string{"pp:endpoint": "safes.get-requests", "pp:method": "GET", "pp:path": "/safes", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

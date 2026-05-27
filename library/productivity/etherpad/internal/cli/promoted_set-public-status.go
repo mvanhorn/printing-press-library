@@ -16,10 +16,10 @@ func newSetPublicStatusPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagPublicStatus string
 
 	cmd := &cobra.Command{
-		Use:   "set-public-status",
-		Short: "sets a boolean for the public status of a pad",
-		Long:  "Shortcut for 'set-public-status using-post'. sets a boolean for the public status of a pad",
-		Example: "  etherpad-pp-cli set-public-status",
+		Use:         "set-public-status",
+		Short:       "sets a boolean for the public status of a pad",
+		Long:        "Shortcut for 'set-public-status using-post'. sets a boolean for the public status of a pad",
+		Example:     "  etherpad-pp-cli set-public-status",
 		Annotations: map[string]string{"pp:endpoint": "set-public-status.using-post", "pp:method": "POST", "pp:path": "/setPublicStatus"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

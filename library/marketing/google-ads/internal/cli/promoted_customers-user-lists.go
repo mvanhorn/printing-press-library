@@ -17,10 +17,10 @@ func newCustomersUserListsPromotedCmd(flags *rootFlags) *cobra.Command {
 	var bodyValidateOnly bool
 
 	cmd := &cobra.Command{
-		Use:   "customers-user-lists <customerId>",
-		Short: "Creates or updates user lists. Operation statuses are returned.",
-		Long:  "Shortcut for 'customers_user_lists mutate'. Creates or updates user lists. Operation statuses are returned.",
-		Example: "  google-ads-pp-cli customers-user-lists",
+		Use:         "customers-user-lists <customerId>",
+		Short:       "Creates or updates user lists. Operation statuses are returned.",
+		Long:        "Shortcut for 'customers_user_lists mutate'. Creates or updates user lists. Operation statuses are returned.",
+		Example:     "  google-ads-pp-cli customers-user-lists",
 		Annotations: map[string]string{"pp:endpoint": "customers_user_lists.mutate", "pp:method": "POST", "pp:path": "/v22/customers/{customerId}/userLists:mutate"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

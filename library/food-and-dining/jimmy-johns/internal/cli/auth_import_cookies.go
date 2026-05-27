@@ -10,8 +10,8 @@ import (
 	"os"
 	"strings"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/jimmy-johns/internal/config"
+	"github.com/spf13/cobra"
 )
 
 // PATCH: split cookie-character validation into name vs value. Cookie names

@@ -701,10 +701,10 @@ func defaultSyncResources() []string {
 func syncResourcePath(resource string) string {
 	paths := map[string]string{
 		"coingecko-search-2": "/search/trending",
-		"coins": "/coins/list",
-		"global": "/global",
-		"ping": "/ping",
-		"simple": "/simple/supported_vs_currencies",
+		"coins":              "/coins/list",
+		"global":             "/global",
+		"ping":               "/ping",
+		"simple":             "/simple/supported_vs_currencies",
 	}
 	if p, ok := paths[resource]; ok {
 		return p
@@ -738,8 +738,7 @@ var genericIDFieldFallbacks = []string{"id", "ID", "name", "uuid", "slug", "key"
 // Includes both flat resources and dependent (parent-child) resources so a
 // failed child sync flagged x-critical: true exits non-zero just like a
 // flat-resource critical failure.
-var criticalResources = map[string]bool{
-}
+var criticalResources = map[string]bool{}
 
 // extractID resolves an item's primary-key field. It consults the
 // per-resource templated override first; on miss, it falls through to the

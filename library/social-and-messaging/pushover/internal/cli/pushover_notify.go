@@ -13,8 +13,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/pushover/internal/client"
+	"github.com/spf13/cobra"
 )
 
 type notifyOptions struct {

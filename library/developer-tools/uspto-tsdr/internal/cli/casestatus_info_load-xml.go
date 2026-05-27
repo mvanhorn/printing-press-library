@@ -14,10 +14,10 @@ import (
 func newCasestatusInfoLoadXmlCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "load-xml <caseid>",
-		Aliases: []string{"get"},
-		Short: "Returns to the user the Trademark data for a specific serial number serialized into ST96 compliant XML.",
-		Example: "  uspto-tsdr-pp-cli casestatus info load-xml 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "load-xml <caseid>",
+		Aliases:     []string{"get"},
+		Short:       "Returns to the user the Trademark data for a specific serial number serialized into ST96 compliant XML.",
+		Example:     "  uspto-tsdr-pp-cli casestatus info load-xml 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "info.load-xml", "pp:method": "GET", "pp:path": "/casestatus/{caseid}/info", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

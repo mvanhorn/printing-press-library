@@ -24,7 +24,7 @@ func newMeSubscriptionsCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 
-			path := "/subscriptions/page_v2"  // patched: Substack uses /subscriptions/page_v2
+			path := "/subscriptions/page_v2" // patched: Substack uses /subscriptions/page_v2
 			params := map[string]string{}
 			data, prov, err := resolveRead(cmd.Context(), c, flags, "me", false, path, params, nil)
 			if err != nil {

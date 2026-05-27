@@ -9,9 +9,9 @@ import (
 	"os"
 	"strings"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/ai/surgegraph/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/ai/surgegraph/internal/config"
+	"github.com/spf13/cobra"
 )
 
 // looksLikeDoctorInterstitial reports whether the response body matches a known

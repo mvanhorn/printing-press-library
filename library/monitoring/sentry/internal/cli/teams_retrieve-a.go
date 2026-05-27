@@ -16,10 +16,10 @@ func newTeamsRetrieveACmd(flags *rootFlags) *cobra.Command {
 	var flagCollapse string
 
 	cmd := &cobra.Command{
-		Use:   "retrieve-a <organization_id_or_slug> <team_id_or_slug>",
-		Aliases: []string{"get"},
-		Short: "Return details on an individual team.",
-		Example: "  sentry-pp-cli teams retrieve-a example-value example-value",
+		Use:         "retrieve-a <organization_id_or_slug> <team_id_or_slug>",
+		Aliases:     []string{"get"},
+		Short:       "Return details on an individual team.",
+		Example:     "  sentry-pp-cli teams retrieve-a example-value example-value",
 		Annotations: map[string]string{"pp:endpoint": "teams.retrieve-a", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

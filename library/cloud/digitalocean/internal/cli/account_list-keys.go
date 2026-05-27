@@ -14,9 +14,9 @@ import (
 func newAccountListKeysCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "list-keys",
-		Short: "List keys",
-		Example: "  digitalocean-pp-cli account list-keys",
+		Use:         "list-keys",
+		Short:       "List keys",
+		Example:     "  digitalocean-pp-cli account list-keys",
 		Annotations: map[string]string{"pp:endpoint": "account.list-keys", "pp:method": "GET", "pp:path": "/v2/account/keys", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

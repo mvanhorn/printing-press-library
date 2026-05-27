@@ -14,10 +14,10 @@ import (
 func newTaskMemberGetTaskCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-task <task_id>",
-		Aliases: []string{"get"},
-		Short: "Get Workspace members who have explicit access to a task. Responses do not include people with access through a...",
-		Example: "  clickup-pp-cli task member get-task 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "get-task <task_id>",
+		Aliases:     []string{"get"},
+		Short:       "Get Workspace members who have explicit access to a task. Responses do not include people with access through a...",
+		Example:     "  clickup-pp-cli task member get-task 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "member.get-task", "pp:method": "GET", "pp:path": "/v2/task/{task_id}/member", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

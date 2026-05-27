@@ -9,8 +9,8 @@ import (
 
 func newProjectTemplateCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "project-template",
-		Short: "This resource represents project templates. Use it to create a new project from a custom template.",
+		Use:    "project-template",
+		Short:  "This resource represents project templates. Use it to create a new project from a custom template.",
 		Hidden: true,
 	}
 

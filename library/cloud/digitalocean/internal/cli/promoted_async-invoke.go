@@ -14,10 +14,10 @@ import (
 func newAsyncInvokePromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "async-invoke",
-		Short: "Create",
-		Long:  "Shortcut for 'async-invoke create'. Create",
-		Example: "  digitalocean-pp-cli async-invoke",
+		Use:         "async-invoke",
+		Short:       "Create",
+		Long:        "Shortcut for 'async-invoke create'. Create",
+		Example:     "  digitalocean-pp-cli async-invoke",
 		Annotations: map[string]string{"pp:endpoint": "async-invoke.create", "pp:method": "POST", "pp:path": "/v1/async-invoke"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

@@ -14,10 +14,10 @@ import (
 func newProjectSecuritylevelGetSecurityLevelsForProjectCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-security-levels-for-project <projectKeyOrId>",
-		Aliases: []string{"get"},
-		Short: "Returns all [issue security](https://confluence.atlassian.com/x/J4lKLg) levels for the project that the user has...",
-		Example: "  jira-pp-cli project securitylevel get-security-levels-for-project 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "get-security-levels-for-project <projectKeyOrId>",
+		Aliases:     []string{"get"},
+		Short:       "Returns all [issue security](https://confluence.atlassian.com/x/J4lKLg) levels for the project that the user has...",
+		Example:     "  jira-pp-cli project securitylevel get-security-levels-for-project 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "securitylevel.get-security-levels-for-project", "pp:method": "GET", "pp:path": "/rest/api/3/project/{projectKeyOrId}/securitylevel", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

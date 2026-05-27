@@ -15,9 +15,9 @@ func newMembersPendingCmd(flags *rootFlags) *cobra.Command {
 	var flagGroupId string
 
 	cmd := &cobra.Command{
-		Use:   "pending",
-		Short: "List pending member join requests",
-		Example: "  skool-pp-cli members pending --group-id 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "pending",
+		Short:       "List pending member join requests",
+		Example:     "  skool-pp-cli members pending --group-id 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "members.pending", "pp:method": "GET", "pp:path": "/groups/{group_id}/members/pending", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("group-id") && !flags.dryRun {

@@ -4,13 +4,13 @@
 package cli
 
 import (
-	"github.com/mvanhorn/printing-press-library/library/marketing/botsee/internal/client"
-	"github.com/mvanhorn/printing-press-library/library/marketing/botsee/internal/cliutil"
 	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/marketing/botsee/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/marketing/botsee/internal/cliutil"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"io"

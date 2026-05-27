@@ -14,10 +14,10 @@ import (
 func newResponsesPromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "responses",
-		Short: "Create",
-		Long:  "Shortcut for 'responses create'. Create",
-		Example: "  digitalocean-pp-cli responses",
+		Use:         "responses",
+		Short:       "Create",
+		Long:        "Shortcut for 'responses create'. Create",
+		Example:     "  digitalocean-pp-cli responses",
 		Annotations: map[string]string{"pp:endpoint": "responses.create", "pp:method": "POST", "pp:path": "/v1/responses"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

@@ -15,9 +15,9 @@ func newSpaceFolderGetCmd(flags *rootFlags) *cobra.Command {
 	var flagArchived bool
 
 	cmd := &cobra.Command{
-		Use:   "get <space_id>",
-		Short: "View the Folders in a Space.",
-		Example: "  clickup-pp-cli space folder get 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "get <space_id>",
+		Short:       "View the Folders in a Space.",
+		Example:     "  clickup-pp-cli space folder get 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "folder.get", "pp:method": "GET", "pp:path": "/v2/space/{space_id}/folder", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

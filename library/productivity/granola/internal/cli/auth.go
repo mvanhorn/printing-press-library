@@ -5,8 +5,8 @@ package cli
 
 import (
 	"fmt"
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/productivity/granola/internal/config"
+	"github.com/spf13/cobra"
 	"os"
 )
 

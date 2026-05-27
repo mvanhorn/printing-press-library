@@ -30,9 +30,9 @@ func newPostsUpdateCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "update <publicationId> <postId>",
-		Short: "<Note title='Currently in beta' icon='b'> This feature is currently in beta, the API is subject to change, and...",
-		Example: "  beehiiv-pp-cli posts update 550e8400-e29b-41d4-a716-446655440000 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "update <publicationId> <postId>",
+		Short:       "<Note title='Currently in beta' icon='b'> This feature is currently in beta, the API is subject to change, and...",
+		Example:     "  beehiiv-pp-cli posts update 550e8400-e29b-41d4-a716-446655440000 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "posts.update", "pp:method": "PATCH", "pp:path": "/publications/{publicationId}/posts/{postId}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -141,7 +141,9 @@ func newPostsUpdateCmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

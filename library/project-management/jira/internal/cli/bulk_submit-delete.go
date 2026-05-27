@@ -23,10 +23,10 @@ func newBulkSubmitDeleteCmd(flags *rootFlags) *cobra.Command {
 	var flagWaitInterval time.Duration
 
 	cmd := &cobra.Command{
-		Use:   "submit-delete",
-		Aliases: []string{"create"},
-		Short: "Use this API to submit a bulk delete request. You can delete up to 1,000 issues in a single operation....",
-		Example: "  jira-pp-cli bulk submit-delete",
+		Use:         "submit-delete",
+		Aliases:     []string{"create"},
+		Short:       "Use this API to submit a bulk delete request. You can delete up to 1,000 issues in a single operation....",
+		Example:     "  jira-pp-cli bulk submit-delete",
 		Annotations: map[string]string{"pp:endpoint": "bulk.submit-delete", "pp:method": "POST", "pp:path": "/rest/api/3/bulk/issues/delete"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {
@@ -119,7 +119,9 @@ func newBulkSubmitDeleteCmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

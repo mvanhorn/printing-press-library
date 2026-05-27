@@ -14,10 +14,10 @@ import (
 func newCycleSleepGetForCycleCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-for-cycle <cycleId>",
-		Aliases: []string{"get"},
-		Short: "Get the sleep for the specified cycle ID",
-		Example: "  whoop-pp-cli cycle sleep get-for-cycle 42",
+		Use:         "get-for-cycle <cycleId>",
+		Aliases:     []string{"get"},
+		Short:       "Get the sleep for the specified cycle ID",
+		Example:     "  whoop-pp-cli cycle sleep get-for-cycle 42",
 		Annotations: map[string]string{"pp:endpoint": "sleep.get-for-cycle", "pp:method": "GET", "pp:path": "/v2/cycle/{cycleId}/sleep", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

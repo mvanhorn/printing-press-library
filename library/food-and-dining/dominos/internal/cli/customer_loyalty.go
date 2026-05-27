@@ -16,9 +16,9 @@ import (
 func newCustomerLoyaltyCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "loyalty [customerID]",
-		Short: "Loyalty points balance (defaults to your saved CustomerID after `auth login`)",
-		Example: "  dominos-pp-cli customer loyalty            # uses saved CustomerID\n  dominos-pp-cli customer loyalty <customerID>  # explicit override",
+		Use:         "loyalty [customerID]",
+		Short:       "Loyalty points balance (defaults to your saved CustomerID after `auth login`)",
+		Example:     "  dominos-pp-cli customer loyalty            # uses saved CustomerID\n  dominos-pp-cli customer loyalty <customerID>  # explicit override",
 		Annotations: map[string]string{"pp:endpoint": "customer.loyalty", "pp:method": "GET", "pp:path": "/power/customer/{customerID}/loyalty", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			var customerID string

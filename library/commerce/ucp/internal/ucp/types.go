@@ -73,15 +73,15 @@ type LineItem struct {
 
 // Item describes a product. SKU and GTIN are optional; Title and Price are required.
 type Item struct {
-	ID        string `json:"id"`
-	Title     string `json:"title"`
-	Price     int    `json:"price"` // minor units (cents)
-	SKU       string `json:"sku,omitempty"`
-	GTIN      string `json:"gtin,omitempty"`
-	URL       string `json:"url,omitempty"`
+	ID    string `json:"id"`
+	Title string `json:"title"`
+	Price int    `json:"price"` // minor units (cents)
+	SKU   string `json:"sku,omitempty"`
+	GTIN  string `json:"gtin,omitempty"`
+	URL   string `json:"url,omitempty"`
 	// VariantID is the Shopify numeric variant ID. Required for ShopifyCartAdd;
 	// zero for non-Shopify items.
-	VariantID int64  `json:"variant_id,omitempty"`
+	VariantID int64 `json:"variant_id,omitempty"`
 }
 
 // Buyer is the shopper identity attached to a cart/checkout.
@@ -98,16 +98,16 @@ type Total struct {
 
 // SearchHit is one normalized product result from a catalog search.
 type SearchHit struct {
-	Merchant  string `json:"merchant"`
-	Title     string `json:"title"`
-	Price     int    `json:"price,omitempty"`
-	Currency  string `json:"currency,omitempty"`
-	SKU       string `json:"sku,omitempty"`
-	GTIN      string `json:"gtin,omitempty"`
-	URL       string `json:"url,omitempty"`
+	Merchant string `json:"merchant"`
+	Title    string `json:"title"`
+	Price    int    `json:"price,omitempty"`
+	Currency string `json:"currency,omitempty"`
+	SKU      string `json:"sku,omitempty"`
+	GTIN     string `json:"gtin,omitempty"`
+	URL      string `json:"url,omitempty"`
 	// VariantID is the Shopify numeric variant ID (e.g. 42563115909207).
 	// Required by ShopifyCartAdd; zero for non-Shopify adapters.
-	VariantID int64  `json:"variant_id,omitempty"`
+	VariantID int64 `json:"variant_id,omitempty"`
 }
 
 // CheckoutDraft is the JSON envelope an AP2 CLI consumes to authorize

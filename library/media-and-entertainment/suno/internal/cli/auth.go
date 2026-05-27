@@ -12,6 +12,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/suno/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/suno/internal/config"
 	"github.com/spf13/cobra"
 	"io"
 	"net/http"
@@ -21,8 +23,6 @@ import (
 	"runtime"
 	"sort"
 	"strings"
-	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/suno/internal/client"
-	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/suno/internal/config"
 	"time"
 
 	_ "modernc.org/sqlite"

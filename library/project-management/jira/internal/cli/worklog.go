@@ -9,8 +9,8 @@ import (
 
 func newWorklogCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "worklog",
-		Short: "Manage worklog",
+		Use:    "worklog",
+		Short:  "Manage worklog",
 		Hidden: true,
 	}
 

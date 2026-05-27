@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/commerce/ucp/internal/ucp"
+	"github.com/spf13/cobra"
 )
 
 func newCheckCmd(flags *rootFlags) *cobra.Command {

@@ -14,9 +14,9 @@ import (
 func newChatGetTypingStatusCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-typing-status <id>",
-		Short: "Get who is currently typing",
-		Example: "  conduyt-crm-pp-cli chat get-typing-status 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "get-typing-status <id>",
+		Short:       "Get who is currently typing",
+		Example:     "  conduyt-crm-pp-cli chat get-typing-status 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "chat.get-typing-status", "pp:method": "GET", "pp:path": "/chat/channels/{id}/typing", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

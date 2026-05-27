@@ -18,9 +18,9 @@ func newPokemonSpeciesListCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "list",
-		Short: "A Pokémon Species forms the basis for at least one Pokémon. Attributes of a Pokémon species are shared across all...",
-		Example: "  pokeapi-pp-cli pokemon-species list",
+		Use:         "list",
+		Short:       "A Pokémon Species forms the basis for at least one Pokémon. Attributes of a Pokémon species are shared across all...",
+		Example:     "  pokeapi-pp-cli pokemon-species list",
 		Annotations: map[string]string{"pp:endpoint": "pokemon-species.list", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
@@ -30,9 +30,9 @@ func newPokemonSpeciesListCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/api/v2/pokemon-species/"
 			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "pokemon-species", path, map[string]string{
-				"limit": fmt.Sprintf("%v", flagLimit),
+				"limit":  fmt.Sprintf("%v", flagLimit),
 				"offset": fmt.Sprintf("%v", flagOffset),
-				"q": fmt.Sprintf("%v", flagQ),
+				"q":      fmt.Sprintf("%v", flagQ),
 			}, nil, flagAll, "offset", "", "")
 			if err != nil {
 				return classifyAPIError(err)

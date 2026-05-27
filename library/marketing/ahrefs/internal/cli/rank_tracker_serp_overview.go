@@ -22,9 +22,9 @@ func newRankTrackerSerpOverviewCmd(flags *rootFlags) *cobra.Command {
 	var flagProjectId string
 
 	cmd := &cobra.Command{
-		Use:   "serp-overview",
-		Short: "SERP Overview",
-		Example: "  ahrefs-pp-cli rank_tracker serp_overview",
+		Use:         "serp-overview",
+		Short:       "SERP Overview",
+		Example:     "  ahrefs-pp-cli rank_tracker serp_overview",
 		Annotations: map[string]string{"pp:endpoint": "rank_tracker.serp_overview", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("device") && !flags.dryRun {
@@ -40,7 +40,7 @@ func newRankTrackerSerpOverviewCmd(flags *rootFlags) *cobra.Command {
 				return fmt.Errorf("required flag \"%s\" not set", "project-id")
 			}
 			if cmd.Flags().Changed("device") {
-				allowedDevice := []string{ "desktop", "mobile" }
+				allowedDevice := []string{"desktop", "mobile"}
 				validDevice := false
 				for _, v := range allowedDevice {
 					if flagDevice == v {

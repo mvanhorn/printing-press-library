@@ -4,11 +4,11 @@
 package cli
 
 import (
-	"github.com/mvanhorn/printing-press-library/library/food-and-dining/allrecipes/internal/client"
-	"github.com/mvanhorn/printing-press-library/library/food-and-dining/allrecipes/internal/cliutil"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/allrecipes/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/allrecipes/internal/cliutil"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"io"

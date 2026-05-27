@@ -14,9 +14,9 @@ import (
 func newUnsubscribeGetCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get <token>",
-		Short: "Render unsubscribe page (CAN-SPAM)",
-		Example: "  multimail-pp-cli unsubscribe get your-token-here",
+		Use:         "get <token>",
+		Short:       "Render unsubscribe page (CAN-SPAM)",
+		Example:     "  multimail-pp-cli unsubscribe get your-token-here",
 		Annotations: map[string]string{"pp:endpoint": "unsubscribe.get", "pp:method": "GET", "pp:path": "/v1/unsubscribe/{token}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

@@ -14,9 +14,9 @@ import (
 func newRegistriesRepositoriesGetCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get",
-		Short: "Get",
-		Example: "  digitalocean-pp-cli registries repositories get",
+		Use:         "get",
+		Short:       "Get",
+		Example:     "  digitalocean-pp-cli registries repositories get",
 		Annotations: map[string]string{"pp:endpoint": "repositories.get", "pp:method": "GET", "pp:path": "/v2/registries/{registry_name}/repositories/{repository_name}/digests", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

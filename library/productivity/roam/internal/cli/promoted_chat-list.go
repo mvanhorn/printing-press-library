@@ -17,10 +17,10 @@ func newChatListPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "chat-list",
-		Short: "List all accessible chats, which consist of all DMs, MultiDMs, and Channels that your bot has been added to, in...",
-		Long:  "Shortcut for 'chat-list chat_list'. List all accessible chats, which consist of all DMs, MultiDMs, and Channels that your bot has been added to, in...",
-		Example: "  roam-pp-cli chat-list",
+		Use:         "chat-list",
+		Short:       "List all accessible chats, which consist of all DMs, MultiDMs, and Channels that your bot has been added to, in...",
+		Long:        "Shortcut for 'chat-list chat_list'. List all accessible chats, which consist of all DMs, MultiDMs, and Channels that your bot has been added to, in...",
+		Example:     "  roam-pp-cli chat-list",
 		Annotations: map[string]string{"pp:endpoint": "chat-list.chat_list", "pp:method": "GET", "pp:path": "/chat.list", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
@@ -30,7 +30,7 @@ func newChatListPromotedCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/chat.list"
 			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "chat-list", path, map[string]string{
-				"limit": fmt.Sprintf("%v", flagLimit),
+				"limit":  fmt.Sprintf("%v", flagLimit),
 				"cursor": fmt.Sprintf("%v", flagCursor),
 			}, nil, flagAll, "cursor", "", "")
 			if err != nil {

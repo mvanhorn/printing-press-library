@@ -14,9 +14,9 @@ import (
 func newAppsListTiersCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "list-tiers",
-		Short: "List tiers",
-		Example: "  digitalocean-pp-cli apps list-tiers",
+		Use:         "list-tiers",
+		Short:       "List tiers",
+		Example:     "  digitalocean-pp-cli apps list-tiers",
 		Annotations: map[string]string{"pp:endpoint": "apps.list-tiers", "pp:method": "GET", "pp:path": "/v2/apps/tiers/instance_sizes", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

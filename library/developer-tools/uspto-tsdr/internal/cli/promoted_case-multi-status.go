@@ -18,17 +18,17 @@ func newCaseMultiStatusPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagType string
 
 	cmd := &cobra.Command{
-		Use:   "case-multi-status",
-		Short: "Parameters can be one of the following: rnXXXXXXX for US registration number, snXXXXXXXX for US serial number,...",
-		Long:  "Shortcut for 'case-multi-status get-list'. Parameters can be one of the following: rnXXXXXXX for US registration number, snXXXXXXXX for US serial number,...",
-		Example: "  uspto-tsdr-pp-cli case-multi-status --ids example-value",
+		Use:         "case-multi-status",
+		Short:       "Parameters can be one of the following: rnXXXXXXX for US registration number, snXXXXXXXX for US serial number,...",
+		Long:        "Shortcut for 'case-multi-status get-list'. Parameters can be one of the following: rnXXXXXXX for US registration number, snXXXXXXXX for US serial number,...",
+		Example:     "  uspto-tsdr-pp-cli case-multi-status --ids example-value",
 		Annotations: map[string]string{"pp:endpoint": "case-multi-status.get-list", "pp:method": "GET", "pp:path": "/caseMultiStatus/{type}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("ids") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "ids")
 			}
 			if cmd.Flags().Changed("type") {
-				allowedType := []string{ "sn", "rn", "ref", "ir" }
+				allowedType := []string{"sn", "rn", "ref", "ir"}
 				validType := false
 				for _, v := range allowedType {
 					if flagType == v {

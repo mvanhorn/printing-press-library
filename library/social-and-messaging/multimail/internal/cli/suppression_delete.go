@@ -14,9 +14,9 @@ import (
 func newSuppressionDeleteCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "delete <address>",
-		Short: "Allows future emails to be sent to this address again. Requires admin scope.",
-		Example: "  multimail-pp-cli suppression delete example-value",
+		Use:         "delete <address>",
+		Short:       "Allows future emails to be sent to this address again. Requires admin scope.",
+		Example:     "  multimail-pp-cli suppression delete example-value",
 		Annotations: map[string]string{"pp:endpoint": "suppression.delete", "pp:method": "DELETE", "pp:path": "/v1/suppression/{address}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -43,7 +43,9 @@ func newSuppressionDeleteCmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

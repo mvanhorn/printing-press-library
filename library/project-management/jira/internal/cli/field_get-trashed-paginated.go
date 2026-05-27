@@ -21,13 +21,13 @@ func newFieldGetTrashedPaginatedCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "get-trashed-paginated",
-		Short: "Returns a [paginated](#pagination) list of fields in the trash. The list may be restricted to fields whose field...",
-		Example: "  jira-pp-cli field get-trashed-paginated",
+		Use:         "get-trashed-paginated",
+		Short:       "Returns a [paginated](#pagination) list of fields in the trash. The list may be restricted to fields whose field...",
+		Example:     "  jira-pp-cli field get-trashed-paginated",
 		Annotations: map[string]string{"pp:endpoint": "field.get-trashed-paginated", "pp:method": "GET", "pp:path": "/rest/api/3/field/search/trashed", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if cmd.Flags().Changed("expand") {
-				allowedExpand := []string{ "name", "-name", "+name", "trashDate", "-trashDate", "+trashDate", "plannedDeletionDate", "-plannedDeletionDate", "+plannedDeletionDate", "projectsCount", "-projectsCount", "+projectsCount" }
+				allowedExpand := []string{"name", "-name", "+name", "trashDate", "-trashDate", "+trashDate", "plannedDeletionDate", "-plannedDeletionDate", "+plannedDeletionDate", "projectsCount", "-projectsCount", "+projectsCount"}
 				validExpand := false
 				for _, v := range allowedExpand {
 					if flagExpand == v {
@@ -52,12 +52,12 @@ func newFieldGetTrashedPaginatedCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/rest/api/3/field/search/trashed"
 			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "field", path, map[string]string{
-				"startAt": fmt.Sprintf("%v", flagStartAt),
+				"startAt":    fmt.Sprintf("%v", flagStartAt),
 				"maxResults": fmt.Sprintf("%v", flagMaxResults),
-				"id": fmt.Sprintf("%v", flagId),
-				"query": fmt.Sprintf("%v", flagQuery),
-				"expand": fmt.Sprintf("%v", flagExpand),
-				"orderBy": fmt.Sprintf("%v", flagOrderBy),
+				"id":         fmt.Sprintf("%v", flagId),
+				"query":      fmt.Sprintf("%v", flagQuery),
+				"expand":     fmt.Sprintf("%v", flagExpand),
+				"orderBy":    fmt.Sprintf("%v", flagOrderBy),
 			}, nil, flagAll, "", "", "")
 			if err != nil {
 				return classifyAPIError(err, flags)

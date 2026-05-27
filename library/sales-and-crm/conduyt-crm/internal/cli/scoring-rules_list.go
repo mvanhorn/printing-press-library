@@ -14,9 +14,9 @@ import (
 func newScoringRulesListCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "list",
-		Short: "List lead scoring rules",
-		Example: "  conduyt-crm-pp-cli scoring-rules list",
+		Use:         "list",
+		Short:       "List lead scoring rules",
+		Example:     "  conduyt-crm-pp-cli scoring-rules list",
 		Annotations: map[string]string{"pp:endpoint": "scoring-rules.list", "pp:method": "GET", "pp:path": "/scoring-rules", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

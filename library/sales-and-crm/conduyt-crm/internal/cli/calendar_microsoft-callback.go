@@ -14,9 +14,9 @@ import (
 func newCalendarMicrosoftCallbackCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "microsoft-callback",
-		Short: "Microsoft Calendar OAuth callback",
-		Example: "  conduyt-crm-pp-cli calendar microsoft-callback",
+		Use:         "microsoft-callback",
+		Short:       "Microsoft Calendar OAuth callback",
+		Example:     "  conduyt-crm-pp-cli calendar microsoft-callback",
 		Annotations: map[string]string{"pp:endpoint": "calendar.microsoft-callback", "pp:method": "GET", "pp:path": "/calendar/callback/microsoft", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

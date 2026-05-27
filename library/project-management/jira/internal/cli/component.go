@@ -9,8 +9,8 @@ import (
 
 func newComponentCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "component",
-		Short: "Manage component",
+		Use:    "component",
+		Short:  "Manage component",
 		Hidden: true,
 	}
 

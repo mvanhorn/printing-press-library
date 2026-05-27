@@ -17,9 +17,9 @@ func newIssueGetIsWatchingBulkCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "get-is-watching-bulk",
-		Short: "Returns, for the user, details of the watched status of issues from a list. If an issue ID is invalid, the returned...",
-		Example: "  jira-pp-cli issue get-is-watching-bulk",
+		Use:         "get-is-watching-bulk",
+		Short:       "Returns, for the user, details of the watched status of issues from a list. If an issue ID is invalid, the returned...",
+		Example:     "  jira-pp-cli issue get-is-watching-bulk",
 		Annotations: map[string]string{"pp:endpoint": "issue.get-is-watching-bulk", "pp:method": "POST", "pp:path": "/rest/api/3/issue/watching"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {
@@ -68,7 +68,9 @@ func newIssueGetIsWatchingBulkCmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

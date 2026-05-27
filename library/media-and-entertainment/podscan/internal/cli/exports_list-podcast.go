@@ -14,9 +14,9 @@ import (
 func newExportsListPodcastCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "list-podcast",
-		Short: "List podcast catalog export files",
-		Example: "  podscan-pp-cli exports list-podcast",
+		Use:         "list-podcast",
+		Short:       "List podcast catalog export files",
+		Example:     "  podscan-pp-cli exports list-podcast",
 		Annotations: map[string]string{"pp:endpoint": "exports.list-podcast", "pp:method": "GET", "pp:path": "/exports/podcasts", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

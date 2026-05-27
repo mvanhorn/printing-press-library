@@ -16,9 +16,9 @@ func newVpcsUpdateVpcidCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "update-vpcid",
-		Short: "Update vpcid",
-		Example: "  digitalocean-pp-cli vpcs update-vpcid",
+		Use:         "update-vpcid",
+		Short:       "Update vpcid",
+		Example:     "  digitalocean-pp-cli vpcs update-vpcid",
 		Annotations: map[string]string{"pp:endpoint": "vpcs.update-vpcid", "pp:method": "PUT", "pp:path": "/v2/vpcs/{vpc_id}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {
@@ -57,7 +57,9 @@ func newVpcsUpdateVpcidCmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

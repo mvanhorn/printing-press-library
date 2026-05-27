@@ -18,9 +18,9 @@ func newCloudRunAdminJobsRunCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "run <name>",
-		Short: "Triggers creation of a new Execution of this Job.",
-		Example: "  cloud-run-admin-pp-cli cloud-run-admin-jobs run example-resource",
+		Use:         "run <name>",
+		Short:       "Triggers creation of a new Execution of this Job.",
+		Example:     "  cloud-run-admin-pp-cli cloud-run-admin-jobs run example-resource",
 		Annotations: map[string]string{"pp:endpoint": "cloud-run-admin-jobs.run", "pp:method": "POST", "pp:path": "/v2/{name}:run"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -69,7 +69,9 @@ func newCloudRunAdminJobsRunCmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

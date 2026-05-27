@@ -19,9 +19,9 @@ func newMailboxSettingsUpdateCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "update",
-		Short: "Update mailbox settings (automatic replies, timezone, working hours, language)",
-		Example: "  outlook-email-pp-cli mailbox_settings update",
+		Use:         "update",
+		Short:       "Update mailbox settings (automatic replies, timezone, working hours, language)",
+		Example:     "  outlook-email-pp-cli mailbox_settings update",
 		Annotations: map[string]string{"pp:endpoint": "mailbox_settings.update", "pp:method": "PATCH", "pp:path": "/me/mailboxSettings"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {
@@ -77,7 +77,9 @@ func newMailboxSettingsUpdateCmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

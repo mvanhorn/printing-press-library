@@ -919,7 +919,6 @@ func isReadOnlySQL(query string) bool {
 	return true
 }
 
-
 // DB returns the underlying *sql.DB for direct queries.
 // Restored for v4 compatibility — v4's doctor.go and other commands use this.
 func (s *Store) DB() *sql.DB { return s.db }

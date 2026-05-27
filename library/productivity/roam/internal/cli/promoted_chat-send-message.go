@@ -18,10 +18,10 @@ func newChatSendMessagePromotedCmd(flags *rootFlags) *cobra.Command {
 	var bodyText string
 
 	cmd := &cobra.Command{
-		Use:   "chat-send-message",
-		Short: "Sends the given message to the specified recipients. At this time, we only support sending to a single group...",
-		Long:  "Shortcut for 'chat-send-message send-message'. Sends the given message to the specified recipients. At this time, we only support sending to a single group...",
-		Example: "  roam-pp-cli chat-send-message --text example-value",
+		Use:         "chat-send-message",
+		Short:       "Sends the given message to the specified recipients. At this time, we only support sending to a single group...",
+		Long:        "Shortcut for 'chat-send-message send-message'. Sends the given message to the specified recipients. At this time, we only support sending to a single group...",
+		Example:     "  roam-pp-cli chat-send-message --text example-value",
 		Annotations: map[string]string{"pp:endpoint": "chat-send-message.send-message", "pp:method": "POST", "pp:path": "/chat.sendMessage"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("recipients") && !flags.dryRun {

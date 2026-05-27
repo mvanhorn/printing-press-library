@@ -21,10 +21,10 @@ func newMapPromotedCmd(flags *rootFlags) *cobra.Command {
 	var bodyUrl string
 
 	cmd := &cobra.Command{
-		Use:   "map",
-		Short: "Map multiple URLs based on options",
-		Long:  "Shortcut for 'map urls'. Map multiple URLs based on options",
-		Example: "  firecrawl-pp-cli map",
+		Use:         "map",
+		Short:       "Map multiple URLs based on options",
+		Long:        "Shortcut for 'map urls'. Map multiple URLs based on options",
+		Example:     "  firecrawl-pp-cli map",
 		Annotations: map[string]string{"pp:endpoint": "map.urls"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("url") && !flags.dryRun {

@@ -15,9 +15,9 @@ func newStoriesJobCmd(flags *rootFlags) *cobra.Command {
 	var flagLimit int
 
 	cmd := &cobra.Command{
-		Use:   "job",
-		Short: "Get the latest Hacker News job postings",
-		Example: "  hackernews-pp-cli stories job",
+		Use:         "job",
+		Short:       "Get the latest Hacker News job postings",
+		Example:     "  hackernews-pp-cli stories job",
 		Annotations: map[string]string{"pp:endpoint": "stories.job", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

@@ -14,10 +14,10 @@ import (
 func newCountriesGetCountryCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-country <id>",
-		Aliases: []string{"get"},
-		Short: "Retrieve a single country by its ISO 3166-1 alpha-2 code.",
-		Example: "  openalex-pp-cli countries get-country 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "get-country <id>",
+		Aliases:     []string{"get"},
+		Short:       "Retrieve a single country by its ISO 3166-1 alpha-2 code.",
+		Example:     "  openalex-pp-cli countries get-country 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "countries.get-country", "pp:method": "GET", "pp:path": "/countries/{id}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

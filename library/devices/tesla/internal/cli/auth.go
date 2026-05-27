@@ -5,12 +5,12 @@ package cli
 
 import (
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/devices/tesla/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/devices/tesla/internal/config"
 	"github.com/spf13/cobra"
 	"os"
 	"os/exec"
 	"runtime"
-	"github.com/mvanhorn/printing-press-library/library/devices/tesla/internal/cliutil"
-	"github.com/mvanhorn/printing-press-library/library/devices/tesla/internal/config"
 )
 
 func newAuthCmd(flags *rootFlags) *cobra.Command {

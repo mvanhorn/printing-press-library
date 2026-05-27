@@ -13,9 +13,9 @@ import (
 
 func newTransactionsPromotedCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "transactions <sport> <league>",
+		Use:         "transactions <sport> <league>",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short: "Recent league transactions (trades, signings, waivers)",
+		Short:       "Recent league transactions (trades, signings, waivers)",
 		Example: `  espn-pp-cli transactions baseball mlb
   espn-pp-cli transactions football nfl --agent
   espn-pp-cli transactions hockey nhl --json`,

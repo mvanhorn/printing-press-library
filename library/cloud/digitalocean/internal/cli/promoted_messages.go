@@ -14,10 +14,10 @@ import (
 func newMessagesPromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "messages",
-		Short: "Create",
-		Long:  "Shortcut for 'messages create'. Create",
-		Example: "  digitalocean-pp-cli messages",
+		Use:         "messages",
+		Short:       "Create",
+		Long:        "Shortcut for 'messages create'. Create",
+		Example:     "  digitalocean-pp-cli messages",
 		Annotations: map[string]string{"pp:endpoint": "messages.create", "pp:method": "POST", "pp:path": "/v1/messages"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

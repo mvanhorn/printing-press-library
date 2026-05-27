@@ -17,9 +17,9 @@ func newAjaxListBSubNavPlacementPhpCmd(flags *rootFlags) *cobra.Command {
 	var flagUrl string
 
 	cmd := &cobra.Command{
-		Use:   "list-b-sub-nav-placement.php",
-		Short: "GET /ajax/bSubNavPlacement.php",
-		Example: "  slickdeals-pp-cli ajax list-b-sub-nav-placement.php",
+		Use:         "list-b-sub-nav-placement.php",
+		Short:       "GET /ajax/bSubNavPlacement.php",
+		Example:     "  slickdeals-pp-cli ajax list-b-sub-nav-placement.php",
 		Annotations: map[string]string{"pp:endpoint": "ajax.list_bSubNavPlacement.php", "pp:method": "GET", "pp:path": "/ajax/bSubNavPlacement.php", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

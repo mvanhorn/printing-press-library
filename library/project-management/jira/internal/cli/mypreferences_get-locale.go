@@ -14,10 +14,10 @@ import (
 func newMypreferencesGetLocaleCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-locale",
-		Aliases: []string{"list"},
-		Short: "Returns the locale for the user. If the user has no language preference set (which is the default setting) or this...",
-		Example: "  jira-pp-cli mypreferences get-locale",
+		Use:         "get-locale",
+		Aliases:     []string{"list"},
+		Short:       "Returns the locale for the user. If the user has no language preference set (which is the default setting) or this...",
+		Example:     "  jira-pp-cli mypreferences get-locale",
 		Annotations: map[string]string{"pp:endpoint": "mypreferences.get-locale", "pp:method": "GET", "pp:path": "/rest/api/3/mypreferences/locale", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

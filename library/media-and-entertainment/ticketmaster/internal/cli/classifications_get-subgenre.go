@@ -14,9 +14,9 @@ import (
 func newClassificationsGetSubgenreCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-subgenre <id>",
-		Short: "Get details for a specific sub-genre using its unique identifier.",
-		Example: "  ticketmaster-pp-cli classifications get-subgenre 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "get-subgenre <id>",
+		Short:       "Get details for a specific sub-genre using its unique identifier.",
+		Example:     "  ticketmaster-pp-cli classifications get-subgenre 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "classifications.get-subgenre", "pp:method": "GET", "pp:path": "/classifications/subgenres/{id}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

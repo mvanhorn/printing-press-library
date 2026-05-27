@@ -14,10 +14,10 @@ import (
 func newListAllPadsPromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "list-all-pads",
-		Short: "list all the pads",
-		Long:  "Shortcut for 'list-all-pads using-post'. list all the pads",
-		Example: "  etherpad-pp-cli list-all-pads",
+		Use:         "list-all-pads",
+		Short:       "list all the pads",
+		Long:        "Shortcut for 'list-all-pads using-post'. list all the pads",
+		Example:     "  etherpad-pp-cli list-all-pads",
 		Annotations: map[string]string{"pp:endpoint": "list-all-pads.using-post", "pp:method": "POST", "pp:path": "/listAllPads"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

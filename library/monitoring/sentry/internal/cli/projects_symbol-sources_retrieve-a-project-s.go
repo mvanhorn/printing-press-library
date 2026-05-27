@@ -15,10 +15,10 @@ func newProjectsSymbolSourcesRetrieveAProjectSCmd(flags *rootFlags) *cobra.Comma
 	var flagId string
 
 	cmd := &cobra.Command{
-		Use:   "retrieve-a-project-s <organization_id_or_slug> <project_id_or_slug>",
-		Aliases: []string{"get"},
-		Short: "List custom symbol sources configured for a project.",
-		Example: "  sentry-pp-cli projects symbol-sources retrieve-a-project-s example-value example-value",
+		Use:         "retrieve-a-project-s <organization_id_or_slug> <project_id_or_slug>",
+		Aliases:     []string{"get"},
+		Short:       "List custom symbol sources configured for a project.",
+		Example:     "  sentry-pp-cli projects symbol-sources retrieve-a-project-s example-value example-value",
 		Annotations: map[string]string{"pp:endpoint": "symbol-sources.retrieve-a-project-s", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

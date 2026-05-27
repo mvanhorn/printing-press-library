@@ -18,10 +18,10 @@ func newGeoTargetConstantsPromotedCmd(flags *rootFlags) *cobra.Command {
 	var bodyCountryCode string
 
 	cmd := &cobra.Command{
-		Use:   "geo-target-constants",
-		Short: "Returns GeoTargetConstant suggestions by location name or by resource name.",
-		Long:  "Shortcut for 'geo_target_constants suggest'. Returns GeoTargetConstant suggestions by location name or by resource name.",
-		Example: "  google-ads-pp-cli geo-target-constants",
+		Use:         "geo-target-constants",
+		Short:       "Returns GeoTargetConstant suggestions by location name or by resource name.",
+		Long:        "Shortcut for 'geo_target_constants suggest'. Returns GeoTargetConstant suggestions by location name or by resource name.",
+		Example:     "  google-ads-pp-cli geo-target-constants",
 		Annotations: map[string]string{"pp:endpoint": "geo_target_constants.suggest", "pp:method": "POST", "pp:path": "/v22/geoTargetConstants:suggest"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

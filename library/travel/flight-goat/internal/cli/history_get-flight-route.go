@@ -14,9 +14,9 @@ import (
 func newHistoryGetFlightRouteCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-flight-route <id>",
-		Short: "Returns information about a historical flight's filed route including coordinates, names, and types of fixes along...",
-		Example: "  flight-goat-pp-cli history get-flight-route 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "get-flight-route <id>",
+		Short:       "Returns information about a historical flight's filed route including coordinates, names, and types of fixes along...",
+		Example:     "  flight-goat-pp-cli history get-flight-route 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "history.get-flight-route", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

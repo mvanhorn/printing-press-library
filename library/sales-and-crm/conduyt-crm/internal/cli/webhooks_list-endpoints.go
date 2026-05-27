@@ -14,9 +14,9 @@ import (
 func newWebhooksListEndpointsCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "list-endpoints",
-		Short: "List configured webhook endpoints",
-		Example: "  conduyt-crm-pp-cli webhooks list-endpoints",
+		Use:         "list-endpoints",
+		Short:       "List configured webhook endpoints",
+		Example:     "  conduyt-crm-pp-cli webhooks list-endpoints",
 		Annotations: map[string]string{"pp:endpoint": "webhooks.list-endpoints", "pp:method": "GET", "pp:path": "/webhooks", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

@@ -13,11 +13,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/travel/sncf-connect/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/travel/sncf-connect/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/travel/sncf-connect/internal/config"
 	"github.com/mvanhorn/printing-press-library/library/travel/sncf-connect/internal/store"
+	"github.com/spf13/cobra"
 )
 
 // looksLikeDoctorInterstitial reports whether the response body matches a known

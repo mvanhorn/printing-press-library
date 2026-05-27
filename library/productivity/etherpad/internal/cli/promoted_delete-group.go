@@ -15,10 +15,10 @@ func newDeleteGroupPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagGroupID string
 
 	cmd := &cobra.Command{
-		Use:   "delete-group",
-		Short: "deletes a group",
-		Long:  "Shortcut for 'delete-group using-post'. deletes a group",
-		Example: "  etherpad-pp-cli delete-group",
+		Use:         "delete-group",
+		Short:       "deletes a group",
+		Long:        "Shortcut for 'delete-group using-post'. deletes a group",
+		Example:     "  etherpad-pp-cli delete-group",
 		Annotations: map[string]string{"pp:endpoint": "delete-group.using-post", "pp:method": "POST", "pp:path": "/deleteGroup"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

@@ -14,9 +14,9 @@ import (
 func newAlertsGetEndpointCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-endpoint",
-		Short: "Returns URL that will be POSTed to for alerts that are delivered via AeroAPI.",
-		Example: "  flight-goat-pp-cli alerts get-endpoint",
+		Use:         "get-endpoint",
+		Short:       "Returns URL that will be POSTed to for alerts that are delivered via AeroAPI.",
+		Example:     "  flight-goat-pp-cli alerts get-endpoint",
 		Annotations: map[string]string{"pp:endpoint": "alerts.get-endpoint", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

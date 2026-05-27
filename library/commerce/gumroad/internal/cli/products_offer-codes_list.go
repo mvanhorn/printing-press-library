@@ -14,9 +14,9 @@ import (
 func newProductsOfferCodesListCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "list <product_id>",
-		Short: "Retrieve all existing offer codes for a product.",
-		Example: "  gumroad-pp-cli products offer-codes list 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "list <product_id>",
+		Short:       "Retrieve all existing offer codes for a product.",
+		Example:     "  gumroad-pp-cli products offer-codes list 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "offer-codes.list", "pp:method": "GET", "pp:path": "/products/{product_id}/offer_codes", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

@@ -136,7 +136,7 @@ baseline and surfaces the source in meta.cpp_baseline_source.`,
 			// goes to a different host (or the local cache).
 			path := "/search/results/__data.json"
 			var (
-				wg       sync.WaitGroup
+				wg                  sync.WaitGroup
 				cashData, awardData json.RawMessage
 				cashProv, awardProv DataProvenance
 				cashErr, awardErr   error

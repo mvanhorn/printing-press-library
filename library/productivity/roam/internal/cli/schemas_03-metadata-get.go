@@ -14,10 +14,10 @@ import (
 func newSchemasV03MetadataGetCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "03-metadata-get <schemaId>",
-		Aliases: []string{"get"},
-		Short: "Returns the definition of a specific SCIM schema by its URN identifier. **No authentication required** for this...",
-		Example: "  roam-pp-cli schemas 03-metadata-get 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "03-metadata-get <schemaId>",
+		Aliases:     []string{"get"},
+		Short:       "Returns the definition of a specific SCIM schema by its URN identifier. **No authentication required** for this...",
+		Example:     "  roam-pp-cli schemas 03-metadata-get 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "schemas.03-metadata-get", "pp:method": "GET", "pp:path": "/Schemas/{schemaId}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

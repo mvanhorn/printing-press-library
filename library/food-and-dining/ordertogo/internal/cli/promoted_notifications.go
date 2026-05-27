@@ -14,10 +14,10 @@ import (
 func newNotificationsPromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "notifications",
-		Short: "Count of unread notifications for your account",
-		Long:  "Shortcut for 'notifications unread_count'. Count of unread notifications for your account",
-		Example: "  ordertogo-pp-cli notifications",
+		Use:         "notifications",
+		Short:       "Count of unread notifications for your account",
+		Long:        "Shortcut for 'notifications unread_count'. Count of unread notifications for your account",
+		Example:     "  ordertogo-pp-cli notifications",
 		Annotations: map[string]string{"pp:endpoint": "notifications.unread_count", "pp:method": "GET", "pp:path": "/api/ordertogoV2/notification/getNotificationCountUserUnread", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

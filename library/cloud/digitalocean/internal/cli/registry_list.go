@@ -14,9 +14,9 @@ import (
 func newRegistryListCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "list",
-		Short: "List",
-		Example: "  digitalocean-pp-cli registry list",
+		Use:         "list",
+		Short:       "List",
+		Example:     "  digitalocean-pp-cli registry list",
 		Annotations: map[string]string{"pp:endpoint": "registry.list", "pp:method": "GET", "pp:path": "/v2/registry", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

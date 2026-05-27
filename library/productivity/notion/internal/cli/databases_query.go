@@ -10,8 +10,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/mvanhorn/printing-press-library/library/productivity/notion/internal/config"
 	"github.com/mvanhorn/printing-press-library/library/productivity/notion/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/productivity/notion/internal/config"
 
 	"github.com/spf13/cobra"
 )

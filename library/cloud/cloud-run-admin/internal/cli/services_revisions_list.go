@@ -18,9 +18,9 @@ func newServicesRevisionsListCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "list <parent>",
-		Short: "Lists Revisions from a given Service, or from a given location.",
-		Example: "  cloud-run-admin-pp-cli services revisions list example-value",
+		Use:         "list <parent>",
+		Short:       "Lists Revisions from a given Service, or from a given location.",
+		Example:     "  cloud-run-admin-pp-cli services revisions list example-value",
 		Annotations: map[string]string{"pp:endpoint": "revisions.list", "pp:method": "GET", "pp:path": "/v2/{parent}/revisions", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -34,8 +34,8 @@ func newServicesRevisionsListCmd(flags *rootFlags) *cobra.Command {
 			path := "/v2/{parent}/revisions"
 			path = replacePathParam(path, "parent", args[0])
 			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "revisions", path, map[string]string{
-				"pageSize": fmt.Sprintf("%v", flagPageSize),
-				"pageToken": fmt.Sprintf("%v", flagPageToken),
+				"pageSize":    fmt.Sprintf("%v", flagPageSize),
+				"pageToken":   fmt.Sprintf("%v", flagPageToken),
 				"showDeleted": fmt.Sprintf("%v", flagShowDeleted),
 			}, nil, flagAll, "pagetoken", "nextPageToken", "")
 			if err != nil {

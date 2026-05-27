@@ -9,8 +9,8 @@ import (
 
 func newBulkCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "bulk",
-		Short: "Manage bulk",
+		Use:    "bulk",
+		Short:  "Manage bulk",
 		Hidden: true,
 	}
 

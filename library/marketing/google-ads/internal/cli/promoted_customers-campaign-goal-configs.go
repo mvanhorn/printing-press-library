@@ -17,10 +17,10 @@ func newCustomersCampaignGoalConfigsPromotedCmd(flags *rootFlags) *cobra.Command
 	var bodyValidateOnly bool
 
 	cmd := &cobra.Command{
-		Use:   "customers-campaign-goal-configs <customerId>",
-		Short: "Create or update campaign goal configs.",
-		Long:  "Shortcut for 'customers_campaign_goal_configs mutate'. Create or update campaign goal configs.",
-		Example: "  google-ads-pp-cli customers-campaign-goal-configs",
+		Use:         "customers-campaign-goal-configs <customerId>",
+		Short:       "Create or update campaign goal configs.",
+		Long:        "Shortcut for 'customers_campaign_goal_configs mutate'. Create or update campaign goal configs.",
+		Example:     "  google-ads-pp-cli customers-campaign-goal-configs",
 		Annotations: map[string]string{"pp:endpoint": "customers_campaign_goal_configs.mutate", "pp:method": "POST", "pp:path": "/v22/customers/{customerId}/CampaignGoalConfigs:mutate"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

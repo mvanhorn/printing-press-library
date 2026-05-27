@@ -17,10 +17,10 @@ func newWebhookDeliveriesPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "webhook-deliveries",
-		Short: "Returns recent webhook delivery attempts. Requires admin scope.",
-		Long:  "Shortcut for 'webhook-deliveries list'. Returns recent webhook delivery attempts. Requires admin scope.",
-		Example: "  multimail-pp-cli webhook-deliveries",
+		Use:         "webhook-deliveries",
+		Short:       "Returns recent webhook delivery attempts. Requires admin scope.",
+		Long:        "Shortcut for 'webhook-deliveries list'. Returns recent webhook delivery attempts. Requires admin scope.",
+		Example:     "  multimail-pp-cli webhook-deliveries",
 		Annotations: map[string]string{"pp:endpoint": "webhook-deliveries.list", "pp:method": "GET", "pp:path": "/v1/webhook-deliveries", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
@@ -30,7 +30,7 @@ func newWebhookDeliveriesPromotedCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/v1/webhook-deliveries"
 			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "webhook-deliveries", path, map[string]string{
-				"limit": fmt.Sprintf("%v", flagLimit),
+				"limit":  fmt.Sprintf("%v", flagLimit),
 				"cursor": fmt.Sprintf("%v", flagCursor),
 			}, nil, flagAll, "cursor", "", "")
 			if err != nil {

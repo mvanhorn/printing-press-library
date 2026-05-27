@@ -233,9 +233,9 @@ func newJobsListCmd(flags *rootFlags) *cobra.Command {
 	var limit int
 	var all bool
 	cmd := &cobra.Command{
-		Use:         "list",
-		Aliases:     []string{"ls"},
-		Short:       "List recent async jobs",
+		Use:     "list",
+		Aliases: []string{"ls"},
+		Short:   "List recent async jobs",
 		Long: `List rows from the local job ledger (~/.nylas-pp-cli/jobs.jsonl).
 
 Shows the latest state for each tracked job, including the resource, status,

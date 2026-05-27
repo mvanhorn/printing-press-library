@@ -16,9 +16,9 @@ func newRegistriesGarbageCollectionUpdateCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "update",
-		Short: "Update",
-		Example: "  digitalocean-pp-cli registries garbage-collection update",
+		Use:         "update",
+		Short:       "Update",
+		Example:     "  digitalocean-pp-cli registries garbage-collection update",
 		Annotations: map[string]string{"pp:endpoint": "garbage-collection.update", "pp:method": "PUT", "pp:path": "/v2/registries/{registry_name}/garbage-collection/{garbage_collection_uuid}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {
@@ -57,7 +57,9 @@ func newRegistriesGarbageCollectionUpdateCmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

@@ -9,8 +9,8 @@ import (
 
 func newExpressionCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "expression",
-		Short: "Manage expression",
+		Use:    "expression",
+		Short:  "Manage expression",
 		Hidden: true,
 	}
 

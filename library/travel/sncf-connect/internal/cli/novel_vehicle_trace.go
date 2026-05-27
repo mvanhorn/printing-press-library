@@ -68,10 +68,10 @@ Useful for populating schedule databases or understanding a line's full path.`,
 			vjs := navitiaItems(data, "vehicle_journeys")
 
 			type stopTime struct {
-				Order       int    `json:"order"`
-				StopID      string `json:"stop_id"`
-				StopName    string `json:"stop_name"`
-				ArrivalTime string `json:"arrival_time"`
+				Order         int    `json:"order"`
+				StopID        string `json:"stop_id"`
+				StopName      string `json:"stop_name"`
+				ArrivalTime   string `json:"arrival_time"`
 				DepartureTime string `json:"departure_time"`
 			}
 

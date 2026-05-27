@@ -8,8 +8,8 @@ import (
 	"math"
 	"os"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/travel/sncf-connect/internal/store"
+	"github.com/spf13/cobra"
 )
 
 func newStopsCmd(flags *rootFlags) *cobra.Command {

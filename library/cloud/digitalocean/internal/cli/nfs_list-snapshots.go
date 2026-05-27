@@ -14,9 +14,9 @@ import (
 func newNfsListSnapshotsCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "list-snapshots",
-		Short: "List snapshots",
-		Example: "  digitalocean-pp-cli nfs list-snapshots",
+		Use:         "list-snapshots",
+		Short:       "List snapshots",
+		Example:     "  digitalocean-pp-cli nfs list-snapshots",
 		Annotations: map[string]string{"pp:endpoint": "nfs.list-snapshots", "pp:method": "GET", "pp:path": "/v2/nfs/snapshots", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

@@ -14,10 +14,10 @@ import (
 func newCreditPromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "credit",
-		Short: "Retrieve a list of all credit accounts for the organization.",
-		Long:  "Shortcut for 'credit list'. Retrieve a list of all credit accounts for the organization.",
-		Example: "  mercury-pp-cli credit",
+		Use:         "credit",
+		Short:       "Retrieve a list of all credit accounts for the organization.",
+		Long:        "Shortcut for 'credit list'. Retrieve a list of all credit accounts for the organization.",
+		Example:     "  mercury-pp-cli credit",
 		Annotations: map[string]string{"pp:endpoint": "credit.list", "pp:method": "GET", "pp:path": "/credit", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

@@ -13,10 +13,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/other/pcgs/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/other/pcgs/internal/config"
 	"github.com/mvanhorn/printing-press-library/library/other/pcgs/internal/store"
+	"github.com/spf13/cobra"
 )
 
 // looksLikeDoctorInterstitial reports whether the response body matches a known

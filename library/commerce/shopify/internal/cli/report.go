@@ -9,8 +9,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/commerce/shopify/internal/store"
+	"github.com/spf13/cobra"
 )
 
 // Compound analytics commands. All read from the local SQLite store populated
@@ -240,10 +240,10 @@ func newReportShowImpactCmd(flags *rootFlags) *cobra.Command {
 				sharePct = round2(tagged["gross"].(float64) / totalGross * 100)
 			}
 			return printOutputWithFlags(cmd.OutOrStdout(), mustJSON(map[string]any{
-				"tag":            tag,
-				"days":           days,
-				"tagged_bucket":  tagged,
-				"other_bucket":   other,
+				"tag":              tag,
+				"days":             days,
+				"tagged_bucket":    tagged,
+				"other_bucket":     other,
 				"tagged_share_pct": sharePct,
 			}), flags)
 		},
@@ -305,12 +305,12 @@ line-item titles.`,
 				rate = round2(float64(attachedOrders.Int64) / float64(anchorOrders.Int64) * 100)
 			}
 			return printOutputWithFlags(cmd.OutOrStdout(), mustJSON(map[string]any{
-				"anchor":           anchor,
-				"attached":         attached,
-				"days":             days,
-				"anchor_orders":    anchorOrders.Int64,
-				"attached_orders":  attachedOrders.Int64,
-				"attach_rate_pct":  rate,
+				"anchor":          anchor,
+				"attached":        attached,
+				"days":            days,
+				"anchor_orders":   anchorOrders.Int64,
+				"attached_orders": attachedOrders.Int64,
+				"attach_rate_pct": rate,
 			}), flags)
 		},
 	}
@@ -393,12 +393,12 @@ func newReportCustomerLifecycleCmd(flags *rootFlags) *cobra.Command {
 				return fmt.Errorf("gap query: %w", err)
 			}
 			return printOutputWithFlags(cmd.OutOrStdout(), mustJSON(map[string]any{
-				"days":                  days,
+				"days":                     days,
 				"order_count_distribution": dist,
-				"gap_count":             gapCount.Int64,
-				"avg_days_between":      round2(avgGap.Float64),
-				"min_days_between":      round2(minGap.Float64),
-				"max_days_between":      round2(maxGap.Float64),
+				"gap_count":                gapCount.Int64,
+				"avg_days_between":         round2(avgGap.Float64),
+				"min_days_between":         round2(minGap.Float64),
+				"max_days_between":         round2(maxGap.Float64),
 			}), flags)
 		},
 	}

@@ -9,8 +9,8 @@ import (
 
 func newScreensCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "screens",
-		Short: "This resource represents the screens used to record issue details. Use it to: * get details of all screens. * get...",
+		Use:    "screens",
+		Short:  "This resource represents the screens used to record issue details. Use it to: * get details of all screens. * get...",
 		Hidden: true,
 	}
 

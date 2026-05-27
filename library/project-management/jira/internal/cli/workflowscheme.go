@@ -9,8 +9,8 @@ import (
 
 func newWorkflowschemeCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "workflowscheme",
-		Short: "Manage workflowscheme",
+		Use:    "workflowscheme",
+		Short:  "Manage workflowscheme",
 		Hidden: true,
 	}
 

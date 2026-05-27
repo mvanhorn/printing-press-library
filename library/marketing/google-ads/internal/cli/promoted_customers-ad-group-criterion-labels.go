@@ -17,10 +17,10 @@ func newCustomersAdGroupCriterionLabelsPromotedCmd(flags *rootFlags) *cobra.Comm
 	var bodyPartialFailure bool
 
 	cmd := &cobra.Command{
-		Use:   "customers-ad-group-criterion-labels <customerId>",
-		Short: "Creates and removes ad group criterion labels. Operation statuses are returned.",
-		Long:  "Shortcut for 'customers_ad_group_criterion_labels mutate'. Creates and removes ad group criterion labels. Operation statuses are returned.",
-		Example: "  google-ads-pp-cli customers-ad-group-criterion-labels",
+		Use:         "customers-ad-group-criterion-labels <customerId>",
+		Short:       "Creates and removes ad group criterion labels. Operation statuses are returned.",
+		Long:        "Shortcut for 'customers_ad_group_criterion_labels mutate'. Creates and removes ad group criterion labels. Operation statuses are returned.",
+		Example:     "  google-ads-pp-cli customers-ad-group-criterion-labels",
 		Annotations: map[string]string{"pp:endpoint": "customers_ad_group_criterion_labels.mutate", "pp:method": "POST", "pp:path": "/v22/customers/{customerId}/adGroupCriterionLabels:mutate"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

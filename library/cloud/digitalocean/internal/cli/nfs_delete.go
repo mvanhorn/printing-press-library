@@ -14,9 +14,9 @@ import (
 func newNfsDeleteCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "delete",
-		Short: "Delete",
-		Example: "  digitalocean-pp-cli nfs delete",
+		Use:         "delete",
+		Short:       "Delete",
+		Example:     "  digitalocean-pp-cli nfs delete",
 		Annotations: map[string]string{"pp:endpoint": "nfs.delete", "pp:method": "DELETE", "pp:path": "/v2/nfs/{nfs_id}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
@@ -39,7 +39,9 @@ func newNfsDeleteCmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

@@ -8,6 +8,8 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/skool/internal/config"
+	"github.com/spf13/cobra"
 	"io"
 	"os"
 	"os/exec"
@@ -18,8 +20,6 @@ import (
 	"strings"
 	"time"
 	"unicode/utf8"
-	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/skool/internal/config"
-	"github.com/spf13/cobra"
 )
 
 // cookieDomainPattern whitelists what countCookiesForDomain will accept as
@@ -42,6 +42,7 @@ func newAuthCmd(flags *rootFlags) *cobra.Command {
 
 	return cmd
 }
+
 // chromeProfile holds info about a discovered Chrome profile.
 type chromeProfile struct {
 	Dir         string // directory name (e.g. "Default", "Profile 1")

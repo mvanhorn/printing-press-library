@@ -11,8 +11,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/sales-and-crm/jobber/internal/store"
+	"github.com/spf13/cobra"
 )
 
 type snapshotFinding map[string]any

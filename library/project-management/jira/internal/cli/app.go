@@ -9,8 +9,8 @@ import (
 
 func newAppCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "app",
-		Short: "Manage app",
+		Use:    "app",
+		Short:  "Manage app",
 		Hidden: true,
 	}
 

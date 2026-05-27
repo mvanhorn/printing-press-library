@@ -18,9 +18,9 @@ func newSiteExplorerDomainRatingHistoryCmd(flags *rootFlags) *cobra.Command {
 	var flagTarget string
 
 	cmd := &cobra.Command{
-		Use:   "domain-rating-history",
-		Short: "Time-series. Domain Rating history",
-		Example: "  ahrefs-pp-cli site_explorer domain_rating_history",
+		Use:         "domain-rating-history",
+		Short:       "Time-series. Domain Rating history",
+		Example:     "  ahrefs-pp-cli site_explorer domain_rating_history",
 		Annotations: map[string]string{"pp:endpoint": "site_explorer.domain_rating_history", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("date-from") && !flags.dryRun {
@@ -30,7 +30,7 @@ func newSiteExplorerDomainRatingHistoryCmd(flags *rootFlags) *cobra.Command {
 				return fmt.Errorf("required flag \"%s\" not set", "target")
 			}
 			if cmd.Flags().Changed("history-grouping") {
-				allowedHistoryGrouping := []string{ "daily", "weekly", "monthly" }
+				allowedHistoryGrouping := []string{"daily", "weekly", "monthly"}
 				validHistoryGrouping := false
 				for _, v := range allowedHistoryGrouping {
 					if flagHistoryGrouping == v {

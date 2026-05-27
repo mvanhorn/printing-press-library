@@ -14,9 +14,9 @@ import (
 func newRewardsCatalogCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "catalog",
-		Short: "List available reward redemptions for the current points balance.",
-		Example: "  jimmy-johns-pp-cli rewards catalog",
+		Use:         "catalog",
+		Short:       "List available reward redemptions for the current points balance.",
+		Example:     "  jimmy-johns-pp-cli rewards catalog",
 		Annotations: map[string]string{"pp:endpoint": "rewards.catalog", "pp:method": "GET", "pp:path": "/users/current/rewards/catalog", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

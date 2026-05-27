@@ -15,9 +15,9 @@ func newPublicGetBookingSlotsCmd(flags *rootFlags) *cobra.Command {
 	var flagDate string
 
 	cmd := &cobra.Command{
-		Use:   "get-booking-slots <slug>",
-		Short: "Get available time slots for a booking page",
-		Example: "  conduyt-crm-pp-cli public get-booking-slots example-value",
+		Use:         "get-booking-slots <slug>",
+		Short:       "Get available time slots for a booking page",
+		Example:     "  conduyt-crm-pp-cli public get-booking-slots example-value",
 		Annotations: map[string]string{"pp:endpoint": "public.get-booking-slots", "pp:method": "GET", "pp:path": "/public/booking/{slug}/slots", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

@@ -9,10 +9,10 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/other/pcgs/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/other/pcgs/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/other/pcgs/internal/store"
+	"github.com/spf13/cobra"
 )
 
 // PATCH: local generated-tree command for submission-to-cert hydration.
@@ -112,12 +112,12 @@ func newOrderHydrateCmd(flags *rootFlags) *cobra.Command {
 					live += liveImages
 				}
 				return json.NewEncoder(cmd.OutOrStdout()).Encode(map[string]any{
-					"submission":      submissionNo,
-					"certs_found":     len(certs),
-					"live_calls":      live,
-					"cache_hits":      facts,
+					"submission":       submissionNo,
+					"certs_found":      len(certs),
+					"live_calls":       live,
+					"cache_hits":       facts,
 					"image_cache_hits": imgHits,
-					"with_images":     withImages,
+					"with_images":      withImages,
 				})
 			}
 			enc := json.NewEncoder(cmd.OutOrStdout())

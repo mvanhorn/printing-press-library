@@ -12,17 +12,17 @@ import (
 )
 
 type Config struct {
-	BaseURL        string `json:"base_url"`
-	AuthHeaderVal  string `json:"auth_header"`
-	Headers        map[string]string `json:"headers,omitempty"`
-	AuthSource     string `json:"-"`
-	AccessToken    string `json:"access_token"`
-	RefreshToken   string `json:"refresh_token"`
-	TokenExpiry    time.Time `json:"token_expiry"`
-	ClientID       string `json:"client_id"`
-	ClientSecret   string `json:"client_secret"`
-	Path           string `json:"-"`
-	FdaApiKey string `json:"api_key"`
+	BaseURL       string            `json:"base_url"`
+	AuthHeaderVal string            `json:"auth_header"`
+	Headers       map[string]string `json:"headers,omitempty"`
+	AuthSource    string            `json:"-"`
+	AccessToken   string            `json:"access_token"`
+	RefreshToken  string            `json:"refresh_token"`
+	TokenExpiry   time.Time         `json:"token_expiry"`
+	ClientID      string            `json:"client_id"`
+	ClientSecret  string            `json:"client_secret"`
+	Path          string            `json:"-"`
+	FdaApiKey     string            `json:"api_key"`
 }
 
 func Load(configPath string) (*Config, error) {

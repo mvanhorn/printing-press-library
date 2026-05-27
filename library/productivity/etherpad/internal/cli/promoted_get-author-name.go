@@ -15,10 +15,10 @@ func newGetAuthorNamePromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagAuthorID string
 
 	cmd := &cobra.Command{
-		Use:   "get-author-name",
-		Short: "Returns the Author Name of the author",
-		Long:  "Shortcut for 'get-author-name using-post'. Returns the Author Name of the author",
-		Example: "  etherpad-pp-cli get-author-name",
+		Use:         "get-author-name",
+		Short:       "Returns the Author Name of the author",
+		Long:        "Shortcut for 'get-author-name using-post'. Returns the Author Name of the author",
+		Example:     "  etherpad-pp-cli get-author-name",
 		Annotations: map[string]string{"pp:endpoint": "get-author-name.using-post", "pp:method": "POST", "pp:path": "/getAuthorName"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

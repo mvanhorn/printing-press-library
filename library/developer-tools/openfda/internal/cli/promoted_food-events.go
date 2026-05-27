@@ -17,10 +17,10 @@ func newFoodEventsPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagOutcome string
 
 	cmd := &cobra.Command{
-		Use:   "food-events",
-		Short: "Search food/supplement adverse event reports",
-		Long:  "Shortcut for 'food-events list'. Search food/supplement adverse event reports",
-		Example: "  openfda-pp-cli food-events",
+		Use:         "food-events",
+		Short:       "Search food/supplement adverse event reports",
+		Long:        "Shortcut for 'food-events list'. Search food/supplement adverse event reports",
+		Example:     "  openfda-pp-cli food-events",
 		Annotations: map[string]string{"pp:endpoint": "food-events.list", "pp:method": "GET", "pp:path": "/food/event.json", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

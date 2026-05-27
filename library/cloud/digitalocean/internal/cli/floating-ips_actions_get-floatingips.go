@@ -14,9 +14,9 @@ import (
 func newFloatingIpsActionsGetFloatingipsCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-floatingips",
-		Short: "Get floatingips",
-		Example: "  digitalocean-pp-cli floating-ips actions get-floatingips",
+		Use:         "get-floatingips",
+		Short:       "Get floatingips",
+		Example:     "  digitalocean-pp-cli floating-ips actions get-floatingips",
 		Annotations: map[string]string{"pp:endpoint": "actions.get-floatingips", "pp:method": "GET", "pp:path": "/v2/floating_ips/{floating_ip}/actions/{action_id}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

@@ -18,9 +18,9 @@ func newEncounterMethodListCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "list",
-		Short: "Methods by which the player might can encounter Pokémon in the wild, e.g., walking in tall grass. Check out...",
-		Example: "  pokeapi-pp-cli encounter-method list",
+		Use:         "list",
+		Short:       "Methods by which the player might can encounter Pokémon in the wild, e.g., walking in tall grass. Check out...",
+		Example:     "  pokeapi-pp-cli encounter-method list",
 		Annotations: map[string]string{"pp:endpoint": "encounter-method.list", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
@@ -30,9 +30,9 @@ func newEncounterMethodListCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/api/v2/encounter-method/"
 			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "encounter-method", path, map[string]string{
-				"limit": fmt.Sprintf("%v", flagLimit),
+				"limit":  fmt.Sprintf("%v", flagLimit),
 				"offset": fmt.Sprintf("%v", flagOffset),
-				"q": fmt.Sprintf("%v", flagQ),
+				"q":      fmt.Sprintf("%v", flagQ),
 			}, nil, flagAll, "offset", "", "")
 			if err != nil {
 				return classifyAPIError(err)

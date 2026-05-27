@@ -6,9 +6,9 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/twilio/internal/cliutil"
 	"strings"
 	"time"
-	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/twilio/internal/cliutil"
 
 	"github.com/spf13/cobra"
 )

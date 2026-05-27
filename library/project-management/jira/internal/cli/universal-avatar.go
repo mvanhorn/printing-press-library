@@ -9,8 +9,8 @@ import (
 
 func newUniversalAvatarCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "universal-avatar",
-		Short: "Manage universal avatar",
+		Use:    "universal-avatar",
+		Short:  "Manage universal avatar",
 		Hidden: true,
 	}
 

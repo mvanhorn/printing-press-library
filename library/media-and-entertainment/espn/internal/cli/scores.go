@@ -24,9 +24,9 @@ func newScoresCmd(flags *rootFlags) *cobra.Command {
 	var limit int
 
 	cmd := &cobra.Command{
-		Use:   "scores <sport> <league>",
+		Use:         "scores <sport> <league>",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short: "Live scores and results for a sport and league",
+		Short:       "Live scores and results for a sport and league",
 		Example: `  espn-pp-cli scores football nfl
   espn-pp-cli scores basketball nba --dates 20250115
   espn-pp-cli scores baseball mlb --json`,

@@ -9,8 +9,8 @@ import (
 
 func newDashboardCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "dashboard",
-		Short: "This resource represents dashboards. Use it to obtain the details of dashboards as well as get, create, update, or...",
+		Use:    "dashboard",
+		Short:  "This resource represents dashboards. Use it to obtain the details of dashboards as well as get, create, update, or...",
 		Hidden: true,
 	}
 

@@ -15,9 +15,9 @@ func newBillingListCmd(flags *rootFlags) *cobra.Command {
 	var flagSessionId string
 
 	cmd := &cobra.Command{
-		Use:   "list",
-		Short: "Public endpoint. Returns the API key stored during pricing-checkout, then deletes it. Key expires after 1 hour if...",
-		Example: "  multimail-pp-cli billing list --session-id 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "list",
+		Short:       "Public endpoint. Returns the API key stored during pricing-checkout, then deletes it. Key expires after 1 hour if...",
+		Example:     "  multimail-pp-cli billing list --session-id 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "billing.list", "pp:method": "GET", "pp:path": "/v1/billing/session-key", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("session-id") && !flags.dryRun {

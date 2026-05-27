@@ -15,10 +15,10 @@ func newCustomersCustomerUserAccessInvitationsPromotedCmd(flags *rootFlags) *cob
 	var bodyOperation string
 
 	cmd := &cobra.Command{
-		Use:   "customers-customer-user-access-invitations <customerId>",
-		Short: "Creates or removes an access invitation.",
-		Long:  "Shortcut for 'customers_customer_user_access_invitations mutate'. Creates or removes an access invitation.",
-		Example: "  google-ads-pp-cli customers-customer-user-access-invitations",
+		Use:         "customers-customer-user-access-invitations <customerId>",
+		Short:       "Creates or removes an access invitation.",
+		Long:        "Shortcut for 'customers_customer_user_access_invitations mutate'. Creates or removes an access invitation.",
+		Example:     "  google-ads-pp-cli customers-customer-user-access-invitations",
 		Annotations: map[string]string{"pp:endpoint": "customers_customer_user_access_invitations.mutate", "pp:method": "POST", "pp:path": "/v22/customers/{customerId}/customerUserAccessInvitations:mutate"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

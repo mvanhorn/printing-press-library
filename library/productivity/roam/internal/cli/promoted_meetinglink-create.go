@@ -18,10 +18,10 @@ func newMeetinglinkCreatePromotedCmd(flags *rootFlags) *cobra.Command {
 	var bodyStart string
 
 	cmd := &cobra.Command{
-		Use:   "meetinglink-create",
-		Short: "Create a meeting link. **Access:** Organization and Personal. In Organization mode, specify the host by email. In...",
-		Long:  "Shortcut for 'meetinglink-create meetinglink_create'. Create a meeting link. **Access:** Organization and Personal. In Organization mode, specify the host by email. In...",
-		Example: "  roam-pp-cli meetinglink-create --name example-resource",
+		Use:         "meetinglink-create",
+		Short:       "Create a meeting link. **Access:** Organization and Personal. In Organization mode, specify the host by email. In...",
+		Long:        "Shortcut for 'meetinglink-create meetinglink_create'. Create a meeting link. **Access:** Organization and Personal. In Organization mode, specify the host by email. In...",
+		Example:     "  roam-pp-cli meetinglink-create --name example-resource",
 		Annotations: map[string]string{"pp:endpoint": "meetinglink-create.meetinglink_create", "pp:method": "POST", "pp:path": "/meetinglink.create"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("name") && !flags.dryRun {

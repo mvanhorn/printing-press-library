@@ -14,9 +14,9 @@ import (
 func newProjectsKeysRetrieveAClientCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "retrieve-a-client <organization_id_or_slug> <project_id_or_slug> <key_id>",
-		Short: "Return a client key bound to a project.",
-		Example: "  sentry-pp-cli projects keys retrieve-a-client example-value example-value 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "retrieve-a-client <organization_id_or_slug> <project_id_or_slug> <key_id>",
+		Short:       "Return a client key bound to a project.",
+		Example:     "  sentry-pp-cli projects keys retrieve-a-client example-value example-value 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "keys.retrieve-a-client", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

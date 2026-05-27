@@ -19,10 +19,10 @@ func newDeviceClassificationPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagRegulationNumber string
 
 	cmd := &cobra.Command{
-		Use:   "device-classification",
-		Short: "Search device classifications",
-		Long:  "Shortcut for 'device-classification list'. Search device classifications",
-		Example: "  openfda-pp-cli device-classification",
+		Use:         "device-classification",
+		Short:       "Search device classifications",
+		Long:        "Shortcut for 'device-classification list'. Search device classifications",
+		Example:     "  openfda-pp-cli device-classification",
 		Annotations: map[string]string{"pp:endpoint": "device-classification.list", "pp:method": "GET", "pp:path": "/device/classification.json", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

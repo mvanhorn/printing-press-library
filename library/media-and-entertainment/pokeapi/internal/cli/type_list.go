@@ -18,9 +18,9 @@ func newTypeListCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "list",
-		Short: "Types are properties for Pokémon and their moves. Each type has three properties: which types of Pokémon it is...",
-		Example: "  pokeapi-pp-cli type list",
+		Use:         "list",
+		Short:       "Types are properties for Pokémon and their moves. Each type has three properties: which types of Pokémon it is...",
+		Example:     "  pokeapi-pp-cli type list",
 		Annotations: map[string]string{"pp:endpoint": "type.list", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
@@ -30,9 +30,9 @@ func newTypeListCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/api/v2/type/"
 			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "type", path, map[string]string{
-				"limit": fmt.Sprintf("%v", flagLimit),
+				"limit":  fmt.Sprintf("%v", flagLimit),
 				"offset": fmt.Sprintf("%v", flagOffset),
-				"q": fmt.Sprintf("%v", flagQ),
+				"q":      fmt.Sprintf("%v", flagQ),
 			}, nil, flagAll, "offset", "", "")
 			if err != nil {
 				return classifyAPIError(err)

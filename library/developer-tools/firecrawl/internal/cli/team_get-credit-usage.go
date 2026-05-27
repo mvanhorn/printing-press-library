@@ -14,10 +14,10 @@ import (
 func newTeamGetCreditUsageCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-credit-usage",
-		Aliases: []string{"list"},
-		Short: "Get remaining credits for the authenticated team",
-		Example: "  firecrawl-pp-cli team get-credit-usage",
+		Use:         "get-credit-usage",
+		Aliases:     []string{"list"},
+		Short:       "Get remaining credits for the authenticated team",
+		Example:     "  firecrawl-pp-cli team get-credit-usage",
 		Annotations: map[string]string{"pp:endpoint": "team.get-credit-usage", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

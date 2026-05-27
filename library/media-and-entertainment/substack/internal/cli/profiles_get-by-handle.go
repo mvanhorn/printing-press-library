@@ -14,9 +14,9 @@ import (
 func newProfilesGetByHandleCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-by-handle <handle>",
-		Short: "Get a public profile by handle (e.g. mvanhorn)",
-		Example: "  substack-pp-cli profiles get-by-handle example-value",
+		Use:         "get-by-handle <handle>",
+		Short:       "Get a public profile by handle (e.g. mvanhorn)",
+		Example:     "  substack-pp-cli profiles get-by-handle example-value",
 		Annotations: map[string]string{"pp:endpoint": "profiles.get-by-handle", "pp:method": "GET", "pp:path": "/user/{handle}/public_profile", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

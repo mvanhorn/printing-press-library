@@ -17,10 +17,10 @@ func newUsersGetCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "get",
-		Aliases: []string{"list"},
-		Short: "List all users",
-		Example: "  notion-pp-cli users get",
+		Use:         "get",
+		Aliases:     []string{"list"},
+		Short:       "List all users",
+		Example:     "  notion-pp-cli users get",
 		Annotations: map[string]string{"pp:endpoint": "users.get", "pp:method": "GET", "pp:path": "/v1/users", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
@@ -31,7 +31,7 @@ func newUsersGetCmd(flags *rootFlags) *cobra.Command {
 			path := "/v1/users"
 			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "users", path, map[string]string{
 				"start_cursor": fmt.Sprintf("%v", flagStartCursor),
-				"page_size": fmt.Sprintf("%v", flagPageSize),
+				"page_size":    fmt.Sprintf("%v", flagPageSize),
 			}, nil, flagAll, "", "", "has_more")
 			if err != nil {
 				return classifyAPIError(err, flags)

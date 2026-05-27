@@ -9,6 +9,8 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/table-reservation-goat/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/table-reservation-goat/internal/config"
 	"io"
 	"math"
 	"net/http"
@@ -16,8 +18,6 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
-	"github.com/mvanhorn/printing-press-library/library/food-and-dining/table-reservation-goat/internal/cliutil"
-	"github.com/mvanhorn/printing-press-library/library/food-and-dining/table-reservation-goat/internal/config"
 	"time"
 )
 

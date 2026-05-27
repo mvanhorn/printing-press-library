@@ -20,13 +20,13 @@ type attributedProduct struct {
 }
 
 type attributionResult struct {
-	CampaignID       string              `json:"campaign_id"`
-	StoreID          string              `json:"store_id,omitempty"`
-	TotalRevenue     float64             `json:"total_revenue"`
-	TotalOrders      int                 `json:"total_orders"`
-	UniqueOpens      int                 `json:"unique_opens"`
-	ConversionRate   float64             `json:"conversion_rate"`
-	TopProducts      []attributedProduct `json:"top_products"`
+	CampaignID     string              `json:"campaign_id"`
+	StoreID        string              `json:"store_id,omitempty"`
+	TotalRevenue   float64             `json:"total_revenue"`
+	TotalOrders    int                 `json:"total_orders"`
+	UniqueOpens    int                 `json:"unique_opens"`
+	ConversionRate float64             `json:"conversion_rate"`
+	TopProducts    []attributedProduct `json:"top_products"`
 }
 
 func newAttributionCmd(flags *rootFlags) *cobra.Command {

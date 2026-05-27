@@ -16,9 +16,9 @@ func newConfigUpdateFieldAssociationSchemeItemParametersCmd(flags *rootFlags) *c
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "update-field-association-scheme-item-parameters",
-		Short: "Update field association item parameters in field association schemes. **[Permissions](#permissions) required:**...",
-		Example: "  jira-pp-cli config update-field-association-scheme-item-parameters",
+		Use:         "update-field-association-scheme-item-parameters",
+		Short:       "Update field association item parameters in field association schemes. **[Permissions](#permissions) required:**...",
+		Example:     "  jira-pp-cli config update-field-association-scheme-item-parameters",
 		Annotations: map[string]string{"pp:endpoint": "config.update-field-association-scheme-item-parameters", "pp:method": "PUT", "pp:path": "/rest/api/3/config/fieldschemes/fields/parameters"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {
@@ -57,7 +57,9 @@ func newConfigUpdateFieldAssociationSchemeItemParametersCmd(flags *rootFlags) *c
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

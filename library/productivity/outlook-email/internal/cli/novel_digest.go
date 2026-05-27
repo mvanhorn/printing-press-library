@@ -33,7 +33,7 @@ in the local time zone). Output covers:
   - has_attachments_count
   - flagged_completed_count
 
-Use as a cron-shaped morning brief. Run after `+"`sync`"+`.
+Use as a cron-shaped morning brief. Run after ` + "`sync`" + `.
 `),
 		Example: strings.TrimSpace(`
   outlook-email-pp-cli digest --agent

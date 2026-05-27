@@ -23,9 +23,9 @@ func newBookingPagesCreateCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "create",
-		Short: "Create a booking page",
-		Example: "  conduyt-crm-pp-cli booking-pages create --slug example-value",
+		Use:         "create",
+		Short:       "Create a booking page",
+		Example:     "  conduyt-crm-pp-cli booking-pages create --slug example-value",
 		Annotations: map[string]string{"pp:endpoint": "booking-pages.create", "pp:method": "POST", "pp:path": "/booking-pages"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {
@@ -95,7 +95,9 @@ func newBookingPagesCreateCmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

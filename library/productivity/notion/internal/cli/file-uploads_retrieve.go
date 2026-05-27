@@ -14,10 +14,10 @@ import (
 func newFileUploadsRetrieveCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "retrieve <file_upload_id>",
-		Aliases: []string{"get"},
-		Short: "Retrieve a file upload",
-		Example: "  notion-pp-cli file-uploads retrieve 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "retrieve <file_upload_id>",
+		Aliases:     []string{"get"},
+		Short:       "Retrieve a file upload",
+		Example:     "  notion-pp-cli file-uploads retrieve 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "file-uploads.retrieve", "pp:method": "GET", "pp:path": "/v1/file_uploads/{file_upload_id}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

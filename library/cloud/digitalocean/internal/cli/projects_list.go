@@ -14,9 +14,9 @@ import (
 func newProjectsListCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "list",
-		Short: "List",
-		Example: "  digitalocean-pp-cli projects list",
+		Use:         "list",
+		Short:       "List",
+		Example:     "  digitalocean-pp-cli projects list",
 		Annotations: map[string]string{"pp:endpoint": "projects.list", "pp:method": "GET", "pp:path": "/v2/projects", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

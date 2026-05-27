@@ -15,10 +15,10 @@ func newListSessionsOfGroupPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagGroupID string
 
 	cmd := &cobra.Command{
-		Use:   "list-sessions-of-group",
-		Short: "returns all sessions of a group",
-		Long:  "Shortcut for 'list-sessions-of-group using-post'. returns all sessions of a group",
-		Example: "  etherpad-pp-cli list-sessions-of-group",
+		Use:         "list-sessions-of-group",
+		Short:       "returns all sessions of a group",
+		Long:        "Shortcut for 'list-sessions-of-group using-post'. returns all sessions of a group",
+		Example:     "  etherpad-pp-cli list-sessions-of-group",
 		Annotations: map[string]string{"pp:endpoint": "list-sessions-of-group.using-post", "pp:method": "POST", "pp:path": "/listSessionsOfGroup"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

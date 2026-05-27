@@ -14,10 +14,10 @@ import (
 func newUsersPromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "users <userId>",
-		Short: "Get a user's profile including karma and submission history",
-		Long:  "Shortcut for 'users get'. Get a user's profile including karma and submission history",
-		Example: "  hackernews-pp-cli users",
+		Use:         "users <userId>",
+		Short:       "Get a user's profile including karma and submission history",
+		Long:        "Shortcut for 'users get'. Get a user's profile including karma and submission history",
+		Example:     "  hackernews-pp-cli users",
 		Annotations: map[string]string{"pp:endpoint": "users.get", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

@@ -21,10 +21,10 @@ func newTaskTimeTracktimeCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "tracktime <task_id>",
-		Aliases: []string{"create"},
-		Short: "***Note:** This is a legacy time tracking endpoint. We recommend using the Time Tracking API endpoints to manage...",
-		Example: "  clickup-pp-cli task time tracktime 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "tracktime <task_id>",
+		Aliases:     []string{"create"},
+		Short:       "***Note:** This is a legacy time tracking endpoint. We recommend using the Time Tracking API endpoints to manage...",
+		Example:     "  clickup-pp-cli task time tracktime 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "time.tracktime", "pp:method": "POST", "pp:path": "/v2/task/{task_id}/time"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -85,7 +85,9 @@ func newTaskTimeTracktimeCmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

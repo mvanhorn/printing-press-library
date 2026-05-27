@@ -16,9 +16,9 @@ func newProductsRelatedTagsCmd(flags *rootFlags) *cobra.Command {
 	var flagFilterLocationId string
 
 	cmd := &cobra.Command{
-		Use:   "related-tags",
-		Short: "Get related search tags for a query and location.",
-		Example: "  harris-teeter-pp-cli products related-tags --query example-value",
+		Use:         "related-tags",
+		Short:       "Get related search tags for a query and location.",
+		Example:     "  harris-teeter-pp-cli products related-tags --query example-value",
 		Annotations: map[string]string{"pp:endpoint": "products.related_tags", "pp:method": "GET", "pp:path": "/atlas/v1/search/v1/related-tags", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("query") && !flags.dryRun {

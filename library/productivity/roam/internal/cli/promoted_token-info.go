@@ -14,10 +14,10 @@ import (
 func newTokenInfoPromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "token-info",
-		Short: "Get information about the access token, such as the Chat Address. **Access:** Organization and Personal. **No...",
-		Long:  "Shortcut for 'token-info token_info'. Get information about the access token, such as the Chat Address. **Access:** Organization and Personal. **No...",
-		Example: "  roam-pp-cli token-info",
+		Use:         "token-info",
+		Short:       "Get information about the access token, such as the Chat Address. **Access:** Organization and Personal. **No...",
+		Long:        "Shortcut for 'token-info token_info'. Get information about the access token, such as the Chat Address. **Access:** Organization and Personal. **No...",
+		Example:     "  roam-pp-cli token-info",
 		Annotations: map[string]string{"pp:endpoint": "token-info.token_info", "pp:method": "GET", "pp:path": "/token.info", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

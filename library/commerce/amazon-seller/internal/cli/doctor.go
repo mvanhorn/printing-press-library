@@ -195,7 +195,7 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 						authParams := map[string]string{}
 						authHeaders := map[string]string{}
 						if authHeader != "" {
-						authHeaders["x-amz-access-token"] = authHeader
+							authHeaders["x-amz-access-token"] = authHeader
 						}
 						authHeaders["User-Agent"] = "amazon-seller-pp-cli"
 						_, authErr := c.GetWithHeaders(verifyPath, authParams, authHeaders)

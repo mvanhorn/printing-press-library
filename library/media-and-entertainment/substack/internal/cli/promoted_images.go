@@ -15,10 +15,10 @@ func newImagesPromotedCmd(flags *rootFlags) *cobra.Command {
 	var bodyImage string
 
 	cmd := &cobra.Command{
-		Use:   "images",
-		Short: "Upload an image; returns CDN URL. Body is data-URI JSON.",
-		Long:  "Shortcut for 'images upload'. Upload an image; returns CDN URL. Body is data-URI JSON.",
-		Example: "  substack-pp-cli images --image example-value",
+		Use:         "images",
+		Short:       "Upload an image; returns CDN URL. Body is data-URI JSON.",
+		Long:        "Shortcut for 'images upload'. Upload an image; returns CDN URL. Body is data-URI JSON.",
+		Example:     "  substack-pp-cli images --image example-value",
 		Annotations: map[string]string{"pp:endpoint": "images.upload", "pp:method": "POST", "pp:path": "https://{publication}.substack.com/api/v1/image"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("image") && !flags.dryRun {

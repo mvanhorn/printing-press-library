@@ -14,9 +14,9 @@ import (
 func newDatabasesSchemaRegistryDeleteCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "delete",
-		Short: "Delete",
-		Example: "  digitalocean-pp-cli databases schema-registry delete",
+		Use:         "delete",
+		Short:       "Delete",
+		Example:     "  digitalocean-pp-cli databases schema-registry delete",
 		Annotations: map[string]string{"pp:endpoint": "schema-registry.delete", "pp:method": "DELETE", "pp:path": "/v2/databases/{database_cluster_uuid}/schema-registry/{subject_name}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
@@ -39,7 +39,9 @@ func newDatabasesSchemaRegistryDeleteCmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

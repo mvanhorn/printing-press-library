@@ -14,10 +14,10 @@ import (
 func newProjectsReplaysListBatchDeletionJobsCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "list-batch-deletion-jobs <organization_id_or_slug> <project_id_or_slug>",
-		Aliases: []string{"get"},
-		Short: "Retrieve a collection of replay delete jobs.",
-		Example: "  sentry-pp-cli projects replays list-batch-deletion-jobs example-value example-value",
+		Use:         "list-batch-deletion-jobs <organization_id_or_slug> <project_id_or_slug>",
+		Aliases:     []string{"get"},
+		Short:       "Retrieve a collection of replay delete jobs.",
+		Example:     "  sentry-pp-cli projects replays list-batch-deletion-jobs example-value example-value",
 		Annotations: map[string]string{"pp:endpoint": "replays.list-batch-deletion-jobs", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

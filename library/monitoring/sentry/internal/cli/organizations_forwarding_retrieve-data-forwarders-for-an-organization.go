@@ -14,10 +14,10 @@ import (
 func newOrganizationsForwardingRetrieveDataForwardersForAnOrganizationCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "retrieve-data-forwarders-for-an-organization <organization_id_or_slug>",
-		Aliases: []string{"get"},
-		Short: "Returns a list of data forwarders for an organization.",
-		Example: "  sentry-pp-cli organizations forwarding retrieve-data-forwarders-for-an-organization example-value",
+		Use:         "retrieve-data-forwarders-for-an-organization <organization_id_or_slug>",
+		Aliases:     []string{"get"},
+		Short:       "Returns a list of data forwarders for an organization.",
+		Example:     "  sentry-pp-cli organizations forwarding retrieve-data-forwarders-for-an-organization example-value",
 		Annotations: map[string]string{"pp:endpoint": "forwarding.retrieve-data-forwarders-for-an-organization", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

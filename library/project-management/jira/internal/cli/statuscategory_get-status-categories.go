@@ -14,10 +14,10 @@ import (
 func newStatuscategoryGetStatusCategoriesCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-status-categories",
-		Aliases: []string{"list"},
-		Short: "Returns a list of all status categories. **[Permissions](#permissions) required:** Permission to access Jira.",
-		Example: "  jira-pp-cli statuscategory get-status-categories",
+		Use:         "get-status-categories",
+		Aliases:     []string{"list"},
+		Short:       "Returns a list of all status categories. **[Permissions](#permissions) required:** Permission to access Jira.",
+		Example:     "  jira-pp-cli statuscategory get-status-categories",
 		Annotations: map[string]string{"pp:endpoint": "statuscategory.get-status-categories", "pp:method": "GET", "pp:path": "/rest/api/3/statuscategory", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

@@ -14,10 +14,10 @@ import (
 func newAdminCleanTestAccountsCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "clean-test-accounts",
-		Aliases: []string{"delete"},
-		Short: "Delete test accounts",
-		Example: "  conduyt-crm-pp-cli admin clean-test-accounts",
+		Use:         "clean-test-accounts",
+		Aliases:     []string{"delete"},
+		Short:       "Delete test accounts",
+		Example:     "  conduyt-crm-pp-cli admin clean-test-accounts",
 		Annotations: map[string]string{"pp:endpoint": "admin.clean-test-accounts", "pp:method": "DELETE", "pp:path": "/admin/clean-test-accounts"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
@@ -40,7 +40,9 @@ func newAdminCleanTestAccountsCmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

@@ -14,10 +14,10 @@ import (
 func newUploadUrlPromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "upload-url",
-		Short: "Update",
-		Long:  "Shortcut for 'upload-url update'. Update",
-		Example: "  digitalocean-pp-cli upload-url",
+		Use:         "upload-url",
+		Short:       "Update",
+		Long:        "Shortcut for 'upload-url update'. Update",
+		Example:     "  digitalocean-pp-cli upload-url",
 		Annotations: map[string]string{"pp:endpoint": "upload-url.update", "pp:method": "PUT", "pp:path": "/<upload_url>"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

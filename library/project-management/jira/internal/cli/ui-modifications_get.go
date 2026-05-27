@@ -18,10 +18,10 @@ func newUiModificationsGetCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "get",
-		Aliases: []string{"list"},
-		Short: "Gets UI modifications. UI modifications can only be retrieved by Forge apps. **[Permissions](#permissions)...",
-		Example: "  jira-pp-cli ui-modifications get",
+		Use:         "get",
+		Aliases:     []string{"list"},
+		Short:       "Gets UI modifications. UI modifications can only be retrieved by Forge apps. **[Permissions](#permissions)...",
+		Example:     "  jira-pp-cli ui-modifications get",
 		Annotations: map[string]string{"pp:endpoint": "ui-modifications.get", "pp:method": "GET", "pp:path": "/rest/api/3/uiModifications", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
@@ -31,9 +31,9 @@ func newUiModificationsGetCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/rest/api/3/uiModifications"
 			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "ui-modifications", path, map[string]string{
-				"startAt": fmt.Sprintf("%v", flagStartAt),
+				"startAt":    fmt.Sprintf("%v", flagStartAt),
 				"maxResults": fmt.Sprintf("%v", flagMaxResults),
-				"expand": fmt.Sprintf("%v", flagExpand),
+				"expand":     fmt.Sprintf("%v", flagExpand),
 			}, nil, flagAll, "", "", "")
 			if err != nil {
 				return classifyAPIError(err, flags)

@@ -14,9 +14,9 @@ import (
 func newOrganizationsScimQueryAnIndividualOrganizationMemberCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "query-an-individual-organization-member <organization_id_or_slug> <member_id>",
-		Short: "Query an individual organization member with a SCIM User GET Request. - The `name` object will contain fields...",
-		Example: "  sentry-pp-cli organizations scim query-an-individual-organization-member example-value 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "query-an-individual-organization-member <organization_id_or_slug> <member_id>",
+		Short:       "Query an individual organization member with a SCIM User GET Request. - The `name` object will contain fields...",
+		Example:     "  sentry-pp-cli organizations scim query-an-individual-organization-member example-value 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "scim.query-an-individual-organization-member", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

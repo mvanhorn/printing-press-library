@@ -14,9 +14,9 @@ import (
 func newDatabasesListMetricsCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "list-metrics",
-		Short: "List metrics",
-		Example: "  digitalocean-pp-cli databases list-metrics",
+		Use:         "list-metrics",
+		Short:       "List metrics",
+		Example:     "  digitalocean-pp-cli databases list-metrics",
 		Annotations: map[string]string{"pp:endpoint": "databases.list-metrics", "pp:method": "GET", "pp:path": "/v2/databases/metrics/credentials", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

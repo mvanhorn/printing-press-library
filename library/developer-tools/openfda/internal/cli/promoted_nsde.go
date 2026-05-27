@@ -16,10 +16,10 @@ func newNsdePromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagPackageNdc string
 
 	cmd := &cobra.Command{
-		Use:   "nsde",
-		Short: "Search non-standardized drug entities",
-		Long:  "Shortcut for 'nsde list'. Search non-standardized drug entities",
-		Example: "  openfda-pp-cli nsde",
+		Use:         "nsde",
+		Short:       "Search non-standardized drug entities",
+		Long:        "Shortcut for 'nsde list'. Search non-standardized drug entities",
+		Example:     "  openfda-pp-cli nsde",
 		Annotations: map[string]string{"pp:endpoint": "nsde.list", "pp:method": "GET", "pp:path": "/other/nsde.json", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

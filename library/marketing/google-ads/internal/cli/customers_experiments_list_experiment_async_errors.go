@@ -16,9 +16,9 @@ func newCustomersExperimentsListExperimentAsyncErrorsCmd(flags *rootFlags) *cobr
 	var flagPageToken string
 
 	cmd := &cobra.Command{
-		Use:   "list-experiment-async-errors <resourceName>",
-		Short: "Returns all errors that occurred during the last Experiment update (either scheduling or promotion). Supports...",
-		Example: "  google-ads-pp-cli customers_experiments list_experiment_async_errors example-resource",
+		Use:         "list-experiment-async-errors <resourceName>",
+		Short:       "Returns all errors that occurred during the last Experiment update (either scheduling or promotion). Supports...",
+		Example:     "  google-ads-pp-cli customers_experiments list_experiment_async_errors example-resource",
 		Annotations: map[string]string{"pp:endpoint": "customers_experiments.list_experiment_async_errors", "pp:method": "GET", "pp:path": "/v22/{resourceName}:listExperimentAsyncErrors", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

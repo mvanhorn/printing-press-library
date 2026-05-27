@@ -14,9 +14,9 @@ import (
 func newMenuProductModifiersCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "product-modifiers <productId>",
-		Short: "List modifier groups (bread, toppings, add-ons) for a specific product.",
-		Example: "  jimmy-johns-pp-cli menu product-modifiers 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "product-modifiers <productId>",
+		Short:       "List modifier groups (bread, toppings, add-ons) for a specific product.",
+		Example:     "  jimmy-johns-pp-cli menu product-modifiers 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "menu.product_modifiers", "pp:method": "GET", "pp:path": "/products/{productId}/modifiers", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

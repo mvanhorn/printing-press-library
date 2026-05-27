@@ -15,10 +15,10 @@ func newProjectvalidateGetValidProjectKeyCmd(flags *rootFlags) *cobra.Command {
 	var flagKey string
 
 	cmd := &cobra.Command{
-		Use:   "get-valid-project-key",
-		Aliases: []string{"list"},
-		Short: "Validates a project key and, if the key is invalid or in use, generates a valid random string for the project key....",
-		Example: "  jira-pp-cli projectvalidate get-valid-project-key",
+		Use:         "get-valid-project-key",
+		Aliases:     []string{"list"},
+		Short:       "Validates a project key and, if the key is invalid or in use, generates a valid random string for the project key....",
+		Example:     "  jira-pp-cli projectvalidate get-valid-project-key",
 		Annotations: map[string]string{"pp:endpoint": "projectvalidate.get-valid-project-key", "pp:method": "GET", "pp:path": "/rest/api/3/projectvalidate/validProjectKey", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

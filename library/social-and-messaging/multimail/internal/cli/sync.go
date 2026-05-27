@@ -6,6 +6,8 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/multimail/internal/store"
+	"github.com/spf13/cobra"
 	"net/url"
 	"os"
 	"regexp"
@@ -14,8 +16,6 @@ import (
 	"sync"
 	"sync/atomic"
 	"time"
-	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/multimail/internal/store"
-	"github.com/spf13/cobra"
 )
 
 // syncResult holds the outcome of syncing a single resource.
@@ -713,8 +713,7 @@ type discriminatorDispatch struct {
 	Values map[string]string
 }
 
-var discriminatorDispatchers = map[string]discriminatorDispatch{
-}
+var discriminatorDispatchers = map[string]discriminatorDispatch{}
 
 func upsertResourceBatch(db *store.Store, resource string, items []json.RawMessage) (int, int, error) {
 	if _, ok := discriminatorDispatchers[resource]; !ok {
@@ -871,23 +870,23 @@ func defaultSyncResources() []string {
 // this preserves the actual endpoint path like "/ISteamApps/GetAppList/v2".
 func syncResourcePath(resource string) (string, error) {
 	paths := map[string]string{
-		"account": "/v1/account",
-		"api-keys": "/v1/api-keys",
-		"audit-log": "/v1/audit-log",
-		"confirm": "/v1/confirm",
-		"contacts": "/v1/contacts",
-		"domains": "/v1/domains",
-		"emails": "/v1/emails",
-		"mailboxes": "/v1/mailboxes",
-		"multimail-export": "/v1/export",
-		"multimail-health": "/health",
-		"operator": "/v1/operator/session",
-		"oversight": "/v1/oversight/pending",
-		"suppression": "/v1/suppression",
-		"usage": "/v1/usage",
+		"account":            "/v1/account",
+		"api-keys":           "/v1/api-keys",
+		"audit-log":          "/v1/audit-log",
+		"confirm":            "/v1/confirm",
+		"contacts":           "/v1/contacts",
+		"domains":            "/v1/domains",
+		"emails":             "/v1/emails",
+		"mailboxes":          "/v1/mailboxes",
+		"multimail-export":   "/v1/export",
+		"multimail-health":   "/health",
+		"operator":           "/v1/operator/session",
+		"oversight":          "/v1/oversight/pending",
+		"suppression":        "/v1/suppression",
+		"usage":              "/v1/usage",
 		"webhook-deliveries": "/v1/webhook-deliveries",
-		"webhooks": "/v1/webhooks",
-		"well-known": "/.well-known/multimail-signing-key",
+		"webhooks":           "/v1/webhooks",
+		"well-known":         "/.well-known/multimail-signing-key",
 	}
 	if p, ok := paths[resource]; ok {
 		return p, nil
@@ -1119,18 +1118,18 @@ func syncDependentResource(c interface {
 // annotations on a child path-item are honored at runtime, not just on
 // flat paths.
 var resourceIDFieldOverrides = map[string]string{
-	"account": "id",
-	"api-keys": "id",
-	"audit-log": "id",
-	"contacts": "id",
-	"domains": "id",
-	"emails": "id",
-	"mailboxes": "id",
-	"mailboxes_emails": "id",
-	"oversight": "id",
-	"suppression": "id",
+	"account":            "id",
+	"api-keys":           "id",
+	"audit-log":          "id",
+	"contacts":           "id",
+	"domains":            "id",
+	"emails":             "id",
+	"mailboxes":          "id",
+	"mailboxes_emails":   "id",
+	"oversight":          "id",
+	"suppression":        "id",
 	"webhook-deliveries": "id",
-	"webhooks": "id",
+	"webhooks":           "id",
 }
 
 // genericIDFieldFallbacks is the runtime safety net for resources that did
@@ -1146,8 +1145,7 @@ var genericIDFieldFallbacks = []string{"id", "ID", "name", "uuid", "slug", "key"
 // Includes both flat resources and dependent (parent-child) resources so a
 // failed child sync flagged x-critical: true exits non-zero just like a
 // flat-resource critical failure.
-var criticalResources = map[string]bool{
-}
+var criticalResources = map[string]bool{}
 
 // extractID resolves an item's primary-key field. It consults the
 // per-resource templated override first; on miss, it falls through to the

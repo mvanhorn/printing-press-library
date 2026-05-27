@@ -14,9 +14,9 @@ import (
 func newPypiJsonGetPackageVersionInfoCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-package-version-info <package> <version>",
-		Short: "Full metadata for a specific version of a PyPI package.",
-		Example: "  pypi-pp-cli pypi json get-package-version-info example-value example-value",
+		Use:         "get-package-version-info <package> <version>",
+		Short:       "Full metadata for a specific version of a PyPI package.",
+		Example:     "  pypi-pp-cli pypi json get-package-version-info example-value example-value",
 		Annotations: map[string]string{"pp:endpoint": "json.get-package-version-info", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

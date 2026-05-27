@@ -4,14 +4,14 @@
 package client
 
 import (
-	"github.com/mvanhorn/printing-press-library/library/monitoring/adguard-home/internal/cliutil"
-	"github.com/mvanhorn/printing-press-library/library/monitoring/adguard-home/internal/config"
 	"bytes"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/monitoring/adguard-home/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/monitoring/adguard-home/internal/config"
 	"io"
 	"math"
 	"net/http"

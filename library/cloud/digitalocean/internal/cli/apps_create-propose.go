@@ -16,9 +16,9 @@ func newAppsCreateProposeCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "create-propose",
-		Short: "Create propose",
-		Example: "  digitalocean-pp-cli apps create-propose",
+		Use:         "create-propose",
+		Short:       "Create propose",
+		Example:     "  digitalocean-pp-cli apps create-propose",
 		Annotations: map[string]string{"pp:endpoint": "apps.create-propose", "pp:method": "POST", "pp:path": "/v2/apps/propose"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {
@@ -57,7 +57,9 @@ func newAppsCreateProposeCmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

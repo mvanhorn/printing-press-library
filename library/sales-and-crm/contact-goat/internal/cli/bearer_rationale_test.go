@@ -15,9 +15,9 @@ import (
 // drifts, this test catches it before a user sees a rationale mismatch.
 func TestBearerRationale_DecisionTable(t *testing.T) {
 	cases := []struct {
-		name     string
-		bridges  []client.Bridge
-		want     string
+		name    string
+		bridges []client.Bridge
+		want    string
 	}{
 		{
 			name:    "friend bridge with positive affinity",

@@ -14,9 +14,9 @@ import (
 func newMenuProductFiltersCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "product-filters",
-		Short: "List available menu filter dimensions (categories, dietary tags, allergens).",
-		Example: "  jimmy-johns-pp-cli menu product-filters",
+		Use:         "product-filters",
+		Short:       "List available menu filter dimensions (categories, dietary tags, allergens).",
+		Example:     "  jimmy-johns-pp-cli menu product-filters",
 		Annotations: map[string]string{"pp:endpoint": "menu.product_filters", "pp:method": "GET", "pp:path": "/products/filters", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

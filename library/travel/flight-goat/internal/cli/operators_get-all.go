@@ -17,10 +17,10 @@ func newOperatorsGetAllCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "get-all",
-		Aliases: []string{"list"},
-		Short: "Returns list of operator references (ICAO/IATA codes and URLs to access more information).",
-		Example: "  flight-goat-pp-cli operators get-all",
+		Use:         "get-all",
+		Aliases:     []string{"list"},
+		Short:       "Returns list of operator references (ICAO/IATA codes and URLs to access more information).",
+		Example:     "  flight-goat-pp-cli operators get-all",
 		Annotations: map[string]string{"pp:endpoint": "operators.get-all", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
@@ -31,7 +31,7 @@ func newOperatorsGetAllCmd(flags *rootFlags) *cobra.Command {
 			path := "/operators"
 			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "operators", path, map[string]string{
 				"max_pages": fmt.Sprintf("%v", flagMaxPages),
-				"cursor": fmt.Sprintf("%v", flagCursor),
+				"cursor":    fmt.Sprintf("%v", flagCursor),
 			}, nil, flagAll, "cursor", "", "")
 			if err != nil {
 				return classifyAPIError(err)

@@ -328,16 +328,16 @@ func upsertPlaybookFromTeach(s *store.Store, learnCfg *entities.Config, ctx cont
 // playbook/notes pair. Read it (and Notes verbatim) before any discovery
 // step — see SKILL.md's six-branch decision tree for the protocol.
 type recallEnvelope struct {
-	Found         bool                   `json:"found"`
-	Query         string                 `json:"query"`
-	Normalized    string                 `json:"normalized"`
-	QueryEntities []string               `json:"query_entities"`
-	MatchScore    float64                `json:"match_score,omitempty"`
-	Results       []recallEnvelopeResult `json:"results"`
-	Mismatches    []recallEnvelopeResult `json:"mismatches,omitempty"`
-	Warnings      []string               `json:"warnings,omitempty"`
+	Found         bool                    `json:"found"`
+	Query         string                  `json:"query"`
+	Normalized    string                  `json:"normalized"`
+	QueryEntities []string                `json:"query_entities"`
+	MatchScore    float64                 `json:"match_score,omitempty"`
+	Results       []recallEnvelopeResult  `json:"results"`
+	Mismatches    []recallEnvelopeResult  `json:"mismatches,omitempty"`
+	Warnings      []string                `json:"warnings,omitempty"`
 	Playbook      *learn.ResolvedPlaybook `json:"playbook,omitempty"`
-	Notes         string                 `json:"notes,omitempty"`
+	Notes         string                  `json:"notes,omitempty"`
 }
 
 type recallEnvelopeResult struct {

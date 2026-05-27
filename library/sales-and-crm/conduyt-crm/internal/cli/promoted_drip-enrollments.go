@@ -17,10 +17,10 @@ func newDripEnrollmentsPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "drip-enrollments",
-		Short: "List drip enrollments",
-		Long:  "Shortcut for 'drip-enrollments list'. List drip enrollments",
-		Example: "  conduyt-crm-pp-cli drip-enrollments",
+		Use:         "drip-enrollments",
+		Short:       "List drip enrollments",
+		Long:        "Shortcut for 'drip-enrollments list'. List drip enrollments",
+		Example:     "  conduyt-crm-pp-cli drip-enrollments",
 		Annotations: map[string]string{"pp:endpoint": "drip-enrollments.list", "pp:method": "GET", "pp:path": "/drip-enrollments", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
@@ -30,7 +30,7 @@ func newDripEnrollmentsPromotedCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/drip-enrollments"
 			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "drip-enrollments", path, map[string]string{
-				"page": fmt.Sprintf("%v", flagPage),
+				"page":     fmt.Sprintf("%v", flagPage),
 				"per_page": fmt.Sprintf("%v", flagPerPage),
 			}, nil, flagAll, "", "", "")
 			if err != nil {

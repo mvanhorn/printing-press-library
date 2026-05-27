@@ -14,10 +14,10 @@ import (
 func newCartPromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "cart",
-		Short: "List carts for the current logged-in Harris Teeter account.",
-		Long:  "Shortcut for 'cart list'. List carts for the current logged-in Harris Teeter account.",
-		Example: "  harris-teeter-pp-cli cart",
+		Use:         "cart",
+		Short:       "List carts for the current logged-in Harris Teeter account.",
+		Long:        "Shortcut for 'cart list'. List carts for the current logged-in Harris Teeter account.",
+		Example:     "  harris-teeter-pp-cli cart",
 		Annotations: map[string]string{"pp:endpoint": "cart.list", "pp:method": "GET", "pp:path": "/atlas/v1/carts", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

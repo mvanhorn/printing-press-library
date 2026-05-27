@@ -16,8 +16,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/other/numista/internal/client"
+	"github.com/spf13/cobra"
 )
 
 func newUsersCollectedItemsAddCmd(flags *rootFlags) *cobra.Command {

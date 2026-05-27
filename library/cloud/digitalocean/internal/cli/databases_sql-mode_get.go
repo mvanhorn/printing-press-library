@@ -14,9 +14,9 @@ import (
 func newDatabasesSqlModeGetCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get",
-		Short: "Get",
-		Example: "  digitalocean-pp-cli databases sql-mode get",
+		Use:         "get",
+		Short:       "Get",
+		Example:     "  digitalocean-pp-cli databases sql-mode get",
 		Annotations: map[string]string{"pp:endpoint": "sql-mode.get", "pp:method": "GET", "pp:path": "/v2/databases/{database_cluster_uuid}/sql_mode", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

@@ -14,10 +14,10 @@ import (
 func newBillingGetStatusCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-status",
-		Aliases: []string{"list"},
-		Short: "Get subscription status",
-		Example: "  conduyt-crm-pp-cli billing get-status",
+		Use:         "get-status",
+		Aliases:     []string{"list"},
+		Short:       "Get subscription status",
+		Example:     "  conduyt-crm-pp-cli billing get-status",
 		Annotations: map[string]string{"pp:endpoint": "billing.get-status", "pp:method": "GET", "pp:path": "/billing/status", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

@@ -7,6 +7,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/marketing/trendhunter/internal/store"
 	"github.com/spf13/cobra"
 	"net/url"
 	"os"
@@ -16,7 +17,6 @@ import (
 	"sync"
 	"sync/atomic"
 	"time"
-	"github.com/mvanhorn/printing-press-library/library/marketing/trendhunter/internal/store"
 )
 
 // unresolvedPathKeyRE matches `{key}` placeholders left in a sync path

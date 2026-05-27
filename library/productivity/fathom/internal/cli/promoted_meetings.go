@@ -25,10 +25,10 @@ func newMeetingsPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagCursor string
 
 	cmd := &cobra.Command{
-		Use:   "meetings",
-		Short: "List meetings with optional filters and included data",
-		Long:  "Shortcut for 'meetings list'. List meetings with optional filters and included data",
-		Example: "  fathom-pp-cli meetings",
+		Use:         "meetings",
+		Short:       "List meetings with optional filters and included data",
+		Long:        "Shortcut for 'meetings list'. List meetings with optional filters and included data",
+		Example:     "  fathom-pp-cli meetings",
 		Annotations: map[string]string{"pp:endpoint": "meetings.list", "pp:method": "GET", "pp:path": "/meetings", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

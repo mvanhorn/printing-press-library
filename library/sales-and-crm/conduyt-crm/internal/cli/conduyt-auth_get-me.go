@@ -14,10 +14,10 @@ import (
 func newConduytAuthGetMeCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-me",
-		Aliases: []string{"list"},
-		Short: "Get current authenticated user",
-		Example: "  conduyt-crm-pp-cli conduyt-auth get-me",
+		Use:         "get-me",
+		Aliases:     []string{"list"},
+		Short:       "Get current authenticated user",
+		Example:     "  conduyt-crm-pp-cli conduyt-auth get-me",
 		Annotations: map[string]string{"pp:endpoint": "conduyt-auth.get-me", "pp:method": "GET", "pp:path": "/auth/me", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

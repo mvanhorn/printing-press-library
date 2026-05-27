@@ -4,8 +4,6 @@
 package client
 
 import (
-	"github.com/mvanhorn/printing-press-library/library/marketing/botsee/internal/cliutil"
-	"github.com/mvanhorn/printing-press-library/library/marketing/botsee/internal/config"
 	"bytes"
 	"context"
 	"crypto/sha256"
@@ -14,6 +12,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/marketing/botsee/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/marketing/botsee/internal/config"
 	"io"
 	"math"
 	"net/http"

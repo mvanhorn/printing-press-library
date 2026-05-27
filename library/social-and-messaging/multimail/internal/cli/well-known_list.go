@@ -14,9 +14,9 @@ import (
 func newWellKnownListCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "list",
-		Short: "Returns the ECDSA P-256 public key used to sign X-MultiMail-Identity headers.",
-		Example: "  multimail-pp-cli well-known list",
+		Use:         "list",
+		Short:       "Returns the ECDSA P-256 public key used to sign X-MultiMail-Identity headers.",
+		Example:     "  multimail-pp-cli well-known list",
 		Annotations: map[string]string{"pp:endpoint": "well-known.list", "pp:method": "GET", "pp:path": "/.well-known/multimail-signing-key", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

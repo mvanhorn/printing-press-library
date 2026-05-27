@@ -14,10 +14,10 @@ import (
 func newTeamPromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "team",
-		Short: "View the Workspaces available to the authenticated user.",
-		Long:  "Shortcut for 'team get-authorized'. View the Workspaces available to the authenticated user.",
-		Example: "  clickup-pp-cli team",
+		Use:         "team",
+		Short:       "View the Workspaces available to the authenticated user.",
+		Long:        "Shortcut for 'team get-authorized'. View the Workspaces available to the authenticated user.",
+		Example:     "  clickup-pp-cli team",
 		Annotations: map[string]string{"pp:endpoint": "team.get-authorized", "pp:method": "GET", "pp:path": "/v2/team", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

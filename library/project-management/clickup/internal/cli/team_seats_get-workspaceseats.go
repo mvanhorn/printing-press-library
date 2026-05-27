@@ -14,10 +14,10 @@ import (
 func newTeamSeatsGetWorkspaceseatsCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-workspaceseats <team_id>",
-		Aliases: []string{"get"},
-		Short: "View the used, total, and available member and guest seats for a Workspace.",
-		Example: "  clickup-pp-cli team seats get-workspaceseats 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "get-workspaceseats <team_id>",
+		Aliases:     []string{"get"},
+		Short:       "View the used, total, and available member and guest seats for a Workspace.",
+		Example:     "  clickup-pp-cli team seats get-workspaceseats 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "seats.get-workspaceseats", "pp:method": "GET", "pp:path": "/v2/team/{team_id}/seats", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

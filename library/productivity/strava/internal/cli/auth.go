@@ -9,6 +9,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/productivity/strava/internal/config"
 	"github.com/spf13/cobra"
 	"net"
 	"net/http"
@@ -16,7 +17,6 @@ import (
 	"os"
 	"os/exec"
 	"runtime"
-	"github.com/mvanhorn/printing-press-library/library/productivity/strava/internal/config"
 	"strings"
 	"time"
 )

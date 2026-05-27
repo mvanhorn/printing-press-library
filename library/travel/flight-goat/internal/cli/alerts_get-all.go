@@ -17,10 +17,10 @@ func newAlertsGetAllCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "get-all",
-		Aliases: []string{"list"},
-		Short: "Returns all configured alerts for the FlightAware account (this includes alerts configured through other means by...",
-		Example: "  flight-goat-pp-cli alerts get-all",
+		Use:         "get-all",
+		Aliases:     []string{"list"},
+		Short:       "Returns all configured alerts for the FlightAware account (this includes alerts configured through other means by...",
+		Example:     "  flight-goat-pp-cli alerts get-all",
 		Annotations: map[string]string{"pp:endpoint": "alerts.get-all", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
@@ -31,7 +31,7 @@ func newAlertsGetAllCmd(flags *rootFlags) *cobra.Command {
 			path := "/alerts"
 			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "alerts", path, map[string]string{
 				"max_pages": fmt.Sprintf("%v", flagMaxPages),
-				"cursor": fmt.Sprintf("%v", flagCursor),
+				"cursor":    fmt.Sprintf("%v", flagCursor),
 			}, nil, flagAll, "cursor", "", "")
 			if err != nil {
 				return classifyAPIError(err)

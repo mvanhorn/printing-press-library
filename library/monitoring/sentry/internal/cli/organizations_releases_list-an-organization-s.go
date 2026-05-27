@@ -17,9 +17,9 @@ func newOrganizationsReleasesListAnOrganizationSCmd(flags *rootFlags) *cobra.Com
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "list-an-organization-s <organization_id_or_slug>",
-		Short: "Return a list of releases for a given organization.",
-		Example: "  sentry-pp-cli organizations releases list-an-organization-s example-value",
+		Use:         "list-an-organization-s <organization_id_or_slug>",
+		Short:       "Return a list of releases for a given organization.",
+		Example:     "  sentry-pp-cli organizations releases list-an-organization-s example-value",
 		Annotations: map[string]string{"pp:endpoint": "releases.list-an-organization-s", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -33,7 +33,7 @@ func newOrganizationsReleasesListAnOrganizationSCmd(flags *rootFlags) *cobra.Com
 			path := "/api/0/organizations/{organization_id_or_slug}/releases/"
 			path = replacePathParam(path, "organization_id_or_slug", args[0])
 			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "releases", path, map[string]string{
-				"query": fmt.Sprintf("%v", flagQuery),
+				"query":  fmt.Sprintf("%v", flagQuery),
 				"cursor": fmt.Sprintf("%v", flagCursor),
 			}, nil, flagAll, "cursor", "", "")
 			if err != nil {

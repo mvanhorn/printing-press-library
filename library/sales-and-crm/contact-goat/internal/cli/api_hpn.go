@@ -27,9 +27,9 @@ import (
 // prints the subcommand index via cobra's default help.
 func newAPIHpnCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "hpn",
+		Use:         "hpn",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short: "Happenstance public REST API (bearer-auth, credit-priced)",
+		Short:       "Happenstance public REST API (bearer-auth, credit-priced)",
 		Long: `Call the Happenstance public REST API (https://api.happenstance.ai/v1)
 from the terminal. Bearer-auth via HAPPENSTANCE_API_KEY; provision and
 rotate keys at https://happenstance.ai/settings/api-keys.

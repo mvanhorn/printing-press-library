@@ -17,9 +17,9 @@ func newMessagesDeltaCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "delta",
-		Short: "Pull incremental message changes since the last delta token",
-		Example: "  outlook-email-pp-cli messages delta",
+		Use:         "delta",
+		Short:       "Pull incremental message changes since the last delta token",
+		Example:     "  outlook-email-pp-cli messages delta",
 		Annotations: map[string]string{"pp:endpoint": "messages.delta", "pp:method": "GET", "pp:path": "/me/messages/delta", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
@@ -30,7 +30,7 @@ func newMessagesDeltaCmd(flags *rootFlags) *cobra.Command {
 			path := "/me/messages/delta"
 			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "messages", path, map[string]string{
 				"$deltatoken": fmt.Sprintf("%v", flagDeltatoken),
-				"$top": fmt.Sprintf("%v", flagTop),
+				"$top":        fmt.Sprintf("%v", flagTop),
 			}, nil, flagAll, "", "", "")
 			if err != nil {
 				return classifyAPIError(err, flags)

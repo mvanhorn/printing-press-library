@@ -14,9 +14,9 @@ import (
 func newExportsListEpisodeCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "list-episode",
-		Short: "List daily episode export files",
-		Example: "  podscan-pp-cli exports list-episode",
+		Use:         "list-episode",
+		Short:       "List daily episode export files",
+		Example:     "  podscan-pp-cli exports list-episode",
 		Annotations: map[string]string{"pp:endpoint": "exports.list-episode", "pp:method": "GET", "pp:path": "/exports/episodes", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

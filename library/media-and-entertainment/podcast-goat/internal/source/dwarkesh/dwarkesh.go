@@ -31,8 +31,8 @@ func New() *Adapter {
 	return &Adapter{Client: &http.Client{Timeout: 30 * time.Second}}
 }
 
-func (a *Adapter) Name() string             { return adapterName }
-func (a *Adapter) Tier() transcript.Tier    { return transcript.TierFree }
+func (a *Adapter) Name() string          { return adapterName }
+func (a *Adapter) Tier() transcript.Tier { return transcript.TierFree }
 
 var hostRE = regexp.MustCompile(`^https?://(www\.)?dwarkesh(patel)?\.com/p/`)
 

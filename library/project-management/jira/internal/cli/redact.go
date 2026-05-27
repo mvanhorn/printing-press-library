@@ -9,8 +9,8 @@ import (
 
 func newRedactCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "redact",
-		Short: "Manage redact",
+		Use:    "redact",
+		Short:  "Manage redact",
 		Hidden: true,
 	}
 

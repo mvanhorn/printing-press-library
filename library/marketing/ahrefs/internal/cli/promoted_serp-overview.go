@@ -19,10 +19,10 @@ func newSerpOverviewPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagKeyword string
 
 	cmd := &cobra.Command{
-		Use:   "serp-overview",
-		Short: "SERP Overview",
-		Long:  "Shortcut for 'serp_overview serp_overview'. SERP Overview",
-		Example: "  ahrefs-pp-cli serp-overview",
+		Use:         "serp-overview",
+		Short:       "SERP Overview",
+		Long:        "Shortcut for 'serp_overview serp_overview'. SERP Overview",
+		Example:     "  ahrefs-pp-cli serp-overview",
 		Annotations: map[string]string{"pp:endpoint": "serp_overview.serp_overview", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("select") && !flags.dryRun {

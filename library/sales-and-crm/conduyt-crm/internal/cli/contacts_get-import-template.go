@@ -14,9 +14,9 @@ import (
 func newContactsGetImportTemplateCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-import-template",
-		Short: "Download CSV import template",
-		Example: "  conduyt-crm-pp-cli contacts get-import-template",
+		Use:         "get-import-template",
+		Short:       "Download CSV import template",
+		Example:     "  conduyt-crm-pp-cli contacts get-import-template",
 		Annotations: map[string]string{"pp:endpoint": "contacts.get-import-template", "pp:method": "GET", "pp:path": "/contacts/import/template", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

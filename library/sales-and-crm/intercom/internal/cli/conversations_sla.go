@@ -10,8 +10,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/sales-and-crm/intercom/internal/store"
+	"github.com/spf13/cobra"
 )
 
 // slaRow is one group's aggregated SLA stats.

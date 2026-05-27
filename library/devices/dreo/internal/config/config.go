@@ -23,7 +23,7 @@ type Config struct {
 	TokenExpiry   time.Time         `toml:"token_expiry"`
 	ClientID      string            `toml:"client_id"`
 	ClientSecret  string            `toml:"client_secret"`
-	Path string `toml:"-"`
+	Path          string            `toml:"-"`
 	// DreoUsername and DreoPassword are persisted to
 	// ~/.config/dreo-pp-cli/config.toml (mode 0600) alongside the bearer
 	// access token. Dreo's OAuth response carries no refresh_token, so

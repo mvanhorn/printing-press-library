@@ -25,10 +25,10 @@ func newPriorityschemeUpdatePrioritySchemeCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "update-priority-scheme <schemeId>",
-		Aliases: []string{"update"},
-		Short: "Updates a priority scheme. This includes its details, the lists of priorities and projects in it...",
-		Example: "  jira-pp-cli priorityscheme update-priority-scheme 42",
+		Use:         "update-priority-scheme <schemeId>",
+		Aliases:     []string{"update"},
+		Short:       "Updates a priority scheme. This includes its details, the lists of priorities and projects in it...",
+		Example:     "  jira-pp-cli priorityscheme update-priority-scheme 42",
 		Annotations: map[string]string{"pp:endpoint": "priorityscheme.update-priority-scheme", "pp:method": "PUT", "pp:path": "/rest/api/3/priorityscheme/{schemeId}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -176,7 +176,9 @@ func newPriorityschemeUpdatePrioritySchemeCmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

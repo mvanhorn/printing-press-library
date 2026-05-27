@@ -16,9 +16,9 @@ func newOrganizationsPreventSyncsRepositoriesFromAnIntegratedOrgWithGitHubCmd(fl
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "syncs-repositories-from-an-integrated-org-with-git-hub <organization_id_or_slug> <owner>",
-		Short: "Syncs repositories for an integrated organization with GitHub.",
-		Example: "  sentry-pp-cli organizations prevent syncs-repositories-from-an-integrated-org-with-git-hub example-value example-value",
+		Use:         "syncs-repositories-from-an-integrated-org-with-git-hub <organization_id_or_slug> <owner>",
+		Short:       "Syncs repositories for an integrated organization with GitHub.",
+		Example:     "  sentry-pp-cli organizations prevent syncs-repositories-from-an-integrated-org-with-git-hub example-value example-value",
 		Annotations: map[string]string{"pp:endpoint": "prevent.syncs-repositories-from-an-integrated-org-with-git-hub"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -65,7 +65,9 @@ func newOrganizationsPreventSyncsRepositoriesFromAnIntegratedOrgWithGitHubCmd(fl
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

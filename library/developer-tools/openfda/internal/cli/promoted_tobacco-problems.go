@@ -15,10 +15,10 @@ func newTobaccoProblemsPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagProductType string
 
 	cmd := &cobra.Command{
-		Use:   "tobacco-problems",
-		Short: "Search tobacco problem reports",
-		Long:  "Shortcut for 'tobacco-problems list'. Search tobacco problem reports",
-		Example: "  openfda-pp-cli tobacco-problems",
+		Use:         "tobacco-problems",
+		Short:       "Search tobacco problem reports",
+		Long:        "Shortcut for 'tobacco-problems list'. Search tobacco problem reports",
+		Example:     "  openfda-pp-cli tobacco-problems",
 		Annotations: map[string]string{"pp:endpoint": "tobacco-problems.list", "pp:method": "GET", "pp:path": "/tobacco/problem.json", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

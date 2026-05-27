@@ -4,13 +4,13 @@
 package client
 
 import (
-	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/bandsintown/internal/cliutil"
-	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/bandsintown/internal/config"
 	"bytes"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/bandsintown/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/bandsintown/internal/config"
 	"io"
 	"math"
 	"net/http"

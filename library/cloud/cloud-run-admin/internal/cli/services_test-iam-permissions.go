@@ -17,9 +17,9 @@ func newServicesTestIamPermissionsCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "test-iam-permissions <resource>",
-		Short: "Returns permissions that a caller has on the specified Project. There are no permissions required for making this...",
-		Example: "  cloud-run-admin-pp-cli services test-iam-permissions example-value",
+		Use:         "test-iam-permissions <resource>",
+		Short:       "Returns permissions that a caller has on the specified Project. There are no permissions required for making this...",
+		Example:     "  cloud-run-admin-pp-cli services test-iam-permissions example-value",
 		Annotations: map[string]string{"pp:endpoint": "services.test-iam-permissions", "pp:method": "POST", "pp:path": "/v2/{resource}:testIamPermissions"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -69,7 +69,9 @@ func newServicesTestIamPermissionsCmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

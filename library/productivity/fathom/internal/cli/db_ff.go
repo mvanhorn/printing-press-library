@@ -16,8 +16,8 @@ import (
 // PATCH(db-export-restore): added db export/restore commands for local store backup without API calls.
 func newDBCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "db",
-		Short: "Local store management — export and restore without touching the API",
+		Use:         "db",
+		Short:       "Local store management — export and restore without touching the API",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 	}
 	cmd.AddCommand(newDBExportCmd(flags))

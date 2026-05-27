@@ -18,10 +18,10 @@ func newCustomersAdGroupBidModifiersPromotedCmd(flags *rootFlags) *cobra.Command
 	var bodyValidateOnly bool
 
 	cmd := &cobra.Command{
-		Use:   "customers-ad-group-bid-modifiers <customerId>",
-		Short: "Creates, updates, or removes ad group bid modifiers. Operation statuses are returned.",
-		Long:  "Shortcut for 'customers_ad_group_bid_modifiers mutate'. Creates, updates, or removes ad group bid modifiers. Operation statuses are returned.",
-		Example: "  google-ads-pp-cli customers-ad-group-bid-modifiers",
+		Use:         "customers-ad-group-bid-modifiers <customerId>",
+		Short:       "Creates, updates, or removes ad group bid modifiers. Operation statuses are returned.",
+		Long:        "Shortcut for 'customers_ad_group_bid_modifiers mutate'. Creates, updates, or removes ad group bid modifiers. Operation statuses are returned.",
+		Example:     "  google-ads-pp-cli customers-ad-group-bid-modifiers",
 		Annotations: map[string]string{"pp:endpoint": "customers_ad_group_bid_modifiers.mutate", "pp:method": "POST", "pp:path": "/v22/customers/{customerId}/adGroupBidModifiers:mutate"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

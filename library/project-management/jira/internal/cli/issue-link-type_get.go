@@ -14,10 +14,10 @@ import (
 func newIssueLinkTypeGetCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get",
-		Aliases: []string{"list"},
-		Short: "Returns a list of all issue link types. To use this operation, the site must have [issue...",
-		Example: "  jira-pp-cli issue-link-type get",
+		Use:         "get",
+		Aliases:     []string{"list"},
+		Short:       "Returns a list of all issue link types. To use this operation, the site must have [issue...",
+		Example:     "  jira-pp-cli issue-link-type get",
 		Annotations: map[string]string{"pp:endpoint": "issue-link-type.get", "pp:method": "GET", "pp:path": "/rest/api/3/issueLinkType", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

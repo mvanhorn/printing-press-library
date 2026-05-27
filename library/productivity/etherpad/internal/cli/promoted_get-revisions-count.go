@@ -15,10 +15,10 @@ func newGetRevisionsCountPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagPadID string
 
 	cmd := &cobra.Command{
-		Use:   "get-revisions-count",
-		Short: "returns the number of revisions of this pad",
-		Long:  "Shortcut for 'get-revisions-count using-post'. returns the number of revisions of this pad",
-		Example: "  etherpad-pp-cli get-revisions-count",
+		Use:         "get-revisions-count",
+		Short:       "returns the number of revisions of this pad",
+		Long:        "Shortcut for 'get-revisions-count using-post'. returns the number of revisions of this pad",
+		Example:     "  etherpad-pp-cli get-revisions-count",
 		Annotations: map[string]string{"pp:endpoint": "get-revisions-count.using-post", "pp:method": "POST", "pp:path": "/getRevisionsCount"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

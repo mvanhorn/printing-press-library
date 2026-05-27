@@ -125,15 +125,15 @@ Examples:
 
 // WorkflowResult captures the per-step outcome for the final JSON envelope.
 type WorkflowResult struct {
-	Name        string                 `json:"name"`
-	StartedAt   time.Time              `json:"started_at"`
-	FinishedAt  time.Time              `json:"finished_at"`
-	Status      string                 `json:"status"`
-	StepResults []WorkflowStepResult   `json:"steps"`
-	DigestPath  string                 `json:"digest_path,omitempty"`
-	DigestBytes int                    `json:"digest_bytes,omitempty"`
-	DigestError string                 `json:"digest_error,omitempty"`
-	Meta        map[string]any         `json:"meta,omitempty"`
+	Name        string               `json:"name"`
+	StartedAt   time.Time            `json:"started_at"`
+	FinishedAt  time.Time            `json:"finished_at"`
+	Status      string               `json:"status"`
+	StepResults []WorkflowStepResult `json:"steps"`
+	DigestPath  string               `json:"digest_path,omitempty"`
+	DigestBytes int                  `json:"digest_bytes,omitempty"`
+	DigestError string               `json:"digest_error,omitempty"`
+	Meta        map[string]any       `json:"meta,omitempty"`
 }
 
 type WorkflowStepResult struct {

@@ -7,8 +7,8 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/pagliacci/internal/client"
+	"github.com/spf13/cobra"
 )
 
 // findMostRecentOrderID hits /OrderList/1/1 and returns the single order ID.

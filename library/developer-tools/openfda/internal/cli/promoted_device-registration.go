@@ -16,10 +16,10 @@ func newDeviceRegistrationPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagProprietaryName string
 
 	cmd := &cobra.Command{
-		Use:   "device-registration",
-		Short: "Search device registrations and listings",
-		Long:  "Shortcut for 'device-registration list'. Search device registrations and listings",
-		Example: "  openfda-pp-cli device-registration",
+		Use:         "device-registration",
+		Short:       "Search device registrations and listings",
+		Long:        "Shortcut for 'device-registration list'. Search device registrations and listings",
+		Example:     "  openfda-pp-cli device-registration",
 		Annotations: map[string]string{"pp:endpoint": "device-registration.list", "pp:method": "GET", "pp:path": "/device/registrationlisting.json", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

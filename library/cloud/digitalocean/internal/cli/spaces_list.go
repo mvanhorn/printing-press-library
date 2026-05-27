@@ -14,9 +14,9 @@ import (
 func newSpacesListCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "list",
-		Short: "List",
-		Example: "  digitalocean-pp-cli spaces list",
+		Use:         "list",
+		Short:       "List",
+		Example:     "  digitalocean-pp-cli spaces list",
 		Annotations: map[string]string{"pp:endpoint": "spaces.list", "pp:method": "GET", "pp:path": "/v2/spaces/keys", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

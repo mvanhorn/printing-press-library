@@ -14,10 +14,10 @@ import (
 func newUserPromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "user",
-		Short: "Retrieve the authenticated user's data.",
-		Long:  "Shortcut for 'user get'. Retrieve the authenticated user's data.",
-		Example: "  gumroad-pp-cli user",
+		Use:         "user",
+		Short:       "Retrieve the authenticated user's data.",
+		Long:        "Shortcut for 'user get'. Retrieve the authenticated user's data.",
+		Example:     "  gumroad-pp-cli user",
 		Annotations: map[string]string{"pp:endpoint": "user.get", "pp:method": "GET", "pp:path": "/user", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

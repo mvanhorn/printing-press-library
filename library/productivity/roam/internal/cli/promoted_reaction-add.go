@@ -17,10 +17,10 @@ func newReactionAddPromotedCmd(flags *rootFlags) *cobra.Command {
 	var bodyTimestamp int
 
 	cmd := &cobra.Command{
-		Use:   "reaction-add",
-		Short: "Add a reaction to a message in a chat. **Access:** Organization only. **Required scope:** `chat:send_message` or...",
-		Long:  "Shortcut for 'reaction-add reaction_add'. Add a reaction to a message in a chat. **Access:** Organization only. **Required scope:** `chat:send_message` or...",
-		Example: "  roam-pp-cli reaction-add --chat example-value",
+		Use:         "reaction-add",
+		Short:       "Add a reaction to a message in a chat. **Access:** Organization only. **Required scope:** `chat:send_message` or...",
+		Long:        "Shortcut for 'reaction-add reaction_add'. Add a reaction to a message in a chat. **Access:** Organization only. **Required scope:** `chat:send_message` or...",
+		Example:     "  roam-pp-cli reaction-add --chat example-value",
 		Annotations: map[string]string{"pp:endpoint": "reaction-add.reaction_add", "pp:method": "POST", "pp:path": "/reaction.add"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("chat") && !flags.dryRun {

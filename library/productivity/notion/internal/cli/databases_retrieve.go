@@ -14,10 +14,10 @@ import (
 func newDatabasesRetrieveCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "retrieve <database_id>",
-		Aliases: []string{"get"},
-		Short: "Retrieve a database",
-		Example: "  notion-pp-cli databases retrieve 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "retrieve <database_id>",
+		Aliases:     []string{"get"},
+		Short:       "Retrieve a database",
+		Example:     "  notion-pp-cli databases retrieve 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "databases.retrieve", "pp:method": "GET", "pp:path": "/v1/databases/{database_id}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

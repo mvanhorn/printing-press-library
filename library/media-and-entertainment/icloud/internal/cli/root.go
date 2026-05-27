@@ -11,12 +11,12 @@ import (
 const version = "0.1.0"
 
 type rootFlags struct {
-	asJSON          bool
-	compact         bool
-	noColor         bool
-	agent           bool
-	libraryPath     string
-	messagesDBPath  string
+	asJSON         bool
+	compact        bool
+	noColor        bool
+	agent          bool
+	libraryPath    string
+	messagesDBPath string
 }
 
 func Execute() error {

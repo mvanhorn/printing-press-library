@@ -15,10 +15,10 @@ func newCoingeckoSearchPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagQuery string
 
 	cmd := &cobra.Command{
-		Use:   "coingecko-search",
-		Short: "Search coins, categories, exchanges",
-		Long:  "Shortcut for 'coingecko-search search'. Search coins, categories, exchanges",
-		Example: "  coingecko-pp-cli coingecko-search",
+		Use:         "coingecko-search",
+		Short:       "Search coins, categories, exchanges",
+		Long:        "Shortcut for 'coingecko-search search'. Search coins, categories, exchanges",
+		Example:     "  coingecko-pp-cli coingecko-search",
 		Annotations: map[string]string{"pp:endpoint": "coingecko-search.search", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("query") && !flags.dryRun {

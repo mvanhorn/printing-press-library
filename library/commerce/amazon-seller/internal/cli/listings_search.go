@@ -29,9 +29,9 @@ func newListingsSearchCmd(flags *rootFlags) *cobra.Command {
 	var flagPageToken string
 
 	cmd := &cobra.Command{
-		Use:   "search <sellerId>",
-		Short: "Search listing items for a seller.",
-		Example: "  amazon-seller-pp-cli listings search 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "search <sellerId>",
+		Short:       "Search listing items for a seller.",
+		Example:     "  amazon-seller-pp-cli listings search 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "listings.search", "pp:method": "GET", "pp:path": "/listings/2021-08-01/items/{sellerId}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

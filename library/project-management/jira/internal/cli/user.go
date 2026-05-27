@@ -9,8 +9,8 @@ import (
 
 func newUserCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "user",
-		Short: "This resource represent users. Use it to: * get, get a list of, create, and delete users. * get, set, and reset a...",
+		Use:    "user",
+		Short:  "This resource represent users. Use it to: * get, get a list of, create, and delete users. * get, set, and reset a...",
 		Hidden: true,
 	}
 

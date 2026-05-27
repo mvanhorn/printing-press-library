@@ -43,11 +43,11 @@ import (
 // populated for any valid query (Origin, Destination, DepartureDate all
 // non-empty); buildBookingURLs returns a zero value otherwise.
 type BookingURLs struct {
-	Primary      string `json:"primary"`
-	PrimaryKind  string `json:"primary_kind"`
-	AirlineURL   string `json:"airline_url,omitempty"`
-	AirlineKind  string `json:"airline_kind,omitempty"`
-	GoogleURL    string `json:"google_url"`
+	Primary     string `json:"primary"`
+	PrimaryKind string `json:"primary_kind"`
+	AirlineURL  string `json:"airline_url,omitempty"`
+	AirlineKind string `json:"airline_kind,omitempty"`
+	GoogleURL   string `json:"google_url"`
 }
 
 // PrimaryKind values: "prefill" and "landing" are airline-direct; "search"

@@ -14,9 +14,9 @@ import (
 func newMenuProductsCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "products",
-		Short: "List menu products for the current store (subs, sides, drinks, cookies, catering).",
-		Example: "  jimmy-johns-pp-cli menu products",
+		Use:         "products",
+		Short:       "List menu products for the current store (subs, sides, drinks, cookies, catering).",
+		Example:     "  jimmy-johns-pp-cli menu products",
 		Annotations: map[string]string{"pp:endpoint": "menu.products", "pp:method": "GET", "pp:path": "/products", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

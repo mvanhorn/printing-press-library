@@ -14,10 +14,10 @@ import (
 func newReportsPromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "reports",
-		Short: "List",
-		Long:  "Shortcut for 'reports list'. List",
-		Example: "  digitalocean-pp-cli reports",
+		Use:         "reports",
+		Short:       "List",
+		Long:        "Shortcut for 'reports list'. List",
+		Example:     "  digitalocean-pp-cli reports",
 		Annotations: map[string]string{"pp:endpoint": "reports.list", "pp:method": "GET", "pp:path": "/v2/reports/droplet_neighbors_ids", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

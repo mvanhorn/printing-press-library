@@ -14,9 +14,9 @@ import (
 func newAppsListCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "list",
-		Short: "List",
-		Example: "  digitalocean-pp-cli apps list",
+		Use:         "list",
+		Short:       "List",
+		Example:     "  digitalocean-pp-cli apps list",
 		Annotations: map[string]string{"pp:endpoint": "apps.list", "pp:method": "GET", "pp:path": "/v2/apps", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

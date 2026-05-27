@@ -14,9 +14,9 @@ import (
 func newMailboxesEmailsGetMailboxes3Cmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-mailboxes-3 <mailboxId> <emailId> <filename>",
-		Short: "Requires read scope. Returns base64 inline for small files (<50KB) or a presigned URL for larger files.",
-		Example: "  multimail-pp-cli mailboxes emails get-mailboxes-3 550e8400-e29b-41d4-a716-446655440000 550e8400-e29b-41d4-a716-446655440000 example-resource",
+		Use:         "get-mailboxes-3 <mailboxId> <emailId> <filename>",
+		Short:       "Requires read scope. Returns base64 inline for small files (<50KB) or a presigned URL for larger files.",
+		Example:     "  multimail-pp-cli mailboxes emails get-mailboxes-3 550e8400-e29b-41d4-a716-446655440000 550e8400-e29b-41d4-a716-446655440000 example-resource",
 		Annotations: map[string]string{"pp:endpoint": "emails.get-mailboxes-3", "pp:method": "GET", "pp:path": "/v1/mailboxes/{mailboxId}/emails/{emailId}/attachments/{filename}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

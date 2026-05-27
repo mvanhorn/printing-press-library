@@ -19,10 +19,10 @@ func newIssueGetCreateMetaCmd(flags *rootFlags) *cobra.Command {
 	var flagExpand string
 
 	cmd := &cobra.Command{
-		Use:   "get-create-meta",
-		Aliases: []string{"list"},
-		Short: "Returns details of projects, issue types within projects, and, when requested, the create screen fields for each...",
-		Example: "  jira-pp-cli issue get-create-meta",
+		Use:         "get-create-meta",
+		Aliases:     []string{"list"},
+		Short:       "Returns details of projects, issue types within projects, and, when requested, the create screen fields for each...",
+		Example:     "  jira-pp-cli issue get-create-meta",
 		Annotations: map[string]string{"pp:endpoint": "issue.get-create-meta", "pp:method": "GET", "pp:path": "/rest/api/3/issue/createmeta", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

@@ -17,10 +17,10 @@ func newUserDeletePropertyCmd(flags *rootFlags) *cobra.Command {
 	var flagUsername string
 
 	cmd := &cobra.Command{
-		Use:   "delete-property <propertyKey>",
-		Aliases: []string{"delete"},
-		Short: "Deletes a property from a user. Note: This operation does not access the [user...",
-		Example: "  jira-pp-cli user delete-property your-token-here",
+		Use:         "delete-property <propertyKey>",
+		Aliases:     []string{"delete"},
+		Short:       "Deletes a property from a user. Note: This operation does not access the [user...",
+		Example:     "  jira-pp-cli user delete-property your-token-here",
 		Annotations: map[string]string{"pp:endpoint": "user.delete-property", "pp:method": "DELETE", "pp:path": "/rest/api/3/user/properties/{propertyKey}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -50,7 +50,9 @@ func newUserDeletePropertyCmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

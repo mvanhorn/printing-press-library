@@ -14,9 +14,9 @@ import (
 func newInvoicesGetNextNumberCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-next-number",
-		Short: "Get the next auto-incremented invoice number",
-		Example: "  conduyt-crm-pp-cli invoices get-next-number",
+		Use:         "get-next-number",
+		Short:       "Get the next auto-incremented invoice number",
+		Example:     "  conduyt-crm-pp-cli invoices get-next-number",
 		Annotations: map[string]string{"pp:endpoint": "invoices.get-next-number", "pp:method": "GET", "pp:path": "/invoices/next-number", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

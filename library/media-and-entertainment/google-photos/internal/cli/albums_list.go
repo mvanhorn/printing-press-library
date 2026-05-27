@@ -17,9 +17,9 @@ func newAlbumsListCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "list",
-		Short: "List albums created by this app.",
-		Example: "  google-photos-pp-cli albums list",
+		Use:         "list",
+		Short:       "List albums created by this app.",
+		Example:     "  google-photos-pp-cli albums list",
 		Annotations: map[string]string{"pp:endpoint": "albums.list", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
@@ -29,7 +29,7 @@ func newAlbumsListCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/v1/albums"
 			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "albums", path, map[string]string{
-				"pageSize": fmt.Sprintf("%v", flagPageSize),
+				"pageSize":  fmt.Sprintf("%v", flagPageSize),
 				"pageToken": fmt.Sprintf("%v", flagPageToken),
 			}, nil, flagAll, "pageToken", "nextPageToken", "")
 			if err != nil {

@@ -17,10 +17,10 @@ func newGetChatHistoryPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagEnd string
 
 	cmd := &cobra.Command{
-		Use:   "get-chat-history",
-		Short: "returns the chat history",
-		Long:  "Shortcut for 'get-chat-history using-post'. returns the chat history",
-		Example: "  etherpad-pp-cli get-chat-history",
+		Use:         "get-chat-history",
+		Short:       "returns the chat history",
+		Long:        "Shortcut for 'get-chat-history using-post'. returns the chat history",
+		Example:     "  etherpad-pp-cli get-chat-history",
 		Annotations: map[string]string{"pp:endpoint": "get-chat-history.using-post", "pp:method": "POST", "pp:path": "/getChatHistory"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

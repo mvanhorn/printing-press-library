@@ -22,8 +22,8 @@ func newPostsListCmd(flags *rootFlags) *cobra.Command {
 	var flagType string
 
 	cmd := &cobra.Command{
-		Use:         "list",
-		Short:       "List your own posts. Filter by --type newsletter|podcast|video|thread.",
+		Use:   "list",
+		Short: "List your own posts. Filter by --type newsletter|podcast|video|thread.",
 		Long: `List published posts for the publication given by --subdomain.
 
 Substack has no separate APIs for podcasts, videos, or chat threads — they are

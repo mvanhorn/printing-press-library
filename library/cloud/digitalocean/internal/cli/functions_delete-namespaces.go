@@ -14,9 +14,9 @@ import (
 func newFunctionsDeleteNamespacesCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "delete-namespaces",
-		Short: "Delete namespaces",
-		Example: "  digitalocean-pp-cli functions delete-namespaces",
+		Use:         "delete-namespaces",
+		Short:       "Delete namespaces",
+		Example:     "  digitalocean-pp-cli functions delete-namespaces",
 		Annotations: map[string]string{"pp:endpoint": "functions.delete-namespaces", "pp:method": "DELETE", "pp:path": "/v2/functions/namespaces/{namespace_id}/keys/{key_id}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
@@ -39,7 +39,9 @@ func newFunctionsDeleteNamespacesCmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

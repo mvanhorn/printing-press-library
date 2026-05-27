@@ -18,10 +18,10 @@ func newCopyPadWithoutHistoryPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagAuthorId string
 
 	cmd := &cobra.Command{
-		Use:   "copy-pad-without-history",
-		Short: "copies a pad without history or chat",
-		Long:  "Shortcut for 'copy-pad-without-history using-post'. copies a pad without history or chat",
-		Example: "  etherpad-pp-cli copy-pad-without-history",
+		Use:         "copy-pad-without-history",
+		Short:       "copies a pad without history or chat",
+		Long:        "Shortcut for 'copy-pad-without-history using-post'. copies a pad without history or chat",
+		Example:     "  etherpad-pp-cli copy-pad-without-history",
 		Annotations: map[string]string{"pp:endpoint": "copy-pad-without-history.using-post", "pp:method": "POST", "pp:path": "/copyPadWithoutHistory"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

@@ -22,9 +22,9 @@ func newWorkflowsSearchCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "search",
-		Short: "Returns a [paginated](#pagination) list of global and project workflows. If workflow names are specified in the...",
-		Example: "  jira-pp-cli workflows search",
+		Use:         "search",
+		Short:       "Returns a [paginated](#pagination) list of global and project workflows. If workflow names are specified in the...",
+		Example:     "  jira-pp-cli workflows search",
 		Annotations: map[string]string{"pp:endpoint": "workflows.search", "pp:method": "GET", "pp:path": "/rest/api/3/workflows/search", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if cmd.Flags().Changed("order-by") {
@@ -40,13 +40,13 @@ func newWorkflowsSearchCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/rest/api/3/workflows/search"
 			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "workflows", path, map[string]string{
-				"startAt": fmt.Sprintf("%v", flagStartAt),
-				"maxResults": fmt.Sprintf("%v", flagMaxResults),
-				"expand": fmt.Sprintf("%v", flagExpand),
+				"startAt":     fmt.Sprintf("%v", flagStartAt),
+				"maxResults":  fmt.Sprintf("%v", flagMaxResults),
+				"expand":      fmt.Sprintf("%v", flagExpand),
 				"queryString": fmt.Sprintf("%v", flagQueryString),
-				"orderBy": fmt.Sprintf("%v", flagOrderBy),
-				"scope": fmt.Sprintf("%v", flagScope),
-				"isActive": fmt.Sprintf("%v", flagIsActive),
+				"orderBy":     fmt.Sprintf("%v", flagOrderBy),
+				"scope":       fmt.Sprintf("%v", flagScope),
+				"isActive":    fmt.Sprintf("%v", flagIsActive),
 			}, nil, flagAll, "", "", "")
 			if err != nil {
 				return classifyAPIError(err, flags)

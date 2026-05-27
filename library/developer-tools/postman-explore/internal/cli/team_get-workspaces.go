@@ -15,10 +15,10 @@ func newTeamGetWorkspacesCmd(flags *rootFlags) *cobra.Command {
 	var flagPublicHandle string
 
 	cmd := &cobra.Command{
-		Use:   "get-workspaces",
-		Aliases: []string{"list"},
-		Short: "Returns the array of public workspaces owned by a team identified by its `publicHandle` (e.g., `stripedev`,...",
-		Example: "  postman-explore-pp-cli team get-workspaces",
+		Use:         "get-workspaces",
+		Aliases:     []string{"list"},
+		Short:       "Returns the array of public workspaces owned by a team identified by its `publicHandle` (e.g., `stripedev`,...",
+		Example:     "  postman-explore-pp-cli team get-workspaces",
 		Annotations: map[string]string{"pp:endpoint": "team.get-workspaces"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("public-handle") && !flags.dryRun {

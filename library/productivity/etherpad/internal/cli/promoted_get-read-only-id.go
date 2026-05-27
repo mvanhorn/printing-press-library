@@ -15,10 +15,10 @@ func newGetReadOnlyIdPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagPadID string
 
 	cmd := &cobra.Command{
-		Use:   "get-read-only-id",
-		Short: "returns the read only link of a pad",
-		Long:  "Shortcut for 'get-read-only-id get-read-only-idusing-post'. returns the read only link of a pad",
-		Example: "  etherpad-pp-cli get-read-only-id",
+		Use:         "get-read-only-id",
+		Short:       "returns the read only link of a pad",
+		Long:        "Shortcut for 'get-read-only-id get-read-only-idusing-post'. returns the read only link of a pad",
+		Example:     "  etherpad-pp-cli get-read-only-id",
 		Annotations: map[string]string{"pp:endpoint": "get-read-only-id.get-read-only-idusing-post", "pp:method": "POST", "pp:path": "/getReadOnlyID"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

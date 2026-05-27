@@ -5,11 +5,11 @@ package cli
 
 import (
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/payments/pop/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/payments/pop/internal/config"
 	"github.com/spf13/cobra"
 	"os"
 	"os/exec"
-	"github.com/mvanhorn/printing-press-library/library/payments/pop/internal/cliutil"
-	"github.com/mvanhorn/printing-press-library/library/payments/pop/internal/config"
 	"runtime"
 )
 

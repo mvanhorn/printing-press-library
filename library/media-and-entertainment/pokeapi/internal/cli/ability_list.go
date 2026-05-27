@@ -18,9 +18,9 @@ func newAbilityListCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "list",
-		Short: "Abilities provide passive effects for Pokémon in battle or in the overworld. Pokémon have multiple possible...",
-		Example: "  pokeapi-pp-cli ability list",
+		Use:         "list",
+		Short:       "Abilities provide passive effects for Pokémon in battle or in the overworld. Pokémon have multiple possible...",
+		Example:     "  pokeapi-pp-cli ability list",
 		Annotations: map[string]string{"pp:endpoint": "ability.list", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
@@ -30,9 +30,9 @@ func newAbilityListCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/api/v2/ability/"
 			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "ability", path, map[string]string{
-				"limit": fmt.Sprintf("%v", flagLimit),
+				"limit":  fmt.Sprintf("%v", flagLimit),
 				"offset": fmt.Sprintf("%v", flagOffset),
-				"q": fmt.Sprintf("%v", flagQ),
+				"q":      fmt.Sprintf("%v", flagQ),
 			}, nil, flagAll, "offset", "", "")
 			if err != nil {
 				return classifyAPIError(err)

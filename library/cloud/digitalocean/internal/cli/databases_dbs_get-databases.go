@@ -14,9 +14,9 @@ import (
 func newDatabasesDbsGetDatabasesCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-databases",
-		Short: "Get databases",
-		Example: "  digitalocean-pp-cli databases dbs get-databases",
+		Use:         "get-databases",
+		Short:       "Get databases",
+		Example:     "  digitalocean-pp-cli databases dbs get-databases",
 		Annotations: map[string]string{"pp:endpoint": "dbs.get-databases", "pp:method": "GET", "pp:path": "/v2/databases/{database_cluster_uuid}/dbs/{database_name}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

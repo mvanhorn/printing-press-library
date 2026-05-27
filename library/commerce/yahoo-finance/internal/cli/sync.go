@@ -7,6 +7,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/commerce/yahoo-finance/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/commerce/yahoo-finance/internal/store"
 	"github.com/spf13/cobra"
 	"io"
 	"net/url"
@@ -17,8 +19,6 @@ import (
 	"sync"
 	"sync/atomic"
 	"time"
-	"github.com/mvanhorn/printing-press-library/library/commerce/yahoo-finance/internal/cliutil"
-	"github.com/mvanhorn/printing-press-library/library/commerce/yahoo-finance/internal/store"
 )
 
 // unresolvedPathKeyRE matches `{key}` placeholders left in a sync path

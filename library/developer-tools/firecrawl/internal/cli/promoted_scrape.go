@@ -29,10 +29,10 @@ func newScrapePromotedCmd(flags *rootFlags) *cobra.Command {
 	var bodyWaitFor int
 
 	cmd := &cobra.Command{
-		Use:   "scrape",
-		Short: "Scrape a single URL and optionally extract information using an LLM",
-		Long:  "Shortcut for 'scrape and-extract-from-url'. Scrape a single URL and optionally extract information using an LLM",
-		Example: "  firecrawl-pp-cli scrape",
+		Use:         "scrape",
+		Short:       "Scrape a single URL and optionally extract information using an LLM",
+		Long:        "Shortcut for 'scrape and-extract-from-url'. Scrape a single URL and optionally extract information using an LLM",
+		Example:     "  firecrawl-pp-cli scrape",
 		Annotations: map[string]string{"pp:endpoint": "scrape.and-extract-from-url"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("url") && !flags.dryRun {

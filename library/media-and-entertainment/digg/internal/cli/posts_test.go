@@ -33,10 +33,10 @@ import (
 type postsEnvelopeForTest struct {
 	Meta    map[string]any `json:"meta"`
 	Results []struct {
-		PostXID    string  `json:"post_x_id"`
-		PostType   string  `json:"post_type"`
-		PostedAt   string  `json:"posted_at"`
-		Author     struct {
+		PostXID  string `json:"post_x_id"`
+		PostType string `json:"post_type"`
+		PostedAt string `json:"posted_at"`
+		Author   struct {
 			Username    string `json:"username"`
 			DisplayName string `json:"display_name"`
 			Rank        int    `json:"rank"`

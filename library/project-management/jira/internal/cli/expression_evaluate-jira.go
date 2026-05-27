@@ -31,9 +31,9 @@ func newExpressionEvaluateJiraCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "evaluate-jira",
-		Short: "Endpoint is currently being removed. [More details](https://developer.atlassian.com/changelog/#CHANGE-2046)...",
-		Example: "  jira-pp-cli expression evaluate-jira --expression example-value",
+		Use:         "evaluate-jira",
+		Short:       "Endpoint is currently being removed. [More details](https://developer.atlassian.com/changelog/#CHANGE-2046)...",
+		Example:     "  jira-pp-cli expression evaluate-jira --expression example-value",
 		Annotations: map[string]string{"pp:endpoint": "expression.evaluate-jira", "pp:method": "POST", "pp:path": "/rest/api/3/expression/eval"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {
@@ -151,7 +151,9 @@ func newExpressionEvaluateJiraCmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

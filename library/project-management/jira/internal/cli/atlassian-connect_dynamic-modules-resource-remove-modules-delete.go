@@ -15,9 +15,9 @@ func newAtlassianConnectDynamicModulesResourceRemoveModulesDeleteCmd(flags *root
 	var flagModuleKey string
 
 	cmd := &cobra.Command{
-		Use:   "dynamic-modules-resource-remove-modules-delete",
-		Short: "Remove all or a list of modules registered by the calling app. **[Permissions](#permissions) required:** Only...",
-		Example: "  jira-pp-cli atlassian-connect dynamic-modules-resource-remove-modules-delete",
+		Use:         "dynamic-modules-resource-remove-modules-delete",
+		Short:       "Remove all or a list of modules registered by the calling app. **[Permissions](#permissions) required:** Only...",
+		Example:     "  jira-pp-cli atlassian-connect dynamic-modules-resource-remove-modules-delete",
 		Annotations: map[string]string{"pp:endpoint": "atlassian-connect.dynamic-modules-resource-remove-modules-delete", "pp:method": "DELETE", "pp:path": "/rest/atlassian-connect/1/app/module/dynamic"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
@@ -40,7 +40,9 @@ func newAtlassianConnectDynamicModulesResourceRemoveModulesDeleteCmd(flags *root
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

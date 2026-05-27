@@ -18,9 +18,9 @@ func newSiteAuditPageContentCmd(flags *rootFlags) *cobra.Command {
 	var flagProjectId string
 
 	cmd := &cobra.Command{
-		Use:   "page-content",
-		Short: "Page content",
-		Example: "  ahrefs-pp-cli site_audit page_content",
+		Use:         "page-content",
+		Short:       "Page content",
+		Example:     "  ahrefs-pp-cli site_audit page_content",
 		Annotations: map[string]string{"pp:endpoint": "site_audit.page_content", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("select") && !flags.dryRun {

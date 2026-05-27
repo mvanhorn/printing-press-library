@@ -7,8 +7,8 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/other/pcgs/internal/store"
+	"github.com/spf13/cobra"
 )
 
 func newSearchCmd(flags *rootFlags) *cobra.Command {

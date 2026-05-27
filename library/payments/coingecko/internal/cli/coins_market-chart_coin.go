@@ -16,10 +16,10 @@ func newCoinsMarketChartCoinCmd(flags *rootFlags) *cobra.Command {
 	var flagDays string
 
 	cmd := &cobra.Command{
-		Use:   "coin <id>",
-		Aliases: []string{"get"},
-		Short: "Get market chart data",
-		Example: "  coingecko-pp-cli coins market-chart coin 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "coin <id>",
+		Aliases:     []string{"get"},
+		Short:       "Get market chart data",
+		Example:     "  coingecko-pp-cli coins market-chart coin 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "market-chart.coin", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

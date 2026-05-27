@@ -14,10 +14,10 @@ import (
 func newFlightsPositionGetFlightCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-flight <id>",
-		Aliases: []string{"get"},
-		Short: "Returns the latest position for a flight",
-		Example: "  flight-goat-pp-cli flights position get-flight 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "get-flight <id>",
+		Aliases:     []string{"get"},
+		Short:       "Returns the latest position for a flight",
+		Example:     "  flight-goat-pp-cli flights position get-flight 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "position.get-flight", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

@@ -14,9 +14,9 @@ import (
 func newVpcsListCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "list",
-		Short: "List",
-		Example: "  digitalocean-pp-cli vpcs list",
+		Use:         "list",
+		Short:       "List",
+		Example:     "  digitalocean-pp-cli vpcs list",
 		Annotations: map[string]string{"pp:endpoint": "vpcs.list", "pp:method": "GET", "pp:path": "/v2/vpcs", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

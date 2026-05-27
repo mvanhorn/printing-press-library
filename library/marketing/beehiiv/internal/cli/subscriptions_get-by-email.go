@@ -15,10 +15,10 @@ func newSubscriptionsGetByEmailCmd(flags *rootFlags) *cobra.Command {
 	var flagExpand string
 
 	cmd := &cobra.Command{
-		Use:   "get-by-email <publicationId> <email>",
-		Aliases: []string{"get"},
-		Short: "<Info>Please note that this endpoint requires the email to be URL encoded. Please reference your language's...",
-		Example: "  beehiiv-pp-cli subscriptions get-by-email 550e8400-e29b-41d4-a716-446655440000 user@example.com",
+		Use:         "get-by-email <publicationId> <email>",
+		Aliases:     []string{"get"},
+		Short:       "<Info>Please note that this endpoint requires the email to be URL encoded. Please reference your language's...",
+		Example:     "  beehiiv-pp-cli subscriptions get-by-email 550e8400-e29b-41d4-a716-446655440000 user@example.com",
 		Annotations: map[string]string{"pp:endpoint": "subscriptions.get-by-email", "pp:method": "GET", "pp:path": "/publications/{publicationId}/subscriptions/by_email/{email}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

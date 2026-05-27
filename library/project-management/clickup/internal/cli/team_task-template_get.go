@@ -15,9 +15,9 @@ func newTeamTaskTemplateGetCmd(flags *rootFlags) *cobra.Command {
 	var flagPage string
 
 	cmd := &cobra.Command{
-		Use:   "get <team_id>",
-		Short: "View the task templates available in a Workspace.",
-		Example: "  clickup-pp-cli team task-template get 550e8400-e29b-41d4-a716-446655440000 --page 42",
+		Use:         "get <team_id>",
+		Short:       "View the task templates available in a Workspace.",
+		Example:     "  clickup-pp-cli team task-template get 550e8400-e29b-41d4-a716-446655440000 --page 42",
 		Annotations: map[string]string{"pp:endpoint": "task-template.get", "pp:method": "GET", "pp:path": "/v2/team/{team_id}/taskTemplate", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

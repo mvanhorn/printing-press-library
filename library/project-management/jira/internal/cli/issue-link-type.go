@@ -9,8 +9,8 @@ import (
 
 func newIssueLinkTypeCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "issue-link-type",
-		Short: "This resource represents [issue link](#api-group-Issue-links) types. Use it to get, create, update, and delete link...",
+		Use:    "issue-link-type",
+		Short:  "This resource represents [issue link](#api-group-Issue-links) types. Use it to get, create, update, and delete link...",
 		Hidden: true,
 	}
 

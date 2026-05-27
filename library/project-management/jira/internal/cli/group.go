@@ -9,8 +9,8 @@ import (
 
 func newGroupCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "group",
-		Short: "This resource represents groups of users. Use it to get, create, find, and delete groups as well as add and remove...",
+		Use:    "group",
+		Short:  "This resource represents groups of users. Use it to get, create, find, and delete groups as well as add and remove...",
 		Hidden: true,
 	}
 

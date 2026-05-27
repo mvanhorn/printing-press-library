@@ -17,9 +17,9 @@ func newCorporateFinancialResultsCmd(flags *rootFlags) *cobra.Command {
 	var flagPeriod string
 
 	cmd := &cobra.Command{
-		Use:   "financial-results",
-		Short: "Quarterly and annual financial result filings with XBRL links",
-		Example: "  nse-india-pp-cli corporate financial-results --symbol example-value",
+		Use:         "financial-results",
+		Short:       "Quarterly and annual financial result filings with XBRL links",
+		Example:     "  nse-india-pp-cli corporate financial-results --symbol example-value",
 		Annotations: map[string]string{"pp:endpoint": "corporate.financial_results", "pp:method": "GET", "pp:path": "/api/corporates-financial-results", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("symbol") && !flags.dryRun {

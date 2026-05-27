@@ -14,10 +14,10 @@ import (
 func newSettingsGetIssueNavigatorDefaultColumnsCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-issue-navigator-default-columns",
-		Aliases: []string{"list"},
-		Short: "Returns the default issue navigator columns. **[Permissions](#permissions) required:** *Administer Jira* [global...",
-		Example: "  jira-pp-cli settings get-issue-navigator-default-columns",
+		Use:         "get-issue-navigator-default-columns",
+		Aliases:     []string{"list"},
+		Short:       "Returns the default issue navigator columns. **[Permissions](#permissions) required:** *Administer Jira* [global...",
+		Example:     "  jira-pp-cli settings get-issue-navigator-default-columns",
 		Annotations: map[string]string{"pp:endpoint": "settings.get-issue-navigator-default-columns", "pp:method": "GET", "pp:path": "/rest/api/3/settings/columns", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

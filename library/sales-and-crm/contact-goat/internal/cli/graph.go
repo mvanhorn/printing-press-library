@@ -29,9 +29,9 @@ const viewerNodeID = "me"
 
 func newGraphCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "graph",
+		Use:         "graph",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short: "Export or inspect the unified contact graph",
+		Short:       "Export or inspect the unified contact graph",
 	}
 	cmd.AddCommand(newGraphExportCmd(flags))
 	return cmd

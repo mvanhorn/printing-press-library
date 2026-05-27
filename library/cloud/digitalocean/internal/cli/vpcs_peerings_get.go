@@ -14,9 +14,9 @@ import (
 func newVpcsPeeringsGetCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get",
-		Short: "Get",
-		Example: "  digitalocean-pp-cli vpcs peerings get",
+		Use:         "get",
+		Short:       "Get",
+		Example:     "  digitalocean-pp-cli vpcs peerings get",
 		Annotations: map[string]string{"pp:endpoint": "peerings.get", "pp:method": "GET", "pp:path": "/v2/vpcs/{vpc_id}/peerings", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

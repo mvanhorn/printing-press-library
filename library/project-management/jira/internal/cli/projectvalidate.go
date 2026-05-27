@@ -9,8 +9,8 @@ import (
 
 func newProjectvalidateCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "projectvalidate",
-		Short: "Manage projectvalidate",
+		Use:    "projectvalidate",
+		Short:  "Manage projectvalidate",
 		Hidden: true,
 	}
 

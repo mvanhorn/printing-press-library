@@ -12,14 +12,14 @@ import (
 	"strings"
 	"time"
 
+	mcplib "github.com/mark3labs/mcp-go/mcp"
+	"github.com/mark3labs/mcp-go/server"
 	"github.com/mvanhorn/printing-press-library/library/cloud/cf-domain/internal/cli"
 	"github.com/mvanhorn/printing-press-library/library/cloud/cf-domain/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/cloud/cf-domain/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/cloud/cf-domain/internal/config"
 	"github.com/mvanhorn/printing-press-library/library/cloud/cf-domain/internal/mcp/cobratree"
 	"github.com/mvanhorn/printing-press-library/library/cloud/cf-domain/internal/store"
-	mcplib "github.com/mark3labs/mcp-go/mcp"
-	"github.com/mark3labs/mcp-go/server"
 )
 
 // RegisterTools registers all API operations as MCP tools.

@@ -5,9 +5,9 @@ package cli
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/mvanhorn/printing-press-library/library/payments/exchangerate-api/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/payments/exchangerate-api/internal/store"
-	"fmt"
 	"github.com/spf13/cobra"
 	"net/url"
 	"os"

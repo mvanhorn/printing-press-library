@@ -9,8 +9,8 @@ import (
 
 func newPermissionsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "permissions",
-		Short: "This resource represents permissions. Use it to obtain details of all permissions and determine whether the user has...",
+		Use:    "permissions",
+		Short:  "This resource represents permissions. Use it to obtain details of all permissions and determine whether the user has...",
 		Hidden: true,
 	}
 

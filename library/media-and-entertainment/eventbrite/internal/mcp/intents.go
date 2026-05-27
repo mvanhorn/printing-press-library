@@ -20,9 +20,9 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/eventbrite/internal/mcp/cobratree"
 	mcplib "github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/eventbrite/internal/mcp/cobratree"
 )
 
 // RegisterIntents adds generated intent tools to the MCP server.

@@ -15,8 +15,8 @@ func newCoinFactsCertCmd(flags *rootFlags) *cobra.Command {
 	var flagRetrieveAllData bool
 
 	cmd := &cobra.Command{
-		Use:         "facts-cert <certNo>",
-		Short:       "Full CoinFacts metadata for one PCGS cert number. Emits {cert_no, data, _keep} so the JSON shape matches `coin batch`.",
+		Use:   "facts-cert <certNo>",
+		Short: "Full CoinFacts metadata for one PCGS cert number. Emits {cert_no, data, _keep} so the JSON shape matches `coin batch`.",
 		Long: "Full CoinFacts metadata for one PCGS cert number. The IsValidRequest + ServerMessage envelope tells you if the cert is recognized.\n\n" +
 			"Output shape under --json / --agent is the same flat object that `coin batch` emits per JSONL line:\n\n" +
 			"  {\n" +

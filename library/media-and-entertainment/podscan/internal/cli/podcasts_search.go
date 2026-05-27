@@ -20,10 +20,10 @@ func newPodcastsSearchCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "search",
-		Aliases: []string{"list"},
-		Short: "Search podcasts by name or description",
-		Example: "  podscan-pp-cli podcasts search --query example-value",
+		Use:         "search",
+		Aliases:     []string{"list"},
+		Short:       "Search podcasts by name or description",
+		Example:     "  podscan-pp-cli podcasts search --query example-value",
 		Annotations: map[string]string{"pp:endpoint": "podcasts.search", "pp:method": "GET", "pp:path": "/podcasts/search", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("query") && !flags.dryRun {
@@ -36,11 +36,11 @@ func newPodcastsSearchCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/podcasts/search"
 			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "podcasts", path, map[string]string{
-				"query": fmt.Sprintf("%v", flagQuery),
-				"per_page": fmt.Sprintf("%v", flagPerPage),
-				"page": fmt.Sprintf("%v", flagPage),
+				"query":       fmt.Sprintf("%v", flagQuery),
+				"per_page":    fmt.Sprintf("%v", flagPerPage),
+				"page":        fmt.Sprintf("%v", flagPage),
 				"category_id": fmt.Sprintf("%v", flagCategoryId),
-				"language": fmt.Sprintf("%v", flagLanguage),
+				"language":    fmt.Sprintf("%v", flagLanguage),
 			}, nil, flagAll, "", "", "")
 			if err != nil {
 				return classifyAPIError(err, flags)

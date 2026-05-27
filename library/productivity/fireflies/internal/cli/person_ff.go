@@ -80,13 +80,13 @@ contain participant names.`,
 			isEmail := strings.Contains(search, "@")
 
 			type timelineEntry struct {
-				ID          string   `json:"id"`
-				Title       string   `json:"title"`
-				Date        string   `json:"date"`
-				Status      string   `json:"status"`
-				Topics      []string `json:"topics,omitempty"`
-				ActionItems string   `json:"action_items,omitempty"`
-				TalkRatioPct float64 `json:"talk_ratio_pct,omitempty"`
+				ID           string   `json:"id"`
+				Title        string   `json:"title"`
+				Date         string   `json:"date"`
+				Status       string   `json:"status"`
+				Topics       []string `json:"topics,omitempty"`
+				ActionItems  string   `json:"action_items,omitempty"`
+				TalkRatioPct float64  `json:"talk_ratio_pct,omitempty"`
 			}
 			var timeline []timelineEntry
 

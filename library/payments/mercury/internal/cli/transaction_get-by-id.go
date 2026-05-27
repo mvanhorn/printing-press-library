@@ -14,10 +14,10 @@ import (
 func newTransactionGetByIdCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-by-id <transactionId>",
-		Aliases: []string{"get"},
-		Short: "Retrieve a single transaction by its ID. Returns full transaction details including attachments, check images, and...",
-		Example: "  mercury-pp-cli transaction get-by-id 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "get-by-id <transactionId>",
+		Aliases:     []string{"get"},
+		Short:       "Retrieve a single transaction by its ID. Returns full transaction details including attachments, check images, and...",
+		Example:     "  mercury-pp-cli transaction get-by-id 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "transaction.get-by-id", "pp:method": "GET", "pp:path": "/transaction/{transactionId}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

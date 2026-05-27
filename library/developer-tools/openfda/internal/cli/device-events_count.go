@@ -21,9 +21,9 @@ func newDeviceEventsCountCmd(flags *rootFlags) *cobra.Command {
 	var flagDateTo string
 
 	cmd := &cobra.Command{
-		Use:   "count",
-		Short: "Count device events by field",
-		Example: "  openfda-pp-cli device-events count --device \"INSULIN PUMP\" --field event_type",
+		Use:         "count",
+		Short:       "Count device events by field",
+		Example:     "  openfda-pp-cli device-events count --device \"INSULIN PUMP\" --field event_type",
 		Annotations: map[string]string{"pp:endpoint": "device-events.count", "pp:method": "GET", "pp:path": "/device/event.json", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("field") && !flags.dryRun {

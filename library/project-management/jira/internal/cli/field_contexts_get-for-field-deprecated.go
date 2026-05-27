@@ -17,10 +17,10 @@ func newFieldContextsGetForFieldDeprecatedCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "get-for-field-deprecated <fieldId>",
-		Aliases: []string{"get"},
-		Short: "Returns a [paginated](#pagination) list of the contexts a field is used in. Deprecated, use [ Get custom field...",
-		Example: "  jira-pp-cli field contexts get-for-field-deprecated 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "get-for-field-deprecated <fieldId>",
+		Aliases:     []string{"get"},
+		Short:       "Returns a [paginated](#pagination) list of the contexts a field is used in. Deprecated, use [ Get custom field...",
+		Example:     "  jira-pp-cli field contexts get-for-field-deprecated 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "contexts.get-for-field-deprecated", "pp:method": "GET", "pp:path": "/rest/api/3/field/{fieldId}/contexts", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -34,7 +34,7 @@ func newFieldContextsGetForFieldDeprecatedCmd(flags *rootFlags) *cobra.Command {
 			path := "/rest/api/3/field/{fieldId}/contexts"
 			path = replacePathParam(path, "fieldId", args[0])
 			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "contexts", path, map[string]string{
-				"startAt": fmt.Sprintf("%v", flagStartAt),
+				"startAt":    fmt.Sprintf("%v", flagStartAt),
 				"maxResults": fmt.Sprintf("%v", flagMaxResults),
 			}, nil, flagAll, "", "", "")
 			if err != nil {

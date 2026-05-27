@@ -29,10 +29,10 @@ func newCompaniesUpdateCompanyCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "update-company <id>",
-		Aliases: []string{"update"},
-		Short: "Update a company",
-		Example: "  conduyt-crm-pp-cli companies update-company 550e8400-e29b-41d4-a716-446655440000 --name example-resource",
+		Use:         "update-company <id>",
+		Aliases:     []string{"update"},
+		Short:       "Update a company",
+		Example:     "  conduyt-crm-pp-cli companies update-company 550e8400-e29b-41d4-a716-446655440000 --name example-resource",
 		Annotations: map[string]string{"pp:endpoint": "companies.update-company", "pp:method": "PATCH", "pp:path": "/companies/{id}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -121,7 +121,9 @@ func newCompaniesUpdateCompanyCmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

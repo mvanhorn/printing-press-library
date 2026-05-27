@@ -6,10 +6,10 @@ import (
 	"encoding/csv"
 	"encoding/json"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/twilio/internal/store"
 	"sort"
 	"strconv"
 	"sync"
-	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/twilio/internal/store"
 
 	"github.com/spf13/cobra"
 )

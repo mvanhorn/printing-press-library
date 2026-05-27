@@ -14,9 +14,9 @@ import (
 func newContinentsGetCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get <id>",
-		Short: "Retrieve a single continent by its Wikidata Q-ID.",
-		Example: "  openalex-pp-cli continents get 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "get <id>",
+		Short:       "Retrieve a single continent by its Wikidata Q-ID.",
+		Example:     "  openalex-pp-cli continents get 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "continents.get", "pp:method": "GET", "pp:path": "/continents/{id}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

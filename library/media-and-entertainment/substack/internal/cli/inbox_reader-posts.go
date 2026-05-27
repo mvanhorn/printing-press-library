@@ -14,9 +14,9 @@ import (
 func newInboxReaderPostsCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "reader-posts",
-		Short: "Posts feed for current user",
-		Example: "  substack-pp-cli inbox reader-posts",
+		Use:         "reader-posts",
+		Short:       "Posts feed for current user",
+		Example:     "  substack-pp-cli inbox reader-posts",
 		Annotations: map[string]string{"pp:endpoint": "inbox.reader-posts", "pp:method": "GET", "pp:path": "/reader/posts", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

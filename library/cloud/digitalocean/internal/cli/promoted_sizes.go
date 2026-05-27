@@ -14,10 +14,10 @@ import (
 func newSizesPromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "sizes",
-		Short: "List",
-		Long:  "Shortcut for 'sizes list'. List",
-		Example: "  digitalocean-pp-cli sizes",
+		Use:         "sizes",
+		Short:       "List",
+		Long:        "Shortcut for 'sizes list'. List",
+		Example:     "  digitalocean-pp-cli sizes",
 		Annotations: map[string]string{"pp:endpoint": "sizes.list", "pp:method": "GET", "pp:path": "/v2/sizes", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

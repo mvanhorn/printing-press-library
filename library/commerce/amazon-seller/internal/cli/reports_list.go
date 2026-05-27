@@ -21,9 +21,9 @@ func newReportsListCmd(flags *rootFlags) *cobra.Command {
 	var flagNextToken string
 
 	cmd := &cobra.Command{
-		Use:   "list",
-		Short: "List reports. If nextToken is set, Amazon requires it to be the only query parameter; pass no other filters with...",
-		Example: "  amazon-seller-pp-cli reports list",
+		Use:         "list",
+		Short:       "List reports. If nextToken is set, Amazon requires it to be the only query parameter; pass no other filters with...",
+		Example:     "  amazon-seller-pp-cli reports list",
 		Annotations: map[string]string{"pp:endpoint": "reports.list", "pp:method": "GET", "pp:path": "/reports/2021-06-30/reports", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

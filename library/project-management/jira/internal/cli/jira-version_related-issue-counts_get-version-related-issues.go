@@ -14,10 +14,10 @@ import (
 func newJiraVersionRelatedIssueCountsGetVersionRelatedIssuesCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-version-related-issues <id>",
-		Aliases: []string{"get"},
-		Short: "Returns the following counts for a version: * Number of issues where the `fixVersion` is set to the version. *...",
-		Example: "  jira-pp-cli jira-version related-issue-counts get-version-related-issues 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "get-version-related-issues <id>",
+		Aliases:     []string{"get"},
+		Short:       "Returns the following counts for a version: * Number of issues where the `fixVersion` is set to the version. *...",
+		Example:     "  jira-pp-cli jira-version related-issue-counts get-version-related-issues 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "related-issue-counts.get-version-related-issues", "pp:method": "GET", "pp:path": "/rest/api/3/version/{id}/relatedIssueCounts", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

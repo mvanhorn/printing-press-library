@@ -17,9 +17,9 @@ func newChatListMessagesCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "list-messages <id>",
-		Short: "List messages in a channel",
-		Example: "  conduyt-crm-pp-cli chat list-messages 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "list-messages <id>",
+		Short:       "List messages in a channel",
+		Example:     "  conduyt-crm-pp-cli chat list-messages 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "chat.list-messages", "pp:method": "GET", "pp:path": "/chat/channels/{id}/messages", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -33,7 +33,7 @@ func newChatListMessagesCmd(flags *rootFlags) *cobra.Command {
 			path := "/chat/channels/{id}/messages"
 			path = replacePathParam(path, "id", args[0])
 			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "chat", path, map[string]string{
-				"page": fmt.Sprintf("%v", flagPage),
+				"page":     fmt.Sprintf("%v", flagPage),
 				"per_page": fmt.Sprintf("%v", flagPerPage),
 			}, nil, flagAll, "", "", "")
 			if err != nil {

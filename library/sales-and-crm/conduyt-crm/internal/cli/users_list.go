@@ -14,9 +14,9 @@ import (
 func newUsersListCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "list",
-		Short: "List team members",
-		Example: "  conduyt-crm-pp-cli users list",
+		Use:         "list",
+		Short:       "List team members",
+		Example:     "  conduyt-crm-pp-cli users list",
 		Annotations: map[string]string{"pp:endpoint": "users.list", "pp:method": "GET", "pp:path": "/users", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

@@ -9,6 +9,8 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/multimail/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/multimail/internal/config"
 	"io"
 	"math"
 	"net/http"
@@ -18,8 +20,6 @@ import (
 	"sort"
 	"strings"
 	"time"
-	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/multimail/internal/cliutil"
-	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/multimail/internal/config"
 )
 
 type Client struct {
@@ -31,8 +31,6 @@ type Client struct {
 	cacheDir   string
 	limiter    *cliutil.AdaptiveLimiter
 }
-
-
 
 // APIError carries HTTP status information for structured exit codes.
 type APIError struct {
@@ -440,7 +438,6 @@ func sanitizeJSONResponse(body []byte) []byte {
 	}
 	return body
 }
-
 
 // maskToken redacts all but the last 4 characters of a token for safe display.
 func maskToken(token string) string {

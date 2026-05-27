@@ -18,9 +18,9 @@ func newPokemonListCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "list",
-		Short: "Pokémon are the creatures that inhabit the world of the Pokémon games. They can be caught using Pokéballs and...",
-		Example: "  pokeapi-pp-cli pokemon list",
+		Use:         "list",
+		Short:       "Pokémon are the creatures that inhabit the world of the Pokémon games. They can be caught using Pokéballs and...",
+		Example:     "  pokeapi-pp-cli pokemon list",
 		Annotations: map[string]string{"pp:endpoint": "pokemon.list", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
@@ -30,9 +30,9 @@ func newPokemonListCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/api/v2/pokemon/"
 			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "pokemon", path, map[string]string{
-				"limit": fmt.Sprintf("%v", flagLimit),
+				"limit":  fmt.Sprintf("%v", flagLimit),
 				"offset": fmt.Sprintf("%v", flagOffset),
-				"q": fmt.Sprintf("%v", flagQ),
+				"q":      fmt.Sprintf("%v", flagQ),
 			}, nil, flagAll, "offset", "", "")
 			if err != nil {
 				return classifyAPIError(err)

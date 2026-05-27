@@ -9,8 +9,8 @@ import (
 
 func newNotificationschemeCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "notificationscheme",
-		Short: "Manage notificationscheme",
+		Use:    "notificationscheme",
+		Short:  "Manage notificationscheme",
 		Hidden: true,
 	}
 

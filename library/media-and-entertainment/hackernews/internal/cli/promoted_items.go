@@ -14,10 +14,10 @@ import (
 func newItemsPromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "items <itemId>",
-		Short: "Get details for a specific story, comment, job, or poll",
-		Long:  "Shortcut for 'items get'. Get details for a specific story, comment, job, or poll",
-		Example: "  hackernews-pp-cli items",
+		Use:         "items <itemId>",
+		Short:       "Get details for a specific story, comment, job, or poll",
+		Long:        "Shortcut for 'items get'. Get details for a specific story, comment, job, or poll",
+		Example:     "  hackernews-pp-cli items",
 		Annotations: map[string]string{"pp:endpoint": "items.get", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

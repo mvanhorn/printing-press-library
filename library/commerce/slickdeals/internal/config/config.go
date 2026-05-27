@@ -13,11 +13,11 @@ import (
 )
 
 type Config struct {
-	BaseURL        string `toml:"base_url"`
-	AuthHeaderVal  string `toml:"auth_header"`
-	Headers        map[string]string `toml:"headers,omitempty"`
-	AuthSource     string `toml:"-"`
-	Path           string `toml:"-"`
+	BaseURL       string            `toml:"base_url"`
+	AuthHeaderVal string            `toml:"auth_header"`
+	Headers       map[string]string `toml:"headers,omitempty"`
+	AuthSource    string            `toml:"-"`
+	Path          string            `toml:"-"`
 }
 
 func Load(configPath string) (*Config, error) {

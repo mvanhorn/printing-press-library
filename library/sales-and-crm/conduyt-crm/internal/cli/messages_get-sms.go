@@ -14,10 +14,10 @@ import (
 func newMessagesGetSmsCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-sms <id>",
-		Aliases: []string{"get"},
-		Short: "Get an SMS message by ID",
-		Example: "  conduyt-crm-pp-cli messages get-sms 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "get-sms <id>",
+		Aliases:     []string{"get"},
+		Short:       "Get an SMS message by ID",
+		Example:     "  conduyt-crm-pp-cli messages get-sms 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "messages.get-sms", "pp:method": "GET", "pp:path": "/messages/sms/{id}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

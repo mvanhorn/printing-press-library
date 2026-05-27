@@ -16,9 +16,9 @@ func newNotificationsListCmd(flags *rootFlags) *cobra.Command {
 	var flagUnread bool
 
 	cmd := &cobra.Command{
-		Use:   "list",
-		Short: "List notifications for the authenticated user",
-		Example: "  skool-pp-cli notifications list",
+		Use:         "list",
+		Short:       "List notifications for the authenticated user",
+		Example:     "  skool-pp-cli notifications list",
 		Annotations: map[string]string{"pp:endpoint": "notifications.list", "pp:method": "GET", "pp:path": "/notifications", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

@@ -9,10 +9,10 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/sales-and-crm/servicetitan-pricebook/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/sales-and-crm/servicetitan-pricebook/internal/config"
 	"github.com/mvanhorn/printing-press-library/library/sales-and-crm/servicetitan-pricebook/internal/pricebook"
+	"github.com/spf13/cobra"
 )
 
 // changeFileRow is one reviewed SKU change read from a bulk-plan input file.

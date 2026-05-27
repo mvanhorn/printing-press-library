@@ -6,10 +6,10 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/spf13/cobra"
-	"net/url"
 	"github.com/mvanhorn/printing-press-library/library/productivity/nylas/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/productivity/nylas/internal/store"
+	"github.com/spf13/cobra"
+	"net/url"
 	"os"
 	"regexp"
 	"strconv"
@@ -71,8 +71,8 @@ func newSyncCmd(flags *rootFlags) *cobra.Command {
 		// mcp:long-running-default-seconds is a soft suggestion the
 		// probe runner may honor as its per-test budget.
 		Annotations: map[string]string{
-			"mcp:read-only":                   "false",
-			"mcp:long-running":                "true",
+			"mcp:read-only":                    "false",
+			"mcp:long-running":                 "true",
 			"mcp:long-running-default-seconds": "600",
 		},
 		Long: `Sync data from the API into a local SQLite database. Supports resumable

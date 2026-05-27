@@ -14,9 +14,9 @@ import (
 func newOversightListCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "list",
-		Short: "List emails pending oversight approval",
-		Example: "  multimail-pp-cli oversight list",
+		Use:         "list",
+		Short:       "List emails pending oversight approval",
+		Example:     "  multimail-pp-cli oversight list",
 		Annotations: map[string]string{"pp:endpoint": "oversight.list", "pp:method": "GET", "pp:path": "/v1/oversight/pending", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

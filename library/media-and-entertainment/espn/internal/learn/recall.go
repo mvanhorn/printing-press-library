@@ -102,9 +102,9 @@ type Result struct {
 // kinds (from LearnConfig.EntityLookupSeeds) the pattern engine
 // should try ahead of the built-in computed kinds.
 type Opts struct {
-	MinConfidence      int
-	Limit              int
-	JaccardMin         float64
+	MinConfidence int
+	Limit         int
+	JaccardMin    float64
 	// CrossAliasJaccardMin is the floor used when the canonical-overlap
 	// fallback fires. Defaults to 0.3 (defaultCrossAliasJaccardMin) when
 	// zero. Cross-alias matches share canonicals across different

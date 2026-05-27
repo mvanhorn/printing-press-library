@@ -14,9 +14,9 @@ import (
 func newClassificationsGetSegmentCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-segment <id>",
-		Short: "Get details for a specific segment using its unique identifier.",
-		Example: "  ticketmaster-pp-cli classifications get-segment 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "get-segment <id>",
+		Short:       "Get details for a specific segment using its unique identifier.",
+		Example:     "  ticketmaster-pp-cli classifications get-segment 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "classifications.get-segment", "pp:method": "GET", "pp:path": "/classifications/segments/{id}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

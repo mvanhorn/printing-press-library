@@ -18,10 +18,10 @@ func newJsonSearchCpesCmd(flags *rootFlags) *cobra.Command {
 	var flagStartIndex int
 
 	cmd := &cobra.Command{
-		Use:   "search-cpes",
-		Aliases: []string{"list"},
-		Short: "Search Common Platform Enumeration names to find exact product identifiers for vulnerability lookups.",
-		Example: "  nvd-pp-cli json search-cpes",
+		Use:         "search-cpes",
+		Aliases:     []string{"list"},
+		Short:       "Search Common Platform Enumeration names to find exact product identifiers for vulnerability lookups.",
+		Example:     "  nvd-pp-cli json search-cpes",
 		Annotations: map[string]string{"pp:endpoint": "json.search-cpes", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

@@ -102,8 +102,8 @@ By default shows only active disruptions; use --all to include future and past.`
 				enc := json.NewEncoder(os.Stdout)
 				enc.SetIndent("", "  ")
 				return enc.Encode(map[string]any{
-					"coverage":   coverage,
-					"total":      len(entries),
+					"coverage":    coverage,
+					"total":       len(entries),
 					"disruptions": entries,
 				})
 			}

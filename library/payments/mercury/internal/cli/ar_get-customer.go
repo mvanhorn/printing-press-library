@@ -14,9 +14,9 @@ import (
 func newArGetCustomerCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-customer <customerId>",
-		Short: "Retrieve details of a specific customer by their ID",
-		Example: "  mercury-pp-cli ar get-customer 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "get-customer <customerId>",
+		Short:       "Retrieve details of a specific customer by their ID",
+		Example:     "  mercury-pp-cli ar get-customer 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "ar.get-customer", "pp:method": "GET", "pp:path": "/ar/customers/{customerId}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

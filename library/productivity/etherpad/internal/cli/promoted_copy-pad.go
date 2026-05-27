@@ -17,10 +17,10 @@ func newCopyPadPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagForce string
 
 	cmd := &cobra.Command{
-		Use:   "copy-pad",
-		Short: "copies a pad with full history and chat",
-		Long:  "Shortcut for 'copy-pad using-post'. copies a pad with full history and chat",
-		Example: "  etherpad-pp-cli copy-pad",
+		Use:         "copy-pad",
+		Short:       "copies a pad with full history and chat",
+		Long:        "Shortcut for 'copy-pad using-post'. copies a pad with full history and chat",
+		Example:     "  etherpad-pp-cli copy-pad",
 		Annotations: map[string]string{"pp:endpoint": "copy-pad.using-post", "pp:method": "POST", "pp:path": "/copyPad"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

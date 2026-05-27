@@ -117,7 +117,7 @@ Fewer than 2 snapshots is valid — the series is returned anyway with
 delta=0 throughout.`,
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		Args:        cobra.ExactArgs(1),
-		Example: `  slickdeals-pp-cli analytics thumbs-velocity 19510173 --json`,
+		Example:     `  slickdeals-pp-cli analytics thumbs-velocity 19510173 --json`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {
 				return nil

@@ -14,10 +14,10 @@ import (
 func newOrganizationsUserTeamsListAUserSTeamsForAnOrganizationCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "list-a-user-s-teams-for-an-organization <organization_id_or_slug>",
-		Aliases: []string{"get"},
-		Short: "Returns a list of teams the user has access to in the specified organization. Note that this endpoint is restricted...",
-		Example: "  sentry-pp-cli organizations user-teams list-a-user-s-teams-for-an-organization example-value",
+		Use:         "list-a-user-s-teams-for-an-organization <organization_id_or_slug>",
+		Aliases:     []string{"get"},
+		Short:       "Returns a list of teams the user has access to in the specified organization. Note that this endpoint is restricted...",
+		Example:     "  sentry-pp-cli organizations user-teams list-a-user-s-teams-for-an-organization example-value",
 		Annotations: map[string]string{"pp:endpoint": "user-teams.list-a-user-s-teams-for-an-organization", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

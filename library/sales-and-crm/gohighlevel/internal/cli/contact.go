@@ -14,8 +14,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/sales-and-crm/gohighlevel/internal/cliutil"
+	"github.com/spf13/cobra"
 )
 
 func newContactCmd(flags *rootFlags) *cobra.Command {

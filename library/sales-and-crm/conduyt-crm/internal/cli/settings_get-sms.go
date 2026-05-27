@@ -14,9 +14,9 @@ import (
 func newSettingsGetSmsCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-sms",
-		Short: "Get SMS provider settings",
-		Example: "  conduyt-crm-pp-cli settings get-sms",
+		Use:         "get-sms",
+		Short:       "Get SMS provider settings",
+		Example:     "  conduyt-crm-pp-cli settings get-sms",
 		Annotations: map[string]string{"pp:endpoint": "settings.get-sms", "pp:method": "GET", "pp:path": "/settings/sms", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

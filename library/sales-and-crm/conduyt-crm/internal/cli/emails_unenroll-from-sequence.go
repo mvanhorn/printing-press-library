@@ -17,9 +17,9 @@ func newEmailsUnenrollFromSequenceCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "unenroll-from-sequence <id>",
-		Short: "Unenroll contacts from a sequence",
-		Example: "  conduyt-crm-pp-cli emails unenroll-from-sequence 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "unenroll-from-sequence <id>",
+		Short:       "Unenroll contacts from a sequence",
+		Example:     "  conduyt-crm-pp-cli emails unenroll-from-sequence 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "emails.unenroll-from-sequence", "pp:method": "POST", "pp:path": "/emails/sequences/{id}/unenroll"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -72,7 +72,9 @@ func newEmailsUnenrollFromSequenceCmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

@@ -14,10 +14,10 @@ import (
 func newProductsCustomFieldsListCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "list <product_id>",
-		Aliases: []string{"get"},
-		Short: "Retrieve all existing custom fields for a product.",
-		Example: "  gumroad-pp-cli products custom-fields list 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "list <product_id>",
+		Aliases:     []string{"get"},
+		Short:       "Retrieve all existing custom fields for a product.",
+		Example:     "  gumroad-pp-cli products custom-fields list 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "custom-fields.list", "pp:method": "GET", "pp:path": "/products/{product_id}/custom_fields", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

@@ -15,10 +15,10 @@ func newSubstancePromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagSubstanceName string
 
 	cmd := &cobra.Command{
-		Use:   "substance",
-		Short: "Search substance records",
-		Long:  "Shortcut for 'substance list'. Search substance records",
-		Example: "  openfda-pp-cli substance",
+		Use:         "substance",
+		Short:       "Search substance records",
+		Long:        "Shortcut for 'substance list'. Search substance records",
+		Example:     "  openfda-pp-cli substance",
 		Annotations: map[string]string{"pp:endpoint": "substance.list", "pp:method": "GET", "pp:path": "/other/substance.json", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

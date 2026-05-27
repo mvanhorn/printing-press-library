@@ -14,10 +14,10 @@ import (
 func newCoingeckoSearch2PromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "coingecko-search-2",
-		Short: "Get trending coins",
-		Long:  "Shortcut for 'coingecko-search-2 trending'. Get trending coins",
-		Example: "  coingecko-pp-cli coingecko-search-2",
+		Use:         "coingecko-search-2",
+		Short:       "Get trending coins",
+		Long:        "Shortcut for 'coingecko-search-2 trending'. Get trending coins",
+		Example:     "  coingecko-pp-cli coingecko-search-2",
 		Annotations: map[string]string{"pp:endpoint": "coingecko-search-2.trending", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

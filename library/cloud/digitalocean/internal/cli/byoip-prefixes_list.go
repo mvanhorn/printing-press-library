@@ -14,9 +14,9 @@ import (
 func newByoipPrefixesListCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "list",
-		Short: "List",
-		Example: "  digitalocean-pp-cli byoip-prefixes list",
+		Use:         "list",
+		Short:       "List",
+		Example:     "  digitalocean-pp-cli byoip-prefixes list",
 		Annotations: map[string]string{"pp:endpoint": "byoip-prefixes.list", "pp:method": "GET", "pp:path": "/v2/byoip_prefixes", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

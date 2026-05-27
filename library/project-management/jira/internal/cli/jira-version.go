@@ -9,8 +9,8 @@ import (
 
 func newJiraVersionCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "jira-version",
-		Short: "Manage jira cloud platform version",
+		Use:    "jira-version",
+		Short:  "Manage jira cloud platform version",
 		Hidden: true,
 	}
 

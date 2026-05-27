@@ -9,8 +9,8 @@ import (
 
 func newJiraSearchCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "jira-search",
-		Short: "Manage jira cloud platform search",
+		Use:    "jira-search",
+		Short:  "Manage jira cloud platform search",
 		Hidden: true,
 	}
 

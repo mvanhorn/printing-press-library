@@ -14,9 +14,9 @@ import (
 func newSnapshotsListCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "list",
-		Short: "List",
-		Example: "  digitalocean-pp-cli snapshots list",
+		Use:         "list",
+		Short:       "List",
+		Example:     "  digitalocean-pp-cli snapshots list",
 		Annotations: map[string]string{"pp:endpoint": "snapshots.list", "pp:method": "GET", "pp:path": "/v2/snapshots", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

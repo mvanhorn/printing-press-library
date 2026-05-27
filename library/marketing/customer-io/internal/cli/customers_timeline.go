@@ -84,9 +84,9 @@ or partial; the JSON envelope's "data_source" field tells you which.`,
 			})
 
 			out := map[string]any{
-				"customer":       customer,
-				"events":         events,
-				"deliveries_count":  len(deliveries),
+				"customer":           customer,
+				"events":             events,
+				"deliveries_count":   len(deliveries),
 				"suppressions_count": len(suppressions),
 			}
 			if includeSegments {

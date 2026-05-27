@@ -16,10 +16,10 @@ func newDiscoverPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagLimit int
 
 	cmd := &cobra.Command{
-		Use:   "discover",
-		Short: "Search Substack publications by query",
-		Long:  "Shortcut for 'discover search-publications'. Search Substack publications by query",
-		Example: "  substack-pp-cli discover --query example-value",
+		Use:         "discover",
+		Short:       "Search Substack publications by query",
+		Long:        "Shortcut for 'discover search-publications'. Search Substack publications by query",
+		Example:     "  substack-pp-cli discover --query example-value",
 		Annotations: map[string]string{"pp:endpoint": "discover.search-publications", "pp:method": "GET", "pp:path": "/publication/search", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !(cmd.Flags().Changed("query") || cmd.Flags().Changed("q")) && !flags.dryRun {

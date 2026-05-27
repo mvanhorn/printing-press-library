@@ -9,8 +9,8 @@ import (
 
 func newAnnouncementBannerCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "announcement-banner",
-		Short: "This resource represents an announcement banner. Use it to retrieve and update banner configuration.",
+		Use:    "announcement-banner",
+		Short:  "This resource represents an announcement banner. Use it to retrieve and update banner configuration.",
 		Hidden: true,
 	}
 

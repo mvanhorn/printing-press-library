@@ -17,10 +17,10 @@ func newCustomersRemarketingActionsPromotedCmd(flags *rootFlags) *cobra.Command 
 	var bodyPartialFailure bool
 
 	cmd := &cobra.Command{
-		Use:   "customers-remarketing-actions <customerId>",
-		Short: "Creates or updates remarketing actions. Operation statuses are returned.",
-		Long:  "Shortcut for 'customers_remarketing_actions mutate'. Creates or updates remarketing actions. Operation statuses are returned.",
-		Example: "  google-ads-pp-cli customers-remarketing-actions",
+		Use:         "customers-remarketing-actions <customerId>",
+		Short:       "Creates or updates remarketing actions. Operation statuses are returned.",
+		Long:        "Shortcut for 'customers_remarketing_actions mutate'. Creates or updates remarketing actions. Operation statuses are returned.",
+		Example:     "  google-ads-pp-cli customers-remarketing-actions",
 		Annotations: map[string]string{"pp:endpoint": "customers_remarketing_actions.mutate", "pp:method": "POST", "pp:path": "/v22/customers/{customerId}/remarketingActions:mutate"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

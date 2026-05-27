@@ -5,10 +5,10 @@ package cli
 
 import (
 	"bytes"
-	"github.com/mvanhorn/printing-press-library/library/travel/delta-trip/internal/client"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/travel/delta-trip/internal/client"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"io"

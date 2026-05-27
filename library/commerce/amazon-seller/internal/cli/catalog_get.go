@@ -17,9 +17,9 @@ func newCatalogGetCmd(flags *rootFlags) *cobra.Command {
 	var flagLocale string
 
 	cmd := &cobra.Command{
-		Use:   "get <asin>",
-		Short: "Get one catalog item by ASIN.",
-		Example: "  amazon-seller-pp-cli catalog get example-value",
+		Use:         "get <asin>",
+		Short:       "Get one catalog item by ASIN.",
+		Example:     "  amazon-seller-pp-cli catalog get example-value",
 		Annotations: map[string]string{"pp:endpoint": "catalog.get", "pp:method": "GET", "pp:path": "/catalog/2022-04-01/items/{asin}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

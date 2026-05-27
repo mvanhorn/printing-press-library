@@ -616,6 +616,7 @@ func LookupFieldValue(obj map[string]any, snakeKey string) any {
 func lookupFieldValue(obj map[string]any, snakeKey string) any {
 	return LookupFieldValue(obj, snakeKey)
 }
+
 // upsertCoinsTx writes the typed-table portion of a coins upsert
 // inside an existing transaction. The caller is responsible for the generic
 // resources insert (via upsertGenericResourceTx) and for committing the tx.
@@ -679,6 +680,7 @@ func (s *Store) UpsertCoins(data json.RawMessage) error {
 
 	return tx.Commit()
 }
+
 // upsertMarketChartTx writes the typed-table portion of a market_chart upsert
 // inside an existing transaction. The caller is responsible for the generic
 // resources insert (via upsertGenericResourceTx) and for committing the tx.
@@ -729,6 +731,7 @@ func (s *Store) UpsertMarketChart(data json.RawMessage) error {
 
 	return tx.Commit()
 }
+
 // upsertOhlcTx writes the typed-table portion of a ohlc upsert
 // inside an existing transaction. The caller is responsible for the generic
 // resources insert (via upsertGenericResourceTx) and for committing the tx.
@@ -779,6 +782,7 @@ func (s *Store) UpsertOhlc(data json.RawMessage) error {
 
 	return tx.Commit()
 }
+
 // upsertSimpleTx writes the typed-table portion of a simple upsert
 // inside an existing transaction. The caller is responsible for the generic
 // resources insert (via upsertGenericResourceTx) and for committing the tx.

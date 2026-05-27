@@ -14,9 +14,9 @@ import (
 func newTagsListCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "list",
-		Short: "List tags",
-		Example: "  conduyt-crm-pp-cli tags list",
+		Use:         "list",
+		Short:       "List tags",
+		Example:     "  conduyt-crm-pp-cli tags list",
 		Annotations: map[string]string{"pp:endpoint": "tags.list", "pp:method": "GET", "pp:path": "/tags", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

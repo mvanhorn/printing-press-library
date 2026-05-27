@@ -100,13 +100,14 @@ func ExtractFromHTML(htmlBody string) (string, error) {
 //     preserved — we only strip what looks like a publisher tail.
 //
 // Pass rules (in order):
-//   a. If exactly one side contains a "publisher word" (podcast, show, blog,
-//      network, studio, channel), drop that side.
-//   b. If neither side has a publisher word but one side is very short (<4
-//      chars) and the other is real, drop the short side (catches "EP - real
-//      title" style prefixes).
-//   c. Otherwise stop — splitting further would chop legitimate episode
-//      structure.
+//
+//	a. If exactly one side contains a "publisher word" (podcast, show, blog,
+//	   network, studio, channel), drop that side.
+//	b. If neither side has a publisher word but one side is very short (<4
+//	   chars) and the other is real, drop the short side (catches "EP - real
+//	   title" style prefixes).
+//	c. Otherwise stop — splitting further would chop legitimate episode
+//	   structure.
 //
 // Exposed for tests.
 func Sanitize(raw string) string {

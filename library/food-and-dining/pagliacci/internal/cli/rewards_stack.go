@@ -8,8 +8,8 @@ import (
 	"math"
 	"strings"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/pagliacci/internal/client"
+	"github.com/spf13/cobra"
 )
 
 // StackResult is the output of `rewards stack`. RecommendedCouponID is null

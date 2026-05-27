@@ -14,9 +14,9 @@ import (
 func newProjectsListDefaultCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "list-default",
-		Short: "List default",
-		Example: "  digitalocean-pp-cli projects list-default",
+		Use:         "list-default",
+		Short:       "List default",
+		Example:     "  digitalocean-pp-cli projects list-default",
 		Annotations: map[string]string{"pp:endpoint": "projects.list-default", "pp:method": "GET", "pp:path": "/v2/projects/default", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

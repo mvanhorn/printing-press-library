@@ -14,9 +14,9 @@ import (
 func newCalendarGetEventCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-event <id>",
-		Short: "Get a synced calendar event",
-		Example: "  conduyt-crm-pp-cli calendar get-event 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "get-event <id>",
+		Short:       "Get a synced calendar event",
+		Example:     "  conduyt-crm-pp-cli calendar get-event 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "calendar.get-event", "pp:method": "GET", "pp:path": "/calendar/events/{id}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

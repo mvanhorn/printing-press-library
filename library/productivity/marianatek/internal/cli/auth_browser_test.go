@@ -10,11 +10,11 @@ import (
 
 func TestMTCookieBlobParsing(t *testing.T) {
 	cases := []struct {
-		name        string
-		input       string
-		wantToken   string
-		wantType    string
-		wantErr     bool
+		name      string
+		input     string
+		wantToken string
+		wantType  string
+		wantErr   bool
 	}{
 		{
 			name:      "happy path with full tokenData",

@@ -15,9 +15,9 @@ import (
 	"text/tabwriter"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/table-reservation-goat/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/table-reservation-goat/internal/config"
+	"github.com/spf13/cobra"
 )
 
 var version = "1.0.0"

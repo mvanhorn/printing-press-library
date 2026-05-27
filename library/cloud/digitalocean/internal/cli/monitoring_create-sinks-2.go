@@ -16,9 +16,9 @@ func newMonitoringCreateSinks2Cmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "create-sinks-2",
-		Short: "Create sinks 2",
-		Example: "  digitalocean-pp-cli monitoring create-sinks-2",
+		Use:         "create-sinks-2",
+		Short:       "Create sinks 2",
+		Example:     "  digitalocean-pp-cli monitoring create-sinks-2",
 		Annotations: map[string]string{"pp:endpoint": "monitoring.create-sinks-2", "pp:method": "POST", "pp:path": "/v2/monitoring/sinks/destinations"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {
@@ -57,7 +57,9 @@ func newMonitoringCreateSinks2Cmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

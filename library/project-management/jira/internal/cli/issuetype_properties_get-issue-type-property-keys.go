@@ -14,9 +14,9 @@ import (
 func newIssuetypePropertiesGetIssueTypePropertyKeysCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-issue-type-property-keys <issueTypeId>",
-		Short: "Returns all the [issue type property](https://developer.atlassian.com/cloud/jira/platform/storing-data-without-a-data...",
-		Example: "  jira-pp-cli issuetype properties get-issue-type-property-keys 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "get-issue-type-property-keys <issueTypeId>",
+		Short:       "Returns all the [issue type property](https://developer.atlassian.com/cloud/jira/platform/storing-data-without-a-data...",
+		Example:     "  jira-pp-cli issuetype properties get-issue-type-property-keys 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "properties.get-issue-type-property-keys", "pp:method": "GET", "pp:path": "/rest/api/3/issuetype/{issueTypeId}/properties", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

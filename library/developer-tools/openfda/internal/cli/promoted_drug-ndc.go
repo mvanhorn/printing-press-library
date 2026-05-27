@@ -21,10 +21,10 @@ func newDrugNdcPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagSubstanceName string
 
 	cmd := &cobra.Command{
-		Use:   "drug-ndc",
-		Short: "Search NDC directory",
-		Long:  "Shortcut for 'drug-ndc list'. Search NDC directory",
-		Example: "  openfda-pp-cli drug-ndc",
+		Use:         "drug-ndc",
+		Short:       "Search NDC directory",
+		Long:        "Shortcut for 'drug-ndc list'. Search NDC directory",
+		Example:     "  openfda-pp-cli drug-ndc",
 		Annotations: map[string]string{"pp:endpoint": "drug-ndc.list", "pp:method": "GET", "pp:path": "/drug/ndc.json", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

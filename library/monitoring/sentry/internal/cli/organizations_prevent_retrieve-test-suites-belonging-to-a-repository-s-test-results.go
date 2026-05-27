@@ -15,9 +15,9 @@ func newOrganizationsPreventRetrieveTestSuitesBelongingToARepositorySTestResults
 	var flagTerm string
 
 	cmd := &cobra.Command{
-		Use:   "retrieve-test-suites-belonging-to-a-repository-s-test-results <organization_id_or_slug> <owner> <repository>",
-		Short: "Retrieves test suites belonging to a repository's test results. It accepts a list of test suites as a query...",
-		Example: "  sentry-pp-cli organizations prevent retrieve-test-suites-belonging-to-a-repository-s-test-results example-value example-value example-value",
+		Use:         "retrieve-test-suites-belonging-to-a-repository-s-test-results <organization_id_or_slug> <owner> <repository>",
+		Short:       "Retrieves test suites belonging to a repository's test results. It accepts a list of test suites as a query...",
+		Example:     "  sentry-pp-cli organizations prevent retrieve-test-suites-belonging-to-a-repository-s-test-results example-value example-value example-value",
 		Annotations: map[string]string{"pp:endpoint": "prevent.retrieve-test-suites-belonging-to-a-repository-s-test-results", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

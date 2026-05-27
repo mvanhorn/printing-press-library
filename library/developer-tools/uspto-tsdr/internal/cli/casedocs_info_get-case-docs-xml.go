@@ -14,10 +14,10 @@ import (
 func newCasedocsInfoGetCaseDocsXmlCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-case-docs-xml <caseid>",
-		Aliases: []string{"get"},
-		Short: "Returns information about all documents in the case in XML format.",
-		Example: "  uspto-tsdr-pp-cli casedocs info get-case-docs-xml 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "get-case-docs-xml <caseid>",
+		Aliases:     []string{"get"},
+		Short:       "Returns information about all documents in the case in XML format.",
+		Example:     "  uspto-tsdr-pp-cli casedocs info get-case-docs-xml 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "info.get-case-docs-xml", "pp:method": "GET", "pp:path": "/casedocs/{caseid}/info", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

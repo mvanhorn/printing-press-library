@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/commerce/ucp/internal/store"
 	"github.com/mvanhorn/printing-press-library/library/commerce/ucp/internal/transport"
 	"github.com/mvanhorn/printing-press-library/library/commerce/ucp/internal/ucp"
+	"github.com/spf13/cobra"
 )
 
 func newCheckoutCmd(flags *rootFlags) *cobra.Command {
@@ -101,9 +101,9 @@ func newCheckoutFinalizeCmd(flags *rootFlags) *cobra.Command {
 	var maxAmountCents int
 
 	cmd := &cobra.Command{
-		Use:     "finalize",
-		Short:   "Build a FinalizationEnvelope (Shopify cart-add + 3 AP2 mandates) for an external AP2 CLI to sign and complete",
-		Example: `  ucp-pp-cli checkout finalize --cart <cart-id> --json | ap2-pp-cli sign-and-complete`,
+		Use:         "finalize",
+		Short:       "Build a FinalizationEnvelope (Shopify cart-add + 3 AP2 mandates) for an external AP2 CLI to sign and complete",
+		Example:     `  ucp-pp-cli checkout finalize --cart <cart-id> --json | ap2-pp-cli sign-and-complete`,
 		Annotations: map[string]string{"mcp:read-only": "false"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {

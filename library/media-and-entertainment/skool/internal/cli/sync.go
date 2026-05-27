@@ -6,10 +6,10 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/skool/internal/store"
 	"net/url"
 	"os"
 	"regexp"
-	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/skool/internal/store"
 	"strconv"
 	"strings"
 	"sync"

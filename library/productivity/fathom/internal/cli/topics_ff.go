@@ -62,7 +62,7 @@ Run 'sync --full' first to populate transcripts locally.`,
 			}
 			cutoff, _ := parseSince(fmt.Sprintf("%dd", cutoffWeeks*7))
 
-			type weekCount map[string]int // term -> count
+			type weekCount map[string]int      // term -> count
 			weekData := map[string]weekCount{} // week -> term counts
 			totalCounts := map[string]int{}
 			meetingCounts := map[string]int{} // term -> meetings mentioning it
@@ -113,15 +113,15 @@ Run 'sync --full' first to populate transcripts locally.`,
 			sort.Strings(weekKeys)
 
 			type termWeek struct {
-				Week   string `json:"week"`
-				Term   string `json:"term"`
-				Count  int    `json:"count"`
+				Week  string `json:"week"`
+				Term  string `json:"term"`
+				Count int    `json:"count"`
 			}
 			type topicResult struct {
-				Term          string     `json:"term"`
-				TotalCount    int        `json:"total_count"`
-				MeetingCount  int        `json:"meeting_count"`
-				WeeklyTrend   []termWeek `json:"weekly_trend"`
+				Term         string     `json:"term"`
+				TotalCount   int        `json:"total_count"`
+				MeetingCount int        `json:"meeting_count"`
+				WeeklyTrend  []termWeek `json:"weekly_trend"`
 			}
 
 			var results []topicResult

@@ -17,9 +17,9 @@ func newListingsGetCmd(flags *rootFlags) *cobra.Command {
 	var flagIncludedData string
 
 	cmd := &cobra.Command{
-		Use:   "get <sellerId> <sku>",
-		Short: "Get one listing item by seller ID and SKU.",
-		Example: "  amazon-seller-pp-cli listings get 550e8400-e29b-41d4-a716-446655440000 example-value",
+		Use:         "get <sellerId> <sku>",
+		Short:       "Get one listing item by seller ID and SKU.",
+		Example:     "  amazon-seller-pp-cli listings get 550e8400-e29b-41d4-a716-446655440000 example-value",
 		Annotations: map[string]string{"pp:endpoint": "listings.get", "pp:method": "GET", "pp:path": "/listings/2021-08-01/items/{sellerId}/{sku}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

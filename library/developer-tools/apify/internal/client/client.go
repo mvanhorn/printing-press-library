@@ -4,13 +4,13 @@
 package client
 
 import (
-	"github.com/mvanhorn/printing-press-library/library/developer-tools/apify/internal/cliutil"
-	"github.com/mvanhorn/printing-press-library/library/developer-tools/apify/internal/config"
 	"bytes"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/apify/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/apify/internal/config"
 	"io"
 	"math"
 	"net/http"

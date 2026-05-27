@@ -15,13 +15,13 @@ func newResourceSubscriptionsListCmd(flags *rootFlags) *cobra.Command {
 	var flagResourceName string
 
 	cmd := &cobra.Command{
-		Use:   "list",
-		Short: "Show active subscriptions for the input resource. Requires view_sales scope.",
-		Example: "  gumroad-pp-cli resource-subscriptions list",
+		Use:         "list",
+		Short:       "Show active subscriptions for the input resource. Requires view_sales scope.",
+		Example:     "  gumroad-pp-cli resource-subscriptions list",
 		Annotations: map[string]string{"pp:endpoint": "resource-subscriptions.list", "pp:method": "GET", "pp:path": "/resource_subscriptions", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if cmd.Flags().Changed("resource-name") {
-				allowedResourceName := []string{ "sale", "refund", "dispute", "dispute_won", "cancellation", "subscription_updated", "subscription_ended", "subscription_restarted" }
+				allowedResourceName := []string{"sale", "refund", "dispute", "dispute_won", "cancellation", "subscription_updated", "subscription_ended", "subscription_restarted"}
 				validResourceName := false
 				for _, v := range allowedResourceName {
 					if flagResourceName == v {

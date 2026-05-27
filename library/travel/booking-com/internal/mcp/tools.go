@@ -13,14 +13,14 @@ import (
 	"strings"
 	"time"
 
+	mcplib "github.com/mark3labs/mcp-go/mcp"
+	"github.com/mark3labs/mcp-go/server"
 	"github.com/mvanhorn/printing-press-library/library/travel/booking-com/internal/cli"
 	"github.com/mvanhorn/printing-press-library/library/travel/booking-com/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/travel/booking-com/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/travel/booking-com/internal/config"
 	"github.com/mvanhorn/printing-press-library/library/travel/booking-com/internal/mcp/cobratree"
 	"github.com/mvanhorn/printing-press-library/library/travel/booking-com/internal/store"
-	mcplib "github.com/mark3labs/mcp-go/mcp"
-	"github.com/mark3labs/mcp-go/server"
 )
 
 // RegisterTools registers all API operations as MCP tools.

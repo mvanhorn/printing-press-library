@@ -9,6 +9,8 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/supabase/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/supabase/internal/config"
 	"io"
 	"math"
 	"mime/multipart"
@@ -18,8 +20,6 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
-	"github.com/mvanhorn/printing-press-library/library/developer-tools/supabase/internal/cliutil"
-	"github.com/mvanhorn/printing-press-library/library/developer-tools/supabase/internal/config"
 	"time"
 )
 

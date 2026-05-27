@@ -14,9 +14,9 @@ import (
 func newDatabasesFirewallGetCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get",
-		Short: "Get",
-		Example: "  digitalocean-pp-cli databases firewall get",
+		Use:         "get",
+		Short:       "Get",
+		Example:     "  digitalocean-pp-cli databases firewall get",
 		Annotations: map[string]string{"pp:endpoint": "firewall.get", "pp:method": "GET", "pp:path": "/v2/databases/{database_cluster_uuid}/firewall", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

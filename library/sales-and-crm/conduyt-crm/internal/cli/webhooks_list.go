@@ -17,9 +17,9 @@ func newWebhooksListCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "list",
-		Short: "List outbound webhooks",
-		Example: "  conduyt-crm-pp-cli webhooks list",
+		Use:         "list",
+		Short:       "List outbound webhooks",
+		Example:     "  conduyt-crm-pp-cli webhooks list",
 		Annotations: map[string]string{"pp:endpoint": "webhooks.list", "pp:method": "GET", "pp:path": "/webhooks/manage", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
@@ -29,7 +29,7 @@ func newWebhooksListCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/webhooks/manage"
 			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "webhooks", path, map[string]string{
-				"page": fmt.Sprintf("%v", flagPage),
+				"page":     fmt.Sprintf("%v", flagPage),
 				"per_page": fmt.Sprintf("%v", flagPerPage),
 			}, nil, flagAll, "", "", "")
 			if err != nil {

@@ -12,13 +12,13 @@ import (
 	"strings"
 	"time"
 
+	mcplib "github.com/mark3labs/mcp-go/mcp"
+	"github.com/mark3labs/mcp-go/server"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/digg/internal/cli"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/digg/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/digg/internal/config"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/digg/internal/mcp/cobratree"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/digg/internal/store"
-	mcplib "github.com/mark3labs/mcp-go/mcp"
-	"github.com/mark3labs/mcp-go/server"
 )
 
 // RegisterTools registers all API operations as MCP tools.
@@ -332,7 +332,7 @@ func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToo
 
 func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
 	ctx := map[string]any{
-		"api":         "digg",
+		"api": "digg",
 		// PATCH(digg-rename-and-github-feeds): drop Digg AI 1000 branding; add github resource.
 		"description": "Tail Digg's news cycle, GitHub feeds, and pipeline events from the terminal — read-only, with rank-history nobody else surfaces.",
 		"archetype":   "generic",

@@ -14,10 +14,10 @@ import (
 func newSellersPromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "sellers",
-		Short: "List marketplace participations for the authorized seller account.",
-		Long:  "Shortcut for 'sellers marketplaces'. List marketplace participations for the authorized seller account.",
-		Example: "  amazon-seller-pp-cli sellers",
+		Use:         "sellers",
+		Short:       "List marketplace participations for the authorized seller account.",
+		Long:        "Shortcut for 'sellers marketplaces'. List marketplace participations for the authorized seller account.",
+		Example:     "  amazon-seller-pp-cli sellers",
 		Annotations: map[string]string{"pp:endpoint": "sellers.marketplaces", "pp:method": "GET", "pp:path": "/sellers/v1/marketplaceParticipations", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

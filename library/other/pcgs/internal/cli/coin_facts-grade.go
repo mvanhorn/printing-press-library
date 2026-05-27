@@ -17,8 +17,8 @@ func newCoinFactsGradeCmd(flags *rootFlags) *cobra.Command {
 	var flagPlusGrade bool
 
 	cmd := &cobra.Command{
-		Use:         "facts-grade",
-		Short:       "CoinFacts snapshot for a (PCGSNo, GradeNo, PlusGrade) tuple. Used by pop-curve to fan grades 1-70 + Plus + Details...",
+		Use:   "facts-grade",
+		Short: "CoinFacts snapshot for a (PCGSNo, GradeNo, PlusGrade) tuple. Used by pop-curve to fan grades 1-70 + Plus + Details...",
 		Long: "CoinFacts snapshot for a (PCGSNo, GradeNo, PlusGrade) tuple. Used by pop-curve to fan grades 1-70 + Plus + Details across one PCGS spec.\n\n" +
 			"Response transforms (same as `coin facts-cert`): PriceGuideValue: 0 is rewritten to null so unpriced modern slabs don't silently undercount sums; year_mismatch is injected when the year prefix parsed from Name disagrees with the Year field; the noisy Images stub array is stripped — fetch image URLs via `pcgs-pp-cli coin images <cert>`. HasObverseImage / HasReverseImage / HasTrueViewImage / ImageReady booleans are preserved.",
 		Example:     "  pcgs-pp-cli coin facts-grade --pcgs-no 7356 --grade 65 --plus false",

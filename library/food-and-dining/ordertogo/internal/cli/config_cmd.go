@@ -6,8 +6,8 @@ package cli
 import (
 	"fmt"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/ordertogo/internal/config"
+	"github.com/spf13/cobra"
 )
 
 func newConfigCmd(flags *rootFlags) *cobra.Command {

@@ -6,6 +6,7 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/youtube/internal/store"
 	"github.com/spf13/cobra"
 	"net/url"
 	"os"
@@ -15,7 +16,6 @@ import (
 	"sync"
 	"sync/atomic"
 	"time"
-	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/youtube/internal/store"
 )
 
 // syncResult holds the outcome of syncing a single resource.

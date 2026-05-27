@@ -14,9 +14,9 @@ import (
 func newBatchGetScrapeStatusCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-scrape-status <id>",
-		Short: "Get the status of a batch scrape job",
-		Example: "  firecrawl-pp-cli batch get-scrape-status 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "get-scrape-status <id>",
+		Short:       "Get the status of a batch scrape job",
+		Example:     "  firecrawl-pp-cli batch get-scrape-status 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "batch.get-scrape-status", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

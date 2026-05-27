@@ -14,9 +14,9 @@ import (
 func newRecommendationsPurchaseHistoryHomepageCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "purchase-history-homepage",
-		Short: "Get homepage purchase-history shortcuts for the logged-in account.",
-		Example: "  harris-teeter-pp-cli recommendations purchase-history-homepage",
+		Use:         "purchase-history-homepage",
+		Short:       "Get homepage purchase-history shortcuts for the logged-in account.",
+		Example:     "  harris-teeter-pp-cli recommendations purchase-history-homepage",
 		Annotations: map[string]string{"pp:endpoint": "recommendations.purchase_history_homepage", "pp:method": "GET", "pp:path": "/atlas/v1/post-order/v1/purchase-history-homepage", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

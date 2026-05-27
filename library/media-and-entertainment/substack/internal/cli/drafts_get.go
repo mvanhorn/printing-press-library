@@ -14,9 +14,9 @@ import (
 func newDraftsGetCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get <draft_id>",
-		Short: "Get a draft by ID",
-		Example: "  substack-pp-cli drafts get 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "get <draft_id>",
+		Short:       "Get a draft by ID",
+		Example:     "  substack-pp-cli drafts get 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "drafts.get", "pp:method": "GET", "pp:path": "https://{publication}.substack.com/api/v1/drafts/{draft_id}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

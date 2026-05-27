@@ -9,8 +9,8 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/wolt/internal/cliutil"
+	"github.com/spf13/cobra"
 )
 
 type venueCompareRow struct {

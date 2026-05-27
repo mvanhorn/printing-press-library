@@ -39,12 +39,12 @@ func newInsightsPipelineHealthCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			type stageInfo struct {
-				Stage     string  `json:"stage"`
-				Active    int     `json:"active"`
-				Stale     int     `json:"stale"`
-				TotalVal  float64 `json:"total_value"`
-				StaleVal  float64 `json:"stale_value"`
-				StalePct  string  `json:"stale_percentage"`
+				Stage    string  `json:"stage"`
+				Active   int     `json:"active"`
+				Stale    int     `json:"stale"`
+				TotalVal float64 `json:"total_value"`
+				StaleVal float64 `json:"stale_value"`
+				StalePct string  `json:"stale_percentage"`
 			}
 
 			now := time.Now()
@@ -128,12 +128,12 @@ func newInsightsPipelineHealthCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			result := map[string]any{
-				"health_score":   fmt.Sprintf("%.0f%%", healthScore),
-				"total_open":     totalActive + totalStale,
-				"active":         totalActive,
-				"stale":          totalStale,
+				"health_score":    fmt.Sprintf("%.0f%%", healthScore),
+				"total_open":      totalActive + totalStale,
+				"active":          totalActive,
+				"stale":           totalStale,
 				"stale_threshold": fmt.Sprintf("%d days", staleDays),
-				"stages":         stages,
+				"stages":          stages,
 			}
 
 			if flags.asJSON {

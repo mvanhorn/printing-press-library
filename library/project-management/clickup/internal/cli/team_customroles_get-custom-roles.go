@@ -15,10 +15,10 @@ func newTeamCustomrolesGetCustomRolesCmd(flags *rootFlags) *cobra.Command {
 	var flagIncludeMembers bool
 
 	cmd := &cobra.Command{
-		Use:   "get-custom-roles <team_id>",
-		Aliases: []string{"get"},
-		Short: "View the Custom Roles available in a Workspace.",
-		Example: "  clickup-pp-cli team customroles get-custom-roles 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "get-custom-roles <team_id>",
+		Aliases:     []string{"get"},
+		Short:       "View the Custom Roles available in a Workspace.",
+		Example:     "  clickup-pp-cli team customroles get-custom-roles 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "customroles.get-custom-roles", "pp:method": "GET", "pp:path": "/v2/team/{team_id}/customroles", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

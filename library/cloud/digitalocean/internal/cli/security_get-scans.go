@@ -14,9 +14,9 @@ import (
 func newSecurityGetScansCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-scans",
-		Short: "Get scans",
-		Example: "  digitalocean-pp-cli security get-scans",
+		Use:         "get-scans",
+		Short:       "Get scans",
+		Example:     "  digitalocean-pp-cli security get-scans",
 		Annotations: map[string]string{"pp:endpoint": "security.get-scans", "pp:method": "GET", "pp:path": "/v2/security/scans/{scan_id}/findings/{finding_uuid}/affected_resources", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

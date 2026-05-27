@@ -44,9 +44,9 @@ func newSinceCmd(flags *rootFlags) *cobra.Command {
 	var perSourceLimit int
 
 	cmd := &cobra.Command{
-		Use:   "since <duration>",
+		Use:         "since <duration>",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short: "Time-windowed diff of new items across LinkedIn + Happenstance",
+		Short:       "Time-windowed diff of new items across LinkedIn + Happenstance",
 		Long: `Show what's changed for you in the given time window (e.g. "24h", "7d", "2w").
 
 Duration parsing supports Go's time.ParseDuration forms (h, m, s) plus a

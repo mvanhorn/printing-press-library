@@ -3,29 +3,28 @@
 
 package types
 
-
 type Product struct {
-	Id string `json:"id"`
-	Name string `json:"name"`
-	Description string `json:"description"`
-	Category string `json:"category"`
-	Price float64 `json:"price"`
-	Calories int `json:"calories"`
-	ImageUrl string `json:"imageUrl"`
+	Id          string  `json:"id"`
+	Name        string  `json:"name"`
+	Description string  `json:"description"`
+	Category    string  `json:"category"`
+	Price       float64 `json:"price"`
+	Calories    int     `json:"calories"`
+	ImageUrl    string  `json:"imageUrl"`
 }
 
 type Store struct {
-	Id int `json:"id"`
-	StoreNumber string `json:"storeNumber"`
-	Name string `json:"name"`
-	Address string `json:"address"`
-	City string `json:"city"`
-	State string `json:"state"`
-	Zip string `json:"zip"`
-	Phone string `json:"phone"`
-	Latitude float64 `json:"latitude"`
-	Longitude float64 `json:"longitude"`
-	DeliveryAvailable bool `json:"deliveryAvailable"`
-	PickupAvailable bool `json:"pickupAvailable"`
-	Distance float64 `json:"distance"`
+	Id                int     `json:"id"`
+	StoreNumber       string  `json:"storeNumber"`
+	Name              string  `json:"name"`
+	Address           string  `json:"address"`
+	City              string  `json:"city"`
+	State             string  `json:"state"`
+	Zip               string  `json:"zip"`
+	Phone             string  `json:"phone"`
+	Latitude          float64 `json:"latitude"`
+	Longitude         float64 `json:"longitude"`
+	DeliveryAvailable bool    `json:"deliveryAvailable"`
+	PickupAvailable   bool    `json:"pickupAvailable"`
+	Distance          float64 `json:"distance"`
 }

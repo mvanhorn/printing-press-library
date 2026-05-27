@@ -14,9 +14,9 @@ import (
 func newMailboxSettingsGetCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get",
-		Short: "Get all mailbox settings",
-		Example: "  outlook-email-pp-cli mailbox_settings get",
+		Use:         "get",
+		Short:       "Get all mailbox settings",
+		Example:     "  outlook-email-pp-cli mailbox_settings get",
 		Annotations: map[string]string{"pp:endpoint": "mailbox_settings.get", "pp:method": "GET", "pp:path": "/me/mailboxSettings", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

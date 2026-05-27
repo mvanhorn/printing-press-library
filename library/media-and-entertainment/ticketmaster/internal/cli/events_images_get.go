@@ -14,9 +14,9 @@ import (
 func newEventsImagesGetCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get <id>",
-		Short: "Get images for a specific event using the unique identifier for the event.",
-		Example: "  ticketmaster-pp-cli events images get 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "get <id>",
+		Short:       "Get images for a specific event using the unique identifier for the event.",
+		Example:     "  ticketmaster-pp-cli events images get 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "images.get", "pp:method": "GET", "pp:path": "/events/{id}/images", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

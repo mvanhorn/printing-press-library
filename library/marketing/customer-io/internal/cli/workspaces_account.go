@@ -14,9 +14,9 @@ import (
 func newWorkspacesAccountCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "account",
-		Short: "Get the current account details",
-		Example: "  customer-io-pp-cli workspaces account",
+		Use:         "account",
+		Short:       "Get the current account details",
+		Example:     "  customer-io-pp-cli workspaces account",
 		Annotations: map[string]string{"pp:endpoint": "workspaces.account", "pp:method": "GET", "pp:path": "/v1/accounts/current", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

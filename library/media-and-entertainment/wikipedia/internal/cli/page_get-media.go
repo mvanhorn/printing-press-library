@@ -14,9 +14,9 @@ import (
 func newPageGetMediaCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-media <title>",
-		Short: "Returns images, videos, and other media files associated with an article.",
-		Example: "  wikipedia-pp-cli page get-media example-resource",
+		Use:         "get-media <title>",
+		Short:       "Returns images, videos, and other media files associated with an article.",
+		Example:     "  wikipedia-pp-cli page get-media example-resource",
 		Annotations: map[string]string{"pp:endpoint": "page.get-media", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

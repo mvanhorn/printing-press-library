@@ -17,10 +17,10 @@ func newProjectsEnvironmentsUpdateAProjectCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "update-a-project <organization_id_or_slug> <project_id_or_slug> <environment>",
-		Aliases: []string{"update"},
-		Short: "Update the visibility for a project environment.",
-		Example: "  sentry-pp-cli projects environments update-a-project example-value example-value example-value",
+		Use:         "update-a-project <organization_id_or_slug> <project_id_or_slug> <environment>",
+		Aliases:     []string{"update"},
+		Short:       "Update the visibility for a project environment.",
+		Example:     "  sentry-pp-cli projects environments update-a-project example-value example-value example-value",
 		Annotations: map[string]string{"pp:endpoint": "environments.update-a-project"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -77,7 +77,9 @@ func newProjectsEnvironmentsUpdateAProjectCmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

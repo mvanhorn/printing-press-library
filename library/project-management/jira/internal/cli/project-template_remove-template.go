@@ -15,10 +15,10 @@ func newProjectTemplateRemoveTemplateCmd(flags *rootFlags) *cobra.Command {
 	var flagTemplateKey string
 
 	cmd := &cobra.Command{
-		Use:   "remove-template",
-		Aliases: []string{"delete"},
-		Short: "Remove custom template This API endpoint allows you to remove a specified customised template ***Note: Custom...",
-		Example: "  jira-pp-cli project-template remove-template --template-key your-token-here",
+		Use:         "remove-template",
+		Aliases:     []string{"delete"},
+		Short:       "Remove custom template This API endpoint allows you to remove a specified customised template ***Note: Custom...",
+		Example:     "  jira-pp-cli project-template remove-template --template-key your-token-here",
 		Annotations: map[string]string{"pp:endpoint": "project-template.remove-template", "pp:method": "DELETE", "pp:path": "/rest/api/3/project-template/remove-template"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("template-key") && !flags.dryRun {
@@ -44,7 +44,9 @@ func newProjectTemplateRemoveTemplateCmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

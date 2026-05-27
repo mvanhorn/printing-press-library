@@ -14,10 +14,10 @@ import (
 func newDataSourcesRetrieveACmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "retrieve-a <data_source_id>",
-		Aliases: []string{"get"},
-		Short: "Retrieve a data source",
-		Example: "  notion-pp-cli data-sources retrieve-a 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "retrieve-a <data_source_id>",
+		Aliases:     []string{"get"},
+		Short:       "Retrieve a data source",
+		Example:     "  notion-pp-cli data-sources retrieve-a 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "data-sources.retrieve-a", "pp:method": "GET", "pp:path": "/v1/data_sources/{data_source_id}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

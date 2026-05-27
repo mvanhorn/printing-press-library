@@ -14,10 +14,10 @@ import (
 func newRegionsPromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "regions",
-		Short: "List",
-		Long:  "Shortcut for 'regions list'. List",
-		Example: "  digitalocean-pp-cli regions",
+		Use:         "regions",
+		Short:       "List",
+		Long:        "Shortcut for 'regions list'. List",
+		Example:     "  digitalocean-pp-cli regions",
 		Annotations: map[string]string{"pp:endpoint": "regions.list", "pp:method": "GET", "pp:path": "/v2/regions", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

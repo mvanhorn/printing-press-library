@@ -14,10 +14,10 @@ import (
 func newRawImagePromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "raw-image <serial_number>",
-		Short: "Parameter is the digits only of the serial number, no leading sn. Example:...",
-		Long:  "Shortcut for 'raw-image get-image'. Parameter is the digits only of the serial number, no leading sn. Example:...",
-		Example: "  uspto-tsdr-pp-cli raw-image example-value",
+		Use:         "raw-image <serial_number>",
+		Short:       "Parameter is the digits only of the serial number, no leading sn. Example:...",
+		Long:        "Shortcut for 'raw-image get-image'. Parameter is the digits only of the serial number, no leading sn. Example:...",
+		Example:     "  uspto-tsdr-pp-cli raw-image example-value",
 		Annotations: map[string]string{"pp:endpoint": "raw-image.get-image", "pp:method": "GET", "pp:path": "/rawImage/{serial_number}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

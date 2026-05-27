@@ -4,8 +4,6 @@
 package cli
 
 import (
-	"github.com/mvanhorn/printing-press-library/library/food-and-dining/allrecipes/internal/client"
-	"github.com/mvanhorn/printing-press-library/library/food-and-dining/allrecipes/internal/config"
 	"bufio"
 	"bytes"
 	"crypto/sha256"
@@ -13,6 +11,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/allrecipes/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/allrecipes/internal/config"
 	"github.com/spf13/cobra"
 	"io"
 	"net/http"

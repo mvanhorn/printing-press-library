@@ -17,9 +17,9 @@ func newLocationAreaListCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "list",
-		Short: "Location areas are sections of areas, such as floors in a building or cave. Each area has its own set of possible...",
-		Example: "  pokeapi-pp-cli location-area list",
+		Use:         "list",
+		Short:       "Location areas are sections of areas, such as floors in a building or cave. Each area has its own set of possible...",
+		Example:     "  pokeapi-pp-cli location-area list",
 		Annotations: map[string]string{"pp:endpoint": "location-area.list", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
@@ -29,7 +29,7 @@ func newLocationAreaListCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/api/v2/location-area/"
 			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "location-area", path, map[string]string{
-				"limit": fmt.Sprintf("%v", flagLimit),
+				"limit":  fmt.Sprintf("%v", flagLimit),
 				"offset": fmt.Sprintf("%v", flagOffset),
 			}, nil, flagAll, "offset", "", "")
 			if err != nil {

@@ -14,10 +14,10 @@ import (
 func newCycleGetByIdCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-by-id <cycleId>",
-		Aliases: []string{"get"},
-		Short: "Get the cycle for the specified ID",
-		Example: "  whoop-pp-cli cycle get-by-id 42",
+		Use:         "get-by-id <cycleId>",
+		Aliases:     []string{"get"},
+		Short:       "Get the cycle for the specified ID",
+		Example:     "  whoop-pp-cli cycle get-by-id 42",
 		Annotations: map[string]string{"pp:endpoint": "cycle.get-by-id", "pp:method": "GET", "pp:path": "/v2/cycle/{cycleId}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

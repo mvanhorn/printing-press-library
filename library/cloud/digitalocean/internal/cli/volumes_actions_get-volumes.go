@@ -14,9 +14,9 @@ import (
 func newVolumesActionsGetVolumesCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-volumes",
-		Short: "Get volumes",
-		Example: "  digitalocean-pp-cli volumes actions get-volumes",
+		Use:         "get-volumes",
+		Short:       "Get volumes",
+		Example:     "  digitalocean-pp-cli volumes actions get-volumes",
 		Annotations: map[string]string{"pp:endpoint": "actions.get-volumes", "pp:method": "GET", "pp:path": "/v2/volumes/{volume_id}/actions/{action_id}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

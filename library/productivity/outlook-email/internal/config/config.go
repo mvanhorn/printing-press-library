@@ -14,17 +14,17 @@ import (
 )
 
 type Config struct {
-	BaseURL        string `toml:"base_url"`
-	AuthHeaderVal  string `toml:"auth_header"`
-	Headers        map[string]string `toml:"headers,omitempty"`
-	AuthSource     string `toml:"-"`
-	AccessToken    string `toml:"access_token"`
-	RefreshToken   string `toml:"refresh_token"`
-	TokenExpiry    time.Time `toml:"token_expiry"`
-	ClientID       string `toml:"client_id"`
-	ClientSecret   string `toml:"client_secret"`
-	Path           string `toml:"-"`
-	OutlookEmailToken string `toml:"email_token"`
+	BaseURL           string            `toml:"base_url"`
+	AuthHeaderVal     string            `toml:"auth_header"`
+	Headers           map[string]string `toml:"headers,omitempty"`
+	AuthSource        string            `toml:"-"`
+	AccessToken       string            `toml:"access_token"`
+	RefreshToken      string            `toml:"refresh_token"`
+	TokenExpiry       time.Time         `toml:"token_expiry"`
+	ClientID          string            `toml:"client_id"`
+	ClientSecret      string            `toml:"client_secret"`
+	Path              string            `toml:"-"`
+	OutlookEmailToken string            `toml:"email_token"`
 }
 
 func Load(configPath string) (*Config, error) {
@@ -87,9 +87,9 @@ func (c *Config) AuthHeader() string {
 	if c.OutlookEmailToken != "" {
 		c.AuthSource = "env:OUTLOOK_EMAIL_TOKEN"
 		return applyAuthFormat("Bearer {token}", map[string]string{
-			"email_token": c.OutlookEmailToken,
+			"email_token":         c.OutlookEmailToken,
 			"OUTLOOK_EMAIL_TOKEN": c.OutlookEmailToken,
-			"token": c.OutlookEmailToken,
+			"token":               c.OutlookEmailToken,
 		})
 	}
 	if c.AccessToken != "" {

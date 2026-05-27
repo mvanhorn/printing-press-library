@@ -16,8 +16,9 @@ import (
 
 // newDraftsScheduleCmd schedules a draft for future release.
 // Verified from Substack's editor JS bundle:
-//   POST /api/v1/drafts/{id}/scheduled_release
-//   body: { trigger_at, post_audience, email_audience }
+//
+//	POST /api/v1/drafts/{id}/scheduled_release
+//	body: { trigger_at, post_audience, email_audience }
 func newDraftsScheduleCmd(flags *rootFlags) *cobra.Command {
 	var (
 		at            string
@@ -149,7 +150,7 @@ Requires --subdomain <publication-subdomain>.`,
 // returns a time.Time. Date-only inputs default to 09:00 local time.
 func parseScheduleTime(s string) (time.Time, error) {
 	layouts := []struct {
-		layout  string
+		layout   string
 		dateOnly bool
 	}{
 		{time.RFC3339, false},

@@ -15,9 +15,9 @@ func newContactsListCmd(flags *rootFlags) *cobra.Command {
 	var flagQ string
 
 	cmd := &cobra.Command{
-		Use:   "list",
-		Short: "Search address book by name or email. Omit query to list all. Requires read scope.",
-		Example: "  multimail-pp-cli contacts list",
+		Use:         "list",
+		Short:       "Search address book by name or email. Omit query to list all. Requires read scope.",
+		Example:     "  multimail-pp-cli contacts list",
 		Annotations: map[string]string{"pp:endpoint": "contacts.list", "pp:method": "GET", "pp:path": "/v1/contacts", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

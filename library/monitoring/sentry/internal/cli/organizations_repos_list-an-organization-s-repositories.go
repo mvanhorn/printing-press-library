@@ -16,9 +16,9 @@ func newOrganizationsReposListAnOrganizationSRepositoriesCmd(flags *rootFlags) *
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "list-an-organization-s-repositories <organization_id_or_slug>",
-		Short: "Return a list of version control repositories for a given organization.",
-		Example: "  sentry-pp-cli organizations repos list-an-organization-s-repositories example-value",
+		Use:         "list-an-organization-s-repositories <organization_id_or_slug>",
+		Short:       "Return a list of version control repositories for a given organization.",
+		Example:     "  sentry-pp-cli organizations repos list-an-organization-s-repositories example-value",
 		Annotations: map[string]string{"pp:endpoint": "repos.list-an-organization-s-repositories", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

@@ -14,9 +14,9 @@ import (
 func newAppsListRegionsCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "list-regions",
-		Short: "List regions",
-		Example: "  digitalocean-pp-cli apps list-regions",
+		Use:         "list-regions",
+		Short:       "List regions",
+		Example:     "  digitalocean-pp-cli apps list-regions",
 		Annotations: map[string]string{"pp:endpoint": "apps.list-regions", "pp:method": "GET", "pp:path": "/v2/apps/regions", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

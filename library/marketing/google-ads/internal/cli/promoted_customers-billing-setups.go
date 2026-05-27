@@ -15,10 +15,10 @@ func newCustomersBillingSetupsPromotedCmd(flags *rootFlags) *cobra.Command {
 	var bodyOperation string
 
 	cmd := &cobra.Command{
-		Use:   "customers-billing-setups <customerId>",
-		Short: "Creates a billing setup, or cancels an existing billing setup.",
-		Long:  "Shortcut for 'customers_billing_setups mutate'. Creates a billing setup, or cancels an existing billing setup.",
-		Example: "  google-ads-pp-cli customers-billing-setups",
+		Use:         "customers-billing-setups <customerId>",
+		Short:       "Creates a billing setup, or cancels an existing billing setup.",
+		Long:        "Shortcut for 'customers_billing_setups mutate'. Creates a billing setup, or cancels an existing billing setup.",
+		Example:     "  google-ads-pp-cli customers-billing-setups",
 		Annotations: map[string]string{"pp:endpoint": "customers_billing_setups.mutate", "pp:method": "POST", "pp:path": "/v22/customers/{customerId}/billingSetups:mutate"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

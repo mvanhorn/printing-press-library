@@ -9,9 +9,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/productivity/strava/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/productivity/strava/internal/store"
+	"github.com/spf13/cobra"
 )
 
 type zoneWeekRow struct {
@@ -170,7 +170,7 @@ AND COALESCE(json_extract(data, '$.start_date'), '') >= ?`
 				if weekDay == 0 {
 					weekDay = 7
 				}
-				wk := t.UTC().AddDate(0, 0, -(weekDay-1)).Format("2006-01-02")
+				wk := t.UTC().AddDate(0, 0, -(weekDay - 1)).Format("2006-01-02")
 				if _, seen := weekZones[wk]; !seen {
 					weekZones[wk] = make([]float64, numZones)
 					weekOrder = append(weekOrder, wk)

@@ -15,10 +15,10 @@ func newUserLookupPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagEmail string
 
 	cmd := &cobra.Command{
-		Use:   "user-lookup",
-		Short: "Look up users in the account by email. **Access:** Organization only. **Required scopes:** `user:read` and...",
-		Long:  "Shortcut for 'user-lookup user_lookup'. Look up users in the account by email. **Access:** Organization only. **Required scopes:** `user:read` and...",
-		Example: "  roam-pp-cli user-lookup",
+		Use:         "user-lookup",
+		Short:       "Look up users in the account by email. **Access:** Organization only. **Required scopes:** `user:read` and...",
+		Long:        "Shortcut for 'user-lookup user_lookup'. Look up users in the account by email. **Access:** Organization only. **Required scopes:** `user:read` and...",
+		Example:     "  roam-pp-cli user-lookup",
 		Annotations: map[string]string{"pp:endpoint": "user-lookup.user_lookup", "pp:method": "GET", "pp:path": "/user.lookup", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

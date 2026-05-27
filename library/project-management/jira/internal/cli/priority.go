@@ -9,8 +9,8 @@ import (
 
 func newPriorityCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "priority",
-		Short: "Manage priority",
+		Use:    "priority",
+		Short:  "Manage priority",
 		Hidden: true,
 	}
 

@@ -14,9 +14,9 @@ import (
 func newOrderCurrentCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "current",
-		Short: "Get the current in-progress order/cart.",
-		Example: "  jimmy-johns-pp-cli order current",
+		Use:         "current",
+		Short:       "Get the current in-progress order/cart.",
+		Example:     "  jimmy-johns-pp-cli order current",
 		Annotations: map[string]string{"pp:endpoint": "order.current", "pp:method": "GET", "pp:path": "/order", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

@@ -14,10 +14,10 @@ import (
 func newTestPromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "test",
-		Short: "Test endpoint",
-		Long:  "Shortcut for 'test hq-get'. Test endpoint",
-		Example: "  roam-pp-cli test",
+		Use:         "test",
+		Short:       "Test endpoint",
+		Long:        "Shortcut for 'test hq-get'. Test endpoint",
+		Example:     "  roam-pp-cli test",
 		Annotations: map[string]string{"pp:endpoint": "test.hq-get", "pp:method": "GET", "pp:path": "/test", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

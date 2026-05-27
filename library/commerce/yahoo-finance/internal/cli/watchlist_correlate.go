@@ -12,9 +12,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/commerce/yahoo-finance/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/commerce/yahoo-finance/internal/portstats"
+	"github.com/spf13/cobra"
 )
 
 type correlationTriple struct {

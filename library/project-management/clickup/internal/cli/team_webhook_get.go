@@ -14,9 +14,9 @@ import (
 func newTeamWebhookGetCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get <team_id>",
-		Short: "View the webhooks created via the API for a Workspace. This endpoint returns webhooks created by the authenticated user.",
-		Example: "  clickup-pp-cli team webhook get 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "get <team_id>",
+		Short:       "View the webhooks created via the API for a Workspace. This endpoint returns webhooks created by the authenticated user.",
+		Example:     "  clickup-pp-cli team webhook get 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "webhook.get", "pp:method": "GET", "pp:path": "/v2/team/{team_id}/webhook", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

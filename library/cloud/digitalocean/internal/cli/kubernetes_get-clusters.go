@@ -14,9 +14,9 @@ import (
 func newKubernetesGetClustersCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-clusters",
-		Short: "Get clusters",
-		Example: "  digitalocean-pp-cli kubernetes get-clusters",
+		Use:         "get-clusters",
+		Short:       "Get clusters",
+		Example:     "  digitalocean-pp-cli kubernetes get-clusters",
 		Annotations: map[string]string{"pp:endpoint": "kubernetes.get-clusters", "pp:method": "GET", "pp:path": "/v2/kubernetes/clusters/{cluster_id}/clusterlint", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

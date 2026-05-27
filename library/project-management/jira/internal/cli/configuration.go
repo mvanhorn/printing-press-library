@@ -9,8 +9,8 @@ import (
 
 func newConfigurationCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "configuration",
-		Short: "Manage configuration",
+		Use:    "configuration",
+		Short:  "Manage configuration",
 		Hidden: true,
 	}
 

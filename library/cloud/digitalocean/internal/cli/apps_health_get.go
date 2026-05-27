@@ -14,9 +14,9 @@ import (
 func newAppsHealthGetCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get",
-		Short: "Get",
-		Example: "  digitalocean-pp-cli apps health get",
+		Use:         "get",
+		Short:       "Get",
+		Example:     "  digitalocean-pp-cli apps health get",
 		Annotations: map[string]string{"pp:endpoint": "health.get", "pp:method": "GET", "pp:path": "/v2/apps/{app_id}/health", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

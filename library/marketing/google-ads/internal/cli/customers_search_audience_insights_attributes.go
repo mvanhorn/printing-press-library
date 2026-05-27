@@ -22,9 +22,9 @@ func newCustomersSearchAudienceInsightsAttributesCmd(flags *rootFlags) *cobra.Co
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "search-audience-insights-attributes <customerId>",
-		Short: "Searches for audience attributes that can be used to generate insights.",
-		Example: "  google-ads-pp-cli customers search_audience_insights_attributes 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "search-audience-insights-attributes <customerId>",
+		Short:       "Searches for audience attributes that can be used to generate insights.",
+		Example:     "  google-ads-pp-cli customers search_audience_insights_attributes 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "customers.search_audience_insights_attributes", "pp:method": "POST", "pp:path": "/v22/customers/{customerId}:searchAudienceInsightsAttributes"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -101,7 +101,9 @@ func newCustomersSearchAudienceInsightsAttributesCmd(flags *rootFlags) *cobra.Co
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

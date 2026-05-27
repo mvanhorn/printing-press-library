@@ -8,8 +8,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/commerce/shopify/internal/client"
+	"github.com/spf13/cobra"
 )
 
 func newInventoryItemsGetCmd(flags *rootFlags) *cobra.Command {

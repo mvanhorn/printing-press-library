@@ -12,6 +12,7 @@ import (
 
 	"github.com/spf13/cobra"
 )
+
 func newExportCmd(flags *rootFlags) *cobra.Command {
 	var format string
 	var outputFile string
@@ -35,19 +36,19 @@ large datasets as it has no memory pressure.`,
 		Args: cobra.MinimumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			validResources := map[string]bool{
-				"accounts": true,
-				"cards": true,
-				"categories": true,
-				"credit": true,
-				"events": true,
-				"organization": true,
-				"recipients": true,
+				"accounts":           true,
+				"cards":              true,
+				"categories":         true,
+				"credit":             true,
+				"events":             true,
+				"organization":       true,
+				"recipients":         true,
 				"request-send-money": true,
-				"safes": true,
-				"transactions": true,
-				"treasury": true,
-				"users": true,
-				"webhooks": true,
+				"safes":              true,
+				"transactions":       true,
+				"treasury":           true,
+				"users":              true,
+				"webhooks":           true,
 			}
 			validResourceList := []string{
 				"accounts",

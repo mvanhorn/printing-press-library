@@ -17,9 +17,9 @@ func newAccountPreferencesCmd(flags *rootFlags) *cobra.Command {
 	var flagProjections string
 
 	cmd := &cobra.Command{
-		Use:   "preferences",
-		Short: "List customer preferences for the logged-in account.",
-		Example: "  harris-teeter-pp-cli account preferences",
+		Use:         "preferences",
+		Short:       "List customer preferences for the logged-in account.",
+		Example:     "  harris-teeter-pp-cli account preferences",
 		Annotations: map[string]string{"pp:endpoint": "account.preferences", "pp:method": "GET", "pp:path": "/atlas/v1/enterprise-customer/v1/customer-preferences/", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

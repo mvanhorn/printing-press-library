@@ -20,16 +20,16 @@ func newHistoryGetFlightCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "get-flight <ident>",
-		Short: "Returns historical flight info status summary for a registration, ident, or fa_flight_id. If a fa_flight_id is...",
-		Example: "  flight-goat-pp-cli history get-flight example-value",
+		Use:         "get-flight <ident>",
+		Short:       "Returns historical flight info status summary for a registration, ident, or fa_flight_id. If a fa_flight_id is...",
+		Example:     "  flight-goat-pp-cli history get-flight example-value",
 		Annotations: map[string]string{"pp:endpoint": "history.get-flight", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
 			}
 			if cmd.Flags().Changed("ident-type") {
-				allowedIdentType := []string{ "designator", "registration", "fa_flight_id" }
+				allowedIdentType := []string{"designator", "registration", "fa_flight_id"}
 				validIdentType := false
 				for _, v := range allowedIdentType {
 					if flagIdentType == v {
@@ -50,10 +50,10 @@ func newHistoryGetFlightCmd(flags *rootFlags) *cobra.Command {
 			path = replacePathParam(path, "ident", args[0])
 			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "history", path, map[string]string{
 				"ident_type": fmt.Sprintf("%v", flagIdentType),
-				"start": fmt.Sprintf("%v", flagStart),
-				"end": fmt.Sprintf("%v", flagEnd),
-				"max_pages": fmt.Sprintf("%v", flagMaxPages),
-				"cursor": fmt.Sprintf("%v", flagCursor),
+				"start":      fmt.Sprintf("%v", flagStart),
+				"end":        fmt.Sprintf("%v", flagEnd),
+				"max_pages":  fmt.Sprintf("%v", flagMaxPages),
+				"cursor":     fmt.Sprintf("%v", flagCursor),
 			}, nil, flagAll, "cursor", "", "")
 			if err != nil {
 				return classifyAPIError(err)

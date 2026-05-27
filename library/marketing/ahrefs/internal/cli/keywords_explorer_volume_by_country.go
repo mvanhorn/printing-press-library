@@ -17,16 +17,16 @@ func newKeywordsExplorerVolumeByCountryCmd(flags *rootFlags) *cobra.Command {
 	var flagKeyword string
 
 	cmd := &cobra.Command{
-		Use:   "volume-by-country",
-		Short: "Volume by country",
-		Example: "  ahrefs-pp-cli keywords_explorer volume_by_country",
+		Use:         "volume-by-country",
+		Short:       "Volume by country",
+		Example:     "  ahrefs-pp-cli keywords_explorer volume_by_country",
 		Annotations: map[string]string{"pp:endpoint": "keywords_explorer.volume_by_country", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("keyword") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "keyword")
 			}
 			if cmd.Flags().Changed("search-engine") {
-				allowedSearchEngine := []string{ "google" }
+				allowedSearchEngine := []string{"google"}
 				validSearchEngine := false
 				for _, v := range allowedSearchEngine {
 					if flagSearchEngine == v {

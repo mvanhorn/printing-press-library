@@ -14,9 +14,9 @@ import (
 func newPartnerGetServiceRequestByIdCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-service-request-by-id <id>",
-		Short: "Retrieves a service request by its unique identifier. The requesting partner must be an owner of the service request.",
-		Example: "  whoop-pp-cli partner get-service-request-by-id 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "get-service-request-by-id <id>",
+		Short:       "Retrieves a service request by its unique identifier. The requesting partner must be an owner of the service request.",
+		Example:     "  whoop-pp-cli partner get-service-request-by-id 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "partner.get-service-request-by-id", "pp:method": "GET", "pp:path": "/v2/partner/service-request/{id}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

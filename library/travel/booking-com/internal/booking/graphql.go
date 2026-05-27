@@ -127,9 +127,9 @@ func BuildMapMarkersRequest(opts MapMarkersOptions) ([]byte, error) {
 // auth-cookie state on top.
 func GraphQLHeaders(csrfToken string) map[string]string {
 	h := map[string]string{
-		"content-type":                "application/json",
-		"accept":                      "*/*",
-		"apollographql-client-name":   "b-search-web-searchresults_rust",
+		"content-type":                 "application/json",
+		"accept":                       "*/*",
+		"apollographql-client-name":    "b-search-web-searchresults_rust",
 		"apollographql-client-version": "1NLE7NhgZ4iqK7NN1iyo",
 	}
 	if csrfToken != "" {

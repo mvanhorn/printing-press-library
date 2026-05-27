@@ -14,9 +14,9 @@ import (
 func newCustomFieldsDeleteCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "delete <publicationId> <id>",
-		Short: "Delete custom field <Badge intent='info' minimal outlined>OAuth Scope: custom_fields:write</Badge>",
-		Example: "  beehiiv-pp-cli custom-fields delete 550e8400-e29b-41d4-a716-446655440000 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "delete <publicationId> <id>",
+		Short:       "Delete custom field <Badge intent='info' minimal outlined>OAuth Scope: custom_fields:write</Badge>",
+		Example:     "  beehiiv-pp-cli custom-fields delete 550e8400-e29b-41d4-a716-446655440000 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "custom-fields.delete", "pp:method": "DELETE", "pp:path": "/publications/{publicationId}/custom_fields/{id}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -47,7 +47,9 @@ func newCustomFieldsDeleteCmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

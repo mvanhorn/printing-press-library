@@ -17,9 +17,9 @@ func newFoodsListCmd(flags *rootFlags) *cobra.Command {
 	var flagDataType string
 
 	cmd := &cobra.Command{
-		Use:   "list",
-		Short: "List foods paginated",
-		Example: "  recipe-goat-pp-cli foods list",
+		Use:         "list",
+		Short:       "List foods paginated",
+		Example:     "  recipe-goat-pp-cli foods list",
 		Annotations: map[string]string{"pp:endpoint": "foods.list", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

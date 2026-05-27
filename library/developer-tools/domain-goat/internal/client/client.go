@@ -6,11 +6,11 @@ package client
 import (
 	"bytes"
 	"crypto/sha256"
-	"github.com/mvanhorn/printing-press-library/library/developer-tools/domain-goat/internal/cliutil"
-	"github.com/mvanhorn/printing-press-library/library/developer-tools/domain-goat/internal/config"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/domain-goat/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/domain-goat/internal/config"
 	"io"
 	"math"
 	"net/http"

@@ -21,9 +21,9 @@ func newFoodRecallsCountCmd(flags *rootFlags) *cobra.Command {
 	var flagDateTo string
 
 	cmd := &cobra.Command{
-		Use:   "count",
-		Short: "Count food recalls by field",
-		Example: "  openfda-pp-cli food-recalls count --firm \"Trader Joe\" --field classification",
+		Use:         "count",
+		Short:       "Count food recalls by field",
+		Example:     "  openfda-pp-cli food-recalls count --firm \"Trader Joe\" --field classification",
 		Annotations: map[string]string{"pp:endpoint": "food-recalls.count", "pp:method": "GET", "pp:path": "/food/enforcement.json", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("field") && !flags.dryRun {

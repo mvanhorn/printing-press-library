@@ -16,10 +16,10 @@ func newTranscriptInfoPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagSinceOffset int
 
 	cmd := &cobra.Command{
-		Use:   "transcript-info",
-		Short: "Retrieve a transcript by ID from your home Roam. Works for both completed and live (ongoing) meetings. For live...",
-		Long:  "Shortcut for 'transcript-info get-transcript'. Retrieve a transcript by ID from your home Roam. Works for both completed and live (ongoing) meetings. For live...",
-		Example: "  roam-pp-cli transcript-info",
+		Use:         "transcript-info",
+		Short:       "Retrieve a transcript by ID from your home Roam. Works for both completed and live (ongoing) meetings. For live...",
+		Long:        "Shortcut for 'transcript-info get-transcript'. Retrieve a transcript by ID from your home Roam. Works for both completed and live (ongoing) meetings. For live...",
+		Example:     "  roam-pp-cli transcript-info",
 		Annotations: map[string]string{"pp:endpoint": "transcript-info.get-transcript", "pp:method": "GET", "pp:path": "/transcript.info", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

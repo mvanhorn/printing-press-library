@@ -9,16 +9,16 @@ import (
 	"strings"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/other/gravitus/internal/config"
+	"github.com/spf13/cobra"
 	_ "modernc.org/sqlite"
 )
 
 func newStatsGravitusCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "stats",
-		Short: "Training statistics — volume trends, workout counts, and more",
-		RunE:  parentNoSubcommandRunE(flags),
+		Use:         "stats",
+		Short:       "Training statistics — volume trends, workout counts, and more",
+		RunE:        parentNoSubcommandRunE(flags),
 		Annotations: map[string]string{"mcp:read-only": "true"},
 	}
 	cmd.AddCommand(newStatsVolumeCmd(flags))
@@ -123,8 +123,8 @@ func newStatsWorkoutsCmd(flags *rootFlags) *cobra.Command {
 	var weeks int
 
 	cmd := &cobra.Command{
-		Use:   "workouts",
-		Short: "Workout count and frequency over the last N weeks",
+		Use:         "workouts",
+		Short:       "Workout count and frequency over the last N weeks",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {
@@ -149,10 +149,10 @@ func newStatsWorkoutsCmd(flags *rootFlags) *cobra.Command {
 			db.QueryRow(`SELECT COUNT(*) FROM workouts`).Scan(&allTime)
 
 			result := map[string]any{
-				"period_weeks":     weeks,
+				"period_weeks":       weeks,
 				"workouts_in_period": total,
-				"workouts_all_time": allTime,
-				"avg_per_week":     math2dp(float64(total) / float64(weeks)),
+				"workouts_all_time":  allTime,
+				"avg_per_week":       math2dp(float64(total) / float64(weeks)),
 			}
 			out, _ := json.Marshal(result)
 			return printOutputWithFlags(cmd.OutOrStdout(), out, flags)
@@ -388,8 +388,8 @@ func newWorkoutsSyncStatusCmd(flags *rootFlags) *cobra.Command {
 	var dbPath string
 
 	cmd := &cobra.Command{
-		Use:   "sync-status",
-		Short: "Show sync status — how many workouts are synced and last sync date",
+		Use:         "sync-status",
+		Short:       "Show sync status — how many workouts are synced and last sync date",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {

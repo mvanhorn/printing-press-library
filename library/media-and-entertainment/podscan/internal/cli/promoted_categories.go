@@ -14,10 +14,10 @@ import (
 func newCategoriesPromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "categories",
-		Short: "List all podcast categories",
-		Long:  "Shortcut for 'categories list'. List all podcast categories",
-		Example: "  podscan-pp-cli categories",
+		Use:         "categories",
+		Short:       "List all podcast categories",
+		Long:        "Shortcut for 'categories list'. List all podcast categories",
+		Example:     "  podscan-pp-cli categories",
 		Annotations: map[string]string{"pp:endpoint": "categories.list", "pp:method": "GET", "pp:path": "/categories", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

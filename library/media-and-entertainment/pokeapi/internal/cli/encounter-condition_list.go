@@ -18,9 +18,9 @@ func newEncounterConditionListCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "list",
-		Short: "Conditions which affect what pokemon might appear in the wild, e.g., day or night.",
-		Example: "  pokeapi-pp-cli encounter-condition list",
+		Use:         "list",
+		Short:       "Conditions which affect what pokemon might appear in the wild, e.g., day or night.",
+		Example:     "  pokeapi-pp-cli encounter-condition list",
 		Annotations: map[string]string{"pp:endpoint": "encounter-condition.list", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
@@ -30,9 +30,9 @@ func newEncounterConditionListCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/api/v2/encounter-condition/"
 			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "encounter-condition", path, map[string]string{
-				"limit": fmt.Sprintf("%v", flagLimit),
+				"limit":  fmt.Sprintf("%v", flagLimit),
 				"offset": fmt.Sprintf("%v", flagOffset),
-				"q": fmt.Sprintf("%v", flagQ),
+				"q":      fmt.Sprintf("%v", flagQ),
 			}, nil, flagAll, "offset", "", "")
 			if err != nil {
 				return classifyAPIError(err)

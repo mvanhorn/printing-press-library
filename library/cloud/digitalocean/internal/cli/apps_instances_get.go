@@ -14,9 +14,9 @@ import (
 func newAppsInstancesGetCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get",
-		Short: "Get",
-		Example: "  digitalocean-pp-cli apps instances get",
+		Use:         "get",
+		Short:       "Get",
+		Example:     "  digitalocean-pp-cli apps instances get",
 		Annotations: map[string]string{"pp:endpoint": "instances.get", "pp:method": "GET", "pp:path": "/v2/apps/{app_id}/instances", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

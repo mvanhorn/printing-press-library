@@ -5,8 +5,8 @@ package cli
 
 import (
 	"encoding/json"
-	"github.com/mvanhorn/printing-press-library/library/productivity/figma/internal/store"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/productivity/figma/internal/store"
 	"github.com/spf13/cobra"
 	"net/url"
 	"os"

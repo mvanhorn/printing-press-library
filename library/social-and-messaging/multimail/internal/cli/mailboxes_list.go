@@ -14,9 +14,9 @@ import (
 func newMailboxesListCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "list",
-		Short: "Requires read scope.",
-		Example: "  multimail-pp-cli mailboxes list",
+		Use:         "list",
+		Short:       "Requires read scope.",
+		Example:     "  multimail-pp-cli mailboxes list",
 		Annotations: map[string]string{"pp:endpoint": "mailboxes.list", "pp:method": "GET", "pp:path": "/v1/mailboxes", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

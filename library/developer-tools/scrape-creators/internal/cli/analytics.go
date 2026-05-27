@@ -9,8 +9,8 @@ import (
 	"os"
 	"sort"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/scrape-creators/internal/store"
+	"github.com/spf13/cobra"
 )
 
 func newAnalyticsCmd(flags *rootFlags) *cobra.Command {

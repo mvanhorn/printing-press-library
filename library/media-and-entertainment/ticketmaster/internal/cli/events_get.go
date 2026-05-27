@@ -14,9 +14,9 @@ import (
 func newEventsGetCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get <id>",
-		Short: "Get details for a specific event using the unique identifier for the event. This includes the venue and location,...",
-		Example: "  ticketmaster-pp-cli events get 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "get <id>",
+		Short:       "Get details for a specific event using the unique identifier for the event. This includes the venue and location,...",
+		Example:     "  ticketmaster-pp-cli events get 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "events.get", "pp:method": "GET", "pp:path": "/events/{id}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

@@ -14,10 +14,10 @@ import (
 func newMePromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "me",
-		Short: "Get current user, joined communities, and dashboard state",
-		Long:  "Shortcut for 'me get'. Get current user, joined communities, and dashboard state",
-		Example: "  skool-pp-cli me",
+		Use:         "me",
+		Short:       "Get current user, joined communities, and dashboard state",
+		Long:        "Shortcut for 'me get'. Get current user, joined communities, and dashboard state",
+		Example:     "  skool-pp-cli me",
 		Annotations: map[string]string{"pp:endpoint": "me.get", "pp:method": "GET", "pp:path": "/_next/data/{buildId}/index.json", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

@@ -14,9 +14,9 @@ import (
 func newPartnerNetworkConnectListCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "list",
-		Short: "List",
-		Example: "  digitalocean-pp-cli partner-network-connect list",
+		Use:         "list",
+		Short:       "List",
+		Example:     "  digitalocean-pp-cli partner-network-connect list",
 		Annotations: map[string]string{"pp:endpoint": "partner-network-connect.list", "pp:method": "GET", "pp:path": "/v2/partner_network_connect/attachments", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

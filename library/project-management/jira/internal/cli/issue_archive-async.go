@@ -17,9 +17,9 @@ func newIssueArchiveAsyncCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "archive-async",
-		Short: "Enables admins to archive up to 100,000 issues in a single request using JQL, returning the URL to check the status...",
-		Example: "  jira-pp-cli issue archive-async",
+		Use:         "archive-async",
+		Short:       "Enables admins to archive up to 100,000 issues in a single request using JQL, returning the URL to check the status...",
+		Example:     "  jira-pp-cli issue archive-async",
 		Annotations: map[string]string{"pp:endpoint": "issue.archive-async", "pp:method": "POST", "pp:path": "/rest/api/3/issue/archive"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {
@@ -61,7 +61,9 @@ func newIssueArchiveAsyncCmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

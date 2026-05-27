@@ -18,10 +18,10 @@ func newOrganizationsWorkflowsFetchAlertsCmd(flags *rootFlags) *cobra.Command {
 	var flagProject string
 
 	cmd := &cobra.Command{
-		Use:   "fetch-alerts <organization_id_or_slug>",
-		Aliases: []string{"get"},
-		Short: "⚠️ This endpoint is currently in **beta** and may be subject to change. It is supported by [New Monitors and...",
-		Example: "  sentry-pp-cli organizations workflows fetch-alerts example-value",
+		Use:         "fetch-alerts <organization_id_or_slug>",
+		Aliases:     []string{"get"},
+		Short:       "⚠️ This endpoint is currently in **beta** and may be subject to change. It is supported by [New Monitors and...",
+		Example:     "  sentry-pp-cli organizations workflows fetch-alerts example-value",
 		Annotations: map[string]string{"pp:endpoint": "workflows.fetch-alerts", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

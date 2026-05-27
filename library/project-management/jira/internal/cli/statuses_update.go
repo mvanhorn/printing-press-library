@@ -17,9 +17,9 @@ func newStatusesUpdateCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "update",
-		Short: "Updates statuses by ID. **[Permissions](#permissions) required:** * *Administer projects* [project...",
-		Example: "  jira-pp-cli statuses update",
+		Use:         "update",
+		Short:       "Updates statuses by ID. **[Permissions](#permissions) required:** * *Administer projects* [project...",
+		Example:     "  jira-pp-cli statuses update",
 		Annotations: map[string]string{"pp:endpoint": "statuses.update", "pp:method": "PUT", "pp:path": "/rest/api/3/statuses"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {
@@ -68,7 +68,9 @@ func newStatusesUpdateCmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

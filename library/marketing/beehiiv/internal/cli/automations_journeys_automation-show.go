@@ -14,9 +14,9 @@ import (
 func newAutomationsJourneysAutomationShowCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "automation-show <publicationId> <automationId> <automationJourneyId>",
-		Short: "Get automation journey <Badge intent='info' minimal outlined>OAuth Scope: automations:read</Badge>",
-		Example: "  beehiiv-pp-cli automations journeys automation-show 550e8400-e29b-41d4-a716-446655440000 550e8400-e29b-41d4-a716-446655440000 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "automation-show <publicationId> <automationId> <automationJourneyId>",
+		Short:       "Get automation journey <Badge intent='info' minimal outlined>OAuth Scope: automations:read</Badge>",
+		Example:     "  beehiiv-pp-cli automations journeys automation-show 550e8400-e29b-41d4-a716-446655440000 550e8400-e29b-41d4-a716-446655440000 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "journeys.automation-show", "pp:method": "GET", "pp:path": "/publications/{publicationId}/automations/{automationId}/journeys/{automationJourneyId}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

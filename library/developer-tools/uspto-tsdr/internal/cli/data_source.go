@@ -259,4 +259,3 @@ func resolveLocal(ctx context.Context, resourceType string, isList bool, path st
 	}
 	return item, prov, nil
 }
-

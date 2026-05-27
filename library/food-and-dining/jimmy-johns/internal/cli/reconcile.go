@@ -10,17 +10,17 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/jimmy-johns/internal/store"
+	"github.com/spf13/cobra"
 )
 
 type reconcileDiff struct {
-	Resource     string   `json:"resource"`
-	LocalCount   int      `json:"local_count"`
-	RemoteCount  int      `json:"remote_count"`
-	NewIDs       []string `json:"new_ids,omitempty"`
-	RemovedIDs   []string `json:"removed_ids,omitempty"`
-	Notes        []string `json:"notes,omitempty"`
+	Resource    string   `json:"resource"`
+	LocalCount  int      `json:"local_count"`
+	RemoteCount int      `json:"remote_count"`
+	NewIDs      []string `json:"new_ids,omitempty"`
+	RemovedIDs  []string `json:"removed_ids,omitempty"`
+	Notes       []string `json:"notes,omitempty"`
 }
 
 func newReconcileCmd(flags *rootFlags) *cobra.Command {

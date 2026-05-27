@@ -5,9 +5,9 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/commerce/ucp/internal/store"
 	"github.com/mvanhorn/printing-press-library/library/commerce/ucp/internal/ucp"
+	"github.com/spf13/cobra"
 )
 
 func newCartCmd(flags *rootFlags) *cobra.Command {
