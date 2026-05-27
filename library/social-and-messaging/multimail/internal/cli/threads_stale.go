@@ -94,11 +94,11 @@ Requires synced data (run 'multimail-pp-cli sync --full' first).`,
 				// Use threads table directly
 				results, err = staleFromThreadsTable(cmd, db, cutoff, mbNames)
 			} else {
-				// PATCH: Derive threads from mailboxes_emails parent_id
+				// PATCH: Derive threads from mailboxes_emails thread_id
 				// grouping. The API has no list-threads endpoint, so
 				// sync --full cannot populate the threads table. Fall
-				// back to treating shared parent_id groups as threads.
-				results, err = staleFromEmailParentGroups(cmd, db, cutoff, mbNames)
+				// back to grouping emails by json_extract($.thread_id).
+				results, err = staleFromEmailThreadGroups(cmd, db, cutoff, mbNames)
 			}
 			if err != nil {
 				return err
@@ -183,9 +183,14 @@ func staleFromThreadsTable(cmd *cobra.Command, db *store.Store, cutoff time.Time
 			}
 		}
 		if msgCount == 0 {
+			// PATCH: Use json_extract(data, '$.thread_id') for message count
+			// fallback. The parent_id column stores the mailbox FK (injected by
+			// sync), not a thread-parent reference. thread_id in the JSON data
+			// identifies the conversation this email belongs to.
 			countRow := db.DB().QueryRowContext(cmd.Context(),
 				`SELECT COUNT(*) FROM mailboxes_emails
-				WHERE mailboxes_id = ? AND parent_id = ?`, mailboxID, id)
+				WHERE mailboxes_id = ?
+				AND json_extract(data, '$.thread_id') = ?`, mailboxID, id)
 			_ = countRow.Scan(&msgCount)
 		}
 
@@ -208,11 +213,11 @@ func staleFromThreadsTable(cmd *cobra.Command, db *store.Store, cutoff time.Time
 	return results, nil
 }
 
-// staleFromEmailParentGroups derives threads from mailboxes_emails by grouping
+// staleFromEmailThreadGroups derives threads from mailboxes_emails by grouping
 // on thread_id from the API response. Any thread_id with 2+ emails is treated
 // as a conversation thread. Uses json_extract(data, '$.thread_id') — not the
 // parent_id column, which stores the FK to the parent mailbox.
-func staleFromEmailParentGroups(cmd *cobra.Command, db *store.Store, cutoff time.Time, mbNames map[string]string) ([]staleThreadRow, error) {
+func staleFromEmailThreadGroups(cmd *cobra.Command, db *store.Store, cutoff time.Time, mbNames map[string]string) ([]staleThreadRow, error) {
 	rows, err := db.DB().QueryContext(cmd.Context(),
 		`SELECT
 			json_extract(data, '$.thread_id'),

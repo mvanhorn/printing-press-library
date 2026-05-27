@@ -33,9 +33,9 @@ average thread depth — metrics that reveal whether a mailbox is
 keeping up with its volume.
 
 Reply rate is derived from synced emails: outbound emails with a
-parent_id are counted as replies to existing conversations. Thread
-metrics are derived from emails grouped by parent_id, since the API
-has no list-threads endpoint. Both rely on synced email data only.
+thread_id are counted as replies to existing conversations. Thread
+metrics are derived from emails grouped by thread_id (from the API
+response JSON), since the API has no list-threads endpoint.
 
 Requires synced data (run 'multimail-pp-cli sync --full' first).`,
 		Example: strings.Trim(`
