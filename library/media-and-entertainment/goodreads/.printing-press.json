@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-22T09:59:40.441427Z",
+  "printing_press_version": "4.11.0",
+  "api_name": "goodreads",
+  "display_name": "Goodreads Web Undocumented",
+  "cli_name": "goodreads-pp-cli",
+  "owner": "zaydiscold",
+  "printer": "zaydiscold",
+  "printer_name": "zaydiscold",
+  "spec_path": "/Users/zaydk/Desktop/printing-press-research/codex-work/goodreads/api-map/openapi/undocumented/goodreads-web.yaml",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:5e817a35e6d5ca68a2ef276f82869cc937e8787896b980e88c858abff6aa69e5",
+  "run_id": "20260522-095940",
+  "description": "This is an evidence-backed starting map for a future Goodreads CLI.",
+  "mcp_binary": "goodreads-pp-mcp",
+  "mcp_tool_count": 55,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "GOODREADS_GOODREADS_COOKIE_SESSION"
+  ],
+  "novel_features": [
+    {
+      "name": "Goodreads authenticated web route atlas",
+      "command": "api",
+      "description": "Expose an evidence-backed Goodreads route map covering shelves, books, reviews, messages, notes, quotes, friends, genres, recommendations, notifications, and public sitemap-derived hubs despite the absence of a current public Goodreads API."
+    },
+    {
+      "name": "Compact Goodreads MCP search and execute surface",
+      "command": "goodreads_search",
+      "description": "Default MCP registration uses goodreads_search plus goodreads_execute for route discovery and dispatch instead of flooding agents with dozens of raw endpoint mirrors."
+    },
+    {
+      "name": "Approval-gated notes and shelf mutation support",
+      "command": "notes share update",
+      "description": "Model real Goodreads account actions such as Kindle note publicizing, shelf edits, message marks, and review updates with dry-run previews and the GOODREADS_PP_ALLOW_WRITES=1 gate before PP-side live writes."
+    }
+  ]
+}

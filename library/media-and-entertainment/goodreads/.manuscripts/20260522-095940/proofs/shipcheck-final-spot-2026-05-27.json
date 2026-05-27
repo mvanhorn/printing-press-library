@@ -1,0 +1,56 @@
+{
+  "passed": true,
+  "exit_code": 0,
+  "started_at": "2026-05-27T19:41:34Z",
+  "elapsed_ms": 13581,
+  "legs": [
+    {
+      "name": "verify",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-05-27T19:41:34Z",
+      "elapsed_ms": 9438,
+      "command": "/Users/zaydk/go/bin/printing-press verify --dir /Users/zaydk/printing-press/library/media-and-entertainment/goodreads-pp --spec /Users/zaydk/printing-press/library/media-and-entertainment/goodreads-pp/spec.yaml"
+    },
+    {
+      "name": "validate-narrative",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-05-27T19:41:43Z",
+      "elapsed_ms": 12,
+      "command": "/Users/zaydk/go/bin/printing-press validate-narrative --strict --full-examples --research /Users/zaydk/printing-press/library/media-and-entertainment/goodreads-pp/research.json --binary /Users/zaydk/printing-press/library/media-and-entertainment/goodreads-pp/goodreads-pp-cli"
+    },
+    {
+      "name": "dogfood",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-05-27T19:41:43Z",
+      "elapsed_ms": 3463,
+      "command": "/Users/zaydk/go/bin/printing-press dogfood --dir /Users/zaydk/printing-press/library/media-and-entertainment/goodreads-pp --spec /Users/zaydk/printing-press/library/media-and-entertainment/goodreads-pp/spec.yaml"
+    },
+    {
+      "name": "workflow-verify",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-05-27T19:41:47Z",
+      "elapsed_ms": 13,
+      "command": "/Users/zaydk/go/bin/printing-press workflow-verify --dir /Users/zaydk/printing-press/library/media-and-entertainment/goodreads-pp"
+    },
+    {
+      "name": "verify-skill",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-05-27T19:41:47Z",
+      "elapsed_ms": 364,
+      "command": "/Users/zaydk/go/bin/printing-press verify-skill --dir /Users/zaydk/printing-press/library/media-and-entertainment/goodreads-pp"
+    },
+    {
+      "name": "scorecard",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-05-27T19:41:47Z",
+      "elapsed_ms": 287,
+      "command": "/Users/zaydk/go/bin/printing-press scorecard --dir /Users/zaydk/printing-press/library/media-and-entertainment/goodreads-pp --spec /Users/zaydk/printing-press/library/media-and-entertainment/goodreads-pp/spec.yaml"
+    }
+  ]
+}

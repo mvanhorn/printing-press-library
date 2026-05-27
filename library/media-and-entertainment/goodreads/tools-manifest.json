@@ -1,0 +1,957 @@
+{
+  "api_name": "goodreads-web-undocumented",
+  "base_url": "https://www.goodreads.com",
+  "description": "This is an evidence-backed starting map for a future Goodreads CLI. Goodreads has no current\npublic developer API, so these routes are reverse-engineered from the logged-in web app.\n\nEvidence was captured on 2026-05-22 with browser-harness-js. Raw artifacts live under\ngoodreads/proofs/ and are mode 0600 because they contain account-visible metadata.\n\nThis spec intentionally does not include cookies, CSRF tokens, request headers, response bodies,\nor raw Kindle highlight text.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "mcp": {
+    "endpoint_tools": "hidden",
+    "orchestration": "code"
+  },
+  "auth": {
+    "type": "api_key",
+    "header": "_session_id2",
+    "in": "cookie",
+    "env_vars": [
+      "GOODREADS_WEB_UNDOCUMENTED_GOODREADS_COOKIE_SESSION"
+    ],
+    "env_var_specs": [
+      {
+        "name": "GOODREADS_WEB_UNDOCUMENTED_GOODREADS_COOKIE_SESSION",
+        "kind": "harvested",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "amazon-purchases_list",
+      "description": "Amazon purchases import/inspection page. Optional: source.",
+      "method": "GET",
+      "path": "/amazon_purchases",
+      "params": [
+        {
+          "name": "source",
+          "type": "string",
+          "location": "query",
+          "description": "Source"
+        }
+      ]
+    },
+    {
+      "name": "book_get",
+      "description": "Book detail page. Current page is Next.js-backed. Required: book_slug.",
+      "method": "GET",
+      "path": "/book/show/{book_slug}",
+      "params": [
+        {
+          "name": "book_slug",
+          "type": "string",
+          "location": "path",
+          "description": "Book slug",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "comment_get",
+      "description": "User comments/recent posts page. Required: user_slug. Optional: ref.",
+      "method": "GET",
+      "path": "/comment/list/{user_slug}",
+      "params": [
+        {
+          "name": "user_slug",
+          "type": "string",
+          "location": "path",
+          "description": "User slug",
+          "required": true
+        },
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "query",
+          "description": "Ref"
+        }
+      ]
+    },
+    {
+      "name": "friend_list",
+      "description": "Friends index page.",
+      "method": "GET",
+      "path": "/friend",
+      "params": []
+    },
+    {
+      "name": "friend_list-requests",
+      "description": "Friend requests page. Optional: ref.",
+      "method": "GET",
+      "path": "/friend/requests",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "query",
+          "description": "Ref"
+        }
+      ]
+    },
+    {
+      "name": "genres_get",
+      "description": "Genre landing page. Required: genre_slug.",
+      "method": "GET",
+      "path": "/genres/{genre_slug}",
+      "params": [
+        {
+          "name": "genre_slug",
+          "type": "string",
+          "location": "path",
+          "description": "Genre slug",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "genres_list",
+      "description": "Genre index page. Optional: ref.",
+      "method": "GET",
+      "path": "/genres",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "query",
+          "description": "Ref"
+        }
+      ]
+    },
+    {
+      "name": "genres_list-list",
+      "description": "Alphabetical genre shelves index. Optional: page, filter.",
+      "method": "GET",
+      "path": "/genres/list",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page"
+        },
+        {
+          "name": "filter",
+          "type": "string",
+          "location": "query",
+          "description": "Filter"
+        }
+      ]
+    },
+    {
+      "name": "genres_list-search",
+      "description": "Genre finder route. Optional: shelf.",
+      "method": "GET",
+      "path": "/genres/search",
+      "params": [
+        {
+          "name": "shelf",
+          "type": "string",
+          "location": "query",
+          "description": "Shelf"
+        }
+      ]
+    },
+    {
+      "name": "list_get",
+      "description": "Public Listopia list page. Required: list_id.",
+      "method": "GET",
+      "path": "/list/show/{list_id}",
+      "params": [
+        {
+          "name": "list_id",
+          "type": "int",
+          "location": "path",
+          "description": "List id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "message_create",
+      "description": "Batch message folder/read action. Optional: page, authenticity_token, folder (plus 2 more).",
+      "method": "POST",
+      "path": "/message/move_batch",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page"
+        },
+        {
+          "name": "authenticity_token",
+          "type": "string",
+          "location": "body",
+          "description": "Authenticity token"
+        },
+        {
+          "name": "folder",
+          "type": "string",
+          "location": "body",
+          "description": "Folder"
+        },
+        {
+          "name": "messages[{message_id}]",
+          "type": "string",
+          "location": "body",
+          "description": "Messages message id"
+        },
+        {
+          "name": "move[folder]",
+          "type": "string",
+          "location": "body",
+          "description": "Move folder"
+        }
+      ]
+    },
+    {
+      "name": "message_get",
+      "description": "User message folder page. Required: folder (default: inbox).",
+      "method": "GET",
+      "path": "/message/{folder}",
+      "params": [
+        {
+          "name": "folder",
+          "type": "string",
+          "location": "path",
+          "description": "Folder",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "message_get-show",
+      "description": "Message detail page. Required: message_id.",
+      "method": "GET",
+      "path": "/message/show/{message_id}",
+      "params": [
+        {
+          "name": "message_id",
+          "type": "int",
+          "location": "path",
+          "description": "Message id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "message_list",
+      "description": "User message inbox. Optional: ref.",
+      "method": "GET",
+      "path": "/message/inbox",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "query",
+          "description": "Ref"
+        }
+      ]
+    },
+    {
+      "name": "message_list-markallasread",
+      "description": "Mark all visible inbox messages read.",
+      "method": "GET",
+      "path": "/message/mark_all_as_read",
+      "params": []
+    },
+    {
+      "name": "notes_get",
+      "description": "User Kindle Notes \u0026 Highlights index. Required: user_slug. Optional: ref.",
+      "method": "GET",
+      "path": "/notes/{user_slug}",
+      "params": [
+        {
+          "name": "user_slug",
+          "type": "string",
+          "location": "path",
+          "description": "User slug",
+          "required": true
+        },
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "query",
+          "description": "Ref"
+        }
+      ]
+    },
+    {
+      "name": "notes_get-bookslug",
+      "description": "Notes/highlights detail page for one book and user. Required: book_slug, user_slug. Optional: ref.",
+      "method": "GET",
+      "path": "/notes/{book_slug}/{user_slug}",
+      "params": [
+        {
+          "name": "book_slug",
+          "type": "string",
+          "location": "path",
+          "description": "Book slug",
+          "required": true
+        },
+        {
+          "name": "user_slug",
+          "type": "string",
+          "location": "path",
+          "description": "User slug",
+          "required": true
+        },
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "query",
+          "description": "Ref"
+        }
+      ]
+    },
+    {
+      "name": "notes_load-more_get",
+      "description": "Paginated notes/highlights index loader. Required: user_id. Returns the LoadMoreGetResponse.",
+      "method": "GET",
+      "path": "/notes/{user_id}/load_more",
+      "params": [
+        {
+          "name": "user_id",
+          "type": "int",
+          "location": "path",
+          "description": "User id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "notes_note_create",
+      "description": "Discovered from `.js-readingNote[data-note-persist-endpoint]` DOM attributes. Not submitted in this run. Method and payload need a dedicated approved write capture before CLI execution support. Required: book_id, annotation_pair_id. Returns the new NoteCreateResponse.",
+      "method": "POST",
+      "path": "/notes/{book_id}/{annotation_pair_id}/note",
+      "params": [
+        {
+          "name": "book_id",
+          "type": "int",
+          "location": "path",
+          "description": "Book id",
+          "required": true
+        },
+        {
+          "name": "annotation_pair_id",
+          "type": "string",
+          "location": "path",
+          "description": "Annotation pair id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "notes_share_update",
+      "description": "Observed through the 'Make all N visible' button. This is a real account mutation. Use dry-run by default and verify on reload by counting `.js-readingNote[data-visible=true]`. Required: book_id. Returns the updated ShareUpdateResponse.",
+      "method": "PUT",
+      "path": "/notes/{book_id}/share",
+      "params": [
+        {
+          "name": "book_id",
+          "type": "int",
+          "location": "path",
+          "description": "Book id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "notifications_create",
+      "description": "Notification tracking call emitted by the UI.",
+      "method": "POST",
+      "path": "/notifications/track",
+      "params": []
+    },
+    {
+      "name": "notifications_list",
+      "description": "User notifications page. Optional: ref.",
+      "method": "GET",
+      "path": "/notifications",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "query",
+          "description": "Ref"
+        }
+      ]
+    },
+    {
+      "name": "opensearch-xml_list",
+      "description": "OpenSearch descriptor for Goodreads book search.",
+      "method": "GET",
+      "path": "/opensearch.xml",
+      "params": []
+    },
+    {
+      "name": "quotes_get",
+      "description": "User quotes widget script. Required: user_slug. Returns the QuotesGetResponse.",
+      "method": "GET",
+      "path": "/quotes/widget/{user_slug}",
+      "params": [
+        {
+          "name": "user_slug",
+          "type": "string",
+          "location": "path",
+          "description": "User slug",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "quotes_list",
+      "description": "Current user's quotes list.",
+      "method": "GET",
+      "path": "/quotes/list",
+      "params": []
+    },
+    {
+      "name": "recommendations_list",
+      "description": "Personalized recommendations page. Optional: ref.",
+      "method": "GET",
+      "path": "/recommendations",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "query",
+          "description": "Ref"
+        }
+      ]
+    },
+    {
+      "name": "recommendations_list-tome",
+      "description": "Friends' recommendations page. Optional: ref.",
+      "method": "GET",
+      "path": "/recommendations/to_me",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "query",
+          "description": "Ref"
+        }
+      ]
+    },
+    {
+      "name": "review_create",
+      "description": "Update transient shelf-table UI settings in the session. Returns the new ReviewCreateResponse.",
+      "method": "POST",
+      "path": "/review/update_session_shelf_settings",
+      "params": []
+    },
+    {
+      "name": "review_create-update",
+      "description": "Inline review/date/notes field update for one book. Required: book_id. Returns the new ReviewCreateUpdateResponse.",
+      "method": "POST",
+      "path": "/review/update/{book_id}",
+      "params": [
+        {
+          "name": "book_id",
+          "type": "int",
+          "location": "path",
+          "description": "Book id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "review_create-updatelist",
+      "description": "Batch update selected reviews/books on a user's shelf table. Required: user_id. Optional: authenticity_token, edit[shelf], reviews[{review_id}] (plus 1 more).",
+      "method": "POST",
+      "path": "/review/update_list/{user_id}",
+      "params": [
+        {
+          "name": "user_id",
+          "type": "int",
+          "location": "path",
+          "description": "User id",
+          "required": true
+        },
+        {
+          "name": "authenticity_token",
+          "type": "string",
+          "location": "body",
+          "description": "Authenticity token"
+        },
+        {
+          "name": "edit[shelf]",
+          "type": "string",
+          "location": "body",
+          "description": "Edit shelf"
+        },
+        {
+          "name": "reviews[{review_id}]",
+          "type": "string",
+          "location": "body",
+          "description": "Reviews review id"
+        },
+        {
+          "name": "view",
+          "type": "string",
+          "location": "body",
+          "description": "View"
+        }
+      ]
+    },
+    {
+      "name": "review_get",
+      "description": "Bookshelf list for a user, optionally filtered by shelf. Required: user. Optional: shelf, print.",
+      "method": "GET",
+      "path": "/review/list/{user}",
+      "params": [
+        {
+          "name": "user",
+          "type": "string",
+          "location": "path",
+          "description": "User",
+          "required": true
+        },
+        {
+          "name": "shelf",
+          "type": "string",
+          "location": "query",
+          "description": "Shelf"
+        },
+        {
+          "name": "print",
+          "type": "bool",
+          "location": "query",
+          "description": "Print"
+        }
+      ]
+    },
+    {
+      "name": "review_get-listrss",
+      "description": "This public XML route is the cleanest current read API for shelf exports. Authenticated shelf pages can expose a private keyed RSS URL; do not log or commit that key. Required: user. Optional: shelf, key.",
+      "method": "GET",
+      "path": "/review/list_rss/{user}",
+      "params": [
+        {
+          "name": "user",
+          "type": "string",
+          "location": "path",
+          "description": "User",
+          "required": true
+        },
+        {
+          "name": "shelf",
+          "type": "string",
+          "location": "query",
+          "description": "Shelf"
+        },
+        {
+          "name": "key",
+          "type": "string",
+          "location": "query",
+          "description": "Optional private feed key from a logged-in page. Redact if present."
+        }
+      ]
+    },
+    {
+      "name": "review_get-stats",
+      "description": "Reading stats page. Required: user.",
+      "method": "GET",
+      "path": "/review/stats/{user}",
+      "params": [
+        {
+          "name": "user",
+          "type": "string",
+          "location": "path",
+          "description": "User",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "review_list",
+      "description": "Review drafts page.",
+      "method": "GET",
+      "path": "/review/drafts",
+      "params": []
+    },
+    {
+      "name": "review_list-duplicates",
+      "description": "Duplicate books tool.",
+      "method": "GET",
+      "path": "/review/duplicates",
+      "params": []
+    },
+    {
+      "name": "review_list-import",
+      "description": "Import/export page.",
+      "method": "GET",
+      "path": "/review/import",
+      "params": []
+    },
+    {
+      "name": "search_search_list",
+      "description": "Canonical book search route from OpenSearch descriptor. Required: search[query]. Optional: search_type (default: books).",
+      "method": "GET",
+      "path": "/search/search",
+      "params": [
+        {
+          "name": "search_type",
+          "type": "string",
+          "location": "query",
+          "description": "Search type"
+        },
+        {
+          "name": "search[query]",
+          "type": "string",
+          "location": "query",
+          "description": "Search query",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "shelf_create",
+      "description": "Add or remove one book from a shelf through the shelf chooser helper. Optional: a, authenticity_token, book_id (plus 1 more). Returns the new ShelfCreateResponse.",
+      "method": "POST",
+      "path": "/shelf/add_to_shelf",
+      "params": [
+        {
+          "name": "a",
+          "type": "string",
+          "location": "body",
+          "description": "Empty/add by default; `remove` removes the shelf."
+        },
+        {
+          "name": "authenticity_token",
+          "type": "string",
+          "location": "body",
+          "description": "Authenticity token"
+        },
+        {
+          "name": "book_id",
+          "type": "int",
+          "location": "body",
+          "description": "Book id"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        }
+      ]
+    },
+    {
+      "name": "shelf_create-movebatch",
+      "description": "Reorder books/shelves in batch. Returns the new ShelfCreateMovebatchResponse.",
+      "method": "POST",
+      "path": "/shelf/move_batch",
+      "params": []
+    },
+    {
+      "name": "shelf_create-movebatch-2",
+      "description": "Persist shelf-table position changes for a user. Required: user_id. Returns the new ShelfCreateMovebatch2Response.",
+      "method": "POST",
+      "path": "/shelf/move_batch/{user_id}",
+      "params": [
+        {
+          "name": "user_id",
+          "type": "int",
+          "location": "path",
+          "description": "User id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "shelf_create-movetoposition",
+      "description": "Move one shelf/book row to a specific position. Optional: authenticity_token, id, position. Returns the new ShelfCreateMovetopositionResponse.",
+      "method": "POST",
+      "path": "/shelf/move_to_position",
+      "params": [
+        {
+          "name": "authenticity_token",
+          "type": "string",
+          "location": "body",
+          "description": "Authenticity token"
+        },
+        {
+          "name": "id",
+          "type": "int",
+          "location": "body",
+          "description": "Id"
+        },
+        {
+          "name": "position",
+          "type": "int",
+          "location": "body",
+          "description": "Position"
+        }
+      ]
+    },
+    {
+      "name": "shelf_create-removebook",
+      "description": "Remove one book from a shelf from the button helper. Optional: authenticity_token, book_id, name. Returns the new ShelfCreateRemovebookResponse.",
+      "method": "POST",
+      "path": "/shelf/remove_book",
+      "params": [
+        {
+          "name": "authenticity_token",
+          "type": "string",
+          "location": "body",
+          "description": "Authenticity token"
+        },
+        {
+          "name": "book_id",
+          "type": "int",
+          "location": "body",
+          "description": "Book id"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        }
+      ]
+    },
+    {
+      "name": "shelf_create-update",
+      "description": "Update shelf display/settings. Required: shelf_id. Optional: _method, authenticity_token, user_shelf[order] (plus 2 more).",
+      "method": "POST",
+      "path": "/shelf/update/{shelf_id}",
+      "params": [
+        {
+          "name": "shelf_id",
+          "type": "int",
+          "location": "path",
+          "description": "Shelf id",
+          "required": true
+        },
+        {
+          "name": "_method",
+          "type": "string",
+          "location": "body",
+          "description": "Method"
+        },
+        {
+          "name": "authenticity_token",
+          "type": "string",
+          "location": "body",
+          "description": "Authenticity token"
+        },
+        {
+          "name": "user_shelf[order]",
+          "type": "string",
+          "location": "body",
+          "description": "User shelf order"
+        },
+        {
+          "name": "user_shelf[per_page]",
+          "type": "int",
+          "location": "body",
+          "description": "User shelf per page"
+        },
+        {
+          "name": "user_shelf[sort]",
+          "type": "string",
+          "location": "body",
+          "description": "User shelf sort"
+        }
+      ]
+    },
+    {
+      "name": "shelf_get",
+      "description": "Public shelf landing page. Required: shelf_slug.",
+      "method": "GET",
+      "path": "/shelf/show/{shelf_slug}",
+      "params": [
+        {
+          "name": "shelf_slug",
+          "type": "string",
+          "location": "path",
+          "description": "Shelf slug",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "shelf_list",
+      "description": "Top public shelves index.",
+      "method": "GET",
+      "path": "/shelf",
+      "params": []
+    },
+    {
+      "name": "tooltips_list",
+      "description": "Batch tooltip metadata for book ids shown in shelf/list pages. Optional: resources[Book.{id}][id], resources[Book.{id}][type], use_wtr_tooltip. Returns the TooltipsListResponse.",
+      "method": "GET",
+      "path": "/tooltips",
+      "params": [
+        {
+          "name": "resources[Book.{id}][id]",
+          "type": "string",
+          "location": "query",
+          "description": "Goodreads emits one pair per book id."
+        },
+        {
+          "name": "resources[Book.{id}][type]",
+          "type": "string",
+          "location": "query",
+          "description": "Resources book id type"
+        },
+        {
+          "name": "use_wtr_tooltip",
+          "type": "bool",
+          "location": "query",
+          "description": "Use wtr tooltip"
+        }
+      ]
+    },
+    {
+      "name": "topic_list",
+      "description": "Discussions page, optionally filtered to groups. Optional: discussion_filter, ref.",
+      "method": "GET",
+      "path": "/topic",
+      "params": [
+        {
+          "name": "discussion_filter",
+          "type": "string",
+          "location": "query",
+          "description": "Discussion filter"
+        },
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "query",
+          "description": "Ref"
+        }
+      ]
+    },
+    {
+      "name": "user_get",
+      "description": "Profile delay-loaded sections. Required: user_id. Optional: skip_cache, csm_scope. Returns the UserGetResponse.",
+      "method": "GET",
+      "path": "/user/delayable_user_show/{user_id}",
+      "params": [
+        {
+          "name": "user_id",
+          "type": "int",
+          "location": "path",
+          "description": "User id",
+          "required": true
+        },
+        {
+          "name": "skip_cache",
+          "type": "bool",
+          "location": "query",
+          "description": "Skip cache"
+        },
+        {
+          "name": "csm_scope",
+          "type": "string",
+          "location": "query",
+          "description": "Csm scope"
+        }
+      ]
+    },
+    {
+      "name": "user_get-show",
+      "description": "User profile page. Required: user_slug.",
+      "method": "GET",
+      "path": "/user/show/{user_slug}",
+      "params": [
+        {
+          "name": "user_slug",
+          "type": "string",
+          "location": "path",
+          "description": "User slug",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "user_get-yearinbooks",
+      "description": "Year in Books page. Required: year, user_id.",
+      "method": "GET",
+      "path": "/user/year_in_books/{year}/{user_id}",
+      "params": [
+        {
+          "name": "year",
+          "type": "int",
+          "location": "path",
+          "description": "Year",
+          "required": true
+        },
+        {
+          "name": "user_id",
+          "type": "int",
+          "location": "path",
+          "description": "User id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "user_list",
+      "description": "People discovery page for most popular reviewers.",
+      "method": "GET",
+      "path": "/user/best_reviewers",
+      "params": []
+    },
+    {
+      "name": "user_list-topreaders",
+      "description": "People discovery page for top readers.",
+      "method": "GET",
+      "path": "/user/top_readers",
+      "params": []
+    },
+    {
+      "name": "user_list-topreviewers",
+      "description": "People discovery page for top reviewers.",
+      "method": "GET",
+      "path": "/user/top_reviewers",
+      "params": []
+    },
+    {
+      "name": "user-following_list",
+      "description": "People discovery page for most-followed users.",
+      "method": "GET",
+      "path": "/user_following/most_followed",
+      "params": []
+    },
+    {
+      "name": "user-shelves_create",
+      "description": "Create a custom user shelf. Optional: authenticity_token, commit, user_shelf[name].",
+      "method": "POST",
+      "path": "/user_shelves",
+      "params": [
+        {
+          "name": "authenticity_token",
+          "type": "string",
+          "location": "body",
+          "description": "Authenticity token"
+        },
+        {
+          "name": "commit",
+          "type": "string",
+          "location": "body",
+          "description": "Commit"
+        },
+        {
+          "name": "user_shelf[name]",
+          "type": "string",
+          "location": "body",
+          "description": "User shelf name"
+        }
+      ]
+    }
+  ]
+}
