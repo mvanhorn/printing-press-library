@@ -99,10 +99,12 @@ The count column shows unique contacts; phones shows total phone numbers from th
 
 			// Show unresolved count
 			var unresolved int
-			store.db.QueryRow(`
+			if err := store.db.QueryRow(`
 				SELECT COUNT(DISTINCT contact_id) FROM contact_phones
 				WHERE country IS NULL OR country = ''
-			`).Scan(&unresolved)
+			`).Scan(&unresolved); err != nil {
+				return fmt.Errorf("query unresolved-country count: %w", err)
+			}
 			if unresolved > 0 {
 				fmt.Fprintf(out, "  %s %d contacts have phones with unresolved country (no E.164 prefix)\n",
 					yellow(f, out, "⚠"), unresolved)
