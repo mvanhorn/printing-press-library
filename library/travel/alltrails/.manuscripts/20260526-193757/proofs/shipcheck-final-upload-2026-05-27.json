@@ -1,0 +1,56 @@
+{
+  "passed": true,
+  "exit_code": 0,
+  "started_at": "2026-05-27T19:59:08Z",
+  "elapsed_ms": 3202,
+  "legs": [
+    {
+      "name": "verify",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-05-27T19:59:08Z",
+      "elapsed_ms": 1327,
+      "command": "/Users/zaydk/go/bin/printing-press verify --dir /Users/zaydk/printing-press/library/travel/alltrails-pp --spec /Users/zaydk/printing-press/library/travel/alltrails-pp/spec.json"
+    },
+    {
+      "name": "validate-narrative",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-05-27T19:59:10Z",
+      "elapsed_ms": 13,
+      "command": "/Users/zaydk/go/bin/printing-press validate-narrative --strict --full-examples --research /Users/zaydk/printing-press/library/travel/alltrails-pp/research.json --binary /Users/zaydk/printing-press/library/travel/alltrails-pp/alltrails-pp-cli"
+    },
+    {
+      "name": "dogfood",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-05-27T19:59:10Z",
+      "elapsed_ms": 1209,
+      "command": "/Users/zaydk/go/bin/printing-press dogfood --dir /Users/zaydk/printing-press/library/travel/alltrails-pp --spec /Users/zaydk/printing-press/library/travel/alltrails-pp/spec.json"
+    },
+    {
+      "name": "workflow-verify",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-05-27T19:59:11Z",
+      "elapsed_ms": 13,
+      "command": "/Users/zaydk/go/bin/printing-press workflow-verify --dir /Users/zaydk/printing-press/library/travel/alltrails-pp"
+    },
+    {
+      "name": "verify-skill",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-05-27T19:59:11Z",
+      "elapsed_ms": 287,
+      "command": "/Users/zaydk/go/bin/printing-press verify-skill --dir /Users/zaydk/printing-press/library/travel/alltrails-pp"
+    },
+    {
+      "name": "scorecard",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-05-27T19:59:11Z",
+      "elapsed_ms": 350,
+      "command": "/Users/zaydk/go/bin/printing-press scorecard --dir /Users/zaydk/printing-press/library/travel/alltrails-pp --spec /Users/zaydk/printing-press/library/travel/alltrails-pp/spec.json"
+    }
+  ]
+}

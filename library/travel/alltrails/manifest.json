@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "alltrails-pp-mcp",
+  "display_name": "Alltrails Unofficial Seed",
+  "version": "4.18.0",
+  "description": "Evidence-labeled, live-capable route map for AllTrails browser/mobile surfaces. Not an official API contract.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/alltrails-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/alltrails-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}
