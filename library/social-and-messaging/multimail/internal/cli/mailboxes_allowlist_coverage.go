@@ -115,7 +115,7 @@ Run 'multimail-pp-cli sync' first to populate local data.`,
 						continue
 					}
 
-					// Time filter
+					// Time filter — skip emails with unparseable timestamps
 					if ts, ok := parseNumericTime(e["created_at"]); ok {
 						if ts.Before(cutoff) {
 							continue
@@ -124,6 +124,8 @@ Run 'multimail-pp-cli sync' first to populate local data.`,
 						if ts.Before(cutoff) {
 							continue
 						}
+					} else {
+						continue
 					}
 
 					mailboxID, _ := e["mailboxes_id"].(string)
@@ -171,6 +173,8 @@ Run 'multimail-pp-cli sync' first to populate local data.`,
 						if ts.Before(cutoff) {
 							continue
 						}
+					} else {
+						continue
 					}
 					var recipients []string
 					if to, ok := e["to"].([]any); ok {
