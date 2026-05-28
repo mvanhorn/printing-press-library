@@ -1,0 +1,88 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-28T20:20:54.419512Z",
+  "printing_press_version": "4.18.1",
+  "api_name": "hubspot",
+  "display_name": "HubSpot",
+  "cli_name": "hubspot-pp-cli",
+  "owner": "sdhilip200",
+  "printer": "sdhilip200",
+  "printer_name": "sdhilip200",
+  "spec_path": "https://raw.githubusercontent.com/HubSpot/HubSpot-public-api-spec-collection/main/PublicApiSpecs/CRM/Contacts/Rollouts/424/v3/contacts.json",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:13db10a176367a624458a84ae7406634b0482d372e77c03ae309c9de371783ac",
+  "run_id": "20260529-072410",
+  "catalog_entry": "hubspot",
+  "category": "sales-and-crm",
+  "description": "Read-only contact analytics for HubSpot CRM — score drift, engagement decay, source ROI, and a daily digest, with a local store no other HubSpot tool ships.",
+  "mcp_binary": "hubspot-pp-mcp",
+  "mcp_tool_count": 13,
+  "mcp_ready": "full",
+  "api_version": "v3",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "HUBSPOT_OAUTH2"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "HUBSPOT_PRIVATE_APP_TOKEN",
+      "kind": "per_call",
+      "required": false,
+      "sensitive": true
+    },
+    {
+      "name": "HUBSPOT_OAUTH2",
+      "kind": "per_call",
+      "required": false,
+      "sensitive": true
+    }
+  ],
+  "auth_key_url": "https://app.hubspot.com/private-apps",
+  "novel_features": [
+    {
+      "name": "Engagement decay",
+      "command": "engagement-decay",
+      "description": "Find previously-active contacts who have gone dark, ranked by prior engagement intensity."
+    },
+    {
+      "name": "Lifecycle stuck",
+      "command": "lifecycle-stuck",
+      "description": "Surface contacts stuck in a lifecycle stage past team-median dwell time."
+    },
+    {
+      "name": "Stale but valuable",
+      "command": "stale-but-valuable",
+      "description": "Find high-score, high-revenue contacts whose engagement has cooled — the VIPs going cold."
+    },
+    {
+      "name": "Source ROI",
+      "command": "source-roi",
+      "description": "Rank contact acquisition sources by realized revenue and conversion, not raw volume."
+    },
+    {
+      "name": "Score drift",
+      "command": "score-drift",
+      "description": "Find contacts whose HubSpot score dropped meaningfully over a window — leading indicator before lifecycle catches up."
+    },
+    {
+      "name": "Owner overload",
+      "command": "owner-overload",
+      "description": "Flag sales reps carrying more active contacts than team median, weighted by lifecycle stage."
+    },
+    {
+      "name": "Silent after first touch",
+      "command": "silent-after-first-touch",
+      "description": "Find contacts who engaged exactly once and then went silent — distinguish tire-kickers from genuine interest."
+    },
+    {
+      "name": "Duplicate suspects",
+      "command": "duplicate-suspects",
+      "description": "Surface likely duplicate contacts via fuzzy match on email-local-part, normalized name, and company."
+    },
+    {
+      "name": "Daily digest",
+      "command": "daily-digest",
+      "description": "One-command morning briefing — new high-score contacts, biggest score drops, lifecycle promotions, freshly stale VIPs."
+    }
+  ]
+}

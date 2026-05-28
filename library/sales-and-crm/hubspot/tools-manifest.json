@@ -1,0 +1,374 @@
+{
+  "api_name": "hubspot",
+  "base_url": "https://api.hubapi.com",
+  "description": "Read-only contact analytics for HubSpot CRM — score drift, engagement decay, source ROI, and a daily digest, with a local store no other HubSpot tool ships.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "HUBSPOT_OAUTH2"
+    ],
+    "env_var_specs": [
+      {
+        "name": "HUBSPOT_OAUTH2",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ],
+    "key_url": "https://app.hubspot.com/private-apps"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "crm_delete-v3-objects-contacts-contact-id-archive",
+      "description": "Delete a contact by ID. Deleted contacts can be restored within 90 days of deletion. Learn more about the [data impacted by contact deletions](https://knowledge.hubspot.com/privacy-and-consent/understand-restorable-and-permanent-contact-deletions) and how to [restore archived records](https://knowledge.hubspot.com/records/restore-deleted-records). Required: contactId. Destructive.",
+      "method": "DELETE",
+      "path": "/crm/v3/objects/contacts/{contactId}",
+      "params": [
+        {
+          "name": "contactId",
+          "type": "string",
+          "location": "path",
+          "description": "Contact id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "crm_get-v3-objects-contacts-contact-id-get-by-id",
+      "description": "Retrieve a contact by its ID (`contactId`) or by a unique property (`idProperty`). You can specify what is returned using the `properties` query parameter. Required: contactId. Optional: archived (default: false), associations, idProperty (plus 2 more). Returns the SimplePublicObjectWithAssociations.",
+      "method": "GET",
+      "path": "/crm/v3/objects/contacts/{contactId}",
+      "params": [
+        {
+          "name": "contactId",
+          "type": "string",
+          "location": "path",
+          "description": "Contact id",
+          "required": true
+        },
+        {
+          "name": "archived",
+          "type": "bool",
+          "location": "query",
+          "description": "Whether to return only results that have been archived."
+        },
+        {
+          "name": "associations",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of object types to retrieve associated IDs for. If any of the specified associations do not exist, they will be ignored."
+        },
+        {
+          "name": "idProperty",
+          "type": "string",
+          "location": "query",
+          "description": "The name of a property whose values are unique for this object type"
+        },
+        {
+          "name": "properties",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of the properties to be returned in the response. If any of the specified properties are not present on the requested object(s), they will be ignored."
+        },
+        {
+          "name": "propertiesWithHistory",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of the properties to be returned along with their history of previous values. If any of the specified properties are not present on the requested object(s), they will be ignored."
+        }
+      ]
+    },
+    {
+      "name": "crm_get-v3-objects-contacts-get-page",
+      "description": "Retrieve all contacts, using query parameters to specify the information that gets returned. Optional: after, archived (default: false), associations (plus 3 more). Returns the CollectionResponseSimplePublicObjectWithAssociationsForwardPaging.",
+      "method": "GET",
+      "path": "/crm/v3/objects/contacts",
+      "params": [
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "The paging cursor token of the last successfully read resource will be returned as the `paging.next.after` JSON property of a paged response containing more results."
+        },
+        {
+          "name": "archived",
+          "type": "bool",
+          "location": "query",
+          "description": "Whether to return only results that have been archived."
+        },
+        {
+          "name": "associations",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of object types to retrieve associated IDs for. If any of the specified associations do not exist, they will be ignored."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "The maximum number of results to display per page."
+        },
+        {
+          "name": "properties",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of the properties to be returned in the response. If any of the specified properties are not present on the requested object(s), they will be ignored."
+        },
+        {
+          "name": "propertiesWithHistory",
+          "type": "array",
+          "location": "query",
+          "description": "A comma separated list of the properties to be returned along with their history of previous values. If any of the specified properties are not present on the requested object(s), they will be ignored. Usage of this parameter will reduce the maximum number of objects that can be read by a single request."
+        }
+      ]
+    },
+    {
+      "name": "crm_patch-v3-objects-contacts-contact-id-update",
+      "description": "Update an existing contact, identified by ID or email/unique property value. To identify a contact by ID, include the ID in the request URL path. To identify a contact by their email or other unique property, include the email/property value in the request URL path, and add the `idProperty` query parameter (`/crm/v3/objects/contacts/jon@website.com?idProperty=email`). Provided property values will be overwritten. Read-only and non-existent properties will result in an error. Properties values can be cleared by passing an empty string. Required: contactId, properties. Optional: idProperty. Returns the updated SimplePublicObject.",
+      "method": "PATCH",
+      "path": "/crm/v3/objects/contacts/{contactId}",
+      "params": [
+        {
+          "name": "contactId",
+          "type": "string",
+          "location": "path",
+          "description": "Contact id",
+          "required": true
+        },
+        {
+          "name": "idProperty",
+          "type": "string",
+          "location": "query",
+          "description": "The name of a property whose values are unique for this object type"
+        },
+        {
+          "name": "properties",
+          "type": "object",
+          "location": "body",
+          "description": "Key value pairs representing the properties of the object.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "crm_post-v3-objects-contacts-batch-archive-archive",
+      "description": "Archive a batch of contacts by ID. Archived contacts can be restored within 90 days of deletion. Learn more about the [data impacted by contact deletions](https://knowledge.hubspot.com/privacy-and-consent/understand-restorable-and-permanent-contact-deletions) and how to [restore archived records](https://knowledge.hubspot.com/records/restore-deleted-records). Required: inputs.",
+      "method": "POST",
+      "path": "/crm/v3/objects/contacts/batch/archive",
+      "params": [
+        {
+          "name": "inputs",
+          "type": "array",
+          "location": "body",
+          "description": "Inputs",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "crm_post-v3-objects-contacts-batch-create-create",
+      "description": "Create a batch of contacts. The `inputs` array can contain a `properties` object to define property values for each record, along with an `associations` array to define [associations](https://developers.hubspot.com/docs/guides/api/crm/associations/associations-v4) with other CRM records. Required: inputs. Returns the new BatchResponseSimplePublicObject.",
+      "method": "POST",
+      "path": "/crm/v3/objects/contacts/batch/create",
+      "params": [
+        {
+          "name": "inputs",
+          "type": "array",
+          "location": "body",
+          "description": "Inputs",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "crm_post-v3-objects-contacts-batch-read-read",
+      "description": "Retrieve a batch of contacts by ID (`contactId`) or unique property value (`idProperty`). Required: inputs, properties, propertiesWithHistory. Optional: archived (default: false), idProperty. Returns the new BatchResponseSimplePublicObject.",
+      "method": "POST",
+      "path": "/crm/v3/objects/contacts/batch/read",
+      "params": [
+        {
+          "name": "archived",
+          "type": "bool",
+          "location": "query",
+          "description": "Whether to return only results that have been archived."
+        },
+        {
+          "name": "idProperty",
+          "type": "string",
+          "location": "body",
+          "description": "When using a custom unique value property to retrieve records, the name of the property. Do not include this parameter if retrieving by record ID."
+        },
+        {
+          "name": "inputs",
+          "type": "array",
+          "location": "body",
+          "description": "Inputs",
+          "required": true
+        },
+        {
+          "name": "properties",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Key-value pairs for setting properties for the new object.",
+          "required": true
+        },
+        {
+          "name": "propertiesWithHistory",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Key-value pairs for setting properties for the new object and their histories.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "crm_post-v3-objects-contacts-batch-update-update",
+      "description": "Update a batch of contacts by ID (`contactId`) or unique property value (`idProperty`). Provided property values will be overwritten. Read-only and non-existent properties will result in an error. Properties values can be cleared by passing an empty string. Required: inputs. Returns the new BatchResponseSimplePublicObject.",
+      "method": "POST",
+      "path": "/crm/v3/objects/contacts/batch/update",
+      "params": [
+        {
+          "name": "inputs",
+          "type": "array",
+          "location": "body",
+          "description": "Inputs",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "crm_post-v3-objects-contacts-batch-upsert-upsert",
+      "description": "Upsert a batch of contacts. The `inputs` array can contain a `properties` object to define property values for each record. Required: inputs. Returns the new BatchResponseSimplePublicUpsertObject.",
+      "method": "POST",
+      "path": "/crm/v3/objects/contacts/batch/upsert",
+      "params": [
+        {
+          "name": "inputs",
+          "type": "array",
+          "location": "body",
+          "description": "Inputs",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "crm_post-v3-objects-contacts-create",
+      "description": "Create a single contact. Include a `properties` object to define [property values](https://developers.hubspot.com/docs/guides/api/crm/properties) for the contact, along with an `associations` array to define [associations](https://developers.hubspot.com/docs/guides/api/crm/associations/associations-v4) with other CRM records. Required: associations, properties. Returns the new SimplePublicObject.",
+      "method": "POST",
+      "path": "/crm/v3/objects/contacts",
+      "params": [
+        {
+          "name": "associations",
+          "type": "array",
+          "location": "body",
+          "description": "Associations",
+          "required": true
+        },
+        {
+          "name": "properties",
+          "type": "object",
+          "location": "body",
+          "description": "Key-value pairs for setting properties for the new object.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "crm_post-v3-objects-contacts-gdpr-delete-purge",
+      "description": "Permanently delete a contact and all associated content to follow GDPR. Use optional property `idProperty` set to `email` to identify contact by email address. If email address is not found, the email address will be added to a blocklist and prevent it from being used in the future. Learn more about [permanently deleting contacts](https://knowledge.hubspot.com/privacy-and-consent/how-do-i-perform-a-gdpr-delete-in-hubspot). Required: objectId. Optional: idProperty.",
+      "method": "POST",
+      "path": "/crm/v3/objects/contacts/gdpr-delete",
+      "params": [
+        {
+          "name": "idProperty",
+          "type": "string",
+          "location": "body",
+          "description": "The name of a property whose values are unique for this object. An alternative to identifying a contact by ID."
+        },
+        {
+          "name": "objectId",
+          "type": "string",
+          "location": "body",
+          "description": "The ID of the contact to permanently delete.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "crm_post-v3-objects-contacts-merge-merge",
+      "description": "Merge two contact records. Learn more about [merging records](https://knowledge.hubspot.com/records/merge-records). Required: objectIdToMerge, primaryObjectId. Returns the new SimplePublicObject.",
+      "method": "POST",
+      "path": "/crm/v3/objects/contacts/merge",
+      "params": [
+        {
+          "name": "objectIdToMerge",
+          "type": "string",
+          "location": "body",
+          "description": "The object ID of the record that the merge will not set as the current value after the merge.",
+          "required": true
+        },
+        {
+          "name": "primaryObjectId",
+          "type": "string",
+          "location": "body",
+          "description": "The object ID of the record that the merge will generally set as the current value after the merge.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "crm_post-v3-objects-contacts-search-do-search",
+      "description": "Search for contacts by filtering on properties, searching through associations, and sorting results. Learn more about [CRM search](https://developers.hubspot.com/docs/guides/api/crm/search#make-a-search-request). Required: after, filterGroups, limit, properties, sorts. Optional: query. Returns the new CollectionResponseWithTotalSimplePublicObject.",
+      "method": "POST",
+      "path": "/crm/v3/objects/contacts/search",
+      "params": [
+        {
+          "name": "after",
+          "type": "string",
+          "location": "body",
+          "description": "A paging cursor token for retrieving subsequent pages.",
+          "required": true
+        },
+        {
+          "name": "filterGroups",
+          "type": "array",
+          "location": "body",
+          "description": "Up to 6 groups of filters defining additional query criteria.",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "body",
+          "description": "The maximum results to return, up to 200 objects.",
+          "required": true
+        },
+        {
+          "name": "properties",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "A list of property names to include in the response.",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "The search query string, up to 3000 characters."
+        },
+        {
+          "name": "sorts",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Specifies sorting order based on object properties.",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

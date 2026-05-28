@@ -1,0 +1,17 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "hubspot-pp-cli"
+display_name = "HubSpot"
+description = "Read-only contact analytics for HubSpot CRM — score drift, engagement decay, source ROI, and a daily digest, with a local store no other HubSpot tool ships."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/hubspot-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+HUBSPOT_OAUTH2 = true
+HUBSPOT_PRIVATE_APP_TOKEN = true

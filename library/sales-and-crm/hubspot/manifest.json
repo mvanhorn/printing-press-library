@@ -1,0 +1,45 @@
+{
+  "manifest_version": "0.3",
+  "name": "hubspot-pp-mcp",
+  "display_name": "HubSpot",
+  "version": "4.18.1",
+  "description": "Read-only contact analytics for HubSpot CRM — score drift, engagement decay, source ROI, and a daily digest, with a local store no other HubSpot tool ships.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/hubspot-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/hubspot-pp-mcp",
+      "args": [],
+      "env": {
+        "HUBSPOT_OAUTH2": "${user_config.hubspot_oauth2}",
+        "HUBSPOT_PRIVATE_APP_TOKEN": "${user_config.hubspot_private_app_token}"
+      }
+    }
+  },
+  "user_config": {
+    "hubspot_oauth2": {
+      "type": "string",
+      "title": "HUBSPOT_OAUTH2",
+      "description": "Optional. Sets HUBSPOT_OAUTH2 for the HubSpot MCP server. Get a credential from https://app.hubspot.com/private-apps.",
+      "sensitive": true
+    },
+    "hubspot_private_app_token": {
+      "type": "string",
+      "title": "HUBSPOT_PRIVATE_APP_TOKEN",
+      "description": "Optional. Sets HUBSPOT_PRIVATE_APP_TOKEN for the HubSpot MCP server. Get a credential from https://app.hubspot.com/private-apps.",
+      "sensitive": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}
