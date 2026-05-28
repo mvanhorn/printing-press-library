@@ -256,15 +256,19 @@ func newProjectAddCmd(flags *rootFlags) *cobra.Command {
 			if price > 0 {
 				pricePtr = &price
 			}
+			var quantityPtr *int
+			if cmd.Flags().Changed("quantity") {
+				quantityPtr = &quantity
+			}
 
 			_, err = db.Exec(
 				`INSERT INTO project_items (project_id, product_url, source, title, price, quantity)
-				 VALUES (?, ?, ?, ?, ?, ?)
+				 VALUES (?, ?, ?, ?, ?, COALESCE(?, 1))
 				 ON CONFLICT(project_id, product_url) DO UPDATE SET
-				   quantity = excluded.quantity,
+				   quantity = COALESCE(excluded.quantity, project_items.quantity),
 				   price = COALESCE(excluded.price, project_items.price),
 				   title = COALESCE(excluded.title, project_items.title)`,
-				projectID, productURL, source, titlePtr, pricePtr, quantity,
+				projectID, productURL, source, titlePtr, pricePtr, quantityPtr,
 			)
 			if err != nil {
 				return fmt.Errorf("adding item to project: %w", err)
