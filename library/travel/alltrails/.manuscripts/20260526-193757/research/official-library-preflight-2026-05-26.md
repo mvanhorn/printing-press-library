@@ -26,7 +26,7 @@ AllTrails is clear for a new Printing Press package. No current upstream package
 
 ## Working Boundary
 
-AllTrails should start with a clear ToS/authorization note and dry-run/write barriers. The current local assumption is authorized/private-account usage per Zayd's 2026-05-26 note that he spoke with AllTrails and API CLI work is okay. This does not remove the need to document risk, avoid CAPTCHA or bot-protection bypass code, and keep mutations disabled by default.
+AllTrails should start with a clear ToS/authorization note and dry-run/write barriers. The current local assumption is authorized/private-account usage per the account owner's 2026-05-26 authorization note for this CLI/API direction. This does not remove the need to document risk, avoid CAPTCHA or bot-protection bypass code, and keep mutations disabled by default.
 
 ## Next
 

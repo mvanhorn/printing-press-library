@@ -44,7 +44,7 @@ The build should be read-first and authorization-first: browser-account capture 
 - Repo proof: `alltrails/proofs/gh-repo-view-alltrails-mcp-server-2026-05-26.json`
 - README proof: `alltrails/proofs/gh-readme-alltrails-mcp-server-2026-05-26.md`
 - Signal: prior AllTrails MCP work was deprecated after a ToS objection.
-- Current handling: record as policy precedent, not a hard blocker, because Zayd separately reported AllTrails approval for this CLI/API direction. The code still needs ToS docs and barriers.
+- Current handling: record as policy precedent, not a hard blocker, because the account owner separately reported AllTrails approval for this CLI/API direction. The code still needs ToS docs and barriers.
 
 ### `Asherlc/dofek` provider note
 
@@ -106,7 +106,7 @@ Browser-capture targets:
 
 The default Chrome CDP lane was repeatedly prompting for remote-debugging Allow. A dedicated Chrome profile was launched for AllTrails:
 
-- profile: `~/Desktop/printing-press-research/codex-work/.chrome-profiles/alltrails-cdp`
+- profile: `<local-browser-profile>/alltrails-cdp`
 - port: `9227`
 - URL: `https://www.alltrails.com/login`
 
