@@ -21,6 +21,14 @@
         "internal/store/store.go",
         "internal/cache/cache.go"
       ]
+    },
+    {
+      "id": "remove-cancel-create-alias",
+      "summary": "Removed the misleading 'create' alias from crypto post-trading-cancel-order.",
+      "reason": "Greptile P1: the cancel-order command registered 'create' as an alias, so 'crypto create <id>' would silently cancel a live order instead of placing one.",
+      "files": [
+        "internal/cli/crypto_post-trading-cancel-order.go"
+      ]
     }
   ]
 }

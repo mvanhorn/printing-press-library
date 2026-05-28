@@ -16,9 +16,11 @@ func newCryptoPostTradingCancelOrderCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:         "post-trading-cancel-order <id>",
-		Aliases:     []string{"create"},
-		Short:       "Cancels an open crypto trading order.",
+		Use: "post-trading-cancel-order <id>",
+		// No "create" alias: this endpoint cancels an order, and a `crypto
+		// create <id>` alias would let a user cancel a live position while
+		// believing they were placing one.
+		Short: "Cancels an open crypto trading order.",
 		Example:     "  robinhood-pp-cli crypto post-trading-cancel-order 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "crypto.post-trading-cancel-order", "pp:method": "POST", "pp:path": "/api/v1/crypto/trading/orders/{id}/cancel/"},
 		RunE: func(cmd *cobra.Command, args []string) error {
