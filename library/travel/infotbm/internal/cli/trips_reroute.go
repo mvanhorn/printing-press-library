@@ -159,7 +159,7 @@ searches for the next best connections using live SIRI estimated timetable data.
 				arrTime := callArrivalTime(calls[toIdx])
 
 				// Only include departures after earliest usable time
-				if !depTime.IsZero() && depTime.Before(earliest) {
+				if depTime.IsZero() || depTime.Before(earliest) {
 					continue
 				}
 

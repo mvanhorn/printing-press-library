@@ -161,7 +161,7 @@ included in the output.`,
 				arrTime := callArrivalTime(calls[toIdx])
 
 				// Only include departures after the requested time
-				if !depTime.IsZero() && depTime.Before(departAt) {
+				if depTime.IsZero() || depTime.Before(departAt) {
 					continue
 				}
 
