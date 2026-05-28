@@ -18,9 +18,9 @@ GoDaddy exposes **two distinct surfaces**:
 |----------------|----------------------|
 | Abuse | YES (`abuse`) |
 | Aftermarket | YES (`aftermarket`) |
-| Agreements | GAP — no `agreements` command |
-| ANS (name servers) | GAP — no `ans` command |
-| Auctions | PARTIAL — likely under `aftermarket`; no dedicated `auctions` |
+| Agreements | YES (`agreements` — `GET /v1/agreements`) |
+| ANS | YES — the `agents` resource IS the ANS API (operationIds `searchANSName`/`resolveANSName`/`registerAgent`; 16 endpoints). NOT "name servers". |
+| Auctions | YES (`auctions-aftermarket` bid POST + `customers auctions get-listings` read) |
 | Certificates | YES (`certificates`) |
 | Countries | YES (`countries`) |
 | Domains | YES (`domains`, incl. DNS records) |
@@ -29,9 +29,10 @@ GoDaddy exposes **two distinct surfaces**:
 | Shoppers | YES (`shoppers`) |
 | Subscriptions | YES (`subscriptions`) |
 
-CLI also ships `agents`, `analytics`, `customers`, `profile`, `promoted`, `search` resources.
-**Coverage: ~9-10 of 12 documented APIs.** Candidate additions: Agreements, ANS, dedicated Auctions
-(niche; confirm against current developer.godaddy.com specs before adding).
+CLI also ships `agents` (=ANS), `analytics`, `customers`, `profile`, `promoted`, `search` resources.
+**Coverage: 12 of 12 documented APIs — 138/138 documented endpoints** (verified by exact set-comparison of
+every spec endpoint at `developer.godaddy.com/swagger/swagger_<api>.json` against the CLI's `pp:path`
+annotations). No code gaps. (My earlier draft mis-mapped ANS as "name servers" — corrected.)
 
 ## Live internal account-UI endpoints (CDP capture, IDs masked, OPTIONS removed)
 
