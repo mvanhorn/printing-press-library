@@ -122,6 +122,17 @@
         "internal/store/store.go"
       ],
       "validated_outcome": "go build/vet/test pass; verify-skill passes. store.go's db file + WAL/SHM sidecars were already chmod'd; this adds the missing dir chmod and re-secures the config/profile/feedback/cache files. deliver.go left at 0o755 (user-chosen output sink, not a sensitive cache/store path)."
+    },
+    {
+      "id": "brokerage-forward-timeout-flag",
+      "summary": "Added a Timeout field to brokeragemap.ExecuteOptions; Execute uses it for the http.Client (falling back to 30s when zero), and every brokerage command threads the CLI --timeout (flags.timeout) into the ExecuteOptions it builds.",
+      "reason": "Greptile (#893): brokeragemap.Execute hardcoded a 30s http.Client timeout and ExecuteOptions had no Timeout field, so the user-visible --timeout flag (wired into the crypto client via flags.newClient) was silently ignored on every brokerage command. Now brokerage honors --timeout like crypto does.",
+      "files": [
+        "internal/brokeragemap/route_map.go",
+        "internal/cli/brokerage.go",
+        "internal/cli/brokerage_read.go"
+      ],
+      "validated_outcome": "go build/vet/test pass; verify-skill passes. Default behavior unchanged when --timeout is unset (zero Timeout falls back to 30s)."
     }
   ]
 }

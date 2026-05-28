@@ -79,6 +79,7 @@ func runBrokerageWrite(cmd *cobra.Command, flags *rootFlags, host, path, method,
 		DryRun:    dryRun,
 		Body:      bodyBytes,
 		RateLimit: flags.rateLimit,
+		Timeout:   flags.timeout,
 	})
 }
 
@@ -91,6 +92,7 @@ func execBrokeragePlan(cmd *cobra.Command, flags *rootFlags, plan brokeragemap.P
 		DryRun:    dryRun,
 		Body:      body,
 		RateLimit: flags.rateLimit,
+		Timeout:   flags.timeout,
 	})
 }
 

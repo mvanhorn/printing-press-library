@@ -75,6 +75,9 @@ type ExecuteOptions struct {
 	FullBody     bool
 	MaxBodyBytes int
 	RateLimit    float64
+	// Timeout is the per-request HTTP timeout. When zero, Execute falls back
+	// to the historical 30s default so callers that don't set it are unchanged.
+	Timeout time.Duration
 }
 
 type ExecuteResult struct {
@@ -365,7 +368,11 @@ func Execute(ctx context.Context, plan Plan, options ExecuteOptions) (ExecuteRes
 	}
 	limiter := cliutil.NewAdaptiveLimiter(options.RateLimit)
 	limiter.Wait()
-	client := &http.Client{Timeout: 30 * time.Second}
+	timeout := options.Timeout
+	if timeout <= 0 {
+		timeout = 30 * time.Second
+	}
+	client := &http.Client{Timeout: timeout}
 	resp, err := client.Do(req)
 	if err != nil {
 		return ExecuteResult{}, err

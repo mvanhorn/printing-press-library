@@ -241,6 +241,7 @@ without the write gate when ROBINHOOD_BROKERAGE_TOKEN or ROBINHOOD_COOKIE is set
 				Body:      bodyBytes,
 				FullBody:  full,
 				RateLimit: flags.rateLimit,
+				Timeout:   flags.timeout,
 			})
 			if err != nil {
 				return apiErr(err)
