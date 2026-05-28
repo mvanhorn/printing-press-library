@@ -15,16 +15,27 @@ func newSupportPromotedCmd(flags *rootFlags) *cobra.Command {
 	var bodyEmail string
 	var bodyMessage string
 	var bodyName string
-	var bodyPowSolution string
+	var bodyPowSolutionAlgorithm string
+	var bodyPowSolutionChallenge string
+	var bodyPowSolutionNumber int
+	var bodyPowSolutionSalt string
+	var bodyPowSolutionSignature string
 	var bodySubject string
 
 	cmd := &cobra.Command{
 		Use:         "support",
 		Short:       "Public endpoint. Requires a solved ALTCHA proof-of-work payload. Sends a message to support@multimail.dev.",
-		Long:        "Shortcut for 'support create'. Public endpoint. Requires a solved ALTCHA proof-of-work payload. Sends a message to support@multimail.dev.",
+		Long:        "Public endpoint. Requires a solved ALTCHA proof-of-work payload. Sends a message to support@multimail.dev.",
 		Example:     "  multimail-pp-cli support --email user@example.com",
 		Annotations: map[string]string{"pp:endpoint": "support.create", "pp:method": "POST", "pp:path": "/v1/support"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			// Bare invocation of a command with a required flag/body prints help
+			// instead of pflag's terse "required flag not set" error. Optional-
+			// only reads fall through so a bare call still executes; positional
+			// commands keep their existing usageErr (exit 2 + JSON envelope).
+			if cmd.Flags().NFlag() == 0 && len(args) == 0 && !flags.dryRun {
+				return cmd.Help()
+			}
 			if !cmd.Flags().Changed("email") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "email")
 			}
@@ -34,8 +45,20 @@ func newSupportPromotedCmd(flags *rootFlags) *cobra.Command {
 			if !cmd.Flags().Changed("name") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "name")
 			}
-			if !cmd.Flags().Changed("pow-solution") && !flags.dryRun {
-				return fmt.Errorf("required flag \"%s\" not set", "pow-solution")
+			if !cmd.Flags().Changed("pow-solution-algorithm") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "pow-solution-algorithm")
+			}
+			if !cmd.Flags().Changed("pow-solution-challenge") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "pow-solution-challenge")
+			}
+			if !cmd.Flags().Changed("pow-solution-number") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "pow-solution-number")
+			}
+			if !cmd.Flags().Changed("pow-solution-salt") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "pow-solution-salt")
+			}
+			if !cmd.Flags().Changed("pow-solution-signature") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "pow-solution-signature")
 			}
 			if !cmd.Flags().Changed("subject") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "subject")
@@ -46,6 +69,7 @@ func newSupportPromotedCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			path := "/v1/support"
+			params := map[string]string{}
 			// HasStore + non-GET falls through to a live API call here
 			// rather than through resolveRead (GET-only internally); a
 			// body-aware cached read helper is filed as #425 for when a
@@ -60,27 +84,49 @@ func newSupportPromotedCmd(flags *rootFlags) *cobra.Command {
 			if bodyName != "" {
 				body["name"] = bodyName
 			}
-			if bodyPowSolution != "" {
-				var parsedPowSolution any
-				if err := json.Unmarshal([]byte(bodyPowSolution), &parsedPowSolution); err != nil {
-					return fmt.Errorf("parsing --pow-solution JSON: %w", err)
+			{
+				nestedPowSolution := map[string]any{}
+				if bodyPowSolutionAlgorithm != "" {
+					nestedPowSolution["algorithm"] = bodyPowSolutionAlgorithm
 				}
-				body["pow_solution"] = parsedPowSolution
+				if bodyPowSolutionChallenge != "" {
+					nestedPowSolution["challenge"] = bodyPowSolutionChallenge
+				}
+				if bodyPowSolutionNumber != 0 {
+					nestedPowSolution["number"] = bodyPowSolutionNumber
+				}
+				if bodyPowSolutionSalt != "" {
+					nestedPowSolution["salt"] = bodyPowSolutionSalt
+				}
+				if bodyPowSolutionSignature != "" {
+					nestedPowSolution["signature"] = bodyPowSolutionSignature
+				}
+				if len(nestedPowSolution) > 0 {
+					body["pow_solution"] = nestedPowSolution
+				}
 			}
 			if bodySubject != "" {
 				body["subject"] = bodySubject
 			}
-			data, _, err := c.Post(path, body)
+			data, statusCode, err := c.PostWithParams(cmd.Context(), path, params, body)
+
 			prov := attachFreshness(DataProvenance{Source: "live"}, flags)
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
-			// Unwrap API response envelopes (e.g. {"status":"success","data":[...]})
-			// so output helpers see the inner data, not the wrapper.
-			data = extractResponseData(data)
-
-			// Print provenance to stderr
-			{
+			var partialFailure *partialFailureReport
+			if !flags.dryRun && statusCode >= 200 && statusCode < 300 {
+				partialFailure = detectPartialFailure(data)
+			}
+			if !flags.dryRun && statusCode >= 200 && statusCode < 300 && (partialFailure == nil || flags.allowPartialFailure) {
+				writeMutationResponseToStore(cmd.Context(), "support", data, "")
+			}
+			// Print provenance to stderr for human-facing output only.
+			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
+			// --select) and piped stdout suppress this line; the JSON envelope
+			// already carries meta.source for those consumers.
+			// SYNC: keep this gate aligned with command_endpoint.go.tmpl.
+			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
 				if json.Unmarshal(data, &countItems) != nil {
 					// Single object, not an array
@@ -88,14 +134,12 @@ func newSupportPromotedCmd(flags *rootFlags) *cobra.Command {
 				}
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// CSV bypasses JSON pipe path so --csv works when piped
-			if flags.csv {
-				return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
-			}
 			// For JSON output, wrap with provenance envelope. --select wins over
 			// --compact when both are set; --compact only runs when no explicit
-			// fields were requested.
-			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
+			// fields were requested. Explicit format flags (--csv, --quiet, --plain)
+			// opt out of the auto-JSON path so piped consumers that asked for a
+			// non-JSON format reach the standard pipeline below.
+			if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
 				filtered := data
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
@@ -126,7 +170,11 @@ func newSupportPromotedCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&bodyEmail, "email", "", "Email")
 	cmd.Flags().StringVar(&bodyMessage, "message", "", "Message")
 	cmd.Flags().StringVar(&bodyName, "name", "", "Name")
-	cmd.Flags().StringVar(&bodyPowSolution, "pow-solution", "", "Pow solution")
+	cmd.Flags().StringVar(&bodyPowSolutionAlgorithm, "pow-solution-algorithm", "", "Algorithm")
+	cmd.Flags().StringVar(&bodyPowSolutionChallenge, "pow-solution-challenge", "", "Challenge")
+	cmd.Flags().IntVar(&bodyPowSolutionNumber, "pow-solution-number", 0, "Number")
+	cmd.Flags().StringVar(&bodyPowSolutionSalt, "pow-solution-salt", "", "Salt")
+	cmd.Flags().StringVar(&bodyPowSolutionSignature, "pow-solution-signature", "", "Signature")
 	cmd.Flags().StringVar(&bodySubject, "subject", "", "Subject")
 
 	// Wire sibling endpoints and sub-resources as subcommands

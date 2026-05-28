@@ -1,4 +1,4 @@
-module github.com/mvanhorn/printing-press-library/library/social-and-messaging/multimail
+module multimail-pp-cli
 
 go 1.26.3
 

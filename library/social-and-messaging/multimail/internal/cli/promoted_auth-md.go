@@ -11,32 +11,32 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func newMultimailExportPromotedCmd(flags *rootFlags) *cobra.Command {
+func newAuthMdPromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:         "multimail-export",
-		Short:       "Requires admin scope. Rate limited to 1 request per hour.",
-		Long:        "Shortcut for 'multimail-export list'. Requires admin scope. Rate limited to 1 request per hour.",
-		Example:     "  multimail-pp-cli multimail-export",
-		Annotations: map[string]string{"pp:endpoint": "multimail-export.list", "pp:method": "GET", "pp:path": "/v1/export", "mcp:read-only": "true"},
+		Use:         "auth-md",
+		Short:       "Returns a markdown document describing MultiMail's agent registration flow, trust ladder, and scope model.",
+		Long:        "Returns a markdown document describing MultiMail's agent registration flow, trust ladder, and scope model.",
+		Example:     "  multimail-pp-cli auth-md",
+		Annotations: map[string]string{"pp:endpoint": "auth-md.list", "pp:method": "GET", "pp:path": "/auth.md", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
 
-			path := "/v1/export"
+			path := "/auth.md"
 			params := map[string]string{}
-			data, prov, err := resolveRead(cmd.Context(), c, flags, "multimail-export", false, path, params, nil)
+			data, prov, err := resolveReadWithStrategy(cmd.Context(), c, flags, "auto", "auth-md", true, path, params, nil, cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
-			// Unwrap API response envelopes (e.g. {"status":"success","data":[...]})
-			// so output helpers see the inner data, not the wrapper.
-			data = extractResponseData(data)
-
-			// Print provenance to stderr
-			{
+			// Print provenance to stderr for human-facing output only.
+			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
+			// --select) and piped stdout suppress this line; the JSON envelope
+			// already carries meta.source for those consumers.
+			// SYNC: keep this gate aligned with command_endpoint.go.tmpl.
+			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
 				if json.Unmarshal(data, &countItems) != nil {
 					// Single object, not an array
@@ -44,14 +44,12 @@ func newMultimailExportPromotedCmd(flags *rootFlags) *cobra.Command {
 				}
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// CSV bypasses JSON pipe path so --csv works when piped
-			if flags.csv {
-				return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
-			}
 			// For JSON output, wrap with provenance envelope. --select wins over
 			// --compact when both are set; --compact only runs when no explicit
-			// fields were requested.
-			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
+			// fields were requested. Explicit format flags (--csv, --quiet, --plain)
+			// opt out of the auto-JSON path so piped consumers that asked for a
+			// non-JSON format reach the standard pipeline below.
+			if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
 				filtered := data
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)

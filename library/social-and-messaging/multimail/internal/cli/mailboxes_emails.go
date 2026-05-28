@@ -9,8 +9,10 @@ import (
 
 func newMailboxesEmailsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "emails",
-		Short: "Manage emails",
+		Use:         "emails",
+		Short:       "Get, create, update, and delete emails for mailboxes",
+		Annotations: map[string]string{"mcp:read-only": "true"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newMailboxesEmailsCreateCmd(flags))
