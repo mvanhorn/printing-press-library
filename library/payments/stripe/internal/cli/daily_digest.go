@@ -45,12 +45,17 @@ type digestFailureCodeRow struct {
 }
 
 type digestSubs struct {
-	MRRCents            int64 `json:"mrr_cents"`
-	ARRCents            int64 `json:"arr_cents"`
-	ActiveSubscribers   int   `json:"active_subscribers"`
-	TrialingSubscribers int   `json:"trialing_subscribers"`
-	NewInWindow         int   `json:"new_in_window"`
-	ChurnedInWindow     int   `json:"churned_in_window"`
+	// MRRCents is the sum of monthly-normalized recurring revenue across ALL
+	// currencies, in minor units. For multi-currency merchants this is a
+	// face-value sum, not a converted total — use ByCurrencyCents for the
+	// honest per-currency breakdown.
+	MRRCents            int64            `json:"mrr_cents"`
+	ARRCents            int64            `json:"arr_cents"`
+	ByCurrencyCents     map[string]int64 `json:"by_currency_cents,omitempty"`
+	ActiveSubscribers   int              `json:"active_subscribers"`
+	TrialingSubscribers int              `json:"trialing_subscribers"`
+	NewInWindow         int              `json:"new_in_window"`
+	ChurnedInWindow     int              `json:"churned_in_window"`
 }
 
 type digestDisputes struct {
@@ -402,6 +407,7 @@ func buildSubsSection(db *sql.DB, fromTS, toTS int64) (digestSubs, error) {
 	defer rs.Close()
 
 	var mrr int64
+	byCurrency := make(map[string]int64)
 	active := 0
 	trialing := 0
 	newSubs := 0
@@ -424,8 +430,20 @@ func buildSubsSection(db *sql.DB, fromTS, toTS int64) (digestSubs, error) {
 			trialing++
 		}
 		if status == "active" || status == "trialing" {
-			m, _, _ := subscriptionMonthlyMRR(raw)
+			// subscriptionMonthlyMRR returns (total monthly-normalized minor
+			// units, primary currency code, per-currency breakdown for
+			// multi-item subs with mixed currencies). Accumulate per-currency
+			// so the markdown renderer can show an honest breakdown instead
+			// of a single label that misrepresents non-USD merchants.
+			m, cur, perCur := subscriptionMonthlyMRR(raw)
 			mrr += m
+			if len(perCur) > 0 {
+				for c, v := range perCur {
+					byCurrency[normalizeCurrencyCode(c)] += v
+				}
+			} else if cur != "" {
+				byCurrency[normalizeCurrencyCode(cur)] += m
+			}
 		}
 		if created >= fromTS && created <= toTS {
 			newSubs++
@@ -441,11 +459,20 @@ func buildSubsSection(db *sql.DB, fromTS, toTS int64) (digestSubs, error) {
 	return digestSubs{
 		MRRCents:            mrr,
 		ARRCents:            mrr * 12,
+		ByCurrencyCents:     byCurrency,
 		ActiveSubscribers:   active,
 		TrialingSubscribers: trialing,
 		NewInWindow:         newSubs,
 		ChurnedInWindow:     churned,
 	}, nil
+}
+
+func normalizeCurrencyCode(c string) string {
+	c = strings.TrimSpace(c)
+	if c == "" {
+		return "unknown"
+	}
+	return strings.ToUpper(c)
 }
 
 func buildDisputesSection(db *sql.DB, fromTS, toTS int64) (digestDisputes, error) {
@@ -606,13 +633,40 @@ func renderDigestMarkdown(d dailyDigest) string {
 	}
 
 	if d.Subs != nil {
+		// Choose the MRR label honestly. Single-currency merchant gets that
+		// currency code; multi-currency gets a "mixed" label with a per-
+		// currency breakdown table below; absent currency data gets a dash.
+		mrrLabel := "Total (mixed currency)"
+		switch len(d.Subs.ByCurrencyCents) {
+		case 1:
+			for c := range d.Subs.ByCurrencyCents {
+				mrrLabel = c
+			}
+		case 0:
+			mrrLabel = "—"
+		}
 		fmt.Fprintf(&b, "## Subscriptions\n\n| Metric | Value |\n|---|---|\n")
-		fmt.Fprintf(&b, "| MRR | USD %s |\n", centsToDollars(d.Subs.MRRCents))
-		fmt.Fprintf(&b, "| ARR | USD %s |\n", centsToDollars(d.Subs.ARRCents))
+		fmt.Fprintf(&b, "| MRR | %s %s |\n", mrrLabel, centsToDollars(d.Subs.MRRCents))
+		fmt.Fprintf(&b, "| ARR | %s %s |\n", mrrLabel, centsToDollars(d.Subs.ARRCents))
 		fmt.Fprintf(&b, "| Active subscribers | %d |\n", d.Subs.ActiveSubscribers)
 		fmt.Fprintf(&b, "| Trialing subscribers | %d |\n", d.Subs.TrialingSubscribers)
 		fmt.Fprintf(&b, "| New in window | %d |\n", d.Subs.NewInWindow)
 		fmt.Fprintf(&b, "| Churned in window | %d |\n\n", d.Subs.ChurnedInWindow)
+		if len(d.Subs.ByCurrencyCents) > 1 {
+			// Multi-currency: render per-currency monthly breakdown so the
+			// summed MRR row above is interpretable. Sort by code so the
+			// table is diff-stable across runs.
+			fmt.Fprintf(&b, "Per-currency MRR (monthly normalized):\n\n| Currency | MRR |\n|---|---|\n")
+			codes := make([]string, 0, len(d.Subs.ByCurrencyCents))
+			for c := range d.Subs.ByCurrencyCents {
+				codes = append(codes, c)
+			}
+			sort.Strings(codes)
+			for _, c := range codes {
+				fmt.Fprintf(&b, "| %s | %s |\n", c, centsToDollars(d.Subs.ByCurrencyCents[c]))
+			}
+			fmt.Fprintln(&b)
+		}
 		fmt.Fprintf(&b, "---\n\n")
 	}
 
