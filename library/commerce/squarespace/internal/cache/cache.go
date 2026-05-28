@@ -44,8 +44,10 @@ func (s *Store) Get(key string) (json.RawMessage, bool) {
 
 // Set stores a value in the cache.
 func (s *Store) Set(key string, value json.RawMessage) {
-	_ = os.MkdirAll(s.Dir, 0o755)
-	_ = os.WriteFile(s.path(key), []byte(value), 0o644)
+	// 0700 dir / 0600 file: cached responses can hold order, contact, and
+	// profile PII; keep them readable only by the owning user.
+	_ = os.MkdirAll(s.Dir, 0o700)
+	_ = os.WriteFile(s.path(key), []byte(value), 0o600)
 }
 
 // Clear removes all cached entries.

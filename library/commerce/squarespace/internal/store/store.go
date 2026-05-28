@@ -92,13 +92,23 @@ func OpenReadOnly(dbPath string) (*Store, error) {
 // retry-on-SQLITE_BUSY loop and propagates ctx.Err() back to the caller
 // instead of waiting out the full migrationLockTimeout.
 func OpenWithContext(ctx context.Context, dbPath string) (*Store, error) {
-	if err := os.MkdirAll(filepath.Dir(dbPath), 0o755); err != nil {
+	// 0700: the SQLite store holds synced orders, customer contacts, and
+	// profiles (PII). Keep the directory readable only by the owning user.
+	if err := os.MkdirAll(filepath.Dir(dbPath), 0o700); err != nil {
 		return nil, fmt.Errorf("creating db directory: %w", err)
 	}
 
 	db, err := sql.Open("sqlite", dbPath+"?_pragma=journal_mode(WAL)&_pragma=synchronous(NORMAL)&_pragma=busy_timeout(5000)&_pragma=foreign_keys(ON)&_pragma=temp_store(MEMORY)&_pragma=mmap_size(268435456)")
 	if err != nil {
 		return nil, fmt.Errorf("opening database: %w", err)
+	}
+	// Restrict the DB file (and the WAL/SHM sidecars SQLite derives from it)
+	// to owner-only: the synced data is PII. sql.Open is lazy, so force a
+	// connection first so the file exists before we chmod it.
+	if perr := db.PingContext(ctx); perr == nil {
+		_ = os.Chmod(dbPath, 0o600)
+		_ = os.Chmod(dbPath+"-wal", 0o600)
+		_ = os.Chmod(dbPath+"-shm", 0o600)
 	}
 
 	// WAL mode + 2 connections allows one read cursor open while a second

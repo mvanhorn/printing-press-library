@@ -127,9 +127,14 @@ func (c *Client) readCache(path string, params map[string]string) (json.RawMessa
 }
 
 func (c *Client) writeCache(path string, params map[string]string, data json.RawMessage) {
-	os.MkdirAll(c.cacheDir, 0o755)
+	// 0700 dir / 0600 file: cached API responses can contain order, customer
+	// contact, and profile PII. World/group-readable perms would expose that
+	// to other local users.
+	if err := os.MkdirAll(c.cacheDir, 0o700); err != nil {
+		return
+	}
 	cacheFile := filepath.Join(c.cacheDir, c.cacheKey(path, params)+".json")
-	os.WriteFile(cacheFile, []byte(data), 0o644)
+	_ = os.WriteFile(cacheFile, []byte(data), 0o600)
 }
 
 // invalidateCache wholesale-removes the cache directory so the next read
