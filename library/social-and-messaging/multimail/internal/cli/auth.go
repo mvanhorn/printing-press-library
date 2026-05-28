@@ -6,7 +6,7 @@ package cli
 import (
 	"fmt"
 	"github.com/spf13/cobra"
-	"multimail-pp-cli/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/multimail/internal/config"
 	"os"
 )
 

@@ -17,8 +17,8 @@ import (
 	"strings"
 	"time"
 
-	"multimail-pp-cli/internal/client"
-	"multimail-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/multimail/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/multimail/internal/store"
 )
 
 const networkFallbackReason = "api_unreachable"

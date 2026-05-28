@@ -15,12 +15,12 @@ import (
 
 	mcplib "github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
-	"multimail-pp-cli/internal/cli"
-	"multimail-pp-cli/internal/client"
-	"multimail-pp-cli/internal/cliutil"
-	"multimail-pp-cli/internal/config"
-	"multimail-pp-cli/internal/mcp/cobratree"
-	"multimail-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/multimail/internal/cli"
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/multimail/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/multimail/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/multimail/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/multimail/internal/mcp/cobratree"
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/multimail/internal/store"
 )
 
 // RegisterTools registers all API operations as MCP tools.

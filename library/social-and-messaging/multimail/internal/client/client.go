@@ -14,8 +14,8 @@ import (
 	"fmt"
 	"io"
 	"math"
-	"multimail-pp-cli/internal/cliutil"
-	"multimail-pp-cli/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/multimail/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/multimail/internal/config"
 	"net/http"
 	"net/url"
 	"os"
@@ -504,7 +504,7 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 			req.Header.Del(BinaryResponseHeader)
 		}
 		if req.Header.Get("User-Agent") == "" {
-			req.Header.Set("User-Agent", "multimail-pp-cli/2.0.0")
+			req.Header.Set("User-Agent", "github.com/mvanhorn/printing-press-library/library/social-and-messaging/multimail/2.0.0")
 		}
 		// Go's net/http omits Accept by default; browsers, curl, and other
 		// stdlibs always send it. Fingerprint-checking WAFs (Imperva, Akamai,

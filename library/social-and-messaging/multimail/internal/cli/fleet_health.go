@@ -82,14 +82,27 @@ Run 'multimail-pp-cli sync' first to populate local data.`,
 			}
 			rows.Close()
 
-			// Oversight pending count
+			// Oversight pending count — filter by status since the store
+			// accumulates historical records across syncs.
 			var oversightPending int
-			pendingRows, err := sqlDB.QueryContext(ctx, `SELECT COUNT(*) FROM resources WHERE resource_type = 'oversight'`)
-			if err == nil && pendingRows.Next() {
-				pendingRows.Scan(&oversightPending)
-			}
-			if pendingRows != nil {
-				pendingRows.Close()
+			oversightRows, err := sqlDB.QueryContext(ctx, `SELECT data FROM resources WHERE resource_type = 'oversight'`)
+			if err == nil {
+				for oversightRows.Next() {
+					var raw string
+					if oversightRows.Scan(&raw) != nil {
+						break
+					}
+					var o map[string]any
+					if json.Unmarshal([]byte(raw), &o) != nil {
+						continue
+					}
+					status, _ := o["status"].(string)
+					// Count only pending items; approved/rejected are historical
+					if status == "" || status == "pending" || status == "awaiting_decision" {
+						oversightPending++
+					}
+				}
+				oversightRows.Close()
 			}
 
 			// Domain stats

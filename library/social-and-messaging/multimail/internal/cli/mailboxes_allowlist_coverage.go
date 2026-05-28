@@ -103,13 +103,16 @@ Run 'multimail-pp-cli sync' first to populate local data.`,
 					if json.Unmarshal([]byte(raw), &e) != nil {
 						continue
 					}
-					// Only outbound emails
+					// Only outbound emails — require explicit direction or status
 					dir, _ := e["direction"].(string)
-					if dir != "outbound" && dir != "sent" && dir != "" {
+					isOutbound := dir == "outbound" || dir == "sent"
+					if !isOutbound {
+						// Fall back to status field for emails without direction
 						status, _ := e["status"].(string)
-						if status != "sent" && status != "delivered" && status != "pending" {
-							continue
-						}
+						isOutbound = status == "sent" || status == "delivered"
+					}
+					if !isOutbound {
+						continue
 					}
 
 					// Time filter

@@ -6,7 +6,12 @@
   "display_name": "MultiMail",
   "cli_name": "multimail-pp-cli",
   "owner": "h179922",
+  "printer": "H179922",
   "printer_name": "H179922",
+  "creator": {
+    "handle": "H179922",
+    "name": "H179922"
+  },
   "spec_path": "multimail-openapi.json",
   "spec_format": "openapi3",
   "spec_checksum": "sha256:d89ac9638ffefdccc4bfe393809f984634965f061190085c9bd4df060b193583",

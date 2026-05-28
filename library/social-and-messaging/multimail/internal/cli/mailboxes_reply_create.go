@@ -10,7 +10,7 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
-	"multimail-pp-cli/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/multimail/internal/cliutil"
 )
 
 func newMailboxesReplyCreateCmd(flags *rootFlags) *cobra.Command {

@@ -109,14 +109,16 @@ Run 'multimail-pp-cli sync' first to populate local data.`,
 					continue
 				}
 
-				createdAt, _ := entry["created_at"].(string)
-				if createdAt != "" && createdAt < cutoff {
-					// Also try numeric timestamp
-					if ts, ok := parseNumericTime(entry["created_at"]); ok {
-						if ts.Before(mustParseTime(cutoff)) {
+				// Time filter: try RFC3339 string first, then numeric epoch
+				cutoffTime := mustParseTime(cutoff)
+				if createdAt, ok := entry["created_at"].(string); ok && createdAt != "" {
+					if ts, err := time.Parse(time.RFC3339, createdAt); err == nil {
+						if ts.Before(cutoffTime) {
 							continue
 						}
-					} else {
+					}
+				} else if ts, ok := parseNumericTime(entry["created_at"]); ok {
+					if ts.Before(cutoffTime) {
 						continue
 					}
 				}
@@ -190,12 +192,11 @@ Run 'multimail-pp-cli sync' first to populate local data.`,
 				return mailboxResults[i].TotalActions > mailboxResults[j].TotalActions
 			})
 
-			// Compute compliance score
+			// Compute compliance score: decisions / emails sent
+			// Higher is better — means oversight decisions are being exercised on sent emails
 			var complianceScore float64 = 100
-			if stats.Approvals+stats.Rejections > 0 {
-				// Compliance = (decisions made / emails requiring decision) * 100
-				// Higher is better — means oversight is being exercised
-				complianceScore = float64(stats.Approvals+stats.Rejections) / float64(stats.TotalEvents) * 100
+			if stats.EmailsSent > 0 {
+				complianceScore = float64(stats.Approvals+stats.Rejections) / float64(stats.EmailsSent) * 100
 				if complianceScore > 100 {
 					complianceScore = 100
 				}

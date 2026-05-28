@@ -12,7 +12,7 @@ import (
 	"testing"
 	"time"
 
-	"multimail-pp-cli/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/multimail/internal/config"
 )
 
 // recordingRoundTripper counts how many times its RoundTrip method is
