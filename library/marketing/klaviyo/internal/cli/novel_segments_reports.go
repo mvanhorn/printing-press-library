@@ -2006,7 +2006,7 @@ func churnCandidateRows(rows []map[string]any, lastOrders map[string]time.Time, 
 		if lastOrder.IsZero() || now.IsZero() || lastOrder.After(now) {
 			continue
 		}
-		avgDays := 365.0 / orderCount
+		avgDays := (5 * 365.0) / orderCount
 		daysSinceLastOrder := now.Sub(lastOrder).Hours() / 24
 		if daysSinceLastOrder <= avgDays*1.5 {
 			continue

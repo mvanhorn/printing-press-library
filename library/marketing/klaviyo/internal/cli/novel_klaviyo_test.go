@@ -721,9 +721,9 @@ func TestChurnCandidateRowsRequiresLapsedCadence(t *testing.T) {
 		{"profile_id": "single", "order_count": 1},
 	}
 	flagged := churnCandidateRows(rows, map[string]time.Time{
-		"recent": now.AddDate(0, 0, -20),
-		"lapsed": now.AddDate(0, 0, -200),
-		"single": now.AddDate(0, 0, -200),
+		"recent": now.AddDate(0, 0, -200),
+		"lapsed": now.AddDate(0, 0, -800),
+		"single": now.AddDate(0, 0, -800),
 	}, now)
 	if len(flagged) != 1 || flagged[0]["profile_id"] != "lapsed" {
 		t.Fatalf("flagged churn rows = %#v", flagged)
