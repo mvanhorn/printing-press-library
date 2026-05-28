@@ -5,6 +5,13 @@
   "base_printing_press_version": "4.11.0",
   "patches": [
     {
+      "id": "clear-tokens-headers-map",
+      "summary": "ClearTokens now sets Config.Headers = nil so a logout drops any custom credential header in addition to the named token fields.",
+      "reason": "Greptile (Squarespace #919) class: ClearTokens zeroed the named credential fields but left the Headers map intact, and the client's do() loop applies every Config.Headers entry to every request, so a logout could leave an Authorization/credential header active. Mirrors the goodreads fix.",
+      "files": ["internal/config/config.go"],
+      "validated_outcome": "go build/vet/test pass; verify-skill passes."
+    },
+    {
       "id": "typed-brokerage-commands",
       "summary": "Added typed brokerage read/write commands under the existing 'brokerage' parent (accounts, ceres-accounts, account, account-switcher, positions, portfolios, instrument, quote, orders[+place/cancel], options[positions/orders/chain/instruments/marketdata/place/cancel], performance, transfers[+relationships/unified], dividends, history, watchlist[+items/add/remove]).",
       "reason": "The generated CLI was crypto-only (official Crypto API). Zayd wanted the brokerage surface (~90%) captured in the live API map. Each command targets a specific captured endpoint and reuses brokeragemap.Execute (the existing Bearer-token, multi-host, rate-limited, write-gated transport) rather than the crypto client, which speaks x-api-key+ed25519 and cannot reach brokerage hosts. Writes default to dry-run and require --live-write + ROBINHOOD_PP_ALLOW_WRITES=1; trades are never auto-executed.",
