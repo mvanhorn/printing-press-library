@@ -59,8 +59,10 @@ Results are deduped across sources and ranked by one of:
 
 			var results []flagshipPerson
 			var friends []flagshipPerson
+			var err error
 
-			// Step A: LinkedIn (free).
+			// Step A0: Local LinkedIn Network export database (free,
+			// first-degree, no credentials).
 			keywords := parsed["freeform"]
 			if keywords == "" {
 				parts := []string{}
@@ -74,17 +76,28 @@ Results are deduped across sources and ranked by one of:
 			if keywords == "" {
 				return usageErr(fmt.Errorf("prospect: unable to derive keywords from %q; provide a phrase or title=...", query))
 			}
+			localOnly := sourceFlag == SourceFlagLocal || sourceFlag == SourceFlagLN
 			liLimit := limit
 			if liLimit <= 0 {
 				liLimit = 25
 			}
-			liHits, err := fetchLinkedInSearchPeople(ctx, keywords, parsed["location"], liLimit)
-			if err != nil {
-				fmt.Fprintf(cmd.ErrOrStderr(), "warning: LinkedIn search failed: %v\n", err)
+			localHits, localErr := fetchLocalLinkedInSearch(ctx, keywords, liLimit)
+			if localErr != nil {
+				fmt.Fprintf(cmd.ErrOrStderr(), "warning: local LinkedIn Network unavailable: %v\n", localErr)
 			} else {
-				for _, p := range liHits {
-					p.Sources = []string{"li_search"}
-					results = append(results, p)
+				results = append(results, localHits...)
+			}
+
+			// Step A: LinkedIn (free).
+			if !localOnly {
+				liHits, err := fetchLinkedInSearchPeople(ctx, keywords, parsed["location"], liLimit)
+				if err != nil {
+					fmt.Fprintf(cmd.ErrOrStderr(), "warning: LinkedIn search failed: %v\n", err)
+				} else {
+					for _, p := range liHits {
+						p.Sources = []string{"li_search"}
+						results = append(results, p)
+					}
 				}
 			}
 
@@ -94,62 +107,64 @@ Results are deduped across sources and ranked by one of:
 			//   - SourceAPI (explicit --source api, or auto when cookie is
 			//     unavailable / quota exhausted): run a bearer people-search
 			//     against the parsed keywords (paid: 2 credits per search).
-			cfg, cfgErr := config.Load(flags.configPath)
-			if cfgErr != nil {
-				return configErr(cfgErr)
-			}
-			cookieClient, _ := flags.newClient()
-			cookieAvailable := cookieClient != nil && cookieClient.HasCookieAuth()
-			remaining := UnknownSearchesRemaining
-			if cookieAvailable {
-				remaining = FetchSearchesRemaining(cookieClient, cfg, flags.noCache)
-			}
-			chosen, deferredErr, hardErr := SelectSource(cmd.Context(), sourceFlag, cfg, cookieAvailable, remaining)
-			if hardErr != nil {
-				// Non-fatal here: prospect still has LinkedIn results to show.
-				fmt.Fprintf(cmd.ErrOrStderr(), "warning: Happenstance unavailable: %v\n", hardErr)
-			} else {
-				LogDeferredHint(cmd.ErrOrStderr(), deferredErr)
-				if chosen == SourceCookie {
-					if cookieAvailable {
-						friends, err = fetchHappenstanceFriends(cookieClient)
-						if err != nil {
-							fmt.Fprintf(cmd.ErrOrStderr(), "warning: fetch friends: %v\n", err)
-						} else {
-							for _, f := range friends {
-								if prospectMatches(f, parsed) {
-									f.Sources = []string{"hp_friend"}
-									f.Rationale = fmt.Sprintf("Happenstance friend match (%d connections)", f.ConnectionCount)
-									results = append(results, f)
-								}
-							}
-						}
-					}
-				} else if chosen == SourceAPI {
-					if bc, berr := flags.newHappenstanceAPIClient(); berr == nil {
-						currentUUID := ""
+			if !localOnly {
+				cfg, cfgErr := config.Load(flags.configPath)
+				if cfgErr != nil {
+					return configErr(cfgErr)
+				}
+				cookieClient, _ := flags.newClient()
+				cookieAvailable := cookieClient != nil && cookieClient.HasCookieAuth()
+				remaining := UnknownSearchesRemaining
+				if cookieAvailable {
+					remaining = FetchSearchesRemaining(cookieClient, cfg, flags.noCache)
+				}
+				chosen, deferredErr, hardErr := SelectSource(cmd.Context(), sourceFlag, cfg, cookieAvailable, remaining)
+				if hardErr != nil {
+					// Non-fatal here: prospect still has local/LinkedIn results to show.
+					fmt.Fprintf(cmd.ErrOrStderr(), "warning: Happenstance unavailable: %v\n", hardErr)
+				} else {
+					LogDeferredHint(cmd.ErrOrStderr(), deferredErr)
+					if chosen == SourceCookie {
 						if cookieAvailable {
-							currentUUID, _ = fetchCurrentUserUUID(cookieClient)
-						}
-						bres, brerr := BearerSearchAdapter(cmd.Context(), bc, keywords, currentUUID, &api.SearchOptions{IncludeMyConnections: true, IncludeFriendsConnections: true})
-						if brerr != nil {
-							fmt.Fprintf(cmd.ErrOrStderr(), "warning: Happenstance bearer search: %v\n", brerr)
-						} else if bres != nil {
-							for _, p := range bres.People {
-								row := flagshipPerson{
-									Name:      p.Name,
-									Title:     p.CurrentTitle,
-									Company:   p.CurrentCompany,
-									Sources:   []string{"hp_api"},
-									Rationale: bearerRationale(p.Bridges),
-									Score:     bearerScore(p.Bridges, p.Score),
-									Bridges:   bridgesToFlagship(p.Bridges),
+							friends, err = fetchHappenstanceFriends(cookieClient)
+							if err != nil {
+								fmt.Fprintf(cmd.ErrOrStderr(), "warning: fetch friends: %v\n", err)
+							} else {
+								for _, f := range friends {
+									if prospectMatches(f, parsed) {
+										f.Sources = []string{"hp_friend"}
+										f.Rationale = fmt.Sprintf("Happenstance friend match (%d connections)", f.ConnectionCount)
+										results = append(results, f)
+									}
 								}
-								results = append(results, row)
 							}
 						}
-					} else {
-						fmt.Fprintf(cmd.ErrOrStderr(), "warning: Happenstance bearer client: %v\n", berr)
+					} else if chosen == SourceAPI {
+						if bc, berr := flags.newHappenstanceAPIClient(); berr == nil {
+							currentUUID := ""
+							if cookieAvailable {
+								currentUUID, _ = fetchCurrentUserUUID(cookieClient)
+							}
+							bres, brerr := BearerSearchAdapter(cmd.Context(), bc, keywords, currentUUID, &api.SearchOptions{IncludeMyConnections: true, IncludeFriendsConnections: true})
+							if brerr != nil {
+								fmt.Fprintf(cmd.ErrOrStderr(), "warning: Happenstance bearer search: %v\n", brerr)
+							} else if bres != nil {
+								for _, p := range bres.People {
+									row := flagshipPerson{
+										Name:      p.Name,
+										Title:     p.CurrentTitle,
+										Company:   p.CurrentCompany,
+										Sources:   []string{"hp_api"},
+										Rationale: bearerRationale(p.Bridges),
+										Score:     bearerScore(p.Bridges, p.Score),
+										Bridges:   bridgesToFlagship(p.Bridges),
+									}
+									results = append(results, row)
+								}
+							}
+						} else {
+							fmt.Fprintf(cmd.ErrOrStderr(), "warning: Happenstance bearer client: %v\n", berr)
+						}
 					}
 				}
 			}
@@ -253,7 +268,7 @@ Results are deduped across sources and ranked by one of:
 	cmd.Flags().IntVar(&limit, "limit", 25, "Max results to return")
 	cmd.Flags().StringVar(&sortMode, "sort", "relevance", "Sort mode: relevance | network")
 	cmd.Flags().StringVar(&deeplineKey, "deepline-key", "", "Deepline API key (default from $DEEPLINE_API_KEY)")
-	cmd.Flags().StringVar(&sourceFlag, "source", SourceFlagAuto, "Happenstance auth surface: auto | hp | api. auto = cookie/free quota first, bearer fallback")
+	cmd.Flags().StringVar(&sourceFlag, "source", SourceFlagAuto, "Happenstance auth surface: auto | hp | api, or local/ln for local-only. Local LinkedIn exports are always queried first.")
 	return cmd
 }
 

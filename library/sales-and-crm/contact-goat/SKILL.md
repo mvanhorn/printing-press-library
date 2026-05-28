@@ -1,6 +1,6 @@
 ---
 name: pp-contact-goat
-description: "Super LinkedIn for the terminal. Search, enrich, and map warm-intro paths across LinkedIn (stickerdaniel/linkedin-mcp-server subprocess), Happenstance (cookie-first free quota with bearer-API fallback), and Deepline (paid enrichment). Two Happenstance auth surfaces coexist: Chrome cookie session (free monthly allocation) and HAPPENSTANCE_API_KEY bearer (paid credits, deeper schema). Use when the user asks who they know at a company, how to get a warm intro, who to prospect, or wants cross-source dossiers, network diffs, or waterfall enrichment."
+description: "Super LinkedIn for the terminal. Search, enrich, and map warm-intro paths across the local LinkedIn Network export database, LinkedIn (stickerdaniel/linkedin-mcp-server subprocess), Happenstance (cookie-first free quota with bearer-API fallback), and Deepline (paid enrichment). Use when the user asks who they know at a company, how to get a warm intro, who to prospect, or wants cross-source dossiers, network diffs, or waterfall enrichment."
 author: "Matt Van Horn"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"
@@ -49,6 +49,28 @@ Reach for this when the user wants:
 - waterfall enrichment that walks free sources before paid ones
 
 Skip it when the user has a workflow that lives entirely inside LinkedIn Sales Navigator, or when they only need raw LinkedIn scraping with no Happenstance or Deepline overlay (use the LinkedIn MCP directly in that case).
+
+## Local LinkedIn Network First
+
+For Playmaker prospecting, Contact Goat now checks the local LinkedIn Network export database before paid or remote graph sources.
+
+Default local database host/path:
+
+```text
+macmini:/Users/gonkv2/Documents/Agentic Engineering/Playmaker/LinkedIn-Network
+```
+
+The local source reads James and Holger's first-degree LinkedIn exports and emits Contact Goat-shaped rows with `sources: ["local_linkedin_export"]`, `owners`, `relationship`, `rationale`, and `score`.
+
+Useful local-first commands:
+
+```bash
+contact-goat-pp-cli coverage "<company>" --source local --agent
+contact-goat-pp-cli prospect "<query>" --source local --agent
+contact-goat-pp-cli warm-intro "<target>" --sources local --agent
+```
+
+`local` and `ln` are aliases for this source. If the local Mac Mini database or CLI is unavailable, surface that local failure first. Do not silently spend Happenstance credits just because the local source is unavailable.
 
 ## Two Auth Surfaces
 
@@ -104,7 +126,7 @@ The other 12 tools cover the cookie surface (search, friends, feed, notification
    ```
 5. The `--agent` flag sets `--json --compact --no-input --no-color --yes`.
 
-Source routing (cookie vs bearer) is automatic. The auto router prefers the free cookie surface and falls back to the paid bearer surface only when cookie quota is exhausted, logging a "cost spent" notice on stderr. Pass `--source api` to opt into bearer explicitly (richer schema, group-scoped searches), or `--source hp` to force cookies.
+Source routing for Happenstance (cookie vs bearer) is automatic. The auto router prefers the free cookie surface and falls back to the paid bearer surface only when cookie quota is exhausted, logging a "cost spent" notice on stderr. Pass `--source api` to opt into bearer explicitly (richer schema, group-scoped searches), `--source hp` to force cookies, or `--source local` / `--source ln` on supported commands to use the Mac Mini LinkedIn Network source without Happenstance.
 
 ## Enrichment Preflight (read this before running any enrichment command)
 
@@ -148,11 +170,11 @@ Notes:
 
 | Command | What it does |
 |---------|--------------|
-| `coverage <company>` | Who you know at a company across LinkedIn + Happenstance, ranked by relationship strength |
+| `coverage <company>` | Who you know at a company across local LinkedIn exports + LinkedIn + Happenstance, ranked by relationship strength. Use `--source local` or `--source ln` for local-only. |
 | `coverage --location <city>` | Who you know in a city. Bearer-only (cookie surface has no city-search); use `--source api`. |
 | `hp people <query>` | Happenstance graph people-search (1st / 2nd / 3rd degree). `--csv` emits flat CSV with semicolon-joined bridges. |
-| `prospect <query>` | Fan-out search across LinkedIn + Happenstance (+ opt-in Deepline), deduped |
-| `warm-intro <target>` | Mutual connections across sources who could intro you to a target |
+| `prospect <query>` | Fan-out search across local LinkedIn exports + LinkedIn + Happenstance (+ opt-in Deepline), deduped. Use `--source local` or `--source ln` for local-only. |
+| `warm-intro <target>` | Mutual connections across local LinkedIn export owners, LinkedIn, and Happenstance who could intro you to a target. Use `--sources local` for local-only. |
 | `waterfall <target> [--company X]` | Free-sources-first enrichment, falls through to Deepline provider chain. Requires DEEPLINE_API_KEY or --byok. Bare-name targets need --company |
 | `dossier <target> [--enrich-email]` | Unified LinkedIn + Happenstance + (optional) Deepline dossier. --enrich-email requires DEEPLINE_API_KEY |
 | `deepline find-email "<name>" --company <domain>` | Single-call work-email lookup via dropleads_email_finder |

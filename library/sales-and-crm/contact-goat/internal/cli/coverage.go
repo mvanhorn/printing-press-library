@@ -39,18 +39,21 @@ already runs).
 
 Runs the following (in parallel where supported):
 
-  1. Happenstance graph-search (/api/search + /api/dynamo): the real
+  1. Local LinkedIn Network export database on the Mac Mini: James and
+     Holger's first-degree LinkedIn exports, queried locally before paid
+     or remote graph sources.
+  2. Happenstance graph-search (/api/search + /api/dynamo): the real
      people-search the web app uses. Surfaces your 1st-degree (synced
      LinkedIn / Gmail contacts) and 2nd-degree (your friends' networks)
      hits at the target, with referrer rationale.
-  2. LinkedIn search_people scoped to the company name: a name-match
+  3. LinkedIn search_people scoped to the company name: a name-match
      fallback that catches people Happenstance doesn't have synced.
      SKIPPED in --location mode.
 
 Results are deduped across sources and ranked:
-  Happenstance 1st-degree  >  Happenstance 2nd-degree  >  LinkedIn 1st-degree  >  LinkedIn search hit.
+  Local export both-owner  >  Happenstance 1st-degree  >  Happenstance 2nd-degree  >  LinkedIn 1st-degree  >  LinkedIn search hit.
 
-Use --source hp or --source li to isolate one side (company mode only).
+Use --source local, --source hp, or --source li to isolate one side (company mode only).
 JSON output gains a "source_errors" block whenever any upstream call
 errored, so callers can distinguish "empty because nobody is there" from
 "empty because the call failed".`,
@@ -103,6 +106,19 @@ errored, so callers can distinguish "empty because nobody is there" from
 			var results []flagshipPerson
 			var friends []flagshipPerson
 			sourceErrors := map[string]string{}
+
+			// Source 0: local LinkedIn Network export database. This is
+			// free, first-degree, and should be considered before
+			// Happenstance credit-priced paths.
+			if !isLocation && sources[SourceFlagLocal] {
+				hits, err := fetchLocalLinkedInCompany(ctx, company, limit)
+				if err != nil {
+					sourceErrors["local_linkedin"] = err.Error()
+					fmt.Fprintf(cmd.ErrOrStderr(), "warning: local LinkedIn Network unavailable: %v\n", err)
+				} else {
+					results = append(results, hits...)
+				}
+			}
 
 			// Source 1: Happenstance graph-search. Routed through SelectSource
 			// (auto-prefers cookie / free quota; falls back to bearer / paid
@@ -232,7 +248,7 @@ errored, so callers can distinguish "empty because nobody is there" from
 		},
 	}
 	cmd.Flags().IntVar(&limit, "limit", 25, "Max people to return")
-	cmd.Flags().StringVar(&sourceFlag, "source", "both", "Sources: li | hp | api | both. hp = cookie/free quota; api = bearer/paid credits; both = LinkedIn + auto-routed Happenstance. Forced to api in --location mode.")
+	cmd.Flags().StringVar(&sourceFlag, "source", "both", "Sources: local | ln | li | hp | api | both. local = Mac Mini LinkedIn exports; hp = cookie/free quota; api = bearer/paid credits; both = local + LinkedIn + Happenstance. Forced to api in --location mode.")
 	cmd.Flags().IntVar(&pollTimeoutSec, "poll-timeout", 0,
 		fmt.Sprintf("Seconds to wait for Happenstance graph-search (0 = use default %ds)",
 			int(client.DefaultPollTimeout.Seconds())))
@@ -453,6 +469,10 @@ func firstSource(tags []string) string {
 // LinkedIn search hits, then graph 3rd-degree (public).
 func scoreForRelationship(rel string) float64 {
 	switch rel {
+	case "linkedin_export_1deg_both":
+		return 9.0
+	case "linkedin_export_1deg_holger", "linkedin_export_1deg_james", "linkedin_export_1deg":
+		return 7.5
 	case "happenstance_friend":
 		return 10.0
 	case string(client.TierFirstDegree): // "1st_degree"

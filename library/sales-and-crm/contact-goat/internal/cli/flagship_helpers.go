@@ -40,6 +40,7 @@ type flagshipPerson struct {
 	ImageURL         string      `json:"image_url,omitempty"`
 	ConnectionCount  int         `json:"connection_count,omitempty"`
 	Sources          []string    `json:"sources,omitempty"`
+	Owners           []string    `json:"owners,omitempty"`
 	Rationale        string      `json:"rationale,omitempty"`
 	Relationship     string      `json:"relationship,omitempty"`
 	MutualCount      int         `json:"mutual_count,omitempty"`
@@ -241,6 +242,12 @@ func mergePeople(in []flagshipPerson) []flagshipPerson {
 			// them on so downstream renderers see both.
 			if len(p.Bridges) > 0 && len(existing.Bridges) == 0 {
 				existing.Bridges = p.Bridges
+			}
+			if len(p.Owners) > 0 {
+				existing.Owners = dedupStrings(append(existing.Owners, p.Owners...))
+				if len(existing.Owners) > existing.MutualCount {
+					existing.MutualCount = len(existing.Owners)
+				}
 			}
 			continue
 		}
@@ -653,6 +660,8 @@ func rankPeople(in []flagshipPerson) {
 // ranking flagship results.
 func sourceStrength(tag string) float64 {
 	switch tag {
+	case localLinkedInSourceTag:
+		return 6.0
 	case "hp_friend":
 		return 5.0
 	case "hp_graph_1deg":

@@ -83,6 +83,8 @@ const (
 	SourceFlagAuto   = "auto"
 	SourceFlagBoth   = "both" // cross-source commands only (coverage)
 	SourceFlagLI     = "li"   // cross-source commands only (LinkedIn)
+	SourceFlagLocal  = "local"
+	SourceFlagLN     = "ln"
 )
 
 // UnknownSearchesRemaining is the sentinel passed to SelectSource when

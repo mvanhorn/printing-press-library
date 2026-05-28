@@ -48,9 +48,10 @@ When a name is given the CLI resolves it via LinkedIn search_people first.
 Because LinkedIn's MCP does not expose 1st-degree connection lists, this
 command composes warm-intro candidates from three signals:
 
-  1. Happenstance friends you share with the target (strongest signal).
-  2. LinkedIn "People also viewed" sidebar for the target.
-  3. LinkedIn search scoped to the target's current company.
+  1. Local LinkedIn Network export owners (James/Holger first-degree).
+  2. Happenstance friends you share with the target.
+  3. LinkedIn "People also viewed" sidebar for the target.
+  4. LinkedIn search scoped to the target's current company.
 
 Results are ranked by a composite score (source strength + Happenstance
 connection_count + presence in multiple sources).`,
@@ -81,6 +82,25 @@ connection_count + presence in multiple sources).`,
 			var candidates []flagshipPerson
 			var friends []flagshipPerson
 			sourceErrors := map[string]string{}
+
+			// Source 0: local LinkedIn Network export database. Prefer
+			// company when LinkedIn resolution found one; otherwise use the
+			// target string as a weaker local search.
+			if sources[SourceFlagLocal] {
+				var localHits []flagshipPerson
+				var localErr error
+				if resolved.Company != "" {
+					localHits, localErr = fetchLocalLinkedInCompany(ctx, resolved.Company, 25)
+				} else {
+					localHits, localErr = fetchLocalLinkedInSearch(ctx, target, 25)
+				}
+				if localErr != nil {
+					sourceErrors["local_linkedin"] = localErr.Error()
+					fmt.Fprintf(cmd.ErrOrStderr(), "warning: local LinkedIn Network unavailable: %v\n", localErr)
+				} else {
+					candidates = append(candidates, localHits...)
+				}
+			}
 
 			// Source 1: Happenstance graph-search at the target's current
 			// company. For each person who comes back:
@@ -285,7 +305,7 @@ connection_count + presence in multiple sources).`,
 	cmd.Flags().StringVar(&targetType, "target-type", "auto", "Target parse mode: auto | url | name")
 	cmd.Flags().IntVar(&limit, "limit", 10, "Max candidates to return")
 	cmd.Flags().BoolVar(&useCached, "use-cached", true, "Persist resolved people into the local store for re-use")
-	cmd.Flags().StringVar(&sourcesFlag, "sources", "li,hp", "Comma-separated sources to query: li,hp,api. Use 'api' to opt into the paid Happenstance bearer surface.")
+	cmd.Flags().StringVar(&sourcesFlag, "sources", "local,li,hp", "Comma-separated sources to query: local,ln,li,hp,api. Use 'api' to opt into the paid Happenstance bearer surface.")
 	return cmd
 }
 
@@ -440,13 +460,18 @@ func parseSourceFlag(csv string) map[string]bool {
 			continue
 		}
 		if tok == "both" {
+			out[SourceFlagLocal] = true
 			out["li"] = true
 			out["hp"] = true
 			continue
 		}
+		if tok == SourceFlagLN {
+			tok = SourceFlagLocal
+		}
 		out[tok] = true
 	}
 	if len(out) == 0 {
+		out[SourceFlagLocal] = true
 		out["li"] = true
 		out["hp"] = true
 	}
@@ -475,6 +500,7 @@ func describeSources(tags []string, connectionCount int) string {
 	li1 := false
 	liSidebar := false
 	liSearch := false
+	localLinkedIn := false
 	hpGraph1 := false
 	hpGraph2 := false
 	for _, t := range tags {
@@ -487,6 +513,8 @@ func describeSources(tags []string, connectionCount int) string {
 			liSidebar = true
 		case "li_search":
 			liSearch = true
+		case localLinkedInSourceTag:
+			localLinkedIn = true
 		case "hp_graph_1deg":
 			hpGraph1 = true
 		case "hp_graph_2deg":
@@ -496,6 +524,9 @@ func describeSources(tags []string, connectionCount int) string {
 	parts := []string{}
 	if hpGraph1 {
 		parts = append(parts, "your direct contact at target company")
+	}
+	if localLinkedIn {
+		parts = append(parts, "James/Holger LinkedIn export")
 	}
 	if hpGraph2 {
 		parts = append(parts, "knows someone at target company")

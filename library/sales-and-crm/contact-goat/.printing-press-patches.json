@@ -3,5 +3,21 @@
   "applied_at": "2026-05-08",
   "base_run_id": "2026-04-19T21:05:44.741872Z",
   "base_printing_press_version": "1.3.2",
-  "patches": []
+  "patches": [
+    {
+      "id": "2026-05-28-local-linkedin-network-source",
+      "kind": "code",
+      "summary": "Add a local LinkedIn Network source backed by James/Holger CSV exports on the Mac Mini. The source shells to the linkedin-network CLI JSON output, maps rows into flagshipPerson, and wires local-first results into coverage, prospect, and warm-intro without directly reading SQLite or silently spending Happenstance credits on local-source failure.",
+      "files": [
+        "internal/cli/local_linkedin_network.go",
+        "internal/cli/local_linkedin_network_test.go",
+        "internal/cli/coverage.go",
+        "internal/cli/prospect.go",
+        "internal/cli/warm_intro.go",
+        "internal/cli/flagship_helpers.go",
+        "internal/cli/source_selection.go",
+        "SKILL.md"
+      ]
+    }
+  ]
 }
