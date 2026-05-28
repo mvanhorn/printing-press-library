@@ -10,7 +10,7 @@
       "passed": true,
       "started_at": "2026-05-27T19:41:34Z",
       "elapsed_ms": 1971,
-      "command": "/Users/zaydk/go/bin/printing-press verify --dir /Users/zaydk/printing-press/library/payments/robinhood-pp --spec /Users/zaydk/printing-press/library/payments/robinhood-pp/spec.json"
+      "command": "printing-press verify --dir library/payments/robinhood --spec library/payments/robinhood/spec.json"
     },
     {
       "name": "validate-narrative",
@@ -18,7 +18,7 @@
       "passed": true,
       "started_at": "2026-05-27T19:41:36Z",
       "elapsed_ms": 12,
-      "command": "/Users/zaydk/go/bin/printing-press validate-narrative --strict --full-examples --research /Users/zaydk/printing-press/library/payments/robinhood-pp/research.json --binary /Users/zaydk/printing-press/library/payments/robinhood-pp/robinhood-pp-cli"
+      "command": "printing-press validate-narrative --strict --full-examples --research library/payments/robinhood/research.json --binary library/payments/robinhood/robinhood-pp-cli"
     },
     {
       "name": "dogfood",
@@ -26,7 +26,7 @@
       "passed": true,
       "started_at": "2026-05-27T19:41:36Z",
       "elapsed_ms": 1162,
-      "command": "/Users/zaydk/go/bin/printing-press dogfood --dir /Users/zaydk/printing-press/library/payments/robinhood-pp --spec /Users/zaydk/printing-press/library/payments/robinhood-pp/spec.json"
+      "command": "printing-press dogfood --dir library/payments/robinhood --spec library/payments/robinhood/spec.json"
     },
     {
       "name": "workflow-verify",
@@ -34,7 +34,7 @@
       "passed": true,
       "started_at": "2026-05-27T19:41:37Z",
       "elapsed_ms": 13,
-      "command": "/Users/zaydk/go/bin/printing-press workflow-verify --dir /Users/zaydk/printing-press/library/payments/robinhood-pp"
+      "command": "printing-press workflow-verify --dir library/payments/robinhood"
     },
     {
       "name": "verify-skill",
@@ -42,7 +42,7 @@
       "passed": true,
       "started_at": "2026-05-27T19:41:37Z",
       "elapsed_ms": 389,
-      "command": "/Users/zaydk/go/bin/printing-press verify-skill --dir /Users/zaydk/printing-press/library/payments/robinhood-pp"
+      "command": "printing-press verify-skill --dir library/payments/robinhood"
     },
     {
       "name": "scorecard",
@@ -50,7 +50,7 @@
       "passed": true,
       "started_at": "2026-05-27T19:41:38Z",
       "elapsed_ms": 204,
-      "command": "/Users/zaydk/go/bin/printing-press scorecard --dir /Users/zaydk/printing-press/library/payments/robinhood-pp --spec /Users/zaydk/printing-press/library/payments/robinhood-pp/spec.json"
+      "command": "printing-press scorecard --dir library/payments/robinhood --spec library/payments/robinhood/spec.json"
     }
   ]
 }

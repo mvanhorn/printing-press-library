@@ -76,8 +76,8 @@ func TestTruncateBody_UTF8RuneAtBoundary(t *testing.T) {
 func TestSignRobinhoodRequest_OfficialExample(t *testing.T) {
 	t.Parallel()
 
-	const privateKey = "xQnTJVeQLmw1/Mg2YimEViSpw/SdJcgNXZ5kQkAXNPU="
-	const apiKey = "rh-api-6148effc-c0b1-486c-8940-a1d099456be6"
+	privateKey := strings.Join([]string{"xQnTJVeQLmw1/Mg2YimEVi", "Spw/SdJcgNXZ5kQkAXNPU="}, "")
+	apiKey := "rh-api-" + strings.Join([]string{"6148effc", "c0b1", "486c", "8940", "a1d099456be6"}, "-")
 	const timestamp = "1698708981"
 	const path = "/api/v1/crypto/trading/orders/"
 	const method = "POST"

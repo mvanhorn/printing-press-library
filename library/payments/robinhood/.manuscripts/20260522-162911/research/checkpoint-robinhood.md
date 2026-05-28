@@ -6,8 +6,8 @@ Status: complete for the Top-4 lane. The broader 12-venue goal is not complete.
 
 ## What Is Done
 
-- Personal repo: `/Users/zaydk/Desktop/robinhood-cli`
-- PP package: `/Users/zaydk/printing-press/library/payments/robinhood-pp`
+- Personal repo: `<personal-repo>/robinhood-cli`
+- PP package: `library/payments/robinhood`
 - Deep authenticated browser/API map: 19 surfaces, 217 latest browser routes, 259 merged brokerage/account routes.
 - Unified API map: 275 route entries and 266 OpenAPI operations after mixing Robinhood's official Crypto OpenAPI into the browser-backed brokerage/account map.
 - Ticker/account surfaces covered include NVDA, AAPL, TSLA, HOOD, SPY, QQQ, NVDA options, portfolio/home, account root, history, settings, documents, transfers, BTC, and markets.
