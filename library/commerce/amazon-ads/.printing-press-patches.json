@@ -1,0 +1,110 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-27",
+  "base_run_id": "20260527-233111",
+  "base_printing_press_version": "4.18.1",
+  "patches": [
+    {
+      "id": "amazon-ads-auth-profile",
+      "summary": "Map Amazon Ads env vars into OAuth refresh fields, persist local .env credentials, and add profile ID selection.",
+      "reason": "Amazon Ads requires both LWA refresh-token credentials and a selected advertising profile scope header on normal API calls; local .env loading and saving keeps setup usable without shell-sourcing secrets.",
+      "files": [
+        "internal/config/config.go",
+        "internal/config/config_test.go",
+        "internal/cli/auth.go",
+        "internal/cli/auth_ux_test.go",
+        "internal/cli/doctor.go",
+        "internal/cli/doctor_test.go",
+        "internal/client/client_test.go",
+        "internal/adsanalytics/seller_store.go",
+        "internal/adsanalytics/seller_store_test.go",
+        "internal/cli/profitability.go",
+        "internal/cli/root.go",
+        "internal/cli/promoted_profiles.go",
+        "internal/cli/agent_context.go"
+      ],
+      "validated_outcome": "go test ./internal/adsanalytics ./internal/client ./internal/cli ./internal/config passes; auth setup and doctor point to auth login --port 8085 with the localhost callback URL, verify-mode auth login emits the callback URL without opening a browser, auth login auto-selects a single returned advertising profile, provider 401 details surface for authorization-code and refresh-token failures, and incompatible/malformed seller-store data is reported in TACOS notes."
+    },
+    {
+      "id": "profitability-analytics",
+      "summary": "Add profitability, portfolio, campaign, product, hourly, keyword history, and spend optimization commands.",
+      "reason": "The Amazon Ads plan calls for a seller-focused novel command layer over COGS and exported report data.",
+      "files": [
+        "internal/adsanalytics/profitability.go",
+        "internal/adsanalytics/profitability_test.go",
+        "internal/adsanalytics/performance.go",
+        "internal/adsanalytics/performance_test.go",
+        "internal/adsanalytics/optimization.go",
+        "internal/adsanalytics/optimization_test.go",
+        "internal/store/extras.go",
+        "internal/store/keyword_snapshots.go",
+        "internal/store/keyword_snapshots_test.go",
+        "internal/adsanalytics/automation.go",
+        "internal/adsanalytics/automation_test.go",
+        "internal/store/automation_audit.go",
+        "internal/store/automation_audit_test.go",
+        "internal/adsanalytics/search_terms.go",
+        "internal/adsanalytics/search_terms_test.go",
+        "internal/adsanalytics/share_of_voice.go",
+        "internal/adsanalytics/share_of_voice_test.go",
+        "internal/cli/profitability.go",
+        "internal/cli/performance_analytics.go",
+        "internal/cli/optimization.go",
+        "internal/cli/automation.go",
+        "internal/cli/automation_apply_test.go",
+        "internal/cli/search_term_analytics.go",
+        "internal/cli/share_of_voice.go",
+        "internal/cli/root.go"
+      ],
+      "validated_outcome": "go test ./internal/adsanalytics ./internal/cli ./internal/config passes; automation --apply request shaping is covered with a local HTTP server plus ID, duplicate-suppression, max-change, max-bid, max-budget, empty-plan, --apply --dry-run preview, and PRINTING_PRESS_VERIFY short-circuit guardrail tests."
+    },
+    {
+      "id": "report-normalization",
+      "summary": "Add gzip-aware report loading plus a normalize-report command with optional local store import.",
+      "reason": "Amazon Ads downloaded reports are commonly gzip-compressed; the plan calls for report format normalization into local SQLite for downstream analytics.",
+      "files": [
+        "internal/adsanalytics/report_io.go",
+        "internal/adsanalytics/report_io_test.go",
+        "internal/adsanalytics/search_terms.go",
+        "internal/adsanalytics/performance.go",
+        "internal/adsanalytics/optimization.go",
+        "internal/store/extras.go",
+        "internal/store/normalized_reports.go",
+        "internal/store/normalized_reports_test.go",
+        "internal/cli/jobs.go",
+        "internal/cli/jobs_test.go",
+        "internal/cli/report_normalize.go",
+        "internal/cli/reports_wait.go",
+        "internal/cli/reports_wait_test.go",
+        "internal/cli/promoted_reports.go",
+        "internal/cli/promoted_amazon-ads-sponsored-reports.go",
+        "internal/cli/root.go"
+      ],
+      "validated_outcome": "go test ./internal/adsanalytics ./internal/store ./internal/cli passes; reports wait exposes an async status poller for /v2/reports/{reportId}."
+    },
+    {
+      "id": "mcp-novel-command-surface",
+      "summary": "Add runtime MCP mirror coverage for Amazon Ads novel commands.",
+      "reason": "The static tools manifest only lists generated endpoint tools, while the MCP server exposes novel Cobra commands through the runtime cobratree mirror.",
+      "files": [
+        "internal/mcp/cobratree/classify.go",
+        "internal/mcp/cobratree/walker.go",
+        "internal/mcp/cobratree/novel_surface_test.go",
+        "internal/mcp/server_smoke_test.go"
+      ],
+      "validated_outcome": "go test ./internal/mcp ./internal/mcp/cobratree passes; the MCP server handles initialize and tools/list, exposes code-orchestration/framework/novel runtime tools, and marks automation tools destructive/open-world."
+    },
+    {
+      "id": "publish-module-path",
+      "summary": "Rewrite the local generated module path to the public-library module path and remove generated binary payloads.",
+      "reason": "Published library CLIs use github.com/mvanhorn/printing-press-library/library/<category>/<slug> as their Go module path, and binary payloads under build/ are not publishable source artifacts.",
+      "files": [
+        "go.mod",
+        ".goreleaser.yaml",
+        "cmd/",
+        "internal/"
+      ],
+      "validated_outcome": "go test ./... passes after the import rewrite; no files remain under build/; simulated publish-package, binary-payload, and supply-chain verifiers pass."
+    }
+  ]
+}
