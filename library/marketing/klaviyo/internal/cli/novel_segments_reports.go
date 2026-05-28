@@ -2341,6 +2341,11 @@ func newReportOpenRatesCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
+			if trend {
+				if err := addEngagementTrends(c, rows, group, since, until); err != nil {
+					return err
+				}
+			}
 			return printJSONFiltered(cmd.OutOrStdout(), map[string]any{"by": by, "last": last, "trend": trend, "rows": rows}, flags)
 		},
 	}
@@ -2807,14 +2812,17 @@ func profileSpendRows(c flowClient, limit int) ([]map[string]any, error) {
 			continue
 		}
 		row := map[string]any{"profile_id": profileID, "total_spend": r.Measurements["sum_value"], "order_count": int(r.Measurements["count"])}
-		if p, err := c.Get("/api/profiles/"+url.PathEscape(profileID), map[string]string{"fields[profile]": "email"}); err == nil {
-			row["email"] = firstString(p, "data.attributes.email")
-		}
 		rows = append(rows, row)
 	}
 	sort.Slice(rows, func(i, j int) bool { return anyFloat(rows[i]["total_spend"]) > anyFloat(rows[j]["total_spend"]) })
 	if limit > 0 && len(rows) > limit {
 		rows = rows[:limit]
+	}
+	for i := range rows {
+		profileID := fmt.Sprint(rows[i]["profile_id"])
+		if p, err := c.Get("/api/profiles/"+url.PathEscape(profileID), map[string]string{"fields[profile]": "email"}); err == nil {
+			rows[i]["email"] = firstString(p, "data.attributes.email")
+		}
 	}
 	return rows, nil
 }
@@ -2964,6 +2972,52 @@ func metricTotalsByName(c flowClient, metricNames []string, since, until time.Ti
 		rows = append(rows, map[string]any{"metric": name, "count": int(sumMeasurement(resp, "count")), "unique": int(sumMeasurement(resp, "unique")), "sum_value": sumMeasurement(resp, "sum_value")})
 	}
 	return rows
+}
+
+func addEngagementTrends(c flowClient, rows []map[string]any, dimension string, since, until time.Time) error {
+	midpoint := since.Add(until.Sub(since) / 2)
+	previous, err := engagementRateRows(c, dimension, since, midpoint)
+	if err != nil {
+		return err
+	}
+	current, err := engagementRateRows(c, dimension, midpoint, until)
+	if err != nil {
+		return err
+	}
+	annotateEngagementTrends(rows, previous, current)
+	return nil
+}
+
+func annotateEngagementTrends(rows, previous, current []map[string]any) {
+	previousByName := rowsByName(previous)
+	currentByName := rowsByName(current)
+	for _, row := range rows {
+		name := fmt.Sprint(row["name"])
+		prev := previousByName[name]
+		cur := currentByName[name]
+		openDelta := anyFloat(cur["open_rate"]) - anyFloat(prev["open_rate"])
+		clickDelta := anyFloat(cur["click_rate"]) - anyFloat(prev["click_rate"])
+		row["previous_open_rate"] = round3(anyFloat(prev["open_rate"]))
+		row["current_open_rate"] = round3(anyFloat(cur["open_rate"]))
+		row["open_rate_delta"] = round3(openDelta)
+		row["click_rate_delta"] = round3(clickDelta)
+		switch {
+		case openDelta <= -5 || clickDelta <= -2:
+			row["trend_flag"] = "declining"
+		case openDelta >= 5 || clickDelta >= 2:
+			row["trend_flag"] = "improving"
+		default:
+			row["trend_flag"] = "flat"
+		}
+	}
+}
+
+func rowsByName(rows []map[string]any) map[string]map[string]any {
+	out := map[string]map[string]any{}
+	for _, row := range rows {
+		out[fmt.Sprint(row["name"])] = row
+	}
+	return out
 }
 
 func clientAndWindow(flags *rootFlags, last string) (flowClient, time.Time, time.Time, error) {

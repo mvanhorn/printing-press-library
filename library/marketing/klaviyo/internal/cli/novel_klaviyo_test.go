@@ -742,6 +742,48 @@ func TestFilterFormsByWindowUsesLastWindow(t *testing.T) {
 	}
 }
 
+func TestAnnotateEngagementTrendsAddsTrendFields(t *testing.T) {
+	rows := []map[string]any{{"name": "Welcome Flow"}}
+	previous := []map[string]any{{"name": "Welcome Flow", "open_rate": 55.0, "click_rate": 8.0}}
+	current := []map[string]any{{"name": "Welcome Flow", "open_rate": 44.0, "click_rate": 5.0}}
+	annotateEngagementTrends(rows, previous, current)
+	if rows[0]["trend_flag"] != "declining" {
+		t.Fatalf("trend row = %#v", rows[0])
+	}
+	if anyFloat(rows[0]["open_rate_delta"]) != -11 {
+		t.Fatalf("open delta = %#v", rows[0])
+	}
+}
+
+func TestProfileSpendRowsLooksUpEmailsAfterLimit(t *testing.T) {
+	client := &fakeCouponPoolClient{
+		responses: []json.RawMessage{
+			rawJSON(`{"data":[{"id":"metric-1","attributes":{"name":"Placed Order"}}]}`),
+			rawJSON(`{"data":{"attributes":{"email":"top@example.com"}}}`),
+		},
+		postResponses: []json.RawMessage{rawJSON(`{"data":{"attributes":{"data":[
+			{"dimensions":["low"],"measurements":{"count":[1],"sum_value":[10]}},
+			{"dimensions":["top"],"measurements":{"count":[3],"sum_value":[300]}}
+		]}}}`)},
+	}
+	rows, err := profileSpendRows(client, 1)
+	if err != nil {
+		t.Fatalf("profileSpendRows returned error: %v", err)
+	}
+	if len(rows) != 1 || rows[0]["profile_id"] != "top" || rows[0]["email"] != "top@example.com" {
+		t.Fatalf("rows = %#v", rows)
+	}
+	var profileGets []string
+	for _, request := range client.requests {
+		if strings.HasPrefix(request.path, "/api/profiles/") {
+			profileGets = append(profileGets, request.path)
+		}
+	}
+	if len(profileGets) != 1 || profileGets[0] != "/api/profiles/top" {
+		t.Fatalf("profile GETs = %#v", profileGets)
+	}
+}
+
 func TestDeleteSegmentUsesEscapedSegmentPath(t *testing.T) {
 	client := &fakeCouponPoolClient{}
 	if err := deleteSegment(client, "segment/123"); err != nil {
@@ -753,9 +795,10 @@ func TestDeleteSegmentUsesEscapedSegmentPath(t *testing.T) {
 }
 
 type fakeCouponPoolClient struct {
-	responses []json.RawMessage
-	requests  []fakeCouponPoolRequest
-	deletes   []string
+	responses     []json.RawMessage
+	postResponses []json.RawMessage
+	requests      []fakeCouponPoolRequest
+	deletes       []string
 }
 
 type fakeCouponPoolRequest struct {
@@ -778,6 +821,11 @@ func (f *fakeCouponPoolClient) Get(path string, params map[string]string) (json.
 }
 
 func (f *fakeCouponPoolClient) Post(_ string, _ any) (json.RawMessage, int, error) {
+	if len(f.postResponses) > 0 {
+		resp := f.postResponses[0]
+		f.postResponses = f.postResponses[1:]
+		return resp, 200, nil
+	}
 	return nil, 0, nil
 }
 
