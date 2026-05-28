@@ -27,6 +27,9 @@ func newShoppersFactorsChangePasswordCmd(flags *rootFlags) *cobra.Command {
 				return cmd.Help()
 			}
 			if !stdinBody {
+				if bodySecret == "" {
+					return usageErr(fmt.Errorf("--secret is required unless a JSON body is piped with --stdin"))
+				}
 			}
 			c, err := flags.newClient()
 			if err != nil {

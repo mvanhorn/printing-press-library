@@ -19,6 +19,14 @@
       "files": [
         "internal/store/store.go"
       ]
+    },
+    {
+      "id": "change-password-require-secret",
+      "summary": "shoppers factors change-password validates --secret is present in the non-stdin path.",
+      "reason": "Greptile P1: the empty '!stdinBody' guard let the command send an empty body, producing a cryptic API 400 instead of a clear CLI error.",
+      "files": [
+        "internal/cli/shoppers_factors_change-password.go"
+      ]
     }
   ]
 }
