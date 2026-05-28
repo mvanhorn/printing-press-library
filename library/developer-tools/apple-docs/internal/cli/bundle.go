@@ -6,6 +6,7 @@ package cli
 
 import (
 	"fmt"
+	"sort"
 	"strings"
 
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/apple-docs/internal/applejson"
@@ -92,7 +93,7 @@ func bundleSymbol(cmd *cobra.Command, c *client.Client, root string, depth, maxT
 	for len(queue) > 0 {
 		cur := queue[0]
 		queue = queue[1:]
-		key := strings.ToLower(strings.Trim(cur.path, "/"))
+		key := strings.ToLower(strings.Trim(cur.path, "/ "))
 		if visited[key] {
 			continue
 		}
@@ -130,7 +131,7 @@ func bundleSymbol(cmd *cobra.Command, c *client.Client, root string, depth, maxT
 
 		if cur.hop < depth {
 			for _, ref := range pickSeeAlso(page) {
-				if visited[strings.ToLower(strings.Trim(ref, "/"))] {
+				if visited[strings.ToLower(strings.Trim(ref, "/ "))] {
 					continue
 				}
 				queue = append(queue, item{path: ref, hop: cur.hop + 1})
@@ -144,6 +145,11 @@ func bundleSymbol(cmd *cobra.Command, c *client.Client, root string, depth, maxT
 // kind is a symbol, sample-code, or article — entries that make sense
 // to bundle alongside. Capped to 8 per page so a single hop doesn't blow
 // the budget.
+//
+// The output is sorted by path so bundle and port-to produce
+// deterministic, reproducible walks across runs. Without the sort, Go's
+// randomized map iteration over p.References would make the
+// cap-at-8 slice arbitrary per run.
 func pickSeeAlso(p *applejson.DocPage) []string {
 	var out []string
 	for _, ref := range p.References {
@@ -162,6 +168,7 @@ func pickSeeAlso(p *applejson.DocPage) []string {
 			out = append(out, rel)
 		}
 	}
+	sort.Strings(out)
 	if len(out) > 8 {
 		out = out[:8]
 	}

@@ -66,7 +66,7 @@ untyped See-Also; this returns typed conformsTo / inheritsFrom rows.
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
-			rel, err := extractRelationships(page.RawJSON, page.References)
+			rel, err := extractRelationships(page.RelationshipsSections, page.References)
 			if err != nil {
 				return err
 			}
@@ -95,23 +95,24 @@ type relationshipRow struct {
 	Kind  string `json:"kind,omitempty"`
 }
 
-func extractRelationships(raw json.RawMessage, refs map[string]applejson.Reference) (*conformanceResult, error) {
-	var envelope struct {
-		RelationshipsSections []struct {
+// extractRelationships reads the per-section structure directly from the
+// applejson.DocPage's RelationshipsSections (populated during ParseDoc), so
+// the parsed sections aren't re-Unmarshaled on every call.
+func extractRelationships(sections []json.RawMessage, refs map[string]applejson.Reference) (*conformanceResult, error) {
+	out := &conformanceResult{}
+	for _, sec := range sections {
+		var meta struct {
 			Type        string   `json:"type"`
 			Kind        string   `json:"kind"`
 			Title       string   `json:"title"`
 			Identifiers []string `json:"identifiers"`
-		} `json:"relationshipsSections,omitempty"`
-	}
-	if err := json.Unmarshal(raw, &envelope); err != nil {
-		return nil, fmt.Errorf("parsing relationshipsSections: %w", err)
-	}
-	out := &conformanceResult{}
-	for _, sec := range envelope.RelationshipsSections {
-		bucket := sec.Title
-		rows := make([]relationshipRow, 0, len(sec.Identifiers))
-		for _, id := range sec.Identifiers {
+		}
+		if err := json.Unmarshal(sec, &meta); err != nil {
+			return nil, fmt.Errorf("parsing relationshipsSections entry: %w", err)
+		}
+		bucket := meta.Title
+		rows := make([]relationshipRow, 0, len(meta.Identifiers))
+		for _, id := range meta.Identifiers {
 			ref, ok := refs[id]
 			if !ok {
 				rows = append(rows, relationshipRow{Title: id})
@@ -125,11 +126,11 @@ func extractRelationships(raw json.RawMessage, refs map[string]applejson.Referen
 		}
 		sort.SliceStable(rows, func(i, j int) bool { return rows[i].Title < rows[j].Title })
 		switch {
-		case sec.Type == "conformsTo", strings.EqualFold(bucket, "Conforms To"):
+		case meta.Type == "conformsTo", strings.EqualFold(bucket, "Conforms To"):
 			out.ConformsTo = append(out.ConformsTo, rows...)
-		case sec.Type == "inheritsFrom", strings.EqualFold(bucket, "Inherits From"):
+		case meta.Type == "inheritsFrom", strings.EqualFold(bucket, "Inherits From"):
 			out.InheritsFrom = append(out.InheritsFrom, rows...)
-		case sec.Type == "conformingTypes", strings.Contains(strings.ToLower(bucket), "conforming type"):
+		case meta.Type == "conformingTypes", strings.Contains(strings.ToLower(bucket), "conforming type"):
 			out.ConformingTypes = append(out.ConformingTypes, rows...)
 		default:
 			out.Other = append(out.Other, rows...)

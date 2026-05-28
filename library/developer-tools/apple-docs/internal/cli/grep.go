@@ -129,6 +129,14 @@ keyword search of doc titles and abstracts; use 'search' instead.
 					if !re.MatchString(n.Title) && !re.MatchString(n.Path) && !re.MatchString(stem) {
 						return
 					}
+					// Dedupe by (framework, path). Apple's framework index
+					// reaches the same leaf symbol through multiple parent
+					// containers (e.g., a SwiftUI extension method appears
+					// under both the extending type and the extension
+					// group); WalkSwift visits each path. Without this
+					// guard, grep returns the same row up to N times.
+					// Other WalkSwift callers don't need this because they
+					// dedupe implicitly via per-symbol predicates.
 					key := fw + "\x00" + n.Path
 					if _, dup := seen[key]; dup {
 						return

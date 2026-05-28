@@ -119,7 +119,7 @@ instead. Do NOT use it to find a per-symbol replacement; use 'port-to' instead.
 			}
 			outs := make(chan fetchOutcome, len(candidates))
 			var wg sync.WaitGroup
-			sem := make(chan struct{}, 4) // small concurrency cap
+			sem := make(chan struct{}, novelHTTPConcurrency) // small concurrency cap
 			for _, cand := range candidates {
 				wg.Add(1)
 				go func(s deprecatedSymbol) {

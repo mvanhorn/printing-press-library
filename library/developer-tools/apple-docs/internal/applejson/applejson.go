@@ -45,19 +45,24 @@ type Inline struct {
 }
 
 // DocPage is the parsed shape of one doc page.
+//
+// Identifier and URL are kept as synonyms for historical reasons (both
+// populated from metadata.identifier.url); callers may use whichever
+// reads more naturally at the call site.
 type DocPage struct {
-	Identifier  string                 `json:"identifier"`
-	Kind        string                 `json:"kind"`
-	Role        string                 `json:"role"`
-	Title       string                 `json:"title"`
-	Modules     []string               `json:"modules,omitempty"`
-	SymbolKind  string                 `json:"symbol_kind,omitempty"`
-	Abstract    string                 `json:"abstract,omitempty"`
-	Platforms   []PlatformAvailability `json:"platforms,omitempty"`
-	Declaration string                 `json:"declaration,omitempty"`
-	URL         string                 `json:"url"`
-	References  map[string]Reference   `json:"references,omitempty"`
-	RawJSON     json.RawMessage        `json:"-"`
+	Identifier            string                 `json:"identifier"`
+	Kind                  string                 `json:"kind"`
+	Role                  string                 `json:"role"`
+	Title                 string                 `json:"title"`
+	Modules               []string               `json:"modules,omitempty"`
+	SymbolKind            string                 `json:"symbol_kind,omitempty"`
+	Abstract              string                 `json:"abstract,omitempty"`
+	Platforms             []PlatformAvailability `json:"platforms,omitempty"`
+	Declaration           string                 `json:"declaration,omitempty"`
+	URL                   string                 `json:"url"`
+	References            map[string]Reference   `json:"references,omitempty"`
+	RelationshipsSections []json.RawMessage      `json:"-"`
+	RawJSON               json.RawMessage        `json:"-"`
 }
 
 // FetchDoc retrieves /tutorials/data/documentation/<path>.json.
@@ -112,22 +117,24 @@ func ParseDoc(raw json.RawMessage) (*DocPage, error) {
 		Abstract               []Inline             `json:"abstract,omitempty"`
 		References             map[string]Reference `json:"references,omitempty"`
 		PrimaryContentSections []json.RawMessage    `json:"primaryContentSections,omitempty"`
+		RelationshipsSections  []json.RawMessage    `json:"relationshipsSections,omitempty"`
 	}
 	if err := json.Unmarshal(raw, &envelope); err != nil {
 		return nil, fmt.Errorf("parsing doc envelope: %w", err)
 	}
 	page := &DocPage{
-		Identifier:  envelope.Identifier.URL,
-		Kind:        envelope.Kind,
-		Role:        envelope.Metadata.Role,
-		Title:       envelope.Metadata.Title,
-		SymbolKind:  envelope.Metadata.SymbolKind,
-		Platforms:   envelope.Metadata.Platforms,
-		Abstract:    InlineText(envelope.Abstract),
-		URL:         envelope.Identifier.URL,
-		References:  envelope.References,
-		Declaration: ExtractDeclaration(envelope.PrimaryContentSections),
-		RawJSON:     raw,
+		Identifier:            envelope.Identifier.URL,
+		Kind:                  envelope.Kind,
+		Role:                  envelope.Metadata.Role,
+		Title:                 envelope.Metadata.Title,
+		SymbolKind:            envelope.Metadata.SymbolKind,
+		Platforms:             envelope.Metadata.Platforms,
+		Abstract:              InlineText(envelope.Abstract),
+		URL:                   envelope.Identifier.URL,
+		References:            envelope.References,
+		Declaration:           ExtractDeclaration(envelope.PrimaryContentSections),
+		RelationshipsSections: envelope.RelationshipsSections,
+		RawJSON:               raw,
 	}
 	for _, m := range envelope.Metadata.Modules {
 		page.Modules = append(page.Modules, m.Name)

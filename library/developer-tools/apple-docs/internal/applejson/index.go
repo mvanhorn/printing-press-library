@@ -85,6 +85,10 @@ func PathStem(path string) string {
 
 // LevenshteinClose reports whether two strings are within edit distance
 // `maxDist`. Used to flag likely renames.
+//
+// Note: kept exported because the original-author tests live in the
+// applejson package. Callers outside the package use [Levenshtein]
+// directly with an explicit threshold.
 func LevenshteinClose(a, b string, maxDist int) bool {
 	if a == b {
 		return true
@@ -92,7 +96,7 @@ func LevenshteinClose(a, b string, maxDist int) bool {
 	if abs(len(a)-len(b)) > maxDist {
 		return false
 	}
-	dist := levenshtein(a, b)
+	dist := Levenshtein(a, b)
 	return dist <= maxDist
 }
 
@@ -103,7 +107,10 @@ func abs(x int) int {
 	return x
 }
 
-func levenshtein(a, b string) int {
+// Levenshtein returns the byte-level edit distance between two strings.
+// Shared with cli/snapshot_diff.go's rename pairing — kept in one place to
+// avoid two implementations drifting.
+func Levenshtein(a, b string) int {
 	if len(a) == 0 {
 		return len(b)
 	}

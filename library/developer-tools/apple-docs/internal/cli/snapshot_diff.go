@@ -5,7 +5,6 @@
 package cli
 
 import (
-	"encoding/json"
 	"fmt"
 	"io"
 	"os"
@@ -338,7 +337,7 @@ func diffSnapshots(from, to *applejson.FrameworkIndex, classify bool, renameDist
 					bestDist = 0
 					break
 				}
-				dist := editDist(rStem, cStem)
+				dist := applejson.Levenshtein(rStem, cStem)
 				if dist <= renameDist && dist < bestDist {
 					bestIdx = i
 					bestDist = dist
@@ -377,47 +376,3 @@ func parentDir(p string) string {
 	}
 	return p[:idx]
 }
-
-func editDist(a, b string) int {
-	if a == b {
-		return 0
-	}
-	prev := make([]int, len(b)+1)
-	curr := make([]int, len(b)+1)
-	for j := 0; j <= len(b); j++ {
-		prev[j] = j
-	}
-	for i := 1; i <= len(a); i++ {
-		curr[0] = i
-		for j := 1; j <= len(b); j++ {
-			cost := 1
-			if a[i-1] == b[j-1] {
-				cost = 0
-			}
-			curr[j] = mini3(prev[j]+1, curr[j-1]+1, prev[j-1]+cost)
-		}
-		prev, curr = curr, prev
-	}
-	return prev[len(b)]
-}
-
-func abs(x int) int {
-	if x < 0 {
-		return -x
-	}
-	return x
-}
-
-func mini3(a, b, c int) int {
-	m := a
-	if b < m {
-		m = b
-	}
-	if c < m {
-		m = c
-	}
-	return m
-}
-
-// Ensure json is referenced even though most uses are in test files.
-var _ = json.RawMessage(nil)

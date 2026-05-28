@@ -94,7 +94,7 @@ session. Do NOT use it for keyword search across WWDC titles/abstracts; use
 			var mu sync.Mutex
 			var failures []fetchFailure
 			var wg sync.WaitGroup
-			sem := make(chan struct{}, 4)
+			sem := make(chan struct{}, novelHTTPConcurrency)
 			for _, p := range scanned {
 				wg.Add(1)
 				go func(path string) {
@@ -179,32 +179,68 @@ type wwdcSymbolMatch struct {
 }
 
 // sessionMatches reports whether a WWDC reference URL/identifier matches
-// the user-supplied session ID. Accepts wwdc24, wwdc2024, and bare
-// numeric IDs. URLs look like https://developer.apple.com/videos/play/wwdc2024/10169/
-// or /videos/play/wwdc24/10169.
+// the user-supplied session ID. Accepts both wwdc24 / wwdc2024 year
+// forms.
+//
+// Apple's `kind: video` references use slash-separated paths
+// (".../wwdc2024/10169/") while users type dash-separated identifiers
+// ("wwdc2024-10169"). normalizeWWDCSlashes turns the slash form into
+// the dash form so substring matching is direction-free.
 func sessionMatches(session, refURL, refID string) bool {
 	session = strings.ToLower(strings.TrimSpace(session))
 	if session == "" {
 		return false
 	}
 	hay := strings.ToLower(refURL + " " + refID)
-	if strings.Contains(hay, session) {
-		return true
-	}
-	// Normalize wwdc24 vs wwdc2024 variants.
+	dashHay := normalizeWWDCSlashes(hay)
+
+	tries := []string{session}
 	if strings.HasPrefix(session, "wwdc20") && len(session) >= 7 {
-		shortened := "wwdc" + session[6:]
-		if strings.Contains(hay, shortened) {
-			return true
-		}
+		tries = append(tries, "wwdc"+session[6:])
 	}
 	if strings.HasPrefix(session, "wwdc") && len(session) >= 6 && !strings.HasPrefix(session, "wwdc20") {
 		yearShort := session[4:6]
-		yearLong := "20" + yearShort
-		expanded := "wwdc" + yearLong + session[6:]
-		if strings.Contains(hay, expanded) {
+		tries = append(tries, "wwdc20"+yearShort+session[6:])
+	}
+	for _, needle := range tries {
+		if strings.Contains(hay, needle) || strings.Contains(dashHay, needle) {
 			return true
 		}
 	}
 	return false
+}
+
+// normalizeWWDCSlashes turns Apple's slash-separated WWDC URL form
+// (".../wwdc2024/10169/") into the dash-separated identifier form
+// (".../wwdc2024-10169/") so substring matching against user-supplied
+// IDs is direction-free. Only the slash immediately following the
+// "wwdc<digits>" prefix is replaced; surrounding slashes stay put.
+func normalizeWWDCSlashes(s string) string {
+	if !strings.Contains(s, "wwdc") {
+		return s
+	}
+	var sb strings.Builder
+	sb.Grow(len(s))
+	i := 0
+	for {
+		hit := strings.Index(s[i:], "wwdc")
+		if hit < 0 {
+			sb.WriteString(s[i:])
+			break
+		}
+		hit += i
+		sb.WriteString(s[i:hit])
+		j := hit + 4
+		for j < len(s) && s[j] >= '0' && s[j] <= '9' {
+			j++
+		}
+		sb.WriteString(s[hit:j])
+		if j < len(s) && s[j] == '/' {
+			sb.WriteByte('-')
+			i = j + 1
+		} else {
+			i = j
+		}
+	}
+	return sb.String()
 }
