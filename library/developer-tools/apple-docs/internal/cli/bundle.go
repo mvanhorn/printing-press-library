@@ -113,7 +113,16 @@ func bundleSymbol(cmd *cobra.Command, c *client.Client, root string, depth, maxT
 			break
 		}
 		if len(piece) > remaining {
-			piece = piece[:remaining] + "\n... [truncated]"
+			// Walk back to a UTF-8 rune boundary so we never emit a
+			// half-cut multi-byte rune. Apple docs include non-ASCII
+			// characters (curly quotes, em-dashes, occasional Chinese
+			// terminology); cutting one mid-rune would produce
+			// invalid UTF-8 and corrupt downstream JSON marshaling.
+			cut := remaining
+			for cut > 0 && piece[cut]&0xC0 == 0x80 {
+				cut--
+			}
+			piece = piece[:cut] + "\n... [truncated]"
 			sb.WriteString(piece)
 			break
 		}

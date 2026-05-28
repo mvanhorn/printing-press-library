@@ -382,9 +382,6 @@ func editDist(a, b string) int {
 	if a == b {
 		return 0
 	}
-	if abs(len(a)-len(b)) > len(a)+len(b) {
-		return len(a) + len(b)
-	}
 	prev := make([]int, len(b)+1)
 	curr := make([]int, len(b)+1)
 	for j := 0; j <= len(b); j++ {

@@ -192,8 +192,11 @@ func ExtractDeclaration(sections []json.RawMessage) string {
 // IsAvailableOn reports whether the page is available on the named
 // platform (case-insensitive) according to its metadata.platforms[]
 // entries. A symbol is available on a platform when an entry with that
-// name is present, not unavailable, not deprecated, and has an
-// introducedAt value (or no version constraints at all).
+// name is present, not unavailable, and not deprecated by either the
+// boolean `deprecated` flag or a non-empty `deprecatedAt` version. The
+// DeprecatedAt check mirrors IsDeprecatedOn — Apple emits "deprecatedAt"
+// independently of the boolean, so checking only `Deprecated` would
+// surface scheduled-for-removal symbols as valid replacements.
 func (p *DocPage) IsAvailableOn(platform string) bool {
 	platform = strings.ToLower(platform)
 	for _, plat := range p.Platforms {
@@ -203,7 +206,7 @@ func (p *DocPage) IsAvailableOn(platform string) bool {
 		if plat.Unavailable {
 			return false
 		}
-		if plat.Deprecated {
+		if plat.Deprecated || plat.DeprecatedAt != "" {
 			return false
 		}
 		return true
