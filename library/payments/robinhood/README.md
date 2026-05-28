@@ -2,8 +2,11 @@
 
 # Introduction
 
+This is a CLI + MCP for **the whole of Robinhood**, not just crypto. It covers the brokerage surface — multiple accounts (individual + retirement), positions, equity and options orders, option chains, portfolio performance over YTD/1-week/1-month/1-year/5-year/all-time windows, ACH transfers, dividends, and watchlists — across `api.robinhood.com` and the `bonfire` gateway, captured live and risk-labeled. Brokerage auth uses an OAuth bearer (`ROBINHOOD_BROKERAGE_TOKEN`); all write commands default to dry-run behind the `ROBINHOOD_PP_ALLOW_WRITES=1` gate.
 
-Welcome to Robinhood Crypto Trading API documentation for traders and developers! The API lets you view crypto market data, access your account information, and place crypto orders programmatically.
+The **official Robinhood Crypto Trading API** below is the easy documented subset (it has its own public spec and key/signature auth), included alongside the brokerage map.
+
+Welcome to Robinhood Crypto Trading API documentation for traders and developers! The Crypto API lets you view crypto market data, access your account information, and place crypto orders programmatically.
 
 To get started, head to your [crypto account settings](https://robinhood.com/account/crypto) on web classic to create credentials. There are two versions of the Crypto Trading API, giving you the option to place crypto orders with fee tiers (v2) or without fee tiers (v1). All read-only API actions are available on both versions. For more information about API version differences, fee tiers, and answers to common questions, visit our [Help Center](https://robinhood.com/us/en/support/articles/crypto-api). You can also view the [Fee Schedule](https://cdn.robinhood.com/assets/robinhood/legal/rhc-fee-schedule.pdf) for the latest rates.
 

@@ -1,6 +1,6 @@
 ---
 name: pp-robinhood
-description: "Printing Press CLI for Robinhood. Welcome to Robinhood Crypto Trading API documentation for traders and developers!"
+description: "Printing Press CLI + MCP for the whole of Robinhood — brokerage accounts (individual + retirement), positions, options + chains, portfolio performance, transfers, dividends, orders, watchlists, plus the official Crypto Trading API as the documented subset. Live reads; writes are dry-run gated."
 author: "zaydiscold"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"
