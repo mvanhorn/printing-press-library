@@ -1,0 +1,51 @@
+version: 2
+project_name: apple-docs-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: apple-docs-pp-cli
+    main: ./cmd/apple-docs-pp-cli
+    binary: apple-docs-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/developer-tools/apple-docs/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: apple-docs-pp-mcp
+    main: ./cmd/apple-docs-pp-mcp
+    binary: apple-docs-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: apple-docs-pp-cli
+    repository:
+      owner: joseph-alvin-castillo
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Every Apple framework, indexed locally, with deprecation analysis and an MCP server no other Apple-docs tool has."
+    install: |
+      bin.install "apple-docs-pp-cli"
+      bin.install "apple-docs-pp-mcp"

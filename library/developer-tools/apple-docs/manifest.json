@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "apple-docs-pp-mcp",
+  "display_name": "Apple Developer Documentation",
+  "version": "4.18.1",
+  "description": "Every Apple framework, indexed locally, with deprecation analysis and an MCP server no other Apple-docs tool has.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/apple-docs-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/apple-docs-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

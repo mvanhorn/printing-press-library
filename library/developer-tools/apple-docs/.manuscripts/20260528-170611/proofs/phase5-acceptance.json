@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "apple-docs",
+  "run_id": "20260528-170611",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 64,
+  "tests_passed": 64,
+  "tests_skipped": 49,
+  "auth_context": {
+    "type": "none"
+  }
+}
