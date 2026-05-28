@@ -636,6 +636,55 @@ func TestProductAffinityRowsUsesAnchorProduct(t *testing.T) {
 	}
 }
 
+func TestGiftFollowupFlowRequiresAndUsesTriggerProduct(t *testing.T) {
+	if _, _, err := buildGiftFollowupFlow(&fakeCouponPoolClient{}, "sender@example.com", "Brand", ""); err == nil || !strings.Contains(err.Error(), "--trigger-product") {
+		t.Fatalf("expected missing trigger product error, got %v", err)
+	}
+	client := &fakeCouponPoolClient{responses: []json.RawMessage{rawJSON(`{"data":[{"id":"metric-1","attributes":{"name":"Placed Order"}}]}`)}}
+	def, _, err := buildGiftFollowupFlow(client, "sender@example.com", "Brand", "Gift Box")
+	if err != nil {
+		t.Fatalf("buildGiftFollowupFlow returned error: %v", err)
+	}
+	triggers := def["triggers"].([]any)
+	trigger := triggers[0].(map[string]any)
+	filter := trigger["trigger_filter"].(map[string]any)
+	conditions := filter["conditions"].([]any)
+	condition := conditions[0].(map[string]any)
+	if condition["value"] != "Gift Box" {
+		t.Fatalf("trigger product = %#v", condition["value"])
+	}
+}
+
+func TestScoreRFMProfilesUsesRecency(t *testing.T) {
+	raw := rawJSON(`{"data":{"attributes":{"data":[
+		{"dimensions":["recent"],"measurements":{"count":[5],"sum_value":[500]}},
+		{"dimensions":["sleeping"],"measurements":{"count":[2],"sum_value":[50]}},
+		{"dimensions":["lost"],"measurements":{"count":[1],"sum_value":[10]}}
+	]}}}`)
+	now := time.Date(2026, 5, 28, 12, 0, 0, 0, time.UTC)
+	scores := scoreRFMProfiles(raw, map[string]time.Time{
+		"recent":   now.AddDate(0, 0, -10),
+		"sleeping": now.AddDate(0, 0, -120),
+		"lost":     now.AddDate(-2, 0, 0),
+	}, now)
+	byProfile := map[string]map[string]any{}
+	for _, score := range scores {
+		byProfile[fmt.Sprint(score["profile_id"])] = score
+	}
+	if anyInt(byProfile["recent"]["r_score"]) != 5 {
+		t.Fatalf("recent score = %#v", byProfile["recent"])
+	}
+	if anyInt(byProfile["sleeping"]["r_score"]) != 3 {
+		t.Fatalf("sleeping score = %#v", byProfile["sleeping"])
+	}
+	if anyInt(byProfile["lost"]["r_score"]) != 1 {
+		t.Fatalf("lost score = %#v", byProfile["lost"])
+	}
+	if anyInt(byProfile["recent"]["m_score"]) != 5 {
+		t.Fatalf("monetary score = %#v", byProfile["recent"])
+	}
+}
+
 func TestDeleteSegmentUsesEscapedSegmentPath(t *testing.T) {
 	client := &fakeCouponPoolClient{}
 	if err := deleteSegment(client, "segment/123"); err != nil {

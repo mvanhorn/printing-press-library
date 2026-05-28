@@ -1512,7 +1512,7 @@ func newFlowsDeployCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&fromLabel, "from-label", "", "Sender label for preset emails")
 	cmd.Flags().StringVar(&product, "product", "", "Product name for product-specific presets such as replenishment")
 	cmd.Flags().IntVar(&days, "days", 77, "Delay days for replenishment preset")
-	cmd.Flags().StringVar(&triggerProduct, "trigger-product", "", "Trigger product for cross-sell preset")
+	cmd.Flags().StringVar(&triggerProduct, "trigger-product", "", "Trigger product for gift-followup and cross-sell presets")
 	cmd.Flags().StringVar(&crossSell, "cross-sell", "", "Comma-separated products to recommend for cross-sell preset")
 	return cmd
 }
@@ -1573,7 +1573,7 @@ func buildPresetFlow(c flowClient, opts flowPresetOptions) (map[string]any, []st
 	case "winback":
 		return buildWinbackFlow(c, opts.FromEmail, opts.FromLabel)
 	case "gift-followup":
-		return buildGiftFollowupFlow(c, opts.FromEmail, opts.FromLabel)
+		return buildGiftFollowupFlow(c, opts.FromEmail, opts.FromLabel, opts.TriggerProduct)
 	case "replenishment":
 		return buildReplenishmentFlow(c, opts.FromEmail, opts.FromLabel, opts.Product, opts.Days)
 	case "cross-sell":

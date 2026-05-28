@@ -401,7 +401,6 @@ func buildSegmentDefinition(c flowClient, opts segmentBuildOptions) (map[string]
 			return nil, err
 		}
 		conditions = append(conditions, metricCountCondition(id, "greater-or-equal", 1, "", []any{
-			map[string]any{"type": "string", "field": "ProductName", "operator": "contains-one-of", "values": []string{"Deck", "Bundle"}},
 			map[string]any{"type": "string", "field": "ShippingAddress", "operator": "not-equals-field", "value": "BillingAddress"},
 		}))
 	}
@@ -1405,12 +1404,18 @@ func newSegmentsRFMCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			body := metricAggregateBody(metricID, []string{"count", "sum_value"}, []string{"Profile ID"}, time.Now().AddDate(-2, 0, 0), time.Now())
+			now := time.Now()
+			since := now.AddDate(-2, 0, 0)
+			body := metricAggregateBody(metricID, []string{"count", "sum_value"}, []string{"Profile ID"}, since, now)
 			resp, _, err := c.Post("/api/metric-aggregates", body)
 			if err != nil {
 				return classifyAPIError(err)
 			}
-			scores := scoreRFMProfiles(resp)
+			lastOrders, err := profileLastOrderTimes(c, metricID, since, now, 10000)
+			if err != nil {
+				return err
+			}
+			scores := scoreRFMProfiles(resp, lastOrders, now)
 			if len(scores) > 0 {
 				if _, _, err := c.Post("/api/profile-import", map[string]any{"data": rfmProfileImportData(scores)}); err != nil {
 					return classifyAPIError(err)
@@ -1434,7 +1439,10 @@ func newSegmentsRFMCmd(flags *rootFlags) *cobra.Command {
 	return cmd
 }
 
-func buildGiftFollowupFlow(c flowClient, fromEmail, fromLabel string) (map[string]any, []string, error) {
+func buildGiftFollowupFlow(c flowClient, fromEmail, fromLabel, triggerProduct string) (map[string]any, []string, error) {
+	if triggerProduct == "" {
+		return nil, nil, usageErr(fmt.Errorf("--trigger-product is required for gift-followup preset"))
+	}
 	triggerID, err := resolveMetricID(c, "Placed Order")
 	if err != nil {
 		return nil, nil, fmt.Errorf("resolving trigger metric: %w", err)
@@ -1452,7 +1460,7 @@ func buildGiftFollowupFlow(c flowClient, fromEmail, fromLabel string) (map[strin
 			"type": "metric",
 			"id":   triggerID,
 			"trigger_filter": map[string]any{"conditions": []any{
-				map[string]any{"type": "event-property", "property": "$ProductName", "operator": "contains", "value": "Deck"},
+				map[string]any{"type": "event-property", "property": "$ProductName", "operator": "contains", "value": triggerProduct},
 			}},
 		}},
 		"profile_filter":   map[string]any{"condition_groups": []any{}},
@@ -1557,19 +1565,71 @@ func splitCSV(s string) []string {
 	return out
 }
 
-func scoreRFMProfiles(raw json.RawMessage) []map[string]any {
+func profileLastOrderTimes(c flowClient, metricID string, since, until time.Time, limit int) (map[string]time.Time, error) {
+	filter := fmt.Sprintf("equals(metric_id,\"%s\"),greater-or-equal(datetime,%s),less-than(datetime,%s)", metricID, since.Format(time.RFC3339), until.Format(time.RFC3339))
+	items, err := fetchAllJSONAPI(c, "/api/events", map[string]string{"filter": filter, "page[size]": "200", "sort": "-datetime"}, limit)
+	if err != nil {
+		return nil, err
+	}
+	lastOrders := map[string]time.Time{}
+	for _, item := range items {
+		profileID := firstNonEmptyString(
+			stringFromMapPath(item, "relationships.profile.data.id"),
+			stringFromMapPath(item, "attributes.profile_id"),
+			stringFromMapPath(item, "attributes.properties.profile_id"),
+			stringFromMapPath(item, "attributes.email"),
+			stringFromMapPath(item, "attributes.properties.email"),
+		)
+		if profileID == "" {
+			continue
+		}
+		orderedAt := parseDate(firstNonEmptyString(
+			stringFromMapPath(item, "attributes.datetime"),
+			stringFromMapPath(item, "attributes.timestamp"),
+		))
+		if orderedAt.IsZero() {
+			continue
+		}
+		if current, ok := lastOrders[profileID]; !ok || orderedAt.After(current) {
+			lastOrders[profileID] = orderedAt
+		}
+	}
+	return lastOrders, nil
+}
+
+func scoreRFMProfiles(raw json.RawMessage, lastOrders map[string]time.Time, now time.Time) []map[string]any {
 	rows := metricAggregateRows(raw, "count")
+	monetaryRows := metricAggregateRows(raw, "sum_value")
 	var out []map[string]any
 	for profileID, frequency := range rows {
-		monetary := metricAggregateRows(raw, "sum_value")[profileID]
+		monetary := monetaryRows[profileID]
 		out = append(out, map[string]any{
 			"profile_id": profileID,
-			"r_score":    3,
+			"r_score":    recencyScore(lastOrders[profileID], now),
 			"f_score":    scoreBucket(frequency),
 			"m_score":    scoreBucket(monetary),
 		})
 	}
 	return out
+}
+
+func recencyScore(lastOrder, now time.Time) int {
+	if lastOrder.IsZero() || now.IsZero() || lastOrder.After(now) {
+		return 1
+	}
+	days := now.Sub(lastOrder).Hours() / 24
+	switch {
+	case days <= 30:
+		return 5
+	case days <= 90:
+		return 4
+	case days <= 180:
+		return 3
+	case days <= 365:
+		return 2
+	default:
+		return 1
+	}
 }
 
 func scoreBucket(v float64) int {
