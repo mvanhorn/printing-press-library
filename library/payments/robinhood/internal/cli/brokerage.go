@@ -32,6 +32,23 @@ ROBINHOOD_PP_ALLOW_WRITES=1 for live execution.`,
 	cmd.AddCommand(newBrokerageRoutesCmd(flags, true))
 	cmd.AddCommand(newBrokeragePlanCmd(flags))
 	cmd.AddCommand(newBrokerageExecuteCmd(flags))
+	// Typed brokerage commands (hand-added from the captured live API surface).
+	// See brokerage_read.go for rationale and the auth/host-reuse contract.
+	cmd.AddCommand(newBrokerageAccountsCmd(flags))
+	cmd.AddCommand(newBrokerageCeresAccountsCmd(flags))
+	cmd.AddCommand(newBrokerageAccountCmd(flags))
+	cmd.AddCommand(newBrokerageAccountSwitcherCmd(flags))
+	cmd.AddCommand(newBrokeragePositionsCmd(flags))
+	cmd.AddCommand(newBrokeragePortfoliosCmd(flags))
+	cmd.AddCommand(newBrokerageInstrumentCmd(flags))
+	cmd.AddCommand(newBrokerageQuoteCmd(flags))
+	cmd.AddCommand(newBrokerageOrdersCmd(flags))
+	cmd.AddCommand(newBrokerageOptionsCmd(flags))
+	cmd.AddCommand(newBrokeragePerformanceCmd(flags))
+	cmd.AddCommand(newBrokerageTransfersCmd(flags))
+	cmd.AddCommand(newBrokerageDividendsCmd(flags))
+	cmd.AddCommand(newBrokerageHistoryCmd(flags))
+	cmd.AddCommand(newBrokerageWatchlistCmd(flags))
 	return cmd
 }
 

@@ -226,6 +226,48 @@ func BuildPlan(route Route, method string, params map[string]string, body any, d
 	}
 }
 
+// BuildDirectPlan constructs a Plan for an explicit Robinhood host + path that
+// is not (or need not be) looked up from the embedded route list. It is the
+// foundation for the typed brokerage read/write commands (accounts, options,
+// performance, transfers, dividends, orders): each captured endpoint from the
+// live API surface is expressed as a host + path template here, then executed
+// through the same Bearer-token, multi-host, rate-limited, write-gated Execute
+// path the generic `brokerage execute` command uses. No new auth path is
+// invented — typed commands and the route-map executor share one transport.
+//
+// pathTemplate may contain {placeholder} segments; supplying params resolves
+// them and any unresolved placeholder is reported in Plan.MissingParams, exactly
+// like the route-list BuildPlan. query carries already-resolved query-string
+// values appended to the URL (empty values are dropped).
+func BuildDirectPlan(host, pathTemplate, method, risk string, params, query map[string]string) Plan {
+	route := Route{
+		URL:        "https://" + host + pathTemplate,
+		Host:       host,
+		Risk:       risk,
+		Categories: nil,
+		Methods:    []string{strings.ToUpper(method)},
+	}
+	plan := BuildPlan(route, method, params, nil, false)
+	if len(query) > 0 {
+		keys := make([]string, 0, len(query))
+		for k := range query {
+			if query[k] != "" {
+				keys = append(keys, k)
+			}
+		}
+		sort.Strings(keys)
+		sep := "?"
+		if strings.Contains(plan.URL, "?") {
+			sep = "&"
+		}
+		for _, k := range keys {
+			plan.URL += sep + k + "=" + query[k]
+			sep = "&"
+		}
+	}
+	return plan
+}
+
 func InferMethod(route Route) string {
 	if len(route.Methods) > 0 && route.Methods[0] != "" {
 		return route.Methods[0]

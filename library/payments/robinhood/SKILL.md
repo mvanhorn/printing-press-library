@@ -44,6 +44,51 @@ robinhood-pp-cli brokerage plan https://api.robinhood.com/goku/lcm --json
 
 `brokerage execute` can use caller-owned `ROBINHOOD_BROKERAGE_TOKEN` or `ROBINHOOD_COOKIE`. Write routes still require `ROBINHOOD_PP_ALLOW_WRITES=1`.
 
+### Typed brokerage commands (stocks, options, accounts, transfers)
+
+Beyond the route map, the `brokerage` group exposes **typed read commands** for the captured brokerage API surface. These are the everyday stock/options/account commands. They authenticate with the same OAuth bearer credential as `brokerage execute` — set `ROBINHOOD_BROKERAGE_TOKEN` (or `ROBINHOOD_COOKIE` + `ROBINHOOD_CSRF_TOKEN`). This is a **separate credential** from the crypto API's `ROBINHOOD_API_KEY` / `ROBINHOOD_PRIVATE_KEY_B64`: the `crypto` group speaks the official signed Crypto API, the `brokerage` group speaks the OAuth-bearer brokerage hosts (`api.robinhood.com`, `bonfire.robinhood.com`, `minerva.robinhood.com`).
+
+```bash
+# Accounts — Zayd has multiple individual + a retirement account
+robinhood-pp-cli brokerage accounts --json                 # every account
+robinhood-pp-cli brokerage portfolios --json               # per-account dollar balances (the "main" balance)
+robinhood-pp-cli brokerage account --account-id 1AB23456 --json   # unified balance for one account
+
+# Positions / orders / quotes
+robinhood-pp-cli brokerage positions --nonzero --json
+robinhood-pp-cli brokerage orders --json
+robinhood-pp-cli brokerage quote --symbols AAPL,TSLA --json
+robinhood-pp-cli brokerage instrument --symbol AAPL --json
+
+# Options — positions, orders, chain, contracts, greeks
+robinhood-pp-cli brokerage options positions --json
+robinhood-pp-cli brokerage options orders --json
+robinhood-pp-cli brokerage options chain --chain-id <uuid> --json
+robinhood-pp-cli brokerage options instruments --chain-id <uuid> --expiration 2026-06-19 --type call --json
+robinhood-pp-cli brokerage options marketdata --instruments <uuid> --json
+
+# Performance windows — YTD, week, month, year, 5year, all
+robinhood-pp-cli brokerage performance --account-id 1AB23456 --span year --json
+robinhood-pp-cli brokerage performance --account-id 1AB23456 --span week --interval day --json
+
+# Transfers / deposits / withdrawals, dividends, account history
+robinhood-pp-cli brokerage transfers --json
+robinhood-pp-cli brokerage transfers relationships --json
+robinhood-pp-cli brokerage dividends --json
+robinhood-pp-cli brokerage history --json
+```
+
+**Write commands default to dry-run and never auto-execute a trade.** Order placement and cancellation print the exact request and require both `--live-write` and `ROBINHOOD_PP_ALLOW_WRITES=1` for a live mutation — Zayd executes real trades himself. Watchlist add/remove are reversible writes but follow the same gate.
+
+```bash
+robinhood-pp-cli brokerage orders place --body-json '{"symbol":"AAPL","side":"buy","type":"market","quantity":"1","time_in_force":"gfd"}' --dry-run
+robinhood-pp-cli brokerage orders cancel --order-id <uuid> --dry-run
+robinhood-pp-cli brokerage options place --body-json '{"direction":"debit","type":"limit","legs":[]}' --dry-run
+robinhood-pp-cli brokerage options cancel --order-id <uuid> --dry-run
+robinhood-pp-cli brokerage watchlist add --list-id <uuid> --body-json '{"object_id":"<instrument-uuid>","object_type":"instrument","operation":"create"}' --dry-run
+robinhood-pp-cli brokerage watchlist remove --list-id <uuid> --body-json '{"object_id":"<instrument-uuid>","object_type":"instrument","operation":"delete"}' --dry-run
+```
+
 # Introduction
 
 
@@ -637,6 +682,40 @@ Here's a sample error response where the `client_order_id` field in the payload 
 - `robinhood-pp-cli crypto trading-orders-post` — Place a new crypto trading order with an order type.
 - `robinhood-pp-cli crypto trading-trading-pairs` — Fetch a list of trading pairs.
 - `robinhood-pp-cli crypto trading-trading-pairs-trading` — Fetch a paginated list of available trading pairs for crypto trading.
+
+**brokerage** — Inspect Robinhood brokerage/account route maps and the typed brokerage surface (OAuth bearer auth)
+
+- `robinhood-pp-cli brokerage summary` — Summarize bundled brokerage/account route maps.
+- `robinhood-pp-cli brokerage plan` — Build a dry-run request plan for a mapped route.
+- `robinhood-pp-cli brokerage execute` — Execute a mapped brokerage/account request with PP write gates.
+- `robinhood-pp-cli brokerage accounts` — List all brokerage accounts (individual + retirement).
+- `robinhood-pp-cli brokerage ceres-accounts` — List accounts via the ceres gateway.
+- `robinhood-pp-cli brokerage account` — Show the unified balance view for one account.
+- `robinhood-pp-cli brokerage account-switcher` — List accounts as shown in the app account switcher.
+- `robinhood-pp-cli brokerage positions` — List equity positions.
+- `robinhood-pp-cli brokerage portfolios` — List portfolios (equity, market value, withdrawable per account).
+- `robinhood-pp-cli brokerage instrument` — Look up an instrument (tradable security) by symbol.
+- `robinhood-pp-cli brokerage quote` — Fetch real-time quotes for one or more symbols.
+- `robinhood-pp-cli brokerage orders` — List equity orders.
+- `robinhood-pp-cli brokerage orders place` — Place an equity order (dry-run by default).
+- `robinhood-pp-cli brokerage orders cancel` — Cancel an equity order (dry-run by default).
+- `robinhood-pp-cli brokerage options positions` — List aggregate options positions.
+- `robinhood-pp-cli brokerage options orders` — List options orders.
+- `robinhood-pp-cli brokerage options chain` — List option chains, or fetch one chain by id.
+- `robinhood-pp-cli brokerage options instruments` — List option instruments (contracts) for a chain.
+- `robinhood-pp-cli brokerage options marketdata` — Fetch options market data (greeks, IV, bid/ask).
+- `robinhood-pp-cli brokerage options place` — Place an options order (dry-run by default).
+- `robinhood-pp-cli brokerage options cancel` — Cancel an options order (dry-run by default).
+- `robinhood-pp-cli brokerage performance` — Portfolio value over a window (YTD, week, month, year, 5year, all).
+- `robinhood-pp-cli brokerage transfers` — List ACH transfers (deposits + withdrawals).
+- `robinhood-pp-cli brokerage transfers relationships` — List linked bank (ACH) relationships.
+- `robinhood-pp-cli brokerage transfers unified` — List unified transfers across rails.
+- `robinhood-pp-cli brokerage dividends` — List dividends (paid + pending).
+- `robinhood-pp-cli brokerage history` — List account transaction history.
+- `robinhood-pp-cli brokerage watchlist` — List the default watchlist.
+- `robinhood-pp-cli brokerage watchlist items` — List watchlist items.
+- `robinhood-pp-cli brokerage watchlist add` — Add an item to a watchlist (safe write, dry-run by default).
+- `robinhood-pp-cli brokerage watchlist remove` — Remove an item from a watchlist (safe write, dry-run by default).
 
 
 ### Finding the right command

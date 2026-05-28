@@ -714,6 +714,22 @@ robinhood-pp-cli brokerage execute https://api.robinhood.com/goku/lcm --json
 
 Read inspection has no write gate. Any route that can write defaults to `--dry-run`; live execution requires `--live-write` plus `ROBINHOOD_PP_ALLOW_WRITES=1`. Brokerage/account execution uses caller-owned `ROBINHOOD_BROKERAGE_TOKEN` or `ROBINHOOD_COOKIE`.
 
+### Typed brokerage commands
+
+Alongside the route map, the `brokerage` group ships typed read commands for the everyday brokerage surface — accounts, positions, orders, options, performance, transfers, dividends, and history. They authenticate with the OAuth bearer credential (`ROBINHOOD_BROKERAGE_TOKEN`, or `ROBINHOOD_COOKIE` + `ROBINHOOD_CSRF_TOKEN`) shared with `brokerage execute`. This is a **separate credential** from the crypto API's `ROBINHOOD_API_KEY` / `ROBINHOOD_PRIVATE_KEY_B64`.
+
+```bash
+robinhood-pp-cli brokerage accounts --json                       # all accounts (individual + retirement)
+robinhood-pp-cli brokerage portfolios --json                     # per-account dollar balances
+robinhood-pp-cli brokerage positions --nonzero --json            # open equity positions
+robinhood-pp-cli brokerage options chain --chain-id <uuid> --json
+robinhood-pp-cli brokerage performance --account-id 1AB23456 --span year --json
+robinhood-pp-cli brokerage transfers --json                      # ACH deposits + withdrawals
+robinhood-pp-cli brokerage dividends --json
+```
+
+Order placement/cancellation (`brokerage orders place`/`cancel`, `brokerage options place`/`cancel`) and watchlist add/remove default to `--dry-run` and never auto-execute; a live mutation requires `--live-write` plus `ROBINHOOD_PP_ALLOW_WRITES=1`.
+
 ## Usage
 
 Run `robinhood-pp-cli --help` for the full command reference and flag list.
@@ -760,6 +776,39 @@ For order configurations that support both `asset_quantity` or `quote_amount`, o
 For order configurations that support both `asset_quantity` or `quote_amount`, only one can be present in the request body.
 - **`robinhood-pp-cli crypto trading-trading-pairs`** - Fetch a list of trading pairs.
 - **`robinhood-pp-cli crypto trading-trading-pairs-trading`** - Fetch a paginated list of available trading pairs for crypto trading. Returns trading pair details including price increments, order size limits, and tradability status. Trading pairs can be filtered by symbol.
+
+### brokerage
+
+Inspect Robinhood brokerage/account route maps and the typed brokerage surface. Read commands authenticate with `ROBINHOOD_BROKERAGE_TOKEN` (OAuth bearer); write commands default to `--dry-run`.
+
+- **`robinhood-pp-cli brokerage summary`** - Summarize bundled brokerage/account route maps.
+- **`robinhood-pp-cli brokerage plan`** - Build a dry-run request plan for a mapped route.
+- **`robinhood-pp-cli brokerage execute`** - Execute a mapped brokerage/account request with PP write gates.
+- **`robinhood-pp-cli brokerage accounts`** - List all brokerage accounts (individual + retirement). Maps `GET /accounts/`.
+- **`robinhood-pp-cli brokerage ceres-accounts`** - List accounts via the ceres gateway. Maps `GET /ceres/v1/accounts`.
+- **`robinhood-pp-cli brokerage account`** - Unified balance view for one account. Maps `GET /accounts/{id}/unified/` (bonfire).
+- **`robinhood-pp-cli brokerage account-switcher`** - Accounts in the app account-switcher shape. Maps `GET /home/account_switcher/v2` (bonfire).
+- **`robinhood-pp-cli brokerage positions`** - List equity positions. Maps `GET /positions/`.
+- **`robinhood-pp-cli brokerage portfolios`** - Per-account equity/market value/withdrawable. Maps `GET /portfolios/`.
+- **`robinhood-pp-cli brokerage instrument`** - Look up an instrument by symbol. Maps `GET /instruments/`.
+- **`robinhood-pp-cli brokerage quote`** - Real-time quotes for symbols. Maps `GET /marketdata/quotes/`.
+- **`robinhood-pp-cli brokerage orders`** - List equity orders. Maps `GET /orders/`.
+- **`robinhood-pp-cli brokerage orders place`** - Place an equity order (dry-run by default). Maps `POST /orders/`.
+- **`robinhood-pp-cli brokerage orders cancel`** - Cancel an equity order (dry-run by default). Maps `POST /orders/{id}/cancel/`.
+- **`robinhood-pp-cli brokerage options positions`** - Aggregate options positions. Maps `GET /options/aggregate_positions/`.
+- **`robinhood-pp-cli brokerage options orders`** - Options orders. Maps `GET /options/orders/`.
+- **`robinhood-pp-cli brokerage options chain`** - Option chains, or one by id. Maps `GET /options/chains/` and `/options/chains/{id}/`.
+- **`robinhood-pp-cli brokerage options instruments`** - Option contracts for a chain. Maps `GET /options/instruments/`.
+- **`robinhood-pp-cli brokerage options marketdata`** - Options greeks/IV/bid-ask. Maps `GET /marketdata/options/`.
+- **`robinhood-pp-cli brokerage options place`** - Place an options order (dry-run by default). Maps `POST /options/orders/`.
+- **`robinhood-pp-cli brokerage options cancel`** - Cancel an options order (dry-run by default). Maps `POST /options/orders/{id}/cancel/`.
+- **`robinhood-pp-cli brokerage performance`** - Portfolio value over a window (YTD, week, month, year, 5year, all). Maps `GET /portfolios/historicals/{id}/`.
+- **`robinhood-pp-cli brokerage transfers`** - ACH transfers (deposits + withdrawals). Maps `GET /ach/transfers/`.
+- **`robinhood-pp-cli brokerage transfers relationships`** - Linked bank relationships. Maps `GET /ach/relationships/`.
+- **`robinhood-pp-cli brokerage transfers unified`** - Unified transfers across rails. Maps `GET /paymenthub/unified_transfers/` (bonfire).
+- **`robinhood-pp-cli brokerage dividends`** - Dividends (paid + pending). Maps `GET /dividends/`.
+- **`robinhood-pp-cli brokerage history`** - Account transaction history. Maps `GET /history/transactions/` (minerva).
+- **`robinhood-pp-cli brokerage watchlist`** - Default watchlist; `items`/`add`/`remove` subcommands. Maps `GET /discovery/lists/default/`.
 
 
 ## Output Formats
