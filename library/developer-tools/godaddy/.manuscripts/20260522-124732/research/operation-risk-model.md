@@ -52,8 +52,8 @@ This is a first-pass heuristic, not a substitute for command review. When it ove
 
 The local PP scaffold now applies the risk model after generated Cobra commands are assembled:
 
-- Code: `/Users/zaydk/printing-press/library/developer-tools/godaddy-pp/internal/cli/risk_annotations.go`
-- Tests: `/Users/zaydk/printing-press/library/developer-tools/godaddy-pp/internal/cli/risk_annotations_test.go`
+- Code: `library/developer-tools/godaddy/internal/cli/risk_annotations.go`
+- Tests: `library/developer-tools/godaddy/internal/cli/risk_annotations_test.go`
 - Human help proofs:
   - `godaddy/proofs/godaddy-risk-help-domains-purchase-2026-05-22.txt`
   - `godaddy/proofs/godaddy-risk-help-dns-replace-2026-05-22.txt`

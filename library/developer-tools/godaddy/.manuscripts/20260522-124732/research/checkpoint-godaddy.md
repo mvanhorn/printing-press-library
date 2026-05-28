@@ -6,8 +6,8 @@ Status: complete for the Top-4 lane. The broader 12-venue goal is not complete.
 
 ## What Is Done
 
-- Personal repo: `/Users/zaydk/Desktop/godaddy-cli`
-- PP package: `/Users/zaydk/printing-press/library/developer-tools/godaddy-pp`
+- Personal repo: `<personal-repo>/godaddy-cli`
+- PP package: `library/developer-tools/godaddy`
 - Official/API map: 12 Swagger groups, 111 paths, 138 operations.
 - Browser/API map: 61 sanitized authenticated account-portal route templates.
 - Documentation source map: `api-map/documentation-sources-2026-05-26.json`

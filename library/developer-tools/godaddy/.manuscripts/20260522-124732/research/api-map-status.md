@@ -18,7 +18,7 @@ Official public API aggregation is started and complete enough for the next plan
 - Normalized official route index generated under `godaddy/api-map/normalized/`
 - First-pass operation barriers assigned: 61 read, 8 validation, 27 write, 17 destructive, 25 purchase/billing
 - Community coverage inventory completed: existing tools cover slices, not the full target surface
-- Local combined PP scaffold generated and locally verified under `/Users/zaydk/printing-press/library/developer-tools/godaddy-pp`
+- Local combined PP scaffold generated and locally verified under `library/developer-tools/godaddy`
 - MCP surface reviewed and regenerated with code orchestration: `godaddy_search` + `godaddy_execute` cover the full documented surface while raw endpoint mirrors stay hidden from MCP.
 - Route-risk warning pass applied: high-risk endpoint commands now expose `pp:risk`, `pp:barrier`, and `pp:warning` annotations in `agent-context`, plus visible `Risk warning:` help text.
 
