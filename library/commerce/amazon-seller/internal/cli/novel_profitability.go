@@ -180,7 +180,8 @@ func computeSKUPnl(db *sql.DB, sku, asin string, minUnits int, sortBy string, si
 			SELECT sku, COALESCE(MAX(asin), '') AS asin, SUM(quantity) AS units, SUM(item_price + shipping_price) AS revenue
 			FROM order_details WHERE purchase_date >= ? GROUP BY sku
 		), storage_rollup AS (
-			SELECT sku, SUM(monthly_storage_fee + lts_12mo_fee) AS storage_fee
+			-- PATCH(amazon-seller-novel-review): coalesce nullable storage fee components before addition.
+			SELECT sku, SUM(COALESCE(monthly_storage_fee, 0) + COALESCE(lts_12mo_fee, 0)) AS storage_fee
 			FROM storage_fees WHERE COALESCE(report_end, '') >= ? GROUP BY sku
 		)
 		SELECT o.sku, o.asin, o.units, o.revenue,

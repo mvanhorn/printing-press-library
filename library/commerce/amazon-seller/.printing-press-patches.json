@@ -32,6 +32,16 @@
         "SKILL.md"
       ],
       "validated_outcome": "go test ./..."
+    },
+    {
+      "id": "amazon-seller-novel-review-followup",
+      "summary": "Address review findings in Amazon Seller novel profitability and account-health computations.",
+      "reason": "Storage fee rollups must not let nullable fee components undercount SKU P&L, and account health must not silently report zero active listings when the listings query fails.",
+      "files": [
+        "internal/cli/novel_profitability.go",
+        "internal/cli/novel_account.go"
+      ],
+      "validated_outcome": "go test ./..."
     }
   ]
 }

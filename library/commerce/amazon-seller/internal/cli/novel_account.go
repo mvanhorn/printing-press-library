@@ -34,7 +34,12 @@ func newAccountHealthCmd(flags *rootFlags) *cobra.Command {
 }
 
 func computeAccountHealth(db *sql.DB) (map[string]any, error) {
-	active, _ := scalarInt(db, `SELECT COUNT(DISTINCT sku) FROM listings`)
+	// PATCH(amazon-seller-novel-review): the listings table is outside ensureNovelTables;
+	// propagate this query failure instead of reporting a misleading zero.
+	active, err := scalarInt(db, `SELECT COUNT(DISTINCT sku) FROM listings`)
+	if err != nil {
+		return nil, err
+	}
 	suppressed, _ := scalarInt(db, `SELECT COUNT(DISTINCT sku) FROM listing_defects WHERE lower(COALESCE(status,'') || ' ' || COALESCE(alert_type,'') || ' ' || COALESCE(alert_name,'')) LIKE '%suppress%'`)
 	strandedSKUs, _ := scalarInt(db, `SELECT COUNT(DISTINCT sku) FROM inventory_planning WHERE COALESCE(stranded_reason,'') != ''`)
 	strandedUnits, _ := scalarInt(db, `SELECT COALESCE(SUM(available),0) FROM inventory_planning WHERE COALESCE(stranded_reason,'') != ''`)
