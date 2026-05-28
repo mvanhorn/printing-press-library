@@ -25,11 +25,13 @@ type bottleneckRow struct {
 }
 
 type bottleneckView struct {
-	Account string          `json:"account,omitempty"`
-	Limit   int             `json:"limit"`
-	Total   int             `json:"total"`
-	Rows    []bottleneckRow `json:"rows"`
-	Note    string          `json:"note,omitempty"`
+	Account   string          `json:"account,omitempty"`
+	Limit     int             `json:"limit"`
+	Total     int             `json:"total"`     // matched adsets before --limit truncation
+	Returned  int             `json:"returned"`  // adsets actually present in rows after truncation
+	Truncated bool            `json:"truncated"` // true when total > limit so caller can raise --limit
+	Rows      []bottleneckRow `json:"rows"`
+	Note      string          `json:"note,omitempty"`
 }
 
 func newNovelBottleneckCmd(flags *rootFlags) *cobra.Command {
@@ -162,18 +164,25 @@ Requires synced adsets and insights data in the local store.`,
 				sj := out[j].Spend / max64(out[j].Roas, 0.01)
 				return si > sj
 			})
+			totalMatched := len(out)
+			truncated := false
 			if len(out) > limit {
 				out = out[:limit]
+				truncated = true
 			}
 
 			view := bottleneckView{
-				Account: flagAccount,
-				Limit:   limit,
-				Total:   len(out),
-				Rows:    out,
+				Account:   flagAccount,
+				Limit:     limit,
+				Total:     totalMatched,
+				Returned:  len(out),
+				Truncated: truncated,
+				Rows:      out,
 			}
-			if len(out) == 0 {
-				view.Note = "no adsets in local store; run 'meta-ads-pp-cli sync --path-context adAccountId=act_<id> --resources adsets' first"
+			if totalMatched == 0 {
+				view.Note = "no adsets in local store; run 'meta-ads-pp-cli sync --resources adsets' first"
+			} else if truncated {
+				view.Note = fmt.Sprintf("%d adsets matched; --limit truncated to top %d. Raise --limit to see more.", totalMatched, limit)
 			}
 			return printJSONFiltered(cmd.OutOrStdout(), view, flags)
 		},
