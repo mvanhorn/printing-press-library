@@ -1,6 +1,6 @@
 ---
 name: pp-goodreads
-description: "Printing Press CLI for Goodreads. This is an evidence-backed starting map for a future Goodreads CLI."
+description: "Printing Press CLI + MCP for Goodreads, read and write — rate books (GraphQL RateBook/UnrateBook), write/publicize reviews, add to and create shelves, home feed, friends, recommendations, genre/topic search, book pages, and Goodreads Giveaways. Reverse-engineered from the logged-in web app (no public API), live-verified."
 author: "zaydiscold"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"

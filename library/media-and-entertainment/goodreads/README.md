@@ -1,7 +1,10 @@
 # Goodreads CLI
 
-This is an evidence-backed starting map for a future Goodreads CLI. Goodreads has no current
-public developer API, so these routes are reverse-engineered from the logged-in web app.
+A complete read+write CLI + MCP for Goodreads: rate books via the modern AppSync GraphQL API
+(RateBook/UnrateBook), write reviews with spoiler and feed-publicize via the legacy form, add to
+and create shelves, browse the home updates feed, friends, recommendations, genre/topic search,
+book pages, and Goodreads Giveaways. Goodreads has no current public developer API, so these
+routes are reverse-engineered from the logged-in web app and verified live.
 
 Evidence was captured on 2026-05-22 with browser-harness-js. Raw artifacts live under
 goodreads/proofs/ and are mode 0600 because they contain account-visible metadata.
