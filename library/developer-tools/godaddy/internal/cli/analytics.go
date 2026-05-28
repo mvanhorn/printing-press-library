@@ -93,7 +93,7 @@ Data must be synced first with the sync command.`,
 }
 
 func runGroupBy(db *store.Store, resourceType, field string, limit int, flags *rootFlags) error {
-	items, err := db.List(resourceType, 0)
+	items, err := db.List(resourceType, -1)
 	if err != nil {
 		return err
 	}

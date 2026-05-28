@@ -39,6 +39,7 @@ func newDomainsRecordsReplaceTypeCmd(flags *rootFlags) *cobra.Command {
 				}
 			}
 			if !stdinBody {
+				return usageErr(fmt.Errorf("--stdin is required: pipe the DNS records as JSON; this command has no per-field body flags"))
 			}
 			c, err := flags.newClient()
 			if err != nil {

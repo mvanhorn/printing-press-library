@@ -1233,7 +1233,14 @@ func (s *Store) Get(resourceType, id string) (json.RawMessage, error) {
 }
 
 func (s *Store) List(resourceType string, limit int) ([]json.RawMessage, error) {
-	if limit <= 0 {
+	// limit semantics: <0 means no limit (SQLite treats LIMIT -1 as all rows);
+	// 0 means unspecified, keeping the 200-row safety default; >0 is an exact
+	// cap. Callers needing the full dataset must pass a negative value; 0 used
+	// to silently truncate to 200.
+	switch {
+	case limit < 0:
+		limit = -1
+	case limit == 0:
 		limit = 200
 	}
 	rows, err := s.db.Query(
