@@ -150,6 +150,9 @@ Requires synced adsets in the local store.`,
 					WhyHint:        why,
 				})
 			}
+			if err := rows.Err(); err != nil {
+				return fmt.Errorf("iterating adset rows: %w", err)
+			}
 
 			view := learningView{
 				Account: flagAccount,

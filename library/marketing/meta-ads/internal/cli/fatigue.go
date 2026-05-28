@@ -154,6 +154,9 @@ Requires synced ad-level insights with time_increment=1 in the local store.`,
 					Verdict:     verdict,
 				})
 			}
+			if err := adRows.Err(); err != nil {
+				return fmt.Errorf("iterating ad rows: %w", err)
+			}
 
 			// Sort: fatigued first, then by CPM slope desc.
 			sort.SliceStable(out, func(i, j int) bool {
@@ -236,6 +239,10 @@ func loadAdInsights(ctx context.Context, db *store.Store, adID string, windowDay
 		day.Ctr, _ = strconv.ParseFloat(raw.Ctr, 64)
 		day.Frequency, _ = strconv.ParseFloat(raw.Frequency, 64)
 		out = append(out, day)
+	}
+	if err := rows.Err(); err != nil {
+		// Return nil so the caller skips this ad rather than ranking a partial series as if complete.
+		return nil
 	}
 	return out
 }

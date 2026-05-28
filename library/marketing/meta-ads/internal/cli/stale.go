@@ -137,6 +137,9 @@ current insights.`,
 					})
 				}
 			}
+			if err := rows.Err(); err != nil {
+				return fmt.Errorf("iterating ad rows: %w", err)
+			}
 			view.Total = len(view.StaleAds)
 			if view.Total == 0 {
 				view.Note = "no stale ads found, or local store has no synced ads/insights yet"

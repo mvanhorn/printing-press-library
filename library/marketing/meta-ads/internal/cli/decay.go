@@ -77,6 +77,10 @@ Requires synced ad-level insights in the local store keyed to ads referencing th
 					adIDs = append(adIDs, id)
 				}
 			}
+			if err := adRows.Err(); err != nil {
+				_ = adRows.Close()
+				return fmt.Errorf("iterating ad rows: %w", err)
+			}
 			_ = adRows.Close()
 
 			if len(adIDs) == 0 {
@@ -128,6 +132,10 @@ Requires synced ad-level insights in the local store keyed to ads referencing th
 					if n, err := strconv.ParseInt(raw.Clicks, 10, 64); err == nil {
 						p.clicks += n
 					}
+				}
+				if err := rows.Err(); err != nil {
+					_ = rows.Close()
+					return fmt.Errorf("iterating insights rows for ad %s: %w", adID, err)
 				}
 				_ = rows.Close()
 			}

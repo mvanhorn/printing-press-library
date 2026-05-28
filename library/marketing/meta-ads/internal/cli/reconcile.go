@@ -113,6 +113,10 @@ Requires synced account-level and ad-level insights with time_increment=1.`,
 					accountByDate[date] += spend
 				}
 			}
+			if err := rows.Err(); err != nil {
+				_ = rows.Close()
+				return fmt.Errorf("iterating account-insights rows: %w", err)
+			}
 			_ = rows.Close()
 
 			// ad-level spend per day
@@ -149,6 +153,10 @@ Requires synced account-level and ad-level insights with time_increment=1.`,
 				}
 				v, _ := strconv.ParseFloat(raw.Spend, 64)
 				insightsByDate[raw.DateStart] += v
+			}
+			if err := rows2.Err(); err != nil {
+				_ = rows2.Close()
+				return fmt.Errorf("iterating ad-insights rows: %w", err)
 			}
 			_ = rows2.Close()
 

@@ -130,6 +130,9 @@ Requires 'meta-ads-pp-cli sync' to have populated the local store with ads first
 					})
 				}
 			}
+			if err := rows.Err(); err != nil {
+				return fmt.Errorf("iterating ad rows: %w", err)
+			}
 
 			view := inventoryView{
 				Account:       flagAccount,
