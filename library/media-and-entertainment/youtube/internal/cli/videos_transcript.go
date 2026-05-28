@@ -107,9 +107,9 @@ func newYoutubeVideosTranscriptCmd(flags *rootFlags) *cobra.Command {
 	var noCache bool
 
 	cmd := &cobra.Command{
-		Use:         "videos-transcript <videoId>",
+		Use:         "videos-transcript <videoId|url>",
 		Short:       "Fetch video transcript via InnerTube (no OAuth needed)",
-		Example:     "  youtube-pp-cli youtube videos-transcript dQw4w9WgXcQ --lang en",
+		Example:     "  youtube-pp-cli youtube videos-transcript dQw4w9WgXcQ --lang en\n  youtube-pp-cli youtube videos-transcript 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

@@ -34,9 +34,9 @@ func newYoutubeVideosEmbedCmd(flags *rootFlags) *cobra.Command {
 	var withTitle bool
 
 	cmd := &cobra.Command{
-		Use:         "videos-embed <videoId>",
+		Use:         "videos-embed <videoId|url>",
 		Short:       "Print embed HTML, iframe, or markdown snippet for a video",
-		Example:     "  youtube-pp-cli youtube videos-embed dQw4w9WgXcQ --format markdown",
+		Example:     "  youtube-pp-cli youtube videos-embed dQw4w9WgXcQ --format markdown\n  youtube-pp-cli youtube videos-embed 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' --format markdown",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

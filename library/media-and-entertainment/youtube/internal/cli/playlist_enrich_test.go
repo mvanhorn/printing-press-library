@@ -49,6 +49,8 @@ func TestParseVideoID(t *testing.T) {
 		{"scheme-less youtube.com watch", "youtube.com/watch?v=dQw4w9WgXcQ", "dQw4w9WgXcQ"},
 		{"scheme-less embed", "www.youtube.com/embed/dQw4w9WgXcQ", "dQw4w9WgXcQ"},
 		{"scheme-less watch with t param", "www.youtube.com/watch?v=dQw4w9WgXcQ&t=10s", "dQw4w9WgXcQ"},
+		{"scheme-less m.youtube.com watch", "m.youtube.com/watch?v=dQw4w9WgXcQ", "dQw4w9WgXcQ"},
+		{"m.youtube.com watch", "https://m.youtube.com/watch?v=dQw4w9WgXcQ", "dQw4w9WgXcQ"},
 		{"junk with spaces", "not a video", ""},
 		{"empty", "", ""},
 		// Non-video URLs must return "" so the caller errors clearly rather

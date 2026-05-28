@@ -78,7 +78,7 @@
         "internal/cli/videos_embed.go",
         "internal/cli/playlist_enrich_test.go"
       ],
-      "validated_outcome": "go build ./..., go vet ./..., go test ./..., and gofmt clean on the youtube module. TestParseVideoID extended with 6 scheme-less cases (youtu.be/<id>, youtu.be/<id>?si=..., www.youtube.com/watch?v=<id>, youtube.com/watch?v=<id>, www.youtube.com/embed/<id>, watch?v=<id>&t=...) — all 22 cases pass. Built binary verified: scheme-full and scheme-less watch/youtu.be/embed URLs across all four commands now extract the ID (exit 0); too-short tokens and channel/playlist/user URLs return 'could not extract a video ID from %q' with exit 2.",
+      "validated_outcome": "go build ./..., go vet ./..., go test ./..., and gofmt clean on the youtube module. TestParseVideoID extended with 8 scheme-less cases (youtu.be/<id>, youtu.be/<id>?si=..., www.youtube.com/watch?v=<id>, youtube.com/watch?v=<id>, www.youtube.com/embed/<id>, watch?v=<id>&t=..., m.youtube.com/watch?v=<id>, plus the scheme-full m.youtube.com variant) — all 24 cases pass. Built binary verified: scheme-full and scheme-less watch/youtu.be/embed URLs across all four commands now extract the ID (exit 0); too-short tokens and channel/playlist/user URLs return 'could not extract a video ID from %q' with exit 2. Greptile P2 follow-up (PR #914): added m.youtube.com test coverage and updated the Use field to '<videoId|url>' plus a URL Example on all four commands so --help advertises URL input.",
       "findings_addressed": [
         "F1",
         "F2",

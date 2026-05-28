@@ -38,9 +38,9 @@ func newYoutubeVideosRelatedCmd(flags *rootFlags) *cobra.Command {
 	var sameChannelOnly bool
 
 	cmd := &cobra.Command{
-		Use:         "videos-related <videoId>",
+		Use:         "videos-related <videoId|url>",
 		Short:       "Find related videos via topic + channel + tag overlap (heuristic; replaces deprecated relatedToVideoId)",
-		Example:     "  youtube-pp-cli youtube videos-related dQw4w9WgXcQ --limit 10",
+		Example:     "  youtube-pp-cli youtube videos-related dQw4w9WgXcQ --limit 10\n  youtube-pp-cli youtube videos-related 'https://youtu.be/dQw4w9WgXcQ' --limit 10",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
