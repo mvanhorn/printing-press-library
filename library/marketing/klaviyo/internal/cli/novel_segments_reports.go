@@ -771,6 +771,17 @@ func fetchSegmentProfileIDs(c flowClient, segmentID string, limit int) ([]string
 	return ids, estimated, nil
 }
 
+func deleteSegment(c flowClient, segmentID string) error {
+	if strings.TrimSpace(segmentID) == "" {
+		return fmt.Errorf("segment id is empty")
+	}
+	_, _, err := c.Delete("/api/segments/" + url.PathEscape(segmentID))
+	if err != nil {
+		return classifyAPIError(err)
+	}
+	return nil
+}
+
 func newFlowsHealthCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "health",
@@ -1071,11 +1082,20 @@ func newProfilesPruneCmd(flags *rootFlags) *cobra.Command {
 				return classifyAPIError(err)
 			}
 			segmentID := jsonAPIID(resp)
+			if segmentID == "" {
+				return fmt.Errorf("created temporary segment response did not include an id")
+			}
 			profileIDs, estimated, err := fetchSegmentProfileIDs(c, segmentID, max)
 			if err != nil {
+				if cleanupErr := deleteSegment(c, segmentID); cleanupErr != nil {
+					return fmt.Errorf("%w; additionally failed to delete temporary segment %s: %v", err, segmentID, cleanupErr)
+				}
 				return err
 			}
-			result := map[string]any{"segment_id": segmentID, "segment_name": name, "count": len(profileIDs), "sample_profile_ids": firstStrings(profileIDs, 25), "estimated": estimated, "max": max}
+			if err := deleteSegment(c, segmentID); err != nil {
+				return err
+			}
+			result := map[string]any{"segment_id": segmentID, "segment_name": name, "temporary_segment_deleted": true, "count": len(profileIDs), "sample_profile_ids": firstStrings(profileIDs, 25), "estimated": estimated, "max": max}
 			if suppress && len(profileIDs) > 0 {
 				body := map[string]any{"data": map[string]any{"type": "profile-suppression-bulk-create-job", "attributes": map[string]any{"profiles": profileIDData(profileIDs)}}}
 				jobResp, status, err := c.Post("/api/profile-suppression-bulk-create-jobs", body)
@@ -2498,12 +2518,162 @@ func newReportProductAffinityCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			rows := topAggregateRows(c, metricID, "ProductName", "count", time.Now().AddDate(-1, 0, 0), time.Now(), 100)
-			return printJSONFiltered(cmd.OutOrStdout(), map[string]any{"product": product, "rows": rows, "note": "use as directional affinity; API aggregate output is product-level, not full basket reconstruction"}, flags)
+			rows, anchorOrders, err := productAffinityRows(c, metricID, product, time.Now().AddDate(-1, 0, 0), time.Now(), 5000)
+			if err != nil {
+				return err
+			}
+			result := map[string]any{
+				"product":       product,
+				"anchor_orders": anchorOrders,
+				"rows":          rows,
+				"sample_limit":  5000,
+				"note":          "Ranks products found in the same Placed Order events as the requested anchor product.",
+			}
+			if anchorOrders == 0 {
+				result["message"] = "No Placed Order events in the sample contained the requested anchor product."
+			} else if len(rows) == 0 {
+				result["message"] = "Anchor product orders did not include additional product names in the sampled event properties."
+			}
+			return printJSONFiltered(cmd.OutOrStdout(), result, flags)
 		},
 	}
 	cmd.Flags().StringVar(&product, "product", "", "Anchor product name")
 	return cmd
+}
+
+func productAffinityRows(c flowClient, metricID, product string, since, until time.Time, limit int) ([]map[string]any, int, error) {
+	filter := fmt.Sprintf("equals(metric_id,\"%s\"),greater-or-equal(datetime,%s),less-than(datetime,%s)", metricID, since.Format(time.RFC3339), until.Format(time.RFC3339))
+	items, err := fetchAllJSONAPI(c, "/api/events", map[string]string{"filter": filter, "page[size]": "200", "sort": "datetime"}, limit)
+	if err != nil {
+		return nil, 0, err
+	}
+	counts := map[string]int{}
+	display := map[string]string{}
+	anchorOrders := 0
+	for _, item := range items {
+		names := orderEventProductNames(item)
+		if !productNamesContain(names, product) {
+			continue
+		}
+		anchorOrders++
+		seenInOrder := map[string]bool{}
+		for _, name := range names {
+			if productNameMatches(name, product) {
+				continue
+			}
+			key := normalizeProductAffinityName(name)
+			if key == "" || seenInOrder[key] {
+				continue
+			}
+			seenInOrder[key] = true
+			counts[key]++
+			if display[key] == "" {
+				display[key] = name
+			}
+		}
+	}
+	rows := make([]map[string]any, 0, len(counts))
+	for key, count := range counts {
+		row := map[string]any{"name": display[key], "orders": count}
+		if anchorOrders > 0 {
+			row["affinity_rate"] = round3(float64(count) / float64(anchorOrders))
+		}
+		rows = append(rows, row)
+	}
+	sort.Slice(rows, func(i, j int) bool {
+		if anyInt(rows[i]["orders"]) == anyInt(rows[j]["orders"]) {
+			return fmt.Sprint(rows[i]["name"]) < fmt.Sprint(rows[j]["name"])
+		}
+		return anyInt(rows[i]["orders"]) > anyInt(rows[j]["orders"])
+	})
+	return rows, anchorOrders, nil
+}
+
+func orderEventProductNames(item map[string]any) []string {
+	var names []string
+	for _, path := range []string{
+		"attributes.properties.ProductName",
+		"attributes.properties.$ProductName",
+		"attributes.properties.Product Name",
+		"attributes.properties.product_name",
+		"attributes.event_properties.ProductName",
+		"attributes.event_properties.$ProductName",
+	} {
+		collectProductNameValue(anyPath(item, path), &names)
+	}
+	for _, path := range []string{
+		"attributes.properties.ItemNames",
+		"attributes.properties.Items",
+		"attributes.properties.LineItems",
+		"attributes.properties.Products",
+		"attributes.properties.products",
+		"attributes.properties.line_items",
+		"attributes.properties.$extra.Items",
+		"attributes.event_properties.ItemNames",
+		"attributes.event_properties.Items",
+	} {
+		collectProductNameValue(anyPath(item, path), &names)
+	}
+	return uniqueProductNames(names)
+}
+
+func collectProductNameValue(value any, names *[]string) {
+	switch v := value.(type) {
+	case nil:
+		return
+	case string:
+		if name := strings.TrimSpace(v); name != "" {
+			*names = append(*names, name)
+		}
+	case []string:
+		for _, item := range v {
+			collectProductNameValue(item, names)
+		}
+	case []any:
+		for _, item := range v {
+			collectProductNameValue(item, names)
+		}
+	case map[string]any:
+		for _, key := range []string{"ProductName", "$ProductName", "Product Name", "product_name", "name", "Name", "title", "Title"} {
+			collectProductNameValue(v[key], names)
+		}
+		for _, key := range []string{"ItemNames", "Items", "LineItems", "Products", "products", "line_items"} {
+			collectProductNameValue(v[key], names)
+		}
+	}
+}
+
+func productNamesContain(names []string, product string) bool {
+	for _, name := range names {
+		if productNameMatches(name, product) {
+			return true
+		}
+	}
+	return false
+}
+
+func productNameMatches(name, product string) bool {
+	name = normalizeProductAffinityName(name)
+	product = normalizeProductAffinityName(product)
+	return name != "" && product != "" && (name == product || strings.Contains(name, product) || strings.Contains(product, name))
+}
+
+func uniqueProductNames(in []string) []string {
+	seen := map[string]bool{}
+	out := make([]string, 0, len(in))
+	for _, name := range in {
+		key := normalizeProductAffinityName(name)
+		if key == "" || seen[key] {
+			continue
+		}
+		seen[key] = true
+		out = append(out, strings.TrimSpace(name))
+	}
+	return out
+}
+
+func normalizeProductAffinityName(s string) string {
+	return strings.ToLower(strings.Join(strings.Fields(strings.TrimSpace(s)), " "))
 }
 
 func newReportConsentCmd(flags *rootFlags) *cobra.Command {

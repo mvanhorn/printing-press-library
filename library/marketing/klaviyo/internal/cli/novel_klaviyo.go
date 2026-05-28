@@ -1083,6 +1083,7 @@ type flowClient interface {
 	Get(path string, params map[string]string) (json.RawMessage, error)
 	Post(path string, body any) (json.RawMessage, int, error)
 	Patch(path string, body any) (json.RawMessage, int, error)
+	Delete(path string) (json.RawMessage, int, error)
 }
 
 func fetchAndTransformFlow(c flowClient, flowID string, keepIDs bool) (definition map[string]any, name string, err error) {

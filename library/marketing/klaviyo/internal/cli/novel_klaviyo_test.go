@@ -3,6 +3,7 @@ package cli
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -609,9 +610,46 @@ func TestSegmentBuildInterestFilters(t *testing.T) {
 	}
 }
 
+func TestProductAffinityRowsUsesAnchorProduct(t *testing.T) {
+	client := &fakeCouponPoolClient{responses: []json.RawMessage{rawJSON(`{"data":[
+		{"id":"order-1","attributes":{"properties":{"ItemNames":["Focus Timer","Weekly Planner"]}}},
+		{"id":"order-2","attributes":{"properties":{"Items":[{"ProductName":"Focus Timer"},{"ProductName":"Weekly Planner"},{"ProductName":"Pen Set"}]}}},
+		{"id":"order-3","attributes":{"properties":{"ItemNames":["Notebook","Pen Set"]}}}
+	]}`)}}
+	rows, anchorOrders, err := productAffinityRows(client, "metric-1", "focus timer", time.Now().AddDate(-1, 0, 0), time.Now(), 10)
+	if err != nil {
+		t.Fatalf("productAffinityRows returned error: %v", err)
+	}
+	if anchorOrders != 2 {
+		t.Fatalf("anchorOrders = %d, want 2", anchorOrders)
+	}
+	if len(rows) != 2 {
+		t.Fatalf("rows = %#v", rows)
+	}
+	if rows[0]["name"] != "Weekly Planner" || anyInt(rows[0]["orders"]) != 2 {
+		t.Fatalf("top affinity row = %#v", rows[0])
+	}
+	for _, row := range rows {
+		if strings.Contains(strings.ToLower(fmt.Sprint(row["name"])), "focus timer") {
+			t.Fatalf("anchor product should not be returned as an affinity row: %#v", row)
+		}
+	}
+}
+
+func TestDeleteSegmentUsesEscapedSegmentPath(t *testing.T) {
+	client := &fakeCouponPoolClient{}
+	if err := deleteSegment(client, "segment/123"); err != nil {
+		t.Fatalf("deleteSegment returned error: %v", err)
+	}
+	if len(client.deletes) != 1 || client.deletes[0] != "/api/segments/segment%2F123" {
+		t.Fatalf("delete paths = %#v", client.deletes)
+	}
+}
+
 type fakeCouponPoolClient struct {
 	responses []json.RawMessage
 	requests  []fakeCouponPoolRequest
+	deletes   []string
 }
 
 type fakeCouponPoolRequest struct {
@@ -639,6 +677,11 @@ func (f *fakeCouponPoolClient) Post(_ string, _ any) (json.RawMessage, int, erro
 
 func (f *fakeCouponPoolClient) Patch(_ string, _ any) (json.RawMessage, int, error) {
 	return nil, 0, nil
+}
+
+func (f *fakeCouponPoolClient) Delete(path string) (json.RawMessage, int, error) {
+	f.deletes = append(f.deletes, path)
+	return nil, 204, nil
 }
 
 func rawJSON(s string) json.RawMessage {
