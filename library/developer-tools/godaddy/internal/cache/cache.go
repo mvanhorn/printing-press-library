@@ -49,7 +49,14 @@ func (s *Store) Set(key string, value json.RawMessage) {
 	// matching the HTTP client cache. World-readable perms would leak this
 	// to other local users on a shared machine.
 	_ = os.MkdirAll(s.Dir, 0o700)
-	_ = os.WriteFile(s.path(key), []byte(value), 0o600)
+	// PATCH(chmod-existing): MkdirAll/WriteFile only set mode on creation, so a
+	// dir/file left over from an older 0o755/0o644 build keeps world-readable
+	// perms. Re-assert owner-only after the fact. Best-effort: a chmod failure
+	// must not break caching.
+	_ = os.Chmod(s.Dir, 0o700)
+	p := s.path(key)
+	_ = os.WriteFile(p, []byte(value), 0o600)
+	_ = os.Chmod(p, 0o600)
 }
 
 // Clear removes all cached entries.

@@ -100,11 +100,19 @@ func (c *Config) save() error {
 	if err := os.MkdirAll(dir, 0o700); err != nil {
 		return fmt.Errorf("creating config dir: %w", err)
 	}
+	// PATCH(chmod-existing): MkdirAll/WriteFile only set mode on creation. A
+	// config dir/file left from an older 0o755/0o644 build keeps world-readable
+	// perms even though the config may hold credentials; re-assert owner-only.
+	_ = os.Chmod(dir, 0o700)
 	data, err := toml.Marshal(c)
 	if err != nil {
 		return fmt.Errorf("marshaling config: %w", err)
 	}
-	return os.WriteFile(c.Path, data, 0o600)
+	if err := os.WriteFile(c.Path, data, 0o600); err != nil {
+		return err
+	}
+	_ = os.Chmod(c.Path, 0o600)
+	return nil
 }
 
 // Ensure strings import is used

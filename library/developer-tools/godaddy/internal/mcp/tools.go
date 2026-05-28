@@ -5,7 +5,6 @@ package mcp
 
 import (
 	"context"
-	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -222,12 +221,20 @@ func makeAPIHandler(method, pathTemplate string, binaryResponse bool, headerOver
 			}
 		}
 		if binaryResponse {
-			out, _ := json.Marshal(map[string]any{
-				"content_encoding": "base64",
-				"data_base64":      base64.StdEncoding.EncodeToString(data),
-				"byte_count":       len(data),
-			})
-			return mcplib.NewToolResultText(string(out)), nil
+			// PATCH(single-encode-binary): the HTTP client already wraps a
+			// genuinely binary body into a binaryResponseEnvelope JSON
+			// ({"_pp_binary":true,"encoding":"base64","data":"<base64>",...}).
+			// Re-base64-encoding that JSON here double-encodes the payload and
+			// loses the envelope's metadata. Detect the envelope and pass it
+			// through verbatim; only when the body was NOT enveloped (e.g. the
+			// API returned JSON/text despite the binaryResponse hint) do we
+			// fall through to returning it as text.
+			var probe struct {
+				PPBinary bool `json:"_pp_binary"`
+			}
+			if json.Unmarshal(data, &probe) == nil && probe.PPBinary {
+				return mcplib.NewToolResultText(string(data)), nil
+			}
 		}
 		return mcplib.NewToolResultText(string(data)), nil
 	}
@@ -394,7 +401,11 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 	ctx := map[string]any{
 		"api":         "godaddy",
 		"description": "Combined CLI for multiple API services",
-		"archetype":   "payments",
+		// PATCH(archetype): GoDaddy is a domain registrar / developer platform,
+		// not a payments API. "payments" was a copy-paste artifact; the
+		// developer-platform archetype matches the sibling apify CLI and the
+		// developer-tools category this CLI ships under.
+		"archetype":   "developer-platform",
 		"tool_count":  138,
 		// tool_surface tells agents which surface a capability lives on.
 		"tool_surface": "MCP exposes typed endpoint tools plus a runtime mirror of user-facing CLI commands. Endpoint tools keep typed schemas; command-mirror tools shell out to the companion godaddy-pp-cli binary.",

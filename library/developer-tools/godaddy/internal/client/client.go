@@ -194,8 +194,13 @@ func (c *Client) readCache(path string, params map[string]string) (json.RawMessa
 
 func (c *Client) writeCache(path string, params map[string]string, data json.RawMessage) {
 	os.MkdirAll(c.cacheDir, 0o700)
+	// PATCH(chmod-existing): MkdirAll/WriteFile only set mode on creation, so a
+	// cache dir/file from an older 0o755/0o644 build keeps world-readable perms
+	// while holding cached API data. Re-assert owner-only; best-effort.
+	_ = os.Chmod(c.cacheDir, 0o700)
 	cacheFile := filepath.Join(c.cacheDir, c.cacheKey(path, params)+".json")
 	os.WriteFile(cacheFile, []byte(data), 0o600)
+	_ = os.Chmod(cacheFile, 0o600)
 }
 
 // invalidateCache wholesale-removes the cache directory so the next read

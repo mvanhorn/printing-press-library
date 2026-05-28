@@ -5,6 +5,35 @@
   "base_printing_press_version": "4.11.0",
   "patches": [
     {
+      "id": "mcp-single-encode-binary",
+      "summary": "MCP binary-response handler passes the client's binaryResponseEnvelope JSON through verbatim (detected via the _pp_binary discriminator) instead of base64-encoding it a second time; removed the now-unused encoding/base64 import.",
+      "reason": "The HTTP client already wraps genuinely binary bodies into a self-describing {\"_pp_binary\":true,\"encoding\":\"base64\",\"data\":...} envelope. makeAPIHandler then base64-encoded that whole JSON string AGAIN, double-encoding the payload and discarding the envelope metadata. When binaryResponse is set but the API returns JSON/text, the body is not enveloped, so the handler must detect the envelope rather than blindly re-encode.",
+      "files": [
+        "internal/mcp/tools.go"
+      ]
+    },
+    {
+      "id": "mcp-archetype-label",
+      "summary": "agent-context archetype corrected from \"payments\" to \"developer-platform\".",
+      "reason": "\"payments\" was a copy-paste artifact; GoDaddy is a domain registrar / developer platform (developer-tools category). \"developer-platform\" matches the sibling apify CLI in the same category.",
+      "files": [
+        "internal/mcp/tools.go"
+      ]
+    },
+    {
+      "id": "chmod-existing-perms",
+      "summary": "Re-assert owner-only mode on cache/config/store/state paths via os.Chmod after MkdirAll/WriteFile/OpenFile, since those calls only set mode at creation time.",
+      "reason": "Security: os.WriteFile/os.MkdirAll/O_CREATE do not change the mode of an existing file or dir. Files/dirs left from an older 0o644/0o755 build therefore stayed world-readable despite the perms tightening. Added best-effort os.Chmod after each sensitive write/mkdir in cache.go, config.go, client.go, store.go (db dir), profile.go and feedback.go (state dir + appended ledger). store.go already chmod'd the SQLite file + WAL/SHM sidecars; this adds the missing db-dir chmod.",
+      "files": [
+        "internal/cache/cache.go",
+        "internal/config/config.go",
+        "internal/client/client.go",
+        "internal/store/store.go",
+        "internal/cli/profile.go",
+        "internal/cli/feedback.go"
+      ]
+    },
+    {
       "id": "validation-risk-gates",
       "summary": "Risk annotation classifier uses the exact POST-path allowlist (isUngatedValidationRoute) that mirrors client.go's isValidationStyleMutation, instead of a broad \"validate\" substring heuristic.",
       "reason": "Greptile P1: the substring heuristic tagged certificates validate and agents verify-acme as Barrier:none, but client.go's exact allowlist still gated them, so the help text contradicted runtime enforcement (ErrWriteRequiresApproval). The two functions now share the same allowlist and stay in sync.",

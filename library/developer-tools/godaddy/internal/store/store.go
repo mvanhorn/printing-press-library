@@ -90,9 +90,15 @@ func OpenReadOnly(dbPath string) (*Store, error) {
 // retry-on-SQLITE_BUSY loop and propagates ctx.Err() back to the caller
 // instead of waiting out the full migrationLockTimeout.
 func OpenWithContext(ctx context.Context, dbPath string) (*Store, error) {
-	if err := os.MkdirAll(filepath.Dir(dbPath), 0o700); err != nil {
+	dbDir := filepath.Dir(dbPath)
+	if err := os.MkdirAll(dbDir, 0o700); err != nil {
 		return nil, fmt.Errorf("creating db directory: %w", err)
 	}
+	// PATCH(chmod-existing): MkdirAll only sets mode on creation, so a db
+	// directory left from an older 0o755 build stays world-traversable.
+	// Re-assert owner-only; best-effort. The db file + WAL/SHM sidecars are
+	// chmod'd below.
+	_ = os.Chmod(dbDir, 0o700)
 
 	db, err := sql.Open("sqlite", dbPath+"?_journal_mode=WAL&_synchronous=NORMAL&_busy_timeout=5000&_foreign_keys=ON&_temp_store=MEMORY&_mmap_size=268435456")
 	if err != nil {

@@ -37,6 +37,11 @@ func profileStorePath() (string, error) {
 	if err := os.MkdirAll(dir, 0o700); err != nil {
 		return "", fmt.Errorf("creating state dir: %w", err)
 	}
+	// PATCH(chmod-existing): MkdirAll only sets mode on creation, so a state
+	// dir from an older 0o755 build stays world-traversable. Re-assert
+	// owner-only; best-effort. (profiles.json itself is written via a fresh
+	// 0o600 tmp + rename, so the file inode always lands at 0o600.)
+	_ = os.Chmod(dir, 0o700)
 	return filepath.Join(dir, "profiles.json"), nil
 }
 
