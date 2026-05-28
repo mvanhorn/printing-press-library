@@ -569,7 +569,7 @@ func resolveLocal(ctx context.Context, flags *rootFlags, hintWriter io.Writer, r
 	}
 
 	if isList {
-		raw, err := db.List(resourceType, 0) // 0 = no limit, return all synced data
+		raw, err := db.List(resourceType, -1) // -1 = no limit, return all synced data (0 would truncate to 200)
 		if err != nil {
 			return nil, DataProvenance{}, fmt.Errorf("querying local store: %w", err)
 		}

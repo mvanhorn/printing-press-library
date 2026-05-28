@@ -96,7 +96,7 @@ Data must be synced first with the sync command.`,
 }
 
 func runGroupBy(out io.Writer, db *store.Store, resourceType, field string, limit int, flags *rootFlags) error {
-	items, err := db.List(resourceType, 0)
+	items, err := db.List(resourceType, -1) // -1 = all rows; group-by must see the full dataset, not the first 200
 	if err != nil {
 		return err
 	}
