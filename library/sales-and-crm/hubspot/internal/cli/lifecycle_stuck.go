@@ -12,12 +12,19 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// lifecycleStuckItem reports a contact whose age in HubSpot exceeds the
+// stage-local median by --multiplier. The dwell basis is the contact's
+// createDate, not a per-stage entry timestamp, because HubSpot's default
+// /crm/v3/objects/contacts response does not return per-stage entry dates.
+// Field names use age/created semantics to match what is actually computed;
+// the dwell_basis field in the top-level envelope makes the approximation
+// explicit for downstream consumers.
 type lifecycleStuckItem struct {
 	ID               string  `json:"id"`
 	Email            string  `json:"email,omitempty"`
 	Name             string  `json:"name,omitempty"`
-	EnteredAt        string  `json:"entered_at,omitempty"`
-	DwellDays        float64 `json:"dwell_days"`
+	CreatedAt        string  `json:"created_at,omitempty"`
+	AgeDays          float64 `json:"age_days"`
 	MultiplierActual float64 `json:"multiplier_actual"`
 }
 
@@ -29,13 +36,21 @@ func newNovelLifecycleStuckCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "lifecycle-stuck",
-		Short: "Surface contacts stuck in a lifecycle stage past team-median dwell time.",
+		Short: "Surface contacts whose age in stage exceeds the stage-local median by --multiplier.",
 		Long: strings.Trim(`
-Compute the median dwell time (now - createDate) for every contact currently
-in --stage, then flag contacts whose dwell exceeds --multiplier x median.
+Compute the median age (now - contact createDate) for every contact currently
+in --stage, then flag contacts whose age exceeds --multiplier x median.
 The median baseline is scoped to the result set so each stage gets a
-stage-local "normal" — what counts as stuck for a lead is different from
-what counts as stuck for an opportunity.
+stage-local "normal" — what counts as old for a lead is different from
+what counts as old for an opportunity.
+
+Dwell-time approximation: HubSpot's default sync does not return per-stage
+entry timestamps, so this command treats contact creation as the anchor.
+Field names use age semantics (created_at, age_days, median_age_days,
+threshold_age_days) and the top-level envelope sets dwell_basis to
+"contact_create_date" so callers know the basis. A contact created three
+years ago and promoted last week will show a long age; cross-reference with
+last_activity_date for activity-based staleness signals.
 
 When fewer than 5 contacts are in the stage the command returns an empty
 items array with an explanatory note rather than guessing.
@@ -106,11 +121,12 @@ items array with an explanatory note rather than guessing.
 			}
 
 			result := map[string]any{
-				"stage":      stageNorm,
-				"multiplier": multiplier,
-				"scanned":    scanned,
-				"items":      []lifecycleStuckItem{},
-				"matches":    0,
+				"stage":        stageNorm,
+				"multiplier":   multiplier,
+				"scanned":      scanned,
+				"items":        []lifecycleStuckItem{},
+				"matches":      0,
+				"dwell_basis":  "contact_create_date",
 			}
 			if parseErrors > 0 {
 				result["parse_errors"] = parseErrors
@@ -127,8 +143,8 @@ items array with an explanatory note rather than guessing.
 			}
 			med := median(dwells)
 			threshold := multiplier * med
-			result["median_dwell_days"] = roundTo(med, 2)
-			result["threshold_dwell_days"] = roundTo(threshold, 2)
+			result["median_age_days"] = roundTo(med, 2)
+			result["threshold_age_days"] = roundTo(threshold, 2)
 
 			items := make([]lifecycleStuckItem, 0)
 			for _, s := range samples {
@@ -143,14 +159,14 @@ items array with an explanatory note rather than guessing.
 					ID:               s.props.ID,
 					Email:            s.props.Email,
 					Name:             contactDisplayName(s.props),
-					EnteredAt:        s.props.CreateDate.UTC().Format(time.RFC3339),
-					DwellDays:        roundTo(s.dwell, 2),
+					CreatedAt:        s.props.CreateDate.UTC().Format(time.RFC3339),
+					AgeDays:          roundTo(s.dwell, 2),
 					MultiplierActual: roundTo(ratio, 2),
 				})
 			}
 			sort.Slice(items, func(i, j int) bool {
-				if items[i].DwellDays != items[j].DwellDays {
-					return items[i].DwellDays > items[j].DwellDays
+				if items[i].AgeDays != items[j].AgeDays {
+					return items[i].AgeDays > items[j].AgeDays
 				}
 				return items[i].ID < items[j].ID
 			})

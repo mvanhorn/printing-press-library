@@ -164,7 +164,11 @@ func snapshotScores(ctx context.Context, db *store.Store, now time.Time) (int, e
 }
 
 // snapshotEngagement writes the current engagement-related columns for every
-// contact into contact_engagement_snapshots.
+// contact into contact_engagement_snapshots. Pruning is intentionally NOT
+// called here because every caller (currently only daily-digest) invokes
+// snapshotScores immediately before, which prunes both snapshot tables in
+// one pass. Calling pruneOldSnapshots here too would only repeat work
+// (idempotent, but wasteful).
 func snapshotEngagement(ctx context.Context, db *store.Store, now time.Time) (int, error) {
 	contacts, err := loadContactsForSnapshot(ctx, db)
 	if err != nil {
@@ -172,9 +176,6 @@ func snapshotEngagement(ctx context.Context, db *store.Store, now time.Time) (in
 	}
 	if len(contacts) == 0 {
 		return 0, nil
-	}
-	if err := pruneOldSnapshots(ctx, db, now); err != nil {
-		return 0, err
 	}
 	tx, err := db.DB().BeginTx(ctx, nil)
 	if err != nil {
