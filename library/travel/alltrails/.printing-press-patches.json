@@ -54,6 +54,14 @@
         "internal/cli/analytics.go",
         "internal/cli/data_source.go"
       ]
+    },
+    {
+      "id": "http-cache-owner-only-perms",
+      "summary": "client.writeCache now creates its response-cache dir/files owner-only (0o700/0o600) instead of world-readable 0o755/0o644, matching the cache.Store and SQLite-store hardening.",
+      "reason": "Security sweep: the local-store-cache-perms patch hardened internal/cache and internal/store but missed the HTTP client's own on-disk response cache, which still wrote 0o755/0o644. Cache keys incorporate credential headers, so these files hold credential-bound account/session responses that were readable by every local user on a shared machine.",
+      "files": [
+        "internal/client/client.go"
+      ]
     }
   ]
 }

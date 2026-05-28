@@ -258,9 +258,15 @@ func (c *Client) readCache(path string, params map[string]string) (json.RawMessa
 }
 
 func (c *Client) writeCache(path string, params map[string]string, data json.RawMessage) {
-	os.MkdirAll(c.cacheDir, 0o755)
+	// PATCH: HTTP response cache holds credential-bound account/session data
+	// (cache key incorporates auth headers), so restrict to the owner:
+	// 0o700 dir / 0o600 file. The world-readable 0o755/0o644 the generator
+	// emitted leaked cached responses to other local users on a shared box.
+	if err := os.MkdirAll(c.cacheDir, 0o700); err != nil {
+		return
+	}
 	cacheFile := filepath.Join(c.cacheDir, c.cacheKey(path, params)+".json")
-	os.WriteFile(cacheFile, []byte(data), 0o644)
+	_ = os.WriteFile(cacheFile, []byte(data), 0o600)
 }
 
 // invalidateCache wholesale-removes the cache directory so the next read
