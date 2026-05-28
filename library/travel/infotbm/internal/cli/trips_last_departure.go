@@ -148,8 +148,8 @@ func newNovelTripsLastDepartureCmd(flags *rootFlags) *cobra.Command {
 					continue
 				}
 
-				// Check if arrival is before cutoff
-				if !arrTime.IsZero() && arrTime.After(cutoff) {
+				// Skip if arrival time is unknown or after cutoff
+				if arrTime.IsZero() || arrTime.After(cutoff) {
 					continue
 				}
 
@@ -162,7 +162,7 @@ func newNovelTripsLastDepartureCmd(flags *rootFlags) *cobra.Command {
 				candidates = append(candidates, departureCandidate{
 					Line:          lineName,
 					DepartureTime: depTime.Format(time.RFC3339),
-					ArrivalTime:   arrTime.Format(time.RFC3339),
+					ArrivalTime:   func() string { if arrTime.IsZero() { return "" }; return arrTime.Format(time.RFC3339) }(),
 					FromStop:      flagFrom,
 					ToStop:        flagTo,
 					JourneyRef:    journeyRef,

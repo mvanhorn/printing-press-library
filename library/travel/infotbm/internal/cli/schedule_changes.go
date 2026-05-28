@@ -20,10 +20,10 @@ func newNovelScheduleChangesCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "changes",
-		Short: "Compare synced GTFS data across time to detect schedule changes",
-		Long: `Compare GTFS sync snapshots to detect added, removed, or modified routes.
-Uses the local SQLite store's sync timestamps and route data to identify
-what changed since a given time period.`,
+		Short: "Report sync freshness and current routes within a time window",
+		Long: `Check whether the local GTFS data was synced within a given time window
+and list the current routes. Use this to verify data freshness before
+relying on schedule queries. Requires a prior 'sync --full' run.`,
 		Example: strings.Trim(`
   # Show route changes in the last 7 days
   infotbm-pp-cli schedule changes --since 7d

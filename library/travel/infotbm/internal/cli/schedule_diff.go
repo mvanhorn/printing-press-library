@@ -124,6 +124,22 @@ were silently cancelled or never dispatched.`,
 			var liveJourneys []map[string]any
 			extractVehicleJourneys(liveData, &liveJourneys)
 
+			// Filter by stop if requested
+			if flagStop != "" {
+				filtered := make([]map[string]any, 0)
+				for _, j := range liveJourneys {
+					calls := extractCallsList(j)
+					for _, call := range calls {
+						ref := callStopRef(call)
+						if matchStopRef(ref, flagStop, flagStop) {
+							filtered = append(filtered, j)
+							break
+						}
+					}
+				}
+				liveJourneys = filtered
+			}
+
 			liveLineRefs := make(map[string]bool)
 			liveTripRefs := make(map[string]bool)
 			for _, j := range liveJourneys {

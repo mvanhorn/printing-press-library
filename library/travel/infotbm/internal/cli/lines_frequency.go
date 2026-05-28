@@ -257,17 +257,6 @@ func extractVehicleJourneys(data json.RawMessage, out *[]map[string]any) {
 		}
 	}
 
-	// If array of frames, recurse each
-	for _, key := range []string{"EstimatedJourneyVersionFrame", "EstimatedTimetableDelivery"} {
-		if inner, ok := obj[key]; ok {
-			var frames []json.RawMessage
-			if json.Unmarshal(inner, &frames) == nil {
-				for _, f := range frames {
-					extractVehicleJourneys(f, out)
-				}
-			}
-		}
-	}
 }
 
 // resolveSIRILineRef maps a short line name (e.g. "A", "1") to the full SIRI
