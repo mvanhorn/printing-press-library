@@ -118,9 +118,17 @@ func (c *Config) SaveTokens(clientID, clientSecret, accessToken, refreshToken st
 }
 
 func (c *Config) ClearTokens() error {
+	// Zero every persisted credential field, not just the OAuth token pair.
+	// AuthHeaderVal (auth_header), CommerceAuthorization (authorization), and
+	// ClientID/ClientSecret are all consulted by AuthHeader(); leaving any of
+	// them on disk means a "successful" logout still authenticates.
 	c.AccessToken = ""
 	c.RefreshToken = ""
 	c.TokenExpiry = time.Time{}
+	c.AuthHeaderVal = ""
+	c.CommerceAuthorization = ""
+	c.ClientID = ""
+	c.ClientSecret = ""
 	return c.save()
 }
 
