@@ -103,11 +103,35 @@ reading source. Schema is versioned via schema_version.`,
 }
 
 func buildAgentContext(rootCmd *cobra.Command) agentContext {
-	envVars := []agentContextAuthEnvVar{}
-	authMode := "none"
-	if authMode == "" {
-		authMode = "none"
+	// GoDaddy authenticates via an sso-key header built from an API
+	// key + secret pair (GODADDY_API_KEY/GODADDY_API_SECRET), or via a
+	// pre-built Authorization header (GODADDY_AUTH_HEADER) that overrides
+	// the pair. Agents bootstrapping from this output must be able to
+	// discover those required vars rather than seeing auth as "none".
+	envVars := []agentContextAuthEnvVar{
+		{
+			Name:        "GODADDY_API_KEY",
+			Kind:        "api-key",
+			Required:    true,
+			Sensitive:   true,
+			Description: "GoDaddy API key (sso-key id). Paired with GODADDY_API_SECRET. Create at https://developer.godaddy.com/keys.",
+		},
+		{
+			Name:        "GODADDY_API_SECRET",
+			Kind:        "api-secret",
+			Required:    true,
+			Sensitive:   true,
+			Description: "GoDaddy API secret matching GODADDY_API_KEY.",
+		},
+		{
+			Name:        "GODADDY_AUTH_HEADER",
+			Kind:        "auth-header",
+			Required:    false,
+			Sensitive:   true,
+			Description: "Pre-built Authorization header (e.g. 'sso-key KEY:SECRET'). Overrides GODADDY_API_KEY/GODADDY_API_SECRET when set.",
+		},
 	}
+	authMode := "api-key"
 	profiles := ListProfileNames()
 	if profiles == nil {
 		profiles = []string{}

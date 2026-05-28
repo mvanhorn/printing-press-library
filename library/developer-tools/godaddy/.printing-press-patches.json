@@ -56,6 +56,39 @@
       "files": [
         "internal/cli/*.go (20 stdin-only command files)"
       ]
+    },
+    {
+      "id": "deliver-dir-perms",
+      "summary": "--deliver file:<path> creates intermediate dirs with 0o700 instead of 0o755.",
+      "reason": "Greptile: a world-listable deliver dir let other local users enumerate delivered output filenames (which can reveal domain names) even though file contents are 0o600. Made consistent with cache.go/store.go.",
+      "files": [
+        "internal/cli/deliver.go"
+      ]
+    },
+    {
+      "id": "mcp-sql-scan-errors",
+      "summary": "MCP read-only SQL tool surfaces rows.Columns/rows.Scan/rows.Err errors instead of silently discarding them.",
+      "reason": "Greptile: discarded Scan errors returned rows with partial zero-value data and no warning; a Columns error yielded nil columns and silently no-op scans for every row.",
+      "files": [
+        "internal/mcp/tools.go"
+      ]
+    },
+    {
+      "id": "network-error-backoff",
+      "summary": "Transport-level request failures back off (2^attempt seconds) before retry, matching the 5xx path; added regression tests.",
+      "reason": "Greptile: network errors (connection refused, DNS failure, timeout) previously retried with only the rate-limiter delay, producing up to four rapid-fire retries that hammer a recovering endpoint.",
+      "files": [
+        "internal/client/client.go",
+        "internal/client/client_network_backoff_test.go"
+      ]
+    },
+    {
+      "id": "agent-context-auth-env-vars",
+      "summary": "agent-context now reports auth mode \"api-key\" and the GODADDY_API_KEY/GODADDY_API_SECRET/GODADDY_AUTH_HEADER env vars instead of \"none\" with an empty list.",
+      "reason": "Greptile: hardcoded authMode \"none\" and empty envVars meant agents bootstrapping from agent-context output could not discover the required GoDaddy credentials.",
+      "files": [
+        "internal/cli/agent_context.go"
+      ]
     }
   ]
 }

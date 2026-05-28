@@ -498,6 +498,16 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 				return nil, 0, ctxErr
 			}
 			lastErr = fmt.Errorf("%s %s: %w", method, path, err)
+			// Transport-level failures (connection refused, DNS failure,
+			// timeout) back off identically to 5xx responses so a transient
+			// outage isn't hammered with rapid-fire retries.
+			if attempt < maxRetries {
+				wait := time.Duration(math.Pow(2, float64(attempt))) * time.Second
+				fmt.Fprintf(os.Stderr, "network error, retrying in %s (attempt %d/%d)\n", wait, attempt+1, maxRetries)
+				if sleepErr := sleepContext(ctx, wait); sleepErr != nil {
+					return nil, 0, sleepErr
+				}
+			}
 			continue
 		}
 
