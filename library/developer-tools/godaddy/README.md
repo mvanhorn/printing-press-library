@@ -215,6 +215,7 @@ Manage countries
 
 Manage customers
 
+- **`godaddy-pp-cli customers auctions get-listings <customerId>`** - Get listings from GoDaddy Auctions
 
 ### domains
 

@@ -84,6 +84,7 @@ Combined CLI for multiple API services
 
 **customers** — Manage customers
 
+- `godaddy-pp-cli customers auctions get-listings <customerId>` — Get listings from GoDaddy Auctions
 
 **domains** — Manage domains
 
