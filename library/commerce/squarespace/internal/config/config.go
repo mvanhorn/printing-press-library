@@ -129,6 +129,10 @@ func (c *Config) ClearTokens() error {
 	c.CommerceAuthorization = ""
 	c.ClientID = ""
 	c.ClientSecret = ""
+	// Custom Headers are applied verbatim to every request by the client's
+	// do() loop and can carry an Authorization or other credential header;
+	// clear them on logout so no auth bytes survive in the on-disk TOML.
+	c.Headers = nil
 	return c.save()
 }
 

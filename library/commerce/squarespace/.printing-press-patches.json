@@ -5,6 +5,13 @@
   "base_printing_press_version": "4.5.1",
   "patches": [
     {
+      "id": "clear-tokens-headers-map",
+      "summary": "ClearTokens now also sets Config.Headers = nil so a logout drops any custom credential header, not just the named token/credential fields.",
+      "reason": "Greptile #919: ClearTokens zeroed the named credential fields but left the Headers map intact, and the client's do() loop applies every Config.Headers entry to every request, so a logout could leave an Authorization/credential header active. Mirrors the goodreads fix.",
+      "files": ["internal/config/config.go"],
+      "validated_outcome": "go build/vet/test pass; verify-skill passes."
+    },
+    {
       "id": "billing-valid-terms-loop",
       "summary": "Fix misleading error message that loops users on billing-valid-terms when --website-id and --contract-id are provided without --name.",
       "reason": "The includeDomainName condition requires --name for the domainName query parameter, but the error message incorrectly suggested --name was optional when IDs were given.",
