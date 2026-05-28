@@ -1079,9 +1079,6 @@ by Matt Van Horn and Trevin Chow. rest.
 		t.Errorf("contributor backfill shape wrong:\n%s", got)
 	}
 	// Existing creator line preserved exactly once.
-	if got != strings.Replace(got, "Created by Cathryn Lavery (@cathrynlavery).", "X", 1) {
-		// noop placeholder — the next assertion is the real check.
-	}
 	if strings.Count(got, "Created by Cathryn Lavery (@cathrynlavery).") != 1 {
 		t.Errorf("Created by line duplicated:\n%s", got)
 	}
