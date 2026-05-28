@@ -1,0 +1,585 @@
+{
+  "api_name": "splitwise",
+  "base_url": "https://secure.splitwise.com/api/v3.0",
+  "description": "Every Splitwise feature, plus an offline SQLite ledger that powers balance, debt-aging, spend analytics, and full-text search no other Splitwise tool has.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "SPLITWISE_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "SPLITWISE_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "add-user-to-group_create",
+      "description": "**Note**: 200 OK does not indicate a successful response. You must check the `success` value of the response. Returns the new AddUserToGroupCreateResponse.",
+      "method": "POST",
+      "path": "/add_user_to_group",
+      "params": []
+    },
+    {
+      "name": "create-comment_create",
+      "description": "Create a comment. Optional: content, expense_id. Returns the new CreateCommentCreateResponse.",
+      "method": "POST",
+      "path": "/create_comment",
+      "params": [
+        {
+          "name": "content",
+          "type": "string",
+          "location": "body",
+          "description": "Content"
+        },
+        {
+          "name": "expense_id",
+          "type": "int",
+          "location": "body",
+          "description": "Expense id"
+        }
+      ]
+    },
+    {
+      "name": "create-expense_create",
+      "description": "Creates an expense. You may either split an expense equally (only with `group_id` provided), or supply a list of shares. When splitting equally, the authenticated user is assumed to be the payer. When providing a list of shares, each share must include `paid_share` and `owed_share`, and must be identified by one of the following: - `email`, `first_name`, and `last_name` - `user_id` **Note**: 200 OK does not indicate a successful response. The operation was successful only if `errors` is empty. Returns the new CreateExpenseCreateResponse.",
+      "method": "POST",
+      "path": "/create_expense",
+      "params": []
+    },
+    {
+      "name": "create-friend_create",
+      "description": "Adds a friend. If the other user does not exist, you must supply `user_first_name`. If the other user exists, `user_first_name` and `user_last_name` will be ignored. Optional: user_email, user_first_name, user_last_name. Returns the new CreateFriendCreateResponse.",
+      "method": "POST",
+      "path": "/create_friend",
+      "params": [
+        {
+          "name": "user_email",
+          "type": "string",
+          "location": "body",
+          "description": "User email"
+        },
+        {
+          "name": "user_first_name",
+          "type": "string",
+          "location": "body",
+          "description": "User first name"
+        },
+        {
+          "name": "user_last_name",
+          "type": "string",
+          "location": "body",
+          "description": "User last name"
+        }
+      ]
+    },
+    {
+      "name": "create-friends_create",
+      "description": "Add multiple friends at once. For each user, if the other user does not exist, you must supply `users__{index}__first_name`. **Note**: user parameters must be flattened into the format `users__{index}__{property}`, where `property` is `first_name`, `last_name`, or `email`. Returns the new CreateFriendsCreateResponse.",
+      "method": "POST",
+      "path": "/create_friends",
+      "params": []
+    },
+    {
+      "name": "create-group_create",
+      "description": "Creates a new group. Adds the current user to the group by default. **Note**: group user parameters must be flattened into the format `users__{index}__{property}`, where `property` is `user_id`, `first_name`, `last_name`, or `email`. The user's email or ID must be provided. Required: name. Optional: group_type, simplify_by_default. Returns the new CreateGroupCreateResponse.",
+      "method": "POST",
+      "path": "/create_group",
+      "params": [
+        {
+          "name": "group_type",
+          "type": "string",
+          "location": "body",
+          "description": "What is the group used for? **Note**: It is recommended to use `home` in place of `house` or `apartment`."
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        },
+        {
+          "name": "simplify_by_default",
+          "type": "bool",
+          "location": "body",
+          "description": "Turn on simplify debts?"
+        }
+      ]
+    },
+    {
+      "name": "delete-comment_create",
+      "description": "Deletes a comment. Returns the deleted comment. Required: id.",
+      "method": "POST",
+      "path": "/delete_comment/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "delete-expense_create",
+      "description": "**Note**: 200 OK does not indicate a successful response. The operation was successful only if `success` is true. Required: id. Returns the new DeleteExpenseCreateResponse.",
+      "method": "POST",
+      "path": "/delete_expense/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "ID of the expense to delete",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "delete-friend_create",
+      "description": "Given a friend ID, break off the friendship between the current user and the specified user. **Note**: 200 OK does not indicate a successful response. You must check the `success` value of the response. Required: id. Returns the new DeleteFriendCreateResponse.",
+      "method": "POST",
+      "path": "/delete_friend/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "User ID of the friend",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "delete-group_create",
+      "description": "Delete an existing group. Destroys all associated records (expenses, etc.). Required: id. Returns the new DeleteGroupCreateResponse.",
+      "method": "POST",
+      "path": "/delete_group/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "get-categories_list",
+      "description": "Returns a list of all categories Splitwise allows for expenses. There are parent categories that represent groups of categories with subcategories for more specific categorization. When creating expenses, you must use a subcategory, not a parent category. If you intend for an expense to be represented by the parent category and nothing more specific, please use the 'Other' subcategory. (public)",
+      "method": "GET",
+      "path": "/get_categories",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "get-comments_list",
+      "description": "Get expense comments. Required: expense_id. Returns the GetCommentsListResponse.",
+      "method": "GET",
+      "path": "/get_comments",
+      "params": [
+        {
+          "name": "expense_id",
+          "type": "int",
+          "location": "query",
+          "description": "Expense id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "get-currencies_list",
+      "description": "Returns a list of all currencies allowed by the system. These are mostly ISO 4217 codes, but we do sometimes use pending codes or unofficial, colloquial codes (like BTC instead of XBT for Bitcoin). (public)",
+      "method": "GET",
+      "path": "/get_currencies",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "get-current-user_list",
+      "description": "Get information about the current user. Returns the GetCurrentUserListResponse.",
+      "method": "GET",
+      "path": "/get_current_user",
+      "params": []
+    },
+    {
+      "name": "get-expense_get",
+      "description": "Get expense information. Required: id. Returns the GetExpenseGetResponse.",
+      "method": "GET",
+      "path": "/get_expense/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "get-expenses_list",
+      "description": "List the current user's expenses. Optional: group_id, friend_id, dated_after (plus 5 more). Returns the GetExpensesListResponse.",
+      "method": "GET",
+      "path": "/get_expenses",
+      "params": [
+        {
+          "name": "group_id",
+          "type": "int",
+          "location": "query",
+          "description": "If provided, only expenses in that group will be returned, and `friend_id` will be ignored."
+        },
+        {
+          "name": "friend_id",
+          "type": "int",
+          "location": "query",
+          "description": "ID of another user. If provided, only expenses between the current and provided user will be returned."
+        },
+        {
+          "name": "dated_after",
+          "type": "string",
+          "location": "query",
+          "description": "Dated after"
+        },
+        {
+          "name": "dated_before",
+          "type": "string",
+          "location": "query",
+          "description": "Dated before"
+        },
+        {
+          "name": "updated_after",
+          "type": "string",
+          "location": "query",
+          "description": "Updated after"
+        },
+        {
+          "name": "updated_before",
+          "type": "string",
+          "location": "query",
+          "description": "Updated before"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset"
+        }
+      ]
+    },
+    {
+      "name": "get-friend_get",
+      "description": "Get details about a friend. Required: id. Returns the GetFriendGetResponse.",
+      "method": "GET",
+      "path": "/get_friend/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "User ID of the friend",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "get-friends_list",
+      "description": "**Note**: `group` objects only include group balances with that friend. Returns the GetFriendsListResponse.",
+      "method": "GET",
+      "path": "/get_friends",
+      "params": []
+    },
+    {
+      "name": "get-group_get",
+      "description": "Get information about a group. Required: id. Returns the GetGroupGetResponse.",
+      "method": "GET",
+      "path": "/get_group/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "get-groups_list",
+      "description": "**Note**: Expenses that are not associated with a group are listed in a group with ID 0. Returns the GetGroupsListResponse.",
+      "method": "GET",
+      "path": "/get_groups",
+      "params": []
+    },
+    {
+      "name": "get-notifications_list",
+      "description": "Return a list of recent activity on the users account with the most recent items first. `content` will be suitable for display in HTML and uses only the ` `, `\u003cstrike\u003e`, ` `, ` ` and `\u003cfont color='#FFEE44'\u003e` tags. The `type` value indicates what the notification is about. Notification types may be added in the future without warning. Below is an incomplete list of notification types. | Type | Meaning | | ---- | ------- | | 0 | Expense added | | 1 | Expense updated | | 2\t | Expense deleted | | 3\t | Comment added | | 4\t | Added to group | | 5\t | Removed from group | | 6\t | Group deleted | | 7\t | Group settings changed | | 8\t | Added as friend | | 9\t | Removed as friend | | 10\t | News (a URL should be included) | | 11\t | Debt simplification | | 12\t | Group undeleted | | 13\t | Expense undeleted | | 14\t | Group currency conversion | | 15\t | Friend currency conversion | **Note**: While all parameters are optional, the server sets arbitrary (but large) limits on the number of notifications returned if you set a very old `updated_after` value or `limit` of `0` for a user with many notifications. Optional: updated_after, limit (default: 0). Returns the GetNotificationsListResponse.",
+      "method": "GET",
+      "path": "/get_notifications",
+      "params": [
+        {
+          "name": "updated_after",
+          "type": "string",
+          "location": "query",
+          "description": "If provided, returns only notifications after this time."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Omit (or provide `0`) to get the maximum number of notifications."
+        }
+      ]
+    },
+    {
+      "name": "get-user_get",
+      "description": "Get information about another user. Required: id. Returns the GetUserGetResponse.",
+      "method": "GET",
+      "path": "/get_user/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "remove-user-from-group_create",
+      "description": "Remove a user from a group. Does not succeed if the user has a non-zero balance. **Note:** 200 OK does not indicate a successful response. You must check the success value of the response. Required: group_id, user_id. Returns the new RemoveUserFromGroupCreateResponse.",
+      "method": "POST",
+      "path": "/remove_user_from_group",
+      "params": [
+        {
+          "name": "group_id",
+          "type": "int",
+          "location": "body",
+          "description": "Group id",
+          "required": true
+        },
+        {
+          "name": "user_id",
+          "type": "int",
+          "location": "body",
+          "description": "User id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "undelete-expense_create",
+      "description": "**Note**: 200 OK does not indicate a successful response. The operation was successful only if `success` is true. Required: id. Returns the new UndeleteExpenseCreateResponse.",
+      "method": "POST",
+      "path": "/undelete_expense/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "ID of the expense to restore",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "undelete-group_create",
+      "description": "Restores a deleted group. **Note**: 200 OK does not indicate a successful response. You must check the `success` value of the response. Required: id. Returns the new UndeleteGroupCreateResponse.",
+      "method": "POST",
+      "path": "/undelete_group/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "update-expense_create",
+      "description": "Updates an expense. Parameters are the same as in `create_expense`, but you only need to include parameters that are changing from the previous values. If any values is supplied for `users__{index}__{property}`, _all_ shares for the expense will be overwritten with the provided values. **Note**: 200 OK does not indicate a successful response. The operation was successful only if `errors` is empty. Required: id, cost, description, group_id. Optional: category_id, currency_code, date (plus 10 more). Returns the new UpdateExpenseCreateResponse.",
+      "method": "POST",
+      "path": "/update_expense/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "ID of the expense to update",
+          "required": true
+        },
+        {
+          "name": "category_id",
+          "type": "int",
+          "location": "body",
+          "description": "A category id from `get_categories`"
+        },
+        {
+          "name": "cost",
+          "type": "string",
+          "location": "body",
+          "description": "A string representation of a decimal value, limited to 2 decimal places",
+          "required": true
+        },
+        {
+          "name": "currency_code",
+          "type": "string",
+          "location": "body",
+          "description": "A currency code. Must be in the list from `get_currencies`"
+        },
+        {
+          "name": "date",
+          "type": "string",
+          "location": "body",
+          "description": "The date and time the expense took place. May differ from `created_at`"
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "A short description of the expense",
+          "required": true
+        },
+        {
+          "name": "details",
+          "type": "string",
+          "location": "body",
+          "description": "Also known as 'notes.'"
+        },
+        {
+          "name": "group_id",
+          "type": "int",
+          "location": "body",
+          "description": "The group to put this expense in, or `0` to create an expense outside of a group.",
+          "required": true
+        },
+        {
+          "name": "repeat_interval",
+          "type": "string",
+          "location": "body",
+          "description": "Repeat interval"
+        },
+        {
+          "name": "users__0__owed_share",
+          "type": "string",
+          "location": "body",
+          "description": "Decimal amount as a string with 2 decimal places. The amount this user owes for the expense"
+        },
+        {
+          "name": "users__0__paid_share",
+          "type": "string",
+          "location": "body",
+          "description": "Decimal amount as a string with 2 decimal places. The amount this user paid for the expense"
+        },
+        {
+          "name": "users__0__user_id",
+          "type": "int",
+          "location": "body",
+          "description": "Users 0 user id"
+        },
+        {
+          "name": "users__1__email",
+          "type": "string",
+          "location": "body",
+          "description": "Users 1 email"
+        },
+        {
+          "name": "users__1__first_name",
+          "type": "string",
+          "location": "body",
+          "description": "Users 1 first name"
+        },
+        {
+          "name": "users__1__last_name",
+          "type": "string",
+          "location": "body",
+          "description": "Users 1 last name"
+        },
+        {
+          "name": "users__1__owed_share",
+          "type": "string",
+          "location": "body",
+          "description": "Decimal amount as a string with 2 decimal places. The amount this user owes for the expense"
+        },
+        {
+          "name": "users__1__paid_share",
+          "type": "string",
+          "location": "body",
+          "description": "Decimal amount as a string with 2 decimal places. The amount this user paid for the expense"
+        }
+      ]
+    },
+    {
+      "name": "update-user_create",
+      "description": "Update a user. Required: id. Optional: default_currency, email, first_name (plus 3 more). Returns the new User.",
+      "method": "POST",
+      "path": "/update_user/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "default_currency",
+          "type": "string",
+          "location": "body",
+          "description": "Default currency"
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body",
+          "description": "Email"
+        },
+        {
+          "name": "first_name",
+          "type": "string",
+          "location": "body",
+          "description": "First name"
+        },
+        {
+          "name": "last_name",
+          "type": "string",
+          "location": "body",
+          "description": "Last name"
+        },
+        {
+          "name": "locale",
+          "type": "string",
+          "location": "body",
+          "description": "Locale"
+        },
+        {
+          "name": "password",
+          "type": "string",
+          "location": "body",
+          "description": "Password"
+        }
+      ]
+    }
+  ]
+}

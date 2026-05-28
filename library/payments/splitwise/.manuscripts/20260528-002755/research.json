@@ -1,0 +1,301 @@
+{
+  "api_name": "splitwise",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "namaggarwal/splitwise",
+      "url": "https://github.com/namaggarwal/splitwise",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 18,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "tarunn2799/splitwise-mcp",
+      "url": "https://github.com/tarunn2799/splitwise-mcp",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 26,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "keriwarr/splitwise",
+      "url": "https://github.com/keriwarr/splitwise",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 18,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "anvari1313/splitwise.go",
+      "url": "https://github.com/anvari1313/splitwise.go",
+      "language": "Go",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 16,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "svarun115/splitwise-mcp-server",
+      "url": "https://github.com/svarun115/splitwise-mcp-server",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 26,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-26T00:18:00Z",
+  "novel_features": [
+    {
+      "name": "Net balance overview",
+      "command": "balances",
+      "description": "See everything you owe and are owed across every friend and group in one net-position view.",
+      "rationale": "Splitwise returns balances separately per group and per friend; no client aggregates them into a single net position.",
+      "example": "splitwise-pp-cli balances --agent",
+      "why_it_matters": "Reach for this instead of N get_groups + get_friends calls when an agent needs the user's overall money position.",
+      "group": "Balances at a glance"
+    },
+    {
+      "name": "Debt aging",
+      "command": "debts",
+      "description": "List who owes you (and whom you owe) sorted by how long the balance has gone unsettled.",
+      "rationale": "Requires joining synced expenses with derived balances to compute days since the oldest open expense per relationship — no single API call returns aging.",
+      "example": "splitwise-pp-cli debts --aged --agent",
+      "why_it_matters": "Use when the task is 'who never pays me back' or chasing stale IOUs.",
+      "group": "Balances at a glance"
+    },
+    {
+      "name": "Group ledger with running balance",
+      "command": "ledger",
+      "description": "Every expense in a group, in date order, with a cumulative running balance per member.",
+      "rationale": "Requires replaying synced expenses in order against per-member shares — the API only returns current balances, never the running history.",
+      "example": "splitwise-pp-cli ledger \"Tahoe Trip\" --agent",
+      "why_it_matters": "Use to audit how a group's balances got to where they are, not just the snapshot.",
+      "group": "Balances at a glance"
+    },
+    {
+      "name": "Spend analytics rollups",
+      "command": "spend",
+      "description": "Total shared spend broken down by category, group, or month from your synced history.",
+      "rationale": "Requires summing synced expense amounts bucketed locally; Splitwise has no analytics, no spend-over-time, no per-category rollups.",
+      "example": "splitwise-pp-cli spend --group-by category --agent",
+      "why_it_matters": "Use for any 'how much did we spend on X' question instead of paging the whole expense list.",
+      "group": "Offline spend intelligence"
+    },
+    {
+      "name": "Offline expense search",
+      "command": "search",
+      "description": "Full-text search across your entire expense history, comments, and group/friend names — offline.",
+      "rationale": "Requires an FTS5 index over the full synced ledger; the Splitwise app search is weak and there is no bulk export-and-grep.",
+      "example": "splitwise-pp-cli search \"ramen\" --agent",
+      "why_it_matters": "Use to find a specific past expense by keyword without paging the API.",
+      "group": "Offline spend intelligence"
+    },
+    {
+      "name": "Settle-up plan",
+      "command": "settle-up",
+      "description": "Compute the minimum set of transfers that zeroes out balances in a group, then optionally record the payments.",
+      "rationale": "Requires a min-cash-flow debt-simplification graph over per-member net balances; no Splitwise client emits a transfer plan.",
+      "example": "splitwise-pp-cli settle-up \"Tahoe Trip\" --agent",
+      "why_it_matters": "Use when a group wants the fewest Venmo transfers to get everyone to zero.",
+      "group": "Reconcile and settle"
+    },
+    {
+      "name": "Activity diff",
+      "command": "activity",
+      "description": "Show what changed since your last sync — new, edited, and deleted expenses to review.",
+      "rationale": "Requires diffing synced notifications and updated_after expenses against the local store's last-sync cursor.",
+      "example": "splitwise-pp-cli activity --agent",
+      "why_it_matters": "Use to reconcile recent account activity before settling or reporting.",
+      "group": "Reconcile and settle"
+    },
+    {
+      "name": "Split calculator",
+      "command": "split",
+      "description": "Build and preview the exact expense split (equal, exact, percentage, or shares) before recording it.",
+      "rationale": "create_expense requires a per-user paid_share/owed_share array that sums exactly to the total; no Splitwise client computes and previews that body for you.",
+      "example": "splitwise-pp-cli split \"Tahoe Trip\" --amount 84 --equal --agent",
+      "why_it_matters": "Reach for this to turn 'I paid $84, split equally with the trip' into a ready-to-record expense without hand-building the share arrays. Add --record to submit it.",
+      "group": "Reconcile and settle"
+    },
+    {
+      "name": "Recurring-expense detector",
+      "command": "recurring",
+      "description": "Surface repeating charges (rent, utilities, subscriptions) from your synced history and flag a month missing an expected entry.",
+      "rationale": "Requires grouping synced expenses by normalized description and cadence in SQLite; Splitwise has no recurrence concept and no endpoint that returns it.",
+      "example": "splitwise-pp-cli recurring --agent",
+      "why_it_matters": "Use to catch a shared monthly bill nobody remembered to log this cycle.",
+      "group": "Offline spend intelligence"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Net balance overview",
+      "command": "balances",
+      "description": "See everything you owe and are owed across every friend and group in one net-position view.",
+      "rationale": "Splitwise returns balances separately per group and per friend; no client aggregates them into a single net position.",
+      "example": "splitwise-pp-cli balances --agent",
+      "why_it_matters": "Reach for this instead of N get_groups + get_friends calls when an agent needs the user's overall money position.",
+      "group": "Balances at a glance"
+    },
+    {
+      "name": "Debt aging",
+      "command": "debts",
+      "description": "List who owes you (and whom you owe) sorted by how long the balance has gone unsettled.",
+      "rationale": "Requires joining synced expenses with derived balances to compute days since the oldest open expense per relationship — no single API call returns aging.",
+      "example": "splitwise-pp-cli debts --aged --agent",
+      "why_it_matters": "Use when the task is 'who never pays me back' or chasing stale IOUs.",
+      "group": "Balances at a glance"
+    },
+    {
+      "name": "Group ledger with running balance",
+      "command": "ledger",
+      "description": "Every expense in a group, in date order, with a cumulative running balance per member.",
+      "rationale": "Requires replaying synced expenses in order against per-member shares — the API only returns current balances, never the running history.",
+      "example": "splitwise-pp-cli ledger \"Tahoe Trip\" --agent",
+      "why_it_matters": "Use to audit how a group's balances got to where they are, not just the snapshot.",
+      "group": "Balances at a glance"
+    },
+    {
+      "name": "Spend analytics rollups",
+      "command": "spend",
+      "description": "Total shared spend broken down by category, group, or month from your synced history.",
+      "rationale": "Requires summing synced expense amounts bucketed locally; Splitwise has no analytics, no spend-over-time, no per-category rollups.",
+      "example": "splitwise-pp-cli spend --group-by category --agent",
+      "why_it_matters": "Use for any 'how much did we spend on X' question instead of paging the whole expense list.",
+      "group": "Offline spend intelligence"
+    },
+    {
+      "name": "Offline expense search",
+      "command": "search",
+      "description": "Full-text search across your entire expense history, comments, and group/friend names — offline.",
+      "rationale": "Requires an FTS5 index over the full synced ledger; the Splitwise app search is weak and there is no bulk export-and-grep.",
+      "example": "splitwise-pp-cli search \"ramen\" --agent",
+      "why_it_matters": "Use to find a specific past expense by keyword without paging the API.",
+      "group": "Offline spend intelligence"
+    },
+    {
+      "name": "Settle-up plan",
+      "command": "settle-up",
+      "description": "Compute the minimum set of transfers that zeroes out balances in a group, then optionally record the payments.",
+      "rationale": "Requires a min-cash-flow debt-simplification graph over per-member net balances; no Splitwise client emits a transfer plan.",
+      "example": "splitwise-pp-cli settle-up \"Tahoe Trip\" --agent",
+      "why_it_matters": "Use when a group wants the fewest Venmo transfers to get everyone to zero.",
+      "group": "Reconcile and settle"
+    },
+    {
+      "name": "Activity diff",
+      "command": "activity",
+      "description": "Show what changed since your last sync — new, edited, and deleted expenses to review.",
+      "rationale": "Requires diffing synced notifications and updated_after expenses against the local store's last-sync cursor.",
+      "example": "splitwise-pp-cli activity --agent",
+      "why_it_matters": "Use to reconcile recent account activity before settling or reporting.",
+      "group": "Reconcile and settle"
+    },
+    {
+      "name": "Split calculator",
+      "command": "split",
+      "description": "Build and preview the exact expense split (equal, exact, percentage, or shares) before recording it.",
+      "rationale": "create_expense requires a per-user paid_share/owed_share array that sums exactly to the total; no Splitwise client computes and previews that body for you.",
+      "example": "splitwise-pp-cli split \"Tahoe Trip\" --amount 84 --equal --agent",
+      "why_it_matters": "Reach for this to turn 'I paid $84, split equally with the trip' into a ready-to-record expense without hand-building the share arrays. Add --record to submit it.",
+      "group": "Reconcile and settle"
+    },
+    {
+      "name": "Recurring-expense detector",
+      "command": "recurring",
+      "description": "Surface repeating charges (rent, utilities, subscriptions) from your synced history and flag a month missing an expected entry.",
+      "rationale": "Requires grouping synced expenses by normalized description and cadence in SQLite; Splitwise has no recurrence concept and no endpoint that returns it.",
+      "example": "splitwise-pp-cli recurring --agent",
+      "why_it_matters": "Use to catch a shared monthly bill nobody remembered to log this cycle.",
+      "group": "Offline spend intelligence"
+    }
+  ],
+  "narrative": {
+    "display_name": "Splitwise",
+    "headline": "Every Splitwise feature, plus an offline SQLite ledger that powers balance, debt-aging, spend analytics, and full-text search no other Splitwise tool has.",
+    "value_prop": "splitwise-pp-cli wraps the full Splitwise API — expenses, groups, friends, comments, settle-ups — and keeps a local copy of your whole ledger. That local store powers a net `balances` view, `debts --aged` (who never pays you back), `spend` rollups by category or month, offline `search`, a group `ledger` with running balances, and a `settle-up` plan that minimizes transfers. Fuzzy name resolution means you never paste a numeric ID.",
+    "auth_narrative": "Splitwise authenticates with a personal API key used as an HTTP Bearer token. Register an app at https://secure.splitwise.com/apps to get your key, then set SPLITWISE_API_KEY. OAuth 2.0 (authorization-code) is also supported for multi-user apps, but a personal API key is the fastest path for a power-user CLI.",
+    "quickstart": [
+      {
+        "command": "splitwise-pp-cli doctor --dry-run",
+        "comment": "Confirm the binary, config path, and verify state without needing credentials."
+      },
+      {
+        "command": "splitwise-pp-cli sync",
+        "comment": "Pull your groups, friends, expenses, comments, categories, and currencies into the local store."
+      },
+      {
+        "command": "splitwise-pp-cli balances",
+        "comment": "See your net position across every friend and group at a glance."
+      },
+      {
+        "command": "splitwise-pp-cli spend --group-by category",
+        "comment": "Roll up your shared spend by category from synced history."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 Unauthorized on any command",
+        "fix": "Set SPLITWISE_API_KEY to a key from https://secure.splitwise.com/apps, then run splitwise-pp-cli doctor."
+      },
+      {
+        "symptom": "balances / spend / search return nothing",
+        "fix": "Run splitwise-pp-cli sync first — these read the local store, which is empty until synced."
+      },
+      {
+        "symptom": "Rate-limited (429) during a large sync",
+        "fix": "Splitwise has conservative personal-use limits; re-run sync later, or use sync --since 7d for incremental pulls."
+      }
+    ],
+    "when_to_use": "Reach for splitwise-pp-cli when a task involves shared expenses, group trips, roommate bills, or settling up — logging an expense, checking who owes whom, rolling up spend by category, finding a past expense, or computing a settle-up plan. It is the right tool when you want offline analytics over a Splitwise account or scriptable expense automation, not a one-off live lookup.",
+    "recipes": [
+      {
+        "title": "Net position for an agent",
+        "command": "splitwise-pp-cli balances --agent --select by_currency",
+        "explanation": "Returns just the headline numbers an agent needs to report the user's overall money position."
+      },
+      {
+        "title": "Inspect a group's members and debts (narrow a verbose payload)",
+        "command": "splitwise-pp-cli get-groups --agent --select groups.name,groups.members.first_name,groups.simplified_debts.amount",
+        "explanation": "get-groups returns deeply nested members + balance arrays; --select keeps only the fields you need so an agent doesn't burn context on the full payload."
+      },
+      {
+        "title": "Find a forgotten expense",
+        "command": "splitwise-pp-cli search \"airbnb\" --limit 10",
+        "explanation": "Full-text search across your synced expense history for a keyword."
+      },
+      {
+        "title": "Plan the fewest transfers to settle a trip",
+        "command": "splitwise-pp-cli settle-up \"Tahoe Trip\"",
+        "explanation": "Prints the minimum-transfer settle-up plan; add --record to create the payment expenses."
+      }
+    ],
+    "trigger_phrases": [
+      "what do I owe on splitwise",
+      "who owes me money",
+      "split this expense",
+      "settle up the trip",
+      "how much did we spend on food",
+      "use splitwise",
+      "run splitwise"
+    ]
+  }
+}
