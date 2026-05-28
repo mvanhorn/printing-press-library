@@ -147,6 +147,9 @@ Requires synced adsets and insights data in the local store.`,
 					Why:             why,
 				})
 			}
+			if err := rows.Err(); err != nil {
+				return fmt.Errorf("iterating adset rows: %w", err)
+			}
 
 			// Sort: highest spend × (1 / max(roas, 0.01)) — worst-leverage first.
 			sort.SliceStable(out, func(i, j int) bool {

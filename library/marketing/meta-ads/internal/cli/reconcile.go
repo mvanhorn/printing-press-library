@@ -119,11 +119,15 @@ Requires synced account-level and ad-level insights with time_increment=1.`,
 			}
 			_ = rows.Close()
 
-			// ad-level spend per day
+			// ad-level spend per day. Exclude rows where ad_id is empty-string in
+			// addition to NULL — accountQ already covers BOTH conditions, so without
+			// this exclusion an empty-string ad_id row would land in both partitions
+			// and the drift subtraction would silently cancel out the duplication.
 			adQ := `SELECT data FROM resources
 				WHERE resource_type IN ('insights', 'ads_insights', 'adaccounts_insights')
 				  AND date(json_extract(data, '$.date_start')) > date('now', ?)
-				  AND json_extract(data, '$.ad_id') IS NOT NULL`
+				  AND json_extract(data, '$.ad_id') IS NOT NULL
+				  AND json_extract(data, '$.ad_id') != ''`
 
 			rows2, err := db.DB().QueryContext(cmd.Context(), adQ, fmt.Sprintf("-%d days", sinceDays))
 			if err != nil {
