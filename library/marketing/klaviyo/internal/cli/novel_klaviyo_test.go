@@ -275,6 +275,7 @@ func TestListQualityScoreRequestsListProfileCounts(t *testing.T) {
 		rawJSON(`{"data":[],"links":{}}`),
 		rawJSON(`{"data":[],"links":{}}`),
 		rawJSON(`{"data":[],"links":{}}`),
+		rawJSON(`{"data":[],"links":{}}`),
 	}}
 	result, err := listQualityScore(client, time.Date(2026, 5, 1, 0, 0, 0, 0, time.UTC), time.Date(2026, 5, 2, 0, 0, 0, 0, time.UTC))
 	if err != nil {
@@ -287,6 +288,17 @@ func TestListQualityScoreRequestsListProfileCounts(t *testing.T) {
 	fields := client.requests[0].params["fields[list]"]
 	if !strings.Contains(fields, "profile_count") || !strings.Contains(fields, "profiles_count") {
 		t.Fatalf("fields[list] = %q, want profile count fields", fields)
+	}
+}
+
+func TestListGrowthRateCanFlagShrinkingLists(t *testing.T) {
+	growth := listGrowthRate(90, 5, 15)
+	if growth >= 0 {
+		t.Fatalf("growth = %v, want negative", growth)
+	}
+	issues := listQualityIssues(0, 0, 0, growth)
+	if !containsString(issues, "list is shrinking") {
+		t.Fatalf("issues = %#v", issues)
 	}
 }
 
@@ -685,6 +697,19 @@ func TestScoreRFMProfilesUsesRecency(t *testing.T) {
 	}
 }
 
+func TestCampaignAudienceIDsUsesOnlyIncludedAudiences(t *testing.T) {
+	ids := campaignAudienceIDs(map[string]any{"attributes": map[string]any{"audiences": map[string]any{
+		"included": []any{"list-1", map[string]any{"id": "segment-1"}},
+		"excluded": []any{"suppressed-list", map[string]any{"id": "segment-2"}},
+	}}})
+	if len(ids) != 2 || !containsString(ids, "list-1") || !containsString(ids, "segment-1") {
+		t.Fatalf("included audience ids = %#v", ids)
+	}
+	if containsString(ids, "suppressed-list") || containsString(ids, "segment-2") {
+		t.Fatalf("excluded audiences should not be returned: %#v", ids)
+	}
+}
+
 func TestDeleteSegmentUsesEscapedSegmentPath(t *testing.T) {
 	client := &fakeCouponPoolClient{}
 	if err := deleteSegment(client, "segment/123"); err != nil {
@@ -735,4 +760,13 @@ func (f *fakeCouponPoolClient) Delete(path string) (json.RawMessage, int, error)
 
 func rawJSON(s string) json.RawMessage {
 	return json.RawMessage(s)
+}
+
+func containsString(values []string, target string) bool {
+	for _, value := range values {
+		if value == target {
+			return true
+		}
+	}
+	return false
 }

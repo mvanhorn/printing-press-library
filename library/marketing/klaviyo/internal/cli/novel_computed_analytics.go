@@ -1044,7 +1044,7 @@ func listQualityScore(c flowClient, since, until time.Time) (map[string]any, err
 	if err != nil {
 		return nil, err
 	}
-	metrics := map[string]string{"received": "Received Email", "opened": "Opened Email", "clicked": "Clicked Email", "bounced": "Bounced Email", "unsub": "Unsubscribed Email", "spam": "Marked Email as Spam", "orders": "Placed Order"}
+	metrics := map[string]string{"received": "Received Email", "opened": "Opened Email", "clicked": "Clicked Email", "bounced": "Bounced Email", "unsub": "Unsubscribed Email", "spam": "Marked Email as Spam", "orders": "Placed Order", "subscribed": "Subscribed to List"}
 	values := map[string]map[string]float64{}
 	for key, name := range metrics {
 		id, err := resolveMetricID(c, name)
@@ -1066,13 +1066,22 @@ func listQualityScore(c flowClient, since, until time.Time) (map[string]any, err
 		}
 		bounce, unsub, spam := rate(values["bounced"][id], received), rate(values["unsub"][id], received), rate(values["spam"][id], received)
 		purchase := rate(values["orders"][id], float64(maxInt(size, 1)))
-		growth := 0.0
+		growth := listGrowthRate(size, values["subscribed"][id], values["unsub"][id])
 		score := qualityScore(engagement, bounce, unsub, spam, purchase, growth)
 		issues := listQualityIssues(bounce, unsub, spam, growth)
 		rows = append(rows, map[string]any{"name": name, "list_id": id, "size": size, "quality_score": score, "grade": qualityGrade(score), "engagement_rate": round3(engagement), "bounce_rate": round3(bounce), "unsub_rate": round3(unsub), "spam_rate": round4(spam), "purchase_rate": round3(purchase), "growth_rate": round3(growth), "issues": issues})
 	}
 	sort.Slice(rows, func(i, j int) bool { return anyInt(rows[i]["quality_score"]) > anyInt(rows[j]["quality_score"]) })
 	return map[string]any{"lists": rows}, nil
+}
+
+func listGrowthRate(currentSize int, subscribed, unsubscribed float64) float64 {
+	netGrowth := subscribed - unsubscribed
+	previousSize := float64(currentSize) - netGrowth
+	if previousSize <= 0 {
+		previousSize = float64(maxInt(currentSize, 1))
+	}
+	return netGrowth / previousSize
 }
 
 func contentFatigue(rows []resourceRow, since time.Time, minEmails int) map[string]any {

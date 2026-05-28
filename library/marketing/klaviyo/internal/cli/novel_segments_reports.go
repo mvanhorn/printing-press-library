@@ -1023,16 +1023,14 @@ func scheduledCampaignConflicts(campaigns []map[string]any, now time.Time, days 
 
 func campaignAudienceIDs(campaign map[string]any) []string {
 	var ids []string
-	for _, path := range []string{"attributes.audiences.included", "attributes.audiences.excluded"} {
-		if vals, ok := anyPath(campaign, path).([]any); ok {
-			for _, v := range vals {
-				switch t := v.(type) {
-				case string:
-					ids = append(ids, t)
-				case map[string]any:
-					if id := fmt.Sprint(t["id"]); id != "" && id != "<nil>" {
-						ids = append(ids, id)
-					}
+	if vals, ok := anyPath(campaign, "attributes.audiences.included").([]any); ok {
+		for _, v := range vals {
+			switch t := v.(type) {
+			case string:
+				ids = append(ids, t)
+			case map[string]any:
+				if id := fmt.Sprint(t["id"]); id != "" && id != "<nil>" {
+					ids = append(ids, id)
 				}
 			}
 		}
@@ -2399,27 +2397,22 @@ func newReportDomainReputationCmd(flags *rootFlags) *cobra.Command {
 }
 
 func newReportFlowFunnelCmd(flags *rootFlags) *cobra.Command {
-	var id string
 	cmd := &cobra.Command{
 		Use:         "flow-funnel",
-		Short:       "Flow conversion funnel by core email metrics",
+		Short:       "Account-level flow conversion funnel by core email metrics",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {
-				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{"dry_run": true, "id": id, "planned_steps": []string{"query_entered_received_opened_clicked_converted", "calculate_dropoffs"}}, flags)
-			}
-			if id == "" {
-				return usageErr(fmt.Errorf("--id is required"))
+				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{"dry_run": true, "planned_steps": []string{"query_entered_received_opened_clicked_converted", "calculate_dropoffs"}}, flags)
 			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
 			rows := metricTotalsByName(c, []string{"Received Email", "Opened Email", "Clicked Email", "Placed Order"}, time.Now().AddDate(0, 0, -90), time.Now())
-			return printJSONFiltered(cmd.OutOrStdout(), map[string]any{"flow_id": id, "window_days": 90, "funnel": rows, "note": "aggregate metrics are account-level unless attribution properties are present"}, flags)
+			return printJSONFiltered(cmd.OutOrStdout(), map[string]any{"window_days": 90, "funnel": rows, "note": "account-level aggregate metrics"}, flags)
 		},
 	}
-	cmd.Flags().StringVar(&id, "id", "", "Flow ID")
 	return cmd
 }
 
@@ -2448,27 +2441,22 @@ func newReportFlowComparisonCmd(flags *rootFlags) *cobra.Command {
 }
 
 func newReportEmailPerformanceCmd(flags *rootFlags) *cobra.Command {
-	var id string
 	cmd := &cobra.Command{
 		Use:         "email-performance",
-		Short:       "Single email performance summary",
+		Short:       "Account-level email performance summary",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {
-				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{"dry_run": true, "id": id, "planned_steps": []string{"query_delivery_engagement_conversion_metrics"}}, flags)
-			}
-			if id == "" {
-				return usageErr(fmt.Errorf("--id is required"))
+				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{"dry_run": true, "planned_steps": []string{"query_delivery_engagement_conversion_metrics"}}, flags)
 			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
 			rows := metricTotalsByName(c, []string{"Received Email", "Bounced Email", "Opened Email", "Clicked Email", "Unsubscribed Email", "Marked Email as Spam", "Placed Order"}, time.Now().AddDate(0, 0, -90), time.Now())
-			return printJSONFiltered(cmd.OutOrStdout(), map[string]any{"id": id, "window_days": 90, "metrics": rows}, flags)
+			return printJSONFiltered(cmd.OutOrStdout(), map[string]any{"window_days": 90, "metrics": rows}, flags)
 		},
 	}
-	cmd.Flags().StringVar(&id, "id", "", "Flow or campaign email ID")
 	return cmd
 }
 
