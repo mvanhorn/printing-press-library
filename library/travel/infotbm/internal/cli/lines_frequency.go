@@ -245,7 +245,11 @@ func extractVehicleJourneys(data json.RawMessage, out *[]map[string]any) {
 		return
 	}
 
-	// Recurse into known container keys
+	// Recurse into known container keys. Break after the first key that
+	// yields results to avoid double-counting when sibling envelope keys
+	// (e.g. "EstimatedJourneyVersionFrame" and "EstimatedVehicleJourney")
+	// both appear at the same level and contain overlapping journey data.
+	before := len(*out)
 	for _, key := range []string{
 		"Siri", "ServiceDelivery", "EstimatedTimetableDelivery",
 		"EstimatedJourneyVersionFrame", "EstimatedVehicleJourney",
@@ -254,6 +258,9 @@ func extractVehicleJourneys(data json.RawMessage, out *[]map[string]any) {
 	} {
 		if inner, ok := obj[key]; ok {
 			extractVehicleJourneys(inner, out)
+			if len(*out) > before {
+				break
+			}
 		}
 	}
 

@@ -40,7 +40,7 @@ relying on schedule queries. Requires a prior 'sync --full' run.`,
 				return cmd.Help()
 			}
 			if dryRunOK(flags) {
-				fmt.Fprintln(cmd.OutOrStdout(), "would compare synced GTFS snapshots to detect schedule changes")
+				fmt.Fprintln(cmd.OutOrStdout(), "would check sync freshness and list current routes within the requested time window")
 				return nil
 			}
 			if flagSince == "" {
