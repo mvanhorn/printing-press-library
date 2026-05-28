@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"html"
 	"sort"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
@@ -46,7 +47,10 @@ func newYoutubeVideosCommentsCmd(flags *rootFlags) *cobra.Command {
 			if len(args) == 0 {
 				return cmd.Help()
 			}
-			videoID := args[0]
+			videoID := parseVideoID(strings.TrimSpace(args[0]))
+			if videoID == "" {
+				return usageErr(fmt.Errorf("could not extract a video ID from %q", args[0]))
+			}
 
 			if top <= 0 {
 				return usageErr(fmt.Errorf("--top must be > 0"))

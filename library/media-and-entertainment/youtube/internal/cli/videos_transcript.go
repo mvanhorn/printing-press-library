@@ -115,7 +115,10 @@ func newYoutubeVideosTranscriptCmd(flags *rootFlags) *cobra.Command {
 			if len(args) == 0 {
 				return cmd.Help()
 			}
-			videoID := args[0]
+			videoID := parseVideoID(strings.TrimSpace(args[0]))
+			if videoID == "" {
+				return usageErr(fmt.Errorf("could not extract a video ID from %q", args[0]))
+			}
 
 			if dryRunOK(flags) {
 				fmt.Fprintf(cmd.ErrOrStderr(), "POST https://www.youtube.com/youtubei/v1/player (videoId=%s)\n", videoID)
