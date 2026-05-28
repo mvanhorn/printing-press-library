@@ -457,17 +457,14 @@ func buildSubsSection(db *sql.DB, fromTS, toTS int64) (digestSubs, error) {
 		}
 		if status == "active" || status == "trialing" {
 			// subscriptionMonthlyMRR returns (total monthly-normalized minor
-			// units, primary currency code, per-currency breakdown for
-			// multi-item subs with mixed currencies). Accumulate per-currency
-			// so the markdown renderer can show an honest breakdown instead
-			// of a single label that misrepresents non-USD merchants.
-			m, cur, perCur := subscriptionMonthlyMRR(raw)
+			// units, primary currency code, per-PRODUCT breakdown). The third
+			// return value is NOT per-currency — it's keyed by product ID —
+			// so accumulate using `cur` only. (Subscriptions in Stripe are
+			// settlement-currency-uniform across items; mixed-currency items
+			// inside a single subscription are not a real Stripe shape.)
+			m, cur, _ := subscriptionMonthlyMRR(raw)
 			mrr += m
-			if len(perCur) > 0 {
-				for c, v := range perCur {
-					byCurrency[normalizeCurrencyCode(c)] += v
-				}
-			} else if cur != "" {
+			if cur != "" {
 				byCurrency[normalizeCurrencyCode(cur)] += m
 			}
 		}
