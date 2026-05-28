@@ -28,6 +28,23 @@
       "files": [
         "internal/cli/auth.go"
       ]
+    },
+    {
+      "id": "exclude-mutation-from-default-sync",
+      "summary": "Removed message-mark-all-as-read from the default sync resource list.",
+      "reason": "Greptile P1: it maps to a GET mutation; default sync would error on the write gate or mark the inbox read as a side effect.",
+      "files": [
+        "internal/cli/sync.go"
+      ]
+    },
+    {
+      "id": "store-list-unbounded-limit",
+      "summary": "store.List treats negative limit as unbounded; data_source passes -1 for the full dataset.",
+      "reason": "db.List(...,0) clamped to 200, silently truncating full-read callers to 200 rows.",
+      "files": [
+        "internal/store/store.go",
+        "internal/cli/data_source.go"
+      ]
     }
   ]
 }

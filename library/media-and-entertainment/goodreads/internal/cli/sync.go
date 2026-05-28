@@ -1047,7 +1047,11 @@ func defaultSyncResources() []string {
 		"friend-requests",
 		"genres",
 		"message",
-		"message-mark-all-as-read",
+		// "message-mark-all-as-read" is intentionally excluded: it is an
+		// account mutation (GET /message/mark_all_as_read) that the write gate
+		// blocks, so syncing it by default would either error or, with writes
+		// enabled, mark the whole inbox read as a side effect of a read-only
+		// sync.
 		"notifications",
 		"opensearch-xml",
 		"quotes",
