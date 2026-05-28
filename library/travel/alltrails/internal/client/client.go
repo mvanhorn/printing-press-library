@@ -850,6 +850,12 @@ func (c *Client) maskCredentialText(text string, extraCredentials ...string) str
 	if c != nil && c.Config != nil {
 		addCredential(c.Config.AuthHeaderVal)
 		addCredential(c.Config.AuthHeader())
+		// Cookie and x-csrftoken live in Config.Headers, not AuthHeaderVal, so
+		// they must also be masked — otherwise cookie-based sessions leak the
+		// raw values into APIError.Body, dry-run output, and displayed URLs.
+		for _, value := range c.Config.Headers {
+			addCredential(value)
+		}
 	}
 	sort.SliceStable(masks, func(i, j int) bool {
 		return len(masks[i].needle) > len(masks[j].needle)
