@@ -180,6 +180,36 @@ func TestLookup_MalformedEmail(t *testing.T) {
 	}
 }
 
+func TestLookup_PhotoEndpointError_ProfileStillEmitted(t *testing.T) {
+	// Photo endpoint returns 500; the profile was already fetched and must
+	// still be emitted (P1 regression guard: a photo failure must not
+	// discard the profile).
+	srv := lookupTestServer(t, 200, lookupProfileFixture, 500, nil)
+	defer srv.Close()
+	configPath, tokenStorePath := withConfigPath(t)
+	seedSendStore(t, tokenStorePath, "user@example.com", "gid-001")
+	writeConfigPointingAt(t, configPath, srv.URL, "user@example.com")
+
+	out := filepath.Join(t.TempDir(), "ada.jpg")
+	stdout, stderr, err := executeCmd(t, "--config", configPath, "--json", "lookup", "ada@example.com", "--photo", out)
+	if err != nil {
+		t.Fatalf("photo endpoint failure must be non-fatal, got: %v", err)
+	}
+	var prof contactProfile
+	if jerr := json.Unmarshal([]byte(stdout), &prof); jerr != nil {
+		t.Fatalf("profile must still be emitted on stdout: %v\n%s", jerr, stdout)
+	}
+	if prof.Name != "Ada Lovelace" {
+		t.Errorf("name = %q want Ada Lovelace (profile discarded?)", prof.Name)
+	}
+	if !strings.Contains(stderr, "could not download photo") {
+		t.Errorf("expected photo-failure warning on stderr, got %q", stderr)
+	}
+	if _, statErr := os.Stat(out); statErr == nil {
+		t.Errorf("no file should be written when the photo fetch failed")
+	}
+}
+
 func TestLookup_ProfileServerError(t *testing.T) {
 	srv := lookupTestServer(t, 500, "", 404, nil)
 	defer srv.Close()

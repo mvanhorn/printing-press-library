@@ -120,34 +120,42 @@ func runLookup(cmd *cobra.Command, flags *rootFlags, c *client.Client, email, ph
 		prof.Email = email
 	}
 
-	// Photo download is a side effect reported on stderr so stdout stays a
-	// clean profile payload for piping.
-	if photoPath != "" {
-		if err := downloadContactPhoto(cmd, c, email, photoPath); err != nil {
+	// Emit the profile before attempting the optional photo so a photo
+	// failure can never discard the profile the user asked for. Photo
+	// status is reported on stderr, keeping stdout a clean profile payload.
+	if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
+		if err := printJSONFiltered(cmd.OutOrStdout(), prof, flags); err != nil {
 			return err
 		}
+	} else if err := printContactCard(cmd, prof); err != nil {
+		return err
 	}
 
-	if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
-		return printJSONFiltered(cmd.OutOrStdout(), prof, flags)
+	if photoPath != "" {
+		return downloadContactPhoto(cmd, c, email, photoPath)
 	}
-	return printContactCard(cmd, prof)
+	return nil
 }
 
-// downloadContactPhoto writes the contact's JPEG to path. A 404 means the
-// contact has no photo on file; that is reported and treated as success.
+// downloadContactPhoto writes the contact's JPEG to path. The photo is an
+// optional artifact: any failure to FETCH it (404, auth, 5xx, transport) is
+// reported on stderr and treated as non-fatal so the already-emitted profile
+// is never invalidated by a photo problem. Only a local WRITE failure is
+// returned as a hard error, since that is the caller's filesystem and worth
+// a non-zero exit.
 func downloadContactPhoto(cmd *cobra.Command, c *client.Client, email, path string) error {
 	photo, err := c.Get("/contact/"+url.PathEscape(email)+"/photo", nil)
 	if err != nil {
 		var apiE *client.APIError
-		if errors.As(err, &apiE) && apiE.StatusCode == 404 {
+		switch {
+		case errors.As(err, &apiE) && apiE.StatusCode == 404:
 			fmt.Fprintf(cmd.ErrOrStderr(), "no photo on file for %s\n", email)
-			return nil
+		case errors.Is(err, auth.ErrUnauthorized):
+			fmt.Fprintf(cmd.ErrOrStderr(), "could not download photo for %s: not authorized\n", email)
+		default:
+			fmt.Fprintf(cmd.ErrOrStderr(), "could not download photo for %s: %v\n", email, err)
 		}
-		if errors.Is(err, auth.ErrUnauthorized) {
-			return authErr(fmt.Errorf("lookup --photo: %w", err))
-		}
-		return apiErr(fmt.Errorf("lookup --photo: fetch photo for %s: %w", email, err))
+		return nil
 	}
 	if len(photo) == 0 {
 		fmt.Fprintf(cmd.ErrOrStderr(), "no photo on file for %s\n", email)
