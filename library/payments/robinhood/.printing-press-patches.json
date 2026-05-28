@@ -47,6 +47,23 @@
         "internal/cli/analytics.go",
         "internal/cli/data_source.go"
       ]
+    },
+    {
+      "id": "brokerage-execute-rate-limit",
+      "summary": "brokeragemap.Execute wires cliutil.NewAdaptiveLimiter (Wait/OnSuccess/OnRateLimit) around its HTTP call.",
+      "reason": "Greptile P2: Execute used a plain http.Client with no per-second cap, unlike client.go's AdaptiveLimiter, so brokerage execute in a loop could hit Robinhood's rate limiter with no back-off.",
+      "files": [
+        "internal/brokeragemap/route_map.go"
+      ]
+    },
+    {
+      "id": "brokerage-routes-runE-and-authheader-deadcode",
+      "summary": "brokerage routes RunE uses an if/else-if chain over UnifiedRoutes/BrowserRoutes/Routes, and config.AuthHeader drops a redundant second empty-token check.",
+      "reason": "Greptile P2: the routes RunE always called Routes() first and swallowed its error before overwriting the result for unified/browser; AuthHeader had a duplicate dead `if c.RobinhoodApiKey == \"\"` guard already covered by the earlier token check.",
+      "files": [
+        "internal/cli/brokerage.go",
+        "internal/config/config.go"
+      ]
     }
   ]
 }
