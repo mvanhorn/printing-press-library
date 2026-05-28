@@ -92,6 +92,37 @@
       ]
     },
     {
+      "id": "clear-graphql-token-on-logout",
+      "summary": "ClearTokens() now also zeroes Config.GraphQLToken.",
+      "reason": "Greptile P1/security: logout cleared every other credential but left the AppSync GraphQL JWT persisted in the on-disk TOML, so it survived `auth logout` and silently re-authenticated GraphQL rating mutations.",
+      "files": [
+        "internal/config/config.go"
+      ],
+      "validated_outcome": "After `auth logout`, graphql_token is absent from the config TOML (omitempty + empty)."
+    },
+    {
+      "id": "review-create-update-form-encode",
+      "summary": "review create-update now flattens the stdin JSON map into review[...] bracket-key form fields and POSTs application/x-www-form-urlencoded via PostFormWithParams, instead of sending a JSON body.",
+      "reason": "Greptile P1: the legacy Rails controller at POST /review/update/:book_id only accepts application/x-www-form-urlencoded; the JSON body sent via PostWithParams was silently ignored and nothing updated.",
+      "files": [
+        "internal/cli/review_create-update.go"
+      ],
+      "validated_outcome": "Against a local echo server the command sends Content-Type application/x-www-form-urlencoded with body authenticity_token=...&review%5Bnotes%5D=...&review%5Breview%5D=... to POST /review/update/12345."
+    },
+    {
+      "id": "authenticity-token-env-stdin",
+      "summary": "The Rails CSRF authenticity_token is resolved from the GOODREADS_AUTHENTICITY_TOKEN env var or stdin (shared helpers readAuthenticityToken / readAuthenticityTokenWithStdin); the --authenticity-token / --body... flags are deprecated and warn when used. Also taught client dryRun to print non-JSON (form) bodies.",
+      "reason": "Greptile P2: a CSRF token passed as a CLI flag leaks into shell history and the process table (ps aux), the same risk auth.go documents for credentials-as-args. Applied to review create, review create-update, and shelf create.",
+      "files": [
+        "internal/cli/helpers.go",
+        "internal/cli/review_create.go",
+        "internal/cli/review_create-update.go",
+        "internal/cli/shelf_create.go",
+        "internal/client/client.go"
+      ],
+      "validated_outcome": "review/shelf create read the token from GOODREADS_AUTHENTICITY_TOKEN with no flag; passing --authenticity-token still works but prints a deprecation warning to stderr."
+    },
+    {
       "id": "home-updates-feed",
       "summary": "Added 'feed list' reading the home UPDATES feed (friends' activity) via read-only POST /home/load_more_updates with --page pagination.",
       "reason": "The friends'-activity feed endpoint appeared in the live capture but was not wired by the generator; required by the feature list.",

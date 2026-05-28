@@ -39,11 +39,14 @@ are NOT set here — they are GraphQL-only; use 'goodreads-pp-cli rating set'.
 
 The form needs a Rails CSRF token. Load the book's review edit page
 (/review/edit/:book_id) while logged in and copy the value of the
-authenticity_token hidden input into --authenticity-token.
+authenticity_token hidden input. Supply it via the GOODREADS_AUTHENTICITY_TOKEN
+env var (preferred) or pipe it on stdin — both keep the token out of shell
+history and the process table. The --authenticity-token flag still works but is
+deprecated for that reason.
 
 Writes are gated: rerun with --dry-run to preview, or set
 GOODREADS_PP_ALLOW_WRITES=1 after explicit approval to execute.`,
-		Example:     "  goodreads-pp-cli review create 12345 --review 'Loved it' --publicize --authenticity-token \"$TOKEN\"",
+		Example:     "  GOODREADS_AUTHENTICITY_TOKEN=\"$TOKEN\" goodreads-pp-cli review create 12345 --review 'Loved it' --publicize",
 		Args:        cobra.ExactArgs(1),
 		Annotations: map[string]string{"pp:endpoint": "review.create", "pp:method": "POST", "pp:path": "/review/update/{book_id}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -57,8 +60,15 @@ GOODREADS_PP_ALLOW_WRITES=1 after explicit approval to execute.`,
 			params := map[string]string{}
 
 			fields := url.Values{}
-			if authenticityToken != "" {
-				fields.Set("authenticity_token", authenticityToken)
+			// Resolve the Rails CSRF token from env/stdin (preferred; keeps it
+			// out of shell history and ps aux) before falling back to the
+			// deprecated flag.
+			tok, err := readAuthenticityTokenWithStdin(cmd, authenticityToken)
+			if err != nil {
+				return err
+			}
+			if tok != "" {
+				fields.Set("authenticity_token", tok)
 			}
 			if reviewText != "" {
 				fields.Set("review[review]", reviewText)
@@ -196,7 +206,7 @@ GOODREADS_PP_ALLOW_WRITES=1 after explicit approval to execute.`,
 	cmd.Flags().BoolVar(&addToBlog, "add-to-blog", false, "Cross-post the review to your linked external blog")
 	cmd.Flags().StringVar(&shelf, "shelf", "", "Shelf to file the book under (shelfChooser)")
 	cmd.Flags().StringVar(&notes, "notes", "", "Private notes (review[notes]; not the public review)")
-	cmd.Flags().StringVar(&authenticityToken, "authenticity-token", "", "Rails CSRF token from /review/edit/:book_id")
+	cmd.Flags().StringVar(&authenticityToken, "authenticity-token", "", "DEPRECATED (leaks into shell history / ps aux): prefer GOODREADS_AUTHENTICITY_TOKEN env var or stdin. Rails CSRF token from /review/edit/:book_id")
 
 	return cmd
 }

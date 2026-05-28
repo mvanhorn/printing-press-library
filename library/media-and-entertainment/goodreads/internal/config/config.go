@@ -151,6 +151,10 @@ func (c *Config) ClearTokens() error {
 	c.ClientID = ""
 	c.ClientSecret = ""
 	c.GoodreadsGoodreadsCookieSession = ""
+	// The AppSync GraphQL JWT (rating writes) is a distinct on-disk credential;
+	// logout must wipe it too or it persists in the config TOML after `auth
+	// logout` and silently re-authenticates GraphQL mutations.
+	c.GraphQLToken = ""
 	return c.save()
 }
 

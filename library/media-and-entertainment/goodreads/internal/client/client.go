@@ -784,6 +784,11 @@ func (c *Client) dryRun(method, targetURL, path string, params map[string]string
 			enc.SetIndent("  ", "  ")
 			fmt.Fprintf(os.Stderr, "  Body:\n")
 			enc.Encode(pretty)
+		} else {
+			// Non-JSON bodies (application/x-www-form-urlencoded) would
+			// otherwise be silently dropped from the dry-run preview,
+			// hiding what a form POST actually sends. Print them verbatim.
+			fmt.Fprintf(os.Stderr, "  Body: %s\n", string(body))
 		}
 	}
 	if authHeader != "" {

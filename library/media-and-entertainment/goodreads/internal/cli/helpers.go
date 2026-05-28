@@ -1748,3 +1748,44 @@ func defaultDBPath(name string) string {
 	home, _ := os.UserHomeDir()
 	return filepath.Join(home, ".local", "share", name, "data.db")
 }
+
+// authenticityTokenEnv is the env var carrying the Rails CSRF token used by the
+// legacy review/shelf form POSTs.
+const authenticityTokenEnv = "GOODREADS_AUTHENTICITY_TOKEN"
+
+// readAuthenticityToken returns the Rails CSRF (authenticity_token) value from
+// the GOODREADS_AUTHENTICITY_TOKEN env var. Reading it from the environment
+// instead of a CLI flag keeps the token out of shell history and the process
+// table (ps aux) — the same leak auth.go documents for credentials-as-args.
+func readAuthenticityToken() string {
+	return strings.TrimSpace(os.Getenv(authenticityTokenEnv))
+}
+
+// readAuthenticityTokenWithStdin resolves the Rails CSRF token for commands that
+// do not otherwise consume stdin. The env var wins; if it is unset and stdin is
+// a pipe (not a terminal), the trimmed stdin contents are used. A flag value, if
+// supplied, is accepted last and emits a deprecation warning since CLI flags leak
+// the token into shell history / ps aux.
+func readAuthenticityTokenWithStdin(cmd *cobra.Command, flagValue string) (string, error) {
+	if tok := readAuthenticityToken(); tok != "" {
+		return tok, nil
+	}
+	in := cmd.InOrStdin()
+	// Only drain stdin when it is a pipe/redirect, never an interactive
+	// terminal (which would block waiting for input). isTerminal reports false
+	// for any reader that is not an *os.File char device.
+	if w, ok := in.(io.Writer); !ok || !isTerminal(w) {
+		data, err := io.ReadAll(in)
+		if err != nil {
+			return "", fmt.Errorf("reading authenticity token from stdin: %w", err)
+		}
+		if tok := strings.TrimSpace(string(data)); tok != "" {
+			return tok, nil
+		}
+	}
+	if flagValue != "" {
+		fmt.Fprintf(cmd.ErrOrStderr(), "warning: --authenticity-token is deprecated; pass the token via the %s env var or stdin to keep it out of shell history and the process table\n", authenticityTokenEnv)
+		return strings.TrimSpace(flagValue), nil
+	}
+	return "", nil
+}

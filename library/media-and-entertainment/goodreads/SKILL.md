@@ -138,8 +138,8 @@ Ratings are written through the modern Goodreads AWS AppSync GraphQL API (`RateB
 
 **review** — Read and write reviews; plan bookshelf/review table actions
 
-- `goodreads-pp-cli review create <book_id>` — Write/update a review for a book (`--review`, `--spoiler`, `--publicize`, `--add-to-blog`, `--shelf`, `--notes`, `--authenticity-token`). Posts the legacy `/review/update/:book_id` form. Star ratings are GraphQL-only — use `rating set`.
-- `goodreads-pp-cli review create-update` — Inline review/date/notes field update for one book.
+- `goodreads-pp-cli review create <book_id>` — Write/update a review for a book (`--review`, `--spoiler`, `--publicize`, `--add-to-blog`, `--shelf`, `--notes`). Posts the legacy `/review/update/:book_id` form (form-urlencoded). The Rails CSRF token comes from the `GOODREADS_AUTHENTICITY_TOKEN` env var or stdin (the `--authenticity-token` flag is deprecated — it leaks into shell history / `ps aux`). Star ratings are GraphQL-only — use `rating set`.
+- `goodreads-pp-cli review create-update <book_id> --stdin` — Inline review/date/notes field update for one book. Pipe a JSON object of Rails review form fields (e.g. `{"review[review]":"..."}`); sent form-urlencoded to `/review/update/:book_id`. CSRF token via `GOODREADS_AUTHENTICITY_TOKEN`.
 - `goodreads-pp-cli review create-updatelist` — Batch update selected reviews/books on a user's shelf table.
 - `goodreads-pp-cli review get` — Bookshelf list for a user, optionally filtered by shelf.
 - `goodreads-pp-cli review get-listrss` — This public XML route is the cleanest current read API for shelf exports.
@@ -218,6 +218,10 @@ The `rating set` / `rating clear` commands write through the modern Goodreads AW
 4. `export GOODREADS_GRAPHQL_TOKEN='<that value>'`
 
 The session cookie alone cannot authenticate GraphQL. A mint-from-cookie endpoint was not observed in the live capture, so the env var is the supported path. All other commands (reads, the legacy review form, shelf writes) use only the session cookie.
+
+### Rails CSRF token (review / shelf form writes)
+
+The legacy form writes (`review create`, `review create-update`, `shelf create`) need a Rails CSRF `authenticity_token` from the relevant edit page (e.g. the hidden `authenticity_token` input on `/review/edit/:book_id`). Supply it via the `GOODREADS_AUTHENTICITY_TOKEN` env var (preferred) or pipe it on stdin — both keep it out of shell history and the process table (`ps aux`). The `--authenticity-token` flag still works but is deprecated for that reason.
 
 ## Agent Mode
 
