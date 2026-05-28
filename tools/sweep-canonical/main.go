@@ -59,6 +59,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"io/fs"
 	"log"
 	"os"
 	"os/exec"
@@ -69,9 +70,51 @@ import (
 )
 
 type manifest struct {
-	CLIName   string `json:"cli_name"`
-	APIName   string `json:"api_name"`
-	OwnerName string `json:"owner_name"`
+	CLIName     string `json:"cli_name"`
+	APIName     string `json:"api_name"`
+	OwnerName   string `json:"owner_name"`
+	Owner       string `json:"owner"`
+	Printer     string `json:"printer"`
+	PrinterName string `json:"printer_name"`
+}
+
+// person is one credited human in the creator + contributors attribution
+// model. Mirrors the generator's spec.Person: Handle is the slug-safe GitHub
+// @handle that drives path/regex surfaces (copyright header recovery, byline
+// links); Name is the prose display name (README byline parenthetical, NOTICE,
+// SKILL author:). The JSON tags match the generator's emission so a swept
+// manifest is byte-identical to a fresh print for the same identity.
+type person struct {
+	Handle string `json:"handle,omitempty"`
+	Name   string `json:"name,omitempty"`
+}
+
+// resolveCreator derives the permanent creator from a legacy manifest, matching
+// the generator's resolution (New() seeds creator from printer, then owner):
+//
+//   - Handle ← printer → owner.
+//   - Name   ← curated cliAuthorByAPIName → printer_name → owner_name → handle.
+//
+// The curated map is consulted first for Name because it is the source of truth
+// for the existing published CLIs' display names (see AGENTS.md); legacy
+// printer_name/owner_name are often handle-shaped for newer entries, and the
+// handle is the last-resort so a byline link always has a label.
+func resolveCreator(mf manifest) person {
+	handle := mf.Printer
+	if handle == "" {
+		handle = mf.Owner
+	}
+	name := cliAuthorByAPIName[mf.APIName]
+	if name == "" {
+		name = mf.PrinterName
+	}
+	if name == "" {
+		name = mf.OwnerName
+	}
+	if name == "" {
+		name = handle
+	}
+	return person{Handle: handle, Name: name}
 }
 
 // cliAuthorByAPIName is the canonical author display name for every
@@ -157,9 +200,27 @@ func main() {
 	// they're the placeholder "user"), but this flag is the belt-and-
 	// suspenders option when you don't want SKILL.md touched at all.
 	readmeOnly := false
+	// -backfill-contributors: opt-in. Computes each CLI's contributors from
+	// git history (denylist-filtered, creator-excluded), prints a
+	// human-reviewable per-CLI table, then writes contributors[] into the
+	// manifests / NOTICE / README byline. The default run (flag off) writes
+	// creator-only — the safe mechanical migration is kept separate from the
+	// judgment-heavy attribution step (see the prior misattribution scar).
+	backfill := false
+	// -attribution-only: apply ONLY the creator + contributors surfaces
+	// (manifest, .go copyright headers, NOTICE, README byline) and skip the
+	// SKILL.md and README install/Hermes/OpenClaw shape transforms. Use this
+	// for a focused attribution migration so unrelated docs-shape drift doesn't
+	// ride along in the diff.
+	attributionOnly := false
 	for _, a := range os.Args[1:] {
-		if a == "-readme-only" || a == "--readme-only" {
+		switch a {
+		case "-readme-only", "--readme-only":
 			readmeOnly = true
+		case "-backfill-contributors", "--backfill-contributors":
+			backfill = true
+		case "-attribution-only", "--attribution-only":
+			attributionOnly = true
 		}
 	}
 	if !readmeOnly && strings.EqualFold(os.Getenv("SWEEP_README_ONLY"), "1") {
@@ -191,10 +252,32 @@ func main() {
 	if readmeOnly {
 		fmt.Println("Running in -readme-only mode: SKILL.md files will not be touched.")
 	}
+	if attributionOnly {
+		fmt.Println("Running in -attribution-only mode: only manifest/header/NOTICE/byline are patched; SKILL.md and README install/Hermes shape are left untouched.")
+	}
+
+	// Contributor backfill (opt-in): compute + surface the per-CLI table
+	// BEFORE any mutation, so the attribution can be reviewed.
+	contribByDir := map[string][]person{}
+	if backfill {
+		unresolvedByDir := map[string][]string{}
+		for _, dir := range cliDirs {
+			mf, err := readManifestForDir(dir)
+			if err != nil {
+				continue
+			}
+			res := backfillContributors(dir, resolveCreator(mf))
+			contribByDir[dir] = res.contributors
+			if len(res.unresolved) > 0 {
+				unresolvedByDir[dir] = res.unresolved
+			}
+		}
+		printContributorTable(cliDirs, contribByDir, unresolvedByDir)
+	}
 
 	var processed, skipped, errored int
 	for _, dir := range cliDirs {
-		status, err := sweepCLI(dir, ownerName, readmeOnly)
+		status, err := sweepCLI(dir, ownerName, readmeOnly, attributionOnly, contribByDir[dir])
 		switch {
 		case err != nil:
 			fmt.Printf("  ERROR %s: %v\n", dir, err)
@@ -240,28 +323,38 @@ func findCLIDirs(libraryRoot string) ([]string, error) {
 	return dirs, nil
 }
 
+// sweepStatus is the per-CLI sweep outcome. statusUnchanged means every
+// surface was already at canonical shape; any other value is a human-readable
+// summary of what changed (e.g. "42 files").
 type sweepStatus string
 
-const (
-	statusUnchanged  sweepStatus = "unchanged" // both files already at canonical shape
-	statusSkillOnly  sweepStatus = "skill-only"
-	statusReadmeOnly sweepStatus = "readme-only"
-	statusBoth       sweepStatus = "both"
-)
+const statusUnchanged sweepStatus = "unchanged"
 
 const minimumGoVersion = "Go 1.26.3 or newer"
 
-// sweepCLI applies the canonical shape to one library/<cat>/<api>/. The
-// snapshot-restore guarantees: on any error from patchSkill or patchReadme,
-// every file we wrote so far for this CLI is restored from its snapshot
-// before the function returns. Unchanged files are not touched.
+// sweepCLI applies the canonical shape to one library/<cat>/<api>/. It patches
+// SKILL.md (canonical docs shape) and README.md (install + alternate-install
+// blocks + byline), and migrates the attribution surfaces to the creator +
+// contributors model: the manifest, every generated .go copyright header, the
+// NOTICE, and the README byline. All pending writes are collected first; on any
+// write failure every file already written for this CLI is rolled back from its
+// in-memory snapshot before returning.
 //
-// readmeOnly skips SKILL.md patching entirely. See main() for when
-// callers set this.
-func sweepCLI(cliDir, ownerName string, readmeOnly bool) (sweepStatus, error) {
+// readmeOnly skips SKILL.md patching entirely (see main()). The attribution
+// surfaces derive entirely from the manifest, not the operator's identity, so
+// they run regardless of readmeOnly.
+//
+// contributors is the per-CLI list computed by -backfill-contributors (empty in
+// the default run, which writes creator-only).
+//
+// attributionOnly applies only the attribution surfaces (manifest, headers,
+// NOTICE, README byline) and skips the SKILL.md and README install/Hermes shape
+// transforms — see main().
+func sweepCLI(cliDir, ownerName string, readmeOnly, attributionOnly bool, contributors []person) (sweepStatus, error) {
 	skillPath := filepath.Join(cliDir, "SKILL.md")
 	readmePath := filepath.Join(cliDir, "README.md")
 	manifestPath := filepath.Join(cliDir, ".printing-press.json")
+	noticePath := filepath.Join(cliDir, "NOTICE")
 
 	mfData, err := os.ReadFile(manifestPath)
 	if err != nil {
@@ -276,7 +369,7 @@ func sweepCLI(cliDir, ownerName string, readmeOnly bool) (sweepStatus, error) {
 	}
 
 	// Authority for category: directory path. The manifest's category
-	// field is omitempty and missing in 35 of 49 legacy manifests, so
+	// field is omitempty and missing in many legacy manifests, so
 	// trusting the on-disk location is more reliable.
 	category := filepath.Base(filepath.Dir(cliDir))
 	if category == "" {
@@ -289,10 +382,10 @@ func sweepCLI(cliDir, ownerName string, readmeOnly bool) (sweepStatus, error) {
 	// preserved unconditionally.
 	//
 	//  1. cliAuthorByAPIName — the curated per-CLI mapping; the source
-	//     of truth for the existing 49 published CLIs. Honors actual
+	//     of truth for the existing published CLIs. Honors actual
 	//     authorship rather than guessing from git history.
-	//  2. Manifest's owner_name — set by future fresh prints (R5 in
-	//     the upstream plan). Lets a regen preserve attribution.
+	//  2. Manifest's owner_name — set by future fresh prints. Lets a
+	//     regen preserve attribution.
 	//  3. Operator's git config user.name — last-resort fallback for
 	//     a new CLI added to the library without an entry in the map
 	//     above.
@@ -304,20 +397,20 @@ func sweepCLI(cliDir, ownerName string, readmeOnly bool) (sweepStatus, error) {
 		authorName = ownerName
 	}
 
-	readmeBefore, err := os.ReadFile(readmePath)
-	if err != nil {
-		return statusUnchanged, fmt.Errorf("read README.md: %w", err)
-	}
+	// The permanent creator drives every attribution surface. Resolved from
+	// the legacy manifest fields (printer/owner + curated name).
+	creator := resolveCreator(mf)
 
-	var skillBefore []byte
-	var skillAfter string
-	var skillChanged bool
-	if !readmeOnly {
-		skillBefore, err = os.ReadFile(skillPath)
+	var edits []fileEdit
+
+	// SKILL.md (canonical docs shape) — skipped in readme-only and
+	// attribution-only modes.
+	if !readmeOnly && !attributionOnly {
+		skillBefore, err := os.ReadFile(skillPath)
 		if err != nil {
 			return statusUnchanged, fmt.Errorf("read SKILL.md: %w", err)
 		}
-		skillAfter, err = patchSkill(string(skillBefore), patchSkillCtx{
+		skillAfter, err := patchSkill(string(skillBefore), patchSkillCtx{
 			CLIName:    mf.CLIName,
 			APIName:    mf.APIName,
 			Category:   category,
@@ -326,68 +419,76 @@ func sweepCLI(cliDir, ownerName string, readmeOnly bool) (sweepStatus, error) {
 		if err != nil {
 			return statusUnchanged, fmt.Errorf("patch SKILL.md: %w", err)
 		}
-		skillChanged = skillAfter != string(skillBefore)
+		if skillAfter != string(skillBefore) {
+			edits = append(edits, fileEdit{skillPath, skillBefore, []byte(skillAfter)})
+		}
 	}
 
+	// README.md (install/alternate-install/byline).
+	readmeBefore, err := os.ReadFile(readmePath)
+	if err != nil {
+		return statusUnchanged, fmt.Errorf("read README.md: %w", err)
+	}
 	readmeAfter, err := patchReadme(string(readmeBefore), patchReadmeCtx{
-		CLIName:  mf.CLIName,
-		APIName:  mf.APIName,
-		Category: category,
+		CLIName:      mf.CLIName,
+		APIName:      mf.APIName,
+		Category:     category,
+		Creator:      creator,
+		Contributors: contributors,
+		BylineOnly:   attributionOnly,
 	})
 	if err != nil {
 		return statusUnchanged, fmt.Errorf("patch README.md: %w", err)
 	}
+	if readmeAfter != string(readmeBefore) {
+		edits = append(edits, fileEdit{readmePath, readmeBefore, []byte(readmeAfter)})
+	}
 
-	readmeChanged := readmeAfter != string(readmeBefore)
-	if !skillChanged && !readmeChanged {
+	// Manifest: insert creator (+ contributors). Validate it stays parseable
+	// JSON before queuing the write.
+	if manifestAfter, changed := patchManifest(string(mfData), creator, contributors); changed {
+		if !json.Valid([]byte(manifestAfter)) {
+			return statusUnchanged, fmt.Errorf("patched manifest is not valid JSON")
+		}
+		edits = append(edits, fileEdit{manifestPath, mfData, []byte(manifestAfter)})
+	}
+
+	// NOTICE (not every CLI ships one).
+	if noticeBefore, err := os.ReadFile(noticePath); err == nil {
+		if noticeAfter, changed := patchNOTICE(string(noticeBefore), creator, contributors); changed {
+			edits = append(edits, fileEdit{noticePath, noticeBefore, []byte(noticeAfter)})
+		}
+	} else if !os.IsNotExist(err) {
+		return statusUnchanged, fmt.Errorf("read NOTICE: %w", err)
+	}
+
+	// Copyright headers across every generated .go (display name + constant
+	// " and contributors" suffix).
+	headerEdits, err := patchCopyrightHeaders(cliDir, creator.Name)
+	if err != nil {
+		return statusUnchanged, fmt.Errorf("scan copyright headers: %w", err)
+	}
+	edits = append(edits, headerEdits...)
+
+	if len(edits) == 0 {
 		return statusUnchanged, nil
 	}
 
-	// Snapshot-restore: track which files we've written so we can roll
-	// back on later failures within this CLI's patch set.
-	var written []struct {
-		path   string
-		before []byte
-	}
-	defer func() {
-		// no-op on success path; the named return below clears this on success
-	}()
-	rollback := func() {
-		for _, w := range written {
-			if rerr := os.WriteFile(w.path, w.before, 0o644); rerr != nil {
-				fmt.Printf("    WARN restore %s failed: %v\n", w.path, rerr)
+	// Write all edits, rolling back already-written files on any failure.
+	var written []fileEdit
+	for _, e := range edits {
+		if err := os.WriteFile(e.path, e.after, 0o644); err != nil {
+			for _, w := range written {
+				if rerr := os.WriteFile(w.path, w.before, 0o644); rerr != nil {
+					fmt.Printf("    WARN restore %s failed: %v\n", w.path, rerr)
+				}
 			}
+			return statusUnchanged, fmt.Errorf("write %s: %w", e.path, err)
 		}
+		written = append(written, e)
 	}
 
-	if skillChanged {
-		if err := os.WriteFile(skillPath, []byte(skillAfter), 0o644); err != nil {
-			return statusUnchanged, fmt.Errorf("write SKILL.md: %w", err)
-		}
-		written = append(written, struct {
-			path   string
-			before []byte
-		}{skillPath, skillBefore})
-	}
-	if readmeChanged {
-		if err := os.WriteFile(readmePath, []byte(readmeAfter), 0o644); err != nil {
-			rollback()
-			return statusUnchanged, fmt.Errorf("write README.md: %w", err)
-		}
-		written = append(written, struct {
-			path   string
-			before []byte
-		}{readmePath, readmeBefore})
-	}
-
-	switch {
-	case skillChanged && readmeChanged:
-		return statusBoth, nil
-	case skillChanged:
-		return statusSkillOnly, nil
-	default:
-		return statusReadmeOnly, nil
-	}
+	return sweepStatus(fmt.Sprintf("%d files", len(edits))), nil
 }
 
 type patchSkillCtx struct {
@@ -727,9 +828,12 @@ func patchSkillReferences(body string, cliName string) string {
 }
 
 type patchReadmeCtx struct {
-	CLIName  string
-	APIName  string
-	Category string
+	CLIName      string
+	APIName      string
+	Category     string
+	Creator      person   // drives the `Created by` byline (empty Handle = skip byline)
+	Contributors []person // drives the optional `Contributors:` byline line
+	BylineOnly   bool     // attribution-only mode: patch the byline, skip install/Hermes shape
 }
 
 // patchReadme applies the canonical README shape:
@@ -742,8 +846,11 @@ type patchReadmeCtx struct {
 //
 // Both steps are idempotent in the second-run-zero-diff sense.
 func patchReadme(body string, ctx patchReadmeCtx) (string, error) {
-	body = patchReadmeInstall(body, ctx)
-	body = patchReadmeHermesOpenClaw(body, ctx)
+	if !ctx.BylineOnly {
+		body = patchReadmeInstall(body, ctx)
+		body = patchReadmeHermesOpenClaw(body, ctx)
+	}
+	body = patchReadmeByline(body, ctx.Creator, ctx.Contributors)
 	return body, nil
 }
 
@@ -1031,4 +1138,537 @@ func buildReadmeInstallSections(ctx patchReadmeCtx) string {
 		"```\n\n",
 		ctx.APIName, ctx.APIName, ctx.APIName, ctx.APIName,
 	)
+}
+
+// ---------------------------------------------------------------------------
+// creator + contributors attribution model (issue #900)
+//
+// Migrates published CLIs from the legacy owner/printer attribution to the
+// generator's creator + contributors model (cli-printing-press branch
+// tmchow/Nautilus-3). The target shapes below are pinned from that branch's
+// templates, not invented:
+//
+//   - manifest .printing-press.json: add `creator {handle,name}` (+ optional
+//     `contributors[]`) right after cli_name, matching the CLIManifest struct
+//     field order; legacy owner/printer/printer_name are preserved as the
+//     dual-write (creator is derived from them, so they stay consistent).
+//   - every generated .go: `// Copyright YYYY <slug>.` → `// Copyright YYYY
+//     <creator name> and contributors.` (constant suffix regardless of count).
+//   - README byline: `Printed by [@h](…) (Name).` → `Created by [@h](…)
+//     (Name).` plus an optional `Contributors:` line.
+//   - NOTICE: copyright-holder line, a per-CLI Created by / Contributors block,
+//     and the machine-author credit `by Matt Van Horn and Trevin Chow`.
+//
+// Every function is idempotent in the second-run-zero-diff sense.
+// ---------------------------------------------------------------------------
+
+// fileEdit is one pending write: the resolved path plus before/after bytes.
+// Collected across every surface so sweepCLI can write them atomically-ish and
+// roll back all of a CLI's edits if any single write fails.
+type fileEdit struct {
+	path   string
+	before []byte
+	after  []byte
+}
+
+// jsonString renders s as a JSON string literal (quoted, escaped), so emitted
+// manifest values are valid JSON rather than Go-quoted (the two diverge on
+// some Unicode, though display names here are ASCII).
+func jsonString(s string) string {
+	b, _ := json.Marshal(s)
+	return string(b)
+}
+
+// personFields renders a person's handle/name as indented JSON object fields
+// (omitempty, handle before name), without the enclosing braces. Matches
+// json.MarshalIndent output for spec.Person at the given field indent.
+func personFields(p person, indent string) string {
+	var fields []string
+	if p.Handle != "" {
+		fields = append(fields, indent+jsonString("handle")+": "+jsonString(p.Handle))
+	}
+	if p.Name != "" {
+		fields = append(fields, indent+jsonString("name")+": "+jsonString(p.Name))
+	}
+	return strings.Join(fields, ",\n") + "\n"
+}
+
+// renderCreatorBlock renders the `"creator": { … },` object at the manifest's
+// top-level indent (base), with a trailing comma since fields follow it. Nested
+// fields sit one indent unit deeper (base+base), matching json.MarshalIndent.
+func renderCreatorBlock(p person, base string) string {
+	return base + "\"creator\": {\n" + personFields(p, base+base) + base + "},\n"
+}
+
+// renderContributorsBlock renders the `"contributors": [ … ],` array at the
+// manifest's top-level indent (base), with a trailing comma since legacy fields
+// follow it.
+func renderContributorsBlock(cs []person, base string) string {
+	item := base + base       // array-element brace indent
+	field := base + base + base // person-field indent
+	var b strings.Builder
+	b.WriteString(base + "\"contributors\": [\n")
+	for i, c := range cs {
+		b.WriteString(item + "{\n")
+		b.WriteString(personFields(c, field))
+		if i < len(cs)-1 {
+			b.WriteString(item + "},\n")
+		} else {
+			b.WriteString(item + "}\n")
+		}
+	}
+	b.WriteString(base + "],\n")
+	return b.String()
+}
+
+// manifestIndent returns the leading whitespace of the top-level `cli_name`
+// line — the manifest's indent unit. Most manifests use 2 spaces; a few use 4.
+// Returns "" when cli_name can't be located at line start.
+func manifestIndent(raw string) string {
+	re := regexp.MustCompile(`(?m)^([ \t]+)"cli_name":`)
+	m := re.FindStringSubmatch(raw)
+	if m == nil {
+		return ""
+	}
+	return m[1]
+}
+
+// hasTopLevelManifestKey reports whether the manifest already carries the named
+// top-level key at the given indent. Nested person keys sit deeper, so the
+// `\n<base>"key"` probe never matches a nested handle/name.
+func hasTopLevelManifestKey(raw, base, key string) bool {
+	return strings.Contains(raw, "\n"+base+jsonString(key)+":")
+}
+
+// patchManifest inserts the creator (and, when non-empty, contributors) JSON
+// blocks into a raw .printing-press.json, immediately after the cli_name line,
+// matching the generator's field order and the manifest's own indent width.
+// Idempotent: an existing top-level `creator` key is left untouched;
+// contributors are inserted only when the key is absent (so a re-run after a
+// manual backfill edit never duplicates).
+func patchManifest(raw string, creator person, contributors []person) (string, bool) {
+	base := manifestIndent(raw)
+	if base == "" {
+		return raw, false
+	}
+	changed := false
+	if !hasTopLevelManifestKey(raw, base, "creator") {
+		if out, ok := insertAfterCLINameLine(raw, renderCreatorBlock(creator, base)); ok {
+			raw = out
+			changed = true
+		}
+	}
+	if len(contributors) > 0 && !hasTopLevelManifestKey(raw, base, "contributors") {
+		if out, ok := insertAfterCreatorBlock(raw, renderContributorsBlock(contributors, base), base); ok {
+			raw = out
+			changed = true
+		}
+	}
+	return raw, changed
+}
+
+// insertAfterCLINameLine inserts block right after the `"cli_name": "…",` line.
+func insertAfterCLINameLine(raw, block string) (string, bool) {
+	idx := strings.Index(raw, "\"cli_name\":")
+	if idx < 0 {
+		return raw, false
+	}
+	nl := strings.Index(raw[idx:], "\n")
+	if nl < 0 {
+		return raw, false
+	}
+	pos := idx + nl + 1 // first byte after the newline ending the cli_name line
+	return raw[:pos] + block + raw[pos:], true
+}
+
+// insertAfterCreatorBlock inserts block right after the top-level creator
+// object's closing `<base>},` line.
+func insertAfterCreatorBlock(raw, block, base string) (string, bool) {
+	idx := strings.Index(raw, base+"\"creator\": {")
+	if idx < 0 {
+		return raw, false
+	}
+	closer := "\n" + base + "},\n"
+	rel := strings.Index(raw[idx:], closer)
+	if rel < 0 {
+		return raw, false
+	}
+	pos := idx + rel + len(closer)
+	return raw[:pos] + block + raw[pos:], true
+}
+
+// copyrightHolderLineRe matches a generated copyright header, capturing the
+// `// Copyright YYYY ` prefix (1), the holder (2, non-greedy up to the first
+// `. Licensed`), and the ` Licensed under …` suffix (3). Anchored per-line so
+// `.+?`/`.*` stay within the comment.
+var copyrightHolderLineRe = regexp.MustCompile(`(?m)^(// Copyright \d+ )(.+?)\.( Licensed under .*)$`)
+
+// patchCopyrightHeaderContent rewrites the first copyright header in a .go file
+// to `<name> and contributors`, preserving the year and the `Licensed under …`
+// suffix. Idempotent: a holder already ending in " and contributors" is left
+// untouched.
+func patchCopyrightHeaderContent(content, name string) (string, bool) {
+	loc := copyrightHolderLineRe.FindStringSubmatchIndex(content)
+	if loc == nil {
+		return content, false
+	}
+	m := copyrightHolderLineRe.FindStringSubmatch(content)
+	if strings.HasSuffix(m[2], " and contributors") {
+		return content, false
+	}
+	replacement := m[1] + name + " and contributors." + m[3]
+	return content[:loc[0]] + replacement + content[loc[1]:], true
+}
+
+// patchCopyrightHeaders walks cliDir for .go files and returns the pending
+// header rewrites. Files without a copyright header (some hand-written helpers)
+// are left untouched — the sweep migrates existing headers, it does not add new
+// ones.
+func patchCopyrightHeaders(cliDir, name string) ([]fileEdit, error) {
+	var edits []fileEdit
+	err := filepath.WalkDir(cliDir, func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		if d.IsDir() || !strings.HasSuffix(path, ".go") {
+			return nil
+		}
+		before, err := os.ReadFile(path)
+		if err != nil {
+			return err
+		}
+		after, changed := patchCopyrightHeaderContent(string(before), name)
+		if changed {
+			edits = append(edits, fileEdit{path: path, before: before, after: []byte(after)})
+		}
+		return nil
+	})
+	return edits, err
+}
+
+// personLabel renders `<Name> (@<handle>)` (or `(@<handle>)` when nameless),
+// matching the NOTICE template's `{{if .Name}}{{.Name}} {{end}}(@{{.Handle}})`.
+func personLabel(p person) string {
+	if p.Name != "" {
+		return p.Name + " (@" + p.Handle + ")"
+	}
+	return "(@" + p.Handle + ")"
+}
+
+// githubLink renders the README byline link `[@h](https://github.com/h) (Name)`
+// (parenthetical omitted when nameless), matching readme.md.tmpl.
+func githubLink(p person) string {
+	s := "[@" + p.Handle + "](https://github.com/" + p.Handle + ")"
+	if p.Name != "" {
+		s += " (" + p.Name + ")"
+	}
+	return s
+}
+
+// renderByline builds the canonical README byline: a `Created by …` line and,
+// when contributors exist, a following `Contributors: …` line (no blank line
+// between them — matches the template).
+func renderByline(creator person, contributors []person) string {
+	line := "Created by " + githubLink(creator) + "."
+	if len(contributors) > 0 {
+		parts := make([]string, len(contributors))
+		for i, c := range contributors {
+			parts[i] = githubLink(c)
+		}
+		line += "\nContributors: " + strings.Join(parts, ", ") + "."
+	}
+	return line
+}
+
+// existingBylineRe matches an existing byline line — legacy `Printed by` or
+// already-migrated `Created by` — anchored on the `[@` markdown link so it
+// never matches stray prose.
+var existingBylineRe = regexp.MustCompile(`(?m)^(Printed|Created) by \[@[^\n]*$`)
+
+// patchReadmeByline replaces an existing byline (and any immediately following
+// `Contributors:` line) with the canonical creator + contributors byline; when
+// no byline exists it injects one just before `## Install` (where the template
+// places it). Idempotent: re-emits identical content on a second run. A
+// handle-less creator yields no byline (a link needs a handle) and READMEs
+// without a `## Install` anchor are left untouched.
+func patchReadmeByline(body string, creator person, contributors []person) string {
+	if creator.Handle == "" {
+		return body
+	}
+	canonical := renderByline(creator, contributors)
+
+	if loc := existingBylineRe.FindStringIndex(body); loc != nil {
+		end := loc[1]
+		if rest := body[end:]; strings.HasPrefix(rest, "\nContributors: ") {
+			if nl := strings.Index(rest[1:], "\n"); nl < 0 {
+				end = len(body)
+			} else {
+				end = end + 1 + nl
+			}
+		}
+		return body[:loc[0]] + canonical + body[end:]
+	}
+
+	const installHeading = "## Install\n"
+	idx := strings.Index(body, installHeading)
+	if idx < 0 {
+		return body
+	}
+	return body[:idx] + canonical + "\n\n" + body[idx:]
+}
+
+// noticeCopyrightRe matches the NOTICE copyright-holder line (`Copyright YYYY
+// <holder>`), capturing the year (1) and holder (2).
+var noticeCopyrightRe = regexp.MustCompile(`(?m)^Copyright (\d+) (.+)$`)
+
+// patchNOTICE applies the three NOTICE edits: rewrite the copyright-holder line
+// to `<creator name> and contributors`, insert the per-CLI Created by /
+// Contributors block before the machine-credit paragraph, and update the
+// machine-author credit to `by Matt Van Horn and Trevin Chow`. Idempotent via
+// per-edit presence/suffix guards.
+func patchNOTICE(content string, creator person, contributors []person) (string, bool) {
+	orig := content
+	content = patchNoticeCopyrightLine(content, creator.Name)
+	content = insertNoticeAttributionBlock(content, creator, contributors)
+	content = patchNoticeMachineAuthor(content)
+	return content, content != orig
+}
+
+// patchNoticeCopyrightLine rewrites the first `Copyright YYYY <holder>` line to
+// `<name> and contributors`, preserving the year. No-op when already migrated.
+func patchNoticeCopyrightLine(content, name string) string {
+	loc := noticeCopyrightRe.FindStringSubmatchIndex(content)
+	if loc == nil {
+		return content
+	}
+	m := noticeCopyrightRe.FindStringSubmatch(content)
+	if strings.HasSuffix(m[2], " and contributors") {
+		return content
+	}
+	replacement := "Copyright " + m[1] + " " + name + " and contributors"
+	return content[:loc[0]] + replacement + content[loc[1]:]
+}
+
+// insertNoticeAttributionBlock inserts the per-CLI `Created by …` (+ optional
+// `Contributors:` list) block between the copyright line and the machine-credit
+// paragraph. No-op when a `Created by ` block already exists.
+func insertNoticeAttributionBlock(content string, creator person, contributors []person) string {
+	if strings.Contains(content, "\nCreated by ") {
+		return content
+	}
+	const marker = "\nThis CLI was generated"
+	idx := strings.Index(content, marker)
+	if idx < 0 {
+		return content
+	}
+	var block strings.Builder
+	block.WriteString("Created by " + personLabel(creator) + ".\n")
+	if len(contributors) > 0 {
+		block.WriteString("Contributors:\n")
+		for _, c := range contributors {
+			block.WriteString("  - " + personLabel(c) + "\n")
+		}
+	}
+	return content[:idx] + "\n" + block.String() + content[idx:]
+}
+
+// patchNoticeMachineAuthor updates the Press machine-author credit from
+// `by Matt Van Horn.` to `by Matt Van Horn and Trevin Chow.`. No-op when the
+// dual credit is already present.
+func patchNoticeMachineAuthor(content string) string {
+	if strings.Contains(content, "by Matt Van Horn and Trevin Chow") {
+		return content
+	}
+	return strings.Replace(content, "by Matt Van Horn.", "by Matt Van Horn and Trevin Chow.", 1)
+}
+
+// ---------------------------------------------------------------------------
+// contributor backfill (-backfill-contributors)
+//
+// Computes each CLI's contributors from `git log` over its library directory,
+// excluding the creator and a bot/regen/rename/sweep denylist, and surfaces a
+// human-reviewable table before any write. Mirrors the prior authorship-sweep
+// scar: never claim others' work, and treat anything we can't confidently map
+// to a GitHub handle as "unresolved" for human review rather than guessing.
+// ---------------------------------------------------------------------------
+
+// readManifestForDir decodes a CLI directory's .printing-press.json into the
+// fields the sweep needs. Used by main() to resolve the creator for the
+// contributor table (sweepCLI re-reads it independently for the actual writes).
+func readManifestForDir(cliDir string) (manifest, error) {
+	data, err := os.ReadFile(filepath.Join(cliDir, ".printing-press.json"))
+	if err != nil {
+		return manifest{}, err
+	}
+	var mf manifest
+	if err := json.Unmarshal(data, &mf); err != nil {
+		return manifest{}, err
+	}
+	return mf, nil
+}
+
+// backfillResult holds a CLI's resolved contributors plus the authors we could
+// not confidently map to a handle (surfaced for human review, never written).
+type backfillResult struct {
+	contributors []person
+	unresolved   []string // "Name <email>" entries with no resolvable handle
+}
+
+// knownHandleByName maps the maintainers who realistically appear as cross-CLI
+// contributors to their handles, for the case where a commit's author email is
+// not a GitHub noreply address. Deliberately tiny — anyone not here whose email
+// isn't a noreply address is reported as unresolved rather than guessed.
+var knownHandleByName = map[string]string{
+	"Matt Van Horn": "mvanhorn",
+	"Trevin Chow":   "tmchow",
+}
+
+// landingOnlyHandles are identities whose git presence across a CLI directory
+// reflects repository maintenance — landing PRs, applying cross-cutting fixes,
+// running retrofits — rather than authorship of that specific CLI. Crediting
+// them as a "contributor" on nearly the whole catalog would dilute the signal
+// and misrepresent maintenance as authorship (the prior misattribution scar).
+// tmchow is the library's primary maintainer/landing identity: a naive git-log
+// backfill credits them on ~154 of 155 CLIs. They are excluded from contributor
+// backfill (this never affects creator, which is resolved from the manifest).
+// Keyed by lowercased handle.
+var landingOnlyHandles = map[string]bool{
+	"tmchow": true,
+}
+
+// denylistSubjectRe matches commit subjects that are automation/regen/rename/
+// sweep noise rather than substantive contribution to a CLI.
+var denylistSubjectRe = regexp.MustCompile(`(?i)(chore\(registry\)|chore\(skills\)|fix\(skills\)|fix\(verify-skill\)|chore\(catalog\)|\[skip ci\]|sweep|canonical shape|retrofit|\brename\b|\bmove\b|relocat)`)
+
+// isDenylistedSubject reports whether a commit subject is automation noise.
+func isDenylistedSubject(subject string) bool {
+	return denylistSubjectRe.MatchString(subject)
+}
+
+// isDenylistedAuthor reports whether a commit author is a bot/automation
+// identity that should never be credited as a contributor.
+func isDenylistedAuthor(name, email string) bool {
+	l := strings.ToLower(name + " " + email)
+	for _, bad := range []string{"[bot]", "github-actions", "actions-user", "dependabot"} {
+		if strings.Contains(l, bad) {
+			return true
+		}
+	}
+	return false
+}
+
+// handleFromEmail extracts a GitHub handle from a noreply commit email
+// (`12345+user@users.noreply.github.com` or `user@users.noreply.github.com`).
+// Returns "" for any non-noreply address — we never guess a handle from a
+// vanity email local-part.
+func handleFromEmail(email string) string {
+	const suffix = "@users.noreply.github.com"
+	if !strings.HasSuffix(email, suffix) {
+		return ""
+	}
+	local := strings.TrimSuffix(email, suffix)
+	if i := strings.Index(local, "+"); i >= 0 {
+		local = local[i+1:]
+	}
+	return local
+}
+
+// backfillContributors computes a CLI's contributors from git history. Commits
+// are read newest-first (so the most recent contributor leads, approximating
+// reprinter-first), denylist-filtered, deduped by handle, and the creator is
+// excluded by handle or name. Authors with no resolvable handle are returned as
+// unresolved for human review, never as contributors.
+func backfillContributors(cliDir string, creator person) backfillResult {
+	out, err := exec.Command("git", "log", "--no-merges",
+		"--format=%an%x1f%ae%x1f%s", "--", cliDir).Output()
+	if err != nil {
+		return backfillResult{}
+	}
+
+	var res backfillResult
+	seenHandle := map[string]bool{}
+	seenUnresolved := map[string]bool{}
+
+	for line := range strings.SplitSeq(strings.TrimRight(string(out), "\n"), "\n") {
+		if line == "" {
+			continue
+		}
+		parts := strings.SplitN(line, "\x1f", 3)
+		if len(parts) < 3 {
+			continue
+		}
+		name, email, subject := parts[0], parts[1], parts[2]
+		if isDenylistedAuthor(name, email) || isDenylistedSubject(subject) {
+			continue
+		}
+
+		handle := handleFromEmail(email)
+		if handle == "" {
+			handle = knownHandleByName[name]
+		}
+		if handle == "" {
+			note := name + " <" + email + ">"
+			if !seenUnresolved[note] {
+				seenUnresolved[note] = true
+				res.unresolved = append(res.unresolved, note)
+			}
+			continue
+		}
+
+		// The creator is credited separately and is never a contributor.
+		if strings.EqualFold(handle, creator.Handle) || strings.EqualFold(name, creator.Name) {
+			continue
+		}
+
+		key := strings.ToLower(handle)
+		// Skip maintenance/landing-only identities (see landingOnlyHandles).
+		if landingOnlyHandles[key] {
+			continue
+		}
+		if seenHandle[key] {
+			continue
+		}
+		seenHandle[key] = true
+		res.contributors = append(res.contributors, person{Handle: handle, Name: name})
+	}
+	return res
+}
+
+// printContributorTable prints a markdown table of the backfilled contributors
+// per CLI, plus any unresolved authors, to stdout — the review surface required
+// before contributors are written.
+func printContributorTable(dirs []string, byDir map[string][]person, unresolvedByDir map[string][]string) {
+	fmt.Println("\n=== Contributor backfill — review before these are written ===")
+	fmt.Println()
+	fmt.Println("| CLI | Contributors (backfilled from git history) |")
+	fmt.Println("|-----|---------------------------------------------|")
+	any := false
+	for _, dir := range dirs {
+		cs := byDir[dir]
+		if len(cs) == 0 {
+			continue
+		}
+		any = true
+		labels := make([]string, len(cs))
+		for i, c := range cs {
+			labels[i] = personLabel(c)
+		}
+		fmt.Printf("| %s | %s |\n", filepath.Base(dir), strings.Join(labels, ", "))
+	}
+	if !any {
+		fmt.Println("| (none) | no contributors found beyond the creator |")
+	}
+
+	var unresolvedDirs []string
+	for dir := range unresolvedByDir {
+		unresolvedDirs = append(unresolvedDirs, dir)
+	}
+	if len(unresolvedDirs) > 0 {
+		sort.Strings(unresolvedDirs)
+		fmt.Println("\nUnresolved authors (no GitHub handle — NOT written, review manually):")
+		for _, dir := range unresolvedDirs {
+			fmt.Printf("  %s: %s\n", filepath.Base(dir), strings.Join(unresolvedByDir[dir], "; "))
+		}
+	}
+	fmt.Println()
 }

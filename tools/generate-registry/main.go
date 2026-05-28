@@ -84,8 +84,24 @@ type RegistryEntry struct {
 	// Sourced from .printing-press.json's `printer_name` field. Empty
 	// values are valid; the per-CLI README byline renders without a
 	// parenthetical and the catalog row renders only the @handle.
-	PrinterName string    `json:"printer_name,omitempty"`
-	MCP         *MCPBlock `json:"mcp,omitempty"`
+	PrinterName string `json:"printer_name,omitempty"`
+	// Creator is the permanent original author (handle + display name),
+	// sourced from .printing-press.json's `creator` object. It supersedes
+	// the legacy printer/printer_name fields, which are still emitted during
+	// the dual-write transition window so older consumers keep working.
+	Creator *Person `json:"creator,omitempty"`
+	// Contributors accrue as others improve a CLI (reprinter first), sourced
+	// from .printing-press.json's `contributors` array.
+	Contributors []Person  `json:"contributors,omitempty"`
+	MCP          *MCPBlock `json:"mcp,omitempty"`
+}
+
+// Person is one credited human (creator or contributor): a slug-safe GitHub
+// @handle plus a prose display name. Mirrors the generator's spec.Person and
+// the .printing-press.json shape.
+type Person struct {
+	Handle string `json:"handle,omitempty"`
+	Name   string `json:"name,omitempty"`
 }
 
 // MCPBlock matches the on-disk shape of registry.json's mcp object.
@@ -119,6 +135,8 @@ type printingPressManifest struct {
 	APIName            string   `json:"api_name"`
 	DisplayName        string   `json:"display_name"`
 	Description        string   `json:"description"`
+	Creator            *Person  `json:"creator"`
+	Contributors       []Person `json:"contributors"`
 	Printer            string   `json:"printer"`
 	PrinterName        string   `json:"printer_name"`
 	CLIName            string   `json:"cli_name"`
@@ -371,6 +389,11 @@ func buildEntry(dir, category, slug string, existing map[string]RegistryEntry) (
 		// emit registry entries with omitempty (no printer key).
 		Printer:     pp.Printer,
 		PrinterName: pp.PrinterName,
+		// Creator + contributors: same manifest-is-source-of-truth rule.
+		// Emitted alongside the legacy printer fields during the dual-write
+		// transition; both come straight from .printing-press.json.
+		Creator:      pp.Creator,
+		Contributors: pp.Contributors,
 	}
 
 	// Description preference: existing registry value (curated) > goreleaser

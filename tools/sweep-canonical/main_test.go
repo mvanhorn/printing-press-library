@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"strings"
 	"testing"
 )
@@ -739,5 +740,446 @@ go install github.com/mvanhorn/printing-press-library/library/other/y/cmd/y-pp-c
 	}
 	if strings.Contains(got, "library/other/y/cmd/y-pp-cli@latest") {
 		t.Errorf("legacy library/other/... path leaked through:\n%s", got)
+	}
+}
+
+// ---------------------------------------------------------------------------
+// creator + contributors attribution model (issue #900)
+// ---------------------------------------------------------------------------
+
+func TestResolveCreator_FieldMapping(t *testing.T) {
+	cases := []struct {
+		name string
+		mf   manifest
+		want person
+	}{
+		{
+			name: "printer + curated name wins",
+			mf:   manifest{APIName: "cal-com", Printer: "tmchow", PrinterName: "ignored"},
+			want: person{Handle: "tmchow", Name: "Trevin Chow"}, // curated map
+		},
+		{
+			name: "printer_name when not in curated map",
+			mf:   manifest{APIName: "newcli", Printer: "horknfbr", PrinterName: "Horknfbr"},
+			want: person{Handle: "horknfbr", Name: "Horknfbr"},
+		},
+		{
+			name: "owner fallback for handle, owner_name for name",
+			mf:   manifest{APIName: "newcli", Owner: "octo", OwnerName: "Octo Cat"},
+			want: person{Handle: "octo", Name: "Octo Cat"},
+		},
+		{
+			name: "handle as last-resort name",
+			mf:   manifest{APIName: "newcli", Printer: "solo"},
+			want: person{Handle: "solo", Name: "solo"},
+		},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			if got := resolveCreator(tc.mf); got != tc.want {
+				t.Errorf("resolveCreator() = %+v, want %+v", got, tc.want)
+			}
+		})
+	}
+}
+
+func TestPatchManifest_InsertsCreatorAfterCLIName(t *testing.T) {
+	raw := `{
+  "schema_version": 1,
+  "cli_name": "cal-com-pp-cli",
+  "printer": "tmchow",
+  "printer_name": "Trevin Chow"
+}`
+	want := `{
+  "schema_version": 1,
+  "cli_name": "cal-com-pp-cli",
+  "creator": {
+    "handle": "tmchow",
+    "name": "Trevin Chow"
+  },
+  "printer": "tmchow",
+  "printer_name": "Trevin Chow"
+}`
+	got, changed := patchManifest(raw, person{Handle: "tmchow", Name: "Trevin Chow"}, nil)
+	if !changed {
+		t.Fatal("expected changed=true")
+	}
+	if got != want {
+		t.Errorf("manifest mismatch.\n--- want ---\n%s\n--- got ---\n%s", want, got)
+	}
+	if !json.Valid([]byte(got)) {
+		t.Errorf("patched manifest is not valid JSON:\n%s", got)
+	}
+	// Dual-write parity: legacy fields preserved verbatim.
+	if !strings.Contains(got, `"printer": "tmchow"`) || !strings.Contains(got, `"printer_name": "Trevin Chow"`) {
+		t.Errorf("legacy printer fields not preserved:\n%s", got)
+	}
+}
+
+func TestPatchManifest_FourSpaceIndent(t *testing.T) {
+	// A few manifests (e.g. podscan) use 4-space JSON indentation; the
+	// inserted block must match the manifest's own indent width.
+	raw := `{
+    "schema_version": 1,
+    "cli_name": "podscan-pp-cli",
+    "owner": "gregvanhorn",
+    "printer": "gregvanhorn",
+    "printer_name": "Greg Van Horn"
+}`
+	want := `{
+    "schema_version": 1,
+    "cli_name": "podscan-pp-cli",
+    "creator": {
+        "handle": "gregvanhorn",
+        "name": "Greg Van Horn"
+    },
+    "owner": "gregvanhorn",
+    "printer": "gregvanhorn",
+    "printer_name": "Greg Van Horn"
+}`
+	got, changed := patchManifest(raw, person{Handle: "gregvanhorn", Name: "Greg Van Horn"}, nil)
+	if !changed || got != want {
+		t.Errorf("4-space manifest mismatch.\n--- want ---\n%s\n--- got ---\n%s", want, got)
+	}
+	if !json.Valid([]byte(got)) {
+		t.Errorf("not valid JSON:\n%s", got)
+	}
+}
+
+func TestPatchManifest_Idempotent(t *testing.T) {
+	raw := `{
+  "schema_version": 1,
+  "cli_name": "x-pp-cli",
+  "owner": "octo"
+}`
+	creator := person{Handle: "octo", Name: "Octo Cat"}
+	first, changed := patchManifest(raw, creator, nil)
+	if !changed {
+		t.Fatal("expected first run to change")
+	}
+	second, changedAgain := patchManifest(first, creator, nil)
+	if changedAgain {
+		t.Errorf("second run must be a no-op (creator already present)")
+	}
+	if second != first {
+		t.Errorf("second run produced a diff:\n--- first ---\n%s\n--- second ---\n%s", first, second)
+	}
+}
+
+func TestPatchManifest_InsertsContributorsAfterCreator(t *testing.T) {
+	// Run 1 (default): creator only. Run 2 (backfill): adds contributors.
+	raw := `{
+  "cli_name": "x-pp-cli",
+  "printer": "tmchow"
+}`
+	creator := person{Handle: "tmchow", Name: "Trevin Chow"}
+	withCreator, _ := patchManifest(raw, creator, nil)
+	contribs := []person{{Handle: "mvanhorn", Name: "Matt Van Horn"}}
+	got, changed := patchManifest(withCreator, creator, contribs)
+	if !changed {
+		t.Fatal("expected contributors insertion to change the manifest")
+	}
+	want := `{
+  "cli_name": "x-pp-cli",
+  "creator": {
+    "handle": "tmchow",
+    "name": "Trevin Chow"
+  },
+  "contributors": [
+    {
+      "handle": "mvanhorn",
+      "name": "Matt Van Horn"
+    }
+  ],
+  "printer": "tmchow"
+}`
+	if got != want {
+		t.Errorf("manifest mismatch.\n--- want ---\n%s\n--- got ---\n%s", want, got)
+	}
+	if !json.Valid([]byte(got)) {
+		t.Errorf("not valid JSON:\n%s", got)
+	}
+	// Idempotent on a third run.
+	third, changedAgain := patchManifest(got, creator, contribs)
+	if changedAgain || third != got {
+		t.Errorf("contributor insertion not idempotent")
+	}
+}
+
+func TestPatchManifest_DualWriteParityWithFreshPrint(t *testing.T) {
+	// The creator/contributors blocks the sweep inserts must be byte-identical
+	// to what the generator's json.MarshalIndent("", "  ") emits for the same
+	// spec.Person values — otherwise a swept manifest diverges from a fresh
+	// print of the same identity.
+	creator := person{Handle: "tmchow", Name: "Trevin Chow"}
+	contribs := []person{{Handle: "mvanhorn", Name: "Matt Van Horn"}}
+
+	type freshPersonsBlock struct {
+		Creator      person   `json:"creator"`
+		Contributors []person `json:"contributors"`
+	}
+	freshBytes, err := json.MarshalIndent(freshPersonsBlock{Creator: creator, Contributors: contribs}, "", "  ")
+	if err != nil {
+		t.Fatal(err)
+	}
+	fresh := string(freshBytes)
+
+	// The generator nests these under the top-level object, so the creator
+	// object's fields land at 4-space indent and the array items at 6 — the
+	// exact indentation renderCreatorBlock / renderContributorsBlock emit.
+	if !strings.Contains(fresh, "  \"creator\": {\n    \"handle\": \"tmchow\",\n    \"name\": \"Trevin Chow\"\n  }") {
+		t.Errorf("fresh-print creator shape unexpected:\n%s", fresh)
+	}
+	gotCreator := renderCreatorBlock(creator, "  ")
+	if !strings.Contains(fresh, strings.TrimSuffix(gotCreator, ",\n")) {
+		t.Errorf("sweep creator block does not match fresh print.\nsweep:\n%s\nfresh:\n%s", gotCreator, fresh)
+	}
+	gotContribs := renderContributorsBlock(contribs, "  ")
+	if !strings.Contains(fresh, strings.TrimSuffix(gotContribs, ",\n")) {
+		t.Errorf("sweep contributors block does not match fresh print.\nsweep:\n%s\nfresh:\n%s", gotContribs, fresh)
+	}
+}
+
+func TestPatchCopyrightHeaderContent(t *testing.T) {
+	cases := []struct {
+		name    string
+		in      string
+		want    string
+		changed bool
+	}{
+		{
+			name:    "main shape with See LICENSE",
+			in:      "// Copyright 2026 trevin-chow. Licensed under Apache-2.0. See LICENSE.",
+			want:    "// Copyright 2026 Trevin Chow and contributors. Licensed under Apache-2.0. See LICENSE.",
+			changed: true,
+		},
+		{
+			name:    "short shape without See LICENSE",
+			in:      "// Copyright 2026 horknfbr. Licensed under Apache-2.0.",
+			want:    "// Copyright 2026 Trevin Chow and contributors. Licensed under Apache-2.0.",
+			changed: true,
+		},
+		{
+			name:    "already migrated is a no-op",
+			in:      "// Copyright 2026 Trevin Chow and contributors. Licensed under Apache-2.0. See LICENSE.",
+			want:    "// Copyright 2026 Trevin Chow and contributors. Licensed under Apache-2.0. See LICENSE.",
+			changed: false,
+		},
+		{
+			name:    "no copyright header is a no-op",
+			in:      "package main\n\nfunc main() {}",
+			want:    "package main\n\nfunc main() {}",
+			changed: false,
+		},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			got, changed := patchCopyrightHeaderContent(tc.in, "Trevin Chow")
+			if changed != tc.changed {
+				t.Errorf("changed = %v, want %v", changed, tc.changed)
+			}
+			if got != tc.want {
+				t.Errorf("\nwant: %q\ngot:  %q", tc.want, got)
+			}
+		})
+	}
+}
+
+func TestPatchCopyrightHeaderContent_HeaderNotOnFirstLine(t *testing.T) {
+	// Some templates put the header below a //go:build tag.
+	in := "//go:build linux\n\n// Copyright 2024 octo. Licensed under Apache-2.0. See LICENSE.\n\npackage cli"
+	want := "//go:build linux\n\n// Copyright 2024 Octo Cat and contributors. Licensed under Apache-2.0. See LICENSE.\n\npackage cli"
+	got, changed := patchCopyrightHeaderContent(in, "Octo Cat")
+	if !changed || got != want {
+		t.Errorf("\nwant: %q\ngot:  %q", want, got)
+	}
+	// Year preserved.
+	if !strings.Contains(got, "Copyright 2024 ") {
+		t.Errorf("year not preserved: %q", got)
+	}
+}
+
+func TestPatchNOTICE_SoloCreator(t *testing.T) {
+	in := `cal-com-pp-cli
+Copyright 2026 trevin-chow
+
+This CLI was generated by CLI Printing Press (https://github.com/mvanhorn/cli-printing-press)
+by Matt Van Horn. The Non-Obvious Insight, domain archetype detection, workflow commands,
+and behavioral insight commands were produced by the printing press's creative vision engine.
+
+CLI Printing Press is licensed separately under the MIT License.
+`
+	want := `cal-com-pp-cli
+Copyright 2026 Trevin Chow and contributors
+
+Created by Trevin Chow (@tmchow).
+
+This CLI was generated by CLI Printing Press (https://github.com/mvanhorn/cli-printing-press)
+by Matt Van Horn and Trevin Chow. The Non-Obvious Insight, domain archetype detection, workflow commands,
+and behavioral insight commands were produced by the printing press's creative vision engine.
+
+CLI Printing Press is licensed separately under the MIT License.
+`
+	got, changed := patchNOTICE(in, person{Handle: "tmchow", Name: "Trevin Chow"}, nil)
+	if !changed {
+		t.Fatal("expected changed=true")
+	}
+	if got != want {
+		t.Errorf("NOTICE mismatch.\n--- want ---\n%q\n--- got ---\n%q", want, got)
+	}
+	// Idempotent.
+	second, changedAgain := patchNOTICE(got, person{Handle: "tmchow", Name: "Trevin Chow"}, nil)
+	if changedAgain || second != got {
+		t.Errorf("second run not idempotent:\n%q", second)
+	}
+}
+
+func TestPatchNOTICE_WithContributors(t *testing.T) {
+	in := `x-pp-cli
+Copyright 2026 octo
+
+This CLI was generated by CLI Printing Press (https://github.com/mvanhorn/cli-printing-press)
+by Matt Van Horn. rest.
+`
+	got, _ := patchNOTICE(in,
+		person{Handle: "octo", Name: "Octo Cat"},
+		[]person{{Handle: "mvanhorn", Name: "Matt Van Horn"}, {Handle: "handleonly"}},
+	)
+	if !strings.Contains(got, "Created by Octo Cat (@octo).\nContributors:\n  - Matt Van Horn (@mvanhorn)\n  - (@handleonly)\n\nThis CLI") {
+		t.Errorf("contributor block shape wrong:\n%q", got)
+	}
+	if !strings.Contains(got, "by Matt Van Horn and Trevin Chow.") {
+		t.Errorf("machine-author line not updated:\n%q", got)
+	}
+}
+
+func TestPatchReadmeByline_RewritesPrintedBy(t *testing.T) {
+	body := `# Printify CLI
+
+Some prose.
+
+Printed by [@horknfbr](https://github.com/horknfbr) (horknfbr).
+
+## Install
+
+stuff.
+`
+	got := patchReadmeByline(body, person{Handle: "horknfbr", Name: "Horknfbr"}, nil)
+	if !strings.Contains(got, "Created by [@horknfbr](https://github.com/horknfbr) (Horknfbr).") {
+		t.Errorf("byline not rewritten to Created by:\n%s", got)
+	}
+	if strings.Contains(got, "Printed by") {
+		t.Errorf("legacy 'Printed by' still present:\n%s", got)
+	}
+	// Idempotent.
+	if again := patchReadmeByline(got, person{Handle: "horknfbr", Name: "Horknfbr"}, nil); again != got {
+		t.Errorf("second run produced a diff:\n%s", again)
+	}
+}
+
+func TestPatchReadmeByline_AddsContributorsLine(t *testing.T) {
+	body := "# X\n\nPrinted by [@tmchow](https://github.com/tmchow) (Trevin Chow).\n\n## Install\n"
+	got := patchReadmeByline(body,
+		person{Handle: "tmchow", Name: "Trevin Chow"},
+		[]person{{Handle: "mvanhorn", Name: "Matt Van Horn"}},
+	)
+	want := "Created by [@tmchow](https://github.com/tmchow) (Trevin Chow).\nContributors: [@mvanhorn](https://github.com/mvanhorn) (Matt Van Horn)."
+	if !strings.Contains(got, want) {
+		t.Errorf("contributors byline line missing:\n%s", got)
+	}
+}
+
+func TestPatchReadmeByline_InjectsWhenAbsent(t *testing.T) {
+	body := "# Cal.com CLI\n\nLearn more at [Cal.com](https://cal.com).\n\n## Install\n\nstuff.\n"
+	got := patchReadmeByline(body, person{Handle: "tmchow", Name: "Trevin Chow"}, nil)
+	want := "Learn more at [Cal.com](https://cal.com).\n\nCreated by [@tmchow](https://github.com/tmchow) (Trevin Chow).\n\n## Install\n"
+	if !strings.Contains(got, want) {
+		t.Errorf("byline not injected before ## Install:\n%s", got)
+	}
+	// Idempotent: re-running finds the injected byline and re-emits it.
+	if again := patchReadmeByline(got, person{Handle: "tmchow", Name: "Trevin Chow"}, nil); again != got {
+		t.Errorf("injection not idempotent:\n%s", again)
+	}
+}
+
+func TestPatchReadmeByline_NoOpWhenNoInstallAndNoByline(t *testing.T) {
+	body := "# agent-capture\n\n## Quick Start\n\nstuff.\n"
+	if got := patchReadmeByline(body, person{Handle: "mvanhorn", Name: "Matt Van Horn"}, nil); got != body {
+		t.Errorf("expected no-op without a byline or ## Install anchor:\n%s", got)
+	}
+}
+
+func TestPatchReadmeByline_NoHandleNoByline(t *testing.T) {
+	body := "# X\n\n## Install\n"
+	if got := patchReadmeByline(body, person{Name: "Nameless"}, nil); got != body {
+		t.Errorf("a handle-less creator must not produce a byline (link needs a handle):\n%s", got)
+	}
+}
+
+func TestBackfillDenylists(t *testing.T) {
+	denySubjects := []string{
+		"chore(registry): regenerate from library/",
+		"chore(skills): regenerate per-app skills",
+		"fix(skills): mirror drift",
+		"feat(library): sweep canonical shape across catalog",
+		"chore: retrofit attribution [skip ci]",
+		"refactor: rename espn to espn-sports",
+		"chore: move dominos to commerce",
+	}
+	for _, s := range denySubjects {
+		if !isDenylistedSubject(s) {
+			t.Errorf("expected subject to be denylisted: %q", s)
+		}
+	}
+	keepSubjects := []string{
+		"fix(cal-com): correct pagination cursor",
+		"feat(espn): add box score command",
+		"docs(printify): improve README", // 'improve' must not trip \bmove\b
+	}
+	for _, s := range keepSubjects {
+		if isDenylistedSubject(s) {
+			t.Errorf("subject should NOT be denylisted: %q", s)
+		}
+	}
+
+	denyAuthors := [][2]string{
+		{"github-actions[bot]", "actions@github.com"},
+		{"dependabot[bot]", "support@github.com"},
+		{"GitHub Actions", "github-actions@users.noreply.github.com"},
+	}
+	for _, a := range denyAuthors {
+		if !isDenylistedAuthor(a[0], a[1]) {
+			t.Errorf("expected author to be denylisted: %q <%s>", a[0], a[1])
+		}
+	}
+	if isDenylistedAuthor("Trevin Chow", "tmchow@users.noreply.github.com") {
+		t.Error("a real author must not be denylisted")
+	}
+}
+
+func TestLandingOnlyHandlesExcluded(t *testing.T) {
+	// The maintainer's landing/fix identity must be in the landing-only
+	// denylist so the backfill never credits them as a per-CLI contributor.
+	if !landingOnlyHandles["tmchow"] {
+		t.Error("expected tmchow in landingOnlyHandles (primary maintainer/landing identity)")
+	}
+	// mvanhorn is NOT landing-only — it appears on only a handful of CLIs, so
+	// where it shows up the contribution is treated as genuine.
+	if landingOnlyHandles["mvanhorn"] {
+		t.Error("mvanhorn should not be landing-only excluded")
+	}
+}
+
+func TestHandleFromEmail(t *testing.T) {
+	cases := map[string]string{
+		"12345+octocat@users.noreply.github.com": "octocat",
+		"octocat@users.noreply.github.com":       "octocat",
+		"someone@gmail.com":                      "", // never guess from a vanity address
+		"":                                       "",
+	}
+	for email, want := range cases {
+		if got := handleFromEmail(email); got != want {
+			t.Errorf("handleFromEmail(%q) = %q, want %q", email, got, want)
+		}
 	}
 }
