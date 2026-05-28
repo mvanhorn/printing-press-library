@@ -50,19 +50,19 @@ func newDomainsRecordsReplaceTypeCmd(flags *rootFlags) *cobra.Command {
 			path = replacePathParam(path, "domain", args[0])
 			path = replacePathParam(path, "type", fmt.Sprintf("%v", flagType))
 			params := map[string]string{}
-			var body map[string]any
+			var body any
 			if stdinBody {
 				stdinData, err := io.ReadAll(os.Stdin)
 				if err != nil {
 					return fmt.Errorf("reading stdin: %w", err)
 				}
-				var jsonBody map[string]any
+				var jsonBody []any
 				if err := json.Unmarshal(stdinData, &jsonBody); err != nil {
 					return fmt.Errorf("parsing stdin JSON: %w", err)
 				}
 				body = jsonBody
 			} else {
-				body = map[string]any{}
+				body = []any{}
 			}
 			data, statusCode, err := c.PutWithParams(cmd.Context(), path, params, body)
 			if err != nil {

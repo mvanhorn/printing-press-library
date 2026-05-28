@@ -23,6 +23,7 @@ func newAftermarketAddExpiryListingsCmd(flags *rootFlags) *cobra.Command {
 		Annotations: map[string]string{"pp:endpoint": "aftermarket.add-expiry-listings", "pp:method": "POST", "pp:path": "/v1/aftermarket/listings/expiry"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {
+				return usageErr(fmt.Errorf("--stdin is required: pipe the expiry listings as JSON; this command has no per-field body flags"))
 			}
 			c, err := flags.newClient()
 			if err != nil {
@@ -31,19 +32,19 @@ func newAftermarketAddExpiryListingsCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/v1/aftermarket/listings/expiry"
 			params := map[string]string{}
-			var body map[string]any
+			var body any
 			if stdinBody {
 				stdinData, err := io.ReadAll(os.Stdin)
 				if err != nil {
 					return fmt.Errorf("reading stdin: %w", err)
 				}
-				var jsonBody map[string]any
+				var jsonBody []any
 				if err := json.Unmarshal(stdinData, &jsonBody); err != nil {
 					return fmt.Errorf("parsing stdin JSON: %w", err)
 				}
 				body = jsonBody
 			} else {
-				body = map[string]any{}
+				body = []any{}
 			}
 			data, statusCode, err := c.PostWithParams(cmd.Context(), path, params, body)
 			if err != nil {
