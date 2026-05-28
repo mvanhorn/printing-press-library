@@ -25,6 +25,11 @@ type Config struct {
 	ClientSecret                    string            `toml:"client_secret"`
 	Path                            string            `toml:"-"`
 	GoodreadsGoodreadsCookieSession string            `toml:"goodreads_cookie_session"`
+	// GraphQLToken is the AWS AppSync JWT the modern rating UI authenticates
+	// GraphQL writes (RateBook/UnrateBook) with. It is distinct from the
+	// session cookie. Normally supplied via GOODREADS_GRAPHQL_TOKEN; persisted
+	// here only when saved explicitly.
+	GraphQLToken string `toml:"graphql_token,omitempty"`
 }
 
 func Load(configPath string) (*Config, error) {
@@ -55,6 +60,11 @@ func Load(configPath string) (*Config, error) {
 	if v := os.Getenv("GOODREADS_GOODREADS_COOKIE_SESSION"); v != "" {
 		cfg.GoodreadsGoodreadsCookieSession = v
 		cfg.AuthSource = "env:GOODREADS_GOODREADS_COOKIE_SESSION"
+	}
+	// AppSync GraphQL JWT (RateBook/UnrateBook). Distinct credential from the
+	// session cookie; the env var wins over any persisted value.
+	if v := os.Getenv("GOODREADS_GRAPHQL_TOKEN"); v != "" {
+		cfg.GraphQLToken = v
 	}
 
 	// Label config-file-derived credentials so doctor can distinguish

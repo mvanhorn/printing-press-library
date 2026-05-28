@@ -70,6 +70,53 @@
         "internal/cli/message_create.go",
         "internal/cli/review_create-updatelist.go"
       ]
+    },
+    {
+      "id": "graphql-client-rating",
+      "summary": "Added Client.GraphQL targeting the AWS AppSync endpoint with Authorization-header (JWT) auth, plus GOODREADS_GRAPHQL_TOKEN env/config wiring; new 'rating set'/'rating clear' commands fire RateBook/UnrateBook.",
+      "reason": "Live capture (2026-05-28) proved star ratings are GraphQL-only on the modern UI; the generator had no GraphQL path and no rating command. This is the core correctness gap that deferred PR #894.",
+      "files": [
+        "internal/client/client.go",
+        "internal/config/config.go",
+        "internal/cli/rating.go",
+        "internal/cli/root.go"
+      ],
+      "validated_outcome": "rating set --dry-run posts {operationName:RateBook, variables.input.rating} to the appsync-api host with an Authorization header; live writes gated by GOODREADS_PP_ALLOW_WRITES."
+    },
+    {
+      "id": "review-write-form-rewire",
+      "summary": "Rewired 'review create' from the dead /review/update_session_shelf_settings route to the legacy POST /review/update/:book_id form with named flags (--review, --spoiler, --publicize, --add-to-blog, --shelf, --notes, --authenticity-token).",
+      "reason": "Generated command pointed at a transient shelf-table UI settings POST that does not write a review; the live capture documented the real review-write/publicize/spoiler form fields.",
+      "files": [
+        "internal/cli/review_create.go"
+      ]
+    },
+    {
+      "id": "home-updates-feed",
+      "summary": "Added 'feed list' reading the home UPDATES feed (friends' activity) via read-only POST /home/load_more_updates with --page pagination.",
+      "reason": "The friends'-activity feed endpoint appeared in the live capture but was not wired by the generator; required by the feature list.",
+      "files": [
+        "internal/cli/feed.go",
+        "internal/cli/root.go",
+        "internal/cli/which.go"
+      ]
+    },
+    {
+      "id": "giveaways",
+      "summary": "Added 'giveaway list' (GET /giveaway) and 'giveaway show <id>' (GET /giveaway/:id); scaffolded 'giveaway enter <id>' which refuses live execution and documents the missing capture.",
+      "reason": "Goodreads Giveaways surface was absent. list/show are confirmed GET pages; the enter-giveaway POST body/CSRF shape was not captured live, so enter is dry-run-only until a real submission is captured.",
+      "files": [
+        "internal/cli/giveaway.go",
+        "internal/cli/root.go",
+        "internal/cli/which.go"
+      ]
+    }
+  ],
+  "deferred_to_upstream": [
+    {
+      "id": "giveaway-enter-capture",
+      "summary": "giveaway enter needs a live capture of an actual entry submission (POST target, address/terms fields, Rails CSRF) before it can execute against the live site.",
+      "reason": "The enter-giveaway POST was not observed in the 2026-05-22/2026-05-28 network sweeps."
     }
   ]
 }

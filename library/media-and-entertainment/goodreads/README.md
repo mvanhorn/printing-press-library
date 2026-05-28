@@ -184,6 +184,12 @@ Manage comment
 
 - **`goodreads-pp-cli comment <user_slug>`** - User comments/recent posts page.
 
+### feed
+
+Read the home updates feed (friends' activity)
+
+- **`goodreads-pp-cli feed list`** - Read the home updates feed (friends' activity). Use `--page <n>` for older activity. Read-only POST to `/home/load_more_updates`.
+
 ### friend
 
 Explore Goodreads friends and friend requests
@@ -199,6 +205,14 @@ Browse Goodreads genre and shelf discovery pages
 - **`goodreads-pp-cli genres list`** - Genre index page.
 - **`goodreads-pp-cli genres list-list`** - Alphabetical genre shelves index.
 - **`goodreads-pp-cli genres list-search`** - Genre finder route.
+
+### giveaway
+
+Browse and enter Goodreads Giveaways
+
+- **`goodreads-pp-cli giveaway list`** - Browse the Goodreads Giveaways listing (`--format`, `--genre`).
+- **`goodreads-pp-cli giveaway show <giveaway_id>`** - Show one giveaway detail page.
+- **`goodreads-pp-cli giveaway enter <giveaway_id>`** - Enter a giveaway. NOT YET LIVE: the entry POST was not captured; live execution is refused, `--dry-run` previews the request.
 
 ### goodreads-web-undocumented-search
 
@@ -249,6 +263,15 @@ Read Goodreads quotes and quote widgets
 - **`goodreads-pp-cli quotes get`** - User quotes widget script.
 - **`goodreads-pp-cli quotes list`** - Current user's quotes list.
 
+### rating
+
+Set or clear your star rating for a book (GraphQL)
+
+Ratings are written through the modern Goodreads AWS AppSync GraphQL API (`RateBook` / `UnrateBook`), not a legacy form. They require a bound AppSync JWT set via `GOODREADS_GRAPHQL_TOKEN` — a different credential from the session cookie (see Configuration). Writes are gated by `--dry-run` / `GOODREADS_PP_ALLOW_WRITES=1`.
+
+- **`goodreads-pp-cli rating set <book_id> --stars <1-5>`** - Rate a book (RateBook GraphQL mutation).
+- **`goodreads-pp-cli rating clear <book_id>`** - Clear your rating (UnrateBook GraphQL mutation).
+
 ### recommendations
 
 Inspect Goodreads recommendation pages
@@ -258,9 +281,9 @@ Inspect Goodreads recommendation pages
 
 ### review
 
-Read and plan bookshelf/review table actions
+Read and write reviews; plan bookshelf/review table actions
 
-- **`goodreads-pp-cli review create`** - Update transient shelf-table UI settings in the session.
+- **`goodreads-pp-cli review create <book_id>`** - Write/update a review (`--review`, `--spoiler`, `--publicize`, `--add-to-blog`, `--shelf`, `--notes`, `--authenticity-token`). Posts the legacy `/review/update/:book_id` form. Star ratings are GraphQL-only — use `rating set`.
 - **`goodreads-pp-cli review create-update`** - Inline review/date/notes field update for one book.
 - **`goodreads-pp-cli review create-updatelist`** - Batch update selected reviews/books on a user's shelf table.
 - **`goodreads-pp-cli review get`** - Bookshelf list for a user, optionally filtered by shelf.
@@ -374,6 +397,8 @@ Environment variables:
 | Name | Kind | Required | Description |
 | --- | --- | --- | --- |
 | `GOODREADS_GOODREADS_COOKIE_SESSION` | browser cookie | Yes | Goodreads `_session_id2` cookie value from an authenticated browser session. |
+| `GOODREADS_GRAPHQL_TOKEN` | AppSync JWT | For `rating` writes only | The `Authorization` header value from a `*.appsync-api.*.amazonaws.com/graphql` request in browser DevTools. Required only for `rating set` / `rating clear`; a different credential from the session cookie. |
+| `GOODREADS_PP_ALLOW_WRITES` | flag (`1`/`true`) | For executing any write | Must be set after explicit approval to let account mutations (review writes, shelf changes, ratings) execute against the live site. Without it, writes are refused; preview with `--dry-run`. |
 
 ## Troubleshooting
 **Authentication errors (exit code 4)**

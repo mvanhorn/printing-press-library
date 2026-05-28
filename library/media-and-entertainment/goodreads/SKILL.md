@@ -67,6 +67,10 @@ Default MCP registration exposes `goodreads_search` and `goodreads_execute` for 
 
 - `goodreads-pp-cli comment <user_slug>` — User comments/recent posts page.
 
+**feed** — Read the home updates feed (friends' activity)
+
+- `goodreads-pp-cli feed list` — Read the home updates feed (friends' activity). Use `--page <n>` to walk older activity. Read-only POST to `/home/load_more_updates`.
+
 **friend** — Explore Goodreads friends and friend requests
 
 - `goodreads-pp-cli friend list` — Friends index page.
@@ -78,6 +82,12 @@ Default MCP registration exposes `goodreads_search` and `goodreads_execute` for 
 - `goodreads-pp-cli genres list` — Genre index page.
 - `goodreads-pp-cli genres list-list` — Alphabetical genre shelves index.
 - `goodreads-pp-cli genres list-search` — Genre finder route.
+
+**giveaway** — Browse and enter Goodreads Giveaways
+
+- `goodreads-pp-cli giveaway list` — Browse the Goodreads Giveaways listing (`--format`, `--genre`).
+- `goodreads-pp-cli giveaway show <giveaway_id>` — Show one giveaway detail page.
+- `goodreads-pp-cli giveaway enter <giveaway_id>` — Enter a giveaway. NOT YET LIVE: the entry POST shape was not captured; live execution is refused, `--dry-run` previews the best-known request.
 
 **goodreads-web-undocumented-search** — Manage goodreads web undocumented search
 
@@ -114,14 +124,21 @@ Default MCP registration exposes `goodreads_search` and `goodreads_execute` for 
 - `goodreads-pp-cli quotes get` — User quotes widget script.
 - `goodreads-pp-cli quotes list` — Current user's quotes list.
 
+**rating** — Set or clear your star rating for a book (GraphQL)
+
+Ratings are written through the modern Goodreads AWS AppSync GraphQL API (`RateBook` / `UnrateBook`), not a legacy form. They need a bound AppSync JWT — a different credential from the session cookie. Set it via `GOODREADS_GRAPHQL_TOKEN` (see Auth Setup). Writes are gated: `--dry-run` to preview, or `GOODREADS_PP_ALLOW_WRITES=1` after approval to execute.
+
+- `goodreads-pp-cli rating set <book_id> --stars <1-5>` — Rate a book (RateBook GraphQL mutation).
+- `goodreads-pp-cli rating clear <book_id>` — Clear your rating (UnrateBook GraphQL mutation).
+
 **recommendations** — Inspect Goodreads recommendation pages
 
 - `goodreads-pp-cli recommendations list` — Personalized recommendations page.
 - `goodreads-pp-cli recommendations list-tome` — Friends' recommendations page.
 
-**review** — Read and plan bookshelf/review table actions
+**review** — Read and write reviews; plan bookshelf/review table actions
 
-- `goodreads-pp-cli review create` — Update transient shelf-table UI settings in the session.
+- `goodreads-pp-cli review create <book_id>` — Write/update a review for a book (`--review`, `--spoiler`, `--publicize`, `--add-to-blog`, `--shelf`, `--notes`, `--authenticity-token`). Posts the legacy `/review/update/:book_id` form. Star ratings are GraphQL-only — use `rating set`.
 - `goodreads-pp-cli review create-update` — Inline review/date/notes field update for one book.
 - `goodreads-pp-cli review create-updatelist` — Batch update selected reviews/books on a user's shelf table.
 - `goodreads-pp-cli review get` — Bookshelf list for a user, optionally filtered by shelf.
@@ -190,6 +207,17 @@ Or persist it in `~/.config/goodreads-web-undocumented-pp-cli/config.toml`.
 Do not paste broad Amazon, AWS, or unrelated browser cookies.
 
 Run `goodreads-pp-cli doctor` to verify setup.
+
+### GraphQL token (rating writes only)
+
+The `rating set` / `rating clear` commands write through the modern Goodreads AWS AppSync GraphQL API, which authenticates with a bound JWT — **a separate credential from the session cookie**. To obtain it:
+
+1. Open `goodreads.com` logged in, open browser DevTools → Network.
+2. Click a rating star on any book page; find the request to `*.appsync-api.*.amazonaws.com/graphql`.
+3. Copy the value of its `Authorization` request header.
+4. `export GOODREADS_GRAPHQL_TOKEN='<that value>'`
+
+The session cookie alone cannot authenticate GraphQL. A mint-from-cookie endpoint was not observed in the live capture, so the env var is the supported path. All other commands (reads, the legacy review form, shelf writes) use only the session cookie.
 
 ## Agent Mode
 

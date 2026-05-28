@@ -295,6 +295,134 @@ func (c *Client) PostFormWithParamsAndHeaders(ctx context.Context, path string, 
 	return c.do(ctx, "POST", path, params, formRequestBody{Fields: fields}, headers)
 }
 
+// GoodreadsGraphQLEndpoint is the AWS AppSync GraphQL endpoint the modern
+// Goodreads Next.js/Apollo UI talks to (captured live 2026-05-28). Rating
+// writes (RateBook / UnrateBook) are GraphQL-only on the modern UI; the legacy
+// /review/update form does NOT carry the star rating. See
+// .manuscripts/.../research/goodreads-modern-graphql-and-writes.md.
+const GoodreadsGraphQLEndpoint = "https://kxbwmqov6jgg3daaamb744ycu4.appsync-api.us-east-1.amazonaws.com/graphql"
+
+// ErrGraphQLTokenMissing is returned when a GraphQL mutation is attempted
+// without a bound AppSync JWT.
+var ErrGraphQLTokenMissing = errors.New("goodreads graphql token missing")
+
+// graphQLRequest is the JSON body shape AppSync expects for a single op.
+type graphQLRequest struct {
+	OperationName string         `json:"operationName,omitempty"`
+	Query         string         `json:"query"`
+	Variables     map[string]any `json:"variables,omitempty"`
+}
+
+// GraphQLToken resolves the AppSync JWT used to authenticate GraphQL writes.
+// The token is a Bearer JWT minted from the logged-in browser session; it is
+// NOT the _session_id2 cookie. Obtain it from the browser DevTools Network tab
+// (the `Authorization` request header on any *.appsync-api.* /graphql call) and
+// export it as GOODREADS_GRAPHQL_TOKEN. We do not attempt to mint it from the
+// session cookie: the mint endpoint was not observed in the live capture, so an
+// env-var supplied token is the supported path.
+func (c *Client) GraphQLToken() string {
+	if v := strings.TrimSpace(os.Getenv("GOODREADS_GRAPHQL_TOKEN")); v != "" {
+		return v
+	}
+	if c.Config != nil {
+		if v := strings.TrimSpace(c.Config.GraphQLToken); v != "" {
+			return v
+		}
+	}
+	return ""
+}
+
+// GraphQL issues a GraphQL operation against the Goodreads AppSync endpoint.
+// It targets the absolute AppSync URL (not c.BaseURL), authenticates with the
+// AppSync JWT via the `Authorization` header (NOT the session cookie), and
+// honors DryRun and the verify-mode mutating-verb gate. isMutation drives the
+// verify-mode short-circuit and the GOODREADS_PP_ALLOW_WRITES approval gate so
+// RateBook/UnrateBook behave like every other account mutation in this CLI.
+func (c *Client) GraphQL(ctx context.Context, operationName, query string, variables map[string]any, isMutation bool) (json.RawMessage, int, error) {
+	// Verify-mode transport gate: a mutation must not dial out under
+	// PRINTING_PRESS_VERIFY=1 unless LIVE_HTTP=1 is also set.
+	if isMutation && cliutil.IsVerifyEnv() && !cliutil.IsVerifyLiveHTTPEnv() {
+		return verifyShortCircuitEnvelope("POST", GoodreadsGraphQLEndpoint), http.StatusOK, nil
+	}
+	// Account-mutation approval gate (mirrors do()'s isGoodreadsAccountMutation
+	// path). RateBook/UnrateBook change the account, so require --dry-run or an
+	// explicit GOODREADS_PP_ALLOW_WRITES opt-in.
+	if isMutation && !c.DryRun && !cliutil.IsVerifyEnv() && !goodreadsWritesAllowed() {
+		return nil, 0, goodreadsWriteApprovalError("POST", "graphql:"+operationName)
+	}
+
+	token := c.GraphQLToken()
+	if isMutation && token == "" && !c.DryRun {
+		return nil, 0, fmt.Errorf("%w: set GOODREADS_GRAPHQL_TOKEN to the AppSync JWT (browser DevTools Network tab -> a /graphql request -> copy the Authorization header value). The modern rating UI requires this; the session cookie alone cannot authenticate GraphQL", ErrGraphQLTokenMissing)
+	}
+
+	bodyBytes, err := json.Marshal(graphQLRequest{
+		OperationName: operationName,
+		Query:         query,
+		Variables:     variables,
+	})
+	if err != nil {
+		return nil, 0, fmt.Errorf("marshaling graphql body: %w", err)
+	}
+
+	if c.DryRun {
+		fmt.Fprintf(os.Stderr, "POST %s\n", GoodreadsGraphQLEndpoint)
+		fmt.Fprintf(os.Stderr, "  operation: %s\n", operationName)
+		var pretty json.RawMessage
+		if json.Unmarshal(bodyBytes, &pretty) == nil {
+			enc := json.NewEncoder(os.Stderr)
+			enc.SetIndent("  ", "  ")
+			fmt.Fprintf(os.Stderr, "  Body:\n")
+			_ = enc.Encode(pretty)
+		}
+		if token != "" {
+			fmt.Fprintf(os.Stderr, "  Authorization: %s\n", maskToken(token))
+		} else {
+			fmt.Fprintf(os.Stderr, "  Authorization: (GOODREADS_GRAPHQL_TOKEN not set)\n")
+		}
+		fmt.Fprintf(os.Stderr, "\n(dry run - no request sent)\n")
+		return json.RawMessage(`{"dry_run": true}`), 0, nil
+	}
+
+	c.limiter.Wait()
+	req, err := http.NewRequestWithContext(ctx, "POST", GoodreadsGraphQLEndpoint, strings.NewReader(string(bodyBytes)))
+	if err != nil {
+		return nil, 0, fmt.Errorf("creating graphql request: %w", err)
+	}
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Accept", "application/json")
+	if token != "" {
+		req.Header.Set("Authorization", token)
+	}
+
+	resp, err := c.HTTPClient.Do(req)
+	if err != nil {
+		if ctxErr := ctx.Err(); ctxErr != nil {
+			return nil, 0, ctxErr
+		}
+		return nil, 0, fmt.Errorf("POST %s: %w", GoodreadsGraphQLEndpoint, err)
+	}
+	respBody, err := io.ReadAll(resp.Body)
+	resp.Body.Close()
+	if err != nil {
+		return nil, 0, fmt.Errorf("reading graphql response: %w", err)
+	}
+	respBody = sanitizeJSONResponse(respBody)
+	if resp.StatusCode >= 400 {
+		return nil, resp.StatusCode, &APIError{
+			Method:     "POST",
+			Path:       GoodreadsGraphQLEndpoint,
+			StatusCode: resp.StatusCode,
+			Body:       truncateBody(respBody),
+		}
+	}
+	c.limiter.OnSuccess()
+	if isMutation {
+		c.invalidateCache()
+	}
+	return json.RawMessage(respBody), resp.StatusCode, nil
+}
+
 func (c *Client) Delete(ctx context.Context, path string) (json.RawMessage, int, error) {
 	return c.do(ctx, "DELETE", path, nil, nil, nil)
 }
