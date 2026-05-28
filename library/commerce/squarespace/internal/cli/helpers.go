@@ -13,6 +13,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"io"
+	"net/url"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -389,7 +390,25 @@ func newTabWriter(w io.Writer) *tabwriter.Writer {
 	return tabwriter.NewWriter(w, 2, 4, 2, ' ', 0)
 }
 func replacePathParam(path, name, value string) string {
-	return strings.ReplaceAll(path, "{"+name+"}", value)
+	return strings.ReplaceAll(path, "{"+name+"}", escapePathSegment(value))
+}
+
+// escapePathSegment URL-escapes a user-supplied value before it is spliced
+// into a URL path segment, so an id containing '/', '?', '#', '%', or
+// whitespace cannot break out of its segment or alter routing. Squarespace
+// exposes several comma-separated id path params (variantIdCsvs,
+// profileIdCsvs, productIdCsvs, documentIds); url.PathEscape would encode the
+// comma to %2C and break the CSV semantics, so each comma-delimited element is
+// escaped individually and the commas are preserved verbatim.
+func escapePathSegment(value string) string {
+	if !strings.Contains(value, ",") {
+		return url.PathEscape(value)
+	}
+	parts := strings.Split(value, ",")
+	for i, p := range parts {
+		parts[i] = url.PathEscape(p)
+	}
+	return strings.Join(parts, ",")
 }
 
 // paginatedGet fetches pages and concatenates array results. The headers
