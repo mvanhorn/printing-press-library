@@ -6,7 +6,7 @@
 // (snooze, archive, reminders, drafts) do not cover.
 //
 // Guards (see KD2 in the plan): the write is dry-run-by-default and only
-// fires with --yes; the path must start with "users/" so a typo cannot
+// fires with --apply; the path must start with "users/" so a typo cannot
 // target an unrelated namespace.
 //
 // PATCH(2026-05-27-005 U2): new low-level userdata write escape hatch.
@@ -83,6 +83,14 @@ JSON (object, array, string, number, bool, or null).`,
 				return usageErr(fmt.Errorf("userdata write: value is not well-formed JSON: %q", rawValue))
 			}
 
+			// Verify mode never performs a real write. Checked before the
+			// dry-run guard so it stays reachable regardless of --apply,
+			// mirroring lookup.go's ordering.
+			if cliutil.IsVerifyEnv() {
+				fmt.Fprintln(cmd.OutOrStdout(), "would POST /v3/userdata.write")
+				return nil
+			}
+
 			body := map[string]any{
 				"writes": []map[string]any{
 					{"path": path, "value": json.RawMessage(rawValue)},
@@ -99,11 +107,6 @@ JSON (object, array, string, number, bool, or null).`,
 					"body":     body,
 				}
 				return printJSONFiltered(cmd.OutOrStdout(), envelope, flags)
-			}
-
-			if cliutil.IsVerifyEnv() {
-				fmt.Fprintln(cmd.OutOrStdout(), "would POST /v3/userdata.write")
-				return nil
 			}
 
 			c, err := flags.newClient()
