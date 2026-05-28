@@ -46,8 +46,13 @@ func (s *Store) Get(key string) (json.RawMessage, bool) {
 func (s *Store) Set(key string, value json.RawMessage) {
 	// 0700 dir / 0600 file: cached responses can hold order, contact, and
 	// profile PII; keep them readable only by the owning user.
+	// WriteFile/MkdirAll only apply perm when creating; re-secure an existing
+	// dir/file left world-readable by an older 0o644/0o755 build.
 	_ = os.MkdirAll(s.Dir, 0o700)
-	_ = os.WriteFile(s.path(key), []byte(value), 0o600)
+	_ = os.Chmod(s.Dir, 0o700)
+	p := s.path(key)
+	_ = os.WriteFile(p, []byte(value), 0o600)
+	_ = os.Chmod(p, 0o600)
 }
 
 // Clear removes all cached entries.

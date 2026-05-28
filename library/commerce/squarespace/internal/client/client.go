@@ -133,8 +133,12 @@ func (c *Client) writeCache(path string, params map[string]string, data json.Raw
 	if err := os.MkdirAll(c.cacheDir, 0o700); err != nil {
 		return
 	}
+	// WriteFile/MkdirAll only apply perm when creating; re-secure an existing
+	// dir/file left world-readable by an older 0o644/0o755 build.
+	_ = os.Chmod(c.cacheDir, 0o700)
 	cacheFile := filepath.Join(c.cacheDir, c.cacheKey(path, params)+".json")
 	_ = os.WriteFile(cacheFile, []byte(data), 0o600)
+	_ = os.Chmod(cacheFile, 0o600)
 }
 
 // invalidateCache wholesale-removes the cache directory so the next read

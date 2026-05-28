@@ -37,6 +37,9 @@ func profileStorePath() (string, error) {
 	if err := os.MkdirAll(dir, 0o700); err != nil {
 		return "", fmt.Errorf("creating state dir: %w", err)
 	}
+	// MkdirAll only applies perm when creating; re-secure a state dir left
+	// world-readable by an older 0o755 build (holds profiles + feedback PII).
+	_ = os.Chmod(dir, 0o700)
 	return filepath.Join(dir, "profiles.json"), nil
 }
 
@@ -75,6 +78,9 @@ func saveProfileStore(s *profileStore) error {
 	if err := os.WriteFile(tmp, data, 0o600); err != nil {
 		return fmt.Errorf("writing profiles: %w", err)
 	}
+	// WriteFile only applies perm when creating; re-secure a pre-existing tmp
+	// left world-readable by an older build before it becomes the live file.
+	_ = os.Chmod(tmp, 0o600)
 	return os.Rename(tmp, p)
 }
 
