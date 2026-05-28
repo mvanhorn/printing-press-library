@@ -45,6 +45,22 @@
         "internal/store/store.go",
         "internal/cli/data_source.go"
       ]
+    },
+    {
+      "id": "export-path-escape",
+      "summary": "export escapes the optional ID arg via url.PathEscape.",
+      "reason": "Greptile P1: args[1] was concatenated raw into the URL path, allowing path/query injection via space, '/', or '?'.",
+      "files": [
+        "internal/cli/export.go"
+      ]
+    },
+    {
+      "id": "workflow-archive-exclude-mutation",
+      "summary": "Removed message-mark-all-as-read from the workflow archive resource list.",
+      "reason": "Greptile P1: same mutation hazard fixed in defaultSyncResources persisted in this second hardcoded list.",
+      "files": [
+        "internal/cli/channel_workflow.go"
+      ]
     }
   ]
 }

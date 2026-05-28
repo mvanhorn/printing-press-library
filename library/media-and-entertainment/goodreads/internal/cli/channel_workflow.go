@@ -54,7 +54,10 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
 			}
 			defer s.Close()
 
-			resources := []string{"amazon-purchases", "friend", "friend-requests", "genres", "message", "message-mark-all-as-read", "notifications", "opensearch-xml", "quotes", "recommendations", "recommendations-to-me", "review", "review-duplicates", "review-import", "shelf", "tooltips", "topic", "user", "user-best-reviewers", "user-following", "user-top-reviewers"}
+			// message-mark-all-as-read is excluded: it is a GET account mutation
+			// the write gate blocks, so archiving it would error or, with writes
+			// enabled, mark the whole inbox read. Mirrors defaultSyncResources().
+			resources := []string{"amazon-purchases", "friend", "friend-requests", "genres", "message", "notifications", "opensearch-xml", "quotes", "recommendations", "recommendations-to-me", "review", "review-duplicates", "review-import", "shelf", "tooltips", "topic", "user", "user-best-reviewers", "user-following", "user-top-reviewers"}
 			totalSynced := 0
 
 			// --full clears the cursor here because syncResource reads

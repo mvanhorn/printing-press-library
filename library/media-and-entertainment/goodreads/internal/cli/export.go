@@ -7,6 +7,7 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
+	"net/url"
 	"os"
 	"strings"
 
@@ -68,7 +69,10 @@ large datasets as it has no memory pressure.`,
 
 			path := "/" + resource
 			if len(args) > 1 {
-				path += "/" + args[1]
+				// Escape the user-supplied ID so a space, '/', or '?' can't
+				// corrupt the path or inject query params (other commands route
+				// user input through replacePathParam, which also escapes).
+				path += "/" + url.PathEscape(args[1])
 			}
 
 			var writer *bufio.Writer
