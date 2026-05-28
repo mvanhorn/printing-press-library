@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "applied_at": "2026-05-22",
+  "applied_at": "2026-05-27",
   "base_run_id": "20260512-165241",
   "base_printing_press_version": "4.5.1",
   "patches": [
@@ -216,6 +216,30 @@
       ],
       "validated_outcome": "send_rfc2047_test.go: TestEncodeRFC2047Subject_NoMojibakeSequence asserts the cascade fingerprint bytes are absent from the encoded output. TestGmailWirePayload_SubjectAndFromEncoded asserts the base64url-decoded RFC822 carries =?UTF-8?... for non-ASCII subject and 6 of 6 round-trip tests pass.",
       "upstream_issue": "TODO: file generator follow-up on cli-printing-press to fix the same defect in every printed CLI's Gmail raw-body path"
+    },
+    {
+      "id": "2026-05-27-005-U1-lookup",
+      "summary": "Add `lookup <email>` command: GET /v2/profile for live contact enrichment (name, bio, location, timezone, avatar, social links, Twitter handle) with optional --photo download from /contact/<email>/photo.",
+      "reason": "2026-05-27 iOS sniff surfaced two contact endpoints reachable with the existing cookie-derived JWT (no iOS-audience token needed). The CLI had no live contact-lookup command (participants is local-cache only; profile is saved flag-sets). Verified live: /v2/profile and /contact/<email>/photo both return 200.",
+      "files": [
+        "internal/cli/lookup.go",
+        "internal/cli/lookup_test.go",
+        "internal/cli/root.go"
+      ],
+      "validated_outcome": "lookup_test.go: happy-path parse, --select filtering, --photo write, 404 no-photo graceful, sparse-body, malformed-email rejection, 500 error. Live: lookup mvanhorn@gmail.com returned full profile + 140x140 JPEG.",
+      "upstream_issue": null
+    },
+    {
+      "id": "2026-05-27-005-U2-userdata-write",
+      "summary": "Add `userdata write <path> <json>` low-level CRDT escape hatch over POST /v3/userdata.write. Dry-run by default; requires --apply to fire; path must start with users/.",
+      "reason": "The CLI calls userdata.write internally (snooze, archive, reminders) but exposed no generic escape hatch for paths the typed commands don't cover. Useful for agent workflows and forward-compat. Uses a dedicated --apply gate, NOT the global --yes, because --yes auto-trues under --agent (root.go PersistentPreRunE) and would make a raw CRDT write auto-fire in agent mode.",
+      "files": [
+        "internal/cli/userdata_write.go",
+        "internal/cli/userdata_write_test.go",
+        "internal/cli/root.go"
+      ],
+      "validated_outcome": "userdata_write_test.go: dry-run-by-default fires no HTTP call, --apply POSTs the expected writes body, non-users/ path rejected, malformed JSON rejected, 400 surfaces, array value accepted. Live: dry-run envelope + guard rejections confirmed.",
+      "upstream_issue": null
     }
   ]
 }

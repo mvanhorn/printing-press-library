@@ -1,6 +1,6 @@
 ---
 name: pp-superhuman
-description: "Superhuman email from your terminal or Claude Code, backed by a local SQLite store and agent-native JSON I/O. Trigger phrases: `check my email`, `what's in my inbox`, `draft a reply to <thread>`, `send <draft> with undo`, `snooze this thread`, `use superhuman`, `run superhuman`."
+description: "Superhuman email from your terminal or Claude Code, backed by a local SQLite store and agent-native JSON I/O. Trigger phrases: `check my email`, `what's in my inbox`, `draft a reply to <thread>`, `send <draft> with undo`, `snooze this thread`, `look up <email>`, `who is <email>`, `use superhuman`, `run superhuman`."
 author: "Matt Van Horn"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"
@@ -48,6 +48,16 @@ These capabilities aren't available in any other tool for this API.
   ```bash
   superhuman-pp-cli which 'snooze a thread for tomorrow'
   ```
+- **`lookup`** — Live contact enrichment for an email: name, bio, location, timezone, avatar, social links, and Twitter handle from Superhuman's profile service. Optional `--photo` downloads the contact's avatar.
+
+  ```bash
+  superhuman-pp-cli lookup alice@example.com --agent --select name,location,twitterHandle
+  ```
+- **`userdata write`** — Low-level escape hatch over Superhuman's CRDT mutation endpoint for paths the typed commands don't cover. Dry-run by default; `--apply` to fire; path must start with `users/`.
+
+  ```bash
+  superhuman-pp-cli userdata write "users/<google-id>/settings/<key>" '{"value":true}' --apply
+  ```
 
 ## Command Reference
 
@@ -71,6 +81,10 @@ These capabilities aren't available in any other tool for this API.
 - `superhuman-pp-cli messages get-by-rfc822` — Lookup a message by RFC822 Message-ID
 - `superhuman-pp-cli messages list` — List messages with Gmail search syntax
 - `superhuman-pp-cli messages query` — Semantic email search
+
+**lookup** — Live contact enrichment for an email address
+
+- `superhuman-pp-cli lookup <email>` — Fetch live profile (name, bio, location, timezone, avatar, links, Twitter handle); `--photo <path>` also downloads the photo
 
 **participants** — Local correspondent analytics
 
@@ -114,6 +128,10 @@ These capabilities aren't available in any other tool for this API.
 **users** — User account state
 
 - `superhuman-pp-cli users` — User achievements / gamification state
+
+**userdata** — Low-level Superhuman CRDT surface (advanced)
+
+- `superhuman-pp-cli userdata write <path> <json>` — Write a raw value to a CRDT path; dry-run by default, `--apply` to fire, path must start with `users/`
 
 
 ### Finding the right command
@@ -234,6 +252,29 @@ superhuman-pp-cli ai --query 'what did Alice say about pricing last week' --agen
 ```
 
 Run a semantic query through Superhuman's Ask AI surface; `--agent` gives you JSON streams pipeable to other tools.
+
+### Enrich a contact before drafting
+
+```bash
+superhuman-pp-cli lookup alice@example.com --agent --select name,location,timeZone,twitterHandle
+```
+
+Pull Superhuman's live profile for an email and narrow to the fields you need with `--select`. Add `--photo ./alice.jpg` to also save the contact's avatar. Contacts with no photo on file report that and exit 0.
+
+### Write a raw CRDT path the typed commands don't cover
+
+```bash
+# Preview first (dry-run by default):
+superhuman-pp-cli userdata write "users/<google-id>/settings/<key>" '{"value":true}'
+# Then fire it:
+superhuman-pp-cli userdata write "users/<google-id>/settings/<key>" '{"value":true}' --apply
+```
+
+Advanced escape hatch. Prefer the typed commands (send, reminders, drafts, snippets) when one exists. The path must start with `users/`, and nothing is sent until `--apply` is passed.
+
+## Anti-Triggers
+
+This CLI delivers mail via the Gmail API, not Superhuman's `/messages/send` MTA. Do not promise Superhuman-server-side send behaviors that the Gmail path doesn't provide. There is no `share` (team draft sharing) or `mail-merge` command yet, and the CLI cannot mint the iOS-audience token some Superhuman-only endpoints require — don't claim those capabilities.
 
 ## Auth Setup
 

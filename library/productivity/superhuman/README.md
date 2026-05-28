@@ -86,6 +86,10 @@ superhuman-pp-cli threads list --type inbox --limit 20 --json
 # Send with an undo window
 superhuman-pp-cli send --to teammate@example.com --subject "Update" --body-file body.txt --undo 30s
 
+
+# Look up Superhuman's live enrichment for a contact
+superhuman-pp-cli lookup teammate@example.com --json --select name,location,twitterHandle
+
 ```
 
 ## Unique Features
@@ -100,6 +104,16 @@ These capabilities aren't available in any other tool for this API.
 
   ```bash
   superhuman-pp-cli which 'snooze a thread for tomorrow'
+  ```
+- **`lookup`** — Live contact enrichment for any email: name, bio, location, timezone, avatar, social links, and Twitter handle, straight from Superhuman's profile service.
+
+  ```bash
+  superhuman-pp-cli lookup alice@example.com --json --select name,location,twitterHandle
+  ```
+- **`userdata write`** — Low-level escape hatch over Superhuman's CRDT mutation endpoint for paths the typed commands don't cover. Dry-run by default; `--apply` to fire.
+
+  ```bash
+  superhuman-pp-cli userdata write "users/<google-id>/settings/<key>" '{"value":true}'
   ```
 
 ## Usage
@@ -127,6 +141,12 @@ Drafts — create, update, send, delete
 - **`superhuman-pp-cli drafts list`** - List drafts
 - **`superhuman-pp-cli drafts new`** - Create a fresh outbound draft
 - **`superhuman-pp-cli drafts write`** - Create or update a draft (write to draft path)
+
+### lookup
+
+Live contact enrichment for an email address
+
+- **`superhuman-pp-cli lookup <email>`** - Fetch profile (name, bio, location, timezone, avatar, links, Twitter handle); `--photo <path>` also downloads the contact's photo
 
 ### messages
 
@@ -197,6 +217,12 @@ Gmail history stream
 User account state
 
 - **`superhuman-pp-cli users achievements`** - User achievements / gamification state
+
+### userdata
+
+Low-level Superhuman CRDT surface (advanced)
+
+- **`superhuman-pp-cli userdata write <path> <json>`** - Write a raw value to a userdata CRDT path. Dry-run by default; pass `--apply` to fire. Path must start with `users/`.
 
 ## Freshness and Bootstrap
 
