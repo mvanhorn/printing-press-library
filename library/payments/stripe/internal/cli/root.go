@@ -278,6 +278,13 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.AddCommand(newSubsAtRiskCmd(flags))
 	rootCmd.AddCommand(newEventsSinceCmd(flags))
 	rootCmd.AddCommand(newMetadataGrepCmd(flags))
+	// PATCH: register five hand-coded analytics commands.
+	// See .printing-press-patches.json entry id=stripe-analytics-commands-port.
+	rootCmd.AddCommand(newMRRTrendCmd(flags))
+	rootCmd.AddCommand(newFailureClustersCmd(flags))
+	rootCmd.AddCommand(newRefundRateCmd(flags))
+	rootCmd.AddCommand(newDisputeWinRateCmd(flags))
+	rootCmd.AddCommand(newDailyDigestCmd(flags))
 	rootCmd.AddCommand(newVersionCliCmd())
 
 	return rootCmd
