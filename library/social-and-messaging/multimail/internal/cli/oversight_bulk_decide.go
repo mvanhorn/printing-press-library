@@ -65,8 +65,10 @@ Use --approve or --reject to specify the action.`,
 				return err
 			}
 
-			// Fetch pending from live API
-			pendingData, err := c.Get(ctx, "/v1/oversight/pending", nil)
+			// Fetch all pending pages from live API — cursor pagination
+			// ensures bulk-decide processes the full queue, not just page 1.
+			pendingData, err := paginatedGet(ctx, c, "/v1/oversight/pending", nil, nil,
+				true, "cursor", "cursor", "limit", "next_cursor", "has_more")
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}

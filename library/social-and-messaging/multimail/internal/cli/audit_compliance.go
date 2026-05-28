@@ -109,15 +109,10 @@ Run 'multimail-pp-cli sync' first to populate local data.`,
 					continue
 				}
 
-				// Time filter: try RFC3339 string first, then numeric epoch
+				// Time filter: parseNumericTime handles RFC3339 strings, epoch-as-string,
+				// and float64 epoch values in a single call — no fallthrough gap.
 				cutoffTime := mustParseTime(cutoff)
-				if createdAt, ok := entry["created_at"].(string); ok && createdAt != "" {
-					if ts, err := time.Parse(time.RFC3339, createdAt); err == nil {
-						if ts.Before(cutoffTime) {
-							continue
-						}
-					}
-				} else if ts, ok := parseNumericTime(entry["created_at"]); ok {
+				if ts, ok := parseNumericTime(entry["created_at"]); ok {
 					if ts.Before(cutoffTime) {
 						continue
 					}
