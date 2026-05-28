@@ -11,6 +11,7 @@ import (
 	"github.com/mvanhorn/printing-press-library/library/payments/robinhood/internal/cliutil"
 	"io"
 	"net/http"
+	"net/url"
 	"os"
 	"regexp"
 	"sort"
@@ -198,7 +199,10 @@ func BuildPlan(route Route, method string, params map[string]string, body any, d
 	resolvedURL := placeholderRE.ReplaceAllStringFunc(route.URL, func(match string) string {
 		name := strings.Trim(match, "{}")
 		if value := params[name]; value != "" {
-			return value
+			// Percent-encode user-supplied path values so reserved characters
+			// in an --param value (e.g. an order-id containing "/" or "..")
+			// cannot collapse into extra path segments and retarget the request.
+			return url.PathEscape(value)
 		}
 		missing = append(missing, name)
 		return match
@@ -261,7 +265,10 @@ func BuildDirectPlan(host, pathTemplate, method, risk string, params, query map[
 			sep = "&"
 		}
 		for _, k := range keys {
-			plan.URL += sep + k + "=" + query[k]
+			// Percent-encode user-supplied query keys and values so reserved
+			// characters in a --query value cannot inject extra parameters or
+			// corrupt the request URL.
+			plan.URL += sep + url.QueryEscape(k) + "=" + url.QueryEscape(query[k])
 			sep = "&"
 		}
 	}

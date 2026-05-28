@@ -58,3 +58,24 @@ func TestBuildDirectPlanNoQueryNoTrailingSep(t *testing.T) {
 		t.Fatalf("url = %q, want clean accounts URL", plan.URL)
 	}
 }
+
+// TestBuildDirectPlanEscapesReservedChars guards the path/query percent-encoding:
+// a path param containing "/" or ".." must not collapse into extra path segments,
+// and a query value with reserved characters must not inject extra parameters.
+func TestBuildDirectPlanEscapesReservedChars(t *testing.T) {
+	plan := BuildDirectPlan(
+		"api.robinhood.com",
+		"/orders/{order_id}/",
+		"GET",
+		"sensitive-read",
+		map[string]string{"order_id": "../evil/segment"},
+		map[string]string{"q": "a&b=c"},
+	)
+	if strings.Contains(plan.URL, "../") {
+		t.Fatalf("path param should be escaped, got %q", plan.URL)
+	}
+	want := "https://api.robinhood.com/orders/..%2Fevil%2Fsegment/?q=a%26b%3Dc"
+	if plan.URL != want {
+		t.Fatalf("url = %q, want %q", plan.URL, want)
+	}
+}
