@@ -91,6 +91,29 @@ func streamContacts(ctx context.Context, db *store.Store, visit func(contactProp
 	return scanned, parseErrors, nil
 }
 
+// snapshotRetention bounds how far back snapshot rows are kept. score-drift's
+// default --window is 14d and daily-digest's default --since is 1d, and both
+// commands look at most 2*window back. 90d covers 2*window for any reasonable
+// window up to ~45 days, so analytics queries see what they need while the
+// snapshot tables stop growing without bound. Operators with shorter windows
+// effectively get more retention; operators with longer windows than 45 days
+// should also raise this constant.
+const snapshotRetention = 90 * 24 * time.Hour
+
+// pruneOldSnapshots deletes contact_score_snapshots and
+// contact_engagement_snapshots rows older than snapshotRetention. Idempotent
+// and cheap (idx_*_snapshots_at indexes the snapshot_at column).
+func pruneOldSnapshots(ctx context.Context, db *store.Store, now time.Time) error {
+	cutoff := now.Add(-snapshotRetention).UTC().Format(time.RFC3339Nano)
+	if _, err := db.DB().ExecContext(ctx, `DELETE FROM contact_score_snapshots WHERE snapshot_at < ?`, cutoff); err != nil {
+		return fmt.Errorf("prune score snapshots: %w", err)
+	}
+	if _, err := db.DB().ExecContext(ctx, `DELETE FROM contact_engagement_snapshots WHERE snapshot_at < ?`, cutoff); err != nil {
+		return fmt.Errorf("prune engagement snapshots: %w", err)
+	}
+	return nil
+}
+
 // snapshotScores writes the current score-related columns for every contact
 // into contact_score_snapshots so subsequent calls can compute deltas.
 // Returns the number of rows inserted.
@@ -101,6 +124,9 @@ func snapshotScores(ctx context.Context, db *store.Store, now time.Time) (int, e
 	}
 	if len(contacts) == 0 {
 		return 0, nil
+	}
+	if err := pruneOldSnapshots(ctx, db, now); err != nil {
+		return 0, err
 	}
 	tx, err := db.DB().BeginTx(ctx, nil)
 	if err != nil {
@@ -146,6 +172,9 @@ func snapshotEngagement(ctx context.Context, db *store.Store, now time.Time) (in
 	}
 	if len(contacts) == 0 {
 		return 0, nil
+	}
+	if err := pruneOldSnapshots(ctx, db, now); err != nil {
+		return 0, err
 	}
 	tx, err := db.DB().BeginTx(ctx, nil)
 	if err != nil {

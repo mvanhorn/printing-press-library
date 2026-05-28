@@ -144,7 +144,7 @@ func runOAuthLogin(cmd *cobra.Command, flags *rootFlags, clientID, clientSecret 
 		"response_type": {"code"},
 		"state":         {state},
 	}
-	scopes := []string{"crm.objects.commercepayments.read", "crm.objects.contacts.read", "crm.objects.contacts.write", "oauth"}
+	scopes := []string{"crm.objects.contacts.read", "crm.schemas.contacts.read", "oauth"}
 	if len(scopes) > 0 {
 		params.Set("scope", strings.Join(scopes, " "))
 	}
