@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-27",
+  "base_run_id": "20260527-183315",
+  "base_printing_press_version": "4.9.0",
+  "patches": [
+    {
+      "id": "ercot-dual-auth-subscription-key",
+      "summary": "Inject Ocp-Apim-Subscription-Key header from ERCOT_SUBSCRIPTION_KEY (or ERCOT_APIKEYHEADER) so requests carry both the Bearer id_token and the APIM subscription key.",
+      "reason": "ERCOT's spec declares apiKeyHeader and oauth2 as alternative security requirements, but the production gateway demands BOTH credentials on every call. The generator only wired the oauth2 ROPC bearer; without this patch every request returns 401 'missing subscription key'.",
+      "files": ["internal/config/config.go"],
+      "validated_outcome": "All 5 priority command groups (np6-345-cd load actual, np6-788-cd LMP, np6-905-cd SPP, np4-188-cd DAM ancillary, np3-565-cd load forecast) plus np3-233-cd outage return HTTP 200 with valid field metadata against the live API.",
+      "upstream_issue": null
+    }
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-27T18:33:15.477879Z",
+  "printing_press_version": "4.9.0",
+  "api_name": "ercot",
+  "display_name": "ERCOT Public API",
+  "cli_name": "ercot-pp-cli",
+  "owner": "synota-inc",
+  "creator": {
+    "handle": "synotaai",
+    "name": "Synota"
+  },
+  "printer": "synotaai",
+  "printer_name": "Synota",
+  "spec_path": "ercot-openapi-patched.json",
+  "spec_format": "openapi3",
+  "spec_source": "https://github.com/ercot/api-specs (pubapi-apim-api.json)",
+  "spec_checksum": "sha256:511f9bff75a48fbea3162fbbaea9afd6b0379ae81a5327a7beb171e5b37c9da3",
+  "run_id": "20260527-183315",
+  "catalog_entry": "ercot",
+  "category": "monitoring",
+  "description": "ERCOT real-time Texas wholesale power market — LMP/SPP prices, load actual/forecast, ancillary clearing, generator outages",
+  "mcp_binary": "ercot-pp-mcp",
+  "mcp_tool_count": 104,
+  "mcp_ready": "full",
+  "api_version": "1.0",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "ERCOT_OAUTH2_ROPC",
+    "ERCOT_SUBSCRIPTION_KEY"
+  ],
+  "novel_features": [
+    {
+      "name": "Real-time LMP snapshot",
+      "command": "np6-788-cd",
+      "description": "Settlement Point Prices at the resource node level (LMP) for the most recent SCED interval."
+    },
+    {
+      "name": "Settlement Point Prices",
+      "command": "np6-905-cd",
+      "description": "ERCOT-wide Settlement Point Prices for hubs and load zones."
+    },
+    {
+      "name": "System-wide load actuals",
+      "command": "np6-345-cd",
+      "description": "Actual system load by weather zone, refreshed every five minutes."
+    },
+    {
+      "name": "Day-Ahead ancillary clearing",
+      "command": "np4-188-cd",
+      "description": "Day-Ahead Market clearing prices and MCPC for ancillary services."
+    },
+    {
+      "name": "Load forecast",
+      "command": "np3-565-cd",
+      "description": "Seven-day system-wide load forecast by weather zone."
+    },
+    {
+      "name": "Generator outage report",
+      "command": "np3-233-cd",
+      "description": "Sixty-day disclosure of ERCOT generator outages and derates."
+    }
+  ]
+}

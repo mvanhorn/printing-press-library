@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "ercot-pp-mcp",
+  "display_name": "Ercot Public Client",
+  "version": "4.9.0",
+  "description": "Ercot Public Client API surface as MCP tools.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/ercot-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/ercot-pp-mcp",
+      "args": [],
+      "env": {
+        "ERCOT_OAUTH2_ROPC": "${user_config.ercot_oauth2_ropc}"
+      }
+    }
+  },
+  "user_config": {
+    "ercot_oauth2_ropc": {
+      "type": "string",
+      "title": "ERCOT_OAUTH2_ROPC",
+      "description": "Sets ERCOT_OAUTH2_ROPC for the Ercot Public Client MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

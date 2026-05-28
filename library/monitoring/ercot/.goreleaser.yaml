@@ -1,0 +1,51 @@
+version: 2
+project_name: ercot-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: ercot-pp-cli
+    main: ./cmd/ercot-pp-cli
+    binary: ercot-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X ercot-pp-cli/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: ercot-pp-mcp
+    main: ./cmd/ercot-pp-mcp
+    binary: ercot-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: ercot-pp-cli
+    repository:
+      owner: synota-inc
+      name: homebrew-tap
+    homepage: "https://github.com/synota-inc/ercot-pp-cli"
+    description: "Client/Developer RESTFul web services documentation for ERCOT Market Information List (EMIL) products."
+    install: |
+      bin.install "ercot-pp-cli"
+      bin.install "ercot-pp-mcp"
