@@ -1726,12 +1726,19 @@ func metricAggregateBody(metricID string, measurements []string, by []string, si
 			"greater-or-equal(datetime," + since.Format("2006-01-02") + "T00:00:00)",
 			"less-than(datetime," + until.Format("2006-01-02") + "T23:59:59)",
 		},
-		"timezone": "US/Central",
+		"timezone": defaultMetricTimezone(),
 	}
 	if len(by) > 0 {
 		attrs["by"] = by
 	}
 	return map[string]any{"data": map[string]any{"type": "metric-aggregate", "attributes": attrs}}
+}
+
+func defaultMetricTimezone() string {
+	if tz := strings.TrimSpace(os.Getenv("KLAVIYO_TIMEZONE")); tz != "" {
+		return tz
+	}
+	return "UTC"
 }
 
 func metricAggregateRows(raw json.RawMessage, measurement string) map[string]float64 {
@@ -2158,28 +2165,28 @@ func newListsAuditCmd(flags *rootFlags) *cobra.Command {
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {
-				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{"dry_run": true, "max": max, "planned_steps": []string{"fetch_lists", "count_profiles", "flag_unused_lists"}}, flags)
+				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{"dry_run": true, "max": max, "planned_steps": []string{"fetch_lists_with_profile_counts", "fetch_flow_triggers", "flag_unused_lists"}}, flags)
 			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-			lists, err := fetchAllJSONAPI(c, "/api/lists", map[string]string{"fields[list]": "name,created,updated", "page[size]": "10"}, max)
+			lists, err := fetchAllJSONAPI(c, "/api/lists", map[string]string{"fields[list]": "name,created,updated,profile_count,profiles_count,profile_count_estimate", "page[size]": "10"}, max)
 			if err != nil {
 				return err
 			}
 			var rows []map[string]any
 			for _, list := range lists {
 				id := fmt.Sprint(list["id"])
-				profiles, _ := fetchAllJSONAPI(c, "/api/lists/"+url.PathEscape(id)+"/profiles", map[string]string{"fields[profile]": "id", "page[size]": "100"}, 10000)
+				subscriberCount := listSubscriberCount(list)
 				flows, _ := fetchAllJSONAPI(c, "/api/lists/"+url.PathEscape(id)+"/flow-triggers", map[string]string{"fields[flow]": "name", "page[size]": "50"}, 1000)
 				rows = append(rows, map[string]any{
 					"id":               id,
 					"name":             stringFromMapPath(list, "attributes.name"),
-					"subscriber_count": len(profiles),
+					"subscriber_count": subscriberCount,
 					"triggered_flows":  len(flows),
 					"updated":          stringFromMapPath(list, "attributes.updated"),
-					"flags":            listAuditFlags(list, len(profiles), len(flows)),
+					"flags":            listAuditFlags(list, subscriberCount, len(flows)),
 				})
 			}
 			return printJSONFiltered(cmd.OutOrStdout(), map[string]any{"lists": rows, "count": len(rows), "max": max, "estimated": max > 0 && len(rows) >= max}, flags)
@@ -2383,25 +2390,24 @@ func newReportMetricRankCmd(flags *rootFlags, use, short, metricName, defaultBy 
 }
 
 func newReportListGrowthCmd(flags *rootFlags) *cobra.Command {
-	var last, interval string
+	var last string
 	cmd := &cobra.Command{
 		Use:         "list-growth",
-		Short:       "Net list growth by interval",
+		Short:       "Net list growth over a lookback window",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {
-				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{"dry_run": true, "last": last, "interval": interval, "planned_steps": []string{"query_subscribe_unsubscribe_metrics", "bucket_net_growth"}}, flags)
+				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{"dry_run": true, "last": last, "planned_steps": []string{"query_subscribe_unsubscribe_metrics", "calculate_window_net_growth"}}, flags)
 			}
 			c, since, until, err := clientAndWindow(flags, last)
 			if err != nil {
 				return err
 			}
 			rows := metricTotalsByName(c, []string{"Subscribed to List", "Unsubscribed Email"}, since, until)
-			return printJSONFiltered(cmd.OutOrStdout(), map[string]any{"last": last, "interval": interval, "rows": rows, "note": "interval bucketing depends on Klaviyo metric aggregate dates"}, flags)
+			return printJSONFiltered(cmd.OutOrStdout(), map[string]any{"last": last, "rows": rows, "note": "full-window net growth totals"}, flags)
 		},
 	}
 	cmd.Flags().StringVar(&last, "last", "90d", "Lookback window")
-	cmd.Flags().StringVar(&interval, "interval", "weekly", "Display interval")
 	return cmd
 }
 
@@ -3084,6 +3090,14 @@ func listAuditFlags(list map[string]any, subscribers, flows int) []string {
 		flags = append(flags, "not_updated_90d")
 	}
 	return flags
+}
+
+func listSubscriberCount(list map[string]any) int {
+	return anyInt(firstNonEmptyString(
+		stringFromMapPath(list, "attributes.profile_count"),
+		stringFromMapPath(list, "attributes.profiles_count"),
+		stringFromMapPath(list, "attributes.profile_count_estimate"),
+	))
 }
 
 func normalizeTagName(s string) string {

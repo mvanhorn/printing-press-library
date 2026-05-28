@@ -742,6 +742,26 @@ func TestFilterFormsByWindowUsesLastWindow(t *testing.T) {
 	}
 }
 
+func TestListSubscriberCountUsesListFields(t *testing.T) {
+	count := listSubscriberCount(map[string]any{"attributes": map[string]any{"profile_count": 12000}})
+	if count != 12000 {
+		t.Fatalf("subscriber count = %d", count)
+	}
+	estimate := listSubscriberCount(map[string]any{"attributes": map[string]any{"profile_count_estimate": 15000}})
+	if estimate != 15000 {
+		t.Fatalf("subscriber count estimate = %d", estimate)
+	}
+}
+
+func TestMetricAggregateBodyUsesConfigurableTimezone(t *testing.T) {
+	t.Setenv("KLAVIYO_TIMEZONE", "Europe/London")
+	body := metricAggregateBody("metric-1", []string{"count"}, nil, time.Date(2026, 5, 1, 0, 0, 0, 0, time.UTC), time.Date(2026, 5, 2, 0, 0, 0, 0, time.UTC))
+	attrs := body["data"].(map[string]any)["attributes"].(map[string]any)
+	if attrs["timezone"] != "Europe/London" {
+		t.Fatalf("timezone = %#v", attrs["timezone"])
+	}
+}
+
 func TestAnnotateEngagementTrendsAddsTrendFields(t *testing.T) {
 	rows := []map[string]any{{"name": "Welcome Flow"}}
 	previous := []map[string]any{{"name": "Welcome Flow", "open_rate": 55.0, "click_rate": 8.0}}
