@@ -4,7 +4,7 @@ Generated: 2026-05-22
 
 ## Rule
 
-Do not hardcode Zayd's current shelves, friend sections, message folders, or list pages as the Goodreads model.
+Do not hardcode the observed account's current shelves, friend sections, message folders, or list pages as the Goodreads model.
 
 Goodreads exposes a mix of:
 
@@ -15,7 +15,7 @@ Goodreads exposes a mix of:
 
 The CLI should discover the account/page inventory first, then paginate only the collections that prove they need pagination.
 
-This matters for shelves, friends, lists, messages, notes, and profile modules. Zayd's current Goodreads state is just one observed account state, not the product model.
+This matters for shelves, friends, lists, messages, notes, and profile modules. The observed Goodreads account state is just one observed account state, not the product model.
 
 ## Shelf Inventory
 
@@ -33,7 +33,7 @@ Implementation rule:
 
 The main bookshelf pages matter most for pagination because they contain the user's actual library.
 
-Observed in Zayd's account:
+Observed in the sanitized account capture:
 
 - `read`: declared 40 books; HTML table pages 1-2 yielded 40 unique review ids.
 - `to-read`: declared 132 books; HTML table pages 1-5 yielded 132 unique review ids.

@@ -6,8 +6,8 @@ Status: complete for the Top-4 lane. The broader 12-venue goal is not complete.
 
 ## What Is Done
 
-- Personal repo: `/Users/zaydk/Desktop/goodreads-cli`
-- PP package: `/Users/zaydk/printing-press/library/media-and-entertainment/goodreads-pp`
+- Personal repo: `<personal-repo>/goodreads-cli`
+- PP package: `library/media-and-entertainment/goodreads`
 - Browser/API map: 15 sanitized authenticated route templates and 9 private fixtures.
 - Route map: 78 routes plus browser-route inventory.
 - Personal CLI is live read/write capable by default with no personal env write gate; `--dry-run` is opt-in.

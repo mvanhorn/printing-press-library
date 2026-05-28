@@ -95,8 +95,8 @@ The CLI should not print cookie values. For replay, import cookies into a jar fr
 The bookshelf UI accepts numeric and slugged user forms:
 
 ```text
-/review/list/179929687
-/review/list/179929687-zayd-khan
+/review/list/100000000
+/review/list/100000000-example-user
 ```
 
 Observed shelf query values for the current logged-in account:
@@ -118,7 +118,7 @@ The first parser target should be `/review/list/:user?shelf=<shelf>`, because it
 Public RSS fallback:
 
 ```text
-/review/list_rss/179929687?shelf=read
+/review/list_rss/100000000?shelf=read
 ```
 
 The RSS route returned `200 application/xml` without browser cookies in a live probe. It includes structured book/user fields and is a good public fallback, but it is not a full authenticated shelf export. The logged-in page can expose a private `key=` RSS URL in `link rel="alternate"`; that value must stay redacted and local.
@@ -143,7 +143,7 @@ want-to-read-again
 Batch move/add/remove surface:
 
 ```text
-POST /review/update_list/179929687
+POST /review/update_list/100000000
 ```
 
 Important fields:

@@ -18,8 +18,8 @@ Every command should include:
 ```json
 {
   "source": "goodreads-web",
-  "accountUserId": "179929687",
-  "accountUserSlug": "179929687-zayd-khan",
+  "accountUserId": "100000000",
+  "accountUserSlug": "100000000-example-user",
   "generatedAt": "ISO-8601",
   "confidence": "high|medium|low",
   "warnings": []
@@ -65,7 +65,7 @@ Output shape:
       "slug": "to-read",
       "displayName": "Want to Read",
       "count": 132,
-      "href": "/review/list/179929687-zayd-khan?shelf=to-read",
+      "href": "/review/list/100000000-example-user?shelf=to-read",
       "kind": "account_shelf",
       "isObservedForThisAccount": true
     }
