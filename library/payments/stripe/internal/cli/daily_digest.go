@@ -20,6 +20,11 @@ import (
 )
 
 type digestCharges struct {
+	// GrossCents/RefundsCents/NetCents/AOVCents are face-value sums across ALL
+	// currencies. For multi-currency merchants this is NOT a converted total —
+	// use ByCurrencyCents (and the renderer's per-currency breakdown) to read
+	// honestly. CurrencyLabel reflects the right label to display alongside
+	// the scalar totals.
 	GrossCents       int64                     `json:"gross_cents"`
 	RefundsCents     int64                     `json:"refunds_cents"`
 	NetCents         int64                     `json:"net_cents"`
@@ -27,6 +32,7 @@ type digestCharges struct {
 	FailedCount      int                       `json:"failed_count"`
 	SuccessRatePct   float64                   `json:"success_rate_pct"`
 	AOVCents         int64                     `json:"aov_cents"`
+	ByCurrencyCents  map[string]int64          `json:"by_currency_cents,omitempty"`
 	Days             []digestRevenueDay        `json:"days"`
 	TopFailureCodes  []digestFailureCodeRow    `json:"top_failure_codes,omitempty"`
 }
@@ -59,16 +65,26 @@ type digestSubs struct {
 }
 
 type digestDisputes struct {
-	OpenCount   int   `json:"open_count"`
-	OpenTotal   int64 `json:"open_total_cents"`
-	WonInWindow int   `json:"won_in_window"`
-	LostInWindow int  `json:"lost_in_window"`
+	OpenCount       int              `json:"open_count"`
+	OpenTotal       int64            `json:"open_total_cents"`
+	OpenByCurrency  map[string]int64 `json:"open_by_currency_cents,omitempty"`
+	// WonOpenedInWindow / LostOpenedInWindow count disputes whose `created`
+	// timestamp (when the dispute was OPENED) falls inside the window AND
+	// whose status is currently won/lost. They do NOT count disputes opened
+	// before the window but resolved inside it — Stripe does not expose a
+	// dispute resolution timestamp on the dispute object itself; resolution
+	// dates live in the events log, which this digest does not query.
+	WonOpenedInWindow  int `json:"won_opened_in_window"`
+	LostOpenedInWindow int `json:"lost_opened_in_window"`
+	WindowNote         string `json:"window_note,omitempty"`
 }
 
 type digestPayouts struct {
 	NextPayoutCents      int64  `json:"next_payout_cents,omitempty"`
+	NextPayoutCurrency   string `json:"next_payout_currency,omitempty"`
 	NextPayoutArrival    string `json:"next_payout_arrival,omitempty"`
 	LastPayoutCents      int64  `json:"last_payout_cents,omitempty"`
+	LastPayoutCurrency   string `json:"last_payout_currency,omitempty"`
 	LastPayoutArrival    string `json:"last_payout_arrival,omitempty"`
 	LastPayoutStatus     string `json:"last_payout_status,omitempty"`
 }
@@ -296,6 +312,7 @@ func buildChargesSection(db *sql.DB, fromTS, toTS int64, from, to time.Time) (di
 	successCount := 0
 	failedCount := 0
 	failureCodes := make(map[string]int)
+	byCurrency := make(map[string]int64)
 
 	for rs.Next() {
 		var data string
@@ -305,6 +322,7 @@ func buildChargesSection(db *sql.DB, fromTS, toTS int64, from, to time.Time) (di
 		raw := json.RawMessage(data)
 		status, _ := jsonGet(raw, "status")
 		amount, _ := jsonGetInt(raw, "amount")
+		currency, _ := jsonGet(raw, "currency")
 		ts, _ := jsonGetInt(raw, "created")
 		day := time.Unix(ts, 0).UTC().Format("2006-01-02")
 
@@ -319,6 +337,8 @@ func buildChargesSection(db *sql.DB, fromTS, toTS int64, from, to time.Time) (di
 			grossTotal += amount
 			row.ChargeCount++
 			row.GrossCents += amount
+			// Track per-currency for gross only — refunds tracked separately below.
+			byCurrency[normalizeCurrencyCode(currency)] += amount
 		case "failed":
 			failedCount++
 			code, _ := jsonGet(raw, "failure_code")
@@ -349,12 +369,17 @@ func buildChargesSection(db *sql.DB, fromTS, toTS int64, from, to time.Time) (di
 		}
 		raw := json.RawMessage(data)
 		amount, _ := jsonGetInt(raw, "amount")
+		currency, _ := jsonGet(raw, "currency")
 		ts, _ := jsonGetInt(raw, "created")
 		day := time.Unix(ts, 0).UTC().Format("2006-01-02")
 		refundTotal += amount
 		if row, ok := dayMap[day]; ok {
 			row.RefundsCents += amount
 		}
+		// Subtract refund from per-currency gross so the per-currency view
+		// shows NET. If currency is unknown, fall back to the bucket so the
+		// total still reconciles.
+		byCurrency[normalizeCurrencyCode(currency)] -= amount
 	}
 	if err := refundRows.Err(); err != nil {
 		return digestCharges{}, err
@@ -394,6 +419,7 @@ func buildChargesSection(db *sql.DB, fromTS, toTS int64, from, to time.Time) (di
 		FailedCount:     failedCount,
 		SuccessRatePct:  roundTo(successRate, 2),
 		AOVCents:        aov,
+		ByCurrencyCents: byCurrency,
 		Days:            days,
 		TopFailureCodes: topCodes,
 	}, nil
@@ -486,6 +512,7 @@ func buildDisputesSection(db *sql.DB, fromTS, toTS int64) (digestDisputes, error
 
 	openCount := 0
 	var openTotal int64
+	openByCurrency := make(map[string]int64)
 	for openRows.Next() {
 		var data string
 		if err := openRows.Scan(&data); err != nil {
@@ -495,13 +522,15 @@ func buildDisputesSection(db *sql.DB, fromTS, toTS int64) (digestDisputes, error
 		openCount++
 		if amt, ok := jsonGetInt(raw, "amount"); ok {
 			openTotal += amt
+			cur, _ := jsonGet(raw, "currency")
+			openByCurrency[normalizeCurrencyCode(cur)] += amt
 		}
 	}
 	if err := openRows.Err(); err != nil {
 		return digestDisputes{}, err
 	}
 
-	// Resolved-in-window
+	// Resolved-in-window — see WindowNote below for the caveat.
 	winRows, err := db.Query(`SELECT data FROM resources WHERE resource_type='disputes'
 		AND json_extract(data,'$.status') IN ('won','lost')
 		AND CAST(IFNULL(json_extract(data,'$.created'),0) AS INTEGER) >= ?
@@ -531,11 +560,17 @@ func buildDisputesSection(db *sql.DB, fromTS, toTS int64) (digestDisputes, error
 		return digestDisputes{}, err
 	}
 
+	note := ""
+	if won > 0 || lost > 0 {
+		note = "Counts disputes OPENED in the window that are currently won/lost. Disputes opened earlier but resolved inside the window are not included — Stripe does not expose a resolution timestamp on the dispute object."
+	}
 	return digestDisputes{
-		OpenCount:    openCount,
-		OpenTotal:    openTotal,
-		WonInWindow:  won,
-		LostInWindow: lost,
+		OpenCount:          openCount,
+		OpenTotal:          openTotal,
+		OpenByCurrency:     openByCurrency,
+		WonOpenedInWindow:  won,
+		LostOpenedInWindow: lost,
+		WindowNote:         note,
 	}, nil
 }
 
@@ -548,9 +583,10 @@ func buildPayoutsSection(db *sql.DB) (digestPayouts, error) {
 	defer rs.Close()
 
 	type payout struct {
-		amount  int64
-		arrival int64
-		status  string
+		amount   int64
+		arrival  int64
+		status   string
+		currency string
 	}
 	var pending, paid []payout
 	for rs.Next() {
@@ -562,7 +598,8 @@ func buildPayoutsSection(db *sql.DB) (digestPayouts, error) {
 		amt, _ := jsonGetInt(raw, "amount")
 		arr, _ := jsonGetInt(raw, "arrival_date")
 		st, _ := jsonGet(raw, "status")
-		p := payout{amount: amt, arrival: arr, status: st}
+		cur, _ := jsonGet(raw, "currency")
+		p := payout{amount: amt, arrival: arr, status: st, currency: normalizeCurrencyCode(cur)}
 		switch st {
 		case "pending", "in_transit":
 			pending = append(pending, p)
@@ -578,6 +615,7 @@ func buildPayoutsSection(db *sql.DB) (digestPayouts, error) {
 	if len(pending) > 0 {
 		sort.SliceStable(pending, func(i, j int) bool { return pending[i].arrival < pending[j].arrival })
 		out.NextPayoutCents = pending[0].amount
+		out.NextPayoutCurrency = pending[0].currency
 		out.NextPayoutArrival = time.Unix(pending[0].arrival, 0).UTC().Format("2006-01-02")
 	}
 	if len(paid) > 0 {
@@ -586,10 +624,26 @@ func buildPayoutsSection(db *sql.DB) (digestPayouts, error) {
 		// among itself is preserved by SQL — re-sort for safety).
 		sort.SliceStable(paid, func(i, j int) bool { return paid[i].arrival > paid[j].arrival })
 		out.LastPayoutCents = paid[0].amount
+		out.LastPayoutCurrency = paid[0].currency
 		out.LastPayoutArrival = time.Unix(paid[0].arrival, 0).UTC().Format("2006-01-02")
 		out.LastPayoutStatus = paid[0].status
 	}
 	return out, nil
+}
+
+// digestCurrencyLabel renders the right label for a summed amount: if all
+// entries are in one currency, use that code; if multiple, fall back to
+// "Total (mixed currency)"; if no currency data is known, show a dash.
+func digestCurrencyLabel(byCurrency map[string]int64) string {
+	switch len(byCurrency) {
+	case 1:
+		for c := range byCurrency {
+			return c
+		}
+	case 0:
+		return "—"
+	}
+	return "Total (mixed currency)"
 }
 
 // renderDigestMarkdown produces the human-friendly markdown report.
@@ -601,24 +655,41 @@ func renderDigestMarkdown(d dailyDigest) string {
 	fmt.Fprintf(&b, "---\n\n")
 
 	if d.Charges != nil {
+		curLabel := digestCurrencyLabel(d.Charges.ByCurrencyCents)
 		fmt.Fprintf(&b, "## Revenue\n\n")
 		fmt.Fprintf(&b, "| Metric | Value |\n|---|---|\n")
-		fmt.Fprintf(&b, "| Gross | USD %s |\n", centsToDollars(d.Charges.GrossCents))
-		fmt.Fprintf(&b, "| Refunds | USD %s |\n", centsToDollars(d.Charges.RefundsCents))
-		fmt.Fprintf(&b, "| **Net** | **USD %s** |\n", centsToDollars(d.Charges.NetCents))
+		fmt.Fprintf(&b, "| Gross | %s %s |\n", curLabel, centsToDollars(d.Charges.GrossCents))
+		fmt.Fprintf(&b, "| Refunds | %s %s |\n", curLabel, centsToDollars(d.Charges.RefundsCents))
+		fmt.Fprintf(&b, "| **Net** | **%s %s** |\n", curLabel, centsToDollars(d.Charges.NetCents))
 		fmt.Fprintf(&b, "| Successful charges | %d |\n", d.Charges.SuccessfulCount)
 		fmt.Fprintf(&b, "| Failed charges | %d |\n", d.Charges.FailedCount)
 		fmt.Fprintf(&b, "| Success rate | %.2f%% |\n", d.Charges.SuccessRatePct)
-		fmt.Fprintf(&b, "| AOV | USD %s |\n\n", centsToDollars(d.Charges.AOVCents))
+		fmt.Fprintf(&b, "| AOV | %s %s |\n\n", curLabel, centsToDollars(d.Charges.AOVCents))
+
+		if len(d.Charges.ByCurrencyCents) > 1 {
+			// Multi-currency: render per-currency net breakdown so the scalar
+			// "Mixed currency" totals above are interpretable. Sort by code
+			// so the table is diff-stable across runs.
+			fmt.Fprintf(&b, "Per-currency net (gross − refunds):\n\n| Currency | Net |\n|---|---|\n")
+			codes := make([]string, 0, len(d.Charges.ByCurrencyCents))
+			for c := range d.Charges.ByCurrencyCents {
+				codes = append(codes, c)
+			}
+			sort.Strings(codes)
+			for _, c := range codes {
+				fmt.Fprintf(&b, "| %s | %s |\n", c, centsToDollars(d.Charges.ByCurrencyCents[c]))
+			}
+			fmt.Fprintln(&b)
+		}
 
 		if len(d.Charges.Days) > 0 {
 			fmt.Fprintf(&b, "### Day-by-day\n\n| Date | Charges | Gross | Refunds | Net |\n|---|---|---|---|---|\n")
 			for _, row := range d.Charges.Days {
-				fmt.Fprintf(&b, "| %s | %d | USD %s | USD %s | USD %s |\n",
+				fmt.Fprintf(&b, "| %s | %d | %s %s | %s %s | %s %s |\n",
 					row.Date, row.ChargeCount,
-					centsToDollars(row.GrossCents),
-					centsToDollars(row.RefundsCents),
-					centsToDollars(row.NetCents))
+					curLabel, centsToDollars(row.GrossCents),
+					curLabel, centsToDollars(row.RefundsCents),
+					curLabel, centsToDollars(row.NetCents))
 			}
 			fmt.Fprintln(&b)
 		}
@@ -671,21 +742,46 @@ func renderDigestMarkdown(d dailyDigest) string {
 	}
 
 	if d.Disputes != nil {
+		curLabel := digestCurrencyLabel(d.Disputes.OpenByCurrency)
 		fmt.Fprintf(&b, "## Disputes\n\n")
-		fmt.Fprintf(&b, "Open: **%d** (total USD %s)\n", d.Disputes.OpenCount, centsToDollars(d.Disputes.OpenTotal))
-		fmt.Fprintf(&b, "Resolved in window: %d won, %d lost\n\n", d.Disputes.WonInWindow, d.Disputes.LostInWindow)
+		fmt.Fprintf(&b, "Open: **%d** (total %s %s)\n", d.Disputes.OpenCount, curLabel, centsToDollars(d.Disputes.OpenTotal))
+		fmt.Fprintf(&b, "Opened-in-window status: %d currently won, %d currently lost\n", d.Disputes.WonOpenedInWindow, d.Disputes.LostOpenedInWindow)
+		if d.Disputes.WindowNote != "" {
+			fmt.Fprintf(&b, "_Note:_ %s\n", d.Disputes.WindowNote)
+		}
+		fmt.Fprintln(&b)
+		if len(d.Disputes.OpenByCurrency) > 1 {
+			fmt.Fprintf(&b, "Per-currency open:\n\n| Currency | Open total |\n|---|---|\n")
+			codes := make([]string, 0, len(d.Disputes.OpenByCurrency))
+			for c := range d.Disputes.OpenByCurrency {
+				codes = append(codes, c)
+			}
+			sort.Strings(codes)
+			for _, c := range codes {
+				fmt.Fprintf(&b, "| %s | %s |\n", c, centsToDollars(d.Disputes.OpenByCurrency[c]))
+			}
+			fmt.Fprintln(&b)
+		}
 		fmt.Fprintf(&b, "---\n\n")
 	}
 
 	if d.Payouts != nil {
 		fmt.Fprintf(&b, "## Payouts\n\n")
 		if d.Payouts.NextPayoutCents > 0 {
-			fmt.Fprintf(&b, "Next: USD %s arriving %s\n", centsToDollars(d.Payouts.NextPayoutCents), d.Payouts.NextPayoutArrival)
+			nextCur := d.Payouts.NextPayoutCurrency
+			if nextCur == "" {
+				nextCur = "—"
+			}
+			fmt.Fprintf(&b, "Next: %s %s arriving %s\n", nextCur, centsToDollars(d.Payouts.NextPayoutCents), d.Payouts.NextPayoutArrival)
 		} else {
 			fmt.Fprintf(&b, "Next: _none pending_\n")
 		}
 		if d.Payouts.LastPayoutCents > 0 {
-			fmt.Fprintf(&b, "Last: USD %s on %s (%s)\n\n", centsToDollars(d.Payouts.LastPayoutCents), d.Payouts.LastPayoutArrival, d.Payouts.LastPayoutStatus)
+			lastCur := d.Payouts.LastPayoutCurrency
+			if lastCur == "" {
+				lastCur = "—"
+			}
+			fmt.Fprintf(&b, "Last: %s %s on %s (%s)\n\n", lastCur, centsToDollars(d.Payouts.LastPayoutCents), d.Payouts.LastPayoutArrival, d.Payouts.LastPayoutStatus)
 		} else {
 			fmt.Fprintf(&b, "Last: _none on record_\n\n")
 		}
