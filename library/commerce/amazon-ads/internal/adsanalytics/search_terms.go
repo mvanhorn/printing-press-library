@@ -194,7 +194,6 @@ func KeywordCannibalization(rows []SearchTermPerformance) []CannibalizationFindi
 		winner := termRows[0]
 		totalSpend := 0.0
 		totalSales := 0.0
-		totalClicks := 0
 		loserSpend := 0.0
 		loserClicks := 0
 		campaigns := make([]string, 0, len(item.campaigns))
@@ -205,7 +204,6 @@ func KeywordCannibalization(rows []SearchTermPerformance) []CannibalizationFindi
 		for _, row := range termRows {
 			totalSpend += row.Spend
 			totalSales += row.Sales
-			totalClicks += row.Clicks
 			if row.Campaign != winner.Campaign {
 				loserSpend += row.Spend
 				loserClicks += row.Clicks
@@ -227,7 +225,6 @@ func KeywordCannibalization(rows []SearchTermPerformance) []CannibalizationFindi
 			LoserSpend:     loserSpend,
 			Recommendation: fmt.Sprintf("consolidate search term into %s and review negatives in overlapping campaigns", winner.Campaign),
 		})
-		_ = totalClicks
 	}
 	sort.SliceStable(findings, func(i, j int) bool {
 		if findings[i].LoserSpend == findings[j].LoserSpend {

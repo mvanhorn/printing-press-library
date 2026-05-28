@@ -80,7 +80,7 @@ func (s *Store) ImportKeywordSnapshot(ctx context.Context, id, name, sourcePath 
 		if err != nil {
 			return KeywordSnapshot{}, fmt.Errorf("encoding keyword snapshot row %d: %w", i, err)
 		}
-		if _, err := stmt.ExecContext(ctx, id, i, keyword, firstString(obj, "campaign", "Campaign"), firstString(obj, "ad_group", "adGroup", "ad_group", "AdGroup"), numberValue(obj["bid"]), numberValue(obj["cpc"]), numberValue(obj["spend"]), numberValue(obj["sales"]), int(numberValue(obj["orders"])), int(numberValue(obj["clicks"])), string(rowWithDate)); err != nil {
+		if _, err := stmt.ExecContext(ctx, id, i, keyword, firstString(obj, "campaign", "Campaign"), firstString(obj, "ad_group", "adGroup", "AdGroup"), numberValue(obj["bid"]), numberValue(obj["cpc"]), numberValue(obj["spend"]), numberValue(obj["sales"]), int(numberValue(obj["orders"])), int(numberValue(obj["clicks"])), string(rowWithDate)); err != nil {
 			return KeywordSnapshot{}, fmt.Errorf("inserting keyword snapshot row %d: %w", i, err)
 		}
 	}

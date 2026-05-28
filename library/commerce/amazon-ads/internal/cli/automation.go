@@ -439,7 +439,7 @@ func applyAutomationMutation(cmd *cobra.Command, flags *rootFlags, c *client.Cli
 	}
 	out["path"] = path
 	out["status"] = statusCode
-	out["sent_count"] = automationBodyLen(body)
+	out["sent_count"] = sentCount
 	if isVerifySyntheticMutation(data) {
 		out["applied"] = false
 		out["success"] = false

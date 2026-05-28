@@ -28,11 +28,12 @@ func newShareOfVoiceCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			findings := adsanalytics.ShareOfVoice(rows, asin, splitCSV(keywordsCSV), threshold)
+			keywords := splitCSV(keywordsCSV)
+			findings := adsanalytics.ShareOfVoice(rows, asin, keywords, threshold)
 			out := map[string]any{
 				"report":    reportPath,
 				"asin":      asin,
-				"keywords":  splitCSV(keywordsCSV),
+				"keywords":  keywords,
 				"threshold": threshold,
 				"findings":  findings,
 				"count":     len(findings),

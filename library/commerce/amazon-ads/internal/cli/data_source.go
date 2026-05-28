@@ -15,7 +15,6 @@ import (
 	"net/url"
 	"os"
 	"strings"
-	"time"
 
 	"github.com/mvanhorn/printing-press-library/library/commerce/amazon-ads/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/commerce/amazon-ads/internal/store"
@@ -607,6 +606,3 @@ func resolveLocal(ctx context.Context, flags *rootFlags, hintWriter io.Writer, r
 	}
 	return item, prov, nil
 }
-
-// Ensure time import is used (compilation guard).
-var _ = time.Now

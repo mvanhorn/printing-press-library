@@ -433,6 +433,3 @@ func quoteDotEnvValue(value string) string {
 	}
 	return value
 }
-
-// Ensure strings import is used
-var _ = strings.ReplaceAll
