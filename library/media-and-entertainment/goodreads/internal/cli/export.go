@@ -85,6 +85,10 @@ large datasets as it has no memory pressure.`,
 					return fmt.Errorf("creating output file: %w", err)
 				}
 				defer f.Close()
+				// O_CREATE does not change the mode of an already-existing file,
+				// so an export target left over from an older 0o644 build would
+				// stay world-readable. Re-secure to owner-only.
+				_ = os.Chmod(outputFile, 0o600)
 				writer = bufio.NewWriter(f)
 				defer writer.Flush()
 			} else {

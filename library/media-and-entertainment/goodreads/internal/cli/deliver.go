@@ -81,6 +81,9 @@ func deliverFile(path string, body []byte) error {
 		if err := os.MkdirAll(dir, 0o700); err != nil {
 			return fmt.Errorf("creating deliver dir: %w", err)
 		}
+		// MkdirAll does not tighten an already-existing dir; re-secure it so a
+		// deliver dir created by an older 0o755 build does not stay traversable.
+		_ = os.Chmod(dir, 0o700)
 	}
 	tmp := path + ".tmp"
 	if err := os.WriteFile(tmp, body, 0o600); err != nil {

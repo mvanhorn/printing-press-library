@@ -37,6 +37,9 @@ func profileStorePath() (string, error) {
 	if err := os.MkdirAll(dir, 0o700); err != nil {
 		return "", fmt.Errorf("creating state dir: %w", err)
 	}
+	// MkdirAll does not tighten an already-existing dir; re-secure it so a
+	// state dir created by an older 0o755 build does not stay traversable.
+	_ = os.Chmod(dir, 0o700)
 	return filepath.Join(dir, "profiles.json"), nil
 }
 

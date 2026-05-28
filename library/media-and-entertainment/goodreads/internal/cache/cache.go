@@ -48,7 +48,13 @@ func (s *Store) Set(key string, value json.RawMessage) {
 	// the owner: 0o700 dir / 0o600 file. World-readable perms would leak this
 	// to other local users on a shared machine.
 	_ = os.MkdirAll(s.Dir, 0o700)
+	// MkdirAll/WriteFile do not change mode bits on an already-existing dir or
+	// file (O_CREATE is a no-op then), so explicitly re-secure them: a cache
+	// dir/file left behind by an older 0o755/0o644 build would otherwise stay
+	// world-readable forever.
+	_ = os.Chmod(s.Dir, 0o700)
 	_ = os.WriteFile(s.path(key), []byte(value), 0o600)
+	_ = os.Chmod(s.path(key), 0o600)
 }
 
 // Clear removes all cached entries.

@@ -5,6 +5,31 @@
   "base_printing_press_version": "4.11.0",
   "patches": [
     {
+      "id": "logout-warn-graphql-token",
+      "summary": "auth logout now also warns when GOODREADS_GRAPHQL_TOKEN is still exported, mirroring the existing GOODREADS_GOODREADS_COOKIE_SESSION warning (both JSON note and human prose).",
+      "reason": "config.Load() re-populates Config.GraphQLToken from GOODREADS_GRAPHQL_TOKEN after logout (so rating set/clear keep working), so a still-exported token meant the user thought they logged out but rating mutations still authenticated. Logout warned about the cookie env var but not this one.",
+      "files": [
+        "internal/cli/auth.go"
+      ],
+      "validated_outcome": "With GOODREADS_GRAPHQL_TOKEN set, `auth logout` prints '... env var is still set; unset it to fully log out.' and the --json envelope's note lists it; both env vars are joined when both are set."
+    },
+    {
+      "id": "chmod-existing-sensitive-files",
+      "summary": "After every sensitive cache/store/config/profile/feedback/export/deliver write, added an explicit os.Chmod (0o600 files / 0o700 dirs) so files/dirs left by an older 0o644/0o755 build get re-secured on next write.",
+      "reason": "os.WriteFile(path, data, 0o600) and os.OpenFile(..., O_CREATE, 0o600) do not change mode bits on an existing file (O_CREATE is a no-op then), and os.MkdirAll(dir, 0o700) does not change an existing dir's mode. Sensitive files created by an older world-readable build stayed 0o644 forever.",
+      "files": [
+        "internal/cache/cache.go",
+        "internal/config/config.go",
+        "internal/client/client.go",
+        "internal/store/store.go",
+        "internal/cli/profile.go",
+        "internal/cli/feedback.go",
+        "internal/cli/export.go",
+        "internal/cli/deliver.go"
+      ],
+      "validated_outcome": "go build/vet/test and verify_skill all pass. profile.go and deliver.go files were already safe via a tmp+rename (0o600 tmp) pattern; only their parent dirs needed re-securing. store.go already chmod'd the SQLite file/WAL/SHM sidecars; only its db dir needed re-securing."
+    },
+    {
       "id": "markallasread-mutation-annotation",
       "summary": "message list-markallasread annotated mcp:read-only=false to match its account-mutation behavior.",
       "reason": "Greptile P1: GET /message/mark_all_as_read mutates the account, but the cobra command advertised mcp:read-only=true, telling MCP hosts it was safe to call without approval.",

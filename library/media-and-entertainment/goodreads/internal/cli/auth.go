@@ -207,24 +207,31 @@ func newAuthLogoutCmd(flags *rootFlags) *cobra.Command {
 				return configErr(fmt.Errorf("clearing tokens: %w", err))
 			}
 
-			// Identify which (if any) auth env var is still exported so the
-			// JSON envelope and the human prose can both surface it.
-			envStillSet := ""
-			if envStillSet == "" && os.Getenv("GOODREADS_GOODREADS_COOKIE_SESSION") != "" {
-				envStillSet = "GOODREADS_GOODREADS_COOKIE_SESSION"
+			// Identify which (if any) auth env vars are still exported so the
+			// JSON envelope and the human prose can both surface them. Both the
+			// session cookie and the GraphQL token are re-populated by
+			// config.Load() from their env vars after logout (GraphQLToken keeps
+			// `rating set/clear` working), so a still-exported value means the
+			// user is not fully logged out.
+			var envStillSet []string
+			if os.Getenv("GOODREADS_GOODREADS_COOKIE_SESSION") != "" {
+				envStillSet = append(envStillSet, "GOODREADS_GOODREADS_COOKIE_SESSION")
+			}
+			if os.Getenv("GOODREADS_GRAPHQL_TOKEN") != "" {
+				envStillSet = append(envStillSet, "GOODREADS_GRAPHQL_TOKEN")
 			}
 
 			// JSON envelope: {cleared: true, note?: "<env_var> env var is still set"}.
 			if flags.asJSON {
 				out := map[string]any{"cleared": true}
-				if envStillSet != "" {
-					out["note"] = envStillSet + " env var is still set"
+				if len(envStillSet) > 0 {
+					out["note"] = strings.Join(envStillSet, ", ") + " env var is still set"
 				}
 				return printJSONFiltered(cmd.OutOrStdout(), out, flags)
 			}
 
-			if envStillSet != "" {
-				fmt.Fprintf(cmd.OutOrStdout(), "Config cleared. Note: %s env var is still set.\n", envStillSet)
+			if len(envStillSet) > 0 {
+				fmt.Fprintf(cmd.OutOrStdout(), "Config cleared. Note: %s env var is still set; unset it to fully log out.\n", strings.Join(envStillSet, ", "))
 				return nil
 			}
 			fmt.Fprintln(cmd.OutOrStdout(), "Logged out. Credentials cleared.")
