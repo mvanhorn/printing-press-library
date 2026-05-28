@@ -182,6 +182,14 @@ func computeMRR(db *sql.DB, primaryCurrency string, includeTrialing bool, byProd
 		snapshot.ARRCents = v * 12
 	}
 	for cur, mrr := range currencyMRR {
+		if cur == primaryCurrency {
+			// Primary currency is already surfaced at the top level via
+			// MRRCents/ARRCents. Emitting it again under ByCurrency contradicts
+			// the documented contract ("others appear under by_currency") and
+			// gives consumers a false positive when they use `len(by_currency)>0`
+			// to detect non-primary currencies.
+			continue
+		}
 		snapshot.ByCurrency = append(snapshot.ByCurrency, mrrCurrencyRow{
 			Currency: cur,
 			MRRCents: mrr,
