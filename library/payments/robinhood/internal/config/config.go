@@ -164,11 +164,20 @@ func (c *Config) save() error {
 	if err := os.MkdirAll(dir, 0o700); err != nil {
 		return fmt.Errorf("creating config dir: %w", err)
 	}
+	// PATCH(chmod-existing): MkdirAll only sets perm on creation; re-secure an
+	// existing config dir that may have been created world-readable previously.
+	_ = os.Chmod(dir, 0o700)
 	data, err := toml.Marshal(c)
 	if err != nil {
 		return fmt.Errorf("marshaling config: %w", err)
 	}
-	return os.WriteFile(c.Path, data, 0o600)
+	if err := os.WriteFile(c.Path, data, 0o600); err != nil {
+		return err
+	}
+	// PATCH(chmod-existing): WriteFile only applies perm when creating the file;
+	// re-secure an existing 0o644 config holding client secrets/API keys.
+	_ = os.Chmod(c.Path, 0o600)
+	return nil
 }
 
 // Ensure strings import is used
