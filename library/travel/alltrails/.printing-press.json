@@ -8,7 +8,7 @@
   "owner": "zaydiscold",
   "printer": "zaydiscold",
   "printer_name": "zaydiscold",
-  "spec_path": "alltrails-api-map.seed.json",
+  "spec_path": "spec.json",
   "spec_format": "openapi3",
   "spec_checksum": "sha256:540cf577e55e9d65b5ad9ecdba9c9f5dd773f994c8f3026d422dd64d997b512c",
   "run_id": "20260526-193757",
