@@ -3,6 +3,7 @@ package cli
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"regexp"
 	"strconv"
 	"strings"
@@ -10,6 +11,27 @@ import (
 	"github.com/mvanhorn/printing-press-library/library/payments/splitwise/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/payments/splitwise/internal/store"
 )
+
+// splitwiseMutationError inspects a Splitwise write response body. Splitwise
+// returns HTTP 200 even when a create/update fails, signaling the failure only
+// via a non-empty "errors" object in the body. Callers that check only the HTTP
+// status would treat such a failure as success, so write paths must also run
+// the response body through this check. Returns nil when the body reports no
+// errors (or is not a recognizable JSON object — the HTTP status is the
+// caller's first line of defense in that case).
+func splitwiseMutationError(data json.RawMessage) error {
+	var env struct {
+		Errors json.RawMessage `json:"errors"`
+	}
+	if err := json.Unmarshal(data, &env); err != nil {
+		return nil
+	}
+	s := strings.TrimSpace(string(env.Errors))
+	if s == "" || s == "{}" || s == "[]" || s == "null" {
+		return nil
+	}
+	return fmt.Errorf("splitwise rejected the request: %s", s)
+}
 
 // openSplitwiseStore opens (creating if absent) the local SQLite store. Novel
 // read commands use this instead of a store-must-exist open so that running a

@@ -15,7 +15,7 @@ func newSpendCmd(flags *rootFlags) *cobra.Command {
 	groupBy := "category"
 	cmd := &cobra.Command{
 		Use:         "spend",
-		Short:       "Show total spend grouped by category, group, or month",
+		Short:       "Show your spend (your share of each expense) grouped by category, group, or month",
 		Example:     "  splitwise-pp-cli spend --group-by category --agent",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -47,6 +47,7 @@ func newSpendCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
+			youID := loadCurrentUserID(db)
 
 			groupNames := make(map[int]string)
 			groupNames[0] = "Non-group"
@@ -73,7 +74,7 @@ func newSpendCmd(flags *rootFlags) *cobra.Command {
 				if _, ok := aggs[k]; !ok {
 					aggs[k] = &agg{}
 				}
-				aggs[k].Total += parseAmount(e.Cost)
+				aggs[k].Total += userOwedShare(e, youID)
 				aggs[k].Count++
 			}
 
@@ -116,6 +117,23 @@ func newSpendCmd(flags *rootFlags) *cobra.Command {
 	}
 	cmd.Flags().StringVar(&groupBy, "group-by", "category", "Bucket spend by: category|group|month")
 	return cmd
+}
+
+// userOwedShare returns the authenticated user's share of an expense (their
+// actual spend), which is what "your spend" should total — not the full expense
+// cost shared across everyone. Falls back to the full cost only when the
+// current user id is unknown (no synced current-user record), so the command
+// still produces a meaningful number rather than zero.
+func userOwedShare(e Expense, youID int) float64 {
+	if youID == 0 {
+		return parseAmount(e.Cost)
+	}
+	for _, u := range e.Users {
+		if u.UserID == youID {
+			return parseAmount(u.OwedShare)
+		}
+	}
+	return 0
 }
 
 func newLedgerCmd(flags *rootFlags) *cobra.Command {

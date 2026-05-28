@@ -215,12 +215,22 @@ func newSettleUpCmd(flags *rootFlags) *cobra.Command {
 					body["group_id"] = targetGroupID
 				}
 
-				_, statusCode, postErr := c.Post(cmd.Context(), "/create_expense", body)
+				// Splitwise has no atomic multi-expense API. If a transfer
+				// fails mid-loop, the earlier ones are already posted; surface
+				// how many succeeded so the user can reconcile the remainder in
+				// the app rather than silently losing the partial-progress count.
+				respData, statusCode, postErr := c.Post(cmd.Context(), "/create_expense", body)
 				if postErr != nil {
-					return postErr
+					return fmt.Errorf("recorded %d of %d transfer(s) before %s -> %s failed: %w", len(recorded), len(plan), t.FromName, t.ToName, postErr)
 				}
 				if statusCode < 200 || statusCode >= 300 {
-					return fmt.Errorf("failed to record transfer %s -> %s %.2f %s: status %d", t.FromName, t.ToName, t.Amount, t.CurrencyCode, statusCode)
+					return fmt.Errorf("recorded %d of %d transfer(s); transfer %s -> %s %.2f %s failed: status %d", len(recorded), len(plan), t.FromName, t.ToName, t.Amount, t.CurrencyCode, statusCode)
+				}
+				// Splitwise returns HTTP 200 with a non-empty "errors" body when
+				// the create is rejected, so the status check above is not
+				// sufficient — inspect the body too.
+				if envErr := splitwiseMutationError(respData); envErr != nil {
+					return fmt.Errorf("recorded %d of %d transfer(s); transfer %s -> %s rejected: %w", len(recorded), len(plan), t.FromName, t.ToName, envErr)
 				}
 				recorded = append(recorded, recordedPayment{
 					From:   t.FromName,

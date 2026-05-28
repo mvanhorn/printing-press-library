@@ -189,12 +189,17 @@ func newSplitCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			_, status, err := c.Post(cmd.Context(), "/create_expense", body)
+			respData, status, err := c.Post(cmd.Context(), "/create_expense", body)
 			if err != nil {
 				return err
 			}
 			if status < 200 || status >= 300 {
 				return fmt.Errorf("create_expense failed: status %d", status)
+			}
+			// Splitwise returns HTTP 200 with a non-empty "errors" body when the
+			// create is rejected, so the status check alone is not sufficient.
+			if envErr := splitwiseMutationError(respData); envErr != nil {
+				return fmt.Errorf("create_expense rejected: %w", envErr)
 			}
 
 			summary := map[string]any{"status_code": status, "created": true}

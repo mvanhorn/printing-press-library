@@ -6,16 +6,19 @@ import (
 	"sort"
 	"strings"
 	"text/tabwriter"
+	"time"
 
+	"github.com/mvanhorn/printing-press-library/library/payments/splitwise/internal/cliutil"
 	"github.com/spf13/cobra"
 )
 
 func newActivityCmd(flags *rootFlags) *cobra.Command {
 	limit := 20
+	since := "7d"
 	cmd := &cobra.Command{
 		Use:         "activity",
-		Short:       "Show notifications and changed expenses since last sync",
-		Example:     "  splitwise-pp-cli activity --limit 20 --agent",
+		Short:       "Show recent notifications and expenses changed within a time window",
+		Example:     "  splitwise-pp-cli activity --since 7d --agent\n  splitwise-pp-cli activity --since 24h --limit 50 --json",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 && cmd.Flags().NFlag() == 0 {
@@ -65,7 +68,15 @@ func newActivityCmd(flags *rootFlags) *cobra.Command {
 				notifications = notifications[:limit]
 			}
 
-			cutoff := strings.TrimSpace(db.GetLastSyncedAt("get-expenses"))
+			// "Changed expenses" is a recency window, not the last-sync time:
+			// every locally-stored expense has updated_at <= the last sync
+			// completion time, so comparing against GetLastSyncedAt would make
+			// this list always empty. Diff against now-minus-window instead.
+			dur, derr := cliutil.ParseDurationLoose(since)
+			if derr != nil {
+				return usageErr(fmt.Errorf("invalid --since %q: %w", since, derr))
+			}
+			cutoff := time.Now().UTC().Add(-dur).Format(time.RFC3339)
 			type changedExpense struct {
 				ID          int    `json:"id"`
 				Description string `json:"description"`
@@ -119,5 +130,6 @@ func newActivityCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	cmd.Flags().IntVar(&limit, "limit", 20, "Maximum notifications to return")
+	cmd.Flags().StringVar(&since, "since", "7d", "Recency window for changed expenses (e.g. 24h, 7d, 4w)")
 	return cmd
 }
