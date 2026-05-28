@@ -1,0 +1,1368 @@
+{
+  "dir": "/Users/dhilipsubramanian/Documents/Printingpress/workspace/library/meta-ads",
+  "binary": "/Users/dhilipsubramanian/Documents/Printingpress/workspace/library/meta-ads/meta-ads-pp-cli",
+  "level": "full",
+  "verdict": "PASS",
+  "matrix_size": 83,
+  "passed": 83,
+  "failed": 0,
+  "skipped": 54,
+  "commands": [
+    "adcreatives",
+    "ads",
+    "adsets",
+    "analytics",
+    "api",
+    "bottleneck",
+    "campaigns",
+    "customaudiences",
+    "decay",
+    "delivery-estimate",
+    "doctor",
+    "fatigue",
+    "feedback list",
+    "import",
+    "insights get-account",
+    "insights get-ad",
+    "insights get-ad-set",
+    "insights get-campaign",
+    "inventory",
+    "learning",
+    "me",
+    "overlap",
+    "profile delete",
+    "profile list",
+    "profile save",
+    "profile show",
+    "profile use",
+    "reconcile",
+    "search",
+    "stale",
+    "sync",
+    "which",
+    "workflow archive",
+    "workflow status"
+  ],
+  "tests": [
+    {
+      "command": "adcreatives",
+      "kind": "help",
+      "args": [
+        "adcreatives",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Get creatives attached to an ad\n\nUsage:\n  meta-ads-pp-cli adcreatives \u003cadId\u003e [flags]\n\nExamples:\n  meta-ads-pp-cli adcreatives 550e8400-e29b-41d4-a716-446655440000\n\nFlags:\n      --all    Fetch all pages\n  -h, --help   help for adcreatives\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'meta-ads-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "adcreatives",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [adcreatives] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "adcreatives",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [adcreatives] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "adcreatives",
+      "kind": "error_path",
+      "args": [
+        "adcreatives",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 5,
+      "output_sample": "Error: GET /__printing_press_invalid__/adcreatives returned HTTP 400: {\"error\":{\"message\":\"Unsupported get request. Object with ID '__printing_press_invalid__' does not exist, cannot be loaded due to missing permissions, or does not support this operation. Please read the Graph API documentation at https:\\/\\/developers.facebook.com\\/docs\\/graph-api\",\"type\":\"GraphMethodException\",\"code\":100,\"error_subcode\":33,\"fbtrace_id\":\"At8H9j8W2rZ7F2Ooqqp1kvb\"}}\n"
+    },
+    {
+      "command": "ads",
+      "kind": "help",
+      "args": [
+        "ads",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List ads in an ad account\n\nUsage:\n  meta-ads-pp-cli ads \u003cadAccountId\u003e [flags]\n\nExamples:\n  meta-ads-pp-cli ads 550e8400-e29b-41d4-a716-446655440000\n\nFlags:\n      --all    Fetch all pages\n  -h, --help   help for ads\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'meta-ads-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "ads",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [ads] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "ads",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [ads] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "ads",
+      "kind": "error_path",
+      "args": [
+        "ads",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 5,
+      "output_sample": "Error: GET /__printing_press_invalid__/ads returned HTTP 400: {\"error\":{\"message\":\"Unsupported get request. Object with ID '__printing_press_invalid__' does not exist, cannot be loaded due to missing permissions, or does not support this operation. Please read the Graph API documentation at https:\\/\\/developers.facebook.com\\/docs\\/graph-api\",\"type\":\"GraphMethodException\",\"code\":100,\"error_subcode\":33,\"fbtrace_id\":\"A0CPvE21MtT1VicD2I4tDJt\"}}\n"
+    },
+    {
+      "command": "adsets",
+      "kind": "help",
+      "args": [
+        "adsets",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Returns ad sets with targeting summary, budget, optimization goal, and bid strategy.\n\nUsage:\n  meta-ads-pp-cli adsets \u003cadAccountId\u003e [flags]\n\nExamples:\n  meta-ads-pp-cli adsets 550e8400-e29b-41d4-a716-446655440000\n\nFlags:\n      --all    Fetch all pages\n  -h, --help   help for adsets\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'meta-ads-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "adsets",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [adsets] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "adsets",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [adsets] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "adsets",
+      "kind": "error_path",
+      "args": [
+        "adsets",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 5,
+      "output_sample": "Error: GET /__printing_press_invalid__/adsets returned HTTP 400: {\"error\":{\"message\":\"Unsupported get request. Object with ID '__printing_press_invalid__' does not exist, cannot be loaded due to missing permissions, or does not support this operation. Please read the Graph API documentation at https:\\/\\/developers.facebook.com\\/docs\\/graph-api\",\"type\":\"GraphMethodException\",\"code\":100,\"error_subcode\":33,\"fbtrace_id\":\"At_o5qZaN51dYfGNRXIWeXw\"}}\n"
+    },
+    {
+      "command": "analytics",
+      "kind": "help",
+      "args": [
+        "analytics",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Analyze locally synced data with count, group-by, and summary operations.\nData must be synced first with the sync command.\n\nUsage:\n  meta-ads-pp-cli analytics [flags]\n\nExamples:\n  # Count records by type\n  meta-ads-pp-cli analytics --type messages\n\n  # Group by a field\n  meta-ads-pp-cli analytics --type messages --group-by author_id\n\n  # Top 10 most frequent values\n  meta-ads-pp-cli analytics --type messages --group-by channel_id --limit 10 --json\n\nFlags:\n      --db string         Database path\n      --group-by string   Field to group by\n  -h, --help              help for analytics\n      --limit int         Max groups to show (default 25)\n      --type string       Resource type to analyze\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'meta-ads-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "analytics",
+      "kind": "happy_path",
+      "args": [
+        "analytics",
+        "--type",
+        "messages"
+      ],
+      "status": "pass",
+      "output_sample": "messages: 0 records\nhint: local store has not been synced yet. Run 'meta-ads-pp-cli sync' before trusting local results.\n"
+    },
+    {
+      "command": "analytics",
+      "kind": "json_fidelity",
+      "args": [
+        "analytics",
+        "--type",
+        "messages",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"count\": 0,\n  \"resource_type\": \"messages\"\n}\nhint: local store has not been synced yet. Run 'meta-ads-pp-cli sync' before trusting local results.\n"
+    },
+    {
+      "command": "analytics",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "api",
+      "kind": "help",
+      "args": [
+        "api",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Browse and call any API endpoint using the raw interface names.\n\nThe friendly top-level commands cover the most common operations.\nThis command provides access to ALL endpoints for power users and\nagents that need full API coverage.\n\nRun 'api' with no arguments to list all interfaces.\nRun 'api \u003cinterface\u003e' to see that interface's methods.\n\nUsage:\n  meta-ads-pp-cli api [interface] [flags]\n\nExamples:\n  # List all available interfaces\n  meta-ads-pp-cli api\n\n  # Show methods for a specific interface\n  meta-ads-pp-cli api \u003cinterface-name\u003e\n\nFlags:\n  -h, --help   help for api\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'meta-ads-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "api",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "api",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "api",
+      "kind": "error_path",
+      "args": [
+        "api",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: interface \"__printing_press_invalid__\" not found. Run 'meta-ads-pp-cli api' to list all interfaces\n"
+    },
+    {
+      "command": "bottleneck",
+      "kind": "help",
+      "args": [
+        "bottleneck",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Surface the adsets that combine high spend with poor return-on-ad-spend.\nJoins to learning_stage_info and effective_status to populate a 'why' hint\nexplaining why each adset is bottlenecked.\n\nRequires synced adsets and insights data in the local store.\n\nUsage:\n  meta-ads-pp-cli bottleneck [flags]\n\nExamples:\n  meta-ads-pp-cli bottleneck --account act_4327210487520472 --limit 10 --agent\n  meta-ads-pp-cli bottleneck --json --select rows.adset_name,rows.spend,rows.roas\n\nFlags:\n      --account string   Filter to a specific ad account (e.g., act_1234567890)\n      --db string        Database path (defaults to ~/.meta-ads-pp-cli/data.db)\n  -h, --help             help for bottleneck\n      --limit string     Max rows to return (default \"10\")\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'meta-ads-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "bottleneck",
+      "kind": "happy_path",
+      "args": [
+        "bottleneck",
+        "--account",
+        "act_4327210487520472",
+        "--limit",
+        "10",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"account\": \"act_4327210487520472\",\n  \"limit\": 10,\n  \"note\": \"no adsets in local store; run 'meta-ads-pp-cli sync --path-context adAccountId=act_\\u003cid\\u003e --resources adsets' first\",\n  \"rows\": [],\n  \"total\": 0\n}\n"
+    },
+    {
+      "command": "bottleneck",
+      "kind": "json_fidelity",
+      "args": [
+        "bottleneck",
+        "--account",
+        "act_4327210487520472",
+        "--limit",
+        "10",
+        "--agent",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"account\": \"act_4327210487520472\",\n  \"limit\": 10,\n  \"note\": \"no adsets in local store; run 'meta-ads-pp-cli sync --path-context adAccountId=act_\\u003cid\\u003e --resources adsets' first\",\n  \"rows\": [],\n  \"total\": 0\n}\n"
+    },
+    {
+      "command": "bottleneck",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "campaigns",
+      "kind": "help",
+      "args": [
+        "campaigns",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Returns campaigns with status, objective, and budget metadata.\n\nUsage:\n  meta-ads-pp-cli campaigns \u003cadAccountId\u003e [flags]\n\nExamples:\n  meta-ads-pp-cli campaigns 550e8400-e29b-41d4-a716-446655440000\n\nFlags:\n      --all                       Fetch all pages\n      --effective-status string   Filter by effective status array, e.g. ['ACTIVE','PAUSED']\n  -h, --help                      help for campaigns\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'meta-ads-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "campaigns",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [campaigns] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "campaigns",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [campaigns] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "campaigns",
+      "kind": "error_path",
+      "args": [
+        "campaigns",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 5,
+      "output_sample": "Error: GET /__printing_press_invalid__/campaigns returned HTTP 400: {\"error\":{\"message\":\"Unsupported get request. Object with ID '__printing_press_invalid__' does not exist, cannot be loaded due to missing permissions, or does not support this operation. Please read the Graph API documentation at https:\\/\\/developers.facebook.com\\/docs\\/graph-api\",\"type\":\"GraphMethodException\",\"code\":100,\"error_subcode\":33,\"fbtrace_id\":\"Aj5hTevfM6v3lVO08mjs6D1\"}}\n"
+    },
+    {
+      "command": "customaudiences",
+      "kind": "help",
+      "args": [
+        "customaudiences",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List custom audiences in an ad account\n\nUsage:\n  meta-ads-pp-cli customaudiences \u003cadAccountId\u003e [flags]\n\nExamples:\n  meta-ads-pp-cli customaudiences 550e8400-e29b-41d4-a716-446655440000\n\nFlags:\n      --all    Fetch all pages\n  -h, --help   help for customaudiences\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'meta-ads-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "customaudiences",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [customaudiences] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "customaudiences",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [customaudiences] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "customaudiences",
+      "kind": "error_path",
+      "args": [
+        "customaudiences",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 5,
+      "output_sample": "Error: GET /__printing_press_invalid__/customaudiences returned HTTP 400: {\"error\":{\"message\":\"Unsupported get request. Object with ID '__printing_press_invalid__' does not exist, cannot be loaded due to missing permissions, or does not support this operation. Please read the Graph API documentation at https:\\/\\/developers.facebook.com\\/docs\\/graph-api\",\"type\":\"GraphMethodException\",\"code\":100,\"error_subcode\":33,\"fbtrace_id\":\"AkbayAuh9P2jDWcyNIh9sto\"}}\n"
+    },
+    {
+      "command": "decay",
+      "kind": "help",
+      "args": [
+        "decay",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "For a creative, find every ad using it, aggregate daily CTR across all ads,\nand compute the slope and projected dead-date (CTR=0 extrapolation).\n\nRequires synced ad-level insights in the local store keyed to ads referencing this creative.\n\nUsage:\n  meta-ads-pp-cli decay [flags]\n\nExamples:\n  meta-ads-pp-cli decay --creative-id 120208734567 --agent\n  meta-ads-pp-cli decay --creative-id 120208734567 --json --select ctr_slope,verdict\n\nFlags:\n      --creative-id string   Creative ID to analyze\n      --db string            Database path (defaults to ~/.meta-ads-pp-cli/data.db)\n  -h, --help                 help for decay\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'meta-ads-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "decay",
+      "kind": "happy_path",
+      "args": [
+        "decay",
+        "--creative-id",
+        "120208734567",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"creative_id\": \"120208734567\",\n  \"ctr_slope\": 0,\n  \"days_observed\": 0,\n  \"first_ctr\": 0,\n  \"last_ctr\": 0,\n  \"note\": \"no ads in local store reference this creative; run sync --resources ads first\",\n  \"verdict\": \"no-data\"\n}\n"
+    },
+    {
+      "command": "decay",
+      "kind": "json_fidelity",
+      "args": [
+        "decay",
+        "--creative-id",
+        "120208734567",
+        "--agent",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"creative_id\": \"120208734567\",\n  \"ctr_slope\": 0,\n  \"days_observed\": 0,\n  \"first_ctr\": 0,\n  \"last_ctr\": 0,\n  \"note\": \"no ads in local store reference this creative; run sync --resources ads first\",\n  \"verdict\": \"no-data\"\n}\n"
+    },
+    {
+      "command": "decay",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "delivery-estimate",
+      "kind": "help",
+      "args": [
+        "delivery-estimate",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Get reach/impressions delivery estimate\n\nUsage:\n  meta-ads-pp-cli delivery-estimate \u003cadAccountId\u003e [flags]\n\nExamples:\n  meta-ads-pp-cli delivery-estimate 550e8400-e29b-41d4-a716-446655440000\n\nFlags:\n  -h, --help                       help for delivery-estimate\n      --optimization-goal string   Optimization goal\n      --targeting-spec string      JSON-encoded targeting specification\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'meta-ads-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "delivery-estimate",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [delivery-estimate] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "delivery-estimate",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [delivery-estimate] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "delivery-estimate",
+      "kind": "error_path",
+      "args": [
+        "delivery-estimate",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 5,
+      "output_sample": "Error: GET /__printing_press_invalid__/delivery_estimate returned HTTP 400: {\"error\":{\"message\":\"Unsupported get request. Object with ID '__printing_press_invalid__' does not exist, cannot be loaded due to missing permissions, or does not support this operation. Please read the Graph API documentation at https:\\/\\/developers.facebook.com\\/docs\\/graph-api\",\"type\":\"GraphMethodException\",\"code\":100,\"error_subcode\":33,\"fbtrace_id\":\"AdatVwqiQSsxhHwkbgIbdy2\"}}\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "help",
+      "args": [
+        "doctor",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Check CLI health\n\nUsage:\n  meta-ads-pp-cli doctor [flags]\n\nExamples:\n  meta-ads-pp-cli doctor\n  meta-ads-pp-cli doctor --json\n  meta-ads-pp-cli doctor --fail-on warn\n\nFlags:\n      --fail-on string   Exit non-zero when a health level is reached: stale, error. Default is never.\n  -h, --help             help for doctor\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'meta-ads-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "happy_path",
+      "args": [
+        "doctor"
+      ],
+      "status": "pass",
+      "output_sample": "  OK Config: ok\n  OK Auth: configured\n  OK Env Vars: OK 1/1 available\n  OK Verify Mode: normal operation\n  OK API: reachable (HTTP 400 at /)\n  INFO Credentials: present, not verified. Run any read command to confirm the token works end-to-end.\n  config_path: /var/folders/92/rd00vfws4ql4n5hsqw65szfw0000gn/T/printing-press-subprocess-665198031/.config/meta-ads-pp-cli/config.toml\n  base_url: https://graph.facebook.com/v19.0\n  auth_source: env:META_ACCESS_TOKEN\n  version: 1.0.0\n  INFO Cache: unknown\n    db_path: /var/folders/92/rd00vfws4ql4n5hsqw65szfw0000gn/T/printing-press-subprocess-665198031/.local/share/meta-ads-pp-cli/data.db\n    schema_version: 2\n    db_bytes: 196608\n    stale_after: 6h0m0s\n    hint: sync_state is empty; run 'meta-ads-pp-cli sync' to hydrate.\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "json_fidelity",
+      "args": [
+        "doctor",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"agentcookie\": \"not detected (optional)\",\n  \"api\": \"reachable (HTTP 400 at /)\",\n  \"auth\": \"configured\",\n  \"auth_source\": \"env:META_ACCESS_TOKEN\",\n  \"base_url\": \"https://graph.facebook.com/v19.0\",\n  \"cache\": {\n    \"db_bytes\": 196608,\n    \"db_path\": \"/var/folders/92/rd00vfws4ql4n5hsqw65szfw0000gn/T/printing-press-subprocess-665198031/.local/share/meta-ads-pp-cli/data.db\",\n    \"hint\": \"sync_state is empty; run 'meta-ads-pp-cli sync' to hydrate.\",\n    \"resources\": null,\n    \"schema_version\": 2,\n    \"stale_after\": \"6h0m0s\",\n    \"status\": \"unknown\"\n  },\n  \"config\": \"ok\",\n  \"config_path\": \"/var/folders/92/rd00vfws4ql4n5hsqw65szfw0000gn/T/printing-press-subprocess-665198031/.config/meta-ads-pp-cli/config.toml\",\n  \"credentials\": \"present, not verified. Run any read command to confirm the token works end-to-end.\",\n  \"env_vars\": \"OK 1/1 available\",\n  \"verify_mode\": \"normal operation\",\n  \"version\": \"1.0.0\"\n}\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "fatigue",
+      "kind": "help",
+      "args": [
+        "fatigue",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Compute per-day CPM, CTR, and frequency slopes for every ad in a campaign\nor account over the configured window. Flags ads where the 3-day moving CPM\nexceeds the baseline by \u003e20% as fatigued.\n\nRequires synced ad-level insights with time_increment=1 in the local store.\n\nUsage:\n  meta-ads-pp-cli fatigue [flags]\n\nExamples:\n  meta-ads-pp-cli fatigue --campaign 23847265 --window 14d --agent\n  meta-ads-pp-cli fatigue --account act_4327210487520472 --window 7d --json\n\nFlags:\n      --account string    Ad account to scope the scan (alternative to --campaign)\n      --campaign string   Campaign ID to scope the scan\n      --db string         Database path (defaults to ~/.meta-ads-pp-cli/data.db)\n  -h, --help              help for fatigue\n      --window string     Days of history to analyze (e.g., 7d, 14d, 30d) (default \"14d\")\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'meta-ads-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "fatigue",
+      "kind": "happy_path",
+      "args": [
+        "fatigue",
+        "--campaign",
+        "23847265",
+        "--window",
+        "14d",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"campaign\": \"23847265\",\n  \"note\": \"no ads with enough daily insights to compute fatigue; run 'meta-ads-pp-cli sync' with insights resource included\",\n  \"rows\": [],\n  \"total\": 0,\n  \"window_days\": 14\n}\n"
+    },
+    {
+      "command": "fatigue",
+      "kind": "json_fidelity",
+      "args": [
+        "fatigue",
+        "--campaign",
+        "23847265",
+        "--window",
+        "14d",
+        "--agent",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"campaign\": \"23847265\",\n  \"note\": \"no ads with enough daily insights to compute fatigue; run 'meta-ads-pp-cli sync' with insights resource included\",\n  \"rows\": [],\n  \"total\": 0,\n  \"window_days\": 14\n}\n"
+    },
+    {
+      "command": "fatigue",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "feedback list",
+      "kind": "help",
+      "args": [
+        "feedback",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List recent feedback entries\n\nUsage:\n  meta-ads-pp-cli feedback list [flags]\n\nExamples:\n  meta-ads-pp-cli feedback list\n  meta-ads-pp-cli feedback list --limit 5\n  meta-ads-pp-cli feedback list --json\n\nFlags:\n  -h, --help        help for list\n      --limit int   Maximum number of recent entries to return (default 20)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'meta-ads-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "happy_path",
+      "args": [
+        "feedback",
+        "list"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "feedback list",
+      "kind": "json_fidelity",
+      "args": [
+        "feedback",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "import",
+      "kind": "help",
+      "args": [
+        "import",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Import data from a JSONL file by issuing POST requests for each record.\nEach line must be a valid JSON object. Failed records are logged to stderr\nbut do not stop the import.\n\nUsage:\n  meta-ads-pp-cli import \u003cresource\u003e [flags]\n\nExamples:\n  # Import from a JSONL file\n  meta-ads-pp-cli import \u003cresource\u003e --input data.jsonl\n\n  # Dry-run to preview without sending\n  meta-ads-pp-cli import \u003cresource\u003e --input data.jsonl --dry-run\n\n  # Import from stdin\n  cat data.jsonl | meta-ads-pp-cli import \u003cresource\u003e --input -\n\nFlags:\n      --batch-size int   Records per batch (future: batch API support) (default 1)\n      --dry-run          Preview import without sending requests\n  -h, --help             help for import\n  -i, --input string     Input JSONL file path (use - for stdin)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'meta-ads-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "import",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [import] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "import",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [import] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "import",
+      "kind": "error_path",
+      "args": [
+        "import",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: required flag(s) \"input\" not set\n"
+    },
+    {
+      "command": "insights get-account",
+      "kind": "help",
+      "args": [
+        "insights",
+        "get-account",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Returns aggregated insights across the entire ad account.\n\nUsage:\n  meta-ads-pp-cli insights get-account \u003cadAccountId\u003e [flags]\n\nAliases:\n  get-account, get\n\nExamples:\n  meta-ads-pp-cli insights get-account 550e8400-e29b-41d4-a716-446655440000\n\nFlags:\n      --all                     Fetch all pages\n      --breakdowns string       Comma-separated breakdowns.\n      --date-preset string      Preset time window.\n  -h, --help                    help for get-account\n      --level string            Aggregation level (account, campaign, adset, ad) (one of: account, campaign, adset, ad)\n      --time-increment string   Group results into N-day buckets. Use '1' for daily series (required for fatigue detection).\n      --time-range string       JSON-encoded time range, e.g., {'since':'2026-01-01','until':'2026-01-31'}. Mutually exclusive with date_preset.\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'meta-ads-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "insights get-account",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"adaccountid\""
+    },
+    {
+      "command": "insights get-account",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"adaccountid\""
+    },
+    {
+      "command": "insights get-account",
+      "kind": "error_path",
+      "args": [
+        "insights",
+        "get-account",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 5,
+      "output_sample": "Error: GET /__printing_press_invalid__/insights returned HTTP 400: {\"error\":{\"message\":\"Unsupported get request. Object with ID '__printing_press_invalid__' does not exist, cannot be loaded due to missing permissions, or does not support this operation. Please read the Graph API documentation at https:\\/\\/developers.facebook.com\\/docs\\/graph-api\",\"type\":\"GraphMethodException\",\"code\":100,\"error_subcode\":33,\"fbtrace_id\":\"AF6dvMecuCHozjNjnunIOL2\"}}\n"
+    },
+    {
+      "command": "insights get-ad",
+      "kind": "help",
+      "args": [
+        "insights",
+        "get-ad",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Ad-level insights with frequency, CPM, CTR over time.\n\nUsage:\n  meta-ads-pp-cli insights get-ad \u003cadId\u003e [flags]\n\nExamples:\n  meta-ads-pp-cli insights get-ad 550e8400-e29b-41d4-a716-446655440000\n\nFlags:\n      --all                     Fetch all pages\n      --breakdowns string       Comma-separated breakdowns.\n      --date-preset string      Preset time window.\n  -h, --help                    help for get-ad\n      --time-increment string   Group results into N-day buckets. Use '1' for daily series (required for fatigue detection).\n      --time-range string       JSON-encoded time range, e.g., {'since':'2026-01-01','until':'2026-01-31'}. Mutually exclusive with date_preset.\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'meta-ads-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "insights get-ad",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"adid\""
+    },
+    {
+      "command": "insights get-ad",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"adid\""
+    },
+    {
+      "command": "insights get-ad",
+      "kind": "error_path",
+      "args": [
+        "insights",
+        "get-ad",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 5,
+      "output_sample": "Error: GET /__printing_press_invalid__/insights returned HTTP 400: {\"error\":{\"message\":\"Unsupported get request. Object with ID '__printing_press_invalid__' does not exist, cannot be loaded due to missing permissions, or does not support this operation. Please read the Graph API documentation at https:\\/\\/developers.facebook.com\\/docs\\/graph-api\",\"type\":\"GraphMethodException\",\"code\":100,\"error_subcode\":33,\"fbtrace_id\":\"AfcOL7h7OAZSXq6bGxGeyBj\"}}\n"
+    },
+    {
+      "command": "insights get-ad-set",
+      "kind": "help",
+      "args": [
+        "insights",
+        "get-ad-set",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Get ad set-level insights\n\nUsage:\n  meta-ads-pp-cli insights get-ad-set \u003cadSetId\u003e [flags]\n\nExamples:\n  meta-ads-pp-cli insights get-ad-set 550e8400-e29b-41d4-a716-446655440000\n\nFlags:\n      --all                     Fetch all pages\n      --breakdowns string       Comma-separated breakdowns.\n      --date-preset string      Preset time window.\n  -h, --help                    help for get-ad-set\n      --time-increment string   Group results into N-day buckets. Use '1' for daily series (required for fatigue detection).\n      --time-range string       JSON-encoded time range, e.g., {'since':'2026-01-01','until':'2026-01-31'}. Mutually exclusive with date_preset.\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'meta-ads-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "insights get-ad-set",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"adsetid\""
+    },
+    {
+      "command": "insights get-ad-set",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"adsetid\""
+    },
+    {
+      "command": "insights get-ad-set",
+      "kind": "error_path",
+      "args": [
+        "insights",
+        "get-ad-set",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 5,
+      "output_sample": "Error: GET /__printing_press_invalid__/insights returned HTTP 400: {\"error\":{\"message\":\"Unsupported get request. Object with ID '__printing_press_invalid__' does not exist, cannot be loaded due to missing permissions, or does not support this operation. Please read the Graph API documentation at https:\\/\\/developers.facebook.com\\/docs\\/graph-api\",\"type\":\"GraphMethodException\",\"code\":100,\"error_subcode\":33,\"fbtrace_id\":\"AJDEyNy39LuQY-qhCew7H2D\"}}\n"
+    },
+    {
+      "command": "insights get-campaign",
+      "kind": "help",
+      "args": [
+        "insights",
+        "get-campaign",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Get campaign-level insights\n\nUsage:\n  meta-ads-pp-cli insights get-campaign \u003ccampaignId\u003e [flags]\n\nExamples:\n  meta-ads-pp-cli insights get-campaign 550e8400-e29b-41d4-a716-446655440000\n\nFlags:\n      --all                     Fetch all pages\n      --breakdowns string       Comma-separated breakdowns.\n      --date-preset string      Preset time window.\n  -h, --help                    help for get-campaign\n      --time-increment string   Group results into N-day buckets. Use '1' for daily series (required for fatigue detection).\n      --time-range string       JSON-encoded time range, e.g., {'since':'2026-01-01','until':'2026-01-31'}. Mutually exclusive with date_preset.\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'meta-ads-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "insights get-campaign",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"campaignid\""
+    },
+    {
+      "command": "insights get-campaign",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"campaignid\""
+    },
+    {
+      "command": "insights get-campaign",
+      "kind": "error_path",
+      "args": [
+        "insights",
+        "get-campaign",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 5,
+      "output_sample": "Error: GET /__printing_press_invalid__/insights returned HTTP 400: {\"error\":{\"message\":\"Unsupported get request. Object with ID '__printing_press_invalid__' does not exist, cannot be loaded due to missing permissions, or does not support this operation. Please read the Graph API documentation at https:\\/\\/developers.facebook.com\\/docs\\/graph-api\",\"type\":\"GraphMethodException\",\"code\":100,\"error_subcode\":33,\"fbtrace_id\":\"AjBv7bYs4s9Dlur6SFnJZ_Q\"}}\n"
+    },
+    {
+      "command": "inventory",
+      "kind": "help",
+      "args": [
+        "inventory",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Group every ad in an account by effective_status. Surfaces ads where\nconfigured status='ACTIVE' but effective_status='WITH_ISSUES' or 'DISAPPROVED' —\nsilent failures the Meta UI buries behind per-ad clicks.\n\nRequires 'meta-ads-pp-cli sync' to have populated the local store with ads first.\n\nUsage:\n  meta-ads-pp-cli inventory [flags]\n\nExamples:\n  meta-ads-pp-cli inventory --account act_4327210487520472 --by effective_status --agent\n  meta-ads-pp-cli inventory --by effective_status --json\n\nFlags:\n      --account string   Filter to a specific ad account (e.g., act_1234567890)\n      --by string        Group key: effective_status or status (default \"effective_status\")\n      --db string        Database path (defaults to ~/.meta-ads-pp-cli/data.db)\n  -h, --help             help for inventory\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'meta-ads-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "inventory",
+      "kind": "happy_path",
+      "args": [
+        "inventory",
+        "--account",
+        "act_4327210487520472",
+        "--by",
+        "effective_status",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"account\": \"act_4327210487520472\",\n  \"group_by\": \"effective_status\",\n  \"groups\": [],\n  \"mismatched_ads\": 0,\n  \"note\": \"no ads found in local store; run 'meta-ads-pp-cli sync --path-context adAccountId=act_\\u003cid\\u003e --resources ads' first\",\n  \"total_ads\": 0\n}\n"
+    },
+    {
+      "command": "inventory",
+      "kind": "json_fidelity",
+      "args": [
+        "inventory",
+        "--account",
+        "act_4327210487520472",
+        "--by",
+        "effective_status",
+        "--agent",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"account\": \"act_4327210487520472\",\n  \"group_by\": \"effective_status\",\n  \"groups\": [],\n  \"mismatched_ads\": 0,\n  \"note\": \"no ads found in local store; run 'meta-ads-pp-cli sync --path-context adAccountId=act_\\u003cid\\u003e --resources ads' first\",\n  \"total_ads\": 0\n}\n"
+    },
+    {
+      "command": "inventory",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "learning",
+      "kind": "help",
+      "args": [
+        "learning",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Surface adsets where Meta's learning_stage_info.status is LEARNING and the\nadset has been in that state for more than N days. Includes a 'why_hint' joining\ndaily_budget, audience size, and recent conversion count to suggest what to change.\n\nRequires synced adsets in the local store.\n\nUsage:\n  meta-ads-pp-cli learning [flags]\n\nExamples:\n  meta-ads-pp-cli learning --account act_4327210487520472 --min-days 7 --agent\n  meta-ads-pp-cli learning --json --select rows.adset_name,rows.days_in_learning,rows.why_hint\n\nFlags:\n      --account string    Filter to a specific ad account (e.g., act_1234567890)\n      --db string         Database path (defaults to ~/.meta-ads-pp-cli/data.db)\n  -h, --help              help for learning\n      --min-days string   Minimum days stuck in learning to surface (default \"7\")\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'meta-ads-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "learning",
+      "kind": "happy_path",
+      "args": [
+        "learning",
+        "--account",
+        "act_4327210487520472",
+        "--min-days",
+        "7",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"account\": \"act_4327210487520472\",\n  \"min_days\": 7,\n  \"note\": \"no adsets stuck in learning \\u003eN days, or local store has no synced adsets\",\n  \"rows\": [],\n  \"total\": 0\n}\n"
+    },
+    {
+      "command": "learning",
+      "kind": "json_fidelity",
+      "args": [
+        "learning",
+        "--account",
+        "act_4327210487520472",
+        "--min-days",
+        "7",
+        "--agent",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"account\": \"act_4327210487520472\",\n  \"min_days\": 7,\n  \"note\": \"no adsets stuck in learning \\u003eN days, or local store has no synced adsets\",\n  \"rows\": [],\n  \"total\": 0\n}\n"
+    },
+    {
+      "command": "learning",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "me",
+      "kind": "help",
+      "args": [
+        "me",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Returns every ad account the access token has been granted access to.\n\nUsage:\n  meta-ads-pp-cli me [flags]\n\nExamples:\n  meta-ads-pp-cli me\n\nFlags:\n      --all    Fetch all pages\n  -h, --help   help for me\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'meta-ads-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "me",
+      "kind": "happy_path",
+      "args": [
+        "me"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"data\": [\n      {\n        \"account_id\": \"4327210487520472\",\n        \"id\": \"act_4327210487520472\"\n      }\n    ],\n    \"paging\": {\n      \"cursors\": {\n        \"before\": \"MTIwMjQ3NzIzODQ3MzEwMTM2\",\n        \"after\": \"MTIwMjQ3NzIzODQ3MzEwMTM2\"\n      }\n    }\n  }\n}\n"
+    },
+    {
+      "command": "me",
+      "kind": "json_fidelity",
+      "args": [
+        "me",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"data\": [\n      {\n        \"account_id\": \"4327210487520472\",\n        \"id\": \"act_4327210487520472\"\n      }\n    ],\n    \"paging\": {\n      \"cursors\": {\n        \"before\": \"MTIwMjQ3NzIzODQ3MzEwMTM2\",\n        \"after\": \"MTIwMjQ3NzIzODQ3MzEwMTM2\"\n      }\n    }\n  }\n}\n"
+    },
+    {
+      "command": "me",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "overlap",
+      "kind": "help",
+      "args": [
+        "overlap",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "For each pair of supplied custom audience IDs, look up the overlap percentage\nin the local store (synced via Meta's audience_overlap endpoint). Flags pairs\nwith \u003e30% overlap as cannibalization risk.\n\nSpecify at least two audiences with repeated --audience flags.\n\nUsage:\n  meta-ads-pp-cli overlap [flags]\n\nExamples:\n  meta-ads-pp-cli overlap --audience 23847001 --audience 23847002 --audience 23847003 --agent\n  meta-ads-pp-cli overlap --audience 23847001 --audience 23847002 --json\n\nFlags:\n      --audience strings   Custom audience ID (specify two or more)\n      --db string          Database path (defaults to ~/.meta-ads-pp-cli/data.db)\n  -h, --help               help for overlap\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'meta-ads-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "overlap",
+      "kind": "happy_path",
+      "args": [
+        "overlap",
+        "--audience",
+        "23847001",
+        "--audience",
+        "23847002",
+        "--audience",
+        "23847003",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"audiences\": [\n    \"23847001\",\n    \"23847002\",\n    \"23847003\"\n  ],\n  \"note\": \"no audience_overlap data in local store. Meta's audience_overlap endpoint needs to be called separately and persisted before this command can compute overlap.\",\n  \"pairs\": [\n    {\n      \"audience_a\": \"23847001\",\n      \"audience_b\": \"23847002\",\n      \"note\": \"no overlap row in local store; sync audience_overlap resource for this pair\",\n      \"verdict\": \"no-data\"\n    },\n    {\n      \"audience_a\": \"23847001\",\n      \"audience_b\": \"23847003\",\n      \"note\": \"no overlap row in local store; sync audience_overlap resource for this pair\",\n      \"verdict\": \"no-data\"\n    },\n    {\n      \"audience_a\": \"23847002\",\n      \"audience_b\": \"23847003\",\n      \"note\": \"no overlap row in local store; sync audience_overlap resource for this pair\",\n      \"verdict\": \"no-data\"\n    }\n  ]\n}\n"
+    },
+    {
+      "command": "overlap",
+      "kind": "json_fidelity",
+      "args": [
+        "overlap",
+        "--audience",
+        "23847001",
+        "--audience",
+        "23847002",
+        "--audience",
+        "23847003",
+        "--agent",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"audiences\": [\n    \"23847001\",\n    \"23847002\",\n    \"23847003\"\n  ],\n  \"note\": \"no audience_overlap data in local store. Meta's audience_overlap endpoint needs to be called separately and persisted before this command can compute overlap.\",\n  \"pairs\": [\n    {\n      \"audience_a\": \"23847001\",\n      \"audience_b\": \"23847002\",\n      \"note\": \"no overlap row in local store; sync audience_overlap resource for this pair\",\n      \"verdict\": \"no-data\"\n    },\n    {\n      \"audience_a\": \"23847001\",\n      \"audience_b\": \"23847003\",\n      \"note\": \"no overlap row in local store; sync audience_overlap resource for this pair\",\n      \"verdict\": \"no-data\"\n    },\n    {\n      \"audience_a\": \"23847002\",\n      \"audience_b\": \"23847003\",\n      \"note\": \"no overlap row in local store; sync audience_overlap resource for this pair\",\n      \"verdict\": \"no-data\"\n    }\n  ]\n}\n"
+    },
+    {
+      "command": "overlap",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "profile delete",
+      "kind": "help",
+      "args": [
+        "profile",
+        "delete",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Remove a profile\n\nUsage:\n  meta-ads-pp-cli profile delete \u003cname\u003e [flags]\n\nExamples:\n  meta-ads-pp-cli profile delete my-defaults --yes\n  meta-ads-pp-cli profile delete old-profile --yes --json\n\nFlags:\n  -h, --help   help for delete\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'meta-ads-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile delete",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile list",
+      "kind": "help",
+      "args": [
+        "profile",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List saved profiles\n\nUsage:\n  meta-ads-pp-cli profile list [flags]\n\nExamples:\n  meta-ads-pp-cli profile list\n  meta-ads-pp-cli profile list --json\n\nFlags:\n  -h, --help   help for list\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'meta-ads-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "happy_path",
+      "args": [
+        "profile",
+        "list"
+      ],
+      "status": "pass",
+      "output_sample": "NAME  FIELDS  DESCRIPTION\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "json_fidelity",
+      "args": [
+        "profile",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "profile save",
+      "kind": "help",
+      "args": [
+        "profile",
+        "save",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Captures every flag explicitly set on the invocation and stores\nthem under \u003cname\u003e. To update an existing profile, run save again; the\nentry is replaced.\n\nTo avoid creating empty profiles, at least one non-default flag must be\npresent (other than --profile and --config).\n\nUsage:\n  meta-ads-pp-cli profile save \u003cname\u003e [--\u003cflag\u003e \u003cvalue\u003e ...] [flags]\n\nExamples:\n  meta-ads-pp-cli profile save my-defaults --json --compact\n  meta-ads-pp-cli profile save tonight-defaults --region US\n\nFlags:\n      --description string   Short description shown in 'profile list'\n  -h, --help                 help for save\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'meta-ads-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile save",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "save",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: no non-default flags set - pass at least one flag to save into \"__printing_press_invalid__\"\n"
+    },
+    {
+      "command": "profile show",
+      "kind": "help",
+      "args": [
+        "profile",
+        "show",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show a profile's values as JSON\n\nUsage:\n  meta-ads-pp-cli profile show \u003cname\u003e [flags]\n\nExamples:\n  meta-ads-pp-cli profile show my-defaults\n  meta-ads-pp-cli profile show tonight-defaults --json\n\nFlags:\n  -h, --help   help for show\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'meta-ads-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile show",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "show",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: profile \"__printing_press_invalid__\" not found\n"
+    },
+    {
+      "command": "profile use",
+      "kind": "help",
+      "args": [
+        "profile",
+        "use",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Print the flag values a profile will apply (does not execute anything)\n\nUsage:\n  meta-ads-pp-cli profile use \u003cname\u003e [flags]\n\nExamples:\n  meta-ads-pp-cli profile use my-defaults\n  meta-ads-pp-cli profile use tonight-defaults --json\n\nFlags:\n  -h, --help   help for use\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'meta-ads-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile use",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "use",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: profile \"__printing_press_invalid__\" not found\n"
+    },
+    {
+      "command": "reconcile",
+      "kind": "help",
+      "args": [
+        "reconcile",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "For each day in the window, compare the account-level reported spend against\nthe sum of ad-level insights spend. Flags days where the absolute drift exceeds\nthe threshold percent (default 5%). Usually surfaces days with delayed conversion\nattribution or pixel/server-side event discrepancies.\n\nRequires synced account-level and ad-level insights with time_increment=1.\n\nUsage:\n  meta-ads-pp-cli reconcile [flags]\n\nExamples:\n  meta-ads-pp-cli reconcile --account act_4327210487520472 --since 30d --threshold 5 --agent\n  meta-ads-pp-cli reconcile --since 7d --json --select flagged_days,rows.date,rows.drift_pct\n\nFlags:\n      --account string     Filter to a specific ad account (e.g., act_1234567890)\n      --db string          Database path (defaults to ~/.meta-ads-pp-cli/data.db)\n  -h, --help               help for reconcile\n      --since string       Look-back window (e.g., 7d, 30d, 90d) (default \"30d\")\n      --threshold string   Drift percent threshold to flag a day (default \"5\")\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'meta-ads-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "reconcile",
+      "kind": "happy_path",
+      "args": [
+        "reconcile",
+        "--account",
+        "act_4327210487520472",
+        "--since",
+        "30d",
+        "--threshold",
+        "5",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"account\": \"act_4327210487520472\",\n  \"flagged_days\": 0,\n  \"note\": \"no insights in local store for window; sync with both account-level and ad-level insights\",\n  \"rows\": [],\n  \"since_days\": 30,\n  \"threshold_pct\": 5,\n  \"total_days\": 0\n}\n"
+    },
+    {
+      "command": "reconcile",
+      "kind": "json_fidelity",
+      "args": [
+        "reconcile",
+        "--account",
+        "act_4327210487520472",
+        "--since",
+        "30d",
+        "--threshold",
+        "5",
+        "--agent",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"account\": \"act_4327210487520472\",\n  \"flagged_days\": 0,\n  \"note\": \"no insights in local store for window; sync with both account-level and ad-level insights\",\n  \"rows\": [],\n  \"since_days\": 30,\n  \"threshold_pct\": 5,\n  \"total_days\": 0\n}\n"
+    },
+    {
+      "command": "reconcile",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "search",
+      "kind": "help",
+      "args": [
+        "search",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Search data using FTS5 full-text search on locally synced data,\nor hit the API's search endpoint when available.\n\nIn auto mode (default): uses the API search endpoint if the API has one,\notherwise searches local data. Falls back to local on network failure.\nIn live mode: uses the API search endpoint only.\nIn local mode: searches locally synced data only.\n\nUsage:\n  meta-ads-pp-cli search \u003cquery\u003e [flags]\n\nExamples:\n  # Search (uses API endpoint if available, local FTS otherwise)\n  meta-ads-pp-cli search \"error timeout\"\n\n  # Force local search only\n  meta-ads-pp-cli search \"payment failed\" --data-source local\n\n  # Search a specific resource type locally\n  meta-ads-pp-cli search \"critical\" --type transactions --data-source local\n\n  # JSON output for piping\n  meta-ads-pp-cli search \"critical\" --json --limit 20\n\nFlags:\n      --db string     Database path (default: ~/.local/share/meta-ads-pp-cli/data.db)\n  -h, --help          help for search\n      --limit int     Maximum results to return (default 50)\n      --type string   Filter by resource type\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'meta-ads-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "search",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [search] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "search",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [search] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "search",
+      "kind": "error_path",
+      "args": [
+        "search",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"reason\": \"no_search_endpoint\",\n    \"resource_type\": \"search\",\n    \"source\": \"local\"\n  },\n  \"results\": []\n}\nThis API has no search endpoint. Searching local data.\nhint: local store has not been synced yet. Run 'meta-ads-pp-cli sync' before trusting local results.\n"
+    },
+    {
+      "command": "stale",
+      "kind": "help",
+      "args": [
+        "stale",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Find ads with status='ACTIVE' that have no impressions in the local store\nfor at least N days. These are usually misconfigured ads or post-deletion zombies\nburning configuration without delivering. Run after a sync so the local store reflects\ncurrent insights.\n\nUsage:\n  meta-ads-pp-cli stale [flags]\n\nExamples:\n  meta-ads-pp-cli stale --days 90 --agent\n  meta-ads-pp-cli stale --account act_4327210487520472 --days 30 --json\n\nFlags:\n      --account string   Filter to a specific ad account (e.g., act_1234567890)\n      --days string      Days without impressions to consider an ad stale (default \"90\")\n      --db string        Database path (defaults to ~/.meta-ads-pp-cli/data.db)\n  -h, --help             help for stale\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'meta-ads-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "stale",
+      "kind": "happy_path",
+      "args": [
+        "stale",
+        "--days",
+        "90",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"days\": 90,\n  \"note\": \"no stale ads found, or local store has no synced ads/insights yet\",\n  \"stale_ads\": [],\n  \"total\": 0\n}\n"
+    },
+    {
+      "command": "stale",
+      "kind": "json_fidelity",
+      "args": [
+        "stale",
+        "--days",
+        "90",
+        "--agent",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"days\": 90,\n  \"note\": \"no stale ads found, or local store has no synced ads/insights yet\",\n  \"stale_ads\": [],\n  \"total\": 0\n}\n"
+    },
+    {
+      "command": "stale",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "sync",
+      "kind": "help",
+      "args": [
+        "sync",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Sync data from the API into a local SQLite database. Supports resumable\nincremental sync (only fetches new data since last sync) and full resync.\nOnce synced, use the 'search' command for instant full-text search.\n\nExit codes \u0026 warnings:\n  Resources the API denies access to (HTTP 403, or HTTP 400 with an\n  access-policy body) are reported as warnings rather than failing the\n  run. In --json mode each is emitted as a {\"event\":\"sync_warning\",...}\n  line carrying status, reason, and message fields, and a final\n  {\"event\":\"sync_summary\",...} aggregates the run.\n\n  Exit 0 when at least one resource synced and no resource flagged in\n  the spec as critical (x-critical: true) failed; non-critical failures\n  emit {\"event\":\"sync_warning\",\"reason\":\"exit_policy_default_changed\",\n  ...} so callers can detect that a partial failure was tolerated. Pass\n  --strict to exit non-zero on any per-resource failure. Exit is always\n  non-zero when every selected resource failed, regardless of --strict.\n\nResource scoping:\n  --resources runs the named top-level resources, plus any parent-keyed\n  dependent whose own name is listed OR whose parent table is listed.\n  Naming a parent therefore cascades to its dependents (so \"sync this\n  parent and its children\" works without listing every nested resource\n  by hand). There is no flag today to suppress the cascade for a named\n  parent. To run a dependent without re-syncing its parent, list only\n  the dependent by name; the parent table must already be populated\n  from a prior sync.\n\nUsage:\n  meta-ads-pp-cli sync [flags]\n\nExamples:\n  # Sync all resources\n  meta-ads-pp-cli sync\n\n  # Sync specific resources only\n  meta-ads-pp-cli sync --resources channels,messages\n\n  # Full resync (ignore previous checkpoint)\n  meta-ads-pp-cli sync --full\n\n  # Incremental sync: only records from the last 7 days\n  meta-ads-pp-cli sync --since 7d\n\n  # Parallel sync with 8 workers\n  meta-ads-pp-cli sync --concurrency 8\n\n  # Latest-only: refresh head of each resource, no historical backfill\n  meta-ads-pp-cli sync --latest-only\n\nFlags:\n      --concurrency int              Number of parallel sync workers (default 4)\n      --db string                    Database path (default: ~/.local/share/meta-ads-pp-cli/data.db)\n      --full                         Full resync (ignore previous checkpoint)\n      --global-param stringArray     Extra query param to inject into every sync request including dependent path-scoped calls (repeatable, key=value). Use when an API requires a scope on every call regardless of path nesting.\n  -h, --help                         help for sync\n      --latest-only                  Refresh head of each resource only; clears resume cursor and caps pages at 1. Mutually exclusive with --since (--since wins).\n      --max-pages int                Maximum pages to fetch per resource (0 = unlimited; cap-hit emits a sync_warning event)\n      --param stringArray            Extra query param to inject into flat-list sync requests (repeatable, key=value). Skipped on path-scoped dependent requests so a top-level scope like workspace=\u003cid\u003e does not double up on /parents/\u003cid\u003e/children calls. Use --global-param to inject everywhere. Avoid pagination keys (limit/since/cursor) — overriding them corrupts resume state.\n      --resource-param stringArray   Per-resource extra query param (repeatable, resource:key=value). Wins over --param and --global-param when keys conflict.\n      --resources strings            Comma-separated resource types to sync. Naming a parent also runs its parent-keyed dependents (see Long help for scoping).\n      --since string                 Incremental sync duration (e.g. 7d, 24h, 1w, 30m)\n      --strict                       Exit non-zero on any per-resource failure (default: only critical failures or all-resource failure exit non-zero).\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config…[truncated]"
+    },
+    {
+      "command": "sync",
+      "kind": "happy_path",
+      "args": [
+        "sync"
+      ],
+      "status": "pass",
+      "output_sample": "{\"event\":\"sync_start\",\"resource\":\"me\"}\n{\"event\":\"sync_progress\",\"resource\":\"me\",\"fetched\":1}\n{\"event\":\"sync_complete\",\"resource\":\"me\",\"total\":1,\"duration_ms\":1563}\n{\"event\":\"sync_summary\",\"total_records\":1,\"resources\":1,\"success\":1,\"warned\":0,\"errored\":0,\"duration_ms\":1563}\n"
+    },
+    {
+      "command": "sync",
+      "kind": "json_fidelity",
+      "args": [
+        "sync",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"event\":\"sync_start\",\"resource\":\"me\"}\n{\"event\":\"sync_warning\",\"resource\":\"me\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_progress\",\"resource\":\"me\",\"fetched\":1}\n{\"event\":\"sync_complete\",\"resource\":\"me\",\"total\":1,\"duration_ms\":1443}\n{\"event\":\"sync_summary\",\"total_records\":1,\"resources\":1,\"success\":1,\"warned\":0,\"errored\":0,\"duration_ms\":1443}\n"
+    },
+    {
+      "command": "sync",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "which",
+      "kind": "help",
+      "args": [
+        "which",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "which resolves a natural-language capability query (for example, \"search messages\" or \"stale tickets\") to the best matching command from this CLI's curated feature index.\n\nExit codes:\n  0  at least one match found\n  2  no confident match - the query did not score against any indexed capability; fall back to '--help' or 'search' if this CLI has one\n\nUsage:\n  meta-ads-pp-cli which [query] [flags]\n\nExamples:\n  meta-ads-pp-cli which \"stale tickets\"\n  meta-ads-pp-cli which \"bottleneck\"\n  meta-ads-pp-cli which --limit 1 \"send message\"\n  meta-ads-pp-cli which                                # list the full capability index\n\nFlags:\n  -h, --help        help for which\n      --limit int   Maximum number of matches to return (default 3)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'meta-ads-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "which",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [which] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "which",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [which] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "which",
+      "kind": "error_path",
+      "args": [
+        "which",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"matches\": []\n}\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "help",
+      "args": [
+        "workflow",
+        "archive",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Archive fetches all syncable resources from the API and stores them in a\nlocal SQLite database. Supports incremental sync (only new data since last run)\nand full resync. After archiving, use 'search' for instant full-text search.\n\nUsage:\n  meta-ads-pp-cli workflow archive [flags]\n\nExamples:\n  # Archive all resources\n  meta-ads-pp-cli workflow archive\n\n  # Full re-archive (ignore previous sync state)\n  meta-ads-pp-cli workflow archive --full\n\nFlags:\n      --db string   Database path (default: ~/.local/share/meta-ads-pp-cli/data.db)\n      --full        Full re-archive (ignore previous sync state)\n  -h, --help        help for archive\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'meta-ads-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "happy_path",
+      "args": [
+        "workflow",
+        "archive"
+      ],
+      "status": "pass",
+      "output_sample": "{\"event\":\"sync_start\",\"resource\":\"me\"}\n{\"event\":\"sync_warning\",\"resource\":\"me\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_progress\",\"resource\":\"me\",\"fetched\":1}\n{\"event\":\"sync_complete\",\"resource\":\"me\",\"total\":1,\"duration_ms\":1540}\nArchived 1 items across 1 resources to /var/folders/92/rd00vfws4ql4n5hsqw65szfw0000gn/T/printing-press-subprocess-665198031/.local/share/meta-ads-pp-cli/data.db\n  me: 1 synced\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "json_fidelity",
+      "args": [
+        "workflow",
+        "archive",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"resources_synced\": 1,\n  \"store_path\": \"/var/folders/92/rd00vfws4ql4n5hsqw65szfw0000gn/T/printing-press-subprocess-665198031/.local/share/meta-ads-pp-cli/data.db\",\n  \"timestamp\": \"2026-05-28T07:20:01Z\",\n  \"total_items\": 1\n}\n{\"event\":\"sync_start\",\"resource\":\"me\"}\n{\"event\":\"sync_warning\",\"resource\":\"me\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_progress\",\"resource\":\"me\",\"fetched\":1}\n{\"event\":\"sync_complete\",\"resource\":\"me\",\"total\":1,\"duration_ms\":1536}\n  me: 1 synced\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "workflow status",
+      "kind": "help",
+      "args": [
+        "workflow",
+        "status",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show local archive status and sync state for all resources\n\nUsage:\n  meta-ads-pp-cli workflow status [flags]\n\nExamples:\n  # Show archive status\n  meta-ads-pp-cli workflow status\n\n  # Show status as JSON\n  meta-ads-pp-cli workflow status --json\n\nFlags:\n      --db string   Database path\n  -h, --help        help for status\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'meta-ads-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "happy_path",
+      "args": [
+        "workflow",
+        "status"
+      ],
+      "status": "pass",
+      "output_sample": "Archive Status:\n  me                             1 items\n\n  Total: 1 items\n  Store: /var/folders/92/rd00vfws4ql4n5hsqw65szfw0000gn/T/printing-press-subprocess-665198031/.local/share/meta-ads-pp-cli/data.db\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "json_fidelity",
+      "args": [
+        "workflow",
+        "status",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"me\": 1\n}\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    }
+  ],
+  "ran_at": "2026-05-28T07:19:36.743824Z"
+}
