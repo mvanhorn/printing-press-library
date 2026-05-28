@@ -43,7 +43,11 @@ func newMessageCreateCmd(flags *rootFlags) *cobra.Command {
 				fields.Set("folder", bodyFolder)
 			}
 			if bodyMessagesMessageId != "" {
-				fields.Set("messages[{message_id}]", bodyMessagesMessageId)
+				// Goodreads /message/move_batch identifies target messages with
+			// array-indexed form keys (messages[123]). The {message_id}
+			// placeholder must be substituted with the actual id; sending the
+			// literal placeholder key matches no message and silently no-ops.
+			fields.Set(fmt.Sprintf("messages[%s]", bodyMessagesMessageId), bodyMessagesMessageId)
 			}
 			if bodyMoveFolder != "" {
 				fields.Set("move[folder]", bodyMoveFolder)

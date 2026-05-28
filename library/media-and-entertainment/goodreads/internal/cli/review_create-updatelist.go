@@ -43,7 +43,11 @@ func newReviewCreateUpdatelistCmd(flags *rootFlags) *cobra.Command {
 				fields.Set("edit[shelf]", bodyEditShelf)
 			}
 			if bodyReviewsReviewId != "" {
-				fields.Set("reviews[{review_id}]", bodyReviewsReviewId)
+				// Goodreads /review/update_list identifies target reviews with
+			// array-indexed form keys (reviews[123]). The {review_id}
+			// placeholder must be substituted with the actual id; sending the
+			// literal placeholder key matches no review and silently no-ops.
+			fields.Set(fmt.Sprintf("reviews[%s]", bodyReviewsReviewId), bodyReviewsReviewId)
 			}
 			if bodyView != "" {
 				fields.Set("view", bodyView)

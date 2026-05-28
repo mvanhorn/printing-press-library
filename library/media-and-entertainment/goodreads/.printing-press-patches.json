@@ -61,6 +61,15 @@
       "files": [
         "internal/cli/channel_workflow.go"
       ]
+    },
+    {
+      "id": "batch-form-key-id-substitution",
+      "summary": "Substitute the actual id into array-indexed batch form keys (messages[<id>], reviews[<id>]) instead of sending the literal {message_id}/{review_id} placeholder.",
+      "reason": "Greptile P1: the form key was emitted verbatim as messages[{message_id}] / reviews[{review_id}], so Goodreads matched no row and the batch action silently no-oped.",
+      "files": [
+        "internal/cli/message_create.go",
+        "internal/cli/review_create-updatelist.go"
+      ]
     }
   ]
 }
