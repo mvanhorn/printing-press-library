@@ -26,7 +26,10 @@ func newDomainsRenewRenewCmd(flags *rootFlags) *cobra.Command {
 			if len(args) == 0 {
 				return cmd.Help()
 			}
-			if !stdinBody {
+			if !stdinBody && !flags.dryRun {
+				if !cmd.Flags().Changed("period") {
+					return usageErr(fmt.Errorf("--period is required unless a JSON body is piped with --stdin"))
+				}
 			}
 			c, err := flags.newClient()
 			if err != nil {

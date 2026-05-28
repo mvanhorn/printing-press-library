@@ -384,10 +384,9 @@ func (p *syncUserParams) validateResourceNames(known []string) error {
 		strings.Join(unknown, ", "), strings.Join(known, ", "))
 }
 
-// isSyncAccessWarning is a stub: this CLI has no auth, so the API cannot
-// reject sync requests on access-policy grounds. Every error stays a hard
-// failure. Defining the function unconditionally keeps sync.go agnostic to
-// auth presence.
+// isSyncAccessWarning is a stub: sync does not treat any GoDaddy API error as
+// a soft access-policy warning, so every error stays a hard failure. Defining
+// the function unconditionally keeps sync.go agnostic to auth presence.
 func isSyncAccessWarning(err error) (*accessWarning, bool) { return nil, false }
 
 type noopResult struct {
@@ -425,7 +424,7 @@ func classifyAPIError(err error, flags *rootFlags) error {
 		writeAPIErrorEnvelope(flags, classified, ExitCode(classified))
 		return classified
 	case strings.Contains(msg, "HTTP 401"):
-		return authErr(fmt.Errorf("%w\nhint: check your API credentials."+
+		return authErr(fmt.Errorf("%w\nhint: missing or invalid API credentials. GoDaddy requires GODADDY_API_KEY and GODADDY_API_SECRET to be set; verify both are present and correct (production and OTE keys are not interchangeable)."+
 			"\n      Run 'godaddy-pp-cli doctor' to check auth status.", err))
 	case strings.Contains(msg, "HTTP 403"):
 		return authErr(fmt.Errorf("%w\nhint: permission denied. GoDaddy requires GODADDY_API_KEY and GODADDY_API_SECRET; verify they are set and that the key has access to this resource. Production keys also require a funded/eligible account for some endpoints (e.g. domain purchase)."+

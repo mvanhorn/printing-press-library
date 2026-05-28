@@ -49,19 +49,23 @@ func newDomainsAvailableBulkCmd(flags *rootFlags) *cobra.Command {
 			if flagCheckType != "" {
 				params["checkType"] = fmt.Sprintf("%v", flagCheckType)
 			}
-			var body map[string]any
+			// POST /v1/domains/available takes a JSON array of domain-name
+			// strings (e.g. ["example.com","example.net"]), not an object.
+			// Unmarshal into []any so a correctly-shaped array body is accepted
+			// instead of failing with "cannot unmarshal array into map".
+			var body []any
 			if stdinBody {
 				stdinData, err := io.ReadAll(os.Stdin)
 				if err != nil {
 					return fmt.Errorf("reading stdin: %w", err)
 				}
-				var jsonBody map[string]any
+				var jsonBody []any
 				if err := json.Unmarshal(stdinData, &jsonBody); err != nil {
-					return fmt.Errorf("parsing stdin JSON: %w", err)
+					return fmt.Errorf("parsing stdin JSON (expected a JSON array of domain names): %w", err)
 				}
 				body = jsonBody
 			} else {
-				body = map[string]any{}
+				body = []any{}
 			}
 			data, statusCode, err := c.PostWithParams(cmd.Context(), path, params, body)
 			if err != nil {

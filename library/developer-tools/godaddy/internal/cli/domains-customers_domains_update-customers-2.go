@@ -39,19 +39,22 @@ func newDomainsCustomersDomainsUpdateCustomers2Cmd(flags *rootFlags) *cobra.Comm
 			}
 			path = replacePathParam(path, "domain", args[1])
 			params := map[string]string{}
-			var body map[string]any
+			// PATCH .../dnssecRecords takes a JSON array of DNSSEC records, not
+			// an object. Unmarshal into []any so a correctly-shaped array body is
+			// accepted instead of failing with "cannot unmarshal array into map".
+			var body []any
 			if stdinBody {
 				stdinData, err := io.ReadAll(os.Stdin)
 				if err != nil {
 					return fmt.Errorf("reading stdin: %w", err)
 				}
-				var jsonBody map[string]any
+				var jsonBody []any
 				if err := json.Unmarshal(stdinData, &jsonBody); err != nil {
-					return fmt.Errorf("parsing stdin JSON: %w", err)
+					return fmt.Errorf("parsing stdin JSON (expected a JSON array of DNSSEC records): %w", err)
 				}
 				body = jsonBody
 			} else {
-				body = map[string]any{}
+				body = []any{}
 			}
 			data, statusCode, err := c.PatchWithParams(cmd.Context(), path, params, body)
 			if err != nil {

@@ -219,7 +219,7 @@ func newShoppersCreateSubaccountCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&bodyMarketId, "market-id", "en-US", "Market id")
 	cmd.Flags().StringVar(&bodyNameFirst, "name-first", "", "Name first")
 	cmd.Flags().StringVar(&bodyNameLast, "name-last", "", "Name last")
-	cmd.Flags().StringVar(&bodyPassword, "password", "", "Password")
+	cmd.Flags().StringVar(&bodyPassword, "password", "", "Password (sensitive: passing it here exposes it in shell history and process listings; prefer piping a JSON body with --stdin)")
 	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
 
 	return cmd

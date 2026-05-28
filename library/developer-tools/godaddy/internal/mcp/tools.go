@@ -188,11 +188,11 @@ func makeAPIHandler(method, pathTemplate string, binaryResponse bool, headerOver
 				return mcplib.NewToolResultText("already exists (no-op)"), nil
 			case strings.Contains(msg, "HTTP 401"):
 				return mcplib.NewToolResultError("authentication failed: " + msg +
-					"\nhint: check your API credentials." +
+					"\nhint: missing or invalid API credentials. GoDaddy requires GODADDY_API_KEY and GODADDY_API_SECRET to be set; verify both are present and correct (production and OTE keys are not interchangeable)." +
 					"\n      Run 'godaddy-pp-cli doctor' to check auth status."), nil
 			case strings.Contains(msg, "HTTP 403"):
 				return mcplib.NewToolResultError("permission denied: " + msg +
-					"\nhint: this API is configured without credentials; the service may be blocking the request by rate limit, geography, bot protection, or endpoint policy." +
+					"\nhint: GoDaddy requires GODADDY_API_KEY and GODADDY_API_SECRET; verify they are set and that the key has access to this resource. Production keys also require a funded/eligible account for some endpoints (e.g. domain purchase)." +
 					"\n      Run 'godaddy-pp-cli doctor' to check auth status."), nil
 			case strings.Contains(msg, "HTTP 404"):
 				if method == "DELETE" {

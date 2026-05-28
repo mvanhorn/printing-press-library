@@ -189,7 +189,7 @@ func newShoppersFactorsChangePasswordCmd(flags *rootFlags) *cobra.Command {
 			return nil
 		},
 	}
-	cmd.Flags().StringVar(&bodySecret, "secret", "", "The secret value used to set a subaccount's password")
+	cmd.Flags().StringVar(&bodySecret, "secret", "", "The secret value used to set a subaccount's password (sensitive: passing it here exposes it in shell history and process listings; prefer piping a JSON body with --stdin)")
 	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
 
 	return cmd

@@ -33,7 +33,10 @@ func newDomainsCustomersDomainsUpdateCustomersCmd(flags *rootFlags) *cobra.Comma
 			if len(args) == 0 {
 				return cmd.Help()
 			}
-			if !stdinBody {
+			if !stdinBody && !flags.dryRun {
+				if !cmd.Flags().Changed("contacts-admin") && !cmd.Flags().Changed("contacts-admin-id") && !cmd.Flags().Changed("contacts-billing") && !cmd.Flags().Changed("contacts-billing-id") && !cmd.Flags().Changed("contacts-registrant") && !cmd.Flags().Changed("contacts-registrant-id") && !cmd.Flags().Changed("contacts-tech") && !cmd.Flags().Changed("contacts-tech-id") && !cmd.Flags().Changed("identity-document-id") {
+					return usageErr(fmt.Errorf("set at least one body flag (e.g. --contacts-admin, --contacts-registrant, --identity-document-id) or pipe a JSON body with --stdin"))
+				}
 			}
 			c, err := flags.newClient()
 			if err != nil {

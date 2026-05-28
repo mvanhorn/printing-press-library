@@ -29,7 +29,10 @@ func newShoppersUpdateCmd(flags *rootFlags) *cobra.Command {
 			if len(args) == 0 {
 				return cmd.Help()
 			}
-			if !stdinBody {
+			if !stdinBody && !flags.dryRun {
+				if !cmd.Flags().Changed("email") && !cmd.Flags().Changed("external-id") && !cmd.Flags().Changed("market-id") && !cmd.Flags().Changed("name-first") && !cmd.Flags().Changed("name-last") {
+					return usageErr(fmt.Errorf("set at least one body flag (--email, --external-id, --market-id, --name-first, --name-last) or pipe a JSON body with --stdin"))
+				}
 			}
 			c, err := flags.newClient()
 			if err != nil {

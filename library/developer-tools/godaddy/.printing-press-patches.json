@@ -105,6 +105,67 @@
       "files": [
         "internal/cli/agent_context.go"
       ]
+    },
+    {
+      "id": "empty-stdin-guard-require-body-flag",
+      "summary": "Seven mutation commands with all-optional body fields whose defaults are empty/zero now require at least one body flag (or --stdin) instead of silently sending an empty {} body.",
+      "reason": "Repo-wide sweep of the change-password empty-'!stdinBody' pattern: these commands had no-op empty guards, so running them with no flags and no --stdin sent {} to the API and produced a cryptic 400. Commands whose flag defaults already populate the body (e.g. certificates renew/reissue with non-empty common-name/csr/root-type defaults) were left unchanged because they never emit an empty body.",
+      "files": [
+        "internal/cli/agents_certificates_submit-server-renewal.go",
+        "internal/cli/domains_update.go",
+        "internal/cli/domains-customers_domains_update-customers.go",
+        "internal/cli/domains-customers_domains_update-customers-3.go",
+        "internal/cli/domains_renew_renew.go",
+        "internal/cli/shoppers_update.go",
+        "internal/cli/subscriptions_update.go"
+      ]
+    },
+    {
+      "id": "array-request-body-shape",
+      "summary": "domains available-bulk (POST /v1/domains/available) and dnssecRecords PATCH now unmarshal stdin into []any and send a JSON array, matching GoDaddy's array request-body contract instead of forcing map[string]any.",
+      "reason": "Repo-wide body-shape sweep (same class as the earlier DNS records []DNSRecord fix): these two endpoints take JSON arrays per GoDaddy's API, but the generated code forced map[string]any, so piping the correct array body failed with 'cannot unmarshal array into Go value of type map'. The commands were effectively unusable for their real contract.",
+      "files": [
+        "internal/cli/domains_available-bulk.go",
+        "internal/cli/domains-customers_domains_update-customers-2.go"
+      ]
+    },
+    {
+      "id": "http-401-hint",
+      "summary": "401 error hint now names GODADDY_API_KEY/GODADDY_API_SECRET and notes production/OTE keys are not interchangeable, matching the corrected 403 hint.",
+      "reason": "Auth-hint sweep (follow-on to the 403 fix): the generic '401: check your API credentials' hint did not tell a user with unset/wrong credentials which env vars to set, contradicting the specificity of the 403 hint.",
+      "files": [
+        "internal/cli/helpers.go"
+      ]
+    },
+    {
+      "id": "mcp-auth-hints",
+      "summary": "MCP server 401/403 error hints corrected to name GODADDY_API_KEY/GODADDY_API_SECRET; removed the misleading 'this API is configured without credentials' 403 text.",
+      "reason": "Auth-hint sweep: the MCP tool error path carried the same 'configured without credentials' bug already fixed in the CLI's helpers.go 403 hint, plus a generic 401 hint. GoDaddy requires credentials, so the old MCP hints misled agents into ignoring missing/under-scoped keys.",
+      "files": [
+        "internal/mcp/tools.go"
+      ]
+    },
+    {
+      "id": "sync-access-warning-comment",
+      "summary": "Corrected the isSyncAccessWarning doc comment that wrongly claimed 'this CLI has no auth'.",
+      "reason": "Auth-hint sweep: the generated stub comment misrepresented GoDaddy's auth model (the CLI requires GODADDY_API_KEY/GODADDY_API_SECRET). Behavior is unchanged; only the misleading comment was fixed.",
+      "files": [
+        "internal/cli/helpers.go"
+      ]
+    },
+    {
+      "id": "secret-flag-argv-exposure-hint",
+      "summary": "--password, --secret, and --auth-code flag help text now warns that passing the value on argv exposes it in shell history/process listings and points to --stdin as the safe path.",
+      "reason": "Secret-as-CLI-flag sweep: these flags carry credentials/transfer auth codes through argv (visible in 'ps aux' and shell history). The flags are part of the generated contract and verify-skill gate so they cannot be removed; the secure --stdin path now is documented at point-of-use.",
+      "files": [
+        "internal/cli/shoppers_create-subaccount.go",
+        "internal/cli/shoppers_factors_change-password.go",
+        "internal/cli/domains_transfer_in.go",
+        "internal/cli/domains-customers_domains_create-customers-5.go",
+        "internal/cli/domains-customers_domains_create-customers-6.go",
+        "internal/cli/domains-customers_domains_create-customers-9.go",
+        "internal/cli/domains-customers_domains_create-customers-14.go"
+      ]
     }
   ]
 }

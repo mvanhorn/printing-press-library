@@ -224,7 +224,7 @@ func newDomainsTransferInCmd(flags *rootFlags) *cobra.Command {
 			return nil
 		},
 	}
-	cmd.Flags().StringVar(&bodyAuthCode, "auth-code", "", "Authorization code from registrar for transferring a domain")
+	cmd.Flags().StringVar(&bodyAuthCode, "auth-code", "", "Authorization code from registrar for transferring a domain (sensitive: passing it here exposes it in shell history and process listings; prefer piping a JSON body with --stdin)")
 	cmd.Flags().StringVar(&bodyConsent, "consent", "", "Consent")
 	cmd.Flags().StringVar(&bodyContactAdmin, "contact-admin", "", "Contact admin")
 	cmd.Flags().StringVar(&bodyContactBilling, "contact-billing", "", "Contact billing")

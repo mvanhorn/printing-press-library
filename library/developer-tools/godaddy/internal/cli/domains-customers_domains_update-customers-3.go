@@ -25,7 +25,10 @@ func newDomainsCustomersDomainsUpdateCustomers3Cmd(flags *rootFlags) *cobra.Comm
 			if len(args) == 0 {
 				return cmd.Help()
 			}
-			if !stdinBody {
+			if !stdinBody && !flags.dryRun {
+				if !cmd.Flags().Changed("name-servers") {
+					return usageErr(fmt.Errorf("--name-servers is required unless a JSON body is piped with --stdin"))
+				}
 			}
 			c, err := flags.newClient()
 			if err != nil {

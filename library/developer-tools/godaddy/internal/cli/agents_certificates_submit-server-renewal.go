@@ -27,7 +27,10 @@ func newAgentsCertificatesSubmitServerRenewalCmd(flags *rootFlags) *cobra.Comman
 			if len(args) == 0 {
 				return cmd.Help()
 			}
-			if !stdinBody {
+			if !stdinBody && !flags.dryRun {
+				if !cmd.Flags().Changed("server-certificate-chain-pem") && !cmd.Flags().Changed("server-certificate-pem") && !cmd.Flags().Changed("server-csr-pem") {
+					return usageErr(fmt.Errorf("set at least one body flag (--server-certificate-chain-pem, --server-certificate-pem, --server-csr-pem) or pipe a JSON body with --stdin"))
+				}
 			}
 			c, err := flags.newClient()
 			if err != nil {

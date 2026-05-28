@@ -261,7 +261,7 @@ func newDomainsCustomersDomainsCreateCustomers14Cmd(flags *rootFlags) *cobra.Com
 			return nil
 		},
 	}
-	cmd.Flags().StringVar(&bodyAuthCode, "auth-code", "", "Authorization code from registrar for transferring a domain")
+	cmd.Flags().StringVar(&bodyAuthCode, "auth-code", "", "Authorization code from registrar for transferring a domain (sensitive: passing it here exposes it in shell history and process listings; prefer piping a JSON body with --stdin)")
 	cmd.Flags().StringVar(&bodyConsent, "consent", "", "Consent")
 	cmd.Flags().StringVar(&bodyContactsAdmin, "contacts-admin", "", "Admin")
 	cmd.Flags().StringVar(&bodyContactsAdminId, "contacts-admin-id", "", "Unique identifier of the contact that the user wants to use for the domain admin contact.")

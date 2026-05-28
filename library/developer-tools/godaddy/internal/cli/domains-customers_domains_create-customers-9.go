@@ -192,7 +192,7 @@ func newDomainsCustomersDomainsCreateCustomers9Cmd(flags *rootFlags) *cobra.Comm
 			return nil
 		},
 	}
-	cmd.Flags().StringVar(&bodyAuthCode, "auth-code", "", "Authorization code for transferring the Domain")
+	cmd.Flags().StringVar(&bodyAuthCode, "auth-code", "", "Authorization code for transferring the Domain (sensitive: passing it here exposes it in shell history and process listings; prefer piping a JSON body with --stdin)")
 	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
 
 	return cmd

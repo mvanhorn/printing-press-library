@@ -26,7 +26,10 @@ func newSubscriptionsUpdateCmd(flags *rootFlags) *cobra.Command {
 			if len(args) == 0 {
 				return cmd.Help()
 			}
-			if !stdinBody {
+			if !stdinBody && !flags.dryRun {
+				if !cmd.Flags().Changed("payment-profile-id") && !cmd.Flags().Changed("renew-auto") {
+					return usageErr(fmt.Errorf("set at least one body flag (--payment-profile-id, --renew-auto) or pipe a JSON body with --stdin"))
+				}
 			}
 			c, err := flags.newClient()
 			if err != nil {

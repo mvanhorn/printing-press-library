@@ -31,7 +31,10 @@ func newDomainsUpdateCmd(flags *rootFlags) *cobra.Command {
 			if len(args) == 0 {
 				return cmd.Help()
 			}
-			if !stdinBody {
+			if !stdinBody && !flags.dryRun {
+				if !cmd.Flags().Changed("consent") && !cmd.Flags().Changed("expose-registrant-organization") && !cmd.Flags().Changed("expose-whois") && !cmd.Flags().Changed("locked") && !cmd.Flags().Changed("name-servers") && !cmd.Flags().Changed("renew-auto") && !cmd.Flags().Changed("subaccount-id") {
+					return usageErr(fmt.Errorf("set at least one body flag (--consent, --expose-registrant-organization, --expose-whois, --locked, --name-servers, --renew-auto, --subaccount-id) or pipe a JSON body with --stdin"))
+				}
 			}
 			c, err := flags.newClient()
 			if err != nil {
