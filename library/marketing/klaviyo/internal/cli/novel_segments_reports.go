@@ -1636,8 +1636,10 @@ func scoreBucket(v float64) int {
 		return 5
 	case v >= 3:
 		return 4
-	case v >= 1:
+	case v >= 2:
 		return 3
+	case v >= 1:
+		return 2
 	default:
 		return 1
 	}
@@ -1975,23 +1977,47 @@ func newProfilesChurningCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			var flagged []map[string]any
-			for _, row := range rows {
-				orderCount := anyFloat(row["order_count"])
-				if orderCount < 2 {
-					continue
-				}
-				avgDays := 365.0 / orderCount
-				row["estimated_avg_days_between_purchases"] = avgDays
-				row["flagged"] = true
-				row["reason"] = "aggregate-only estimate; inspect order events before suppressing"
-				flagged = append(flagged, row)
+			now := time.Now()
+			metricID, err := resolveMetricID(c, "Placed Order")
+			if err != nil {
+				return err
 			}
+			lastOrders, err := profileLastOrderTimes(c, metricID, now.AddDate(-5, 0, 0), now, 10000)
+			if err != nil {
+				return err
+			}
+			flagged := churnCandidateRows(rows, lastOrders, now)
 			return printJSONFiltered(cmd.OutOrStdout(), map[string]any{"count": len(flagged), "rows": flagged}, flags)
 		},
 	}
 	cmd.Flags().IntVar(&limit, "limit", 100, "Maximum candidate profiles to inspect")
 	return cmd
+}
+
+func churnCandidateRows(rows []map[string]any, lastOrders map[string]time.Time, now time.Time) []map[string]any {
+	var flagged []map[string]any
+	for _, row := range rows {
+		profileID := fmt.Sprint(row["profile_id"])
+		orderCount := anyFloat(row["order_count"])
+		if orderCount < 2 {
+			continue
+		}
+		lastOrder := lastOrders[profileID]
+		if lastOrder.IsZero() || now.IsZero() || lastOrder.After(now) {
+			continue
+		}
+		avgDays := 365.0 / orderCount
+		daysSinceLastOrder := now.Sub(lastOrder).Hours() / 24
+		if daysSinceLastOrder <= avgDays*1.5 {
+			continue
+		}
+		row["estimated_avg_days_between_purchases"] = round2(avgDays)
+		row["days_since_last_order"] = round2(daysSinceLastOrder)
+		row["flagged"] = true
+		row["reason"] = "last order is more than 1.5x the estimated purchase cadence"
+		flagged = append(flagged, row)
+	}
+	return flagged
 }
 
 func newProfilesExportSuppressionsCmd(flags *rootFlags) *cobra.Command {
@@ -2470,7 +2496,7 @@ func newReportFormsCmd(flags *rootFlags) *cobra.Command {
 			if dryRunOK(flags) {
 				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{"dry_run": true, "last": last, "planned_steps": []string{"fetch_forms", "query_form_metrics"}}, flags)
 			}
-			c, _, _, err := clientAndWindow(flags, last)
+			c, since, until, err := clientAndWindow(flags, last)
 			if err != nil {
 				return err
 			}
@@ -2478,11 +2504,29 @@ func newReportFormsCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
+			forms = filterFormsByWindow(forms, since, until)
 			return printJSONFiltered(cmd.OutOrStdout(), map[string]any{"last": last, "forms": forms, "count": len(forms)}, flags)
 		},
 	}
 	cmd.Flags().StringVar(&last, "last", "30d", "Lookback window")
 	return cmd
+}
+
+func filterFormsByWindow(forms []map[string]any, since, until time.Time) []map[string]any {
+	filtered := make([]map[string]any, 0, len(forms))
+	for _, form := range forms {
+		timestamp := parseDate(firstNonEmptyString(
+			stringFromMapPath(form, "attributes.updated"),
+			stringFromMapPath(form, "attributes.created"),
+		))
+		if timestamp.IsZero() {
+			continue
+		}
+		if (timestamp.Equal(since) || timestamp.After(since)) && timestamp.Before(until) {
+			filtered = append(filtered, form)
+		}
+	}
+	return filtered
 }
 
 func newReportSignupSourcesCmd(flags *rootFlags) *cobra.Command {

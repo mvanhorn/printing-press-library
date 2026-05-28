@@ -695,6 +695,9 @@ func TestScoreRFMProfilesUsesRecency(t *testing.T) {
 	if anyInt(byProfile["recent"]["m_score"]) != 5 {
 		t.Fatalf("monetary score = %#v", byProfile["recent"])
 	}
+	if scoreBucket(1) != 2 {
+		t.Fatalf("scoreBucket(1) = %d, want 2", scoreBucket(1))
+	}
 }
 
 func TestCampaignAudienceIDsUsesOnlyIncludedAudiences(t *testing.T) {
@@ -707,6 +710,35 @@ func TestCampaignAudienceIDsUsesOnlyIncludedAudiences(t *testing.T) {
 	}
 	if containsString(ids, "suppressed-list") || containsString(ids, "segment-2") {
 		t.Fatalf("excluded audiences should not be returned: %#v", ids)
+	}
+}
+
+func TestChurnCandidateRowsRequiresLapsedCadence(t *testing.T) {
+	now := time.Date(2026, 5, 28, 12, 0, 0, 0, time.UTC)
+	rows := []map[string]any{
+		{"profile_id": "recent", "order_count": 4},
+		{"profile_id": "lapsed", "order_count": 4},
+		{"profile_id": "single", "order_count": 1},
+	}
+	flagged := churnCandidateRows(rows, map[string]time.Time{
+		"recent": now.AddDate(0, 0, -20),
+		"lapsed": now.AddDate(0, 0, -200),
+		"single": now.AddDate(0, 0, -200),
+	}, now)
+	if len(flagged) != 1 || flagged[0]["profile_id"] != "lapsed" {
+		t.Fatalf("flagged churn rows = %#v", flagged)
+	}
+}
+
+func TestFilterFormsByWindowUsesLastWindow(t *testing.T) {
+	forms := []map[string]any{
+		{"id": "recent", "attributes": map[string]any{"updated": "2026-05-20T12:00:00Z"}},
+		{"id": "old", "attributes": map[string]any{"updated": "2026-03-01T12:00:00Z"}},
+		{"id": "undated", "attributes": map[string]any{}},
+	}
+	filtered := filterFormsByWindow(forms, time.Date(2026, 5, 1, 0, 0, 0, 0, time.UTC), time.Date(2026, 6, 1, 0, 0, 0, 0, time.UTC))
+	if len(filtered) != 1 || filtered[0]["id"] != "recent" {
+		t.Fatalf("filtered forms = %#v", filtered)
 	}
 }
 
