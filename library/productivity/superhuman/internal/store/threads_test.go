@@ -183,7 +183,7 @@ func TestListThreadsByParticipantsHonorsSince(t *testing.T) {
 		t.Fatalf("upsert: %v", err)
 	}
 
-	got, err := s.ListThreadsByParticipants(ctx, []string{"alice@example.com"}, cutoff)
+	got, err := s.ListThreadsByParticipants(ctx, "user@example.com", []string{"alice@example.com"}, cutoff)
 	if err != nil {
 		t.Fatalf("ListThreadsByParticipants: %v", err)
 	}
@@ -193,7 +193,7 @@ func TestListThreadsByParticipantsHonorsSince(t *testing.T) {
 
 	// Sanity: zero Since lets both through (no regression on the
 	// no-bound case).
-	gotAll, err := s.ListThreadsByParticipants(ctx, []string{"alice@example.com"}, time.Time{})
+	gotAll, err := s.ListThreadsByParticipants(ctx, "user@example.com", []string{"alice@example.com"}, time.Time{})
 	if err != nil {
 		t.Fatalf("ListThreadsByParticipants no-since: %v", err)
 	}
