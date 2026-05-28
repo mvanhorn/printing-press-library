@@ -62,6 +62,19 @@
       "files": [
         "internal/client/client.go"
       ]
+    },
+    {
+      "id": "chmod-existing-sensitive-files",
+      "summary": "os.Chmod after every owner-only os.MkdirAll/os.WriteFile/O_CREATE on sensitive state (HTTP cache, cache.Store, config, SQLite-store dir, profiles dir, feedback ledger).",
+      "reason": "os.WriteFile/os.MkdirAll/O_CREATE only apply perm at creation; a dir or file left on disk by an older world-readable build keeps its old 0o755/0o644 mode forever. The prior perms patches set the create-time mode but never re-secured pre-existing paths, so an upgrade from an old build still leaked credential-bound cache/config/profile data to other local users.",
+      "files": [
+        "internal/client/client.go",
+        "internal/cache/cache.go",
+        "internal/config/config.go",
+        "internal/store/store.go",
+        "internal/cli/profile.go",
+        "internal/cli/feedback.go"
+      ]
     }
   ]
 }

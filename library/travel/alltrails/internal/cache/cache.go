@@ -47,8 +47,14 @@ func (s *Store) Set(key string, value json.RawMessage) {
 	// Cached API responses can contain account/session data, so restrict to
 	// the owner: 0o700 dir / 0o600 file. World-readable perms would leak this
 	// to other local users on a shared machine.
+	// os.MkdirAll/os.WriteFile only apply perm on creation; a pre-existing
+	// dir or file from an older world-readable build keeps its old mode, so
+	// re-secure both explicitly.
 	_ = os.MkdirAll(s.Dir, 0o700)
-	_ = os.WriteFile(s.path(key), []byte(value), 0o600)
+	_ = os.Chmod(s.Dir, 0o700)
+	p := s.path(key)
+	_ = os.WriteFile(p, []byte(value), 0o600)
+	_ = os.Chmod(p, 0o600)
 }
 
 // Clear removes all cached entries.

@@ -100,9 +100,17 @@ func (c *Config) save() error {
 	if err := os.MkdirAll(dir, 0o700); err != nil {
 		return fmt.Errorf("creating config dir: %w", err)
 	}
+	// os.MkdirAll/os.WriteFile only apply perm on creation; a pre-existing
+	// dir or file from an older world-readable build keeps its old mode. The
+	// config holds auth credentials, so re-secure both explicitly.
+	_ = os.Chmod(dir, 0o700)
 	data, err := toml.Marshal(c)
 	if err != nil {
 		return fmt.Errorf("marshaling config: %w", err)
 	}
-	return os.WriteFile(c.Path, data, 0o600)
+	if err := os.WriteFile(c.Path, data, 0o600); err != nil {
+		return err
+	}
+	_ = os.Chmod(c.Path, 0o600)
+	return nil
 }

@@ -37,6 +37,11 @@ func profileStorePath() (string, error) {
 	if err := os.MkdirAll(dir, 0o700); err != nil {
 		return "", fmt.Errorf("creating state dir: %w", err)
 	}
+	// os.MkdirAll only applies perm on creation; a pre-existing dir from an
+	// older world-readable build keeps its old mode. This dir holds profile
+	// credentials, so re-secure it explicitly. (Profile files use tmp+rename,
+	// so they always get the right mode at create time.)
+	_ = os.Chmod(dir, 0o700)
 	return filepath.Join(dir, "profiles.json"), nil
 }
 

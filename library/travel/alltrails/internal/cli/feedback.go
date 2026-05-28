@@ -39,6 +39,9 @@ func feedbackFilePath() (string, error) {
 	if err := os.MkdirAll(dir, 0o700); err != nil {
 		return "", fmt.Errorf("creating state dir: %w", err)
 	}
+	// os.MkdirAll only applies perm on creation; a pre-existing dir from an
+	// older world-readable build keeps its old mode, so re-secure it.
+	_ = os.Chmod(dir, 0o700)
 	return filepath.Join(dir, "feedback.jsonl"), nil
 }
 
@@ -68,6 +71,9 @@ func appendFeedback(entry FeedbackEntry) error {
 		return fmt.Errorf("opening feedback ledger: %w", err)
 	}
 	defer f.Close()
+	// O_CREATE only applies perm on creation; an existing ledger from an
+	// older world-readable build keeps its old mode, so re-secure it.
+	_ = f.Chmod(0o600)
 	return json.NewEncoder(f).Encode(entry)
 }
 
