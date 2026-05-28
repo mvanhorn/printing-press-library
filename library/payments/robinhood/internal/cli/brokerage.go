@@ -208,6 +208,13 @@ without the write gate when ROBINHOOD_BROKERAGE_TOKEN or ROBINHOOD_COOKIE is set
 				dryRun = true
 			}
 			plan := brokeragemap.BuildPlan(route, method, parsedParams, body, dryRun)
+			// Refuse to execute a route whose path params are unresolved: the
+			// URL would still contain literal {placeholder} segments and hit a
+			// wrong/garbage endpoint. `brokerage plan` surfaces these the same
+			// way; execute must not silently send the request.
+			if len(plan.MissingParams) > 0 {
+				return usageErr(fmt.Errorf("cannot execute: unresolved path params %s — supply them with --param name=value (use 'brokerage plan' to inspect)", strings.Join(plan.MissingParams, ", ")))
+			}
 			bodyBytes, _ := json.Marshal(body)
 			if body == nil {
 				bodyBytes = nil

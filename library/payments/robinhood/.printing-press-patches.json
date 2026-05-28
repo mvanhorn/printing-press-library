@@ -29,6 +29,24 @@
       "files": [
         "internal/cli/crypto_post-trading-cancel-order.go"
       ]
+    },
+    {
+      "id": "brokerage-execute-missing-params",
+      "summary": "brokerage execute refuses to run when path params are unresolved.",
+      "reason": "Greptile P1: execute sent a live request with literal {placeholder} URL segments when --param was omitted, unlike brokerage plan which surfaces missing params.",
+      "files": [
+        "internal/cli/brokerage.go"
+      ]
+    },
+    {
+      "id": "store-list-unbounded-limit",
+      "summary": "store.List treats negative limit as unbounded; analytics/data_source pass -1 for the full dataset.",
+      "reason": "db.List(...,0) clamped to 200, so analytics/full-read callers silently truncated to the first 200 rows.",
+      "files": [
+        "internal/store/store.go",
+        "internal/cli/analytics.go",
+        "internal/cli/data_source.go"
+      ]
     }
   ]
 }
