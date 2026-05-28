@@ -5,6 +5,9 @@ package cli
 
 import (
 	"fmt"
+	"io"
+	"strings"
+
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/goodreads/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/goodreads/internal/config"
 	"github.com/spf13/cobra"
@@ -118,8 +121,8 @@ func newAuthStatusCmd(flags *rootFlags) *cobra.Command {
 			if !authed {
 				fmt.Fprintln(w, red("Not authenticated"))
 				fmt.Fprintln(w, "")
-				fmt.Fprintln(w, "Set the Goodreads _session_id2 cookie value:")
-				fmt.Fprintf(w, "  goodreads-pp-cli auth set-token <_session_id2-cookie-value>\n")
+				fmt.Fprintln(w, "Set the Goodreads _session_id2 cookie value (pipe it to keep it out of shell history):")
+				fmt.Fprintf(w, "  printf %%s \"$GOODREADS_SESSION\" | goodreads-pp-cli auth set-token\n")
 				return authErr(fmt.Errorf("no credentials configured"))
 			}
 
@@ -133,11 +136,29 @@ func newAuthStatusCmd(flags *rootFlags) *cobra.Command {
 
 func newAuthSetTokenCmd(flags *rootFlags) *cobra.Command {
 	return &cobra.Command{
-		Use:     "set-token <token>",
-		Short:   "Save the Goodreads _session_id2 cookie value to the config file",
-		Example: "  goodreads-pp-cli auth set-token YOUR_GOODREADS_SESSION_COOKIE",
-		Args:    cobra.ExactArgs(1),
+		Use:   "set-token [token]",
+		Short: "Save the Goodreads _session_id2 cookie value to the config file",
+		// Prefer stdin: a token passed as a positional argument is written to
+		// shell history (~/.bash_history, ~/.zsh_history) and is visible in the
+		// process table (ps aux) while the command runs. Piping keeps the
+		// session cookie out of both.
+		Example: "  printf %s \"$GOODREADS_SESSION\" | goodreads-pp-cli auth set-token",
+		Args:    cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
+			var token string
+			if len(args) == 1 {
+				token = strings.TrimSpace(args[0])
+			} else {
+				data, rerr := io.ReadAll(cmd.InOrStdin())
+				if rerr != nil {
+					return usageErr(fmt.Errorf("reading token from stdin: %w", rerr))
+				}
+				token = strings.TrimSpace(string(data))
+			}
+			if token == "" {
+				return usageErr(fmt.Errorf("no token provided: pipe it on stdin (recommended — keeps it out of shell history) or pass it as an argument"))
+			}
+
 			cfg, err := config.Load(flags.configPath)
 			if err != nil {
 				return configErr(err)
@@ -154,7 +175,7 @@ func newAuthSetTokenCmd(flags *rootFlags) *cobra.Command {
 			// AccessToken. Writing the token to AccessToken via SaveTokens
 			// would persist the bytes but leave doctor reporting "not
 			// configured" — the slot the header builder consults stays empty.
-			if err := cfg.SaveCredential(args[0]); err != nil {
+			if err := cfg.SaveCredential(token); err != nil {
 				return configErr(fmt.Errorf("saving token: %w", err))
 			}
 
