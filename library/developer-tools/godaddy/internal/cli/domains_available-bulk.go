@@ -37,6 +37,7 @@ func newDomainsAvailableBulkCmd(flags *rootFlags) *cobra.Command {
 				}
 			}
 			if !stdinBody {
+				return usageErr(fmt.Errorf("--stdin is required: pipe the JSON body; this command has no per-field body flags"))
 			}
 			c, err := flags.newClient()
 			if err != nil {

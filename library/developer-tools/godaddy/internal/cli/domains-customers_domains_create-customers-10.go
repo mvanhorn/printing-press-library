@@ -29,6 +29,7 @@ func newDomainsCustomersDomainsCreateCustomers10Cmd(flags *rootFlags) *cobra.Com
 				return fmt.Errorf("required flag \"%s\" not set", "registrar")
 			}
 			if !stdinBody {
+				return usageErr(fmt.Errorf("--stdin is required: pipe the JSON body; this command has no per-field body flags"))
 			}
 			c, err := flags.newClient()
 			if err != nil {
