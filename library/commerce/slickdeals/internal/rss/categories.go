@@ -1,4 +1,4 @@
-// Copyright 2026 david. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 David He and contributors. Licensed under Apache-2.0. See LICENSE.
 // Hand-written for slickdeals-pp-cli v0.3.
 //
 // v0.3 rewrite: replaced v0.2's client-side keyword-filter kludge with the

@@ -6,6 +6,8 @@ trigger-dev-pp-cli wraps the full v3 management API (47 endpoints across runs, s
 
 Learn more at [Trigger.dev](https://trigger.dev).
 
+Created by [@mvanhorn](https://github.com/mvanhorn) (Matt Van Horn).
+
 ## Install
 
 The recommended path installs both the `trigger-dev-pp-cli` binary and the `pp-trigger-dev` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

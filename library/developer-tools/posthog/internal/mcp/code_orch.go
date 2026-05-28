@@ -1,4 +1,4 @@
-// Copyright 2026 riteshtiwari. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 riteshtiwari and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // Package mcp provides the code-orchestration thin surface for posthog-pp-cli.
 // With 1600+ endpoint tools the full mirror is too large for agent context windows.

@@ -6,7 +6,7 @@ searches venues and items, and pulls per-venue delivery/ETA snapshots.
 Built on Wolt's unauthenticated consumer endpoints discovered via reverse
 engineering (OzTamir gist + live browser-sniff). No login, no cart, no orders.
 
-Printed by [@Amit-Tabibi](https://github.com/Amit-Tabibi) (Amit).
+Created by [@Amit-Tabibi](https://github.com/Amit-Tabibi) (Amit).
 
 ## Install
 

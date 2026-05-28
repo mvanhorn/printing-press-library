@@ -6,6 +6,8 @@ cal-com-pp-cli wraps the entire Cal.com v2 API and adds a local SQLite store of 
 
 Learn more at [Cal.com](https://cal.com).
 
+Created by [@tmchow](https://github.com/tmchow) (Trevin Chow).
+
 ## Install
 
 The recommended path installs both the `cal-com-pp-cli` binary and the `pp-cal-com` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

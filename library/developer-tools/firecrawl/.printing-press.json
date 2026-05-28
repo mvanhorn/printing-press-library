@@ -5,6 +5,10 @@
   "api_name": "firecrawl",
   "display_name": "Firecrawl",
   "cli_name": "firecrawl-pp-cli",
+  "creator": {
+    "handle": "hnshah",
+    "name": "Hiten Shah"
+  },
   "owner": "hiten-shah",
   "printer": "hnshah",
   "printer_name": "Hiten Shah",

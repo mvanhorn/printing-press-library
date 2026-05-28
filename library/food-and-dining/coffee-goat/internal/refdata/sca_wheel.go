@@ -1,4 +1,4 @@
-// Copyright 2026 justinwfu. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Justin Fu and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // Package refdata holds curated static reference tables that the
 // CLI ships embedded. Each table carries a Source comment so users

@@ -1,4 +1,4 @@
-// Copyright 2026 matt-van-horn. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Matt Van Horn and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // resolveDeeplineKey centralizes Deepline API key resolution across every
 // paid path in the CLI (waterfall, dossier, prospect, deepline subcommands,

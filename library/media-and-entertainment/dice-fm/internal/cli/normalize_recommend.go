@@ -1,4 +1,4 @@
-// Copyright 2026 vinny-pasceri. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Vinny Pasceri and contributors. Licensed under Apache-2.0. See LICENSE.
 // Hand-authored `normalize recommend` command: profiles the local store and
 // emits a starter normalization config (recommended entities + shapes, empty
 // rules) for the operator/agent to fill in.

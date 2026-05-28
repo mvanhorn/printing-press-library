@@ -4,7 +4,7 @@
 
 Estimates monthly and hourly PV production, downloads Typical Meteorological Year (TMY) weather, fetches DEM-derived horizon profiles, and finds optimal tilt for any point covered by PVGIS-SARAH3, PVGIS-NSRDB, or PVGIS-ERA5. Adds offline SQLite caching, multi-site fan-out (`sites rank`), and a local 2D tilt/azimuth heatmap (`production sweep`) that no PVGIS endpoint returns directly.
 
-Printed by [@robertobissanti](https://github.com/robertobissanti) (Roberto Bissanti).
+Created by [@robertobissanti](https://github.com/robertobissanti) (Roberto Bissanti).
 
 ## Install
 

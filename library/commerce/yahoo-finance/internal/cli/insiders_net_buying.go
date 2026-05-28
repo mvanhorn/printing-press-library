@@ -1,4 +1,4 @@
-// Copyright 2026 charles-garrison. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Trevin Chow and contributors. Licensed under Apache-2.0. See LICENSE.
 // Novel feature: insiders net-buying. Surfaces symbols where insiders are
 // net buyers in a recent window, drawing from locally synced insider rows.
 

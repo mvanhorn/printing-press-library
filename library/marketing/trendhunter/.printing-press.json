@@ -5,6 +5,10 @@
   "api_name": "trendhunter",
   "display_name": "Trend Hunter",
   "cli_name": "trendhunter-pp-cli",
+  "creator": {
+    "handle": "mvanhorn",
+    "name": "Matt Van Horn"
+  },
   "owner": "mvanhorn",
   "printer": "mvanhorn",
   "printer_name": "Matt Van Horn",

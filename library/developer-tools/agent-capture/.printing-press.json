@@ -1,5 +1,9 @@
 {
   "cli_name": "agent-capture-pp-cli",
+  "creator": {
+    "handle": "mvanhorn",
+    "name": "Matt Van Horn"
+  },
   "printer": "mvanhorn",
   "printer_name": "Matt Van Horn",
   "api_name": "agent-capture",

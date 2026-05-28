@@ -4,6 +4,8 @@ CoinGecko public API for cryptocurrency data. Free tier, no API key required for
 
 Learn more at [Coingecko](https://www.coingecko.com).
 
+Created by [@hnshah](https://github.com/hnshah) (Hiten Shah).
+
 ## Install
 
 The recommended path installs both the `coingecko-pp-cli` binary and the `pp-coingecko` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

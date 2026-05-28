@@ -1,4 +1,4 @@
-// Copyright 2026 david. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 David He and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // Package rss is a thin Slickdeals-flavored RSS 2.0 fetcher and parser. It
 // understands the quirks the v0.2 handoff documents:

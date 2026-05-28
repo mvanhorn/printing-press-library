@@ -1,4 +1,4 @@
-// Copyright 2026 melanson633. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 melanson633 and contributors. Licensed under Apache-2.0. See LICENSE.
 // Transcendence feature: backfill — reconstruct time entries you forgot to
 // track from a CSV export, shell history, or a CLI session log, then
 // optionally commit them to Clockify.

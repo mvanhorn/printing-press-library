@@ -4,6 +4,8 @@
 
 nse-india-pp-cli fetches real-time NSE equity quotes, index constituents, corporate filings, and market status with just browser headers — no API key, no Python runtime, no setup friction. After sync, the local SQLite store powers cross-symbol analysis that is invisible in any single API call: delivery spikes, sector breadth, portfolio margin health, and index attribution.
 
+Created by [@lavs9](https://github.com/lavs9) (Mayank Lavania).
+
 ## Install
 
 The recommended path installs both the `nse-india-pp-cli` binary and the `pp-nse-india` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

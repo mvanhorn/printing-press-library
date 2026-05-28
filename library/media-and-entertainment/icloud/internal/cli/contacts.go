@@ -1,4 +1,4 @@
-// Copyright 2026 matysanchez. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Matias Sanchez Moises and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // Package cli — contacts.go
 // contacts command group: sync, list, get, search, create, update, delete.

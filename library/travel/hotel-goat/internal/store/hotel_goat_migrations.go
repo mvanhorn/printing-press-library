@@ -1,4 +1,4 @@
-// Copyright 2026 kothari-nikunj. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 kothari-nikunj and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // This file is HAND-WRITTEN and intentionally lives outside the generator's
 // output set so it survives across regenerations. It declares the

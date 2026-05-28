@@ -5,6 +5,10 @@
   "api_name": "clockify",
   "display_name": "Clockify",
   "cli_name": "clockify-pp-cli",
+  "creator": {
+    "handle": "melanson633",
+    "name": "melanson633"
+  },
   "owner": "melanson633",
   "printer": "melanson633",
   "printer_name": "melanson633",

@@ -1,4 +1,4 @@
-// Copyright 2026 matt-van-horn. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Matt Van Horn and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // PATCH(amend-2026-05-19: award-search support) — added by /printing-press-amend.
 // Thin alias over `flights search` that defaults --award=true so an agent can

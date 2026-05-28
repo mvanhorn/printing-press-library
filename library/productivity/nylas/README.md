@@ -6,7 +6,7 @@ The official nylas-cli is stateless and single-grant. nylas-pp-cli adds a local 
 
 Learn more at [Nylas](https://www.nylas.com/).
 
-Printed by [@natekettles](https://github.com/natekettles) (Nathan Kettles).
+Created by [@natekettles](https://github.com/natekettles) (Nathan Kettles).
 
 ## Install
 

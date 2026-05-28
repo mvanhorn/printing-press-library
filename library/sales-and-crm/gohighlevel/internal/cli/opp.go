@@ -1,4 +1,4 @@
-// Copyright 2026 user. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Jen Williams and contributors. Licensed under Apache-2.0. See LICENSE.
 //
 // `opp` command tree — pipeline-level opportunity reports against the
 // local SQLite cache. Hand-coded; never overwritten by press regen.

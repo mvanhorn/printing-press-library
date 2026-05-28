@@ -1,4 +1,4 @@
-// Copyright 2026 justinwfu. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Justin Fu and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // Package shopify is the source adapter for Shopify-storefront-shaped
 // roasters. Every Shopify storefront exposes /products.json with a

@@ -6,6 +6,10 @@
   "display_name": "GoHighLevel",
   "description": "Sync GoHighLevel CRM data for contacts, opportunities, pipelines, custom fields, tags, bulk operations, and funnel reports.",
   "cli_name": "gohighlevel-pp-cli",
+  "creator": {
+    "handle": "jenwilliams-eng",
+    "name": "Jen Williams"
+  },
   "owner": "user",
   "printer": "jenwilliams-eng",
   "printer_name": "Jen Williams",

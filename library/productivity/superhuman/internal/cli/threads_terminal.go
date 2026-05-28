@@ -1,4 +1,4 @@
-// Copyright 2026 mvanhorn. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Matt Van Horn and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // threads_terminal.go implements three destructive thread-state verbs
 // kept out of `threads update` (see plan 2026-05-14-003 KD5):

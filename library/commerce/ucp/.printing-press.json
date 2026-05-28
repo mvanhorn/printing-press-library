@@ -5,6 +5,10 @@
   "api_name": "ucp",
   "display_name": "UCP",
   "cli_name": "ucp-pp-cli",
+  "creator": {
+    "handle": "beetz12",
+    "name": "david"
+  },
   "owner": "beetz12",
   "printer": "beetz12",
   "printer_name": "david",

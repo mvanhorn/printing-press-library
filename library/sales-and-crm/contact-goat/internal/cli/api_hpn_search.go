@@ -1,4 +1,4 @@
-// Copyright 2026 matt-van-horn. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Matt Van Horn and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // api_hpn_search.go: `api hpn search` and its sub-subcommands
 // (find-more, get). Each spends Happenstance credits, so the cost-preview

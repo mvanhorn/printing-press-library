@@ -59,6 +59,8 @@ openipa-pp-cli enti tree agid --json
 openipa-pp-cli uo list --codice agid --json
 ```
 
+Created by [@aborruso](https://github.com/aborruso) (aborruso).
+
 ## Install
 
 The recommended path installs both the `openipa-pp-cli` binary and the `pp-openipa` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

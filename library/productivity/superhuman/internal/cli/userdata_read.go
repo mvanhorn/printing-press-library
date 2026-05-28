@@ -1,4 +1,4 @@
-// Copyright 2026 mvanhorn. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Matt Van Horn and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // userdata_read.go is a small helper layer over Superhuman's
 // `/v3/userdata.read` endpoint. The endpoint is the read-side counterpart

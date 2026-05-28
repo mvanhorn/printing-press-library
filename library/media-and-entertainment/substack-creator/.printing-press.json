@@ -6,6 +6,10 @@
   "api_name": "substack-creator",
   "display_name": "Substack Creator",
   "cli_name": "substack-creator-pp-cli",
+  "creator": {
+    "handle": "JPresting",
+    "name": "JimPresting"
+  },
   "printer": "JPresting",
   "printer_name": "JimPresting",
   "run_id": "20260512-202201",

@@ -5,6 +5,10 @@
   "api_name": "pvgis",
   "display_name": "Pvgis",
   "cli_name": "pvgis-pp-cli",
+  "creator": {
+    "handle": "robertobissanti",
+    "name": "Roberto Bissanti"
+  },
   "owner": "roberto-bissanti",
   "printer": "robertobissanti",
   "printer_name": "Roberto Bissanti",

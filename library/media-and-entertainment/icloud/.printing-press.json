@@ -8,6 +8,16 @@
   "api_name": "icloud",
   "display_name": "iCloud",
   "cli_name": "icloud-pp-cli",
+  "creator": {
+    "handle": "matysanchez",
+    "name": "Matias Sanchez Moises"
+  },
+  "contributors": [
+    {
+      "handle": "mvanhorn",
+      "name": "Matt Van Horn"
+    }
+  ],
   "category": "media-and-entertainment",
   "description": "Query iCloud data stored locally on macOS — Photos library storage analysis, with Contacts and more coming. All reads hit local SQLite databases directly; no network calls or iCloud API token required.",
   "auth_type": "none",

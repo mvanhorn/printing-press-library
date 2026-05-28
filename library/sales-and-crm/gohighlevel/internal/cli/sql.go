@@ -1,4 +1,4 @@
-// Copyright 2026 user. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Jen Williams and contributors. Licensed under Apache-2.0. See LICENSE.
 //
 // `sql` top-level command — run a read-only SELECT against the local
 // SQLite mirror. Rejects anything that isn't a SELECT (or WITH ... SELECT).

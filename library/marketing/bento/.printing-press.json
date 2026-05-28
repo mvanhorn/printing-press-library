@@ -5,6 +5,10 @@
   "api_name": "bento",
   "display_name": "Bento",
   "cli_name": "bento-pp-cli",
+  "creator": {
+    "handle": "bossriceshark",
+    "name": "bossriceshark"
+  },
   "owner": "bossriceshark",
   "printer": "bossriceshark",
   "printer_name": "bossriceshark",

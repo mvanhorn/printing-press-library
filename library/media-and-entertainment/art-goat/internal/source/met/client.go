@@ -1,4 +1,4 @@
-// Copyright 2026 justinwfu. Licensed under Apache-2.0.
+// Copyright 2026 justinwfu and contributors. Licensed under Apache-2.0.
 
 // Package met implements the art-goat Source for the Metropolitan Museum
 // of Art's public Collection API (collectionapi.metmuseum.org). Anonymous;

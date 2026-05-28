@@ -4,6 +4,8 @@
 
 The OpenSnow CLI puts the same hyper-local mountain forecasts trusted by millions of skiers directly into your terminal. Sync resort data to a local SQLite store, then score powder days, rank resorts, and track storms offline. The Daily Snow digest brings expert meteorologist forecasts to your terminal without opening a browser.
 
+Created by [@davemorin](https://github.com/davemorin) (Dave Morin).
+
 ## Install
 
 The recommended path installs both the `opensnow-pp-cli` binary and the `pp-opensnow` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

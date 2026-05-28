@@ -6,6 +6,8 @@ Pointhound's web search is great for one-off lookups but doesn't compound. This 
 
 Learn more at [Pointhound](https://www.pointhound.com).
 
+Created by [@salmonumbrella](https://github.com/salmonumbrella) (salmonumbrella).
+
 ## Install
 
 The recommended path installs both the `pointhound-pp-cli` binary and the `pp-pointhound` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

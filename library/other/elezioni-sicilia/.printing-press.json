@@ -5,6 +5,10 @@
   "api_name": "elezioni-sicilia",
   "display_name": "Elezioni Sicilia",
   "cli_name": "elezioni-sicilia-pp-cli",
+  "creator": {
+    "handle": "aborruso",
+    "name": "aborruso"
+  },
   "owner": "aborruso",
   "printer": "aborruso",
   "printer_name": "aborruso",

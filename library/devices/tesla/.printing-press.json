@@ -5,6 +5,16 @@
   "api_name": "tesla",
   "display_name": "Tesla",
   "cli_name": "tesla-pp-cli",
+  "creator": {
+    "handle": "mvanhorn",
+    "name": "Matt Van Horn"
+  },
+  "contributors": [
+    {
+      "handle": "ameshalexk",
+      "name": "Amesh Alex Kuruvilla"
+    }
+  ],
   "owner": "mvanhorn",
   "printer": "mvanhorn",
   "printer_name": "Matt Van Horn",

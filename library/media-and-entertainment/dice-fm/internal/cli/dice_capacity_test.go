@@ -1,4 +1,4 @@
-// Copyright 2026 vinny-pasceri. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Vinny Pasceri and contributors. Licensed under Apache-2.0. See LICENSE.
 // Behavioral tests for the `capacity pools` per-ticket-pool allocation view.
 // Each test seeds a temp SQLite store with synthetic events whose JSON carries
 // a ticketPools array, then asserts computeCapacityPools' exact output. There

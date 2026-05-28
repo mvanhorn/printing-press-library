@@ -5,6 +5,10 @@
   "api_name": "nasa-images",
   "display_name": "NASA Image and Video Library",
   "cli_name": "nasa-images-pp-cli",
+  "creator": {
+    "handle": "tmchow",
+    "name": "Trevin Chow"
+  },
   "owner": "trevin-chow",
   "printer": "tmchow",
   "printer_name": "Trevin Chow",

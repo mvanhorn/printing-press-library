@@ -1,4 +1,4 @@
-// Copyright 2026 melanson633. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 melanson633 and contributors. Licensed under Apache-2.0. See LICENSE.
 // Transcendence feature: billable leakage audit — joins synced entries
 // against projects, clients, and tags to flag misfiled billable time.
 

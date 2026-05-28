@@ -5,6 +5,10 @@
   "api_name": "tenderned",
   "display_name": "TenderNed",
   "cli_name": "tenderned-pp-cli",
+  "creator": {
+    "handle": "markvandeven",
+    "name": "markvandeven"
+  },
   "owner": "markvandeven",
   "printer": "markvandeven",
   "printer_name": "markvandeven",

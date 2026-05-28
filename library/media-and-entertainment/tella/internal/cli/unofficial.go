@@ -1,4 +1,4 @@
-// Copyright 2026 gregce. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Greg Ceccarelli and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // PATCH(library): unofficial-API support for the Cut-panel features Tella
 // ships in the web UI but doesn't expose on api.tella.com. Live probes

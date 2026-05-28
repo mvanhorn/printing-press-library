@@ -5,6 +5,10 @@
   "api_name": "substack",
   "display_name": "Substack",
   "cli_name": "substack-pp-cli",
+  "creator": {
+    "handle": "chirantan",
+    "name": "Chirantan Rajhans"
+  },
   "owner": "user",
   "spec_path": "/Users/chirantan/printing-press/.runstate/cli-printing-press-5afd2fcc/runs/20260509-103230/research/substack-spec.yaml",
   "spec_format": "internal",

@@ -1,4 +1,4 @@
-// Copyright 2026 brian-wishan. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Brian Wishan and contributors. Licensed under Apache-2.0. See LICENSE.
 
 package cli
 

@@ -1,4 +1,4 @@
-// Copyright 2026 mvanhorn. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Matt Van Horn and contributors. Licensed under Apache-2.0. See LICENSE.
 // episode batch — parallel multi-URL fetch with progress + summary. Closes
 // Lan's "Monday morning 5-tab" workflow from the brief.
 

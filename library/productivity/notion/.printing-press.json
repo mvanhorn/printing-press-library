@@ -6,6 +6,10 @@
   "category": "productivity",
   "display_name": "Notion",
   "cli_name": "notion-pp-cli",
+  "creator": {
+    "handle": "neektza",
+    "name": "Nikica Jokic"
+  },
   "printer": "neektza",
   "printer_name": "Nikica Jokic",
   "spec_path": "https://developers.notion.com/openapi.json",

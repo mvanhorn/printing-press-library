@@ -1,4 +1,4 @@
-// Copyright 2026 kothari-nikunj. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 kothari-nikunj and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // dates <location> --from YYYY-MM-DD --to YYYY-MM-DD [--nights N]
 // Sweeps every valid (checkin, checkout) pair across the date window and

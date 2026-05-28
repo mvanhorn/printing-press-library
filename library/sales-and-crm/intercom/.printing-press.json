@@ -5,6 +5,10 @@
   "api_name": "intercom",
   "display_name": "Intercom",
   "cli_name": "intercom-pp-cli",
+  "creator": {
+    "handle": "rob-coco",
+    "name": "Rob Zehner"
+  },
   "owner": "rob-coco",
   "printer": "rob-coco",
   "printer_name": "Rob Zehner",

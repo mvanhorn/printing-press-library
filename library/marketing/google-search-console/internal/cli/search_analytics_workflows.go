@@ -1,4 +1,4 @@
-// Copyright 2026 bossriceshark. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Matt and contributors. Licensed under Apache-2.0. See LICENSE.
 // PATCH: Add agent-friendly live Search Analytics workflows for brand splits and page query breakdowns.
 
 package cli

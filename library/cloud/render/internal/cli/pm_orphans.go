@@ -1,4 +1,4 @@
-// Copyright 2026 giuliano-giacaglia. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Giuliano Giacaglia and contributors. Licensed under Apache-2.0. See LICENSE.
 //
 // PATCH: Replaces the generator's generic missing-assignee orphan scan with a
 // Render-specific orphan sweep — unattached disks, empty env-groups, dangling

@@ -4,7 +4,7 @@ Ecommerce orders, products, customers, inventory, fulfillment orders, and bulk o
 
 Learn more at [Shopify](https://shopify.dev/docs/api/admin-graphql).
 
-Printed by [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
+Created by [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
 
 ## Install
 

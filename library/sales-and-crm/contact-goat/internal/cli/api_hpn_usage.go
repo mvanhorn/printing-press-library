@@ -1,4 +1,4 @@
-// Copyright 2026 matt-van-horn. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Matt Van Horn and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // api_hpn_usage.go: `api hpn usage` and `api hpn user`. Both wrap free
 // probes — no credit cost, no budget gate, no cost preview.

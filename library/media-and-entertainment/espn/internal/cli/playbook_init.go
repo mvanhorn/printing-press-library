@@ -1,4 +1,4 @@
-// Copyright 2026 mvanhorn. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Matt Van Horn and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // playbook_init.go is the per-CLI playbook auto-install path. At
 // first DB open after schema migration, this reads the embed.FS from

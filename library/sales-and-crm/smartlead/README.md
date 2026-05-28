@@ -4,7 +4,7 @@
 
 Beyond wrapping all 41 SmartLead REST endpoints with JSON-first, agent-native output, this CLI adds a local SQLite mirror no other SmartLead tool has. Sync once, then run health, silent, dupes, sender-health, warmup-gate, and drift offline — cross-campaign questions that otherwise cost a multi-call API loop per answer.
 
-Printed by [@bossriceshark](https://github.com/bossriceshark) (bossriceshark).
+Created by [@bossriceshark](https://github.com/bossriceshark) (bossriceshark).
 
 ## Install
 

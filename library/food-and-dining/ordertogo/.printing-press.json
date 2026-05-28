@@ -5,6 +5,10 @@
   "api_name": "ordertogo",
   "display_name": "OrderToGo",
   "cli_name": "ordertogo-pp-cli",
+  "creator": {
+    "handle": "mvanhorn",
+    "name": "Matt Van Horn"
+  },
   "owner": "matt-van-horn",
   "printer": "mvanhorn",
   "printer_name": "Matt Van Horn",

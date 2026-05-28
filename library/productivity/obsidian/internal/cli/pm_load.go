@@ -1,4 +1,4 @@
-// Copyright 2026 drdriftwood. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Angelo Pullen and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // The generic Printing Press emits a `load` command for SaaS APIs that
 // shows workload distribution per assignee. That semantic doesn't apply

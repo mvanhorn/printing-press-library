@@ -4,6 +4,8 @@ Read and filter Marginal Revolution from the command line through its public RSS
 
 This CLI was regenerated with CLI Printing Press 4.2.1. It keeps the generated v4.2 agent/MCP scaffolding and adds RSS-native helper commands for posts, authors, categories, and outbound links.
 
+Created by [@hinuri](https://github.com/hinuri) (Nuri Chang).
+
 ## Install
 
 The recommended path installs both the `marginalrevolution-pp-cli` binary and the `pp-marginalrevolution` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

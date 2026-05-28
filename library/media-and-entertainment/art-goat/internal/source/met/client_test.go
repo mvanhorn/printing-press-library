@@ -1,4 +1,4 @@
-// Copyright 2026 justinwfu. Licensed under Apache-2.0.
+// Copyright 2026 justinwfu and contributors. Licensed under Apache-2.0.
 
 package met
 

@@ -1,4 +1,4 @@
-// Copyright 2026 rob-coco. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Rob Zehner and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // Internal-only test helpers for transcendence_test.go. Keeps the actual
 // test file focused on the per-feature assertions.

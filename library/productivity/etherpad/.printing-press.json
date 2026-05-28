@@ -5,6 +5,10 @@
   "api_name": "etherpad",
   "display_name": "Etherpad",
   "cli_name": "etherpad-pp-cli",
+  "creator": {
+    "handle": "JohnMcLear",
+    "name": "John McLear"
+  },
   "owner": "john-mclear",
   "printer": "JohnMcLear",
   "printer_name": "John McLear",

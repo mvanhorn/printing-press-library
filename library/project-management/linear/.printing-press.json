@@ -5,6 +5,10 @@
   "api_name": "linear",
   "display_name": "Linear",
   "cli_name": "linear-pp-cli",
+  "creator": {
+    "handle": "mvanhorn",
+    "name": "Matt Van Horn"
+  },
   "owner": null,
   "printer": "mvanhorn",
   "printer_name": "Matt Van Horn",

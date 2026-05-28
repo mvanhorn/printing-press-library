@@ -5,6 +5,10 @@
   "api_name": "doordash",
   "display_name": "DoorDash",
   "cli_name": "doordash-pp-cli",
+  "creator": {
+    "handle": "bricenice17",
+    "name": "bricenice17"
+  },
   "owner": "bricenice17",
   "printer": "bricenice17",
   "printer_name": "bricenice17",

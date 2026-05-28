@@ -4,7 +4,7 @@ Manage Kit's v4 creator marketing API from the terminal: account data, subscribe
 
 Learn more at [Kit](https://developers.kit.com).
 
-Printed by [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
+Created by [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
 
 ## Install
 

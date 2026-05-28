@@ -1,4 +1,4 @@
-// Copyright 2026 mvanhorn. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Matt Van Horn and contributors. Licensed under Apache-2.0. See LICENSE.
 // episode info — cheap dispatcher-trace preview. Shows which sources can
 // fetch the URL, estimated per-source cost, and which would fire by default.
 // No transcript fetch. No spend recorded. Lets users (and agents) say

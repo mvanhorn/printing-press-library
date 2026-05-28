@@ -1,4 +1,4 @@
-// Copyright 2026 matt-van-horn. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Matt Van Horn and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // PATCH(amend-2026-05-20: value-compare) — Thin wrapper over the shared
 // internal/cache template. The wrapper adds mod-time-aware reads so the

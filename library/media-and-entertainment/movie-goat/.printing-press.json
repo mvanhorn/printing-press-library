@@ -5,6 +5,10 @@
   "api_name": "movie-goat",
   "display_name": "Movie Goat",
   "cli_name": "movie-goat-pp-cli",
+  "creator": {
+    "handle": "tmchow",
+    "name": "Trevin Chow"
+  },
   "printer": "tmchow",
   "printer_name": "Trevin Chow",
   "spec_format": "internal",

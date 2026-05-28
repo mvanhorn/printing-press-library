@@ -2,6 +2,8 @@
 
 Seats.aero Partner API for award travel availability, cached search, route lists, and trip revalidation details.
 
+Created by [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
+
 ## Install
 
 The recommended path installs both the `seats-aero-pp-cli` binary and the `pp-seats-aero` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

@@ -1,4 +1,4 @@
-// Copyright 2026 vinny-pasceri. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Vinny Pasceri and contributors. Licensed under Apache-2.0. See LICENSE.
 // Hand-authored DICE "revenue by-artist" command: aggregate gross / dice_fees
 // / net / orders_count grouped by artist name, joining orders -> event ->
 // events.artists[].name. This file is NOT generated and survives `generate

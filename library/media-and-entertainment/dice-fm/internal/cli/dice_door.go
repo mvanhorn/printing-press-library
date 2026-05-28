@@ -1,4 +1,4 @@
-// Copyright 2026 vinny-pasceri. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Vinny Pasceri and contributors. Licensed under Apache-2.0. See LICENSE.
 // Hand-authored DICE "door list" command: a live, joined valid-holder list for
 // an event — joins tickets against returns and transfers so a door operator
 // sees who is actually entitled to enter, including the new holder for any

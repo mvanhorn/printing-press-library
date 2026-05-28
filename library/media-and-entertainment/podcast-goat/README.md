@@ -4,7 +4,7 @@
 
 Built for agentic users who already pay for Huberman, Acquired, Founders, and Peter Attia and want to feed those transcripts into Claude or Hermes without copy-pasting. Walks a cookie -> free -> paid dispatch chain across 10 sources, normalizes everything to the same `**Speaker** (MM:SS)` markdown shape, caches to a local FTS5 store, and ships an MCP wrapper so agents can drive the whole thing.
 
-Printed by [@mvanhorn](https://github.com/mvanhorn) (Matt Van Horn).
+Created by [@mvanhorn](https://github.com/mvanhorn) (Matt Van Horn).
 
 ## Install
 

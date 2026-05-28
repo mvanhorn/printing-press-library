@@ -1,4 +1,4 @@
-// Copyright 2026 drdriftwood. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Angelo Pullen and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // `obsidian-pp-cli orphans` — list vault notes that have no incoming
 // wikilinks. Replaces the Press's generic "items missing assignee/project"

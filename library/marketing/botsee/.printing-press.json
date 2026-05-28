@@ -5,6 +5,10 @@
   "api_name": "botsee",
   "display_name": "Botsee",
   "cli_name": "botsee-pp-cli",
+  "creator": {
+    "handle": "grahac",
+    "name": "grahac"
+  },
   "owner": "grahac",
   "printer": "grahac",
   "printer_name": "grahac",

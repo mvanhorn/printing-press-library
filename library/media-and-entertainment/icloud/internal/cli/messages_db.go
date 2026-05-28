@@ -1,4 +1,4 @@
-// Copyright 2026 mvanhorn. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Matias Sanchez Moises and contributors. Licensed under Apache-2.0. See LICENSE.
 //
 // PATCH(messages-readonly-chatdb): opens ~/Library/Messages/chat.db read-only
 // via the file: URI prefix on modernc.org/sqlite. Without that prefix the

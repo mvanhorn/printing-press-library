@@ -1,4 +1,4 @@
-// Copyright 2026 CLI Printing Press. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 mvanhorn and contributors. Licensed under Apache-2.0. See LICENSE.
 
 package dashboard
 

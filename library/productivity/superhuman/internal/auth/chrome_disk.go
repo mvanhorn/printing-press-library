@@ -1,4 +1,4 @@
-// Copyright 2026 mvanhorn. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Matt Van Horn and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // Package auth's chrome_disk.go reads tokens directly from Chrome's on-disk
 // LevelDB files, bypassing CDP entirely. This is the runtime-friendly path: it

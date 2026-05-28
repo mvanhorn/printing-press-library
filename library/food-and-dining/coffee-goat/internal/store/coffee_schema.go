@@ -1,4 +1,4 @@
-// Copyright 2026 justinwfu. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Justin Fu and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // coffee_schema.go is the hand-authored schema layer for the
 // coffee-goat domain. It augments the generator-emitted resources

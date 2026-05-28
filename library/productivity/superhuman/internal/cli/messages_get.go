@@ -1,4 +1,4 @@
-// Copyright 2026 mvanhorn. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Matt Van Horn and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // messages_get.go implements `superhuman-pp-cli messages get <id>`. The
 // command mirrors the Superhuman MCP's get_message tool: fetch one Gmail

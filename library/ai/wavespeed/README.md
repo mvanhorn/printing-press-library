@@ -11,7 +11,7 @@ correctly percent-encode slashes. The printed CLI adds a hand-authored
 
 Learn more at [Wavespeed](https://wavespeed.ai).
 
-Printed by [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
+Created by [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
 
 ## Install
 

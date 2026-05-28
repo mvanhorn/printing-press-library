@@ -5,6 +5,10 @@
   "api_name": "openalex",
   "display_name": "OpenAlex",
   "cli_name": "openalex-pp-cli",
+  "creator": {
+    "handle": "hiten-shah",
+    "name": "Hiten Shah"
+  },
   "owner": "hiten-shah",
   "printer": "hiten-shah",
   "printer_name": "Hiten Shah",

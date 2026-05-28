@@ -1,4 +1,4 @@
-// Copyright 2026 mvanhorn. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Matt Van Horn and contributors. Licensed under Apache-2.0. See LICENSE.
 //
 // `tesla auth export` and the shared cipher / passphrase plumbing used by
 // `tesla auth import`. See plan 2026-05-22-001 U2c.

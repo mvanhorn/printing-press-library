@@ -1,4 +1,4 @@
-// Copyright 2026 magoo242. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 magoo242 and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // `edgar-pp-cli accession <ID>` — normalize an SEC accession number between
 // the dashed (0000320193-22-000049) and no-dashes (000032019322000049) forms.

@@ -1,4 +1,4 @@
-// Copyright 2026 matt-van-horn. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Matt Van Horn and contributors. Licensed under Apache-2.0. See LICENSE.
 // digest is a transcendence command that joins multiple AeroAPI endpoints
 // (departures, delays, weather) into a single daily brief. Extracted from
 // transcend.go so each novel compound command lives in its own file.

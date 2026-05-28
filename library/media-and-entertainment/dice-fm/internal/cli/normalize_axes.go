@@ -1,4 +1,4 @@
-// Copyright 2026 vinny-pasceri. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Vinny Pasceri and contributors. Licensed under Apache-2.0. See LICENSE.
 package cli
 
 // Axis keys for the ticket-type attributes overlay. Shared so a rename is caught

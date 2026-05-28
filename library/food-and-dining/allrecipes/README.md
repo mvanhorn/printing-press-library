@@ -6,6 +6,8 @@ Search Allrecipes' 250k-recipe corpus from the command line, fetch a full recipe
 
 Learn more at [Allrecipes](https://www.allrecipes.com).
 
+Created by [@tmchow](https://github.com/tmchow) (Trevin Chow).
+
 ## Install
 
 The recommended path installs both the `allrecipes-pp-cli` binary and the `pp-allrecipes` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

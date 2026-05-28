@@ -39,7 +39,7 @@ This is a focused v1. The following features were scoped in the design but defer
 
 Learn more at [Google Hotels](https://www.google.com).
 
-Printed by [@kothari-nikunj](https://github.com/kothari-nikunj) (kothari-nikunj).
+Created by [@kothari-nikunj](https://github.com/kothari-nikunj) (kothari-nikunj).
 
 ## Install
 

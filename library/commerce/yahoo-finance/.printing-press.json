@@ -5,6 +5,10 @@
   "api_name": "yahoo-finance",
   "display_name": "Yahoo Finance",
   "cli_name": "yahoo-finance-pp-cli",
+  "creator": {
+    "handle": "tmchow",
+    "name": "Trevin Chow"
+  },
   "owner": "tmchow",
   "printer": "tmchow",
   "printer_name": "Trevin Chow",

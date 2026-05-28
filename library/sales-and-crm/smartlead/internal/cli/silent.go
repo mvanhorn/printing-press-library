@@ -1,4 +1,4 @@
-// Copyright 2026 bossriceshark. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 bossriceshark and contributors. Licensed under Apache-2.0. See LICENSE.
 
 package cli
 

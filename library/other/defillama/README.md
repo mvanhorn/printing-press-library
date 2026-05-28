@@ -40,7 +40,7 @@ client = DefiLlama()
 protocols = client.tvl.getProtocols()
 ```
 
-Printed by [@kierandotai](https://github.com/kierandotai) (kierandotai).
+Created by [@kierandotai](https://github.com/kierandotai) (kierandotai).
 
 ## Install
 

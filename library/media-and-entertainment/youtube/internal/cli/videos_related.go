@@ -1,4 +1,4 @@
-// Copyright 2026 justinwfu. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Justin and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // PATCH: polish-html-unescape-and-ranking — HTML-unescape titles/channelTitle in searchListVideos so &#39; renders as ' not &#39; in cached values and downstream JSON. Lowered same_channel score to 1 and raised shared_topic to 3 so cross-channel topic-shared videos outrank channel-mate fillers. Added stderr warning when results are 100% same-channel as the input video. Threaded cmd.Context() into the client so --timeout / Ctrl+C cancel the up-to-three search.list calls.
 

@@ -1,4 +1,4 @@
-// Copyright 2026 kevin-magnan. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Kevin Magnan and contributors. Licensed under Apache-2.0. See LICENSE.
 
 package cli
 

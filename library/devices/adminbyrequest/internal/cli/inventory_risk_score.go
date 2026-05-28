@@ -1,4 +1,4 @@
-// Copyright 2026 joltsconsulting. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 joltsconsulting and contributors. Licensed under Apache-2.0. See LICENSE.
 
 package cli
 

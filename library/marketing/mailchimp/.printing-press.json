@@ -5,6 +5,10 @@
   "api_name": "mailchimp",
   "display_name": "Mailchimp Marketing",
   "cli_name": "mailchimp-pp-cli",
+  "creator": {
+    "handle": "tmchow",
+    "name": "Trevin Chow"
+  },
   "owner": "trevin-chow",
   "printer": "tmchow",
   "printer_name": "Trevin Chow",

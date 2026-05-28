@@ -1,4 +1,4 @@
-// Copyright 2026 rob-coco. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Rob Zehner and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // PATCH (add-play-on-device-by-name):
 // play-on <device-name> — start playback on a device referenced by friendly

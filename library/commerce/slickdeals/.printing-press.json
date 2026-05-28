@@ -5,6 +5,10 @@
   "api_name": "slickdeals",
   "display_name": "Slickdeals",
   "cli_name": "slickdeals-pp-cli",
+  "creator": {
+    "handle": "beetz12",
+    "name": "David He"
+  },
   "owner": "beetz12",
   "printer": "beetz12",
   "printer_name": "David He",

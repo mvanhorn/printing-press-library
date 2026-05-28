@@ -1,4 +1,4 @@
-// Copyright 2026 david. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 David He and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // Package store: snapshots.go adds a specialized deal_snapshots table for
 // Slickdeals deal observations over time. Unlike the generic resources table

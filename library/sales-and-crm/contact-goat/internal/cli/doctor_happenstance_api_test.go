@@ -1,4 +1,4 @@
-// Copyright 2026 matt-van-horn. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Matt Van Horn and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // doctor_happenstance_api_test.go: tests for the three doctor rows that
 // surface the bearer-auth Happenstance public REST API surface.

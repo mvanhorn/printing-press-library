@@ -4,7 +4,7 @@
 
 Pulls your workspace into a local SQLite store with FTS5 search and runs compound queries that no live API call can answer in one round-trip — today view, bottleneck detection, project burndown, cycle comparison. Ships a thin linear_search + linear_execute MCP orchestration pair (with named multi-step intents for triage, standup, sprint plan, weekly update, and grooming) so agents reach the full surface in ~1K tokens instead of enumerating 60+ endpoint mirrors.
 
-Printed by [@mvanhorn](https://github.com/mvanhorn) (Matt Van Horn).
+Created by [@mvanhorn](https://github.com/mvanhorn) (Matt Van Horn).
 
 ## Install
 

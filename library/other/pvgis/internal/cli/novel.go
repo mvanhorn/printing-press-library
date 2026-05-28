@@ -1,4 +1,4 @@
-// Copyright 2026 roberto-bissanti. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Roberto Bissanti and contributors. Licensed under Apache-2.0. See LICENSE.
 // Hand-written novel features for the PVGIS CLI. NOT generator-emitted.
 
 package cli

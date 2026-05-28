@@ -1,4 +1,4 @@
-// Copyright 2026 justinwfu. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Justin and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // PATCH: feat-comments-and-handle-resolution — novel command. Chains channels.list (with forHandle or id) -> contentDetails.relatedPlaylists.uploads -> playlistItems.list, collapsing the standard two-call YouTube workflow. Threads cmd.Context() through Client.WithContext.
 

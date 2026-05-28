@@ -1,4 +1,4 @@
-// Copyright 2026 vinny-pasceri. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Vinny Pasceri and contributors. Licensed under Apache-2.0. See LICENSE.
 // Hand-authored DICE "fans segment" command: behavioral segmentation over the
 // local order + ticket + event store. A fan must match ALL provided filters;
 // omitting a filter leaves it open. This file is NOT generated and survives

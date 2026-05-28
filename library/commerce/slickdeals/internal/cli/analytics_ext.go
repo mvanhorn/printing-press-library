@@ -1,4 +1,4 @@
-// Copyright 2026 david. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 David He and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // Package cli: analytics_ext.go extends the existing `analytics` command tree
 // with two snapshot-aware sub-commands — `top-stores` and `thumbs-velocity`.

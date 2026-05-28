@@ -5,6 +5,10 @@
   "api_name": "gravitus",
   "display_name": "Gravitus",
   "cli_name": "gravitus-pp-cli",
+  "creator": {
+    "handle": "azaaron",
+    "name": "mvanhorn"
+  },
   "owner": "mvanhorn",
   "printer": "azaaron",
   "printer_name": "mvanhorn",

@@ -4,6 +4,8 @@
 
 Sync your entire meeting history once, then search, analyze, and correlate across every conversation without touching the API. Find stale action items, track topic escalation over weeks, reconstruct the full history with any person or account — all offline, all composable with jq and SQL.
 
+Created by [@neektza](https://github.com/neektza) (Nikica Jokic).
+
 ## Install
 
 The recommended path installs both the `fireflies-pp-cli` binary and the `pp-fireflies` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

@@ -1,4 +1,4 @@
-// Copyright 2026 mvanhorn. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Matt Van Horn and contributors. Licensed under Apache-2.0. See LICENSE.
 //
 // PATCH(reminders-endpoint-rewrite): see reminders_create.go for the
 // background. Cancel mirrors create but writes a null value on the same

@@ -5,6 +5,10 @@
   "api_name": "suno",
   "display_name": "Suno",
   "cli_name": "suno-pp-cli",
+  "creator": {
+    "handle": "mvanhorn",
+    "name": "Matt Van Horn"
+  },
   "owner": "mvanhorn",
   "printer": "mvanhorn",
   "printer_name": "Matt Van Horn",

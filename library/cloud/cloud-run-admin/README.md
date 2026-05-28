@@ -6,6 +6,8 @@ This CLI wraps the Cloud Run Admin API directly for services, jobs, executions, 
 
 Learn more at [Google Cloud Run](https://google.com).
 
+Created by [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
+
 ## Install
 
 The recommended path installs both the `cloud-run-admin-pp-cli` binary and the `pp-cloud-run-admin` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

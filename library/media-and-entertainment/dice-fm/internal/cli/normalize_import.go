@@ -1,4 +1,4 @@
-// Copyright 2026 vinny-pasceri. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Vinny Pasceri and contributors. Licensed under Apache-2.0. See LICENSE.
 // Hand-authored CSV + JSON caller-mapping import for the entity normalization
 // layer. Converts operator-supplied mapping files into method="manual" crosswalk
 // rows that survive re-classification runs. When axis columns are present in the

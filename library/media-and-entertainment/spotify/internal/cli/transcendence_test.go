@@ -1,4 +1,4 @@
-// Copyright 2026 rob-coco. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Rob Zehner and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // Per-feature behavioral acceptance tests for the 12 transcendence
 // commands. Each test seeds an in-memory SQLite store with the exact data

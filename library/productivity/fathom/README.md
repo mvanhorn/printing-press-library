@@ -4,6 +4,8 @@
 
 fathom-pp-cli pulls every meeting, transcript, summary, and action item into a local SQLite store, then unlocks cross-meeting intelligence no MCP server or web UI can provide: commitment tracking across all your calls, topic trend analysis over weeks, pre-call account briefs, pipeline velocity detection, and team meeting-load audits.
 
+Created by [@neektza](https://github.com/neektza) (Nikica Jokic).
+
 ## Install
 
 The recommended path installs both the `fathom-pp-cli` binary and the `pp-fathom` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

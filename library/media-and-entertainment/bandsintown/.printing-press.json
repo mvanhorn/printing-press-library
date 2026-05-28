@@ -5,6 +5,10 @@
   "api_name": "bandsintown",
   "display_name": "Bandsintown",
   "cli_name": "bandsintown-pp-cli",
+  "creator": {
+    "handle": "4.5.2",
+    "name": "printing-press"
+  },
   "owner": "user",
   "printer": "4.5.2",
   "printer_name": "printing-press",

@@ -1,4 +1,4 @@
-// Copyright 2026 mvanhorn. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Matt Van Horn and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // Package gmail is the CLI's Gmail API passthrough. Every command that hits
 // gmail.googleapis.com — inbox listing, per-message reads, attachment

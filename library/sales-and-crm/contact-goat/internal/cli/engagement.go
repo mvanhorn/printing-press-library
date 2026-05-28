@@ -1,4 +1,4 @@
-// Copyright 2026 matt-van-horn. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Matt Van Horn and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // engagement <person-id-or-url>: score last-touch engagement across LinkedIn,
 // Happenstance, and Deepline. Modeled after hubspot-pp-cli's engagement

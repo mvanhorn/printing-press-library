@@ -5,7 +5,7 @@ Full transcripts, AI-extracted entities, mentions, brand-safety analysis.
 
 Learn more at [Podscan](https://podscan.fm).
 
-Printed by [@gregvanhorn](https://github.com/gregvanhorn) (Greg Van Horn).
+Created by [@gregvanhorn](https://github.com/gregvanhorn) (Greg Van Horn).
 
 ## Install
 

@@ -5,6 +5,10 @@
   "api_name": "posthog",
   "display_name": "PostHog",
   "cli_name": "posthog-pp-cli",
+  "creator": {
+    "handle": "riteshtiwari",
+    "name": "riteshtiwari"
+  },
   "owner": "riteshtiwari",
   "printer": "riteshtiwari",
   "printer_name": "riteshtiwari",

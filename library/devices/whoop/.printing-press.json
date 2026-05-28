@@ -6,6 +6,10 @@
   "display_name": "WHOOP",
   "description": "Fetch WHOOP recovery, strain, sleep, workout, cycle, profile, and body-measurement data with OAuth-backed API access.",
   "cli_name": "whoop-pp-cli",
+  "creator": {
+    "handle": "gregvanhorn",
+    "name": "Greg Van Horn"
+  },
   "owner": "gregvanhorn",
   "printer": "gregvanhorn",
   "printer_name": "Greg Van Horn",

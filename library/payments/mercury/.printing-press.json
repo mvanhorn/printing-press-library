@@ -5,6 +5,10 @@
   "api_name": "mercury",
   "display_name": "Mercury",
   "cli_name": "mercury-pp-cli",
+  "creator": {
+    "handle": "cathrynlavery",
+    "name": "Cathryn Lavery"
+  },
   "printer": "cathrynlavery",
   "printer_name": "Cathryn Lavery",
   "spec_format": "openapi3",

@@ -1,4 +1,4 @@
-// Copyright 2026 mvanhorn. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Matt Van Horn and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // drafts_discard.go implements `superhuman-pp-cli drafts discard <draft-id>`.
 // Mirrors the Superhuman MCP's discard_draft tool: remove an unsent draft.

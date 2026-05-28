@@ -4,7 +4,7 @@
 
 Every GHL feature, plus a local SQLite mirror, name->ID resolution, SQL over your contacts and opportunities, and proper handling of the lowercase-pit footgun. The first GoHighLevel CLI — built for operators who run real-estate brokerages and digital agencies and want to stop hand-rolling retry logic and stage-history scripts.
 
-Printed by [@jenwilliams-eng](https://github.com/jenwilliams-eng).
+Created by [@jenwilliams-eng](https://github.com/jenwilliams-eng) (Jen Williams).
 
 ## Install
 

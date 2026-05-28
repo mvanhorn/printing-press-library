@@ -1,4 +1,4 @@
-// Copyright 2026 ChrisDrit. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Chris Drit and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // Package store provides local SQLite persistence for airframe-pp-cli.
 // Uses modernc.org/sqlite (pure Go, no CGO) for zero-dependency cross-compilation.

@@ -1,4 +1,4 @@
-// Copyright 2026 magoo242. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 magoo242 and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // `edgar-pp-cli eightk-items <TICKER>` — enumerate 8-K filings with parsed
 // Item numbers and a --material-only flag that excludes exhibits-only (Item

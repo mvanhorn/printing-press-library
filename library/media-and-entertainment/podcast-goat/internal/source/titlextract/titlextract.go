@@ -1,4 +1,4 @@
-// Copyright 2026 mvanhorn. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Matt Van Horn and contributors. Licensed under Apache-2.0. See LICENSE.
 // Generic OpenGraph + <title> scraper used by paid adapters (spoken.md, Taddy)
 // to convert a publisher-page URL into an episode-distinctive search query.
 //

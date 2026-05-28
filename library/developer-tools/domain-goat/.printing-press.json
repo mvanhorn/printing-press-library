@@ -5,6 +5,10 @@
   "api_name": "domain-goat",
   "display_name": "Domain Goat",
   "cli_name": "domain-goat-pp-cli",
+  "creator": {
+    "handle": "mitch-nick",
+    "name": "Mitch Nick"
+  },
   "owner": "mitch-nick",
   "printer": "mitch-nick",
   "printer_name": "Mitch Nick",

@@ -5,6 +5,10 @@
   "api_name": "greatclips",
   "display_name": "Great Clips",
   "cli_name": "greatclips-pp-cli",
+  "creator": {
+    "handle": "mvanhorn",
+    "name": "Matt Van Horn"
+  },
   "owner": "greatclips",
   "printer": "mvanhorn",
   "printer_name": "Matt Van Horn",

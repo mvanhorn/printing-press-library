@@ -5,6 +5,10 @@
   "api_name": "art-goat",
   "display_name": "Art Goat",
   "cli_name": "art-goat-pp-cli",
+  "creator": {
+    "handle": "justinwfu",
+    "name": "justinwfu"
+  },
   "owner": "justinwfu",
   "printer": "justinwfu",
   "printer_name": "justinwfu",

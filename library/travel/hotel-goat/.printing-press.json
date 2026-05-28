@@ -5,6 +5,10 @@
   "api_name": "hotel-goat",
   "display_name": "Google Hotels",
   "cli_name": "hotel-goat-pp-cli",
+  "creator": {
+    "handle": "kothari-nikunj",
+    "name": "kothari-nikunj"
+  },
   "owner": "kothari-nikunj",
   "printer": "kothari-nikunj",
   "printer_name": "kothari-nikunj",

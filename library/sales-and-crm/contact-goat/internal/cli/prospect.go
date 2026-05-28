@@ -1,4 +1,4 @@
-// Copyright 2026 matt-van-horn. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Matt Van Horn and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // prospect: fan-out search across LinkedIn + Happenstance + (optionally)
 // Deepline. Budget-gated so agents don't accidentally spend credits.

@@ -1,4 +1,4 @@
-// Copyright 2026 justinwfu. Licensed under Apache-2.0.
+// Copyright 2026 justinwfu and contributors. Licensed under Apache-2.0.
 
 // art-goat journal storage: sits table accessors for the contemplative
 // spine. Schema lives in works.go alongside the works table so a single

@@ -6,6 +6,8 @@ Combines the Firebase real-time API and the Algolia search API in one CLI. Sync 
 
 Learn more at [Hacker News](https://news.ycombinator.com).
 
+Created by [@tmchow](https://github.com/tmchow) (Trevin Chow).
+
 ## Install
 
 The recommended path installs both the `hackernews-pp-cli` binary and the `pp-hackernews` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

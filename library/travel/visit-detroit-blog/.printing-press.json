@@ -5,6 +5,10 @@
   "api_name": "visit-detroit-blog",
   "display_name": "Visit Detroit Blog",
   "cli_name": "visit-detroit-blog-pp-cli",
+  "creator": {
+    "handle": "stanrails",
+    "name": "stanrails"
+  },
   "owner": "stanrails",
   "spec_format": "internal",
   "spec_checksum": "sha256:3a4577975a82f1e574c7f41e57e5c965a84660d078b117caa6fb9c13032d2035",

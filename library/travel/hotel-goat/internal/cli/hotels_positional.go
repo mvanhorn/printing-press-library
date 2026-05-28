@@ -1,4 +1,4 @@
-// Copyright 2026 kothari-nikunj. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 kothari-nikunj and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // hotels <location> <checkin> <checkout> — the headline command.
 // Hand-written: lives outside the generator's emit set so re-running

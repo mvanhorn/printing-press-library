@@ -1,4 +1,4 @@
-// Copyright 2026 mvanhorn. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Matt Van Horn and contributors. Licensed under Apache-2.0. See LICENSE.
 //
 // PATCH(reminders-endpoint-rewrite): the generator wired this command to
 // POST /reminders/create with a flat snake_case body. That endpoint

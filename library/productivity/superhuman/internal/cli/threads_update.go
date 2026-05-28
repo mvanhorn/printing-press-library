@@ -1,4 +1,4 @@
-// Copyright 2026 mvanhorn. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Matt Van Horn and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // threads_update.go implements `superhuman-pp-cli threads update <id>
 // --action <verb>`. Mirrors the Superhuman MCP's update_thread tool with

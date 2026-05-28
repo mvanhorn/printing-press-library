@@ -4,7 +4,7 @@ This is the documentation for the ElevenLabs API. You can use this API to use ou
 
 Learn more at [Elevenlabs](https://elevenlabs.io/docs).
 
-Printed by [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
+Created by [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
 
 ## Install
 

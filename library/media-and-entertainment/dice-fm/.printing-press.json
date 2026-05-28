@@ -5,6 +5,10 @@
   "api_name": "dice-fm",
   "display_name": "DICE",
   "cli_name": "dice-fm-pp-cli",
+  "creator": {
+    "handle": "vinnyp",
+    "name": "Vinny Pasceri"
+  },
   "owner": "vinny-pasceri",
   "printer": "vinnyp",
   "printer_name": "Vinny Pasceri",

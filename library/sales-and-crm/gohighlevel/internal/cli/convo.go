@@ -1,4 +1,4 @@
-// Copyright 2026 user. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Jen Williams and contributors. Licensed under Apache-2.0. See LICENSE.
 //
 // `convo thread` — chronological SMS+email+call thread for a single contact
 // reconstructed from the local messages table.

@@ -1,4 +1,4 @@
-// Copyright 2026 jimpresting. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 JimPresting and contributors. Licensed under Apache-2.0. See LICENSE.
 // Hand-extended by Phase 5+ live discovery against the publication subdomain.
 // Supports the full Substack draft field set so AI agents can author drafts
 // (title, subtitle, body, audience, bylines, SEO, cover image, type, paywall,

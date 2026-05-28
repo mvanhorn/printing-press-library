@@ -6,6 +6,8 @@ dub-pp-cli covers all 53 Dub API operations as typed commands, then transcends w
 
 Learn more at [Dub](https://dub.co/support).
 
+Created by [@tmchow](https://github.com/tmchow) (Trevin Chow).
+
 ## Install
 
 The recommended path installs both the `dub-pp-cli` binary and the `pp-dub` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

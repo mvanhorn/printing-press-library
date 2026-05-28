@@ -1,4 +1,4 @@
-// Copyright 2026 vinny-pasceri. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Vinny Pasceri and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // PATCH(amend-2026-05-18: coin-response-transforms) — Single helper that
 // post-processes raw PCGS coin records before they leave the CLI:

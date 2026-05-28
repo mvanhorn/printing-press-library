@@ -1,4 +1,4 @@
-// Copyright 2026 magoo242. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 magoo242 and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // `edgar-pp-cli primary-sources <TICKER>` — one-shot LODESTAR primary-source
 // bundle: latest 10-K + 4 10-Qs + 8-Ks 90d + Form 4s 12mo + DEF 14A.

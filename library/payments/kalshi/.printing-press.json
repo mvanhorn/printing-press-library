@@ -5,6 +5,10 @@
   "api_name": "kalshi",
   "display_name": "Kalshi Trade Manual",
   "cli_name": "kalshi-pp-cli",
+  "creator": {
+    "handle": "tmchow",
+    "name": "Trevin Chow"
+  },
   "printer": "tmchow",
   "printer_name": "Trevin Chow",
   "spec_format": "openapi3",

@@ -1,4 +1,4 @@
-// Copyright 2026 salmonumbrella. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 salmonumbrella and contributors. Licensed under Apache-2.0. See LICENSE.
 // PATCH(retro #marianatek-browser-auth): tests for the cookie-blob parser.
 
 package cli

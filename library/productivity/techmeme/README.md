@@ -4,6 +4,8 @@
 
 The Techmeme CLI puts the tech industry's most trusted news curation into your terminal. Sync headlines to a local SQLite store, then search, filter by time, track topics, and analyze which stories and sources are dominating. The 'since' command answers the question every tech professional asks: 'what did I miss?'
 
+Created by [@davemorin](https://github.com/davemorin) (Dave Morin).
+
 ## Install
 
 The recommended path installs both the `techmeme-pp-cli` binary and the `pp-techmeme` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

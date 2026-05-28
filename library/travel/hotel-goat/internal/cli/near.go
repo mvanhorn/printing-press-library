@@ -1,4 +1,4 @@
-// Copyright 2026 kothari-nikunj. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 kothari-nikunj and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // near "<address>" --checkin --checkout [--radius Nmi] [--center "lat,lng"]
 // Geo-radius search around a specific address. Google Hotels accepts

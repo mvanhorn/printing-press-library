@@ -4,7 +4,7 @@
 
 apify-pp-cli is the operator CLI for the Apify platform — agent-native JSON across every endpoint, plus a layer of features built on top of a local store that the official CLI, SDKs, and MCP can't reach: cross-Actor full-text search (`search`), novel-only runs (`run --only-new`), per-run cost ledger (`cost report`), and templated newsletter digests (`digest`).
 
-Printed by [@kjmagnan1s](https://github.com/kjmagnan1s) (Kevin Magnan).
+Created by [@kjmagnan1s](https://github.com/kjmagnan1s) (Kevin Magnan).
 
 ## Install
 

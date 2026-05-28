@@ -5,6 +5,10 @@
   "api_name": "flight-goat",
   "display_name": "Flight GOAT",
   "cli_name": "flight-goat-pp-cli",
+  "creator": {
+    "handle": "mvanhorn",
+    "name": "Matt Van Horn"
+  },
   "owner": "matt-van-horn",
   "printer": "mvanhorn",
   "printer_name": "Matt Van Horn",

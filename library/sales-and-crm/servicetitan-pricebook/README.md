@@ -4,6 +4,8 @@
 
 This CLI (servicetitan-pricebook-pp-cli) mirrors every ServiceTitan Pricebook v2 endpoint (categories, client-specific pricing, discounts & fees, equipment, materials, materials markup, bulk operations, images, services, export feeds) and adds twelve novel commands that join across them in a local SQLite store. It snapshots cost and price history on every sync, so markup-audit, cost-drift, and reprice become one-shot. It is part of a per-module ST CLI family (servicetitan-crm, servicetitan-dispatch, servicetitan-inventory, servicetitan-jpm, servicetitan-pricebook) designed to replace the heavy 600+-tool general ServiceTitan MCP with focused, agent-native binaries.
 
+Created by [@pierc](https://github.com/pierc) (Pierce).
+
 ## Install
 
 The recommended path installs both the `servicetitan-pricebook-pp-cli` binary and the `pp-servicetitan-pricebook` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

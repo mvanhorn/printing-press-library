@@ -1,4 +1,4 @@
-// Copyright 2026 vinny-pasceri. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Vinny Pasceri and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // PATCH(amend-2026-05-19: batch-csv-export) — Helpers for `coin batch --csv`,
 // which streams a flat CSV instead of JSONL. Lives in its own file so the

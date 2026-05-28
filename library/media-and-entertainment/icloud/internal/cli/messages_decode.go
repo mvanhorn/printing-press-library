@@ -1,4 +1,4 @@
-// Copyright 2026 mvanhorn. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Matias Sanchez Moises and contributors. Licensed under Apache-2.0. See LICENSE.
 //
 // PATCH(messages-attributedbody-heuristic): vendored heuristic typedstream
 // parser for the attributedBody column of macOS chat.db.

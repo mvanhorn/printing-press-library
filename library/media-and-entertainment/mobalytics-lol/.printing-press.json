@@ -4,6 +4,10 @@
   "printing_press_version": "4.12.0",
   "api_name": "mobalytics-lol",
   "cli_name": "mobalytics-lol-pp-cli",
+  "creator": {
+    "handle": "QuantumGlitch",
+    "name": "QuantumGlitch"
+  },
   "run_id": "20260523-111659",
   "novel_features": [
     {

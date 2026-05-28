@@ -5,6 +5,10 @@
   "api_name": "bird",
   "display_name": "Bird",
   "cli_name": "bird-pp-cli",
+  "creator": {
+    "handle": "CleverAI-ZH",
+    "name": "Stephan Stoeber"
+  },
   "owner": "cleverai-zh",
   "printer": "CleverAI-ZH",
   "printer_name": "Stephan Stoeber",

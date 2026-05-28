@@ -5,6 +5,10 @@
   "api_name": "conduyt-crm",
   "display_name": "Conduyt CRM",
   "cli_name": "conduyt-crm-pp-cli",
+  "creator": {
+    "handle": "ptaramona",
+    "name": "Conduyt"
+  },
   "owner": "conduyt",
   "owner_name": "Conduyt",
   "category": "sales-and-crm",

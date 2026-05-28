@@ -1,4 +1,4 @@
-// Copyright 2026 mvanhorn. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Matt Van Horn and contributors. Licensed under Apache-2.0. See LICENSE.
 // v0.1: Spotify transcript-read-along scraper. Captured from a logged-in
 // Premium session on 2026-05-17 against
 // `https://spclient.wg.spotify.com/transcript-read-along/v2/episode/{id}?format=json&maxSentenceLength=500&excludeCC=true`.

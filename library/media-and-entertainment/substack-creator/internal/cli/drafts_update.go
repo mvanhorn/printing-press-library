@@ -1,4 +1,4 @@
-// Copyright 2026 jimpresting. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 JimPresting and contributors. Licensed under Apache-2.0. See LICENSE.
 // Hand-extended (Phase 5+): exposes the full Substack field set for PUT /drafts/{id}.
 
 package cli

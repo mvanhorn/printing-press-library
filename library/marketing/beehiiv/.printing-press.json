@@ -6,6 +6,10 @@
   "display_name": "beehiiv",
   "description": "Manage beehiiv publications, subscribers, segments, posts, automations, and newsletter analytics from the terminal.",
   "cli_name": "beehiiv-pp-cli",
+  "creator": {
+    "handle": "kjmagnan1s",
+    "name": "Kevin Magnan"
+  },
   "owner": "kevin-magnan",
   "printer": "kjmagnan1s",
   "printer_name": "Kevin Magnan",

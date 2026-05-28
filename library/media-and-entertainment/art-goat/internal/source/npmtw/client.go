@@ -1,4 +1,4 @@
-// Copyright 2026 justinwfu. Licensed under Apache-2.0.
+// Copyright 2026 justinwfu and contributors. Licensed under Apache-2.0.
 
 // Package npmtw implements the art-goat Source for the National Palace
 // Museum, Taipei (NPM Taiwan) — the imperial Chinese collection moved

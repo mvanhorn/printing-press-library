@@ -4,6 +4,8 @@ Google Ads API for account discovery, GAQL reporting, campaigns, budgets, assets
 
 Learn more at [Google Ads](https://developers.google.com/google-ads/api/).
 
+Created by [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
+
 ## Install
 
 The recommended path installs both the `google-ads-pp-cli` binary and the `pp-google-ads` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

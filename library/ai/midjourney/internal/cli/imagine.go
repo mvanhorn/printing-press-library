@@ -1,4 +1,4 @@
-// Copyright 2026 mvanhorn. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Dave Fano and contributors. Licensed under Apache-2.0. See LICENSE.
 //
 // Local Printing Press patch: submit Midjourney web-app jobs through the
 // sniffed /api/submit-jobs endpoint.

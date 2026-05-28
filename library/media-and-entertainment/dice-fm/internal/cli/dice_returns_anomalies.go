@@ -1,4 +1,4 @@
-// Copyright 2026 vinny-pasceri. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Vinny Pasceri and contributors. Licensed under Apache-2.0. See LICENSE.
 // Hand-authored DICE "returns anomalies" command: flags events whose return
 // rate (returns/tickets_sold) meets or exceeds a threshold, computed from the
 // local order and return stores.

@@ -6,6 +6,8 @@ Bypass paywalls and look up web archives via archive.today. Looks up existing sn
 
 > **About archive.today:** On February 21, 2026, Wikipedia formally blacklisted archive.today after evidence of DDoS activity and snapshot tampering. This CLI is intended for personal paywall reading. Do NOT use it for legal evidence, academic citation, or anything requiring a trustworthy archive — use the Wayback Machine for that. This CLI ships with Wayback as a built-in fallback backend for that reason.
 
+Created by [@mvanhorn](https://github.com/mvanhorn) (Matt Van Horn).
+
 ## Install
 
 The recommended path installs both the `archive-is-pp-cli` binary and the `pp-archive-is` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

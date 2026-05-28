@@ -5,6 +5,10 @@
   "api_name": "craigslist",
   "display_name": "Craigslist",
   "cli_name": "craigslist-pp-cli",
+  "creator": {
+    "handle": "tmchow",
+    "name": "Trevin Chow"
+  },
   "printer": "tmchow",
   "printer_name": "Trevin Chow",
   "spec_path": "/Users/tmchow/printing-press/.runstate/hidden-brewing-turtle-68cd6401/runs/20260502-152300/research/craigslist-spec.yaml",

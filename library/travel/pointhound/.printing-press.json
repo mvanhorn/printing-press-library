@@ -5,6 +5,10 @@
   "api_name": "pointhound",
   "display_name": "Pointhound",
   "cli_name": "pointhound-pp-cli",
+  "creator": {
+    "handle": "salmonumbrella",
+    "name": "salmonumbrella"
+  },
   "owner": "salmonumbrella",
   "printer": "salmonumbrella",
   "printer_name": "salmonumbrella",

@@ -1,4 +1,4 @@
-// Copyright 2026 vinny-pasceri. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Vinny Pasceri and contributors. Licensed under Apache-2.0. See LICENSE.
 // Hand-authored DICE "fans" analytics commands: repeat buyers, top spenders,
 // and opted-in contact export, all computed from the local order store.
 package cli

@@ -5,6 +5,10 @@
   "api_name": "pokeapi",
   "display_name": "Pokeapi",
   "cli_name": "pokeapi-pp-cli",
+  "creator": {
+    "handle": "hnshah",
+    "name": "Hiten Shah"
+  },
   "printer": "hnshah",
   "printer_name": "Hiten Shah",
   "spec_url": "https://raw.githubusercontent.com/PokeAPI/pokeapi/master/openapi.yml",

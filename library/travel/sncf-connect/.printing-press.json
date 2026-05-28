@@ -5,6 +5,10 @@
   "api_name": "sncf-connect",
   "display_name": "Navitia",
   "cli_name": "sncf-connect-pp-cli",
+  "creator": {
+    "handle": "jmbernabotto",
+    "name": "jmbernabotto"
+  },
   "owner": "jmbernabotto",
   "printer": "jmbernabotto",
   "printer_name": "jmbernabotto",

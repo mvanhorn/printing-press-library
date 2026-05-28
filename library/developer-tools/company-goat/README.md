@@ -49,6 +49,8 @@ company-goat-pp-cli funding --domain junelife.com --json
 # Debt signal: Venture Lending and Leasing VII, Inc. 10-Q (2019-08-14)
 ```
 
+Created by [@tmchow](https://github.com/tmchow) (Trevin Chow).
+
 ## Install
 
 The recommended path installs both the `company-goat-pp-cli` binary and the `pp-company-goat` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

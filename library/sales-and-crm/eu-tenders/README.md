@@ -4,6 +4,8 @@
 
 TED publishes every significant EU public contract (€676K notices/year) but the web interface makes analysis nearly impossible. This CLI syncs the corpus to SQLite, then layers market intelligence nobody else offers: win rates, concentration scores, dark-buyer detection, and opportunity scoring — free, composable, agent-native.
 
+Created by [@m91michel](https://github.com/m91michel) (Mathias Michel).
+
 ## Install
 
 The recommended path installs both the `eu-tenders-pp-cli` binary and the `pp-eu-tenders` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

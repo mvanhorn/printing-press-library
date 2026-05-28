@@ -5,6 +5,10 @@
   "api_name": "squarespace",
   "display_name": "Squarespace",
   "cli_name": "squarespace-pp-cli",
+  "creator": {
+    "handle": "zaydiscold",
+    "name": "Zayd"
+  },
   "run_id": "20260512-123445",
   "owner": "user",
   "printer": "zaydiscold",

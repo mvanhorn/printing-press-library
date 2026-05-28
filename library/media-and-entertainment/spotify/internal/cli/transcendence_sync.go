@@ -1,4 +1,4 @@
-// Copyright 2026 rob-coco. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Rob Zehner and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // Hand-built `sync-extras` command. Populates the transcendence-feature
 // tables (saved_tracks, saved_albums, followed_artists, top_*_snapshot,

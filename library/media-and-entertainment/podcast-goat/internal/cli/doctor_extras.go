@@ -1,4 +1,4 @@
-// Copyright 2026 mvanhorn. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Matt Van Horn and contributors. Licensed under Apache-2.0. See LICENSE.
 // Podcast-goat-specific doctor checks that extend the generator-emitted
 // doctor.go. Lives in a separate file so regen of doctor.go preserves these
 // checks (doctor.go is emitted with DO NOT EDIT; this file is hand-authored).

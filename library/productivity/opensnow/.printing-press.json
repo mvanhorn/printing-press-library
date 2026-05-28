@@ -5,6 +5,10 @@
   "api_name": "opensnow",
   "display_name": "OpenSnow",
   "cli_name": "opensnow-pp-cli",
+  "creator": {
+    "handle": "davemorin",
+    "name": "Dave Morin"
+  },
   "printer": "davemorin",
   "printer_name": "Dave Morin",
   "spec_format": "openapi3",

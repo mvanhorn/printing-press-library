@@ -2,6 +2,8 @@
 
 Squarespace Commerce API coverage plus browser-backed account dashboard reads for domains, DNS records, email forwarding, Google Workspace pricing, and domain billing metadata.
 
+Created by [@zaydiscold](https://github.com/zaydiscold) (Zayd).
+
 ## Install
 
 The recommended path installs both the `squarespace-pp-cli` binary and the `pp-squarespace` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

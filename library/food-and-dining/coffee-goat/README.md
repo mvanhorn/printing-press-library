@@ -10,7 +10,7 @@ A standalone cafe locator and a few editorial-overlay commands remain Phase 3 fo
 
 Learn more at [Coffee GOAT](https://github.com/mvanhorn/printing-press-library).
 
-Printed by [@justinwfu](https://github.com/justinwfu) (Justin Fu).
+Created by [@justinwfu](https://github.com/justinwfu) (Justin Fu).
 
 ## Install
 

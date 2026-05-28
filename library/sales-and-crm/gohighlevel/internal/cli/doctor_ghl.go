@@ -1,4 +1,4 @@
-// Copyright 2026 user. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Jen Williams and contributors. Licensed under Apache-2.0. See LICENSE.
 //
 // Hand-coded augmentations for the doctor command — PIT prefix case
 // check, cache freshness review, and active-location validation. Kept

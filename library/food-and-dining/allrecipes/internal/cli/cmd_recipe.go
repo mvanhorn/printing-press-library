@@ -1,4 +1,4 @@
-// Copyright 2026 trevin-chow. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Trevin Chow and contributors. Licensed under Apache-2.0. See LICENSE.
 // Hand-written: top-level recipe-centric commands. These wrap recipes.FetchRecipe
 // with progressive output projections (full, ingredients-only, instructions-only,
 // nutrition-only, reviews-only, scaled, markdown).

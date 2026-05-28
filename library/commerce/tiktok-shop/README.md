@@ -4,6 +4,9 @@ Safe v1 CLI and MCP server for confirmed TikTok Shop Seller APIs.
 
 This package intentionally exposes a conservative surface based only on official TikTok Shop Partner Center docs: auth readiness, token exchange and refresh, shop discovery, read-only orders, products, inventory search, fulfillment packages, and warehouses. Inventory update is documented as confirmed but remains deferred until idempotency, retry, and operator-confirmation safety are designed.
 
+Created by [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
+Contributors: [@mvanhorn](https://github.com/mvanhorn) (Matt Van Horn).
+
 ## Install
 
 The recommended path installs both the `tiktok-shop-pp-cli` binary and the `pp-tiktok-shop` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

@@ -5,6 +5,10 @@
   "api_name": "chrome-history",
   "display_name": "Chrome History",
   "cli_name": "chrome-history-pp-cli",
+  "creator": {
+    "handle": "vinnyp",
+    "name": "Vinny Pasceri"
+  },
   "owner": "vinnypasceri",
   "printer": "vinnyp",
   "printer_name": "Vinny Pasceri",

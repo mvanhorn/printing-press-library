@@ -1,4 +1,4 @@
-// Copyright 2026 vinny-pasceri. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Vinny Pasceri and contributors. Licensed under Apache-2.0. See LICENSE.
 // Hand-authored DICE "capacity" command: a cross-event sold-vs-capacity
 // headroom rollup computed from the local store. Ported from the eventbrite
 // CLI's `capacity` command; adapted to DICE's data model, where per-event

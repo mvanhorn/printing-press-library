@@ -6,6 +6,10 @@
   "display_name": "EDGAR",
   "description": "Fetch SEC EDGAR filings, insider activity, XBRL facts, and cached filing search results with agent-friendly output.",
   "cli_name": "edgar-pp-cli",
+  "creator": {
+    "handle": "magoo242",
+    "name": "magoo242"
+  },
   "run_id": "20260513-115144",
   "printer": "magoo242",
   "printer_name": "magoo242",

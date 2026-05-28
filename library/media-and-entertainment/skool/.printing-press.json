@@ -5,6 +5,10 @@
   "api_name": "skool",
   "display_name": "Skool",
   "cli_name": "skool-pp-cli",
+  "creator": {
+    "handle": "quoxientzero",
+    "name": "Zain Haseeb"
+  },
   "printer": "quoxientzero",
   "printer_name": "Zain Haseeb",
   "spec_format": "internal",

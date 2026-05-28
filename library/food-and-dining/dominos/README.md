@@ -4,6 +4,8 @@
 
 Every Domino's feature you would expect — store locator, menu browse, build cart, validate, price, place, and track — plus a local data layer that compounds. Save named templates with `template save`, find the cheapest store for your order with `compare-prices`, hunt for the best stacked deal with `deals best`, and watch your delivery in real-time with `track --watch`.
 
+Created by [@mvanhorn](https://github.com/mvanhorn) (Matt Van Horn).
+
 ## Install
 
 The recommended path installs both the `dominos-pp-cli` binary and the `pp-dominos` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

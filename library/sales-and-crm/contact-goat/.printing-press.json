@@ -5,6 +5,10 @@
   "api_name": "contact-goat",
   "display_name": "Contact GOAT",
   "cli_name": "contact-goat-pp-cli",
+  "creator": {
+    "handle": "mvanhorn",
+    "name": "Matt Van Horn"
+  },
   "printer": "mvanhorn",
   "printer_name": "Matt Van Horn",
   "category": "sales-and-crm",

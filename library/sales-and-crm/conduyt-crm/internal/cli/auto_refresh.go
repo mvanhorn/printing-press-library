@@ -1,4 +1,4 @@
-// Copyright 2026 conduyt. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Conduyt and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // PATCH: imports changed from cliutil.Policy/FreshnessMeta to local cli package types
 package cli

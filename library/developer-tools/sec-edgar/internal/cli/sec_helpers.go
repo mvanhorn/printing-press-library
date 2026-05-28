@@ -1,4 +1,4 @@
-// Copyright 2026 chris-drit. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Chris Drit and contributors. Licensed under Apache-2.0. See LICENSE.
 // Hand-authored — extends the generated CLI with SEC-specific helpers
 // used by novel-feature commands. Preserved across `printing-press generate
 // --force`.

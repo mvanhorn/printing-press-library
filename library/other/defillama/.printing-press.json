@@ -5,6 +5,10 @@
   "api_name": "defillama",
   "display_name": "Defillama",
   "cli_name": "defillama-pp-cli",
+  "creator": {
+    "handle": "kierandotai",
+    "name": "kierandotai"
+  },
   "owner": "kierandotai",
   "printer": "kierandotai",
   "printer_name": "kierandotai",

@@ -1,4 +1,4 @@
-// Copyright 2026 user. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Jen Williams and contributors. Licensed under Apache-2.0. See LICENSE.
 //
 // `config` command tree — named GHL location profiles. Persists to
 // ~/.config/gohighlevel-pp-cli/locations.toml. Activated profile is

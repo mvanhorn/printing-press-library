@@ -1,4 +1,4 @@
-// Copyright 2026 kothari-nikunj. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 kothari-nikunj and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // Package trivago is a thin client for Trivago's public MCP server
 // (https://mcp.trivago.com/mcp). Used as a second cash-price source

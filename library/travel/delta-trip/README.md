@@ -4,6 +4,8 @@ Look up and manage Delta Air Lines trips by confirmation number — view all fli
 
 Learn more at [Delta Trip](https://www.delta.com).
 
+Created by [@paulbockewitz](https://github.com/paulbockewitz) (Paul Bockewitz).
+
 ## Install
 
 The recommended path installs both the `delta-trip-pp-cli` binary and the `pp-delta-trip` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

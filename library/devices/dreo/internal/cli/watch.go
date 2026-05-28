@@ -1,4 +1,4 @@
-// Copyright 2026 trevin-chow. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Trevin Chow and contributors. Licensed under Apache-2.0. See LICENSE.
 //
 // pp:client-call: this command opens a real Dreo WebSocket via
 // internal/dreows (which dogfood's heuristic cannot inspect because the

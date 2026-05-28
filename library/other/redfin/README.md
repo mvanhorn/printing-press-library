@@ -6,6 +6,9 @@ Search homes for sale via Redfin's internal Stingray endpoints from the terminal
 
 Learn more at [Redfin](https://www.redfin.com).
 
+Created by [@rderwin](https://github.com/rderwin) (rderwin).
+Contributors: [@jwmoss](https://github.com/jwmoss) (Jonathan Moss).
+
 ## Install
 
 The recommended path installs both the `redfin-pp-cli` binary and the `pp-redfin` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

@@ -1,4 +1,4 @@
-// Copyright 2026 david. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 David He and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // digest.go implements `slickdeals-pp-cli digest`: reads the local
 // deal_snapshots table, returns the top-N deals (by thumbs) captured since

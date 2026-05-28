@@ -1,4 +1,4 @@
-// Copyright 2026 user. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Jen Williams and contributors. Licensed under Apache-2.0. See LICENSE.
 //
 // Hand-coded extension migrations for GHL-specific tables. Kept separate
 // from the generator-emitted migrations slice in store.go so a regen of

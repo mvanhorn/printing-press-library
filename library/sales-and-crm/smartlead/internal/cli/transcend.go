@@ -1,4 +1,4 @@
-// Copyright 2026 bossriceshark. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 bossriceshark and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // Package-local helpers shared by the hand-built transcendence commands
 // (health, silent, dupes, sender-health, warmup-gate, drift). These are the

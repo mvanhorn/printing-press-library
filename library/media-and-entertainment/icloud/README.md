@@ -7,6 +7,9 @@ directly — no Photos.app launch, no API token, no network calls.
 
 ---
 
+Created by [@matysanchez](https://github.com/matysanchez) (Matias Sanchez Moises).
+Contributors: [@mvanhorn](https://github.com/mvanhorn) (Matt Van Horn).
+
 ## Install
 
 The recommended path installs both the `icloud-pp-cli` binary and the `pp-icloud` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

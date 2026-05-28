@@ -4,7 +4,7 @@
 
 The official Resend CLI is fast and one-shot per command; this CLI is the agent-native companion with --json --select --dry-run consistency, FTS5 search over sent emails, and rollups (audiences inventory, broadcasts performance, deliverability summary, contacts where, emails to <recipient>) that exist only because every Resend resource is mirrored locally.
 
-Printed by [@giacaglia](https://github.com/giacaglia) (Giuliano Giacaglia).
+Created by [@giacaglia](https://github.com/giacaglia) (Giuliano Giacaglia).
 
 ## Install
 

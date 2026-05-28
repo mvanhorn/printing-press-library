@@ -1,4 +1,4 @@
-// Copyright 2026 trevin-chow. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Trevin Chow and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // Package store is a thin SQLite-backed cache for Dreo device metadata,
 // state snapshots, sensor timeseries, and named scenes. Uses modernc.org/sqlite

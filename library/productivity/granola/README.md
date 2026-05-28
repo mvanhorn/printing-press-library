@@ -4,7 +4,7 @@
 
 granola-pp-cli reads Granola’s local cache directly and adds the queries Granola.ai’s web app and existing community CLIs cannot answer. Cache-first, then internal API, then public API — transparent fallthrough. memo run, memo queue, attendee timeline, recipes coverage, calendar overlay, and talktime are local-data joins no per-meeting tool produces. Works offline; agent-native JSON by default.
 
-Printed by [@dstevens](https://github.com/dstevens) (Damien Stevens).
+Created by [@dstevens](https://github.com/dstevens) (Damien Stevens).
 
 ## Install
 

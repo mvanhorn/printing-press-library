@@ -1,4 +1,4 @@
-// Copyright 2026 vinny-pasceri. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Vinny Pasceri and contributors. Licensed under Apache-2.0. See LICENSE.
 // Hand-authored DICE "revenue summary" command and the shared local-store
 // order-reading helpers used by the revenue/velocity/fans analytics commands.
 package cli

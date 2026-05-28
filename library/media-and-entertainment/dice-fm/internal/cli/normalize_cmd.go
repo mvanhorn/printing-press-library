@@ -1,4 +1,4 @@
-// Copyright 2026 vinny-pasceri. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Vinny Pasceri and contributors. Licensed under Apache-2.0. See LICENSE.
 // Hand-authored `normalize` command: runs the entity normalization pipeline over
 // the local store, writing canonical entity, crosswalk, and attribute rows.
 // This file is NOT generated and survives `generate --force`.

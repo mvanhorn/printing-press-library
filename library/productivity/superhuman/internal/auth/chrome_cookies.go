@@ -1,4 +1,4 @@
-// Copyright 2026 mvanhorn. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Matt Van Horn and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // chrome_cookies.go reads Chrome's encrypted cookies database, decrypts values
 // with the macOS Keychain "Chrome Safe Storage" key, and exposes a

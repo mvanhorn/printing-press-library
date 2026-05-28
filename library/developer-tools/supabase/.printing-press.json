@@ -5,6 +5,10 @@
   "api_name": "supabase",
   "display_name": "Supabase",
   "cli_name": "supabase-pp-cli",
+  "creator": {
+    "handle": "giacaglia",
+    "name": "Giuliano Giacaglia"
+  },
   "owner": "giacaglia",
   "printer": "giacaglia",
   "printer_name": "Giuliano Giacaglia",

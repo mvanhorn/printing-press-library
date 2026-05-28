@@ -1,4 +1,4 @@
-// Copyright 2026 vinny-pasceri. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Vinny Pasceri and contributors. Licensed under Apache-2.0. See LICENSE.
 // Unit tests for buildDoorList — the pure ticket/returns/transfers join behind
 // the `door list` command. No store needed; fixtures are raw node payloads.
 package cli

@@ -5,6 +5,10 @@
   "api_name": "twilio",
   "display_name": "Twilio",
   "cli_name": "twilio-pp-cli",
+  "creator": {
+    "handle": "CleverAI-ZH",
+    "name": "Stephan Stoeber"
+  },
   "owner": "user",
   "spec_path": "https://raw.githubusercontent.com/twilio/twilio-oai/main/spec/json/twilio_api_v2010.json",
   "spec_format": "openapi3",

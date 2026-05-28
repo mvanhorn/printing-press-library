@@ -1,4 +1,4 @@
-// Copyright 2026 mark-van-de-ven. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Mark van de Ven and contributors. Licensed under Apache-2.0. See LICENSE.
 //
 // PATCH(freshservice-novel-commands): hand-authored transcendence commands
 // (breach-risk, my-queue, workload, change-collisions, recurrence, kb-gaps,

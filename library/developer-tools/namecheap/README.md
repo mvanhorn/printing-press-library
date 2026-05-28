@@ -6,6 +6,8 @@ query-string authentication parameters (`ApiUser`, `ApiKey`, `UserName`, `Client
 Generation uses command-shaped pseudo paths that are normalized back to `/xml.response`
 by the Namecheap printed CLI patch layer.
 
+Created by [@cathryn-lavery](https://github.com/cathryn-lavery) (Cathryn Lavery).
+
 ## Install
 
 The recommended path installs both the `namecheap-pp-cli` binary and the `pp-namecheap` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

@@ -1,4 +1,4 @@
-// Copyright 2026 chris-rodriguez. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Chris Rodriguez and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // Hand-written helpers shared by the eight "transcendence" commands
 // (sql, health, dunning-queue, payout reconcile, customer 360, subs at-risk,

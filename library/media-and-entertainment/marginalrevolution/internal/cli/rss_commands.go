@@ -1,4 +1,4 @@
-// Copyright 2026 hinuri. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Nuri Chang and contributors. Licensed under Apache-2.0. See LICENSE.
 // PATCH: RSS-native commands layered on the v4.2.1 generated Marginal Revolution feed wrapper.
 
 package cli

@@ -5,6 +5,10 @@
   "api_name": "pcgs",
   "display_name": "Pcgs",
   "cli_name": "pcgs-pp-cli",
+  "creator": {
+    "handle": "vinnyp",
+    "name": "Vinny Pasceri"
+  },
   "owner": "vinny-pasceri",
   "printer": "vinnyp",
   "printer_name": "Vinny Pasceri",

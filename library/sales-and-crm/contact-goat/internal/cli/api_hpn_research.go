@@ -1,4 +1,4 @@
-// Copyright 2026 matt-van-horn. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Matt Van Horn and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // api_hpn_research.go: `api hpn research` and `api hpn research get`.
 // Research costs 1 credit per call on COMPLETED. Default --budget is 5

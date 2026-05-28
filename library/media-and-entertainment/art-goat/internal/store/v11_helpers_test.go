@@ -1,4 +1,4 @@
-// Copyright 2026 justinwfu. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 justinwfu and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // Tests for the v11 art-goat-specific store helpers added alongside the
 // `works`/`sits` schema: BrowseWorks, WorksByCreator,

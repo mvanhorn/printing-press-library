@@ -5,6 +5,10 @@
   "api_name": "scrape-creators",
   "display_name": "Scrape Creators",
   "cli_name": "scrape-creators-pp-cli",
+  "creator": {
+    "handle": "adrianhorning08",
+    "name": "Adrian Horning"
+  },
   "printer": "adrianhorning08",
   "printer_name": "Adrian Horning",
   "spec_path": "https://docs.scrapecreators.com/openapi.json",

@@ -1,4 +1,4 @@
-// Copyright 2026 vinny-pasceri. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Vinny Pasceri and contributors. Licensed under Apache-2.0. See LICENSE.
 // Embedded "starter" normalization config and its layered loader. The starter
 // declares the recommended entities and shapes with EMPTY rules; an operator
 // config (if present at the default config path) merges over it per entity.

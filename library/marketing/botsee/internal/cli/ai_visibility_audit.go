@@ -1,4 +1,4 @@
-// Copyright 2026 grahac. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 grahac and contributors. Licensed under Apache-2.0. See LICENSE.
 
 package cli
 

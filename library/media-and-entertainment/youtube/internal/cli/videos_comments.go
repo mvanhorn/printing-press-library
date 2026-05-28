@@ -1,4 +1,4 @@
-// Copyright 2026 justinwfu. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Justin and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // PATCH: feat-comments-and-handle-resolution — novel command. commentThreads.list returns by relevance or time, never by likeCount. Local sort surfaces audience-validated comments that the API ordering buries. Threads cmd.Context() through Client.WithContext so Ctrl+C cancels in-flight pages.
 

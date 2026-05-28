@@ -6,6 +6,8 @@ Wrap all 114 Scrape Creators endpoints across 23 platforms — TikTok, Instagram
 
 Learn more at [Scrape Creators](https://scrapecreators.com).
 
+Created by [@adrianhorning08](https://github.com/adrianhorning08) (Adrian Horning).
+
 ## Install
 
 The recommended path installs both the `scrape-creators-pp-cli` binary and the `pp-scrape-creators` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

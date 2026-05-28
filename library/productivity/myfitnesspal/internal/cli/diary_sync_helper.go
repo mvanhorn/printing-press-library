@@ -1,4 +1,4 @@
-// Copyright 2026 user. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Nick Scarabosio and contributors. Licensed under Apache-2.0. See LICENSE.
 //
 // HAND-WRITTEN — diary sync helper. Iterates a date range, fetches each
 // /food/diary page, runs it through the parser, and upserts per-food rows

@@ -1,4 +1,4 @@
-// Copyright 2026 matt-van-horn. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Matt Van Horn and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // Package api provides a bearer-auth Go client for the Happenstance public
 // REST API at https://api.happenstance.ai/v1. It is a peer to (not a

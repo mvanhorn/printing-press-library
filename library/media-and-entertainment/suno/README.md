@@ -6,7 +6,7 @@ Every Suno workflow lands in a single Go binary: generate from a prompt, extend,
 
 Learn more at [Suno](https://studio-api-prod.suno.com).
 
-Printed by [@mvanhorn](https://github.com/mvanhorn) (Matt Van Horn).
+Created by [@mvanhorn](https://github.com/mvanhorn) (Matt Van Horn).
 
 ## Install
 

@@ -5,6 +5,10 @@
     "api_name": "podscan",
     "display_name": "Podscan",
     "cli_name": "podscan-pp-cli",
+    "creator": {
+        "handle": "gregvanhorn",
+        "name": "Greg Van Horn"
+    },
     "owner": "gregvanhorn",
     "printer": "gregvanhorn",
     "printer_name": "Greg Van Horn",

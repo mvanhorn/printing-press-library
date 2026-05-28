@@ -1,4 +1,4 @@
-// Copyright 2026 giuliano-giacaglia. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Giuliano Giacaglia and contributors. Licensed under Apache-2.0. See LICENSE.
 
 package cli
 

@@ -1,4 +1,4 @@
-// Copyright 2026 rob-coco. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Rob Zehner and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // Stub for GET /audio-analysis/{id}. Deprecated for new apps per the
 // 2024-11-27 Spotify Web API change. See deprecated_stubs.go.

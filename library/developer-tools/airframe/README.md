@@ -170,6 +170,8 @@ NTSB only publishes their accident database in Microsoft Access binary format. T
 
 ---
 
+Created by [@ChrisDrit](https://github.com/ChrisDrit) (Chris Drit).
+
 ## Install
 
 The recommended path installs both the `airframe-pp-cli` binary and the `pp-airframe` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

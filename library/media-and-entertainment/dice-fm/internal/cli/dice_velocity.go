@@ -1,4 +1,4 @@
-// Copyright 2026 vinny-pasceri. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Vinny Pasceri and contributors. Licensed under Apache-2.0. See LICENSE.
 // Hand-authored DICE "velocity show" command: cumulative ticket-sales pace for
 // one event, bucketed by day or hour and offset from the on-sale datetime.
 package cli

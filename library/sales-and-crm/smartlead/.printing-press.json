@@ -5,6 +5,10 @@
   "api_name": "smartlead",
   "display_name": "Smartlead",
   "cli_name": "smartlead-pp-cli",
+  "creator": {
+    "handle": "bossriceshark",
+    "name": "bossriceshark"
+  },
   "owner": "bossriceshark",
   "printer": "bossriceshark",
   "printer_name": "bossriceshark",

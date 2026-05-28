@@ -1,4 +1,4 @@
-// Copyright 2026 matt-van-horn. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Matt Van Horn and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // coverage: for a given company (name or slug), show who you already know
 // there. Crosses the Happenstance graph-search (full 1st + 2nd degree

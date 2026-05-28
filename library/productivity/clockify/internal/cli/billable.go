@@ -1,4 +1,4 @@
-// Copyright 2026 melanson633. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 melanson633 and contributors. Licensed under Apache-2.0. See LICENSE.
 // Transcendence feature: unbilled billable balance — the invoice-ready
 // number, summed per client from synced entries.
 

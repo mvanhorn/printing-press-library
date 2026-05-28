@@ -1,4 +1,4 @@
-// Copyright 2026 vinny-pasceri. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Vinny Pasceri and contributors. Licensed under Apache-2.0. See LICENSE.
 // Tests for the config-driven normalization engine: vocab/attribute overlays
 // and the generic classifyEntity classifier (including its manual-skip
 // preservation guarantee). All fixtures are synthetic — no real venue or

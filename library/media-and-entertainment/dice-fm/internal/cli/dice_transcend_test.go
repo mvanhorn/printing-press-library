@@ -1,4 +1,4 @@
-// Copyright 2026 vinny-pasceri. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Vinny Pasceri and contributors. Licensed under Apache-2.0. See LICENSE.
 // Behavioral tests for the novel transcendence commands. Each test seeds a
 // temp SQLite store with known fixtures and asserts the compute helper's exact
 // output, since there is no live API token to integration-test against.

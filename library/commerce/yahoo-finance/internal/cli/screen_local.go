@@ -1,4 +1,4 @@
-// Copyright 2026 charles-garrison. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Trevin Chow and contributors. Licensed under Apache-2.0. See LICENSE.
 // Novel feature: screen-local. Filter locally-synced fundamentals by
 // arbitrary P/E, ROE, debt/equity, market cap, and dividend-yield bounds.
 

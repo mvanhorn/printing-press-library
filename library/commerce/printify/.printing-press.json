@@ -5,6 +5,10 @@
   "api_name": "printify",
   "display_name": "Printify",
   "cli_name": "printify-pp-cli",
+  "creator": {
+    "handle": "horknfbr",
+    "name": "horknfbr"
+  },
   "owner": "horknfbr",
   "printer": "horknfbr",
   "printer_name": "horknfbr",

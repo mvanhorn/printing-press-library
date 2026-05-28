@@ -1,4 +1,4 @@
-// Copyright 2026 vinny-pasceri. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Vinny Pasceri and contributors. Licensed under Apache-2.0. See LICENSE.
 // TDD tests for computeRevenueByAxisScoped — date/event-scoped axis grouping
 // via the order→ticket-ID→local-tickets-table join path — and for the
 // (not applicable) bucket split applied to both the scoped and unscoped paths.

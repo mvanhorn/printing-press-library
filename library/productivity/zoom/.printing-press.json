@@ -5,6 +5,10 @@
   "api_name": "zoom",
   "display_name": "Zoom",
   "cli_name": "zoom-pp-cli",
+  "creator": {
+    "handle": "Holajack",
+    "name": "Jacken"
+  },
   "owner": "jacken",
   "printer": "Holajack",
   "printer_name": "Jacken",

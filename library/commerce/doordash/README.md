@@ -5,6 +5,8 @@
 Discovered API spec for doordash
 
 Learn more at [Doordash](https://www.doordash.com).
+Created by [@bricenice17](https://github.com/bricenice17) (bricenice17).
+
 ## Install
 
 This directory is the generated Printing Press Go skeleton/reference tree. It is not the runtime users should install for DoorDash browser-facing calls.

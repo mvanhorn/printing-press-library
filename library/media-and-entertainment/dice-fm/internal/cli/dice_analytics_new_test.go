@@ -1,4 +1,4 @@
-// Copyright 2026 vinny-pasceri. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Vinny Pasceri and contributors. Licensed under Apache-2.0. See LICENSE.
 // Table-driven tests for the three new analytics commands: fans segment,
 // fans profile, and revenue by-artist. Seeded-store style mirrors
 // dice_transcend_test.go (plain t.Errorf/Fatalf, no testify).

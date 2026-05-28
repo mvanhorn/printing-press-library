@@ -1,4 +1,4 @@
-// Copyright 2026 melanson633. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 melanson633 and contributors. Licensed under Apache-2.0. See LICENSE.
 // Tests for the hand-built transcendence-feature support logic.
 
 package cli

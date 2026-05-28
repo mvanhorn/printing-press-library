@@ -4,7 +4,7 @@
 
 UCP-pp-cli is the terminal-grade tool the official Python and JS SDKs don't ship. It speaks both REST and MCP transports so it works against real merchants like checkout.coffeecircle.com (Shopify-hosted, MCP-only) and the bundled mock. Local SQLite holds carts, checkout sessions, and a merchant directory, enabling cross-merchant search, capability diffs, and price-drift watch loops nothing else offers today.
 
-Printed by [@beetz12](https://github.com/beetz12) (david).
+Created by [@beetz12](https://github.com/beetz12) (david).
 
 ## Real-Merchant Compatibility
 

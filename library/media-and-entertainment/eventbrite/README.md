@@ -4,7 +4,7 @@
 
 Existing Eventbrite tools wrap a handful of event CRUD calls one event at a time. This CLI mirrors the full v3 organizer API and syncs your events, orders, attendees, ticket classes, and discounts into a local SQLite store, then layers cross-event analytics on top: sales-velocity ranks your live events by sell rate, repeat-attendees surfaces returning fans across your whole history, and org-rollup gives agencies a single pane across every client organization.
 
-Printed by [@vinnyp](https://github.com/vinnyp) (Vinny Pasceri).
+Created by [@vinnyp](https://github.com/vinnyp) (Vinny Pasceri).
 
 ## Install
 

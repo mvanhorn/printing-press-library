@@ -4,6 +4,8 @@
 
 Every Kalshi feature, plus a local SQLite store that records market prices on every sync — so movers, correlations, and price history work offline. Honest about read-only vs read/write keys, with --dry-run on every mutator and a global --read-only safe-mode lock for newsroom and bot deployments.
 
+Created by [@tmchow](https://github.com/tmchow) (Trevin Chow).
+
 ## Install
 
 The recommended path installs both the `kalshi-pp-cli` binary and the `pp-kalshi` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

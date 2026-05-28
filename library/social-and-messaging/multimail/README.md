@@ -2,6 +2,8 @@
 
 CLI for [MultiMail](https://multimail.dev) — verifiable identity and graduated oversight for AI agents over email. Five autonomy modes from read-only to fully autonomous. Inbound email → markdown, outbound markdown → HTML.
 
+Created by [@H179922](https://github.com/H179922) (H179922).
+
 ## Install
 
 The recommended path installs both the `multimail-pp-cli` binary and the `pp-multimail` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

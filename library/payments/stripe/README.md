@@ -6,6 +6,8 @@ stripe-pp-cli matches the official stripe-cli verb-for-verb and adds what it del
 
 Learn more at [Stripe](https://stripe.com).
 
+Created by [@crodorg](https://github.com/crodorg) (Chris Rodriguez).
+
 ## Install
 
 The recommended path installs both the `stripe-pp-cli` binary and the `pp-stripe` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

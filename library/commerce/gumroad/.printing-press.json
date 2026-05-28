@@ -5,6 +5,10 @@
   "api_name": "gumroad",
   "display_name": "Gumroad",
   "cli_name": "gumroad-pp-cli",
+  "creator": {
+    "handle": "bheemreddy181",
+    "name": "Bheem Reddy"
+  },
   "owner": "bheemreddy181",
   "printer": "bheemreddy181",
   "printer_name": "Bheem Reddy",

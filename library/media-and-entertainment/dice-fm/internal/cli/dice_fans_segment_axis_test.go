@@ -1,4 +1,4 @@
-// Copyright 2026 vinny-pasceri. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Vinny Pasceri and contributors. Licensed under Apache-2.0. See LICENSE.
 // TDD tests for axis-filter flags on fans segment: --access-class, --sales-stage,
 // --entry-window, --comp, --min-group-size. All fixtures are synthetic; no real
 // tenant ticket-type names (IETF example.com addresses only).

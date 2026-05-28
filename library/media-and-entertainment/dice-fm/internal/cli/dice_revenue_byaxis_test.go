@@ -1,4 +1,4 @@
-// Copyright 2026 vinny-pasceri. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Vinny Pasceri and contributors. Licensed under Apache-2.0. See LICENSE.
 // Tests for computeRevenueByAxis — normalized tier axis grouping with raw
 // fallback. All fixtures are synthetic; no real tenant ticket-type names.
 package cli

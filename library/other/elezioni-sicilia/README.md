@@ -6,7 +6,7 @@ Il sito ufficiale della Regione Siciliana pubblica i risultati delle elezioni co
 
 Learn more at [Elezioni Sicilia](https://www.elezioni.regione.sicilia.it).
 
-Printed by [@aborruso](https://github.com/aborruso) (aborruso).
+Created by [@aborruso](https://github.com/aborruso) (aborruso).
 
 ## Install
 

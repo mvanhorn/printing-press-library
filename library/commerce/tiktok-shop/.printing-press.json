@@ -6,6 +6,16 @@
   "display_name": "TikTok Shop",
   "description": "Safe v1 TikTok Shop Seller API CLI/MCP for auth readiness, token exchange and read endpoints; pre-flight checks gate live writes by default.",
   "cli_name": "tiktok-shop-pp-cli",
+  "creator": {
+    "handle": "cathrynlavery",
+    "name": "Cathryn Lavery"
+  },
+  "contributors": [
+    {
+      "handle": "mvanhorn",
+      "name": "Matt Van Horn"
+    }
+  ],
   "owner": "cathryn-lavery",
   "printer": "cathrynlavery",
   "printer_name": "Cathryn Lavery",

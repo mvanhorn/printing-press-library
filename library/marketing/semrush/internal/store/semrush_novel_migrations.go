@@ -1,4 +1,4 @@
-// Copyright 2026 charles-garrison. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Charles Garrison and contributors. Licensed under Apache-2.0. See LICENSE.
 //
 // Hand-authored, NOT generator-emitted. Lives alongside the generated
 // store.go file but carries its own header so regen does not wipe it.

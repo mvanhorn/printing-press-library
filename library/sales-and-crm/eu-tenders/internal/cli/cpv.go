@@ -1,4 +1,4 @@
-// Copyright 2026 mathias-michel. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Mathias Michel and contributors. Licensed under Apache-2.0. See LICENSE.
 
 package cli
 

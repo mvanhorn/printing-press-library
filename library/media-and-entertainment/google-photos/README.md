@@ -4,6 +4,8 @@ Google Photos Library and Picker APIs for app-created media, albums, uploads, an
 
 Learn more at [Google Photos](https://developers.google.com/photos).
 
+Created by [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
+
 ## Install
 
 The recommended path installs both the `google-photos-pp-cli` binary and the `pp-google-photos` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

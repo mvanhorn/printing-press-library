@@ -4,7 +4,7 @@
 
 Read, draft, send, schedule, and snooze Superhuman email from your terminal or Claude Code. Pair durable Chrome-session auth with a local SQLite store for offline thread search, participant analysis, watch streams, draft management, and Ask AI semantic queries.
 
-Printed by [@mvanhorn](https://github.com/mvanhorn) (Matt Van Horn).
+Created by [@mvanhorn](https://github.com/mvanhorn) (Matt Van Horn).
 
 ## Install
 

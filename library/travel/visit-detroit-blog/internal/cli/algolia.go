@@ -1,4 +1,4 @@
-// Copyright 2026 stanrails. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 stanrails and contributors. Licensed under Apache-2.0. See LICENSE.
 
 package cli
 

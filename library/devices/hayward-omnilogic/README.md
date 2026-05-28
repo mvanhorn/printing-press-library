@@ -4,6 +4,8 @@
 
 Drives the same partner API the Hayward mobile app and Home Assistant integration use, but adds the historical chemistry log, the equipment diagnostic the cloud refuses to compute, the schedule-change detector for service techs, and the multi-site alarm sweep pool-service businesses ask for. Agent-native JSON throughout, with a local SQLite store that turns single-shot cloud reads into compound answers.
 
+Created by [@rob-coco](https://github.com/rob-coco) (Rob Zehner).
+
 ## Install
 
 The recommended path installs both the `hayward-omnilogic-pp-cli` binary and the `pp-hayward-omnilogic` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

@@ -5,6 +5,10 @@
   "api_name": "anylist",
   "display_name": "AnyList",
   "cli_name": "anylist-pp-cli",
+  "creator": {
+    "handle": "jeeves",
+    "name": "Jeeves"
+  },
   "owner": "user",
   "printer": "jeeves",
   "printer_name": "Jeeves",

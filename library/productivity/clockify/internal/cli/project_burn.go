@@ -1,4 +1,4 @@
-// Copyright 2026 melanson633. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 melanson633 and contributors. Licensed under Apache-2.0. See LICENSE.
 // Transcendence feature: project budget burn — logged vs estimated hours
 // per project, joined from synced entries and project estimates.
 

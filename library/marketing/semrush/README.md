@@ -4,7 +4,7 @@
 
 Wraps the Semrush v3 Analytics + Projects APIs with a real local store so weekly drift, keyword gap, backlink gap, and Site Audit triage become one-shot queries instead of multi-tab CSV diffs. Every API unit you spend is logged to a queryable budget ledger, and offline FTS5 search over everything you've ever synced means follow-up questions cost zero credits.
 
-Printed by [@Charles-Garrison](https://github.com/Charles-Garrison) (Charles Garrison).
+Created by [@Charles-Garrison](https://github.com/Charles-Garrison) (Charles Garrison).
 
 ## Install
 

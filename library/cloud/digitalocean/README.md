@@ -2,6 +2,8 @@
 
 Learn more at [Digitalocean](https://docs.digitalocean.com/reference/api).
 
+Created by [@hnshah](https://github.com/hnshah) (Hiten Shah).
+
 ## Install
 
 The recommended path installs both the `digitalocean-pp-cli` binary and the `pp-digitalocean` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

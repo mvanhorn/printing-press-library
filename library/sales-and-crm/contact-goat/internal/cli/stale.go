@@ -1,4 +1,4 @@
-// Copyright 2026 matt-van-horn. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Matt Van Horn and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // stale: find warm intros going cold — people we recently researched or
 // looked up on LinkedIn but haven't actually talked to in a while. Useful for

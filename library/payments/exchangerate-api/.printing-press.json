@@ -5,6 +5,10 @@
   "api_name": "exchangerate-api",
   "display_name": "Exchangerate Api",
   "cli_name": "exchangerate-api-pp-cli",
+  "creator": {
+    "handle": "vinnyp",
+    "name": "Vinny Pasceri"
+  },
   "owner": "vinny-pasceri",
   "printer": "vinnyp",
   "printer_name": "Vinny Pasceri",

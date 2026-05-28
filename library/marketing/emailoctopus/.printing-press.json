@@ -6,6 +6,10 @@
   "display_name": "EmailOctopus",
   "description": "Manage EmailOctopus lists, contacts, campaigns, automations, reports, and cross-list cleanup workflows from the terminal.",
   "cli_name": "emailoctopus-pp-cli",
+  "creator": {
+    "handle": "tmchow",
+    "name": "Trevin Chow"
+  },
   "owner": "trevin-chow",
   "printer": "tmchow",
   "printer_name": "Trevin Chow",

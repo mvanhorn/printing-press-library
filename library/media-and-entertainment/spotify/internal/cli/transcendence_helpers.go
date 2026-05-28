@@ -1,4 +1,4 @@
-// Copyright 2026 rob-coco. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Rob Zehner and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // Shared helpers for the 12 transcendence commands. Splits out the
 // "fetch from API or local store + cache + iterate" boilerplate so each

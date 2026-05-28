@@ -4,7 +4,7 @@
 
 The DICE Partners GraphQL API gives promoters access to their ticket, fan, and order data — but only one event at a time, only through a web dashboard or raw API calls. This CLI syncs all your data locally and unlocks cross-event analytics: who are your repeat buyers, what's your real net revenue, which events have anomalous refund rates, who's valid at the door tonight.
 
-Printed by [@vinnyp](https://github.com/vinnyp) (Vinny Pasceri).
+Created by [@vinnyp](https://github.com/vinnyp) (Vinny Pasceri).
 
 ## Install
 

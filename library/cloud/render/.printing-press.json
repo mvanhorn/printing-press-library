@@ -5,6 +5,10 @@
   "api_name": "render",
   "display_name": "Render",
   "cli_name": "render-pp-cli",
+  "creator": {
+    "handle": "giacaglia",
+    "name": "Giuliano Giacaglia"
+  },
   "owner": "giuliano-giacaglia",
   "printer_name": "Giuliano Giacaglia",
   "spec_format": "openapi3",

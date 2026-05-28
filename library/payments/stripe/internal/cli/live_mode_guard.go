@@ -1,4 +1,4 @@
-// Copyright 2026 chris-rodriguez. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Chris Rodriguez and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // Live-mode write guard. Hand-written, NOT generated.
 //

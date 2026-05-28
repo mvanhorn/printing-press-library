@@ -5,6 +5,10 @@
   "api_name": "shopify",
   "display_name": "Shopify",
   "cli_name": "shopify-pp-cli",
+  "creator": {
+    "handle": "cathrynlavery",
+    "name": "Cathryn Lavery"
+  },
   "owner": "benjamin-huang",
   "printer": "cathrynlavery",
   "printer_name": "Cathryn Lavery",

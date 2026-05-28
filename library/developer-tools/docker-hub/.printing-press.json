@@ -5,6 +5,10 @@
   "api_name": "docker-hub",
   "display_name": "Docker Hub",
   "cli_name": "docker-hub-pp-cli",
+  "creator": {
+    "handle": "hnshah",
+    "name": "Hiten Shah"
+  },
   "owner": "hiten-shah",
   "printer": "hnshah",
   "printer_name": "Hiten Shah",

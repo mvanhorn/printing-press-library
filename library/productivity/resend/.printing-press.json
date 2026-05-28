@@ -5,6 +5,10 @@
   "api_name": "resend",
   "display_name": "Resend",
   "cli_name": "resend-pp-cli",
+  "creator": {
+    "handle": "giacaglia",
+    "name": "Giuliano Giacaglia"
+  },
   "owner": "giacaglia",
   "printer": "giacaglia",
   "printer_name": "Giuliano Giacaglia",

@@ -4,7 +4,7 @@ Etherpad is a real-time collaborative editor scalable to thousands of simultaneo
 
 Learn more at [Etherpad](https://etherpad.org/).
 
-Printed by [@JohnMcLear](https://github.com/JohnMcLear) (John McLear).
+Created by [@JohnMcLear](https://github.com/JohnMcLear) (John McLear).
 
 ## Install
 

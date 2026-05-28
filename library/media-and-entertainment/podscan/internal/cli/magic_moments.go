@@ -1,4 +1,4 @@
-// Copyright 2026 gregvanhorn. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Greg Van Horn and contributors. Licensed under Apache-2.0. See LICENSE.
 
 package cli
 

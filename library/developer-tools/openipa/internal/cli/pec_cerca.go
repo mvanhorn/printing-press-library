@@ -1,4 +1,4 @@
-// Copyright 2026 aborruso. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 aborruso and contributors. Licensed under Apache-2.0. See LICENSE.
 // PATCH(WS-endpoint-migration): new command — WS22_PEC_STOR, REST-only endpoint (no PHP form).
 
 package cli

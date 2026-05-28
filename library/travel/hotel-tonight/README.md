@@ -4,7 +4,7 @@
 
 HotelTonight's deals are deliberately ephemeral and geo-local: they appear, drop, and vanish, and you only ever see now, here. This CLI syncs the anonymous deal feed into a local SQLite store and snapshots prices over time, so you (or an agent) can watch a city for drops, see a hotel's real price history, and get an objective cheap/typical/expensive verdict — none of which the app supports.
 
-Printed by [@tmchow](https://github.com/tmchow) (Trevin Chow).
+Created by [@tmchow](https://github.com/tmchow) (Trevin Chow).
 
 ## Install
 

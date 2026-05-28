@@ -1,4 +1,4 @@
-// Copyright 2026 vinny-pasceri. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Vinny Pasceri and contributors. Licensed under Apache-2.0. See LICENSE.
 // TDD tests for the classifier-backed --tier filter on fans segment. --tier
 // matches on EITHER the raw priceTier.name substring (back-compat) OR the
 // normalized tier resolved via the classifier (canonical tier name substring,

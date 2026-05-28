@@ -1,4 +1,4 @@
-// Copyright 2026 magoo242. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 magoo242 and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // `edgar-pp-cli insider-followthrough <TICKER>` — pair senior-officer
 // discretionary sales ≥$1M with material 8-K filings in the next 90 days.

@@ -1,4 +1,4 @@
-// Copyright 2026 matt-van-horn. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Matt Van Horn and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // Flagship helpers: shared utilities for the 5 flagship compound-query
 // commands (warm-intro, coverage, prospect, dossier, budget). These helpers

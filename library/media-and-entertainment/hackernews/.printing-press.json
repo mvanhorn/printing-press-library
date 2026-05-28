@@ -5,6 +5,10 @@
   "api_name": "hackernews",
   "display_name": "Hackernews",
   "cli_name": "hackernews-pp-cli",
+  "creator": {
+    "handle": "tmchow",
+    "name": "Trevin Chow"
+  },
   "printer": "tmchow",
   "printer_name": "Trevin Chow",
   "spec_path": "/Users/tmchow/printing-press/.runstate/drifting-hugging-phoenix-78b7f75a/runs/20260504-190931/research/hackernews-spec.yaml",

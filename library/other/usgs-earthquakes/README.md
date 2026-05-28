@@ -6,7 +6,7 @@ Wraps the full USGS FDSN Event Service and all 20 GeoJSON summary feeds in a sin
 
 Learn more at [USGS Earthquakes](https://earthquake.usgs.gov).
 
-Printed by [@tmchow](https://github.com/tmchow) (Trevin Chow).
+Created by [@tmchow](https://github.com/tmchow) (Trevin Chow).
 
 ## Install
 

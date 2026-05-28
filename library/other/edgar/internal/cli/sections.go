@@ -1,4 +1,4 @@
-// Copyright 2026 magoo242. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 magoo242 and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // `edgar-pp-cli sections <TICKER> --form 10-K --items 1A,7` — extract
 // requested Items from a 10-K or 10-Q with byte-offset boundaries.

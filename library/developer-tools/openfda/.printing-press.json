@@ -5,6 +5,10 @@
   "api_name": "openfda",
   "display_name": "OpenFDA",
   "cli_name": "openfda-pp-cli",
+  "creator": {
+    "handle": "H179922",
+    "name": "H179922"
+  },
   "owner": "h179922",
   "printer": "H179922",
   "printer_name": "H179922",

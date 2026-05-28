@@ -1,4 +1,4 @@
-// Copyright 2026 greatclips. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Matt Van Horn and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // Package icssign implements the request-signing scheme that the
 // GreatClips Online Check-In SPA uses for every call to

@@ -5,6 +5,10 @@
   "api_name": "spotify",
   "display_name": "Spotify Web",
   "cli_name": "spotify-pp-cli",
+  "creator": {
+    "handle": "rob-coco",
+    "name": "Rob Zehner"
+  },
   "owner": "sonallux",
   "printer": "rob-coco",
   "printer_name": "Rob Zehner",

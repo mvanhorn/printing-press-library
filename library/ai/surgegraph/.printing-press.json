@@ -5,6 +5,10 @@
   "api_name": "surgegraph",
   "display_name": "Surgegraph Facade",
   "cli_name": "surgegraph-pp-cli",
+  "creator": {
+    "handle": "ng-plentisoft",
+    "name": "SurgeGraph Team"
+  },
   "owner": "surgegraph",
   "printer": "ng-plentisoft",
   "printer_name": "SurgeGraph Team",

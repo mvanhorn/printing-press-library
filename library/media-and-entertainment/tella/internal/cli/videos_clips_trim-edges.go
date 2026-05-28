@@ -1,4 +1,4 @@
-// Copyright 2026 gregce. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Greg Ceccarelli and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // PATCH(library): hand-added narrow primitive — cuts only the leading and
 // trailing silence on a clip, leaving mid-clip silences untouched. Useful

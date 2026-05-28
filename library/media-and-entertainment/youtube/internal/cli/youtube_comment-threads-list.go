@@ -1,4 +1,4 @@
-// Copyright 2026 justinwfu. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Justin and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // PATCH: feat-comments-and-handle-resolution — hand-authored typed endpoint for /youtube/v3/commentThreads.list. Spec entry was added to spec.yaml; rather than running a full regen (which would clobber polish fixes in videos_related.go), the typed handler is hand-authored to mirror the videos-list pattern.
 

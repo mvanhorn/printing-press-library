@@ -4,6 +4,8 @@
 
 Pull audit log, events, inventory and requests into a local store with one sync, then approve or deny elevations, generate offline PIN codes, and answer cross-resource questions (repeat requestors, agent-version drift, audit/event correlation) the portal does not surface.
 
+Created by [@joltsconsulting](https://github.com/joltsconsulting) (joltsconsulting).
+
 ## Install
 
 The recommended path installs both the `adminbyrequest-pp-cli` binary and the `pp-adminbyrequest` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

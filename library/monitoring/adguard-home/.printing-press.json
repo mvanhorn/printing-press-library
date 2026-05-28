@@ -5,6 +5,10 @@
   "api_name": "adguard-home",
   "display_name": "AdGuard Home",
   "cli_name": "adguard-home-pp-cli",
+  "creator": {
+    "handle": "e-jung",
+    "name": "Eric Jung"
+  },
   "owner": "eric-jung",
   "printer": "e-jung",
   "printer_name": "Eric Jung",

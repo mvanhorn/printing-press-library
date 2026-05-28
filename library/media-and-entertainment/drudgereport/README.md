@@ -4,7 +4,7 @@
 
 Read Drudge's lead, breaking-red items, and ranked headlines in one bounded JSON call. Keep a local SQLite snapshot history so you can answer 'what's changed since I checked,' 'how long has that been the splash,' and 'what was Drudge leading with on Tuesday' — none of which the live site supports.
 
-Printed by [@mvanhorn](https://github.com/mvanhorn) (Matt Van Horn).
+Created by [@mvanhorn](https://github.com/mvanhorn) (Matt Van Horn).
 
 ## Install
 

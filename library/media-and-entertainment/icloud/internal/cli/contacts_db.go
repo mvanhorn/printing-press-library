@@ -1,4 +1,4 @@
-// Copyright 2026 matysanchez. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Matias Sanchez Moises and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // Package cli — contacts_db.go
 // Local SQLite store for Contacts data synced from Contacts.app via JXA.

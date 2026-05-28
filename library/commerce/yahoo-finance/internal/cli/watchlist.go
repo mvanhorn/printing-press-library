@@ -1,4 +1,4 @@
-// Copyright 2026 trevin-chow. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Trevin Chow and contributors. Licensed under Apache-2.0. See LICENSE.
 // Transcendence commands — unique to yahoo-finance-pp-cli. Watchlists, portfolios,
 // digests, peer compare, sparklines, options moneyness filter, local SQL access.
 

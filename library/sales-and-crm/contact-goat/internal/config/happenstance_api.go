@@ -1,4 +1,4 @@
-// Copyright 2026 matt-van-horn. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Matt Van Horn and contributors. Licensed under Apache-2.0. See LICENSE.
 //
 // Sidecar for the Happenstance public REST API key. Lives outside the
 // generator-owned config.go so a future regeneration doesn't clobber it,

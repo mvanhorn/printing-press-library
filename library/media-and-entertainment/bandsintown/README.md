@@ -6,6 +6,8 @@ Every existing Bandsintown wrapper is a 10-year-old language binding for the sam
 
 Learn more at [Bandsintown](https://bandsintown.com/).
 
+Created by [@4.5.2](https://github.com/4.5.2) (printing-press).
+
 ## Install
 
 The recommended path installs both the `bandsintown-pp-cli` binary and the `pp-bandsintown` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

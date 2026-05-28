@@ -4,7 +4,7 @@
 
 Other Clockify CLIs are timers with a thin reporting bolt-on, and none of them remember anything. This one keeps a local SQLite mirror of every time entry, project, client, and tag, so reports, timesheet reconstruction, gap detection, and billable audits run offline and instantly. It also covers the half of Clockify no terminal tool touches — invoices, expenses, time-off, approvals, and scheduling.
 
-Printed by [@melanson633](https://github.com/melanson633) (melanson633).
+Created by [@melanson633](https://github.com/melanson633) (melanson633).
 
 ## Install
 

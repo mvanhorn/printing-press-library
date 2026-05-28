@@ -1,4 +1,4 @@
-// Copyright 2026 charles-garrison. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Charles Garrison and contributors. Licensed under Apache-2.0. See LICENSE.
 //
 // Novel feature #8 — tracking drift.
 

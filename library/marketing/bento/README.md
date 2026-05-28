@@ -4,7 +4,7 @@
 
 A Go binary CLI for Bento email marketing that covers all 39 features from Bento's official CLI and MCP, brings in transactional send + spam validation + segments that are SDK-only or docs-only today, and layers 12 novel commands on top -- snapshot diff, hygiene pipeline, Vendure purchase replay, churn-risk scoring, broadcast what-if. Offline FTS over your subscribers via SQLite, --json on every command, MCP tools auto-derived from the Cobra tree.
 
-Printed by [@bossriceshark](https://github.com/bossriceshark) (bossriceshark).
+Created by [@bossriceshark](https://github.com/bossriceshark) (bossriceshark).
 
 ## Install
 

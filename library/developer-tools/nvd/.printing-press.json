@@ -5,6 +5,10 @@
   "api_name": "nvd",
   "display_name": "National Vulnerability Database",
   "cli_name": "nvd-pp-cli",
+  "creator": {
+    "handle": "hnshah",
+    "name": "Hiten Shah"
+  },
   "owner": "hiten-shah",
   "printer": "hnshah",
   "printer_name": "Hiten Shah",

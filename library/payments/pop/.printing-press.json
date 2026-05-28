@@ -5,6 +5,10 @@
   "api_name": "pop",
   "display_name": "POP",
   "cli_name": "pop-pp-cli",
+  "creator": {
+    "handle": "mircobabini",
+    "name": "Mirco Babini"
+  },
   "owner": "mirco-babini",
   "printer": "mircobabini",
   "printer_name": "Mirco Babini",

@@ -1,4 +1,4 @@
-// Copyright 2026 justinwfu. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Justin and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // PATCH(amend-20260523: novel command) — single-video analog of
 // playlist-enrich: one call returns a video's metadata + transcript +

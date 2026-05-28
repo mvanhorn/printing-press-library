@@ -1,4 +1,4 @@
-// Copyright 2026 drdriftwood. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Angelo Pullen and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // `obsidian-pp-cli health` — composite vault-health score. Combines four
 // independent sub-scores (each 0..1) into a single percentage so an

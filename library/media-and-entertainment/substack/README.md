@@ -4,6 +4,8 @@
 
 Substack has no public API and the closed-source tools that work around it (WriteStack, StackSweller) stop at Notes scheduling and a heatmap. This CLI absorbs every endpoint the community has reverse-engineered across 8 wrappers, then transcends with local-SQLite analytics: per-Note subscriber attribution (`growth attribution`), engagement reciprocity tracking (`engage reciprocity`), and a goal-aware best-time recommender (`growth best-time`). Every command is MCP-callable so an agent can drive the full publish → engage → measure → swap loop.
 
+Created by [@chirantan](https://github.com/chirantan) (Chirantan Rajhans).
+
 ## Install
 
 The recommended path installs both the `substack-pp-cli` binary and the `pp-substack` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

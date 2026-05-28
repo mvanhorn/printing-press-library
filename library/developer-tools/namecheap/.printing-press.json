@@ -5,6 +5,10 @@
   "api_name": "namecheap",
   "display_name": "Namecheap",
   "cli_name": "namecheap-pp-cli",
+  "creator": {
+    "handle": "cathryn-lavery",
+    "name": "Cathryn Lavery"
+  },
   "owner": "cathryn-lavery",
   "spec_url": "https://www.namecheap.com/support/api/intro/",
   "spec_path": "library/developer-tools/namecheap/spec.yaml",

@@ -1,4 +1,4 @@
-// Copyright 2026 salmonumbrella. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 salmonumbrella and contributors. Licensed under Apache-2.0. See LICENSE.
 // PATCH(retro #marianatek-bearer-prefix): regression test for AuthHeader()
 // auto-prefixing "Bearer " when the source is `oauth_authorization`.
 

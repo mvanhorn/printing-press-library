@@ -1,4 +1,4 @@
-// Copyright 2026 ChrisDrit. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Chris Drit and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // Package ingest downloads, parses, and inserts FAA + NTSB bulk data into
 // the local SQLite store. Each source has its own file (faa.go, ntsb.go);

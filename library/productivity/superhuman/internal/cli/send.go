@@ -1,4 +1,4 @@
-// Copyright 2026 mvanhorn. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Matt Van Horn and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // send.go implements the headline `superhuman-pp-cli send` command — the
 // 3-step real-email pipeline (userdata.writeMessage -> messages/send/log

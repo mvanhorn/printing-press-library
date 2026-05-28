@@ -1,4 +1,4 @@
-// Copyright 2026 justinwfu. Licensed under Apache-2.0.
+// Copyright 2026 justinwfu and contributors. Licensed under Apache-2.0.
 
 // Package harvard implements the art-goat Source for the Harvard Art
 // Museums collection API. Requires a free user-supplied API key; signup

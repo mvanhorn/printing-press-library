@@ -4,6 +4,8 @@ SEO and competitive intelligence API for backlinks, keywords, rank tracking, sit
 
 Learn more at [Ahrefs](https://docs.ahrefs.com/docs/api/reference/introduction).
 
+Created by [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
+
 ## Install
 
 The recommended path installs both the `ahrefs-pp-cli` binary and the `pp-ahrefs` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

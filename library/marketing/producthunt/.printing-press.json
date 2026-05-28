@@ -5,6 +5,10 @@
   "api_name": "producthunt",
   "display_name": "Producthunt",
   "cli_name": "producthunt-pp-cli",
+  "creator": {
+    "handle": "tmchow",
+    "name": "Trevin Chow"
+  },
   "printer": "tmchow",
   "printer_name": "Trevin Chow",
   "spec_path": "/Users/tmchow/printing-press/.runstate/linear-herding-lollipop-44b2f933/runs/20260501-170103/research/producthunt-spec.yaml",

@@ -2,6 +2,8 @@
 
 Agent-native CLI for Cloudflare Registrar domain search, check, and registration.
 
+Created by [@danny-shmueli](https://github.com/danny-shmueli) (Danny Shmueli).
+
 ## Install
 
 The recommended path installs both the `cf-domain-pp-cli` binary and the `pp-cf-domain` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

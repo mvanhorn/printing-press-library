@@ -4,7 +4,7 @@
 
 This CLI exposes every ExchangeRate-API endpoint (latest, pair, codes, quota, enriched, history) as typed commands and layers on offline-first features the API can't provide: local snapshots in SQLite, watchlists with drift alerts, quota burn projection, N×N cross-rate matrices from a single API call, and an MCP server for AI agents. Free-tier users get time travel from their own captured history without paying for /history access.
 
-Printed by [@vinnyp](https://github.com/vinnyp) (Vinny Pasceri).
+Created by [@vinnyp](https://github.com/vinnyp) (Vinny Pasceri).
 
 ## Install
 

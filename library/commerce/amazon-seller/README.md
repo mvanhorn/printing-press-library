@@ -4,6 +4,8 @@ Read FBA inventory, orders, sales reports, listings, and catalog data for an Ama
 
 Learn more at [Amazon Seller](https://developer-docs.amazon.com/sp-api/).
 
+Created by [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
+
 ## Install
 
 The recommended path installs both the `amazon-seller-pp-cli` binary and the `pp-amazon-seller` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

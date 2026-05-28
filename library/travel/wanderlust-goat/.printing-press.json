@@ -5,6 +5,10 @@
   "api_name": "wanderlust-goat",
   "display_name": "Wanderlust GOAT",
   "cli_name": "wanderlust-goat-pp-cli",
+  "creator": {
+    "handle": "jheitzeb",
+    "name": "Joe Heitzeberg"
+  },
   "owner": "joe-heitzeberg",
   "printer": "jheitzeb",
   "printer_name": "Joe Heitzeberg",

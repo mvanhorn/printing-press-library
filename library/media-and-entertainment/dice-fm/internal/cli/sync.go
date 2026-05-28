@@ -1,4 +1,4 @@
-// Copyright 2026 vinny-pasceri. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Vinny Pasceri and contributors. Licensed under Apache-2.0. See LICENSE.
 // Hand-modified from the generated sync command: the per-resource fetch is
 // rewired to the DICE viewer GraphQL connections (see dice_query.go) because
 // the generator's root-level `nodes` query shape does not match DICE's

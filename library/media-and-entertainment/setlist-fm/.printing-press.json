@@ -8,6 +8,16 @@
   "printer": "davemorin",
   "printer_name": "Dave Morin",
   "cli_name": "setlist-fm-pp-cli",
+  "creator": {
+    "handle": "davemorin",
+    "name": "Dave Morin"
+  },
+  "contributors": [
+    {
+      "handle": "mvanhorn",
+      "name": "Matt Van Horn"
+    }
+  ],
   "spec_format": "openapi3",
   "spec_checksum": "sha256:ee0b0d85bd07efcffe250c69b295af54db5a86b02f675819f190600afacd49b5",
   "mcp_binary": "setlist-fm-pp-mcp",

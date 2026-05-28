@@ -1,4 +1,4 @@
-// Copyright 2026 justinwfu. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Justin Fu and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // Package coffeereview is the source adapter for coffeereview.com.
 // The primary path uses the WordPress REST API at

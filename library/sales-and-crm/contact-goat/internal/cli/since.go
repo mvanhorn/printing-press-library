@@ -1,4 +1,4 @@
-// Copyright 2026 matt-van-horn. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Matt Van Horn and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // since: time-windowed diff across LinkedIn + Happenstance. Answers the
 // question "what has changed for me in the last <duration>?". The output is

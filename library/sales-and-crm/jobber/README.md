@@ -4,7 +4,7 @@
 
 jobber-pp-cli pulls the whole Jobber GraphQL surface into a local SQLite database once, then lets you slice it with `ar aging`, `invoices trace`, `snapshot diff`, FTS search, and SQL. Existing Jobber MCPs are RPC proxies — you can't run them on a plane, you can't compose them with SQL, and they don't store data locally. This tool does. It also ships read-only by construction (no mutation commands are emitted), which makes it safe to hand to an advisor or auditor on a live client tenant.
 
-Printed by [@melanson633](https://github.com/melanson633) (melanson633).
+Created by [@melanson633](https://github.com/melanson633) (melanson633).
 
 ## Install
 

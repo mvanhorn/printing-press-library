@@ -5,6 +5,10 @@
   "api_name": "google-search-console",
   "display_name": "Google Search Console",
   "cli_name": "google-search-console-pp-cli",
+  "creator": {
+    "handle": "bossriceshark",
+    "name": "Matt"
+  },
   "run_id": "20260509-053752",
   "auth_type": "bearer_token",
   "auth_env_vars": [

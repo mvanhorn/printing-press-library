@@ -1,4 +1,4 @@
-// Copyright 2026 user. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Nick Scarabosio and contributors. Licensed under Apache-2.0. See LICENSE.
 //
 // HAND-WRITTEN — overwrites the generator's emit. The diary endpoint returns
 // HTML, not JSON, so the generator's resolveRead() flow doesn't apply. This

@@ -1,4 +1,4 @@
-// Copyright 2026 mvanhorn. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Matt Van Horn and contributors. Licensed under Apache-2.0. See LICENSE.
 // Spotify Web Player TOTP-signed access-token bootstrap.
 //
 // Reverse-engineered from open.spotify.com's `web-player.<hash>.js` bundle.

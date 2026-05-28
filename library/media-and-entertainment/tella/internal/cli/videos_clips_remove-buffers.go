@@ -1,4 +1,4 @@
-// Copyright 2026 gregce. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Greg Ceccarelli and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // PATCH(library): hand-added composition — Tella's Cut-panel "Remove buffers"
 // button has no public-API equivalent (verified via 404 smoke test against

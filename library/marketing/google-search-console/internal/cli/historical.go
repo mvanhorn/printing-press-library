@@ -1,4 +1,4 @@
-// Copyright 2026 bossriceshark. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Matt and contributors. Licensed under Apache-2.0. See LICENSE.
 // Hand-written: Phase 3 transcendence — T7 historical.
 
 package cli

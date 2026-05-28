@@ -1,4 +1,4 @@
-// Copyright 2026 drdriftwood. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Angelo Pullen and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // Sync replaces the generic Printing Press REST-walker with an
 // obsidian-specific vault crawler. It iterates every markdown file in

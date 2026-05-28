@@ -4,6 +4,8 @@ PyPI JSON API. Look up Python package metadata, versions, release files,
 and vulnerability data. Browse recent updates and newest packages via RSS feeds.
 No authentication required — all endpoints are public.
 
+Created by [@hnshah](https://github.com/hnshah) (Hiten Shah).
+
 ## Install
 
 The recommended path installs both the `pypi-pp-cli` binary and the `pp-pypi` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

@@ -4,6 +4,8 @@
 
 Manage every Substack you own from one terminal. Sync posts, drafts, notes, comments, and subscribers into a local SQLite store; FTS-search them offline; diff subscriber lists for honest churn reports; spot cross-sell candidates by joining paid and free lists across publications; and twin published posts into a sibling publication as drafts. Built for owners of multiple Substacks — bilingual writers, paid+free tier creators, anyone with more than one newsletter.
 
+Created by [@JPresting](https://github.com/JPresting) (JimPresting).
+
 ## Install
 
 The recommended path installs both the `substack-creator-pp-cli` binary and the `pp-substack-creator` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

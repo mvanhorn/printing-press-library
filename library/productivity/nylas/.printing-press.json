@@ -5,6 +5,10 @@
   "api_name": "nylas",
   "display_name": "Nylas",
   "cli_name": "nylas-pp-cli",
+  "creator": {
+    "handle": "natekettles",
+    "name": "Nathan Kettles"
+  },
   "owner": "nathan-kettles",
   "printer": "natekettles",
   "printer_name": "Nathan Kettles",
