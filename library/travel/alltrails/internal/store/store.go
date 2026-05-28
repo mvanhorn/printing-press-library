@@ -91,7 +91,7 @@ func OpenReadOnly(dbPath string) (*Store, error) {
 // retry-on-SQLITE_BUSY loop and propagates ctx.Err() back to the caller
 // instead of waiting out the full migrationLockTimeout.
 func OpenWithContext(ctx context.Context, dbPath string) (*Store, error) {
-	if err := os.MkdirAll(filepath.Dir(dbPath), 0o755); err != nil {
+	if err := os.MkdirAll(filepath.Dir(dbPath), 0o700); err != nil {
 		return nil, fmt.Errorf("creating db directory: %w", err)
 	}
 
@@ -109,6 +109,15 @@ func OpenWithContext(ctx context.Context, dbPath string) (*Store, error) {
 	if err := s.migrate(ctx); err != nil {
 		db.Close()
 		return nil, fmt.Errorf("running migrations: %w", err)
+	}
+
+	// The SQLite file and its WAL/SHM sidecars are created by the driver with
+	// umask-default permissions (typically 0o644), which would leave locally
+	// cached API data world-readable on a shared machine. Tighten to
+	// owner-only, matching the 0o700 directory above. Best-effort: a chmod
+	// failure (e.g. sidecar not yet materialized) must not break the store.
+	for _, suffix := range []string{"", "-wal", "-shm"} {
+		_ = os.Chmod(dbPath+suffix, 0o600)
 	}
 
 	return s, nil
