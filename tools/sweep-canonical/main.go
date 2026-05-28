@@ -1450,10 +1450,21 @@ func patchNoticeCopyrightLine(content, name string) string {
 	return content[:loc[0]] + replacement + content[loc[1]:]
 }
 
-// insertNoticeAttributionBlock inserts the per-CLI `Created by …` (+ optional
-// `Contributors:` list) block between the copyright line and the machine-credit
-// paragraph. No-op when a `Created by ` block already exists.
+// insertNoticeAttributionBlock inserts the per-CLI `Created by …` line and (if
+// contributors exist) the `Contributors:` list between the copyright line and
+// the machine-credit paragraph. The two blocks are inserted independently so a
+// CLI whose NOTICE already has `Created by` from an earlier creator-only sweep
+// still gains a `Contributors:` list on a subsequent backfill pass. Idempotent:
+// each block is only inserted when its specific marker is absent.
 func insertNoticeAttributionBlock(content string, creator person, contributors []person) string {
+	content = insertNoticeCreatedByLine(content, creator)
+	content = insertNoticeContributorsList(content, contributors)
+	return content
+}
+
+// insertNoticeCreatedByLine inserts the `Created by` line before the machine-
+// credit paragraph when missing. No-op when already present.
+func insertNoticeCreatedByLine(content string, creator person) string {
 	if strings.Contains(content, "\nCreated by ") {
 		return content
 	}
@@ -1462,15 +1473,41 @@ func insertNoticeAttributionBlock(content string, creator person, contributors [
 	if idx < 0 {
 		return content
 	}
-	var block strings.Builder
-	block.WriteString("Created by " + personLabel(creator) + ".\n")
-	if len(contributors) > 0 {
-		block.WriteString("Contributors:\n")
-		for _, c := range contributors {
-			block.WriteString("  - " + personLabel(c) + "\n")
-		}
+	line := "Created by " + personLabel(creator) + ".\n"
+	return content[:idx] + "\n" + line + content[idx:]
+}
+
+// insertNoticeContributorsList inserts the `Contributors:` list immediately
+// after the existing `Created by …` line (preserving its trailing newline)
+// when contributors are non-empty and the list is not already present. No-op
+// when contributors is empty, when no `Created by` line exists (the
+// previous step is responsible for that), or when a `Contributors:` line is
+// already present anywhere in the file.
+func insertNoticeContributorsList(content string, contributors []person) string {
+	if len(contributors) == 0 {
+		return content
 	}
-	return content[:idx] + "\n" + block.String() + content[idx:]
+	if strings.Contains(content, "\nContributors:") {
+		return content
+	}
+	const createdByMarker = "\nCreated by "
+	idx := strings.Index(content, createdByMarker)
+	if idx < 0 {
+		return content
+	}
+	// Find the newline ending the Created by line.
+	lineStart := idx + 1 // skip the leading \n in the marker
+	nl := strings.Index(content[lineStart:], "\n")
+	if nl < 0 {
+		return content
+	}
+	insertAt := lineStart + nl + 1
+	var block strings.Builder
+	block.WriteString("Contributors:\n")
+	for _, c := range contributors {
+		block.WriteString("  - " + personLabel(c) + "\n")
+	}
+	return content[:insertAt] + block.String() + content[insertAt:]
 }
 
 // patchNoticeMachineAuthor updates the Press machine-author credit from
@@ -1518,12 +1555,23 @@ type backfillResult struct {
 // knownHandleByName maps the maintainers who realistically appear as cross-CLI
 // contributors to their handles, for the case where a commit's author email is
 // not a GitHub noreply address. Deliberately tiny — anyone not here whose email
-// isn't a noreply address is reported as unresolved rather than guessed.
+// isn't a noreply address is reported as unresolved rather than guessed. Keep
+// the keys to full, distinctive display names (not generic first names like
+// "Benjamin"); use knownHandleByEmail for contributors whose git name is too
+// common to identify globally.
 var knownHandleByName = map[string]string{
 	"Matt Van Horn":  "mvanhorn",
 	"Trevin Chow":    "tmchow",
-	"Benjamin":       "benjaminn8",
-	"Benjamin Huang": "benjaminn8",
+	"Cathryn Lavery": "cathrynlavery",
+}
+
+// knownHandleByEmail maps specific commit emails to their GitHub handles, for
+// contributors whose git `user.name` is too generic to safely use as a global
+// name → handle key (e.g. "Benjamin", "Matt"). Email is the stable identifier
+// for those cases. Only add entries here after confirming the email belongs to
+// the named GitHub user. Keys are lowercased on lookup.
+var knownHandleByEmail = map[string]string{
+	"benjamin84@gmail.com": "benjaminn8",
 }
 
 // landingOnlyHandles are identities whose git presence across a CLI directory
@@ -1606,6 +1654,9 @@ func backfillContributors(cliDir string, creator person) backfillResult {
 		}
 
 		handle := handleFromEmail(email)
+		if handle == "" {
+			handle = knownHandleByEmail[strings.ToLower(email)]
+		}
 		if handle == "" {
 			handle = knownHandleByName[name]
 		}
