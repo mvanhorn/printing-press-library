@@ -4,7 +4,7 @@ Evidence-labeled, live-capable route map for AllTrails browser/mobile surfaces. 
 
 Learn more at [Alltrails](https://www.alltrails.com).
 
-Printed by [@zaydiscold](https://github.com/zaydiscold) (zaydiscold).
+Created by [@zaydiscold](https://github.com/zaydiscold) (zaydiscold).
 
 ## Install
 

@@ -1,4 +1,4 @@
-// Copyright 2026 mvanhorn. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Matt Van Horn and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // userdata_write.go declares the `userdata` namespace and its `write`
 // subcommand: a guarded low-level escape hatch over Superhuman's

@@ -5,6 +5,10 @@
   "api_name": "alltrails",
   "display_name": "Alltrails Unofficial Seed",
   "cli_name": "alltrails-pp-cli",
+  "creator": {
+    "handle": "zaydiscold",
+    "name": "zaydiscold"
+  },
   "owner": "zaydiscold",
   "printer": "zaydiscold",
   "printer_name": "zaydiscold",
