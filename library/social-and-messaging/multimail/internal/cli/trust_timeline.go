@@ -154,9 +154,16 @@ Run 'multimail-pp-cli sync' first to populate local data.`,
 			}
 			auditRows.Close()
 
-			// Sort chronologically
+			// Sort chronologically; entries with no parseable timestamp sort last.
 			sort.Slice(entries, func(i, j int) bool {
-				return entries[i].Timestamp < entries[j].Timestamp
+				ti, tj := entries[i].Timestamp, entries[j].Timestamp
+				if ti == "" {
+					return false
+				}
+				if tj == "" {
+					return true
+				}
+				return ti < tj
 			})
 
 			output := map[string]any{

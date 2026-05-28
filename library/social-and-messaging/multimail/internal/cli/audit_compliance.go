@@ -116,6 +116,10 @@ Run 'multimail-pp-cli sync' first to populate local data.`,
 					if ts.Before(cutoffTime) {
 						continue
 					}
+				} else {
+					// Unparseable or absent timestamp — treat as outside the window
+					// to match oversight_velocity.go's convention.
+					continue
 				}
 
 				action, _ := entry["action"].(string)

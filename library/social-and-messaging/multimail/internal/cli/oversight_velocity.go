@@ -94,17 +94,10 @@ Run 'multimail-pp-cli sync' first to populate local data.`,
 					action != "approve" && action != "reject" {
 					continue
 				}
-				createdStr, _ := entry["created_at"].(string)
-				created, err := time.Parse(time.RFC3339, createdStr)
-				if err != nil {
-					// Try epoch seconds
-					if v, ok := entry["created_at"].(float64); ok {
-						created = time.Unix(int64(v), 0)
-					} else {
-						continue
-					}
-				}
-				if created.Before(mustParseTime(cutoff)) {
+				// parseNumericTime handles RFC3339 strings, epoch-as-string,
+				// and float64 epoch values in a single call — no fallthrough gap.
+				created, ok := parseNumericTime(entry["created_at"])
+				if !ok || created.Before(mustParseTime(cutoff)) {
 					continue
 				}
 
