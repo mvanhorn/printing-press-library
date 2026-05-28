@@ -428,8 +428,8 @@ func classifyAPIError(err error, flags *rootFlags) error {
 		return authErr(fmt.Errorf("%w\nhint: check your API credentials."+
 			"\n      Run 'godaddy-pp-cli doctor' to check auth status.", err))
 	case strings.Contains(msg, "HTTP 403"):
-		return authErr(fmt.Errorf("%w\nhint: permission denied. This API is configured without credentials, so the service may be blocking the request by rate limit, geography, bot protection, or endpoint policy."+
-			"\n      Run 'godaddy-pp-cli doctor' to check connectivity.", err))
+		return authErr(fmt.Errorf("%w\nhint: permission denied. GoDaddy requires GODADDY_API_KEY and GODADDY_API_SECRET; verify they are set and that the key has access to this resource. Production keys also require a funded/eligible account for some endpoints (e.g. domain purchase)."+
+			"\n      Run 'godaddy-pp-cli doctor' to check auth status.", err))
 	case strings.Contains(msg, "HTTP 404"):
 		return notFoundErr(fmt.Errorf("%w\nhint: resource not found. Run the 'list' command to see available items", err))
 	case strings.Contains(msg, "HTTP 429"):
