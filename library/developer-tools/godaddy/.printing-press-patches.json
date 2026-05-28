@@ -5,6 +5,13 @@
   "base_printing_press_version": "4.11.0",
   "patches": [
     {
+      "id": "auctions-aftermarket-require-body",
+      "summary": "auctions-aftermarket (POST /v1/customers/{customerId}/aftermarket/listings/bids) now requires a JSON body piped via --stdin instead of hardcoding an empty body; without --stdin it errors (exit 2), and an empty/invalid body fails to parse rather than being sent.",
+      "reason": "Greptile P-level: body was hardcoded `map[string]any{}` and POSTed verbatim with no body input, so the bid command always sent an empty {} body (silent no-op). The endpoint places multiple bids and has no per-field body flags, so it mirrors the require-stdin array-body pattern from domains records replace.",
+      "files": ["internal/cli/promoted_auctions-aftermarket.go"],
+      "validated_outcome": "No --stdin exits 2 with '--stdin is required'; empty --stdin fails JSON parse (no {} sent); a valid `[{...}]` body via --stdin --dry-run shows the array body in the request preview."
+    },
+    {
       "id": "mcp-single-encode-binary",
       "summary": "MCP binary-response handler passes the client's binaryResponseEnvelope JSON through verbatim (detected via the _pp_binary discriminator) instead of base64-encoding it a second time; removed the now-unused encoding/base64 import.",
       "reason": "The HTTP client already wraps genuinely binary bodies into a self-describing {\"_pp_binary\":true,\"encoding\":\"base64\",\"data\":...} envelope. makeAPIHandler then base64-encoded that whole JSON string AGAIN, double-encoding the payload and discarding the envelope metadata. When binaryResponse is set but the API returns JSON/text, the body is not enveloped, so the handler must detect the envelope rather than blindly re-encode.",

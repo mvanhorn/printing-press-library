@@ -6,12 +6,14 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"os"
 
 	"github.com/spf13/cobra"
 )
 
 func newAuctionsAftermarketPromotedCmd(flags *rootFlags) *cobra.Command {
+	var stdinBody bool
 
 	cmd := &cobra.Command{
 		Use:         "auctions-aftermarket <customerId>",
@@ -39,13 +41,29 @@ func newAuctionsAftermarketPromotedCmd(flags *rootFlags) *cobra.Command {
 				}
 				return usageErr(fmt.Errorf("customerId is required\nUsage: %s <%s>", cmd.CommandPath(), "customerId"))
 			}
+			// PATCH(require-bid-body): this endpoint places multiple bids in one
+			// request and has no per-field body flags, so a body must be piped
+			// via --stdin. The generated code hardcoded an empty body and POSTed
+			// {} on every invocation, which silently sent a no-op bid request to
+			// the API instead of erroring. Mirror the require-stdin pattern used
+			// by domains records replace.
+			if !stdinBody {
+				return usageErr(fmt.Errorf("--stdin is required: pipe the bids as JSON; this command has no per-field body flags"))
+			}
 			path = replacePathParam(path, "customerId", args[0])
 			params := map[string]string{}
 			// HasStore + non-GET falls through to a live API call here
 			// rather than through resolveRead (GET-only internally); a
 			// body-aware cached read helper is filed as #425 for when a
 			// second store-backed POST-search consumer ships.
-			body := map[string]any{}
+			stdinData, err := io.ReadAll(os.Stdin)
+			if err != nil {
+				return fmt.Errorf("reading stdin: %w", err)
+			}
+			var body any
+			if err := json.Unmarshal(stdinData, &body); err != nil {
+				return fmt.Errorf("parsing stdin JSON: %w", err)
+			}
 			data, _, err := c.PostWithParams(cmd.Context(), path, params, body)
 
 			prov := attachFreshness(DataProvenance{Source: "live"}, flags)
@@ -102,6 +120,8 @@ func newAuctionsAftermarketPromotedCmd(flags *rootFlags) *cobra.Command {
 			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
 		},
 	}
+
+	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
 
 	// Wire sibling endpoints and sub-resources as subcommands
 
