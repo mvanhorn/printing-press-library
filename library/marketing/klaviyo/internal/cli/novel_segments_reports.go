@@ -1392,7 +1392,7 @@ func newSegmentsRFMCmd(flags *rootFlags) *cobra.Command {
 		Short: "Create standard RFM segments from Placed Order data",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {
-				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{"dry_run": true, "planned_steps": []string{"resolve_placed_order_metric", "query_orders_by_profile", "score_profiles", "profile_import_scores", "create_rfm_segments"}}, flags)
+				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{"dry_run": true, "planned_steps": []string{"resolve_placed_order_metric", "query_orders_by_profile", "score_profiles", "profile_bulk_import_scores", "create_rfm_segments"}}, flags)
 			}
 			c, err := flags.newClient()
 			if err != nil {
@@ -1415,7 +1415,7 @@ func newSegmentsRFMCmd(flags *rootFlags) *cobra.Command {
 			}
 			scores := scoreRFMProfiles(resp, lastOrders, now)
 			if len(scores) > 0 {
-				if _, _, err := c.Post("/api/profile-import", map[string]any{"data": rfmProfileImportData(scores)}); err != nil {
+				if _, _, err := c.Post("/api/profile-bulk-import-jobs", rfmProfileBulkImportJobBody(scores)); err != nil {
 					return classifyAPIError(err)
 				}
 			}
@@ -1659,6 +1659,12 @@ func rfmProfileImportData(scores []map[string]any) []any {
 		})
 	}
 	return out
+}
+
+func rfmProfileBulkImportJobBody(scores []map[string]any) map[string]any {
+	return jsonAPIBody("profile-bulk-import-job", map[string]any{
+		"profiles": map[string]any{"data": rfmProfileImportData(scores)},
+	}, nil)
 }
 
 func rfmSegmentDefinition(label string) map[string]any {
@@ -2505,9 +2511,9 @@ func newReportFormsCmd(flags *rootFlags) *cobra.Command {
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {
-				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{"dry_run": true, "last": last, "planned_steps": []string{"fetch_forms", "query_form_metrics"}}, flags)
+				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{"dry_run": true, "last": last, "planned_steps": []string{"fetch_forms"}}, flags)
 			}
-			c, since, until, err := clientAndWindow(flags, last)
+			c, _, _, err := clientAndWindow(flags, last)
 			if err != nil {
 				return err
 			}
@@ -2515,29 +2521,12 @@ func newReportFormsCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			forms = filterFormsByWindow(forms, since, until)
-			return printJSONFiltered(cmd.OutOrStdout(), map[string]any{"last": last, "forms": forms, "count": len(forms)}, flags)
+			note := "forms list is not filtered by submission activity; Klaviyo forms API does not expose submission-date filtering"
+			return printJSONFiltered(cmd.OutOrStdout(), map[string]any{"last": last, "forms": forms, "count": len(forms), "note": note}, flags)
 		},
 	}
-	cmd.Flags().StringVar(&last, "last", "30d", "Lookback window")
+	cmd.Flags().StringVar(&last, "last", "30d", "Requested lookback label; forms are not filtered by submission date")
 	return cmd
-}
-
-func filterFormsByWindow(forms []map[string]any, since, until time.Time) []map[string]any {
-	filtered := make([]map[string]any, 0, len(forms))
-	for _, form := range forms {
-		timestamp := parseDate(firstNonEmptyString(
-			stringFromMapPath(form, "attributes.updated"),
-			stringFromMapPath(form, "attributes.created"),
-		))
-		if timestamp.IsZero() {
-			continue
-		}
-		if (timestamp.Equal(since) || timestamp.After(since)) && timestamp.Before(until) {
-			filtered = append(filtered, form)
-		}
-	}
-	return filtered
 }
 
 func newReportSignupSourcesCmd(flags *rootFlags) *cobra.Command {

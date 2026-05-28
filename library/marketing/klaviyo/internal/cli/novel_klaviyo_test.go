@@ -700,6 +700,33 @@ func TestScoreRFMProfilesUsesRecency(t *testing.T) {
 	}
 }
 
+func TestRFMProfileBulkImportJobBodyUsesBulkShape(t *testing.T) {
+	body := rfmProfileBulkImportJobBody([]map[string]any{{
+		"profile_id": "profile-1",
+		"r_score":    5,
+		"f_score":    4,
+		"m_score":    3,
+	}})
+	data := body["data"].(map[string]any)
+	if data["type"] != "profile-bulk-import-job" {
+		t.Fatalf("bulk import job type = %#v", data["type"])
+	}
+	attrs := data["attributes"].(map[string]any)
+	profiles := attrs["profiles"].(map[string]any)
+	items := profiles["data"].([]any)
+	if len(items) != 1 {
+		t.Fatalf("profiles data length = %d", len(items))
+	}
+	profile := items[0].(map[string]any)
+	if profile["type"] != "profile" || profile["id"] != "profile-1" {
+		t.Fatalf("profile resource = %#v", profile)
+	}
+	props := profile["attributes"].(map[string]any)["properties"].(map[string]any)
+	if props["rfm_recency_score"] != 5 || props["rfm_frequency_score"] != 4 || props["rfm_monetary_score"] != 3 {
+		t.Fatalf("rfm properties = %#v", props)
+	}
+}
+
 func TestCampaignAudienceIDsUsesOnlyIncludedAudiences(t *testing.T) {
 	ids := campaignAudienceIDs(map[string]any{"attributes": map[string]any{"audiences": map[string]any{
 		"included": []any{"list-1", map[string]any{"id": "segment-1"}},
@@ -727,18 +754,6 @@ func TestChurnCandidateRowsRequiresLapsedCadence(t *testing.T) {
 	}, now)
 	if len(flagged) != 1 || flagged[0]["profile_id"] != "lapsed" {
 		t.Fatalf("flagged churn rows = %#v", flagged)
-	}
-}
-
-func TestFilterFormsByWindowUsesLastWindow(t *testing.T) {
-	forms := []map[string]any{
-		{"id": "recent", "attributes": map[string]any{"updated": "2026-05-20T12:00:00Z"}},
-		{"id": "old", "attributes": map[string]any{"updated": "2026-03-01T12:00:00Z"}},
-		{"id": "undated", "attributes": map[string]any{}},
-	}
-	filtered := filterFormsByWindow(forms, time.Date(2026, 5, 1, 0, 0, 0, 0, time.UTC), time.Date(2026, 6, 1, 0, 0, 0, 0, time.UTC))
-	if len(filtered) != 1 || filtered[0]["id"] != "recent" {
-		t.Fatalf("filtered forms = %#v", filtered)
 	}
 }
 
