@@ -32,8 +32,14 @@ func newUserShelvesPromotedCmd(flags *rootFlags) *cobra.Command {
 			path := "/user_shelves"
 			params := map[string]string{}
 			fields := url.Values{}
-			if bodyAuthenticityToken != "" {
-				fields.Set("authenticity_token", bodyAuthenticityToken)
+			// Resolve the Rails CSRF token from env/stdin (preferred; keeps it
+			// out of shell history and ps aux) before the deprecated flag.
+			tok, err := readAuthenticityTokenWithStdin(cmd, bodyAuthenticityToken)
+			if err != nil {
+				return err
+			}
+			if tok != "" {
+				fields.Set("authenticity_token", tok)
 			}
 			if bodyCommit != "" {
 				fields.Set("commit", bodyCommit)
@@ -97,7 +103,7 @@ func newUserShelvesPromotedCmd(flags *rootFlags) *cobra.Command {
 			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
 		},
 	}
-	cmd.Flags().StringVar(&bodyAuthenticityToken, "authenticity-token", "", "Authenticity token")
+	cmd.Flags().StringVar(&bodyAuthenticityToken, "authenticity-token", "", "DEPRECATED (leaks into shell history / ps aux): prefer GOODREADS_AUTHENTICITY_TOKEN env var or stdin. Authenticity token")
 	cmd.Flags().StringVar(&bodyCommit, "commit", "", "Commit")
 	cmd.Flags().StringVar(&bodyUserShelfName, "user-shelf-name", "", "User shelf name")
 

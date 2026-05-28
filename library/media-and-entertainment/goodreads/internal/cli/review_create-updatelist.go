@@ -36,8 +36,14 @@ func newReviewCreateUpdatelistCmd(flags *rootFlags) *cobra.Command {
 			path = replacePathParam(path, "user_id", args[0])
 			params := map[string]string{}
 			fields := url.Values{}
-			if bodyAuthenticityToken != "" {
-				fields.Set("authenticity_token", bodyAuthenticityToken)
+			// Resolve the Rails CSRF token from env/stdin (preferred; keeps it
+			// out of shell history and ps aux) before the deprecated flag.
+			tok, err := readAuthenticityTokenWithStdin(cmd, bodyAuthenticityToken)
+			if err != nil {
+				return err
+			}
+			if tok != "" {
+				fields.Set("authenticity_token", tok)
 			}
 			if bodyEditShelf != "" {
 				fields.Set("edit[shelf]", bodyEditShelf)
@@ -186,7 +192,7 @@ func newReviewCreateUpdatelistCmd(flags *rootFlags) *cobra.Command {
 			return nil
 		},
 	}
-	cmd.Flags().StringVar(&bodyAuthenticityToken, "authenticity-token", "", "Authenticity token")
+	cmd.Flags().StringVar(&bodyAuthenticityToken, "authenticity-token", "", "DEPRECATED (leaks into shell history / ps aux): prefer GOODREADS_AUTHENTICITY_TOKEN env var or stdin. Authenticity token")
 	cmd.Flags().StringVar(&bodyEditShelf, "edit-shelf", "", "Edit shelf")
 	cmd.Flags().StringVar(&bodyReviewsReviewId, "reviews-review-id", "", "Reviews review id")
 	cmd.Flags().StringVar(&bodyView, "view", "", "View")

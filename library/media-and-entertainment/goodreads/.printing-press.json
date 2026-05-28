@@ -10,7 +10,7 @@
   "printer_name": "zaydiscold",
   "spec_path": "spec.yaml",
   "spec_format": "openapi3",
-  "spec_checksum": "sha256:5e817a35e6d5ca68a2ef276f82869cc937e8787896b980e88c858abff6aa69e5",
+  "spec_checksum": "sha256:384c1f5bb35a20ad2fc1bf250e3c5c28f0418acff76b780a43168d96761a987c",
   "run_id": "20260522-095940",
   "description": "This is an evidence-backed starting map for a future Goodreads CLI.",
   "mcp_binary": "goodreads-pp-mcp",

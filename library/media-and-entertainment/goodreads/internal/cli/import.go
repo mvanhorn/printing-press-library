@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"net/url"
 	"os"
 	"strings"
 
@@ -42,7 +43,9 @@ but do not stop the import.`,
 			c.DryRun = dryRun
 
 			resource := args[0]
-			path := "/" + resource
+			// Escape the user-supplied resource so a space, '/', or '?' can't
+			// corrupt the path or inject query params (matches export.go).
+			path := "/" + url.PathEscape(resource)
 
 			var reader io.Reader
 			if inputFile == "-" || inputFile == "" {

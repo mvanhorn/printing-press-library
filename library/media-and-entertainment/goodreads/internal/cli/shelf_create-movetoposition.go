@@ -31,8 +31,14 @@ func newShelfCreateMovetopositionCmd(flags *rootFlags) *cobra.Command {
 			path := "/shelf/move_to_position"
 			params := map[string]string{}
 			fields := url.Values{}
-			if bodyAuthenticityToken != "" {
-				fields.Set("authenticity_token", bodyAuthenticityToken)
+			// Resolve the Rails CSRF token from env/stdin (preferred; keeps it
+			// out of shell history and ps aux) before the deprecated flag.
+			tok, err := readAuthenticityTokenWithStdin(cmd, bodyAuthenticityToken)
+			if err != nil {
+				return err
+			}
+			if tok != "" {
+				fields.Set("authenticity_token", tok)
 			}
 			if bodyId != 0 {
 				fields.Set("id", fmt.Sprintf("%v", bodyId))
@@ -174,7 +180,7 @@ func newShelfCreateMovetopositionCmd(flags *rootFlags) *cobra.Command {
 			return nil
 		},
 	}
-	cmd.Flags().StringVar(&bodyAuthenticityToken, "authenticity-token", "", "Authenticity token")
+	cmd.Flags().StringVar(&bodyAuthenticityToken, "authenticity-token", "", "DEPRECATED (leaks into shell history / ps aux): prefer GOODREADS_AUTHENTICITY_TOKEN env var or stdin. Authenticity token")
 	cmd.Flags().IntVar(&bodyId, "id", 0, "Id")
 	cmd.Flags().IntVar(&bodyPosition, "position", 0, "Position")
 

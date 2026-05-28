@@ -36,8 +36,14 @@ func newMessageCreateCmd(flags *rootFlags) *cobra.Command {
 				params["page"] = fmt.Sprintf("%v", flagPage)
 			}
 			fields := url.Values{}
-			if bodyAuthenticityToken != "" {
-				fields.Set("authenticity_token", bodyAuthenticityToken)
+			// Resolve the Rails CSRF token from env/stdin (preferred; keeps it
+			// out of shell history and ps aux) before the deprecated flag.
+			tok, err := readAuthenticityTokenWithStdin(cmd, bodyAuthenticityToken)
+			if err != nil {
+				return err
+			}
+			if tok != "" {
+				fields.Set("authenticity_token", tok)
 			}
 			if bodyFolder != "" {
 				fields.Set("folder", bodyFolder)
@@ -187,7 +193,7 @@ func newMessageCreateCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&flagPage, "page", "", "Page")
-	cmd.Flags().StringVar(&bodyAuthenticityToken, "authenticity-token", "", "Authenticity token")
+	cmd.Flags().StringVar(&bodyAuthenticityToken, "authenticity-token", "", "DEPRECATED (leaks into shell history / ps aux): prefer GOODREADS_AUTHENTICITY_TOKEN env var or stdin. Authenticity token")
 	cmd.Flags().StringVar(&bodyFolder, "folder", "", "Folder")
 	cmd.Flags().StringVar(&bodyMessagesMessageId, "messages-message-id", "", "Messages message id")
 	cmd.Flags().StringVar(&bodyMoveFolder, "move-folder", "", "Move folder")

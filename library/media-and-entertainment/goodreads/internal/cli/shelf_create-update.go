@@ -40,8 +40,14 @@ func newShelfCreateUpdateCmd(flags *rootFlags) *cobra.Command {
 			if bodyMethod != "" {
 				fields.Set("_method", bodyMethod)
 			}
-			if bodyAuthenticityToken != "" {
-				fields.Set("authenticity_token", bodyAuthenticityToken)
+			// Resolve the Rails CSRF token from env/stdin (preferred; keeps it
+			// out of shell history and ps aux) before the deprecated flag.
+			tok, err := readAuthenticityTokenWithStdin(cmd, bodyAuthenticityToken)
+			if err != nil {
+				return err
+			}
+			if tok != "" {
+				fields.Set("authenticity_token", tok)
 			}
 			if bodyUserShelfOrder != "" {
 				fields.Set("user_shelf[order]", bodyUserShelfOrder)
@@ -187,7 +193,7 @@ func newShelfCreateUpdateCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&bodyMethod, "method", "", "Method")
-	cmd.Flags().StringVar(&bodyAuthenticityToken, "authenticity-token", "", "Authenticity token")
+	cmd.Flags().StringVar(&bodyAuthenticityToken, "authenticity-token", "", "DEPRECATED (leaks into shell history / ps aux): prefer GOODREADS_AUTHENTICITY_TOKEN env var or stdin. Authenticity token")
 	cmd.Flags().StringVar(&bodyUserShelfOrder, "user-shelf-order", "", "User shelf order")
 	cmd.Flags().IntVar(&bodyUserShelfPerPage, "user-shelf-per-page", 0, "User shelf per page")
 	cmd.Flags().StringVar(&bodyUserShelfSort, "user-shelf-sort", "", "User shelf sort")

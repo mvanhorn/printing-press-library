@@ -77,7 +77,10 @@ large datasets as it has no memory pressure.`,
 
 			var writer *bufio.Writer
 			if outputFile != "" {
-				f, err := os.Create(outputFile)
+				// 0600, not os.Create's 0666&^umask (typically world-readable
+				// 0644): the export holds API response data that can include
+				// private account/shelf records. Matches every other data sink.
+				f, err := os.OpenFile(outputFile, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0o600)
 				if err != nil {
 					return fmt.Errorf("creating output file: %w", err)
 				}

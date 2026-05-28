@@ -155,6 +155,10 @@ func (c *Config) ClearTokens() error {
 	// logout must wipe it too or it persists in the config TOML after `auth
 	// logout` and silently re-authenticates GraphQL mutations.
 	c.GraphQLToken = ""
+	// Custom Headers are applied verbatim to every request and can carry an
+	// Authorization header or other credential material; clear them on logout
+	// so no auth bytes survive in the on-disk TOML.
+	c.Headers = nil
 	return c.save()
 }
 

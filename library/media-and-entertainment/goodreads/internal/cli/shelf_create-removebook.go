@@ -31,8 +31,14 @@ func newShelfCreateRemovebookCmd(flags *rootFlags) *cobra.Command {
 			path := "/shelf/remove_book"
 			params := map[string]string{}
 			fields := url.Values{}
-			if bodyAuthenticityToken != "" {
-				fields.Set("authenticity_token", bodyAuthenticityToken)
+			// Resolve the Rails CSRF token from env/stdin (preferred; keeps it
+			// out of shell history and ps aux) before the deprecated flag.
+			tok, err := readAuthenticityTokenWithStdin(cmd, bodyAuthenticityToken)
+			if err != nil {
+				return err
+			}
+			if tok != "" {
+				fields.Set("authenticity_token", tok)
 			}
 			if bodyBookId != 0 {
 				fields.Set("book_id", fmt.Sprintf("%v", bodyBookId))
@@ -174,7 +180,7 @@ func newShelfCreateRemovebookCmd(flags *rootFlags) *cobra.Command {
 			return nil
 		},
 	}
-	cmd.Flags().StringVar(&bodyAuthenticityToken, "authenticity-token", "", "Authenticity token")
+	cmd.Flags().StringVar(&bodyAuthenticityToken, "authenticity-token", "", "DEPRECATED (leaks into shell history / ps aux): prefer GOODREADS_AUTHENTICITY_TOKEN env var or stdin. Authenticity token")
 	cmd.Flags().IntVar(&bodyBookId, "book-id", 0, "Book id")
 	cmd.Flags().StringVar(&bodyName, "name", "", "Name")
 

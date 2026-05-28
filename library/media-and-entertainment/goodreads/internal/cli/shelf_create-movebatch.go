@@ -7,11 +7,17 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"net/url"
 	"os"
 
 	"github.com/spf13/cobra"
 )
 
+// PATCH(form-encode-rails-write): /shelf/move_batch is a legacy Rails form route
+// (form/page source + CSRF requirement per the route research), which only
+// accepts application/x-www-form-urlencoded. Sending a JSON body via
+// PostWithParams was silently ignored. The stdin JSON map is now flattened into
+// form fields and sent via PostFormWithParams. See .printing-press-patches.json.
 func newShelfCreateMovebatchCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
@@ -31,9 +37,11 @@ func newShelfCreateMovebatchCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/shelf/move_batch"
 			params := map[string]string{}
-			var body map[string]any
+			// Rails form route: flatten the stdin JSON map into
+			// application/x-www-form-urlencoded fields rather than sending JSON.
+			fields := url.Values{}
 			if stdinBody {
-				stdinData, err := io.ReadAll(os.Stdin)
+				stdinData, err := io.ReadAll(cmd.InOrStdin())
 				if err != nil {
 					return fmt.Errorf("reading stdin: %w", err)
 				}
@@ -41,11 +49,11 @@ func newShelfCreateMovebatchCmd(flags *rootFlags) *cobra.Command {
 				if err := json.Unmarshal(stdinData, &jsonBody); err != nil {
 					return fmt.Errorf("parsing stdin JSON: %w", err)
 				}
-				body = jsonBody
-			} else {
-				body = map[string]any{}
+				for k, v := range jsonBody {
+					fields.Set(k, fmt.Sprintf("%v", v))
+				}
 			}
-			data, statusCode, err := c.PostWithParams(cmd.Context(), path, params, body)
+			data, statusCode, err := c.PostFormWithParams(cmd.Context(), path, params, fields)
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}

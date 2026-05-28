@@ -131,8 +131,14 @@ the path/fields here.`,
 			path = replacePathParam(path, "giveaway_id", args[0])
 			params := map[string]string{}
 			fields := url.Values{}
-			if authenticityToken != "" {
-				fields.Set("authenticity_token", authenticityToken)
+			// Resolve the Rails CSRF token from env/stdin (preferred; keeps it
+			// out of shell history and ps aux) before the deprecated flag.
+			tok, err := readAuthenticityTokenWithStdin(cmd, authenticityToken)
+			if err != nil {
+				return err
+			}
+			if tok != "" {
+				fields.Set("authenticity_token", tok)
 			}
 			data, statusCode, err := c.PostFormWithParams(cmd.Context(), path, params, fields)
 			if err != nil {
@@ -142,7 +148,7 @@ the path/fields here.`,
 			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
 		},
 	}
-	cmd.Flags().StringVar(&authenticityToken, "authenticity-token", "", "Rails CSRF token from the giveaway entry page")
+	cmd.Flags().StringVar(&authenticityToken, "authenticity-token", "", "DEPRECATED (leaks into shell history / ps aux): prefer GOODREADS_AUTHENTICITY_TOKEN env var or stdin. Rails CSRF token from the giveaway entry page")
 	return cmd
 }
 
