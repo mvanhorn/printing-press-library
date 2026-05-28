@@ -315,7 +315,10 @@ func TestAutomationApplyBodyGuardrails(t *testing.T) {
 	if err != nil {
 		t.Fatalf("empty apply mutation returned error: %v", err)
 	}
-	if out["skipped"] != true || out["sent_count"] != 0 || out["success"] != true {
+	if out["skipped"] != true || out["sent_count"] != 0 || out["noop"] != true || out["applied"] != false {
 		t.Fatalf("empty apply mutation output = %+v", out)
+	}
+	if _, hasSuccess := out["success"]; hasSuccess {
+		t.Fatalf("empty apply mutation should not claim success: %+v", out)
 	}
 }

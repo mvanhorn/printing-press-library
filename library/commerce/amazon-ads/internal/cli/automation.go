@@ -18,6 +18,7 @@ func newAutoNegateCmd(flags *rootFlags) *cobra.Command {
 	var minClicks int
 	var maxChanges int
 	var apply bool
+	var dbPath string
 
 	cmd := &cobra.Command{
 		Use:   "auto-negate",
@@ -54,7 +55,7 @@ func newAutoNegateCmd(flags *rootFlags) *cobra.Command {
 					out[k] = v
 				}
 			}
-			if err := attachAutomationAudit(cmd, out, "auto-negate", reportPath, automationMode(apply, flags.dryRun), plans); err != nil {
+			if err := attachAutomationAudit(cmd, out, "auto-negate", reportPath, automationMode(apply, flags.dryRun), plans, dbPath); err != nil {
 				return err
 			}
 			return printCommandJSON(cmd, flags, out)
@@ -65,6 +66,7 @@ func newAutoNegateCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().IntVar(&minClicks, "min-clicks", 20, "Minimum clicks before planning a negative keyword")
 	cmd.Flags().IntVar(&maxChanges, "max-changes", 25, "Maximum changes allowed with --apply (0 disables)")
 	cmd.Flags().BoolVar(&apply, "apply", false, "Apply changes to Amazon Ads instead of printing a dry-run plan")
+	cmd.Flags().StringVar(&dbPath, "db", "", "SQLite store path for the automation audit record (defaults to the per-user store)")
 	return cmd
 }
 
@@ -76,6 +78,7 @@ func newAutoPromoteCmd(flags *rootFlags) *cobra.Command {
 	var maxBid float64
 	var maxChanges int
 	var apply bool
+	var dbPath string
 
 	cmd := &cobra.Command{
 		Use:   "auto-promote",
@@ -114,7 +117,7 @@ func newAutoPromoteCmd(flags *rootFlags) *cobra.Command {
 					out[k] = v
 				}
 			}
-			if err := attachAutomationAudit(cmd, out, "auto-promote", reportPath, automationMode(apply, flags.dryRun), plans); err != nil {
+			if err := attachAutomationAudit(cmd, out, "auto-promote", reportPath, automationMode(apply, flags.dryRun), plans, dbPath); err != nil {
 				return err
 			}
 			return printCommandJSON(cmd, flags, out)
@@ -127,6 +130,7 @@ func newAutoPromoteCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().Float64Var(&maxBid, "max-bid", 5, "Maximum keyword bid allowed with --apply (0 disables)")
 	cmd.Flags().IntVar(&maxChanges, "max-changes", 25, "Maximum changes allowed with --apply (0 disables)")
 	cmd.Flags().BoolVar(&apply, "apply", false, "Apply changes to Amazon Ads instead of printing a dry-run plan")
+	cmd.Flags().StringVar(&dbPath, "db", "", "SQLite store path for the automation audit record (defaults to the per-user store)")
 	return cmd
 }
 
@@ -136,6 +140,7 @@ func newBudgetRebalanceCmd(flags *rootFlags) *cobra.Command {
 	var maxDailyBudget float64
 	var maxChanges int
 	var apply bool
+	var dbPath string
 
 	cmd := &cobra.Command{
 		Use:   "budget-rebalance",
@@ -176,7 +181,7 @@ func newBudgetRebalanceCmd(flags *rootFlags) *cobra.Command {
 					out[k] = v
 				}
 			}
-			if err := attachAutomationAudit(cmd, out, "budget-rebalance", reportPath, automationMode(apply, flags.dryRun), plans); err != nil {
+			if err := attachAutomationAudit(cmd, out, "budget-rebalance", reportPath, automationMode(apply, flags.dryRun), plans, dbPath); err != nil {
 				return err
 			}
 			return printCommandJSON(cmd, flags, out)
@@ -187,13 +192,14 @@ func newBudgetRebalanceCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().Float64Var(&maxDailyBudget, "max-daily-budget", 0, "Maximum per-campaign daily budget allowed with --apply (0 disables)")
 	cmd.Flags().IntVar(&maxChanges, "max-changes", 25, "Maximum changes allowed with --apply (0 disables)")
 	cmd.Flags().BoolVar(&apply, "apply", false, "Apply changes to Amazon Ads instead of printing a dry-run plan")
+	cmd.Flags().StringVar(&dbPath, "db", "", "SQLite store path for the automation audit record (defaults to the per-user store)")
 	return cmd
 }
 
 func newBidRulesCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "bid-rules",
-		Short: "Plan conditional bid changes from a rules file",
+		Short: "Conditional keyword bid rules — use the `apply` subcommand to plan or apply",
 		RunE:  parentNoSubcommandRunE(flags),
 	}
 	cmd.AddCommand(newBidRulesApplyCmd(flags))
@@ -206,6 +212,7 @@ func newBidRulesApplyCmd(flags *rootFlags) *cobra.Command {
 	var maxBid float64
 	var maxChanges int
 	var apply bool
+	var dbPath string
 
 	cmd := &cobra.Command{
 		Use:   "apply",
@@ -250,7 +257,7 @@ func newBidRulesApplyCmd(flags *rootFlags) *cobra.Command {
 					out[k] = v
 				}
 			}
-			if err := attachAutomationAudit(cmd, out, "bid-rules apply", reportPath, automationMode(apply, flags.dryRun), plans); err != nil {
+			if err := attachAutomationAudit(cmd, out, "bid-rules apply", reportPath, automationMode(apply, flags.dryRun), plans, dbPath); err != nil {
 				return err
 			}
 			return printCommandJSON(cmd, flags, out)
@@ -261,6 +268,7 @@ func newBidRulesApplyCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().Float64Var(&maxBid, "max-bid", 10, "Maximum keyword bid allowed with --apply (0 disables)")
 	cmd.Flags().IntVar(&maxChanges, "max-changes", 25, "Maximum changes allowed with --apply (0 disables)")
 	cmd.Flags().BoolVar(&apply, "apply", false, "Apply changes to Amazon Ads instead of printing a dry-run plan")
+	cmd.Flags().StringVar(&dbPath, "db", "", "SQLite store path for the automation audit record (defaults to the per-user store)")
 	return cmd
 }
 
@@ -309,7 +317,7 @@ func automationMode(apply, dryRun bool) string {
 	return "dry_run"
 }
 
-func attachAutomationAudit(cmd *cobra.Command, out map[string]any, command, reportPath, mode string, plans any) error {
+func attachAutomationAudit(cmd *cobra.Command, out map[string]any, command, reportPath, mode string, plans any, dbPath string) error {
 	payload, err := json.Marshal(map[string]any{
 		"command": command,
 		"mode":    mode,
@@ -330,7 +338,10 @@ func attachAutomationAudit(cmd *cobra.Command, out map[string]any, command, repo
 	case []adsanalytics.BidRulePlan:
 		planCount = len(v)
 	}
-	db, err := store.OpenWithContext(cmd.Context(), defaultDBPath("amazon-ads-pp-cli"))
+	if dbPath == "" {
+		dbPath = defaultDBPath("amazon-ads-pp-cli")
+	}
+	db, err := store.OpenWithContext(cmd.Context(), dbPath)
 	if err != nil {
 		return fmt.Errorf("opening automation audit store: %w", err)
 	}
@@ -414,13 +425,18 @@ func enforceMaxChanges(count, maxChanges int) error {
 func applyAutomationMutation(cmd *cobra.Command, flags *rootFlags, c *client.Client, method, path string, body any, out map[string]any) (map[string]any, error) {
 	sentCount := automationBodyLen(body)
 	if sentCount == 0 {
+		// No plans to apply — record a noop instead of claiming success.
+		// success:true here was ambiguous (caller can't tell "applied the
+		// thing" from "nothing to apply"); explicit noop:true keeps the
+		// "nothing happened" path distinct from the "request succeeded"
+		// path while preserving applied:false and skipped:true.
 		out["applied"] = false
 		out["skipped"] = true
+		out["noop"] = true
 		out["reason"] = "no matching plans"
 		out["path"] = path
 		out["status"] = 0
 		out["sent_count"] = 0
-		out["success"] = true
 		return out, nil
 	}
 	var data json.RawMessage

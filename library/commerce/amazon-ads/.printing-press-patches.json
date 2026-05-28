@@ -114,6 +114,48 @@
         "internal/cli/automation.go"
       ],
       "validated_outcome": "go test ./..., go vet ./..., go build ./cmd/amazon-ads-pp-cli ./cmd/amazon-ads-pp-mcp, and verify-skill (35 recipes, 0 findings) all pass."
+    },
+    {
+      "id": "automation-audit-db-flag",
+      "summary": "Thread an optional `--db` flag through every `--apply`-capable automation command into the audit-write path.",
+      "reason": "Before this patch, `automation-audit --db` was honored on read but `attachAutomationAudit` always wrote to the per-user default path. A user pointing at a custom audit store would see an empty list because writes landed elsewhere. The flag now defaults to the per-user store and travels through the audit signature so reads and writes share the same path.",
+      "files": [
+        "internal/cli/automation.go"
+      ],
+      "validated_outcome": "go test ./internal/cli, go build, and verify-skill all pass; --db is documented uniformly on auto-negate, auto-promote, budget-rebalance, and bid-rules apply."
+    },
+    {
+      "id": "automation-apply-noop",
+      "summary": "Replace `success: true` with `noop: true` on the empty-body apply path so dry-run/apply consumers can distinguish a successful API write from nothing-to-apply.",
+      "reason": "`applyAutomationMutation` previously emitted `applied: false, skipped: true, success: true` when there were no matching plans. The combination was ambiguous to agents reading the envelope; an explicit `noop: true` and dropping `success` keeps the two outcomes distinguishable.",
+      "files": [
+        "internal/cli/automation.go",
+        "internal/cli/automation_apply_test.go"
+      ],
+      "validated_outcome": "TestAutomationApplyBodyGuardrails covers the new envelope shape and asserts `success` is not present on the no-op branch."
+    },
+    {
+      "id": "bid-rules-parent-short",
+      "summary": "Tighten the `bid-rules` parent command's Short description so agents know work happens on the `apply` subcommand.",
+      "reason": "The parent was described as 'Plan conditional bid changes from a rules file' even though it is a no-op without `apply`. Agents introspecting `--help` could try invoking the parent and get the no-subcommand error instead of the actual planner.",
+      "files": [
+        "internal/cli/automation.go"
+      ],
+      "validated_outcome": "Manual `--help` confirms the parent surfaces 'use the `apply` subcommand to plan or apply'; no behavioral change."
+    },
+    {
+      "id": "creator-contributors-attribution",
+      "summary": "Bring attribution surfaces to the canonical creator + contributors shape via `tools/sweep-canonical -attribution-only`.",
+      "reason": "The published library now uses a permanent `creator: {handle, name}` block in `.printing-press.json` plus `Copyright YYYY <name> and contributors.` headers, with a NOTICE `Created by` block and a `Created by` README byline. The sweep also adds `amazon-ads` to the curated `cliAuthorByAPIName` map so future sweeps see the canonical author display name without consulting the operator's git config.",
+      "files": [
+        ".printing-press.json",
+        "NOTICE",
+        "README.md",
+        "cmd/amazon-ads-pp-cli/main.go",
+        "cmd/amazon-ads-pp-mcp/main.go",
+        "internal/**/*.go"
+      ],
+      "validated_outcome": "Re-running `SWEEP_OWNER_NAME=\"Cathryn Lavery\" go run ./tools/sweep-canonical -attribution-only` reports amazon-ads as already up-to-date (idempotent)."
     }
   ]
 }
