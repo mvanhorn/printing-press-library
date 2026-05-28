@@ -112,15 +112,20 @@ Requires synced adsets and insights data in the local store.`,
 				}
 
 				// Sum spend and purchase value across insights rows for this adset.
+				// Propagate Scan errors — discarding them would zero spend/value
+				// on context cancellation or SQLITE_BUSY, ranking the adset with
+				// incorrect ROAS metadata.
 				var spend, value float64
-				_ = db.DB().QueryRowContext(cmd.Context(),
+				if err := db.DB().QueryRowContext(cmd.Context(),
 					`SELECT
 						COALESCE(SUM(CAST(json_extract(data, '$.spend') AS REAL)), 0),
 						COALESCE(SUM(CAST(json_extract(data, '$.purchase_roas[0].value') AS REAL)), 0)
 					 FROM resources
 					 WHERE resource_type IN ('insights', 'adsets_insights')
 					   AND json_extract(data, '$.adset_id') = ?`,
-					adset.ID).Scan(&spend, &value)
+					adset.ID).Scan(&spend, &value); err != nil {
+					return fmt.Errorf("aggregating insights for adset %s: %w", adset.ID, err)
+				}
 
 				roas := 0.0
 				if spend > 0 {

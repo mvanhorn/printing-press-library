@@ -116,15 +116,20 @@ current insights.`,
 					continue
 				}
 
-				// Count non-zero impression rows for this ad in insights
+				// Count non-zero impression rows for this ad in insights.
+				// Propagate Scan errors — discarding them would zero hasImpressions
+				// on context cancellation or SQLITE_BUSY, falsely classifying
+				// actively-delivering ads as stale.
 				var hasImpressions int
-				_ = db.DB().QueryRowContext(cmd.Context(),
+				if err := db.DB().QueryRowContext(cmd.Context(),
 					`SELECT COUNT(*) FROM resources
 					 WHERE resource_type IN ('insights', 'ads_insights', 'adaccounts_insights')
 					   AND json_extract(data, '$.ad_id') = ?
 					   AND CAST(json_extract(data, '$.impressions') AS INTEGER) > 0
 					   AND date(json_extract(data, '$.date_start')) > date('now', ?)`,
-					ad.ID, fmt.Sprintf("-%d days", days)).Scan(&hasImpressions)
+					ad.ID, fmt.Sprintf("-%d days", days)).Scan(&hasImpressions); err != nil {
+					return fmt.Errorf("counting impressions for ad %s: %w", ad.ID, err)
+				}
 				if hasImpressions == 0 {
 					view.StaleAds = append(view.StaleAds, staleAd{
 						ID:              ad.ID,
