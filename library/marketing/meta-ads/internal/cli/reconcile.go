@@ -139,8 +139,13 @@ Requires synced account-level and ad-level insights with time_increment=1.`,
 				if err := json.Unmarshal(data, &raw); err != nil {
 					continue
 				}
-				if flagAccount != "" && raw.AccountID != "" && raw.AccountID != flagAccount && "act_"+raw.AccountID != flagAccount {
-					continue
+				if flagAccount != "" {
+					// Strict include: row must explicitly match the requested account.
+					// Rows with an empty/missing account_id cannot be safely attributed
+					// to flagAccount, so they are excluded rather than admitted.
+					if raw.AccountID == "" || (raw.AccountID != flagAccount && "act_"+raw.AccountID != flagAccount) {
+						continue
+					}
 				}
 				v, _ := strconv.ParseFloat(raw.Spend, 64)
 				insightsByDate[raw.DateStart] += v

@@ -3,6 +3,7 @@
 package cli
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"sort"
@@ -200,13 +201,13 @@ func parseDayWindow(s string) (int, error) {
 }
 
 // loadAdInsights pulls daily insight rows for an ad over the window, ordered chronologically.
-func loadAdInsights(ctx interface{ Done() <-chan struct{} }, db *store.Store, adID string, windowDays int) []fatigueDay {
+func loadAdInsights(ctx context.Context, db *store.Store, adID string, windowDays int) []fatigueDay {
 	q := `SELECT data FROM resources
 		WHERE resource_type IN ('insights', 'ads_insights', 'adaccounts_insights')
 		  AND json_extract(data, '$.ad_id') = ?
 		  AND date(json_extract(data, '$.date_start')) > date('now', ?)
 		ORDER BY json_extract(data, '$.date_start') ASC`
-	rows, err := db.DB().Query(q, adID, fmt.Sprintf("-%d days", windowDays))
+	rows, err := db.DB().QueryContext(ctx, q, adID, fmt.Sprintf("-%d days", windowDays))
 	if err != nil {
 		return nil
 	}

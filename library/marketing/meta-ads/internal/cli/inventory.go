@@ -5,6 +5,7 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
+	"sort"
 
 	"github.com/mvanhorn/printing-press-library/library/marketing/meta-ads/internal/store"
 
@@ -140,6 +141,10 @@ Requires 'meta-ads-pp-cli sync' to have populated the local store with ads first
 			for _, g := range groups {
 				view.Groups = append(view.Groups, *g)
 			}
+			// Deterministic order so successive runs produce diff-stable output.
+			sort.Slice(view.Groups, func(i, j int) bool {
+				return view.Groups[i].Key < view.Groups[j].Key
+			})
 			if total == 0 {
 				view.Note = "no ads found in local store; run 'meta-ads-pp-cli sync --path-context adAccountId=act_<id> --resources ads' first"
 			} else if mismatched > 0 {

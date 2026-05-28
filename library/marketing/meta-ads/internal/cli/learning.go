@@ -113,14 +113,18 @@ Requires synced adsets in the local store.`,
 				}
 
 				// Compute days in learning from start_time (best proxy in the absence of a dedicated field).
-				daysInLearning := 0
+				// Sentinel: -1 means start_time is missing/unparseable so we cannot compute the proxy.
+				daysInLearning := -1
 				if adset.StartTime != "" {
 					t, err := time.Parse(time.RFC3339, adset.StartTime)
 					if err == nil {
 						daysInLearning = int(now.Sub(t).Hours() / 24)
 					}
 				}
-				if daysInLearning < minDays {
+				// Drop rows we CAN measure that are below the threshold. Keep rows with the
+				// missing-start_time sentinel so the user sees stuck-in-learning adsets that
+				// we just couldn't time-bound — annotated with a why_hint about the gap.
+				if daysInLearning != -1 && daysInLearning < minDays {
 					continue
 				}
 
@@ -132,6 +136,9 @@ Requires synced adsets in the local store.`,
 				}
 
 				why := buildLearningHint(budget)
+				if daysInLearning == -1 {
+					why = "start_time missing on local row; cannot compute days_in_learning. Re-run sync with --resources adsets to refresh."
+				}
 
 				out = append(out, learningRow{
 					AdsetID:        adset.ID,

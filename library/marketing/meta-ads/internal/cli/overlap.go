@@ -3,6 +3,7 @@
 package cli
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 
@@ -109,13 +110,13 @@ Specify at least two audiences with repeated --audience flags.`,
 	return cmd
 }
 
-func lookupOverlap(ctx interface{ Done() <-chan struct{} }, db *store.Store, a, b string) (float64, bool) {
+func lookupOverlap(ctx context.Context, db *store.Store, a, b string) (float64, bool) {
 	q := `SELECT data FROM resources
 		WHERE resource_type IN ('audience_overlap', 'customaudiences_overlap')
 		  AND ((json_extract(data, '$.audience_a') = ? AND json_extract(data, '$.audience_b') = ?)
 		    OR (json_extract(data, '$.audience_a') = ? AND json_extract(data, '$.audience_b') = ?))
 		LIMIT 1`
-	row := db.DB().QueryRow(q, a, b, b, a)
+	row := db.DB().QueryRowContext(ctx, q, a, b, b, a)
 	var data []byte
 	if err := row.Scan(&data); err != nil {
 		return 0, false
