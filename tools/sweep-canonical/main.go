@@ -138,6 +138,7 @@ var cliAuthorByAPIName = map[string]string{
 	"ahrefs":          "Cathryn Lavery",
 	"airbnb":          "Matt Van Horn",
 	"allrecipes":      "Trevin Chow",
+	"amazon-ads":      "Cathryn Lavery",
 	"amazon-seller":   "Cathryn Lavery",
 	"apartments":      "rderwin",
 	"archive-is":      "Matt Van Horn",
