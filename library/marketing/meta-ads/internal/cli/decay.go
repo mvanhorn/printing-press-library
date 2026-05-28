@@ -99,6 +99,13 @@ Requires synced ad-level insights in the local store keyed to ads referencing th
 			}
 			byDate := make(map[string]*dayPoint)
 			for _, adID := range adIDs {
+				// Bail early if the parent context is cancelled — otherwise every
+				// subsequent QueryContext returns context.Canceled, the loop exhausts
+				// silently, and the command computes a slope from partial data with
+				// exit 0 and no signal that the aggregate is incomplete.
+				if ctxErr := cmd.Context().Err(); ctxErr != nil {
+					return fmt.Errorf("aborted before scanning all ads: %w", ctxErr)
+				}
 				rows, err := db.DB().QueryContext(cmd.Context(),
 					`SELECT data FROM resources
 					 WHERE resource_type IN ('insights', 'ads_insights', 'adaccounts_insights')
@@ -106,6 +113,9 @@ Requires synced ad-level insights in the local store keyed to ads referencing th
 					 ORDER BY json_extract(data, '$.date_start') ASC`,
 					adID)
 				if err != nil {
+					if ctxErr := cmd.Context().Err(); ctxErr != nil {
+						return fmt.Errorf("aborted while scanning ad %s: %w", adID, ctxErr)
+					}
 					continue
 				}
 				for rows.Next() {
