@@ -1,0 +1,65 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "NYPL Digital Collections API",
+    "version": "2.0.0",
+    "description": "New York Public Library Digital Collections API. Source docs: https://api.repo.nypl.org/. Note: NYPL states the Repo API is being deprecated and will no longer be available starting August 1st, 2026."
+  },
+  "servers": [
+    {"url": "https://api.repo.nypl.org/api/v2"}
+  ],
+  "components": {
+    "securitySchemes": {
+      "NyplToken": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "Authorization",
+        "description": "NYPL API token header. Use the full header value: Token token=\"YOUR_TOKEN\"."
+      }
+    },
+    "parameters": {
+      "Page": {"name": "page", "in": "query", "schema": {"type": "integer", "minimum": 1, "default": 1}, "description": "Page number, starts at 1."},
+      "PerPage": {"name": "per_page", "in": "query", "schema": {"type": "integer", "minimum": 1, "maximum": 500, "default": 10}, "description": "Rows to return per page, maximum 500."},
+      "PublicDomainOnly": {"name": "publicDomainOnly", "in": "query", "schema": {"type": "boolean"}, "description": "Return only Public Domain results."},
+      "UUID": {"name": "uuid", "in": "path", "required": true, "schema": {"type": "string"}, "description": "NYPL collection, container, item, or capture UUID as documented for the endpoint."},
+      "ShowMods": {"name": "show_mods", "in": "query", "schema": {"type": "string", "enum": ["no"]}, "description": "Pass no to suppress MODS data where supported."}
+    },
+    "schemas": {
+      "AnyResponse": {
+        "type": "object",
+        "additionalProperties": true,
+        "description": "NYPL API response payload. Exact object shape varies by endpoint."
+      }
+    },
+    "responses": {
+      "JsonResponse": {
+        "description": "NYPL API JSON response.",
+        "content": {"application/json": {"schema": {"$ref": "#/components/schemas/AnyResponse"}}}
+      }
+    }
+  },
+  "security": [{"NyplToken": []}],
+  "paths": {
+    "/items/total": {"get": {"tags": ["items"], "operationId": "getItemsTotal", "summary": "Get total digitized items", "description": "Returns the total number of digitized items.", "responses": {"200": {"$ref": "#/components/responses/JsonResponse"}}}},
+    "/items/featured": {"get": {"tags": ["items"], "operationId": "getFeaturedItems", "summary": "List featured items", "description": "Returns featured items.", "responses": {"200": {"$ref": "#/components/responses/JsonResponse"}}}},
+    "/items/counts": {"post": {"tags": ["items"], "operationId": "getItemCounts", "summary": "Get collection item counts", "description": "Returns collection item counts.", "responses": {"200": {"$ref": "#/components/responses/JsonResponse"}}}},
+    "/items/roots": {"get": {"tags": ["items"], "operationId": "listRootItems", "summary": "List top-level UUIDs", "description": "Returns all top-level UUIDs for collections and orphan items.", "responses": {"200": {"$ref": "#/components/responses/JsonResponse"}}}},
+    "/collections": {"get": {"tags": ["collections"], "operationId": "listCollections", "summary": "List collections", "description": "Returns paginated information about collections.", "parameters": [{"name": "q", "in": "query", "schema": {"type": "string"}, "description": "Search titles of collections or containers."}, {"$ref": "#/components/parameters/Page"}, {"$ref": "#/components/parameters/PerPage"}, {"name": "search_recursive", "in": "query", "schema": {"type": "boolean"}, "description": "Whether mid-level container information is searched."}], "responses": {"200": {"$ref": "#/components/responses/JsonResponse"}}}},
+    "/collections/{uuid}": {"get": {"tags": ["collections"], "operationId": "getCollection", "summary": "Get collection/container children", "description": "Returns paginated child captures for a collection or subcollection/container UUID.", "parameters": [{"$ref": "#/components/parameters/UUID"}, {"$ref": "#/components/parameters/Page"}, {"$ref": "#/components/parameters/PerPage"}], "responses": {"200": {"$ref": "#/components/responses/JsonResponse"}}}},
+    "/collections/{uuid}/subcollections": {"get": {"tags": ["collections"], "operationId": "listSubcollections", "summary": "List immediate child containers", "description": "Returns immediate child containers of a collection or container; does not return items or captures.", "parameters": [{"$ref": "#/components/parameters/UUID"}, {"$ref": "#/components/parameters/Page"}, {"$ref": "#/components/parameters/PerPage"}], "responses": {"200": {"$ref": "#/components/responses/JsonResponse"}}}},
+    "/collections/{uuid}/items": {"get": {"tags": ["collections"], "operationId": "listCollectionItems", "summary": "List directly attached items", "description": "Returns items directly attached to a collection or container.", "parameters": [{"$ref": "#/components/parameters/UUID"}, {"$ref": "#/components/parameters/Page"}, {"$ref": "#/components/parameters/PerPage"}], "responses": {"200": {"$ref": "#/components/responses/JsonResponse"}}}},
+    "/mods/{uuid}": {"get": {"tags": ["mods"], "operationId": "getMods", "summary": "Get MODS record", "description": "Returns MODS bibliographic data for a capture, item, container, or collection UUID.", "parameters": [{"$ref": "#/components/parameters/UUID"}], "responses": {"200": {"$ref": "#/components/responses/JsonResponse"}}}},
+    "/items/mods_captures/{uuid}": {"get": {"tags": ["items"], "operationId": "getModsCaptures", "summary": "Get MODS and capture information", "description": "Returns MODS and capture information for a capture, item, container, or collection UUID.", "parameters": [{"$ref": "#/components/parameters/UUID"}, {"$ref": "#/components/parameters/ShowMods"}], "responses": {"200": {"$ref": "#/components/responses/JsonResponse"}}}},
+    "/items/item_details/{uuid}": {"get": {"tags": ["items"], "operationId": "getItemDetails", "summary": "Get capture item details", "description": "Returns MODS for a capture UUID plus related capture information. UUID must belong to a valid capture.", "parameters": [{"$ref": "#/components/parameters/UUID"}, {"$ref": "#/components/parameters/ShowMods"}], "responses": {"200": {"$ref": "#/components/responses/JsonResponse"}}}},
+    "/items/{type}/{id}": {"get": {"tags": ["identifiers"], "operationId": "lookupItemIdentifier", "summary": "Lookup UUID by identifier", "description": "Returns UUIDs for a given identifier type and identifier value such as local_image_id, local_bnumber, local_barcode, oclc, isbn, or lccn.", "parameters": [{"name": "type", "in": "path", "required": true, "schema": {"type": "string"}, "description": "Identifier type."}, {"name": "id", "in": "path", "required": true, "schema": {"type": "string"}, "description": "Identifier value."}], "responses": {"200": {"$ref": "#/components/responses/JsonResponse"}}}},
+    "/items/{uuid}": {"get": {"tags": ["items"], "operationId": "listItemCaptures", "summary": "List captures for UUID", "description": "Returns capture UUIDs, image IDs, item links, and titles for an item, container, or collection UUID. Capture UUIDs are not valid input values.", "parameters": [{"$ref": "#/components/parameters/UUID"}], "responses": {"200": {"$ref": "#/components/responses/JsonResponse"}}}},
+    "/items/collection/{uuid}": {"get": {"tags": ["items"], "operationId": "listCollectionCaptures", "summary": "List captures for collection hierarchy", "description": "Returns capture UUIDs, image IDs, item links, and titles for a capture, item, container, or collection UUID.", "parameters": [{"$ref": "#/components/parameters/UUID"}], "responses": {"200": {"$ref": "#/components/responses/JsonResponse"}}}},
+    "/items/collection/all/{uuid}": {"get": {"tags": ["items"], "operationId": "listAllCollectionCaptures", "summary": "List all captures for collection hierarchy", "description": "Returns all capture UUIDs, image IDs, item links, and titles for a capture, item, container, or collection UUID.", "parameters": [{"$ref": "#/components/parameters/UUID"}], "responses": {"200": {"$ref": "#/components/responses/JsonResponse"}}}},
+    "/items/plain_text/{uuid}": {"get": {"tags": ["text"], "operationId": "getPlainText", "summary": "Get OCR plain text", "description": "Returns parsed plain text ALTO for a given capture UUID.", "parameters": [{"$ref": "#/components/parameters/UUID"}], "responses": {"200": {"$ref": "#/components/responses/JsonResponse"}}}},
+    "/items/minified_alto/{uuid}": {"get": {"tags": ["text"], "operationId": "getMinifiedAlto", "summary": "Get minified ALTO", "description": "Returns minified ALTO for a given capture UUID.", "parameters": [{"$ref": "#/components/parameters/UUID"}], "responses": {"200": {"$ref": "#/components/responses/JsonResponse"}}}},
+    "/items/mets_alto/{uuid}": {"get": {"tags": ["text"], "operationId": "getMetsAlto", "summary": "Get METS ALTO", "description": "Returns METS ALTO for a given capture UUID.", "parameters": [{"$ref": "#/components/parameters/UUID"}], "responses": {"200": {"$ref": "#/components/responses/JsonResponse"}}}},
+    "/items/recent": {"get": {"tags": ["items"], "operationId": "listRecentItems", "summary": "List recently added captures", "description": "Returns the most recently added captures.", "parameters": [{"$ref": "#/components/parameters/Page"}, {"$ref": "#/components/parameters/PerPage"}, {"$ref": "#/components/parameters/PublicDomainOnly"}], "responses": {"200": {"$ref": "#/components/responses/JsonResponse"}}}},
+    "/items/search": {"get": {"tags": ["searchItems"], "operationId": "searchDigitalItems", "summary": "Search item metadata", "description": "Returns results matching keywords anywhere in a MODS metadata record. Supports field-specific search, fuzzy/exact field type, optional filters, pagination, and public-domain filtering.", "parameters": [{"name": "q", "in": "query", "required": true, "schema": {"type": "string"}, "description": "Search terms."}, {"name": "field", "in": "query", "schema": {"type": "string"}, "description": "Optional MODS field to search, such as topic."}, {"name": "ftype", "in": "query", "schema": {"type": "string"}, "description": "Field type; defaults to fuzzy."}, {"name": "filter[]", "in": "query", "schema": {"type": "array", "items": {"type": "string"}}, "style": "form", "explode": true, "description": "Optional filters on results, e.g. typeOfResource:still image."}, {"$ref": "#/components/parameters/Page"}, {"$ref": "#/components/parameters/PerPage"}, {"$ref": "#/components/parameters/PublicDomainOnly"}], "responses": {"200": {"$ref": "#/components/responses/JsonResponse"}}}},
+    "/items/rights/{uuid}": {"get": {"tags": ["items"], "operationId": "getItemRights", "summary": "Get rights profile", "description": "Returns rights profile information for a UUID.", "parameters": [{"$ref": "#/components/parameters/UUID"}], "responses": {"200": {"$ref": "#/components/responses/JsonResponse"}}}}
+  }
+}

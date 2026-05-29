@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "api_name": "nypl-digital-collections",
+  "run_id": "20260528-211010",
+  "status": "pass",
+  "generated_at": "2026-05-29T03:20:16Z",
+  "note": "Local publication validation. Live NYPL Phase 5 was skipped because credential material is intentionally not committed or printed.",
+  "publish_validate": {
+    "passed": true,
+    "cli_name": "nypl-digital-collections-pp-cli",
+    "api_name": "nypl-digital-collections",
+    "help_output": "Manage nypl-digital-collections resources via the nypl-digital-collections API.\n\nAdd --agent to any command for JSON output + non-interactive mode.\nRun 'nypl-digital-collections-pp-cli doctor' to verify auth and connectivity.\n\nUsage:\n  nypl-digital-collections-pp-cli [command]\n\nAvailable Commands:\n  agent-context Emit structured JSON describing this CLI for agents\n  analytics     Run analytics queries on locally synced data\n  api           Browse all API endpoints by interface name\n  auth          Manage authentication for Nypl Digital Collections\n  completion    Generate the autocompletion script for the specified shell\n  doctor        Check CLI health\n  export        Export data to JSONL or JSON for backup, migration, or analysis\n  feedback      Record feedback about this CLI (local by default; upstream opt-in)\n  help          Help about any command\n  import        Import data from JSONL file via API create/upsert calls\n  mods          Returns MODS bibliographic data for a capture, item, container, or collection UUID.\n  profile       Named sets of flags saved for reuse\n  search        Full-text search across synced data or live API\n  stories       Discover story-rich NYPL searches and similar character archetypes\n  sync          Sync API data to local SQLite for offline search and analysis\n  version       Print version\n  which         Find the command that implements a capability\n  workflow      Compound workflows that combine multiple API operations\n  workspace     Manage local NYPL research workspaces\n\nFlags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:<path>, webhook:<url>\n      --dry-run                 Show request without sending\n  -h, --help                    help for nypl-digital-collections-pp-cli\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'nypl-digital-collections-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n  -v, --version                 version for nypl-digital-collections-pp-cli\n      --yes                     Skip confirmation prompts (for agents and scripts)\n\nUse \"nypl-digital-collections-pp-cli [command] --help\" for more information about a command.\n",
+    "checks": [
+      {
+        "name": "manifest",
+        "passed": true
+      },
+      {
+        "name": "transcendence",
+        "passed": true
+      },
+      {
+        "name": "phase5",
+        "passed": true
+      },
+      {
+        "name": "go mod tidy",
+        "passed": true
+      },
+      {
+        "name": "govulncheck",
+        "passed": true
+      },
+      {
+        "name": "go vet",
+        "passed": true
+      },
+      {
+        "name": "go build",
+        "passed": true
+      },
+      {
+        "name": "--help",
+        "passed": true
+      },
+      {
+        "name": "--version",
+        "passed": true
+      },
+      {
+        "name": "verify-skill",
+        "passed": true
+      },
+      {
+        "name": "manuscripts",
+        "passed": true,
+        "warning": "no manuscripts found"
+      }
+    ]
+  }
+}

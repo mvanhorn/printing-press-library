@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-28",
+  "base_run_id": "20260528-211010",
+  "base_printing_press_version": "4.16.0",
+  "patches": [
+    {
+      "id": "nypl-token-header-format",
+      "summary": "Wrap bare NYPL API tokens in the required Authorization header format.",
+      "reason": "NYPL documents a non-standard Authorization value, Token token=\"...\"; users should be able to pass the bare token via env or auth set-token.",
+      "files": ["internal/config/config.go"],
+      "validated_outcome": "go test ./..., go vet ./..., go build ./..., --help, which search, and dry-run search all pass."
+    },
+    {
+      "id": "story-discovery-command",
+      "summary": "Add a stories discover command that expands a seed character into NYPL-friendly story searches, narrative clusters, and similar characters.",
+      "reason": "Anne Boleyn research showed that agent users need higher-level story/archetype discovery rather than raw keyword search only.",
+      "files": ["internal/cli/stories.go", "internal/cli/stories_test.go", "internal/cli/root.go"],
+      "validated_outcome": "go test ./..., go vet ./..., go build -o ./bin/nypl-digital-collections-pp-cli ./cmd/nypl-digital-collections-pp-cli, and stories discover Anne Boleyn --dry-run --json pass."
+    },
+    {
+      "id": "parent-id-domain-upserts",
+      "summary": "Allow generated collections_items and subcollections typed-table upserts to fall back from collections_id to parent_id.",
+      "reason": "Dependent sync paths annotate child rows with parent_id; the typed tables require collections_id, so fallback is needed to preserve parent relationships instead of dropping typed-table writes.",
+      "files": ["internal/store/store.go"],
+      "validated_outcome": "go test ./... passes, including TestUpsertBatch_SetsCollectionsItemsParentID and TestUpsertBatch_SetsSubcollectionsParentID."
+    },
+    {
+      "id": "nypl-research-mvp-workflow",
+      "summary": "Add the first practical research workflow layer: run story plans, save workspace runs, rank/dedupe items, and emit story dossiers.",
+      "reason": "The raw API wrapper needs archive-native research workflows so agents can move from story discovery plans to repeatable evidence collection and dossier artifacts.",
+      "files": ["internal/cli/mvp.go", "internal/cli/mvp_test.go", "internal/cli/search.go", "internal/cli/stories.go", "internal/cli/root.go"],
+      "validated_outcome": "go test ./..., go vet ./..., go build ./..., rebuilt bin/nypl-digital-collections-pp-cli, and dry-run smoke tests for stories dossier/search run-plan/workspace pass."
+    }
+  ]
+}

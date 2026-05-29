@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "nypl-digital-collections-pp-mcp",
+  "display_name": "Nypl Digital Collections",
+  "version": "4.16.0",
+  "description": "New York Public Library Digital Collections API. Source docs: https://api.repo.nypl.org/.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/nypl-digital-collections-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/nypl-digital-collections-pp-mcp",
+      "args": [],
+      "env": {
+        "NYPL_DIGITAL_COLLECTIONS_NYPL_TOKEN": "${user_config.nypl_digital_collections_nypl_token}"
+      }
+    }
+  },
+  "user_config": {
+    "nypl_digital_collections_nypl_token": {
+      "type": "string",
+      "title": "NYPL_DIGITAL_COLLECTIONS_NYPL_TOKEN",
+      "description": "Sets NYPL_DIGITAL_COLLECTIONS_NYPL_TOKEN for the Nypl Digital Collections MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}
