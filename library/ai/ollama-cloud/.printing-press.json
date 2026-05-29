@@ -4,6 +4,8 @@
   "printing_press_version": "4.2.0",
   "api_name": "ollama-cloud",
   "cli_name": "ollama-cloud-pp-cli",
+  "printer": "rvdlaar",
+  "printer_name": "Rick van de Laar",
   "run_id": "20260524-003533",
   "novel_features": [
     {
