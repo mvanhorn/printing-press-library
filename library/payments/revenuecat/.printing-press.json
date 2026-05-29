@@ -24,7 +24,8 @@
   "api_version": "2.0.0",
   "auth_type": "bearer_token",
   "auth_env_vars": [
-    "REVENUECAT_BEARER_AUTH"
+    "REVENUECAT_API_KEY",
+    "DEVELOPER_BEARER_AUTH"
   ],
   "auth_env_var_specs": [
     {
