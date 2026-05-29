@@ -55,7 +55,7 @@ var All = []Archive{
 			"materia":    "SETTOR",
 			"iter":       "ITERST",
 		},
-		Columns: []string{"Legisl.", "Numero", "Data", "Firmatari", "Titolo"},
+		Columns: []string{"Legisl.", "Numero", "Data", "Firmatari", "Titolo", "Iter"},
 	},
 	{
 		ID: "226", Slug: "pareri",
