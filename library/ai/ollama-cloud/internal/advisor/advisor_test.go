@@ -244,6 +244,54 @@ func TestCrossProviderAdviseRoutesToLocalForCheap(t *testing.T) {
 	}
 }
 
+func TestAdviseFallbackDiffersFromRecommendedAfterTiebreak(t *testing.T) {
+	// Two cloud models with identical metadata tie on score, so the tiebreaker
+	// fires. The tiebreaker promotes the second-ranked candidate to winner; the
+	// fallback must still resolve to a *different* model so a routing layer that
+	// retries against it has an escape path. Regression: fallback was hardcoded
+	// to live[1], which equals the recommendation once the tiebreaker promotes
+	// it (and the len>=3 guard does not fire with exactly two models).
+	tags := json.RawMessage(`{"models":[
+		{"name":"aa-model:1b","model":"aa-model:1b","details":{"family":"x"}},
+		{"name":"bb-model:1b","model":"bb-model:1b","details":{"family":"x"}}
+	]}`)
+	overlay := []byte(`{
+		"schema_version":1,
+		"models":[
+			{"id_patterns":["aa-model*"],"ctx_window":131072,"latency_p50_ms":1000,"strengths":["general"]},
+			{"id_patterns":["bb-model*"],"ctx_window":131072,"latency_p50_ms":1000,"strengths":["general"]}
+		],
+		"default":{}
+	}`)
+	cat, err := LoadCatalog(tags, overlay)
+	if err != nil {
+		t.Fatalf("LoadCatalog: %v", err)
+	}
+	tb := func(_ context.Context, _ string, top []Candidate) (string, error) {
+		return top[1].ModelID, nil // promote the second-ranked candidate
+	}
+	rec, err := Advise(context.Background(), Request{
+		Prompt:         "hello there",
+		EnableTiebreak: true,
+		Tiebreaker:     tb,
+	}, cat, false)
+	if err != nil {
+		t.Fatalf("Advise: %v", err)
+	}
+	if !rec.TiebreakUsed {
+		t.Fatalf("expected tiebreak to fire and be used; rec=%+v", rec)
+	}
+	if rec.Recommended != "bb-model:1b" {
+		t.Errorf("recommended should be promoted bb-model:1b; got %q", rec.Recommended)
+	}
+	if rec.Fallback == rec.Recommended {
+		t.Errorf("fallback must differ from recommended; both = %q", rec.Fallback)
+	}
+	if rec.Fallback != "aa-model:1b" {
+		t.Errorf("fallback should be aa-model:1b; got %q", rec.Fallback)
+	}
+}
+
 func TestGlobMatchHandlesColon(t *testing.T) {
 	if !globMatch("qwen3-coder*", "qwen3-coder:480b") {
 		t.Error("qwen3-coder* should match qwen3-coder:480b")

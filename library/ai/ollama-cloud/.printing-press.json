@@ -14,7 +14,7 @@
     {
       "name": "Side-by-side comparison",
       "command": "compare",
-      "description": "Runs the same prompt against N hosted models in parallel and emits side-by-side response, tokens, latency, and cost."
+      "description": "Runs the same prompt against N hosted models in parallel and emits side-by-side response, tokens, and latency."
     },
     {
       "name": "Advisor explain",

@@ -5,6 +5,7 @@ package client
 
 import (
 	"bytes"
+	"context"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
@@ -93,8 +94,16 @@ func (c *Client) ProbeGet(path string) (int, error) {
 
 func (c *Client) cacheKey(path string, params map[string]string) string {
 	key := path
-	for k, v := range params {
-		key += k + "=" + v
+	// Sort keys before concatenation: Go map iteration order is randomised per
+	// runtime, so an unordered walk yields a different hash for the same
+	// (path, params) pair across calls, defeating the cache entirely.
+	keys := make([]string, 0, len(params))
+	for k := range params {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+	for _, k := range keys {
+		key += k + "=" + params[k]
 	}
 	h := sha256.Sum256([]byte(key))
 	return hex.EncodeToString(h[:8])
@@ -133,6 +142,14 @@ func (c *Client) Post(path string, body any) (json.RawMessage, int, error) {
 	return c.do("POST", path, nil, body, nil)
 }
 
+// PostWithContext is Post with a caller-supplied context, letting callers impose
+// a per-request deadline (e.g. the advise tiebreaker's 8s budget or compare's
+// --timeout) independent of the client's global HTTP timeout. A cancelled or
+// expired context aborts the in-flight request and any pending retries.
+func (c *Client) PostWithContext(ctx context.Context, path string, body any) (json.RawMessage, int, error) {
+	return c.doCtx(ctx, "POST", path, nil, body, nil)
+}
+
 func (c *Client) PostWithHeaders(path string, body any, headers map[string]string) (json.RawMessage, int, error) {
 	return c.do("POST", path, nil, body, headers)
 }
@@ -164,6 +181,10 @@ func (c *Client) PatchWithHeaders(path string, body any, headers map[string]stri
 // do executes an HTTP request. headerOverrides, when non-nil, override global
 // RequiredHeaders for this specific request (used for per-endpoint API versioning).
 func (c *Client) do(method, path string, params map[string]string, body any, headerOverrides map[string]string) (json.RawMessage, int, error) {
+	return c.doCtx(context.Background(), method, path, params, body, headerOverrides)
+}
+
+func (c *Client) doCtx(ctx context.Context, method, path string, params map[string]string, body any, headerOverrides map[string]string) (json.RawMessage, int, error) {
 	targetURL := c.BaseURL + path
 
 	var bodyBytes []byte
@@ -200,7 +221,7 @@ func (c *Client) do(method, path string, params map[string]string, body any, hea
 			bodyReader = strings.NewReader(string(bodyBytes))
 		}
 
-		req, err := http.NewRequest(method, targetURL, bodyReader)
+		req, err := http.NewRequestWithContext(ctx, method, targetURL, bodyReader)
 		if err != nil {
 			return nil, 0, fmt.Errorf("creating request: %w", err)
 		}
@@ -356,9 +377,13 @@ func (c *Client) refreshAccessToken() error {
 		return nil
 	}
 
+	// ollama-cloud authenticates with a static bearer API key
+	// (OLLAMA_CLOUD_API_KEY), not an OAuth2 refresh flow, so there is no token
+	// endpoint to call. Fail loud rather than silently returning nil — a nil
+	// return would let authHeader() proceed to send the expired AccessToken.
 	tokenURL := ""
 	if tokenURL == "" {
-		return nil
+		return fmt.Errorf("access token expired and automatic refresh is not configured for this API; re-authenticate (set OLLAMA_CLOUD_API_KEY) and retry")
 	}
 
 	params := url.Values{

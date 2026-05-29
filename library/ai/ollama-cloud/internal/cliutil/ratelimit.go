@@ -44,16 +44,22 @@ func (l *AdaptiveLimiter) Wait() {
 	if l == nil {
 		return
 	}
+	// Reserve the next slot under the lock and advance lastRequest before
+	// sleeping. Concurrent callers sharing one limiter (e.g. compare's fan-out
+	// goroutines) each reserve a distinct slot spaced by delay, so they fire in
+	// sequence rather than all reading the same snapshot and firing at once.
 	l.mu.Lock()
 	delay := time.Duration(float64(time.Second) / l.rate)
-	elapsed := time.Since(l.lastRequest)
-	l.mu.Unlock()
-	if elapsed < delay {
-		time.Sleep(delay - elapsed)
+	now := time.Now()
+	next := l.lastRequest.Add(delay)
+	if next.Before(now) {
+		next = now
 	}
-	l.mu.Lock()
-	l.lastRequest = time.Now()
+	l.lastRequest = next
 	l.mu.Unlock()
+	if d := time.Until(next); d > 0 {
+		time.Sleep(d)
+	}
 }
 
 func (l *AdaptiveLimiter) OnSuccess() {

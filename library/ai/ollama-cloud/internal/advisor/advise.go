@@ -94,9 +94,15 @@ func Advise(ctx context.Context, req Request, catalog []Model, includeExplain bo
 			}
 		}
 		rec.Alternatives = alts
-		rec.Fallback = live[1].Model.QualifiedID()
-		if rec.Fallback == rec.Recommended && len(live) >= 3 {
-			rec.Fallback = live[2].Model.QualifiedID()
+		// Fallback must differ from the recommendation so a routing layer that
+		// retries against it has an actual escape path. live[1] is wrong when the
+		// tiebreaker promotes it to the winner, so pick the first live candidate
+		// that isn't the recommended model.
+		for _, c := range live {
+			if c.Model.QualifiedID() != rec.Recommended {
+				rec.Fallback = c.Model.QualifiedID()
+				break
+			}
 		}
 	}
 	rec.EstInputTokens = feats.InputTokens

@@ -61,24 +61,31 @@ addition; until then this command is divergence-reporting only.
 				return apiErr(err)
 			}
 
-			out := make([]replayRow, 0, len(rows))
+			// Tally divergence across the whole window first so the rate is
+			// meaningful regardless of --diverge-only (which filters the displayed
+			// rows) or --limit (which truncates them). Counting only the emitted
+			// rows made divergence_pct trivially 100% under --diverge-only.
 			divergeCount := 0
 			for _, e := range rows {
-				if divergeOnly && (e.ActualChosen == "" || e.ActualChosen == e.Recommended) {
+				if e.ActualChosen != "" && e.ActualChosen != e.Recommended {
+					divergeCount++
+				}
+			}
+
+			out := make([]replayRow, 0, len(rows))
+			for _, e := range rows {
+				diverged := e.ActualChosen != "" && e.ActualChosen != e.Recommended
+				if divergeOnly && !diverged {
 					continue
 				}
-				rr := replayRow{
+				out = append(out, replayRow{
 					AdvisedAt:      e.AdvisedAt,
 					PromptHash:     e.PromptHash,
 					TaskHint:       e.TaskHint,
 					Recommended:    e.Recommended,
 					ActualChosen:   e.ActualChosen,
-					DivergenceFlag: e.ActualChosen != "" && e.ActualChosen != e.Recommended,
-				}
-				if rr.DivergenceFlag {
-					divergeCount++
-				}
-				out = append(out, rr)
+					DivergenceFlag: diverged,
+				})
 				if limit > 0 && len(out) >= limit {
 					break
 				}
@@ -90,7 +97,7 @@ addition; until then this command is divergence-reporting only.
 				"total_rows":       len(rows),
 				"emitted":          len(out),
 				"divergence_count": divergeCount,
-				"divergence_pct":   percent(divergeCount, len(out)),
+				"divergence_pct":   percent(divergeCount, len(rows)),
 				"dry_run":          dryRun,
 				"rows":             out,
 				"computed_at":      time.Now().UTC(),

@@ -90,7 +90,7 @@ These capabilities aren't available in any other tool for this API.
   ```bash
   ollama-cloud-pp-cli advise --prompt-file ./prompt.txt --task-hint coding --budget-remaining-usd 0.50 --json
   ```
-- **`compare`** — Runs the same prompt against N hosted models in parallel and emits side-by-side response, tokens, latency, and cost.
+- **`compare`** — Runs the same prompt against N hosted models in parallel and emits side-by-side response, tokens, and latency.
 
   _Use when calibrating advisor recommendations or picking between two close models._
 

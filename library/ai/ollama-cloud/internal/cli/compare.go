@@ -1,6 +1,9 @@
 package cli
 
 import (
+	"context"
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"strings"
@@ -11,17 +14,16 @@ import (
 )
 
 type compareResult struct {
-	Model      string  `json:"model"`
-	OK         bool    `json:"ok"`
-	Error      string  `json:"error,omitempty"`
-	Content    string  `json:"content,omitempty"`
-	LatencyMs  int     `json:"latency_ms"`
-	PromptTok  int     `json:"prompt_tokens"`
-	OutputTok  int     `json:"output_tokens"`
-	TotalTok   int     `json:"total_tokens"`
-	Status     int     `json:"http_status"`
-	RateLimit  bool    `json:"rate_limited,omitempty"`
-	EstCostUSD float64 `json:"est_cost_usd,omitempty"`
+	Model     string `json:"model"`
+	OK        bool   `json:"ok"`
+	Error     string `json:"error,omitempty"`
+	Content   string `json:"content,omitempty"`
+	LatencyMs int    `json:"latency_ms"`
+	PromptTok int    `json:"prompt_tokens"`
+	OutputTok int    `json:"output_tokens"`
+	TotalTok  int    `json:"total_tokens"`
+	Status    int    `json:"http_status"`
+	RateLimit bool   `json:"rate_limited,omitempty"`
 }
 
 func newCompareCmd(flags *rootFlags) *cobra.Command {
@@ -34,13 +36,16 @@ func newCompareCmd(flags *rootFlags) *cobra.Command {
 	)
 	cmd := &cobra.Command{
 		Use:   "compare",
-		Short: "Run the same prompt against N models in parallel; side-by-side latency/tokens/cost",
+		Short: "Run the same prompt against N models in parallel; side-by-side latency/tokens",
 		Long: strings.TrimSpace(`
 Posts the prompt to /api/chat against each --model in parallel and reports
 latency, token counts, HTTP status, and any rate-limit/error per row. Useful
 for calibrating advisor recommendations when two models score within 5%.
 
-Output is always JSON-shaped {prompt_hash, results[]}; --json is implicit.
+Output is always JSON-shaped {prompt_hash, prompt_bytes, results[], compared_at};
+--json is implicit. prompt_hash matches the advisor log's hash so compare runs
+correlate with advise-replay entries. Cost is not reported here (compare does not
+load the cost overlay); use advise for per-model cost estimates.
 `),
 		Example: strings.Trim(`
   ollama-cloud-pp-cli compare --prompt-file ./p.txt --models qwen3-coder:480b,gpt-oss:120b
@@ -49,14 +54,17 @@ Output is always JSON-shaped {prompt_hash, results[]}; --json is implicit.
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {
-				fmt.Fprintln(cmd.OutOrStdout(), `{"dry_run":true,"command":"compare","note":"would post prompt to N models in parallel and emit side-by-side latency/tokens/cost"}`)
+				fmt.Fprintln(cmd.OutOrStdout(), `{"dry_run":true,"command":"compare","note":"would post prompt to N models in parallel and emit side-by-side latency/tokens"}`)
 				return nil
 			}
 			if len(models) < 2 {
 				return usageErr(fmt.Errorf("compare: need at least 2 --models"))
 			}
 			prompt, err := readPromptInput(promptFile)
-			if err != nil || strings.TrimSpace(prompt) == "" {
+			if err != nil {
+				return usageErr(fmt.Errorf("compare: reading prompt: %w", err))
+			}
+			if strings.TrimSpace(prompt) == "" {
 				return usageErr(fmt.Errorf("compare: --prompt-file required"))
 			}
 			c, err := flags.newClient()
@@ -81,7 +89,9 @@ Output is always JSON-shaped {prompt_hash, results[]}; --json is implicit.
 			}
 			wg.Wait()
 
+			promptHash := sha256.Sum256([]byte(prompt))
 			envelope := map[string]any{
+				"prompt_hash":  hex.EncodeToString(promptHash[:8]),
 				"prompt_bytes": len(prompt),
 				"results":      results,
 				"compared_at":  time.Now().UTC(),
@@ -99,7 +109,7 @@ Output is always JSON-shaped {prompt_hash, results[]}; --json is implicit.
 	return cmd
 }
 
-func runCompareOne(c clientLike, model string, messages []map[string]any, maxTok int, _ time.Duration) compareResult {
+func runCompareOne(c clientLike, model string, messages []map[string]any, maxTok int, timeout time.Duration) compareResult {
 	r := compareResult{Model: model}
 	body := map[string]any{
 		"model":    model,
@@ -107,8 +117,14 @@ func runCompareOne(c clientLike, model string, messages []map[string]any, maxTok
 		"stream":   false,
 		"options":  map[string]any{"num_predict": maxTok},
 	}
+	ctx := context.Background()
+	if timeout > 0 {
+		var cancel context.CancelFunc
+		ctx, cancel = context.WithTimeout(ctx, timeout)
+		defer cancel()
+	}
 	start := time.Now()
-	raw, status, err := c.Post("/api/chat", body)
+	raw, status, err := c.PostWithContext(ctx, "/api/chat", body)
 	r.LatencyMs = int(time.Since(start) / time.Millisecond)
 	r.Status = status
 	if err != nil {

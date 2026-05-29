@@ -513,7 +513,7 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 		// to the companion CLI binary.
 		"command_mirror_capabilities": []map[string]string{
 			{"name": "Model advisor", "command": "advise", "description": "Picks the right Ollama Cloud model for a prompt by combining live catalog, heuristic prompt-feature extraction,...", "rationale": "Requires correlating live catalog state with prompt features, session context, budget, and curated per-model...", "via": "mcp-command-mirror"},
-			{"name": "Side-by-side comparison", "command": "compare", "description": "Runs the same prompt against N hosted models in parallel and emits side-by-side response, tokens, latency, and cost.", "rationale": "Requires the same portable per-model metadata that powers the advisor, plus parallel chat dispatch with cost+latency...", "via": "mcp-command-mirror"},
+			{"name": "Side-by-side comparison", "command": "compare", "description": "Runs the same prompt against N hosted models in parallel and emits side-by-side response, tokens, and latency.", "rationale": "Requires the same portable per-model metadata that powers the advisor, plus parallel chat dispatch with latency+token accounting...", "via": "mcp-command-mirror"},
 			{"name": "Advisor explain", "command": "advise", "description": "With --explain, advise emits the full scoring trace: feature extraction, per-model scores, filter passes, tiebreak...", "rationale": "Only possible because advise is heuristic-first and auditable; an LLM-only router can't show its work.", "via": "mcp-command-mirror"},
 			{"name": "Advisor replay", "command": "advise-replay", "description": "Replays advisor recommendations and reports divergence between recommended models and actually-chosen models. Foundation for the divergence canary.", "rationale": "Requires the advisor log (we own) plus catalog metadata (we own); no other tool persists both.", "via": "mcp-command-mirror"},
 			{"name": "Budget probe", "command": "budget", "description": "Probes the free-tier weekly cap with a 1-token chat. Parses Ollama Cloud's 429 prose and emits a structured verdict...", "rationale": "Requires recognising Ollama Cloud's specific 429 envelope ('you have reached your weekly usage limit') whether it...", "via": "mcp-command-mirror"},
@@ -521,7 +521,7 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 		},
 		"playbook": []map[string]string{
 			{"topic": "Model advisor", "insight": "Requires correlating live catalog state with prompt features, session context, budget, and curated per-model metadata that no other tool exposes in a single decision."},
-			{"topic": "Side-by-side comparison", "insight": "Requires the same portable per-model metadata that powers the advisor, plus parallel chat dispatch with cost+latency tracking."},
+			{"topic": "Side-by-side comparison", "insight": "Requires the same portable per-model metadata that powers the advisor, plus parallel chat dispatch with latency+token tracking."},
 			{"topic": "Advisor explain", "insight": "Only possible because advise is heuristic-first and auditable; an LLM-only router can't show its work."},
 			{"topic": "Advisor replay", "insight": "Requires the advisor log (we own) plus catalog metadata (we own); no other tool persists both."},
 			{"topic": "Budget probe", "insight": "Requires recognising Ollama Cloud's specific 429 envelope (\"you have reached your weekly usage limit\") whether it surfaces as HTTP status 429 or post-retry error prose."},

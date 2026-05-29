@@ -291,7 +291,6 @@ func makeTiebreaker(c clientLike, model string, timeout time.Duration) advisor.T
 	return func(ctx context.Context, prompt string, top []advisor.Candidate) (string, error) {
 		ctx, cancel := context.WithTimeout(ctx, timeout)
 		defer cancel()
-		_ = ctx
 		body := map[string]any{
 			"model": model,
 			"messages": []map[string]any{
@@ -302,7 +301,7 @@ func makeTiebreaker(c clientLike, model string, timeout time.Duration) advisor.T
 			"stream":  false,
 			"options": map[string]any{"num_predict": 32, "temperature": 0.1},
 		}
-		raw, status, err := c.Post("/api/chat", body)
+		raw, status, err := c.PostWithContext(ctx, "/api/chat", body)
 		if err != nil {
 			return "", err
 		}
@@ -335,4 +334,5 @@ func makeTiebreaker(c clientLike, model string, timeout time.Duration) advisor.T
 // so it stays testable.
 type clientLike interface {
 	Post(path string, body any) (json.RawMessage, int, error)
+	PostWithContext(ctx context.Context, path string, body any) (json.RawMessage, int, error)
 }
