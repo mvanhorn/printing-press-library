@@ -9,13 +9,13 @@ Ollama Cloud's catalog spans 20+ open-weights models (Qwen3, GPT-OSS, DeepSeek-V
 The recommended path installs both the `ollama-cloud-pp-cli` binary and the `pp-ollama-cloud` agent skill in one shot:
 
 ```bash
-npx -y @mvanhorn/printing-press install ollama-cloud
+npx -y @mvanhorn/printing-press-library install ollama-cloud
 ```
 
 For CLI only (no skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install ollama-cloud --cli-only
+npx -y @mvanhorn/printing-press-library install ollama-cloud --cli-only
 ```
 
 

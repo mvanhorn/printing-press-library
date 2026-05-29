@@ -124,7 +124,7 @@ func runCompareOne(c clientLike, model string, messages []map[string]any, maxTok
 		defer cancel()
 	}
 	start := time.Now()
-	raw, status, err := c.PostWithContext(ctx, "/api/chat", body)
+	raw, status, err := c.Post(ctx, "/api/chat", body)
 	r.LatencyMs = int(time.Since(start) / time.Millisecond)
 	r.Status = status
 	if err != nil {

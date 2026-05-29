@@ -86,7 +86,7 @@ Logs every invocation to ~/.local/state/ollama-cloud-pp-cli/advisor-log.jsonl
 			}
 
 			if validateCatalog {
-				tagsRaw, terr := c.Get("/api/tags", nil)
+				tagsRaw, terr := c.Get(ctx, "/api/tags", nil)
 				if terr != nil {
 					captureDialDiag(terr.Error())
 					return classifyAPIError(terr, flags)
@@ -120,7 +120,7 @@ Logs every invocation to ~/.local/state/ollama-cloud-pp-cli/advisor-log.jsonl
 				}
 			}
 
-			tagsRaw, err := c.Get("/api/tags", nil)
+			tagsRaw, err := c.Get(ctx, "/api/tags", nil)
 			if err != nil {
 				captureDialDiag(err.Error())
 				return classifyAPIError(err, flags)
@@ -301,7 +301,7 @@ func makeTiebreaker(c clientLike, model string, timeout time.Duration) advisor.T
 			"stream":  false,
 			"options": map[string]any{"num_predict": 32, "temperature": 0.1},
 		}
-		raw, status, err := c.PostWithContext(ctx, "/api/chat", body)
+		raw, status, err := c.Post(ctx, "/api/chat", body)
 		if err != nil {
 			return "", err
 		}
@@ -333,6 +333,5 @@ func makeTiebreaker(c clientLike, model string, timeout time.Duration) advisor.T
 // clientLike is the subset of *client.Client used by the tiebreaker, kept tiny
 // so it stays testable.
 type clientLike interface {
-	Post(path string, body any) (json.RawMessage, int, error)
-	PostWithContext(ctx context.Context, path string, body any) (json.RawMessage, int, error)
+	Post(ctx context.Context, path string, body any) (json.RawMessage, int, error)
 }

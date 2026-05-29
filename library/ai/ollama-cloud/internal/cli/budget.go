@@ -39,6 +39,7 @@ caller has an actionable next step.
 		Example: "  ollama-cloud-pp-cli budget --json",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			ctx := cmd.Context()
 			c, err := flags.newClient()
 			if err != nil {
 				return err
@@ -51,7 +52,7 @@ caller has an actionable next step.
 			}
 			r := budgetReport{Model: model, ProbedAt: time.Now().UTC(), Verdict: "unknown"}
 			start := time.Now()
-			raw, status, perr := c.Post("/api/chat", body)
+			raw, status, perr := c.Post(ctx, "/api/chat", body)
 			r.LatencyMs = int(time.Since(start) / time.Millisecond)
 			r.HTTPStatus = status
 			// The shared client surfaces post-retry 429s as a wrapped error

@@ -20,7 +20,7 @@ This skill drives the `ollama-cloud-pp-cli` binary. **You must verify the CLI is
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install ollama-cloud --cli-only
+   npx -y @mvanhorn/printing-press-library install ollama-cloud --cli-only
    ```
 2. Verify: `ollama-cloud-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.

@@ -1,0 +1,362 @@
+{
+  "api_name": "ollama-cloud",
+  "base_url": "https://ollama.com",
+  "description": "Ollama Cloud is Ollama's hosted inference API. Supports OpenAI-compatible endpoints at `/v1/*`\nand native Ollama endpoints at `/api/*`. Models include Qwen3, GPT-OSS, DeepSeek-V3, Kimi-K2,\nGLM, Llama, Gemma, and growing.\n\nAuthentication: bearer token via `OLLAMA_CLOUD_API_KEY` (intentionally distinct from any local\nOllama daemon env var). Free tier is rate-limited weekly; 429 responses surface the upgrade path.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "OLLAMA_CLOUD_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "OLLAMA_CLOUD_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "chat_chat",
+      "description": "Native Ollama chat endpoint. Supports streaming. Required: messages, model. Optional: format, keep_alive, options (plus 2 more). Returns the new ChatResponse.",
+      "method": "POST",
+      "path": "/api/chat",
+      "params": [
+        {
+          "name": "format",
+          "type": "string",
+          "location": "body",
+          "description": "Format"
+        },
+        {
+          "name": "keep_alive",
+          "type": "string",
+          "location": "body",
+          "description": "Keep alive"
+        },
+        {
+          "name": "messages",
+          "type": "array",
+          "location": "body",
+          "description": "Messages",
+          "required": true
+        },
+        {
+          "name": "model",
+          "type": "string",
+          "location": "body",
+          "description": "Model",
+          "required": true
+        },
+        {
+          "name": "options-num-ctx",
+          "wire_name": "options.num_ctx",
+          "type": "int",
+          "location": "body",
+          "description": "context window"
+        },
+        {
+          "name": "options-num-predict",
+          "wire_name": "options.num_predict",
+          "type": "int",
+          "location": "body",
+          "description": "max output tokens"
+        },
+        {
+          "name": "options-seed",
+          "wire_name": "options.seed",
+          "type": "int",
+          "location": "body",
+          "description": "Seed"
+        },
+        {
+          "name": "options-stop",
+          "wire_name": "options.stop",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Stop"
+        },
+        {
+          "name": "options-temperature",
+          "wire_name": "options.temperature",
+          "type": "float",
+          "location": "body",
+          "description": "Temperature"
+        },
+        {
+          "name": "options-top-k",
+          "wire_name": "options.top_k",
+          "type": "int",
+          "location": "body",
+          "description": "Top k"
+        },
+        {
+          "name": "options-top-p",
+          "wire_name": "options.top_p",
+          "type": "float",
+          "location": "body",
+          "description": "Top p"
+        },
+        {
+          "name": "stream",
+          "type": "bool",
+          "location": "body",
+          "description": "Stream"
+        },
+        {
+          "name": "tools",
+          "type": "array",
+          "location": "body",
+          "description": "Tools"
+        }
+      ]
+    },
+    {
+      "name": "chat_completions",
+      "description": "OpenAI-compatible chat completions endpoint. Required: messages, model. Optional: frequency_penalty, max_tokens, n (default: 1) (plus 8 more). Returns the new OpenAichatResponse.",
+      "method": "POST",
+      "path": "/v1/chat/completions",
+      "params": [
+        {
+          "name": "frequency_penalty",
+          "type": "float",
+          "location": "body",
+          "description": "Frequency penalty"
+        },
+        {
+          "name": "max_tokens",
+          "type": "int",
+          "location": "body",
+          "description": "Max tokens"
+        },
+        {
+          "name": "messages",
+          "type": "array",
+          "location": "body",
+          "description": "Messages",
+          "required": true
+        },
+        {
+          "name": "model",
+          "type": "string",
+          "location": "body",
+          "description": "Model",
+          "required": true
+        },
+        {
+          "name": "n",
+          "type": "int",
+          "location": "body",
+          "description": "N"
+        },
+        {
+          "name": "presence_penalty",
+          "type": "float",
+          "location": "body",
+          "description": "Presence penalty"
+        },
+        {
+          "name": "seed",
+          "type": "int",
+          "location": "body",
+          "description": "Seed"
+        },
+        {
+          "name": "stop",
+          "type": "string",
+          "location": "body",
+          "description": "Stop"
+        },
+        {
+          "name": "stream",
+          "type": "bool",
+          "location": "body",
+          "description": "Stream"
+        },
+        {
+          "name": "temperature",
+          "type": "float",
+          "location": "body",
+          "description": "Temperature"
+        },
+        {
+          "name": "tool_choice",
+          "type": "string",
+          "location": "body",
+          "description": "Tool choice"
+        },
+        {
+          "name": "tools",
+          "type": "array",
+          "location": "body",
+          "description": "Tools"
+        },
+        {
+          "name": "top_p",
+          "type": "float",
+          "location": "body",
+          "description": "Top p"
+        }
+      ]
+    },
+    {
+      "name": "embeddings_embed",
+      "description": "Native Ollama embeddings endpoint. Required: model, prompt. Optional: keep_alive, options. Returns the new EmbeddingsResponse.",
+      "method": "POST",
+      "path": "/api/embeddings",
+      "params": [
+        {
+          "name": "keep_alive",
+          "type": "string",
+          "location": "body",
+          "description": "Keep alive"
+        },
+        {
+          "name": "model",
+          "type": "string",
+          "location": "body",
+          "description": "Model",
+          "required": true
+        },
+        {
+          "name": "options-num-ctx",
+          "wire_name": "options.num_ctx",
+          "type": "int",
+          "location": "body",
+          "description": "context window"
+        },
+        {
+          "name": "options-num-predict",
+          "wire_name": "options.num_predict",
+          "type": "int",
+          "location": "body",
+          "description": "max output tokens"
+        },
+        {
+          "name": "options-seed",
+          "wire_name": "options.seed",
+          "type": "int",
+          "location": "body",
+          "description": "Seed"
+        },
+        {
+          "name": "options-stop",
+          "wire_name": "options.stop",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Stop"
+        },
+        {
+          "name": "options-temperature",
+          "wire_name": "options.temperature",
+          "type": "float",
+          "location": "body",
+          "description": "Temperature"
+        },
+        {
+          "name": "options-top-k",
+          "wire_name": "options.top_k",
+          "type": "int",
+          "location": "body",
+          "description": "Top k"
+        },
+        {
+          "name": "options-top-p",
+          "wire_name": "options.top_p",
+          "type": "float",
+          "location": "body",
+          "description": "Top p"
+        },
+        {
+          "name": "prompt",
+          "type": "string",
+          "location": "body",
+          "description": "Prompt",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "embeddings_openai-embed",
+      "description": "Generate embeddings (OpenAI-compatible). Required: input, model. Optional: dimensions, encoding_format (default: float). Returns array of EmbeddingsOpenaiEmbedItem.",
+      "method": "POST",
+      "path": "/v1/embeddings",
+      "params": [
+        {
+          "name": "dimensions",
+          "type": "int",
+          "location": "body",
+          "description": "Dimensions"
+        },
+        {
+          "name": "encoding_format",
+          "type": "string",
+          "location": "body",
+          "description": "Encoding format"
+        },
+        {
+          "name": "input",
+          "type": "string",
+          "location": "body",
+          "description": "Input",
+          "required": true
+        },
+        {
+          "name": "model",
+          "type": "string",
+          "location": "body",
+          "description": "Model",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "models_models",
+      "description": "Catalog in OpenAI list-models format. Returns array of OpenAimodel.",
+      "method": "GET",
+      "path": "/v1/models",
+      "params": []
+    },
+    {
+      "name": "ps_ps",
+      "description": "Shows currently-loaded models. On Ollama Cloud this typically reflects models with active sessions. Returns the PsResponse.",
+      "method": "GET",
+      "path": "/api/ps",
+      "params": []
+    },
+    {
+      "name": "show_show",
+      "description": "Returns model metadata, template, modelfile, capabilities. Required: name. Optional: verbose (default: false).",
+      "method": "POST",
+      "path": "/api/show",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        },
+        {
+          "name": "verbose",
+          "type": "bool",
+          "location": "body",
+          "description": "Verbose"
+        }
+      ]
+    },
+    {
+      "name": "tags_tags",
+      "description": "Returns the live catalog of hosted Ollama Cloud models.",
+      "method": "GET",
+      "path": "/api/tags",
+      "params": []
+    }
+  ]
+}
