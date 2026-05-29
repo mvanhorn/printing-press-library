@@ -1,0 +1,264 @@
+{
+  "api_name": "ars-sicilia",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "opendatasicilia/RSSdisegniLeggeAssembleaRegionaleSiciliana",
+      "url": "https://github.com/opendatasicilia/RSSdisegniLeggeAssembleaRegionaleSiciliana",
+      "language": "Shell",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 2,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "aborruso/ars_sicilia",
+      "url": "https://github.com/aborruso/ars_sicilia",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-28T16:52:34Z",
+  "novel_features": [
+    {
+      "name": "Iter completo di un DDL",
+      "command": "ddl iter",
+      "description": "Ricostruisce la cronologia completa di un disegno di legge: presentazione, passaggio in commissione, lavori d'aula, eventuale promulgazione come legge regionale.",
+      "rationale": "Richiede un join cronologico cross-archivio (221+229+230+217+201) in SQLite che il portale Icaro non sa fare nativamente.",
+      "example": "ars-sicilia-pp-cli ddl iter 18 1500 --json",
+      "why_it_matters": "Quando un agente deve raccontare 'a che punto sta il DDL X', questa è l'unica chiamata che restituisce la timeline completa senza incollare 5 ricerche manuali.",
+      "group": "Vista cronologica cross-archivio"
+    },
+    {
+      "name": "Profilo deputato cross-archive",
+      "command": "deputato profilo",
+      "description": "Aggrega in un'unica vista tutti gli atti firmati o pronunciati da un deputato: DDL, interrogazioni, interpellanze, mozioni, ordini del giorno, risoluzioni e interventi in resoconti d'aula.",
+      "rationale": "Il portale ARS richiede 7 ricerche separate per nome firmatario; questo comando lo fa in una sola passata sul DB locale, normalizzando le varianti del nome.",
+      "example": "ars-sicilia-pp-cli deputato profilo \"Rossi Mario\" --legisl 18 --json --select tipo,data,titolo",
+      "why_it_matters": "Sostituisce un workflow di 7 click manuali con un'unica chiamata strutturata: pensata per agenti che rispondono a 'che ha fatto il deputato X?'.",
+      "group": "Vista cronologica cross-archivio"
+    },
+    {
+      "name": "Coppie di co-firmatari",
+      "command": "analytics",
+      "description": "Identifica i deputati che firmano insieme atti parlamentari, restituendo coppie e cluster con conteggio per analisi di network politico.",
+      "rationale": "Aggregazione combinatoria sul campo FIRMAT, possibile solo con SQLite locale; il portale ARS non espone alcuna analytics.",
+      "example": "ars-sicilia-pp-cli analytics --type ddl --group-by cofirmatari --limit 50 --json",
+      "why_it_matters": "Per ricercatori e giornalisti che analizzano alleanze e dinamiche politiche: niente foglio Excel di trascrizioni manuali.",
+      "group": "Analytics su campi strutturati"
+    },
+    {
+      "name": "Oratori più attivi in aula",
+      "command": "analytics",
+      "description": "Classifica i deputati per numero di interventi nei resoconti d'aula, con range date e legislatura, opzionale conteggio parole.",
+      "rationale": "Il campo ORATOR di archivio 217 è strutturato ma il portale lo restituisce solo in prosa HTML; aggregare richiede SQLite locale.",
+      "example": "ars-sicilia-pp-cli analytics --type resoconti --group-by oratore --limit 30 --csv",
+      "why_it_matters": "Per le persone che vogliono sapere 'chi parla di più' senza scaricare 200 resoconti PDF e fare ctrl+F.",
+      "group": "Analytics su campi strutturati"
+    },
+    {
+      "name": "Dossier 360° di una commissione",
+      "command": "commissione dossier",
+      "description": "Vista completa su una commissione: convocazioni in calendario, sommari lavori, DDL assegnati e pareri richiesti al Governo regionale.",
+      "rationale": "Il portale ARS ha archivi separati per convocazioni (229), sommari (230) e pareri (226); nessuna interfaccia unificata per commissione.",
+      "example": "ars-sicilia-pp-cli commissione dossier 5 --legisl 18 --json",
+      "why_it_matters": "Quando segui i lavori di una commissione specifica, questa è l'unica chiamata che dà il quadro completo invece di 3 ricerche separate.",
+      "group": "Vista cronologica cross-archivio"
+    },
+    {
+      "name": "Drift iter DDL",
+      "command": "ddl drift",
+      "description": "Confronta lo stato dell'iter dei DDL nella sync corrente con la precedente e segnala i disegni di legge che si sono mossi nel periodo (passati da commissione ad aula, approvati, ritirati).",
+      "rationale": "Richiede storico dei sync in SQLite locale; il portale offre solo lo snapshot corrente, non sa dire 'cosa è cambiato'.",
+      "example": "ars-sicilia-pp-cli ddl drift --since 7d --json",
+      "why_it_matters": "L'RSS shell esistente segnala solo 'nuovi'; per 'mossi' non c'è alternativa. Questo è il segnale che cercavano i journalist che seguono iter politici.",
+      "group": "Stato e monitoraggio"
+    },
+    {
+      "name": "Stato sync archivi",
+      "command": "sync stale",
+      "description": "Mostra per ognuno dei 12 archivi ARS: timestamp ultima sync, n. record locali, età della sync, eventuale segnalazione di staleness.",
+      "rationale": "Necessario per chi mantiene SQLite locale e deve decidere quando rilanciare sync; informazione esiste solo nel meta locale.",
+      "example": "ars-sicilia-pp-cli sync stale --json",
+      "why_it_matters": "Per agenti che orchestrano sync automatico: decide se rinfrescare prima di rispondere o se i dati locali sono ancora freschi.",
+      "group": "Stato e monitoraggio"
+    },
+    {
+      "name": "Cronologia inversa di una legge",
+      "command": "legge cronologia",
+      "description": "Partendo da una legge regionale promulgata (archivio 201), risale al DDL originario, agli emendamenti citati nei resoconti d'aula e ai pareri di commissione: l'inverso temporale di ddl iter.",
+      "rationale": "Inverso cronologico di ddl iter — input è la legge finale, output è la storia parlamentare che ha portato alla promulgazione.",
+      "example": "ars-sicilia-pp-cli legge cronologia 18 5 --json",
+      "why_it_matters": "Per ricercatori e giornalisti che partono dalla legge promulgata e vogliono raccontare come ci si è arrivati.",
+      "group": "Vista cronologica cross-archivio"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Iter completo di un DDL",
+      "command": "ddl iter",
+      "description": "Ricostruisce la cronologia completa di un disegno di legge: presentazione, passaggio in commissione, lavori d'aula, eventuale promulgazione come legge regionale.",
+      "rationale": "Richiede un join cronologico cross-archivio (221+229+230+217+201) in SQLite che il portale Icaro non sa fare nativamente.",
+      "example": "ars-sicilia-pp-cli ddl iter 18 1500 --json",
+      "why_it_matters": "Quando un agente deve raccontare 'a che punto sta il DDL X', questa è l'unica chiamata che restituisce la timeline completa senza incollare 5 ricerche manuali.",
+      "group": "Vista cronologica cross-archivio"
+    },
+    {
+      "name": "Profilo deputato cross-archive",
+      "command": "deputato profilo",
+      "description": "Aggrega in un'unica vista tutti gli atti firmati o pronunciati da un deputato: DDL, interrogazioni, interpellanze, mozioni, ordini del giorno, risoluzioni e interventi in resoconti d'aula.",
+      "rationale": "Il portale ARS richiede 7 ricerche separate per nome firmatario; questo comando lo fa in una sola passata sul DB locale, normalizzando le varianti del nome.",
+      "example": "ars-sicilia-pp-cli deputato profilo \"Rossi Mario\" --legisl 18 --json --select tipo,data,titolo",
+      "why_it_matters": "Sostituisce un workflow di 7 click manuali con un'unica chiamata strutturata: pensata per agenti che rispondono a 'che ha fatto il deputato X?'.",
+      "group": "Vista cronologica cross-archivio"
+    },
+    {
+      "name": "Coppie di co-firmatari",
+      "command": "analytics",
+      "description": "Identifica i deputati che firmano insieme atti parlamentari, restituendo coppie e cluster con conteggio per analisi di network politico.",
+      "rationale": "Aggregazione combinatoria sul campo FIRMAT, possibile solo con SQLite locale; il portale ARS non espone alcuna analytics.",
+      "example": "ars-sicilia-pp-cli analytics --type ddl --group-by cofirmatari --limit 50 --json",
+      "why_it_matters": "Per ricercatori e giornalisti che analizzano alleanze e dinamiche politiche: niente foglio Excel di trascrizioni manuali.",
+      "group": "Analytics su campi strutturati"
+    },
+    {
+      "name": "Oratori più attivi in aula",
+      "command": "analytics",
+      "description": "Classifica i deputati per numero di interventi nei resoconti d'aula, con range date e legislatura, opzionale conteggio parole.",
+      "rationale": "Il campo ORATOR di archivio 217 è strutturato ma il portale lo restituisce solo in prosa HTML; aggregare richiede SQLite locale.",
+      "example": "ars-sicilia-pp-cli analytics --type resoconti --group-by oratore --limit 30 --csv",
+      "why_it_matters": "Per le persone che vogliono sapere 'chi parla di più' senza scaricare 200 resoconti PDF e fare ctrl+F.",
+      "group": "Analytics su campi strutturati"
+    },
+    {
+      "name": "Dossier 360° di una commissione",
+      "command": "commissione dossier",
+      "description": "Vista completa su una commissione: convocazioni in calendario, sommari lavori, DDL assegnati e pareri richiesti al Governo regionale.",
+      "rationale": "Il portale ARS ha archivi separati per convocazioni (229), sommari (230) e pareri (226); nessuna interfaccia unificata per commissione.",
+      "example": "ars-sicilia-pp-cli commissione dossier 5 --legisl 18 --json",
+      "why_it_matters": "Quando segui i lavori di una commissione specifica, questa è l'unica chiamata che dà il quadro completo invece di 3 ricerche separate.",
+      "group": "Vista cronologica cross-archivio"
+    },
+    {
+      "name": "Drift iter DDL",
+      "command": "ddl drift",
+      "description": "Confronta lo stato dell'iter dei DDL nella sync corrente con la precedente e segnala i disegni di legge che si sono mossi nel periodo (passati da commissione ad aula, approvati, ritirati).",
+      "rationale": "Richiede storico dei sync in SQLite locale; il portale offre solo lo snapshot corrente, non sa dire 'cosa è cambiato'.",
+      "example": "ars-sicilia-pp-cli ddl drift --since 7d --json",
+      "why_it_matters": "L'RSS shell esistente segnala solo 'nuovi'; per 'mossi' non c'è alternativa. Questo è il segnale che cercavano i journalist che seguono iter politici.",
+      "group": "Stato e monitoraggio"
+    },
+    {
+      "name": "Stato sync archivi",
+      "command": "sync stale",
+      "description": "Mostra per ognuno dei 12 archivi ARS: timestamp ultima sync, n. record locali, età della sync, eventuale segnalazione di staleness.",
+      "rationale": "Necessario per chi mantiene SQLite locale e deve decidere quando rilanciare sync; informazione esiste solo nel meta locale.",
+      "example": "ars-sicilia-pp-cli sync stale --json",
+      "why_it_matters": "Per agenti che orchestrano sync automatico: decide se rinfrescare prima di rispondere o se i dati locali sono ancora freschi.",
+      "group": "Stato e monitoraggio"
+    },
+    {
+      "name": "Cronologia inversa di una legge",
+      "command": "legge cronologia",
+      "description": "Partendo da una legge regionale promulgata (archivio 201), risale al DDL originario, agli emendamenti citati nei resoconti d'aula e ai pareri di commissione: l'inverso temporale di ddl iter.",
+      "rationale": "Inverso cronologico di ddl iter — input è la legge finale, output è la storia parlamentare che ha portato alla promulgazione.",
+      "example": "ars-sicilia-pp-cli legge cronologia 18 5 --json",
+      "why_it_matters": "Per ricercatori e giornalisti che partono dalla legge promulgata e vogliono raccontare come ci si è arrivati.",
+      "group": "Vista cronologica cross-archivio"
+    }
+  ],
+  "narrative": {
+    "display_name": "ARS Sicilia",
+    "headline": "L'unica CLI per il portale dell'Assemblea Regionale Siciliana: cerca, sincronizza in locale e interroga tutti i 12 archivi documentali con SQL, FTS e MCP.",
+    "value_prop": "Sostituisce le 12 maschere JSP del portale ufficiale con una CLI agent-native. Sync in SQLite locale per query SQL, ricerca full-text cross-archivio, e novel commands come `ddl iter` (timeline completa di un disegno di legge) e `deputato profilo` (tutta l'attività di un parlamentare in un'unica chiamata).",
+    "auth_narrative": "Nessuna credenziale richiesta: il portale ARS è pubblico. La sessione `JSESSIONID` per la ricerca è gestita automaticamente in modo trasparente dal client.",
+    "quickstart": [
+      {
+        "command": "ars-sicilia-pp-cli doctor",
+        "comment": "Verifica raggiungibilità del portale e stato del database locale."
+      },
+      {
+        "command": "ars-sicilia-pp-cli sync --resources leggi,ddl --max-pages 0",
+        "comment": "Sincronizza in locale leggi e DDL degli ultimi 30 giorni in SQLite."
+      },
+      {
+        "command": "ars-sicilia-pp-cli ddl cerca --anno 2024 --legisl 18 --json",
+        "comment": "Cerca i DDL della XVIII legislatura presentati nel 2024."
+      },
+      {
+        "command": "ars-sicilia-pp-cli search \"bilancio sanitario\" --limit 20",
+        "comment": "Ricerca full-text cross-archivio sui documenti già sincronizzati."
+      },
+      {
+        "command": "ars-sicilia-pp-cli ddl iter 18 1500 --json",
+        "comment": "Timeline completa del DDL 1500 della XVIII legislatura."
+      },
+      {
+        "command": "ars-sicilia-pp-cli deputato profilo \"Rossi Mario\" --json --select tipo,data,titolo",
+        "comment": "Tutta l'attività parlamentare di un deputato in un'unica chiamata."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "I comandi `cerca` restituiscono 0 risultati ma il sito ne mostra molti.",
+        "fix": "Verifica la legislatura: senza `--legisl` la query usa il default. Il portale ARS richiede sempre una legislatura nel criterio. Esempio: `--legisl 18` per XVIII."
+      },
+      {
+        "symptom": "Errore di sessione o redirect inatteso.",
+        "fix": "Il portale resetta la sessione dopo 30 minuti di inattività. Riprova il comando: il client acquisisce una nuova `JSESSIONID` automaticamente."
+      },
+      {
+        "symptom": "Comando `ddl iter` o `deputato profilo` non trova nulla.",
+        "fix": "Le viste cross-archivio leggono dal DB locale: esegui prima `ars-sicilia-pp-cli sync --resources ddl,leggi,resoconti,convocazioni_commissioni,sommari_commissioni`."
+      }
+    ],
+    "when_to_use": "Usa ars-sicilia-pp-cli quando devi cercare, scaricare o aggregare atti dell'Assemblea Regionale Siciliana (leggi regionali, disegni di legge, interrogazioni, mozioni, resoconti d'aula, lavori di commissione) e quando hai bisogno di output strutturato JSON/CSV per pipeline downstream o per assistenti AI via MCP. Particolarmente utile per giornalismo politico, ricerca civica, civic-hacking opendata, e analisi cross-archivio impossibili dal portale JSP nativo.",
+    "recipes": [
+      {
+        "title": "Sync iniziale completo XVIII legislatura",
+        "command": "ars-sicilia-pp-cli sync --max-pages 0 --resources ddl,leggi,interrogazioni,mozioni,interpellanze,odg,risoluzioni,pareri,resoconti,convocazioni,sommari",
+        "explanation": "Prima sincronizzazione di tutti gli archivi politici della XVIII legislatura — i dati restano in `~/.local/share/ars-sicilia-pp-cli/store.db`."
+      },
+      {
+        "title": "Iter completo di un DDL con output narrowing",
+        "command": "ars-sicilia-pp-cli ddl iter 18 1500 --json --select fase,data,sede,oratori",
+        "explanation": "Timeline del DDL 1500, mostrando solo i campi essenziali — riduce il payload per agenti."
+      },
+      {
+        "title": "Network di co-firmatari su DDL",
+        "command": "ars-sicilia-pp-cli analytics --type ddl --group-by cofirmatari --limit 30 --csv",
+        "explanation": "Produce un CSV con le coppie di deputati che firmano DDL insieme — pronto per import in `duckdb` o gephi."
+      },
+      {
+        "title": "Drift settimanale dei DDL",
+        "command": "ars-sicilia-pp-cli ddl drift --since 7d --json",
+        "explanation": "Confronta lo stato dell'iter rispetto a una settimana fa — i DDL che si sono mossi (commissione → aula, voto, ritiro) compaiono qui."
+      },
+      {
+        "title": "Top cofirmatari DDL (XVIII legislatura)",
+        "command": "ars-sicilia-pp-cli analytics --type ddl --group-by cofirmatari --limit 20 --legisl 18 --json",
+        "explanation": "Classifica i deputati che firmano più DDL insieme (richiede sync)."
+      }
+    ],
+    "trigger_phrases": [
+      "ars sicilia",
+      "assemblea regionale siciliana",
+      "disegni di legge sicilia",
+      "interrogazioni ars",
+      "mozioni siciliane",
+      "resoconti aula sicilia",
+      "use ars-sicilia",
+      "run ars-sicilia"
+    ]
+  }
+}

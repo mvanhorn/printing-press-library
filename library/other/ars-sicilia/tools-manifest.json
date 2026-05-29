@@ -1,0 +1,772 @@
+{
+  "api_name": "ars-sicilia",
+  "base_url": "https://dati.ars.sicilia.it",
+  "description": "CLI per il portale documentale dell'Assemblea Regionale Siciliana (dati.ars.sicilia.it): leggi, DDL, atti politici, lavori d'aula e di commissione.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [
+    {
+      "name": "User-Agent",
+      "value": "ars-sicilia-pp-cli/0.1.0 (+https://github.com/aborruso/ars-trasparente)"
+    },
+    {
+      "name": "Accept-Language",
+      "value": "it-IT,it;q=0.9"
+    }
+  ],
+  "tools": [
+    {
+      "name": "biblioteca_cerca",
+      "description": "Cerca nel catalogo bibliografico per autore, titolo, soggetto o ISBN. Optional: autore, titolo, soggetto (plus 3 more). Returns array of VoceCatalogo.",
+      "method": "GET",
+      "path": "/icaro/default.jsp",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "autore",
+          "type": "string",
+          "location": "query",
+          "description": "Autore (cognome nome)."
+        },
+        {
+          "name": "titolo",
+          "type": "string",
+          "location": "query",
+          "description": "Titolo."
+        },
+        {
+          "name": "soggetto",
+          "type": "string",
+          "location": "query",
+          "description": "Soggetto/materia."
+        },
+        {
+          "name": "isbn",
+          "type": "string",
+          "location": "query",
+          "description": "ISBN."
+        },
+        {
+          "name": "dewey",
+          "type": "string",
+          "location": "query",
+          "description": "Classificazione Dewey."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max risultati."
+        }
+      ]
+    },
+    {
+      "name": "biblioteca_multimediali",
+      "description": "Cerca nelle opere multimediali. Optional: titolo, autore, limit (default: 50). Returns array of VoceCatalogo.",
+      "method": "GET",
+      "path": "/icaro/default.jsp",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "titolo",
+          "type": "string",
+          "location": "query",
+          "description": "Titolo."
+        },
+        {
+          "name": "autore",
+          "type": "string",
+          "location": "query",
+          "description": "Autore."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max risultati."
+        }
+      ]
+    },
+    {
+      "name": "commissioni_convocazioni",
+      "description": "Convocazioni delle Commissioni. Optional: legisl, codcom, commissione (plus 2 more). Returns array of Convocazione.",
+      "method": "GET",
+      "path": "/icaro/default.jsp",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "legisl",
+          "type": "int",
+          "location": "query",
+          "description": "Legislatura."
+        },
+        {
+          "name": "codcom",
+          "type": "string",
+          "location": "query",
+          "description": "Codice numerico commissione."
+        },
+        {
+          "name": "commissione",
+          "type": "string",
+          "location": "query",
+          "description": "Nome commissione."
+        },
+        {
+          "name": "data",
+          "type": "string",
+          "location": "query",
+          "description": "Data seduta (YYYY-MM-DD)."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max risultati."
+        }
+      ]
+    },
+    {
+      "name": "commissioni_sommari",
+      "description": "Sommari dei lavori di commissione. Optional: legisl, codcom, commissione (plus 5 more). Returns array of Sommario.",
+      "method": "GET",
+      "path": "/icaro/default.jsp",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "legisl",
+          "type": "int",
+          "location": "query",
+          "description": "Legislatura."
+        },
+        {
+          "name": "codcom",
+          "type": "string",
+          "location": "query",
+          "description": "Codice commissione."
+        },
+        {
+          "name": "commissione",
+          "type": "string",
+          "location": "query",
+          "description": "Nome commissione."
+        },
+        {
+          "name": "data",
+          "type": "string",
+          "location": "query",
+          "description": "Data seduta."
+        },
+        {
+          "name": "presidente",
+          "type": "string",
+          "location": "query",
+          "description": "Presidente seduta."
+        },
+        {
+          "name": "argomento",
+          "type": "string",
+          "location": "query",
+          "description": "Argomento."
+        },
+        {
+          "name": "testo",
+          "type": "string",
+          "location": "query",
+          "description": "Ricerca testuale."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max risultati."
+        }
+      ]
+    },
+    {
+      "name": "ddl_cerca",
+      "description": "Cerca disegni di legge per legislatura, anno, firmatario, materia o testo. Optional: legisl, anno, firmatario (plus 4 more). Returns array of DDL.",
+      "method": "GET",
+      "path": "/icaro/default.jsp",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "legisl",
+          "type": "int",
+          "location": "query",
+          "description": "Legislatura (es. 18 per XVIII)."
+        },
+        {
+          "name": "anno",
+          "type": "int",
+          "location": "query",
+          "description": "Anno di presentazione."
+        },
+        {
+          "name": "firmatario",
+          "type": "string",
+          "location": "query",
+          "description": "Nome o cognome del firmatario."
+        },
+        {
+          "name": "materia",
+          "type": "string",
+          "location": "query",
+          "description": "Materia/settore."
+        },
+        {
+          "name": "testo",
+          "type": "string",
+          "location": "query",
+          "description": "Ricerca testuale libera."
+        },
+        {
+          "name": "iter",
+          "type": "string",
+          "location": "query",
+          "description": "Stato dell'iter (atto/storico)."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max risultati."
+        }
+      ]
+    },
+    {
+      "name": "ddl_get",
+      "description": "Scarica un singolo disegno di legge. Required: legisl, numero. Returns the DDL.",
+      "method": "GET",
+      "path": "/icaro/doc221-1.jsp",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "legisl",
+          "type": "int",
+          "location": "path",
+          "description": "Legislatura.",
+          "required": true
+        },
+        {
+          "name": "numero",
+          "type": "int",
+          "location": "path",
+          "description": "Numero DDL.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "interpellanze_cerca",
+      "description": "Cerca interpellanze. Optional: legisl, firmatario, rubrica (plus 2 more). Returns array of Atto.",
+      "method": "GET",
+      "path": "/icaro/default.jsp",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "legisl",
+          "type": "int",
+          "location": "query",
+          "description": "Legislatura."
+        },
+        {
+          "name": "firmatario",
+          "type": "string",
+          "location": "query",
+          "description": "Firmatario."
+        },
+        {
+          "name": "rubrica",
+          "type": "string",
+          "location": "query",
+          "description": "Rubrica/materia."
+        },
+        {
+          "name": "testo",
+          "type": "string",
+          "location": "query",
+          "description": "Ricerca testuale."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max risultati."
+        }
+      ]
+    },
+    {
+      "name": "interpellanze_get",
+      "description": "Scarica una singola interpellanza. Required: legisl, numero. Returns the Atto.",
+      "method": "GET",
+      "path": "/icaro/doc234-1.jsp",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "legisl",
+          "type": "int",
+          "location": "path",
+          "description": "Legislatura.",
+          "required": true
+        },
+        {
+          "name": "numero",
+          "type": "int",
+          "location": "path",
+          "description": "Numero progressivo.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "interrogazioni_cerca",
+      "description": "Cerca interrogazioni per legislatura, firmatario o rubrica. Optional: legisl, firmatario, rubrica (plus 2 more). Returns array of Atto.",
+      "method": "GET",
+      "path": "/icaro/default.jsp",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "legisl",
+          "type": "int",
+          "location": "query",
+          "description": "Legislatura."
+        },
+        {
+          "name": "firmatario",
+          "type": "string",
+          "location": "query",
+          "description": "Firmatario."
+        },
+        {
+          "name": "rubrica",
+          "type": "string",
+          "location": "query",
+          "description": "Rubrica/materia."
+        },
+        {
+          "name": "testo",
+          "type": "string",
+          "location": "query",
+          "description": "Ricerca testuale."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max risultati."
+        }
+      ]
+    },
+    {
+      "name": "interrogazioni_get",
+      "description": "Scarica una singola interrogazione. Required: legisl, numero. Returns the Atto.",
+      "method": "GET",
+      "path": "/icaro/doc233-1.jsp",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "legisl",
+          "type": "int",
+          "location": "path",
+          "description": "Legislatura.",
+          "required": true
+        },
+        {
+          "name": "numero",
+          "type": "int",
+          "location": "path",
+          "description": "Numero progressivo.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "leggi_cerca",
+      "description": "Cerca leggi regionali per legislatura, anno, numero o testo. Optional: legisl, anno, numero (plus 2 more). Returns array of Legge.",
+      "method": "GET",
+      "path": "/icaro/default.jsp",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "legisl",
+          "type": "int",
+          "location": "query",
+          "description": "Legislatura (es. 18 per XVIII)."
+        },
+        {
+          "name": "anno",
+          "type": "int",
+          "location": "query",
+          "description": "Anno della legge."
+        },
+        {
+          "name": "numero",
+          "type": "int",
+          "location": "query",
+          "description": "Numero della legge."
+        },
+        {
+          "name": "testo",
+          "type": "string",
+          "location": "query",
+          "description": "Ricerca testuale libera."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max risultati da scaricare."
+        }
+      ]
+    },
+    {
+      "name": "leggi_get",
+      "description": "Scarica una singola legge regionale. Required: legisl, numero. Returns the Legge.",
+      "method": "GET",
+      "path": "/icaro/doc201-1.jsp",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "legisl",
+          "type": "int",
+          "location": "path",
+          "description": "Legislatura.",
+          "required": true
+        },
+        {
+          "name": "numero",
+          "type": "int",
+          "location": "path",
+          "description": "Numero progressivo della legge.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "mozioni_cerca",
+      "description": "Cerca mozioni. Optional: legisl, firmatario, rubrica (plus 2 more). Returns array of Atto.",
+      "method": "GET",
+      "path": "/icaro/default.jsp",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "legisl",
+          "type": "int",
+          "location": "query",
+          "description": "Legislatura."
+        },
+        {
+          "name": "firmatario",
+          "type": "string",
+          "location": "query",
+          "description": "Firmatario."
+        },
+        {
+          "name": "rubrica",
+          "type": "string",
+          "location": "query",
+          "description": "Rubrica/materia."
+        },
+        {
+          "name": "testo",
+          "type": "string",
+          "location": "query",
+          "description": "Ricerca testuale."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max risultati."
+        }
+      ]
+    },
+    {
+      "name": "mozioni_get",
+      "description": "Scarica una singola mozione. Required: legisl, numero. Returns the Atto.",
+      "method": "GET",
+      "path": "/icaro/doc235-1.jsp",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "legisl",
+          "type": "int",
+          "location": "path",
+          "description": "Legislatura.",
+          "required": true
+        },
+        {
+          "name": "numero",
+          "type": "int",
+          "location": "path",
+          "description": "Numero progressivo.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "odg_cerca",
+      "description": "Cerca ordini del giorno. Optional: legisl, firmatario, rubrica (plus 2 more). Returns array of Atto.",
+      "method": "GET",
+      "path": "/icaro/default.jsp",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "legisl",
+          "type": "int",
+          "location": "query",
+          "description": "Legislatura."
+        },
+        {
+          "name": "firmatario",
+          "type": "string",
+          "location": "query",
+          "description": "Firmatario."
+        },
+        {
+          "name": "rubrica",
+          "type": "string",
+          "location": "query",
+          "description": "Rubrica."
+        },
+        {
+          "name": "testo",
+          "type": "string",
+          "location": "query",
+          "description": "Ricerca testuale."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max risultati."
+        }
+      ]
+    },
+    {
+      "name": "odg_get",
+      "description": "Scarica un singolo ordine del giorno. Required: legisl, numero. Returns the Atto.",
+      "method": "GET",
+      "path": "/icaro/doc236-1.jsp",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "legisl",
+          "type": "int",
+          "location": "path",
+          "description": "Legislatura.",
+          "required": true
+        },
+        {
+          "name": "numero",
+          "type": "int",
+          "location": "path",
+          "description": "Numero progressivo.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "pareri_cerca",
+      "description": "Cerca pareri richiesti dal Governo. Optional: legisl, commissione, oggetto (plus 1 more). Returns array of Parere.",
+      "method": "GET",
+      "path": "/icaro/default.jsp",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "legisl",
+          "type": "int",
+          "location": "query",
+          "description": "Legislatura."
+        },
+        {
+          "name": "commissione",
+          "type": "string",
+          "location": "query",
+          "description": "Commissione competente."
+        },
+        {
+          "name": "oggetto",
+          "type": "string",
+          "location": "query",
+          "description": "Oggetto del parere."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max risultati."
+        }
+      ]
+    },
+    {
+      "name": "pareri_get",
+      "description": "Scarica un singolo parere. Required: legisl, numero. Returns the Parere.",
+      "method": "GET",
+      "path": "/icaro/doc226-1.jsp",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "legisl",
+          "type": "int",
+          "location": "path",
+          "description": "Legislatura.",
+          "required": true
+        },
+        {
+          "name": "numero",
+          "type": "int",
+          "location": "path",
+          "description": "Numero progressivo.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "resoconti_cerca",
+      "description": "Cerca resoconti per data, oratore o argomento. Optional: legisl, anno, data (plus 5 more). Returns array of Resoconto.",
+      "method": "GET",
+      "path": "/icaro/default.jsp",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "legisl",
+          "type": "int",
+          "location": "query",
+          "description": "Legislatura."
+        },
+        {
+          "name": "anno",
+          "type": "int",
+          "location": "query",
+          "description": "Anno della seduta."
+        },
+        {
+          "name": "data",
+          "type": "string",
+          "location": "query",
+          "description": "Data seduta (YYYY-MM-DD)."
+        },
+        {
+          "name": "numero",
+          "type": "int",
+          "location": "query",
+          "description": "Numero seduta."
+        },
+        {
+          "name": "oratore",
+          "type": "string",
+          "location": "query",
+          "description": "Oratore."
+        },
+        {
+          "name": "argomento",
+          "type": "string",
+          "location": "query",
+          "description": "Argomento."
+        },
+        {
+          "name": "testo",
+          "type": "string",
+          "location": "query",
+          "description": "Ricerca testuale."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max risultati."
+        }
+      ]
+    },
+    {
+      "name": "resoconti_get",
+      "description": "Scarica un singolo resoconto. Required: legisl, numero. Returns the Resoconto.",
+      "method": "GET",
+      "path": "/icaro/doc217-1.jsp",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "legisl",
+          "type": "int",
+          "location": "path",
+          "description": "Legislatura.",
+          "required": true
+        },
+        {
+          "name": "numero",
+          "type": "int",
+          "location": "path",
+          "description": "Numero seduta.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "risoluzioni_cerca",
+      "description": "Cerca risoluzioni. Optional: legisl, firmatario, commissione (plus 2 more). Returns array of Atto.",
+      "method": "GET",
+      "path": "/icaro/default.jsp",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "legisl",
+          "type": "int",
+          "location": "query",
+          "description": "Legislatura."
+        },
+        {
+          "name": "firmatario",
+          "type": "string",
+          "location": "query",
+          "description": "Firmatario."
+        },
+        {
+          "name": "commissione",
+          "type": "string",
+          "location": "query",
+          "description": "Commissione."
+        },
+        {
+          "name": "testo",
+          "type": "string",
+          "location": "query",
+          "description": "Ricerca testuale."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max risultati."
+        }
+      ]
+    },
+    {
+      "name": "risoluzioni_get",
+      "description": "Scarica una singola risoluzione. Required: legisl, numero. Returns the Atto.",
+      "method": "GET",
+      "path": "/icaro/doc238-1.jsp",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "legisl",
+          "type": "int",
+          "location": "path",
+          "description": "Legislatura.",
+          "required": true
+        },
+        {
+          "name": "numero",
+          "type": "int",
+          "location": "path",
+          "description": "Numero progressivo.",
+          "required": true
+        }
+      ]
+    }
+  ]
+}
