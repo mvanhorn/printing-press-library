@@ -147,6 +147,9 @@ func pairCofirmatari(ctx context.Context, db *sql.DB, typ string, legisl, limit 
 			}
 		}
 	}
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("lettura cofirmatari: %w", err)
+	}
 	result := make([]analyticsRow, 0, len(counts))
 	for k, v := range counts {
 		result = append(result, analyticsRow{Chiave: k, Conteggio: v})
@@ -191,6 +194,9 @@ func groupOratori(ctx context.Context, db *sql.DB, legisl, limit int) ([]analyti
 			counts[n]++
 		}
 	}
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("lettura oratori: %w", err)
+	}
 	result := make([]analyticsRow, 0, len(counts))
 	for k, v := range counts {
 		result = append(result, analyticsRow{Chiave: k, Conteggio: v})
@@ -229,6 +235,9 @@ func groupByAnno(ctx context.Context, db *sql.DB, typ string, legisl, limit int)
 			continue
 		}
 		result = append(result, analyticsRow{Chiave: anno.String, Conteggio: n})
+	}
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("lettura anni: %w", err)
 	}
 	return result, nil
 }

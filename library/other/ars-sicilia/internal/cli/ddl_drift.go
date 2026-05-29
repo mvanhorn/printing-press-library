@@ -131,6 +131,9 @@ func runDdlDrift(cmd *cobra.Command, flags *rootFlags, since, dbPath string) err
 			report.Nuovi = append(report.Nuovi, it)
 		}
 	}
+	if err := rows.Err(); err != nil {
+		return fmt.Errorf("lettura drift: %w", err)
+	}
 	sort.SliceStable(report.Mossi, func(i, j int) bool {
 		return parseICaroDate(report.Mossi[i].DataA) > parseICaroDate(report.Mossi[j].DataA)
 	})
