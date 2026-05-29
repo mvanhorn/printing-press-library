@@ -8,6 +8,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"os"
 	"sort"
 
 	"github.com/mvanhorn/printing-press-library/library/payments/lemonsqueezy/internal/store"
@@ -168,12 +169,25 @@ func buildDunningAlert(db *store.Store) (dunningAlertView, error) {
 
 func loadSubscriptionStates(db *store.Store) map[string]string {
 	out := map[string]string{}
-	rows, err := db.Query(`SELECT data FROM resources WHERE resource_type = 'subscriptions' LIMIT 50000`)
+	// Bumped from 50k to 500k; emits a stderr warning when saturated so
+	// callers know subscription-state lookups may be incomplete.
+	const loadSubscriptionStatesCap = 500000
+	rows, err := db.Query(
+		`SELECT data FROM resources WHERE resource_type = 'subscriptions' LIMIT ?`,
+		loadSubscriptionStatesCap,
+	)
 	if err != nil {
 		return out
 	}
 	defer rows.Close()
+	loaded := 0
+	defer func() {
+		if loaded >= loadSubscriptionStatesCap {
+			fmt.Fprintf(os.Stderr, "warning: loadSubscriptionStates hit %d-row cap; dunning-alert may underreport recoverable invoices for subscriptions beyond the cap\n", loadSubscriptionStatesCap)
+		}
+	}()
 	for rows.Next() {
+		loaded++
 		var data sql.NullString
 		if rows.Scan(&data) != nil || !data.Valid {
 			continue

@@ -8,6 +8,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"os"
 	"sort"
 	"time"
 
@@ -192,12 +193,18 @@ func buildChurnWatch(db *store.Store, window time.Duration, sinceLabel string) (
 
 func loadCustomerEmails(db *store.Store) map[string]string {
 	out := map[string]string{}
-	rows, err := db.Query(`SELECT data FROM resources WHERE resource_type = 'customers' LIMIT 50000`)
+	const loadCustomerEmailsCap = 500000
+	rows, err := db.Query(
+		`SELECT data FROM resources WHERE resource_type = 'customers' LIMIT ?`,
+		loadCustomerEmailsCap,
+	)
 	if err != nil {
 		return out
 	}
 	defer rows.Close()
+	loaded := 0
 	for rows.Next() {
+		loaded++
 		var data sql.NullString
 		if rows.Scan(&data) != nil || !data.Valid {
 			continue
@@ -215,6 +222,9 @@ func loadCustomerEmails(db *store.Store) map[string]string {
 			out[env.ID] = env.Attributes.Email
 		}
 	}
+	if loaded >= loadCustomerEmailsCap {
+		fmt.Fprintf(os.Stderr, "warning: loadCustomerEmails hit %d-row cap; email lookups may be missing for some customers\n", loadCustomerEmailsCap)
+	}
 	return out
 }
 
@@ -224,12 +234,23 @@ func loadLastInvoiceBySub(db *store.Store) map[string]float64 {
 		amt  float64
 	}
 	tmp := map[string]stamp{}
-	rows, err := db.Query(`SELECT data FROM resources WHERE resource_type = 'subscription-invoices' LIMIT 50000`)
+	const loadLastInvoiceBySubCap = 500000
+	rows, err := db.Query(
+		`SELECT data FROM resources WHERE resource_type = 'subscription-invoices' LIMIT ?`,
+		loadLastInvoiceBySubCap,
+	)
 	if err != nil {
 		return map[string]float64{}
 	}
 	defer rows.Close()
+	loaded := 0
+	defer func() {
+		if loaded >= loadLastInvoiceBySubCap {
+			fmt.Fprintf(os.Stderr, "warning: loadLastInvoiceBySub hit %d-row cap; last-invoice dollar exposure may be missing for subscriptions beyond the cap\n", loadLastInvoiceBySubCap)
+		}
+	}()
 	for rows.Next() {
+		loaded++
 		var data sql.NullString
 		if rows.Scan(&data) != nil || !data.Valid {
 			continue

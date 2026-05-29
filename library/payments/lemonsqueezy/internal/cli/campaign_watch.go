@@ -8,6 +8,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"os"
 	"sort"
 	"strings"
 	"time"
@@ -203,12 +204,23 @@ func loadRedemptionVelocityByDiscount(db *store.Store, now time.Time) map[string
 	out := map[string][2]float64{}
 	cutoff := now.Add(-24 * time.Hour)
 
-	rows, err := db.Query(`SELECT data FROM resources WHERE resource_type = 'discount-redemptions' LIMIT 100000`)
+	const loadRedemptionVelocityCap = 1000000
+	rows, err := db.Query(
+		`SELECT data FROM resources WHERE resource_type = 'discount-redemptions' LIMIT ?`,
+		loadRedemptionVelocityCap,
+	)
 	if err != nil {
 		return out
 	}
 	defer rows.Close()
+	loaded := 0
+	defer func() {
+		if loaded >= loadRedemptionVelocityCap {
+			fmt.Fprintf(os.Stderr, "warning: loadRedemptionVelocityByDiscount hit %d-row cap; sellout-pace projection may underreport historical redemption velocity\n", loadRedemptionVelocityCap)
+		}
+	}()
 	for rows.Next() {
+		loaded++
 		var data sql.NullString
 		if rows.Scan(&data) != nil || !data.Valid {
 			continue
