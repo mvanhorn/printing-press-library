@@ -119,7 +119,7 @@ func pairCofirmatari(ctx context.Context, db *sql.DB, typ string, legisl, limit 
 		FROM resources
 		WHERE resource_type = ?
 		` + whereLegisl + `
-		  AND firmat IS NOT NULL AND firmat != ''`
+		  AND json_extract(data, '$.firmatari') IS NOT NULL AND json_extract(data, '$.firmatari') != ''`
 	rows, err := db.QueryContext(ctx, q, args...)
 	if err != nil {
 		return nil, fmt.Errorf("query cofirmatari: %w", err)
@@ -174,7 +174,7 @@ func groupOratori(ctx context.Context, db *sql.DB, legisl, limit int) ([]analyti
 		FROM resources
 		WHERE resource_type = 'resoconti'
 		` + whereLegisl + `
-		  AND oratori IS NOT NULL AND oratori != ''`
+		  AND json_extract(data, '$.oratori') IS NOT NULL AND json_extract(data, '$.oratori') != ''`
 	rows, err := db.QueryContext(ctx, q, args...)
 	if err != nil {
 		return nil, fmt.Errorf("query oratori: %w", err)
@@ -220,7 +220,7 @@ func groupByAnno(ctx context.Context, db *sql.DB, typ string, legisl, limit int)
 		FROM resources
 		WHERE resource_type = ?
 		` + whereLegisl + `
-		  AND anno != ''
+		  AND substr(json_extract(data, '$.data'), -4) != ''
 		GROUP BY anno ORDER BY n DESC LIMIT ` + fmt.Sprintf("%d", limit)
 	rows, err := db.QueryContext(ctx, q, args...)
 	if err != nil {
