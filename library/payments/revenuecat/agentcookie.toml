@@ -1,0 +1,17 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "revenuecat-pp-cli"
+display_name = "RevenueCat"
+description = "Every RevenueCat v2 endpoint, plus a local database, offline search, and revenue/churn/refund intelligence the dashboard charts can't compose."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/revenuecat-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+DEVELOPER_BEARER_AUTH = true
+REVENUECAT_API_KEY = true

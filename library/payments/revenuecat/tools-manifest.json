@@ -1,0 +1,3238 @@
+{
+  "api_name": "revenuecat",
+  "base_url": "https://api.revenuecat.com/v2",
+  "description": "Every RevenueCat v2 endpoint, plus a local database, offline search, and revenue/churn/refund intelligence the dashboard charts can't compose.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "mcp": {
+    "endpoint_tools": "hidden",
+    "orchestration": "code"
+  },
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "REVENUECAT_BEARER_AUTH"
+    ],
+    "env_var_specs": [
+      {
+        "name": "REVENUECAT_BEARER_AUTH",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "apps_create",
+      "description": "This endpoint requires the following permission(s): project_configuration:apps:read_write . This endpoint belongs to the Project Configuration domain, which has a default rate limit of 60 requests per minute . Required: project_id.",
+      "method": "POST",
+      "path": "/projects/{project_id}/apps",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the project",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "apps_delete",
+      "description": "This endpoint requires the following permission(s): project_configuration:apps:read_write . This endpoint belongs to the Project Configuration domain, which has a default rate limit of 60 requests per minute . Required: project_id, app_id. Returns the DeletedObject. Destructive.",
+      "method": "DELETE",
+      "path": "/projects/{project_id}/apps/{app_id}",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the project",
+          "required": true
+        },
+        {
+          "name": "app_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the app",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "apps_get",
+      "description": "This endpoint requires the following permission(s): project_configuration:apps:read . This endpoint belongs to the Project Configuration domain, which has a default rate limit of 60 requests per minute . Required: project_id, app_id.",
+      "method": "GET",
+      "path": "/projects/{project_id}/apps/{app_id}",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the project",
+          "required": true
+        },
+        {
+          "name": "app_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the app",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "apps_list",
+      "description": "This endpoint requires the following permission(s): project_configuration:apps:read . This endpoint belongs to the Project Configuration domain, which has a default rate limit of 60 requests per minute . Required: project_id. Optional: starting_after, limit (default: 20). Returns the ListApps.",
+      "method": "GET",
+      "path": "/projects/{project_id}/apps",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the project",
+          "required": true
+        },
+        {
+          "name": "starting_after",
+          "type": "string",
+          "location": "query",
+          "description": "Starting after"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        }
+      ]
+    },
+    {
+      "name": "apps_update",
+      "description": "This endpoint requires the following permission(s): project_configuration:apps:read_write . This endpoint belongs to the Project Configuration domain, which has a default rate limit of 60 requests per minute . Required: project_id, app_id. Optional: amazon, app_store, mac_app_store (plus 6 more).",
+      "method": "POST",
+      "path": "/projects/{project_id}/apps/{app_id}",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the project",
+          "required": true
+        },
+        {
+          "name": "app_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the app",
+          "required": true
+        },
+        {
+          "name": "amazon-package-name",
+          "wire_name": "amazon.package_name",
+          "type": "string",
+          "location": "body",
+          "description": "The package name of the app"
+        },
+        {
+          "name": "amazon-shared-secret",
+          "wire_name": "amazon.shared_secret",
+          "type": "string",
+          "location": "body",
+          "description": "Your Amazon Developer Identity Shared Key"
+        },
+        {
+          "name": "app-store-app-store-connect-api-key",
+          "wire_name": "app_store.app_store_connect_api_key",
+          "type": "string",
+          "location": "body",
+          "description": "App Store Connect API Key downloaded from App Store Connect in PEM format. Copy the contents of the file in this field. This is optional and used for advanced features like product imports."
+        },
+        {
+          "name": "app-store-app-store-connect-api-key-id",
+          "wire_name": "app_store.app_store_connect_api_key_id",
+          "type": "string",
+          "location": "body",
+          "description": "App Store Connect API Key ID. The ID of the downloaded API key. You can get it from App Store Connect."
+        },
+        {
+          "name": "app-store-app-store-connect-api-key-issuer",
+          "wire_name": "app_store.app_store_connect_api_key_issuer",
+          "type": "string",
+          "location": "body",
+          "description": "App Store Connect API Key Issuer ID."
+        },
+        {
+          "name": "app-store-app-store-connect-vendor-number",
+          "wire_name": "app_store.app_store_connect_vendor_number",
+          "type": "string",
+          "location": "body",
+          "description": "Your vendor number from App Store Connect. Required for some features like financial reports."
+        },
+        {
+          "name": "app-store-bundle-id",
+          "wire_name": "app_store.bundle_id",
+          "type": "string",
+          "location": "body",
+          "description": "The bundle ID of the app"
+        },
+        {
+          "name": "app-store-shared-secret",
+          "wire_name": "app_store.shared_secret",
+          "type": "string",
+          "location": "body",
+          "description": "The shared secret of the app"
+        },
+        {
+          "name": "app-store-subscription-key-id",
+          "wire_name": "app_store.subscription_key_id",
+          "type": "string",
+          "location": "body",
+          "description": "In App Key id. The ID of the downloaded in app key. You can get it from App Store Connect"
+        },
+        {
+          "name": "app-store-subscription-key-issuer",
+          "wire_name": "app_store.subscription_key_issuer",
+          "type": "string",
+          "location": "body",
+          "description": "The key Issuer id. See instructions on how to obtain this in https://www.revenuecat.com/docs/in-app-purchase-key-configuration#3-providing-the-issuer-id-to-revenuecat"
+        },
+        {
+          "name": "app-store-subscription-private-key",
+          "wire_name": "app_store.subscription_private_key",
+          "type": "string",
+          "location": "body",
+          "description": "PKCS"
+        },
+        {
+          "name": "mac-app-store-bundle-id",
+          "wire_name": "mac_app_store.bundle_id",
+          "type": "string",
+          "location": "body",
+          "description": "The bundle ID of the app"
+        },
+        {
+          "name": "mac-app-store-shared-secret",
+          "wire_name": "mac_app_store.shared_secret",
+          "type": "string",
+          "location": "body",
+          "description": "The shared secret of the app"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "The name of the app"
+        },
+        {
+          "name": "paddle-paddle-api-key",
+          "wire_name": "paddle.paddle_api_key",
+          "type": "string",
+          "location": "body",
+          "description": "Paddle Server-side API key provided on the Paddle dashboard."
+        },
+        {
+          "name": "paddle-paddle-is-sandbox",
+          "wire_name": "paddle.paddle_is_sandbox",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether the app is tied to the sandbox environment."
+        },
+        {
+          "name": "play-store-package-name",
+          "wire_name": "play_store.package_name",
+          "type": "string",
+          "location": "body",
+          "description": "The package name of the app",
+          "required": true
+        },
+        {
+          "name": "rc-billing-app-name",
+          "wire_name": "rc_billing.app_name",
+          "type": "string",
+          "location": "body",
+          "description": "Shown in checkout, emails, and receipts sent to customers."
+        },
+        {
+          "name": "rc-billing-default-currency",
+          "wire_name": "rc_billing.default_currency",
+          "type": "string",
+          "location": "body",
+          "description": "ISO 4217 currency code"
+        },
+        {
+          "name": "rc-billing-stripe-account-id",
+          "wire_name": "rc_billing.stripe_account_id",
+          "type": "string",
+          "location": "body",
+          "description": "It needs to be connected to your RevenueCat account. It can be omitted if you only have a single Stripe account connected to your RevenueCat account."
+        },
+        {
+          "name": "rc-billing-support-email",
+          "wire_name": "rc_billing.support_email",
+          "type": "string",
+          "location": "body",
+          "description": "Used as the `reply to` address in all emails sent to customers, to allow them to receive support. If you leave this field blank, your RevenueCat account email address will be used."
+        },
+        {
+          "name": "roku-roku-api-key",
+          "wire_name": "roku.roku_api_key",
+          "type": "string",
+          "location": "body",
+          "description": "Roku Pay API key provided on the Roku Pay Web Services page."
+        },
+        {
+          "name": "roku-roku-channel-id",
+          "wire_name": "roku.roku_channel_id",
+          "type": "string",
+          "location": "body",
+          "description": "Channel ID provided on the Roku Channel page."
+        },
+        {
+          "name": "roku-roku-channel-name",
+          "wire_name": "roku.roku_channel_name",
+          "type": "string",
+          "location": "body",
+          "description": "Channel name that is displayed on the Roku Channel page."
+        },
+        {
+          "name": "stripe-stripe-account-id",
+          "wire_name": "stripe.stripe_account_id",
+          "type": "string",
+          "location": "body",
+          "description": "It needs to be connected to your RevenueCat account. It can be omitted if you only have a single Stripe account connected to your RevenueCat account."
+        }
+      ]
+    },
+    {
+      "name": "apps_public-api-keys_list-app",
+      "description": "Returns public API keys for the app. RC Checkout public keys are omitted. Sandbox keys are always included. Production keys are omitted when the app uses Stripe or Web Billing and the linked Stripe connected account is sandbox or test-only (same behavior as the RevenueCat dashboard list). This endpoint requires the following permission(s): project_configuration:apps:read . This endpoint belongs to the Project Configuration domain, which has a default rate limit of 60 requests per minute . Required: project_id, app_id.",
+      "method": "GET",
+      "path": "/projects/{project_id}/apps/{app_id}/public_api_keys",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the project",
+          "required": true
+        },
+        {
+          "name": "app_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the app",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "apps_store-kit-config_get-app-storekit-config",
+      "description": "This endpoint requires the following permission(s): project_configuration:apps:read . This endpoint belongs to the Project Configuration domain, which has a default rate limit of 60 requests per minute . Required: project_id, app_id. Returns the StoreKitConfigFile.",
+      "method": "GET",
+      "path": "/projects/{project_id}/apps/{app_id}/store_kit_config",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the project",
+          "required": true
+        },
+        {
+          "name": "app_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the app",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "audit-logs_list",
+      "description": "This endpoint requires the following permission(s): project_configuration:audit_logs:read . This endpoint belongs to the Project Configuration domain, which has a default rate limit of 60 requests per minute . Required: project_id. Optional: starting_after, start_date, end_date (plus 1 more). Returns the ListAuditLogs.",
+      "method": "GET",
+      "path": "/projects/{project_id}/audit_logs",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the project",
+          "required": true
+        },
+        {
+          "name": "starting_after",
+          "type": "string",
+          "location": "query",
+          "description": "Cursor for pagination. Returns audit logs after the specified audit log ID, using descending order by audit log ID."
+        },
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "query",
+          "description": "Start date for the data range (ISO 8601 format)"
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "location": "query",
+          "description": "End date for the data range (ISO 8601 format)"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        }
+      ]
+    },
+    {
+      "name": "charts_get-data",
+      "description": "Returns time-series data for a specific chart. **Response Structure** The response includes: - Chart metadata (category, display_name, description) - Time boundaries (start_date, end_date, last_computed_at) - Data values (array of data points) - Summary statistics - Segment information (when segmented) **Chart Types** Different charts may return data in slightly different formats: - Standard charts: values as arrays of data points with timestamps - Cohort charts: values include cohort-specific data structures - Segmented charts: include segment information in the response **Filtering and Segmentation** Use the `/charts/{chart_name}/options` endpoint to discover available filters and segments for a specific chart before making requests. Filter parameters vary by chart and can be passed as additional query parameters. **Aggregation** Use `aggregate` to request summary-only output for supported charts. When `aggregate` is provided, `values` is returned as an empty array and `summary` includes only the requested aggregate operations. **Incomplete data** For the most recent periods, data may be flagged as incomplete, and may not be appropriate to use for analysis. This endpoint requires the following permission(s): charts_metrics:charts:read . This endpoint belongs to the Charts \u0026 Metrics domain, which has a default rate limit of 15 requests per minute . Required: project_id, chart_name (default: actives). Optional: realtime (default: true), filters, selectors (plus 8 more).",
+      "method": "GET",
+      "path": "/projects/{project_id}/charts/{chart_name}",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the project",
+          "required": true
+        },
+        {
+          "name": "chart_name",
+          "type": "string",
+          "location": "path",
+          "description": "Name of the chart to retrieve: - actives: Active (paying) subscriptions - actives_movement: Period-over-period delta of active (paying) subscriptions - actives_new: New paying subscriptions, including trial conversions, resubscriptions, and product changes - arr: Annual recurring revenue - churn: Churn rate: active and expired subscriptions per period - cohort_explorer: allows measuring the performance of various cohort definitions over time for revenue, retained subscriptions, and cohort LTV - conversion_to_paying: Conversion of new customers to paying - customers_new: Newly seen customers - ltv_per_customer: Realized LTV per customer, also known as ARPU, cohorted by first seen date - ltv_per_paying_customer: Realized LTV per paying customer, also known as ARPPU, cohorted by first seen date - mrr: Monthly recurring revenue - mrr_movement: Period-over-period delta of monthly recurring revenue - prediction_explorer: similar to cohort_explorer but including future predictions - refund_rate: transactions per period, refunds, refund rate - revenue: revenue (gross, net of taxes, or proceeds net of taxes and commissions) and number of transactions (subscriptions and non-subscriptions) per period - subscription_retention: Per-period retention of paying subscriptions by duration - subscription_status: Break down paying subscriptions, trials, MRR, ARR, or revenue by whether the subscription is set to renew, cancelled, or in billing recovery - trials: Active trials - trials_movement: Movement of active trials - trials_new: New trials - customers_active: Customers seen during the period (also known as DAU/MAU/WAU/etc.) - trial_conversion_rate: Number of trials started in a period and ratio of them converting to paying - non-subscription_purchases: Number of non-subscription purchases per period",
+          "required": true
+        },
+        {
+          "name": "realtime",
+          "type": "bool",
+          "location": "query",
+          "description": "Whether to request real-time (v3) charts. Defaults to true. Set to false to request the v2 charts."
+        },
+        {
+          "name": "filters",
+          "type": "string",
+          "location": "query",
+          "description": "JSON array of chart filters. Each filter is a ChartFilter object."
+        },
+        {
+          "name": "selectors",
+          "type": "string",
+          "location": "query",
+          "description": "JSON object of chart selectors."
+        },
+        {
+          "name": "aggregate",
+          "type": "array",
+          "location": "query",
+          "description": "Comma-separated aggregate operations to return in `summary` without raw `values`."
+        },
+        {
+          "name": "currency",
+          "type": "string",
+          "location": "query",
+          "description": "The currency to return metrics data in"
+        },
+        {
+          "name": "resolution",
+          "type": "string",
+          "location": "query",
+          "description": "Time resolution for the chart data. Use the chart options endpoint to discover available resolutions and their IDs."
+        },
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "query",
+          "description": "Start date for the data range (ISO 8601 format)"
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "location": "query",
+          "description": "End date for the data range (ISO 8601 format)"
+        },
+        {
+          "name": "segment",
+          "type": "string",
+          "location": "query",
+          "description": "Segment the data by this dimension. Use the chart options endpoint to discover available segments for a chart."
+        },
+        {
+          "name": "limit_num_segments",
+          "type": "int",
+          "location": "query",
+          "description": "If set, limits the number of segments returned to the top N by value. All remaining segments are aggregated into an 'Other' segment. Only applies when a segment is specified."
+        },
+        {
+          "name": "include_annotations",
+          "type": "bool",
+          "location": "query",
+          "description": "When true, includes chart annotations for the project in the response, filtered to the chart's date window."
+        }
+      ]
+    },
+    {
+      "name": "charts_options_get-chart",
+      "description": "Returns configuration options for a specific chart. Use this endpoint to discover: - **Resolutions**: Available time granularities (day, week, month, etc.) - **Segments**: Dimensions you can segment the data by (country, store, product, etc.) - **Filters**: Available filters and their possible values The options returned are specific to the chart and may vary based on your project's data and configuration. **Usage** Call this endpoint before requesting chart data to: 1. Build dynamic filter UIs 2. Validate parameters before making chart data requests 3. Discover available dimensions for analysis . This endpoint requires the following permission(s): charts_metrics:charts:read . This endpoint belongs to the Charts \u0026 Metrics domain, which has a default rate limit of 15 requests per minute . Required: project_id, chart_name (default: actives). Optional: realtime (default: true).",
+      "method": "GET",
+      "path": "/projects/{project_id}/charts/{chart_name}/options",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the project",
+          "required": true
+        },
+        {
+          "name": "chart_name",
+          "type": "string",
+          "location": "path",
+          "description": "Name of the chart to retrieve: - actives: Active (paying) subscriptions - actives_movement: Period-over-period delta of active (paying) subscriptions - actives_new: New paying subscriptions, including trial conversions, resubscriptions, and product changes - arr: Annual recurring revenue - churn: Churn rate: active and expired subscriptions per period - cohort_explorer: allows measuring the performance of various cohort definitions over time for revenue, retained subscriptions, and cohort LTV - conversion_to_paying: Conversion of new customers to paying - customers_new: Newly seen customers - ltv_per_customer: Realized LTV per customer, also known as ARPU, cohorted by first seen date - ltv_per_paying_customer: Realized LTV per paying customer, also known as ARPPU, cohorted by first seen date - mrr: Monthly recurring revenue - mrr_movement: Period-over-period delta of monthly recurring revenue - prediction_explorer: similar to cohort_explorer but including future predictions - refund_rate: transactions per period, refunds, refund rate - revenue: revenue (gross, net of taxes, or proceeds net of taxes and commissions) and number of transactions (subscriptions and non-subscriptions) per period - subscription_retention: Per-period retention of paying subscriptions by duration - subscription_status: Break down paying subscriptions, trials, MRR, ARR, or revenue by whether the subscription is set to renew, cancelled, or in billing recovery - trials: Active trials - trials_movement: Movement of active trials - trials_new: New trials - customers_active: Customers seen during the period (also known as DAU/MAU/WAU/etc.) - trial_conversion_rate: Number of trials started in a period and ratio of them converting to paying - non-subscription_purchases: Number of non-subscription purchases per period",
+          "required": true
+        },
+        {
+          "name": "realtime",
+          "type": "bool",
+          "location": "query",
+          "description": "Whether to request real-time (v3) charts. Defaults to true. Set to false to request the v2 charts."
+        }
+      ]
+    },
+    {
+      "name": "collaborators_list",
+      "description": "This endpoint requires the following permission(s): project_configuration:collaborators:read . This endpoint belongs to the Project Configuration domain, which has a default rate limit of 60 requests per minute . Required: project_id. Optional: starting_after, limit (default: 20). Returns the ListCollaborators.",
+      "method": "GET",
+      "path": "/projects/{project_id}/collaborators",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the project",
+          "required": true
+        },
+        {
+          "name": "starting_after",
+          "type": "string",
+          "location": "query",
+          "description": "Starting after"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        }
+      ]
+    },
+    {
+      "name": "customers_create",
+      "description": "This endpoint requires the following permission(s): customer_information:customers:read_write . This endpoint belongs to the Customer Information domain, which has a default rate limit of 480 requests per minute . Required: project_id, id. Optional: attributes. Returns the new Customer.",
+      "method": "POST",
+      "path": "/projects/{project_id}/customers",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the project",
+          "required": true
+        },
+        {
+          "name": "attributes",
+          "type": "array",
+          "location": "body",
+          "description": "Attributes"
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "The ID of the customer",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "customers_delete",
+      "description": "This endpoint requires the following permission(s): customer_information:customers:read_write . This endpoint belongs to the Customer Information domain, which has a default rate limit of 480 requests per minute . Required: project_id, customer_id. Returns the DeletedObject. Destructive.",
+      "method": "DELETE",
+      "path": "/projects/{project_id}/customers/{customer_id}",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the project",
+          "required": true
+        },
+        {
+          "name": "customer_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the customer",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "customers_get",
+      "description": "This endpoint requires the following permission(s): customer_information:customers:read . This endpoint belongs to the Customer Information domain, which has a default rate limit of 480 requests per minute . Required: project_id, customer_id. Optional: expand. Returns the Customer.",
+      "method": "GET",
+      "path": "/projects/{project_id}/customers/{customer_id}",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the project",
+          "required": true
+        },
+        {
+          "name": "customer_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the customer",
+          "required": true
+        },
+        {
+          "name": "expand",
+          "type": "array",
+          "location": "query",
+          "description": "Specifies which fields in the response should be expanded. Accepted values are: `attributes` (requires `customer_information:customers:read` permission)."
+        }
+      ]
+    },
+    {
+      "name": "customers_list",
+      "description": "This endpoint requires the following permission(s): customer_information:customers:read . This endpoint belongs to the Customer Information domain, which has a default rate limit of 480 requests per minute . Required: project_id. Optional: starting_after, limit (default: 20), search. Returns the ListCustomers.",
+      "method": "GET",
+      "path": "/projects/{project_id}/customers",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the project",
+          "required": true
+        },
+        {
+          "name": "starting_after",
+          "type": "string",
+          "location": "query",
+          "description": "Starting after"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Search term. Currently, only searching by email is supported (searching for exact matches in the $email attribute)."
+        }
+      ]
+    },
+    {
+      "name": "customers_actions_assign-customer-offering",
+      "description": "This endpoint requires the following permission(s): project_configuration:offerings:read , customer_information:customers:read_write . This endpoint belongs to the Customer Information domain, which has a default rate limit of 480 requests per minute . Required: project_id, customer_id, offering_id.",
+      "method": "POST",
+      "path": "/projects/{project_id}/customers/{customer_id}/actions/assign_offering",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the project",
+          "required": true
+        },
+        {
+          "name": "customer_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the customer",
+          "required": true
+        },
+        {
+          "name": "offering_id",
+          "type": "string",
+          "location": "body",
+          "description": "The ID of the offering to assign to the customer. Set to null to clear any existing override.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "customers_actions_grant-customer-entitlement",
+      "description": "Grants an entitlement to a customer unless one already exists. As a side effect, a promotional subscription is created. This endpoint requires the following permission(s): customer_information:customers:read_write . This endpoint belongs to the Customer Information domain, which has a default rate limit of 480 requests per minute . Required: project_id, customer_id, entitlement_id, expires_at. Returns the new Customer.",
+      "method": "POST",
+      "path": "/projects/{project_id}/customers/{customer_id}/actions/grant_entitlement",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the project",
+          "required": true
+        },
+        {
+          "name": "customer_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the customer",
+          "required": true
+        },
+        {
+          "name": "entitlement_id",
+          "type": "string",
+          "location": "body",
+          "description": "The ID of the entitlement to grant to the customer.",
+          "required": true
+        },
+        {
+          "name": "expires_at",
+          "type": "int",
+          "location": "body",
+          "description": "The date after which the access to the entitlement expires in ms since epoch.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "customers_actions_restore-purchase-by-order-id",
+      "description": "Restores a Google Play purchase to the specified customer using a Google Play order ID. This endpoint requires the following permission(s): customer_information:customers:read_write . This endpoint belongs to the Customer Information domain, which has a default rate limit of 480 requests per minute . Required: project_id, customer_id, order_id. Returns the new Customer.",
+      "method": "POST",
+      "path": "/projects/{project_id}/customers/{customer_id}/actions/restore_purchase_by_order_id",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the project",
+          "required": true
+        },
+        {
+          "name": "customer_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the customer",
+          "required": true
+        },
+        {
+          "name": "order_id",
+          "type": "string",
+          "location": "body",
+          "description": "The Google Play order ID to restore.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "customers_actions_revoke-customer-granted-entitlement",
+      "description": "Revokes a granted entitlement from a customer. As a side effect, the promotional subscription associated with the granted entitlement is expired. This endpoint requires the following permission(s): customer_information:customers:read_write . This endpoint belongs to the Customer Information domain, which has a default rate limit of 480 requests per minute . Required: project_id, customer_id, entitlement_id. Returns the new Customer.",
+      "method": "POST",
+      "path": "/projects/{project_id}/customers/{customer_id}/actions/revoke_granted_entitlement",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the project",
+          "required": true
+        },
+        {
+          "name": "customer_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the customer",
+          "required": true
+        },
+        {
+          "name": "entitlement_id",
+          "type": "string",
+          "location": "body",
+          "description": "The ID of the granted entitlement to revoke from the customer.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "customers_actions_transfer-customer-data",
+      "description": "This endpoint requires the following permission(s): customer_information:customers:read_write , customer_information:subscriptions:read_write , customer_information:purchases:read_write . This endpoint belongs to the Customer Information domain, which has a default rate limit of 480 requests per minute . Required: project_id, customer_id, target_customer_id. Optional: app_ids. Returns the new Transfer.",
+      "method": "POST",
+      "path": "/projects/{project_id}/customers/{customer_id}/actions/transfer",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the project",
+          "required": true
+        },
+        {
+          "name": "customer_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the customer",
+          "required": true
+        },
+        {
+          "name": "app_ids",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Optional. The IDs of the apps to filter the transfer by. When specified, only purchases and subscriptions associated with these apps will be transferred."
+        },
+        {
+          "name": "target_customer_id",
+          "type": "string",
+          "location": "body",
+          "description": "The ID of the customer to whom the subscriptions and one-time purchases will be transferred.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "customers_active-entitlements_list-customer",
+      "description": "This endpoint requires the following permission(s): customer_information:customers:read . This endpoint belongs to the Customer Information domain, which has a default rate limit of 480 requests per minute . Required: project_id, customer_id. Optional: starting_after, limit (default: 20). Returns the ListCustomerActiveEntitlements.",
+      "method": "GET",
+      "path": "/projects/{project_id}/customers/{customer_id}/active_entitlements",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the project",
+          "required": true
+        },
+        {
+          "name": "customer_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the customer",
+          "required": true
+        },
+        {
+          "name": "starting_after",
+          "type": "string",
+          "location": "query",
+          "description": "Starting after"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        }
+      ]
+    },
+    {
+      "name": "customers_aliases_list-customer",
+      "description": "This endpoint requires the following permission(s): customer_information:customers:read . This endpoint belongs to the Customer Information domain, which has a default rate limit of 480 requests per minute . Required: project_id, customer_id. Optional: starting_after, limit (default: 20). Returns the ListCustomerAliases.",
+      "method": "GET",
+      "path": "/projects/{project_id}/customers/{customer_id}/aliases",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the project",
+          "required": true
+        },
+        {
+          "name": "customer_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the customer",
+          "required": true
+        },
+        {
+          "name": "starting_after",
+          "type": "string",
+          "location": "query",
+          "description": "Starting after"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        }
+      ]
+    },
+    {
+      "name": "customers_attributes_list-customer",
+      "description": "This endpoint requires the following permission(s): customer_information:customers:read . This endpoint belongs to the Customer Information domain, which has a default rate limit of 480 requests per minute . Required: project_id, customer_id. Optional: starting_after, limit (default: 20). Returns the ListCustomerAttributes.",
+      "method": "GET",
+      "path": "/projects/{project_id}/customers/{customer_id}/attributes",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the project",
+          "required": true
+        },
+        {
+          "name": "customer_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the customer",
+          "required": true
+        },
+        {
+          "name": "starting_after",
+          "type": "string",
+          "location": "query",
+          "description": "Starting after"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        }
+      ]
+    },
+    {
+      "name": "customers_attributes_set-customer",
+      "description": "This endpoint requires the following permission(s): customer_information:customers:read_write . This endpoint belongs to the Customer Information domain, which has a default rate limit of 480 requests per minute . Required: project_id, customer_id, attributes. Returns the new ListCustomerAttributes.",
+      "method": "POST",
+      "path": "/projects/{project_id}/customers/{customer_id}/attributes",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the project",
+          "required": true
+        },
+        {
+          "name": "customer_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the customer",
+          "required": true
+        },
+        {
+          "name": "attributes",
+          "type": "array",
+          "location": "body",
+          "description": "Attributes",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "customers_customer-center_get-config",
+      "description": "This endpoint requires the following permission(s): customer_information:customers:read . This endpoint belongs to the Customer Information domain, which has a default rate limit of 480 requests per minute . Required: project_id, customer_id. Optional: platform, locale. Returns the CustomerCenterConfig.",
+      "method": "GET",
+      "path": "/projects/{project_id}/customers/{customer_id}/customer_center",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the project",
+          "required": true
+        },
+        {
+          "name": "customer_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the customer",
+          "required": true
+        },
+        {
+          "name": "platform",
+          "type": "string",
+          "location": "query",
+          "description": "The platform to process the Customer Center configuration for. When provided, returns the locale-selected, platform-filtered configuration the customer would see. When omitted, returns the full unprocessed configuration for all platforms. Must match a store configured on this project."
+        },
+        {
+          "name": "locale",
+          "type": "string",
+          "location": "query",
+          "description": "BCP 47 locale string (e.g. en_US) used to select the appropriate localization when platform is provided. When omitted, the configuration's default locale is used. Has no effect if platform is not provided."
+        }
+      ]
+    },
+    {
+      "name": "customers_invoices_get",
+      "description": "This endpoint requires the following permission(s): customer_information:invoices:read . This endpoint belongs to the Customer Information domain, which has a default rate limit of 480 requests per minute . Required: project_id, customer_id, invoice_id.",
+      "method": "GET",
+      "path": "/projects/{project_id}/customers/{customer_id}/invoices/{invoice_id}/file",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the project",
+          "required": true
+        },
+        {
+          "name": "customer_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the customer",
+          "required": true
+        },
+        {
+          "name": "invoice_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the invoice",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "customers_invoices_list-customer",
+      "description": "This endpoint requires the following permission(s): customer_information:invoices:read . This endpoint belongs to the Customer Information domain, which has a default rate limit of 480 requests per minute . Required: project_id, customer_id. Optional: starting_after, limit (default: 20). Returns the ListCustomerInvoices.",
+      "method": "GET",
+      "path": "/projects/{project_id}/customers/{customer_id}/invoices",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the project",
+          "required": true
+        },
+        {
+          "name": "customer_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the customer",
+          "required": true
+        },
+        {
+          "name": "starting_after",
+          "type": "string",
+          "location": "query",
+          "description": "Starting after"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        }
+      ]
+    },
+    {
+      "name": "customers_purchases_list",
+      "description": "This endpoint requires the following permission(s): customer_information:purchases:read . This endpoint belongs to the Customer Information domain, which has a default rate limit of 480 requests per minute . Required: project_id, customer_id. Optional: environment, starting_after, limit (default: 20). Returns the ListPurchases.",
+      "method": "GET",
+      "path": "/projects/{project_id}/customers/{customer_id}/purchases",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the project",
+          "required": true
+        },
+        {
+          "name": "customer_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the customer",
+          "required": true
+        },
+        {
+          "name": "environment",
+          "type": "string",
+          "location": "query",
+          "description": "Environment"
+        },
+        {
+          "name": "starting_after",
+          "type": "string",
+          "location": "query",
+          "description": "Starting after"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        }
+      ]
+    },
+    {
+      "name": "customers_subscriptions_list",
+      "description": "This endpoint requires the following permission(s): customer_information:subscriptions:read . This endpoint belongs to the Customer Information domain, which has a default rate limit of 480 requests per minute . Required: project_id, customer_id. Optional: environment, starting_after, limit (default: 20). Returns the ListSubscriptions.",
+      "method": "GET",
+      "path": "/projects/{project_id}/customers/{customer_id}/subscriptions",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the project",
+          "required": true
+        },
+        {
+          "name": "customer_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the customer",
+          "required": true
+        },
+        {
+          "name": "environment",
+          "type": "string",
+          "location": "query",
+          "description": "Environment"
+        },
+        {
+          "name": "starting_after",
+          "type": "string",
+          "location": "query",
+          "description": "Starting after"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        }
+      ]
+    },
+    {
+      "name": "customers_virtual-currencies_create-transaction",
+      "description": "This endpoint requires the following permission(s): customer_information:purchases:read_write . This endpoint belongs to the Virtual Currencies - Create Transaction domain, which has a default rate limit of 480 requests per minute . Required: project_id, customer_id, adjustments. Optional: include_empty_balances, reference. Returns the new ListVirtualCurrenciesBalances.",
+      "method": "POST",
+      "path": "/projects/{project_id}/customers/{customer_id}/virtual_currencies/transactions",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the project",
+          "required": true
+        },
+        {
+          "name": "customer_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the customer",
+          "required": true
+        },
+        {
+          "name": "include_empty_balances",
+          "type": "bool",
+          "location": "query",
+          "description": "Include empty balances"
+        },
+        {
+          "name": "adjustments",
+          "type": "object",
+          "location": "body",
+          "description": "The adjustments to the virtual currencies",
+          "required": true
+        },
+        {
+          "name": "reference",
+          "type": "string",
+          "location": "body",
+          "description": "The reference of the transaction"
+        }
+      ]
+    },
+    {
+      "name": "customers_virtual-currencies_list-balances",
+      "description": "This endpoint requires the following permission(s): customer_information:purchases:read . This endpoint belongs to the Customer Information domain, which has a default rate limit of 480 requests per minute . Required: project_id, customer_id. Optional: include_empty_balances, starting_after, limit (default: 20). Returns the ListVirtualCurrenciesBalances.",
+      "method": "GET",
+      "path": "/projects/{project_id}/customers/{customer_id}/virtual_currencies",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the project",
+          "required": true
+        },
+        {
+          "name": "customer_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the customer",
+          "required": true
+        },
+        {
+          "name": "include_empty_balances",
+          "type": "bool",
+          "location": "query",
+          "description": "Include empty balances"
+        },
+        {
+          "name": "starting_after",
+          "type": "string",
+          "location": "query",
+          "description": "Starting after"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        }
+      ]
+    },
+    {
+      "name": "customers_virtual-currencies_update-balance",
+      "description": "This endpoint requires the following permission(s): customer_information:purchases:read_write . This endpoint belongs to the Virtual Currencies - Create Transaction domain, which has a default rate limit of 480 requests per minute . Required: project_id, customer_id, adjustments. Optional: include_empty_balances, reference. Returns the new ListVirtualCurrenciesBalances.",
+      "method": "POST",
+      "path": "/projects/{project_id}/customers/{customer_id}/virtual_currencies/update_balance",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the project",
+          "required": true
+        },
+        {
+          "name": "customer_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the customer",
+          "required": true
+        },
+        {
+          "name": "include_empty_balances",
+          "type": "bool",
+          "location": "query",
+          "description": "Include empty balances"
+        },
+        {
+          "name": "adjustments",
+          "type": "object",
+          "location": "body",
+          "description": "The adjustments to the virtual currencies",
+          "required": true
+        },
+        {
+          "name": "reference",
+          "type": "string",
+          "location": "body",
+          "description": "The reference of the transaction"
+        }
+      ]
+    },
+    {
+      "name": "entitlements_create",
+      "description": "This endpoint requires the following permission(s): project_configuration:entitlements:read_write . This endpoint belongs to the Project Configuration domain, which has a default rate limit of 60 requests per minute . Required: project_id, display_name, lookup_key. Returns the new Entitlement.",
+      "method": "POST",
+      "path": "/projects/{project_id}/entitlements",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the project",
+          "required": true
+        },
+        {
+          "name": "display_name",
+          "type": "string",
+          "location": "body",
+          "description": "The display name of the entitlement",
+          "required": true
+        },
+        {
+          "name": "lookup_key",
+          "type": "string",
+          "location": "body",
+          "description": "The identifier of the entitlement",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "entitlements_delete",
+      "description": "This endpoint requires the following permission(s): project_configuration:entitlements:read_write . This endpoint belongs to the Project Configuration domain, which has a default rate limit of 60 requests per minute . Required: project_id, entitlement_id. Returns the DeletedObject. Destructive.",
+      "method": "DELETE",
+      "path": "/projects/{project_id}/entitlements/{entitlement_id}",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the project",
+          "required": true
+        },
+        {
+          "name": "entitlement_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the entitlement",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "entitlements_get",
+      "description": "This endpoint requires the following permission(s): project_configuration:entitlements:read . This endpoint belongs to the Project Configuration domain, which has a default rate limit of 60 requests per minute . Required: project_id, entitlement_id. Optional: expand. Returns the Entitlement.",
+      "method": "GET",
+      "path": "/projects/{project_id}/entitlements/{entitlement_id}",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the project",
+          "required": true
+        },
+        {
+          "name": "entitlement_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the entitlement",
+          "required": true
+        },
+        {
+          "name": "expand",
+          "type": "array",
+          "location": "query",
+          "description": "Specifies which fields in the response should be expanded. Accepted values are: `product` (requires `project_configuration:products:read` permission)."
+        }
+      ]
+    },
+    {
+      "name": "entitlements_list",
+      "description": "This endpoint requires the following permission(s): project_configuration:entitlements:read . This endpoint belongs to the Project Configuration domain, which has a default rate limit of 60 requests per minute . Required: project_id. Optional: starting_after, limit (default: 20), expand. Returns the ListEntitlements.",
+      "method": "GET",
+      "path": "/projects/{project_id}/entitlements",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the project",
+          "required": true
+        },
+        {
+          "name": "starting_after",
+          "type": "string",
+          "location": "query",
+          "description": "Starting after"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "expand",
+          "type": "array",
+          "location": "query",
+          "description": "Specifies which fields in the response should be expanded. Accepted values are: `items.product` (requires `project_configuration:products:read` permission)."
+        }
+      ]
+    },
+    {
+      "name": "entitlements_update",
+      "description": "This endpoint requires the following permission(s): project_configuration:entitlements:read_write . This endpoint belongs to the Project Configuration domain, which has a default rate limit of 60 requests per minute . Required: project_id, entitlement_id, display_name. Returns the new Entitlement.",
+      "method": "POST",
+      "path": "/projects/{project_id}/entitlements/{entitlement_id}",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the project",
+          "required": true
+        },
+        {
+          "name": "entitlement_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the entitlement",
+          "required": true
+        },
+        {
+          "name": "display_name",
+          "type": "string",
+          "location": "body",
+          "description": "The display name of the entitlement",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "entitlements_actions_archive-entitlement",
+      "description": "Archives an entitlement (makes it inactive). This endpoint requires the following permission(s): project_configuration:entitlements:read_write . This endpoint belongs to the Project Configuration domain, which has a default rate limit of 60 requests per minute . Required: project_id, entitlement_id. Returns the new Entitlement.",
+      "method": "POST",
+      "path": "/projects/{project_id}/entitlements/{entitlement_id}/actions/archive",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the project",
+          "required": true
+        },
+        {
+          "name": "entitlement_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the entitlement",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "entitlements_actions_attach-products-to-entitlement",
+      "description": "This endpoint requires the following permission(s): project_configuration:entitlements:read_write . This endpoint belongs to the Project Configuration domain, which has a default rate limit of 60 requests per minute . Required: project_id, entitlement_id, product_ids. Returns the new Entitlement.",
+      "method": "POST",
+      "path": "/projects/{project_id}/entitlements/{entitlement_id}/actions/attach_products",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the project",
+          "required": true
+        },
+        {
+          "name": "entitlement_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the entitlement",
+          "required": true
+        },
+        {
+          "name": "product_ids",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "IDs of the products to be attached to the entitlement.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "entitlements_actions_detach-products-from-entitlement",
+      "description": "This endpoint requires the following permission(s): project_configuration:entitlements:read_write . This endpoint belongs to the Project Configuration domain, which has a default rate limit of 60 requests per minute . Required: project_id, entitlement_id, product_ids. Returns the new Entitlement.",
+      "method": "POST",
+      "path": "/projects/{project_id}/entitlements/{entitlement_id}/actions/detach_products",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the project",
+          "required": true
+        },
+        {
+          "name": "entitlement_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the entitlement",
+          "required": true
+        },
+        {
+          "name": "product_ids",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "IDs of the products to be detached from the entitlement.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "entitlements_actions_unarchive-entitlement",
+      "description": "Unarchives an entitlement (makes it active). This endpoint requires the following permission(s): project_configuration:entitlements:read_write . This endpoint belongs to the Project Configuration domain, which has a default rate limit of 60 requests per minute . Required: project_id, entitlement_id. Returns the new Entitlement.",
+      "method": "POST",
+      "path": "/projects/{project_id}/entitlements/{entitlement_id}/actions/unarchive",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the project",
+          "required": true
+        },
+        {
+          "name": "entitlement_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the entitlement",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "entitlements_products_get-from-entitlement",
+      "description": "This endpoint requires the following permission(s): project_configuration:entitlements:read . This endpoint belongs to the Project Configuration domain, which has a default rate limit of 60 requests per minute . Required: project_id, entitlement_id. Optional: starting_after, limit (default: 20). Returns the ProductsFromEntitlement.",
+      "method": "GET",
+      "path": "/projects/{project_id}/entitlements/{entitlement_id}/products",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the project",
+          "required": true
+        },
+        {
+          "name": "entitlement_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the entitlement",
+          "required": true
+        },
+        {
+          "name": "starting_after",
+          "type": "string",
+          "location": "query",
+          "description": "Starting after"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        }
+      ]
+    },
+    {
+      "name": "integrations_create-webhook",
+      "description": "This endpoint requires the following permission(s): project_configuration:integrations:read_write . This endpoint belongs to the Project Configuration domain, which has a default rate limit of 60 requests per minute . Required: project_id, name, url. Optional: app_id, authorization_header, environment (plus 1 more). Returns the new WebhookIntegration.",
+      "method": "POST",
+      "path": "/projects/{project_id}/integrations/webhooks",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the project",
+          "required": true
+        },
+        {
+          "name": "app_id",
+          "type": "string",
+          "location": "body",
+          "description": "The ID of the app the webhook integration is scoped to"
+        },
+        {
+          "name": "authorization_header",
+          "type": "string",
+          "location": "body",
+          "description": "Optional authorization header that will be sent with webhook notifications"
+        },
+        {
+          "name": "environment",
+          "type": "string",
+          "location": "body",
+          "description": "The environment the webhook integration is configured for"
+        },
+        {
+          "name": "event_types",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Event types that will trigger the webhook"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "The display name of the webhook integration",
+          "required": true
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "body",
+          "description": "The URL RevenueCat will send webhook notifications to",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "integrations_delete-webhook",
+      "description": "This endpoint requires the following permission(s): project_configuration:integrations:read_write . This endpoint belongs to the Project Configuration domain, which has a default rate limit of 60 requests per minute . Required: project_id, webhook_integration_id. Returns the DeletedObject. Destructive.",
+      "method": "DELETE",
+      "path": "/projects/{project_id}/integrations/webhooks/{webhook_integration_id}",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the project",
+          "required": true
+        },
+        {
+          "name": "webhook_integration_id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the webhook integration",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "integrations_get-webhook",
+      "description": "This endpoint requires the following permission(s): project_configuration:integrations:read . This endpoint belongs to the Project Configuration domain, which has a default rate limit of 60 requests per minute . Required: project_id, webhook_integration_id. Returns the WebhookIntegration.",
+      "method": "GET",
+      "path": "/projects/{project_id}/integrations/webhooks/{webhook_integration_id}",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the project",
+          "required": true
+        },
+        {
+          "name": "webhook_integration_id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the webhook integration",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "integrations_list-webhook",
+      "description": "This endpoint requires the following permission(s): project_configuration:integrations:read . This endpoint belongs to the Project Configuration domain, which has a default rate limit of 60 requests per minute . Required: project_id. Optional: starting_after, limit (default: 20). Returns the ListWebhookIntegrations.",
+      "method": "GET",
+      "path": "/projects/{project_id}/integrations/webhooks",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the project",
+          "required": true
+        },
+        {
+          "name": "starting_after",
+          "type": "string",
+          "location": "query",
+          "description": "Starting after"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        }
+      ]
+    },
+    {
+      "name": "integrations_update-webhook",
+      "description": "This endpoint requires the following permission(s): project_configuration:integrations:read_write . This endpoint belongs to the Project Configuration domain, which has a default rate limit of 60 requests per minute . Required: project_id, webhook_integration_id. Optional: app_id, authorization_header, environment (plus 3 more). Returns the new WebhookIntegration.",
+      "method": "POST",
+      "path": "/projects/{project_id}/integrations/webhooks/{webhook_integration_id}",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the project",
+          "required": true
+        },
+        {
+          "name": "webhook_integration_id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the webhook integration",
+          "required": true
+        },
+        {
+          "name": "app_id",
+          "type": "string",
+          "location": "body",
+          "description": "The ID of the app the webhook integration is scoped to"
+        },
+        {
+          "name": "authorization_header",
+          "type": "string",
+          "location": "body",
+          "description": "Optional authorization header that will be sent with webhook notifications"
+        },
+        {
+          "name": "environment",
+          "type": "string",
+          "location": "body",
+          "description": "The environment the webhook integration is configured for"
+        },
+        {
+          "name": "event_types",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Event types that will trigger the webhook"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "The display name of the webhook integration"
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "body",
+          "description": "The URL RevenueCat will send webhook notifications to"
+        }
+      ]
+    },
+    {
+      "name": "media-assets_create",
+      "description": "This endpoint requires the following permission(s): project_configuration:offerings:read_write . This endpoint belongs to the Project Configuration domain, which has a default rate limit of 60 requests per minute . Required: project_id, content_type, file_data_base64, filename. Returns the new MediaAsset.",
+      "method": "POST",
+      "path": "/projects/{project_id}/media_assets",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the project",
+          "required": true
+        },
+        {
+          "name": "content_type",
+          "type": "string",
+          "location": "body",
+          "description": "MIME type for the uploaded image.",
+          "required": true
+        },
+        {
+          "name": "file_data_base64",
+          "type": "string",
+          "location": "body",
+          "description": "Base64-encoded image bytes.",
+          "required": true
+        },
+        {
+          "name": "filename",
+          "type": "string",
+          "location": "body",
+          "description": "File name for the uploaded image.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "metrics_get-overview",
+      "description": "This endpoint requires the following permission(s): charts_metrics:overview:read . This endpoint belongs to the Charts \u0026 Metrics domain, which has a default rate limit of 15 requests per minute . Required: project_id. Optional: currency. Returns the OverviewMetrics.",
+      "method": "GET",
+      "path": "/projects/{project_id}/metrics/overview",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the project",
+          "required": true
+        },
+        {
+          "name": "currency",
+          "type": "string",
+          "location": "query",
+          "description": "The currency to return metrics data in"
+        }
+      ]
+    },
+    {
+      "name": "metrics_get-revenue",
+      "description": "Returns the total revenue for the project across all of its apps for the given inclusive date range `[start_date, end_date]`. The value is expressed in the project's primary currency unless `currency` is provided. This endpoint is backed by the same realtime (v3) revenue chart that powers the dashboard. It is intended for cases where an app needs an authoritative revenue total without inferring it from the transaction list. Note that the most recent day in the range may be partial if it includes today, since transactions for today are still arriving. This endpoint requires the following permission(s): charts_metrics:overview:read . This endpoint belongs to the Charts \u0026 Metrics domain, which has a default rate limit of 15 requests per minute . Required: project_id, start_date, end_date. Optional: currency.",
+      "method": "GET",
+      "path": "/projects/{project_id}/metrics/revenue",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the project",
+          "required": true
+        },
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "query",
+          "description": "Start date for the data range (ISO 8601 format)",
+          "required": true
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "location": "query",
+          "description": "End date for the data range (ISO 8601 format)",
+          "required": true
+        },
+        {
+          "name": "currency",
+          "type": "string",
+          "location": "query",
+          "description": "The currency to return metrics data in"
+        }
+      ]
+    },
+    {
+      "name": "offerings_create",
+      "description": "This endpoint requires the following permission(s): project_configuration:offerings:read_write . This endpoint belongs to the Project Configuration domain, which has a default rate limit of 60 requests per minute . Required: project_id, display_name, lookup_key. Optional: metadata. Returns the new Offering.",
+      "method": "POST",
+      "path": "/projects/{project_id}/offerings",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the project",
+          "required": true
+        },
+        {
+          "name": "display_name",
+          "type": "string",
+          "location": "body",
+          "description": "The display_name of the offering",
+          "required": true
+        },
+        {
+          "name": "lookup_key",
+          "type": "string",
+          "location": "body",
+          "description": "The custom identifier of the offering",
+          "required": true
+        },
+        {
+          "name": "metadata",
+          "type": "object",
+          "location": "body",
+          "description": "Custom metadata of the offering"
+        }
+      ]
+    },
+    {
+      "name": "offerings_delete",
+      "description": "This endpoint requires the following permission(s): project_configuration:offerings:read_write . This endpoint belongs to the Project Configuration domain, which has a default rate limit of 60 requests per minute . Required: project_id, offering_id. Returns the DeletedObject. Destructive.",
+      "method": "DELETE",
+      "path": "/projects/{project_id}/offerings/{offering_id}",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the project",
+          "required": true
+        },
+        {
+          "name": "offering_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the offering",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "offerings_get",
+      "description": "This endpoint requires the following permission(s): project_configuration:offerings:read . This endpoint belongs to the Project Configuration domain, which has a default rate limit of 60 requests per minute . Required: project_id, offering_id. Optional: expand. Returns the Offering.",
+      "method": "GET",
+      "path": "/projects/{project_id}/offerings/{offering_id}",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the project",
+          "required": true
+        },
+        {
+          "name": "offering_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the offering",
+          "required": true
+        },
+        {
+          "name": "expand",
+          "type": "array",
+          "location": "query",
+          "description": "Specifies which fields in the response should be expanded. Accepted values are: `package` (requires `project_configuration:packages:read` permission), `package.product` (requires `project_configuration:products:read` permission)."
+        }
+      ]
+    },
+    {
+      "name": "offerings_list",
+      "description": "This endpoint requires the following permission(s): project_configuration:offerings:read . This endpoint belongs to the Project Configuration domain, which has a default rate limit of 60 requests per minute . Required: project_id. Optional: starting_after, limit (default: 20), expand. Returns the ListOfferings.",
+      "method": "GET",
+      "path": "/projects/{project_id}/offerings",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the project",
+          "required": true
+        },
+        {
+          "name": "starting_after",
+          "type": "string",
+          "location": "query",
+          "description": "Starting after"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "expand",
+          "type": "array",
+          "location": "query",
+          "description": "Specifies which fields in the response should be expanded. Accepted values are: `items.package` (requires `project_configuration:packages:read` permission), `items.package.product` (requires `project_configuration:products:read` permission)."
+        }
+      ]
+    },
+    {
+      "name": "offerings_update",
+      "description": "This endpoint requires the following permission(s): project_configuration:offerings:read_write . This endpoint belongs to the Project Configuration domain, which has a default rate limit of 60 requests per minute . Required: project_id, offering_id. Optional: display_name, is_current, metadata. Returns the new Offering.",
+      "method": "POST",
+      "path": "/projects/{project_id}/offerings/{offering_id}",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the project",
+          "required": true
+        },
+        {
+          "name": "offering_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the offering",
+          "required": true
+        },
+        {
+          "name": "display_name",
+          "type": "string",
+          "location": "body",
+          "description": "The display name of the offering"
+        },
+        {
+          "name": "is_current",
+          "type": "bool",
+          "location": "body",
+          "description": "Indicates if the offering is the current offering"
+        },
+        {
+          "name": "metadata",
+          "type": "object",
+          "location": "body",
+          "description": "Custom metadata of the offering"
+        }
+      ]
+    },
+    {
+      "name": "offerings_actions_archive-offering",
+      "description": "Archives an offering (makes it inactive). This endpoint requires the following permission(s): project_configuration:offerings:read_write . This endpoint belongs to the Project Configuration domain, which has a default rate limit of 60 requests per minute . Required: project_id, offering_id. Returns the new Offering.",
+      "method": "POST",
+      "path": "/projects/{project_id}/offerings/{offering_id}/actions/archive",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the project",
+          "required": true
+        },
+        {
+          "name": "offering_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the offering",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "offerings_actions_unarchive-offering",
+      "description": "Unarchives an offering (makes it active). This endpoint requires the following permission(s): project_configuration:offerings:read_write . This endpoint belongs to the Project Configuration domain, which has a default rate limit of 60 requests per minute . Required: project_id, offering_id. Optional: unarchive_referenced_entities (default: false). Returns the new Offering.",
+      "method": "POST",
+      "path": "/projects/{project_id}/offerings/{offering_id}/actions/unarchive",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the project",
+          "required": true
+        },
+        {
+          "name": "offering_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the offering",
+          "required": true
+        },
+        {
+          "name": "unarchive_referenced_entities",
+          "type": "bool",
+          "location": "body",
+          "description": "If true, also unarchive any archived products referenced by this offering's packages."
+        }
+      ]
+    },
+    {
+      "name": "offerings_packages_create",
+      "description": "This endpoint requires the following permission(s): project_configuration:packages:read_write . This endpoint belongs to the Project Configuration domain, which has a default rate limit of 60 requests per minute . Required: project_id, offering_id, display_name, lookup_key. Optional: position. Returns the new Package.",
+      "method": "POST",
+      "path": "/projects/{project_id}/offerings/{offering_id}/packages",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the project",
+          "required": true
+        },
+        {
+          "name": "offering_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the offering",
+          "required": true
+        },
+        {
+          "name": "display_name",
+          "type": "string",
+          "location": "body",
+          "description": "The display name of the package",
+          "required": true
+        },
+        {
+          "name": "lookup_key",
+          "type": "string",
+          "location": "body",
+          "description": "The lookup_key of the package",
+          "required": true
+        },
+        {
+          "name": "position",
+          "type": "int",
+          "location": "body",
+          "description": "The position of the package in the offering"
+        }
+      ]
+    },
+    {
+      "name": "offerings_packages_list",
+      "description": "This endpoint requires the following permission(s): project_configuration:packages:read . This endpoint belongs to the Project Configuration domain, which has a default rate limit of 60 requests per minute . Required: project_id, offering_id. Optional: starting_after, limit (default: 20), expand. Returns the ListPackages.",
+      "method": "GET",
+      "path": "/projects/{project_id}/offerings/{offering_id}/packages",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the project",
+          "required": true
+        },
+        {
+          "name": "offering_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the offering",
+          "required": true
+        },
+        {
+          "name": "starting_after",
+          "type": "string",
+          "location": "query",
+          "description": "Starting after"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "expand",
+          "type": "array",
+          "location": "query",
+          "description": "Specifies which fields in the response should be expanded. Accepted values are: `items.product` (requires `project_configuration:products:read` permission)."
+        }
+      ]
+    },
+    {
+      "name": "packages_delete-from-offering",
+      "description": "This endpoint requires the following permission(s): project_configuration:packages:read_write . This endpoint belongs to the Project Configuration domain, which has a default rate limit of 60 requests per minute . Required: project_id, package_id. Returns the DeletedObject. Destructive.",
+      "method": "DELETE",
+      "path": "/projects/{project_id}/packages/{package_id}",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the project",
+          "required": true
+        },
+        {
+          "name": "package_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the package",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "packages_get",
+      "description": "This endpoint requires the following permission(s): project_configuration:packages:read . This endpoint belongs to the Project Configuration domain, which has a default rate limit of 60 requests per minute . Required: project_id, package_id. Optional: expand. Returns the Package.",
+      "method": "GET",
+      "path": "/projects/{project_id}/packages/{package_id}",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the project",
+          "required": true
+        },
+        {
+          "name": "package_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the package",
+          "required": true
+        },
+        {
+          "name": "expand",
+          "type": "array",
+          "location": "query",
+          "description": "Specifies which fields in the response should be expanded. Accepted values are: `product` (requires `project_configuration:products:read` permission)."
+        }
+      ]
+    },
+    {
+      "name": "packages_update",
+      "description": "This endpoint requires the following permission(s): project_configuration:packages:read_write . This endpoint belongs to the Project Configuration domain, which has a default rate limit of 60 requests per minute . Required: project_id, package_id. Optional: display_name, position. Returns the new Package.",
+      "method": "POST",
+      "path": "/projects/{project_id}/packages/{package_id}",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the project",
+          "required": true
+        },
+        {
+          "name": "package_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the package",
+          "required": true
+        },
+        {
+          "name": "display_name",
+          "type": "string",
+          "location": "body",
+          "description": "The display name of the package"
+        },
+        {
+          "name": "position",
+          "type": "int",
+          "location": "body",
+          "description": "The position of the package within the offering"
+        }
+      ]
+    },
+    {
+      "name": "packages_actions_attach-products-to-package",
+      "description": "This endpoint requires the following permission(s): project_configuration:packages:read_write . This endpoint belongs to the Project Configuration domain, which has a default rate limit of 60 requests per minute . Required: project_id, package_id, products. Returns the new Package.",
+      "method": "POST",
+      "path": "/projects/{project_id}/packages/{package_id}/actions/attach_products",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the project",
+          "required": true
+        },
+        {
+          "name": "package_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the package",
+          "required": true
+        },
+        {
+          "name": "products",
+          "type": "array",
+          "location": "body",
+          "description": "Product association list",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "packages_actions_detach-products-from-package",
+      "description": "This endpoint requires the following permission(s): project_configuration:packages:read_write . This endpoint belongs to the Project Configuration domain, which has a default rate limit of 60 requests per minute . Required: project_id, package_id, product_ids. Returns the new Package.",
+      "method": "POST",
+      "path": "/projects/{project_id}/packages/{package_id}/actions/detach_products",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the project",
+          "required": true
+        },
+        {
+          "name": "package_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the package",
+          "required": true
+        },
+        {
+          "name": "product_ids",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "IDs of the products to detach from the package",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "packages_products_get-from-package",
+      "description": "This endpoint requires the following permission(s): project_configuration:packages:read . This endpoint belongs to the Project Configuration domain, which has a default rate limit of 60 requests per minute . Required: project_id, package_id. Optional: starting_after, limit (default: 20). Returns the ProductsFromPackage.",
+      "method": "GET",
+      "path": "/projects/{project_id}/packages/{package_id}/products",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the project",
+          "required": true
+        },
+        {
+          "name": "package_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the package",
+          "required": true
+        },
+        {
+          "name": "starting_after",
+          "type": "string",
+          "location": "query",
+          "description": "Starting after"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        }
+      ]
+    },
+    {
+      "name": "paywalls_create",
+      "description": "Create a paywall draft for a project. You can either use the offering template shortcut or provide full draft components directly. This endpoint requires the following permission(s): project_configuration:offerings:read_write . This endpoint belongs to the Project Configuration domain, which has a default rate limit of 60 requests per minute . Required: project_id. Returns the new Paywall.",
+      "method": "POST",
+      "path": "/projects/{project_id}/paywalls",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the project",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "paywalls_delete",
+      "description": "This endpoint requires the following permission(s): project_configuration:offerings:read_write . This endpoint belongs to the Project Configuration domain, which has a default rate limit of 60 requests per minute . Required: project_id, paywall_id. Returns the DeletedObject. Destructive.",
+      "method": "DELETE",
+      "path": "/projects/{project_id}/paywalls/{paywall_id}",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the project",
+          "required": true
+        },
+        {
+          "name": "paywall_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the paywall",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "paywalls_get",
+      "description": "This endpoint requires the following permission(s): project_configuration:offerings:read . This endpoint belongs to the Project Configuration domain, which has a default rate limit of 60 requests per minute . Required: project_id, paywall_id. Optional: expand. Returns the Paywall.",
+      "method": "GET",
+      "path": "/projects/{project_id}/paywalls/{paywall_id}",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the project",
+          "required": true
+        },
+        {
+          "name": "paywall_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the paywall",
+          "required": true
+        },
+        {
+          "name": "expand",
+          "type": "array",
+          "location": "query",
+          "description": "Specifies which fields in the response should be expanded. Accepted values are: `offering` (requires `project_configuration:offerings:read` permission), `components` (requires `project_configuration:offerings:read` permission)."
+        }
+      ]
+    },
+    {
+      "name": "paywalls_list",
+      "description": "This endpoint requires the following permission(s): project_configuration:offerings:read . This endpoint belongs to the Project Configuration domain, which has a default rate limit of 60 requests per minute . Required: project_id. Optional: starting_after, limit (default: 20), expand. Returns the ListPaywalls.",
+      "method": "GET",
+      "path": "/projects/{project_id}/paywalls",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the project",
+          "required": true
+        },
+        {
+          "name": "starting_after",
+          "type": "string",
+          "location": "query",
+          "description": "Starting after"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "expand",
+          "type": "array",
+          "location": "query",
+          "description": "Specifies which fields in the response should be expanded. Accepted values are: `items.offering` (requires `project_configuration:offerings:read` permission)."
+        }
+      ]
+    },
+    {
+      "name": "paywalls_update",
+      "description": "Update a paywall draft. If the paywall is already published, this updates its draft version without changing the published version. This endpoint requires the following permission(s): project_configuration:offerings:read_write . This endpoint belongs to the Project Configuration domain, which has a default rate limit of 60 requests per minute . Required: project_id, paywall_id, components_config, components_localizations, default_locale, revision. Optional: automatically_scale_font_size, name. Returns the updated Paywall.",
+      "method": "PATCH",
+      "path": "/projects/{project_id}/paywalls/{paywall_id}",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the project",
+          "required": true
+        },
+        {
+          "name": "paywall_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the paywall",
+          "required": true
+        },
+        {
+          "name": "automatically_scale_font_size",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether font sizes should automatically scale for this paywall draft."
+        },
+        {
+          "name": "components_config",
+          "type": "object",
+          "location": "body",
+          "description": "The raw paywall components configuration to save as the draft.",
+          "required": true
+        },
+        {
+          "name": "components_localizations",
+          "type": "object",
+          "location": "body",
+          "description": "Localized component values keyed by locale.",
+          "required": true
+        },
+        {
+          "name": "default_locale",
+          "type": "string",
+          "location": "body",
+          "description": "The default locale for this paywall.",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Optional paywall name."
+        },
+        {
+          "name": "revision",
+          "type": "int",
+          "location": "body",
+          "description": "The current draft revision. Used to reject stale writes.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "products_create",
+      "description": "Warning This endpoint does not allow to create Web Billing products. This endpoint requires the following permission(s): project_configuration:products:read_write . This endpoint belongs to the Project Configuration domain, which has a default rate limit of 60 requests per minute . Required: project_id, app_id, store_identifier, type. Optional: display_name, subscription, title. Returns the new Product.",
+      "method": "POST",
+      "path": "/projects/{project_id}/products",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the project",
+          "required": true
+        },
+        {
+          "name": "app_id",
+          "type": "string",
+          "location": "body",
+          "description": "The ID of the app",
+          "required": true
+        },
+        {
+          "name": "display_name",
+          "type": "string",
+          "location": "body",
+          "description": "The display name of the product"
+        },
+        {
+          "name": "store_identifier",
+          "type": "string",
+          "location": "body",
+          "description": "The store identifier of the product. - For Apple App Store products this is the product ID of the subscription or in-app product. - For Google's Play Store, it should follow the format 'productId:basePlanId' for subscription products and SKU for one-time purchase products. - For Stripe, the product identifier that always starts with 'prod_' - For Amazon, if it's a subscription, the term SKU of the subscription. If it's a one-time purchase, the SKU of the product. - For Roku, this is the product identifier of the subscription or one-time purchase product.",
+          "required": true
+        },
+        {
+          "name": "subscription-duration",
+          "wire_name": "subscription.duration",
+          "type": "string",
+          "location": "body",
+          "description": "The duration of the product subscription. This field is only supported for the test store and it is ignored for other stores.",
+          "required": true
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "The user-facing title of the product. This field is required for Test Store products."
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Type",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "products_delete",
+      "description": "This endpoint requires the following permission(s): project_configuration:products:read_write . This endpoint belongs to the Project Configuration domain, which has a default rate limit of 60 requests per minute . Required: project_id, product_id. Returns the DeletedObject. Destructive.",
+      "method": "DELETE",
+      "path": "/projects/{project_id}/products/{product_id}",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the project",
+          "required": true
+        },
+        {
+          "name": "product_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the product",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "products_get",
+      "description": "This endpoint requires the following permission(s): project_configuration:products:read . This endpoint belongs to the Project Configuration domain, which has a default rate limit of 60 requests per minute . Required: project_id, product_id. Optional: expand. Returns the Product.",
+      "method": "GET",
+      "path": "/projects/{project_id}/products/{product_id}",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the project",
+          "required": true
+        },
+        {
+          "name": "product_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the product",
+          "required": true
+        },
+        {
+          "name": "expand",
+          "type": "array",
+          "location": "query",
+          "description": "Specifies which fields in the response should be expanded. Accepted values are: `app` (requires `project_configuration:apps:read` permission)."
+        }
+      ]
+    },
+    {
+      "name": "products_list",
+      "description": "This endpoint requires the following permission(s): project_configuration:products:read . This endpoint belongs to the Project Configuration domain, which has a default rate limit of 60 requests per minute . Required: project_id. Optional: app_id, starting_after, limit (default: 20) (plus 1 more). Returns the ListProducts.",
+      "method": "GET",
+      "path": "/projects/{project_id}/products",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the project",
+          "required": true
+        },
+        {
+          "name": "app_id",
+          "type": "string",
+          "location": "query",
+          "description": "This is an optional query parameter to get a list of products of a given entitlement associated with a particular app"
+        },
+        {
+          "name": "starting_after",
+          "type": "string",
+          "location": "query",
+          "description": "Starting after"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "expand",
+          "type": "array",
+          "location": "query",
+          "description": "Specifies which fields in the response should be expanded. Accepted values are: `items.app` (requires `project_configuration:apps:read` permission)."
+        }
+      ]
+    },
+    {
+      "name": "products_update",
+      "description": "This endpoint requires the following permission(s): project_configuration:products:read_write . This endpoint belongs to the Project Configuration domain, which has a default rate limit of 60 requests per minute . Required: project_id, product_id. Optional: expand, display_name. Returns the new Product.",
+      "method": "POST",
+      "path": "/projects/{project_id}/products/{product_id}",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the project",
+          "required": true
+        },
+        {
+          "name": "product_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the product",
+          "required": true
+        },
+        {
+          "name": "expand",
+          "type": "array",
+          "location": "query",
+          "description": "Specifies which fields in the response should be expanded."
+        },
+        {
+          "name": "display_name",
+          "type": "string",
+          "location": "body",
+          "description": "The display name of the product"
+        }
+      ]
+    },
+    {
+      "name": "products_actions_archive-product",
+      "description": "Archives a product (makes it inactive). This endpoint requires the following permission(s): project_configuration:products:read_write . This endpoint belongs to the Project Configuration domain, which has a default rate limit of 60 requests per minute . Required: project_id, product_id. Returns the new Product.",
+      "method": "POST",
+      "path": "/projects/{project_id}/products/{product_id}/actions/archive",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the project",
+          "required": true
+        },
+        {
+          "name": "product_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the product",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "products_actions_unarchive-product",
+      "description": "Unarchives a product (makes it active). This endpoint requires the following permission(s): project_configuration:products:read_write . This endpoint belongs to the Project Configuration domain, which has a default rate limit of 60 requests per minute . Required: project_id, product_id. Returns the new Product.",
+      "method": "POST",
+      "path": "/projects/{project_id}/products/{product_id}/actions/unarchive",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the project",
+          "required": true
+        },
+        {
+          "name": "product_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the product",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "products_create-in-store_create-product-in-store",
+      "description": "Push a product to the App Store. **For subscription products**: You must provide store information including duration and subscription group details. **For in-app purchase products** (consumable, non-consumable, non-renewing subscription): No request body is required. This endpoint requires the following permission(s): project_configuration:products:read_write . This endpoint belongs to the Project Configuration domain, which has a default rate limit of 60 requests per minute . Required: project_id, product_id. Optional: store_information. Returns the new CreateInStoreCreateProductInStoreResponse.",
+      "method": "POST",
+      "path": "/projects/{project_id}/products/{product_id}/create_in_store",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the project",
+          "required": true
+        },
+        {
+          "name": "product_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the product",
+          "required": true
+        },
+        {
+          "name": "store_information",
+          "type": "string",
+          "location": "body",
+          "description": "Store-specific information for creating the product in the store"
+        }
+      ]
+    },
+    {
+      "name": "projects_create",
+      "description": "This endpoint requires the following permission(s): project_configuration:projects:read_write . This endpoint belongs to the Project Configuration domain, which has a default rate limit of 60 requests per minute . Required: name. Returns the new Project.",
+      "method": "POST",
+      "path": "/projects",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "The name of the project",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_list",
+      "description": "This endpoint requires the following permission(s): project_configuration:projects:read . This endpoint belongs to the Project Configuration domain, which has a default rate limit of 60 requests per minute . Optional: starting_after, limit (default: 20). Returns the ListProjects.",
+      "method": "GET",
+      "path": "/projects",
+      "params": [
+        {
+          "name": "starting_after",
+          "type": "string",
+          "location": "query",
+          "description": "Starting after"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        }
+      ]
+    },
+    {
+      "name": "purchases_get",
+      "description": "This endpoint requires the following permission(s): customer_information:purchases:read . This endpoint belongs to the Customer Information domain, which has a default rate limit of 480 requests per minute . Required: project_id, purchase_id. Returns the Purchase.",
+      "method": "GET",
+      "path": "/projects/{project_id}/purchases/{purchase_id}",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the project",
+          "required": true
+        },
+        {
+          "name": "purchase_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the purchase",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "purchases_search",
+      "description": "Search for a one-time purchases by any of its associated `store_purchase_identifier` values. For example, this may include the `transactionId` of any transaction in an Apple App Store purchase, or any order ID from a Google Play Store purchase. This endpoint requires the following permission(s): customer_information:purchases:read . This endpoint belongs to the Customer Information domain, which has a default rate limit of 480 requests per minute . Required: project_id, store_purchase_identifier. Returns the ListPurchases.",
+      "method": "GET",
+      "path": "/projects/{project_id}/purchases",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the project",
+          "required": true
+        },
+        {
+          "name": "store_purchase_identifier",
+          "type": "string",
+          "location": "query",
+          "description": "Store ID associated with the one-time purchase.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "purchases_actions_refund-purchase",
+      "description": "Refund a Web Billing purchase and revoke access to associated granted entitlements. This endpoint requires the following permission(s): customer_information:purchases:read_write . This endpoint belongs to the Customer Information domain, which has a default rate limit of 480 requests per minute . Required: project_id, purchase_id. Returns the new Purchase.",
+      "method": "POST",
+      "path": "/projects/{project_id}/purchases/{purchase_id}/actions/refund",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the project",
+          "required": true
+        },
+        {
+          "name": "purchase_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the purchase",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "purchases_entitlements_list-purchase",
+      "description": "Lists all Entitlements granted by a Purchase. This endpoint requires the following permission(s): customer_information:purchases:read . This endpoint belongs to the Customer Information domain, which has a default rate limit of 480 requests per minute . Required: project_id, purchase_id. Optional: starting_after, limit (default: 20). Returns the ListEntitlements.",
+      "method": "GET",
+      "path": "/projects/{project_id}/purchases/{purchase_id}/entitlements",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the project",
+          "required": true
+        },
+        {
+          "name": "purchase_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the purchase",
+          "required": true
+        },
+        {
+          "name": "starting_after",
+          "type": "string",
+          "location": "query",
+          "description": "Starting after"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        }
+      ]
+    },
+    {
+      "name": "subscriptions_get",
+      "description": "This endpoint requires the following permission(s): customer_information:subscriptions:read . This endpoint belongs to the Customer Information domain, which has a default rate limit of 480 requests per minute . Required: project_id, subscription_id. Returns the Subscription.",
+      "method": "GET",
+      "path": "/projects/{project_id}/subscriptions/{subscription_id}",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the project",
+          "required": true
+        },
+        {
+          "name": "subscription_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the subscription",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "subscriptions_search",
+      "description": "Search for a subscription by any of its associated `store_subscription_identifier` values, whether from a past or current subscription period. For example, this may include the `transactionId` of any transaction in an Apple App Store subscription, or any order ID from a Google Play Store subscription. This endpoint requires the following permission(s): customer_information:subscriptions:read . This endpoint belongs to the Customer Information domain, which has a default rate limit of 480 requests per minute . Required: project_id, store_subscription_identifier. Returns the ListSubscriptions.",
+      "method": "GET",
+      "path": "/projects/{project_id}/subscriptions",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the project",
+          "required": true
+        },
+        {
+          "name": "store_subscription_identifier",
+          "type": "string",
+          "location": "query",
+          "description": "Store ID associated with the subscription for the current or next period.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "subscriptions_actions_cancel-subscription",
+      "description": "Cancel an active Web Billing subscription. The customer will lose access to the associated entitlements at the end of the current period. This endpoint requires the following permission(s): customer_information:subscriptions:read_write . This endpoint belongs to the Customer Information domain, which has a default rate limit of 480 requests per minute . Required: project_id, subscription_id. Returns the new Subscription.",
+      "method": "POST",
+      "path": "/projects/{project_id}/subscriptions/{subscription_id}/actions/cancel",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the project",
+          "required": true
+        },
+        {
+          "name": "subscription_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the subscription",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "subscriptions_actions_extend-subscription",
+      "description": "Extend the current billing period of a subscription. Provide either `extend_by_days` to extend by a number of days, or `extend_until_ms` to extend to an absolute epoch-millisecond timestamp. Supported on Apple Store, Google Play Store, and Web Billing subscriptions. For Apple Store subscriptions, `extend_reason_code` is required and the extension is capped at 90 days. This endpoint requires the following permission(s): customer_information:subscriptions:read_write . This endpoint belongs to the Customer Information domain, which has a default rate limit of 480 requests per minute . Required: project_id, subscription_id. Returns the new Subscription.",
+      "method": "POST",
+      "path": "/projects/{project_id}/subscriptions/{subscription_id}/actions/extend",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the project",
+          "required": true
+        },
+        {
+          "name": "subscription_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the subscription",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "subscriptions_actions_refund-subscription",
+      "description": "Cancel a Web Billing subscription by refunding the most recent payment. The customer will immediately lose access to the associated entitlements. This endpoint requires the following permission(s): customer_information:subscriptions:read_write . This endpoint belongs to the Customer Information domain, which has a default rate limit of 480 requests per minute . Required: project_id, subscription_id. Returns the new Subscription.",
+      "method": "POST",
+      "path": "/projects/{project_id}/subscriptions/{subscription_id}/actions/refund",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the project",
+          "required": true
+        },
+        {
+          "name": "subscription_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the subscription",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "subscriptions_authenticated-management-url_get-authorized-subscription-management-url",
+      "description": "Get a secure, single-use URL that allows customers to access their Web Billing customer portal. This endpoint requires the following permission(s): customer_information:subscriptions:read . This endpoint belongs to the Customer Information domain, which has a default rate limit of 480 requests per minute . Required: project_id, subscription_id. Returns the AuthenticatedManagementUrl.",
+      "method": "GET",
+      "path": "/projects/{project_id}/subscriptions/{subscription_id}/authenticated_management_url",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the project",
+          "required": true
+        },
+        {
+          "name": "subscription_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the subscription",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "subscriptions_entitlements_list-subscription",
+      "description": "Lists all Entitlements granted by a Subscription. This endpoint requires the following permission(s): customer_information:subscriptions:read . This endpoint belongs to the Customer Information domain, which has a default rate limit of 480 requests per minute . Required: project_id, subscription_id. Optional: starting_after, limit (default: 20). Returns the ListEntitlements.",
+      "method": "GET",
+      "path": "/projects/{project_id}/subscriptions/{subscription_id}/entitlements",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the project",
+          "required": true
+        },
+        {
+          "name": "subscription_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the subscription",
+          "required": true
+        },
+        {
+          "name": "starting_after",
+          "type": "string",
+          "location": "query",
+          "description": "Starting after"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        }
+      ]
+    },
+    {
+      "name": "subscriptions_transactions_get-play-store-or-app-store-subscription",
+      "description": "This endpoint requires the following permission(s): customer_information:subscriptions:read . This endpoint belongs to the Customer Information domain, which has a default rate limit of 480 requests per minute . Required: project_id, subscription_id. Optional: starting_after, limit (default: 20), sort (default: id) (plus 1 more). Returns the ListSubscriptionTransaction.",
+      "method": "GET",
+      "path": "/projects/{project_id}/subscriptions/{subscription_id}/transactions",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the project",
+          "required": true
+        },
+        {
+          "name": "subscription_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the subscription",
+          "required": true
+        },
+        {
+          "name": "starting_after",
+          "type": "string",
+          "location": "query",
+          "description": "Starting after"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Column to sort the result list by."
+        },
+        {
+          "name": "direction",
+          "type": "string",
+          "location": "query",
+          "description": "Sort direction for the result list."
+        }
+      ]
+    },
+    {
+      "name": "subscriptions_transactions_refund-play-store-or-galaxy-subscription",
+      "description": "Refund and cancel a Play Store or Galaxy subscription's transaction. Access to the subscription will be revoked. This endpoint requires the following permission(s): customer_information:subscriptions:read_write . This endpoint belongs to the Subscription Transactions Refunds domain, which has a default rate limit of 480 requests per minute . Required: project_id, subscription_id, transaction_id. Returns the new SubscriptionTransaction.",
+      "method": "POST",
+      "path": "/projects/{project_id}/subscriptions/{subscription_id}/transactions/{transaction_id}/actions/refund",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the project",
+          "required": true
+        },
+        {
+          "name": "subscription_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the subscription",
+          "required": true
+        },
+        {
+          "name": "transaction_id",
+          "type": "string",
+          "location": "path",
+          "description": "Identifier of the transaction in the store",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "virtual-currencies_create-virtual-currency",
+      "description": "This endpoint requires the following permission(s): project_configuration:virtual_currencies:read_write . This endpoint belongs to the Project Configuration domain, which has a default rate limit of 60 requests per minute . Required: project_id, code, name. Optional: description, product_grants. Returns the new VirtualCurrency.",
+      "method": "POST",
+      "path": "/projects/{project_id}/virtual_currencies",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the project",
+          "required": true
+        },
+        {
+          "name": "code",
+          "type": "string",
+          "location": "body",
+          "description": "The unique code for this virtual currency",
+          "required": true
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description of the virtual currency"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "The display name of the virtual currency",
+          "required": true
+        },
+        {
+          "name": "product_grants",
+          "type": "array",
+          "location": "body",
+          "description": "Product grants that define how products grant this virtual currency"
+        }
+      ]
+    },
+    {
+      "name": "virtual-currencies_delete-virtual-currency",
+      "description": "This endpoint requires the following permission(s): project_configuration:virtual_currencies:read_write . This endpoint belongs to the Project Configuration domain, which has a default rate limit of 60 requests per minute . Required: project_id, virtual_currency_code. Returns the DeletedObject. Destructive.",
+      "method": "DELETE",
+      "path": "/projects/{project_id}/virtual_currencies/{virtual_currency_code}",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the project",
+          "required": true
+        },
+        {
+          "name": "virtual_currency_code",
+          "type": "string",
+          "location": "path",
+          "description": "The virtual currency code",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "virtual-currencies_get-virtual-currency",
+      "description": "This endpoint requires the following permission(s): project_configuration:virtual_currencies:read . This endpoint belongs to the Project Configuration domain, which has a default rate limit of 60 requests per minute . Required: project_id, virtual_currency_code. Returns the VirtualCurrency.",
+      "method": "GET",
+      "path": "/projects/{project_id}/virtual_currencies/{virtual_currency_code}",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the project",
+          "required": true
+        },
+        {
+          "name": "virtual_currency_code",
+          "type": "string",
+          "location": "path",
+          "description": "The virtual currency code",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "virtual-currencies_list",
+      "description": "This endpoint requires the following permission(s): project_configuration:virtual_currencies:read . This endpoint belongs to the Project Configuration domain, which has a default rate limit of 60 requests per minute . Required: project_id. Optional: starting_after, limit (default: 20). Returns the ListVirtualCurrencies.",
+      "method": "GET",
+      "path": "/projects/{project_id}/virtual_currencies",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the project",
+          "required": true
+        },
+        {
+          "name": "starting_after",
+          "type": "string",
+          "location": "query",
+          "description": "Starting after"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        }
+      ]
+    },
+    {
+      "name": "virtual-currencies_update-virtual-currency",
+      "description": "This endpoint requires the following permission(s): project_configuration:virtual_currencies:read_write . This endpoint belongs to the Project Configuration domain, which has a default rate limit of 60 requests per minute . Required: project_id, virtual_currency_code. Optional: description, name, product_grants. Returns the new VirtualCurrency.",
+      "method": "POST",
+      "path": "/projects/{project_id}/virtual_currencies/{virtual_currency_code}",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the project",
+          "required": true
+        },
+        {
+          "name": "virtual_currency_code",
+          "type": "string",
+          "location": "path",
+          "description": "The virtual currency code",
+          "required": true
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description of the virtual currency"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "The display name of the virtual currency"
+        },
+        {
+          "name": "product_grants",
+          "type": "array",
+          "location": "body",
+          "description": "Product grants that define how products grant this virtual currency"
+        }
+      ]
+    },
+    {
+      "name": "virtual-currencies_actions_archive-virtual-currency",
+      "description": "Archives a virtual currency (makes it inactive). This endpoint requires the following permission(s): project_configuration:virtual_currencies:read_write . This endpoint belongs to the Project Configuration domain, which has a default rate limit of 60 requests per minute . Required: project_id, virtual_currency_code. Returns the new VirtualCurrency.",
+      "method": "POST",
+      "path": "/projects/{project_id}/virtual_currencies/{virtual_currency_code}/actions/archive",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the project",
+          "required": true
+        },
+        {
+          "name": "virtual_currency_code",
+          "type": "string",
+          "location": "path",
+          "description": "The virtual currency code",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "virtual-currencies_actions_unarchive-virtual-currency",
+      "description": "Unarchives a virtual currency (makes it active). This endpoint requires the following permission(s): project_configuration:virtual_currencies:read_write . This endpoint belongs to the Project Configuration domain, which has a default rate limit of 60 requests per minute . Required: project_id, virtual_currency_code. Returns the new VirtualCurrency.",
+      "method": "POST",
+      "path": "/projects/{project_id}/virtual_currencies/{virtual_currency_code}/actions/unarchive",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the project",
+          "required": true
+        },
+        {
+          "name": "virtual_currency_code",
+          "type": "string",
+          "location": "path",
+          "description": "The virtual currency code",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

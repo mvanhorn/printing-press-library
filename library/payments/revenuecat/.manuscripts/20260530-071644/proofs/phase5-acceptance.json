@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "revenuecat",
+  "run_id": "20260530-071644",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 203,
+  "tests_passed": 203,
+  "tests_skipped": 347,
+  "auth_context": {
+    "type": "bearer_token"
+  }
+}
