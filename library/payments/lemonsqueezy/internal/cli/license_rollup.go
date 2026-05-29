@@ -8,6 +8,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"os"
 	"sort"
 
 	"github.com/mvanhorn/printing-press-library/library/payments/lemonsqueezy/internal/store"
@@ -67,9 +68,8 @@ Data source: local. Run 'sync --resources license-keys,license-key-instances,var
 			"pp:data-source": "local",
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if dryRunOK(flags) {
-				return nil
-			}
+			// Read-only local query — no mutation to suppress under --dry-run;
+			// we still run so --dry-run --json emits a real view.
 			if topN <= 0 {
 				topN = 10
 			}
@@ -82,21 +82,51 @@ Data source: local. Run 'sync --resources license-keys,license-key-instances,var
 			}
 			defer db.Close()
 
-			if !hintIfUnsynced(cmd, db, "license-keys") {
-				hintIfStale(cmd, db, "license-keys", flags.maxAge)
-			}
+			hintIfMultiUnsynced(cmd, db, "license-keys",
+				[]string{"license-key-instances", "variants", "customers"}, flags.maxAge)
 
 			view, err := buildLicenseRollup(db, topN)
 			if err != nil {
 				return err
 			}
-			return flags.printJSON(cmd, view)
+			return emitLicenseRollup(cmd, flags, view)
 		},
 	}
 	cmd.Flags().IntVar(&topN, "top", 10, "Number of top keys by activation count to include")
 	cmd.Flags().StringVar(&dbPath, "db", "", "Local SQLite database path")
 	return cmd
 }
+
+func emitLicenseRollup(cmd *cobra.Command, flags *rootFlags, view licenseRollupView) error {
+	if len(view.Variants) > 0 && wantsHumanTable(cmd.OutOrStdout(), flags) {
+		items := make([]map[string]any, 0, len(view.Variants))
+		for _, v := range view.Variants {
+			items = append(items, map[string]any{
+				"variant":            v.VariantName,
+				"variant_id":         v.VariantID,
+				"keys_issued":        v.KeysIssued,
+				"keys_active":        v.KeysActive,
+				"keys_disabled":      v.KeysDisabled,
+				"total_activations":  v.TotalActivations,
+				"avg_activations":    fmt.Sprintf("%.2f", v.AvgActivationsPer),
+			})
+		}
+		if err := printAutoTable(cmd.OutOrStdout(), items); err != nil {
+			return err
+		}
+		fmt.Fprintf(cmd.OutOrStdout(), "\nTotal keys: %d  Total activations: %d  Top-N keys: %d\n",
+			view.TotalKeys, view.TotalActivations, len(view.TopByActivations))
+		if view.Note != "" {
+			fmt.Fprintf(cmd.OutOrStdout(), "Note: %s\n", view.Note)
+		}
+		return nil
+	}
+	return flags.printJSON(cmd, view)
+}
+
+// licenseKeyScanCap bounds the license-keys scan. The for-loop tracks the
+// scanned count; hitting the cap surfaces a stderr warning and a view.Note.
+const licenseKeyScanCap = 200000
 
 func buildLicenseRollup(db *store.Store, topN int) (licenseRollupView, error) {
 	view := licenseRollupView{Variants: []variantRollup{}, TopByActivations: []licenseKeyRow{}}
@@ -106,7 +136,8 @@ func buildLicenseRollup(db *store.Store, topN int) (licenseRollupView, error) {
 	activations := loadInstanceCountsByKey(db)
 
 	rows, err := db.Query(
-		`SELECT data FROM resources WHERE resource_type = 'license-keys' LIMIT 50000`,
+		`SELECT data FROM resources WHERE resource_type = 'license-keys' LIMIT ?`,
+		licenseKeyScanCap,
 	)
 	if err != nil {
 		return view, fmt.Errorf("querying license-keys: %w", err)
@@ -115,8 +146,10 @@ func buildLicenseRollup(db *store.Store, topN int) (licenseRollupView, error) {
 
 	perVariant := map[string]*variantRollup{}
 	var allKeys []licenseKeyRow
+	scannedKeys := 0
 
 	for rows.Next() {
+		scannedKeys++
 		var data sql.NullString
 		if err := rows.Scan(&data); err != nil {
 			continue
@@ -182,6 +215,10 @@ func buildLicenseRollup(db *store.Store, topN int) (licenseRollupView, error) {
 			v.KeysUnknown++
 		}
 	}
+	if scannedKeys >= licenseKeyScanCap {
+		fmt.Fprintf(os.Stderr, "warning: license-rollup hit the %d-key scan cap; rollup may be incomplete for stores with larger key bases\n", licenseKeyScanCap)
+		view.Note = fmt.Sprintf("hit the %d-key scan cap; rollup may be incomplete. Open an issue if your key volume routinely exceeds this.", licenseKeyScanCap)
+	}
 
 	for _, v := range perVariant {
 		if v.KeysIssued > 0 {
@@ -192,75 +229,25 @@ func buildLicenseRollup(db *store.Store, topN int) (licenseRollupView, error) {
 		view.TotalActivations += v.TotalActivations
 	}
 	sort.Slice(view.Variants, func(i, j int) bool {
-		return view.Variants[i].KeysIssued > view.Variants[j].KeysIssued
+		if view.Variants[i].KeysIssued != view.Variants[j].KeysIssued {
+			return view.Variants[i].KeysIssued > view.Variants[j].KeysIssued
+		}
+		return view.Variants[i].VariantID < view.Variants[j].VariantID
 	})
 
 	sort.Slice(allKeys, func(i, j int) bool {
-		return allKeys[i].Activations > allKeys[j].Activations
+		if allKeys[i].Activations != allKeys[j].Activations {
+			return allKeys[i].Activations > allKeys[j].Activations
+		}
+		return allKeys[i].KeyID < allKeys[j].KeyID
 	})
 	if len(allKeys) > topN {
 		allKeys = allKeys[:topN]
 	}
 	view.TopByActivations = allKeys
 
-	if view.TotalKeys == 0 {
+	if view.TotalKeys == 0 && view.Note == "" {
 		view.Note = "no license-keys in local mirror; run 'sync --resources license-keys,license-key-instances' first"
 	}
 	return view, nil
-}
-
-func loadVariantNames(db *store.Store) map[string]string {
-	out := map[string]string{}
-	rows, err := db.Query(`SELECT data FROM resources WHERE resource_type = 'variants' LIMIT 10000`)
-	if err != nil {
-		return out
-	}
-	defer rows.Close()
-	for rows.Next() {
-		var data sql.NullString
-		if rows.Scan(&data) != nil || !data.Valid {
-			continue
-		}
-		var env struct {
-			ID         string `json:"id"`
-			Attributes struct {
-				Name string `json:"name"`
-			} `json:"attributes"`
-		}
-		if json.Unmarshal([]byte(data.String), &env) != nil {
-			continue
-		}
-		if env.ID != "" {
-			out[env.ID] = env.Attributes.Name
-		}
-	}
-	return out
-}
-
-func loadInstanceCountsByKey(db *store.Store) map[string]int {
-	out := map[string]int{}
-	rows, err := db.Query(`SELECT data FROM resources WHERE resource_type = 'license-key-instances' LIMIT 200000`)
-	if err != nil {
-		return out
-	}
-	defer rows.Close()
-	for rows.Next() {
-		var data sql.NullString
-		if rows.Scan(&data) != nil || !data.Valid {
-			continue
-		}
-		var env struct {
-			Attributes struct {
-				LicenseKeyID any `json:"license_key_id"`
-			} `json:"attributes"`
-		}
-		if json.Unmarshal([]byte(data.String), &env) != nil {
-			continue
-		}
-		keyID := toStringLS(env.Attributes.LicenseKeyID)
-		if keyID != "" {
-			out[keyID]++
-		}
-	}
-	return out
 }

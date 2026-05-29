@@ -61,9 +61,8 @@ Data source: local. Run 'sync --resources discounts,discount-redemptions' first.
 			"pp:data-source": "local",
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			// campaign-watch is a read-only local query; --dry-run is a
-			// no-op (there are no mutations to suppress). We still run
-			// the query so --dry-run --json returns a real view.
+			// Read-only local query — no mutation to suppress under --dry-run;
+			// we still run so --dry-run --json emits a real view.
 			if dbPath == "" {
 				dbPath = defaultDBPath("lemonsqueezy-pp-cli")
 			}
@@ -73,9 +72,8 @@ Data source: local. Run 'sync --resources discounts,discount-redemptions' first.
 			}
 			defer db.Close()
 
-			if !hintIfUnsynced(cmd, db, "discounts") {
-				hintIfStale(cmd, db, "discounts", flags.maxAge)
-			}
+			hintIfMultiUnsynced(cmd, db, "discounts",
+				[]string{"discount-redemptions"}, flags.maxAge)
 
 			filter := map[string]bool{}
 			queried := make([]string, 0, len(args))
@@ -93,12 +91,44 @@ Data source: local. Run 'sync --resources discounts,discount-redemptions' first.
 			if len(queried) > 0 {
 				view.Queried = queried
 			}
-			return flags.printJSON(cmd, view)
+			return emitCampaignWatch(cmd, flags, view)
 		},
 	}
 	cmd.Flags().StringVar(&dbPath, "db", "", "Local SQLite database path")
 	return cmd
 }
+
+func emitCampaignWatch(cmd *cobra.Command, flags *rootFlags, view campaignWatchView) error {
+	if len(view.Codes) > 0 && wantsHumanTable(cmd.OutOrStdout(), flags) {
+		items := make([]map[string]any, 0, len(view.Codes))
+		for _, c := range view.Codes {
+			items = append(items, map[string]any{
+				"code":         c.Code,
+				"status":       c.Status,
+				"used":         c.Used,
+				"cap":          c.Cap,
+				"percent_full": fmt.Sprintf("%.1f%%", c.PercentFull),
+				"24h":          c.Redemptions24h,
+				"per_hour":     fmt.Sprintf("%.2f", c.RedemptionsPerHour),
+				"sellout_eta":  c.SelloutETA,
+			})
+		}
+		if err := printAutoTable(cmd.OutOrStdout(), items); err != nil {
+			return err
+		}
+		fmt.Fprintf(cmd.OutOrStdout(), "\n%d code(s) tracked  (snapshot %s)\n",
+			view.Count, view.GeneratedAt)
+		if view.Note != "" {
+			fmt.Fprintf(cmd.OutOrStdout(), "Note: %s\n", view.Note)
+		}
+		return nil
+	}
+	return flags.printJSON(cmd, view)
+}
+
+// campaignWatchDiscountScanCap caps the discounts scan. Saturation surfaces
+// a stderr warning to distinguish "no discounts" from "scan truncated".
+const campaignWatchDiscountScanCap = 100000
 
 func buildCampaignWatch(db *store.Store, filter map[string]bool) (campaignWatchView, error) {
 	now := time.Now().UTC()
@@ -106,13 +136,18 @@ func buildCampaignWatch(db *store.Store, filter map[string]bool) (campaignWatchV
 
 	velocity := loadRedemptionVelocityByDiscount(db, now)
 
-	rows, err := db.Query(`SELECT data FROM resources WHERE resource_type = 'discounts' LIMIT 10000`)
+	rows, err := db.Query(
+		`SELECT data FROM resources WHERE resource_type = 'discounts' LIMIT ?`,
+		campaignWatchDiscountScanCap,
+	)
 	if err != nil {
 		return view, fmt.Errorf("querying discounts: %w", err)
 	}
 	defer rows.Close()
+	scannedDiscounts := 0
 
 	for rows.Next() {
+		scannedDiscounts++
 		var data sql.NullString
 		if err := rows.Scan(&data); err != nil {
 			continue
@@ -144,13 +179,13 @@ func buildCampaignWatch(db *store.Store, filter map[string]bool) (campaignWatchV
 			continue
 		}
 		capacity := int(toFloatLS(env.Attributes.MaxRedemptions))
-		vel, tableUsed := velocity[env.ID][0], velocity[env.ID][1]
+		stat := velocity[env.ID]
 		// Prefer the discount's own server-counted 'used' when present; fall
 		// back to our locally-counted redemption rows when LS doesn't expose
 		// the attribute.
 		used := int(toFloatLS(env.Attributes.UsedCount))
-		if used == 0 && tableUsed > 0 {
-			used = int(tableUsed)
+		if used == 0 && stat.Total > 0 {
+			used = int(stat.Total)
 		}
 
 		row := campaignRow{
@@ -159,13 +194,13 @@ func buildCampaignWatch(db *store.Store, filter map[string]bool) (campaignWatchV
 			Status:             env.Attributes.Status,
 			Used:               used,
 			Cap:                capacity,
-			Redemptions24h:     int(vel),
-			RedemptionsPerHour: vel / 24.0,
+			Redemptions24h:     int(stat.Velocity24h),
+			RedemptionsPerHour: stat.Velocity24h / 24.0,
 		}
 		if capacity > 0 {
 			row.PercentFull = 100.0 * float64(row.Used) / float64(capacity)
 		}
-		if vel > 0 && capacity > 0 {
+		if stat.Velocity24h > 0 && capacity > 0 {
 			remaining := capacity - row.Used
 			if remaining > 0 {
 				hoursToSellout := float64(remaining) / row.RedemptionsPerHour
@@ -185,11 +220,18 @@ func buildCampaignWatch(db *store.Store, filter map[string]bool) (campaignWatchV
 		}
 		view.Codes = append(view.Codes, row)
 	}
+	if scannedDiscounts >= campaignWatchDiscountScanCap {
+		fmt.Fprintf(os.Stderr, "warning: campaign-watch hit the %d-discount scan cap; some codes may be missing from this view\n", campaignWatchDiscountScanCap)
+		view.Note = fmt.Sprintf("hit the %d-discount scan cap; some codes may be missing.", campaignWatchDiscountScanCap)
+	}
 	sort.Slice(view.Codes, func(i, j int) bool {
-		return view.Codes[i].PercentFull > view.Codes[j].PercentFull
+		if view.Codes[i].PercentFull != view.Codes[j].PercentFull {
+			return view.Codes[i].PercentFull > view.Codes[j].PercentFull
+		}
+		return view.Codes[i].Code < view.Codes[j].Code
 	})
 	view.Count = len(view.Codes)
-	if view.Count == 0 {
+	if view.Count == 0 && view.Note == "" {
 		if len(filter) > 0 {
 			view.Note = "no matching discount codes in local mirror"
 		} else {
@@ -197,54 +239,4 @@ func buildCampaignWatch(db *store.Store, filter map[string]bool) (campaignWatchV
 		}
 	}
 	return view, nil
-}
-
-// loadRedemptionVelocityByDiscount returns map[discountID]{redemptions_24h, total_used}.
-func loadRedemptionVelocityByDiscount(db *store.Store, now time.Time) map[string][2]float64 {
-	out := map[string][2]float64{}
-	cutoff := now.Add(-24 * time.Hour)
-
-	const loadRedemptionVelocityCap = 1000000
-	rows, err := db.Query(
-		`SELECT data FROM resources WHERE resource_type = 'discount-redemptions' LIMIT ?`,
-		loadRedemptionVelocityCap,
-	)
-	if err != nil {
-		return out
-	}
-	defer rows.Close()
-	loaded := 0
-	defer func() {
-		if loaded >= loadRedemptionVelocityCap {
-			fmt.Fprintf(os.Stderr, "warning: loadRedemptionVelocityByDiscount hit %d-row cap; sellout-pace projection may underreport historical redemption velocity\n", loadRedemptionVelocityCap)
-		}
-	}()
-	for rows.Next() {
-		loaded++
-		var data sql.NullString
-		if rows.Scan(&data) != nil || !data.Valid {
-			continue
-		}
-		var env struct {
-			Attributes struct {
-				DiscountID any    `json:"discount_id"`
-				CreatedAt  string `json:"created_at"`
-			} `json:"attributes"`
-		}
-		if json.Unmarshal([]byte(data.String), &env) != nil {
-			continue
-		}
-		dID := toStringLS(env.Attributes.DiscountID)
-		if dID == "" {
-			continue
-		}
-		cur := out[dID]
-		cur[1]++
-		when := parseLSTime(env.Attributes.CreatedAt)
-		if !when.IsZero() && when.After(cutoff) {
-			cur[0]++
-		}
-		out[dID] = cur
-	}
-	return out
 }

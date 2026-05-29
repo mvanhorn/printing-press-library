@@ -8,6 +8,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"os"
 	"sort"
 	"time"
 
@@ -55,9 +56,8 @@ Data source: local. Run 'sync --resources subscriptions,subscription-invoices' f
 			"pp:data-source": "local",
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if dryRunOK(flags) {
-				return nil
-			}
+			// Read-only local query — no mutation to suppress under --dry-run;
+			// we still run so --dry-run --json emits a real view.
 			if weeks <= 0 {
 				weeks = 12
 			}
@@ -73,15 +73,14 @@ Data source: local. Run 'sync --resources subscriptions,subscription-invoices' f
 			}
 			defer db.Close()
 
-			if !hintIfUnsynced(cmd, db, "subscription-invoices") {
-				hintIfStale(cmd, db, "subscription-invoices", flags.maxAge)
-			}
+			hintIfMultiUnsynced(cmd, db, "subscription-invoices",
+				[]string{"subscriptions"}, flags.maxAge)
 
 			view, err := buildMrrTrend(db, weeks)
 			if err != nil {
 				return err
 			}
-			return flags.printJSON(cmd, view)
+			return emitMrrTrend(cmd, flags, view)
 		},
 	}
 	cmd.Flags().IntVar(&weeks, "weeks", 12, "Number of trailing ISO weeks to include")
@@ -89,14 +88,41 @@ Data source: local. Run 'sync --resources subscriptions,subscription-invoices' f
 	return cmd
 }
 
+func emitMrrTrend(cmd *cobra.Command, flags *rootFlags, view mrrTrendView) error {
+	if len(view.Weeks) > 0 && wantsHumanTable(cmd.OutOrStdout(), flags) {
+		items := make([]map[string]any, 0, len(view.Weeks))
+		for _, w := range view.Weeks {
+			items = append(items, map[string]any{
+				"week_start":   w.WeekStart,
+				"new_usd":      fmt.Sprintf("%.2f", w.NewRevenue),
+				"renewal_usd":  fmt.Sprintf("%.2f", w.RenewalRev),
+				"refunded_usd": fmt.Sprintf("%.2f", w.RefundedRev),
+				"net_mrr_usd":  fmt.Sprintf("%.2f", w.NetMRR),
+				"net_delta":    fmt.Sprintf("%.2f", w.NetDelta),
+				"invoices":     w.InvoiceCount,
+			})
+		}
+		if err := printAutoTable(cmd.OutOrStdout(), items); err != nil {
+			return err
+		}
+		fmt.Fprintf(cmd.OutOrStdout(), "\n%d-week window: %s → %s\n",
+			view.WindowWeeks, view.WindowStartDate, view.WindowEndDate)
+		if view.Note != "" {
+			fmt.Fprintf(cmd.OutOrStdout(), "Note: %s\n", view.Note)
+		}
+		return nil
+	}
+	return flags.printJSON(cmd, view)
+}
+
+// mrrTrendInvoiceCap is the subscription-invoices scan cap. ORDER BY
+// created_at ASC inside the query guarantees firstSeenSub picks the earliest
+// invoice even when SQLite returns rows in arbitrary physical order.
+const mrrTrendInvoiceCap = 200000
+
 func buildMrrTrend(db *store.Store, weeks int) (mrrTrendView, error) {
 	view := mrrTrendView{Weeks: []mrrWeekBucket{}, WindowWeeks: weeks}
 
-	// Order by created_at ascending so the firstSeenSub map is populated
-	// correctly even when SQLite returns rows in arbitrary physical order.
-	// Without ORDER BY, a subscription's earliest invoice could be processed
-	// after a later one and get misclassified as a renewal.
-	const mrrTrendInvoiceCap = 200000
 	rows, err := db.Query(
 		`SELECT data FROM resources WHERE resource_type = 'subscription-invoices'
 		 ORDER BY json_extract(data, '$.attributes.created_at') ASC
@@ -107,22 +133,29 @@ func buildMrrTrend(db *store.Store, weeks int) (mrrTrendView, error) {
 		return view, fmt.Errorf("querying subscription-invoices: %w", err)
 	}
 	defer rows.Close()
-	invoiceCount := 0
+	scannedInvoices := 0
 
 	now := time.Now().UTC()
 	cutoff := now.AddDate(0, 0, -7*weeks)
-	firstSeenSub := map[string]time.Time{}
+	type subStamp struct {
+		when      time.Time
+		invoiceID string
+	}
+	firstSeenSub := map[string]subStamp{}
 
 	type invoiceRow struct {
 		when     time.Time
 		subID    string
+		id       string
 		status   string
 		amount   float64
 		refunded float64
 	}
 	var invoices []invoiceRow
+	inWindowCount := 0
 
 	for rows.Next() {
+		scannedInvoices++
 		var data sql.NullString
 		if err := rows.Scan(&data); err != nil {
 			continue
@@ -131,6 +164,7 @@ func buildMrrTrend(db *store.Store, weeks int) (mrrTrendView, error) {
 			continue
 		}
 		var env struct {
+			ID         string `json:"id"`
 			Attributes struct {
 				SubscriptionID    any    `json:"subscription_id"`
 				Status            string `json:"status"`
@@ -160,16 +194,31 @@ func buildMrrTrend(db *store.Store, weeks int) (mrrTrendView, error) {
 		invoices = append(invoices, invoiceRow{
 			when:     when,
 			subID:    subID,
+			id:       env.ID,
 			status:   env.Attributes.Status,
 			amount:   amt / 100.0,
 			refunded: refunded / 100.0,
 		})
-		if first, ok := firstSeenSub[subID]; !ok || when.Before(first) {
-			firstSeenSub[subID] = when
+		// firstSeenSub picks the earliest invoice for each sub. Ties on
+		// created_at are broken by lower invoice id so two invoices that
+		// share a timestamp do not both get counted as "new".
+		if first, ok := firstSeenSub[subID]; !ok ||
+			when.Before(first.when) ||
+			(when.Equal(first.when) && env.ID < first.invoiceID) {
+			firstSeenSub[subID] = subStamp{when: when, invoiceID: env.ID}
 		}
-		invoiceCount++
+		if !when.Before(cutoff) {
+			inWindowCount++
+		}
 	}
-	if invoiceCount >= mrrTrendInvoiceCap {
+	// Cap warning fires only when the scan saturated AND we have evidence
+	// that older invoices are missing (i.e. the in-window count is less
+	// than the total scanned, meaning the cap clipped at least one
+	// out-of-window row). When every row falls inside the window the
+	// classification is still complete and the warning would just confuse
+	// the user.
+	if scannedInvoices >= mrrTrendInvoiceCap && inWindowCount < scannedInvoices {
+		fmt.Fprintf(os.Stderr, "warning: mrr-trend hit the %d-invoice scan cap; new-vs-renewal classification may be inaccurate for the oldest weeks\n", mrrTrendInvoiceCap)
 		view.Note = fmt.Sprintf("hit the %d-invoice scan cap; new-vs-renewal classification may be inaccurate for the oldest weeks. Narrow --weeks or open an issue if your store routinely exceeds this volume.", mrrTrendInvoiceCap)
 	}
 
@@ -186,7 +235,8 @@ func buildMrrTrend(db *store.Store, weeks int) (mrrTrendView, error) {
 			buckets[key] = b
 		}
 		if inv.status == "paid" || inv.status == "" {
-			isNew := firstSeenSub[inv.subID].Equal(inv.when)
+			first := firstSeenSub[inv.subID]
+			isNew := first.when.Equal(inv.when) && first.invoiceID == inv.id
 			if isNew {
 				b.NewRevenue += inv.amount
 			} else {
@@ -222,7 +272,7 @@ func buildMrrTrend(db *store.Store, weeks int) (mrrTrendView, error) {
 		view.WindowStartDate = view.Weeks[0].WeekStart
 		view.WindowEndDate = view.Weeks[len(view.Weeks)-1].WeekStart
 	}
-	if len(invoices) == 0 {
+	if len(invoices) == 0 && view.Note == "" {
 		view.Note = "no subscription-invoices in local mirror; run 'sync --resources subscription-invoices' first"
 	}
 	return view, nil

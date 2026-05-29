@@ -101,11 +101,51 @@ Data source: auto (live API for the cascade, plus local context).`,
 			if dryRunOK(flags) && view.Note == "" {
 				view.Note = "global --dry-run forced apply=false; this is a plan, not a mutation"
 			}
-			return flags.printJSON(cmd, view)
+			return emitRefundCascade(cmd, flags, view)
 		},
 	}
 	cmd.Flags().BoolVar(&apply, "apply", false, "Actually disable license keys via PATCH (default: dry-run preview)")
 	return cmd
+}
+
+func emitRefundCascade(cmd *cobra.Command, flags *rootFlags, view refundCascadeView) error {
+	// Flatten the order-items / license-keys tree into one row per key for
+	// the human table. JSON output keeps the nested shape.
+	if wantsHumanTable(cmd.OutOrStdout(), flags) {
+		items := make([]map[string]any, 0)
+		for _, oi := range view.OrderItems {
+			for _, k := range oi.LicenseKeys {
+				items = append(items, map[string]any{
+					"order_item_id":    oi.OrderItemID,
+					"key_id":           k.KeyID,
+					"key_short":        k.KeyShort,
+					"status_before":    k.Status,
+					"disabled_before":  k.Disabled,
+					"activation_limit": k.ActivationLimit,
+					"activations":      k.Activations,
+					"action":           k.Action,
+					"error":            k.Error,
+				})
+			}
+		}
+		if len(items) > 0 {
+			if err := printAutoTable(cmd.OutOrStdout(), items); err != nil {
+				return err
+			}
+		}
+		fmt.Fprintf(cmd.OutOrStdout(),
+			"\nOrder %s  status=%s  refunded=%v\nKeys: %d disabled, %d skipped, %d failed  (apply=%v)\n",
+			view.OrderID, view.OrderStatus, view.OrderRefunded,
+			view.KeysDisabled, view.KeysSkipped, view.KeysFailed, view.Apply)
+		if view.Note != "" {
+			fmt.Fprintf(cmd.OutOrStdout(), "Note: %s\n", view.Note)
+		}
+		for _, f := range view.FetchFailures {
+			fmt.Fprintf(cmd.OutOrStdout(), "Fetch failure: %s\n", f)
+		}
+		return nil
+	}
+	return flags.printJSON(cmd, view)
 }
 
 func runRefundCascade(ctx context.Context, c *client.Client, orderID string, apply bool) (refundCascadeView, error) {

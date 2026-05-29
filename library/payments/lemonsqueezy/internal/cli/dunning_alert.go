@@ -58,9 +58,8 @@ Data source: local. Run 'sync --resources subscriptions,subscription-invoices,cu
 			"pp:data-source": "local",
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if dryRunOK(flags) {
-				return nil
-			}
+			// Read-only local query — no mutation to suppress; we still run
+			// so --dry-run --json emits a real view instead of empty stdout.
 			if dbPath == "" {
 				dbPath = defaultDBPath("lemonsqueezy-pp-cli")
 			}
@@ -70,19 +69,44 @@ Data source: local. Run 'sync --resources subscriptions,subscription-invoices,cu
 			}
 			defer db.Close()
 
-			if !hintIfUnsynced(cmd, db, "subscription-invoices") {
-				hintIfStale(cmd, db, "subscription-invoices", flags.maxAge)
-			}
+			hintIfMultiUnsynced(cmd, db, "subscription-invoices",
+				[]string{"subscriptions", "customers"}, flags.maxAge)
 
 			view, err := buildDunningAlert(db)
 			if err != nil {
 				return err
 			}
-			return flags.printJSON(cmd, view)
+			return emitDunningAlert(cmd, flags, view)
 		},
 	}
 	cmd.Flags().StringVar(&dbPath, "db", "", "Local SQLite database path")
 	return cmd
+}
+
+func emitDunningAlert(cmd *cobra.Command, flags *rootFlags, view dunningAlertView) error {
+	if len(view.Rows) > 0 && wantsHumanTable(cmd.OutOrStdout(), flags) {
+		items := make([]map[string]any, 0, len(view.Rows))
+		for _, r := range view.Rows {
+			items = append(items, map[string]any{
+				"invoice_id":         r.InvoiceID,
+				"subscription_id":    r.SubscriptionID,
+				"customer_email":     r.CustomerEmail,
+				"sub_status":         r.SubscriptionState,
+				"invoice_created_at": r.InvoiceCreatedAt,
+				"amount_usd":         fmt.Sprintf("%.2f", r.AmountUSD),
+			})
+		}
+		if err := printAutoTable(cmd.OutOrStdout(), items); err != nil {
+			return err
+		}
+		fmt.Fprintf(cmd.OutOrStdout(), "\nRecoverable: $%.2f across %d failed invoice(s).\n",
+			view.RecoverableUSD, view.Count)
+		if view.Note != "" {
+			fmt.Fprintf(cmd.OutOrStdout(), "Note: %s\n", view.Note)
+		}
+		return nil
+	}
+	return flags.printJSON(cmd, view)
 }
 
 func buildDunningAlert(db *store.Store) (dunningAlertView, error) {
@@ -155,6 +179,9 @@ func buildDunningAlert(db *store.Store) (dunningAlertView, error) {
 		view.Rows = append(view.Rows, row)
 		view.RecoverableUSD += row.AmountUSD
 	}
+	if scannedInvoices >= dunningInvoiceScanCap {
+		fmt.Fprintf(os.Stderr, "warning: dunning-alert hit the %d-invoice scan cap; recoverable failed invoices may exist beyond the window\n", dunningInvoiceScanCap)
+	}
 	sort.Slice(view.Rows, func(i, j int) bool {
 		return view.Rows[i].AmountUSD > view.Rows[j].AmountUSD
 	})
@@ -165,45 +192,4 @@ func buildDunningAlert(db *store.Store) (dunningAlertView, error) {
 		view.Note = "no recoverable failed invoices; no subscriptions in active or past_due state have a failed invoice in the local mirror"
 	}
 	return view, nil
-}
-
-func loadSubscriptionStates(db *store.Store) map[string]string {
-	out := map[string]string{}
-	// Bumped from 50k to 500k; emits a stderr warning when saturated so
-	// callers know subscription-state lookups may be incomplete.
-	const loadSubscriptionStatesCap = 500000
-	rows, err := db.Query(
-		`SELECT data FROM resources WHERE resource_type = 'subscriptions' LIMIT ?`,
-		loadSubscriptionStatesCap,
-	)
-	if err != nil {
-		return out
-	}
-	defer rows.Close()
-	loaded := 0
-	defer func() {
-		if loaded >= loadSubscriptionStatesCap {
-			fmt.Fprintf(os.Stderr, "warning: loadSubscriptionStates hit %d-row cap; dunning-alert may underreport recoverable invoices for subscriptions beyond the cap\n", loadSubscriptionStatesCap)
-		}
-	}()
-	for rows.Next() {
-		loaded++
-		var data sql.NullString
-		if rows.Scan(&data) != nil || !data.Valid {
-			continue
-		}
-		var env struct {
-			ID         string `json:"id"`
-			Attributes struct {
-				Status string `json:"status"`
-			} `json:"attributes"`
-		}
-		if json.Unmarshal([]byte(data.String), &env) != nil {
-			continue
-		}
-		if env.ID != "" {
-			out[env.ID] = env.Attributes.Status
-		}
-	}
-	return out
 }

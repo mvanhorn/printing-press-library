@@ -9,6 +9,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"sort"
 
 	"github.com/mvanhorn/printing-press-library/library/payments/lemonsqueezy/internal/store"
 	"github.com/spf13/cobra"
@@ -56,9 +57,8 @@ Data source: local. Run 'sync --resources stores,orders' first.`,
 			"pp:data-source": "local",
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if dryRunOK(flags) {
-				return nil
-			}
+			// Read-only local query — no mutation to suppress under --dry-run;
+			// we still run so --dry-run --json emits a real view.
 			if dbPath == "" {
 				dbPath = defaultDBPath("lemonsqueezy-pp-cli")
 			}
@@ -68,19 +68,46 @@ Data source: local. Run 'sync --resources stores,orders' first.`,
 			}
 			defer db.Close()
 
-			if !hintIfUnsynced(cmd, db, "stores") {
-				hintIfStale(cmd, db, "stores", flags.maxAge)
-			}
+			hintIfMultiUnsynced(cmd, db, "stores", []string{"orders"}, flags.maxAge)
 
 			view, err := buildRevenueSnapshot(cmd.Context(), db)
 			if err != nil {
 				return err
 			}
-			return flags.printJSON(cmd, view)
+			return emitRevenueSnapshot(cmd, flags, view)
 		},
 	}
 	cmd.Flags().StringVar(&dbPath, "db", "", "Local SQLite database path")
 	return cmd
+}
+
+func emitRevenueSnapshot(cmd *cobra.Command, flags *rootFlags, view revenueSnapshotView) error {
+	if len(view.Stores) > 0 && wantsHumanTable(cmd.OutOrStdout(), flags) {
+		items := make([]map[string]any, 0, len(view.Stores))
+		for _, s := range view.Stores {
+			items = append(items, map[string]any{
+				"store":             s.StoreName,
+				"store_id":          s.StoreID,
+				"currency":          s.Currency,
+				"thirty_day":        fmt.Sprintf("%.2f", s.ThirtyDayRevenue),
+				"lifetime":          fmt.Sprintf("%.2f", s.TotalRevenue),
+				"local_orders":      s.LocalOrders,
+				"local_net_usd":     fmt.Sprintf("%.2f", s.LocalNetUSD),
+				"refunded_usd":      fmt.Sprintf("%.2f", s.LocalRefundedUSD),
+			})
+		}
+		if err := printAutoTable(cmd.OutOrStdout(), items); err != nil {
+			return err
+		}
+		fmt.Fprintf(cmd.OutOrStdout(),
+			"\nTotals: 30-day $%.2f  lifetime $%.2f  local-net $%.2f across %d store(s).\n",
+			view.TotalThirtyDayUSD, view.TotalLifetimeUSD, view.TotalLocalNetUSD, view.StoreCount)
+		if view.Note != "" {
+			fmt.Fprintf(cmd.OutOrStdout(), "Note: %s\n", view.Note)
+		}
+		return nil
+	}
+	return flags.printJSON(cmd, view)
 }
 
 func buildRevenueSnapshot(_ context.Context, db *store.Store) (revenueSnapshotView, error) {
@@ -116,6 +143,13 @@ func buildRevenueSnapshot(_ context.Context, db *store.Store) (revenueSnapshotVi
 		view.TotalLifetimeUSD += row.TotalRevenue
 		view.TotalLocalNetUSD += row.LocalNetUSD
 	}
+	// Stable sort: lifetime revenue desc, store_id asc tie-break.
+	sort.Slice(view.Stores, func(i, j int) bool {
+		if view.Stores[i].TotalRevenue != view.Stores[j].TotalRevenue {
+			return view.Stores[i].TotalRevenue > view.Stores[j].TotalRevenue
+		}
+		return view.Stores[i].StoreID < view.Stores[j].StoreID
+	})
 	view.StoreCount = len(view.Stores)
 	if view.StoreCount == 0 && view.Note == "" {
 		view.Note = "no stores in local mirror; run 'lemonsqueezy-pp-cli sync --resources stores' first"
@@ -157,7 +191,7 @@ const revenueSnapshotOrdersScanCap = 50000
 
 func sumLocalOrdersForStore(db *store.Store, storeID string) (gross, refunded float64, count int, hitCap bool, err error) {
 	// Filter by store_id at SQL level so multi-store accounts do not scan O(N
-	// stores * 5000) rows in Go. The CAST is required because Lemon Squeezy
+	// stores * cap) rows in Go. The CAST is required because Lemon Squeezy
 	// returns store_id as either a JSON number or string depending on the
 	// endpoint, and we always compare against a string at the Go boundary.
 	rows, err := db.Query(

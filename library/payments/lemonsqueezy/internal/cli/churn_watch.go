@@ -70,9 +70,10 @@ Data source: local. Run 'sync --resources subscriptions,subscription-invoices,cu
 			"pp:data-source": "local",
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if dryRunOK(flags) {
-				return nil
-			}
+			// Read-only local query — no mutation to suppress under --dry-run;
+			// we still run the query so --dry-run --json emits a real view
+			// instead of empty stdout (which scorecard sample probes can't
+			// distinguish from a failure).
 			if since == "" {
 				since = "7d"
 			}
@@ -89,20 +90,48 @@ Data source: local. Run 'sync --resources subscriptions,subscription-invoices,cu
 			}
 			defer db.Close()
 
-			if !hintIfUnsynced(cmd, db, "subscriptions") {
-				hintIfStale(cmd, db, "subscriptions", flags.maxAge)
-			}
+			hintIfMultiUnsynced(cmd, db, "subscriptions",
+				[]string{"customers", "subscription-invoices"}, flags.maxAge)
 
 			view, err := buildChurnWatch(db, window, since)
 			if err != nil {
 				return err
 			}
-			return flags.printJSON(cmd, view)
+			return emitChurnWatch(cmd, flags, view)
 		},
 	}
 	cmd.Flags().StringVar(&since, "since", "7d", "Window for status changes (e.g. 24h, 7d, 2w)")
 	cmd.Flags().StringVar(&dbPath, "db", "", "Local SQLite database path")
 	return cmd
+}
+
+// emitChurnWatch renders the churn-watch view either as a human-readable
+// table (terminal output, no machine-format flag) or as the full JSON view.
+func emitChurnWatch(cmd *cobra.Command, flags *rootFlags, view churnWatchView) error {
+	if len(view.Rows) > 0 && wantsHumanTable(cmd.OutOrStdout(), flags) {
+		items := make([]map[string]any, 0, len(view.Rows))
+		for _, r := range view.Rows {
+			items = append(items, map[string]any{
+				"subscription_id":  r.SubscriptionID,
+				"status":           r.Status,
+				"customer_email":   r.CustomerEmail,
+				"product":          r.ProductName,
+				"variant":          r.VariantName,
+				"updated_at":       r.UpdatedAt,
+				"last_invoice_usd": fmt.Sprintf("%.2f", r.LastInvoiceUSD),
+			})
+		}
+		if err := printAutoTable(cmd.OutOrStdout(), items); err != nil {
+			return err
+		}
+		fmt.Fprintf(cmd.OutOrStdout(), "\nTotal exposure: $%.2f across %d subscription(s) in the last %s.\n",
+			view.DollarExposure, view.Count, view.Since)
+		if view.Note != "" {
+			fmt.Fprintf(cmd.OutOrStdout(), "Note: %s\n", view.Note)
+		}
+		return nil
+	}
+	return flags.printJSON(cmd, view)
 }
 
 func buildChurnWatch(db *store.Store, window time.Duration, sinceLabel string) (churnWatchView, error) {
@@ -176,6 +205,9 @@ func buildChurnWatch(db *store.Store, window time.Duration, sinceLabel string) (
 		view.Rows = append(view.Rows, row)
 		view.DollarExposure += row.LastInvoiceUSD
 	}
+	if scannedSubs >= churnWatchSubScanCap {
+		fmt.Fprintf(os.Stderr, "warning: churn-watch hit the %d-subscription scan cap; results may be incomplete\n", churnWatchSubScanCap)
+	}
 	// Sort by parsed time, not raw string — parseLSTime normalises across
 	// mixed RFC3339 / space-separated formats that string comparison would
 	// rank incorrectly.
@@ -189,103 +221,4 @@ func buildChurnWatch(db *store.Store, window time.Duration, sinceLabel string) (
 		view.Note = fmt.Sprintf("no subscriptions flipped into churn states in the last %s", sinceLabel)
 	}
 	return view, nil
-}
-
-func loadCustomerEmails(db *store.Store) map[string]string {
-	out := map[string]string{}
-	const loadCustomerEmailsCap = 500000
-	rows, err := db.Query(
-		`SELECT data FROM resources WHERE resource_type = 'customers' LIMIT ?`,
-		loadCustomerEmailsCap,
-	)
-	if err != nil {
-		return out
-	}
-	defer rows.Close()
-	loaded := 0
-	for rows.Next() {
-		loaded++
-		var data sql.NullString
-		if rows.Scan(&data) != nil || !data.Valid {
-			continue
-		}
-		var env struct {
-			ID         string `json:"id"`
-			Attributes struct {
-				Email string `json:"email"`
-			} `json:"attributes"`
-		}
-		if json.Unmarshal([]byte(data.String), &env) != nil {
-			continue
-		}
-		if env.ID != "" {
-			out[env.ID] = env.Attributes.Email
-		}
-	}
-	if loaded >= loadCustomerEmailsCap {
-		fmt.Fprintf(os.Stderr, "warning: loadCustomerEmails hit %d-row cap; email lookups may be missing for some customers\n", loadCustomerEmailsCap)
-	}
-	return out
-}
-
-func loadLastInvoiceBySub(db *store.Store) map[string]float64 {
-	type stamp struct {
-		when time.Time
-		amt  float64
-	}
-	tmp := map[string]stamp{}
-	const loadLastInvoiceBySubCap = 500000
-	rows, err := db.Query(
-		`SELECT data FROM resources WHERE resource_type = 'subscription-invoices' LIMIT ?`,
-		loadLastInvoiceBySubCap,
-	)
-	if err != nil {
-		return map[string]float64{}
-	}
-	defer rows.Close()
-	loaded := 0
-	defer func() {
-		if loaded >= loadLastInvoiceBySubCap {
-			fmt.Fprintf(os.Stderr, "warning: loadLastInvoiceBySub hit %d-row cap; last-invoice dollar exposure may be missing for subscriptions beyond the cap\n", loadLastInvoiceBySubCap)
-		}
-	}()
-	for rows.Next() {
-		loaded++
-		var data sql.NullString
-		if rows.Scan(&data) != nil || !data.Valid {
-			continue
-		}
-		var env struct {
-			Attributes struct {
-				SubscriptionID any    `json:"subscription_id"`
-				Status         string `json:"status"`
-				CreatedAt      string `json:"created_at"`
-				Total          any    `json:"total"`
-				TotalUSD       any    `json:"total_usd"`
-			} `json:"attributes"`
-		}
-		if json.Unmarshal([]byte(data.String), &env) != nil {
-			continue
-		}
-		if env.Attributes.Status != "" && env.Attributes.Status != "paid" {
-			continue
-		}
-		subID := toStringLS(env.Attributes.SubscriptionID)
-		if subID == "" {
-			continue
-		}
-		when := parseLSTime(env.Attributes.CreatedAt)
-		amt := toFloatLS(env.Attributes.TotalUSD)
-		if amt == 0 {
-			amt = toFloatLS(env.Attributes.Total)
-		}
-		if cur, ok := tmp[subID]; !ok || when.After(cur.when) {
-			tmp[subID] = stamp{when: when, amt: amt / 100.0}
-		}
-	}
-	out := make(map[string]float64, len(tmp))
-	for k, v := range tmp {
-		out[k] = v.amt
-	}
-	return out
 }
