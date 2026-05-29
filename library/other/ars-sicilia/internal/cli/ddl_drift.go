@@ -96,9 +96,13 @@ func runDdlDrift(cmd *cobra.Command, flags *rootFlags, since, dbPath string) err
 		       json_extract(cur.data, '$.url')
 		FROM resources cur
 		LEFT JOIN resources_history prev
-		   ON prev.id = cur.id
+		   ON prev.id = (
+		       SELECT id FROM resources_history
+		       WHERE id = cur.id AND resource_type = cur.resource_type
+		         AND captured_at < cur.synced_at
+		       ORDER BY captured_at DESC LIMIT 1
+		   )
 		   AND prev.resource_type = cur.resource_type
-		   AND prev.captured_at < cur.synced_at
 		WHERE cur.resource_type = 'ddl'
 		  AND cur.synced_at >= ?
 		  AND json_extract(cur.data, '$.iter') IS NOT NULL
