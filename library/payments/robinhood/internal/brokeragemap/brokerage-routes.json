@@ -255,7 +255,12 @@
     "categories": [
       "money-movement"
     ],
-    "risk": "write-or-sensitive"
+    "risk": "write-or-sensitive",
+    "methods": [
+      "GET",
+      "POST"
+    ],
+    "source": "manual 2026-05-29: write-verb wiring (recurring resume/pause, cancels, ach transfer)"
   },
   {
     "url": "https://api.robinhood.com/banking/cross-sell/creditcard/applications/{uuid}",
@@ -2520,7 +2525,11 @@
       "options",
       "orders"
     ],
-    "risk": "destructive"
+    "risk": "destructive",
+    "methods": [
+      "POST"
+    ],
+    "source": "manual 2026-05-29: write-verb wiring (recurring resume/pause, cancels, ach transfer)"
   },
   {
     "url": "https://api.robinhood.com/options/positions/",
@@ -2640,7 +2649,11 @@
     "categories": [
       "orders"
     ],
-    "risk": "destructive"
+    "risk": "destructive",
+    "methods": [
+      "POST"
+    ],
+    "source": "manual 2026-05-29: write-verb wiring (recurring resume/pause, cancels, ach transfer)"
   },
   {
     "url": "https://api.robinhood.com/orders/session/",
@@ -5705,5 +5718,18 @@
       "account"
     ],
     "risk": "sensitive-read"
+  },
+  {
+    "url": "https://bonfire.robinhood.com/recurring_schedules/{0}/",
+    "host": "bonfire.robinhood.com",
+    "categories": [
+      "orders"
+    ],
+    "risk": "destructive",
+    "methods": [
+      "PATCH",
+      "DELETE"
+    ],
+    "source": "manual 2026-05-29: write-verb wiring (recurring resume/pause, cancels, ach transfer)"
   }
 ]

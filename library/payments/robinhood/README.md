@@ -2,7 +2,7 @@
 
 # Introduction
 
-This is a CLI + MCP for **the whole of Robinhood**, not just crypto. It covers the brokerage surface — multiple accounts (individual + retirement), positions, equity and options orders, option chains, portfolio performance over YTD/1-week/1-month/1-year/5-year/all-time windows, ACH transfers, dividends, and watchlists — across `api.robinhood.com` and the `bonfire` gateway, captured live and risk-labeled. Brokerage auth uses an OAuth bearer (`ROBINHOOD_BROKERAGE_TOKEN`); all write commands default to dry-run behind the `ROBINHOOD_PP_ALLOW_WRITES=1` gate.
+This is a CLI + MCP for **the whole of Robinhood**, not just crypto. It covers the brokerage surface — multiple accounts (individual + retirement), positions, equity and options orders, option chains, portfolio performance over YTD/1-week/1-month/1-year/5-year/all-time windows, ACH transfers (deposits and withdrawals), dividends, watchlists, and recurring investments (resume/pause/edit) — across `api.robinhood.com` and the `bonfire` gateway, captured live and risk-labeled. True full-account coverage: identify, navigate, and modify across every account. Brokerage auth uses an OAuth bearer (`ROBINHOOD_BROKERAGE_TOKEN`); reads run live while all write commands are **read-only by default**, staying in dry-run "test mode" behind the `ROBINHOOD_PP_ALLOW_WRITES=1` gate plus `--live-write`.
 
 The **official Robinhood Crypto Trading API** below is the easy documented subset (it has its own public spec and key/signature auth), included alongside the brokerage map.
 
