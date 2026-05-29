@@ -111,13 +111,14 @@ searches for the next best connections using live SIRI estimated timetable data.
 			extractVehicleJourneys(data, &journeys)
 
 			type rerouteOption struct {
-				Line          string   `json:"line"`
-				DepartureTime string   `json:"departure_time"`
-				ArrivalTime   string   `json:"arrival_time,omitempty"`
-				Duration      string   `json:"duration,omitempty"`
-				StopCount     int      `json:"stop_count"`
-				WaitMins      float64  `json:"wait_minutes"`
-				Disruptions   []string `json:"disruptions"`
+				Line          string    `json:"line"`
+				DepartureTime string    `json:"departure_time"`
+				ArrivalTime   string    `json:"arrival_time,omitempty"`
+				Duration      string    `json:"duration,omitempty"`
+				StopCount     int       `json:"stop_count"`
+				WaitMins      float64   `json:"wait_minutes"`
+				Disruptions   []string  `json:"disruptions"`
+				depTimeVal    time.Time `json:"-"`
 			}
 
 			options := make([]rerouteOption, 0)
@@ -176,6 +177,7 @@ searches for the next best connections using live SIRI estimated timetable data.
 				if !depTime.IsZero() {
 					opt.DepartureTime = depTime.Format(time.RFC3339)
 					opt.WaitMins = depTime.Sub(now).Minutes()
+					opt.depTimeVal = depTime
 				}
 				if !arrTime.IsZero() {
 					opt.ArrivalTime = arrTime.Format(time.RFC3339)
@@ -207,7 +209,7 @@ searches for the next best connections using live SIRI estimated timetable data.
 
 			// Sort by departure time
 			sort.Slice(options, func(i, j int) bool {
-				return options[i].DepartureTime < options[j].DepartureTime
+				return options[i].depTimeVal.Before(options[j].depTimeVal)
 			})
 
 			// Limit to top 5

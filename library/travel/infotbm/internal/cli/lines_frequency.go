@@ -398,7 +398,6 @@ func extractTimesFromCalls(calls any, departures *[]time.Time) {
 		for _, key := range []string{
 			"ExpectedDepartureTime", "expectedDepartureTime",
 			"AimedDepartureTime", "aimedDepartureTime",
-			"ExpectedArrivalTime", "expectedArrivalTime",
 		} {
 			if ts, ok := call[key].(string); ok && ts != "" {
 				if t, err := time.Parse(time.RFC3339, ts); err == nil {

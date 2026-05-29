@@ -97,12 +97,13 @@ func newNovelTripsLastDepartureCmd(flags *rootFlags) *cobra.Command {
 			extractVehicleJourneys(data, &journeys)
 
 			type departureCandidate struct {
-				Line          string `json:"line"`
-				DepartureTime string `json:"departure_time"`
-				ArrivalTime   string `json:"arrival_time,omitempty"`
-				FromStop      string `json:"from_stop"`
-				ToStop        string `json:"to_stop"`
-				JourneyRef    string `json:"journey_ref,omitempty"`
+				Line          string    `json:"line"`
+				DepartureTime string    `json:"departure_time"`
+				ArrivalTime   string    `json:"arrival_time,omitempty"`
+				FromStop      string    `json:"from_stop"`
+				ToStop        string    `json:"to_stop"`
+				JourneyRef    string    `json:"journey_ref,omitempty"`
+				depTimeVal    time.Time `json:"-"`
 			}
 
 			candidates := make([]departureCandidate, 0)
@@ -166,12 +167,13 @@ func newNovelTripsLastDepartureCmd(flags *rootFlags) *cobra.Command {
 					FromStop:      flagFrom,
 					ToStop:        flagTo,
 					JourneyRef:    journeyRef,
+					depTimeVal:    depTime,
 				})
 			}
 
 			// Sort by departure time descending to find the latest
 			sort.Slice(candidates, func(i, j int) bool {
-				return candidates[i].DepartureTime > candidates[j].DepartureTime
+				return candidates[i].depTimeVal.After(candidates[j].depTimeVal)
 			})
 
 			view := struct {
