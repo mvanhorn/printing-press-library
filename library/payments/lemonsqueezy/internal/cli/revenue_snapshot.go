@@ -96,12 +96,20 @@ func buildRevenueSnapshot(_ context.Context, db *store.Store) (revenueSnapshotVi
 		if perr != nil {
 			continue
 		}
-		gross, refunded, count, oerr := sumLocalOrdersForStore(db, row.StoreID)
+		gross, refunded, count, hitCap, oerr := sumLocalOrdersForStore(db, row.StoreID)
 		if oerr == nil {
 			row.LocalOrders = count
 			row.LocalGrossUSD = gross
 			row.LocalRefundedUSD = refunded
 			row.LocalNetUSD = gross - refunded
+		}
+		if hitCap {
+			capNote := fmt.Sprintf("store %s hit the %d-order scan cap; net is a lower bound. Open an issue if a single store routinely exceeds this volume.", row.StoreID, revenueSnapshotOrdersScanCap)
+			if view.Note == "" {
+				view.Note = capNote
+			} else {
+				view.Note = view.Note + "; " + capNote
+			}
 		}
 		view.Stores = append(view.Stores, row)
 		view.TotalThirtyDayUSD += row.ThirtyDayRevenue
@@ -109,7 +117,7 @@ func buildRevenueSnapshot(_ context.Context, db *store.Store) (revenueSnapshotVi
 		view.TotalLocalNetUSD += row.LocalNetUSD
 	}
 	view.StoreCount = len(view.Stores)
-	if view.StoreCount == 0 {
+	if view.StoreCount == 0 && view.Note == "" {
 		view.Note = "no stores in local mirror; run 'lemonsqueezy-pp-cli sync --resources stores' first"
 	}
 	return view, nil
@@ -141,12 +149,26 @@ func parseStoreRevenueRow(raw json.RawMessage) (revenueStoreRow, error) {
 	}, nil
 }
 
-func sumLocalOrdersForStore(db *store.Store, storeID string) (gross, refunded float64, count int, err error) {
+// revenueSnapshotOrdersScanCap is the per-store row scan budget. The query
+// filters by store_id at SQL level (via json_extract) so this cap applies to
+// orders from a single store, not the global orders table. Bump if a store
+// genuinely has more than this many orders in the synced window.
+const revenueSnapshotOrdersScanCap = 50000
+
+func sumLocalOrdersForStore(db *store.Store, storeID string) (gross, refunded float64, count int, hitCap bool, err error) {
+	// Filter by store_id at SQL level so multi-store accounts do not scan O(N
+	// stores * 5000) rows in Go. The CAST is required because Lemon Squeezy
+	// returns store_id as either a JSON number or string depending on the
+	// endpoint, and we always compare against a string at the Go boundary.
 	rows, err := db.Query(
-		`SELECT data FROM resources WHERE resource_type = 'orders' LIMIT 5000`,
+		`SELECT data FROM resources
+		 WHERE resource_type = 'orders'
+		   AND CAST(json_extract(data, '$.attributes.store_id') AS TEXT) = ?
+		 LIMIT ?`,
+		storeID, revenueSnapshotOrdersScanCap,
 	)
 	if err != nil {
-		return 0, 0, 0, err
+		return 0, 0, 0, false, err
 	}
 	defer rows.Close()
 	for rows.Next() {
@@ -159,7 +181,6 @@ func sumLocalOrdersForStore(db *store.Store, storeID string) (gross, refunded fl
 		}
 		var env struct {
 			Attributes struct {
-				StoreID     any `json:"store_id"`
 				TotalUSD    any `json:"total_usd"`
 				Total       any `json:"total"`
 				Refunded    any `json:"refunded"`
@@ -167,10 +188,6 @@ func sumLocalOrdersForStore(db *store.Store, storeID string) (gross, refunded fl
 			} `json:"attributes"`
 		}
 		if err := json.Unmarshal([]byte(data.String), &env); err != nil {
-			continue
-		}
-		oStoreID := toStringLS(env.Attributes.StoreID)
-		if storeID != "" && oStoreID != "" && oStoreID != storeID {
 			continue
 		}
 		amount := toFloatLS(env.Attributes.TotalUSD)
@@ -185,5 +202,6 @@ func sumLocalOrdersForStore(db *store.Store, storeID string) (gross, refunded fl
 		refunded += ref / 100.0
 		count++
 	}
-	return gross, refunded, count, nil
+	hitCap = count >= revenueSnapshotOrdersScanCap
+	return gross, refunded, count, hitCap, nil
 }

@@ -92,13 +92,22 @@ Data source: local. Run 'sync --resources subscriptions,subscription-invoices' f
 func buildMrrTrend(db *store.Store, weeks int) (mrrTrendView, error) {
 	view := mrrTrendView{Weeks: []mrrWeekBucket{}, WindowWeeks: weeks}
 
+	// Order by created_at ascending so the firstSeenSub map is populated
+	// correctly even when SQLite returns rows in arbitrary physical order.
+	// Without ORDER BY, a subscription's earliest invoice could be processed
+	// after a later one and get misclassified as a renewal.
+	const mrrTrendInvoiceCap = 200000
 	rows, err := db.Query(
-		`SELECT data FROM resources WHERE resource_type = 'subscription-invoices' LIMIT 20000`,
+		`SELECT data FROM resources WHERE resource_type = 'subscription-invoices'
+		 ORDER BY json_extract(data, '$.attributes.created_at') ASC
+		 LIMIT ?`,
+		mrrTrendInvoiceCap,
 	)
 	if err != nil {
 		return view, fmt.Errorf("querying subscription-invoices: %w", err)
 	}
 	defer rows.Close()
+	invoiceCount := 0
 
 	now := time.Now().UTC()
 	cutoff := now.AddDate(0, 0, -7*weeks)
@@ -158,6 +167,10 @@ func buildMrrTrend(db *store.Store, weeks int) (mrrTrendView, error) {
 		if first, ok := firstSeenSub[subID]; !ok || when.Before(first) {
 			firstSeenSub[subID] = when
 		}
+		invoiceCount++
+	}
+	if invoiceCount >= mrrTrendInvoiceCap {
+		view.Note = fmt.Sprintf("hit the %d-invoice scan cap; new-vs-renewal classification may be inaccurate for the oldest weeks. Narrow --weeks or open an issue if your store routinely exceeds this volume.", mrrTrendInvoiceCap)
 	}
 
 	buckets := map[string]*mrrWeekBucket{}

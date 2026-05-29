@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"net/url"
 	"sort"
+	"strconv"
 
 	"github.com/mvanhorn/printing-press-library/library/payments/lemonsqueezy/internal/client"
 	"github.com/spf13/cobra"
@@ -141,33 +142,65 @@ func runRefundCascade(ctx context.Context, c *client.Client, orderID string, app
 		apply = false
 	}
 
-	// Fetch license keys for the order.
-	keysData, err := c.Get(ctx, "/v1/license-keys", map[string]string{
-		"filter[order_id]": orderID,
-		"page[size]":       "100",
-	})
-	if err != nil {
-		view.FetchFailures = append(view.FetchFailures, "license-keys: "+err.Error())
-		return view, nil
+	// Fetch ALL license keys for the order — paginate via JSON:API links.next
+	// until exhausted. A single page of 100 is not enough for large orders;
+	// silently leaving keys enabled after --apply would defeat the cascade.
+	type licenseKeyRec struct {
+		ID         string `json:"id"`
+		Attributes struct {
+			KeyShort        string `json:"key_short"`
+			Status          string `json:"status"`
+			Disabled        any    `json:"disabled"`
+			ActivationLimit any    `json:"activation_limit"`
+			ActivationUsage any    `json:"activation_usage"`
+			ProductID       any    `json:"product_id"`
+			VariantID       any    `json:"variant_id"`
+			OrderItemID     any    `json:"order_item_id"`
+		} `json:"attributes"`
 	}
-	var keysEnv struct {
-		Data []struct {
-			ID         string `json:"id"`
-			Attributes struct {
-				KeyShort        string `json:"key_short"`
-				Status          string `json:"status"`
-				Disabled        any    `json:"disabled"`
-				ActivationLimit any    `json:"activation_limit"`
-				ActivationUsage any    `json:"activation_usage"`
-				ProductID       any    `json:"product_id"`
-				VariantID       any    `json:"variant_id"`
-				OrderItemID     any    `json:"order_item_id"`
-			} `json:"attributes"`
-		} `json:"data"`
+	type keysPage struct {
+		Data  []licenseKeyRec `json:"data"`
+		Links struct {
+			Next string `json:"next"`
+		} `json:"links"`
 	}
-	if err := json.Unmarshal(keysData, &keysEnv); err != nil {
-		return view, fmt.Errorf("parsing license-keys response: %w", err)
+
+	var allKeys []licenseKeyRec
+	const refundCascadeMaxPages = 50 // 50 * 100 = 5000 keys ceiling; refuses to silently truncate
+	page := 1
+	for {
+		params := map[string]string{
+			"filter[order_id]": orderID,
+			"page[size]":       "100",
+			"page[number]":     strconv.Itoa(page),
+		}
+		raw, err := c.Get(ctx, "/v1/license-keys", params)
+		if err != nil {
+			view.FetchFailures = append(view.FetchFailures, "license-keys page "+strconv.Itoa(page)+": "+err.Error())
+			return view, nil
+		}
+		var pg keysPage
+		if err := json.Unmarshal(raw, &pg); err != nil {
+			return view, fmt.Errorf("parsing license-keys page %d: %w", page, err)
+		}
+		allKeys = append(allKeys, pg.Data...)
+		if pg.Links.Next == "" || len(pg.Data) == 0 {
+			break
+		}
+		if page >= refundCascadeMaxPages {
+			// Refuse to silently truncate — bail out and surface to the caller.
+			view.FetchFailures = append(view.FetchFailures, fmt.Sprintf("license-keys: reached pagination ceiling of %d pages (%d keys); refusing to --apply on a partial set", refundCascadeMaxPages, len(allKeys)))
+			if apply {
+				view.Apply = false
+				apply = false
+			}
+			break
+		}
+		page++
 	}
+	keysEnv := struct {
+		Data []licenseKeyRec
+	}{Data: allKeys}
 
 	// Group keys by order-item-id for nicer output.
 	byItem := map[string]*refundCascadeOrderItem{}
