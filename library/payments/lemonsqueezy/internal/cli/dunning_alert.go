@@ -90,15 +90,22 @@ func buildDunningAlert(db *store.Store) (dunningAlertView, error) {
 	subStates := loadSubscriptionStates(db)
 	customerEmails := loadCustomerEmails(db)
 
+	// dunningInvoiceScanCap caps the subscription-invoices scan. Hitting the
+	// cap surfaces a warning so callers can distinguish "no recoverable
+	// failures" from "recoverable failures may exist beyond the scan window".
+	const dunningInvoiceScanCap = 500000
 	rows, err := db.Query(
-		`SELECT data FROM resources WHERE resource_type = 'subscription-invoices' LIMIT 50000`,
+		`SELECT data FROM resources WHERE resource_type = 'subscription-invoices' LIMIT ?`,
+		dunningInvoiceScanCap,
 	)
 	if err != nil {
 		return view, fmt.Errorf("querying subscription-invoices: %w", err)
 	}
 	defer rows.Close()
+	scannedInvoices := 0
 
 	for rows.Next() {
+		scannedInvoices++
 		var data sql.NullString
 		if err := rows.Scan(&data); err != nil {
 			continue
@@ -151,7 +158,9 @@ func buildDunningAlert(db *store.Store) (dunningAlertView, error) {
 		return view.Rows[i].AmountUSD > view.Rows[j].AmountUSD
 	})
 	view.Count = len(view.Rows)
-	if view.Count == 0 {
+	if scannedInvoices >= dunningInvoiceScanCap {
+		view.Note = fmt.Sprintf("hit the %d-invoice scan cap; recoverable failed invoices may exist beyond this window. Open an issue if your invoice volume routinely exceeds this.", dunningInvoiceScanCap)
+	} else if view.Count == 0 {
 		view.Note = "no recoverable failed invoices; no subscriptions in active or past_due state have a failed invoice in the local mirror"
 	}
 	return view, nil

@@ -174,11 +174,13 @@ func extractHost(rawURL string) string {
 
 func classifyHost(host string) (stale bool, reason string) {
 	lower := strings.ToLower(host)
-	if hostPart := strings.SplitN(lower, ":", 2)[0]; hostPart != "" {
-		lower = hostPart
+	// Strip an optional :port suffix before classification so case statements
+	// only need to match the bare hostname.
+	if idx := strings.IndexByte(lower, ':'); idx >= 0 {
+		lower = lower[:idx]
 	}
 	switch {
-	case lower == "localhost" || strings.HasPrefix(lower, "localhost:"):
+	case lower == "localhost":
 		return true, "localhost"
 	case lower == "127.0.0.1" || lower == "::1":
 		return true, "loopback IP"
