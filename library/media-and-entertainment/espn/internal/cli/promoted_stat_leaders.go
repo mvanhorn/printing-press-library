@@ -64,9 +64,11 @@ func newStatLeadersCmd(flags *rootFlags) *cobra.Command {
 			if season > 0 {
 				q.Set("season", fmt.Sprintf("%d", season))
 			}
-			if code := seasonTypeCode(seasonType); code > 0 {
-				q.Set("seasontype", fmt.Sprintf("%d", code))
+			code := seasonTypeCode(seasonType)
+			if code < 0 {
+				return usageErr(fmt.Errorf("invalid --seasontype %q: valid values are pre, regular, or playoffs", seasonType))
 			}
+			q.Set("seasontype", fmt.Sprintf("%d", code))
 			// Always fetch a generous window so the client-side ranking is
 			// correct regardless of the display --limit. ESPN's server-side
 			// sort for this endpoint is unreliable (it returns a default
@@ -123,7 +125,10 @@ func seasonTypeCode(s string) int {
 	case "post", "postseason", "playoffs":
 		return 3
 	default:
-		return 2
+		// Unrecognized token. Return a sentinel so the caller can reject it
+		// with a usage error rather than silently serving regular-season data
+		// for a near-miss like "playoff" (singular) or "post-season".
+		return -1
 	}
 }
 

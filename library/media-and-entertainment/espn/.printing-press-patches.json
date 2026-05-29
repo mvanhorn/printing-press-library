@@ -78,6 +78,16 @@
         "internal/cli/root.go"
       ],
       "validated_outcome": "go build / vet / test ./... pass (9 new tests); verify_skill.py passes (0 issues); cli-printing-press publish validate passes. Live smoke test: `stat-leaders baseball mlb --stat homeRuns --season 2024` ranked Judge (58), Ohtani (54), Santander (44), Soto (41), Ozuna (39) correctly in table and JSON; `--stat avg` ranked Witt .332 / Vlad .323 / Judge .322; `football nfl --stat passingYards` ranked Burrow 4918 / Goff 4629 / Mayfield 4500; omitting --stat lists the available batting/pitching/fielding stats."
+    },
+    {
+      "id": "pr927-greptile-stat-leaders-seasontype",
+      "summary": "Address PR #927 Greptile review: stat-leaders now rejects unrecognized --seasontype values with a usage error instead of silently serving regular-season data, and the dead `code > 0` guard is replaced with a real `code < 0` validation.",
+      "reason": "(P1) seasonTypeCode's default branch mapped any unrecognized token to code 2 (regular season), so near-misses like 'playoff' (singular), 'post-season', or 'spring' silently returned regular-season results with no error. (P2) seasonTypeCode only ever returned 1/2/3, so the `code > 0` guard at the query-build site was permanently true and dead. Fix: seasonTypeCode returns -1 for unrecognized input; the call site validates `code < 0` and returns usageErr listing the valid values (pre, regular, playoffs), then sets seasontype unconditionally.",
+      "files": [
+        "internal/cli/promoted_stat_leaders.go",
+        "internal/cli/promoted_stat_leaders_test.go"
+      ],
+      "validated_outcome": "go build / vet / test ./... pass; verify_skill.py passes. Live: `stat-leaders baseball mlb --stat homeRuns --seasontype playoff` now exits 2 with `invalid --seasontype \"playoff\": valid values are pre, regular, or playoffs`; a valid run still returns ranked data. TestSeasonTypeCode extended to assert -1 for garbage/playoff/post-season/spring."
     }
   ]
 }

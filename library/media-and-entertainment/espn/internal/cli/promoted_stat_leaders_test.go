@@ -170,7 +170,12 @@ func TestSeasonTypeCode(t *testing.T) {
 		"preseason": 1,
 		"playoffs":  3,
 		"post":      3,
-		"garbage":   2,
+		// Unrecognized tokens return a -1 sentinel so the command can reject
+		// them with a usage error instead of silently serving regular season.
+		"garbage":     -1,
+		"playoff":     -1,
+		"post-season": -1,
+		"spring":      -1,
 	}
 	for in, want := range cases {
 		if got := seasonTypeCode(in); got != want {
