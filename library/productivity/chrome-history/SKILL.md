@@ -1,6 +1,6 @@
 ---
 name: pp-chrome-history
-description: Query your local Chrome browsing history — search, topic clusters (Chrome's own Journeys), time/productivity reports, session timelines, downloads, and a behavioral profile — all read-only and on-device. Trigger phrases: "what have I been browsing", "search my chrome history", "what was that page I saw", "my browsing journeys / topics", "what did I download in chrome", "what sites do I visit most", "my browsing time report", "my browsing profile", "what was I researching last week", "use chrome-history", "run chrome-history-pp-cli".
+description: "Query your local Chrome browsing history — search, topic clusters (Chrome's own Journeys), time/productivity reports, session timelines, downloads, and a behavioral profile — all read-only and on-device. Trigger phrases: `what have I been browsing`, `search my chrome history`, `what was that page I saw`, `my browsing journeys / topics`, `what did I download in chrome`, `what sites do I visit most`, `my browsing time report`, `my browsing profile`, `what was I researching last week`, `use chrome-history`, `run chrome-history-pp-cli`."
 ---
 
 # pp-chrome-history
