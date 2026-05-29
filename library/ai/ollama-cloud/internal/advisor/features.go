@@ -63,19 +63,19 @@ func codeFenceDensity(s string) float64 {
 func detectLanguages(s string) []string {
 	out := []string{}
 	lower := strings.ToLower(s)
-	patterns := map[string]string{
-		"go":         "package main\nimport ",
-		"python":     "def ",
-		"typescript": "const ",
-		"rust":       "fn main",
-		"sql":        "select ",
-		"shell":      "#!/bin/",
+	// Fixed-order slice (not a map) so the Languages list in --explain output is
+	// deterministic — map iteration order is randomised per runtime.
+	patterns := []struct{ lang, sig string }{
+		{"go", "package main\nimport "},
+		{"python", "def "},
+		{"typescript", "const "},
+		{"rust", "fn main"},
+		{"sql", "select "},
+		{"shell", "#!/bin/"},
 	}
-	seen := map[string]bool{}
-	for lang, sig := range patterns {
-		if strings.Contains(lower, sig) && !seen[lang] {
-			out = append(out, lang)
-			seen[lang] = true
+	for _, p := range patterns {
+		if strings.Contains(lower, p.sig) {
+			out = append(out, p.lang)
 		}
 	}
 	return out

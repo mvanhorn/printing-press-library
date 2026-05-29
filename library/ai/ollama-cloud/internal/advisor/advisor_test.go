@@ -292,6 +292,55 @@ func TestAdviseFallbackDiffersFromRecommendedAfterTiebreak(t *testing.T) {
 	}
 }
 
+func TestDetectLanguagesDeterministicOrder(t *testing.T) {
+	// Multi-language prompt; detection must return a fixed order across runs
+	// (regression: map iteration randomised the Languages list in --explain).
+	prompt := "package main\nimport \"x\"\ndef f():\nconst y\nselect 1"
+	first := detectLanguages(prompt)
+	for i := 0; i < 20; i++ {
+		got := detectLanguages(prompt)
+		if len(got) != len(first) {
+			t.Fatalf("length varied: %v vs %v", first, got)
+		}
+		for j := range got {
+			if got[j] != first[j] {
+				t.Fatalf("order varied across runs: %v vs %v", first, got)
+			}
+		}
+	}
+	want := []string{"go", "python", "typescript", "sql"}
+	if len(first) != len(want) {
+		t.Fatalf("got %v want %v", first, want)
+	}
+	for i := range want {
+		if first[i] != want[i] {
+			t.Fatalf("got %v want %v", first, want)
+		}
+	}
+}
+
+func TestApplyOverlayDefaultCarriesPricing(t *testing.T) {
+	// A live model not matched by any overlay pattern must inherit the default
+	// pricing, not be treated as free (regression: default branch dropped
+	// PriceInPer1M/PriceOutPer1M, biasing scoreCost toward unrecognised models).
+	tags := json.RawMessage(`{"models":[{"name":"unknown-model:1b","model":"unknown-model:1b","details":{"family":"x"}}]}`)
+	overlay := []byte(`{
+		"schema_version":1,
+		"models":[{"id_patterns":["qwen3-coder*"],"ctx_window":262144,"price_in_per_1m":1.0,"price_out_per_1m":2.0}],
+		"default":{"ctx_window":32768,"latency_p50_ms":4000,"price_in_per_1m":5.0,"price_out_per_1m":9.0}
+	}`)
+	cat, err := LoadCatalog(tags, overlay)
+	if err != nil {
+		t.Fatalf("LoadCatalog: %v", err)
+	}
+	if len(cat) != 1 {
+		t.Fatalf("want 1 model, got %d", len(cat))
+	}
+	if cat[0].PriceInPer1M != 5.0 || cat[0].PriceOutPer1M != 9.0 {
+		t.Errorf("default pricing not applied: in=%v out=%v want 5/9", cat[0].PriceInPer1M, cat[0].PriceOutPer1M)
+	}
+}
+
 func TestGlobMatchHandlesColon(t *testing.T) {
 	if !globMatch("qwen3-coder*", "qwen3-coder:480b") {
 		t.Error("qwen3-coder* should match qwen3-coder:480b")

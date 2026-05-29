@@ -78,13 +78,14 @@ load the cost overlay); use advise for per-model cost estimates.
 			}
 			messages = append(messages, map[string]any{"role": "user", "content": prompt})
 
+			parentCtx := cmd.Context()
 			results := make([]compareResult, len(models))
 			var wg sync.WaitGroup
 			for i, m := range models {
 				wg.Add(1)
 				go func(idx int, model string) {
 					defer wg.Done()
-					results[idx] = runCompareOne(c, model, messages, maxTokens, time.Duration(timeoutSec)*time.Second)
+					results[idx] = runCompareOne(parentCtx, c, model, messages, maxTokens, time.Duration(timeoutSec)*time.Second)
 				}(i, strings.TrimSpace(m))
 			}
 			wg.Wait()
@@ -109,7 +110,7 @@ load the cost overlay); use advise for per-model cost estimates.
 	return cmd
 }
 
-func runCompareOne(c clientLike, model string, messages []map[string]any, maxTok int, timeout time.Duration) compareResult {
+func runCompareOne(parentCtx context.Context, c clientLike, model string, messages []map[string]any, maxTok int, timeout time.Duration) compareResult {
 	r := compareResult{Model: model}
 	body := map[string]any{
 		"model":    model,
@@ -117,7 +118,9 @@ func runCompareOne(c clientLike, model string, messages []map[string]any, maxTok
 		"stream":   false,
 		"options":  map[string]any{"num_predict": maxTok},
 	}
-	ctx := context.Background()
+	// Root the per-model deadline at the command context so OS cancellation
+	// (Ctrl+C) aborts in-flight requests instead of waiting out --timeout.
+	ctx := parentCtx
 	if timeout > 0 {
 		var cancel context.CancelFunc
 		ctx, cancel = context.WithTimeout(ctx, timeout)

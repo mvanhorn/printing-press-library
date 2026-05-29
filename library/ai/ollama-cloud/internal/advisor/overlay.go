@@ -56,6 +56,8 @@ func applyOverlay(m *Model, meta overlayMeta) {
 		}
 	}
 	m.CtxWindow = meta.Default.CtxWindow
+	m.PriceInPer1M = meta.Default.PriceInPer1M
+	m.PriceOutPer1M = meta.Default.PriceOutPer1M
 	m.LatencyP50Ms = meta.Default.LatencyP50Ms
 	m.SupportsTools = meta.Default.SupportsTools
 	m.SupportsVision = meta.Default.SupportsVision
