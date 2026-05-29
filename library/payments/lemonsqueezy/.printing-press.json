@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-29T07:50:54.608044Z",
+  "printing_press_version": "4.19.0",
+  "api_name": "lemonsqueezy",
+  "display_name": "Lemon Squeezy",
+  "cli_name": "lemonsqueezy-pp-cli",
+  "creator": {
+    "handle": "jcastillo725",
+    "name": "Joseph Alvin Castillo"
+  },
+  "owner": "jcastillo725",
+  "printer": "jcastillo725",
+  "printer_name": "Joseph Alvin Castillo",
+  "spec_path": "lemonsqueezy-openapi-normalized.yml",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:cded59714b952c3ce4374772ca882ced8da2503ec28b7513c5dfb2b244ea4d55",
+  "run_id": "20260529-160048",
+  "category": "payments",
+  "description": "Every Lemon Squeezy resource, plus a local SQLite mirror that surfaces MRR, churn, license seats, and discount-campaign pace no other LS tool ships.",
+  "mcp_binary": "lemonsqueezy-pp-mcp",
+  "mcp_tool_count": 51,
+  "mcp_ready": "full",
+  "api_version": "1.0.0",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "LEMONSQUEEZY_API_KEY"
+  ],
+  "auth_key_url": "https://app.lemonsqueezy.com/settings/api",
+  "novel_features": [
+    {
+      "name": "Revenue snapshot",
+      "command": "revenue-snapshot",
+      "description": "Point-in-time revenue rollup combining LS's denormalized 30-day/lifetime store counters with refund-adjusted net from local orders."
+    },
+    {
+      "name": "MRR trend",
+      "command": "mrr-trend",
+      "description": "Weekly MRR over a sliding window, classified as new / renewal / refunded with a week-over-week net delta."
+    },
+    {
+      "name": "Churn watch",
+      "command": "churn-watch",
+      "description": "Lists subscriptions that flipped to past_due/unpaid/cancelled/expired in a window, with customer email and dollar exposure per row."
+    },
+    {
+      "name": "Dunning alert",
+      "command": "dunning-alert",
+      "description": "Lists subscription-invoices with status=failed whose parent subscription is still active or past_due — the recoverable window."
+    },
+    {
+      "name": "License-key roll-up",
+      "command": "license-rollup",
+      "description": "Per-variant and per-key activation statistics joined across license-keys, license-key-instances, and variants."
+    },
+    {
+      "name": "Refund cascade",
+      "command": "refund-cascade",
+      "description": "Given a refunded order ID, walks order → order-items → license-keys → instances, then optionally disables the keys via --apply."
+    },
+    {
+      "name": "Campaign watch",
+      "command": "campaign-watch",
+      "description": "Per discount code: redemptions used vs cap, redemption velocity over last 24h, projected sellout time at current pace (needs \u003e=6h of redemption activity to stabilise)."
+    },
+    {
+      "name": "Webhook audit",
+      "command": "webhook-audit",
+      "description": "Cross-store webhook coverage matrix grouped by URL host, flagging stale destinations (localhost, ngrok, *.test, *.local)."
+    }
+  ]
+}

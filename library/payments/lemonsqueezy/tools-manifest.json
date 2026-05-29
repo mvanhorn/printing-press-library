@@ -1,0 +1,596 @@
+{
+  "api_name": "lemonsqueezy",
+  "base_url": "https://api.lemonsqueezy.com",
+  "description": "Every Lemon Squeezy resource, plus a local SQLite mirror that surfaces MRR, churn, license seats, and discount-campaign pace no other LS tool ships.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "mcp": {
+    "endpoint_tools": "hidden",
+    "orchestration": "code"
+  },
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "LEMONSQUEEZY_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "LEMONSQUEEZY_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ],
+    "key_url": "https://app.lemonsqueezy.com/settings/api"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "affiliates_get",
+      "description": "Lemon Squeezy Retrieve an affiliate. Required: id.",
+      "method": "GET",
+      "path": "/v1/affiliates/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Resource ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "affiliates_list",
+      "description": "Lemon Squeezy List all affiliates.",
+      "method": "GET",
+      "path": "/v1/affiliates",
+      "params": []
+    },
+    {
+      "name": "checkouts_create",
+      "description": "Lemon Squeezy Create a checkout.",
+      "method": "POST",
+      "path": "/v1/checkouts",
+      "params": []
+    },
+    {
+      "name": "checkouts_get",
+      "description": "Lemon Squeezy Retrieve a checkout. Required: id.",
+      "method": "GET",
+      "path": "/v1/checkouts/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Resource ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "checkouts_list",
+      "description": "Lemon Squeezy List all checkouts.",
+      "method": "GET",
+      "path": "/v1/checkouts",
+      "params": []
+    },
+    {
+      "name": "customers_get",
+      "description": "Lemon Squeezy Retrieve a customer. Required: id.",
+      "method": "GET",
+      "path": "/v1/customers/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Resource ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "customers_list",
+      "description": "Lemon Squeezy List all customers.",
+      "method": "GET",
+      "path": "/v1/customers",
+      "params": []
+    },
+    {
+      "name": "discount-redemptions_get",
+      "description": "Lemon Squeezy Retrieve a discount redemption. Required: id.",
+      "method": "GET",
+      "path": "/v1/discount-redemptions/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Resource ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "discount-redemptions_list",
+      "description": "Lemon Squeezy List all discount redemptions.",
+      "method": "GET",
+      "path": "/v1/discount-redemptions",
+      "params": []
+    },
+    {
+      "name": "discounts_create",
+      "description": "Lemon Squeezy Create a discount.",
+      "method": "POST",
+      "path": "/v1/discounts",
+      "params": []
+    },
+    {
+      "name": "discounts_delete",
+      "description": "Lemon Squeezy Delete a discount. Required: id. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/discounts/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Resource ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "discounts_get",
+      "description": "Lemon Squeezy Retrieve a discount. Required: id.",
+      "method": "GET",
+      "path": "/v1/discounts/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Resource ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "discounts_list",
+      "description": "Lemon Squeezy List all discounts.",
+      "method": "GET",
+      "path": "/v1/discounts",
+      "params": []
+    },
+    {
+      "name": "files_get",
+      "description": "Lemon Squeezy Retrieve a file. Required: id.",
+      "method": "GET",
+      "path": "/v1/files/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Resource ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "files_list",
+      "description": "Lemon Squeezy List all files.",
+      "method": "GET",
+      "path": "/v1/files",
+      "params": []
+    },
+    {
+      "name": "health_check",
+      "description": "Lemon Squeezy Health.",
+      "method": "GET",
+      "path": "/v1/health",
+      "params": []
+    },
+    {
+      "name": "license-key-instances_get",
+      "description": "Lemon Squeezy Retrieve a license key instance. Required: id.",
+      "method": "GET",
+      "path": "/v1/license-key-instances/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Resource ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "license-key-instances_list",
+      "description": "Lemon Squeezy List all license key instances.",
+      "method": "GET",
+      "path": "/v1/license-key-instances",
+      "params": []
+    },
+    {
+      "name": "license-keys_get",
+      "description": "Lemon Squeezy Retrieve a license key. Required: id.",
+      "method": "GET",
+      "path": "/v1/license-keys/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Resource ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "license-keys_list",
+      "description": "Lemon Squeezy List all license keys.",
+      "method": "GET",
+      "path": "/v1/license-keys",
+      "params": []
+    },
+    {
+      "name": "order-items_get",
+      "description": "Lemon Squeezy Retrieve an order item. Required: id.",
+      "method": "GET",
+      "path": "/v1/order-items/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Resource ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "order-items_list",
+      "description": "Lemon Squeezy List all order items.",
+      "method": "GET",
+      "path": "/v1/order-items",
+      "params": []
+    },
+    {
+      "name": "orders_get",
+      "description": "Lemon Squeezy Retrieve an order. Required: id.",
+      "method": "GET",
+      "path": "/v1/orders/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Resource ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "orders_list",
+      "description": "Lemon Squeezy List all orders.",
+      "method": "GET",
+      "path": "/v1/orders",
+      "params": []
+    },
+    {
+      "name": "prices_get",
+      "description": "Lemon Squeezy Retrieve a price. Required: id.",
+      "method": "GET",
+      "path": "/v1/prices/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Resource ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "prices_list",
+      "description": "Lemon Squeezy List all prices.",
+      "method": "GET",
+      "path": "/v1/prices",
+      "params": []
+    },
+    {
+      "name": "products_get",
+      "description": "Lemon Squeezy Retrieve a product. Required: id.",
+      "method": "GET",
+      "path": "/v1/products/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Resource ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "products_list",
+      "description": "Lemon Squeezy List all products.",
+      "method": "GET",
+      "path": "/v1/products",
+      "params": []
+    },
+    {
+      "name": "stores_get",
+      "description": "Lemon Squeezy Retrieve a store. Required: id.",
+      "method": "GET",
+      "path": "/v1/stores/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Resource ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "stores_list",
+      "description": "Lemon Squeezy List all stores.",
+      "method": "GET",
+      "path": "/v1/stores",
+      "params": []
+    },
+    {
+      "name": "subscription-invoices_get",
+      "description": "Lemon Squeezy Retrieve a subscription invoice. Required: id.",
+      "method": "GET",
+      "path": "/v1/subscription-invoices/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Resource ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "subscription-invoices_list",
+      "description": "Lemon Squeezy List all subscription invoices.",
+      "method": "GET",
+      "path": "/v1/subscription-invoices",
+      "params": []
+    },
+    {
+      "name": "subscription-items_get",
+      "description": "Lemon Squeezy Retrieve a subscription item. Required: id.",
+      "method": "GET",
+      "path": "/v1/subscription-items/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Resource ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "subscription-items_list",
+      "description": "Lemon Squeezy List all subscription items.",
+      "method": "GET",
+      "path": "/v1/subscription-items",
+      "params": []
+    },
+    {
+      "name": "subscription-items_update",
+      "description": "Lemon Squeezy Update a subscription item. Required: id. Partial update.",
+      "method": "PATCH",
+      "path": "/v1/subscription-items/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Resource ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "subscription-items_current-usage_subscription-items-get",
+      "description": "Lemon Squeezy Retrieve a subscription items current usage. Required: id.",
+      "method": "GET",
+      "path": "/v1/subscription-items/{id}/current-usage",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Resource ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "subscriptions_delete",
+      "description": "Lemon Squeezy Cancel a Subscription. Required: id. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/subscriptions/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Resource ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "subscriptions_get",
+      "description": "Lemon Squeezy Retrieve a subscription. Required: id.",
+      "method": "GET",
+      "path": "/v1/subscriptions/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Resource ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "subscriptions_list",
+      "description": "Lemon Squeezy List all subscriptions.",
+      "method": "GET",
+      "path": "/v1/subscriptions",
+      "params": []
+    },
+    {
+      "name": "subscriptions_update",
+      "description": "Lemon Squeezy Update a subscription. Required: id. Partial update.",
+      "method": "PATCH",
+      "path": "/v1/subscriptions/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Resource ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "usage-records_create",
+      "description": "Lemon Squeezy Create a usage record.",
+      "method": "POST",
+      "path": "/v1/usage-records",
+      "params": []
+    },
+    {
+      "name": "usage-records_get",
+      "description": "Lemon Squeezy Retrieve a usage-record. Required: id.",
+      "method": "GET",
+      "path": "/v1/usage-records/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Resource ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "usage-records_list",
+      "description": "Lemon Squeezy List all usage records.",
+      "method": "GET",
+      "path": "/v1/usage-records",
+      "params": []
+    },
+    {
+      "name": "users_me",
+      "description": "Lemon Squeezy Retrieve the authenticated user.",
+      "method": "GET",
+      "path": "/v1/users/me",
+      "params": []
+    },
+    {
+      "name": "variants_get",
+      "description": "Lemon Squeezy Retrieve a variant. Required: id.",
+      "method": "GET",
+      "path": "/v1/variants/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Resource ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "variants_list",
+      "description": "Lemon Squeezy List all variants.",
+      "method": "GET",
+      "path": "/v1/variants",
+      "params": []
+    },
+    {
+      "name": "webhooks_create",
+      "description": "Lemon Squeezy Create a webhook.",
+      "method": "POST",
+      "path": "/v1/webhooks",
+      "params": []
+    },
+    {
+      "name": "webhooks_delete",
+      "description": "Lemon Squeezy Delete a webhook. Required: id. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/webhooks/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Resource ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "webhooks_get",
+      "description": "Lemon Squeezy Retrieve a webhook. Required: id.",
+      "method": "GET",
+      "path": "/v1/webhooks/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Resource ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "webhooks_list",
+      "description": "Lemon Squeezy List all webhooks.",
+      "method": "GET",
+      "path": "/v1/webhooks",
+      "params": []
+    },
+    {
+      "name": "webhooks_update",
+      "description": "Lemon Squeezy Update a webhook. Required: id. Partial update.",
+      "method": "PATCH",
+      "path": "/v1/webhooks/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Resource ID",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

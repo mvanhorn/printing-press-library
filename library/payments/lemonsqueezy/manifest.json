@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "lemonsqueezy-pp-mcp",
+  "display_name": "Lemon Squeezy",
+  "version": "4.19.0",
+  "description": "Every Lemon Squeezy resource, plus a local SQLite mirror that surfaces MRR, churn, license seats, and discount-campaign pace no other LS tool ships.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/lemonsqueezy-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/lemonsqueezy-pp-mcp",
+      "args": [],
+      "env": {
+        "LEMONSQUEEZY_API_KEY": "${user_config.lemonsqueezy_api_key}"
+      }
+    }
+  },
+  "user_config": {
+    "lemonsqueezy_api_key": {
+      "type": "string",
+      "title": "LEMONSQUEEZY_API_KEY",
+      "description": "Sets LEMONSQUEEZY_API_KEY for the Lemon Squeezy MCP server. Get a credential from https://app.lemonsqueezy.com/settings/api.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

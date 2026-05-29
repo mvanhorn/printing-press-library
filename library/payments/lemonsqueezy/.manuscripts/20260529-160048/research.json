@@ -1,0 +1,340 @@
+{
+  "api_name": "lemonsqueezy",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "lemonsqueezy.js",
+      "url": "https://github.com/lmsqueezy/lemonsqueezy.js",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 52,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "lemonsqueezy-go",
+      "url": "https://github.com/NdoleStudio/lemonsqueezy-go",
+      "language": "Go",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 40,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "lemonsqueezy-mcp (YawLabs)",
+      "url": "https://github.com/YawLabs/lemonsqueezy-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 20,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "mcp-lemonsqueezy",
+      "url": "https://github.com/atharvagupta2003/mcp-lemonsqueezy",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 12,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "lemonsqueezy-mcp-server (Intrepid)",
+      "url": "https://github.com/IntrepidServicesLLC/lemonsqueezy-mcp-server",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 15,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "lemonsqueezy-claude-skills",
+      "url": "https://github.com/adrianwedd/lemonsqueezy-claude-skills",
+      "language": "Markdown",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 6,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "lemonsqueezy-admin",
+      "url": "https://github.com/abakermi/lemonsqueezy-admin",
+      "language": "Markdown",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 3,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "lemonsqueezy-py-api",
+      "url": "https://github.com/wdonofrio/lemonsqueezy-py-api",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 25,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-29T06:33:00Z",
+  "novel_features": [
+    {
+      "name": "Revenue snapshot",
+      "command": "revenue-snapshot",
+      "description": "Point-in-time revenue rollup combining LS's denormalized 30-day/lifetime store counters with refund-adjusted net from local orders.",
+      "rationale": "No single Lemon Squeezy endpoint returns refund-adjusted net alongside the store's pre-rolled 30-day counters — requires joining synced stores with synced orders.",
+      "example": "lemonsqueezy-pp-cli revenue-snapshot --agent",
+      "why_it_matters": "Reach for this when you want one number for 'how is the store doing right now' without walking every order through the API.",
+      "group": "Revenue + churn signal"
+    },
+    {
+      "name": "MRR trend",
+      "command": "mrr-trend",
+      "description": "Weekly MRR over a sliding window, classified as new / renewal / refunded with a week-over-week net delta.",
+      "rationale": "Time-series MRR with movement classification requires cross-table SQL on locally synced subscriptions and subscription-invoices — the LS API only exposes raw lists.",
+      "example": "lemonsqueezy-pp-cli mrr-trend --weeks 12 --json",
+      "why_it_matters": "Pick this over a raw `list-subscriptions` call when you need to show how MRR moved week-over-week, not just where it stands today.",
+      "group": "Revenue + churn signal"
+    },
+    {
+      "name": "Churn watch",
+      "command": "churn-watch",
+      "description": "Lists subscriptions that flipped to past_due/unpaid/cancelled/expired in a window, with customer email and dollar exposure per row.",
+      "rationale": "Requires diffing the current snapshot against a prior-sync snapshot of subscription status — a pure local SQLite operation that no API call exposes.",
+      "example": "lemonsqueezy-pp-cli churn-watch --since 7d --json",
+      "why_it_matters": "Reach for this on Monday-morning sweeps to see what changed since Friday — beats clicking through the dashboard's status filters.",
+      "group": "Revenue + churn signal"
+    },
+    {
+      "name": "Dunning alert",
+      "command": "dunning-alert",
+      "description": "Lists subscription-invoices with status=failed whose parent subscription is still active or past_due — the recoverable window.",
+      "rationale": "Dunning is implicit in Lemon Squeezy's state machine (no separate resource) — requires joining invoices to subscriptions locally with a status filter.",
+      "example": "lemonsqueezy-pp-cli dunning-alert --json",
+      "why_it_matters": "Use this to find subs whose latest renewal failed but who haven't churned yet — the window where a Slack ping or grace email recovers revenue.",
+      "group": "Revenue + churn signal"
+    },
+    {
+      "name": "License-key roll-up",
+      "command": "license-rollup",
+      "description": "Per-variant and per-key activation statistics joined across license-keys, license-key-instances, and variants.",
+      "rationale": "LS exposes the keys and instances as separate endpoints with no aggregate — the rollup is a SQLite triple-join that hits the same data in one pass.",
+      "example": "lemonsqueezy-pp-cli license-rollup --json --select keys",
+      "why_it_matters": "Reach for this when you need to surface piracy-shaped seat distributions or just answer 'how many keys are active per variant'.",
+      "group": "License + refund ops"
+    },
+    {
+      "name": "Refund cascade",
+      "command": "refund-cascade",
+      "description": "Given a refunded order ID, walks order → order-items → license-keys → instances, then optionally disables the keys via --apply.",
+      "rationale": "Requires a Lemon-Squeezy-specific 4-endpoint orchestration with mutation gating — no SDK exposes this as one call, and no MCP does the cascade.",
+      "example": "lemonsqueezy-pp-cli refund-cascade order_3aBc --dry-run --json",
+      "why_it_matters": "Use this after a refund hits, to make sure the buyer's license keys actually get disabled instead of staying active.",
+      "group": "License + refund ops"
+    },
+    {
+      "name": "Campaign watch",
+      "command": "campaign-watch",
+      "description": "Per discount code: redemptions used vs cap, redemption velocity over last 24h, projected sellout time at current pace (needs \u003e=6h of redemption activity to stabilise).",
+      "rationale": "Sellout pace requires reading local redemption timestamps and computing velocity — no LS endpoint surfaces pace or projected sellout.",
+      "example": "lemonsqueezy-pp-cli campaign-watch FOUNDING-LIFETIME FOUNDING-2YR FOUNDING-1YR --json",
+      "why_it_matters": "Run this during a capped sale (Founding-Member tier, Early Access) to know when a tier will sell out so you can expire the code before overselling.",
+      "group": "Campaign + integration ops"
+    },
+    {
+      "name": "Webhook audit",
+      "command": "webhook-audit",
+      "description": "Cross-store webhook coverage matrix grouped by URL host, flagging stale destinations (localhost, ngrok, *.test, *.local).",
+      "rationale": "LS's dashboard is per-store — there's no cross-store grouping view, and stale-host detection isn't anywhere in the official surface.",
+      "example": "lemonsqueezy-pp-cli webhook-audit --json",
+      "why_it_matters": "Reach for this to catch orphaned webhooks pointing at last week's ngrok URL before they cause a missed event in production.",
+      "group": "Campaign + integration ops"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Revenue snapshot",
+      "command": "revenue-snapshot",
+      "description": "Point-in-time revenue rollup combining LS's denormalized 30-day/lifetime store counters with refund-adjusted net from local orders.",
+      "rationale": "No single Lemon Squeezy endpoint returns refund-adjusted net alongside the store's pre-rolled 30-day counters — requires joining synced stores with synced orders.",
+      "example": "lemonsqueezy-pp-cli revenue-snapshot --agent",
+      "why_it_matters": "Reach for this when you want one number for 'how is the store doing right now' without walking every order through the API.",
+      "group": "Revenue + churn signal"
+    },
+    {
+      "name": "MRR trend",
+      "command": "mrr-trend",
+      "description": "Weekly MRR over a sliding window, classified as new / renewal / refunded with a week-over-week net delta.",
+      "rationale": "Time-series MRR with movement classification requires cross-table SQL on locally synced subscriptions and subscription-invoices — the LS API only exposes raw lists.",
+      "example": "lemonsqueezy-pp-cli mrr-trend --weeks 12 --json",
+      "why_it_matters": "Pick this over a raw `list-subscriptions` call when you need to show how MRR moved week-over-week, not just where it stands today.",
+      "group": "Revenue + churn signal"
+    },
+    {
+      "name": "Churn watch",
+      "command": "churn-watch",
+      "description": "Lists subscriptions that flipped to past_due/unpaid/cancelled/expired in a window, with customer email and dollar exposure per row.",
+      "rationale": "Requires diffing the current snapshot against a prior-sync snapshot of subscription status — a pure local SQLite operation that no API call exposes.",
+      "example": "lemonsqueezy-pp-cli churn-watch --since 7d --json",
+      "why_it_matters": "Reach for this on Monday-morning sweeps to see what changed since Friday — beats clicking through the dashboard's status filters.",
+      "group": "Revenue + churn signal"
+    },
+    {
+      "name": "Dunning alert",
+      "command": "dunning-alert",
+      "description": "Lists subscription-invoices with status=failed whose parent subscription is still active or past_due — the recoverable window.",
+      "rationale": "Dunning is implicit in Lemon Squeezy's state machine (no separate resource) — requires joining invoices to subscriptions locally with a status filter.",
+      "example": "lemonsqueezy-pp-cli dunning-alert --json",
+      "why_it_matters": "Use this to find subs whose latest renewal failed but who haven't churned yet — the window where a Slack ping or grace email recovers revenue.",
+      "group": "Revenue + churn signal"
+    },
+    {
+      "name": "License-key roll-up",
+      "command": "license-rollup",
+      "description": "Per-variant and per-key activation statistics joined across license-keys, license-key-instances, and variants.",
+      "rationale": "LS exposes the keys and instances as separate endpoints with no aggregate — the rollup is a SQLite triple-join that hits the same data in one pass.",
+      "example": "lemonsqueezy-pp-cli license-rollup --json --select keys",
+      "why_it_matters": "Reach for this when you need to surface piracy-shaped seat distributions or just answer 'how many keys are active per variant'.",
+      "group": "License + refund ops"
+    },
+    {
+      "name": "Refund cascade",
+      "command": "refund-cascade",
+      "description": "Given a refunded order ID, walks order → order-items → license-keys → instances, then optionally disables the keys via --apply.",
+      "rationale": "Requires a Lemon-Squeezy-specific 4-endpoint orchestration with mutation gating — no SDK exposes this as one call, and no MCP does the cascade.",
+      "example": "lemonsqueezy-pp-cli refund-cascade order_3aBc --dry-run --json",
+      "why_it_matters": "Use this after a refund hits, to make sure the buyer's license keys actually get disabled instead of staying active.",
+      "group": "License + refund ops"
+    },
+    {
+      "name": "Campaign watch",
+      "command": "campaign-watch",
+      "description": "Per discount code: redemptions used vs cap, redemption velocity over last 24h, projected sellout time at current pace (needs \u003e=6h of redemption activity to stabilise).",
+      "rationale": "Sellout pace requires reading local redemption timestamps and computing velocity — no LS endpoint surfaces pace or projected sellout.",
+      "example": "lemonsqueezy-pp-cli campaign-watch FOUNDING-LIFETIME FOUNDING-2YR FOUNDING-1YR --json",
+      "why_it_matters": "Run this during a capped sale (Founding-Member tier, Early Access) to know when a tier will sell out so you can expire the code before overselling.",
+      "group": "Campaign + integration ops"
+    },
+    {
+      "name": "Webhook audit",
+      "command": "webhook-audit",
+      "description": "Cross-store webhook coverage matrix grouped by URL host, flagging stale destinations (localhost, ngrok, *.test, *.local).",
+      "rationale": "LS's dashboard is per-store — there's no cross-store grouping view, and stale-host detection isn't anywhere in the official surface.",
+      "example": "lemonsqueezy-pp-cli webhook-audit --json",
+      "why_it_matters": "Reach for this to catch orphaned webhooks pointing at last week's ngrok URL before they cause a missed event in production.",
+      "group": "Campaign + integration ops"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "LEMONSQUEEZY_API_KEY"
+  },
+  "narrative": {
+    "display_name": "Lemon Squeezy",
+    "headline": "Every Lemon Squeezy resource, plus a local SQLite mirror that surfaces MRR, churn, license seats, and discount-campaign pace no other LS tool ships.",
+    "value_prop": "Lemon Squeezy's official SDKs are libraries, not CLIs, and the dashboard is a click-walk per store. This CLI mirrors all 19 LS resources to local SQLite with offline FTS5 and cross-entity SQL, then layers transcendence commands — `revenue-snapshot`, `mrr-trend`, `churn-watch`, `dunning-alert`, `license-rollup`, `refund-cascade`, `campaign-watch`, `webhook-audit` — that combine entities no single endpoint returns. Built for indie SaaS founders and license-key sellers who live in the LS state machine.",
+    "auth_narrative": "Lemon Squeezy uses HTTP Bearer auth. Create an API key at https://app.lemonsqueezy.com/settings/api, then export `LEMONSQUEEZY_API_KEY=\u003cyour-key\u003e`. Verify with `lemonsqueezy-pp-cli doctor`.",
+    "quickstart": [
+      {
+        "command": "lemonsqueezy-pp-cli doctor --dry-run",
+        "comment": "Verify the binary loads and shows expected env vars before hitting the API."
+      },
+      {
+        "command": "lemonsqueezy-pp-cli sync --resources stores,products,variants,subscriptions,orders,customers",
+        "comment": "Pull the core surface into local SQLite so the transcendence commands have data to work with."
+      },
+      {
+        "command": "lemonsqueezy-pp-cli revenue-snapshot --json",
+        "comment": "Get a one-number rollup of 30-day + lifetime revenue, refund-adjusted from local orders."
+      },
+      {
+        "command": "lemonsqueezy-pp-cli churn-watch --since 7d --json",
+        "comment": "List subscriptions that flipped into past_due/unpaid/cancelled in the last 7 days with dollar exposure."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "doctor reports `LEMONSQUEEZY_API_KEY not set`",
+        "fix": "Export `LEMONSQUEEZY_API_KEY=\u003cyour-key\u003e` in your shell (or persist in ~/.zshenv for non-interactive subprocesses)."
+      },
+      {
+        "symptom": "401 Unauthorized on any command",
+        "fix": "The API key is invalid or revoked. Generate a fresh one at app.lemonsqueezy.com/settings/api."
+      },
+      {
+        "symptom": "429 Too Many Requests",
+        "fix": "Lemon Squeezy rate-limits at 300 req/min per IP. Rerun after the `Retry-After` window or narrow `sync --resources` to a smaller set."
+      },
+      {
+        "symptom": "churn-watch/mrr-trend return empty rows",
+        "fix": "Run `sync --resources subscriptions,subscription-invoices --full` first — these commands read the local mirror, not the live API."
+      },
+      {
+        "symptom": "campaign-watch projects nonsense sellout times",
+        "fix": "The projection needs at least 6 hours of redemption history. Resync `discount-redemptions` and rerun once redemptions exist in the window."
+      }
+    ],
+    "when_to_use": "Reach for this CLI when running ongoing Lemon Squeezy operations — Monday-morning revenue/churn sweeps, post-refund license-key disables, live capacity tracking during a capped sale, or webhook coverage audits across multiple stores. The cross-entity SQL and transcendence commands are the differentiator. For one-shot dashboard tasks (creating one product, editing a single discount) the LS web UI is still faster.",
+    "anti_triggers": [
+      "Building a custom checkout form in a web app — use the official `lemonsqueezy.js` JavaScript SDK (the CLI is for ops, not embedded billing).",
+      "Receiving webhook payloads in production — this CLI can replay and audit webhooks, but the actual HTTP server lives in your application.",
+      "Tax/VAT reporting — Lemon Squeezy is merchant-of-record and ships its own tax docs in the dashboard; this CLI doesn't replicate them.",
+      "Customer-facing license validation in your desktop app — call the LS license API directly from the app, not via this CLI."
+    ],
+    "recipes": [
+      {
+        "title": "Monday-morning revenue + churn sweep",
+        "command": "lemonsqueezy-pp-cli sync --resources stores,subscriptions,subscription-invoices,orders --since 14d \u0026\u0026 lemonsqueezy-pp-cli revenue-snapshot --json \u0026\u0026 lemonsqueezy-pp-cli churn-watch --since 7d --json",
+        "explanation": "Refreshes the local mirror, then prints the revenue rollup and the past-week churn delta — the ritual that replaces the dashboard click-walk."
+      },
+      {
+        "title": "Find recoverable failed renewals",
+        "command": "lemonsqueezy-pp-cli dunning-alert --json --select rows.customer_email,rows.amount_usd",
+        "explanation": "Lists every failed invoice whose subscription is still active or past_due — the dollar-recoverable window before the customer churns."
+      },
+      {
+        "title": "Refund cascade for an order",
+        "command": "lemonsqueezy-pp-cli refund-cascade order_3aBc --json",
+        "explanation": "Walks the order → order-items → license-keys chain and previews which keys would be disabled. Add --apply on the rerun to actually disable them (the command refuses --apply unless LS itself reports the order as refunded)."
+      },
+      {
+        "title": "Track a capped Founding-Member sale",
+        "command": "lemonsqueezy-pp-cli sync --resources discounts,discount-redemptions \u0026\u0026 lemonsqueezy-pp-cli campaign-watch FOUNDING-LIFETIME FOUNDING-2YR FOUNDING-1YR --json",
+        "explanation": "Live capacity + redemption velocity per tier with sellout projection — run hourly during a launch to expire codes before overselling."
+      },
+      {
+        "title": "Webhook coverage audit",
+        "command": "lemonsqueezy-pp-cli sync --resources webhooks \u0026\u0026 lemonsqueezy-pp-cli webhook-audit --json --select hosts.url,hosts.stale,hosts.event_count",
+        "explanation": "Groups every webhook across every store by URL host, flags localhost/ngrok/*.test destinations so orphans don't break production."
+      }
+    ],
+    "trigger_phrases": [
+      "check Lemon Squeezy revenue",
+      "show MRR trend",
+      "what subscriptions churned this week",
+      "find failed renewals",
+      "audit Lemon Squeezy webhooks",
+      "track Founding-Member sale capacity",
+      "disable license keys for refunded order",
+      "use lemonsqueezy",
+      "run lemonsqueezy-pp-cli"
+    ]
+  }
+}
