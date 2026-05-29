@@ -196,6 +196,7 @@ func newRootCmd(flags *rootFlags) *cobra.Command {
 	rootCmd.AddCommand(newInjuriesPromotedCmd(flags))
 	rootCmd.AddCommand(newTransactionsPromotedCmd(flags))
 	rootCmd.AddCommand(newLeadersPromotedCmd(flags))
+	rootCmd.AddCommand(newStatLeadersCmd(flags))
 	rootCmd.AddCommand(newPlaysPromotedCmd(flags))
 	rootCmd.AddCommand(newBoxscoreCmd(flags))
 	rootCmd.AddCommand(newOddsCmd(flags))

@@ -8,6 +8,12 @@
     "handle": "mvanhorn",
     "name": "Matt Van Horn"
   },
+  "contributors": [
+    {
+      "handle": "chunfu",
+      "name": "chunfu"
+    }
+  ],
   "printer": "mvanhorn",
   "printer_name": "Matt Van Horn",
   "spec_path": "/tmp/espn-spec.yaml",
