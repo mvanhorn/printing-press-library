@@ -94,9 +94,11 @@ func OpenReadOnly(dbPath string) (*Store, error) {
 func OpenWithContext(ctx context.Context, dbPath string) (*Store, error) {
 	// 0700: the SQLite store holds synced orders, customer contacts, and
 	// profiles (PII). Keep the directory readable only by the owning user.
-	if err := os.MkdirAll(filepath.Dir(dbPath), 0o700); err != nil {
+	dbDir := filepath.Dir(dbPath)
+	if err := os.MkdirAll(dbDir, 0o700); err != nil {
 		return nil, fmt.Errorf("creating db directory: %w", err)
 	}
+	_ = os.Chmod(dbDir, 0o700)
 
 	db, err := sql.Open("sqlite", dbPath+"?_pragma=journal_mode(WAL)&_pragma=synchronous(NORMAL)&_pragma=busy_timeout(5000)&_pragma=foreign_keys(ON)&_pragma=temp_store(MEMORY)&_pragma=mmap_size(268435456)")
 	if err != nil {
