@@ -197,6 +197,14 @@ func groupOratori(ctx context.Context, db *sql.DB, legisl, limit int) ([]analyti
 	if err := rows.Err(); err != nil {
 		return nil, fmt.Errorf("lettura oratori: %w", err)
 	}
+	if len(counts) == 0 {
+		return nil, fmt.Errorf(
+			"nessun dato oratori disponibile nel sync locale.\n" +
+				"Il portale Icaro espone gli oratori solo nel documento completo, non nella pagina lista;\n" +
+				"il sync non può quindi raccoglierli.\n" +
+				"Per l'attività di un deputato specifico usa:\n" +
+				"  ars-sicilia-pp-cli deputato profilo \"Nome Cognome\" --legisl 18 --json")
+	}
 	result := make([]analyticsRow, 0, len(counts))
 	for k, v := range counts {
 		result = append(result, analyticsRow{Chiave: k, Conteggio: v})
