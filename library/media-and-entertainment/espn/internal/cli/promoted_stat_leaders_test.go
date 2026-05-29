@@ -99,9 +99,17 @@ func TestRenderStatLeadersRanksClientSide(t *testing.T) {
 	if !(iTop < iSecond && iSecond < iMid) {
 		t.Errorf("expected descending HR order Top(58) < Second(41) < Mid(38) by position; got order Top=%d Second=%d Mid=%d\n%s", iTop, iSecond, iMid, out)
 	}
-	// Rank 1 must be the 58-HR hitter.
-	if !strings.Contains(out, "1\tTop Guy") {
-		t.Errorf("rank 1 should be Top Guy (58 HR)\n%s", out)
+	// The first data row (after the header) must rank the 58-HR hitter #1. The
+	// tabwriter pads with spaces, so match on row content rather than a tab.
+	var firstDataRow string
+	for _, ln := range strings.Split(out, "\n") {
+		if strings.HasPrefix(strings.TrimSpace(ln), "1 ") {
+			firstDataRow = ln
+			break
+		}
+	}
+	if firstDataRow == "" || !strings.Contains(firstDataRow, "Top Guy") || !strings.Contains(firstDataRow, "58") {
+		t.Errorf("rank-1 row should be Top Guy with 58 HR, got %q\n%s", firstDataRow, out)
 	}
 }
 
