@@ -1,0 +1,103 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-28T21:56:44.258962Z",
+  "printing_press_version": "4.19.0",
+  "api_name": "hubspot",
+  "display_name": "HubSpot",
+  "cli_name": "hubspot-pp-cli",
+  "creator": {
+    "handle": "dstevens",
+    "name": "Damien Stevens"
+  },
+  "owner": "dstevens",
+  "printer": "dstevens",
+  "printer_name": "Damien Stevens",
+  "spec_path": "hubspot-combined.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:ef8bded66c004ef2ec92019b4f0a4a942494165e2d27cf38ffef6743905bc723",
+  "run_id": "20260528-162403",
+  "catalog_entry": "hubspot",
+  "category": "sales-and-crm",
+  "description": "Every HubSpot Sales Hub feature, plus offline cross-object queries, property-change-history reporting, and an agent-native data layer no other HubSpot tool has.",
+  "mcp_binary": "hubspot-pp-mcp",
+  "mcp_tool_count": 232,
+  "mcp_ready": "full",
+  "api_version": "v4",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "HUBSPOT_ACCESS_TOKEN"
+  ],
+  "auth_key_url": "https://app.hubspot.com/private-apps",
+  "novel_features": [
+    {
+      "name": "Stale objects",
+      "command": "stale",
+      "description": "Find contacts or deals with no engagement in N days, scoped by owner or pipeline stage — instantly, offline."
+    },
+    {
+      "name": "Owner load",
+      "command": "owner-load",
+      "description": "Open deals per rep per pipeline stage with $ totals, count, and oldest-deal age — the Monday-morning sales-lead report."
+    },
+    {
+      "name": "Pipeline health",
+      "command": "pipeline-health",
+      "description": "Per-stage rollup of count, $ total, $ at risk (idle deals near their close date), and the oldest-stuck deal — one query for a sales-ops dashboard. Closed Lost weighted at probability 0, Closed Won at 1.0."
+    },
+    {
+      "name": "Nurture queue",
+      "command": "nurture queue",
+      "description": "Ranked 'who to contact today' list scored by stale-days × deal amount × stage probability, with the rationale exposed as columns."
+    },
+    {
+      "name": "Top deals by opportunity score",
+      "command": "deals top",
+      "description": "Composite-ranked top-N deals by (signal × amount × stage-probability × inverse-days-since-contact) with the score breakdown exposed as columns."
+    },
+    {
+      "name": "Per-meeting property history",
+      "command": "meetings history",
+      "description": "Show the full timeline of property changes for a single meeting (outcome, title, owner, custom fields) — when each value was set, by whom, and from what source."
+    },
+    {
+      "name": "Meetings ever-had query",
+      "command": "meetings ever-had",
+      "description": "Find every meeting whose given property was EVER set to a given value within a date range — even if it has since changed."
+    },
+    {
+      "name": "Monthly meeting status report",
+      "command": "meetings status-report",
+      "description": "Composes the meetings ever-had query into the canonical monthly-report shape: every meeting that touched the given status in the given month, with owner, title, current status, and the timestamp of the original status set."
+    },
+    {
+      "name": "Sync with property history",
+      "command": "sync --with-history",
+      "description": "Opt-in sync flag that requests propertiesWithHistory for the named properties on meetings (and on deals, contacts, companies when scoped to those). Persists per-property snapshots into the shared hubspot_property_history table."
+    },
+    {
+      "name": "Engagements of",
+      "command": "engagements of",
+      "description": "Unified chronological timeline of every call, email, meeting, note, and task touching a contact, deal, or company."
+    },
+    {
+      "name": "Note signal extraction",
+      "command": "notes signals",
+      "description": "Scan note bodies for buying / lost signals (meeting scheduled, budget approved, no response, competitor chosen) and emit per-deal signal counts with the source note id."
+    },
+    {
+      "name": "Since",
+      "command": "since",
+      "description": "What changed across contacts, deals, and engagements since a given timestamp — agent-friendly cross-object delta."
+    },
+    {
+      "name": "Nurture mine",
+      "command": "nurture-mine",
+      "description": "Surface the contacts assigned to you that have gone cold but still have open deals — the daily 'who do I call' list, computed across local SQLite."
+    },
+    {
+      "name": "Bulk update from CSV with schema validation",
+      "command": "contacts bulk-update",
+      "description": "Apply a CSV of property changes to many contacts at once, pre-validating each row against HubSpot's property schema (types, picklists) before any mutation."
+    }
+  ]
+}

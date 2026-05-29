@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "hubspot",
+  "run_id": "20260528-162403",
+  "status": "pass",
+  "level": "quick",
+  "matrix_size": 11,
+  "tests_passed": 11,
+  "tests_skipped": 16,
+  "auth_context": {
+    "type": "bearer_token"
+  }
+}

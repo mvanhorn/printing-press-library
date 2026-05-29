@@ -1,0 +1,450 @@
+{
+  "api_name": "hubspot",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "peakmojo/mcp-hubspot",
+      "url": "https://github.com/peakmojo/mcp-hubspot",
+      "language": "Python",
+      "install_method": "",
+      "stars": 122,
+      "last_updated": "",
+      "command_count": 7,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "shinzo-labs/hubspot-mcp",
+      "url": "https://github.com/shinzo-labs/hubspot-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 34,
+      "last_updated": "",
+      "command_count": 60,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "open-cli-collective/hubspot-cli",
+      "url": "https://github.com/open-cli-collective/hubspot-cli",
+      "language": "Go",
+      "install_method": "",
+      "stars": 1,
+      "last_updated": "",
+      "command_count": 25,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "dipankar/hubspot-cli",
+      "url": "https://github.com/dipankar/hubspot-cli",
+      "language": "Rust",
+      "install_method": "",
+      "stars": 1,
+      "last_updated": "",
+      "command_count": 20,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "lkm1developer/hubspot-mcp-server",
+      "url": "https://github.com/lkm1developer/hubspot-mcp-server",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 13,
+      "last_updated": "",
+      "command_count": 10,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "HubSpot/hubspot-api-nodejs",
+      "url": "https://github.com/HubSpot/hubspot-api-nodejs",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 350,
+      "last_updated": "",
+      "command_count": 200,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "HubSpot/hubspot-api-python",
+      "url": "https://github.com/HubSpot/hubspot-api-python",
+      "language": "Python",
+      "install_method": "",
+      "stars": 350,
+      "last_updated": "",
+      "command_count": 200,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "HubSpot/hubspot-cli",
+      "url": "https://github.com/HubSpot/hubspot-cli",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 200,
+      "last_updated": "",
+      "command_count": 30,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-28T20:26:17Z",
+  "novel_features": [
+    {
+      "name": "Stale objects",
+      "command": "stale",
+      "description": "Find contacts or deals with no engagement in N days, scoped by owner or pipeline stage — instantly, offline.",
+      "rationale": "Left-joins the engagement tables against contacts/deals locally; the live API has no 'no engagement since' filter shape.",
+      "example": "hubspot-pp-cli stale deals --days 21 --owner me --json",
+      "why_it_matters": "Use this when the user asks 'what's gone cold' — works after one sync, no API quota burn.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Owner load",
+      "command": "owner-load",
+      "description": "Open deals per rep per pipeline stage with $ totals, count, and oldest-deal age — the Monday-morning sales-lead report.",
+      "rationale": "SQL GROUP BY on deals × owners × pipeline_stages; HubSpot's web UI requires the Deal Owner report plus a Sheets pivot to assemble this.",
+      "example": "hubspot-pp-cli owner-load --pipeline default --json",
+      "why_it_matters": "Pick this over per-rep API calls when surfacing 'who has too many in-flight deals' or 'where is rep capacity hot'.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Pipeline health",
+      "command": "pipeline-health",
+      "description": "Per-stage rollup of count, $ total, $ at risk (idle deals near their close date), and the oldest-stuck deal — one query for a sales-ops dashboard. Closed Lost weighted at probability 0, Closed Won at 1.0.",
+      "rationale": "Local join across deals × pipeline_stages × engagements with mechanical scoring (amount × probability × idle-flag); the web UI cannot answer '$ at risk of slipping this quarter' in one screen. Uses HubSpot-provided stage probabilities — Closed Lost is 0, not 0.5 (PR #549 review fix).",
+      "example": "hubspot-pp-cli pipeline-health default --idle-days 14 --json",
+      "why_it_matters": "Use this for forecast-vs-reality checks before a pipeline review.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Nurture queue",
+      "command": "nurture queue",
+      "description": "Ranked 'who to contact today' list scored by stale-days × deal amount × stage probability, with the rationale exposed as columns.",
+      "rationale": "Designed for the nurture skill loop — replaces ad-hoc Python in meetings/. Local SQL ranking with explicit columns means the agent doesn't have to recompute aggregations in-process.",
+      "example": "hubspot-pp-cli nurture queue --owner me --top 20 --agent",
+      "why_it_matters": "Reach for this in the nurture skill or any daily-touch-list loop where an agent needs a priority order with reasons attached.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Top deals by opportunity score",
+      "command": "deals top",
+      "description": "Composite-ranked top-N deals by (signal × amount × stage-probability × inverse-days-since-contact) with the score breakdown exposed as columns.",
+      "rationale": "Implements the same scoring formula Damien has been running in Python (pipeline-review/score_urgency.py) but locally over the synced store — one offline command instead of a 30-line script with live API calls per deal.",
+      "example": "hubspot-pp-cli deals top --top 5 --pipeline default --json",
+      "why_it_matters": "Pick this for sales-lead Monday reviews or when an agent needs the top opportunities ranked by signal-weighted score, not raw amount.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Per-meeting property history",
+      "command": "meetings history",
+      "description": "Show the full timeline of property changes for a single meeting (outcome, title, owner, custom fields) — when each value was set, by whom, and from what source.",
+      "rationale": "Reads the local hubspot_property_history snapshot table populated by sync --with-history; zero API calls at query time. No incumbent CLI or MCP retains property history across syncs.",
+      "example": "hubspot-pp-cli meetings history 53612340987612345 --json",
+      "why_it_matters": "Reach for this when investigating 'when did this meeting flip from Scheduled to No Show, and who changed it' — the audit-trail question the HubSpot UI buries inside per-property timelines.",
+      "group": "Property history \u0026 audit"
+    },
+    {
+      "name": "Meetings ever-had query",
+      "command": "meetings ever-had",
+      "description": "Find every meeting whose given property was EVER set to a given value within a date range — even if it has since changed.",
+      "rationale": "SELECT DISTINCT object_id FROM hubspot_property_history filtered on object_type='meetings', property, value, and timestamp range. HubSpot's /search API physically cannot answer this: it sees only current property values, not the history.",
+      "example": "hubspot-pp-cli meetings ever-had --property hs_meeting_outcome --value Scheduled --from 2026-04-01 --to 2026-04-30 --json",
+      "why_it_matters": "Pick this when a customer or audit asks 'every meeting that was at some point in status X during month Y' — the only path through the property-history snapshot table.",
+      "group": "Property history \u0026 audit"
+    },
+    {
+      "name": "Monthly meeting status report",
+      "command": "meetings status-report",
+      "description": "Composes the meetings ever-had query into the canonical monthly-report shape: every meeting that touched the given status in the given month, with owner, title, current status, and the timestamp of the original status set.",
+      "rationale": "Wraps meetings ever-had with a calendar-month window and an opinionated report shape (JSON or CSV) ready for handoff. Built for the Servosity customer use case (monthly 'every meeting ever Scheduled in April' report) but generalizes to any property + month.",
+      "example": "hubspot-pp-cli meetings status-report --status scheduled --month 2026-04 --csv",
+      "why_it_matters": "Use this once per month per customer report — one command replaces a Python pull + a HubSpot export + a manual cross-reference.",
+      "group": "Property history \u0026 audit"
+    },
+    {
+      "name": "Sync with property history",
+      "command": "sync --with-history",
+      "description": "Opt-in sync flag that requests propertiesWithHistory for the named properties on meetings (and on deals, contacts, companies when scoped to those). Persists per-property snapshots into the shared hubspot_property_history table.",
+      "rationale": "Adds ?propertiesWithHistory=\u003clist\u003e to the per-object GET leg of sync; writes both the current value and the full history block in one transaction. Composite PK (object_type+object_id+property+timestamp) makes re-sync idempotent. Foundation for meetings history / ever-had / status-report and for future per-object ever-had commands on the other three object types.",
+      "example": "hubspot-pp-cli sync --resources hubspot-meetings-crm --with-history hs_meeting_outcome,hs_meeting_title,hubspot_owner_id",
+      "why_it_matters": "Reach for this when you need property change history retained. Without --with-history sync only captures current values; with it, every read after that point can answer 'was this property ever value X' questions.",
+      "group": "Property history \u0026 audit"
+    },
+    {
+      "name": "Engagements of",
+      "command": "engagements of",
+      "description": "Unified chronological timeline of every call, email, meeting, note, and task touching a contact, deal, or company.",
+      "rationale": "Local associations graph table joins all five engagement tables in one SQL query, replacing N+1 round trips across HubSpot's per-engagement endpoints.",
+      "example": "hubspot-pp-cli engagements of contact:12345 --since 30d --json",
+      "why_it_matters": "Use this when an agent or human asks 'what touched this prospect/deal' — one command instead of five paginated API calls.",
+      "group": "Cross-object intelligence"
+    },
+    {
+      "name": "Note signal extraction",
+      "command": "notes signals",
+      "description": "Scan note bodies for buying / lost signals (meeting scheduled, budget approved, no response, competitor chosen) and emit per-deal signal counts with the source note id.",
+      "rationale": "Pure regex over local hs_note_body — no LLM dependency. The patterns came from real pipeline-review work, so they reflect signals that have actually moved Damien's deals.",
+      "example": "hubspot-pp-cli notes signals --pipeline default --since 30d --json",
+      "why_it_matters": "Use this when summarizing what's heating up or cooling off in the pipeline without re-reading every note.",
+      "group": "Cross-object intelligence"
+    },
+    {
+      "name": "Since",
+      "command": "since",
+      "description": "What changed across contacts, deals, and engagements since a given timestamp — agent-friendly cross-object delta.",
+      "rationale": "Scans hs_lastmodifieddate cursors stored in the local mirror; no aggregated 'what changed everywhere' endpoint exists on HubSpot's API.",
+      "example": "hubspot-pp-cli since 24h --types deals,engagements --owner me --json",
+      "why_it_matters": "Reach for this in agent loops that need to react to CRM activity since the last run without paginating every collection.",
+      "group": "Cross-object intelligence"
+    },
+    {
+      "name": "Nurture mine",
+      "command": "nurture-mine",
+      "description": "Surface the contacts assigned to you that have gone cold but still have open deals — the daily 'who do I call' list, computed across local SQLite.",
+      "rationale": "Joins contacts × associations × engagements × deals × pipeline_stages × owners — five tables no single HubSpot API call can compose. The web UI requires three filter passes per object; every incumbent MCP demands live calls per query.",
+      "example": "hubspot-pp-cli nurture-mine --owner me --stale-days 14 --agent",
+      "why_it_matters": "Reach for this when an agent or human needs the daily Titans-style nurture queue without round-tripping HubSpot for every prospect.",
+      "group": "Bulk operations"
+    },
+    {
+      "name": "Bulk update from CSV with schema validation",
+      "command": "contacts bulk-update",
+      "description": "Apply a CSV of property changes to many contacts at once, pre-validating each row against HubSpot's property schema (types, picklists) before any mutation.",
+      "rationale": "Reads the locally cached properties table and rejects bad rows up-front, then dispatches valid rows through batch endpoints. HubSpot's own Imports API silently drops bad rows — this surfaces them.",
+      "example": "hubspot-pp-cli contacts bulk-update --from-csv people.csv --map email=Email,lifecyclestage=Stage --dry-run",
+      "why_it_matters": "Pick this over the HubSpot UI when sales-ops needs to update hundreds of contacts and demands a pre-flight error report rather than silent failures.",
+      "group": "Bulk operations"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Stale objects",
+      "command": "stale",
+      "description": "Find contacts or deals with no engagement in N days, scoped by owner or pipeline stage — instantly, offline.",
+      "rationale": "Left-joins the engagement tables against contacts/deals locally; the live API has no 'no engagement since' filter shape.",
+      "example": "hubspot-pp-cli stale deals --days 21 --owner me --json",
+      "why_it_matters": "Use this when the user asks 'what's gone cold' — works after one sync, no API quota burn.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Owner load",
+      "command": "owner-load",
+      "description": "Open deals per rep per pipeline stage with $ totals, count, and oldest-deal age — the Monday-morning sales-lead report.",
+      "rationale": "SQL GROUP BY on deals × owners × pipeline_stages; HubSpot's web UI requires the Deal Owner report plus a Sheets pivot to assemble this.",
+      "example": "hubspot-pp-cli owner-load --pipeline default --json",
+      "why_it_matters": "Pick this over per-rep API calls when surfacing 'who has too many in-flight deals' or 'where is rep capacity hot'.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Pipeline health",
+      "command": "pipeline-health",
+      "description": "Per-stage rollup of count, $ total, $ at risk (idle deals near their close date), and the oldest-stuck deal — one query for a sales-ops dashboard. Closed Lost weighted at probability 0, Closed Won at 1.0.",
+      "rationale": "Local join across deals × pipeline_stages × engagements with mechanical scoring (amount × probability × idle-flag); the web UI cannot answer '$ at risk of slipping this quarter' in one screen. Uses HubSpot-provided stage probabilities — Closed Lost is 0, not 0.5 (PR #549 review fix).",
+      "example": "hubspot-pp-cli pipeline-health default --idle-days 14 --json",
+      "why_it_matters": "Use this for forecast-vs-reality checks before a pipeline review.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Nurture queue",
+      "command": "nurture queue",
+      "description": "Ranked 'who to contact today' list scored by stale-days × deal amount × stage probability, with the rationale exposed as columns.",
+      "rationale": "Designed for the nurture skill loop — replaces ad-hoc Python in meetings/. Local SQL ranking with explicit columns means the agent doesn't have to recompute aggregations in-process.",
+      "example": "hubspot-pp-cli nurture queue --owner me --top 20 --agent",
+      "why_it_matters": "Reach for this in the nurture skill or any daily-touch-list loop where an agent needs a priority order with reasons attached.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Top deals by opportunity score",
+      "command": "deals top",
+      "description": "Composite-ranked top-N deals by (signal × amount × stage-probability × inverse-days-since-contact) with the score breakdown exposed as columns.",
+      "rationale": "Implements the same scoring formula Damien has been running in Python (pipeline-review/score_urgency.py) but locally over the synced store — one offline command instead of a 30-line script with live API calls per deal.",
+      "example": "hubspot-pp-cli deals top --top 5 --pipeline default --json",
+      "why_it_matters": "Pick this for sales-lead Monday reviews or when an agent needs the top opportunities ranked by signal-weighted score, not raw amount.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Per-meeting property history",
+      "command": "meetings history",
+      "description": "Show the full timeline of property changes for a single meeting (outcome, title, owner, custom fields) — when each value was set, by whom, and from what source.",
+      "rationale": "Reads the local hubspot_property_history snapshot table populated by sync --with-history; zero API calls at query time. No incumbent CLI or MCP retains property history across syncs.",
+      "example": "hubspot-pp-cli meetings history 53612340987612345 --json",
+      "why_it_matters": "Reach for this when investigating 'when did this meeting flip from Scheduled to No Show, and who changed it' — the audit-trail question the HubSpot UI buries inside per-property timelines.",
+      "group": "Property history \u0026 audit"
+    },
+    {
+      "name": "Meetings ever-had query",
+      "command": "meetings ever-had",
+      "description": "Find every meeting whose given property was EVER set to a given value within a date range — even if it has since changed.",
+      "rationale": "SELECT DISTINCT object_id FROM hubspot_property_history filtered on object_type='meetings', property, value, and timestamp range. HubSpot's /search API physically cannot answer this: it sees only current property values, not the history.",
+      "example": "hubspot-pp-cli meetings ever-had --property hs_meeting_outcome --value Scheduled --from 2026-04-01 --to 2026-04-30 --json",
+      "why_it_matters": "Pick this when a customer or audit asks 'every meeting that was at some point in status X during month Y' — the only path through the property-history snapshot table.",
+      "group": "Property history \u0026 audit"
+    },
+    {
+      "name": "Monthly meeting status report",
+      "command": "meetings status-report",
+      "description": "Composes the meetings ever-had query into the canonical monthly-report shape: every meeting that touched the given status in the given month, with owner, title, current status, and the timestamp of the original status set.",
+      "rationale": "Wraps meetings ever-had with a calendar-month window and an opinionated report shape (JSON or CSV) ready for handoff. Built for the Servosity customer use case (monthly 'every meeting ever Scheduled in April' report) but generalizes to any property + month.",
+      "example": "hubspot-pp-cli meetings status-report --status scheduled --month 2026-04 --csv",
+      "why_it_matters": "Use this once per month per customer report — one command replaces a Python pull + a HubSpot export + a manual cross-reference.",
+      "group": "Property history \u0026 audit"
+    },
+    {
+      "name": "Sync with property history",
+      "command": "sync --with-history",
+      "description": "Opt-in sync flag that requests propertiesWithHistory for the named properties on meetings (and on deals, contacts, companies when scoped to those). Persists per-property snapshots into the shared hubspot_property_history table.",
+      "rationale": "Adds ?propertiesWithHistory=\u003clist\u003e to the per-object GET leg of sync; writes both the current value and the full history block in one transaction. Composite PK (object_type+object_id+property+timestamp) makes re-sync idempotent. Foundation for meetings history / ever-had / status-report and for future per-object ever-had commands on the other three object types.",
+      "example": "hubspot-pp-cli sync --resources hubspot-meetings-crm --with-history hs_meeting_outcome,hs_meeting_title,hubspot_owner_id",
+      "why_it_matters": "Reach for this when you need property change history retained. Without --with-history sync only captures current values; with it, every read after that point can answer 'was this property ever value X' questions.",
+      "group": "Property history \u0026 audit"
+    },
+    {
+      "name": "Engagements of",
+      "command": "engagements of",
+      "description": "Unified chronological timeline of every call, email, meeting, note, and task touching a contact, deal, or company.",
+      "rationale": "Local associations graph table joins all five engagement tables in one SQL query, replacing N+1 round trips across HubSpot's per-engagement endpoints.",
+      "example": "hubspot-pp-cli engagements of contact:12345 --since 30d --json",
+      "why_it_matters": "Use this when an agent or human asks 'what touched this prospect/deal' — one command instead of five paginated API calls.",
+      "group": "Cross-object intelligence"
+    },
+    {
+      "name": "Note signal extraction",
+      "command": "notes signals",
+      "description": "Scan note bodies for buying / lost signals (meeting scheduled, budget approved, no response, competitor chosen) and emit per-deal signal counts with the source note id.",
+      "rationale": "Pure regex over local hs_note_body — no LLM dependency. The patterns came from real pipeline-review work, so they reflect signals that have actually moved Damien's deals.",
+      "example": "hubspot-pp-cli notes signals --pipeline default --since 30d --json",
+      "why_it_matters": "Use this when summarizing what's heating up or cooling off in the pipeline without re-reading every note.",
+      "group": "Cross-object intelligence"
+    },
+    {
+      "name": "Since",
+      "command": "since",
+      "description": "What changed across contacts, deals, and engagements since a given timestamp — agent-friendly cross-object delta.",
+      "rationale": "Scans hs_lastmodifieddate cursors stored in the local mirror; no aggregated 'what changed everywhere' endpoint exists on HubSpot's API.",
+      "example": "hubspot-pp-cli since 24h --types deals,engagements --owner me --json",
+      "why_it_matters": "Reach for this in agent loops that need to react to CRM activity since the last run without paginating every collection.",
+      "group": "Cross-object intelligence"
+    },
+    {
+      "name": "Nurture mine",
+      "command": "nurture-mine",
+      "description": "Surface the contacts assigned to you that have gone cold but still have open deals — the daily 'who do I call' list, computed across local SQLite.",
+      "rationale": "Joins contacts × associations × engagements × deals × pipeline_stages × owners — five tables no single HubSpot API call can compose. The web UI requires three filter passes per object; every incumbent MCP demands live calls per query.",
+      "example": "hubspot-pp-cli nurture-mine --owner me --stale-days 14 --agent",
+      "why_it_matters": "Reach for this when an agent or human needs the daily Titans-style nurture queue without round-tripping HubSpot for every prospect.",
+      "group": "Bulk operations"
+    },
+    {
+      "name": "Bulk update from CSV with schema validation",
+      "command": "contacts bulk-update",
+      "description": "Apply a CSV of property changes to many contacts at once, pre-validating each row against HubSpot's property schema (types, picklists) before any mutation.",
+      "rationale": "Reads the locally cached properties table and rejects bad rows up-front, then dispatches valid rows through batch endpoints. HubSpot's own Imports API silently drops bad rows — this surfaces them.",
+      "example": "hubspot-pp-cli contacts bulk-update --from-csv people.csv --map email=Email,lifecyclestage=Stage --dry-run",
+      "why_it_matters": "Pick this over the HubSpot UI when sales-ops needs to update hundreds of contacts and demands a pre-flight error report rather than silent failures.",
+      "group": "Bulk operations"
+    }
+  ],
+  "narrative": {
+    "display_name": "HubSpot",
+    "headline": "Every HubSpot Sales Hub feature, plus offline cross-object queries, property-change-history reporting, and an agent-native data layer no other HubSpot tool has.",
+    "value_prop": "HubSpot's own CLI (`hs`) only covers CMS — there has never been a sales/CRM CLI from HubSpot itself. This one mirrors your CRM into local SQLite so commands like `nurture-mine`, `stale deals`, `owner-load`, and `pipeline-health` answer cross-table questions instantly and offline. New in this reprint: `sync --with-history` persists per-property snapshots into a shared property-history table, and `meetings ever-had` / `meetings status-report` answer questions HubSpot's standard search API physically cannot — 'every meeting that was EVER status X in month Y, even after it flipped.'",
+    "auth_narrative": "Authenticate with a HubSpot Private App access token (prefix `pat-…`). Create one at https://app.hubspot.com/private-apps with CRM read+write scopes, then export it as `HUBSPOT_ACCESS_TOKEN`. The token's scopes determine which commands work — `doctor` reports them.",
+    "quickstart": [
+      {
+        "command": "hubspot-pp-cli doctor",
+        "comment": "First, set HUBSPOT_ACCESS_TOKEN (a Private App token from https://app.hubspot.com/private-apps); then doctor confirms reachability, auth, and scopes"
+      },
+      {
+        "command": "hubspot-pp-cli sync",
+        "comment": "Mirror contacts, companies, deals, engagements, pipelines, owners, properties, and lists into the local SQLite store"
+      },
+      {
+        "command": "hubspot-pp-cli sync --resources hubspot-meetings-crm --with-history hs_meeting_outcome,hs_meeting_title,hubspot_owner_id",
+        "comment": "Re-sync meetings with property snapshots retained in the local hubspot_property_history table"
+      },
+      {
+        "command": "hubspot-pp-cli meetings status-report --status scheduled --month 2026-04 --csv",
+        "comment": "Customer-ready monthly report: every meeting that was EVER scheduled in April, even if it later flipped to No Show or Completed"
+      },
+      {
+        "command": "hubspot-pp-cli nurture queue --owner me --top 20 --agent",
+        "comment": "Daily 'who do I call' list, ranked offline from the local mirror"
+      },
+      {
+        "command": "hubspot-pp-cli owner-load --pipeline default --json",
+        "comment": "Per-rep pipeline health — one offline SQL aggregation"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "doctor reports 401 or token rejected",
+        "fix": "Verify `HUBSPOT_ACCESS_TOKEN` starts with `pat-` and was copied without surrounding whitespace; recreate at https://app.hubspot.com/private-apps if rotated"
+      },
+      {
+        "symptom": "Property history is empty after sync",
+        "fix": "Sync was run without `--with-history`. Re-run with `--with-history \u003cprop1\u003e,\u003cprop2\u003e` (for example `hubspot-pp-cli sync --resources hubspot-meetings-crm --with-history hs_meeting_outcome`) — only that path persists the propertiesWithHistory block into the local snapshot table."
+      },
+      {
+        "symptom": "Older property history is missing even after --with-history",
+        "fix": "HubSpot retains property history for ~90 days on free tiers; longer on paid (Professional/Enterprise). Check your account tier — the API only returns what HubSpot has kept; the CLI cannot recover snapshots older than the tier limit."
+      },
+      {
+        "symptom": "HTTP 429 during sync",
+        "fix": "HubSpot enforces 110 req / 10s; rerun with `--rate-limit 5` to slow the client, or sync individual objects with `sync --resources contacts`. With `--with-history` the per-object read leg uses GET (not batch search) so it spends more requests — narrow `--with-history` to only the properties you actually need."
+      },
+      {
+        "symptom": "sync errors with 'MISSING_SCOPES' on a specific object",
+        "fix": "Open the Private App settings, grant the missing CRM scope (e.g., `crm.objects.deals.read`), and reissue the token. For `--with-history` on meetings, the same `crm.objects.meetings.read` scope is enough — property history requires no extra scope."
+      }
+    ],
+    "when_to_use": "Use hubspot-pp-cli whenever an agent or human needs Sales Hub data without paying for a live API round trip per query. It is the right pick for nurture loops, pipeline-health dashboards, stale-prospect detection, bulk property updates from CSV, monthly property-history reports (`meetings status-report`, `meetings ever-had`), and any cross-object join (engagements × deals × owners) that the HubSpot web UI cannot answer in one screen. ANTI-TRIGGERS — do NOT use this CLI for: HubSpot CMS / themes / serverless functions (use the official `hs` CLI), Marketing emails / campaigns / forms / ads, Conversations / Inbox / Support workflows, Commerce Hub (orders / invoices / subscriptions / payments / carts / contracts).",
+    "recipes": [
+      {
+        "title": "Monthly customer report — every meeting EVER scheduled in April",
+        "command": "hubspot-pp-cli sync --resources hubspot-meetings-crm --with-history hs_meeting_outcome,hs_meeting_title,hubspot_owner_id \u0026\u0026 hubspot-pp-cli meetings status-report --status scheduled --month 2026-04 --csv \u003e april-scheduled.csv",
+        "explanation": "Two commands: refresh meetings with property history retained, then emit the canonical CSV the customer expects. Includes every meeting that was set to Scheduled at any point in April, even if it later flipped to No Show or Completed — only the property-history snapshot table can answer this."
+      },
+      {
+        "title": "Investigate a single meeting's status history",
+        "command": "hubspot-pp-cli meetings ever-had --property hs_meeting_outcome --value Scheduled --from 2026-04-01 --to 2026-04-30 --agent --select id,property,value,timestamp,source_type --json",
+        "explanation": "Find every meeting touching status Scheduled in April; agent-friendly dotted-path --select keeps only the columns the agent needs, --agent enables compact output."
+      },
+      {
+        "title": "Today's nurture queue for me",
+        "command": "hubspot-pp-cli nurture queue --owner me --top 20 --agent",
+        "explanation": "Ranked daily contact list with stale-days, deal $, and stage probability columns — drop straight into `/nurture today`."
+      },
+      {
+        "title": "Cross-object timeline for a deal",
+        "command": "hubspot-pp-cli engagements of deal:1234567 --since 90d --json --select id,type,timestamp,subject,from_owner",
+        "explanation": "Every call, email, meeting, note, and task touching the deal in the last 90 days — one query replaces five paginated API calls; --select keeps the agent context tight."
+      },
+      {
+        "title": "Find every cold deal in my pipeline",
+        "command": "hubspot-pp-cli stale deals --days 21 --owner me --json --select id,name,amount,stage,idle_days",
+        "explanation": "Open deals that have not had an engagement in 21 days, scoped to me, with only the fields an agent needs."
+      },
+      {
+        "title": "Bulk-update lifecycle stage from a campaign CSV",
+        "command": "hubspot-pp-cli contacts bulk-update --from-csv titans.csv --map email=email,lifecyclestage=Stage --dry-run",
+        "explanation": "Validate the CSV against the local properties schema before any write; drop --dry-run when the report is clean."
+      }
+    ],
+    "trigger_phrases": [
+      "find meetings ever scheduled",
+      "monthly meeting outcome report",
+      "hubspot stale leads",
+      "who do I call today hubspot",
+      "engagements timeline for this contact",
+      "use hubspot-pp-cli",
+      "run hubspot"
+    ]
+  }
+}

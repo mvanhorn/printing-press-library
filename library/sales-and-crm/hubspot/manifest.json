@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "hubspot-pp-mcp",
+  "display_name": "HubSpot",
+  "version": "4.19.0",
+  "description": "Every HubSpot Sales Hub feature, plus offline cross-object queries, property-change-history reporting, and an agent-native data layer no other HubSpot tool has.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/hubspot-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/hubspot-pp-mcp",
+      "args": [],
+      "env": {
+        "HUBSPOT_ACCESS_TOKEN": "${user_config.hubspot_access_token}"
+      }
+    }
+  },
+  "user_config": {
+    "hubspot_access_token": {
+      "type": "string",
+      "title": "HUBSPOT_ACCESS_TOKEN",
+      "description": "Sets HUBSPOT_ACCESS_TOKEN for the HubSpot MCP server. Get a credential from https://app.hubspot.com/private-apps.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

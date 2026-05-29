@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "hubspot-pp-cli"
+display_name = "HubSpot"
+description = "Every HubSpot Sales Hub feature, plus offline cross-object queries, property-change-history reporting, and an agent-native data layer no other HubSpot tool has."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/hubspot-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+HUBSPOT_ACCESS_TOKEN = true

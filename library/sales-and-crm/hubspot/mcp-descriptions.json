@@ -1,0 +1,5 @@
+{
+  "descriptions": {
+    "objects_search_post-crm-v3-objects-object-type-search-do-search": "Search for CRM objects of any standard or custom type using filters, sorts, and property selection. Required: objectType (e.g. 'contacts', 'deals', 'companies', or a custom-object internal name), after, filterGroups, limit, properties, sorts. Optional: query (free-text). Returns a CollectionResponseWithTotalSimplePublicObject including matching objects with the requested properties. Generic alternative when the typed search command for a specific object type isn't suitable."
+  }
+}

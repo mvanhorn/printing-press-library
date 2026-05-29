@@ -1,0 +1,266 @@
+{
+  "dir": "/Users/dstevens/printing-press/.runstate/cli-printing-press-70e28f12/runs/20260528-162403/working/hubspot-pp-cli",
+  "binary": "/Users/dstevens/printing-press/.runstate/cli-printing-press-70e28f12/runs/20260528-162403/working/hubspot-pp-cli/hubspot-pp-cli",
+  "level": "quick",
+  "verdict": "FAIL",
+  "matrix_size": 11,
+  "passed": 9,
+  "failed": 2,
+  "skipped": 16,
+  "commands": [
+    "analytics",
+    "api",
+    "batch post-crm-v3-objects-object-type-archive-archive",
+    "contacts bulk-update",
+    "crm delete-v4-objects-object-type-object-id-associations-to-object-type-to-object-id-archive",
+    "deals top"
+  ],
+  "tests": [
+    {
+      "command": "analytics",
+      "kind": "help",
+      "args": [
+        "analytics",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Analyze locally synced data with count, group-by, and summary operations.\nData must be synced first with the sync command.\n\nUsage:\n  hubspot-pp-cli analytics [flags]\n\nExamples:\n  # Count records by type\n  hubspot-pp-cli analytics --type messages\n\n  # Group by a field\n  hubspot-pp-cli analytics --type messages --group-by author_id\n\n  # Top 10 most frequent values\n  hubspot-pp-cli analytics --type messages --group-by channel_id --limit 10 --json\n\nFlags:\n      --db string         Database path\n      --group-by string   Field to group by\n  -h, --help              help for analytics\n      --limit int         Max groups to show (default 25)\n      --type string       Resource type to analyze\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'hubspot-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "analytics",
+      "kind": "happy_path",
+      "args": [
+        "analytics",
+        "--type",
+        "messages"
+      ],
+      "status": "pass",
+      "output_sample": "messages: 0 records\nhint: local store has not been synced yet. Run 'hubspot-pp-cli sync' before trusting local results.\n"
+    },
+    {
+      "command": "analytics",
+      "kind": "json_fidelity",
+      "args": [
+        "analytics",
+        "--type",
+        "messages",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"count\": 0,\n  \"resource_type\": \"messages\"\n}\nhint: local store has not been synced yet. Run 'hubspot-pp-cli sync' before trusting local results.\n"
+    },
+    {
+      "command": "analytics",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "api",
+      "kind": "help",
+      "args": [
+        "api",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Browse and call any API endpoint using the raw interface names.\n\nThe friendly top-level commands cover the most common operations.\nThis command provides access to ALL endpoints for power users and\nagents that need full API coverage.\n\nRun 'api' with no arguments to list all interfaces.\nRun 'api \u003cinterface\u003e' to see that interface's methods.\n\nUsage:\n  hubspot-pp-cli api [interface] [flags]\n\nExamples:\n  # List all available interfaces\n  hubspot-pp-cli api\n\n  # Show methods for a specific interface\n  hubspot-pp-cli api \u003cinterface-name\u003e\n\nFlags:\n  -h, --help   help for api\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'hubspot-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "api",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "api",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "api",
+      "kind": "error_path",
+      "args": [
+        "api",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: interface \"__printing_press_invalid__\" not found. Run 'hubspot-pp-cli api' to list all interfaces\n"
+    },
+    {
+      "command": "batch post-crm-v3-objects-object-type-archive-archive",
+      "kind": "help",
+      "args": [
+        "batch",
+        "post-crm-v3-objects-object-type-archive-archive",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Archive a batch of objects by ID\n\nUsage:\n  hubspot-pp-cli batch post-crm-v3-objects-object-type-archive-archive \u003cobjectType\u003e [flags]\n\nAliases:\n  post-crm-v3-objects-object-type-archive-archive, create\n\nExamples:\n  hubspot-pp-cli batch post-crm-v3-objects-object-type-archive-archive example-value\n\nFlags:\n  -h, --help            help for post-crm-v3-objects-object-type-archive-archive\n      --inputs string   Inputs\n      --stdin           Read request body as JSON from stdin\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'hubspot-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "batch post-crm-v3-objects-object-type-archive-archive",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"objecttype\" at depth 0"
+    },
+    {
+      "command": "batch post-crm-v3-objects-object-type-archive-archive",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"objecttype\" at depth 0"
+    },
+    {
+      "command": "batch post-crm-v3-objects-object-type-archive-archive",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "batch post-crm-v3-objects-object-type-archive-archive",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"objecttype\" at depth 0"
+    },
+    {
+      "command": "contacts bulk-update",
+      "kind": "help",
+      "args": [
+        "contacts",
+        "bulk-update",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Read a CSV of contact updates and validate each row against HubSpot's\nproperty schema (types, picklists) before any mutation. Use --dry-run to\ninspect the validation report; without --dry-run, dispatches the changes via\nPOST /crm/v3/objects/contacts/batch/update in 100-record chunks.\n\nThe CSV header row names the columns. By default each column maps to a\nproperty of the same name (lowercased). Use --map to override:\n  --map \"FirstName=firstname,SfdcOpp=sfdc_opportunity_id\".\n\nRows are identified by an 'id' or 'email' column (id wins when both present).\n\nUsage:\n  hubspot-pp-cli contacts bulk-update [flags]\n\nExamples:\n  # Validate only\n  hubspot-pp-cli contacts bulk-update --from-csv updates.csv --dry-run\n\n  # Apply\n  hubspot-pp-cli contacts bulk-update --from-csv updates.csv --map \"FirstName=firstname\"\n\nFlags:\n      --db string         Database path\n      --from-csv string   Path to the CSV file with the updates\n  -h, --help              help for bulk-update\n      --map string        Comma-separated column-to-property remapping, e.g. \"FirstName=firstname\"\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'hubspot-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "contacts bulk-update",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "file fixture required: --from-csv updates.csv"
+    },
+    {
+      "command": "contacts bulk-update",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "file fixture required: --from-csv updates.csv"
+    },
+    {
+      "command": "contacts bulk-update",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "contacts bulk-update",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command dry-run only"
+    },
+    {
+      "command": "crm delete-v4-objects-object-type-object-id-associations-to-object-type-to-object-id-archive",
+      "kind": "help",
+      "args": [
+        "crm",
+        "delete-v4-objects-object-type-object-id-associations-to-object-type-to-object-id-archive",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "deletes all associations between two records.\n\nUsage:\n  hubspot-pp-cli crm delete-v4-objects-object-type-object-id-associations-to-object-type-to-object-id-archive \u003cobjectId\u003e \u003cobjectType\u003e \u003ctoObjectId\u003e \u003ctoObjectType\u003e [flags]\n\nAliases:\n  delete-v4-objects-object-type-object-id-associations-to-object-type-to-object-id-archive, delete\n\nExamples:\n  hubspot-pp-cli crm delete-v4-objects-object-type-object-id-associations-to-object-type-to-object-id-archive 550e8400-e29b-41d4-a716-446655440000 example-value 550e8400-e29b-41d4-a716-446655440000 example-value\n\nFlags:\n  -h, --help   help for delete-v4-objects-object-type-object-id-associations-to-object-type-to-object-id-archive\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'hubspot-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "crm delete-v4-objects-object-type-object-id-associations-to-object-type-to-object-id-archive",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [crm delete-v4-objects-object-type-object-id-associations-to-object-type-to-object-id-archive] has fewer segments than placeholders (4)"
+    },
+    {
+      "command": "crm delete-v4-objects-object-type-object-id-associations-to-object-type-to-object-id-archive",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [crm delete-v4-objects-object-type-object-id-associations-to-object-type-to-object-id-archive] has fewer segments than placeholders (4)"
+    },
+    {
+      "command": "crm delete-v4-objects-object-type-object-id-associations-to-object-type-to-object-id-archive",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "crm delete-v4-objects-object-type-object-id-associations-to-object-type-to-object-id-archive",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [crm delete-v4-objects-object-type-object-id-associations-to-object-type-to-object-id-archive] has fewer segments than placeholders (4)"
+    },
+    {
+      "command": "deals top",
+      "kind": "help",
+      "args": [
+        "deals",
+        "top",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Score = signal_score * 2 + log(amount) * 1.5 + stage_probability * 3 + recency_score * 2. Reads from the local SQLite mirror.\n\nUsage:\n  hubspot-pp-cli deals top [flags]\n\nExamples:\n  hubspot-pp-cli deals top --top 5 --owner me\n\nFlags:\n      --db string         Database path\n  -h, --help              help for top\n      --owner string      Filter by owner id, email, or 'me'\n      --pipeline string   Restrict to a single pipeline id\n      --top int           Number of top deals to return (default 5)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'hubspot-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "deals top",
+      "kind": "happy_path",
+      "args": [
+        "deals",
+        "top",
+        "--top",
+        "5",
+        "--owner",
+        "me"
+      ],
+      "status": "fail",
+      "exit_code": 1,
+      "reason": "exit 1",
+      "output_sample": "Error: no HubSpot owner found for email \"\u003credacted\u003e\" (run 'hubspot-pp-cli sync --resources hubspot-owners-crm' first)\n"
+    },
+    {
+      "command": "deals top",
+      "kind": "json_fidelity",
+      "args": [
+        "deals",
+        "top",
+        "--top",
+        "5",
+        "--owner",
+        "me",
+        "--json"
+      ],
+      "status": "fail",
+      "exit_code": 1,
+      "reason": "exit 1",
+      "output_sample": "Error: no HubSpot owner found for email \"\u003credacted\u003e\" (run 'hubspot-pp-cli sync --resources hubspot-owners-crm' first)\n"
+    },
+    {
+      "command": "deals top",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    }
+  ],
+  "ran_at": "2026-05-28T21:32:42.046984Z"
+}
+Error: live dogfood failed: 2/11 tests failed
+live dogfood failed: 2/11 tests failed
