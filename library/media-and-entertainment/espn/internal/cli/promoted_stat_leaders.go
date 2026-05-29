@@ -102,7 +102,11 @@ func newStatLeadersCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 			if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !humanFriendly) {
-				return writeJSON(cmd.OutOrStdout(), body)
+				// Emit a structured discovery envelope rather than the raw
+				// byathlete payload, so piped/--agent consumers can see the
+				// rankable stat names by category (the same information the
+				// table view surfaces) without parsing every athlete row.
+				return writeAvailableStatsJSON(cmd.OutOrStdout(), body, sport, league)
 			}
 			return listAvailableStats(cmd.OutOrStdout(), body)
 		},
@@ -302,6 +306,56 @@ func formatStatValue(v float64) string {
 		return fmt.Sprintf("%d", int64(v))
 	}
 	return strings.TrimRight(strings.TrimRight(fmt.Sprintf("%.3f", v), "0"), ".")
+}
+
+// availableStatEntry is one rankable stat in the discovery envelope.
+type availableStatEntry struct {
+	Stat        string `json:"stat"`
+	Description string `json:"description,omitempty"`
+}
+
+// availableStatsEnvelope is the structured JSON returned by the no--stat path
+// in machine-output mode. It mirrors what listAvailableStats prints for a TTY:
+// the rankable stat names grouped by category, plus a flat category list.
+type availableStatsEnvelope struct {
+	Sport          string                          `json:"sport"`
+	League         string                          `json:"league"`
+	Categories     []string                        `json:"categories"`
+	AvailableStats map[string][]availableStatEntry `json:"available_stats"`
+}
+
+// writeAvailableStatsJSON emits the stat-discovery envelope for the no--stat
+// path. Without this, piped/--agent callers received the raw byathlete payload
+// (every athlete + values) and could not tell which stat names --stat accepts.
+func writeAvailableStatsJSON(w io.Writer, body []byte, sport, league string) error {
+	var resp statByAthleteResponse
+	if err := json.Unmarshal(body, &resp); err != nil {
+		return fmt.Errorf("parsing stats: %w", err)
+	}
+	out := availableStatsEnvelope{
+		Sport:          sport,
+		League:         league,
+		Categories:     make([]string, 0, len(resp.Categories)),
+		AvailableStats: make(map[string][]availableStatEntry, len(resp.Categories)),
+	}
+	for _, c := range resp.Categories {
+		if len(c.Names) == 0 {
+			continue
+		}
+		entries := make([]availableStatEntry, 0, len(c.Names))
+		for i, name := range c.Names {
+			disp := ""
+			if i < len(c.DisplayNames) {
+				disp = c.DisplayNames[i]
+			}
+			entries = append(entries, availableStatEntry{Stat: name, Description: disp})
+		}
+		out.Categories = append(out.Categories, c.Name)
+		out.AvailableStats[c.Name] = entries
+	}
+	enc := json.NewEncoder(w)
+	enc.SetIndent("", "  ")
+	return enc.Encode(out)
 }
 
 // listAvailableStats prints the stat names the user can pass to --stat,

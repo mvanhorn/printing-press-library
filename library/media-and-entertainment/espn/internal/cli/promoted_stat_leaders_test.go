@@ -3,6 +3,7 @@ package cli
 
 import (
 	"bytes"
+	"encoding/json"
 	"strings"
 	"testing"
 )
@@ -182,4 +183,50 @@ func TestSeasonTypeCode(t *testing.T) {
 			t.Errorf("seasonTypeCode(%q) = %d, want %d", in, got, want)
 		}
 	}
+}
+
+func TestWriteAvailableStatsJSON(t *testing.T) {
+	var buf bytes.Buffer
+	if err := writeAvailableStatsJSON(&buf, []byte(byAthleteFixture), "baseball", "mlb"); err != nil {
+		t.Fatalf("writeAvailableStatsJSON: %v", err)
+	}
+	var env availableStatsEnvelope
+	if err := json.Unmarshal(buf.Bytes(), &env); err != nil {
+		t.Fatalf("envelope is not valid JSON: %v\n%s", err, buf.String())
+	}
+	if env.Sport != "baseball" || env.League != "mlb" {
+		t.Errorf("sport/league = %q/%q, want baseball/mlb", env.Sport, env.League)
+	}
+	// Discovery must surface the rankable stat names by category, not the raw
+	// athlete rows — so an agent piping the command can choose a --stat.
+	batting, ok := env.AvailableStats["batting"]
+	if !ok {
+		t.Fatalf("missing batting category; got categories %v", env.Categories)
+	}
+	var names []string
+	for _, e := range batting {
+		names = append(names, e.Stat)
+	}
+	for _, want := range []string{"gamesPlayed", "homeRuns", "avg"} {
+		if !contains(names, want) {
+			t.Errorf("batting stats missing %q; got %v", want, names)
+		}
+	}
+	// Descriptions carry through from the API displayNames.
+	if batting[1].Stat != "homeRuns" || batting[1].Description != "Home Runs" {
+		t.Errorf("homeRuns entry = %+v, want {homeRuns, Home Runs}", batting[1])
+	}
+	// The envelope must NOT be the raw byathlete payload (no athlete rows).
+	if strings.Contains(buf.String(), "Aaron Judge") {
+		t.Errorf("discovery envelope leaked athlete rows:\n%s", buf.String())
+	}
+}
+
+func contains(s []string, want string) bool {
+	for _, v := range s {
+		if v == want {
+			return true
+		}
+	}
+	return false
 }

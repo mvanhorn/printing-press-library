@@ -88,6 +88,16 @@
         "internal/cli/promoted_stat_leaders_test.go"
       ],
       "validated_outcome": "go build / vet / test ./... pass; verify_skill.py passes. Live: `stat-leaders baseball mlb --stat homeRuns --seasontype playoff` now exits 2 with `invalid --seasontype \"playoff\": valid values are pre, regular, or playoffs`; a valid run still returns ranked data. TestSeasonTypeCode extended to assert -1 for garbage/playoff/post-season/spring."
+    },
+    {
+      "id": "stat-leaders-discovery-json-envelope",
+      "summary": "stat-leaders without --stat now emits a structured {sport, league, categories, available_stats} JSON envelope in --agent/piped mode instead of dumping the raw byathlete payload, so machine consumers can discover the rankable stat names by category.",
+      "reason": "The no--stat path's human (TTY) branch lists rankable stats by category, but the JSON/non-TTY branch returned the raw byathlete payload (every athlete + values). A piped or --agent caller therefore could not tell which stat names --stat accepts without reverse-engineering the category names[] arrays themselves. Added writeAvailableStatsJSON to mirror the TTY discovery view as a compact envelope. The --stat ranked path is unchanged.",
+      "files": [
+        "internal/cli/promoted_stat_leaders.go",
+        "internal/cli/promoted_stat_leaders_test.go"
+      ],
+      "validated_outcome": "go build / vet / test ./... pass; verify_skill.py passes. Live: `stat-leaders baseball mlb --agent` now returns available_stats grouped into batting (17) / pitching / fielding with stat+description entries; `--stat homeRuns` still returns the ranked leaderboard (Judge #1 for 2024 HR). New TestWriteAvailableStatsJSON asserts the envelope shape and that athlete rows do not leak into discovery output."
     }
   ]
 }
