@@ -115,15 +115,22 @@ func buildChurnWatch(db *store.Store, window time.Duration, sinceLabel string) (
 	customerEmails := loadCustomerEmails(db)
 	lastInvoiceBySub := loadLastInvoiceBySub(db)
 
+	// churnWatchSubScanCap bounds the rollup scan. The for-loop tracks
+	// scanned count; hitting the cap surfaces a warning so the caller can
+	// distinguish "no churn" from "result truncated".
+	const churnWatchSubScanCap = 100000
 	rows, err := db.Query(
-		`SELECT data FROM resources WHERE resource_type = 'subscriptions' LIMIT 10000`,
+		`SELECT data FROM resources WHERE resource_type = 'subscriptions' LIMIT ?`,
+		churnWatchSubScanCap,
 	)
 	if err != nil {
 		return view, fmt.Errorf("querying subscriptions: %w", err)
 	}
 	defer rows.Close()
+	scannedSubs := 0
 
 	for rows.Next() {
+		scannedSubs++
 		var data sql.NullString
 		if err := rows.Scan(&data); err != nil {
 			continue
@@ -175,7 +182,9 @@ func buildChurnWatch(db *store.Store, window time.Duration, sinceLabel string) (
 		return view.Rows[i].updatedAtTime.After(view.Rows[j].updatedAtTime)
 	})
 	view.Count = len(view.Rows)
-	if view.Count == 0 {
+	if scannedSubs >= churnWatchSubScanCap {
+		view.Note = fmt.Sprintf("hit the %d-subscription scan cap; results may be incomplete for stores with larger subscription bases. Sync more recent updated_at windows or open an issue if you hit this in practice.", churnWatchSubScanCap)
+	} else if view.Count == 0 {
 		view.Note = fmt.Sprintf("no subscriptions flipped into churn states in the last %s", sinceLabel)
 	}
 	return view, nil
