@@ -208,6 +208,25 @@ func loadSubscriptionStates(db *store.Store) map[string]string {
 	return out
 }
 
+// loadSubscriptionCreatedAt returns subscription-id → created_at time. Used
+// by mrr-trend to classify the earliest in-window invoice as "new" only
+// when the parent sub was created in the window — robust to invoice-scan
+// truncation because the sub-level signal is independent of invoice volume.
+func loadSubscriptionCreatedAt(db *store.Store) map[string]time.Time {
+	out := map[string]time.Time{}
+	loadResourceRows(db, "subscriptions", loadSubscriptionStatesCap, "loadSubscriptionCreatedAt", func(env map[string]json.RawMessage) {
+		id, attrs := extractIDAndAttributes(env)
+		if id == "" {
+			return
+		}
+		when := parseLSTime(toStringLS(attrs["created_at"]))
+		if !when.IsZero() {
+			out[id] = when
+		}
+	})
+	return out
+}
+
 // loadLastInvoiceBySub returns subscription-id → most-recent paid invoice USD
 // amount. Used by churn-watch to estimate dollar exposure per churned sub.
 func loadLastInvoiceBySub(db *store.Store) map[string]float64 {

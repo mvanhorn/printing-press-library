@@ -214,10 +214,17 @@ func extractHost(rawURL string) string {
 
 func classifyHost(host string) (stale bool, reason string) {
 	lower := strings.ToLower(host)
-	// Strip an optional :port suffix before classification so case statements
-	// only need to match the bare hostname.
-	if idx := strings.IndexByte(lower, ':'); idx >= 0 {
+	// IPv6 bracket notation ([::1] or [::1]:8080) must be handled before any
+	// `:` port strip, otherwise net.ParseIP receives "[" or "[::1]:8080" and
+	// returns nil. net.SplitHostPort handles both bracketed and plain forms;
+	// fall back to a literal IndexByte strip for hostnames whose only colon
+	// is the port separator.
+	if h, _, err := net.SplitHostPort(lower); err == nil {
+		lower = h
+	} else if idx := strings.IndexByte(lower, ':'); idx >= 0 && !strings.Contains(lower, "::") && !strings.HasPrefix(lower, "[") {
 		lower = lower[:idx]
+	} else {
+		lower = strings.Trim(lower, "[]")
 	}
 	// IP-shaped hosts: catch loopback, all-interfaces, and RFC1918 private
 	// ranges. Production webhooks should not point at any of these.

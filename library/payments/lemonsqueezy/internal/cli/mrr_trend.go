@@ -115,33 +115,43 @@ func emitMrrTrend(cmd *cobra.Command, flags *rootFlags, view mrrTrendView) error
 	return flags.printJSON(cmd, view)
 }
 
-// mrrTrendInvoiceCap is the subscription-invoices scan cap. ORDER BY
-// created_at ASC inside the query guarantees firstSeenSub picks the earliest
-// invoice even when SQLite returns rows in arbitrary physical order.
+// mrrTrendInvoiceCap is the in-window subscription-invoices scan cap. The
+// query filters by created_at >= cutoff at SQL level so this cap applies to
+// the working window, NOT the entire invoice history. A store with 1M
+// lifetime invoices but 200K in-window will still saturate; one with 1M
+// lifetime and 50K in-window won't.
 const mrrTrendInvoiceCap = 200000
 
 func buildMrrTrend(db *store.Store, weeks int) (mrrTrendView, error) {
 	view := mrrTrendView{Weeks: []mrrWeekBucket{}, WindowWeeks: weeks}
 
+	now := time.Now().UTC()
+	cutoff := now.AddDate(0, 0, -7*weeks)
+
+	// "New vs renewal" classification needs to know whether a subscription
+	// existed before the window. We grab each sub's created_at once via the
+	// subscriptions resource and treat an in-window invoice as NEW only
+	// when its parent sub was also created in the window. This is robust
+	// even when the invoice cap clips older invoices because the
+	// subscription-level signal is independent of invoice volume.
+	subCreatedAt := loadSubscriptionCreatedAt(db)
+
+	// Filter invoices to the working window at SQL level. ORDER BY ASC keeps
+	// chronological iteration for the bucket loop. CAST handles SQLite's
+	// string-typed JSON comparison.
 	rows, err := db.Query(
-		`SELECT data FROM resources WHERE resource_type = 'subscription-invoices'
-		 ORDER BY json_extract(data, '$.attributes.created_at') ASC
+		`SELECT data FROM resources
+		 WHERE resource_type = 'subscription-invoices'
+		   AND CAST(json_extract(data, '$.attributes.created_at') AS TEXT) >= ?
+		 ORDER BY CAST(json_extract(data, '$.attributes.created_at') AS TEXT) ASC
 		 LIMIT ?`,
-		mrrTrendInvoiceCap,
+		cutoff.Format(time.RFC3339), mrrTrendInvoiceCap,
 	)
 	if err != nil {
 		return view, fmt.Errorf("querying subscription-invoices: %w", err)
 	}
 	defer rows.Close()
 	scannedInvoices := 0
-
-	now := time.Now().UTC()
-	cutoff := now.AddDate(0, 0, -7*weeks)
-	type subStamp struct {
-		when      time.Time
-		invoiceID string
-	}
-	firstSeenSub := map[string]subStamp{}
 
 	type invoiceRow struct {
 		when     time.Time
@@ -152,7 +162,6 @@ func buildMrrTrend(db *store.Store, weeks int) (mrrTrendView, error) {
 		refunded float64
 	}
 	var invoices []invoiceRow
-	inWindowCount := 0
 
 	for rows.Next() {
 		scannedInvoices++
@@ -179,7 +188,7 @@ func buildMrrTrend(db *store.Store, weeks int) (mrrTrendView, error) {
 			continue
 		}
 		when := parseLSTime(env.Attributes.CreatedAt)
-		if when.IsZero() {
+		if when.IsZero() || when.Before(cutoff) {
 			continue
 		}
 		amt := toFloatLS(env.Attributes.TotalUSD)
@@ -199,27 +208,28 @@ func buildMrrTrend(db *store.Store, weeks int) (mrrTrendView, error) {
 			amount:   amt / 100.0,
 			refunded: refunded / 100.0,
 		})
-		// firstSeenSub picks the earliest invoice for each sub. Ties on
-		// created_at are broken by lower invoice id so two invoices that
-		// share a timestamp do not both get counted as "new".
-		if first, ok := firstSeenSub[subID]; !ok ||
-			when.Before(first.when) ||
-			(when.Equal(first.when) && env.ID < first.invoiceID) {
-			firstSeenSub[subID] = subStamp{when: when, invoiceID: env.ID}
-		}
-		if !when.Before(cutoff) {
-			inWindowCount++
+	}
+	// firstInWindow ensures only the earliest in-window invoice per sub
+	// claims the "new" classification when the sub was newly created in
+	// the window. Subsequent invoices for the same sub are renewals.
+	type subStamp struct {
+		when      time.Time
+		invoiceID string
+	}
+	firstInWindow := map[string]subStamp{}
+	for _, inv := range invoices {
+		if cur, ok := firstInWindow[inv.subID]; !ok ||
+			inv.when.Before(cur.when) ||
+			(inv.when.Equal(cur.when) && inv.id < cur.invoiceID) {
+			firstInWindow[inv.subID] = subStamp{when: inv.when, invoiceID: inv.id}
 		}
 	}
-	// Cap warning fires only when the scan saturated AND we have evidence
-	// that older invoices are missing (i.e. the in-window count is less
-	// than the total scanned, meaning the cap clipped at least one
-	// out-of-window row). When every row falls inside the window the
-	// classification is still complete and the warning would just confuse
-	// the user.
-	if scannedInvoices >= mrrTrendInvoiceCap && inWindowCount < scannedInvoices {
-		fmt.Fprintf(os.Stderr, "warning: mrr-trend hit the %d-invoice scan cap; new-vs-renewal classification may be inaccurate for the oldest weeks\n", mrrTrendInvoiceCap)
-		view.Note = fmt.Sprintf("hit the %d-invoice scan cap; new-vs-renewal classification may be inaccurate for the oldest weeks. Narrow --weeks or open an issue if your store routinely exceeds this volume.", mrrTrendInvoiceCap)
+	// Cap warning fires when the in-window scan saturated — meaning the
+	// query truncated. Honest signal: the user's working window has more
+	// than `cap` invoices, so older weeks in this view may underreport.
+	if scannedInvoices >= mrrTrendInvoiceCap {
+		fmt.Fprintf(os.Stderr, "warning: mrr-trend hit the %d-invoice in-window scan cap; older weeks in this view may underreport revenue\n", mrrTrendInvoiceCap)
+		view.Note = fmt.Sprintf("hit the %d-invoice in-window scan cap; older weeks may underreport revenue. Narrow --weeks or open an issue if your in-window invoice volume routinely exceeds this.", mrrTrendInvoiceCap)
 	}
 
 	buckets := map[string]*mrrWeekBucket{}
@@ -235,9 +245,15 @@ func buildMrrTrend(db *store.Store, weeks int) (mrrTrendView, error) {
 			buckets[key] = b
 		}
 		if inv.status == "paid" || inv.status == "" {
-			first := firstSeenSub[inv.subID]
-			isNew := first.when.Equal(inv.when) && first.invoiceID == inv.id
-			if isNew {
+			// "New" means: (a) this is the earliest in-window invoice for
+			// the sub, AND (b) the sub itself was created in the window.
+			// (b) is the sub-level signal that doesn't depend on having
+			// every historical invoice synced.
+			first := firstInWindow[inv.subID]
+			isFirstInvoice := first.invoiceID == inv.id
+			subCreated, hasSubInfo := subCreatedAt[inv.subID]
+			isNewSub := hasSubInfo && !subCreated.Before(cutoff)
+			if isFirstInvoice && isNewSub {
 				b.NewRevenue += inv.amount
 			} else {
 				b.RenewalRev += inv.amount
