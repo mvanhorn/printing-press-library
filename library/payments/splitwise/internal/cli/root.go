@@ -265,6 +265,7 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.AddCommand(newSplitCmd(flags))
 	rootCmd.AddCommand(newRecurringCmd(flags))
 	rootCmd.AddCommand(newAuditCmd(flags))
+	rootCmd.AddCommand(newForecastCmd(flags))
 	rootCmd.AddCommand(newAPICmd(flags))
 	rootCmd.AddCommand(newAddUserToGroupPromotedCmd(flags))
 	rootCmd.AddCommand(newCreateCommentPromotedCmd(flags))

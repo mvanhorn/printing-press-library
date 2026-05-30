@@ -99,6 +99,39 @@ These capabilities aren't available in any other tool for this API.
   splitwise-pp-cli recurring --agent
   ```
 
+### Upcoming-obligations forecast
+- **`forecast`** — Project your next shared obligations from recurring spending patterns over your synced history. Clusters expenses by normalized description, finds the ones with a regular cadence (>= 3 dated occurrences, mean cadence 2-400 days, largest gap <= 3x the smallest), and projects the next expected date and amount. Returns charges whose next occurrence falls inside the window (default 35 days) or is already overdue, sorted by expected date.
+
+  _Use to answer "what shared bills are coming up?" or "what should I budget for next month?" — and to catch a regular charge that's overdue and hasn't been logged yet._
+
+  ```bash
+  splitwise-pp-cli forecast --agent
+  splitwise-pp-cli forecast --days 60 --limit 20 --json
+  ```
+
+  Output shape (`--agent` / `--json`):
+
+  ```json
+  {
+    "as_of": "2026-05-30",
+    "window_days": 35,
+    "upcoming": [
+      {
+        "description": "Rent",
+        "group": "Roommates",
+        "last_date": "2026-05-01",
+        "expected_date": "2026-06-01",
+        "expected_amount": 1850.00,
+        "cadence_days": 30,
+        "occurrences": 6,
+        "overdue": false
+      }
+    ]
+  }
+  ```
+
+  Payments and settlement rows (`settle all balances`, `settle up`, `payment`, `paid via …`) are excluded. Read-only; never posts.
+
 ### Reconcile and settle
 - **`settle-up`** — Compute the minimum set of transfers that zeroes out balances in a group, then optionally record the payments.
 
