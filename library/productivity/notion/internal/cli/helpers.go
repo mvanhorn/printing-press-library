@@ -277,6 +277,66 @@ func replacePathParam(path, name, value string) string {
 	return strings.ReplaceAll(path, "{"+name+"}", value)
 }
 
+// PATCH(parent-shorthand): accept "<type>_id:<value>" / "workspace:true" shorthand for --parent in addition to raw JSON
+// notionParentTypes is the set of id-bearing parent kinds Notion accepts in a
+// `parent` object. Each maps the shorthand key the user types (e.g.
+// "data_source_id") to the JSON object {"type":"data_source_id","data_source_id":"<value>"}.
+var notionParentTypes = map[string]bool{
+	"data_source_id": true,
+	"database_id":    true,
+	"page_id":        true,
+	"block_id":       true,
+}
+
+// parseParentFlag converts a --parent flag value into the Notion `parent`
+// object. It accepts two forms:
+//
+//   - Raw JSON: '{"data_source_id":"<id>"}' or '{"type":"page_id","page_id":"<id>"}'
+//     — passed straight through (preserves the prior JSON-only behavior).
+//   - Shorthand: '<type>_id:<value>' (e.g. data_source_id:abc123, page_id:abc123)
+//     or 'workspace:true' — expanded into the discriminated object the API wants.
+//
+// The shorthand exists because the raw-JSON-only requirement forced users to
+// hand-author an undiscoverable object shape; the natural ergonomic form a user
+// reaches for ("data_source_id:<id>") previously failed with the opaque
+// `invalid character 'd' looking for beginning of value` JSON error.
+func parseParentFlag(raw string) (any, error) {
+	trimmed := strings.TrimSpace(raw)
+
+	// Form 1: raw JSON (object or any valid JSON value). Try this first so
+	// callers who already pass the full object keep working unchanged.
+	if strings.HasPrefix(trimmed, "{") || strings.HasPrefix(trimmed, "[") {
+		var parsed any
+		if err := json.Unmarshal([]byte(trimmed), &parsed); err != nil {
+			return nil, fmt.Errorf("parsing --parent JSON: %w", err)
+		}
+		return parsed, nil
+	}
+
+	// Form 2: "<key>:<value>" shorthand.
+	if key, value, ok := strings.Cut(trimmed, ":"); ok {
+		key = strings.TrimSpace(key)
+		value = strings.TrimSpace(value)
+		switch {
+		case notionParentTypes[key]:
+			if value == "" {
+				return nil, fmt.Errorf("--parent %s: missing value after ':' (expected %s:<id>)", trimmed, key)
+			}
+			return map[string]any{"type": key, key: value}, nil
+		case key == "workspace":
+			// Notion's workspace parent is {"type":"workspace","workspace":true}.
+			// Accept workspace:true (the only meaningful value).
+			if value != "true" {
+				return nil, fmt.Errorf("--parent %s: workspace parent must be 'workspace:true'", trimmed)
+			}
+			return map[string]any{"type": "workspace", "workspace": true}, nil
+		}
+	}
+
+	return nil, fmt.Errorf("invalid --parent value %q: expected JSON like '{\"data_source_id\":\"<id>\"}' "+
+		"or shorthand 'data_source_id:<id>' (also database_id:, page_id:, block_id:, workspace:true)", raw)
+}
+
 // paginatedGet fetches pages and concatenates array results. The headers
 // argument carries per-endpoint required headers (e.g. cal-api-version) that
 // must be sent on every page request, including the first; pass nil when the

@@ -85,9 +85,10 @@ func newPagesPostCmd(flags *rootFlags) *cobra.Command {
 					body["markdown"] = bodyMarkdown
 				}
 				if bodyParent != "" {
-					var parsedParent any
-					if err := json.Unmarshal([]byte(bodyParent), &parsedParent); err != nil {
-						return fmt.Errorf("parsing --parent JSON: %w", err)
+					// PATCH(parent-shorthand): accept "<type>_id:<value>" shorthand in addition to raw JSON
+					parsedParent, err := parseParentFlag(bodyParent)
+					if err != nil {
+						return err
 					}
 					body["parent"] = parsedParent
 				}

@@ -40,6 +40,21 @@
         "internal/cli/sync.go"
       ],
       "validated_outcome": "notion-pp-cli sync --full no longer emits a sync_error for views; the views resource is simply skipped. Per-data-source population via `views list --data-source-id <id>` remains available."
+    },
+    {
+      "id": "parent-flag-shorthand",
+      "summary": "Accept a `<type>:<value>` shorthand (data_source_id:<id>, database_id:, page_id:, block_id:, workspace:true) for --parent in addition to raw JSON, via a shared parseParentFlag helper, and emit an actionable error instead of an opaque JSON parse error.",
+      "reason": "The prior pages-object-flags-json-parse patch made --parent JSON-only, so the natural ergonomic value `--parent data_source_id:<id>` failed with `parsing --parent JSON: invalid character 'd' looking for beginning of value`. The parse ran before the --dry-run guard, so --dry-run could not even be exercised. The shorthand expands to the discriminated parent object the API requires; raw JSON still passes through unchanged.",
+      "files": [
+        "internal/cli/helpers.go",
+        "internal/cli/pages_post.go",
+        "internal/cli/databases_create.go",
+        "internal/cli/databases_update.go",
+        "internal/cli/data-sources_create-a-database.go",
+        "internal/cli/data-sources_update-a.go",
+        "internal/cli/parent_flag_test.go"
+      ],
+      "validated_outcome": "pages create --parent data_source_id:<id> --markdown '## ...' --dry-run --json now expands to {\"type\":\"data_source_id\",\"data_source_id\":\"<id>\"} and reaches the dry-run path (exit 0); previously failed at the JSON parse. TestParseParentFlag covers all five shorthand forms, JSON back-compat, and three error paths."
     }
   ]
 }

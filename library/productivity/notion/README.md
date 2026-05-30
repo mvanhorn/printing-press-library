@@ -130,7 +130,12 @@ notion-pp-cli workspace-health
 # Raw SQL against the local store for custom queries
 notion-pp-cli sql "SELECT title, last_edited_time FROM pages ORDER BY last_edited_time DESC LIMIT 20" --agent
 
+# Create a page under a data source (--parent accepts a <type>:<value> shorthand)
+notion-pp-cli pages create --parent data_source_id:<id> --markdown '## My heading'
+
 ```
+
+> `--parent` accepts either raw Notion parent JSON (`'{"data_source_id":"<id>"}'`) or a `<type>:<value>` shorthand: `data_source_id:<id>`, `database_id:<id>`, `page_id:<id>`, `block_id:<id>`, or `workspace:true`. The shorthand is expanded into the discriminated parent object the API requires. Same flag and forms apply to `pages update`, `databases create`, `databases update`, `data-sources create-a-database`, and `data-sources update-a`.
 
 ## Unique Features
 
