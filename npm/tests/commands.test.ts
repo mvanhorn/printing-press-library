@@ -204,7 +204,7 @@ test("update command refreshes detected installed CLIs", async () => {
   const command = createUpdateCommand({
     fetchRegistry: async () => registry,
     commandOnPath: async (binary) => (binary === "espn-pp-cli" ? "/bin/espn-pp-cli" : null),
-    install: async (args) => {
+    createInstall: () => async (args) => {
       installs.push(args);
       return 0;
     },
@@ -243,6 +243,80 @@ test("help lists the reinstall command", async () => {
   }
 
   assert.match(lines.join("\n"), /reinstall \[name\]/);
+});
+
+test("update refreshes detected CLIs concurrently and flushes output in catalog order", async () => {
+  // espn (entry 0) and cal-com (entry 3) are "installed"; dominos/hotel-tonight/booking are not.
+  let inFlight = 0;
+  let maxInFlight = 0;
+  const stdout: string[] = [];
+  const command = createUpdateCommand({
+    fetchRegistry: async () => registry,
+    commandOnPath: async (binary) =>
+      binary === "espn-pp-cli" || binary === "cal-com-pp-cli" ? `/bin/${binary}` : null,
+    createInstall: (io) => async (args) => {
+      inFlight++;
+      maxInFlight = Math.max(maxInFlight, inFlight);
+      const name = args[0]!;
+      // Emit two lines so interleaving (if it regressed) would be observable.
+      io.stdout(`Installed ${name}`);
+      await Promise.resolve();
+      io.stdout(`  binary: /bin/${name}-pp-cli`);
+      inFlight--;
+      return 0;
+    },
+    stdout: (message) => stdout.push(message),
+  });
+
+  assert.equal(await command([]), 0);
+  // Both detected CLIs ran with overlap (concurrent, not serialized one-at-a-time).
+  assert.equal(maxInFlight, 2);
+  // Output stays grouped per CLI and ordered by catalog position (espn before cal-com).
+  assert.deepEqual(stdout, [
+    "Installed espn",
+    "  binary: /bin/espn-pp-cli",
+    "Installed cal-com",
+    "  binary: /bin/cal-com-pp-cli",
+  ]);
+});
+
+test("update preserves stdout/stderr emission order within a CLI block", async () => {
+  // install emits a stderr warning *before* its stdout success lines; buffering
+  // must replay them in that order, not group all stdout then all stderr.
+  const log: string[] = [];
+  const command = createUpdateCommand({
+    fetchRegistry: async () => registry,
+    commandOnPath: async (binary) => (binary === "espn-pp-cli" ? "/bin/espn-pp-cli" : null),
+    createInstall: (io) => async () => {
+      io.stderr("warning: shadowed by an older binary");
+      io.stdout("Installed espn");
+      return 0;
+    },
+    stdout: (message) => log.push(`out:${message}`),
+    stderr: (message) => log.push(`err:${message}`),
+  });
+
+  assert.equal(await command([]), 0);
+  assert.deepEqual(log, ["err:warning: shadowed by an older binary", "out:Installed espn"]);
+});
+
+test("update skips a CLI whose PATH probe throws instead of aborting the run", async () => {
+  const installed: string[] = [];
+  const command = createUpdateCommand({
+    fetchRegistry: async () => registry,
+    commandOnPath: async (binary) => {
+      if (binary === "dominos-pp-cli") throw new Error("which exploded");
+      return binary === "espn-pp-cli" || binary === "cal-com-pp-cli" ? `/bin/${binary}` : null;
+    },
+    createInstall: () => async (args) => {
+      installed.push(args[0]!);
+      return 0;
+    },
+  });
+
+  // The throwing probe is treated as "not installed"; the others still update.
+  assert.equal(await command([]), 0);
+  assert.deepEqual(installed.sort(), ["cal-com", "espn"]);
 });
 
 test("uninstall command requires --yes", async () => {

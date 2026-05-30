@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.13
+
+- Speed up `update` (and `update` with no name) by refreshing detected CLIs concurrently instead of one at a time. The cost of a bulk update is dominated by per-CLI network round-trips — the go-proxy `@latest` resolution (~1s each, even when nothing changed, because the build cache can't shortcut it) plus the skill fetch — which serialized into ~30s for a dozen CLIs. These are independent, so they now run with bounded concurrency, and the catalog detection sweep (a `which`/`where` probe per catalog entry) is parallelized the same way. Each install's output is buffered and replayed in catalog order (preserving stdout/stderr ordering within each CLI), so concurrent runs don't interleave into scrambled lines. A failed PATH probe degrades to "not installed" instead of aborting the run. No command, flag, or output-shape changes — same behavior, less waiting.
+
 ## 0.1.12
 
 - Add a `reinstall` command as an alias for `update`. `reinstall <name>` rebuilds one CLI's binary from the latest catalog code and re-adds its skill; `reinstall` with no name does the same for every Printing Press CLI already on `PATH`. The mechanics are identical to `update` (both run `go install …@latest` and re-add the skill) — this just exposes the verb users reach for when a binary or skill needs a clean refresh. The shared "no CLIs found on PATH" message is now verb-neutral so it reads correctly under either command.
