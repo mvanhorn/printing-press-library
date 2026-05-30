@@ -106,11 +106,13 @@ func emitTrialFunnel(cmd *cobra.Command, flags *rootFlags, view trialFunnelView)
 }
 
 // runTrialFunnel fetches trials_new + conversion_to_paying and builds the
-// stage-to-stage funnel by summing each series across periods.
+// stage-to-stage funnel.
 //
-// TODO(verify): confirm conversion_to_paying reports a count of converted
-// customers (vs a ratio) against live data; if it reports a ratio, the
-// converted total should be derived as new_trials * ratio instead of summed.
+// Live-verified 2026-05-30 against the RevenueCat v2 API: conversion_to_paying
+// reports a per-period COUNT of converted customers, so summing the series is
+// correct. convertedTotal additionally guards against a future ratio-shaped
+// response (fractional values in (0,1)) by deriving new_trials * mean(ratio)
+// instead of producing a nonsensical sum-of-ratios.
 func runTrialFunnel(ctx context.Context, c *client.Client, projectID, since string) (trialFunnelView, error) {
 	view := trialFunnelView{ProjectID: projectID, Stages: []funnelStage{}}
 
@@ -133,7 +135,7 @@ func runTrialFunnel(ctx context.Context, c *client.Client, projectID, since stri
 	}
 	view.Resolution = trialsChart.Resolution
 	view.NewTrials = sumFirstSeries(trialsChart)
-	view.Converted = sumFirstSeries(convChart)
+	view.Converted = convertedTotal(convChart, view.NewTrials)
 	var note string
 	view.Stages, view.OverallPct, note = buildFunnel(view.NewTrials, view.Converted)
 	if view.NewTrials == 0 && view.Converted == 0 {
@@ -182,4 +184,29 @@ func sumFirstSeries(cd chartData) float64 {
 		total += p.firstSeriesValue()
 	}
 	return total
+}
+
+// convertedTotal interprets the conversion_to_paying chart into a total count of
+// converted customers. RevenueCat reports a per-period count (live-verified), so
+// the default is the sum. If the series is instead ratio-shaped — any period
+// value is strictly fractional in (0,1) — summing would be meaningless, so it
+// derives newTrials * mean(ratio) as the converted count.
+func convertedTotal(conv chartData, newTrials float64) float64 {
+	pts := conv.points()
+	if len(pts) == 0 {
+		return 0
+	}
+	var sum float64
+	ratioShaped := false
+	for _, p := range pts {
+		v := p.firstSeriesValue()
+		sum += v
+		if v > 0 && v < 1 {
+			ratioShaped = true
+		}
+	}
+	if ratioShaped {
+		return newTrials * (sum / float64(len(pts)))
+	}
+	return sum
 }

@@ -20,14 +20,21 @@ import (
 )
 
 // churnStatuses is the set of RevenueCat subscription statuses that represent a
-// churn or at-risk-of-churn state. RevenueCat models "cancelled" as
-// auto_renewal_status=will_not_renew rather than a status, so churn-watch also
-// flags will_not_renew subscriptions separately (see willNotRenew below).
+// churn or at-risk-of-churn state. RevenueCat models a voluntary cancellation as
+// auto_renewal_status=will_not_renew (often while status is still "active" during
+// the remaining paid period) rather than as a distinct status, so buildChurnWatch
+// also includes any subscription whose auto_renewal_status is will_not_renew —
+// see willNotRenewStatus and the filter in buildChurnWatch.
 var churnStatuses = map[string]bool{
 	"expired":          true,
 	"in_grace_period":  true,
 	"in_billing_retry": true,
 }
+
+// willNotRenewStatus is RevenueCat's auto_renewal_status value for a subscription
+// the customer has cancelled (auto-renew turned off). These are churn even when
+// status is still "active" until the paid period ends.
+const willNotRenewStatus = "will_not_renew"
 
 type churnRow struct {
 	SubscriptionID    string    `json:"subscription_id"`
@@ -196,7 +203,12 @@ func buildChurnWatch(db *store.Store, projectID string, window time.Duration, si
 			continue
 		}
 		status, _ := obj["status"].(string)
-		if !churnStatuses[status] {
+		autoRenewal, _ := obj["auto_renewal_status"].(string)
+		// A subscription is churn (or churning) if its status is a churn state
+		// OR the customer has turned off auto-renew (will_not_renew), which
+		// RevenueCat reports via auto_renewal_status while status may still be
+		// "active" for the remaining paid period.
+		if !churnStatuses[status] && autoRenewal != willNotRenewStatus {
 			continue
 		}
 		ends := rcEpochMSToTime(obj["current_period_ends_at"])
@@ -214,9 +226,7 @@ func buildChurnWatch(db *store.Store, projectID string, window time.Duration, si
 			endsAtTime:     ends,
 			ExposureUSD:    monetaryGrossUSD(obj["total_revenue_in_usd"]),
 		}
-		if ar, ok := obj["auto_renewal_status"].(string); ok {
-			row.AutoRenewalStatus = ar
-		}
+		row.AutoRenewalStatus = autoRenewal
 		view.Rows = append(view.Rows, row)
 		view.DollarExposure += row.ExposureUSD
 	}
@@ -229,7 +239,7 @@ func buildChurnWatch(db *store.Store, projectID string, window time.Duration, si
 	})
 	view.Count = len(view.Rows)
 	if view.Count == 0 && view.Note == "" {
-		view.Note = fmt.Sprintf("no subscriptions in a churn state with a period-end in the last %s", sinceLabel)
+		view.Note = fmt.Sprintf("no churned or cancelled (will_not_renew) subscriptions with a period-end in the last %s", sinceLabel)
 	}
 	return view, nil
 }

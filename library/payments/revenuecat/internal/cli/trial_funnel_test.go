@@ -3,9 +3,43 @@
 package cli
 
 import (
+	"encoding/json"
 	"math"
 	"testing"
 )
+
+func chartFromValues(rows ...string) chartData {
+	cd := chartData{Resolution: "month"}
+	for _, r := range rows {
+		cd.Values = append(cd.Values, json.RawMessage(r))
+	}
+	return cd
+}
+
+func TestConvertedTotal(t *testing.T) {
+	// Count shape (RevenueCat's live-verified behavior): sum the per-period
+	// counts.
+	count := chartFromValues(
+		`{"cohort":1746057600,"measure":0,"value":3}`,
+		`{"cohort":1748736000,"measure":0,"value":5}`,
+	)
+	if got := convertedTotal(count, 100); !approx(got, 8) {
+		t.Fatalf("count-shape converted = %v, want 8", got)
+	}
+	// Ratio shape (defensive guard): fractional values in (0,1) -> derive
+	// newTrials * mean(ratio). mean(0.2,0.4)=0.3; 100*0.3 = 30.
+	ratio := chartFromValues(
+		`{"cohort":1746057600,"measure":0,"value":0.2}`,
+		`{"cohort":1748736000,"measure":0,"value":0.4}`,
+	)
+	if got := convertedTotal(ratio, 100); !approx(got, 30) {
+		t.Fatalf("ratio-shape converted = %v, want 30", got)
+	}
+	// Empty chart -> 0.
+	if got := convertedTotal(chartData{}, 100); got != 0 {
+		t.Fatalf("empty converted = %v, want 0", got)
+	}
+}
 
 func TestBuildFunnel(t *testing.T) {
 	cases := []struct {

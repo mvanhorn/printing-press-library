@@ -85,6 +85,44 @@ func TestBuildChurnWatch(t *testing.T) {
 	}
 }
 
+func TestBuildChurnWatchWillNotRenew(t *testing.T) {
+	db := newNovelTestStore(t)
+	now := time.Now().UTC()
+
+	// Active subscription the customer cancelled (auto-renew off): this is a
+	// voluntary churn and MUST be flagged even though status is "active".
+	putResource(t, db, "subscriptions", "sub_cancelled", map[string]any{
+		"id": "sub_cancelled", "customer_id": "cust1", "status": "active",
+		"auto_renewal_status":    "will_not_renew",
+		"current_period_ends_at": epochMS(now.Add(-1 * 24 * time.Hour)),
+		"total_revenue_in_usd":   map[string]any{"currency": "USD", "gross": 40.0},
+	})
+	// Active sub still auto-renewing: excluded.
+	putResource(t, db, "subscriptions", "sub_active", map[string]any{
+		"id": "sub_active", "customer_id": "cust2", "status": "active",
+		"auto_renewal_status":    "will_renew",
+		"current_period_ends_at": epochMS(now.Add(-1 * 24 * time.Hour)),
+		"total_revenue_in_usd":   map[string]any{"currency": "USD", "gross": 99.0},
+	})
+
+	view, err := buildChurnWatch(db, "proj1", 30*24*time.Hour, "30d")
+	if err != nil {
+		t.Fatalf("buildChurnWatch: %v", err)
+	}
+	if view.Count != 1 {
+		t.Fatalf("count = %d, want 1 (rows: %+v)", view.Count, view.Rows)
+	}
+	if view.Rows[0].SubscriptionID != "sub_cancelled" {
+		t.Fatalf("row = %q, want sub_cancelled", view.Rows[0].SubscriptionID)
+	}
+	if view.Rows[0].AutoRenewalStatus != "will_not_renew" {
+		t.Fatalf("auto_renewal_status = %q, want will_not_renew", view.Rows[0].AutoRenewalStatus)
+	}
+	if view.DollarExposure != 40.0 {
+		t.Fatalf("dollar exposure = %v, want 40.0", view.DollarExposure)
+	}
+}
+
 func TestBuildChurnWatchEmpty(t *testing.T) {
 	db := newNovelTestStore(t)
 	view, err := buildChurnWatch(db, "proj1", 30*24*time.Hour, "30d")
