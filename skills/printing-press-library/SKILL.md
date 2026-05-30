@@ -1,6 +1,15 @@
 ---
 name: printing-press-library
-description: Discover and install Printing Press Library CLIs and focused agent skills.
+description: Use when looking for a CLI, API wrapper, scraper, data-source tool, automation tool, or focused agent skill for a task; searches the Printing Press Library and installs matching tools.
+tags:
+  - cli
+  - api-wrapper
+  - scraper
+  - data-source
+  - automation
+  - agent-skill
+  - tool-discovery
+  - install
 version: 0.1.1
 metadata:
   openclaw:
@@ -45,11 +54,12 @@ The library is an open-source catalog of focused CLIs and matching agent skills 
    - `npx -y @mvanhorn/printing-press-library install <slug>` has the same refresh effect for one named tool because install overwrites in place.
    - `reinstall <slug>` may also exist as a convenience alias for `update <slug>`; use it if the installed CLI exposes it, but prefer `update` as the stable documented primitive until the alias is published.
 
-5. Offer a periodic update schedule after successful install or refresh.
+5. Offer an efficient periodic update schedule after successful install or refresh.
    - Because install/update is idempotent, it is safe to keep installed Printing Press CLIs and focused skills current with a scheduled job.
-   - After installing a CLI + skill, ask whether the user wants a recurring update job for that one tool, for example weekly or monthly.
    - Do not create a cron/scheduled job without explicit user approval; recurring jobs are durable side effects.
-   - Use the library update primitive in the scheduled command: `npx -y @mvanhorn/printing-press-library update <slug>` for one tool, or `npx -y @mvanhorn/printing-press-library update` for every installed Printing Press CLI on PATH.
+   - Avoid one scheduled job per CLI as the default. Users may install many Printing Press tools, and per-tool jobs become noisy and hard to manage.
+   - Prefer one consolidated recurring job that runs `npx -y @mvanhorn/printing-press-library update`, which refreshes every installed Printing Press CLI currently on PATH and its matching focused skill.
+   - Offer a per-tool job using `npx -y @mvanhorn/printing-press-library update <slug>` only when the user explicitly wants a different cadence or policy for that one tool.
    - Prefer quiet, low-frequency schedules such as weekly unless the user asks for something else.
 
 6. Make the newly installed skill visible to the running agent.
@@ -99,16 +109,18 @@ npx -y @mvanhorn/printing-press-library update
 
 `update <slug>` delegates to install semantics for that tool. `update` with no args discovers Printing Press CLIs currently on PATH and refreshes all of them, including their matching focused skills.
 
-Because updates are idempotent, after a successful install or refresh, offer to create a recurring update job for the installed tool. Ask first; do not schedule it automatically. A reasonable default is weekly:
+Because updates are idempotent, after a successful install or refresh, offer to create a recurring update job. Ask first; do not schedule it automatically. Prefer a single consolidated job over one job per CLI, because users may install many Printing Press tools and per-tool schedules become noisy fast.
 
-```bash
-npx -y @mvanhorn/printing-press-library update flight-goat
-```
-
-For users who want every installed Printing Press CLI kept fresh, schedule the all-tools update instead:
+For most users, schedule one quiet weekly job that refreshes every installed Printing Press CLI currently on PATH and its matching focused skill:
 
 ```bash
 npx -y @mvanhorn/printing-press-library update
+```
+
+Use a per-tool scheduled command only when the user explicitly wants a separate cadence or policy for one tool:
+
+```bash
+npx -y @mvanhorn/printing-press-library update flight-goat
 ```
 
 If the installed library CLI exposes `reinstall`, treat it as a convenience alias for `update`:
