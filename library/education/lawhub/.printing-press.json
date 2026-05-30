@@ -9,6 +9,12 @@
     "handle": "nolan",
     "name": "Nolan McCafferty"
   },
+  "contributors": [
+    {
+      "handle": "tmchow",
+      "name": "Trevin Chow"
+    }
+  ],
   "description": "Local-first LSAT practice analytics from authenticated LawHub score metadata, with SQLite, weakness reports, question notes, and safe review links back to LawHub.",
   "category": "education",
   "spec_format": "internal",

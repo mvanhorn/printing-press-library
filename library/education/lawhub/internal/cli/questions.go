@@ -7,13 +7,15 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func questionsCmd() *cobra.Command {
+func newQuestionsCmd() *cobra.Command {
 	cmd := &cobra.Command{Use: "questions", Short: "Question metadata and review notes"}
-	cmd.AddCommand(questionsListCmd(), questionsShowCmd(), questionsNoteCmd())
+	cmd.AddCommand(newQuestionsListCmd())
+	cmd.AddCommand(newQuestionsShowCmd())
+	cmd.AddCommand(newQuestionsNoteCmd())
 	return cmd
 }
 
-func questionsListCmd() *cobra.Command {
+func newQuestionsListCmd() *cobra.Command {
 	var limit int
 	var attempt, qtype string
 	var incorrect, flagged, unanswered bool
@@ -72,7 +74,7 @@ func questionsListCmd() *cobra.Command {
 	return c
 }
 
-func questionsShowCmd() *cobra.Command {
+func newQuestionsShowCmd() *cobra.Command {
 	return &cobra.Command{Use: "show <id>", Args: cobra.ExactArgs(1), RunE: func(cmd *cobra.Command, args []string) error {
 		db, _, err := openDB()
 		if err != nil {
@@ -90,7 +92,7 @@ func questionsShowCmd() *cobra.Command {
 	}}
 }
 
-func questionsNoteCmd() *cobra.Command {
+func newQuestionsNoteCmd() *cobra.Command {
 	var note, whyPicked, whyCorrect, nextTime string
 	c := &cobra.Command{Use: "note <id>", Args: cobra.ExactArgs(1), RunE: func(cmd *cobra.Command, args []string) error {
 		parts := []string{}

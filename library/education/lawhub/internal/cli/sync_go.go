@@ -173,7 +173,7 @@ func sectionType(id, fallback string) string {
 	return fallback
 }
 
-func syncBrowserCmd() *cobra.Command {
+func newSyncBrowserCmd() *cobra.Command {
 	var wait int
 	c := &cobra.Command{Use: "browser", RunE: func(cmd *cobra.Command, args []string) error {
 		b, p, err := browserPage()
@@ -208,7 +208,7 @@ func syncBrowserCmd() *cobra.Command {
 	return c
 }
 
-func syncHistoryCmd() *cobra.Command {
+func newSyncHistoryCmd() *cobra.Command {
 	var module string
 	var pageSize int
 	c := &cobra.Command{Use: "history", RunE: func(cmd *cobra.Command, args []string) error {
@@ -393,7 +393,7 @@ func upsertReportQuestions(db *sql.DB, attemptID string, rows []reportRow) int {
 	return updated
 }
 
-func syncReportMetadataCmd() *cobra.Command {
+func newSyncReportMetadataCmd() *cobra.Command {
 	var attempt string
 	var wait int
 	c := &cobra.Command{Use: "report-metadata", RunE: func(cmd *cobra.Command, args []string) error {

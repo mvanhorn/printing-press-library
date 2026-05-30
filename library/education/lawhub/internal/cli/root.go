@@ -52,15 +52,15 @@ func homeJoin(parts ...string) string {
 }
 
 func Execute() {
-	root := rootCmd()
+	root := newRootCmd()
 	if err := root.Execute(); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
 }
 
-func rootCmd() *cobra.Command {
-	cmd := &cobra.Command{
+func newRootCmd() *cobra.Command {
+	rootCmd := &cobra.Command{
 		Use:          app,
 		Short:        "LawHub/LSAC practice-test analytics CLI",
 		Long:         "Standalone local CLI for LawHub LSAT practice-test analytics. SQLite is the source of truth.",
@@ -73,18 +73,28 @@ func rootCmd() *cobra.Command {
 			}
 		},
 	}
-	cmd.PersistentFlags().StringVar(&cfg.DataDir, "data-dir", homeJoin(".local", "share", app), "data directory")
-	cmd.PersistentFlags().StringVar(&cfg.ConfigDir, "config-dir", homeJoin(".config", app), "config directory")
-	cmd.PersistentFlags().StringVar(&cfg.SecureDir, "secure-dir", homeJoin(".openclaw", "secure", "lawhub"), "secure session directory")
-	cmd.PersistentFlags().BoolVar(&cfg.JSON, "json", false, "JSON output")
-	cmd.PersistentFlags().BoolVar(&cfg.Compact, "compact", false, "compact JSON")
-	cmd.PersistentFlags().BoolVar(&cfg.Agent, "agent", false, "agent mode: compact JSON, no prompts where possible")
-	cmd.PersistentFlags().StringVar(&cfg.Select, "select", "", "comma-separated fields to include in JSON output")
-	cmd.PersistentFlags().StringVar(&cfg.UserID, "user-id", "", "LawHub user id override (advanced; normally discovered at login)")
-	cmd.SetVersionTemplate(app + " {{ .Version }}\n")
+	rootCmd.PersistentFlags().StringVar(&cfg.DataDir, "data-dir", homeJoin(".local", "share", app), "data directory")
+	rootCmd.PersistentFlags().StringVar(&cfg.ConfigDir, "config-dir", homeJoin(".config", app), "config directory")
+	rootCmd.PersistentFlags().StringVar(&cfg.SecureDir, "secure-dir", homeJoin(".openclaw", "secure", "lawhub"), "secure session directory")
+	rootCmd.PersistentFlags().BoolVar(&cfg.JSON, "json", false, "JSON output")
+	rootCmd.PersistentFlags().BoolVar(&cfg.Compact, "compact", false, "compact JSON")
+	rootCmd.PersistentFlags().BoolVar(&cfg.Agent, "agent", false, "agent mode: compact JSON, no prompts where possible")
+	rootCmd.PersistentFlags().StringVar(&cfg.Select, "select", "", "comma-separated fields to include in JSON output")
+	rootCmd.PersistentFlags().StringVar(&cfg.UserID, "user-id", "", "LawHub user id override (advanced; normally discovered at login)")
+	rootCmd.SetVersionTemplate(app + " {{ .Version }}\n")
 
-	cmd.AddCommand(doctorCmd(), summaryCmd(), attemptsCmd(), testsCmd(), questionsCmd(), weaknessCmd(), reviewCmd(), syncCmd(), loginCmd(), authCmd(), versionCmd())
-	return cmd
+	rootCmd.AddCommand(newDoctorCmd())
+	rootCmd.AddCommand(newSummaryCmd())
+	rootCmd.AddCommand(newAttemptsCmd())
+	rootCmd.AddCommand(newTestsCmd())
+	rootCmd.AddCommand(newQuestionsCmd())
+	rootCmd.AddCommand(newWeaknessCmd())
+	rootCmd.AddCommand(newReviewCmd())
+	rootCmd.AddCommand(newSyncCmd())
+	rootCmd.AddCommand(newLoginCmd())
+	rootCmd.AddCommand(newAuthCmd())
+	rootCmd.AddCommand(newVersionCmd())
+	return rootCmd
 }
 
 func openDB() (*sql.DB, string, error) { return store.Open(cfg.DataDir) }
@@ -122,7 +132,7 @@ func mustCounts(db *sql.DB) map[string]int {
 	return out
 }
 
-func doctorCmd() *cobra.Command {
+func newDoctorCmd() *cobra.Command {
 	var live bool
 	c := &cobra.Command{Use: "doctor", Short: "Check local state", RunE: func(cmd *cobra.Command, args []string) error {
 		db, dbPath, err := openDB()
@@ -179,7 +189,7 @@ func queryAttempts(db *sql.DB, limit int) ([]Attempt, error) {
 	return out, rows.Err()
 }
 
-func summaryCmd() *cobra.Command {
+func newSummaryCmd() *cobra.Command {
 	var limit, minCount int
 	cmd := &cobra.Command{Use: "summary", Short: "CLI-native LSAT analytics summary", RunE: func(cmd *cobra.Command, args []string) error {
 		db, _, err := openDB()
@@ -242,7 +252,7 @@ func asInt(v any) int64 {
 	return 0
 }
 
-func attemptsCmd() *cobra.Command {
+func newAttemptsCmd() *cobra.Command {
 	cmd := &cobra.Command{Use: "attempts", Short: "Manage attempts"}
 	var limit int
 	list := &cobra.Command{Use: "list", Short: "List attempts", RunE: func(cmd *cobra.Command, args []string) error {
@@ -345,7 +355,7 @@ func queryMaps(db *sql.DB, q string, args ...any) ([]map[string]any, error) {
 	return out, rows.Err()
 }
 
-func testsCmd() *cobra.Command {
+func newTestsCmd() *cobra.Command {
 	cmd := &cobra.Command{Use: "tests", Short: "Manage tests"}
 	cmd.AddCommand(&cobra.Command{Use: "list", RunE: func(cmd *cobra.Command, args []string) error {
 		db, _, err := openDB()
@@ -362,7 +372,7 @@ func testsCmd() *cobra.Command {
 	return cmd
 }
 
-func weaknessCmd() *cobra.Command {
+func newWeaknessCmd() *cobra.Command {
 	cmd := &cobra.Command{Use: "weakness", Short: "Weakness analytics"}
 	var min int
 	r := &cobra.Command{Use: "report", RunE: func(cmd *cobra.Command, args []string) error {
@@ -421,7 +431,7 @@ func questionTypeWeakness(db *sql.DB, min int) ([]WeaknessRow, error) {
 	return out, rows.Err()
 }
 
-func reviewCmd() *cobra.Command {
+func newReviewCmd() *cobra.Command {
 	cmd := &cobra.Command{Use: "review", Short: "Open LawHub review pages"}
 	var section, question int
 	var printURL bool
@@ -469,8 +479,10 @@ func openURL(url string) error {
 	}
 }
 
-func syncCmd() *cobra.Command {
+func newSyncCmd() *cobra.Command {
 	cmd := &cobra.Command{Use: "sync", Short: "Sync LawHub data"}
-	cmd.AddCommand(syncBrowserCmd(), syncHistoryCmd(), syncReportMetadataCmd())
+	cmd.AddCommand(newSyncBrowserCmd())
+	cmd.AddCommand(newSyncHistoryCmd())
+	cmd.AddCommand(newSyncReportMetadataCmd())
 	return cmd
 }
