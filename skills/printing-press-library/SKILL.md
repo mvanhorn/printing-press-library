@@ -10,8 +10,19 @@ tags:
   - agent-skill
   - tool-discovery
   - install
-version: 0.1.2
+version: 0.1.3
 metadata:
+  hermes:
+    tags:
+      - cli
+      - api-wrapper
+      - scraper
+      - data-source
+      - automation
+      - agent-skill
+      - tool-discovery
+      - install
+    category: software-development
   openclaw:
     emoji: "🖨️"
     homepage: https://github.com/mvanhorn/printing-press-library
