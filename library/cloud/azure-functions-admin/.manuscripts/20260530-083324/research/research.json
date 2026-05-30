@@ -1,0 +1,277 @@
+{
+  "api_name": "azure-functions-admin",
+  "novelty_score": 8,
+  "alternatives": [
+    {
+      "name": "azure-cli (az functionapp)",
+      "url": "https://github.com/Azure/azure-cli",
+      "language": "Python",
+      "install_method": "",
+      "stars": 4200,
+      "last_updated": "",
+      "command_count": 40,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "azure-mcp",
+      "url": "https://github.com/Azure/azure-mcp",
+      "language": "C#",
+      "install_method": "",
+      "stars": 1500,
+      "last_updated": "",
+      "command_count": 10,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "azure-sdk-for-go",
+      "url": "https://github.com/Azure/azure-sdk-for-go",
+      "language": "Go",
+      "install_method": "",
+      "stars": 1800,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "azure-functions-core-tools",
+      "url": "https://github.com/Azure/azure-functions-core-tools",
+      "language": "C#",
+      "install_method": "",
+      "stars": 2200,
+      "last_updated": "",
+      "command_count": 15,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-30T08:33:24Z",
+  "novel_features": [
+    {
+      "name": "Cold-start observatory",
+      "command": "coldstart",
+      "description": "See how often your functions cold-start and how slow those starts are, with the projected cost of moving to a Premium always-ready plan.",
+      "rationale": "Cold start is not a first-class Azure metric; it must be derived from Application Insights request gaps and new role-instance appearances over local time-series history that a stateless az call never accumulates.",
+      "example": "azure-functions-admin coldstart --app my-function-app --agent",
+      "why_it_matters": "Reach for this to answer 'are cold starts hurting us, and is Premium worth it' instead of guessing from anecdotes.",
+      "group": "Cold-start \u0026 plan-fit observatory"
+    },
+    {
+      "name": "Scaling \u0026 exec-drift trend",
+      "command": "scaling",
+      "description": "Track instance scale-out and execution-time drift for an app over a time window, flagging when p95 duration creeps above baseline.",
+      "rationale": "Requires persisted per-window history of invocations and instances that no single ARM or App Insights call returns at once.",
+      "example": "azure-functions-admin scaling --app my-function-app --window 7d --agent",
+      "why_it_matters": "Reach for this to catch a slow-degrading function before it pages you.",
+      "group": "Cold-start \u0026 plan-fit observatory"
+    },
+    {
+      "name": "Plan-fit recommendation",
+      "command": "plan-fit",
+      "description": "Per-app recommendation of Consumption vs Premium vs Dedicated across a resource group, based on invocation density, cold-start sensitivity, and duration.",
+      "rationale": "Joins hosting-plan tier, invocation history, and cold-start derivation across every app in a group — a multi-source correlation impossible in one stateless call.",
+      "example": "azure-functions-admin plan-fit --resource-group my-resource-group --agent",
+      "why_it_matters": "Reach for this when deciding how to host a fleet of functions cost-effectively.",
+      "group": "Cold-start \u0026 plan-fit observatory"
+    },
+    {
+      "name": "Config-drift detector",
+      "command": "drift",
+      "description": "Diff app settings across function apps and their deployment slots, flagging settings present in one environment but not another and plaintext values that should be Key Vault references.",
+      "rationale": "Cross-app and cross-slot comparison plus Key-Vault-reference classification needs the full local settings store, not a per-resource read.",
+      "example": "azure-functions-admin drift --resource-group my-resource-group --agent",
+      "why_it_matters": "Reach for this before a release to catch dev/prod config divergence.",
+      "group": "Config hygiene \u0026 secret hygiene"
+    },
+    {
+      "name": "Secret-sprawl audit",
+      "command": "secrets-audit",
+      "description": "Flag app settings holding raw secret values instead of @Microsoft.KeyVault references, plus stale or unused function keys.",
+      "rationale": "Separating 'secret in plaintext' from 'proper Key Vault reference' and correlating with key usage needs the joined settings+keys store.",
+      "example": "azure-functions-admin secrets-audit --app my-function-app --agent",
+      "why_it_matters": "Reach for this to find leaked secrets and tighten config hygiene.",
+      "group": "Config hygiene \u0026 secret hygiene"
+    },
+    {
+      "name": "Invocation failure clustering",
+      "command": "failures",
+      "description": "Cluster recent invocation failures by function and exception type from Application Insights over a time window.",
+      "rationale": "Clustering across a window of request/exception telemetry needs persisted local invocation history.",
+      "example": "azure-functions-admin failures --app my-function-app --since 24h --agent",
+      "why_it_matters": "Reach for this to triage which function and which exception is failing most.",
+      "group": "Operational triage"
+    },
+    {
+      "name": "Stale-function finder",
+      "command": "stale",
+      "description": "Find functions with zero invocations in the last N days as cleanup candidates.",
+      "rationale": "Knowing a function had zero invocations requires persisted invocation history; a live call only sees the present.",
+      "example": "azure-functions-admin stale --days 90 --agent",
+      "why_it_matters": "Reach for this to prune dead functions and shrink your attack surface.",
+      "group": "Operational triage"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Cold-start observatory",
+      "command": "coldstart",
+      "description": "See how often your functions cold-start and how slow those starts are, with the projected cost of moving to a Premium always-ready plan.",
+      "rationale": "Cold start is not a first-class Azure metric; it must be derived from Application Insights request gaps and new role-instance appearances over local time-series history that a stateless az call never accumulates.",
+      "example": "azure-functions-admin coldstart --app my-function-app --agent",
+      "why_it_matters": "Reach for this to answer 'are cold starts hurting us, and is Premium worth it' instead of guessing from anecdotes.",
+      "group": "Cold-start \u0026 plan-fit observatory"
+    },
+    {
+      "name": "Scaling \u0026 exec-drift trend",
+      "command": "scaling",
+      "description": "Track instance scale-out and execution-time drift for an app over a time window, flagging when p95 duration creeps above baseline.",
+      "rationale": "Requires persisted per-window history of invocations and instances that no single ARM or App Insights call returns at once.",
+      "example": "azure-functions-admin scaling --app my-function-app --window 7d --agent",
+      "why_it_matters": "Reach for this to catch a slow-degrading function before it pages you.",
+      "group": "Cold-start \u0026 plan-fit observatory"
+    },
+    {
+      "name": "Plan-fit recommendation",
+      "command": "plan-fit",
+      "description": "Per-app recommendation of Consumption vs Premium vs Dedicated across a resource group, based on invocation density, cold-start sensitivity, and duration.",
+      "rationale": "Joins hosting-plan tier, invocation history, and cold-start derivation across every app in a group — a multi-source correlation impossible in one stateless call.",
+      "example": "azure-functions-admin plan-fit --resource-group my-resource-group --agent",
+      "why_it_matters": "Reach for this when deciding how to host a fleet of functions cost-effectively.",
+      "group": "Cold-start \u0026 plan-fit observatory"
+    },
+    {
+      "name": "Config-drift detector",
+      "command": "drift",
+      "description": "Diff app settings across function apps and their deployment slots, flagging settings present in one environment but not another and plaintext values that should be Key Vault references.",
+      "rationale": "Cross-app and cross-slot comparison plus Key-Vault-reference classification needs the full local settings store, not a per-resource read.",
+      "example": "azure-functions-admin drift --resource-group my-resource-group --agent",
+      "why_it_matters": "Reach for this before a release to catch dev/prod config divergence.",
+      "group": "Config hygiene \u0026 secret hygiene"
+    },
+    {
+      "name": "Secret-sprawl audit",
+      "command": "secrets-audit",
+      "description": "Flag app settings holding raw secret values instead of @Microsoft.KeyVault references, plus stale or unused function keys.",
+      "rationale": "Separating 'secret in plaintext' from 'proper Key Vault reference' and correlating with key usage needs the joined settings+keys store.",
+      "example": "azure-functions-admin secrets-audit --app my-function-app --agent",
+      "why_it_matters": "Reach for this to find leaked secrets and tighten config hygiene.",
+      "group": "Config hygiene \u0026 secret hygiene"
+    },
+    {
+      "name": "Invocation failure clustering",
+      "command": "failures",
+      "description": "Cluster recent invocation failures by function and exception type from Application Insights over a time window.",
+      "rationale": "Clustering across a window of request/exception telemetry needs persisted local invocation history.",
+      "example": "azure-functions-admin failures --app my-function-app --since 24h --agent",
+      "why_it_matters": "Reach for this to triage which function and which exception is failing most.",
+      "group": "Operational triage"
+    },
+    {
+      "name": "Stale-function finder",
+      "command": "stale",
+      "description": "Find functions with zero invocations in the last N days as cleanup candidates.",
+      "rationale": "Knowing a function had zero invocations requires persisted invocation history; a live call only sees the present.",
+      "example": "azure-functions-admin stale --days 90 --agent",
+      "why_it_matters": "Reach for this to prune dead functions and shrink your attack surface.",
+      "group": "Operational triage"
+    }
+  ],
+  "narrative": {
+    "display_name": "Azure Functions",
+    "headline": "Inspect, audit, and right-size your Azure Functions from the terminal — cold-start trends, config drift, and plan-fit answers the portal and az don't give you.",
+    "value_prop": "Azure Functions runs your code on demand without you managing servers. This CLI is a read-only inspector for the Function Apps in your Azure subscription: it lists your apps and functions, reads their settings and keys, and pulls invocation history from Application Insights into a local database. That local history unlocks answers a stateless `az` command can't give — like how often your functions cold-start, whether you should move off the Consumption plan, and where plaintext secrets are hiding in your app settings. It does not deploy code (use `func` or `az functionapp` for that); it tells you what your functions are doing and how to improve them.",
+    "auth_narrative": "This CLI talks to Azure Resource Manager using a standard Azure credential, the same way the official tools do. The simplest setup for a newcomer:\n\n1. Have an Azure subscription with at least one Function App.\n2. Create a read-only service principal (run once, in the Azure Cloud Shell or after `az login`):\n   `az ad sp create-for-rbac --name azure-functions-admin --role Reader --scopes /subscriptions/\u003cyour-subscription-id\u003e`\n   That prints an `appId`, `password`, and `tenant`.\n3. Export them so the CLI can read them:\n   `export AZURE_TENANT_ID=\u003ctenant\u003e`\n   `export AZURE_CLIENT_ID=\u003cappId\u003e`\n   `export AZURE_CLIENT_SECRET=\u003cpassword\u003e`\n   `export AZURE_SUBSCRIPTION_ID=\u003cyour-subscription-id\u003e`\n4. Run `azure-functions-admin doctor` to confirm everything connects.\n\nThe `Reader` role is enough for every command except `keys`, which lists function/host keys — that needs the `Website Contributor` role (or a custom role granting `Microsoft.Web/sites/host/listkeys/action`). If you are already signed in with `az login`, the CLI will use that session automatically and you can skip the service principal.",
+    "quickstart": [
+      {
+        "command": "azure-functions-admin doctor --dry-run",
+        "comment": "Confirms the CLI is installed and shows what a health check will verify (no credentials needed)."
+      },
+      {
+        "command": "azure-functions-admin apps list",
+        "comment": "Lists every Function App in your subscription — your starting inventory."
+      },
+      {
+        "command": "azure-functions-admin sync",
+        "comment": "Pulls apps, functions, settings, and invocation history into the local database so analysis commands work offline and fast."
+      },
+      {
+        "command": "azure-functions-admin coldstart --app my-function-app --agent",
+        "comment": "The headline answer for one app: how often it cold-starts and how slow those starts are (swap in your app name)."
+      },
+      {
+        "command": "azure-functions-admin plan-fit --agent",
+        "comment": "Per-app Consumption-vs-Premium-vs-Dedicated recommendation across your whole subscription (add --resource-group to scope it)."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "doctor fails with 'no credential found'",
+        "fix": "Export AZURE_TENANT_ID, AZURE_CLIENT_ID, AZURE_CLIENT_SECRET, and AZURE_SUBSCRIPTION_ID, or run `az login` first."
+      },
+      {
+        "symptom": "apps list returns empty",
+        "fix": "Check AZURE_SUBSCRIPTION_ID is correct and the service principal has Reader granted at the subscription scope, not just one resource group."
+      },
+      {
+        "symptom": "keys returns HTTP 403",
+        "fix": "Listing keys needs the Website Contributor role: `az role assignment create --assignee \u003cappId\u003e --role 'Website Contributor' --scope /subscriptions/\u003cid\u003e`."
+      },
+      {
+        "symptom": "coldstart or metrics shows no data",
+        "fix": "The app must have Application Insights enabled (an APPLICATIONINSIGHTS_CONNECTION_STRING app setting). Without it, there is no invocation telemetry to analyze."
+      },
+      {
+        "symptom": "429 Too Many Requests",
+        "fix": "ARM throttles reads per subscription; the CLI backs off and retries automatically — re-run after a moment or narrow the resource group."
+      }
+    ],
+    "when_to_use": "Use this CLI when you need to understand or audit Azure Functions you already run: take inventory across a subscription, decide whether to move an app off the Consumption plan to kill cold starts, audit app settings for leaked secrets or dev/prod drift, or triage which function is failing. It is the right tool for read-only inspection and analysis, especially for agents and scripts that want JSON output and a local cache.",
+    "anti_triggers": [
+      "Deploying or publishing function code — use `func azure functionapp publish` or `az functionapp deployment`.",
+      "Creating, restarting, scaling, or deleting function apps — this CLI is read-only by design.",
+      "Changing app settings or rotating keys — use `az functionapp config appsettings set` / `az functionapp keys set`.",
+      "Building a new Functions project — use the Azure Functions Core Tools (`func init`)."
+    ],
+    "recipes": [
+      {
+        "title": "Cold-start check before a plan decision",
+        "command": "azure-functions-admin coldstart --app \u003capp\u003e --agent",
+        "explanation": "Returns cold-start frequency, p50/p95 cold-start latency, and the projected always-ready cost so you can decide on Premium with numbers, not vibes."
+      },
+      {
+        "title": "Audit a whole resource group for plan fit",
+        "command": "azure-functions-admin plan-fit --resource-group \u003crg\u003e --agent",
+        "explanation": "One call ranks every app's ideal plan from its real invocation density and cold-start sensitivity."
+      },
+      {
+        "title": "Find leaked secrets in app settings",
+        "command": "azure-functions-admin secrets-audit --app \u003capp\u003e --agent",
+        "explanation": "Flags settings holding raw secret values that should be @Microsoft.KeyVault references, plus unused keys."
+      },
+      {
+        "title": "Trim a verbose response for an agent",
+        "command": "azure-functions-admin apps list --agent --select value.name,value.location,value.kind,value.properties.state",
+        "explanation": "App-list responses are large and deeply nested; --select with dotted paths returns only the fields an agent needs, saving context."
+      },
+      {
+        "title": "Triage today's failures",
+        "command": "azure-functions-admin failures --app \u003capp\u003e --since 24h --agent",
+        "explanation": "Clusters the last day of invocation failures by function and exception type so you fix the biggest one first."
+      }
+    ],
+    "trigger_phrases": [
+      "check my azure functions",
+      "are my functions cold-starting",
+      "should I move off the consumption plan",
+      "audit my function app settings",
+      "find unused azure functions",
+      "use azure-functions-admin",
+      "run azure-functions-admin"
+    ]
+  }
+}
