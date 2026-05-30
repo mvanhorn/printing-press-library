@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "api_name": "restaurant365-odata",
+  "run_id": "20260530-231734",
+  "status": "pass",
+  "level": "quick",
+  "matrix_size": 17,
+  "tests_passed": 17,
+  "tests_skipped": 7,
+  "auth_context": {
+    "type": "basic",
+    "api_key_available": true
+  }
+}

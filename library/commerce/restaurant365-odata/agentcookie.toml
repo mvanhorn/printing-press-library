@@ -1,0 +1,17 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "restaurant365-odata-pp-cli"
+display_name = "Restaurant365 OData Connector"
+description = "Read-only Restaurant365 OData CLI for schema discovery, safe sampling, backfill planning, export, sync, and deleted-record checks."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/restaurant365-odata-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+RESTAURANT365_ODATA_PASSWORD = true
+RESTAURANT365_ODATA_USERNAME = false
