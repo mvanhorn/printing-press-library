@@ -195,7 +195,11 @@ were silently cancelled or never dispatched.`,
 						for _, key := range []string{"LineRef", "lineRef"} {
 							if v, ok := j[key].(string); ok {
 								parts := strings.Split(v, ":")
-								if strings.ToUpper(parts[len(parts)-1]) == sn {
+								linePart := parts[len(parts)-1]
+								if len(parts) >= 4 {
+									linePart = parts[len(parts)-2]
+								}
+								if strings.ToUpper(linePart) == sn {
 									count++
 								}
 							}
