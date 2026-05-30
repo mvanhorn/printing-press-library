@@ -664,13 +664,20 @@ func (s *Store) Get(resourceType, id string) (json.RawMessage, error) {
 }
 
 func (s *Store) List(resourceType string, limit int) ([]json.RawMessage, error) {
-	if limit <= 0 {
-		limit = 200
+	// PATCH(analytics-read-cap): a non-positive limit returns every synced row.
+	// Callers pass 0 meaning "all synced data" (see data_source.go and the
+	// analytics loaders in splitwise_data.go). The previous `limit = 200`
+	// default silently truncated those reads to an arbitrary ~200 of N rows,
+	// ordered by sync time, which dropped expenses from spend/debts/ledger/
+	// balances even when the local store was complete. A positive limit still
+	// caps the result for callers that genuinely want a bounded page.
+	query := `SELECT data FROM resources WHERE resource_type = ? ORDER BY updated_at DESC`
+	args := []any{resourceType}
+	if limit > 0 {
+		query += ` LIMIT ?`
+		args = append(args, limit)
 	}
-	rows, err := s.db.Query(
-		`SELECT data FROM resources WHERE resource_type = ? ORDER BY updated_at DESC LIMIT ?`,
-		resourceType, limit,
-	)
+	rows, err := s.db.Query(query, args...)
 	if err != nil {
 		return nil, err
 	}
