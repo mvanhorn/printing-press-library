@@ -70,3 +70,33 @@ func TestRunAuditSingletonNotDuplicate(t *testing.T) {
 		t.Fatalf("duplicates len = %d, want 0", len(res.Duplicates))
 	}
 }
+
+func TestDetectDuplicateClustersCurrencyIsolation(t *testing.T) {
+	expenses := []Expense{
+		{ID: 1, GroupID: 42, Description: "Team lunch", Cost: "50.00", CurrencyCode: "USD", Date: "2026-05-20T10:00:00Z"},
+		{ID: 2, GroupID: 42, Description: "team   lunch", Cost: "50.00", CurrencyCode: "EUR", Date: "2026-05-20T19:00:00Z"},
+	}
+
+	clusters := detectDuplicateClusters(expenses)
+	if len(clusters) != 0 {
+		t.Fatalf("clusters len = %d, want 0 for mixed currency", len(clusters))
+	}
+}
+
+func TestDetectDuplicateClustersSameCurrencyStillClusters(t *testing.T) {
+	expenses := []Expense{
+		{ID: 10, GroupID: 42, Description: "Team lunch", Cost: "50.00", CurrencyCode: "USD", Date: "2026-05-20T10:00:00Z"},
+		{ID: 11, GroupID: 42, Description: "team   lunch", Cost: "50.00", CurrencyCode: "USD", Date: "2026-05-20T19:00:00Z"},
+	}
+
+	clusters := detectDuplicateClusters(expenses)
+	if len(clusters) != 1 {
+		t.Fatalf("clusters len = %d, want 1", len(clusters))
+	}
+	if clusters[0].CurrencyCode != "USD" {
+		t.Fatalf("cluster currency = %q, want USD", clusters[0].CurrencyCode)
+	}
+	if clusters[0].Count != 2 {
+		t.Fatalf("cluster count = %d, want 2", clusters[0].Count)
+	}
+}
