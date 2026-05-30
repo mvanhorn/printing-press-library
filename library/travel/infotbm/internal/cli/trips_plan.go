@@ -112,14 +112,15 @@ included in the output.`,
 			extractVehicleJourneys(data, &journeys)
 
 			type journeyOption struct {
-				Line          string   `json:"line"`
-				DepartureTime string   `json:"departure_time"`
-				ArrivalTime   string   `json:"arrival_time,omitempty"`
-				Duration      string   `json:"duration,omitempty"`
-				StopCount     int      `json:"stop_count"`
-				FromStop      string   `json:"from_stop"`
-				ToStop        string   `json:"to_stop"`
-				Disruptions   []string `json:"disruptions"`
+				Line          string    `json:"line"`
+				DepartureTime string    `json:"departure_time"`
+				ArrivalTime   string    `json:"arrival_time,omitempty"`
+				Duration      string    `json:"duration,omitempty"`
+				StopCount     int       `json:"stop_count"`
+				FromStop      string    `json:"from_stop"`
+				ToStop        string    `json:"to_stop"`
+				Disruptions   []string  `json:"disruptions"`
+				depTimeVal    time.Time `json:"-"`
 			}
 
 			options := make([]journeyOption, 0)
@@ -172,10 +173,11 @@ included in the output.`,
 				}
 
 				opt := journeyOption{
-					Line:      lineName,
-					FromStop:  flagFrom,
-					ToStop:    flagTo,
-					StopCount: toIdx - fromIdx,
+					Line:       lineName,
+					FromStop:   flagFrom,
+					ToStop:     flagTo,
+					StopCount:  toIdx - fromIdx,
+					depTimeVal: depTime,
 				}
 				if !depTime.IsZero() {
 					opt.DepartureTime = depTime.Format(time.RFC3339)
@@ -210,7 +212,7 @@ included in the output.`,
 
 			// Sort by departure time
 			sort.Slice(options, func(i, j int) bool {
-				return options[i].DepartureTime < options[j].DepartureTime
+				return options[i].depTimeVal.Before(options[j].depTimeVal)
 			})
 
 			// Limit to top 5 options
