@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-29T20:45:43.32247Z",
+  "printing_press_version": "4.18.1",
+  "api_name": "azure-functions-admin",
+  "display_name": "Azure Functions",
+  "cli_name": "azure-functions-admin-pp-cli",
+  "owner": "dhilip-subramanian",
+  "printer": "sdhilip200",
+  "printer_name": "Dhilip Subramanian",
+  "spec_path": "azure-functions-admin-spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:f49eb556e716b58ffa7628fdb132e01b1dc15004f378ccd05251308f4eb47c01",
+  "run_id": "20260530-083324",
+  "category": "cloud",
+  "description": "Inspect, audit, and right-size your Azure Functions from the terminal — cold-start trends, config drift, and plan-fit answers the portal and az don't give you.",
+  "mcp_binary": "azure-functions-admin-pp-mcp",
+  "mcp_tool_count": 7,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "AZURE_TENANT_ID",
+    "AZURE_CLIENT_ID",
+    "AZURE_CLIENT_SECRET",
+    "AZURE_SUBSCRIPTION_ID"
+  ],
+  "novel_features": [
+    {
+      "name": "Cold-start observatory",
+      "command": "coldstart",
+      "description": "See how often your functions cold-start and how slow those starts are, with the projected cost of moving to a Premium always-ready plan."
+    },
+    {
+      "name": "Scaling \u0026 exec-drift trend",
+      "command": "scaling",
+      "description": "Track instance scale-out and execution-time drift for an app over a time window, flagging when p95 duration creeps above baseline."
+    },
+    {
+      "name": "Plan-fit recommendation",
+      "command": "plan-fit",
+      "description": "Per-app recommendation of Consumption vs Premium vs Dedicated across a resource group, based on invocation density, cold-start sensitivity, and duration."
+    },
+    {
+      "name": "Config-drift detector",
+      "command": "drift",
+      "description": "Diff app settings across function apps and their deployment slots, flagging settings present in one environment but not another and plaintext values that should be Key Vault references."
+    },
+    {
+      "name": "Secret-sprawl audit",
+      "command": "secrets-audit",
+      "description": "Flag app settings holding raw secret values instead of @Microsoft.KeyVault references, plus stale or unused function keys."
+    },
+    {
+      "name": "Invocation failure clustering",
+      "command": "failures",
+      "description": "Cluster recent invocation failures by function and exception type from Application Insights over a time window."
+    },
+    {
+      "name": "Stale-function finder",
+      "command": "stale",
+      "description": "Find functions with zero invocations in the last N days as cleanup candidates."
+    }
+  ]
+}

@@ -1,0 +1,51 @@
+version: 2
+project_name: azure-functions-admin-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: azure-functions-admin-pp-cli
+    main: ./cmd/azure-functions-admin-pp-cli
+    binary: azure-functions-admin-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/cloud/azure-functions-admin/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: azure-functions-admin-pp-mcp
+    main: ./cmd/azure-functions-admin-pp-mcp
+    binary: azure-functions-admin-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: azure-functions-admin-pp-cli
+    repository:
+      owner: dhilip-subramanian
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Inspect, audit, and right-size your Azure Functions from the terminal — cold-start trends, config drift"
+    install: |
+      bin.install "azure-functions-admin-pp-cli"
+      bin.install "azure-functions-admin-pp-mcp"

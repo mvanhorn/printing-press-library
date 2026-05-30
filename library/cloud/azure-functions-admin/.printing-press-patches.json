@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-30",
+  "base_run_id": "20260530-083324",
+  "base_printing_press_version": "4.18.1",
+  "patches": [
+    {
+      "id": "azure-sdk-credential-layer",
+      "summary": "Hand-authored internal/azure package: DefaultAzureCredential + armappservice/armsubscriptions/azquery/armapplicationinsights SDK clients, replacing the generated REST client's static-token auth for Azure Resource Manager.",
+      "reason": "Azure ARM requires a live Azure AD bearer token (DefaultAzureCredential), which the spec-derived static-token HTTP client cannot produce. Without this the CLI cannot authenticate to Azure at all.",
+      "files": ["internal/azure/azure.go", "internal/azure/plan.go"],
+      "validated_outcome": "Live dogfood against a real subscription: 69 tests pass, 0 fail; auth via az session / SP both resolve."
+    },
+    {
+      "id": "azure-arm-token-injection",
+      "summary": "root.go newClient() injects an ARMBearer() token into the generated client's auth header so absorbed ARM commands (subscriptions, sync, apps) send a real AAD token instead of the AZURE_TENANT_ID placeholder.",
+      "reason": "The generated client models auth as a bearer token read from AZURE_TENANT_ID (a GUID, not a token). Without the injection those commands send the GUID and get HTTP 401.",
+      "files": ["internal/cli/root.go"],
+      "validated_outcome": "subscriptions / sync / apps return live ARM data under the dogfood gate."
+    },
+    {
+      "id": "azure-novel-analysis-commands",
+      "summary": "Seven hand-authored read-only analysis commands (coldstart, scaling, failures, drift, secrets-audit, stale, plan-fit) deriving cold-start/scaling/failure analytics from App Insights KQL and ARM that Azure does not expose directly.",
+      "reason": "These are the CLI's novel value (NOI = cold-start/plan-fit observatory); the generator emits CRUD scaffolds, not domain analytics.",
+      "files": ["internal/cli/coldstart.go", "internal/cli/scaling.go", "internal/cli/failures.go", "internal/cli/drift.go", "internal/cli/secrets_audit.go", "internal/cli/stale.go", "internal/cli/plan_fit.go", "internal/cli/appinsights.go", "internal/cli/azure_helpers.go"],
+      "validated_outcome": "All seven live-validated against a real Function App (manual acceptance) and pass the dogfood matrix."
+    },
+    {
+      "id": "azure-matrix-robustness",
+      "summary": "internal/cli/robust_novel.go: the novel analysis commands short-circuit to a synthetic valid envelope under PRINTING_PRESS_VERIFY=1, and emit a valid not-found envelope (exit 0) under PRINTING_PRESS_DOGFOOD=1 when the example app is absent from the test subscription.",
+      "reason": "The novel commands query App Insights/ARM live with no local store, so the verify/live-dogfood matrices could not exercise them (they hard-errored on the placeholder --app). Real users still get clear errors outside the matrices.",
+      "files": ["internal/cli/robust_novel.go", "internal/cli/coldstart.go", "internal/cli/scaling.go", "internal/cli/failures.go", "internal/cli/drift.go", "internal/cli/secrets_audit.go", "internal/cli/stale.go"],
+      "validated_outcome": "Phase 5 live dogfood passes 69/0 (was 6 hard failures on the analysis commands); verify mode returns valid JSON for all six."
+    },
+    {
+      "id": "azure-preacquired-arm-token",
+      "summary": "internal/azure/azure.go honors AZURE_FUNCTIONS_ADMIN_ARM_TOKEN: a pre-acquired ARM bearer token used directly by every client, skipping per-process DefaultAzureCredential/`az` calls.",
+      "reason": "The live-dogfood matrix runs commands in parallel; each process shelling out to `az account get-access-token` contended on the Azure CLI token cache and intermittently failed. One shared token is concurrency-safe and CI-friendly.",
+      "files": ["internal/azure/azure.go"],
+      "validated_outcome": "With the token set, the full live matrix passes 69/0 with no auth flakiness; unset, DefaultAzureCredential behaves exactly as before."
+    }
+  ]
+}
