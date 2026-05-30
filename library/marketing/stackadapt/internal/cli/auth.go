@@ -113,14 +113,12 @@ func newAuthSetTokenCmd(flags *rootFlags) *cobra.Command {
 				return configErr(err)
 			}
 
-			// Clear any legacy auth_header so AuthHeader() falls through to
-			// the newly-saved credential. Without this, a pre-existing
-			// auth_header value (common after regenerate) shadows the saved
-			// token and set-token silently has no effect. Silent clear (no
-			// log line): a masked-tail variant could leak token bytes through
-			// scripted dogfood that captures stderr.
-			cfg.AuthHeaderVal = ""
-			if err := cfg.SaveTokens("", "", args[0], "", cfg.TokenExpiry); err != nil {
+			// Persist into api_token (cfg.StackadaptApiToken) — the field
+			// saClient reads. The generated SaveTokens would store into
+			// access_token and clear api_token, leaving every API command
+			// failing with "no StackAdapt token". SaveAPIToken also clears any
+			// legacy auth_header that would otherwise shadow the saved token.
+			if err := cfg.SaveAPIToken(args[0]); err != nil {
 				return configErr(fmt.Errorf("saving token: %w", err))
 			}
 

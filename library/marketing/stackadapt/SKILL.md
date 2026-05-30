@@ -94,7 +94,7 @@ These capabilities aren't available in any other tool for this API.
 
 **Offline store** — mirror objects locally, then search and query without API calls
 
-- `stackadapt-pp-cli sync --full` — Pull advertisers, campaigns, campaign-groups, ads, and segments into a local SQLite store (`--resources a,b` to scope, `--limit N` per resource).
+- `stackadapt-pp-cli sync` — Pull advertisers, campaigns, campaign-groups, ads, and segments into a local SQLite store (`--resources a,b` to scope, `--limit N` per resource).
 - `stackadapt-pp-cli search "<term>"` — Substring-search synced objects by name or any field offline (`--type <resource>` to scope).
 - `stackadapt-pp-cli sql "<SELECT ...>"` — Run a read-only SQL query against the store's `resources` table (resource_type, id, name, data JSON, synced_at). Mutating statements are rejected.
 - Any list command accepts `--data-source local` (store only) or `--data-source auto` (live, store fallback when the API is unreachable).

@@ -1108,8 +1108,7 @@
       "command": "sync",
       "kind": "happy_path",
       "args": [
-        "sync",
-        "--full"
+        "sync"
       ],
       "status": "pass",
       "output_sample": "[redacted: live client response omitted from public manuscript]"
@@ -1119,7 +1118,6 @@
       "kind": "json_fidelity",
       "args": [
         "sync",
-        "--full",
         "--json"
       ],
       "status": "pass",
@@ -1168,5 +1166,5 @@
       "output_sample": "[redacted: live client response omitted from public manuscript]"
     }
   ],
-  "ran_at": "2026-05-30T10:15:03.708904Z"
+  "ran_at": "2026-05-30T10:47:39.884235Z"
 }

@@ -84,7 +84,14 @@ func (c *Client) Query(ctx context.Context, query string, variables map[string]a
 		switch {
 		case resp.StatusCode == http.StatusTooManyRequests:
 			if attempt == 0 {
-				time.Sleep(2 * time.Second)
+				// Context-aware backoff: a cancelled context (--timeout
+				// deadline, Ctrl+C, agent session cut) must abort the wait
+				// immediately instead of blocking the full 2s.
+				select {
+				case <-ctx.Done():
+					return nil, ctx.Err()
+				case <-time.After(2 * time.Second):
+				}
 				continue
 			}
 			return nil, fmt.Errorf("StackAdapt rate limit (HTTP 429): retry after a moment or narrow the date window")

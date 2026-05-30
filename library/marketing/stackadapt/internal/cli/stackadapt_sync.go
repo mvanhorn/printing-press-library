@@ -66,7 +66,6 @@ func saSyncClient(flags *rootFlags) (*sagraphql.Client, error) {
 }
 
 func newSyncCmd(flags *rootFlags) *cobra.Command {
-	var full bool
 	var resourcesCSV string
 	var limit int
 
@@ -82,9 +81,9 @@ The store lives at ~/.local/share/stackadapt-pp-cli/data.db (override with the
 STACKADAPT_DB environment variable). Re-running sync refreshes every object in
 place.`, "\n"),
 		Example: strings.Trim(`
-  stackadapt-pp-cli sync --full
+  stackadapt-pp-cli sync
   stackadapt-pp-cli sync --resources advertisers,campaigns
-  STACKADAPT_DB=/tmp/sa.db stackadapt-pp-cli sync --full`, "\n"),
+  STACKADAPT_DB=/tmp/sa.db stackadapt-pp-cli sync --limit 1000`, "\n"),
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			selected, err := selectSyncResources(resourcesCSV)
@@ -148,7 +147,6 @@ place.`, "\n"),
 			return nil
 		},
 	}
-	cmd.Flags().BoolVar(&full, "full", false, "Refresh every selected resource (full re-sync)")
 	cmd.Flags().StringVar(&resourcesCSV, "resources", "", "Comma-separated resources to sync (default: all). One of: advertisers, campaigns, campaign-groups, ads, segments")
 	cmd.Flags().IntVar(&limit, "limit", 500, "Maximum objects to pull per resource")
 	return cmd

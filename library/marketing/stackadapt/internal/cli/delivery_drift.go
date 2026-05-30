@@ -10,22 +10,36 @@ import (
 )
 
 type driftRow struct {
-	Campaign      string  `json:"campaign"`
-	Name          string  `json:"name"`
-	SpendCurrent  float64 `json:"spend_current"`
-	SpendPrior    float64 `json:"spend_prior"`
-	SpendDeltaPct float64 `json:"spend_delta_pct"`
-	CtrCurrent    float64 `json:"ctr_current"`
-	CtrPrior      float64 `json:"ctr_prior"`
-	CtrDeltaPct   float64 `json:"ctr_delta_pct"`
-	Flag          string  `json:"flag,omitempty"`
+	Campaign      string   `json:"campaign"`
+	Name          string   `json:"name"`
+	SpendCurrent  float64  `json:"spend_current"`
+	SpendPrior    float64  `json:"spend_prior"`
+	SpendDeltaPct *float64 `json:"spend_delta_pct"`
+	CtrCurrent    float64  `json:"ctr_current"`
+	CtrPrior      float64  `json:"ctr_prior"`
+	CtrDeltaPct   *float64 `json:"ctr_delta_pct"`
+	Flag          string   `json:"flag,omitempty"`
 }
 
-func pctDelta(cur, prior float64) float64 {
+// pctDelta returns the percent change from prior to cur, or nil when prior is
+// zero (a new or reactivated campaign with no prior-window baseline). A nil
+// result renders as JSON null, distinguishing "no prior data" from a genuine
+// 0% change so new launches aren't silently flattened.
+func pctDelta(cur, prior float64) *float64 {
 	if prior == 0 {
-		return 0
+		return nil
 	}
-	return math.Round((cur-prior)/prior*1000) / 10
+	v := math.Round((cur-prior)/prior*1000) / 10
+	return &v
+}
+
+// ctrDriftKey is the sort key for delivery drift: the CTR delta, or +Inf when
+// there's no prior baseline so those rows sort after the real drops.
+func ctrDriftKey(r driftRow) float64 {
+	if r.CtrDeltaPct == nil {
+		return math.Inf(1)
+	}
+	return *r.CtrDeltaPct
 }
 
 func newNovelDeliveryDriftCmd(flags *rootFlags) *cobra.Command {
@@ -84,13 +98,13 @@ func newNovelDeliveryDriftCmd(flags *rootFlags) *cobra.Command {
 					CtrPrior:      p.Metrics["ctr"],
 					CtrDeltaPct:   pctDelta(c.Metrics["ctr"], p.Metrics["ctr"]),
 				}
-				if row.CtrPrior > 0 && row.CtrDeltaPct <= -20 {
+				if row.CtrPrior > 0 && row.CtrDeltaPct != nil && *row.CtrDeltaPct <= -20 {
 					row.Flag = "CTR down >20% vs prior window"
 				}
 				rows = append(rows, row)
 			}
-			// Largest CTR drop first.
-			sort.SliceStable(rows, func(i, j int) bool { return rows[i].CtrDeltaPct < rows[j].CtrDeltaPct })
+			// Largest CTR drop first; rows with no prior baseline (nil) sort last.
+			sort.SliceStable(rows, func(i, j int) bool { return ctrDriftKey(rows[i]) < ctrDriftKey(rows[j]) })
 
 			return emitView(cmd, flags, map[string]any{
 				"current_window": fmt.Sprintf("%s..%s", cf, ct),

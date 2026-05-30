@@ -17,6 +17,7 @@ type staleRow struct {
 
 func newNovelStaleCampaignsCmd(flags *rootFlags) *cobra.Command {
 	var days int
+	var limit int
 
 	cmd := &cobra.Command{
 		Use:   "stale-campaigns",
@@ -46,7 +47,7 @@ func newNovelStaleCampaignsCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			data, err := runQuery(cmd.Context(), flags,
-				`query{ campaigns(first:500, filterBy:{archived:false}){ nodes { id name campaignStatus { state status } } } }`, nil)
+				fmt.Sprintf(`query{ campaigns(first:%d, filterBy:{archived:false}){ nodes { id name campaignStatus { state status } } } }`, limit), nil)
 			if err != nil {
 				return err
 			}
@@ -84,5 +85,6 @@ func newNovelStaleCampaignsCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	cmd.Flags().IntVar(&days, "days", 14, "Days of delivery history to consider")
+	cmd.Flags().IntVar(&limit, "limit", 500, "Max non-archived campaigns to scan (raise for accounts with >500 campaigns)")
 	return cmd
 }

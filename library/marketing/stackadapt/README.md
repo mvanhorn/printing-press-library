@@ -149,7 +149,7 @@ trip.
 
 ```bash
 # Pull every object into the local store (advertisers, campaigns, groups, ads, segments).
-stackadapt-pp-cli sync --full
+stackadapt-pp-cli sync
 
 # Sync just what you need.
 stackadapt-pp-cli sync --resources advertisers,campaigns

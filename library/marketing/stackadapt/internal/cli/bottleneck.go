@@ -28,7 +28,7 @@ func bottleneckReason(r bottleneckRow) string {
 	case r.Roas >= 0 && r.Roas < 2:
 		return "low ROAS for the spend level"
 	default:
-		return "high spend; review efficiency"
+		return "ROAS >= 2; healthy return, listed for spend context only"
 	}
 }
 
