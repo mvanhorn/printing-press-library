@@ -1678,6 +1678,13 @@ type DataProvenance struct {
 	Reason       string     `json:"reason,omitempty"`        // why local was used: "user_requested", "api_unreachable", "no_search_endpoint"
 	ResourceType string     `json:"resource_type,omitempty"` // which resource type was queried
 	Freshness    any        `json:"freshness,omitempty"`     // optional machine-owned freshness metadata for covered command paths
+	// PATCH(local-unscoped-meta): local reads return ALL synced rows; endpoint
+	// filters (friend_id, group_id, dated_after, …) are NOT applied to the cache.
+	// Unscoped surfaces that in-band so agents parsing JSON (who never see the
+	// stderr warning) know the result is unfiltered. UnappliedParams names the
+	// dropped filter keys so a caller can re-issue against --data-source live.
+	Unscoped        bool     `json:"unscoped,omitempty"`
+	UnappliedParams []string `json:"unapplied_params,omitempty"`
 }
 
 // printProvenance writes a one-line provenance message to stderr for TTY users.
@@ -1770,6 +1777,12 @@ func wrapWithProvenance(data json.RawMessage, prov DataProvenance) (json.RawMess
 	}
 	if prov.Freshness != nil {
 		meta["freshness"] = prov.Freshness
+	}
+	if prov.Unscoped {
+		meta["unscoped"] = true
+	}
+	if len(prov.UnappliedParams) > 0 {
+		meta["unapplied_params"] = prov.UnappliedParams
 	}
 	var results any
 	if json.Valid(data) {

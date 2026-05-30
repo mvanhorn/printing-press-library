@@ -14,6 +14,7 @@ import (
 	"net"
 	"net/url"
 	"os"
+	"sort"
 	"strings"
 	"time"
 
@@ -22,6 +23,35 @@ import (
 )
 
 const networkFallbackReason = "api_unreachable"
+
+// paginationParamNames are query params that page a result set rather than
+// filter its content. Local reads ignore them (they return all synced rows), so
+// they must not count toward the "unscoped" provenance signal — otherwise every
+// local read would report itself unfiltered because limit/offset carry defaults.
+var paginationParamNames = map[string]bool{
+	"limit":    true,
+	"offset":   true,
+	"cursor":   true,
+	"page":     true,
+	"per_page": true,
+}
+
+// droppedFilterParams returns the sorted set of content-filter params that a
+// local read cannot honor against the cache: those with a non-empty value that
+// are not pure pagination. Unset flags arrive as "" and limit/offset carry
+// defaults, so this deliberately excludes both — otherwise every local read
+// would report itself unscoped and the signal would be meaningless.
+func droppedFilterParams(params map[string]string) []string {
+	dropped := make([]string, 0, len(params))
+	for k, v := range params {
+		if strings.TrimSpace(v) == "" || paginationParamNames[k] {
+			continue
+		}
+		dropped = append(dropped, k)
+	}
+	sort.Strings(dropped)
+	return dropped
+}
 
 func unsupportedDataSourceError(strategy, requested string) error {
 	switch strategy {
@@ -563,9 +593,14 @@ func resolveLocal(ctx context.Context, flags *rootFlags, hintWriter io.Writer, r
 
 	prov := localProvenance(db, resourceType, reason)
 
-	// Warn if endpoint had filters that local reads can't reproduce
-	if len(params) > 0 {
-		fmt.Fprintf(os.Stderr, "warning: local data is unfiltered — endpoint filters are not applied to cached data\n")
+	// Local reads return ALL synced rows; endpoint filters are not applied to
+	// the cache. Surface that both on stderr (for TTY users) and in the
+	// provenance (so JSON/agent consumers, who never see stderr, get an in-band
+	// signal).
+	if dropped := droppedFilterParams(params); len(dropped) > 0 {
+		prov.Unscoped = true
+		prov.UnappliedParams = dropped
+		fmt.Fprintf(os.Stderr, "warning: local data is unfiltered — filters (%s) are not applied to cached data; re-run with --data-source live to apply them\n", strings.Join(dropped, ", "))
 	}
 
 	if isList {
