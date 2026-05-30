@@ -1,6 +1,6 @@
 # Splitwise CLI
 
-**Every Splitwise feature, plus an offline SQLite ledger that powers balance, debt-aging, spend analytics, and full-text search no other Splitwise tool has.**
+**Every Splitwise feature, plus an offline SQLite ledger that powers balance, debt-aging, spend analytics, and word-boundary search (optional fuzzy) no other Splitwise tool has.**
 
 splitwise-pp-cli wraps the full Splitwise API — expenses, groups, friends, comments, settle-ups — and keeps a local copy of your whole ledger. That local store powers a net `balances` view, `debts --aged` (who never pays you back), `spend` rollups by category or month, offline `search`, a group `ledger` with running balances, and a `settle-up` plan that minimizes transfers. Fuzzy name resolution means you never paste a numeric ID.
 
@@ -163,7 +163,7 @@ These capabilities aren't available in any other tool for this API.
   ```bash
   splitwise-pp-cli spend --group-by category --agent
   ```
-- **`search`** — Full-text search across your entire expense history, comments, and group/friend names — offline.
+- **`search`** — Word-boundary search (optional fuzzy) across your entire expense history, comments, and group/friend names — offline.
 
   _Use to find a specific past expense by keyword without paging the API._
 
@@ -226,7 +226,7 @@ get-groups returns deeply nested members + balance arrays; --select keeps only t
 splitwise-pp-cli search "airbnb" --limit 10
 ```
 
-Full-text search across your synced expense history for a keyword.
+Word-boundary search (optional fuzzy) across your synced expense history for a keyword.
 
 ### Plan the fewest transfers to settle a trip
 

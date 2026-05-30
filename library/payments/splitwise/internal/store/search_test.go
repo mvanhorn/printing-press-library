@@ -203,6 +203,63 @@ func TestSearchExactMatchesHyphenatedWords(t *testing.T) {
 	}
 }
 
+func TestSearchKeepsDescriptionWithAtSymbol(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+	s, err := Open(dbPath)
+	if err != nil {
+		t.Fatalf("open: %v", err)
+	}
+	defer s.Close()
+
+	items := []json.RawMessage{
+		json.RawMessage(`{"id":"e1","description":"dinner @ alice's"}`),
+	}
+	if _, _, err := s.UpsertBatch("expenses", items); err != nil {
+		t.Fatalf("UpsertBatch: %v", err)
+	}
+
+	got, err := s.Search("dinner", "", 50, false)
+	if err != nil {
+		t.Fatalf("Search(dinner): %v", err)
+	}
+	if len(got) != 1 {
+		t.Fatalf("Search(dinner) returned %d results, want 1", len(got))
+	}
+}
+
+func TestSearchDropsStandaloneEmailAndURLValues(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+	s, err := Open(dbPath)
+	if err != nil {
+		t.Fatalf("open: %v", err)
+	}
+	defer s.Close()
+
+	items := []json.RawMessage{
+		json.RawMessage(`{"id":"u1","email":"bob@example.com"}`),
+		json.RawMessage(`{"id":"e1","receipt":"https://x.test/y"}`),
+	}
+	if _, _, err := s.UpsertBatch("records", items); err != nil {
+		t.Fatalf("UpsertBatch: %v", err)
+	}
+
+	httpResults, err := s.Search("http", "", 50, false)
+	if err != nil {
+		t.Fatalf("Search(http): %v", err)
+	}
+	if len(httpResults) != 0 {
+		t.Fatalf("Search(http) returned %d results, want 0", len(httpResults))
+	}
+
+	exampleResults, err := s.Search("example", "", 50, false)
+	if err != nil {
+		t.Fatalf("Search(example): %v", err)
+	}
+	if len(exampleResults) != 0 {
+		t.Fatalf("Search(example) returned %d results, want 0", len(exampleResults))
+	}
+}
+
 func TestSearchFuzzySushiTypo(t *testing.T) {
 	dbPath := filepath.Join(t.TempDir(), "data.db")
 	s, err := Open(dbPath)

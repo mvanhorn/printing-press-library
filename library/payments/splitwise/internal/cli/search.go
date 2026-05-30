@@ -87,9 +87,12 @@ func newSearchCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "search <query>",
-		Short: "Full-text search across synced data or live API",
-		Long: `Search data using FTS5 full-text search on locally synced data,
-or hit the API's search endpoint when available.
+		Short: "Search synced data by whole-word text with optional fuzzy matching",
+		Long: `Search meaningful text in locally synced data (for example descriptions,
+member/group names, and categories) using whole-word matching, or hit the
+API's search endpoint when available.
+
+Use --fuzzy for typo-tolerant matching and --type to scope to one resource type.
 
 In auto mode (default): uses the API search endpoint if the API has one,
 otherwise searches local data. Falls back to local on network failure.

@@ -29,6 +29,7 @@ import (
 )
 
 var uuidPattern = regexp.MustCompile(`^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$`)
+var emailLikeRe = regexp.MustCompile(`^[^@\s]+@[^@\s]+\.[^@\s]+$`)
 
 // validIdentifierRE pins ListField's `field` argument to a safe SQL
 // identifier shape before any Sprintf interpolation. Matches what
@@ -734,7 +735,10 @@ func isMeaningfulSearchText(s string) bool {
 	if lower == "true" || lower == "false" || lower == "null" {
 		return false
 	}
-	if strings.Contains(trimmed, "://") || strings.Contains(trimmed, "@") {
+	if strings.HasPrefix(lower, "http://") || strings.HasPrefix(lower, "https://") {
+		return false
+	}
+	if !strings.ContainsAny(trimmed, " \t\r\n") && emailLikeRe.MatchString(trimmed) {
 		return false
 	}
 	if len(trimmed) == 3 {
