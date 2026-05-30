@@ -19,11 +19,14 @@ jobs:
       - name: Checkout library
         uses: actions/checkout@v6
         with:
-          fetch-depth: 2
+          fetch-depth: 0
 
       - name: Check whether discovery skill changed
         id: changes
         shell: bash
+        env:
+          BEFORE_SHA: ${{ github.event.before }}
+          AFTER_SHA: ${{ github.sha }}
         run: |
           set -euo pipefail
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
@@ -31,7 +34,12 @@ jobs:
             exit 0
           fi
 
-          if git rev-parse HEAD^ >/dev/null 2>&1 && git diff --quiet HEAD^ HEAD -- skills/printing-press-library; then
+          if [ -z "${BEFORE_SHA:-}" ] || [[ "$BEFORE_SHA" =~ ^0+$ ]]; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          if git diff --quiet "$BEFORE_SHA" "$AFTER_SHA" -- skills/printing-press-library; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
           else
             echo "changed=true" >> "$GITHUB_OUTPUT"
@@ -127,18 +135,35 @@ jobs:
 
           target = os.environ["VERSION"]
           raw = Path("/tmp/clawhub-existing.json").read_text(encoding="utf-8")
-          # clawhub may print progress lines before the JSON object; strip them.
-          start = raw.find("{")
-          if start == -1:
+          # clawhub may print progress lines before the JSON payload; strip them.
+          starts = [idx for idx in (raw.find("{"), raw.find("[")) if idx != -1]
+          if not starts:
               print("::error::clawhub inspect did not return JSON", file=sys.stderr)
               print(raw, file=sys.stderr)
               sys.exit(1)
-          data = json.loads(raw[start:])
-          versions = [item.get("version") for item in data.get("versions") or []]
-          if target in versions:
+
+          payload = raw[min(starts):]
+          try:
+              data = json.loads(payload)
+          except json.JSONDecodeError as exc:
+              print(f"::error::Could not parse clawhub inspect JSON: {exc}", file=sys.stderr)
+              print(payload, file=sys.stderr)
+              sys.exit(1)
+
+          if isinstance(data, dict):
+              version_items = data.get("versions") or []
+          elif isinstance(data, list):
+              version_items = data
+          else:
+              print(f"::error::Unexpected clawhub inspect JSON root: {type(data).__name__}", file=sys.stderr)
+              sys.exit(1)
+
+          versions = [item.get("version") for item in version_items if isinstance(item, dict)]
+          version_strings = [version for version in versions if isinstance(version, str) and version]
+          if target in version_strings:
               print(f"::error::ClawHub version {target} already exists for printing-press-library. Bump version: in skills/printing-press-library/SKILL.md before publishing.", file=sys.stderr)
               sys.exit(1)
-          print(f"ClawHub version {target} is new. Existing versions: {', '.join(versions) or 'none'}")
+          print(f"ClawHub version {target} is new. Existing versions: {', '.join(version_strings) or 'none'}")
           PY
 
       - name: Publish discovery skill to ClawHub
