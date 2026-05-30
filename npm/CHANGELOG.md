@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.11
+
+- When `go install` writes a CLI to a directory that isn't on `PATH`, print the exact, copy-pasteable fix for the detected platform and shell instead of a single Unix-flavored hint. macOS zsh gets a `~/.zshrc` line, macOS bash gets `~/.bash_profile` (login shells don't read `.bashrc`), Linux bash gets `~/.bashrc`, fish gets `fish_add_path`, Windows gets the persistent PowerShell `[Environment]::SetEnvironmentVariable(... "User")` command plus a GUI fallback (and never the truncating `setx` footgun), and Git Bash gets a POSIX-translated path. The previous message printed `$(go env GOPATH)/bin` shell syntax that was wrong on Windows and imprecise on fish.
+
 ## 0.1.8
 
 - Avoid treating one-character queries or the shared `-pp-cli` binary suffix as searchable content, so queries like `a`, `t`, `pp`, or `cli` no longer match broad slices of the catalog while full binary-name queries still resolve to the intended CLI.

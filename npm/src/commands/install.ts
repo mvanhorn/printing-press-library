@@ -1,5 +1,6 @@
 import { BUNDLES, isBundle } from "../bundles.js";
 import { detectGo, goInstall, goInstallDir, type GoDetection, type GoInstallDir } from "../go.js";
+import { pathFixInstructions } from "../pathfix.js";
 import { commandOnPath, type RunResult } from "../process.js";
 import {
   cliBinaryName,
@@ -31,6 +32,10 @@ interface InstallDeps {
   stdout: (message: string) => void;
   stderr: (message: string) => void;
   platform: NodeJS.Platform;
+  /** Login shell (Unix) or Git Bash marker (Windows); drives the per-shell PATH fix. */
+  shell?: string;
+  /** Home directory, used to prefer the portable `$HOME/go/bin` form in PATH instructions. */
+  home?: string;
 }
 
 interface InstallSummary {
@@ -70,6 +75,8 @@ export function createInstallCommand(overrides: Partial<InstallDeps> = {}) {
     stdout: (message) => console.log(message),
     stderr: (message) => console.error(message),
     platform: process.platform,
+    shell: process.env.SHELL,
+    home: process.env.HOME ?? process.env.USERPROFILE,
     ...overrides,
   };
 
@@ -147,14 +154,15 @@ async function installOne(
       return { ok: false, name: entry.name, error: "go install failed" };
     }
 
-    const installedPath = await resolveInstalledPath(binary, deps);
+    const installed = await resolveInstalledPath(binary, deps);
+    const installedPath = installed?.binaryPath ?? null;
     const pathBinaryPath = await deps.commandOnPath(binary);
 
     if (!pathBinaryPath) {
       // `go install` succeeded, but `which`/`where` cannot find the binary —
-      // PATH does not include the directory go install wrote to. Tell the user
-      // exactly which directory to add when we know it.
-      deps.stderr(installedPath ? installedNotOnPathMessage(binary, installedPath) : pathMessage(binary));
+      // PATH does not include the directory go install wrote to. Print the exact,
+      // copy-pasteable PATH fix for this platform and shell.
+      deps.stderr(notOnPathMessage(binary, installed, deps));
       return { ok: false, name: entry.name, error: "binary not on PATH" };
     }
 
@@ -325,21 +333,24 @@ function goMissingMessage(platform: NodeJS.Platform): string {
   return `Go is required to install Printing Press CLIs. ${installHint}`;
 }
 
-function pathMessage(binary: string): string {
-  return `${binary} was installed, but it is not on PATH. Add $(go env GOPATH)/bin, usually $HOME/go/bin, to PATH and retry.`;
+interface InstalledPath {
+  /** Directory `go install` wrote to (GOBIN or GOPATH/bin). */
+  binDir: string;
+  /** Full path to the installed binary (binDir + binary + platform suffix). */
+  binaryPath: string;
 }
 
 async function resolveInstalledPath(
   binary: string,
   deps: InstallDeps,
-): Promise<string | null> {
+): Promise<InstalledPath | null> {
   const info = await deps.goInstallDir();
   if (!info.binDir) {
     return null;
   }
   const sep = deps.platform === "win32" ? "\\" : "/";
   const suffix = deps.platform === "win32" ? ".exe" : "";
-  return `${info.binDir}${sep}${binary}${suffix}`;
+  return { binDir: info.binDir, binaryPath: `${info.binDir}${sep}${binary}${suffix}` };
 }
 
 function memoize<T>(fn: () => Promise<T>): () => Promise<T> {
@@ -367,9 +378,20 @@ function shadowMessage(binary: string, installedPath: string, shadowedBy: string
   );
 }
 
-function installedNotOnPathMessage(binary: string, installedPath: string): string {
-  return (
-    `WARNING: installed ${binary} at ${installedPath}, but its directory is not on PATH. ` +
-    `Add it to PATH (e.g. $(go env GOPATH)/bin, usually $HOME/go/bin) and retry, or invoke the binary by absolute path.`
-  );
+function notOnPathMessage(
+  binary: string,
+  installed: InstalledPath | null,
+  deps: InstallDeps,
+): string {
+  const head = installed
+    ? `WARNING: installed ${binary} at ${installed.binaryPath}, but its directory is not on PATH.`
+    : `WARNING: ${binary} was installed, but it is not on PATH.`;
+  const fix = pathFixInstructions({
+    binDir: installed?.binDir ?? null,
+    platform: deps.platform,
+    shell: deps.shell,
+    home: deps.home,
+  });
+  const tail = installed ? `\n\nOr run it directly: ${installed.binaryPath}` : "";
+  return `${head}\n${fix}${tail}`;
 }

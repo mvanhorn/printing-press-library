@@ -132,7 +132,7 @@ More bundles will be added over time. To suggest one, open an issue at the [prin
 
 - Node.js 20+
 - Go 1.26.3 or newer (for `go install`)
-- `$(go env GOPATH)/bin` on `$PATH` (usually `$HOME/go/bin`) so installed CLIs are runnable
+- The Go install directory on your `PATH` so installed CLIs are runnable by name — `$(go env GOPATH)/bin` (usually `$HOME/go/bin`) on macOS/Linux, or `%USERPROFILE%\go\bin` on Windows. Go does not add this to `PATH` for you. If it's missing, `install` prints the exact, copy-pasteable line to add for your platform and shell (zsh/bash/fish, PowerShell, cmd, or Git Bash).
 
 ## Migration from @mvanhorn/printing-press
 
