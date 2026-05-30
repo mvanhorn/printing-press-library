@@ -43,10 +43,7 @@ func newAuditCmd(flags *rootFlags) *cobra.Command {
 		Short:       "Audit synced expenses for likely duplicates and per-category cost outliers",
 		Example:     "  splitwise-pp-cli audit --agent",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		RunE: func(cmd *cobra.Command, args []string) error {
-			if len(args) == 0 && cmd.Flags().NFlag() == 0 {
-				return cmd.Help()
-			}
+		RunE: func(cmd *cobra.Command, _ []string) error {
 			if dryRunOK(flags) {
 				_, _ = fmt.Fprintln(cmd.OutOrStdout(), "would audit synced expenses")
 				return nil
@@ -136,6 +133,7 @@ func detectDuplicateClusters(expenses []Expense) []auditDuplicateCluster {
 	type key struct {
 		Description string
 		Cost        string
+		CurrencyCode string
 		Date        string
 		GroupID     int
 	}
@@ -145,6 +143,7 @@ func detectDuplicateClusters(expenses []Expense) []auditDuplicateCluster {
 		k := key{
 			Description: auditNormalizeDescription(e.Description),
 			Cost:        cost,
+			CurrencyCode: strings.TrimSpace(e.CurrencyCode),
 			Date:        auditDateKey(e.Date),
 			GroupID:     e.GroupID,
 		}
@@ -163,7 +162,7 @@ func detectDuplicateClusters(expenses []Expense) []auditDuplicateCluster {
 		out = append(out, auditDuplicateCluster{
 			Description:  strings.TrimSpace(items[0].Description),
 			Cost:         round2(parseAmount(items[0].Cost)),
-			CurrencyCode: strings.TrimSpace(items[0].CurrencyCode),
+			CurrencyCode: k.CurrencyCode,
 			Date:         k.Date,
 			GroupID:      k.GroupID,
 			ExpenseIDs:   ids,
