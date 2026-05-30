@@ -317,6 +317,16 @@ splitwise-pp-cli audit
 
 Flags repeated near-identical expenses (same description, cost, date, currency, and group) and unusually large expenses vs. their category baseline using a robust median/MAD score. Use `--limit N` to cap findings per type, `--agent` for JSON.
 
+### See what's coming — `forecast`
+
+**Project next month's recurring shared obligations:**
+
+```bash
+splitwise-pp-cli forecast
+```
+
+Detects regular charges (rent, utilities, subscriptions) from your synced history and projects the upcoming ones, flagging anything overdue or due soon. Set the window with `--days N` (default 35), add `--agent` for JSON.
+
 ### Net position for an agent
 
 ```bash
