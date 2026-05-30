@@ -75,6 +75,28 @@
         "internal/cli/search.go",
         "internal/mcp/tools.go"
       ]
+    },
+    {
+      "id": "analytics-csv-plain-output-flags",
+      "summary": "Analytics commands (balances, debts, ledger, spend, recurring, settle-up) honor --csv/--plain via a new emitStructured helper instead of always emitting JSON.",
+      "reason": "These commands hand-build structured output and called flags.printJSON directly, branching only JSON-vs-human-table, so --csv/--plain were silently ignored (piping `balances --csv` yielded JSON). Added rootFlags.emitStructured which reuses printCSV for --csv and tab-separated printPlain for --plain, unwrapping a single wrapped-array envelope (recurring's {items}, settle-up's {transfers}/{recorded_payments}) before tabulating, and falling back to JSON for multi-array envelopes (balances, ledger) where no single table applies. Generic get-* commands already honored --csv via printOutputWithFlags.",
+      "files": [
+        "internal/cli/helpers.go",
+        "internal/cli/splitwise_balances.go",
+        "internal/cli/splitwise_spend.go",
+        "internal/cli/splitwise_recurring.go",
+        "internal/cli/splitwise_settle.go"
+      ],
+      "validated_outcome": "Live: `spend --csv` emits CSV, `spend --plain` tab-separated, `recurring --csv` unwraps {items}, `balances --csv` falls back to JSON (2-array envelope); default piped output unchanged JSON."
+    },
+    {
+      "id": "which-keyword-aliases",
+      "summary": "Add a Keywords field to whichEntry and keyword scoring so advertised SKILL trigger phrases resolve in `which`.",
+      "reason": "`which \"who owes me money\"` returned no match (exit 2) even though that phrase is an advertised SKILL.md trigger. The curated whichIndex matched only on command/description/group text. Added whichEntry.Keywords plus keyword scoring (+3 full-query phrase match, +1 per query token found in a keyword) and populated keywords for the curated entries; backward compatible since nil-keyword entries score nothing extra.",
+      "files": [
+        "internal/cli/which.go"
+      ],
+      "validated_outcome": "Live: `which \"who owes me money\"` now returns debts (score 3) at exit 0; `which \"venmo\"` returns settle-up."
     }
   ]
 }

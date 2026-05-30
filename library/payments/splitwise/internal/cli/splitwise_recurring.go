@@ -262,7 +262,7 @@ func newRecurringCmd(flags *rootFlags) *cobra.Command {
 			}{Items: outItems, ScannedExpenses: scanned}
 
 			if flags.asJSON || flags.agent || !isTerminal(cmd.OutOrStdout()) {
-				return flags.printJSON(cmd, view)
+				return flags.emitStructured(cmd, view)
 			}
 
 			tw := tabwriter.NewWriter(cmd.OutOrStdout(), 2, 4, 2, ' ', 0)

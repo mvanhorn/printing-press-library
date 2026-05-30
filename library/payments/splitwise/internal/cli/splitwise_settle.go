@@ -161,7 +161,7 @@ func newSettleUpCmd(flags *rootFlags) *cobra.Command {
 				"transfers":   plan,
 			}
 			if flags.asJSON || flags.agent || !isTerminal(cmd.OutOrStdout()) {
-				if err := flags.printJSON(cmd, out); err != nil {
+				if err := flags.emitStructured(cmd, out); err != nil {
 					return err
 				}
 			} else {
@@ -255,7 +255,7 @@ func newSettleUpCmd(flags *rootFlags) *cobra.Command {
 				"count":             len(recorded),
 			}
 			if flags.asJSON || flags.agent || !isTerminal(cmd.OutOrStdout()) {
-				return flags.printJSON(cmd, summary)
+				return flags.emitStructured(cmd, summary)
 			}
 			_, _ = fmt.Fprintf(cmd.OutOrStdout(), "created %d payment expense(s)\n", len(recorded))
 			return nil

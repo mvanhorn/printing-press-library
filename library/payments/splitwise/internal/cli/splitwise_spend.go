@@ -104,7 +104,7 @@ func newSpendCmd(flags *rootFlags) *cobra.Command {
 			})
 
 			if flags.asJSON || flags.agent || !isTerminal(cmd.OutOrStdout()) {
-				return flags.printJSON(cmd, results)
+				return flags.emitStructured(cmd, results)
 			}
 
 			tw := tabwriter.NewWriter(cmd.OutOrStdout(), 2, 4, 2, ' ', 0)
@@ -259,7 +259,7 @@ func newLedgerCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			if flags.asJSON || flags.agent || !isTerminal(cmd.OutOrStdout()) {
-				return flags.printJSON(cmd, out)
+				return flags.emitStructured(cmd, out)
 			}
 
 			_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Group: %s (%d)\n\n", groupName, groupID)
