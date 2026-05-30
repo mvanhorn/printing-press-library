@@ -45,13 +45,20 @@ The library is an open-source catalog of focused CLIs and matching agent skills 
    - `npx -y @mvanhorn/printing-press-library install <slug>` has the same refresh effect for one named tool because install overwrites in place.
    - `reinstall <slug>` may also exist as a convenience alias for `update <slug>`; use it if the installed CLI exposes it, but prefer `update` as the stable documented primitive until the alias is published.
 
-5. Make the newly installed skill visible to the running agent.
+5. Offer a periodic update schedule after successful install or refresh.
+   - Because install/update is idempotent, it is safe to keep installed Printing Press CLIs and focused skills current with a scheduled job.
+   - After installing a CLI + skill, ask whether the user wants a recurring update job for that one tool, for example weekly or monthly.
+   - Do not create a cron/scheduled job without explicit user approval; recurring jobs are durable side effects.
+   - Use the library update primitive in the scheduled command: `npx -y @mvanhorn/printing-press-library update <slug>` for one tool, or `npx -y @mvanhorn/printing-press-library update` for every installed Printing Press CLI on PATH.
+   - Prefer quiet, low-frequency schedules such as weekly unless the user asks for something else.
+
+6. Make the newly installed skill visible to the running agent.
    - Most agent harnesses snapshot available skills at session start. After installing or refreshing a focused skill, start a fresh session or reload skills before trying to invoke it.
    - In Hermes CLI sessions, use `/reload-skills` when available, or exit and start a new `hermes` session.
    - In Hermes gateway sessions, use `/restart` from the gateway chat or `hermes gateway restart` from a shell so the gateway process reloads installed skills.
    - In OpenClaw, assume the current agent session may not see newly installed skills until the OpenClaw session or gateway is restarted.
 
-6. Verify before claiming success.
+7. Verify before claiming success.
    - If installing a CLI, run its `--help` or an equivalent harmless command.
    - If installing a skill, verify the destination harness can see it after the session reload/restart when the harness has a verification command.
    - If using a credentialed CLI, confirm required environment variables without printing secrets.
@@ -91,6 +98,18 @@ npx -y @mvanhorn/printing-press-library update
 ```
 
 `update <slug>` delegates to install semantics for that tool. `update` with no args discovers Printing Press CLIs currently on PATH and refreshes all of them, including their matching focused skills.
+
+Because updates are idempotent, after a successful install or refresh, offer to create a recurring update job for the installed tool. Ask first; do not schedule it automatically. A reasonable default is weekly:
+
+```bash
+npx -y @mvanhorn/printing-press-library update flight-goat
+```
+
+For users who want every installed Printing Press CLI kept fresh, schedule the all-tools update instead:
+
+```bash
+npx -y @mvanhorn/printing-press-library update
+```
 
 If the installed library CLI exposes `reinstall`, treat it as a convenience alias for `update`:
 
