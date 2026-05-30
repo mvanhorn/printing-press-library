@@ -205,6 +205,16 @@ These capabilities aren't available in any other tool for this API.
 ## Recipes
 
 
+### Settle the whole network in the fewest transfers — `net`
+
+**One payment list that zeroes out everyone — across every group and non-group debt at once:**
+
+```bash
+splitwise-pp-cli net
+```
+
+Nets each friend's balances (cancelling A→B→C→A cycles) into the minimum set of real-world transfers, separated per currency, and reports how many transfers it saved vs. settling each group on its own. Add `--agent` for JSON.
+
 ### Net position for an agent
 
 ```bash
