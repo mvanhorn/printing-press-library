@@ -226,6 +226,30 @@ func TestComputeFairnessGroupScope(t *testing.T) {
 	}
 }
 
+func TestComputeFairnessSinceKeepsOutstandingDebtor(t *testing.T) {
+	youID := 1
+	// Olivia's only shared expense is in 2024 (before --since), but she still
+	// owes you $40 via Friend.Balance. She must NOT be dropped or counted as new.
+	friends := []Friend{{ID: 50, FirstName: "Olivia", LastName: "Old", Balance: []Balance{{CurrencyCode: "USD", Amount: "40.00"}}}}
+	expenses := []Expense{
+		{ID: 1, CurrencyCode: "USD", Date: "2024-03-01", Users: []ExpenseUser{{UserID: 50, PaidShare: "0", OwedShare: "40"}, {UserID: youID, PaidShare: "40", OwedShare: "0"}}},
+	}
+	now := time.Date(2026, 1, 10, 0, 0, 0, 0, time.UTC)
+	opts := fairnessOpts{by: "risk", writeOffDays: 365, ghostDays: 180, minEpisodes: 1,
+		since: time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC), hasSince: true}
+	res := computeFairness(youID, friends, nil, expenses, now, opts)
+	o := findFairnessPerson(t, res.People, 50) // fails (person not found) without the fix
+	if !o.HasHistory {
+		t.Fatalf("Olivia HasHistory=false despite an open balance")
+	}
+	if o.OutstandingTotal != 40 {
+		t.Fatalf("Olivia outstanding=%.2f", o.OutstandingTotal)
+	}
+	if res.NewMembers != 0 {
+		t.Fatalf("NewMembers=%d (an outstanding debtor was wrongly counted as new)", res.NewMembers)
+	}
+}
+
 func TestClampUnit(t *testing.T) {
 	cases := []struct {
 		in   float64
@@ -283,6 +307,47 @@ func TestClassifyRoleBoundaries(t *testing.T) {
 				t.Fatalf("role=%q want %q", got, tc.want)
 			}
 		})
+	}
+}
+
+func TestHumanizeDays(t *testing.T) {
+	cases := []struct {
+		in   int
+		want string
+	}{
+		{in: -3, want: "0d"},
+		{in: 0, want: "0d"},
+		{in: 5, want: "5d"},
+		{in: 6, want: "6d"},
+		{in: 7, want: "1w"},
+		{in: 19, want: "2w 5d"},
+		{in: 29, want: "4w 1d"},
+		{in: 30, want: "1mo"},
+		{in: 48, want: "1mo 18d"},
+		{in: 334, want: "11mo 4d"},
+		{in: 365, want: "1y"},
+		{in: 366, want: "1y 1d"},
+		{in: 900, want: "2y 5mo 20d"},
+		{in: 1558, want: "4y 3mo 8d"},
+	}
+	for _, tc := range cases {
+		if got := humanizeDays(tc.in); got != tc.want {
+			t.Fatalf("humanizeDays(%d)=%q want %q", tc.in, got, tc.want)
+		}
+	}
+}
+
+func TestAgeCell(t *testing.T) {
+	if got := ageCell(nil); got != "-" {
+		t.Fatalf("ageCell(nil)=%q want %q", got, "-")
+	}
+	z := 0
+	if got := ageCell(&z); got != "0d" {
+		t.Fatalf("ageCell(0)=%q want 0d", got)
+	}
+	n := 1558
+	if got := ageCell(&n); got != "4y 3mo 8d" {
+		t.Fatalf("ageCell(1558)=%q want 4y 3mo 8d", got)
 	}
 }
 
