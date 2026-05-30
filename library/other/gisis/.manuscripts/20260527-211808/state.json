@@ -1,0 +1,10 @@
+{
+  "api_name": "gisis",
+  "run_id": "20260527-211808",
+  "working_dir": "/Users/REDACTED/printing-press/.runstate/openclaw-brain-c646f0ca/runs/20260527-211808/working/gisis-pp-cli",
+  "output_dir": "/Users/REDACTED/printing-press/.runstate/openclaw-brain-c646f0ca/runs/20260527-211808/working/gisis-pp-cli",
+  "spec_path": "/Users/REDACTED/printing-press/.runstate/openclaw-brain-c646f0ca/runs/20260527-211808/research/gisis-spec.yaml",
+  "phase": "build-p2-progress",
+  "last_checkpoint": "2026-05-27T23:10:00Z",
+  "notes": "ship_get + auth ping fully implemented with parser; 13/13 parser tests pass; 5 features remain. See RESUME.md."
+}
