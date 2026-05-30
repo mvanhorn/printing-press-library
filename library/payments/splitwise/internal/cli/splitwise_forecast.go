@@ -74,7 +74,8 @@ func computeForecast(expenses []Expense, groupNames map[int]string, now time.Tim
 	}
 
 	result := make([]forecastEntry, 0)
-	windowEnd := now.AddDate(0, 0, windowDays)
+	today := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.UTC)
+	windowEnd := today.AddDate(0, 0, windowDays)
 	for key, c := range clusters {
 		if len(c.dates) < 3 {
 			continue
@@ -95,28 +96,27 @@ func computeForecast(expenses []Expense, groupNames map[int]string, now time.Tim
 		if cadence < 2 || cadence > 400 {
 			continue
 		}
-		if len(gaps) >= 2 {
-			minGap := gaps[0]
-			maxGap := gaps[0]
-			for _, gap := range gaps[1:] {
-				if gap < minGap {
-					minGap = gap
-				}
-				if gap > maxGap {
-					maxGap = gap
-				}
+		// Invariant: len(c.dates) >= 3 implies len(gaps) >= 2.
+		minGap := gaps[0]
+		maxGap := gaps[0]
+		for _, gap := range gaps[1:] {
+			if gap < minGap {
+				minGap = gap
 			}
-			if minGap <= 0 {
-				continue
+			if gap > maxGap {
+				maxGap = gap
 			}
-			if maxGap > 3.0*minGap {
-				continue
-			}
+		}
+		if minGap <= 0 {
+			continue
+		}
+		if maxGap > 3.0*minGap {
+			continue
 		}
 
 		lastDate := c.dates[len(c.dates)-1]
 		expectedDate := lastDate.AddDate(0, 0, cadence)
-		overdue := expectedDate.Before(now)
+		overdue := expectedDate.Before(today)
 		if !overdue {
 			if expectedDate.After(windowEnd) {
 				continue

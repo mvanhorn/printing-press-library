@@ -99,6 +99,50 @@ func TestComputeForecastOverdueIncluded(t *testing.T) {
 	}
 }
 
+func TestComputeForecastDueTodayAtMiddayNotOverdue(t *testing.T) {
+	now := time.Date(2026, 6, 1, 14, 30, 0, 0, time.UTC)
+	expenses := []Expense{
+		{Description: "Rent", GroupID: 10, Cost: "100.00", Date: "2026-02-01"},
+		{Description: "Rent", GroupID: 10, Cost: "110.00", Date: "2026-03-03"},
+		{Description: "Rent", GroupID: 10, Cost: "120.00", Date: "2026-04-02"},
+		{Description: "Rent", GroupID: 10, Cost: "130.00", Date: "2026-05-02"},
+	}
+	groups := map[int]string{0: "Non-group", 10: "Roommates"}
+
+	got := computeForecast(expenses, groups, now, 35, 50)
+	if len(got) != 1 {
+		t.Fatalf("len(got) = %d, want 1", len(got))
+	}
+	if got[0].ExpectedDate != "2026-06-01" {
+		t.Fatalf("ExpectedDate = %q, want %q", got[0].ExpectedDate, "2026-06-01")
+	}
+	if got[0].Overdue {
+		t.Fatalf("Overdue = true, want false")
+	}
+}
+
+func TestComputeForecastYesterdayAtMiddayOverdue(t *testing.T) {
+	now := time.Date(2026, 6, 2, 14, 30, 0, 0, time.UTC)
+	expenses := []Expense{
+		{Description: "Rent", GroupID: 10, Cost: "100.00", Date: "2026-02-01"},
+		{Description: "Rent", GroupID: 10, Cost: "110.00", Date: "2026-03-03"},
+		{Description: "Rent", GroupID: 10, Cost: "120.00", Date: "2026-04-02"},
+		{Description: "Rent", GroupID: 10, Cost: "130.00", Date: "2026-05-02"},
+	}
+	groups := map[int]string{0: "Non-group", 10: "Roommates"}
+
+	got := computeForecast(expenses, groups, now, 35, 50)
+	if len(got) != 1 {
+		t.Fatalf("len(got) = %d, want 1", len(got))
+	}
+	if got[0].ExpectedDate != "2026-06-01" {
+		t.Fatalf("ExpectedDate = %q, want %q", got[0].ExpectedDate, "2026-06-01")
+	}
+	if !got[0].Overdue {
+		t.Fatalf("Overdue = false, want true")
+	}
+}
+
 func TestComputeForecastFiltersPaymentsAndSettlements(t *testing.T) {
 	now := time.Date(2026, 6, 1, 0, 0, 0, 0, time.UTC)
 	groups := map[int]string{0: "Non-group", 1: "Trip"}
