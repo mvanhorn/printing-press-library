@@ -230,6 +230,16 @@ splitwise-pp-cli net
 
 Nets each friend's balances (cancelling A→B→C→A cycles) into the minimum set of real-world transfers, separated per currency, and reports how many transfers it saved vs. settling each group on its own. Add `--agent` for JSON.
 
+### See what's coming — `forecast`
+
+**Project next month's recurring shared obligations:**
+
+```bash
+splitwise-pp-cli forecast
+```
+
+Detects regular charges (rent, utilities, subscriptions) from your synced history and projects the upcoming ones, flagging anything overdue or due soon. Set the window with `--days N` (default 35), add `--agent` for JSON.
+
 ### Net position for an agent
 
 ```bash
