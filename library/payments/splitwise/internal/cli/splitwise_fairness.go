@@ -225,7 +225,7 @@ func newFairnessCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().IntVar(&writeOffDays, "write-off-days", 365, "Days after which old debt may be written off")
 	cmd.Flags().IntVar(&ghostDays, "ghost-days", 180, "Days of inactivity considered ghosted")
 	cmd.Flags().IntVar(&minEpisodes, "min-episodes", 1, "Minimum closed episodes required for avg latency")
-	cmd.Flags().StringVar(&since, "since", "", "Only include activity on/after YYYY-MM-DD")
+	cmd.Flags().StringVar(&since, "since", "", "Window contribution (paid/owed) to on/after YYYY-MM-DD; collectability and debt age always use full history")
 	return cmd
 }
 
@@ -351,13 +351,19 @@ func computeFairness(youID int, friends []Friend, groups []Group, expenses []Exp
 			if !member {
 				continue
 			}
+			matchedAny = true
+			// Collectability signals (debt age / settle latency / last-settled /
+			// ghost) use FULL history -- a debt's age is an absolute fact, not
+			// scoped by --since; only the contribution numbers below are windowed,
+			// so --since can never suppress an old debt's write_off tier.
+			if d, ok := parseSplitwiseDate(e.Date); ok {
+				events = append(events, subjectEvent{date: d, payment: e.Payment})
+			}
 			if opts.hasSince {
-				t, ok := parseSplitwiseDate(e.Date)
-				if !ok || t.Before(opts.since) {
+				if t, ok := parseSplitwiseDate(e.Date); !ok || t.Before(opts.since) {
 					continue
 				}
 			}
-			matchedAny = true
 			if !e.Payment {
 				p.Paid += parseAmount(row.PaidShare)
 				p.Owed += parseAmount(row.OwedShare)
@@ -365,9 +371,6 @@ func computeFairness(youID int, friends []Friend, groups []Group, expenses []Exp
 				if parseAmount(row.PaidShare) > 0 {
 					p.PayerCount++
 				}
-			}
-			if d, ok := parseSplitwiseDate(e.Date); ok {
-				events = append(events, subjectEvent{date: d, payment: e.Payment})
 			}
 		}
 

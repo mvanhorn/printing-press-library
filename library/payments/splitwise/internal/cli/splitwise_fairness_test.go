@@ -248,6 +248,14 @@ func TestComputeFairnessSinceKeepsOutstandingDebtor(t *testing.T) {
 	if res.NewMembers != 0 {
 		t.Fatalf("NewMembers=%d (an outstanding debtor was wrongly counted as new)", res.NewMembers)
 	}
+	// Debt age uses FULL history, not the --since window, so an old silent debt
+	// is still classified write_off — --since must not suppress the tier.
+	if o.DebtAgeDays == nil || *o.DebtAgeDays < 365 {
+		t.Fatalf("Olivia debt age=%v (should reflect the 2024 expense, not be windowed away)", o.DebtAgeDays)
+	}
+	if o.RiskTier != "write_off" {
+		t.Fatalf("Olivia tier=%q, expected write_off (--since must not downgrade an old debt)", o.RiskTier)
+	}
 }
 
 func TestClampUnit(t *testing.T) {
