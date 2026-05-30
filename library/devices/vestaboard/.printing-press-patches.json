@@ -11,6 +11,7 @@
       "files": [
         "internal/cli/message_send.go",
         "internal/cli/characters.go",
+        "internal/cli/message_preview.go",
         ".manuscripts/20260529-212647/research/vestaboard-research.md",
         ".manuscripts/20260529-212647/proofs/acceptance-summary.json"
       ],

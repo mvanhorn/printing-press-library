@@ -103,9 +103,9 @@ func newNovelMessagePreviewCmd(flags *rootFlags) *cobra.Command {
 		Use:   "preview",
 		Short: "Render the board's current message as readable text",
 		Long: "Read the current board layout (GET /) and render its 2D character-code grid as a bordered\n" +
-			"block of glyphs. Color chips render as a lowercase initial (r/o/y/g/b/v/w); run\n" +
-			"'vestaboard-pp-cli characters' for the full code table. Use --json for the raw rows plus the\n" +
-			"rendered text.",
+			"block of glyphs. Color chips render as a lowercase initial (r/o/y/g/b/v/w/k) or filled\n" +
+			"cell (█); run 'vestaboard-pp-cli characters' for the full code table. Use --json for\n" +
+			"the raw rows plus the rendered text.",
 		Example:     "  vestaboard-pp-cli message preview\n  vestaboard-pp-cli message preview --json",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		Args:        cobra.NoArgs,
