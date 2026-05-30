@@ -1,7 +1,7 @@
 ---
 name: printing-press-library
 description: Discover and install Printing Press Library CLIs and focused agent skills.
-version: 0.1.0
+version: 0.1.1
 metadata:
   openclaw:
     emoji: "🖨️"
@@ -10,8 +10,6 @@ metadata:
       anyBins:
         - npx
         - npm
-        - hermes
-        - clawhub
 ---
 
 # Printing Press Library
@@ -26,115 +24,119 @@ The library is an open-source catalog of focused CLIs and matching agent skills 
    - If the request names a service or website, search for that directly.
    - If the request describes a job instead of a service, search by capability and domain.
 
-2. Search the catalog.
-   - Use the GitHub repo, local clone, or npm package docs if available.
-   - Relevant local paths when the repo is cloned:
-     - `registry.json`
-     - `library/<category>/<slug>/README.md`
-     - `library/<category>/<slug>/SKILL.md`
-     - `cli-skills/pp-<slug>/SKILL.md`
+2. Search the catalog with the library CLI first.
+   - Use `npx -y @mvanhorn/printing-press-library search <keyword>` for human-readable result cards.
+   - Use `npx -y @mvanhorn/printing-press-library search <keyword> --json` for agent-friendly parsing.
+   - Use `npx -y @mvanhorn/printing-press-library list --category <category> --json` when the category is known.
+   - Each search result includes the canonical install command for that tool.
+   - Fall back to the GitHub repo or local clone only when `npx` is unavailable or deeper inspection is needed.
 
-3. Prefer a focused `pp-*` skill before installing or running a CLI.
-   - Focused skills include usage guidance, auth notes, examples, and install instructions.
-   - The CLI binary should be installed only when the task actually needs execution.
+3. Install through the library installer when the selected tool is useful.
+   - The primitive is `npx -y @mvanhorn/printing-press-library install <slug>`.
+   - The install command installs both the CLI and the matching focused agent skill.
+   - `install <slug>` is idempotent: re-running it on an already-installed tool refreshes the Go binary and overwrites/re-adds the focused skill in place.
+   - Behind the scenes, the installer uses `go install <module>@latest` for the CLI and the Vercel Agent Skills-compatible `skills` CLI to install the focused `pp-*` skill globally from this repo.
+   - In OpenClaw, this same install command installs the focused skill for OpenClaw; do not replace it with a separate repo-path skill install unless the user explicitly asks for skill-only installation.
+   - Pass `--cli-only` or `--skill-only` only when the user explicitly wants just one side.
 
-4. Verify before claiming success.
-   - If installing a skill, verify the destination harness can see it.
+4. Refresh installed tools without uninstalling first.
+   - `npx -y @mvanhorn/printing-press-library update <slug>` is the explicit reinstall/refresh primitive for one tool; it delegates to install semantics.
+   - `npx -y @mvanhorn/printing-press-library update` refreshes every Printing Press CLI currently found on PATH, including each matching skill.
+   - `npx -y @mvanhorn/printing-press-library install <slug>` has the same refresh effect for one named tool because install overwrites in place.
+   - `reinstall <slug>` may also exist as a convenience alias for `update <slug>`; use it if the installed CLI exposes it, but prefer `update` as the stable documented primitive until the alias is published.
+
+5. Make the newly installed skill visible to the running agent.
+   - Most agent harnesses snapshot available skills at session start. After installing or refreshing a focused skill, start a fresh session or reload skills before trying to invoke it.
+   - In Hermes CLI sessions, use `/reload-skills` when available, or exit and start a new `hermes` session.
+   - In Hermes gateway sessions, use `/restart` from the gateway chat or `hermes gateway restart` from a shell so the gateway process reloads installed skills.
+   - In OpenClaw, assume the current agent session may not see newly installed skills until the OpenClaw session or gateway is restarted.
+
+6. Verify before claiming success.
    - If installing a CLI, run its `--help` or an equivalent harmless command.
+   - If installing a skill, verify the destination harness can see it after the session reload/restart when the harness has a verification command.
    - If using a credentialed CLI, confirm required environment variables without printing secrets.
 
-## Install paths
+## What this skill is for
 
-### OpenClaw / ClawHub
+Use this skill to discover CLIs and agent skills in the public Printing Press Library. Match the user's goal to the right library entry, use the library CLI to find the canonical install command, and install the selected tool only when it is useful for the task.
 
-OpenClaw users should install this discovery skill from ClawHub:
+## Install primitive
 
-```bash
-clawhub install printing-press-library
-```
-
-To install a focused skill from ClawHub if it is published there:
-
-```bash
-clawhub install <skill-slug>
-```
-
-If a focused skill is not on ClawHub, use the Vercel Agent Skills-compatible GitHub path below.
-
-### Vercel Agent Skills-compatible harnesses
-
-Install this discovery skill globally:
-
-```bash
-npx skills add mvanhorn/printing-press-library/skills/printing-press-library -g -y
-```
-
-Or select it explicitly from the repo root:
-
-```bash
-npx skills add mvanhorn/printing-press-library -g -y --skill printing-press-library
-```
-
-Install a focused per-CLI skill globally:
-
-```bash
-npx skills add mvanhorn/printing-press-library/cli-skills/pp-<slug> -g -y
-```
-
-Example:
-
-```bash
-npx skills add mvanhorn/printing-press-library/cli-skills/pp-espn -g -y
-```
-
-### Hermes
-
-Install this discovery skill:
-
-```bash
-hermes skills install mvanhorn/printing-press-library/skills/printing-press-library --force
-```
-
-Install a focused per-CLI skill:
-
-```bash
-hermes skills install mvanhorn/printing-press-library/cli-skills/pp-<slug> --force
-```
-
-### CLI-first install
-
-For humans, scripts, and CLI-first usage, use the npm installer:
+The Printing Press Library CLI is the canonical interface for installing catalog tools:
 
 ```bash
 npx -y @mvanhorn/printing-press-library install <slug>
 ```
 
-That path installs the CLI and the matching skill using the library installer.
+That command installs both halves of a catalog entry:
+
+- the Go CLI binary
+- the matching focused `pp-*` agent skill
+
+For the skill half, the installer shells out through the Vercel Agent Skills-compatible installer. Conceptually, it runs:
+
+```bash
+npx -y skills@latest add mvanhorn/printing-press-library/cli-skills/pp-<slug> -g -y
+```
+
+So the catalog installer is still the right top-level command: it installs the CLI, then installs the focused skill globally using the same agent-skills mechanism rather than asking the agent to hand-roll a separate skill install path.
+
+The install operation is idempotent and works as a reinstall for one tool. Re-running `install <slug>` uses `go install <module>@latest` for the binary and re-adds the focused skill non-interactively, overwriting the existing install in place. No uninstall-first step is needed.
+
+Use `update` when the user asks to refresh or reinstall existing tools:
+
+```bash
+npx -y @mvanhorn/printing-press-library update flight-goat
+npx -y @mvanhorn/printing-press-library update
+```
+
+`update <slug>` delegates to install semantics for that tool. `update` with no args discovers Printing Press CLIs currently on PATH and refreshes all of them, including their matching focused skills.
+
+If the installed library CLI exposes `reinstall`, treat it as a convenience alias for `update`:
+
+```bash
+npx -y @mvanhorn/printing-press-library reinstall flight-goat
+```
+
+Example:
+
+```bash
+npx -y @mvanhorn/printing-press-library install flight-goat
+```
+
+Use the install line printed by `search` or `list` output. Do not synthesize harness-specific direct skill install commands as the default path; those are only for explicit skill-only workflows.
+
+After install or update, assume the focused skill may not be visible to the currently running agent until skills are reloaded or the session restarts. Hermes CLI sessions can use `/reload-skills` or start a new session. Hermes gateway sessions should use `/restart` or `hermes gateway restart`. OpenClaw agents should restart the current session or gateway if the newly installed focused skill is not visible immediately.
 
 ## Search tactics
 
-Use whichever source is available:
+Use the library CLI as the default catalog index. Human-readable search cards include an `install:` line with the canonical install command:
 
 ```bash
-# From a local clone
-python3 - <<'PY'
-import json
-from pathlib import Path
-q = 'espn'
-registry = json.loads(Path('registry.json').read_text())
-for item in registry:
-    haystack = json.dumps(item).lower()
-    if q.lower() in haystack:
-        print(item.get('slug') or item.get('name'), item.get('title') or item.get('description', ''))
-PY
+npx -y @mvanhorn/printing-press-library search <keyword>
 ```
 
+Use JSON when scripting or when structured ranking is useful:
+
 ```bash
-# Broad repo text search when local tools are available
+npx -y @mvanhorn/printing-press-library search <keyword> --json
+```
+
+Examples:
+
+```bash
+npx -y @mvanhorn/printing-press-library search flights
+npx -y @mvanhorn/printing-press-library search espn --json
+npx -y @mvanhorn/printing-press-library list --category travel --json
+```
+
+Use repository inspection only as a fallback when `npx` is unavailable, when the CLI result is ambiguous, or when deeper README/SKILL details are needed before choosing a candidate:
+
+```bash
 rg -i "<service-or-capability>" registry.json library cli-skills
 ```
 
-If the registry shape differs, inspect `registry.json` first instead of guessing. Generated catalogs move; facts beat vibes.
+If the registry shape differs, prefer the npm CLI output instead of hand-parsing generated catalog files. Facts beat vibes; official interfaces beat archaeology.
 
 ## Selection rules
 

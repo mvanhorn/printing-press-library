@@ -36,16 +36,36 @@ Or from the repo root by selecting the catalog skill explicitly:
 npx skills add mvanhorn/printing-press-library -g -y --skill printing-press-library
 ```
 
-Hermes users can install it through Hermes:
+Hermes users can install it from the command line:
 
 ```bash
-hermes skills install mvanhorn/printing-press-library/skills/printing-press-library --force
+hermes skills install mvanhorn/printing-press-library/skills/printing-press-library
 ```
 
-Once you know the specific tool you want, install the focused skill directly, for example:
+Or from inside the Hermes chat TUI:
+
+```text
+/skills install mvanhorn/printing-press-library/skills/printing-press-library
+```
+
+Once you know the specific tool you want, install the focused skill directly.
+
+For Vercel Agent Skills-compatible harnesses:
 
 ```bash
 npx skills add mvanhorn/printing-press-library/cli-skills/pp-espn -g -y
+```
+
+For Hermes from the command line:
+
+```bash
+hermes skills install mvanhorn/printing-press-library/cli-skills/pp-espn
+```
+
+For Hermes from inside the chat TUI:
+
+```text
+/skills install mvanhorn/printing-press-library/cli-skills/pp-espn
 ```
 
 The existing npm installer remains the right path for humans, scripts, and CLI-first setup.
