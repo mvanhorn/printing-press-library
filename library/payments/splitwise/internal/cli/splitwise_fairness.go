@@ -181,16 +181,10 @@ func newFairnessCmd(flags *rootFlags) *cobra.Command {
 			tw := tabwriter.NewWriter(cmd.OutOrStdout(), 2, 4, 2, ' ', 0)
 			switch result.By {
 			case "risk":
-				_, _ = fmt.Fprintln(tw, "WHO\tOUTSTANDING\tAGE(d)\tLAST SETTLED(d)\tTIER\tACTION")
+				_, _ = fmt.Fprintln(tw, "WHO\tOUTSTANDING\tAGE\tLAST SETTLED\tTIER\tACTION")
 				for _, p := range result.People {
-					age := "-"
-					if p.DebtAgeDays != nil {
-						age = strconv.Itoa(*p.DebtAgeDays)
-					}
-					last := "-"
-					if p.LastSettledDays != nil {
-						last = strconv.Itoa(*p.LastSettledDays)
-					}
+					age := ageCell(p.DebtAgeDays)
+					last := ageCell(p.LastSettledDays)
 					_, _ = fmt.Fprintf(tw, "%s %s\t%.2f\t%s\t%s\t%s\t%s\n", tierGlyph(p.RiskTier), p.Name, p.OutstandingTotal, age, last, p.RiskTier, p.Action)
 				}
 			case "contribution":
@@ -203,16 +197,10 @@ func newFairnessCmd(flags *rootFlags) *cobra.Command {
 					_, _ = fmt.Fprintf(tw, "%s\t%.2f\t%.2f\t%.2f\t%s\t%s\n", p.Name, p.Paid, p.Owed, p.Net, ratio, p.Role)
 				}
 			case "collectability":
-				_, _ = fmt.Fprintln(tw, "WHO\tOUTSTANDING\tAGE(d)\tLAST SETTLED(d)\tAVG LATENCY(d)")
+				_, _ = fmt.Fprintln(tw, "WHO\tOUTSTANDING\tAGE\tLAST SETTLED\tAVG LATENCY(d)")
 				for _, p := range result.People {
-					age := "-"
-					if p.DebtAgeDays != nil {
-						age = strconv.Itoa(*p.DebtAgeDays)
-					}
-					last := "-"
-					if p.LastSettledDays != nil {
-						last = strconv.Itoa(*p.LastSettledDays)
-					}
+					age := ageCell(p.DebtAgeDays)
+					last := ageCell(p.LastSettledDays)
 					avg := "-"
 					if p.AvgLatencyDays != nil {
 						avg = fmt.Sprintf("%.2f", *p.AvgLatencyDays)
@@ -383,7 +371,12 @@ func computeFairness(youID int, friends []Friend, groups []Group, expenses []Exp
 			}
 		}
 
-		p.HasHistory = matchedAny
+		// A positive outstanding balance is a current fact from Friend.Balance /
+		// SimplifiedDebts and is NOT date-filtered. A debtor whose every in-scope
+		// expense predates --since must still count as "has history" — otherwise
+		// they'd be miscounted as a new member and dropped from every view,
+		// silently hiding a real (often old) outstanding debt.
+		p.HasHistory = matchedAny || p.OutstandingTotal > 0
 		p.Paid = round2(p.Paid)
 		p.Owed = round2(p.Owed)
 		p.Net = round2(p.Paid - p.Owed)
@@ -656,6 +649,57 @@ func resolveFairnessGroup(input string, groups []Group) (int, string, bool) {
 		}
 	}
 	return 0, "", false
+}
+
+// humanizeDays renders an integer day count as a readable duration for the
+// human table (e.g. 1558 -> "4y 3mo 8d", 19 -> "2w 5d", 5 -> "5d"). Display aid
+// only: the JSON output keeps the raw `*_days` integers so agents and analytics
+// tools do their own (calendar-accurate) conversion. Uses approximate units —
+// year=365d, month=30d, week=7d — fine for a readability hint and deterministic
+// without needing the start date.
+func humanizeDays(days int) string {
+	if days < 0 {
+		days = 0
+	}
+	switch {
+	case days < 7:
+		return fmt.Sprintf("%dd", days)
+	case days < 30:
+		w, d := days/7, days%7
+		if d == 0 {
+			return fmt.Sprintf("%dw", w)
+		}
+		return fmt.Sprintf("%dw %dd", w, d)
+	case days < 365:
+		mo, d := days/30, days%30
+		if d == 0 {
+			return fmt.Sprintf("%dmo", mo)
+		}
+		return fmt.Sprintf("%dmo %dd", mo, d)
+	default:
+		y := days / 365
+		rem := days % 365
+		mo, d := rem/30, rem%30
+		parts := []string{fmt.Sprintf("%dy", y)}
+		if mo > 0 {
+			parts = append(parts, fmt.Sprintf("%dmo", mo))
+		}
+		if d > 0 {
+			parts = append(parts, fmt.Sprintf("%dd", d))
+		}
+		return strings.Join(parts, " ")
+	}
+}
+
+// ageCell renders a *int day-age for a human table: "-" when the age is unknown
+// (nil — e.g. the contributing expense is outside the synced window), otherwise
+// the friendly humanizeDays form. Shared by the `fairness` and `debts` reports so
+// their AGE columns render identically; JSON keeps the raw `*_days` integer.
+func ageCell(days *int) string {
+	if days == nil {
+		return "-"
+	}
+	return humanizeDays(*days)
 }
 
 func tierGlyph(tier string) string {

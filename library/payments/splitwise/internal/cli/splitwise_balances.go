@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"math"
 	"sort"
-	"strconv"
 	"strings"
 	"text/tabwriter"
 	"time"
@@ -382,18 +381,10 @@ func newDebtsCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			tw := tabwriter.NewWriter(cmd.OutOrStdout(), 2, 4, 2, ' ', 0)
-			_, _ = fmt.Fprintln(tw, "FRIEND\tCURRENCY\tAMOUNT\tDIRECTION\tOLDEST EXPENSE\tAGE DAYS")
+			_, _ = fmt.Fprintln(tw, "FRIEND\tCURRENCY\tAMOUNT\tDIRECTION\tOLDEST EXPENSE\tAGE")
 			for _, row := range results {
-				// AgeDays is a *int: nil means the oldest contributing expense
-				// is outside the synced window, so the age is genuinely unknown.
-				// Render the dereferenced value, and a "-" placeholder for nil —
-				// printing the pointer with %d would emit the address for known
-				// ages and a misleading 0 for unknown ones.
-				ageCell := "-"
-				if row.AgeDays != nil {
-					ageCell = strconv.Itoa(*row.AgeDays)
-				}
-				_, _ = fmt.Fprintf(tw, "%s\t%s\t%s\t%s\t%s\t%s\n", row.Name, row.CurrencyCode, row.Amount, row.Direction, row.OldestExpenseDate, ageCell)
+				ageStr := ageCell(row.AgeDays)
+				_, _ = fmt.Fprintf(tw, "%s\t%s\t%s\t%s\t%s\t%s\n", row.Name, row.CurrencyCode, row.Amount, row.Direction, row.OldestExpenseDate, ageStr)
 			}
 			return tw.Flush()
 		},
