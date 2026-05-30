@@ -91,26 +91,59 @@ func TestOldestExpenseForFriend(t *testing.T) {
 
 func TestResolveSettleGroup(t *testing.T) {
 	groups := []Group{{ID: 10, Name: "Tahoe Trip"}, {ID: 20, Name: "Apartment"}}
-	if g, ok := resolveSettleGroup("10", groups); !ok || g.ID != 10 {
-		t.Errorf("resolveSettleGroup(\"10\") = (%+v, %v), want id 10", g, ok)
+	if g, ok, err := resolveSettleGroup("10", groups); !ok || err != nil || g.ID != 10 {
+		t.Errorf("resolveSettleGroup(\"10\") = (%+v, %v, %v), want id 10", g, ok, err)
 	}
-	if g, ok := resolveSettleGroup("tahoe", groups); !ok || g.ID != 10 {
-		t.Errorf("resolveSettleGroup(\"tahoe\") = (%+v, %v), want id 10 (case-insensitive substring)", g, ok)
+	if g, ok, err := resolveSettleGroup("tahoe", groups); !ok || err != nil || g.ID != 10 {
+		t.Errorf("resolveSettleGroup(\"tahoe\") = (%+v, %v, %v), want id 10 (case-insensitive substring)", g, ok, err)
 	}
-	if _, ok := resolveSettleGroup("nonexistent", groups); ok {
-		t.Errorf("resolveSettleGroup(\"nonexistent\") ok = true, want false")
+	if _, ok, err := resolveSettleGroup("nonexistent", groups); ok || err != nil {
+		t.Errorf("resolveSettleGroup(\"nonexistent\") = (ok=%v, err=%v), want (false, nil)", ok, err)
+	}
+}
+
+func TestResolveSettleGroup_Ambiguous(t *testing.T) {
+	// Three "Shy 25" trips: a bare "Shy 25" must error, not silently pick one.
+	groups := []Group{
+		{ID: 1, Name: "Shy 25 Does Vegas 2021"},
+		{ID: 2, Name: "Shy 25 Weekend January 2023"},
+		{ID: 3, Name: "Shy 25 2023"},
+	}
+	if _, ok, err := resolveSettleGroup("Shy 25", groups); ok || err == nil {
+		t.Errorf("resolveSettleGroup(\"Shy 25\") = (ok=%v, err=%v), want ambiguous error", ok, err)
+	}
+	// An exact name wins even though it is a substring of the others.
+	if g, ok, err := resolveSettleGroup("Shy 25 2023", groups); !ok || err != nil || g.ID != 3 {
+		t.Errorf("resolveSettleGroup(\"Shy 25 2023\") = (%+v, %v, %v), want id 3 (exact-match preference)", g, ok, err)
+	}
+	// Duplicate exact names remain ambiguous.
+	dup := []Group{{ID: 11, Name: "ABGT500"}, {ID: 12, Name: "ABGT500"}}
+	if _, ok, err := resolveSettleGroup("ABGT500", dup); ok || err == nil {
+		t.Errorf("resolveSettleGroup(\"ABGT500\") with duplicate names = (ok=%v, err=%v), want ambiguous error", ok, err)
 	}
 }
 
 func TestResolveSettleFriend(t *testing.T) {
 	friends := []Friend{{ID: 1, FirstName: "Alex", LastName: "Kim"}, {ID: 2, FirstName: "Sam", LastName: "Lee"}}
-	if f, ok := resolveSettleFriend("alex", friends); !ok || f.ID != 1 {
-		t.Errorf("resolveSettleFriend(\"alex\") = (%+v, %v), want id 1", f, ok)
+	if f, ok, err := resolveSettleFriend("alex", friends); !ok || err != nil || f.ID != 1 {
+		t.Errorf("resolveSettleFriend(\"alex\") = (%+v, %v, %v), want id 1", f, ok, err)
 	}
-	if f, ok := resolveSettleFriend("Lee", friends); !ok || f.ID != 2 {
-		t.Errorf("resolveSettleFriend(\"Lee\") = (%+v, %v), want id 2 (last-name match)", f, ok)
+	if f, ok, err := resolveSettleFriend("Lee", friends); !ok || err != nil || f.ID != 2 {
+		t.Errorf("resolveSettleFriend(\"Lee\") = (%+v, %v, %v), want id 2 (last-name match)", f, ok, err)
 	}
-	if _, ok := resolveSettleFriend("nobody", friends); ok {
-		t.Errorf("resolveSettleFriend(\"nobody\") ok = true, want false")
+	if _, ok, err := resolveSettleFriend("nobody", friends); ok || err != nil {
+		t.Errorf("resolveSettleFriend(\"nobody\") = (ok=%v, err=%v), want (false, nil)", ok, err)
+	}
+}
+
+func TestResolveSettleFriend_Ambiguous(t *testing.T) {
+	// Two Michaels: a bare first name must error rather than guess.
+	friends := []Friend{{ID: 1, FirstName: "Michael", LastName: "Stone"}, {ID: 2, FirstName: "Michael", LastName: "Reed"}}
+	if _, ok, err := resolveSettleFriend("Michael", friends); ok || err == nil {
+		t.Errorf("resolveSettleFriend(\"Michael\") = (ok=%v, err=%v), want ambiguous error", ok, err)
+	}
+	// Full name disambiguates.
+	if f, ok, err := resolveSettleFriend("Michael Reed", friends); !ok || err != nil || f.ID != 2 {
+		t.Errorf("resolveSettleFriend(\"Michael Reed\") = (%+v, %v, %v), want id 2", f, ok, err)
 	}
 }

@@ -66,7 +66,10 @@ func newSettleUpCmd(flags *rootFlags) *cobra.Command {
 			targetGroupID := 0
 			plan := make([]settleTransfer, 0)
 
-			groupMatch, hasGroupMatch := resolveSettleGroup(input, groups)
+			groupMatch, hasGroupMatch, groupAmbErr := resolveSettleGroup(input, groups)
+			if groupAmbErr != nil {
+				return usageErr(groupAmbErr)
+			}
 			if isAllDigits(input) || hasGroupMatch {
 				if !hasGroupMatch {
 					return usageErr(fmt.Errorf("no group or friend matches %q; run sync first", args[0]))
@@ -107,7 +110,10 @@ func newSettleUpCmd(flags *rootFlags) *cobra.Command {
 					})
 				}
 			} else {
-				friendMatch, ok := resolveSettleFriend(input, friends)
+				friendMatch, ok, friendAmbErr := resolveSettleFriend(input, friends)
+				if friendAmbErr != nil {
+					return usageErr(friendAmbErr)
+				}
 				if !ok {
 					return usageErr(fmt.Errorf("no group or friend matches %q; run sync first", args[0]))
 				}
@@ -256,38 +262,103 @@ func newSettleUpCmd(flags *rootFlags) *cobra.Command {
 	return cmd
 }
 
-func resolveSettleGroup(input string, groups []Group) (Group, bool) {
+// matchGroupsByName returns groups matching input with exact-match preference:
+// if any group's name equals input (case-insensitive), only those exact matches
+// are returned; otherwise all case-insensitive substring matches are returned.
+// Callers decide none/one/ambiguous so a name that matches several groups (e.g.
+// "Shy 25" → three trips) errors instead of silently resolving to the first.
+func matchGroupsByName(input string, groups []Group) []Group {
+	needle := strings.ToLower(strings.TrimSpace(input))
+	var exact, substr []Group
+	for _, g := range groups {
+		name := strings.ToLower(strings.TrimSpace(g.Name))
+		switch {
+		case name == needle:
+			exact = append(exact, g)
+		case strings.Contains(name, needle):
+			substr = append(substr, g)
+		}
+	}
+	if len(exact) > 0 {
+		return exact
+	}
+	return substr
+}
+
+// matchFriendsByName mirrors matchGroupsByName for friends, matching on first,
+// last, or full name with exact-match preference.
+func matchFriendsByName(input string, friends []Friend) []Friend {
+	needle := strings.ToLower(strings.TrimSpace(input))
+	var exact, substr []Friend
+	for _, f := range friends {
+		first := strings.ToLower(strings.TrimSpace(f.FirstName))
+		last := strings.ToLower(strings.TrimSpace(f.LastName))
+		full := strings.TrimSpace(first + " " + last)
+		switch {
+		case needle == full || needle == first || needle == last:
+			exact = append(exact, f)
+		case strings.Contains(first, needle) || strings.Contains(last, needle) || strings.Contains(full, needle):
+			substr = append(substr, f)
+		}
+	}
+	if len(exact) > 0 {
+		return exact
+	}
+	return substr
+}
+
+func ambiguousGroupErr(input string, matches []Group) error {
+	parts := make([]string, 0, len(matches))
+	for _, g := range matches {
+		parts = append(parts, fmt.Sprintf("%q (id %d)", strings.TrimSpace(g.Name), g.ID))
+	}
+	return fmt.Errorf("%q is ambiguous — matches %d groups: %s. Re-run with a numeric group id or the exact name", strings.TrimSpace(input), len(matches), strings.Join(parts, "; "))
+}
+
+func ambiguousFriendErr(input string, matches []Friend) error {
+	parts := make([]string, 0, len(matches))
+	for _, f := range matches {
+		parts = append(parts, fmt.Sprintf("%q (id %d)", friendDisplayName(f), f.ID))
+	}
+	return fmt.Errorf("%q is ambiguous — matches %d friends: %s. Re-run with the exact name", strings.TrimSpace(input), len(matches), strings.Join(parts, "; "))
+}
+
+// resolveSettleGroup resolves a group by numeric id or name. The bool reports a
+// unique match; a non-nil error means the name was ambiguous (multiple matches)
+// and the caller must not silently fall through to another resolution path.
+func resolveSettleGroup(input string, groups []Group) (Group, bool, error) {
 	trimmed := strings.TrimSpace(input)
 	if isAllDigits(trimmed) {
 		id, _ := strconv.Atoi(trimmed)
 		for _, g := range groups {
 			if g.ID == id {
-				return g, true
+				return g, true, nil
 			}
 		}
-		return Group{}, false
+		return Group{}, false, nil
 	}
 
-	needle := strings.ToLower(trimmed)
-	for _, g := range groups {
-		if strings.Contains(strings.ToLower(strings.TrimSpace(g.Name)), needle) {
-			return g, true
-		}
+	matches := matchGroupsByName(input, groups)
+	switch len(matches) {
+	case 0:
+		return Group{}, false, nil
+	case 1:
+		return matches[0], true, nil
+	default:
+		return Group{}, false, ambiguousGroupErr(input, matches)
 	}
-	return Group{}, false
 }
 
-func resolveSettleFriend(input string, friends []Friend) (Friend, bool) {
-	needle := strings.ToLower(strings.TrimSpace(input))
-	for _, f := range friends {
-		first := strings.ToLower(strings.TrimSpace(f.FirstName))
-		last := strings.ToLower(strings.TrimSpace(f.LastName))
-		full := strings.ToLower(strings.TrimSpace(strings.TrimSpace(f.FirstName) + " " + strings.TrimSpace(f.LastName)))
-		if strings.Contains(first, needle) || strings.Contains(last, needle) || strings.Contains(full, needle) {
-			return f, true
-		}
+func resolveSettleFriend(input string, friends []Friend) (Friend, bool, error) {
+	matches := matchFriendsByName(input, friends)
+	switch len(matches) {
+	case 0:
+		return Friend{}, false, nil
+	case 1:
+		return matches[0], true, nil
+	default:
+		return Friend{}, false, ambiguousFriendErr(input, matches)
 	}
-	return Friend{}, false
 }
 
 func settleDisplayName(name string) string {
