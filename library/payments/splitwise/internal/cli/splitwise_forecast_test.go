@@ -133,3 +133,32 @@ func TestComputeForecastFiltersPaymentsAndSettlements(t *testing.T) {
 		t.Fatalf("ExpectedAmount = %.2f, want 50.00", got[0].ExpectedAmount)
 	}
 }
+
+func TestComputeForecastUndatedExpensesDoNotAffectAttribution(t *testing.T) {
+	now := time.Date(2026, 6, 1, 0, 0, 0, 0, time.UTC)
+	expenses := []Expense{
+		{Description: "Dinner", GroupID: 10, Cost: "10.00", Date: "2026-03-01"},
+		{Description: "Dinner", GroupID: 10, Cost: "20.00", Date: "2026-04-01"},
+		{Description: "Dinner", GroupID: 10, Cost: "30.00", Date: "2026-05-01"},
+		{Description: "Bogus label", GroupID: 999, Cost: "999.00", Date: "not-a-date"},
+	}
+	groups := map[int]string{0: "Non-group", 10: "Home", 999: "ShouldNotWin"}
+
+	got := computeForecast(expenses, groups, now, 40, 50)
+	if len(got) != 1 {
+		t.Fatalf("len(got) = %d, want 1", len(got))
+	}
+	row := got[0]
+	if row.Description != "Dinner" {
+		t.Fatalf("Description = %q, want %q", row.Description, "Dinner")
+	}
+	if row.Group != "Home" {
+		t.Fatalf("Group = %q, want %q", row.Group, "Home")
+	}
+	if row.Occurrences != 3 {
+		t.Fatalf("Occurrences = %d, want 3", row.Occurrences)
+	}
+	if row.ExpectedAmount != 20.00 {
+		t.Fatalf("ExpectedAmount = %.2f, want 20.00", row.ExpectedAmount)
+	}
+}

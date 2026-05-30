@@ -64,13 +64,13 @@ func computeForecast(expenses []Expense, groupNames map[int]string, now time.Tim
 		if t, ok := parseFlexibleDate(e.Date); ok {
 			c.dates = append(c.dates, t)
 			c.costs = append(c.costs, parseAmount(e.Cost))
+			label := strings.TrimSpace(e.Description)
+			if label == "" {
+				label = key
+			}
+			c.labels[label]++
+			c.groupCount[e.GroupID]++
 		}
-		label := strings.TrimSpace(e.Description)
-		if label == "" {
-			label = key
-		}
-		c.labels[label]++
-		c.groupCount[e.GroupID]++
 	}
 
 	result := make([]forecastEntry, 0)
@@ -118,7 +118,7 @@ func computeForecast(expenses []Expense, groupNames map[int]string, now time.Tim
 		expectedDate := lastDate.AddDate(0, 0, cadence)
 		overdue := expectedDate.Before(now)
 		if !overdue {
-			if expectedDate.After(windowEnd) || expectedDate.Before(now) {
+			if expectedDate.After(windowEnd) {
 				continue
 			}
 		}
