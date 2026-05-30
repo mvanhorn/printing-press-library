@@ -126,12 +126,14 @@ func newNovelLinesFrequencyCmd(flags *rootFlags) *cobra.Command {
 				if len(deps) > 1 {
 					var totalGap float64
 					var minGap, maxGap float64
+					var validGaps int
 					minGap = 999
 					for i := 1; i < len(deps); i++ {
 						gap := deps[i].Sub(deps[i-1]).Minutes()
 						if gap <= 0 {
 							continue
 						}
+						validGaps++
 						totalGap += gap
 						if gap < minGap {
 							minGap = gap
@@ -140,9 +142,8 @@ func newNovelLinesFrequencyCmd(flags *rootFlags) *cobra.Command {
 							maxGap = gap
 						}
 					}
-					gaps := len(deps) - 1
-					if gaps > 0 && totalGap > 0 {
-						hf.AvgHeadwayMins = totalGap / float64(gaps)
+					if validGaps > 0 && totalGap > 0 {
+						hf.AvgHeadwayMins = totalGap / float64(validGaps)
 						hf.MinHeadwayMins = minGap
 						hf.MaxHeadwayMins = maxGap
 					}

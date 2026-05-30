@@ -146,7 +146,9 @@ were silently cancelled or never dispatched.`,
 				for _, key := range []string{"LineRef", "lineRef"} {
 					if v, ok := j[key].(string); ok {
 						parts := strings.Split(v, ":")
-						liveLineRefs[strings.ToUpper(parts[len(parts)-1])] = true
+						for _, p := range parts {
+							liveLineRefs[strings.ToUpper(p)] = true
+						}
 						liveLineRefs[strings.ToUpper(v)] = true
 					}
 				}

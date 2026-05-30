@@ -626,7 +626,11 @@ func (c *Client) dryRun(method, targetURL, path string, params map[string]string
 		if queryPrinted {
 			sep = "&"
 		}
-		fmt.Fprintf(os.Stderr, "  %s%s=%s\n", sep, "apiKey", maskToken(authHeader))
+		paramName := "apiKey"
+		if strings.Contains(path, "/siri/") {
+			paramName = "AccountKey"
+		}
+		fmt.Fprintf(os.Stderr, "  %s%s=%s\n", sep, paramName, maskToken(authHeader))
 		queryPrinted = true
 	}
 	_ = queryPrinted
