@@ -63,10 +63,16 @@ type Balance struct {
 }
 
 type Friend struct {
-	ID        int       `json:"id"`
-	FirstName string    `json:"first_name"`
-	LastName  string    `json:"last_name"`
-	Balance   []Balance `json:"balance"`
+	ID        int           `json:"id"`
+	FirstName string        `json:"first_name"`
+	LastName  string        `json:"last_name"`
+	Balance   []Balance     `json:"balance"`
+	Groups    []FriendGroup `json:"groups"`
+}
+
+type FriendGroup struct {
+	GroupID int       `json:"group_id"`
+	Balance []Balance `json:"balance"`
 }
 
 type GroupMember struct {
@@ -198,6 +204,9 @@ func loadFriends(db *store.Store) ([]Friend, error) {
 		}
 		if f.Balance == nil {
 			f.Balance = make([]Balance, 0)
+		}
+		if f.Groups == nil {
+			f.Groups = make([]FriendGroup, 0)
 		}
 		out = append(out, f)
 	}

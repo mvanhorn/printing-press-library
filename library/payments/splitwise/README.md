@@ -200,6 +200,7 @@ These capabilities aren't available in any other tool for this API.
   ```bash
   splitwise-pp-cli split "Tahoe Trip" --amount 84 --equal --agent
   ```
+- **`net`** — Net balances across all groups into the fewest direct transfers to settle your whole account (plan-only; `--record` planned).
 
 ## Recipes
 

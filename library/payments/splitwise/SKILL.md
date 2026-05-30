@@ -116,6 +116,15 @@ These capabilities aren't available in any other tool for this API.
   splitwise-pp-cli split "Tahoe Trip" --amount 84 --equal --agent
   ```
 
+### Cross-group netting
+- **`net`** — Net what you owe and are owed across every group and non-group into the fewest direct transfers to settle your entire account.
+
+  _Use when you share groups with the same person and per-group settle-ups would mean paying them more than once — `net` collapses to one transfer per counterparty. Plan-only in v1; `--record` (auto-post the netted payments) is a planned future enhancement._
+
+  ```bash
+  splitwise-pp-cli net --agent
+  ```
+
 ## Command Reference
 
 **add-user-to-group** — Manage add user to group
