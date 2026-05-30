@@ -152,17 +152,31 @@ func New(cfg *config.Config, timeout time.Duration, rateLimit float64) *Client {
 			// "Moved Permanently" body back to the caller.
 			return errors.New("stopped after 10 redirects")
 		}
-		// Tier routing picks header vs query at runtime via authForRequest;
-		// re-deriving here would duplicate that selection logic, so we cap
-		// depth only. Known limitation: Go strips standard auth headers
-		// (Authorization, Cookie) on cross-host redirects but not custom
-		// header names, so a tier credential carried on a custom header
-		// could still be forwarded on a cross-host hop. Stripping it here
-		// requires the runtime tier selection and is tracked separately
-		// from the static-auth cross-host fix below.
+		stripCrossHostAuth(req, via)
 		return nil
 	}
 	return c
+}
+
+func stripCrossHostAuth(req *http.Request, via []*http.Request) {
+	if req == nil || len(via) == 0 {
+		return
+	}
+	previous := via[len(via)-1]
+	if previous == nil || sameRedirectHost(previous.URL, req.URL) {
+		return
+	}
+	// Go strips Authorization/Cookie on cross-host redirects, but custom
+	// credential headers are copied verbatim. The Vestaboard API key is carried
+	// in X-Vestaboard-Token, so delete it explicitly before following the hop.
+	req.Header.Del("X-Vestaboard-Token")
+}
+
+func sameRedirectHost(a, b *url.URL) bool {
+	if a == nil || b == nil {
+		return false
+	}
+	return strings.EqualFold(a.Scheme, b.Scheme) && strings.EqualFold(a.Host, b.Host)
 }
 
 // RateLimit returns the current effective rate limit in req/s. Returns 0 if disabled.

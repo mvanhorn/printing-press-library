@@ -5,6 +5,8 @@ package client
 
 import (
 	"bytes"
+	"net/http"
+	"net/url"
 	"strings"
 	"testing"
 	"unicode/utf8"
@@ -68,5 +70,51 @@ func TestTruncateBody_UTF8RuneAtBoundary(t *testing.T) {
 	// Partial rune must be dropped, not replaced: 4094 valid bytes + "...".
 	if want := 4094 + 3; len(got) != want {
 		t.Fatalf("len = %d, want %d (partial rune should be dropped, not replaced)", len(got), want)
+	}
+}
+
+func TestStripCrossHostAuthRemovesCustomCredentialHeader(t *testing.T) {
+	t.Parallel()
+
+	previousURL, err := url.Parse("https://cloud.vestaboard.com/messages")
+	if err != nil {
+		t.Fatal(err)
+	}
+	nextURL, err := url.Parse("https://cdn.example.test/messages")
+	if err != nil {
+		t.Fatal(err)
+	}
+	req := &http.Request{URL: nextURL, Header: make(http.Header)}
+	req.Header.Set("X-Vestaboard-Token", "secret-token")
+	req.Header.Set("X-Request-Id", "keep-me")
+
+	stripCrossHostAuth(req, []*http.Request{{URL: previousURL}})
+
+	if got := req.Header.Get("X-Vestaboard-Token"); got != "" {
+		t.Fatalf("X-Vestaboard-Token = %q, want stripped", got)
+	}
+	if got := req.Header.Get("X-Request-Id"); got != "keep-me" {
+		t.Fatalf("X-Request-Id = %q, want preserved", got)
+	}
+}
+
+func TestStripCrossHostAuthKeepsCustomCredentialHeaderForSameHost(t *testing.T) {
+	t.Parallel()
+
+	previousURL, err := url.Parse("https://cloud.vestaboard.com/messages")
+	if err != nil {
+		t.Fatal(err)
+	}
+	nextURL, err := url.Parse("https://cloud.vestaboard.com/v2/messages")
+	if err != nil {
+		t.Fatal(err)
+	}
+	req := &http.Request{URL: nextURL, Header: make(http.Header)}
+	req.Header.Set("X-Vestaboard-Token", "secret-token")
+
+	stripCrossHostAuth(req, []*http.Request{{URL: previousURL}})
+
+	if got := req.Header.Get("X-Vestaboard-Token"); got != "secret-token" {
+		t.Fatalf("X-Vestaboard-Token = %q, want preserved", got)
 	}
 }
