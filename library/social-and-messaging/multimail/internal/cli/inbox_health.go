@@ -66,16 +66,16 @@ Run 'multimail-pp-cli sync' first to populate local data.`,
 
 			// Aggregate email stats per mailbox
 			type mailboxHealth struct {
-				MailboxID      string  `json:"mailbox_id"`
-				Address        string  `json:"address,omitempty"`
-				TotalEmails    int     `json:"total_emails"`
-				InboundCount   int     `json:"inbound_count"`
-				OutboundCount  int     `json:"outbound_count"`
-				UnreadCount    int     `json:"unread_count,omitempty"`
-				OldestUnread   string  `json:"oldest_unread,omitempty"`
-				OldestUnreadAge string `json:"oldest_unread_age,omitempty"`
-				ReplyRate      float64 `json:"reply_rate_pct"`
-				UniqueThreads  int     `json:"unique_threads"`
+				MailboxID       string  `json:"mailbox_id"`
+				Address         string  `json:"address,omitempty"`
+				TotalEmails     int     `json:"total_emails"`
+				InboundCount    int     `json:"inbound_count"`
+				OutboundCount   int     `json:"outbound_count"`
+				UnreadCount     int     `json:"unread_count,omitempty"`
+				OldestUnread    string  `json:"oldest_unread,omitempty"`
+				OldestUnreadAge string  `json:"oldest_unread_age,omitempty"`
+				ReplyRate       float64 `json:"reply_rate_pct"`
+				UniqueThreads   int     `json:"unique_threads"`
 			}
 
 			byMailbox := map[string]*mailboxHealth{}
@@ -166,6 +166,16 @@ Run 'multimail-pp-cli sync' first to populate local data.`,
 					mh.TotalEmails++
 					if dir == "inbound" || dir == "received" {
 						mh.InboundCount++
+						status, _ := e["status"].(string)
+						if status != "read" {
+							mh.UnreadCount++
+							if ts, ok := parseNumericTime(e["received_at"]); ok {
+								tsStr := ts.Format(time.RFC3339)
+								if mh.OldestUnread == "" || tsStr < mh.OldestUnread {
+									mh.OldestUnread = tsStr
+								}
+							}
+						}
 					} else {
 						mh.OutboundCount++
 					}

@@ -115,6 +115,8 @@ Use --approve or --reject to specify the action.`,
 						if ts.After(olderThanCutoff) {
 							continue
 						}
+					} else {
+						continue
 					}
 				}
 				matched = append(matched, email)

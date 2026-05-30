@@ -118,21 +118,24 @@ Run 'multimail-pp-cli sync' first to populate local data.`,
 					MailboxID: mailboxID,
 					Action:    normalAction,
 					CreatedAt: created,
+					Latency:   extractDecisionLatency(entry, created),
 				})
 			}
 			auditRows.Close()
 
 			// Aggregate per mailbox
 			type mailboxVelocity struct {
-				MailboxID      string  `json:"mailbox_id"`
-				MailboxAddress string  `json:"mailbox_address,omitempty"`
-				Approved       int     `json:"approved"`
-				Rejected       int     `json:"rejected"`
-				Total          int     `json:"total"`
-				ApprovalRate   float64 `json:"approval_rate_pct"`
+				MailboxID                    string  `json:"mailbox_id"`
+				MailboxAddress               string  `json:"mailbox_address,omitempty"`
+				Approved                     int     `json:"approved"`
+				Rejected                     int     `json:"rejected"`
+				Total                        int     `json:"total"`
+				ApprovalRate                 float64 `json:"approval_rate_pct"`
+				MedianDecisionLatencySeconds float64 `json:"median_decision_latency_seconds"`
 			}
 
 			byMailbox := map[string]*mailboxVelocity{}
+			latenciesByMailbox := map[string][]float64{}
 			for _, d := range decisions {
 				mv, ok := byMailbox[d.MailboxID]
 				if !ok {
@@ -148,12 +151,19 @@ Run 'multimail-pp-cli sync' first to populate local data.`,
 				} else {
 					mv.Rejected++
 				}
+				if d.Latency > 0 {
+					latenciesByMailbox[d.MailboxID] = append(latenciesByMailbox[d.MailboxID], d.Latency.Seconds())
+				}
 			}
 
 			var results []mailboxVelocity
 			for _, mv := range byMailbox {
 				if mv.Total > 0 {
 					mv.ApprovalRate = float64(mv.Approved) / float64(mv.Total) * 100
+				}
+				if latencies := latenciesByMailbox[mv.MailboxID]; len(latencies) > 0 {
+					sort.Float64s(latencies)
+					mv.MedianDecisionLatencySeconds = median(latencies)
 				}
 				results = append(results, *mv)
 			}
@@ -162,10 +172,10 @@ Run 'multimail-pp-cli sync' first to populate local data.`,
 			})
 
 			output := map[string]any{
-				"period_days":   flagDays,
+				"period_days":     flagDays,
 				"total_decisions": len(decisions),
-				"mailboxes":      results,
-				"generated_at":   time.Now().UTC().Format(time.RFC3339),
+				"mailboxes":       results,
+				"generated_at":    time.Now().UTC().Format(time.RFC3339),
 			}
 
 			return printJSONFiltered(cmd.OutOrStdout(), output, flags)
@@ -193,6 +203,32 @@ func median(sorted []float64) float64 {
 		return (sorted[n/2-1] + sorted[n/2]) / 2
 	}
 	return sorted[n/2]
+}
+
+func extractDecisionLatency(entry map[string]any, decisionAt time.Time) time.Duration {
+	emailCreatedAt, ok := parseDecisionSourceCreatedAt(entry)
+	if !ok || !decisionAt.After(emailCreatedAt) {
+		return 0
+	}
+	return decisionAt.Sub(emailCreatedAt)
+}
+
+func parseDecisionSourceCreatedAt(entry map[string]any) (time.Time, bool) {
+	for _, key := range []string{"email_created_at", "resource_created_at", "pending_created_at"} {
+		if ts, ok := parseNumericTime(entry[key]); ok {
+			return ts, true
+		}
+	}
+
+	if metadata, ok := entry["metadata"].(map[string]any); ok {
+		for _, key := range []string{"email_created_at", "resource_created_at", "pending_created_at", "created_at"} {
+			if ts, ok := parseNumericTime(metadata[key]); ok {
+				return ts, true
+			}
+		}
+	}
+
+	return time.Time{}, false
 }
 
 // parseNumericTime parses either RFC3339 or epoch seconds into a time.Time.
