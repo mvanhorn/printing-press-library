@@ -217,6 +217,8 @@ included in the output.`,
 				return options[i].depTimeVal.Before(options[j].depTimeVal)
 			})
 
+			totalFound := len(options)
+
 			// Limit to top 5 options
 			if len(options) > 5 {
 				options = options[:5]
@@ -232,7 +234,7 @@ included in the output.`,
 				From:        flagFrom,
 				To:          flagTo,
 				DepartAfter: departAt.Format(time.RFC3339),
-				Found:       len(options),
+				Found:       totalFound,
 				Options:     options,
 			}
 

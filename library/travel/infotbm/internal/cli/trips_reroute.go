@@ -214,6 +214,8 @@ searches for the next best connections using live SIRI estimated timetable data.
 				return options[i].depTimeVal.Before(options[j].depTimeVal)
 			})
 
+			totalFound := len(options)
+
 			// Limit to top 5
 			if len(options) > 5 {
 				options = options[:5]
@@ -231,7 +233,7 @@ searches for the next best connections using live SIRI estimated timetable data.
 				Destination: flagTo,
 				DelayMins:   delayMins,
 				EarliestAt:  earliest.Format(time.RFC3339),
-				Found:       len(options),
+				Found:       totalFound,
 				Options:     options,
 			}
 
