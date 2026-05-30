@@ -15,6 +15,7 @@ import (
 	"net/url"
 	"os"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
 
@@ -51,6 +52,25 @@ func droppedFilterParams(params map[string]string) []string {
 	}
 	sort.Strings(dropped)
 	return dropped
+}
+
+// localPageBounds extracts a positive offset and limit from the caller's
+// pagination params so a local list read honors the requested page size instead
+// of returning the whole cache. Zero means "unbounded" — analytics callers go
+// straight to db.List and never pass through here, but the generic get-* list
+// commands carry the user's --limit and must not have it silently dropped.
+func localPageBounds(params map[string]string) (offset, limit int) {
+	if v := strings.TrimSpace(params["limit"]); v != "" {
+		if n, err := strconv.Atoi(v); err == nil && n > 0 {
+			limit = n
+		}
+	}
+	if v := strings.TrimSpace(params["offset"]); v != "" {
+		if n, err := strconv.Atoi(v); err == nil && n > 0 {
+			offset = n
+		}
+	}
+	return offset, limit
 }
 
 func unsupportedDataSourceError(strategy, requested string) error {
@@ -604,13 +624,23 @@ func resolveLocal(ctx context.Context, flags *rootFlags, hintWriter io.Writer, r
 	}
 
 	if isList {
-		raw, err := db.List(resourceType, 0) // 0 = no limit, return all synced data
+		// Honor the caller's pagination on local reads. db.List orders by
+		// updated_at DESC, so fetching offset+limit rows and trimming the offset
+		// yields a stable page; a non-positive limit fetches everything (analytics
+		// resources with no limit param). Without this, a plain
+		// `--data-source local --limit N` returned the entire store.
+		offset, limit := localPageBounds(params)
+		fetch := 0
+		if limit > 0 {
+			fetch = offset + limit
+		}
+		raw, err := db.List(resourceType, fetch)
 		if err != nil {
 			return nil, DataProvenance{}, fmt.Errorf("querying local store: %w", err)
 		}
 		// Filter out empty/invalid records (empty arrays, null, whitespace-only)
 		// that can end up in the store from pagination boundary artifacts.
-		var items []json.RawMessage
+		items := make([]json.RawMessage, 0, len(raw))
 		for _, r := range raw {
 			trimmed := strings.TrimSpace(string(r))
 			if trimmed == "" || trimmed == "null" || trimmed == "[]" || trimmed == "{}" {
@@ -621,7 +651,19 @@ func resolveLocal(ctx context.Context, flags *rootFlags, hintWriter io.Writer, r
 		if len(items) == 0 {
 			return nil, DataProvenance{}, fmt.Errorf("no local data for %q. Run 'splitwise-pp-cli sync' first", resourceType)
 		}
-		// Marshal []json.RawMessage into a single JSON array
+		// Apply the requested page within the fetched rows. An offset past the
+		// end is a valid empty page, not an error.
+		if offset > 0 {
+			if offset >= len(items) {
+				items = items[:0]
+			} else {
+				items = items[offset:]
+			}
+		}
+		if limit > 0 && limit < len(items) {
+			items = items[:limit]
+		}
+		// Marshal []json.RawMessage into a single JSON array ([] when empty).
 		data, err := json.Marshal(items)
 		if err != nil {
 			return nil, DataProvenance{}, fmt.Errorf("marshaling local data: %w", err)

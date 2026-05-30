@@ -23,8 +23,10 @@ const (
 	// recurringMaxCadenceDays caps how infrequent a recurring charge may be. A
 	// recurring charge (rent, utilities, subscriptions) repeats at most about
 	// annually; wider mean spacing means the repeats are coincidental, not a
-	// recurring obligation, even when they happen to be evenly spaced.
-	recurringMaxCadenceDays = 366
+	// recurring obligation, even when they happen to be evenly spaced. The cap
+	// sits above a calendar year so an annual charge with late renewals (mean
+	// just over 365 days) is not dropped by rounding/billing drift.
+	recurringMaxCadenceDays = 400
 )
 
 // isSettlementDescription reports whether a description is an auto-generated
@@ -125,7 +127,7 @@ func newRecurringCmd(flags *rootFlags) *cobra.Command {
 			clusters := make(map[string]*grouped)
 			scanned := 0
 			for _, e := range expenses {
-				if e.Payment || e.DeletedAt != nil || isSettlementDescription(e.Description) {
+				if e.Payment || expenseDeleted(e.DeletedAt) || isSettlementDescription(e.Description) {
 					continue
 				}
 				scanned++

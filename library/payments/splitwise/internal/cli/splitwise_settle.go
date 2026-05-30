@@ -67,9 +67,6 @@ func newSettleUpCmd(flags *rootFlags) *cobra.Command {
 			plan := make([]settleTransfer, 0)
 
 			groupMatch, hasGroupMatch, groupAmbErr := resolveSettleGroup(input, groups)
-			if groupAmbErr != nil {
-				return usageErr(groupAmbErr)
-			}
 			if isAllDigits(input) || hasGroupMatch {
 				if !hasGroupMatch {
 					return usageErr(fmt.Errorf("no group or friend matches %q; run sync first", args[0]))
@@ -110,12 +107,19 @@ func newSettleUpCmd(flags *rootFlags) *cobra.Command {
 					})
 				}
 			} else {
+				// Not a unique group. Try friend before surfacing any group
+				// ambiguity — a uniquely-named friend whose name is also a
+				// substring of several group names should still settle.
 				friendMatch, ok, friendAmbErr := resolveSettleFriend(input, friends)
-				if friendAmbErr != nil {
-					return usageErr(friendAmbErr)
-				}
 				if !ok {
-					return usageErr(fmt.Errorf("no group or friend matches %q; run sync first", args[0]))
+					switch {
+					case groupAmbErr != nil:
+						return usageErr(groupAmbErr)
+					case friendAmbErr != nil:
+						return usageErr(friendAmbErr)
+					default:
+						return usageErr(fmt.Errorf("no group or friend matches %q; run sync first", args[0]))
+					}
 				}
 				targetType = "friend"
 				targetName = friendDisplayName(friendMatch)
