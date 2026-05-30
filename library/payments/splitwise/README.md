@@ -207,7 +207,7 @@ These capabilities aren't available in any other tool for this API.
   splitwise-pp-cli split "Tahoe Trip" --amount 84 --equal --agent
   ```
 - **`net`** — Net balances across all groups into the fewest direct transfers to settle your whole account (plan-only; `--record` planned).
-- **`audit`** — Scan synced expenses offline for likely duplicates (same description, cost, date, and group) and per-category cost outliers (above mean + 3σ); read-only, `--limit` caps findings per type (default 50).
+- **`audit`** — Scan synced expenses offline for likely duplicates (same description, cost, currency, date, and group) and per-category cost outliers (robust modified z-score using median/MAD; high-side threshold > 3.5); read-only, `--limit` caps findings per type (default 50).
 
 ## Recipes
 
