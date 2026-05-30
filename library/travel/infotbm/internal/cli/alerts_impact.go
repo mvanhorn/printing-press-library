@@ -137,7 +137,11 @@ func newNovelAlertsImpactCmd(flags *rootFlags) *cobra.Command {
 						shortName := strings.ToUpper(l)
 						// Extract short name from refs like "line:BM:A"
 						if parts := strings.Split(l, ":"); len(parts) > 0 {
-							shortName = strings.ToUpper(parts[len(parts)-1])
+							short := parts[len(parts)-1]
+							if len(parts) >= 4 {
+								short = parts[len(parts)-2]
+							}
+							shortName = strings.ToUpper(short)
 						}
 						if lineFilter[shortName] || lineFilter[strings.ToUpper(l)] {
 							match = true
