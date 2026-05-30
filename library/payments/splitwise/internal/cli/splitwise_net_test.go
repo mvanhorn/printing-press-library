@@ -210,3 +210,55 @@ func TestComputeNetPlan_SavingsIncludeNonGroupRemainder(t *testing.T) {
 		t.Fatalf("Savings = %+v, want per_group=4 netted=2 saved=2", s)
 	}
 }
+
+func TestComputeNetPlan_PlanUsesNettedTotalsPerFriendCurrency(t *testing.T) {
+	friends := []Friend{
+		{
+			ID:        40,
+			FirstName: "Riley",
+			LastName:  "Shaw",
+			Balance: []Balance{
+				{CurrencyCode: "USD", Amount: "5.00"},
+				{CurrencyCode: "USD", Amount: "-5.00"},
+			},
+		},
+	}
+
+	got := computeNetPlan(friends, 0)
+	if len(got.Plan) != 0 {
+		t.Fatalf("len(Plan) = %d, want 0 for zero-net same-currency friend", len(got.Plan))
+	}
+	for _, row := range got.ByCurrency {
+		if row.CurrencyCode == "USD" {
+			t.Fatalf("unexpected USD summary row for fully netted friend totals: %+v", row)
+		}
+	}
+}
+
+func TestComputeNetPlan_SavingsCountsOffsettingNonGroupRemainder(t *testing.T) {
+	friends := []Friend{
+		{
+			ID:        41,
+			FirstName: "Quinn",
+			LastName:  "Hart",
+			Balance: []Balance{
+				{CurrencyCode: "USD", Amount: "4.00"},
+			},
+			Groups: []FriendGroup{
+				{GroupID: 1, Balance: []Balance{{CurrencyCode: "USD", Amount: "10.00"}}},
+			},
+		},
+	}
+
+	got := computeNetPlan(friends, 0)
+	if len(got.Savings) != 1 {
+		t.Fatalf("len(Savings) = %d, want 1", len(got.Savings))
+	}
+	s := got.Savings[0]
+	if s.CurrencyCode != "USD" {
+		t.Fatalf("Savings currency = %q, want USD", s.CurrencyCode)
+	}
+	if s.PerGroupTransfers != 2 || s.NettedTransfers != 1 || s.Saved != 1 {
+		t.Fatalf("Savings = %+v, want per_group=2 netted=1 saved=1", s)
+	}
+}

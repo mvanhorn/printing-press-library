@@ -59,25 +59,32 @@ func computeNetPlan(friends []Friend, youID int) netResult {
 			}
 			cc := strings.TrimSpace(b.CurrencyCode)
 			friendTotals[cc] += amt
+		}
+
+		for cc, total := range friendTotals {
+			total = round2(total)
+			if total == 0 {
+				continue
+			}
 			if _, ok := agg[cc]; !ok {
 				agg[cc] = &netCurrencySummary{CurrencyCode: cc}
 			}
-			if amt > 0 {
-				agg[cc].OwedToYou += amt
-			} else if amt < 0 {
-				agg[cc].YouOwe += -amt
+			if total > 0 {
+				agg[cc].OwedToYou += total
+			} else if total < 0 {
+				agg[cc].YouOwe += -total
 			}
-			agg[cc].Net += amt
+			agg[cc].Net += total
 			nettedCounts[cc]++
 			direction := "you_pay"
-			if amt > 0 {
+			if total > 0 {
 				direction = "they_pay"
 			}
 			plan = append(plan, netTransfer{
 				FriendID:     f.ID,
 				FriendName:   name,
 				Direction:    direction,
-				Amount:       round2(math.Abs(amt)),
+				Amount:       round2(math.Abs(total)),
 				CurrencyCode: cc,
 			})
 		}
@@ -96,8 +103,14 @@ func computeNetPlan(friends []Friend, youID int) netResult {
 			}
 		}
 		for cc, total := range friendTotals {
+			total = round2(total)
+			if total == 0 {
+				continue
+			}
 			txns := groupTxns[cc]
-			if math.Abs(total) > math.Abs(groupSums[cc]) {
+			// per_group_transfers counts distinct settlement legs (group + non-group).
+			remainder := round2(total - groupSums[cc])
+			if remainder != 0 {
 				txns++
 			}
 			perGroupCounts[cc] += txns
