@@ -312,19 +312,43 @@ func matchFriendsByName(input string, friends []Friend) []Friend {
 }
 
 func ambiguousGroupErr(input string, matches []Group) error {
-	parts := make([]string, 0, len(matches))
-	for _, g := range matches {
+	const maxShown = 5
+	capacity := len(matches)
+	if capacity > maxShown {
+		capacity = maxShown
+	}
+	parts := make([]string, 0, capacity)
+	for i, g := range matches {
+		if i >= maxShown {
+			break
+		}
 		parts = append(parts, fmt.Sprintf("%q (id %d)", strings.TrimSpace(g.Name), g.ID))
 	}
-	return fmt.Errorf("%q is ambiguous — matches %d groups: %s. Re-run with a numeric group id or the exact name", strings.TrimSpace(input), len(matches), strings.Join(parts, "; "))
+	suffix := ""
+	if len(matches) > maxShown {
+		suffix = fmt.Sprintf("; … and %d more", len(matches)-maxShown)
+	}
+	return fmt.Errorf("%q is ambiguous — matches %d groups: %s%s. Re-run with a numeric group id or the exact name", strings.TrimSpace(input), len(matches), strings.Join(parts, "; "), suffix)
 }
 
 func ambiguousFriendErr(input string, matches []Friend) error {
-	parts := make([]string, 0, len(matches))
-	for _, f := range matches {
+	const maxShown = 5
+	capacity := len(matches)
+	if capacity > maxShown {
+		capacity = maxShown
+	}
+	parts := make([]string, 0, capacity)
+	for i, f := range matches {
+		if i >= maxShown {
+			break
+		}
 		parts = append(parts, fmt.Sprintf("%q (id %d)", friendDisplayName(f), f.ID))
 	}
-	return fmt.Errorf("%q is ambiguous — matches %d friends: %s. Re-run with the exact name", strings.TrimSpace(input), len(matches), strings.Join(parts, "; "))
+	suffix := ""
+	if len(matches) > maxShown {
+		suffix = fmt.Sprintf("; … and %d more", len(matches)-maxShown)
+	}
+	return fmt.Errorf("%q is ambiguous — matches %d friends: %s%s. Re-run with the exact name", strings.TrimSpace(input), len(matches), strings.Join(parts, "; "), suffix)
 }
 
 // resolveSettleGroup resolves a group by numeric id or name. The bool reports a

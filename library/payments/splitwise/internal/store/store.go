@@ -675,8 +675,16 @@ func (s *Store) List(resourceType string, limit int) ([]json.RawMessage, error) 
 	// ordered by sync time, which dropped expenses from spend/debts/ledger/
 	// balances even when the local store was complete. A positive limit still
 	// caps the result for callers that genuinely want a bounded page.
-	query := `SELECT data FROM resources WHERE resource_type = ? ORDER BY updated_at DESC`
-	args := []any{resourceType}
+	emptyRecordExclusion := `TRIM(data, char(32)||char(9)||char(10)||char(13)) NOT IN ('', '[]', '{}', 'null')`
+	query := `SELECT data FROM resources`
+	var args []any
+	if resourceType != "" {
+		query += ` WHERE resource_type = ? AND ` + emptyRecordExclusion
+		args = append(args, resourceType)
+	} else {
+		query += ` WHERE ` + emptyRecordExclusion
+	}
+	query += ` ORDER BY updated_at DESC`
 	if limit > 0 {
 		query += ` LIMIT ?`
 		args = append(args, limit)
@@ -705,24 +713,28 @@ func searchableText(data string) string {
 	}
 
 	var values []string
-	var walk func(v any)
-	walk = func(v any) {
+	var walk func(v any, key string)
+	walk = func(v any, key string) {
 		switch t := v.(type) {
 		case map[string]any:
-			for _, child := range t {
-				walk(child)
+			for childKey, child := range t {
+				walk(child, childKey)
 			}
 		case []any:
 			for _, child := range t {
-				walk(child)
+				walk(child, "")
 			}
 		case string:
+			keyLower := strings.ToLower(strings.TrimSpace(key))
+			if strings.Contains(keyLower, "currency") {
+				return
+			}
 			if isMeaningfulSearchText(t) {
 				values = append(values, strings.ToLower(strings.TrimSpace(t)))
 			}
 		}
 	}
-	walk(payload)
+	walk(payload, "")
 	return strings.Join(values, " ")
 }
 
@@ -740,18 +752,6 @@ func isMeaningfulSearchText(s string) bool {
 	}
 	if !strings.ContainsAny(trimmed, " \t\r\n") && emailLikeRe.MatchString(trimmed) {
 		return false
-	}
-	if len(trimmed) == 3 {
-		isUpperASCII := true
-		for i := 0; i < 3; i++ {
-			if trimmed[i] < 'A' || trimmed[i] > 'Z' {
-				isUpperASCII = false
-				break
-			}
-		}
-		if isUpperASCII {
-			return false
-		}
 	}
 	if len(trimmed) >= 5 &&
 		trimmed[0] >= '0' && trimmed[0] <= '9' &&

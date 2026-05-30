@@ -1,6 +1,9 @@
 package cli
 
-import "testing"
+import (
+	"strings"
+	"testing"
+)
 
 func TestParseAmount(t *testing.T) {
 	cases := []struct {
@@ -120,6 +123,33 @@ func TestResolveSettleGroup_Ambiguous(t *testing.T) {
 	dup := []Group{{ID: 11, Name: "ABGT500"}, {ID: 12, Name: "ABGT500"}}
 	if _, ok, err := resolveSettleGroup("ABGT500", dup); ok || err == nil {
 		t.Errorf("resolveSettleGroup(\"ABGT500\") with duplicate names = (ok=%v, err=%v), want ambiguous error", ok, err)
+	}
+}
+
+func TestResolveSettleGroup_AmbiguousMessageCapsCandidates(t *testing.T) {
+	groups := []Group{
+		{ID: 1, Name: "Trip Alpha 1"},
+		{ID: 2, Name: "Trip Alpha 2"},
+		{ID: 3, Name: "Trip Alpha 3"},
+		{ID: 4, Name: "Trip Alpha 4"},
+		{ID: 5, Name: "Trip Alpha 5"},
+		{ID: 6, Name: "Trip Alpha 6"},
+		{ID: 7, Name: "Trip Alpha 7"},
+	}
+	_, ok, err := resolveSettleGroup("Alpha", groups)
+	if ok || err == nil {
+		t.Fatalf("resolveSettleGroup(\"Alpha\") = (ok=%v, err=%v), want ambiguous error", ok, err)
+	}
+
+	msg := err.Error()
+	if !strings.Contains(msg, "matches 7 groups") {
+		t.Fatalf("ambiguous error missing full match count prefix: %q", msg)
+	}
+	if !strings.Contains(msg, "and 2 more") {
+		t.Fatalf("ambiguous error missing remainder count: %q", msg)
+	}
+	if strings.Count(msg, "(id ") != 5 {
+		t.Fatalf("ambiguous error listed %d candidates, want exactly 5: %q", strings.Count(msg, "(id "), msg)
 	}
 }
 

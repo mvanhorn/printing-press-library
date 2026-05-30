@@ -77,6 +77,39 @@ func TestSearchExactRelevance(t *testing.T) {
 	}
 }
 
+func TestSearch_CurrencyKeyFilteredButThreeLetterTextSearchable(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+	s, err := Open(dbPath)
+	if err != nil {
+		t.Fatalf("open: %v", err)
+	}
+	defer s.Close()
+
+	items := []json.RawMessage{
+		json.RawMessage(`{"id":"e1","description":"BBQ","currency_code":"USD"}`),
+		json.RawMessage(`{"id":"e2","currency_code":"USD"}`),
+	}
+	if _, _, err := s.UpsertBatch("expenses", items); err != nil {
+		t.Fatalf("UpsertBatch: %v", err)
+	}
+
+	bbqResults, err := s.Search("bbq", "", 50, false)
+	if err != nil {
+		t.Fatalf("Search(bbq): %v", err)
+	}
+	if len(bbqResults) != 1 {
+		t.Fatalf("Search(bbq) returned %d results, want 1", len(bbqResults))
+	}
+
+	usdResults, err := s.Search("USD", "", 50, false)
+	if err != nil {
+		t.Fatalf("Search(USD): %v", err)
+	}
+	if len(usdResults) != 0 {
+		t.Fatalf("Search(USD) returned %d results, want 0", len(usdResults))
+	}
+}
+
 func TestSearchTypeFilter(t *testing.T) {
 	dbPath := filepath.Join(t.TempDir(), "data.db")
 	s, err := Open(dbPath)

@@ -638,16 +638,7 @@ func resolveLocal(ctx context.Context, flags *rootFlags, hintWriter io.Writer, r
 		if err != nil {
 			return nil, DataProvenance{}, fmt.Errorf("querying local store: %w", err)
 		}
-		// Filter out empty/invalid records (empty arrays, null, whitespace-only)
-		// that can end up in the store from pagination boundary artifacts.
-		items := make([]json.RawMessage, 0, len(raw))
-		for _, r := range raw {
-			trimmed := strings.TrimSpace(string(r))
-			if trimmed == "" || trimmed == "null" || trimmed == "[]" || trimmed == "{}" {
-				continue
-			}
-			items = append(items, r)
-		}
+		items := raw
 		if len(items) == 0 {
 			return nil, DataProvenance{}, fmt.Errorf("no local data for %q. Run 'splitwise-pp-cli sync' first", resourceType)
 		}

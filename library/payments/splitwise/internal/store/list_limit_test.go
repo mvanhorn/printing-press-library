@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	_ "modernc.org/sqlite"
@@ -51,5 +52,63 @@ func TestList_NonPositiveLimitReturnsAllRows(t *testing.T) {
 	}
 	if len(rows) != 50 {
 		t.Fatalf("List(limit=50) returned %d rows, want 50 (positive limit must still cap)", len(rows))
+	}
+}
+
+func TestList_ExcludesEmptyRecordsAndFillsPageWithValidRows(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+	s, err := Open(dbPath)
+	if err != nil {
+		t.Fatalf("open: %v", err)
+	}
+	defer s.Close()
+
+	resourceType := "get-expenses"
+	entries := []string{
+		`{"id":"v1","description":"one"}`,
+		`[]`,
+		`{"id":"v2","description":"two"}`,
+		`null`,
+		`{"id":"v3","description":"three"}`,
+		`{}`,
+		`{"id":"v4","description":"four"}`,
+		`    `,
+		`{"id":"v5","description":"five"}`,
+		`[]`,
+		`{"id":"v6","description":"six"}`,
+		`{"id":"v7","description":"seven"}`,
+	}
+	for i, raw := range entries {
+		if err := s.Upsert(resourceType, fmt.Sprintf("row-%d", i), json.RawMessage(raw)); err != nil {
+			t.Fatalf("Upsert(%d): %v", i, err)
+		}
+	}
+
+	page, err := s.List(resourceType, 5)
+	if err != nil {
+		t.Fatalf("List(limit=5): %v", err)
+	}
+	if len(page) != 5 {
+		t.Fatalf("List(limit=5) returned %d rows, want 5 valid rows", len(page))
+	}
+	for i, row := range page {
+		trimmed := strings.TrimSpace(string(row))
+		if trimmed == "" || trimmed == "null" || trimmed == "[]" || trimmed == "{}" {
+			t.Fatalf("List(limit=5) row %d is empty artifact %q", i, trimmed)
+		}
+	}
+
+	all, err := s.List(resourceType, 0)
+	if err != nil {
+		t.Fatalf("List(limit=0): %v", err)
+	}
+	if len(all) != 7 {
+		t.Fatalf("List(limit=0) returned %d rows, want 7 valid rows", len(all))
+	}
+	for i, row := range all {
+		trimmed := strings.TrimSpace(string(row))
+		if trimmed == "" || trimmed == "null" || trimmed == "[]" || trimmed == "{}" {
+			t.Fatalf("List(limit=0) row %d is empty artifact %q", i, trimmed)
+		}
 	}
 }
