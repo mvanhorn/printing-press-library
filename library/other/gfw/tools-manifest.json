@@ -1,0 +1,496 @@
+{
+  "api_name": "gfw",
+  "base_url": "https://gateway.api.globalfishingwatch.org",
+  "description": "Every GFW vessel-behavior and risk surface on the command line, plus a local cache that turns one-shot lookups into a compounding due-diligence index.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "GFW_TOKEN"
+    ],
+    "env_var_specs": [
+      {
+        "name": "GFW_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ],
+    "key_url": "https://globalfishingwatch.org/our-apis/tokens/signup"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "4wings_create",
+      "description": "Report with vessel_type filter. Optional: spatial-resolution, temporal-resolution, datasets[0] (plus 4 more).",
+      "method": "POST",
+      "path": "/v3/4wings/report",
+      "params": [
+        {
+          "name": "spatial-resolution",
+          "type": "string",
+          "location": "query",
+          "description": "Spatial resolution"
+        },
+        {
+          "name": "temporal-resolution",
+          "type": "string",
+          "location": "query",
+          "description": "Temporal resolution"
+        },
+        {
+          "name": "datasets[0]",
+          "type": "string",
+          "location": "query",
+          "description": "Datasets 0"
+        },
+        {
+          "name": "filters[0]",
+          "type": "string",
+          "location": "query",
+          "description": "Filters 0"
+        },
+        {
+          "name": "date-range",
+          "type": "string",
+          "location": "query",
+          "description": "Date range"
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query",
+          "description": "Format"
+        },
+        {
+          "name": "spatial-aggregation",
+          "type": "string",
+          "location": "query",
+          "description": "Spatial aggregation"
+        }
+      ]
+    },
+    {
+      "name": "4wings_list",
+      "description": "Last report.",
+      "method": "GET",
+      "path": "/v3/4wings/last-report",
+      "params": []
+    },
+    {
+      "name": "4wings_list-report",
+      "description": "Report, Carrier Vessels Only. Optional: spatial-resolution, temporal-resolution, group-by (plus 7 more).",
+      "method": "GET",
+      "path": "/v3/4wings/report",
+      "params": [
+        {
+          "name": "spatial-resolution",
+          "type": "string",
+          "location": "query",
+          "description": "Spatial resolution"
+        },
+        {
+          "name": "temporal-resolution",
+          "type": "string",
+          "location": "query",
+          "description": "Temporal resolution"
+        },
+        {
+          "name": "group-by",
+          "type": "string",
+          "location": "query",
+          "description": "Group by"
+        },
+        {
+          "name": "datasets[0]",
+          "type": "string",
+          "location": "query",
+          "description": "Datasets 0"
+        },
+        {
+          "name": "filters[0]",
+          "type": "string",
+          "location": "query",
+          "description": "Filters 0"
+        },
+        {
+          "name": "date-range",
+          "type": "string",
+          "location": "query",
+          "description": "Date range"
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query",
+          "description": "Format"
+        },
+        {
+          "name": "spatial-aggregation",
+          "type": "bool",
+          "location": "query",
+          "description": "Spatial aggregation"
+        },
+        {
+          "name": "region-dataset",
+          "type": "string",
+          "location": "query",
+          "description": "Region dataset"
+        },
+        {
+          "name": "region-id",
+          "type": "int",
+          "location": "query",
+          "description": "Region id"
+        }
+      ]
+    },
+    {
+      "name": "4wings_list-stats",
+      "description": "Get fishing effort stats for a time period with filter by distance from port(km). Optional: datasets[0], fields, date-range (plus 1 more).",
+      "method": "GET",
+      "path": "/v3/4wings/stats",
+      "params": [
+        {
+          "name": "datasets[0]",
+          "type": "string",
+          "location": "query",
+          "description": "Datasets 0"
+        },
+        {
+          "name": "fields",
+          "type": "string",
+          "location": "query",
+          "description": "Fields"
+        },
+        {
+          "name": "date-range",
+          "type": "string",
+          "location": "query",
+          "description": "Date range"
+        },
+        {
+          "name": "filters[0]",
+          "type": "string",
+          "location": "query",
+          "description": "Filters 0"
+        }
+      ]
+    },
+    {
+      "name": "bulk-reports_create",
+      "description": "Create bulk report fixed infrastructure in ARG EEZ + structure ID. Returns the new BulkReportsCreateResponse.",
+      "method": "POST",
+      "path": "/v3/bulk-reports",
+      "params": []
+    },
+    {
+      "name": "bulk-reports_get",
+      "description": "Get bulk report by id. Required: bulk_report_id.",
+      "method": "GET",
+      "path": "/v3/bulk-reports/{bulk_report_id}",
+      "params": [
+        {
+          "name": "bulk_report_id",
+          "type": "string",
+          "location": "path",
+          "description": "Bulk report id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "bulk-reports_list",
+      "description": "Get all reports by user. Optional: limit, offset, sort.",
+      "method": "GET",
+      "path": "/v3/bulk-reports",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "(Required) Amount of search results to return."
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "(Required) Offset into the search results, used for pagination. It starts at 0. It is used in combination with the param “limit”. For example, you send limit = 5 and you get in the response total vessels =10. So, If you send offset =0, you will get the first 5 results (first page). Therefore, in order to get the second page, you need to send offset = 5 which is the position of the first element you want from the second page."
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Query to sort the list of resources"
+        }
+      ]
+    },
+    {
+      "name": "bulk-reports_download-file-url_get",
+      "description": "Get url of the data file to download it - GEOM. Required: bulk_report_id. Optional: file.",
+      "method": "GET",
+      "path": "/v3/bulk-reports/{bulk_report_id}/download-file-url",
+      "params": [
+        {
+          "name": "file",
+          "type": "string",
+          "location": "query",
+          "description": "(Required) File to download"
+        },
+        {
+          "name": "bulk_report_id",
+          "type": "string",
+          "location": "path",
+          "description": "Bulk report id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "bulk-reports_query_get",
+      "description": "Get data as json sort by structure end date ASC and only 3 fields. Required: bulk_report_id. Optional: limit, offset, sort (plus 3 more). Returns the QueryGetResponse.",
+      "method": "GET",
+      "path": "/v3/bulk-reports/{bulk_report_id}/query",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "(Required) Amount of search results to return."
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "(Required) Offset into the search results, used for pagination. It starts at 0. It is used in combination with the param “limit”. For example, you send limit = 5 and you get in the response total vessels =10. So, If you send offset =0, you will get the first 5 results (first page). Therefore, in order to get the second page, you need to send offset = 5 which is the position of the first element you want from the second page."
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Query to sort the list of resources"
+        },
+        {
+          "name": "includes[0]",
+          "type": "string",
+          "location": "query",
+          "description": "Optional. Fields to include"
+        },
+        {
+          "name": "includes[1]",
+          "type": "string",
+          "location": "query",
+          "description": "Includes 1"
+        },
+        {
+          "name": "includes[2]",
+          "type": "string",
+          "location": "query",
+          "description": "Includes 2"
+        },
+        {
+          "name": "bulk_report_id",
+          "type": "string",
+          "location": "path",
+          "description": "Bulk report id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "datasets_list",
+      "description": "SAR Fixed infra MVT - no filter Copy. Optional: includes.",
+      "method": "GET",
+      "path": "/v3/datasets/public-global-fishing-effort:latest",
+      "params": [
+        {
+          "name": "includes",
+          "type": "string",
+          "location": "query",
+          "description": "Includes"
+        }
+      ]
+    },
+    {
+      "name": "events_create",
+      "description": "Get GAP events POST - Filter by flag custom polygon GAP. Optional: offset, limit. Returns the new EventsCreateResponse.",
+      "method": "POST",
+      "path": "/v3/events",
+      "params": [
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        }
+      ]
+    },
+    {
+      "name": "events_create-stats",
+      "description": "Port visits events Stats - includes TOTAL_COUNT and vessel type BUNKER.",
+      "method": "POST",
+      "path": "/v3/events/stats",
+      "params": []
+    },
+    {
+      "name": "events_get",
+      "description": "Get one event by id port visit. Required: eventId. Optional: dataset.",
+      "method": "GET",
+      "path": "/v3/events/{eventId}",
+      "params": [
+        {
+          "name": "eventId",
+          "type": "string",
+          "location": "path",
+          "description": "eventId identifier",
+          "required": true
+        },
+        {
+          "name": "dataset",
+          "type": "string",
+          "location": "query",
+          "description": "if TRUE, return all content of the event without parse Example: FALSE"
+        }
+      ]
+    },
+    {
+      "name": "events_list",
+      "description": "Get Events - several vessel ids. Optional: vessels[0], limit, offset (plus 1 more).",
+      "method": "GET",
+      "path": "/v3/events",
+      "params": [
+        {
+          "name": "vessels[0]",
+          "type": "string",
+          "location": "query",
+          "description": "Example = 8c7304226-6c71-edbe-0b63-c246734b3c01 OR 6583c51e3-3626-5638-866a-f47c3bc7ef7c OR 914f83946-6af4-04c6-4974-44a203a87952"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset"
+        },
+        {
+          "name": "datasets[0]",
+          "type": "string",
+          "location": "query",
+          "description": "Datasets 0"
+        }
+      ]
+    },
+    {
+      "name": "insights_create",
+      "description": "Insights API - all carrier and fishing vessels.",
+      "method": "POST",
+      "path": "/v3/insights/vessels",
+      "params": []
+    },
+    {
+      "name": "vessels_get",
+      "description": "Obtains all the characteristics that describe a single vessel, such as its name and idenTIFiers. Required: vesselId. Optional: dataset.",
+      "method": "GET",
+      "path": "/v3/vessels/{vesselId}",
+      "params": [
+        {
+          "name": "vesselId",
+          "type": "string",
+          "location": "path",
+          "description": "vesselId identifier",
+          "required": true
+        },
+        {
+          "name": "dataset",
+          "type": "string",
+          "location": "query",
+          "description": "(Required) Dataset to query vessels from"
+        }
+      ]
+    },
+    {
+      "name": "vessels_list",
+      "description": "Lists vessels given a list of vessels id. Optional: datasets[0], ids[0], binary.",
+      "method": "GET",
+      "path": "/v3/vessels",
+      "params": [
+        {
+          "name": "datasets[0]",
+          "type": "string",
+          "location": "query",
+          "description": "Datasets 0"
+        },
+        {
+          "name": "ids[0]",
+          "type": "string",
+          "location": "query",
+          "description": "(Required) List of vessel id to get these vessels. The ids must be separated by comma."
+        },
+        {
+          "name": "binary",
+          "type": "string",
+          "location": "query",
+          "description": "Return data in binary format."
+        }
+      ]
+    },
+    {
+      "name": "vessels_list-search",
+      "description": "Advanced Search vessels - Gear Type = 'CARRIER'. Optional: datasets[0], where, includes[0] (plus 3 more).",
+      "method": "GET",
+      "path": "/v3/vessels/search",
+      "params": [
+        {
+          "name": "datasets[0]",
+          "type": "string",
+          "location": "query",
+          "description": "Datasets 0"
+        },
+        {
+          "name": "where",
+          "type": "string",
+          "location": "query",
+          "description": "Search in registry data and in GFW Gear Type values"
+        },
+        {
+          "name": "includes[0]",
+          "type": "string",
+          "location": "query",
+          "description": "Includes 0"
+        },
+        {
+          "name": "includes[1]",
+          "type": "string",
+          "location": "query",
+          "description": "Includes 1"
+        },
+        {
+          "name": "includes[2]",
+          "type": "string",
+          "location": "query",
+          "description": "Includes 2"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        }
+      ]
+    }
+  ]
+}

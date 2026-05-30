@@ -1,0 +1,67 @@
+{
+  "api_name": "gfw",
+  "api_version": "1.0.0",
+  "auth_env_vars": [
+    "GFW_TOKEN"
+  ],
+  "auth_key_url": "https://globalfishingwatch.org/our-apis/tokens/signup",
+  "auth_type": "bearer_token",
+  "cli_name": "gfw-pp-cli",
+  "description": "Every GFW vessel-behavior and risk surface on the command line, plus a local cache that turns one-shot lookups into a compounding due-diligence index.",
+  "display_name": "Global Fishing Watch",
+  "generated_at": "2026-05-30T13:51:46.426636Z",
+  "mcp_binary": "gfw-pp-mcp",
+  "mcp_ready": "full",
+  "mcp_tool_count": 18,
+  "novel_features": [
+    {
+      "name": "Vessel dossier",
+      "command": "vessel dossier",
+      "description": "One-shot due-diligence snapshot of a vessel: identity, recent events, and risk insights merged."
+    },
+    {
+      "name": "Risk rollup",
+      "command": "vessel risk",
+      "description": "Composite risk signal from GFW Insights indicators plus event patterns (encounters, AIS gaps, port visits)."
+    },
+    {
+      "name": "Encounter network",
+      "command": "encounters network",
+      "description": "Builds the at-sea meeting graph for a vessel — which other vessels it encountered, when, and where."
+    },
+    {
+      "name": "Port-visit pattern",
+      "command": "vessel ports",
+      "description": "Aggregates a vessel's port-visit events into a frequency/recency pattern."
+    },
+    {
+      "name": "Dark-activity flag",
+      "command": "vessel gaps",
+      "description": "Surfaces AIS-gap and loitering events as a dark-activity signal for a vessel."
+    },
+    {
+      "name": "Watchlist pin",
+      "command": "watch pin",
+      "description": "Pin vessels under active due diligence to a local watchlist (with optional label)."
+    },
+    {
+      "name": "Watchlist refresh",
+      "command": "watch refresh",
+      "description": "Re-pull events and insights for watchlisted vessels under a polite throttle."
+    },
+    {
+      "name": "Recent changes",
+      "command": "watch since",
+      "description": "Shows new events for watchlisted vessels within a time window."
+    }
+  ],
+  "owner": "user",
+  "printer": "6myfzqx6bv-ctrl",
+  "printer_name": "ivory_elephant",
+  "printing_press_version": "4.18.1",
+  "run_id": "20260529-125801",
+  "schema_version": 1,
+  "spec_checksum": "sha256:793b984ca6bcf163782b307a789c649df7c4d709b8b5f4f0f239aba0a6a99995",
+  "spec_format": "openapi3",
+  "spec_path": "gfw-openapi-clean.yaml"
+}

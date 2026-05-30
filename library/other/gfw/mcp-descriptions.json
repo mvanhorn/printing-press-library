@@ -1,0 +1,6 @@
+{
+  "descriptions": {
+    "4wings_list": "Fetch the most recently generated 4Wings report from the GFW 4Wings activity service (fishing-effort, vessel-presence, encounters aggregations). No parameters. Returns the report metadata JSON for the most recent run. Use this as a lightweight check before calling 4wings_report to verify the service is producing reports for your account; it is not a list of all reports (use bulk-reports_list for that).",
+    "bulk-reports_get": "Fetch a single bulk-report's metadata by id from GFW Bulk Reports. Required: bulk_report_id (path). Returns the report's status, parameters, geometry, and ready/ready_url state. Bulk reports are async — call this to check whether a report queued via bulk-reports_create has finished; once status is ready, use bulk-reports_get-download-file-url or bulk-reports_get-query to retrieve the data."
+  }
+}

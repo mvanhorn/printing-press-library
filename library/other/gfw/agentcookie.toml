@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "gfw-pp-cli"
+display_name = "Global Fishing Watch"
+description = "Every GFW vessel-behavior and risk surface on the command line, plus a local cache that turns one-shot lookups into a compounding due-diligence index."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/gfw-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+GFW_TOKEN = true

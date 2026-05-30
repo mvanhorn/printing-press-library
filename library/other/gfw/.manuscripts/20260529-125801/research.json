@@ -1,0 +1,269 @@
+{
+  "api_name": "gfw",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "gfw-api-python-client",
+      "url": "https://github.com/GlobalFishingWatch/gfw-api-python-client",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "gfwr",
+      "url": "https://github.com/GlobalFishingWatch/gfwr",
+      "language": "R",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "gfw (samapriya)",
+      "url": "https://github.com/samapriya/gfw",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 4,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-29T12:58:01Z",
+  "novel_features": [
+    {
+      "name": "Vessel dossier",
+      "command": "vessel dossier",
+      "description": "One-shot due-diligence snapshot of a vessel: identity, recent events, and risk insights merged.",
+      "rationale": "Merges three GFW endpoints (vessel, events, insights) via a local join no single API call returns together.",
+      "example": "gfw-pp-cli vessel dossier 8c7304226-6c71-edbe-0b63-c246734b3c01 --json",
+      "why_it_matters": "Reach for this first when vetting a vessel — it answers identity + behavior + risk in one call instead of three.",
+      "group": "Compound DD intelligence"
+    },
+    {
+      "name": "Risk rollup",
+      "command": "vessel risk",
+      "description": "Composite risk signal from GFW Insights indicators plus event patterns (encounters, AIS gaps, port visits).",
+      "rationale": "Correlates Insights with cached event history locally; the API exposes the indicators but not the rollup.",
+      "example": "gfw-pp-cli vessel risk 8c7304226-6c71-edbe-0b63-c246734b3c01 --agent",
+      "why_it_matters": "Use to triage which vessels in a set warrant deeper review.",
+      "group": "Compound DD intelligence"
+    },
+    {
+      "name": "Encounter network",
+      "command": "encounters network",
+      "description": "Builds the at-sea meeting graph for a vessel — which other vessels it encountered, when, and where.",
+      "rationale": "Constructs a graph from cached encounter events; the API returns events, never the network.",
+      "example": "gfw-pp-cli encounters network 8c7304226-6c71-edbe-0b63-c246734b3c01 --json",
+      "why_it_matters": "Use to surface relationships (e.g. transshipment partners) a single-vessel lookup hides.",
+      "group": "Compound DD intelligence"
+    },
+    {
+      "name": "Port-visit pattern",
+      "command": "vessel ports",
+      "description": "Aggregates a vessel's port-visit events into a frequency/recency pattern.",
+      "rationale": "Local aggregation over accumulated port-visit events.",
+      "example": "gfw-pp-cli vessel ports 8c7304226-6c71-edbe-0b63-c246734b3c01 --json",
+      "why_it_matters": "Use to spot anomalous port behavior (sanctioned ports, sudden pattern change).",
+      "group": "Compound DD intelligence"
+    },
+    {
+      "name": "Dark-activity flag",
+      "command": "vessel gaps",
+      "description": "Surfaces AIS-gap and loitering events as a dark-activity signal for a vessel.",
+      "rationale": "Filters cached gap/loitering events into a signal; the raw events exist but the framing doesn't.",
+      "example": "gfw-pp-cli vessel gaps 8c7304226-6c71-edbe-0b63-c246734b3c01 --json",
+      "why_it_matters": "Use to flag possible AIS disabling — a classic sanctions-evasion indicator.",
+      "group": "Compound DD intelligence"
+    },
+    {
+      "name": "Watchlist pin",
+      "command": "watch pin",
+      "description": "Pin vessels under active due diligence to a local watchlist (with optional label).",
+      "rationale": "Local watchlist persisted in SQLite; pairs with refresh and since.",
+      "example": "gfw-pp-cli watch pin 8c7304226-6c71-edbe-0b63-c246734b3c01 --label \"Lagos deal\"",
+      "why_it_matters": "Use to track a set of vessels across sessions; 'watch --list' shows them.",
+      "group": "Watchlist that compounds"
+    },
+    {
+      "name": "Watchlist refresh",
+      "command": "watch refresh",
+      "description": "Re-pull events and insights for watchlisted vessels under a polite throttle.",
+      "rationale": "Iterates the local watchlist and refreshes cached behavior data.",
+      "example": "gfw-pp-cli watch refresh --pinned",
+      "why_it_matters": "Use to bring a watchlist current before a review.",
+      "group": "Watchlist that compounds"
+    },
+    {
+      "name": "Recent changes",
+      "command": "watch since",
+      "description": "Shows new events for watchlisted vessels within a time window.",
+      "rationale": "Time-windowed query over accumulated local event history.",
+      "example": "gfw-pp-cli watch since 7d --json",
+      "why_it_matters": "Use for \"what happened to my vessels in the last N days\".",
+      "group": "Watchlist that compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Vessel dossier",
+      "command": "vessel dossier",
+      "description": "One-shot due-diligence snapshot of a vessel: identity, recent events, and risk insights merged.",
+      "rationale": "Merges three GFW endpoints (vessel, events, insights) via a local join no single API call returns together.",
+      "example": "gfw-pp-cli vessel dossier 8c7304226-6c71-edbe-0b63-c246734b3c01 --json",
+      "why_it_matters": "Reach for this first when vetting a vessel — it answers identity + behavior + risk in one call instead of three.",
+      "group": "Compound DD intelligence"
+    },
+    {
+      "name": "Risk rollup",
+      "command": "vessel risk",
+      "description": "Composite risk signal from GFW Insights indicators plus event patterns (encounters, AIS gaps, port visits).",
+      "rationale": "Correlates Insights with cached event history locally; the API exposes the indicators but not the rollup.",
+      "example": "gfw-pp-cli vessel risk 8c7304226-6c71-edbe-0b63-c246734b3c01 --agent",
+      "why_it_matters": "Use to triage which vessels in a set warrant deeper review.",
+      "group": "Compound DD intelligence"
+    },
+    {
+      "name": "Encounter network",
+      "command": "encounters network",
+      "description": "Builds the at-sea meeting graph for a vessel — which other vessels it encountered, when, and where.",
+      "rationale": "Constructs a graph from cached encounter events; the API returns events, never the network.",
+      "example": "gfw-pp-cli encounters network 8c7304226-6c71-edbe-0b63-c246734b3c01 --json",
+      "why_it_matters": "Use to surface relationships (e.g. transshipment partners) a single-vessel lookup hides.",
+      "group": "Compound DD intelligence"
+    },
+    {
+      "name": "Port-visit pattern",
+      "command": "vessel ports",
+      "description": "Aggregates a vessel's port-visit events into a frequency/recency pattern.",
+      "rationale": "Local aggregation over accumulated port-visit events.",
+      "example": "gfw-pp-cli vessel ports 8c7304226-6c71-edbe-0b63-c246734b3c01 --json",
+      "why_it_matters": "Use to spot anomalous port behavior (sanctioned ports, sudden pattern change).",
+      "group": "Compound DD intelligence"
+    },
+    {
+      "name": "Dark-activity flag",
+      "command": "vessel gaps",
+      "description": "Surfaces AIS-gap and loitering events as a dark-activity signal for a vessel.",
+      "rationale": "Filters cached gap/loitering events into a signal; the raw events exist but the framing doesn't.",
+      "example": "gfw-pp-cli vessel gaps 8c7304226-6c71-edbe-0b63-c246734b3c01 --json",
+      "why_it_matters": "Use to flag possible AIS disabling — a classic sanctions-evasion indicator.",
+      "group": "Compound DD intelligence"
+    },
+    {
+      "name": "Watchlist pin",
+      "command": "watch pin",
+      "description": "Pin vessels under active due diligence to a local watchlist (with optional label).",
+      "rationale": "Local watchlist persisted in SQLite; pairs with refresh and since.",
+      "example": "gfw-pp-cli watch pin 8c7304226-6c71-edbe-0b63-c246734b3c01 --label \"Lagos deal\"",
+      "why_it_matters": "Use to track a set of vessels across sessions; 'watch --list' shows them.",
+      "group": "Watchlist that compounds"
+    },
+    {
+      "name": "Watchlist refresh",
+      "command": "watch refresh",
+      "description": "Re-pull events and insights for watchlisted vessels under a polite throttle.",
+      "rationale": "Iterates the local watchlist and refreshes cached behavior data.",
+      "example": "gfw-pp-cli watch refresh --pinned",
+      "why_it_matters": "Use to bring a watchlist current before a review.",
+      "group": "Watchlist that compounds"
+    },
+    {
+      "name": "Recent changes",
+      "command": "watch since",
+      "description": "Shows new events for watchlisted vessels within a time window.",
+      "rationale": "Time-windowed query over accumulated local event history.",
+      "example": "gfw-pp-cli watch since 7d --json",
+      "why_it_matters": "Use for \"what happened to my vessels in the last N days\".",
+      "group": "Watchlist that compounds"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "GFW_TOKEN"
+  },
+  "narrative": {
+    "display_name": "Global Fishing Watch",
+    "headline": "Every GFW vessel-behavior and risk surface on the command line, plus a local cache that turns one-shot lookups into a compounding due-diligence index.",
+    "value_prop": "The official GFW SDKs are Python and R libraries; the one community CLI only downloads datasets. gfw-pp-cli is the agent-native, offline-caching CLI for vessel due diligence: search vessels, pull their events and risk insights, and run compound queries no SDK offers — 'vessel dossier' merges identity + events + insights, 'encounters network' maps at-sea meetings, 'vessel gaps' flags dark activity.",
+    "auth_narrative": "GFW uses a Bearer token. Create a free token at https://globalfishingwatch.org/our-apis/tokens and set it as GFW_TOKEN. Every command reads GFW_TOKEN from the environment.",
+    "quickstart": [
+      {
+        "command": "gfw-pp-cli doctor --dry-run",
+        "comment": "Health check — confirms GFW_TOKEN is set and the API is reachable."
+      },
+      {
+        "command": "gfw-pp-cli vessel search \"OCEAN\" --json",
+        "comment": "Find vessels by name/MMSI/IMO/callsign and resolve GFW vessel IDs."
+      },
+      {
+        "command": "gfw-pp-cli vessel dossier \u003cvesselId\u003e --json",
+        "comment": "One-shot DD snapshot: identity + recent events + risk insights."
+      },
+      {
+        "command": "gfw-pp-cli vessel gaps \u003cvesselId\u003e --json",
+        "comment": "Surface AIS-gap / dark-activity events for a vessel."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 Unauthorized",
+        "fix": "Set GFW_TOKEN (free token at globalfishingwatch.org/our-apis/tokens); run 'gfw-pp-cli doctor'."
+      },
+      {
+        "symptom": "429 Too Many Requests",
+        "fix": "Lower --rate-limit or use 'watch refresh' which throttles; bulk pulls should use the bulk-reports flow."
+      },
+      {
+        "symptom": "Empty events for a known vessel",
+        "fix": "Widen the date range and confirm the GFW vessel ID (not MMSI) via 'vessel search'."
+      }
+    ],
+    "when_to_use": "Use gfw-pp-cli when an agent needs a vessel's behavior (encounters, loitering, port visits, fishing) or risk indicators from Global Fishing Watch, or to build a compounding local index of vessels under due diligence. It pairs with gisis-pp-cli (identity/registry) for full vessel due diligence.",
+    "anti_triggers": [
+      "Do not use for vessel registry identity/flag-history — use gisis-pp-cli.",
+      "Do not use to render map tiles or imagery — GFW's map-visualization tiles are out of scope.",
+      "Do not use for real-time live AIS positions — use an AIS-stream source."
+    ],
+    "recipes": [
+      {
+        "title": "Due-diligence snapshot",
+        "command": "gfw-pp-cli vessel dossier \u003cvesselId\u003e --json",
+        "explanation": "Identity, recent events, and risk insights merged in one call."
+      },
+      {
+        "title": "Narrow a verbose events payload for an agent",
+        "command": "gfw-pp-cli events list --vessels-0 \u003cvesselId\u003e --agent --select entries.type,entries.start",
+        "explanation": "Events responses are large; --select with dotted paths keeps only the fields an agent needs."
+      },
+      {
+        "title": "Map transshipment partners",
+        "command": "gfw-pp-cli encounters network \u003cvesselId\u003e --json",
+        "explanation": "Builds the at-sea encounter graph from cached events."
+      },
+      {
+        "title": "Track a watchlist",
+        "command": "gfw-pp-cli watch pin \u003cvesselId\u003e --label \"case-42\"",
+        "explanation": "Pin a vessel to the local watchlist; 'watch refresh' and 'watch since' then track it."
+      }
+    ],
+    "trigger_phrases": [
+      "fishing watch vessel",
+      "vessel encounters",
+      "vessel risk insights",
+      "what has this vessel been doing",
+      "dark activity AIS gap",
+      "use gfw",
+      "run gfw"
+    ]
+  }
+}

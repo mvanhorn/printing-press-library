@@ -1,0 +1,1794 @@
+{
+  "dir": "/Users/REDACTED/printing-press/library/gfw",
+  "binary": "/Users/REDACTED/printing-press/library/gfw/gfw-pp-cli",
+  "level": "full",
+  "verdict": "PASS",
+  "matrix_size": 99,
+  "passed": 99,
+  "failed": 0,
+  "skipped": 91,
+  "commands": [
+    "4wings create",
+    "4wings list",
+    "4wings list-report",
+    "4wings list-stats",
+    "analytics",
+    "api",
+    "bulk-reports create",
+    "bulk-reports download-file-url get",
+    "bulk-reports get",
+    "bulk-reports list",
+    "bulk-reports query get",
+    "datasets",
+    "doctor",
+    "encounters network",
+    "events create",
+    "events create-stats",
+    "events get",
+    "events list",
+    "feedback list",
+    "import",
+    "insights",
+    "profile delete",
+    "profile list",
+    "profile save",
+    "profile show",
+    "profile use",
+    "search",
+    "sync",
+    "tail",
+    "vessel dossier",
+    "vessel gaps",
+    "vessel get",
+    "vessel list",
+    "vessel ports",
+    "vessel risk",
+    "vessel search",
+    "vessels get",
+    "vessels list",
+    "vessels list-search",
+    "watch pin",
+    "watch refresh",
+    "watch since",
+    "watch unpin",
+    "which",
+    "workflow archive",
+    "workflow status"
+  ],
+  "tests": [
+    {
+      "command": "4wings create",
+      "kind": "help",
+      "args": [
+        "4wings",
+        "create",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Report with vessel_type filter\n\nUsage:\n  gfw-pp-cli 4wings create [flags]\n\nExamples:\n  gfw-pp-cli 4wings create\n\nFlags:\n      --datasets-0 string            Datasets 0\n      --date-range string            Date range\n      --filters-0 string             Filters 0\n      --format string                Format\n  -h, --help                         help for create\n      --spatial-aggregation string   Spatial aggregation\n      --spatial-resolution string    Spatial resolution\n      --stdin                        Read request body as JSON from stdin\n      --temporal-resolution string   Temporal resolution\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'gfw-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "4wings create",
+      "kind": "happy_path",
+      "args": [
+        "4wings",
+        "create",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"action\": \"post\",\n  \"data\": {\n    \"dry_run\": true\n  },\n  \"dry_run\": true,\n  \"path\": \"/v3/4wings/report\",\n  \"resource\": \"4wings\",\n  \"status\": 0,\n  \"success\": false\n}\nPOST https://gateway.api.globalfishingwatch.org/v3/4wings/report\n  Body:\n{}\n  Authorization: ****jNLI\n\n(dry run - no request sent)\n"
+    },
+    {
+      "command": "4wings create",
+      "kind": "json_fidelity",
+      "args": [
+        "4wings",
+        "create",
+        "--dry-run",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"action\": \"post\",\n  \"data\": {\n    \"dry_run\": true\n  },\n  \"dry_run\": true,\n  \"path\": \"/v3/4wings/report\",\n  \"resource\": \"4wings\",\n  \"status\": 0,\n  \"success\": false\n}\nPOST https://gateway.api.globalfishingwatch.org/v3/4wings/report\n  Body:\n{}\n  Authorization: ****jNLI\n\n(dry run - no request sent)\n"
+    },
+    {
+      "command": "4wings create",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "4wings create",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command dry-run only"
+    },
+    {
+      "command": "4wings list",
+      "kind": "help",
+      "args": [
+        "4wings",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Last report\n\nUsage:\n  gfw-pp-cli 4wings list [flags]\n\nExamples:\n  gfw-pp-cli 4wings list\n\nFlags:\n  -h, --help   help for list\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'gfw-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "4wings list",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "blocked-fixture: requires auth tier \"paid\""
+    },
+    {
+      "command": "4wings list",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "blocked-fixture: requires auth tier \"paid\""
+    },
+    {
+      "command": "4wings list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "blocked-fixture: requires auth tier \"paid\""
+    },
+    {
+      "command": "4wings list-report",
+      "kind": "help",
+      "args": [
+        "4wings",
+        "list-report",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Report, Carrier Vessels Only\n\nUsage:\n  gfw-pp-cli 4wings list-report [flags]\n\nExamples:\n  gfw-pp-cli 4wings list-report\n\nFlags:\n      --datasets-0 string            Datasets 0\n      --date-range string            Date range\n      --filters-0 string             Filters 0\n      --format string                Format\n      --group-by string              Group by\n  -h, --help                         help for list-report\n      --region-dataset string        Region dataset\n      --region-id string             Region id\n      --spatial-aggregation          Spatial aggregation\n      --spatial-resolution string    Spatial resolution\n      --temporal-resolution string   Temporal resolution\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'gfw-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "4wings list-report",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "blocked-fixture: requires auth tier \"paid\""
+    },
+    {
+      "command": "4wings list-report",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "blocked-fixture: requires auth tier \"paid\""
+    },
+    {
+      "command": "4wings list-report",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "blocked-fixture: requires auth tier \"paid\""
+    },
+    {
+      "command": "4wings list-stats",
+      "kind": "help",
+      "args": [
+        "4wings",
+        "list-stats",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Get fishing effort stats for a time period with filter by distance from port(km)\n\nUsage:\n  gfw-pp-cli 4wings list-stats [flags]\n\nExamples:\n  gfw-pp-cli 4wings list-stats\n\nFlags:\n      --datasets-0 string   Datasets 0\n      --date-range string   Date range\n      --fields string       Fields\n      --filters-0 string    Filters 0\n  -h, --help                help for list-stats\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'gfw-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "4wings list-stats",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "blocked-fixture: requires auth tier \"paid\""
+    },
+    {
+      "command": "4wings list-stats",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "blocked-fixture: requires auth tier \"paid\""
+    },
+    {
+      "command": "4wings list-stats",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "blocked-fixture: requires auth tier \"paid\""
+    },
+    {
+      "command": "analytics",
+      "kind": "help",
+      "args": [
+        "analytics",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Analyze locally synced data with count, group-by, and summary operations.\nData must be synced first with the sync command.\n\nUsage:\n  gfw-pp-cli analytics [flags]\n\nExamples:\n  # Count records by type\n  gfw-pp-cli analytics --type messages\n\n  # Group by a field\n  gfw-pp-cli analytics --type messages --group-by author_id\n\n  # Top 10 most frequent values\n  gfw-pp-cli analytics --type messages --group-by channel_id --limit 10 --json\n\nFlags:\n      --db string         Database path\n      --group-by string   Field to group by\n  -h, --help              help for analytics\n      --limit int         Max groups to show (default 25)\n      --type string       Resource type to analyze\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'gfw-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "analytics",
+      "kind": "happy_path",
+      "args": [
+        "analytics",
+        "--type",
+        "messages"
+      ],
+      "status": "pass",
+      "output_sample": "messages: 0 records\nhint: local store has not been synced yet. Run 'gfw-pp-cli sync' before trusting local results.\n"
+    },
+    {
+      "command": "analytics",
+      "kind": "json_fidelity",
+      "args": [
+        "analytics",
+        "--type",
+        "messages",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"count\": 0,\n  \"resource_type\": \"messages\"\n}\nhint: local store has not been synced yet. Run 'gfw-pp-cli sync' before trusting local results.\n"
+    },
+    {
+      "command": "analytics",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "api",
+      "kind": "help",
+      "args": [
+        "api",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Browse and call any API endpoint using the raw interface names.\n\nThe friendly top-level commands cover the most common operations.\nThis command provides access to ALL endpoints for power users and\nagents that need full API coverage.\n\nRun 'api' with no arguments to list all interfaces.\nRun 'api \u003cinterface\u003e' to see that interface's methods.\n\nUsage:\n  gfw-pp-cli api [interface] [flags]\n\nExamples:\n  # List all available interfaces\n  gfw-pp-cli api\n\n  # Show methods for a specific interface\n  gfw-pp-cli api \u003cinterface-name\u003e\n\nFlags:\n  -h, --help   help for api\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'gfw-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "api",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "api",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "api",
+      "kind": "error_path",
+      "args": [
+        "api",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: interface \"__printing_press_invalid__\" not found. Run 'gfw-pp-cli api' to list all interfaces\n"
+    },
+    {
+      "command": "bulk-reports create",
+      "kind": "help",
+      "args": [
+        "bulk-reports",
+        "create",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Create bulk report fixed infrastructure in ARG EEZ + structure ID\n\nUsage:\n  gfw-pp-cli bulk-reports create [flags]\n\nExamples:\n  gfw-pp-cli bulk-reports create\n\nFlags:\n  -h, --help    help for create\n      --stdin   Read request body as JSON from stdin\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'gfw-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "bulk-reports create",
+      "kind": "happy_path",
+      "args": [
+        "bulk-reports",
+        "create",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"action\": \"post\",\n  \"data\": {\n    \"dry_run\": true\n  },\n  \"dry_run\": true,\n  \"path\": \"/v3/bulk-reports\",\n  \"resource\": \"bulk-reports\",\n  \"status\": 0,\n  \"success\": false\n}\nPOST https://gateway.api.globalfishingwatch.org/v3/bulk-reports\n  Body:\n{}\n  Authorization: ****jNLI\n\n(dry run - no request sent)\n"
+    },
+    {
+      "command": "bulk-reports create",
+      "kind": "json_fidelity",
+      "args": [
+        "bulk-reports",
+        "create",
+        "--dry-run",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"action\": \"post\",\n  \"data\": {\n    \"dry_run\": true\n  },\n  \"dry_run\": true,\n  \"path\": \"/v3/bulk-reports\",\n  \"resource\": \"bulk-reports\",\n  \"status\": 0,\n  \"success\": false\n}\nPOST https://gateway.api.globalfishingwatch.org/v3/bulk-reports\n  Body:\n{}\n  Authorization: ****jNLI\n\n(dry run - no request sent)\n"
+    },
+    {
+      "command": "bulk-reports create",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "bulk-reports create",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command dry-run only"
+    },
+    {
+      "command": "bulk-reports download-file-url get",
+      "kind": "help",
+      "args": [
+        "bulk-reports",
+        "download-file-url",
+        "get",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Get url of the data file to download it - GEOM\n\nUsage:\n  gfw-pp-cli bulk-reports download-file-url get \u003cbulk_report_id\u003e [flags]\n\nExamples:\n  gfw-pp-cli bulk-reports download-file-url get 550e8400-e29b-41d4-a716-446655440000\n\nFlags:\n      --file string   (Required) File to download\n  -h, --help          help for get\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'gfw-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "bulk-reports download-file-url get",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"bulk_report_id\""
+    },
+    {
+      "command": "bulk-reports download-file-url get",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"bulk_report_id\""
+    },
+    {
+      "command": "bulk-reports download-file-url get",
+      "kind": "error_path",
+      "args": [
+        "bulk-reports",
+        "download-file-url",
+        "get",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 5,
+      "output_sample": "Error: GET /v3/bulk-reports/__printing_press_invalid__/download-file-url returned HTTP 422: {\"statusCode\":422,\"error\":\"Unprocessable Entity\",\"messages\":[{\"title\":\"file\",\"detail\":\"file must be one of the following values: README, DATA, GEOM\"}]}\n"
+    },
+    {
+      "command": "bulk-reports get",
+      "kind": "help",
+      "args": [
+        "bulk-reports",
+        "get",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Get bulk report by id\n\nUsage:\n  gfw-pp-cli bulk-reports get \u003cbulk_report_id\u003e [flags]\n\nExamples:\n  gfw-pp-cli bulk-reports get 550e8400-e29b-41d4-a716-446655440000\n\nFlags:\n  -h, --help   help for get\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'gfw-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "bulk-reports get",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "list companion failed at depth 0: exit 5"
+    },
+    {
+      "command": "bulk-reports get",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "list companion failed at depth 0: exit 5"
+    },
+    {
+      "command": "bulk-reports get",
+      "kind": "error_path",
+      "args": [
+        "bulk-reports",
+        "get",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "Error: GET /v3/bulk-reports/__printing_press_invalid__ returned HTTP 404: {\"statusCode\":404,\"error\":\"Not Found\",\"messages\":[{\"title\":\"Not Found\",\"detail\":\"Report not found\",\"metadata\":{}}]}\nhint: resource not found. Run the 'list' command to see available items\n"
+    },
+    {
+      "command": "bulk-reports list",
+      "kind": "help",
+      "args": [
+        "bulk-reports",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Get all reports by user\n\nUsage:\n  gfw-pp-cli bulk-reports list [flags]\n\nExamples:\n  gfw-pp-cli bulk-reports list\n\nFlags:\n      --all             Fetch all pages\n  -h, --help            help for list\n      --limit int       (Required) Amount of search results to return.\n      --offset string   (Required) Offset into the search results, used for pagination. It starts at 0.\n      --sort string     Query to sort the list of resources\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'gfw-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "bulk-reports list",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "blocked-fixture: requires auth tier \"paid\""
+    },
+    {
+      "command": "bulk-reports list",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "blocked-fixture: requires auth tier \"paid\""
+    },
+    {
+      "command": "bulk-reports list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "blocked-fixture: requires auth tier \"paid\""
+    },
+    {
+      "command": "bulk-reports query get",
+      "kind": "help",
+      "args": [
+        "bulk-reports",
+        "query",
+        "get",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Get data as json sort by structure end date ASC and only 3 fields\n\nUsage:\n  gfw-pp-cli bulk-reports query get \u003cbulk_report_id\u003e [flags]\n\nExamples:\n  gfw-pp-cli bulk-reports query get 550e8400-e29b-41d4-a716-446655440000\n\nFlags:\n      --all                 Fetch all pages\n  -h, --help                help for get\n      --includes-0 string   Optional. Fields to include\n      --includes-1 string   Includes 1\n      --includes-2 string   Includes 2\n      --limit int           (Required) Amount of search results to return.\n      --offset string       (Required) Offset into the search results, used for pagination. It starts at 0.\n      --sort string         Query to sort the list of resources\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'gfw-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "bulk-reports query get",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"bulk_report_id\""
+    },
+    {
+      "command": "bulk-reports query get",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"bulk_report_id\""
+    },
+    {
+      "command": "bulk-reports query get",
+      "kind": "error_path",
+      "args": [
+        "bulk-reports",
+        "query",
+        "get",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 5,
+      "output_sample": "Error: GET /v3/bulk-reports/__printing_press_invalid__/query returned HTTP 422: {\"statusCode\":422,\"error\":\"Unprocessable Entity\",\"messages\":[{\"title\":\"limit\",\"detail\":\"limit must not be less than 1\"},{\"title\":\"If\",\"detail\":\"If you send the limit property then the offset property is required\"},{\"title\":\"offset\",\"detail\":\"offset must not be less than 0\"},{\"title\":\"If\",\"detail\":\"If you send the offset property then the limit property is required\"}]}\n"
+    },
+    {
+      "command": "datasets",
+      "kind": "help",
+      "args": [
+        "datasets",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "SAR Fixed infra MVT - no filter Copy\n\nUsage:\n  gfw-pp-cli datasets [flags]\n\nExamples:\n  gfw-pp-cli datasets\n\nFlags:\n  -h, --help              help for datasets\n      --includes string   Includes\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'gfw-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "datasets",
+      "kind": "happy_path",
+      "args": [
+        "datasets"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"alias\":[\"public-global-fishing-effort:latest\"],\"category\":\"activity\",\"configuration\":{\"apiSupportedVersions\":[\"v3\"],\"fourwingsV1\":{\"extraPropertiesPositionTiles\":[{\"id\":\"bearing\",\"type\":\"number\"},{\"id\":\"shipname\",\"type\":\"string\"}],\"max\":0,\"maxZoom\":12,\"min\":0,\"reportGroupings\":[\"vessel_id\",\"flag\",\"geartype\",\"flagAndGearType\",\"mmsi\"],\"temporalAggregation\":false},\"frontend\":{\"max\":0,\"maxZoom\":12,\"min\":0,\"translate\":true}},\"createdAt\":\"2025-12-11T12:38:36.533Z\",\"documentation\":{\"enable\":true,\"provider\":\"AIS\",\"queries\":[\"https://github.com/GlobalFishingWatch/composer-dags-production/blob/main/dags/publication/ais/v3/public_fishing_effort.py\"],\"status\":\"Active\",\"type\":\"fishing-effort\"},\"endDate\":\"2026-05-26T00:00:00.000Z\",\"filters\":{\"fourwings\":[{\"array\":false,\"enabled\":true,\"id\":\"flag\",\"max\":0,\"maxLength\":3,\"min\":0,\"minLength\":3,\"required\":false,\"singleSelection\":false,\"type\":\"string\"},{\"array\":false,\"enabled\":true,\"enum\":[\"tuna_purse_seines\",\"driftnets\",\"trollers\",\"set_longlines\",\"purse_seines\",\"pots_and_traps\",\"other_fishing\",\"dredge_fishing\",\"set_gillnets\",\"fixed_gear\",\"trawlers\",\"fishing\",\"seiners\",\"other_purse_seines\",\"other_seines\",\"squid_jigger\",\"pole_and_line\",\"drifting_longlines\"],\"id\":\"geartype\",\"max\":0,\"min\":0,\"required\":false,\"singleSelection\":false,\"type\":\"string\"},{\"array\":false,\"enabled\":true,\"enum\":[\"0\",\"1\",\"2\",\"3\",\"4\",\"5\"],\"id\":\"distance_from_port_km\",\"max\":0,\"min\":0,\"operation\":\"gte\",\"required\":false,\"singleSelection\":false,\"type\":\"number\",\"unit\":\"km\"},{\"array\":false,\"enabled\":true,\"id\":\"vessel-groups\",\"max\":0,\"min\":0,\"required\":false,\"singleSelection\":true,\"type\":\"string\"}]},\"id\":\"public-global-fishing-effort:v4.0\",\"name\":\"\u003credacted\u003e\",\"ownerId\":0,\"ownerType\":\"super-user\",\"relatedDatasets\":[{\"id\":\"public-global-vessel-identity:v4.0\",\"type\":\"vessels:v1\"}],\"source\":\"Global Fishing Watch - AIS Fishing - BQ\",\"startDate\":\"2012-01-01T00:00:00.000Z\",\"status\":\"done\",\"subcategory\":\"fishing\",\"type\":\"4wings:v1\",\"unit\":\"hours\"}}"
+    },
+    {
+      "command": "datasets",
+      "kind": "json_fidelity",
+      "args": [
+        "datasets",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"alias\":[\"public-global-fishing-effort:latest\"],\"category\":\"activity\",\"configuration\":{\"apiSupportedVersions\":[\"v3\"],\"fourwingsV1\":{\"extraPropertiesPositionTiles\":[{\"id\":\"bearing\",\"type\":\"number\"},{\"id\":\"shipname\",\"type\":\"string\"}],\"max\":0,\"maxZoom\":12,\"min\":0,\"reportGroupings\":[\"vessel_id\",\"flag\",\"geartype\",\"flagAndGearType\",\"mmsi\"],\"temporalAggregation\":false},\"frontend\":{\"max\":0,\"maxZoom\":12,\"min\":0,\"translate\":true}},\"createdAt\":\"2025-12-11T12:38:36.533Z\",\"documentation\":{\"enable\":true,\"provider\":\"AIS\",\"queries\":[\"https://github.com/GlobalFishingWatch/composer-dags-production/blob/main/dags/publication/ais/v3/public_fishing_effort.py\"],\"status\":\"Active\",\"type\":\"fishing-effort\"},\"endDate\":\"2026-05-26T00:00:00.000Z\",\"filters\":{\"fourwings\":[{\"array\":false,\"enabled\":true,\"id\":\"flag\",\"max\":0,\"maxLength\":3,\"min\":0,\"minLength\":3,\"required\":false,\"singleSelection\":false,\"type\":\"string\"},{\"array\":false,\"enabled\":true,\"enum\":[\"tuna_purse_seines\",\"driftnets\",\"trollers\",\"set_longlines\",\"purse_seines\",\"pots_and_traps\",\"other_fishing\",\"dredge_fishing\",\"set_gillnets\",\"fixed_gear\",\"trawlers\",\"fishing\",\"seiners\",\"other_purse_seines\",\"other_seines\",\"squid_jigger\",\"pole_and_line\",\"drifting_longlines\"],\"id\":\"geartype\",\"max\":0,\"min\":0,\"required\":false,\"singleSelection\":false,\"type\":\"string\"},{\"array\":false,\"enabled\":true,\"enum\":[\"0\",\"1\",\"2\",\"3\",\"4\",\"5\"],\"id\":\"distance_from_port_km\",\"max\":0,\"min\":0,\"operation\":\"gte\",\"required\":false,\"singleSelection\":false,\"type\":\"number\",\"unit\":\"km\"},{\"array\":false,\"enabled\":true,\"id\":\"vessel-groups\",\"max\":0,\"min\":0,\"required\":false,\"singleSelection\":true,\"type\":\"string\"}]},\"id\":\"public-global-fishing-effort:v4.0\",\"name\":\"\u003credacted\u003e\",\"ownerId\":0,\"ownerType\":\"super-user\",\"relatedDatasets\":[{\"id\":\"public-global-vessel-identity:v4.0\",\"type\":\"vessels:v1\"}],\"source\":\"Global Fishing Watch - AIS Fishing - BQ\",\"startDate\":\"2012-01-01T00:00:00.000Z\",\"status\":\"done\",\"subcategory\":\"fishing\",\"type\":\"4wings:v1\",\"unit\":\"hours\"}}"
+    },
+    {
+      "command": "datasets",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "doctor",
+      "kind": "help",
+      "args": [
+        "doctor",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Check CLI health\n\nUsage:\n  gfw-pp-cli doctor [flags]\n\nExamples:\n  gfw-pp-cli doctor\n  gfw-pp-cli doctor --json\n  gfw-pp-cli doctor --fail-on warn\n\nFlags:\n      --fail-on string   Exit non-zero when a health level is reached: stale, error. Default is never.\n  -h, --help             help for doctor\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'gfw-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "happy_path",
+      "args": [
+        "doctor"
+      ],
+      "status": "pass",
+      "output_sample": "  OK Config: ok\n  OK Auth: configured\n  OK Env Vars: OK 1/1 available\n  OK Verify Mode: normal operation\n  OK API: reachable (HTTP 404 at /)\n  INFO Credentials: present, not verified. Run `gfw-pp-cli 4wings list` to confirm the token works end-to-end.\n  config_path: /tmp/claude-501/printing-press-subprocess-\u003credacted\u003e/.config/gfw-pp-cli/config.toml\n  base_url: https://gateway.api.globalfishingwatch.org\n  auth_source: env:GFW_TOKEN\n  version: 1.0.0\n  INFO Cache: unknown\n    db_path: /tmp/claude-501/printing-press-subprocess-\u003credacted\u003e/.local/share/gfw-pp-cli/data.db\n    schema_version: 2\n    db_bytes: 94208\n    stale_after: 6h0m0s\n    hint: sync_state is empty; run 'gfw-pp-cli sync' to hydrate.\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "json_fidelity",
+      "args": [
+        "doctor",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"agentcookie\":\"not detected (optional)\",\"api\":\"reachable (HTTP 404 at /)\",\"auth\":\"configured\",\"auth_source\":\"env:GFW_TOKEN\",\"base_url\":\"https://gateway.api.globalfishingwatch.org\",\"cache\":{\"db_bytes\":94208,\"db_path\":\"/tmp/claude-501/printing-press-subprocess-\u003credacted\u003e/.local/share/gfw-pp-cli/data.db\",\"hint\":\"sync_state is empty; run 'gfw-pp-cli sync' to hydrate.\",\"resources\":null,\"schema_version\":2,\"stale_after\":\"6h0m0s\",\"status\":\"unknown\"},\"config\":\"ok\",\"config_path\":\"/tmp/claude-501/printing-press-subprocess-\u003credacted\u003e/.config/gfw-pp-cli/config.toml\",\"credentials\":\"present, not verified. Run `gfw-pp-cli 4wings list` to confirm the token works end-to-end.\",\"env_vars\":\"OK 1/1 available\",\"verify_mode\":\"normal operation\",\"version\":\"1.0.0\"}"
+    },
+    {
+      "command": "doctor",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "encounters network",
+      "kind": "help",
+      "args": [
+        "encounters",
+        "network",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Fetches a vessel's encounter events and extracts the counterpart vessel for each — the at-sea meeting graph the API never returns directly. Use to surface transshipment partners. For raw events use 'events list --datasets-0 public-global-encounters-events:latest'.\n\nUsage:\n  gfw-pp-cli encounters network \u003cvesselId\u003e [flags]\n\nExamples:\n  gfw-pp-cli encounters network 8c7304226-6c71-edbe-0b63-c246734b3c01 --json\n\nFlags:\n  -h, --help        help for network\n      --limit int   Max encounter events to analyze (default 50)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'gfw-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "encounters network",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"vesselid\""
+    },
+    {
+      "command": "encounters network",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"vesselid\""
+    },
+    {
+      "command": "encounters network",
+      "kind": "error_path",
+      "args": [
+        "encounters",
+        "network",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: not a GFW vessel id: \"__printing_press_invalid__\" (expected UUID-shaped id like 8c7304226-6c71-edbe-0b63-c246734b3c01; resolve one with 'vessel search')\n"
+    },
+    {
+      "command": "events create",
+      "kind": "help",
+      "args": [
+        "events",
+        "create",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Get GAP events POST - Filter by flag custom polygon GAP\n\nUsage:\n  gfw-pp-cli events create [flags]\n\nExamples:\n  gfw-pp-cli events create\n\nFlags:\n  -h, --help            help for create\n      --limit int       Limit\n      --offset string   Offset\n      --stdin           Read request body as JSON from stdin\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'gfw-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "events create",
+      "kind": "happy_path",
+      "args": [
+        "events",
+        "create",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"action\": \"post\",\n  \"data\": {\n    \"dry_run\": true\n  },\n  \"dry_run\": true,\n  \"path\": \"/v3/events\",\n  \"resource\": \"events\",\n  \"status\": 0,\n  \"success\": false\n}\nPOST https://gateway.api.globalfishingwatch.org/v3/events\n  Body:\n{}\n  Authorization: ****jNLI\n\n(dry run - no request sent)\n"
+    },
+    {
+      "command": "events create",
+      "kind": "json_fidelity",
+      "args": [
+        "events",
+        "create",
+        "--dry-run",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"action\": \"post\",\n  \"data\": {\n    \"dry_run\": true\n  },\n  \"dry_run\": true,\n  \"path\": \"/v3/events\",\n  \"resource\": \"events\",\n  \"status\": 0,\n  \"success\": false\n}\nPOST https://gateway.api.globalfishingwatch.org/v3/events\n  Body:\n{}\n  Authorization: ****jNLI\n\n(dry run - no request sent)\n"
+    },
+    {
+      "command": "events create",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "events create",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command dry-run only"
+    },
+    {
+      "command": "events create-stats",
+      "kind": "help",
+      "args": [
+        "events",
+        "create-stats",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Port visits events Stats - includes TOTAL_COUNT and vessel type BUNKER\n\nUsage:\n  gfw-pp-cli events create-stats [flags]\n\nExamples:\n  gfw-pp-cli events create-stats\n\nFlags:\n  -h, --help    help for create-stats\n      --stdin   Read request body as JSON from stdin\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'gfw-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "events create-stats",
+      "kind": "happy_path",
+      "args": [
+        "events",
+        "create-stats",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"action\": \"post\",\n  \"data\": {\n    \"dry_run\": true\n  },\n  \"dry_run\": true,\n  \"path\": \"/v3/events/stats\",\n  \"resource\": \"events\",\n  \"status\": 0,\n  \"success\": false\n}\nPOST https://gateway.api.globalfishingwatch.org/v3/events/stats\n  Body:\n{}\n  Authorization: ****jNLI\n\n(dry run - no request sent)\n"
+    },
+    {
+      "command": "events create-stats",
+      "kind": "json_fidelity",
+      "args": [
+        "events",
+        "create-stats",
+        "--dry-run",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"action\": \"post\",\n  \"data\": {\n    \"dry_run\": true\n  },\n  \"dry_run\": true,\n  \"path\": \"/v3/events/stats\",\n  \"resource\": \"events\",\n  \"status\": 0,\n  \"success\": false\n}\nPOST https://gateway.api.globalfishingwatch.org/v3/events/stats\n  Body:\n{}\n  Authorization: ****jNLI\n\n(dry run - no request sent)\n"
+    },
+    {
+      "command": "events create-stats",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "events create-stats",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command dry-run only"
+    },
+    {
+      "command": "events get",
+      "kind": "help",
+      "args": [
+        "events",
+        "get",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Get one event by id port visit\n\nUsage:\n  gfw-pp-cli events get \u003ceventId\u003e [flags]\n\nExamples:\n  gfw-pp-cli events get 550e8400-e29b-41d4-a716-446655440000\n\nFlags:\n      --dataset string   if TRUE, return all content of the event without parse Example: FALSE\n  -h, --help             help for get\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'gfw-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "events get",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "list companion failed at depth 0: exit 5"
+    },
+    {
+      "command": "events get",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "list companion failed at depth 0: exit 5"
+    },
+    {
+      "command": "events get",
+      "kind": "error_path",
+      "args": [
+        "events",
+        "get",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 5,
+      "output_sample": "Error: GET /v3/events/__printing_press_invalid__ returned HTTP 422: {\"statusCode\":422,\"error\":\"Unprocessable Entity\",\"messages\":[{\"title\":\"Missing query param\",\"detail\":\"Query param dataset(s) is required\",\"metadata\":{}}]}\n"
+    },
+    {
+      "command": "events list",
+      "kind": "help",
+      "args": [
+        "events",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Get Events - several vessel ids\n\nUsage:\n  gfw-pp-cli events list [flags]\n\nExamples:\n  gfw-pp-cli events list\n\nFlags:\n      --all                 Fetch all pages\n      --datasets-0 string   Datasets 0\n  -h, --help                help for list\n      --limit int           Limit\n      --offset string       Offset\n      --vessels-0 string    Example = 8c7304226-6c71-edbe-0b63-c246734b3c01 OR 6583c51e3-3626-5638-866a-f47c3bc7ef7c OR\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'gfw-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "events list",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "blocked-fixture: requires auth tier \"paid\""
+    },
+    {
+      "command": "events list",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "blocked-fixture: requires auth tier \"paid\""
+    },
+    {
+      "command": "events list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "blocked-fixture: requires auth tier \"paid\""
+    },
+    {
+      "command": "feedback list",
+      "kind": "help",
+      "args": [
+        "feedback",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List recent feedback entries\n\nUsage:\n  gfw-pp-cli feedback list [flags]\n\nExamples:\n  gfw-pp-cli feedback list\n  gfw-pp-cli feedback list --limit 5\n  gfw-pp-cli feedback list --json\n\nFlags:\n  -h, --help        help for list\n      --limit int   Maximum number of recent entries to return (default 20)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'gfw-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "happy_path",
+      "args": [
+        "feedback",
+        "list"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "feedback list",
+      "kind": "json_fidelity",
+      "args": [
+        "feedback",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "import",
+      "kind": "help",
+      "args": [
+        "import",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Import data from a JSONL file by issuing POST requests for each record.\nEach line must be a valid JSON object. Failed records are logged to stderr\nbut do not stop the import.\n\nUsage:\n  gfw-pp-cli import \u003cresource\u003e [flags]\n\nExamples:\n  # Import from a JSONL file\n  gfw-pp-cli import \u003cresource\u003e --input data.jsonl\n\n  # Dry-run to preview without sending\n  gfw-pp-cli import \u003cresource\u003e --input data.jsonl --dry-run\n\n  # Import from stdin\n  cat data.jsonl | gfw-pp-cli import \u003cresource\u003e --input -\n\nFlags:\n      --batch-size int   Records per batch (future: batch API support) (default 1)\n      --dry-run          Preview import without sending requests\n  -h, --help             help for import\n  -i, --input string     Input JSONL file path (use - for stdin)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'gfw-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "import",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [import] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "import",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [import] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "import",
+      "kind": "error_path",
+      "args": [
+        "import",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: required flag(s) \"input\" not set\n"
+    },
+    {
+      "command": "insights",
+      "kind": "help",
+      "args": [
+        "insights",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Insights API - all carrier and fishing vessels\n\nUsage:\n  gfw-pp-cli insights [flags]\n\nExamples:\n  gfw-pp-cli insights\n\nFlags:\n  -h, --help   help for insights\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'gfw-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "insights",
+      "kind": "happy_path",
+      "args": [
+        "insights",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"dry_run\": true\n  }\n}\nPOST https://gateway.api.globalfishingwatch.org/v3/insights/vessels\n  Body:\n{}\n  Authorization: ****jNLI\n\n(dry run - no request sent)\n"
+    },
+    {
+      "command": "insights",
+      "kind": "json_fidelity",
+      "args": [
+        "insights",
+        "--dry-run",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"dry_run\": true\n  }\n}\nPOST https://gateway.api.globalfishingwatch.org/v3/insights/vessels\n  Body:\n{}\n  Authorization: ****jNLI\n\n(dry run - no request sent)\n"
+    },
+    {
+      "command": "insights",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "insights",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command dry-run only"
+    },
+    {
+      "command": "profile delete",
+      "kind": "help",
+      "args": [
+        "profile",
+        "delete",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Remove a profile\n\nUsage:\n  gfw-pp-cli profile delete \u003cname\u003e [flags]\n\nExamples:\n  gfw-pp-cli profile delete my-defaults --yes\n  gfw-pp-cli profile delete old-profile --yes --json\n\nFlags:\n  -h, --help   help for delete\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'gfw-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile delete",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile list",
+      "kind": "help",
+      "args": [
+        "profile",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List saved profiles\n\nUsage:\n  gfw-pp-cli profile list [flags]\n\nExamples:\n  gfw-pp-cli profile list\n  gfw-pp-cli profile list --json\n\nFlags:\n  -h, --help   help for list\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'gfw-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "happy_path",
+      "args": [
+        "profile",
+        "list"
+      ],
+      "status": "pass",
+      "output_sample": "NAME  FIELDS  DESCRIPTION\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "json_fidelity",
+      "args": [
+        "profile",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "profile save",
+      "kind": "help",
+      "args": [
+        "profile",
+        "save",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Captures every flag explicitly set on the invocation and stores\nthem under \u003cname\u003e. To update an existing profile, run save again; the\nentry is replaced.\n\nTo avoid creating empty profiles, at least one non-default flag must be\npresent (other than --profile and --config).\n\nUsage:\n  gfw-pp-cli profile save \u003cname\u003e [--\u003cflag\u003e \u003cvalue\u003e ...] [flags]\n\nExamples:\n  gfw-pp-cli profile save my-defaults --json --compact\n  gfw-pp-cli profile save tonight-defaults --region US\n\nFlags:\n      --description string   Short description shown in 'profile list'\n  -h, --help                 help for save\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'gfw-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile save",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "save",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: no non-default flags set - pass at least one flag to save into \"__printing_press_invalid__\"\n"
+    },
+    {
+      "command": "profile show",
+      "kind": "help",
+      "args": [
+        "profile",
+        "show",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show a profile's values as JSON\n\nUsage:\n  gfw-pp-cli profile show \u003cname\u003e [flags]\n\nExamples:\n  gfw-pp-cli profile show my-defaults\n  gfw-pp-cli profile show tonight-defaults --json\n\nFlags:\n  -h, --help   help for show\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'gfw-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile show",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "show",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: profile \"__printing_press_invalid__\" not found\n"
+    },
+    {
+      "command": "profile use",
+      "kind": "help",
+      "args": [
+        "profile",
+        "use",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Print the flag values a profile will apply (does not execute anything)\n\nUsage:\n  gfw-pp-cli profile use \u003cname\u003e [flags]\n\nExamples:\n  gfw-pp-cli profile use my-defaults\n  gfw-pp-cli profile use tonight-defaults --json\n\nFlags:\n  -h, --help   help for use\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'gfw-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile use",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "use",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: profile \"__printing_press_invalid__\" not found\n"
+    },
+    {
+      "command": "search",
+      "kind": "help",
+      "args": [
+        "search",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Search data using FTS5 full-text search on locally synced data,\nor hit the API's search endpoint when available.\n\nIn auto mode (default): uses the API search endpoint if the API has one,\notherwise searches local data. Falls back to local on network failure.\nIn live mode: uses the API search endpoint only.\nIn local mode: searches locally synced data only.\n\nUsage:\n  gfw-pp-cli search \u003cquery\u003e [flags]\n\nExamples:\n  # Search (uses API endpoint if available, local FTS otherwise)\n  gfw-pp-cli search \"error timeout\"\n\n  # Force local search only\n  gfw-pp-cli search \"payment failed\" --data-source local\n\n  # Search a specific resource type locally\n  gfw-pp-cli search \"critical\" --type transactions --data-source local\n\n  # JSON output for piping\n  gfw-pp-cli search \"critical\" --json --limit 20\n\nFlags:\n      --db string     Database path (default: ~/.local/share/gfw-pp-cli/data.db)\n  -h, --help          help for search\n      --limit int     Maximum results to return (default 50)\n      --type string   Filter by resource type\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'gfw-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "search",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [search] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "search",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [search] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "search",
+      "kind": "error_path",
+      "args": [
+        "search",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "exit_code": 5,
+      "output_sample": "Error: GET /v3/vessels/search returned HTTP 422: {\"statusCode\":422,\"error\":\"Unprocessable Entity\",\"messages\":[{\"title\":\"Missing query param\",\"detail\":\"Query param dataset(s) is required\",\"metadata\":{}}]}\n"
+    },
+    {
+      "command": "sync",
+      "kind": "help",
+      "args": [
+        "sync",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Sync data from the API into a local SQLite database. Supports resumable\nincremental sync (only fetches new data since last sync) and full resync.\nOnce synced, use the 'search' command for instant full-text search.\n\nExit codes \u0026 warnings:\n  Resources the API denies access to (HTTP 403, or HTTP 400 with an\n  access-policy body) are reported as warnings rather than failing the\n  run. In --json mode each is emitted as a {\"event\":\"sync_warning\",...}\n  line carrying status, reason, and message fields, and a final\n  {\"event\":\"sync_summary\",...} aggregates the run.\n\n  Exit 0 when at least one resource synced and no resource flagged in\n  the spec as critical (x-critical: true) failed; non-critical failures\n  emit {\"event\":\"sync_warning\",\"reason\":\"exit_policy_default_changed\",\n  ...} so callers can detect that a partial failure was tolerated. Pass\n  --strict to exit non-zero on any per-resource failure. Exit is always\n  non-zero when every selected resource failed, regardless of --strict.\n\nResource scoping:\n  --resources runs the named top-level resources, plus any parent-keyed\n  dependent whose own name is listed OR whose parent table is listed.\n  Naming a parent therefore cascades to its dependents (so \"sync this\n  parent and its children\" works without listing every nested resource\n  by hand). There is no flag today to suppress the cascade for a named\n  parent. To run a dependent without re-syncing its parent, list only\n  the dependent by name; the parent table must already be populated\n  from a prior sync.\n\nUsage:\n  gfw-pp-cli sync [flags]\n\nExamples:\n  # Sync all resources\n  gfw-pp-cli sync\n\n  # Sync specific resources only\n  gfw-pp-cli sync --resources channels,messages\n\n  # Full resync (ignore previous checkpoint)\n  gfw-pp-cli sync --full\n\n  # Incremental sync: only records from the last 7 days\n  gfw-pp-cli sync --since 7d\n\n  # Parallel sync with 8 workers\n  gfw-pp-cli sync --concurrency 8\n\n  # Latest-only: refresh head of each resource, no historical backfill\n  gfw-pp-cli sync --latest-only\n\nFlags:\n      --concurrency int              Number of parallel sync workers (default 4)\n      --db string                    Database path (default: ~/.local/share/gfw-pp-cli/data.db)\n      --full                         Full resync (ignore previous checkpoint)\n      --global-param stringArray     Extra query param to inject into every sync request including dependent path-scoped calls (repeatable, key=value). Use when an API requires a scope on every call regardless of path nesting.\n  -h, --help                         help for sync\n      --latest-only                  Refresh head of each resource only; clears resume cursor and caps pages at 1. Mutually exclusive with --since (--since wins).\n      --max-pages int                Maximum pages to fetch per resource (0 = unlimited; cap-hit emits a sync_warning event)\n      --param stringArray            Extra query param to inject into flat-list sync requests (repeatable, key=value). Skipped on path-scoped dependent requests so a top-level scope like workspace=\u003cid\u003e does not double up on /parents/\u003cid\u003e/children calls. Use --global-param to inject everywhere. Avoid pagination keys (limit/since/cursor) — overriding them corrupts resume state.\n      --resource-param stringArray   Per-resource extra query param (repeatable, resource:key=value). Wins over --param and --global-param when keys conflict.\n      --resources strings            Comma-separated resource types to sync. Naming a parent also runs its parent-keyed dependents (see Long help for scoping).\n      --since string                 Incremental sync duration (e.g. 7d, 24h, 1w, 30m)\n      --strict                       Exit non-zero on any per-resource failure (default: only critical failures or all-resource failure exit non-zero).\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return o…[truncated]"
+    },
+    {
+      "command": "sync",
+      "kind": "happy_path",
+      "args": [
+        "sync"
+      ],
+      "status": "pass",
+      "output_sample": "{\"event\":\"sync_start\",\"resource\":\"4wings\"}\n{\"event\":\"sync_start\",\"resource\":\"4wings-report\"}\n{\"event\":\"sync_start\",\"resource\":\"4wings-last-report\"}\n{\"event\":\"sync_start\",\"resource\":\"bulk-reports\"}\n{\"event\":\"sync_error\",\"resource\":\"4wings-report\",\"status\":422,\"method\":\"GET\",\"path\":\"/v3/4wings/report\",\"body\":\"{\\\"statusCode\\\":422,\\\"error\\\":\\\"Unprocessable Entity\\\",\\\"messages\\\":[{\\\"title\\\":\\\"datasets\\\",\\\"detail\\\":\\\"datasets query param is required\\\"}]}\",\"error\":\"GET /v3/4wings/report returned HTTP 422: {\\\"statusCode\\\":422,\\\"error\\\":\\\"Unprocessable Entity\\\",\\\"messages\\\":[{\\\"title\\\":\\\"datasets\\\",\\\"detail\\\":\\\"datasets query param is required\\\"}]}\"}\n{\"event\":\"sync_error\",\"resource\":\"bulk-reports\",\"status\":422,\"method\":\"GET\",\"path\":\"/v3/bulk-reports\",\"body\":\"{\\\"statusCode\\\":422,\\\"error\\\":\\\"Unprocessable Entity\\\",\\\"messages\\\":[{\\\"title\\\":\\\"If\\\",\\\"detail\\\":\\\"If you send the limit property then the offset property is required\\\"},{\\\"title\\\":\\\"offset\\\",\\\"detail\\\":\\\"offset must not be less than 0\\\"}]}\",\"error\":\"GET /v3/bulk-reports returned HTTP 422: {\\\"statusCode\\\":422,\\\"error\\\":\\\"Unprocessable Entity\\\",\\\"messages\\\":[{\\\"title\\\":\\\"If\\\",\\\"detail\\\":\\\"If you send the limit property then the offset property is required\\\"},{\\\"title\\\":\\\"offset\\\",\\\"detail\\\":\\\"offset must not be less than 0\\\"}]}\"}\n{\"event\":\"sync_start\",\"resource\":\"datasets\"}\n{\"event\":\"sync_start\",\"resource\":\"events\"}\n{\"event\":\"sync_error\",\"resource\":\"4wings\",\"status\":422,\"method\":\"GET\",\"path\":\"/v3/4wings/stats\",\"body\":\"{\\\"statusCode\\\":422,\\\"error\\\":\\\"Unprocessable Entity\\\",\\\"messages\\\":[{\\\"title\\\":\\\"datasets\\\",\\\"detail\\\":\\\"datasets query param is required\\\"}]}\",\"error\":\"GET /v3/4wings/stats returned HTTP 422: {\\\"statusCode\\\":422,\\\"error\\\":\\\"Unprocessable Entity\\\",\\\"messages\\\":[{\\\"title\\\":\\\"datasets\\\",\\\"detail\\\":\\\"datasets query param is required\\\"}]}\"}\n{\"event\":\"sync_start\",\"resource\":\"vessels\"}\n{\"event\":\"sync_error\",\"resource\":\"4wings-last-report\",\"status\":404,\"method\":\"GET\",\"path\":\"/v3/4wings/last-report\",\"body\":\"{\\\"statusCode\\\":404,\\\"error\\\":\\\"Not Found\\\",\\\"messages\\\":[{\\\"title\\\":\\\"Not Found\\\",\\\"detail\\\":\\\"Not available last report\\\"}]}\",\"error\":\"GET /v3/4wings/last-report returned HTTP 404: {\\\"statusCode\\\":404,\\\"error\\\":\\\"Not Found\\\",\\\"messages\\\":[{\\\"title\\\":\\\"Not Found\\\",\\\"detail\\\":\\\"Not available last report\\\"}]}\"}\n{\"event\":\"sync_error\",\"resource\":\"events\",\"status\":422,\"method\":\"GET\",\"path\":\"/v3/events\",\"body\":\"{\\\"statusCode\\\":422,\\\"error\\\":\\\"Unprocessable Entity\\\",\\\"messages\\\":[{\\\"title\\\":\\\"Missing query param\\\",\\\"detail\\\":\\\"Query param dataset(s) is required\\\",\\\"metadata\\\":{}}]}\",\"error\":\"GET /v3/events returned HTTP 422: {\\\"statusCode\\\":422,\\\"error\\\":\\\"Unprocessable Entity\\\",\\\"messages\\\":[{\\\"title\\\":\\\"Missing query param\\\",\\\"detail\\\":\\\"Query param dataset(s) is required\\\",\\\"metadata\\\":{}}]}\"}\n{\"event\":\"sync_error\",\"resource\":\"vessels\",\"status\":422,\"method\":\"GET\",\"path\":\"/v3/vessels\",\"body\":\"{\\\"statusCode\\\":422,\\\"error\\\":\\\"Unprocessable Entity\\\",\\\"messages\\\":[{\\\"title\\\":\\\"Missing query param\\\",\\\"detail\\\":\\\"Query param dataset(s) is required\\\",\\\"metadata\\\":{}}]}\",\"error\":\"GET /v3/vessels returned HTTP 422: {\\\"statusCode\\\":422,\\\"error\\\":\\\"Unprocessable Entity\\\",\\\"messages\\\":[{\\\"title\\\":\\\"Missing query param\\\",\\\"detail\\\":\\\"Query param dataset(s) is required\\\",\\\"metadata\\\":{}}]}\"}\n{\"event\":\"sync_complete\",\"resource\":\"datasets\",\"total\":1,\"duration_ms\":307}\n{\"event\":\"sync_summary\",\"total_records\":1,\"resources\":8,\"success\":2,\"warned\":0,\"errored\":6,\"duration_ms\":717}\n{\"event\":\"sync_warning\",\"reason\":\"exit_policy_default_changed\",\"errored\":6,\"message\":\"6 resource(s) failed but exit code is 0 because the new default treats non-critical failures as warnings. Pass --strict to restore the old behavior, or annotate critical resources with x-critical: true. See CHANGELOG.\"}\n"
+    },
+    {
+      "command": "sync",
+      "kind": "json_fidelity",
+      "args": [
+        "sync",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"event\":\"sync_start\",\"resource\":\"4wings\"}\n{\"event\":\"sync_start\",\"resource\":\"4wings-last-report\"}\n{\"event\":\"sync_start\",\"resource\":\"4wings-report\"}\n{\"event\":\"sync_start\",\"resource\":\"bulk-reports\"}\n{\"event\":\"sync_error\",\"resource\":\"4wings\",\"status\":422,\"method\":\"GET\",\"path\":\"/v3/4wings/stats\",\"body\":\"{\\\"statusCode\\\":422,\\\"error\\\":\\\"Unprocessable Entity\\\",\\\"messages\\\":[{\\\"title\\\":\\\"datasets\\\",\\\"detail\\\":\\\"datasets query param is required\\\"}]}\",\"error\":\"GET /v3/4wings/stats returned HTTP 422: {\\\"statusCode\\\":422,\\\"error\\\":\\\"Unprocessable Entity\\\",\\\"messages\\\":[{\\\"title\\\":\\\"datasets\\\",\\\"detail\\\":\\\"datasets query param is required\\\"}]}\"}\n{\"event\":\"sync_start\",\"resource\":\"datasets\"}\n{\"event\":\"sync_warning\",\"resource\":\"datasets\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_error\",\"resource\":\"4wings-report\",\"status\":422,\"method\":\"GET\",\"path\":\"/v3/4wings/report\",\"body\":\"{\\\"statusCode\\\":422,\\\"error\\\":\\\"Unprocessable Entity\\\",\\\"messages\\\":[{\\\"title\\\":\\\"datasets\\\",\\\"detail\\\":\\\"datasets query param is required\\\"}]}\",\"error\":\"GET /v3/4wings/report returned HTTP 422: {\\\"statusCode\\\":422,\\\"error\\\":\\\"Unprocessable Entity\\\",\\\"messages\\\":[{\\\"title\\\":\\\"datasets\\\",\\\"detail\\\":\\\"datasets query param is required\\\"}]}\"}\n{\"event\":\"sync_start\",\"resource\":\"events\"}\n{\"event\":\"sync_error\",\"resource\":\"4wings-last-report\",\"status\":404,\"method\":\"GET\",\"path\":\"/v3/4wings/last-report\",\"body\":\"{\\\"statusCode\\\":404,\\\"error\\\":\\\"Not Found\\\",\\\"messages\\\":[{\\\"title\\\":\\\"Not Found\\\",\\\"detail\\\":\\\"Not available last report\\\"}]}\",\"error\":\"GET /v3/4wings/last-report returned HTTP 404: {\\\"statusCode\\\":404,\\\"error\\\":\\\"Not Found\\\",\\\"messages\\\":[{\\\"title\\\":\\\"Not Found\\\",\\\"detail\\\":\\\"Not available last report\\\"}]}\"}\n{\"event\":\"sync_start\",\"resource\":\"vessels\"}\n{\"event\":\"sync_error\",\"resource\":\"bulk-reports\",\"status\":422,\"method\":\"GET\",\"path\":\"/v3/bulk-reports\",\"body\":\"{\\\"statusCode\\\":422,\\\"error\\\":\\\"Unprocessable Entity\\\",\\\"messages\\\":[{\\\"title\\\":\\\"If\\\",\\\"detail\\\":\\\"If you send the limit property then the offset property is required\\\"},{\\\"title\\\":\\\"offset\\\",\\\"detail\\\":\\\"offset must not be less than 0\\\"}]}\",\"error\":\"GET /v3/bulk-reports returned HTTP 422: {\\\"statusCode\\\":422,\\\"error\\\":\\\"Unprocessable Entity\\\",\\\"messages\\\":[{\\\"title\\\":\\\"If\\\",\\\"detail\\\":\\\"If you send the limit property then the offset property is required\\\"},{\\\"title\\\":\\\"offset\\\",\\\"detail\\\":\\\"offset must not be less than 0\\\"}]}\"}\n{\"event\":\"sync_error\",\"resource\":\"events\",\"status\":422,\"method\":\"GET\",\"path\":\"/v3/events\",\"body\":\"{\\\"statusCode\\\":422,\\\"error\\\":\\\"Unprocessable Entity\\\",\\\"messages\\\":[{\\\"title\\\":\\\"Missing query param\\\",\\\"detail\\\":\\\"Query param dataset(s) is required\\\",\\\"metadata\\\":{}}]}\",\"error\":\"GET /v3/events returned HTTP 422: {\\\"statusCode\\\":422,\\\"error\\\":\\\"Unprocessable Entity\\\",\\\"messages\\\":[{\\\"title\\\":\\\"Missing query param\\\",\\\"detail\\\":\\\"Query param dataset(s) is required\\\",\\\"metadata\\\":{}}]}\"}\n{\"event\":\"sync_complete\",\"resource\":\"datasets\",\"total\":1,\"duration_ms\":304}\n{\"event\":\"sync_error\",\"resource\":\"vessels\",\"status\":422,\"method\":\"GET\",\"path\":\"/v3/vessels\",\"body\":\"{\\\"statusCode\\\":422,\\\"error\\\":\\\"Unprocessable Entity\\\",\\\"messages\\\":[{\\\"title\\\":\\\"Missing query param\\\",\\\"detail\\\":\\\"Query param dataset(s) is required\\\",\\\"metadata\\\":{}}]}\",\"error\":\"GET /v3/vessels returned HTTP 422: {\\\"statusCode\\\":422,\\\"error\\\":\\\"Unprocessable Entity\\\",\\\"messages\\\":[{\\\"title\\\":\\\"Missing query param\\\",\\\"detail\\\":\\\"Query param dataset(s) is required\\\",\\\"metadata\\\":{}}]}\"}\n{\"event\":\"sync_summary\",\"total_records\":1,\"resources\":8,\"success\":2,\"warned\":0,\"errored\":6,\"duration_ms\":742}\n{\"event\":\"sync_warning\",\"reason\":\"exit_policy_default_changed\",\"errored\":6,\"message\":\"6 resource(s) failed but exit code is 0 because the new default treats non-critical failures as warnings. Pass --strict to restore the old behavior, or annotate critical resources with x-critical: true. See CHANGELOG.\"}\n"
+    },
+    {
+      "command": "sync",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "tail",
+      "kind": "help",
+      "args": [
+        "tail",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Tail streams live data changes by polling the API at configurable intervals.\nEvents are emitted as NDJSON to stdout for piping to other tools.\nGracefully shuts down on SIGTERM/SIGINT.\n\nNote: For APIs with WebSocket or SSE support, a future version will use\nnative streaming instead of polling.\n\nUsage:\n  gfw-pp-cli tail [resource] [flags]\n\nExamples:\n  # Tail all changes every 10 seconds\n  gfw-pp-cli tail --interval 10s\n\n  # Tail a specific resource\n  gfw-pp-cli tail messages --interval 5s\n\n  # Pipe to jq for filtering\n  gfw-pp-cli tail events --interval 30s | jq 'select(.type == \"error\")'\n\nFlags:\n      --follow              Keep running (set --follow=false for single poll) (default true)\n  -h, --help                help for tail\n      --interval duration   Poll interval (default 10s)\n      --resource string     Resource type to tail\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'gfw-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "tail",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [tail] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "tail",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [tail] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "tail",
+      "kind": "error_path",
+      "args": [
+        "tail",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": -1,
+      "output_sample": "Tailing __printing_press_invalid__ every 10s (Ctrl+C to stop)\nwarning: initial fetch failed: GET /__printing_press_invalid__ returned HTTP 404: 404 page not found\nwarning: poll failed: GET /__printing_press_invalid__ returned HTTP 404: 404 page not found\nwarning: poll failed: GET /__printing_press_invalid__ returned HTTP 404: 404 page not found\nwarning: poll failed: GET /__printing_press_invalid__ returned HTTP 404: 404 page not found\nwarning: poll failed: GET /__printing_press_invalid__ returned HTTP 404: 404 page not found\nwarning: poll failed: GET /__printing_press_invalid__ returned HTTP 404: 404 page not found\nwarning: poll failed: GET /__printing_press_invalid__ returned HTTP 404: 404 page not found\nwarning: poll failed: GET /__printing_press_invalid__ returned HTTP 404: 404 page not found\nwarning: poll failed: GET /__printing_press_invalid__ returned HTTP 404: 404 page not found\nwarning: poll failed: GET /__printing_press_invalid__ returned HTTP 404: 404 page not found\nwarning: poll failed: GET /__printing_press_invalid__ returned HTTP 404: 404 page not found\nwarning: poll failed: GET /__printing_press_invalid__ returned HTTP 404: 404 page not found\n"
+    },
+    {
+      "command": "vessel dossier",
+      "kind": "help",
+      "args": [
+        "vessel",
+        "dossier",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Fetches a vessel's GFW identity, its recent events across all behavioral datasets (encounters, port visits, loitering, gaps, fishing), and its risk insights, then merges them. For just identity use 'vessel get'; for raw events use 'events list'.\n\nUsage:\n  gfw-pp-cli vessel dossier \u003cvesselId\u003e [flags]\n\nExamples:\n  gfw-pp-cli vessel dossier 8c7304226-6c71-edbe-0b63-c246734b3c01 --json\n\nFlags:\n      --event-limit int   Max events to fetch across datasets (default 50)\n  -h, --help              help for dossier\n      --recent int        Number of recent events to include in the dossier (default 10)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'gfw-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "vessel dossier",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no id parseable from companion at depth 0"
+    },
+    {
+      "command": "vessel dossier",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "no id parseable from companion at depth 0"
+    },
+    {
+      "command": "vessel dossier",
+      "kind": "error_path",
+      "args": [
+        "vessel",
+        "dossier",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: not a GFW vessel id: \"__printing_press_invalid__\" (expected UUID-shaped id like 8c7304226-6c71-edbe-0b63-c246734b3c01; resolve one with 'vessel search')\n"
+    },
+    {
+      "command": "vessel gaps",
+      "kind": "help",
+      "args": [
+        "vessel",
+        "gaps",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Fetches a vessel's AIS-gap and loitering events, which can indicate AIS disabling (a sanctions-evasion signal). For raw events use 'events list --datasets-0 public-global-gaps-events:latest'.\n\nUsage:\n  gfw-pp-cli vessel gaps \u003cvesselId\u003e [flags]\n\nExamples:\n  gfw-pp-cli vessel gaps 8c7304226-6c71-edbe-0b63-c246734b3c01 --json\n\nFlags:\n  -h, --help        help for gaps\n      --limit int   Max gap/loitering events to return (default 50)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'gfw-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "vessel gaps",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "list companion previously failed at depth 0 for \"vesselid\""
+    },
+    {
+      "command": "vessel gaps",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "list companion previously failed at depth 0 for \"vesselid\""
+    },
+    {
+      "command": "vessel gaps",
+      "kind": "error_path",
+      "args": [
+        "vessel",
+        "gaps",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: not a GFW vessel id: \"__printing_press_invalid__\" (expected UUID-shaped id like 8c7304226-6c71-edbe-0b63-c246734b3c01; resolve one with 'vessel search')\n"
+    },
+    {
+      "command": "vessel get",
+      "kind": "help",
+      "args": [
+        "vessel",
+        "get",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Get a vessel's GFW identity by id (and cache it).\n\nUsage:\n  gfw-pp-cli vessel get \u003cvesselId\u003e [flags]\n\nExamples:\n  gfw-pp-cli vessel get 8c7304226-6c71-edbe-0b63-c246734b3c01 --json\n\nFlags:\n  -h, --help   help for get\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'gfw-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "vessel get",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "list companion previously failed at depth 0 for \"vesselid\""
+    },
+    {
+      "command": "vessel get",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "list companion previously failed at depth 0 for \"vesselid\""
+    },
+    {
+      "command": "vessel get",
+      "kind": "error_path",
+      "args": [
+        "vessel",
+        "get",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: not a GFW vessel id: \"__printing_press_invalid__\" (expected UUID-shaped id like 8c7304226-6c71-edbe-0b63-c246734b3c01; resolve one with 'vessel search')\n"
+    },
+    {
+      "command": "vessel list",
+      "kind": "help",
+      "args": [
+        "vessel",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Lists vessel identities cached by 'vessel search'/'vessel get'/'vessel dossier', with optional flag/name filters and a pinned-only view.\n\nUsage:\n  gfw-pp-cli vessel list [flags]\n\nExamples:\n  gfw-pp-cli vessel list --flag COK --json\n  gfw-pp-cli vessel list --pinned\n\nFlags:\n      --flag string        Filter by flag (exact, case-insensitive)\n  -h, --help               help for list\n      --limit int          Maximum rows to return (default 200)\n      --name-like string   Substring search on name/IMO/MMSI\n      --pinned             Only list watchlisted vessels\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'gfw-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "vessel list",
+      "kind": "happy_path",
+      "args": [
+        "vessel",
+        "list",
+        "--flag",
+        "COK",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "vessel list",
+      "kind": "json_fidelity",
+      "args": [
+        "vessel",
+        "list",
+        "--flag",
+        "COK",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "vessel list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "vessel ports",
+      "kind": "help",
+      "args": [
+        "vessel",
+        "ports",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "A vessel's port-visit events (newest first).\n\nUsage:\n  gfw-pp-cli vessel ports \u003cvesselId\u003e [flags]\n\nExamples:\n  gfw-pp-cli vessel ports 8c7304226-6c71-edbe-0b63-c246734b3c01 --json\n\nFlags:\n  -h, --help        help for ports\n      --limit int   Max port-visit events to return (default 50)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'gfw-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "vessel ports",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "list companion previously failed at depth 0 for \"vesselid\""
+    },
+    {
+      "command": "vessel ports",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "list companion previously failed at depth 0 for \"vesselid\""
+    },
+    {
+      "command": "vessel ports",
+      "kind": "error_path",
+      "args": [
+        "vessel",
+        "ports",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: not a GFW vessel id: \"__printing_press_invalid__\" (expected UUID-shaped id like 8c7304226-6c71-edbe-0b63-c246734b3c01; resolve one with 'vessel search')\n"
+    },
+    {
+      "command": "vessel risk",
+      "kind": "help",
+      "args": [
+        "vessel",
+        "risk",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Fetches risk insights and recent gap/encounter/loitering events and computes a 0-100 risk heuristic with human-readable signals. Not a substitute for the raw 'insights' indicators.\n\nUsage:\n  gfw-pp-cli vessel risk \u003cvesselId\u003e [flags]\n\nExamples:\n  gfw-pp-cli vessel risk 8c7304226-6c71-edbe-0b63-c246734b3c01 --agent\n\nFlags:\n      --event-limit int   Max events to scan for the risk signal (default 100)\n  -h, --help              help for risk\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'gfw-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "vessel risk",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "list companion previously failed at depth 0 for \"vesselid\""
+    },
+    {
+      "command": "vessel risk",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "list companion previously failed at depth 0 for \"vesselid\""
+    },
+    {
+      "command": "vessel risk",
+      "kind": "error_path",
+      "args": [
+        "vessel",
+        "risk",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: not a GFW vessel id: \"__printing_press_invalid__\" (expected UUID-shaped id like 8c7304226-6c71-edbe-0b63-c246734b3c01; resolve one with 'vessel search')\n"
+    },
+    {
+      "command": "vessel search",
+      "kind": "help",
+      "args": [
+        "vessel",
+        "search",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Free-text search over GFW vessel identity (registry + AIS). Returns flattened identities (GFW id, name, flag, MMSI, IMO) and caches each so 'vessel list' can browse them offline. Use the GFW id with dossier/risk/events.\n\nUsage:\n  gfw-pp-cli vessel search \u003cquery\u003e [flags]\n\nExamples:\n  gfw-pp-cli vessel search \"PROGRESS 10\" --json\n\nFlags:\n  -h, --help        help for search\n      --limit int   Maximum vessels to return (default 20)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'gfw-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "vessel search",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"query\" at depth 0"
+    },
+    {
+      "command": "vessel search",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"query\" at depth 0"
+    },
+    {
+      "command": "vessel search",
+      "kind": "error_path",
+      "args": [
+        "vessel",
+        "search",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\nserver error 503, retrying in 1s (attempt 1/3)\n"
+    },
+    {
+      "command": "vessels get",
+      "kind": "help",
+      "args": [
+        "vessels",
+        "get",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Obtains all the characteristics that describe a single vessel, such as its name and idenTIFiers.\n\nUsage:\n  gfw-pp-cli vessels get \u003cvesselId\u003e [flags]\n\nExamples:\n  gfw-pp-cli vessels get 550e8400-e29b-41d4-a716-446655440000\n\nFlags:\n      --dataset string   (Required) Dataset to query vessels from\n  -h, --help             help for get\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'gfw-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "vessels get",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "list companion failed at depth 0: exit 5"
+    },
+    {
+      "command": "vessels get",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "list companion failed at depth 0: exit 5"
+    },
+    {
+      "command": "vessels get",
+      "kind": "error_path",
+      "args": [
+        "vessels",
+        "get",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 5,
+      "output_sample": "Error: GET /v3/vessels/__printing_press_invalid__ returned HTTP 422: {\"statusCode\":422,\"error\":\"Unprocessable Entity\",\"messages\":[{\"title\":\"Missing query param\",\"detail\":\"Query param dataset(s) is required\",\"metadata\":{}}]}\n"
+    },
+    {
+      "command": "vessels list",
+      "kind": "help",
+      "args": [
+        "vessels",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Lists vessels given a list of vessels id.\n\nUsage:\n  gfw-pp-cli vessels list [flags]\n\nExamples:\n  gfw-pp-cli vessels list\n\nFlags:\n      --binary string       Return data in binary format.\n      --datasets-0 string   Datasets 0\n  -h, --help                help for list\n      --ids-0 string        (Required) List of vessel id to get these vessels. The ids must be separated by comma.\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'gfw-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "vessels list",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "blocked-fixture: requires auth tier \"paid\""
+    },
+    {
+      "command": "vessels list",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "blocked-fixture: requires auth tier \"paid\""
+    },
+    {
+      "command": "vessels list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "blocked-fixture: requires auth tier \"paid\""
+    },
+    {
+      "command": "vessels list-search",
+      "kind": "help",
+      "args": [
+        "vessels",
+        "list-search",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Advanced Search vessels - Gear Type = 'CARRIER'\n\nUsage:\n  gfw-pp-cli vessels list-search [flags]\n\nExamples:\n  gfw-pp-cli vessels list-search\n\nFlags:\n      --all                 Fetch all pages\n      --datasets-0 string   Datasets 0\n  -h, --help                help for list-search\n      --includes-0 string   Includes 0\n      --includes-1 string   Includes 1\n      --includes-2 string   Includes 2\n      --limit int           Limit\n      --where string        Search in registry data and in GFW Gear Type values\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'gfw-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "vessels list-search",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "blocked-fixture: requires auth tier \"paid\""
+    },
+    {
+      "command": "vessels list-search",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "blocked-fixture: requires auth tier \"paid\""
+    },
+    {
+      "command": "vessels list-search",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "blocked-fixture: requires auth tier \"paid\""
+    },
+    {
+      "command": "watch pin",
+      "kind": "help",
+      "args": [
+        "watch",
+        "pin",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Adds a GFW vessel id to the local watchlist (re-pinning updates the label). 'watch pin --list' shows the watchlist; 'watch refresh' brings pinned vessels current.\n\nUsage:\n  gfw-pp-cli watch pin \u003cvesselId\u003e [flags]\n\nExamples:\n  gfw-pp-cli watch pin 8c7304226-6c71-edbe-0b63-c246734b3c01 --label \"Lagos deal\"\n  gfw-pp-cli watch pin --list --json\n\nFlags:\n  -h, --help           help for pin\n      --label string   Optional label (e.g. a case or deal name)\n      --list           List the watchlist instead of pinning\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'gfw-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "watch pin",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"vesselid\""
+    },
+    {
+      "command": "watch pin",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"vesselid\""
+    },
+    {
+      "command": "watch pin",
+      "kind": "error_path",
+      "args": [
+        "watch",
+        "pin",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: not a GFW vessel id: \"__printing_press_invalid__\" (expected UUID-shaped id like 8c7304226-6c71-edbe-0b63-c246734b3c01; resolve one with 'vessel search')\n"
+    },
+    {
+      "command": "watch refresh",
+      "kind": "help",
+      "args": [
+        "watch",
+        "refresh",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Iterates the watchlist, re-fetches each vessel's identity (refreshing the cache) and recent event counts, under a polite throttle.\n\nUsage:\n  gfw-pp-cli watch refresh [flags]\n\nExamples:\n  gfw-pp-cli watch refresh --json\n\nFlags:\n      --event-limit int     Max events to fetch per vessel (default 50)\n  -h, --help                help for refresh\n      --pinned              Refresh watchlisted (pinned) vessels (default true)\n      --throttle duration   Delay between vessels (politeness) (default 300ms)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'gfw-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "watch refresh",
+      "kind": "happy_path",
+      "args": [
+        "watch",
+        "refresh",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "watch refresh",
+      "kind": "json_fidelity",
+      "args": [
+        "watch",
+        "refresh",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "watch refresh",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "watch since",
+      "kind": "help",
+      "args": [
+        "watch",
+        "since",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "For each watchlisted vessel, fetches events whose start date falls within the given window (e.g. '7d', '24h'). Use for 'what happened to my vessels in the last N days'.\n\nUsage:\n  gfw-pp-cli watch since \u003cduration\u003e [flags]\n\nExamples:\n  gfw-pp-cli watch since 7d --json\n\nFlags:\n      --event-limit int     Max events to fetch per vessel (default 50)\n  -h, --help                help for since\n      --throttle duration   Delay between vessels (politeness) (default 300ms)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'gfw-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "watch since",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"duration\" at depth 0"
+    },
+    {
+      "command": "watch since",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"duration\" at depth 0"
+    },
+    {
+      "command": "watch since",
+      "kind": "error_path",
+      "args": [
+        "watch",
+        "since",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: invalid duration \"__printing_press_invalid__\": use forms like 7d, 24h\n"
+    },
+    {
+      "command": "watch unpin",
+      "kind": "help",
+      "args": [
+        "watch",
+        "unpin",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Remove a vessel from the watchlist.\n\nUsage:\n  gfw-pp-cli watch unpin \u003cvesselId\u003e [flags]\n\nExamples:\n  gfw-pp-cli watch unpin 8c7304226-6c71-edbe-0b63-c246734b3c01\n\nFlags:\n  -h, --help   help for unpin\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'gfw-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "watch unpin",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"vesselid\""
+    },
+    {
+      "command": "watch unpin",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"vesselid\""
+    },
+    {
+      "command": "watch unpin",
+      "kind": "error_path",
+      "args": [
+        "watch",
+        "unpin",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: not a GFW vessel id: \"__printing_press_invalid__\" (expected UUID-shaped id like 8c7304226-6c71-edbe-0b63-c246734b3c01; resolve one with 'vessel search')\n"
+    },
+    {
+      "command": "which",
+      "kind": "help",
+      "args": [
+        "which",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "which resolves a natural-language capability query (for example, \"search messages\" or \"stale tickets\") to the best matching command from this CLI's curated feature index.\n\nExit codes:\n  0  at least one match found\n  2  no confident match - the query did not score against any indexed capability; fall back to '--help' or 'search' if this CLI has one\n\nUsage:\n  gfw-pp-cli which [query] [flags]\n\nExamples:\n  gfw-pp-cli which \"stale tickets\"\n  gfw-pp-cli which \"bottleneck\"\n  gfw-pp-cli which --limit 1 \"send message\"\n  gfw-pp-cli which                                # list the full capability index\n\nFlags:\n  -h, --help        help for which\n      --limit int   Maximum number of matches to return (default 3)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'gfw-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "which",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [which] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "which",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [which] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "which",
+      "kind": "error_path",
+      "args": [
+        "which",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"matches\": []\n}\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "help",
+      "args": [
+        "workflow",
+        "archive",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Archive fetches all syncable resources from the API and stores them in a\nlocal SQLite database. Supports incremental sync (only new data since last run)\nand full resync. After archiving, use 'search' for instant full-text search.\n\nUsage:\n  gfw-pp-cli workflow archive [flags]\n\nExamples:\n  # Archive all resources\n  gfw-pp-cli workflow archive\n\n  # Full re-archive (ignore previous sync state)\n  gfw-pp-cli workflow archive --full\n\nFlags:\n      --db string   Database path (default: ~/.local/share/gfw-pp-cli/data.db)\n      --full        Full re-archive (ignore previous sync state)\n  -h, --help        help for archive\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'gfw-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "happy_path",
+      "args": [
+        "workflow",
+        "archive"
+      ],
+      "status": "pass",
+      "output_sample": "{\"event\":\"sync_start\",\"resource\":\"4wings\"}\n{\"event\":\"sync_error\",\"resource\":\"4wings\",\"status\":422,\"method\":\"GET\",\"path\":\"/v3/4wings/stats\",\"body\":\"{\\\"statusCode\\\":422,\\\"error\\\":\\\"Unprocessable Entity\\\",\\\"messages\\\":[{\\\"title\\\":\\\"datasets\\\",\\\"detail\\\":\\\"datasets query param is required\\\"}]}\",\"error\":\"GET /v3/4wings/stats returned HTTP 422: {\\\"statusCode\\\":422,\\\"error\\\":\\\"Unprocessable Entity\\\",\\\"messages\\\":[{\\\"title\\\":\\\"datasets\\\",\\\"detail\\\":\\\"datasets query param is required\\\"}]}\"}\n{\"event\":\"sync_start\",\"resource\":\"4wings-last-report\"}\n{\"event\":\"sync_error\",\"resource\":\"4wings-last-report\",\"status\":404,\"method\":\"GET\",\"path\":\"/v3/4wings/last-report\",\"body\":\"{\\\"statusCode\\\":404,\\\"error\\\":\\\"Not Found\\\",\\\"messages\\\":[{\\\"title\\\":\\\"Not Found\\\",\\\"detail\\\":\\\"Not available last report\\\"}]}\",\"error\":\"GET /v3/4wings/last-report returned HTTP 404: {\\\"statusCode\\\":404,\\\"error\\\":\\\"Not Found\\\",\\\"messages\\\":[{\\\"title\\\":\\\"Not Found\\\",\\\"detail\\\":\\\"Not available last report\\\"}]}\"}\n{\"event\":\"sync_start\",\"resource\":\"4wings-report\"}\n{\"event\":\"sync_error\",\"resource\":\"4wings-report\",\"status\":422,\"method\":\"GET\",\"path\":\"/v3/4wings/report\",\"body\":\"{\\\"statusCode\\\":422,\\\"error\\\":\\\"Unprocessable Entity\\\",\\\"messages\\\":[{\\\"title\\\":\\\"datasets\\\",\\\"detail\\\":\\\"datasets query param is required\\\"}]}\",\"error\":\"GET /v3/4wings/report returned HTTP 422: {\\\"statusCode\\\":422,\\\"error\\\":\\\"Unprocessable Entity\\\",\\\"messages\\\":[{\\\"title\\\":\\\"datasets\\\",\\\"detail\\\":\\\"datasets query param is required\\\"}]}\"}\n{\"event\":\"sync_start\",\"resource\":\"bulk-reports\"}\n{\"event\":\"sync_error\",\"resource\":\"bulk-reports\",\"status\":422,\"method\":\"GET\",\"path\":\"/v3/bulk-reports\",\"body\":\"{\\\"statusCode\\\":422,\\\"error\\\":\\\"Unprocessable Entity\\\",\\\"messages\\\":[{\\\"title\\\":\\\"If\\\",\\\"detail\\\":\\\"If you send the limit property then the offset property is required\\\"},{\\\"title\\\":\\\"offset\\\",\\\"detail\\\":\\\"offset must not be less than 0\\\"}]}\",\"error\":\"GET /v3/bulk-reports returned HTTP 422: {\\\"statusCode\\\":422,\\\"error\\\":\\\"Unprocessable Entity\\\",\\\"messages\\\":[{\\\"title\\\":\\\"If\\\",\\\"detail\\\":\\\"If you send the limit property then the offset property is required\\\"},{\\\"title\\\":\\\"offset\\\",\\\"detail\\\":\\\"offset must not be less than 0\\\"}]}\"}\n{\"event\":\"sync_start\",\"resource\":\"datasets\"}\n{\"event\":\"sync_warning\",\"resource\":\"datasets\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_complete\",\"resource\":\"datasets\",\"total\":1,\"duration_ms\":287}\n{\"event\":\"sync_start\",\"resource\":\"events\"}\n{\"event\":\"sync_error\",\"resource\":\"events\",\"status\":422,\"method\":\"GET\",\"path\":\"/v3/events\",\"body\":\"{\\\"statusCode\\\":422,\\\"error\\\":\\\"Unprocessable Entity\\\",\\\"messages\\\":[{\\\"title\\\":\\\"Missing query param\\\",\\\"detail\\\":\\\"Query param dataset(s) is required\\\",\\\"metadata\\\":{}}]}\",\"error\":\"GET /v3/events returned HTTP 422: {\\\"statusCode\\\":422,\\\"error\\\":\\\"Unprocessable Entity\\\",\\\"messages\\\":[{\\\"title\\\":\\\"Missing query param\\\",\\\"detail\\\":\\\"Query param dataset(s) is required\\\",\\\"metadata\\\":{}}]}\"}\n{\"event\":\"sync_start\",\"resource\":\"vessels\"}\n{\"event\":\"sync_error\",\"resource\":\"vessels\",\"status\":422,\"method\":\"GET\",\"path\":\"/v3/vessels\",\"body\":\"{\\\"statusCode\\\":422,\\\"error\\\":\\\"Unprocessable Entity\\\",\\\"messages\\\":[{\\\"title\\\":\\\"Missing query param\\\",\\\"detail\\\":\\\"Query param dataset(s) is required\\\",\\\"metadata\\\":{}}]}\",\"error\":\"GET /v3/vessels returned HTTP 422: {\\\"statusCode\\\":422,\\\"error\\\":\\\"Unprocessable Entity\\\",\\\"messages\\\":[{\\\"title\\\":\\\"Missing query param\\\",\\\"detail\\\":\\\"Query param dataset(s) is required\\\",\\\"metadata\\\":{}}]}\"}\nArchived 1 items across 7 resources to /tmp/claude-501/printing-press-subprocess-\u003credacted\u003e/.local/share/gfw-pp-cli/data.db\n  4wings: error: fetching 4wings: GET /v3/4wings/stats returned HTTP 422: {\"statusCode\":422,\"error\":\"Unprocessable Entity\",\"messages\":[{\"title\":\"datasets\",\"detail\":\"datasets query param is required\"}]}\n  4wings-last-report: error: fetching 4wings-last-report: GET /v3/4wings/last-report returned HTTP 404: {\"statusCode\":404,\"error\":\"Not Found\",\"messages\":[{\"title\":\"Not Found\",\"detail\":\"Not available last re…[truncated]"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "json_fidelity",
+      "args": [
+        "workflow",
+        "archive",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"resources_synced\": 7,\n  \"store_path\": \"/tmp/claude-501/printing-press-subprocess-\u003credacted\u003e/.local/share/gfw-pp-cli/data.db\",\n  \"timestamp\": \"2026-05-30T14:46:31Z\",\n  \"total_items\": 1\n}\n{\"event\":\"sync_start\",\"resource\":\"4wings\"}\n{\"event\":\"sync_error\",\"resource\":\"4wings\",\"status\":422,\"method\":\"GET\",\"path\":\"/v3/4wings/stats\",\"body\":\"{\\\"statusCode\\\":422,\\\"error\\\":\\\"Unprocessable Entity\\\",\\\"messages\\\":[{\\\"title\\\":\\\"datasets\\\",\\\"detail\\\":\\\"datasets query param is required\\\"}]}\",\"error\":\"GET /v3/4wings/stats returned HTTP 422: {\\\"statusCode\\\":422,\\\"error\\\":\\\"Unprocessable Entity\\\",\\\"messages\\\":[{\\\"title\\\":\\\"datasets\\\",\\\"detail\\\":\\\"datasets query param is required\\\"}]}\"}\n  4wings: error: fetching 4wings: GET /v3/4wings/stats returned HTTP 422: {\"statusCode\":422,\"error\":\"Unprocessable Entity\",\"messages\":[{\"title\":\"datasets\",\"detail\":\"datasets query param is required\"}]}\n{\"event\":\"sync_start\",\"resource\":\"4wings-last-report\"}\n{\"event\":\"sync_error\",\"resource\":\"4wings-last-report\",\"status\":404,\"method\":\"GET\",\"path\":\"/v3/4wings/last-report\",\"body\":\"{\\\"statusCode\\\":404,\\\"error\\\":\\\"Not Found\\\",\\\"messages\\\":[{\\\"title\\\":\\\"Not Found\\\",\\\"detail\\\":\\\"Not available last report\\\"}]}\",\"error\":\"GET /v3/4wings/last-report returned HTTP 404: {\\\"statusCode\\\":404,\\\"error\\\":\\\"Not Found\\\",\\\"messages\\\":[{\\\"title\\\":\\\"Not Found\\\",\\\"detail\\\":\\\"Not available last report\\\"}]}\"}\n  4wings-last-report: error: fetching 4wings-last-report: GET /v3/4wings/last-report returned HTTP 404: {\"statusCode\":404,\"error\":\"Not Found\",\"messages\":[{\"title\":\"Not Found\",\"detail\":\"Not available last report\"}]}\n{\"event\":\"sync_start\",\"resource\":\"4wings-report\"}\n{\"event\":\"sync_error\",\"resource\":\"4wings-report\",\"status\":422,\"method\":\"GET\",\"path\":\"/v3/4wings/report\",\"body\":\"{\\\"statusCode\\\":422,\\\"error\\\":\\\"Unprocessable Entity\\\",\\\"messages\\\":[{\\\"title\\\":\\\"datasets\\\",\\\"detail\\\":\\\"datasets query param is required\\\"}]}\",\"error\":\"GET /v3/4wings/report returned HTTP 422: {\\\"statusCode\\\":422,\\\"error\\\":\\\"Unprocessable Entity\\\",\\\"messages\\\":[{\\\"title\\\":\\\"datasets\\\",\\\"detail\\\":\\\"datasets query param is required\\\"}]}\"}\n  4wings-report: error: fetching 4wings-report: GET /v3/4wings/report returned HTTP 422: {\"statusCode\":422,\"error\":\"Unprocessable Entity\",\"messages\":[{\"title\":\"datasets\",\"detail\":\"datasets query param is required\"}]}\n{\"event\":\"sync_start\",\"resource\":\"bulk-reports\"}\n{\"event\":\"sync_error\",\"resource\":\"bulk-reports\",\"status\":422,\"method\":\"GET\",\"path\":\"/v3/bulk-reports\",\"body\":\"{\\\"statusCode\\\":422,\\\"error\\\":\\\"Unprocessable Entity\\\",\\\"messages\\\":[{\\\"title\\\":\\\"If\\\",\\\"detail\\\":\\\"If you send the limit property then the offset property is required\\\"},{\\\"title\\\":\\\"offset\\\",\\\"detail\\\":\\\"offset must not be less than 0\\\"}]}\",\"error\":\"GET /v3/bulk-reports returned HTTP 422: {\\\"statusCode\\\":422,\\\"error\\\":\\\"Unprocessable Entity\\\",\\\"messages\\\":[{\\\"title\\\":\\\"If\\\",\\\"detail\\\":\\\"If you send the limit property then the offset property is required\\\"},{\\\"title\\\":\\\"offset\\\",\\\"detail\\\":\\\"offset must not be less than 0\\\"}]}\"}\n  bulk-reports: error: fetching bulk-reports: GET /v3/bulk-reports returned HTTP 422: {\"statusCode\":422,\"error\":\"Unprocessable Entity\",\"messages\":[{\"title\":\"If\",\"detail\":\"If you send the limit property then the offset property is required\"},{\"title\":\"offset\",\"detail\":\"offset must not be less than 0\"}]}\n{\"event\":\"sync_start\",\"resource\":\"datasets\"}\n{\"event\":\"sync_warning\",\"resource\":\"datasets\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_complete\",\"resource\":\"datasets\",\"total\":1,\"duration_ms\":287}\n  datasets: 1 synced\n{\"event\":\"sync_start\",\"resource\":\"events\"}\n{\"event\":\"sync_error\",\"resource\":\"events\",\"status\":422,\"method\":\"GET\",\"path\":\"/v3/events\",\"body\":\"{\\\"statusCode\\\":422,\\\"error\\\":\\\"Unprocessable Entity\\\",\\\"messages\\\":[{\\\"title\\\":\\\"Missing query param\\\",\\\"detail\\\":\\\"Query param dataset(s) is required\\\",\\\"metadata\\\":{}}]}\",\"error\":\"GET /v3/events returned HTTP 422: {\\\"statusCode\\\":422,\\\"error\\\":\\\"Unprocessable Entity\\\",\\\"messages\\\":[{\\\"title\\\":\\\"Missing quer…[truncated]"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "workflow status",
+      "kind": "help",
+      "args": [
+        "workflow",
+        "status",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show local archive status and sync state for all resources\n\nUsage:\n  gfw-pp-cli workflow status [flags]\n\nExamples:\n  # Show archive status\n  gfw-pp-cli workflow status\n\n  # Show status as JSON\n  gfw-pp-cli workflow status --json\n\nFlags:\n      --db string   Database path\n  -h, --help        help for status\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'gfw-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "happy_path",
+      "args": [
+        "workflow",
+        "status"
+      ],
+      "status": "pass",
+      "output_sample": "Archive Status:\n  datasets                       1 items\n\n  Total: 1 items\n  Store: /tmp/claude-501/printing-press-subprocess-\u003credacted\u003e/.local/share/gfw-pp-cli/data.db\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "json_fidelity",
+      "args": [
+        "workflow",
+        "status",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"datasets\": 1\n}\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    }
+  ],
+  "ran_at": "2026-05-30T14:44:15.902545Z"
+}

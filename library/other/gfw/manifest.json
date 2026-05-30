@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "gfw-pp-mcp",
+  "display_name": "Global Fishing Watch",
+  "version": "4.18.1",
+  "description": "Every GFW vessel-behavior and risk surface on the command line, plus a local cache that turns one-shot lookups into a compounding due-diligence index.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/gfw-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/gfw-pp-mcp",
+      "args": [],
+      "env": {
+        "GFW_TOKEN": "${user_config.gfw_token}"
+      }
+    }
+  },
+  "user_config": {
+    "gfw_token": {
+      "type": "string",
+      "title": "GFW_TOKEN",
+      "description": "Sets GFW_TOKEN for the Global Fishing Watch MCP server. Get a credential from https://globalfishingwatch.org/our-apis/tokens/signup.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

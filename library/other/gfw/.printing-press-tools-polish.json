@@ -1,0 +1,19 @@
+{
+  "timestamp": "2026-05-30T13:06:15.852343Z",
+  "cli_dir": "\u003ccli-dir\u003e/gfw-pp-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "version",
+      "file": "root.go",
+      "line": 321,
+      "evidence": "Print version",
+      "status": "accepted",
+      "note": "Standard 'version' command; agents understand 'Print version' without elaboration"
+    }
+  ],
+  "scorecard_before": {
+    "mcp_description_quality": 7,
+    "captured": "2026-05-30T12:56:18.280387Z"
+  }
+}

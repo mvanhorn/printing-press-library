@@ -1,0 +1,51 @@
+version: 2
+project_name: gfw-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: gfw-pp-cli
+    main: ./cmd/gfw-pp-cli
+    binary: gfw-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/other/gfw/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: gfw-pp-mcp
+    main: ./cmd/gfw-pp-mcp
+    binary: gfw-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: gfw-pp-cli
+    repository:
+      owner: user
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Every GFW vessel-behavior and risk surface on the command line"
+    install: |
+      bin.install "gfw-pp-cli"
+      bin.install "gfw-pp-mcp"
