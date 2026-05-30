@@ -8,7 +8,9 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"os"
 	"sort"
 	"time"
 
@@ -222,10 +224,20 @@ func loadPriorSnapshot(ctx context.Context, db *store.Store, projectID string) (
 	var capturedAt string
 	var metricsJSON sql.NullString
 	if err := row.Scan(&capturedAt, &metricsJSON); err != nil {
+		// No prior row is the normal first-run case; a real DB error (locked /
+		// corrupt table) must not be silently reported as "first snapshot".
+		if !errors.Is(err, sql.ErrNoRows) {
+			fmt.Fprintf(os.Stderr, "warning: reading prior snapshot failed (%v); treating as first snapshot\n", err)
+		}
 		return out, "", false
 	}
 	if metricsJSON.Valid && metricsJSON.String != "" {
-		_ = json.Unmarshal([]byte(metricsJSON.String), &out)
+		if err := json.Unmarshal([]byte(metricsJSON.String), &out); err != nil {
+			// A corrupt prior blob would otherwise yield an empty prior map and
+			// make every delta read as the full current value; suppress deltas.
+			fmt.Fprintf(os.Stderr, "warning: prior snapshot metrics are corrupt (%v); deltas suppressed\n", err)
+			return map[string]float64{}, "", false
+		}
 	}
 	return out, capturedAt, true
 }
