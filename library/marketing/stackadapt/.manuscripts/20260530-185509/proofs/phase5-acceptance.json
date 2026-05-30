@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "stackadapt",
+  "run_id": "20260530-185509",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 77,
+  "tests_passed": 77,
+  "tests_skipped": 36,
+  "auth_context": {
+    "type": "bearer_token"
+  }
+}

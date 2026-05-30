@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "stackadapt-pp-cli"
+display_name = "StackAdapt"
+description = "The first agent-native StackAdapt CLI: pacing, delivery drift, and spend reconciliation the dashboard and warehouse connectors can't answer in one call."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/stackadapt-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+STACKADAPT_API_TOKEN = true
