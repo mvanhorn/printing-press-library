@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "splitwise-forecast-upcoming-obligations",
+  "applied_at": "2026-05-30",
+  "base_run_id": "20260528-002755",
+  "base_printing_press_version": "4.19.0",
+  "summary": "Add an offline `forecast` command that projects upcoming shared obligations from recurring spending patterns over the synced expense store.",
+  "reason": "Splitwise tracks past expenses but offers no forward view of what shared bills are coming due. This was the third of three analytics commands #949 deferred to follow-up PRs (after `net` and `audit`). `forecast` clusters expenses by normalized description, applies a self-contained regularity gate, and projects each regular charge's next expected date/amount, flagging overdue ones. Built only on helpers present on main (loadExpenses, loadGroups, expenseDeleted, normalizeRecurringKey, parseFlexibleDate, parseAmount, round2, mostCommonString, flags.printJSON, openSplitwiseStore) with a local settlement-description check, so it does not depend on the unmerged #949 branch.",
+  "files": [
+    "internal/cli/splitwise_forecast.go",
+    "internal/cli/splitwise_forecast_test.go",
+    "internal/cli/root.go"
+  ],
+  "validated_outcome": "New TestComputeForecast_* and TestLooksLikeSettlement pass; go build/vet/test, govulncheck (0 reachable), and verify_skill all pass. forecast --help / --dry-run smoke clean."
+}

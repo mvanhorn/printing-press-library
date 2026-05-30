@@ -183,6 +183,14 @@ These capabilities aren't available in any other tool for this API.
   ```bash
   splitwise-pp-cli recurring --agent
   ```
+- **`forecast`** — Project upcoming shared obligations from recurring spending patterns. Finds charges with a regular cadence and reports the next expected date and amount for anything due inside the window (default 35 days) or already overdue.
+
+  _Use to budget for next month's shared bills, or catch a regular charge that's overdue and unlogged._
+
+  ```bash
+  splitwise-pp-cli forecast --agent
+  splitwise-pp-cli forecast --days 60 --json
+  ```
 
 ### Reconcile and settle
 - **`settle-up`** — Compute the minimum set of transfers that zeroes out balances in a group, then optionally record the payments.
