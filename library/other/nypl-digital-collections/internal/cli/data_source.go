@@ -85,7 +85,7 @@ func openStoreForRead(ctx context.Context, cliName string) (*store.Store, error)
 	if _, err := os.Stat(dbPath); os.IsNotExist(err) {
 		return nil, nil
 	}
-	return store.OpenWithContext(ctx, dbPath)
+	return store.OpenReadOnly(dbPath)
 }
 
 // localProvenance builds a DataProvenance for local data reads.
