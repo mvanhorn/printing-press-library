@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "api_name": "vestaboard",
+  "run_id": "20260529-212647",
+  "status": "accepted_with_auth_limited_live_verify",
+  "generated_at": "2026-05-30T02:29:13.379835Z",
+  "printing_press_version": "4.19.0",
+  "checks": [
+    {
+      "name": "manifest",
+      "status": "pass",
+      "evidence": ".printing-press.json declares vestaboard, cli_name vestaboard-pp-cli, run_id 20260529-212647, category devices, and Printing Press 4.19.0."
+    },
+    {
+      "name": "dogfood",
+      "status": "warn",
+      "evidence": "dogfood-results.json reports WARN because live sync-style endpoints are unavailable, but command wiring, examples, MCP parity, naming, and novel-feature discovery passed."
+    },
+    {
+      "name": "phase5_live",
+      "status": "skipped",
+      "evidence": "proofs/phase5-skip.json records auth-unavailable: no VESTABOARD_API_KEY or browser session was available."
+    },
+    {
+      "name": "local_review_followup",
+      "status": "pass",
+      "evidence": "Review follow-up removed a generated no-op message-send branch and clarified character help text for black and filled-cell glyphs."
+    }
+  ]
+}

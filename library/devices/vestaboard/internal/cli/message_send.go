@@ -22,8 +22,6 @@ func newMessageSendCmd(flags *rootFlags) *cobra.Command {
 		Example:     "  vestaboard-pp-cli message send --body-json '{\"text\":\"hello\"}'",
 		Annotations: map[string]string{"pp:endpoint": "message.send", "pp:method": "POST", "pp:path": "/"},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if !stdinBody {
-			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err

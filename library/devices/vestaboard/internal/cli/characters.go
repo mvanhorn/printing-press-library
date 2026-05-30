@@ -77,8 +77,8 @@ func newNovelCharactersCmd(flags *rootFlags) *cobra.Command {
 		Short: "Show the Vestaboard character-code table (code → glyph)",
 		Long: "Show the Vestaboard character-code table mapping each integer code to its glyph and name.\n\n" +
 			"Use this to build a 'message send --body-json' payload by hand, or to interpret a raw\n" +
-			"layout array. Color chips (codes 63-69) render in 'message preview' as a lowercase initial\n" +
-			"(r/o/y/g/b/v/w).",
+			"layout array. Color chips (codes 63-70) render in 'message preview' as a lowercase initial\n" +
+			"(r/o/y/g/b/v/w/k), and code 71 renders as a filled cell (█).",
 		Example:     "  vestaboard-pp-cli characters\n  vestaboard-pp-cli characters --json",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		Args:        cobra.NoArgs,
