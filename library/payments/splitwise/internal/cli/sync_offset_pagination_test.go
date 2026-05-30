@@ -99,10 +99,13 @@ func TestSyncGetExpenses_PaginatesPastFirstPage(t *testing.T) {
 		t.Fatalf("synced count = %d, want 143 (offset pagination must walk past the 100-row first page)", res.Count)
 	}
 
-	// The fake account spans two pages (100 + 43); a third request returns an
-	// empty page that terminates the walk.
-	if client.requestedPages < 2 {
-		t.Fatalf("requested pages = %d, want >= 2 (the loop must advance the offset beyond page 1)", client.requestedPages)
+	// The fake account spans exactly two pages (100 + 43). After the second
+	// request, len(items)=43 < pageSize.limit triggers the natural-end check
+	// and the loop exits without issuing a third request. Pinning to == 2
+	// catches both "stopped too early" (page 1 only) and "never stops"
+	// (sticky-offset infinite loop) regressions.
+	if client.requestedPages != 2 {
+		t.Fatalf("requested pages = %d, want 2 (loop must advance past page 1 and stop after the short second page)", client.requestedPages)
 	}
 
 	var rows int
