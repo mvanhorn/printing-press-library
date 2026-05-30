@@ -51,9 +51,14 @@ func computeNetPlan(friends []Friend, youID int) netResult {
 			name = fmt.Sprintf("friend %d", f.ID)
 		}
 
+		friendTotals := make(map[string]float64)
 		for _, b := range f.Balance {
-			cc := strings.TrimSpace(b.CurrencyCode)
 			amt := parseAmount(b.Amount)
+			if amt == 0 {
+				continue
+			}
+			cc := strings.TrimSpace(b.CurrencyCode)
+			friendTotals[cc] += amt
 			if _, ok := agg[cc]; !ok {
 				agg[cc] = &netCurrencySummary{CurrencyCode: cc}
 			}
@@ -63,10 +68,6 @@ func computeNetPlan(friends []Friend, youID int) netResult {
 				agg[cc].YouOwe += -amt
 			}
 			agg[cc].Net += amt
-
-			if amt == 0 {
-				continue
-			}
 			nettedCounts[cc]++
 			direction := "you_pay"
 			if amt > 0 {
@@ -81,14 +82,25 @@ func computeNetPlan(friends []Friend, youID int) netResult {
 			})
 		}
 
+		groupSums := make(map[string]float64)
+		groupTxns := make(map[string]int)
 		for _, g := range f.Groups {
 			for _, b := range g.Balance {
 				cc := strings.TrimSpace(b.CurrencyCode)
 				amt := parseAmount(b.Amount)
-				if amt != 0 {
-					perGroupCounts[cc]++
+				if amt == 0 {
+					continue
 				}
+				groupSums[cc] += amt
+				groupTxns[cc]++
 			}
+		}
+		for cc, total := range friendTotals {
+			txns := groupTxns[cc]
+			if math.Abs(total) > math.Abs(groupSums[cc]) {
+				txns++
+			}
+			perGroupCounts[cc] += txns
 		}
 	}
 
@@ -97,6 +109,9 @@ func computeNetPlan(friends []Friend, youID int) netResult {
 		v.OwedToYou = round2(v.OwedToYou)
 		v.YouOwe = round2(v.YouOwe)
 		v.Net = round2(v.Net)
+		if v.OwedToYou == 0 && v.YouOwe == 0 {
+			continue
+		}
 		byCurrency = append(byCurrency, *v)
 	}
 	sort.Slice(byCurrency, func(i, j int) bool {

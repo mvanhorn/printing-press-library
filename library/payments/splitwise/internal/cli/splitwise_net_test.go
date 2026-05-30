@@ -123,14 +123,90 @@ func TestComputeNetPlan_DirectionAndZeroExclusion(t *testing.T) {
 		t.Fatalf("second transfer direction = %q, want you_pay", got.Plan[1].Direction)
 	}
 
-	if len(got.Savings) != 2 {
-		t.Fatalf("len(Savings) = %d, want 2 (EUR and USD)", len(got.Savings))
+	if len(got.Savings) != 1 {
+		t.Fatalf("len(Savings) = %d, want 1 (USD only; zero-only EUR excluded)", len(got.Savings))
+	}
+	s := got.Savings[0]
+	if s.CurrencyCode != "USD" {
+		t.Fatalf("Savings currency = %q, want USD", s.CurrencyCode)
+	}
+	if s.NettedTransfers != 2 {
+		t.Fatalf("USD netted_transfers = %d, want 2 (zero-net friend excluded)", s.NettedTransfers)
+	}
+}
+
+func TestComputeNetPlan_ZeroOnlyBalanceCurrencyExcluded(t *testing.T) {
+	friends := []Friend{
+		{
+			ID:        20,
+			FirstName: "Casey",
+			LastName:  "Stone",
+			Balance: []Balance{
+				{CurrencyCode: "USD", Amount: "7.00"},
+				{CurrencyCode: "JPY", Amount: "0"},
+			},
+			Groups: []FriendGroup{
+				{GroupID: 1, Balance: []Balance{{CurrencyCode: "USD", Amount: "7.00"}}},
+			},
+		},
+	}
+
+	got := computeNetPlan(friends, 0)
+	if len(got.ByCurrency) != 1 {
+		t.Fatalf("len(ByCurrency) = %d, want 1 (zero-only JPY excluded)", len(got.ByCurrency))
+	}
+	if got.ByCurrency[0].CurrencyCode != "USD" {
+		t.Fatalf("ByCurrency[0].CurrencyCode = %q, want USD", got.ByCurrency[0].CurrencyCode)
+	}
+	if len(got.Plan) != 1 {
+		t.Fatalf("len(Plan) = %d, want 1", len(got.Plan))
+	}
+	if got.Plan[0].CurrencyCode != "USD" {
+		t.Fatalf("Plan[0].CurrencyCode = %q, want USD", got.Plan[0].CurrencyCode)
 	}
 	for _, s := range got.Savings {
-		if s.CurrencyCode == "USD" {
-			if s.NettedTransfers != 2 {
-				t.Fatalf("USD netted_transfers = %d, want 2 (zero-net friend excluded)", s.NettedTransfers)
-			}
+		if s.CurrencyCode == "JPY" {
+			t.Fatalf("unexpected savings entry for zero-only currency JPY: %+v", s)
 		}
+	}
+}
+
+func TestComputeNetPlan_SavingsIncludeNonGroupRemainder(t *testing.T) {
+	friends := []Friend{
+		{
+			ID:        30,
+			FirstName: "Morgan",
+			LastName:  "Ray",
+			Balance: []Balance{
+				{CurrencyCode: "USD", Amount: "10.00"},
+			},
+			Groups: []FriendGroup{
+				// group balances sum to 7, so 3 remains as non-group and must count as one more per-group transfer
+				{GroupID: 1, Balance: []Balance{{CurrencyCode: "USD", Amount: "4.00"}}},
+				{GroupID: 2, Balance: []Balance{{CurrencyCode: "USD", Amount: "3.00"}}},
+			},
+		},
+		{
+			ID:        31,
+			FirstName: "Jamie",
+			LastName:  "Cole",
+			Balance: []Balance{
+				{CurrencyCode: "USD", Amount: "-5.00"},
+			},
+			// no group rows: entirely non-group, should count as one per-group transfer
+			Groups: []FriendGroup{},
+		},
+	}
+
+	got := computeNetPlan(friends, 0)
+	if len(got.Savings) != 1 {
+		t.Fatalf("len(Savings) = %d, want 1", len(got.Savings))
+	}
+	s := got.Savings[0]
+	if s.CurrencyCode != "USD" {
+		t.Fatalf("Savings currency = %q, want USD", s.CurrencyCode)
+	}
+	if s.PerGroupTransfers != 4 || s.NettedTransfers != 2 || s.Saved != 2 {
+		t.Fatalf("Savings = %+v, want per_group=4 netted=2 saved=2", s)
 	}
 }
