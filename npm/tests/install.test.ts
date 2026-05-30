@@ -187,6 +187,7 @@ test("not-on-PATH warning is PowerShell-flavored on Windows", async () => {
     installSkill: async () => ok(),
     stderr: (message) => stderr.push(message),
     platform: "win32",
+    shell: undefined,
     home: "C:\\Users\\you",
   });
 
