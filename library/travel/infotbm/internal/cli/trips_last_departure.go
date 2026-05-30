@@ -129,10 +129,17 @@ func newNovelTripsLastDepartureCmd(flags *rootFlags) *cobra.Command {
 				toIdx := -1
 				for i, call := range calls {
 					stopRef := callStopRef(call)
-					if matchStopRef(stopRef, fromID, flagFrom) {
+					stopName := ""
+					for _, key := range []string{"StopPointName", "stopPointName", "StopName"} {
+						if v, ok := call[key].(string); ok {
+							stopName = v
+							break
+						}
+					}
+					if matchStopRef(stopRef, fromID, flagFrom) || matchStopName(stopName, flagFrom) {
 						fromIdx = i
 					}
-					if fromIdx >= 0 && matchStopRef(stopRef, toID, flagTo) {
+					if fromIdx >= 0 && (matchStopRef(stopRef, toID, flagTo) || matchStopName(stopName, flagTo)) {
 						toIdx = i
 						break
 					}
