@@ -2,7 +2,7 @@
 
 ## 0.1.12
 
-- Add a `reinstall` command as an alias for `update`. `reinstall <name>` rebuilds one CLI's binary from the latest catalog code and re-adds its skill; `reinstall` with no name does the same for every Printing Press CLI already on `PATH`. The mechanics are identical to `update` (both run `go install …@latest` and re-add the skill) — this just exposes the verb users reach for when a binary or skill needs a clean refresh.
+- Add a `reinstall` command as an alias for `update`. `reinstall <name>` rebuilds one CLI's binary from the latest catalog code and re-adds its skill; `reinstall` with no name does the same for every Printing Press CLI already on `PATH`. The mechanics are identical to `update` (both run `go install …@latest` and re-add the skill) — this just exposes the verb users reach for when a binary or skill needs a clean refresh. The shared "no CLIs found on PATH" message is now verb-neutral so it reads correctly under either command.
 
 ## 0.1.11
 

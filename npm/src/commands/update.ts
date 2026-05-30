@@ -40,7 +40,7 @@ export function createUpdateCommand(overrides: Partial<UpdateDeps> = {}) {
     }
 
     if (installed.length === 0) {
-      deps.stdout("Nothing to update; no Printing Press CLIs were found on PATH.");
+      deps.stdout("No Printing Press CLIs found on PATH to refresh.");
       return 0;
     }
 
