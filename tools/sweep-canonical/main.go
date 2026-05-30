@@ -1126,11 +1126,11 @@ func buildReadmeInstallSections(ctx patchReadmeCtx) string {
 	return fmt.Sprintf("## Install for Hermes\n\n"+
 		"From the Hermes CLI:\n\n"+
 		"```bash\n"+
-		"hermes skills install mvanhorn/printing-press-library/cli-skills/pp-%s --force\n"+
+		"hermes skills install mvanhorn/printing-press-library/cli-skills/pp-%s\n"+
 		"```\n\n"+
 		"Inside a Hermes chat session:\n\n"+
-		"```bash\n"+
-		"/skills install mvanhorn/printing-press-library/cli-skills/pp-%s --force\n"+
+		"```text\n"+
+		"/skills install mvanhorn/printing-press-library/cli-skills/pp-%s\n"+
 		"```\n\n"+
 		"## Install for OpenClaw\n\n"+
 		"Tell your OpenClaw agent (copy this):\n\n"+
@@ -1205,7 +1205,7 @@ func renderCreatorBlock(p person, base string) string {
 // manifest's top-level indent (base), with a trailing comma since legacy fields
 // follow it.
 func renderContributorsBlock(cs []person, base string) string {
-	item := base + base       // array-element brace indent
+	item := base + base         // array-element brace indent
 	field := base + base + base // person-field indent
 	var b strings.Builder
 	b.WriteString(base + "\"contributors\": [\n")

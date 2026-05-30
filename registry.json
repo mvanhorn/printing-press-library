@@ -10219,6 +10219,45 @@
       }
     },
     {
+      "name": "vestaboard",
+      "category": "devices",
+      "api": "Vestaboard",
+      "description": "Read, render",
+      "search_terms": [
+        "vestaboard",
+        "vestaboard-pp-cli",
+        "Read, render, and write your Vestaboard from the terminal — with a board preview and character-code table no other Vestaboard tool ships.",
+        "Board preview",
+        "message preview",
+        "See what's on your Vestaboard right now as readable text instead of a raw integer grid.",
+        "Character-code table",
+        "characters",
+        "Print the full Vestaboard character-code table (code to glyph) for hand-building a character-array message."
+      ],
+      "path": "library/devices/vestaboard",
+      "printer": "cathrynlavery",
+      "printer_name": "Cathryn Lavery",
+      "creator": {
+        "handle": "cathrynlavery",
+        "name": "Cathryn Lavery"
+      },
+      "mcp": {
+        "binary": "vestaboard-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 5,
+        "public_tool_count": 1,
+        "auth_type": "api_key",
+        "env_vars": [
+          "VESTABOARD_API_KEY"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "internal"
+      }
+    },
+    {
       "name": "visit-detroit-blog",
       "category": "travel",
       "api": "Visit Detroit Blog",

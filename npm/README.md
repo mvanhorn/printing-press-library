@@ -91,10 +91,13 @@ npx -y @mvanhorn/printing-press-library search sports
 npx -y @mvanhorn/printing-press-library list --category travel
 npx -y @mvanhorn/printing-press-library list --installed
 npx -y @mvanhorn/printing-press-library update espn
+npx -y @mvanhorn/printing-press-library reinstall espn
 npx -y @mvanhorn/printing-press-library uninstall espn --yes
 ```
 
 `list` shows the public catalog by default. Use `list --installed` when you only want CLIs already present on your machine.
+
+`reinstall` is an alias for `update`: `reinstall <name>` rebuilds one CLI from the latest catalog code and re-adds its skill, while `reinstall` with no name refreshes every Printing Press CLI already on your `PATH`. Reach for it when a binary or skill needs a clean refresh — `install <name>` overwrites in place too, so either works.
 
 ## Options
 
@@ -132,7 +135,7 @@ More bundles will be added over time. To suggest one, open an issue at the [prin
 
 - Node.js 20+
 - Go 1.26.3 or newer (for `go install`)
-- `$(go env GOPATH)/bin` on `$PATH` (usually `$HOME/go/bin`) so installed CLIs are runnable
+- The Go install directory on your `PATH` so installed CLIs are runnable by name — `$(go env GOPATH)/bin` (usually `$HOME/go/bin`) on macOS/Linux, or `%USERPROFILE%\go\bin` on Windows. Go does not add this to `PATH` for you. If it's missing, `install` prints the exact, copy-pasteable line to add for your platform and shell (zsh/bash/fish, PowerShell, cmd, or Git Bash).
 
 ## Migration from @mvanhorn/printing-press
 

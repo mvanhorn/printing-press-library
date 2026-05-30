@@ -1,5 +1,25 @@
 # Changelog
 
+## 0.1.13
+
+- Speed up `update` (and `update` with no name) by refreshing detected CLIs concurrently instead of one at a time. The cost of a bulk update is dominated by per-CLI network round-trips — the go-proxy `@latest` resolution (~1s each, even when nothing changed, because the build cache can't shortcut it) plus the skill fetch — which serialized into ~30s for a dozen CLIs. These are independent, so they now run with bounded concurrency, and the catalog detection sweep (a `which`/`where` probe per catalog entry) is parallelized the same way. Each install's output is buffered and replayed in catalog order (preserving stdout/stderr ordering within each CLI), so concurrent runs don't interleave into scrambled lines. A failed PATH probe degrades to "not installed" instead of aborting the run. No command, flag, or output-shape changes — same behavior, less waiting.
+
+## 0.1.12
+
+- Add a `reinstall` command as an alias for `update`. `reinstall <name>` rebuilds one CLI's binary from the latest catalog code and re-adds its skill; `reinstall` with no name does the same for every Printing Press CLI already on `PATH`. The mechanics are identical to `update` (both run `go install …@latest` and re-add the skill) — this just exposes the verb users reach for when a binary or skill needs a clean refresh. The shared "no CLIs found on PATH" message is now verb-neutral so it reads correctly under either command.
+
+## 0.1.11
+
+- When `go install` writes a CLI to a directory that isn't on `PATH`, print the exact, copy-pasteable fix for the detected platform and shell instead of a single Unix-flavored hint. macOS zsh gets a `~/.zshrc` line, macOS bash gets `~/.bash_profile` (login shells don't read `.bashrc`), Linux bash gets `~/.bashrc`, fish gets `fish_add_path`, Windows gets the persistent PowerShell `[Environment]::SetEnvironmentVariable(... "User")` command plus a GUI fallback (and never the truncating `setx` footgun), and Git Bash gets a POSIX-translated path. The previous message printed `$(go env GOPATH)/bin` shell syntax that was wrong on Windows and imprecise on fish.
+
+## 0.1.10
+
+- Fix `install` / `uninstall` failing at the skill step on Windows with `ENOENT`. The process runner invoked `npx` through `node:child_process.execFile`, which does not resolve the `npx.cmd` shim Windows requires; it now uses `cross-spawn`, so the `npx skills …` install/remove step runs on Windows the same as on macOS and Linux. (#864)
+
+## 0.1.9
+
+- Catalog hints now match how the tool was invoked. The `list` and `search` usage lines and each entry's `install:` hint previously hardcoded the long `npx -y @mvanhorn/printing-press-library …` prefix; they now detect an `npx` run versus a globally-installed `printing-press-library` binary and print the shorter `printing-press-library …` form when that's how you're running it. (#749)
+
 ## 0.1.8
 
 - Avoid treating one-character queries or the shared `-pp-cli` binary suffix as searchable content, so queries like `a`, `t`, `pp`, or `cli` no longer match broad slices of the catalog while full binary-name queries still resolve to the intended CLI.

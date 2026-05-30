@@ -12,6 +12,10 @@ type CommandHandler = (args: string[]) => Promise<number>;
 const COMMANDS: Record<string, CommandHandler> = {
   install: installCommand,
   update: updateCommand,
+  // `reinstall` is an alias for `update`: both rebuild the binary from the
+  // latest catalog code (`go install …@latest`) and re-add the skill. It exists
+  // because "reinstall" is the verb users reach for; the mechanics are identical.
+  reinstall: updateCommand,
   list: listCommand,
   search: searchCommand,
   uninstall: uninstallCommand,
@@ -56,6 +60,7 @@ Usage:
 Commands:
   install <name|bundle>...  Install one or more Printing Press CLIs (and skills)
   update [name]             Refresh one installed CLI, or all installed CLIs
+  reinstall [name]          Reinstall one CLI (or all installed); alias for update
   list                      List available Printing Press CLIs
   search <query>            Search the Printing Press catalog
   uninstall <name>          Remove a Printing Press CLI and skill
@@ -67,6 +72,7 @@ Examples:
   printing-press-library install starter-pack
   printing-press-library install espn linear dub
   printing-press-library install espn --cli-only
+  printing-press-library reinstall espn
   printing-press-library list
   printing-press-library search sports
   printing-press-library list --installed

@@ -152,6 +152,51 @@ test("install command stops when binary is not on PATH", async () => {
   assert.match(stderr.join("\n"), /not on PATH/);
 });
 
+test("not-on-PATH warning is zsh-flavored on macOS", async () => {
+  const stderr: string[] = [];
+  const command = createInstallCommand({
+    fetchRegistry: async () => registry,
+    resolveModulePath: async () => null,
+    detectGo: async () => ({ installed: true }),
+    goInstall: async () => ok(),
+    goInstallDir: async () => goBinDir("/Users/amosclaw/go/bin"),
+    commandOnPath: async () => null,
+    installSkill: async () => ok(),
+    stderr: (message) => stderr.push(message),
+    platform: "darwin",
+    shell: "/bin/zsh",
+    home: "/Users/amosclaw",
+  });
+
+  assert.equal(await command(["espn"]), 1);
+  const out = stderr.join("\n");
+  assert.match(out, /installed espn-pp-cli at \/Users\/amosclaw\/go\/bin\/espn-pp-cli/);
+  assert.match(out, /~\/\.zshrc/);
+  assert.match(out, /export PATH="\$HOME\/go\/bin:\$PATH"/);
+});
+
+test("not-on-PATH warning is PowerShell-flavored on Windows", async () => {
+  const stderr: string[] = [];
+  const command = createInstallCommand({
+    fetchRegistry: async () => registry,
+    resolveModulePath: async () => null,
+    detectGo: async () => ({ installed: true }),
+    goInstall: async () => ok(),
+    goInstallDir: async () => goBinDir("C:\\Users\\you\\go\\bin"),
+    commandOnPath: async () => null,
+    installSkill: async () => ok(),
+    stderr: (message) => stderr.push(message),
+    platform: "win32",
+    shell: undefined,
+    home: "C:\\Users\\you",
+  });
+
+  assert.equal(await command(["espn"]), 1);
+  const out = stderr.join("\n");
+  assert.match(out, /SetEnvironmentVariable/);
+  assert.doesNotMatch(out, /setx/);
+});
+
 test("install command reports skill install failure without hiding binary", async () => {
   const stderr: string[] = [];
   const command = createInstallCommand({
