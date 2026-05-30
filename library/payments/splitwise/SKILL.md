@@ -131,6 +131,15 @@ These capabilities aren't available in any other tool for this API.
   splitwise-pp-cli net --agent
   ```
 
+### Data-quality audit
+- **`audit`** — Scan your synced expenses offline for likely duplicates (same description, cost, date, and group) and per-category cost outliers (cost above mean + 3σ), grouped by finding type.
+
+  _Use before reporting or settling to catch double-entered charges (e.g. repeated "Settle all balances" rows) and surface unusually large expenses an agent or user should review. Read-only; never mutates. `--limit` caps findings per type (default 50)._
+
+  ```bash
+  splitwise-pp-cli audit --agent
+  ```
+
 ## Command Reference
 
 **add-user-to-group** — Manage add user to group
