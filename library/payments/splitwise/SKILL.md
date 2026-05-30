@@ -93,6 +93,15 @@ These capabilities aren't available in any other tool for this API.
   splitwise-pp-cli recurring --agent
   ```
 
+### Fairness & collection risk
+- **`fairness`** — Score who carries the group, who's a collection risk, and who to chase or write off — offline, from your synced history.
+
+  _Turns "who still owes me, and will I ever see it" into an action list: nudge, chase, or write off (debt that is old **and** gone quiet). `--by contribution` shows who fronts cash vs. free-rides; `--by collectability` ranks by debt age and settle latency. New group members with no history are surfaced separately, never flagged as risks._
+
+  ```bash
+  splitwise-pp-cli fairness --by risk --agent
+  ```
+
 ### Reconcile and settle
 - **`settle-up`** — Compute the minimum set of transfers that zeroes out balances in a group, then optionally record the payments.
 

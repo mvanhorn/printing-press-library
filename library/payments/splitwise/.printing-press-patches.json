@@ -97,6 +97,17 @@
         "internal/cli/which.go"
       ],
       "validated_outcome": "Live: `which \"who owes me money\"` now returns debts (score 3) at exit 0; `which \"venmo\"` returns settle-up."
+    },
+    {
+      "id": "splitwise-fairness-command",
+      "summary": "Add the `fairness` analytics command (risk / contribution / collectability lenses).",
+      "reason": "Hand-built offline-analytics command over the synced store, completing the net/audit/forecast set. Surfaces who carries the group, a 0-100 collection-risk score with nudge/chase/write-off action tiers, and contribution (carry-ratio) and collectability (debt age, settle latency) lenses. Empty-history members are surfaced separately and never scored as riders/risk. Reuses existing helpers (Friend.Balance sign, SimplifiedDebts, parseSplitwiseDate, round2, loaders); no generator change.",
+      "files": [
+        "internal/cli/splitwise_fairness.go",
+        "internal/cli/splitwise_fairness_test.go",
+        "internal/cli/root.go"
+      ],
+      "validated_outcome": "TestComputeFairness* table-driven suite (risk-score formula pinned at 90 for the write-off anchor, episode latency 19/15, multi-currency, group-scope via SimplifiedDebts) passes; gofmt, go build/vet/test, govulncheck, and verify-skill all pass; live dogfood on a real account ran all three lenses."
     }
   ]
 }
