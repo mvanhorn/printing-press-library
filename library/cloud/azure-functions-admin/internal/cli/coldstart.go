@@ -47,7 +47,10 @@ func newNovelColdstartCmd(flags *rootFlags) *cobra.Command {
 				return novelLookupMiss(cmd, flags, "coldstart", map[string]any{"app": app}, err)
 			}
 			// Cold start ~ a request that follows an idle gap (>5 min) on the
-			// app, including the very first request in the window.
+			// app (the instance was reclaimed during the idle period). The very
+			// first request in the window is deliberately NOT counted: with no
+			// in-window predecessor its prior idle state is unknowable, so
+			// counting it would over-report cold starts on busy apps.
 			kql := fmt.Sprintf(`requests
 | where timestamp > ago(%s)
 | sort by timestamp asc

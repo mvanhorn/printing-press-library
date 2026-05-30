@@ -11,8 +11,11 @@ package azure
 
 import (
 	"context"
+	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"os"
+	"strings"
 	"sync"
 	"time"
 
@@ -51,7 +54,35 @@ var (
 type staticTokenCredential struct{ token string }
 
 func (s staticTokenCredential) GetToken(context.Context, policy.TokenRequestOptions) (azcore.AccessToken, error) {
-	return azcore.AccessToken{Token: s.token, ExpiresOn: time.Now().Add(40 * time.Minute)}, nil
+	expiry := jwtExpiry(s.token)
+	if expiry.IsZero() {
+		// Token isn't a decodable JWT (or has no exp); fall back to a
+		// conservative window so the SDK refreshes/reports sensibly rather
+		// than trusting a possibly-stale token for too long.
+		expiry = time.Now().Add(40 * time.Minute)
+	}
+	return azcore.AccessToken{Token: s.token, ExpiresOn: expiry}, nil
+}
+
+// jwtExpiry decodes the `exp` claim from a JWT access token's payload and
+// returns it as a time. Returns the zero time if the token is not a parseable
+// three-part JWT or carries no exp, so the caller can apply its own fallback.
+func jwtExpiry(token string) time.Time {
+	parts := strings.Split(token, ".")
+	if len(parts) != 3 {
+		return time.Time{}
+	}
+	payload, err := base64.RawURLEncoding.DecodeString(parts[1])
+	if err != nil {
+		return time.Time{}
+	}
+	var claims struct {
+		Exp int64 `json:"exp"`
+	}
+	if err := json.Unmarshal(payload, &claims); err != nil || claims.Exp == 0 {
+		return time.Time{}
+	}
+	return time.Unix(claims.Exp, 0)
 }
 
 // Credential returns a process-wide token credential. If PreacquiredARMTokenEnv
