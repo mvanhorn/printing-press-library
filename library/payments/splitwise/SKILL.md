@@ -397,6 +397,54 @@ splitwise-pp-cli report --since 2025-01-01 --until 2025-12-31 --format csv > 202
 splitwise-pp-cli report --agent
 ```
 
+### Collect what you're owed — the `fairness` cookbook
+
+`fairness` turns your synced ledger into an action list. Default lens is **risk** (who to chase, worst first).
+
+**Who should I chase, and what should I just write off?**
+
+```bash
+splitwise-pp-cli fairness --by risk
+```
+
+Ranks everyone who owes you by a 0–100 collection-risk score with a per-row action: 🟢 on track · 🟡 nudge · 🟠 chase · 🔴 write-off (old **and** gone quiet). The footer totals at-risk vs. write-off dollars.
+
+**Who carries the group (fronts cash) vs. who free-rides?**
+
+```bash
+splitwise-pp-cli fairness --by contribution
+```
+
+Per person: paid, owed, net, carry-ratio, and a carrier/even/rider role. Informational — Splitwise settles regardless of who pays, so this is for when you still care who fronts the money.
+
+**Who's slow to settle / a live collection risk?**
+
+```bash
+splitwise-pp-cli fairness --by collectability
+```
+
+Sorted by debt age, with average settle latency and days since they last settled.
+
+**Scope to one friend, or one group/trip:**
+
+```bash
+splitwise-pp-cli fairness --friend "Alex"
+splitwise-pp-cli fairness --group "Tahoe Trip"
+```
+
+**Agent mode — the action list as JSON (raw day-counts for your own math):**
+
+```bash
+splitwise-pp-cli fairness --by risk --agent
+```
+
+Human tables print ages as `4y 3mo 8d`; JSON keeps raw `*_days` integers so tools convert themselves.
+
+**Tune the write-off threshold** (default: 365 days old + 180 days silent):
+
+```bash
+splitwise-pp-cli fairness --by risk --write-off-days 730 --ghost-days 90
+```
 
 ### Net position for an agent
 
