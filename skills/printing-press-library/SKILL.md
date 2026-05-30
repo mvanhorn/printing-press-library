@@ -22,7 +22,7 @@ metadata:
       - agent-skill
       - tool-discovery
       - install
-    category: software-development
+    category: productivity
   openclaw:
     emoji: "🖨️"
     homepage: https://github.com/mvanhorn/printing-press-library
