@@ -273,6 +273,16 @@ splitwise-pp-cli net
 
 Nets each friend's balances (cancelling A→B→C→A cycles) into the minimum set of real-world transfers, separated per currency, and reports how many transfers it saved vs. settling each group on its own. Add `--agent` for JSON.
 
+### Catch bad data before you settle — `audit`
+
+**Find likely duplicate expenses and per-category cost outliers:**
+
+```bash
+splitwise-pp-cli audit
+```
+
+Flags repeated near-identical expenses (same description, cost, date, currency, and group) and unusually large expenses vs. their category baseline using a robust median/MAD score. Use `--limit N` to cap findings per type, `--agent` for JSON.
+
 ### Net position for an agent
 
 ```bash
