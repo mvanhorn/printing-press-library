@@ -1,0 +1,51 @@
+version: 2
+project_name: make-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: make-pp-cli
+    main: ./cmd/make-pp-cli
+    binary: make-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/productivity/make/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: make-pp-mcp
+    main: ./cmd/make-pp-mcp
+    binary: make-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: make-pp-cli
+    repository:
+      owner: wcarpenter110981
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Every Make (formerly Integromat) Management API operation from the terminal, plus blocking agent runs, git-backed blueprint sync, dev-to-prod promote with ID remap, and a cross-team DLQ inbox no other tool has."
+    install: |
+      bin.install "make-pp-cli"
+      bin.install "make-pp-mcp"

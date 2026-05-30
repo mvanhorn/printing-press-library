@@ -1,0 +1,1411 @@
+name: make
+display_name: "Make.com"
+description: "Make.com Management API (formerly Integromat) — scenarios, executions, connections, webhooks, data stores."
+cli_description: "Manage Make.com scenarios, connections, webhooks, data stores, and run scenarios synchronously from the terminal."
+version: "0.1.0"
+base_url: "https://{zone}.make.com/api/v2"
+endpoint_template_vars:
+  - zone
+category: productivity
+website_url: "https://www.make.com/"
+
+auth:
+  type: api_key
+  in: header
+  header: "Authorization"
+  prefix: "Token"
+  env_vars:
+    - MAKE_API_TOKEN
+  key_url: "https://www.make.com/en/help/api/api-overview"
+  instructions: "Make profile → API → Add token (https://www.make.com/en/help/api/api-overview)"
+  verify_path: "/users/me"
+  description: "Make API token from your profile's API tab. Token is bound to one zone (us1/us2/eu1/eu2); set MAKE_ZONE to match."
+
+config:
+  format: toml
+  path: "~/.config/make-pp-cli/config.toml"
+
+resources:
+  scenarios:
+    description: "Scenarios — Make's workflow automations"
+    endpoints:
+      list:
+        method: GET
+        path: "/scenarios"
+        description: "List scenarios for a team"
+        params:
+          - name: teamId
+            type: int
+            description: "Team ID to scope the list"
+          - name: organizationId
+            type: int
+            description: "Organization ID (alternative to teamId)"
+          - name: folderId
+            type: int
+            description: "Filter to a folder"
+          - name: isActive
+            type: bool
+            description: "Filter to active scenarios only"
+          - name: cols
+            type: string
+            description: "Comma-separated columns to include in the response"
+        response:
+          type: array
+          item: Scenario
+        response_path: "scenarios"
+        id_field: id
+
+      get:
+        method: GET
+        path: "/scenarios/{scenarioId}"
+        description: "Get a scenario"
+        params:
+          - name: scenarioId
+            type: int
+            required: true
+            positional: true
+            description: "Scenario ID"
+        response:
+          type: object
+          item: Scenario
+        response_path: "scenario"
+
+      create:
+        method: POST
+        path: "/scenarios"
+        description: "Create a scenario from a blueprint"
+        params:
+          - name: teamId
+            type: int
+            required: true
+            description: "Target team ID"
+        body:
+          - name: blueprint
+            type: string
+            required: true
+            description: "Scenario blueprint as JSON"
+          - name: scheduling
+            type: string
+            description: "Serialized scheduling settings"
+          - name: folderId
+            type: int
+            description: "Optional folder for the new scenario"
+        response:
+          type: object
+          item: Scenario
+
+      update:
+        method: PATCH
+        path: "/scenarios/{scenarioId}"
+        description: "Update scenario metadata"
+        params:
+          - name: scenarioId
+            type: int
+            required: true
+            positional: true
+            description: "Scenario ID"
+        body:
+          - name: name
+            type: string
+            description: "New scenario name"
+          - name: blueprint
+            type: string
+            description: "Replace blueprint JSON"
+          - name: scheduling
+            type: string
+            description: "Serialized scheduling settings"
+          - name: folderId
+            type: int
+            description: "Move to a different folder"
+        response:
+          type: object
+          item: Scenario
+
+      delete:
+        method: DELETE
+        path: "/scenarios/{scenarioId}"
+        description: "Delete a scenario"
+        params:
+          - name: scenarioId
+            type: int
+            required: true
+            positional: true
+            description: "Scenario ID"
+
+      clone:
+        method: POST
+        path: "/scenarios/{scenarioId}/clone"
+        description: "Clone a scenario"
+        params:
+          - name: scenarioId
+            type: int
+            required: true
+            positional: true
+            description: "Scenario ID to clone"
+        body:
+          - name: name
+            type: string
+            description: "Name for the cloned scenario"
+          - name: teamId
+            type: int
+            description: "Target team ID for the clone"
+        response:
+          type: object
+          item: Scenario
+
+      activate:
+        method: POST
+        path: "/scenarios/{scenarioId}/start"
+        description: "Activate a scenario"
+        params:
+          - name: scenarioId
+            type: int
+            required: true
+            positional: true
+            description: "Scenario ID"
+
+      deactivate:
+        method: POST
+        path: "/scenarios/{scenarioId}/stop"
+        description: "Deactivate a scenario"
+        params:
+          - name: scenarioId
+            type: int
+            required: true
+            positional: true
+            description: "Scenario ID"
+
+      run:
+        method: POST
+        path: "/scenarios/{scenarioId}/run"
+        description: "Trigger one execution of a scenario (asynchronous unless --wait is used)"
+        params:
+          - name: scenarioId
+            type: int
+            required: true
+            positional: true
+            description: "Scenario ID"
+          - name: responsive
+            type: bool
+            description: "Return a synchronous response from the scenario"
+        body:
+          - name: data
+            type: string
+            description: "JSON input bundle for the scenario"
+        response:
+          type: object
+          item: ExecutionRun
+
+      blueprint:
+        method: GET
+        path: "/scenarios/{scenarioId}/blueprint"
+        description: "Export a scenario's blueprint as JSON"
+        params:
+          - name: scenarioId
+            type: int
+            required: true
+            positional: true
+            description: "Scenario ID"
+        response:
+          type: object
+          item: BlueprintEnvelope
+        response_path: "response"
+
+      logs:
+        method: GET
+        path: "/scenarios/{scenarioId}/logs"
+        description: "Get execution log entries for a scenario"
+        params:
+          - name: scenarioId
+            type: int
+            required: true
+            positional: true
+            description: "Scenario ID"
+          - name: from
+            type: int
+            description: "Unix epoch ms for the start of the window"
+          - name: to
+            type: int
+            description: "Unix epoch ms for the end of the window"
+          - name: status
+            type: int
+            description: "Filter by status (1=success, 2=warning, 3=error, 4=incomplete)"
+        response:
+          type: array
+          item: ScenarioLog
+        response_path: "scenarioLogs"
+        id_field: imtId
+
+  executions:
+    description: "Scenario executions — historical runs"
+    endpoints:
+      get:
+        method: GET
+        path: "/scenarios/{scenarioId}/executions/{executionId}"
+        description: "Get one execution's detail"
+        params:
+          - name: scenarioId
+            type: int
+            required: true
+            positional: true
+            description: "Scenario ID"
+          - name: executionId
+            type: string
+            required: true
+            positional: true
+            description: "Execution ID"
+        response:
+          type: object
+          item: Execution
+
+  dlqs:
+    description: "Incomplete executions (Dead Letter Queue) — scenarios that failed"
+    endpoints:
+      list:
+        method: GET
+        path: "/dlqs"
+        description: "List incomplete executions for a scenario"
+        params:
+          - name: teamId
+            type: int
+            description: "Team ID"
+          - name: scenarioId
+            type: int
+            required: true
+            description: "Scenario ID (required by API)"
+        response:
+          type: array
+          item: DLQ
+        response_path: "dlqs"
+        id_field: id
+
+      get:
+        method: GET
+        path: "/dlqs/{dlqId}"
+        description: "Get one DLQ entry"
+        params:
+          - name: dlqId
+            type: string
+            required: true
+            positional: true
+            description: "DLQ entry ID"
+        response:
+          type: object
+          item: DLQ
+
+      retry:
+        method: POST
+        path: "/dlqs/{dlqId}/retry"
+        description: "Retry a failed execution"
+        params:
+          - name: dlqId
+            type: string
+            required: true
+            positional: true
+            description: "DLQ entry ID"
+
+      resolve:
+        method: POST
+        path: "/dlqs/{dlqId}/resolve"
+        description: "Resolve (acknowledge) a failed execution"
+        params:
+          - name: dlqId
+            type: string
+            required: true
+            positional: true
+            description: "DLQ entry ID"
+
+  connections:
+    description: "Connections — auth grants to external services"
+    endpoints:
+      list:
+        method: GET
+        path: "/connections"
+        description: "List connections for a team"
+        params:
+          - name: teamId
+            type: int
+            required: true
+            description: "Team ID"
+        response:
+          type: array
+          item: Connection
+        response_path: "connections"
+        id_field: id
+
+      get:
+        method: GET
+        path: "/connections/{connectionId}"
+        description: "Get a connection"
+        params:
+          - name: connectionId
+            type: int
+            required: true
+            positional: true
+            description: "Connection ID"
+        response:
+          type: object
+          item: Connection
+        response_path: "connection"
+
+      delete:
+        method: DELETE
+        path: "/connections/{connectionId}"
+        description: "Delete a connection"
+        params:
+          - name: connectionId
+            type: int
+            required: true
+            positional: true
+            description: "Connection ID"
+
+      test:
+        method: POST
+        path: "/connections/{connectionId}/test"
+        description: "Verify a connection is live"
+        params:
+          - name: connectionId
+            type: int
+            required: true
+            positional: true
+            description: "Connection ID"
+
+  hooks:
+    description: "Webhooks — entry points that trigger scenarios"
+    endpoints:
+      list:
+        method: GET
+        path: "/hooks"
+        description: "List webhooks for a team"
+        params:
+          - name: teamId
+            type: int
+            required: true
+            description: "Team ID"
+          - name: typeName
+            type: string
+            description: "Filter by hook type"
+          - name: assigned
+            type: bool
+            description: "Filter by assignment to a scenario"
+        response:
+          type: array
+          item: Hook
+        response_path: "hooks"
+        id_field: id
+
+      get:
+        method: GET
+        path: "/hooks/{hookId}"
+        description: "Get a webhook"
+        params:
+          - name: hookId
+            type: int
+            required: true
+            positional: true
+            description: "Webhook ID"
+        response:
+          type: object
+          item: Hook
+        response_path: "hook"
+
+      delete:
+        method: DELETE
+        path: "/hooks/{hookId}"
+        description: "Delete a webhook"
+        params:
+          - name: hookId
+            type: int
+            required: true
+            positional: true
+            description: "Webhook ID"
+
+      enable:
+        method: POST
+        path: "/hooks/{hookId}/enable"
+        description: "Enable a webhook"
+        params:
+          - name: hookId
+            type: int
+            required: true
+            positional: true
+            description: "Webhook ID"
+
+      disable:
+        method: POST
+        path: "/hooks/{hookId}/disable"
+        description: "Disable a webhook"
+        params:
+          - name: hookId
+            type: int
+            required: true
+            positional: true
+            description: "Webhook ID"
+
+      ping:
+        method: GET
+        path: "/hooks/{hookId}/ping"
+        description: "Send a ping to a webhook"
+        params:
+          - name: hookId
+            type: int
+            required: true
+            positional: true
+            description: "Webhook ID"
+
+      learn_start:
+        method: POST
+        path: "/hooks/{hookId}/start-learning"
+        description: "Start webhook learning mode"
+        params:
+          - name: hookId
+            type: int
+            required: true
+            positional: true
+            description: "Webhook ID"
+
+      learn_stop:
+        method: POST
+        path: "/hooks/{hookId}/stop-learning"
+        description: "Stop webhook learning mode"
+        params:
+          - name: hookId
+            type: int
+            required: true
+            positional: true
+            description: "Webhook ID"
+
+  data_stores:
+    description: "Data stores — Make's key-value persistence"
+    endpoints:
+      list:
+        method: GET
+        path: "/data-stores"
+        description: "List data stores for a team"
+        params:
+          - name: teamId
+            type: int
+            required: true
+            description: "Team ID"
+        response:
+          type: array
+          item: DataStore
+        response_path: "dataStores"
+        id_field: id
+
+      get:
+        method: GET
+        path: "/data-stores/{dataStoreId}"
+        description: "Get a data store"
+        params:
+          - name: dataStoreId
+            type: int
+            required: true
+            positional: true
+            description: "Data store ID"
+        response:
+          type: object
+          item: DataStore
+        response_path: "dataStore"
+
+      create:
+        method: POST
+        path: "/data-stores"
+        description: "Create a data store"
+        params:
+          - name: teamId
+            type: int
+            required: true
+            description: "Team ID"
+        body:
+          - name: name
+            type: string
+            required: true
+            description: "Data store name"
+          - name: datastructureId
+            type: int
+            description: "Data structure (schema) ID"
+          - name: maxSizeMB
+            type: int
+            description: "Maximum size in MB"
+        response:
+          type: object
+          item: DataStore
+
+      update:
+        method: PATCH
+        path: "/data-stores/{dataStoreId}"
+        description: "Update data store"
+        params:
+          - name: dataStoreId
+            type: int
+            required: true
+            positional: true
+            description: "Data store ID"
+        body:
+          - name: name
+            type: string
+            description: "New name"
+          - name: maxSizeMB
+            type: int
+            description: "Maximum size in MB"
+        response:
+          type: object
+          item: DataStore
+
+      delete:
+        method: DELETE
+        path: "/data-stores"
+        description: "Delete data stores"
+        body:
+          - name: ids
+            type: string
+            required: true
+            description: "Comma-separated data store IDs to delete"
+
+    sub_resources:
+      records:
+        description: "Records inside a data store"
+        endpoints:
+          list:
+            method: GET
+            path: "/data-stores/{dataStoreId}/data"
+            description: "List records in a data store"
+            params:
+              - name: dataStoreId
+                type: int
+                required: true
+                positional: true
+                description: "Data store ID"
+              - name: search
+                type: string
+                description: "Search across record content"
+            response:
+              type: array
+              item: DataStoreRecord
+            response_path: "records"
+            id_field: key
+
+          create:
+            method: POST
+            path: "/data-stores/{dataStoreId}/data"
+            description: "Create a record"
+            params:
+              - name: dataStoreId
+                type: int
+                required: true
+                positional: true
+                description: "Data store ID"
+            body:
+              - name: key
+                type: string
+                description: "Record key (auto-generated when blank)"
+              - name: data
+                type: string
+                required: true
+                description: "JSON record body"
+            response:
+              type: object
+              item: DataStoreRecord
+
+          update:
+            method: PATCH
+            path: "/data-stores/{dataStoreId}/data/{recordKey}"
+            description: "Update a record"
+            params:
+              - name: dataStoreId
+                type: int
+                required: true
+                positional: true
+                description: "Data store ID"
+              - name: recordKey
+                type: string
+                required: true
+                positional: true
+                description: "Record key"
+            body:
+              - name: data
+                type: string
+                required: true
+                description: "JSON record body to merge"
+
+          delete:
+            method: DELETE
+            path: "/data-stores/{dataStoreId}/data/{recordKey}"
+            description: "Delete a record"
+            params:
+              - name: dataStoreId
+                type: int
+                required: true
+                positional: true
+                description: "Data store ID"
+              - name: recordKey
+                type: string
+                required: true
+                positional: true
+                description: "Record key"
+
+  data_structures:
+    description: "Data structures — typed schemas referenced by data stores and webhooks"
+    endpoints:
+      list:
+        method: GET
+        path: "/data-structures"
+        description: "List data structures for a team"
+        params:
+          - name: teamId
+            type: int
+            required: true
+            description: "Team ID"
+        response:
+          type: array
+          item: DataStructure
+        response_path: "dataStructures"
+        id_field: id
+
+      get:
+        method: GET
+        path: "/data-structures/{dataStructureId}"
+        description: "Get a data structure"
+        params:
+          - name: dataStructureId
+            type: int
+            required: true
+            positional: true
+            description: "Data structure ID"
+        response:
+          type: object
+          item: DataStructure
+
+      create:
+        method: POST
+        path: "/data-structures"
+        description: "Create a data structure"
+        params:
+          - name: teamId
+            type: int
+            required: true
+            description: "Team ID"
+        body:
+          - name: name
+            type: string
+            required: true
+            description: "Data structure name"
+          - name: spec
+            type: string
+            required: true
+            description: "JSON spec for the structure fields"
+          - name: strict
+            type: bool
+            description: "Reject unknown fields"
+        response:
+          type: object
+          item: DataStructure
+
+      delete:
+        method: DELETE
+        path: "/data-structures/{dataStructureId}"
+        description: "Delete a data structure"
+        params:
+          - name: dataStructureId
+            type: int
+            required: true
+            positional: true
+            description: "Data structure ID"
+
+  folders:
+    description: "Scenario folders — group scenarios within a team"
+    endpoints:
+      list:
+        method: GET
+        path: "/scenarios-folders"
+        description: "List scenario folders for a team"
+        params:
+          - name: teamId
+            type: int
+            required: true
+            description: "Team ID"
+        response:
+          type: array
+          item: Folder
+        response_path: "scenariosFolders"
+        id_field: id
+
+      create:
+        method: POST
+        path: "/scenarios-folders"
+        description: "Create a folder"
+        params:
+          - name: teamId
+            type: int
+            required: true
+            description: "Team ID"
+        body:
+          - name: name
+            type: string
+            required: true
+            description: "Folder name"
+        response:
+          type: object
+          item: Folder
+
+      update:
+        method: PATCH
+        path: "/scenarios-folders/{folderId}"
+        description: "Rename a folder"
+        params:
+          - name: folderId
+            type: int
+            required: true
+            positional: true
+            description: "Folder ID"
+        body:
+          - name: name
+            type: string
+            required: true
+            description: "New folder name"
+
+      delete:
+        method: DELETE
+        path: "/scenarios-folders/{folderId}"
+        description: "Delete a folder"
+        params:
+          - name: folderId
+            type: int
+            required: true
+            positional: true
+            description: "Folder ID"
+
+  templates:
+    description: "Public templates — sharable scenario blueprints"
+    endpoints:
+      list:
+        method: GET
+        path: "/templates"
+        description: "List templates for a team"
+        params:
+          - name: teamId
+            type: int
+            required: true
+            description: "Team ID"
+        response:
+          type: array
+          item: Template
+        response_path: "templates"
+        id_field: id
+
+      get:
+        method: GET
+        path: "/templates/{templateId}"
+        description: "Get a template"
+        params:
+          - name: templateId
+            type: int
+            required: true
+            positional: true
+            description: "Template ID"
+        response:
+          type: object
+          item: Template
+        response_path: "template"
+
+  devices:
+    description: "Mobile devices registered for triggering Make scenarios"
+    endpoints:
+      list:
+        method: GET
+        path: "/devices"
+        description: "List devices for a team"
+        params:
+          - name: teamId
+            type: int
+            required: true
+            description: "Team ID"
+        response:
+          type: array
+          item: Device
+        response_path: "devices"
+        id_field: id
+
+      get:
+        method: GET
+        path: "/devices/{deviceId}"
+        description: "Get a device"
+        params:
+          - name: deviceId
+            type: int
+            required: true
+            positional: true
+            description: "Device ID"
+        response:
+          type: object
+          item: Device
+        response_path: "device"
+
+      delete:
+        method: DELETE
+        path: "/devices/{deviceId}"
+        description: "Delete a device"
+        params:
+          - name: deviceId
+            type: int
+            required: true
+            positional: true
+            description: "Device ID"
+
+  teams:
+    description: "Teams within an organization"
+    endpoints:
+      list:
+        method: GET
+        path: "/teams"
+        description: "List teams in an organization"
+        params:
+          - name: organizationId
+            type: int
+            required: true
+            description: "Organization ID"
+        response:
+          type: array
+          item: Team
+        response_path: "teams"
+        id_field: id
+
+      get:
+        method: GET
+        path: "/teams/{teamId}"
+        description: "Get a team"
+        params:
+          - name: teamId
+            type: int
+            required: true
+            positional: true
+            description: "Team ID"
+        response:
+          type: object
+          item: Team
+        response_path: "team"
+
+      create:
+        method: POST
+        path: "/teams"
+        description: "Create a team"
+        params:
+          - name: organizationId
+            type: int
+            required: true
+            description: "Organization ID"
+        body:
+          - name: name
+            type: string
+            required: true
+            description: "Team name"
+        response:
+          type: object
+          item: Team
+
+      delete:
+        method: DELETE
+        path: "/teams/{teamId}"
+        description: "Delete a team"
+        params:
+          - name: teamId
+            type: int
+            required: true
+            positional: true
+            description: "Team ID"
+
+  orgs:
+    description: "Organizations — top-level account container"
+    endpoints:
+      list:
+        method: GET
+        path: "/organizations"
+        description: "List organizations visible to this token"
+        response:
+          type: array
+          item: Organization
+        response_path: "organizations"
+        id_field: id
+
+      get:
+        method: GET
+        path: "/organizations/{organizationId}"
+        description: "Get an organization"
+        params:
+          - name: organizationId
+            type: int
+            required: true
+            positional: true
+            description: "Organization ID"
+        response:
+          type: object
+          item: Organization
+        response_path: "organization"
+
+  users:
+    description: "Users — token owner and team members"
+    endpoints:
+      me:
+        method: GET
+        path: "/users/me"
+        description: "Get the authenticated user"
+        response:
+          type: object
+          item: User
+        response_path: "authUser"
+
+  keys:
+    description: "Keys — credentials (API tokens, basic auth, etc.) attached to connections"
+    endpoints:
+      list:
+        method: GET
+        path: "/keys"
+        description: "List keys for a team"
+        params:
+          - name: teamId
+            type: int
+            required: true
+            description: "Team ID"
+        response:
+          type: array
+          item: Key
+        response_path: "keys"
+        id_field: id
+
+      get:
+        method: GET
+        path: "/keys/{keyId}"
+        description: "Get a key"
+        params:
+          - name: keyId
+            type: int
+            required: true
+            positional: true
+            description: "Key ID"
+        response:
+          type: object
+          item: Key
+        response_path: "key"
+
+      delete:
+        method: DELETE
+        path: "/keys/{keyId}"
+        description: "Delete a key"
+        params:
+          - name: keyId
+            type: int
+            required: true
+            positional: true
+            description: "Key ID"
+
+  functions:
+    description: "Custom functions usable inside scenario mappings"
+    endpoints:
+      list:
+        method: GET
+        path: "/functions"
+        description: "List custom functions for a team"
+        params:
+          - name: teamId
+            type: int
+            required: true
+            description: "Team ID"
+        response:
+          type: array
+          item: Func
+        response_path: "functions"
+        id_field: id
+
+      get:
+        method: GET
+        path: "/functions/{functionId}"
+        description: "Get a custom function"
+        params:
+          - name: functionId
+            type: int
+            required: true
+            positional: true
+            description: "Function ID"
+        response:
+          type: object
+          item: Func
+
+      delete:
+        method: DELETE
+        path: "/functions/{functionId}"
+        description: "Delete a custom function"
+        params:
+          - name: functionId
+            type: int
+            required: true
+            positional: true
+            description: "Function ID"
+
+  sdk_apps:
+    description: "Custom SDK apps — user-built integrations published to Make"
+    endpoints:
+      list:
+        method: GET
+        path: "/sdk/apps"
+        description: "List SDK apps for a team"
+        params:
+          - name: teamId
+            type: int
+            required: true
+            description: "Team ID"
+        response:
+          type: array
+          item: SDKApp
+        response_path: "apps"
+        id_field: name
+
+      get:
+        method: GET
+        path: "/sdk/apps/{appName}"
+        description: "Get an SDK app"
+        params:
+          - name: appName
+            type: string
+            required: true
+            positional: true
+            description: "App name (slug)"
+        response:
+          type: object
+          item: SDKApp
+
+types:
+  Scenario:
+    fields:
+      - name: id
+        type: int
+      - name: name
+        type: string
+      - name: teamId
+        type: int
+      - name: folderId
+        type: int
+      - name: hookId
+        type: int
+      - name: description
+        type: string
+      - name: isActive
+        type: bool
+      - name: isPaused
+        type: bool
+      - name: isinvalid
+        type: bool
+      - name: islinked
+        type: bool
+      - name: islocked
+        type: bool
+      - name: iswaiting
+        type: bool
+      - name: nextExec
+        type: string
+      - name: lastEdit
+        type: string
+      - name: created
+        type: string
+      - name: dlqCount
+        type: int
+      - name: usedPackages
+        type: string
+        description: "JSON-encoded list of package names this scenario references"
+      - name: operations
+        type: int
+      - name: centicredits
+        type: int
+
+  ScenarioLog:
+    fields:
+      - name: imtId
+        type: string
+      - name: type
+        type: int
+      - name: timestamp
+        type: string
+      - name: duration
+        type: int
+      - name: operations
+        type: int
+      - name: transfer
+        type: int
+      - name: status
+        type: int
+
+  ExecutionRun:
+    fields:
+      - name: executionId
+        type: string
+      - name: statusUrl
+        type: string
+
+  Execution:
+    fields:
+      - name: id
+        type: string
+      - name: scenarioId
+        type: int
+      - name: status
+        type: int
+      - name: operations
+        type: int
+      - name: transfer
+        type: int
+      - name: duration
+        type: int
+      - name: error
+        type: string
+      - name: timestamp
+        type: string
+
+  BlueprintEnvelope:
+    fields:
+      - name: blueprint
+        type: string
+        description: "JSON-encoded blueprint"
+      - name: scheduling
+        type: string
+
+  DLQ:
+    fields:
+      - name: id
+        type: string
+      - name: scenarioId
+        type: int
+      - name: reason
+        type: string
+      - name: status
+        type: int
+      - name: index
+        type: int
+      - name: size
+        type: int
+      - name: created
+        type: string
+      - name: resolved
+        type: bool
+
+  Connection:
+    fields:
+      - name: id
+        type: int
+      - name: name
+        type: string
+      - name: accountName
+        type: string
+      - name: accountLabel
+        type: string
+      - name: accountType
+        type: string
+      - name: packageName
+        type: string
+      - name: teamId
+        type: int
+      - name: expire
+        type: string
+      - name: editable
+        type: bool
+      - name: scopesCnt
+        type: int
+      - name: scoped
+        type: bool
+
+  Hook:
+    fields:
+      - name: id
+        type: int
+      - name: name
+        type: string
+      - name: teamId
+        type: int
+      - name: organizationId
+        type: int
+      - name: udid
+        type: string
+      - name: type
+        type: string
+      - name: typeName
+        type: string
+      - name: packageName
+        type: string
+      - name: editable
+        type: bool
+      - name: enabled
+        type: bool
+      - name: gone
+        type: bool
+      - name: queueCount
+        type: int
+      - name: queueLimit
+        type: int
+      - name: scenarioId
+        type: int
+      - name: scenarioName
+        type: string
+      - name: scenarioIsActive
+        type: bool
+      - name: url
+        type: string
+
+  DataStore:
+    fields:
+      - name: id
+        type: int
+      - name: name
+        type: string
+      - name: teamId
+        type: int
+      - name: records
+        type: int
+      - name: size
+        type: string
+      - name: maxSize
+        type: string
+
+  DataStoreRecord:
+    fields:
+      - name: key
+        type: string
+      - name: data
+        type: string
+
+  DataStructure:
+    fields:
+      - name: id
+        type: int
+      - name: name
+        type: string
+      - name: teamId
+        type: int
+
+  Folder:
+    fields:
+      - name: id
+        type: int
+      - name: name
+        type: string
+      - name: scenariosTotal
+        type: int
+
+  Template:
+    fields:
+      - name: id
+        type: int
+      - name: name
+        type: string
+      - name: teamId
+        type: int
+      - name: description
+        type: string
+      - name: public
+        type: bool
+      - name: published
+        type: string
+      - name: approved
+        type: string
+
+  Device:
+    fields:
+      - name: id
+        type: int
+      - name: name
+        type: string
+      - name: teamId
+        type: int
+      - name: udid
+        type: string
+      - name: gone
+        type: bool
+      - name: queueCount
+        type: int
+      - name: queueLimit
+        type: int
+      - name: scenarioId
+        type: int
+
+  Team:
+    fields:
+      - name: id
+        type: int
+      - name: name
+        type: string
+      - name: organizationId
+        type: int
+
+  Organization:
+    fields:
+      - name: id
+        type: int
+      - name: name
+        type: string
+      - name: timezoneId
+        type: int
+      - name: zone
+        type: string
+
+  User:
+    fields:
+      - name: id
+        type: int
+      - name: name
+        type: string
+      - name: email
+        type: string
+      - name: language
+        type: string
+      - name: timezoneId
+        type: int
+
+  Key:
+    fields:
+      - name: id
+        type: int
+      - name: name
+        type: string
+
+  Func:
+    fields:
+      - name: id
+        type: int
+      - name: name
+        type: string
+      - name: description
+        type: string
+
+  SDKApp:
+    fields:
+      - name: name
+        type: string
+      - name: label
+        type: string
+      - name: theme
+        type: string
+      - name: language
+        type: string
+      - name: countOperations
+        type: int
+
+extra_commands:
+  - name: "blueprint sync"
+    description: "Mirror every scenario's blueprint into a local git repo (auto-canonicalized)"
+  - name: "blueprint promote"
+    description: "Promote a scenario from one team to another with auto-remap of connection/hook/data-store IDs"
+  - name: "blueprint diff"
+    description: "Diff two blueprint snapshots from the local snapshot table"
+  - name: "blueprint restore"
+    description: "Restore a blueprint snapshot to the live API"
+  - name: "scenarios run-wait"
+    description: "Trigger a scenario and block until execution finishes; emit bundles as JSON"
+  - name: "scenarios list-all-teams"
+    description: "Union scenarios across every team the token can see; supports --stale Nd"
+  - name: "dlq inbox"
+    description: "Cross-scenario DLQ inbox grouped by error fingerprint with bulk retry/resolve"
+  - name: "connections audit"
+    description: "Find unused, expiring, or repeatedly errored connections"
+  - name: "hooks map"
+    description: "Webhook to scenario routing map; flags orphan and shared hooks"
+
+mcp:
+  transport: [stdio, http]

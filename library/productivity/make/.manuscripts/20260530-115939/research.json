@@ -1,0 +1,291 @@
+{
+  "api_name": "make",
+  "novelty_score": 9,
+  "alternatives": [
+    {
+      "name": "make-cli",
+      "url": "https://github.com/integromat/make-cli",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 97,
+      "last_updated": "",
+      "command_count": 34,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "make-typescript-sdk",
+      "url": "https://github.com/integromat/make-typescript-sdk",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 24,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "make-mcp-server",
+      "url": "https://github.com/integromat/make-mcp-server",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 159,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "makker",
+      "url": "https://github.com/zezutom/makker",
+      "language": "Kotlin",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-30T16:13:00Z",
+  "novel_features": [
+    {
+      "name": "Blocking scenario run for agents",
+      "command": "scenarios run --wait",
+      "description": "Trigger a scenario and block until it finishes, returning the execution result as one JSON envelope. Composes /scenarios/{id}/run + executions polling + bundle fetch.",
+      "rationale": "Make's API returns immediately with an executionId; agents need the actual result. make-cli has no --wait; cloud MCP is paid-tier and Anthropic-hosted only.",
+      "example": "make-pp-cli scenarios run <scenarioId> --wait --timeout 5m --json",
+      "why_it_matters": "When an agent needs a Make scenario's output to decide its next step, this is the only command that returns the bundle inline.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Git-backed blueprint sync",
+      "command": "blueprint sync",
+      "description": "Export every scenario's blueprint into a local repo as canonical JSON, one file per scenario, with a separate sidecar for metadata noise. Commit-ready.",
+      "rationale": "Make's UI has no first-party git story; community runs DIY scenarios to push blueprints to GitHub daily because nothing else does. Canonicalization makes diffs meaningful.",
+      "example": "make-pp-cli blueprint sync --repo ./make-blueprints --all-teams",
+      "why_it_matters": "Lets an agent or human treat scenarios as code: review diffs, restore prior versions, run CI on changes.",
+      "group": "Version control for scenarios"
+    },
+    {
+      "name": "Dev to prod scenario promote with auto-remap",
+      "command": "blueprint promote",
+      "description": "Promote a scenario from one team to another, rewriting connectionId/hookId/dataStoreId/folderId via auto-suggested name match or a user-edited YAML map. Dry-run shows the rewrites.",
+      "rationale": "Make's #1 community request: blueprint import is lossy because IDs don't remap. Cloud MCP and make-cli ignore this.",
+      "example": "make-pp-cli blueprint promote --from-team <teamId> --to-team 999999 --scenario <scenarioId> --auto-suggest --dry-run",
+      "why_it_matters": "Pick this when a Make scenario needs to ship from dev to prod — the only command that solves the ID-remap problem.",
+      "group": "Version control for scenarios"
+    },
+    {
+      "name": "Cross-scenario DLQ inbox",
+      "command": "dlq inbox",
+      "description": "List incomplete executions across all scenarios in one or many teams, group by error-reason fingerprint, bulk retry or resolve with a regex match.",
+      "rationale": "Make's UI is per-scenario only; nothing surfaces patterns across an account. Requires the local mirror to join across scenarios.",
+      "example": "make-pp-cli dlq inbox --all-teams --age 24h --group-by reason --json",
+      "why_it_matters": "When triaging Make failures, this is the only command that shows everything that broke and groups by why.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Connections audit",
+      "command": "connections audit",
+      "description": "Find connections that are unused, expiring, or repeatedly errored. Joins local connections with walked blueprint references and execution errors.",
+      "rationale": "Make's Connections UI shows a flat list with no usage, expiry, or error data. No API endpoint exposes whether a connection is used by any active scenario.",
+      "example": "make-pp-cli connections audit --all-teams --unused --expiring 168h --json",
+      "why_it_matters": "Run before a prod cutover, or weekly to catch stale OAuth tokens before they 401 your scenarios.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Cross-team scenario list",
+      "command": "scenarios list-all",
+      "description": "Union scenarios across every team the token can see, with last-edit, last-run, error rate, folder path, active flag. Filter by --stale Nh.",
+      "rationale": "Make's API forces one teamId per call; the UI is single-team-at-a-time. The local mirror lets us union.",
+      "example": "make-pp-cli scenarios list-all --active --stale 720h --json --select rows.id,rows.name,rows.teamId,rows.lastEdit",
+      "why_it_matters": "Monday-morning ritual command: what is active and what is stale across everything you own.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Webhook to scenario routing map",
+      "command": "hooks map",
+      "description": "For each webhook, show which scenarios consume it by walking every blueprint's gateway:CustomWebHook references. Flag orphan hooks (no consumer) and shared hooks (multiple consumers).",
+      "rationale": "Make's UI shows hooks and scenarios on separate screens; there is no hook-to-scenario reverse map anywhere.",
+      "example": "make-pp-cli hooks map --all-teams --orphans --json",
+      "why_it_matters": "When a webhook misroutes or you are cleaning up old hooks, this tells you what is actually connected.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Blueprint diff and restore",
+      "command": "blueprint diff",
+      "description": "Diff two blueprint snapshots from the local snapshot table; restore re-PUTs a snapshot via the API. Structural diff ignores the metadata.expect/restore noise.",
+      "rationale": "Make's UI version history is shallow and ephemeral; there is no diff or rollback tool. Our snapshot table outlives Make's history.",
+      "example": "make-pp-cli blueprint diff <scenarioId> --from ./make-blueprints/team-<teamId>/<scenarioId>.blueprint.json --to current --json",
+      "why_it_matters": "After a blueprint promote went wrong, this is the rollback path — git log + git restore for Make scenarios.",
+      "group": "Version control for scenarios"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Blocking scenario run for agents",
+      "command": "scenarios run --wait",
+      "description": "Trigger a scenario and block until it finishes, returning the execution result as one JSON envelope. Composes /scenarios/{id}/run + executions polling + bundle fetch.",
+      "rationale": "Make's API returns immediately with an executionId; agents need the actual result. make-cli has no --wait; cloud MCP is paid-tier and Anthropic-hosted only.",
+      "example": "make-pp-cli scenarios run <scenarioId> --wait --timeout 5m --json",
+      "why_it_matters": "When an agent needs a Make scenario's output to decide its next step, this is the only command that returns the bundle inline.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Git-backed blueprint sync",
+      "command": "blueprint sync",
+      "description": "Export every scenario's blueprint into a local repo as canonical JSON, one file per scenario, with a separate sidecar for metadata noise. Commit-ready.",
+      "rationale": "Make's UI has no first-party git story; community runs DIY scenarios to push blueprints to GitHub daily because nothing else does. Canonicalization makes diffs meaningful.",
+      "example": "make-pp-cli blueprint sync --repo ./make-blueprints --all-teams",
+      "why_it_matters": "Lets an agent or human treat scenarios as code: review diffs, restore prior versions, run CI on changes.",
+      "group": "Version control for scenarios"
+    },
+    {
+      "name": "Dev to prod scenario promote with auto-remap",
+      "command": "blueprint promote",
+      "description": "Promote a scenario from one team to another, rewriting connectionId/hookId/dataStoreId/folderId via auto-suggested name match or a user-edited YAML map. Dry-run shows the rewrites.",
+      "rationale": "Make's #1 community request: blueprint import is lossy because IDs don't remap. Cloud MCP and make-cli ignore this.",
+      "example": "make-pp-cli blueprint promote --from-team <teamId> --to-team 999999 --scenario <scenarioId> --auto-suggest --dry-run",
+      "why_it_matters": "Pick this when a Make scenario needs to ship from dev to prod — the only command that solves the ID-remap problem.",
+      "group": "Version control for scenarios"
+    },
+    {
+      "name": "Cross-scenario DLQ inbox",
+      "command": "dlq inbox",
+      "description": "List incomplete executions across all scenarios in one or many teams, group by error-reason fingerprint, bulk retry or resolve with a regex match.",
+      "rationale": "Make's UI is per-scenario only; nothing surfaces patterns across an account. Requires the local mirror to join across scenarios.",
+      "example": "make-pp-cli dlq inbox --all-teams --age 24h --group-by reason --json",
+      "why_it_matters": "When triaging Make failures, this is the only command that shows everything that broke and groups by why.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Connections audit",
+      "command": "connections audit",
+      "description": "Find connections that are unused, expiring, or repeatedly errored. Joins local connections with walked blueprint references and execution errors.",
+      "rationale": "Make's Connections UI shows a flat list with no usage, expiry, or error data. No API endpoint exposes whether a connection is used by any active scenario.",
+      "example": "make-pp-cli connections audit --all-teams --unused --expiring 168h --json",
+      "why_it_matters": "Run before a prod cutover, or weekly to catch stale OAuth tokens before they 401 your scenarios.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Cross-team scenario list",
+      "command": "scenarios list-all",
+      "description": "Union scenarios across every team the token can see, with last-edit, last-run, error rate, folder path, active flag. Filter by --stale Nh.",
+      "rationale": "Make's API forces one teamId per call; the UI is single-team-at-a-time. The local mirror lets us union.",
+      "example": "make-pp-cli scenarios list-all --active --stale 720h --json --select rows.id,rows.name,rows.teamId,rows.lastEdit",
+      "why_it_matters": "Monday-morning ritual command: what is active and what is stale across everything you own.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Webhook to scenario routing map",
+      "command": "hooks map",
+      "description": "For each webhook, show which scenarios consume it by walking every blueprint's gateway:CustomWebHook references. Flag orphan hooks (no consumer) and shared hooks (multiple consumers).",
+      "rationale": "Make's UI shows hooks and scenarios on separate screens; there is no hook-to-scenario reverse map anywhere.",
+      "example": "make-pp-cli hooks map --all-teams --orphans --json",
+      "why_it_matters": "When a webhook misroutes or you are cleaning up old hooks, this tells you what is actually connected.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Blueprint diff and restore",
+      "command": "blueprint diff",
+      "description": "Diff two blueprint snapshots from the local snapshot table; restore re-PUTs a snapshot via the API. Structural diff ignores the metadata.expect/restore noise.",
+      "rationale": "Make's UI version history is shallow and ephemeral; there is no diff or rollback tool. Our snapshot table outlives Make's history.",
+      "example": "make-pp-cli blueprint diff <scenarioId> --from ./make-blueprints/team-<teamId>/<scenarioId>.blueprint.json --to current --json",
+      "why_it_matters": "After a blueprint promote went wrong, this is the rollback path — git log + git restore for Make scenarios.",
+      "group": "Version control for scenarios"
+    }
+  ],
+  "narrative": {
+    "display_name": "Make.com",
+    "headline": "Every Make (formerly Integromat) Management API operation from the terminal, plus blocking agent runs, git-backed blueprint sync, dev-to-prod promote with ID remap, and a cross-team DLQ inbox no other tool has.",
+    "value_prop": "The official make-cli is a 1:1 REST mirror; the Make Cloud MCP is paid-tier and Anthropic-hosted only. make-pp-cli is a single Go binary with an offline SQLite mirror, agent-native --json/--select/--csv on every read, a `scenarios run --wait` that actually returns the bundle, blueprint sync for git version control, and a dev-to-prod promote that solves the ID-remap problem the community has been complaining about for years.",
+    "auth_narrative": "Auth is a Make API token (`Authorization: Token \u003ctoken\u003e`) plus a zone (us1, us2, eu1, eu2). Token is created at make.com profile -\u003e API -\u003e Add token. Set `MAKE_API_TOKEN` and `MAKE_ZONE` in your environment; `doctor` verifies both.",
+    "quickstart": [
+      {
+        "command": "make-pp-cli doctor",
+        "comment": "confirm token + zone before anything else"
+      },
+      {
+        "command": "make-pp-cli orgs list --json",
+        "comment": "find your organization and team IDs"
+      },
+      {
+        "command": "make-pp-cli sync",
+        "comment": "populate the local store so search/audit/dlq work offline"
+      },
+      {
+        "command": "make-pp-cli scenarios list-all --active --json --select rows.id,rows.name,rows.teamId,rows.lastEdit",
+        "comment": "one-shot cross-team view"
+      },
+      {
+        "command": "make-pp-cli scenarios run <scenarioId> --wait --timeout 5m --json",
+        "comment": "the agent-native blocking run"
+      },
+      {
+        "command": "make-pp-cli blueprint sync --repo ./make-blueprints --all-teams",
+        "comment": "back up every scenario's blueprint into a git repo"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 Unauthorized on every call",
+        "fix": "Wrong zone for this token. Run `make-pp-cli doctor`; it probes us1/us2/eu1/eu2 and reports which one your token belongs to."
+      },
+      {
+        "symptom": "scenarios run --wait times out before the scenario finishes",
+        "fix": "Raise --timeout (default 5m) or use --poll-interval 2s for faster turn-around on quick scenarios."
+      },
+      {
+        "symptom": "blueprint promote shows TODO entries in the remap",
+        "fix": "Some source connections/hooks have no name match in the target team. Provide a --map file with manual mappings for the TODO IDs."
+      },
+      {
+        "symptom": "Permission denied (SC403) on a specific endpoint",
+        "fix": "Your token may lack the required scope. Run `make-pp-cli doctor --scopes` to print the full scope list, then create a token with the needed scope in the Make profile UI."
+      }
+    ],
+    "when_to_use": "Reach for make-pp-cli whenever an agent needs a synchronous Make scenario result, whenever scenarios need to move between teams without manually re-pinning connections, or whenever Make's per-scenario UI surfaces (DLQs, connections, hooks) need cross-account analysis. It is the only Make tool that runs as a Go binary, mirrors the API offline into SQLite, and ships agent-native flags on every read.",
+    "recipes": [
+      {
+        "title": "Agent-blocking scenario run with output bundle",
+        "command": "make-pp-cli scenarios run <scenarioId> --wait --timeout 5m --json --select status,bundles",
+        "explanation": "Triggers the scenario, blocks until terminal, returns the execution status and parsed output bundles inline so the calling agent can act on the result."
+      },
+      {
+        "title": "Weekly DLQ triage by error reason",
+        "command": "make-pp-cli dlq inbox --all-teams --age 24h --group-by reason --json",
+        "explanation": "Joins incomplete executions across every team and groups by extracted error fingerprint so the on-call sees patterns, not individual failures."
+      },
+      {
+        "title": "Promote a scenario dev to prod with auto-remap dry-run",
+        "command": "make-pp-cli blueprint promote --from-team <teamId> --to-team 999999 --scenario <scenarioId> --auto-suggest --dry-run",
+        "explanation": "Reads the source blueprint, matches connections/hooks/data-stores by name in the target, prints the rewrite map so you can review before the real promote."
+      },
+      {
+        "title": "Find stale OAuth connections before prod cutover",
+        "command": "make-pp-cli connections audit --all-teams --expiring 168h --unused --json --select rows.id,rows.name,rows.expire,rows.issues",
+        "explanation": "Surfaces every connection expiring within 7 days (168h) or that isn't referenced by any synced scenario blueprint, so a stale token does not 401 the production run."
+      },
+      {
+        "title": "Sync every blueprint to a local repo nightly",
+        "command": "make-pp-cli blueprint sync --repo ./make-blueprints --all-teams",
+        "explanation": "Replaces the community's DIY 'daily-export-to-github' Make scenarios. Run from cron; pipe into `git add -A \u0026\u0026 git commit` to commit."
+      }
+    ],
+    "trigger_phrases": [
+      "trigger a make scenario and wait",
+      "run make scenario synchronously",
+      "back up make blueprints to git",
+      "promote make scenario from dev to prod",
+      "list make scenarios across all teams",
+      "make.com dlq inbox",
+      "audit make connections",
+      "use make",
+      "use make-pp-cli"
+    ]
+  }
+}

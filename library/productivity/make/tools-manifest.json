@@ -1,0 +1,1236 @@
+{
+  "api_name": "make",
+  "base_url": "https://{zone}.make.com/api/v2",
+  "description": "Make.com Management API (formerly Integromat) — scenarios, executions, connections, webhooks, data stores.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "mcp": {
+    "endpoint_tools": "hidden",
+    "orchestration": "code"
+  },
+  "auth": {
+    "type": "api_key",
+    "header": "Authorization",
+    "in": "header",
+    "env_vars": [
+      "MAKE_API_TOKEN"
+    ],
+    "env_var_specs": [
+      {
+        "name": "MAKE_API_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ],
+    "key_url": "https://www.make.com/en/help/api/api-overview"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "connections_delete",
+      "description": "Delete a connection. Required: connectionId. Destructive.",
+      "method": "DELETE",
+      "path": "/connections/{connectionId}",
+      "params": [
+        {
+          "name": "connectionId",
+          "type": "int",
+          "location": "path",
+          "description": "Connection ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "connections_get",
+      "description": "Get a connection. Required: connectionId. Returns the Connection.",
+      "method": "GET",
+      "path": "/connections/{connectionId}",
+      "params": [
+        {
+          "name": "connectionId",
+          "type": "int",
+          "location": "path",
+          "description": "Connection ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "connections_list",
+      "description": "List connections for a team. Required: teamId. Returns array of Connection.",
+      "method": "GET",
+      "path": "/connections",
+      "params": [
+        {
+          "name": "teamId",
+          "type": "int",
+          "location": "query",
+          "description": "Team ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "connections_test",
+      "description": "Verify a connection is live. Required: connectionId.",
+      "method": "POST",
+      "path": "/connections/{connectionId}/test",
+      "params": [
+        {
+          "name": "connectionId",
+          "type": "int",
+          "location": "path",
+          "description": "Connection ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "data_stores_create",
+      "description": "Create a data store. Required: teamId, name. Optional: datastructureId, maxSizeMB. Returns the new DataStore.",
+      "method": "POST",
+      "path": "/data-stores",
+      "params": [
+        {
+          "name": "teamId",
+          "type": "int",
+          "location": "query",
+          "description": "Team ID",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Data store name",
+          "required": true
+        },
+        {
+          "name": "datastructureId",
+          "type": "int",
+          "location": "body",
+          "description": "Data structure (schema) ID"
+        },
+        {
+          "name": "maxSizeMB",
+          "type": "int",
+          "location": "body",
+          "description": "Maximum size in MB"
+        }
+      ]
+    },
+    {
+      "name": "data_stores_delete",
+      "description": "Delete data stores. Required: ids. Destructive.",
+      "method": "DELETE",
+      "path": "/data-stores",
+      "params": [
+        {
+          "name": "ids",
+          "type": "string",
+          "location": "body",
+          "description": "Comma-separated data store IDs to delete",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "data_stores_get",
+      "description": "Get a data store. Required: dataStoreId. Returns the DataStore.",
+      "method": "GET",
+      "path": "/data-stores/{dataStoreId}",
+      "params": [
+        {
+          "name": "dataStoreId",
+          "type": "int",
+          "location": "path",
+          "description": "Data store ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "data_stores_list",
+      "description": "List data stores for a team. Required: teamId. Returns array of DataStore.",
+      "method": "GET",
+      "path": "/data-stores",
+      "params": [
+        {
+          "name": "teamId",
+          "type": "int",
+          "location": "query",
+          "description": "Team ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "data_stores_update",
+      "description": "Update data store. Required: dataStoreId. Optional: name, maxSizeMB. Returns the updated DataStore.",
+      "method": "PATCH",
+      "path": "/data-stores/{dataStoreId}",
+      "params": [
+        {
+          "name": "dataStoreId",
+          "type": "int",
+          "location": "path",
+          "description": "Data store ID",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "New name"
+        },
+        {
+          "name": "maxSizeMB",
+          "type": "int",
+          "location": "body",
+          "description": "Maximum size in MB"
+        }
+      ]
+    },
+    {
+      "name": "data_stores_records_create",
+      "description": "Create a record. Required: dataStoreId, data. Optional: key. Returns the new DataStoreRecord.",
+      "method": "POST",
+      "path": "/data-stores/{dataStoreId}/data",
+      "params": [
+        {
+          "name": "dataStoreId",
+          "type": "int",
+          "location": "path",
+          "description": "Data store ID",
+          "required": true
+        },
+        {
+          "name": "key",
+          "type": "string",
+          "location": "body",
+          "description": "Record key (auto-generated when blank)"
+        },
+        {
+          "name": "data",
+          "type": "string",
+          "location": "body",
+          "description": "JSON record body",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "data_stores_records_delete",
+      "description": "Delete a record. Required: dataStoreId, recordKey. Destructive.",
+      "method": "DELETE",
+      "path": "/data-stores/{dataStoreId}/data/{recordKey}",
+      "params": [
+        {
+          "name": "dataStoreId",
+          "type": "int",
+          "location": "path",
+          "description": "Data store ID",
+          "required": true
+        },
+        {
+          "name": "recordKey",
+          "type": "string",
+          "location": "path",
+          "description": "Record key",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "data_stores_records_list",
+      "description": "List records in a data store. Required: dataStoreId. Optional: search. Returns array of DataStoreRecord.",
+      "method": "GET",
+      "path": "/data-stores/{dataStoreId}/data",
+      "params": [
+        {
+          "name": "dataStoreId",
+          "type": "int",
+          "location": "path",
+          "description": "Data store ID",
+          "required": true
+        },
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Search across record content"
+        }
+      ]
+    },
+    {
+      "name": "data_stores_records_update",
+      "description": "Update a record. Required: dataStoreId, recordKey, data. Partial update.",
+      "method": "PATCH",
+      "path": "/data-stores/{dataStoreId}/data/{recordKey}",
+      "params": [
+        {
+          "name": "dataStoreId",
+          "type": "int",
+          "location": "path",
+          "description": "Data store ID",
+          "required": true
+        },
+        {
+          "name": "recordKey",
+          "type": "string",
+          "location": "path",
+          "description": "Record key",
+          "required": true
+        },
+        {
+          "name": "data",
+          "type": "string",
+          "location": "body",
+          "description": "JSON record body to merge",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "data_structures_create",
+      "description": "Create a data structure. Required: teamId, name, spec. Optional: strict. Returns the new DataStructure.",
+      "method": "POST",
+      "path": "/data-structures",
+      "params": [
+        {
+          "name": "teamId",
+          "type": "int",
+          "location": "query",
+          "description": "Team ID",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Data structure name",
+          "required": true
+        },
+        {
+          "name": "spec",
+          "type": "string",
+          "location": "body",
+          "description": "JSON spec for the structure fields",
+          "required": true
+        },
+        {
+          "name": "strict",
+          "type": "bool",
+          "location": "body",
+          "description": "Reject unknown fields"
+        }
+      ]
+    },
+    {
+      "name": "data_structures_delete",
+      "description": "Delete a data structure. Required: dataStructureId. Destructive.",
+      "method": "DELETE",
+      "path": "/data-structures/{dataStructureId}",
+      "params": [
+        {
+          "name": "dataStructureId",
+          "type": "int",
+          "location": "path",
+          "description": "Data structure ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "data_structures_get",
+      "description": "Get a data structure. Required: dataStructureId. Returns the DataStructure.",
+      "method": "GET",
+      "path": "/data-structures/{dataStructureId}",
+      "params": [
+        {
+          "name": "dataStructureId",
+          "type": "int",
+          "location": "path",
+          "description": "Data structure ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "data_structures_list",
+      "description": "List data structures for a team. Required: teamId. Returns array of DataStructure.",
+      "method": "GET",
+      "path": "/data-structures",
+      "params": [
+        {
+          "name": "teamId",
+          "type": "int",
+          "location": "query",
+          "description": "Team ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "devices_delete",
+      "description": "Delete a device. Required: deviceId. Destructive.",
+      "method": "DELETE",
+      "path": "/devices/{deviceId}",
+      "params": [
+        {
+          "name": "deviceId",
+          "type": "int",
+          "location": "path",
+          "description": "Device ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "devices_get",
+      "description": "Get a device. Required: deviceId. Returns the Device.",
+      "method": "GET",
+      "path": "/devices/{deviceId}",
+      "params": [
+        {
+          "name": "deviceId",
+          "type": "int",
+          "location": "path",
+          "description": "Device ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "devices_list",
+      "description": "List devices for a team. Required: teamId. Returns array of Device.",
+      "method": "GET",
+      "path": "/devices",
+      "params": [
+        {
+          "name": "teamId",
+          "type": "int",
+          "location": "query",
+          "description": "Team ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "dlqs_get",
+      "description": "Get one DLQ entry. Required: dlqId. Returns the DLQ.",
+      "method": "GET",
+      "path": "/dlqs/{dlqId}",
+      "params": [
+        {
+          "name": "dlqId",
+          "type": "string",
+          "location": "path",
+          "description": "DLQ entry ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "dlqs_list",
+      "description": "List incomplete executions for a scenario. Required: scenarioId. Optional: teamId. Returns array of DLQ.",
+      "method": "GET",
+      "path": "/dlqs",
+      "params": [
+        {
+          "name": "teamId",
+          "type": "int",
+          "location": "query",
+          "description": "Team ID"
+        },
+        {
+          "name": "scenarioId",
+          "type": "int",
+          "location": "query",
+          "description": "Scenario ID (required by API)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "dlqs_resolve",
+      "description": "Resolve (acknowledge) a failed execution. Required: dlqId.",
+      "method": "POST",
+      "path": "/dlqs/{dlqId}/resolve",
+      "params": [
+        {
+          "name": "dlqId",
+          "type": "string",
+          "location": "path",
+          "description": "DLQ entry ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "dlqs_retry",
+      "description": "Retry a failed execution. Required: dlqId.",
+      "method": "POST",
+      "path": "/dlqs/{dlqId}/retry",
+      "params": [
+        {
+          "name": "dlqId",
+          "type": "string",
+          "location": "path",
+          "description": "DLQ entry ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "executions_get",
+      "description": "Get one execution's detail. Required: scenarioId, executionId. Returns the Execution.",
+      "method": "GET",
+      "path": "/scenarios/{scenarioId}/executions/{executionId}",
+      "params": [
+        {
+          "name": "scenarioId",
+          "type": "int",
+          "location": "path",
+          "description": "Scenario ID",
+          "required": true
+        },
+        {
+          "name": "executionId",
+          "type": "string",
+          "location": "path",
+          "description": "Execution ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "folders_create",
+      "description": "Create a folder. Required: teamId, name. Returns the new Folder.",
+      "method": "POST",
+      "path": "/scenarios-folders",
+      "params": [
+        {
+          "name": "teamId",
+          "type": "int",
+          "location": "query",
+          "description": "Team ID",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Folder name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "folders_delete",
+      "description": "Delete a folder. Required: folderId. Destructive.",
+      "method": "DELETE",
+      "path": "/scenarios-folders/{folderId}",
+      "params": [
+        {
+          "name": "folderId",
+          "type": "int",
+          "location": "path",
+          "description": "Folder ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "folders_list",
+      "description": "List scenario folders for a team. Required: teamId. Returns array of Folder.",
+      "method": "GET",
+      "path": "/scenarios-folders",
+      "params": [
+        {
+          "name": "teamId",
+          "type": "int",
+          "location": "query",
+          "description": "Team ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "folders_update",
+      "description": "Rename a folder. Required: folderId, name. Partial update.",
+      "method": "PATCH",
+      "path": "/scenarios-folders/{folderId}",
+      "params": [
+        {
+          "name": "folderId",
+          "type": "int",
+          "location": "path",
+          "description": "Folder ID",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "New folder name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "functions_delete",
+      "description": "Delete a custom function. Required: functionId. Destructive.",
+      "method": "DELETE",
+      "path": "/functions/{functionId}",
+      "params": [
+        {
+          "name": "functionId",
+          "type": "int",
+          "location": "path",
+          "description": "Function ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "functions_get",
+      "description": "Get a custom function. Required: functionId. Returns the Func.",
+      "method": "GET",
+      "path": "/functions/{functionId}",
+      "params": [
+        {
+          "name": "functionId",
+          "type": "int",
+          "location": "path",
+          "description": "Function ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "functions_list",
+      "description": "List custom functions for a team. Required: teamId. Returns array of Func.",
+      "method": "GET",
+      "path": "/functions",
+      "params": [
+        {
+          "name": "teamId",
+          "type": "int",
+          "location": "query",
+          "description": "Team ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "hooks_delete",
+      "description": "Delete a webhook. Required: hookId. Destructive.",
+      "method": "DELETE",
+      "path": "/hooks/{hookId}",
+      "params": [
+        {
+          "name": "hookId",
+          "type": "int",
+          "location": "path",
+          "description": "Webhook ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "hooks_disable",
+      "description": "Disable a webhook. Required: hookId.",
+      "method": "POST",
+      "path": "/hooks/{hookId}/disable",
+      "params": [
+        {
+          "name": "hookId",
+          "type": "int",
+          "location": "path",
+          "description": "Webhook ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "hooks_enable",
+      "description": "Enable a webhook. Required: hookId.",
+      "method": "POST",
+      "path": "/hooks/{hookId}/enable",
+      "params": [
+        {
+          "name": "hookId",
+          "type": "int",
+          "location": "path",
+          "description": "Webhook ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "hooks_get",
+      "description": "Get a webhook. Required: hookId. Returns the Hook.",
+      "method": "GET",
+      "path": "/hooks/{hookId}",
+      "params": [
+        {
+          "name": "hookId",
+          "type": "int",
+          "location": "path",
+          "description": "Webhook ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "hooks_learn_start",
+      "description": "Start webhook learning mode. Required: hookId.",
+      "method": "POST",
+      "path": "/hooks/{hookId}/start-learning",
+      "params": [
+        {
+          "name": "hookId",
+          "type": "int",
+          "location": "path",
+          "description": "Webhook ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "hooks_learn_stop",
+      "description": "Stop webhook learning mode. Required: hookId.",
+      "method": "POST",
+      "path": "/hooks/{hookId}/stop-learning",
+      "params": [
+        {
+          "name": "hookId",
+          "type": "int",
+          "location": "path",
+          "description": "Webhook ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "hooks_list",
+      "description": "List webhooks for a team. Required: teamId. Optional: typeName, assigned. Returns array of Hook.",
+      "method": "GET",
+      "path": "/hooks",
+      "params": [
+        {
+          "name": "teamId",
+          "type": "int",
+          "location": "query",
+          "description": "Team ID",
+          "required": true
+        },
+        {
+          "name": "typeName",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by hook type"
+        },
+        {
+          "name": "assigned",
+          "type": "bool",
+          "location": "query",
+          "description": "Filter by assignment to a scenario"
+        }
+      ]
+    },
+    {
+      "name": "hooks_ping",
+      "description": "Send a ping to a webhook. Required: hookId.",
+      "method": "GET",
+      "path": "/hooks/{hookId}/ping",
+      "params": [
+        {
+          "name": "hookId",
+          "type": "int",
+          "location": "path",
+          "description": "Webhook ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "keys_delete",
+      "description": "Delete a key. Required: keyId. Destructive.",
+      "method": "DELETE",
+      "path": "/keys/{keyId}",
+      "params": [
+        {
+          "name": "keyId",
+          "type": "int",
+          "location": "path",
+          "description": "Key ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "keys_get",
+      "description": "Get a key. Required: keyId. Returns the Key.",
+      "method": "GET",
+      "path": "/keys/{keyId}",
+      "params": [
+        {
+          "name": "keyId",
+          "type": "int",
+          "location": "path",
+          "description": "Key ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "keys_list",
+      "description": "List keys for a team. Required: teamId. Returns array of Key.",
+      "method": "GET",
+      "path": "/keys",
+      "params": [
+        {
+          "name": "teamId",
+          "type": "int",
+          "location": "query",
+          "description": "Team ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "orgs_get",
+      "description": "Get an organization. Required: organizationId. Returns the Organization.",
+      "method": "GET",
+      "path": "/organizations/{organizationId}",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "int",
+          "location": "path",
+          "description": "Organization ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "orgs_list",
+      "description": "List organizations visible to this token. Returns array of Organization.",
+      "method": "GET",
+      "path": "/organizations",
+      "params": []
+    },
+    {
+      "name": "scenarios_activate",
+      "description": "Activate a scenario. Required: scenarioId.",
+      "method": "POST",
+      "path": "/scenarios/{scenarioId}/start",
+      "params": [
+        {
+          "name": "scenarioId",
+          "type": "int",
+          "location": "path",
+          "description": "Scenario ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "scenarios_blueprint",
+      "description": "Export a scenario's blueprint as JSON. Required: scenarioId. Returns the BlueprintEnvelope.",
+      "method": "GET",
+      "path": "/scenarios/{scenarioId}/blueprint",
+      "params": [
+        {
+          "name": "scenarioId",
+          "type": "int",
+          "location": "path",
+          "description": "Scenario ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "scenarios_clone",
+      "description": "Clone a scenario. Required: scenarioId. Optional: name, teamId. Returns the new Scenario.",
+      "method": "POST",
+      "path": "/scenarios/{scenarioId}/clone",
+      "params": [
+        {
+          "name": "scenarioId",
+          "type": "int",
+          "location": "path",
+          "description": "Scenario ID to clone",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name for the cloned scenario"
+        },
+        {
+          "name": "teamId",
+          "type": "int",
+          "location": "body",
+          "description": "Target team ID for the clone"
+        }
+      ]
+    },
+    {
+      "name": "scenarios_create",
+      "description": "Create a scenario from a blueprint. Required: teamId, blueprint. Optional: scheduling, folderId. Returns the new Scenario.",
+      "method": "POST",
+      "path": "/scenarios",
+      "params": [
+        {
+          "name": "teamId",
+          "type": "int",
+          "location": "query",
+          "description": "Target team ID",
+          "required": true
+        },
+        {
+          "name": "blueprint",
+          "type": "string",
+          "location": "body",
+          "description": "Scenario blueprint as JSON",
+          "required": true
+        },
+        {
+          "name": "scheduling",
+          "type": "string",
+          "location": "body",
+          "description": "Serialized scheduling settings"
+        },
+        {
+          "name": "folderId",
+          "type": "int",
+          "location": "body",
+          "description": "Optional folder for the new scenario"
+        }
+      ]
+    },
+    {
+      "name": "scenarios_deactivate",
+      "description": "Deactivate a scenario. Required: scenarioId.",
+      "method": "POST",
+      "path": "/scenarios/{scenarioId}/stop",
+      "params": [
+        {
+          "name": "scenarioId",
+          "type": "int",
+          "location": "path",
+          "description": "Scenario ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "scenarios_delete",
+      "description": "Delete a scenario. Required: scenarioId. Destructive.",
+      "method": "DELETE",
+      "path": "/scenarios/{scenarioId}",
+      "params": [
+        {
+          "name": "scenarioId",
+          "type": "int",
+          "location": "path",
+          "description": "Scenario ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "scenarios_get",
+      "description": "Get a scenario. Required: scenarioId. Returns the Scenario.",
+      "method": "GET",
+      "path": "/scenarios/{scenarioId}",
+      "params": [
+        {
+          "name": "scenarioId",
+          "type": "int",
+          "location": "path",
+          "description": "Scenario ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "scenarios_list",
+      "description": "List scenarios for a team. Optional: teamId, organizationId, folderId (plus 2 more). Returns array of Scenario.",
+      "method": "GET",
+      "path": "/scenarios",
+      "params": [
+        {
+          "name": "teamId",
+          "type": "int",
+          "location": "query",
+          "description": "Team ID to scope the list"
+        },
+        {
+          "name": "organizationId",
+          "type": "int",
+          "location": "query",
+          "description": "Organization ID (alternative to teamId)"
+        },
+        {
+          "name": "folderId",
+          "type": "int",
+          "location": "query",
+          "description": "Filter to a folder"
+        },
+        {
+          "name": "isActive",
+          "type": "bool",
+          "location": "query",
+          "description": "Filter to active scenarios only"
+        },
+        {
+          "name": "cols",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated columns to include in the response"
+        }
+      ]
+    },
+    {
+      "name": "scenarios_logs",
+      "description": "Get execution log entries for a scenario. Required: scenarioId. Optional: from, to, status. Returns array of ScenarioLog.",
+      "method": "GET",
+      "path": "/scenarios/{scenarioId}/logs",
+      "params": [
+        {
+          "name": "scenarioId",
+          "type": "int",
+          "location": "path",
+          "description": "Scenario ID",
+          "required": true
+        },
+        {
+          "name": "from",
+          "type": "int",
+          "location": "query",
+          "description": "Unix epoch ms for the start of the window"
+        },
+        {
+          "name": "to",
+          "type": "int",
+          "location": "query",
+          "description": "Unix epoch ms for the end of the window"
+        },
+        {
+          "name": "status",
+          "type": "int",
+          "location": "query",
+          "description": "Filter by status (1=success, 2=warning, 3=error, 4=incomplete)"
+        }
+      ]
+    },
+    {
+      "name": "scenarios_run",
+      "description": "Trigger one execution of a scenario (asynchronous unless --wait is used). Required: scenarioId. Optional: responsive, data. Returns the new ExecutionRun.",
+      "method": "POST",
+      "path": "/scenarios/{scenarioId}/run",
+      "params": [
+        {
+          "name": "scenarioId",
+          "type": "int",
+          "location": "path",
+          "description": "Scenario ID",
+          "required": true
+        },
+        {
+          "name": "responsive",
+          "type": "bool",
+          "location": "query",
+          "description": "Return a synchronous response from the scenario"
+        },
+        {
+          "name": "data",
+          "type": "string",
+          "location": "body",
+          "description": "JSON input bundle for the scenario"
+        }
+      ]
+    },
+    {
+      "name": "scenarios_update",
+      "description": "Update scenario metadata. Required: scenarioId. Optional: name, blueprint, scheduling (plus 1 more). Returns the updated Scenario.",
+      "method": "PATCH",
+      "path": "/scenarios/{scenarioId}",
+      "params": [
+        {
+          "name": "scenarioId",
+          "type": "int",
+          "location": "path",
+          "description": "Scenario ID",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "New scenario name"
+        },
+        {
+          "name": "blueprint",
+          "type": "string",
+          "location": "body",
+          "description": "Replace blueprint JSON"
+        },
+        {
+          "name": "scheduling",
+          "type": "string",
+          "location": "body",
+          "description": "Serialized scheduling settings"
+        },
+        {
+          "name": "folderId",
+          "type": "int",
+          "location": "body",
+          "description": "Move to a different folder"
+        }
+      ]
+    },
+    {
+      "name": "sdk_apps_get",
+      "description": "Get an SDK app. Required: appName. Returns the SDKApp.",
+      "method": "GET",
+      "path": "/sdk/apps/{appName}",
+      "params": [
+        {
+          "name": "appName",
+          "type": "string",
+          "location": "path",
+          "description": "App name (slug)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sdk_apps_list",
+      "description": "List SDK apps for a team. Required: teamId. Returns array of SDKApp.",
+      "method": "GET",
+      "path": "/sdk/apps",
+      "params": [
+        {
+          "name": "teamId",
+          "type": "int",
+          "location": "query",
+          "description": "Team ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "teams_create",
+      "description": "Create a team. Required: organizationId, name. Returns the new Team.",
+      "method": "POST",
+      "path": "/teams",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "int",
+          "location": "query",
+          "description": "Organization ID",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Team name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "teams_delete",
+      "description": "Delete a team. Required: teamId. Destructive.",
+      "method": "DELETE",
+      "path": "/teams/{teamId}",
+      "params": [
+        {
+          "name": "teamId",
+          "type": "int",
+          "location": "path",
+          "description": "Team ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "teams_get",
+      "description": "Get a team. Required: teamId. Returns the Team.",
+      "method": "GET",
+      "path": "/teams/{teamId}",
+      "params": [
+        {
+          "name": "teamId",
+          "type": "int",
+          "location": "path",
+          "description": "Team ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "teams_list",
+      "description": "List teams in an organization. Required: organizationId. Returns array of Team.",
+      "method": "GET",
+      "path": "/teams",
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "int",
+          "location": "query",
+          "description": "Organization ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "templates_get",
+      "description": "Get a template. Required: templateId. Returns the Template.",
+      "method": "GET",
+      "path": "/templates/{templateId}",
+      "params": [
+        {
+          "name": "templateId",
+          "type": "int",
+          "location": "path",
+          "description": "Template ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "templates_list",
+      "description": "List templates for a team. Required: teamId. Returns array of Template.",
+      "method": "GET",
+      "path": "/templates",
+      "params": [
+        {
+          "name": "teamId",
+          "type": "int",
+          "location": "query",
+          "description": "Team ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "users_me",
+      "description": "Get the authenticated user. Returns the User.",
+      "method": "GET",
+      "path": "/users/me",
+      "params": []
+    }
+  ]
+}

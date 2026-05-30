@@ -1,0 +1,18 @@
+# Built binaries
+/make-pp-cli
+/make-pp-cli.exe
+
+# Runtime caches (response cache, local SQLite mirror)
+.cache/
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+
+# Diagnostic outputs
+dogfood-results.json
+workflow-verify-report.json
+
+# Editor / OS
+.DS_Store
+*.swp
