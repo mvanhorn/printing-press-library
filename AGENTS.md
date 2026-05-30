@@ -258,6 +258,18 @@ Every CLI in `library/` **must** ship a `library/<category>/<slug>/SKILL.md`. Th
 
 When adding a new CLI, ship a library SKILL.md alongside the generated code. If you need to change SKILL.md *shape* (frontmatter fields, structure, sections), make that change in `cli-printing-press`'s `internal/generator/templates/skill.md.tmpl` and regenerate the affected CLIs — don't hand-shape it here.
 
+## ClawHub discovery skill release
+
+The root catalog/discovery skill lives at `skills/printing-press-library/SKILL.md`. Its frontmatter `version:` is the source of truth for ClawHub publishing.
+
+Any PR that changes `skills/printing-press-library/**` must bump that frontmatter version using semver:
+
+- patch: wording, examples, install command fixes
+- minor: new workflow, new supported harness, substantial discovery behavior
+- major: breaking discovery/install behavior, renamed skill, incompatible assumptions
+
+Do not tie this version to `npm/package.json`. The ClawHub discovery skill and npm installer release independently. The PR-time `verify-clawhub-discovery-version.yml` workflow enforces that the version increases before merge; the post-merge publish workflow verifies that the target version does not already exist on ClawHub before publishing.
+
 ## NPM installer surface
 
 `@mvanhorn/printing-press` lives in `npm/`. The `printing-press` command reads the live `registry.json`, resolves a catalog name to its published Go module path, runs `go install`, and installs the matching `cli-skills/pp-<name>` skill with `skills@latest`.

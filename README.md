@@ -14,6 +14,42 @@ Three to try first:
 - flight-goat (Kayak nonstop search plus sniffed Google Flights). _"Non-stop flights over 8 hours from Seattle for 4 people, Dec 24 to Jan 1, cheapest first."_ Two sources, one query.
 - sentry-pp-cli (local SQLite mirror, SQL across orgs and projects). _"Every issue first seen in the last release whose error rate is climbing across two projects."_ Compound queries the Sentry API can't answer.
 
+## Agent-native discovery
+
+If you use OpenClaw, Hermes, Claude Code, Codex, Cursor, or another harness that supports agent skills, install the Printing Press Library discovery skill first. It helps your agent search the catalog, choose the right focused `pp-*` skill, and defer CLI binary setup until the focused skill says it is needed.
+
+OpenClaw users can install the published skill from ClawHub:
+
+```bash
+clawhub install printing-press-library
+```
+
+Humans and agents on Vercel Agent Skills-compatible harnesses can install the same discovery skill from this repo:
+
+```bash
+npx skills add mvanhorn/printing-press-library/skills/printing-press-library -g -y
+```
+
+Or from the repo root by selecting the catalog skill explicitly:
+
+```bash
+npx skills add mvanhorn/printing-press-library -g -y --skill printing-press-library
+```
+
+Hermes users can install it through Hermes:
+
+```bash
+hermes skills install mvanhorn/printing-press-library/skills/printing-press-library --force
+```
+
+Once you know the specific tool you want, install the focused skill directly, for example:
+
+```bash
+npx skills add mvanhorn/printing-press-library/cli-skills/pp-espn -g -y
+```
+
+The existing npm installer remains the right path for humans, scripts, and CLI-first setup.
+
 ## Discover and install
 
 The fastest way to start — install four hand-picked CLIs and skills in one command:
