@@ -156,18 +156,25 @@ func newNovelTripsLastDepartureCmd(flags *rootFlags) *cobra.Command {
 
 				lineName := lineRef
 				parts := strings.Split(lineRef, ":")
-				if len(parts) > 0 {
+				if len(parts) >= 4 {
+					lineName = parts[len(parts)-2]
+				} else if len(parts) > 0 {
 					lineName = parts[len(parts)-1]
 				}
 
 				candidates = append(candidates, departureCandidate{
 					Line:          lineName,
 					DepartureTime: depTime.Format(time.RFC3339),
-					ArrivalTime:   func() string { if arrTime.IsZero() { return "" }; return arrTime.Format(time.RFC3339) }(),
-					FromStop:      flagFrom,
-					ToStop:        flagTo,
-					JourneyRef:    journeyRef,
-					depTimeVal:    depTime,
+					ArrivalTime: func() string {
+						if arrTime.IsZero() {
+							return ""
+						}
+						return arrTime.Format(time.RFC3339)
+					}(),
+					FromStop:   flagFrom,
+					ToStop:     flagTo,
+					JourneyRef: journeyRef,
+					depTimeVal: depTime,
 				})
 			}
 

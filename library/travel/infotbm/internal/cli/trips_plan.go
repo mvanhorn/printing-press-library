@@ -168,7 +168,9 @@ included in the output.`,
 
 				lineName := lineRef
 				parts := strings.Split(lineRef, ":")
-				if len(parts) > 0 {
+				if len(parts) >= 4 {
+					lineName = parts[len(parts)-2]
+				} else if len(parts) > 0 {
 					lineName = parts[len(parts)-1]
 				}
 
@@ -254,7 +256,11 @@ func matchStopName(name, query string) bool {
 func alertAffectsLine(alert map[string]any, lineRef string) bool {
 	lineUpper := strings.ToUpper(lineRef)
 	parts := strings.Split(lineRef, ":")
-	shortUpper := strings.ToUpper(parts[len(parts)-1])
+	short := parts[len(parts)-1]
+	if len(parts) >= 4 {
+		short = parts[len(parts)-2]
+	}
+	shortUpper := strings.ToUpper(short)
 
 	for _, key := range []string{"AffectedLineRef", "LineRef", "affectedLines", "lines"} {
 		v, ok := alert[key]

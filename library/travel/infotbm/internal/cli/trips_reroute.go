@@ -166,7 +166,9 @@ searches for the next best connections using live SIRI estimated timetable data.
 
 				lineName := lineRef
 				parts := strings.Split(lineRef, ":")
-				if len(parts) > 0 {
+				if len(parts) >= 4 {
+					lineName = parts[len(parts)-2]
+				} else if len(parts) > 0 {
 					lineName = parts[len(parts)-1]
 				}
 
