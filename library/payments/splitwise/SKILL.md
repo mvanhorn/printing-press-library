@@ -101,6 +101,7 @@ These capabilities aren't available in any other tool for this API.
 
 ### Upcoming-obligations forecast
 - **`forecast`** — Project your next shared obligations from recurring spending patterns over your synced history. Clusters expenses by normalized description, finds the ones with a regular cadence (>= 3 dated occurrences, mean cadence 2-400 days, largest gap <= 3x the smallest), and projects the next expected date and amount. Returns charges whose next occurrence falls inside the window (default 35 days) or is already overdue, sorted by expected date.
+  Reads from your synced local store; on large accounts, results can be incomplete until a full sync.
 
   _Use to answer "what shared bills are coming up?" or "what should I budget for next month?" — and to catch a regular charge that's overdue and hasn't been logged yet._
 

@@ -184,6 +184,7 @@ These capabilities aren't available in any other tool for this API.
   splitwise-pp-cli recurring --agent
   ```
 - **`forecast`** — Project upcoming shared obligations from recurring spending patterns. Finds charges with a regular cadence and reports the next expected date and amount for anything due inside the window (default 35 days) or already overdue.
+  Forecast reads from your synced local store; on large accounts, results can be incomplete until a full sync.
 
   _Use to budget for next month's shared bills, or catch a regular charge that's overdue and unlogged._
 
