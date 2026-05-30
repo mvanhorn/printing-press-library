@@ -21,18 +21,20 @@ type auditDuplicateCluster struct {
 }
 
 type auditCostOutlier struct {
-	ExpenseID    int     `json:"expense_id"`
-	Description  string  `json:"description"`
-	Cost         float64 `json:"cost"`
-	CurrencyCode string  `json:"currency_code"`
-	Category     string  `json:"category"`
-	Date         string  `json:"date"`
-	CategoryMean float64 `json:"category_mean"`
+	ExpenseID      int     `json:"expense_id"`
+	Description    string  `json:"description"`
+	Cost           float64 `json:"cost"`
+	CurrencyCode   string  `json:"currency_code"`
+	Category       string  `json:"category"`
+	Date           string  `json:"date"`
+	CategoryMedian float64 `json:"category_median"`
 }
 
 type auditResult struct {
 	Duplicates      []auditDuplicateCluster `json:"duplicates"`
+	DuplicatesTotal int                     `json:"duplicates_total"`
 	Outliers        []auditCostOutlier      `json:"outliers"`
+	OutliersTotal   int                     `json:"outliers_total"`
 	ScannedExpenses int                     `json:"scanned_expenses"`
 }
 
@@ -67,7 +69,7 @@ func newAuditCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			tw := tabwriter.NewWriter(cmd.OutOrStdout(), 2, 4, 2, ' ', 0)
-			_, _ = fmt.Fprintf(tw, "LIKELY DUPLICATES (%d)\n", len(res.Duplicates))
+			_, _ = fmt.Fprintf(tw, "LIKELY DUPLICATES (%d of %d)\n", len(res.Duplicates), res.DuplicatesTotal)
 			_, _ = fmt.Fprintln(tw, "DESCRIPTION\tCOST\tCURRENCY\tDATE\tGROUP\tCOUNT\tIDS")
 			for _, row := range res.Duplicates {
 				ids := make([]string, 0, len(row.ExpenseIDs))
@@ -77,10 +79,10 @@ func newAuditCmd(flags *rootFlags) *cobra.Command {
 				_, _ = fmt.Fprintf(tw, "%s\t%.2f\t%s\t%s\t%d\t%d\t%s\n", row.Description, row.Cost, row.CurrencyCode, row.Date, row.GroupID, row.Count, strings.Join(ids, ","))
 			}
 			_, _ = fmt.Fprintln(tw)
-			_, _ = fmt.Fprintf(tw, "COST OUTLIERS (%d)\n", len(res.Outliers))
-			_, _ = fmt.Fprintln(tw, "DESCRIPTION\tCOST\tCURRENCY\tCATEGORY\tDATE\tCAT_MEAN\tID")
+			_, _ = fmt.Fprintf(tw, "COST OUTLIERS (%d of %d)\n", len(res.Outliers), res.OutliersTotal)
+			_, _ = fmt.Fprintln(tw, "DESCRIPTION\tCOST\tCURRENCY\tCATEGORY\tDATE\tCAT_MEDIAN\tID")
 			for _, row := range res.Outliers {
-				_, _ = fmt.Fprintf(tw, "%s\t%.2f\t%s\t%s\t%s\t%.2f\t%d\n", row.Description, row.Cost, row.CurrencyCode, row.Category, row.Date, row.CategoryMean, row.ExpenseID)
+				_, _ = fmt.Fprintf(tw, "%s\t%.2f\t%s\t%s\t%s\t%.2f\t%d\n", row.Description, row.Cost, row.CurrencyCode, row.Category, row.Date, row.CategoryMedian, row.ExpenseID)
 			}
 			_, _ = fmt.Fprintf(tw, "\nScanned %d expenses.\n", res.ScannedExpenses)
 			return tw.Flush()
@@ -104,6 +106,8 @@ func runAudit(expenses []Expense, limit int) auditResult {
 
 	duplicates := detectDuplicateClusters(filtered)
 	outliers := detectCostOutliers(filtered)
+	duplicatesTotal := len(duplicates)
+	outliersTotal := len(outliers)
 	if len(duplicates) > limit {
 		duplicates = duplicates[:limit]
 	}
@@ -112,7 +116,9 @@ func runAudit(expenses []Expense, limit int) auditResult {
 	}
 	return auditResult{
 		Duplicates:      duplicates,
+		DuplicatesTotal: duplicatesTotal,
 		Outliers:        outliers,
+		OutliersTotal:   outliersTotal,
 		ScannedExpenses: len(filtered),
 	}
 }
@@ -131,21 +137,21 @@ func auditDateKey(date string) string {
 
 func detectDuplicateClusters(expenses []Expense) []auditDuplicateCluster {
 	type key struct {
-		Description string
-		Cost        string
+		Description  string
+		Cost         string
 		CurrencyCode string
-		Date        string
-		GroupID     int
+		Date         string
+		GroupID      int
 	}
 	clusters := make(map[key][]Expense)
 	for _, e := range expenses {
 		cost := fmt.Sprintf("%.2f", round2(parseAmount(e.Cost)))
 		k := key{
-			Description: auditNormalizeDescription(e.Description),
-			Cost:        cost,
+			Description:  auditNormalizeDescription(e.Description),
+			Cost:         cost,
 			CurrencyCode: strings.TrimSpace(e.CurrencyCode),
-			Date:        auditDateKey(e.Date),
-			GroupID:     e.GroupID,
+			Date:         auditDateKey(e.Date),
+			GroupID:      e.GroupID,
 		}
 		clusters[k] = append(clusters[k], e)
 	}
@@ -197,36 +203,31 @@ func detectCostOutliers(expenses []Expense) []auditCostOutlier {
 		if n < 5 {
 			continue
 		}
-		sum := 0.0
 		values := make([]float64, 0, n)
 		for _, e := range items {
-			v := parseAmount(e.Cost)
-			values = append(values, v)
-			sum += v
+			values = append(values, parseAmount(e.Cost))
 		}
-		mean := sum / float64(n)
-
-		ss := 0.0
+		categoryMedian := median(values)
+		absDeviations := make([]float64, 0, n)
 		for _, v := range values {
-			d := v - mean
-			ss += d * d
+			absDeviations = append(absDeviations, math.Abs(v-categoryMedian))
 		}
-		stddev := math.Sqrt(ss / float64(n-1))
-		if stddev == 0 {
+		mad := median(absDeviations)
+		if mad == 0 {
 			continue
 		}
-		cutoff := mean + (3 * stddev)
 		for idx, e := range items {
 			v := values[idx]
-			if v > cutoff {
+			modifiedZ := 0.6745 * (v - categoryMedian) / mad
+			if modifiedZ > 3.5 {
 				out = append(out, auditCostOutlier{
-					ExpenseID:    e.ID,
-					Description:  strings.TrimSpace(e.Description),
-					Cost:         round2(v),
-					CurrencyCode: strings.TrimSpace(e.CurrencyCode),
-					Category:     category,
-					Date:         auditDateKey(e.Date),
-					CategoryMean: round2(mean),
+					ExpenseID:      e.ID,
+					Description:    strings.TrimSpace(e.Description),
+					Cost:           round2(v),
+					CurrencyCode:   strings.TrimSpace(e.CurrencyCode),
+					Category:       category,
+					Date:           auditDateKey(e.Date),
+					CategoryMedian: round2(categoryMedian),
 				})
 			}
 		}
@@ -242,4 +243,15 @@ func detectCostOutliers(expenses []Expense) []auditCostOutlier {
 		return out[i].Cost > out[j].Cost
 	})
 	return out
+}
+
+func median(values []float64) float64 {
+	cpy := append([]float64(nil), values...)
+	sort.Float64s(cpy)
+	n := len(cpy)
+	mid := n / 2
+	if n%2 == 1 {
+		return cpy[mid]
+	}
+	return (cpy[mid-1] + cpy[mid]) / 2
 }
