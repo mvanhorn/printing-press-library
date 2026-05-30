@@ -4,6 +4,14 @@
 
 - When `go install` writes a CLI to a directory that isn't on `PATH`, print the exact, copy-pasteable fix for the detected platform and shell instead of a single Unix-flavored hint. macOS zsh gets a `~/.zshrc` line, macOS bash gets `~/.bash_profile` (login shells don't read `.bashrc`), Linux bash gets `~/.bashrc`, fish gets `fish_add_path`, Windows gets the persistent PowerShell `[Environment]::SetEnvironmentVariable(... "User")` command plus a GUI fallback (and never the truncating `setx` footgun), and Git Bash gets a POSIX-translated path. The previous message printed `$(go env GOPATH)/bin` shell syntax that was wrong on Windows and imprecise on fish.
 
+## 0.1.10
+
+- Fix `install` / `uninstall` failing at the skill step on Windows with `ENOENT`. The process runner invoked `npx` through `node:child_process.execFile`, which does not resolve the `npx.cmd` shim Windows requires; it now uses `cross-spawn`, so the `npx skills …` install/remove step runs on Windows the same as on macOS and Linux. (#864)
+
+## 0.1.9
+
+- Catalog hints now match how the tool was invoked. The `list` and `search` usage lines and each entry's `install:` hint previously hardcoded the long `npx -y @mvanhorn/printing-press-library …` prefix; they now detect an `npx` run versus a globally-installed `printing-press-library` binary and print the shorter `printing-press-library …` form when that's how you're running it. (#749)
+
 ## 0.1.8
 
 - Avoid treating one-character queries or the shared `-pp-cli` binary suffix as searchable content, so queries like `a`, `t`, `pp`, or `cli` no longer match broad slices of the catalog while full binary-name queries still resolve to the intended CLI.
