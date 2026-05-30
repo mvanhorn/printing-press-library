@@ -39,6 +39,12 @@ jobs:
             exit 0
           fi
 
+          if ! git cat-file -e "$BEFORE_SHA^{commit}" || ! git cat-file -e "$AFTER_SHA^{commit}"; then
+            echo "Could not resolve push boundary; publishing defensively."
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
           if git diff --quiet "$BEFORE_SHA" "$AFTER_SHA" -- skills/printing-press-library; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
           else

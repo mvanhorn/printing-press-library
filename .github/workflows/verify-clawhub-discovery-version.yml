@@ -94,7 +94,16 @@ jobs:
               major, minor, patch = (int(match.group(i)) for i in range(1, 4))
               prerelease = match.group(4)
               # Stable releases sort after their prereleases for the same core.
-              pre_key = (1,) if prerelease is None else (0, tuple(prerelease.split(".")))
+              if prerelease is None:
+                  pre_key = (1,)
+              else:
+                  parts = []
+                  for identifier in prerelease.split("."):
+                      if identifier.isdigit():
+                          parts.append((0, int(identifier)))
+                      else:
+                          parts.append((1, identifier))
+                  pre_key = (0, tuple(parts))
               return (major, minor, patch, pre_key)
 
           head_version = extract_version_from_text(skill_path.read_text(encoding="utf-8"), str(skill_path))
