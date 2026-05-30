@@ -83,7 +83,7 @@ function parseUpdateArgs(args: string[]):
         installArgs.push(value);
       }
     } else if (arg.startsWith("-")) {
-      return { error: `Unknown update option: ${arg}` };
+      return { error: `Unknown option: ${arg}` };
     } else if (!name) {
       name = arg;
     } else {

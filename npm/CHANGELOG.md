@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.12
+
+- Add a `reinstall` command as an alias for `update`. `reinstall <name>` rebuilds one CLI's binary from the latest catalog code and re-adds its skill; `reinstall` with no name does the same for every Printing Press CLI already on `PATH`. The mechanics are identical to `update` (both run `go install …@latest` and re-add the skill) — this just exposes the verb users reach for when a binary or skill needs a clean refresh.
+
 ## 0.1.11
 
 - When `go install` writes a CLI to a directory that isn't on `PATH`, print the exact, copy-pasteable fix for the detected platform and shell instead of a single Unix-flavored hint. macOS zsh gets a `~/.zshrc` line, macOS bash gets `~/.bash_profile` (login shells don't read `.bashrc`), Linux bash gets `~/.bashrc`, fish gets `fish_add_path`, Windows gets the persistent PowerShell `[Environment]::SetEnvironmentVariable(... "User")` command plus a GUI fallback (and never the truncating `setx` footgun), and Git Bash gets a POSIX-translated path. The previous message printed `$(go env GOPATH)/bin` shell syntax that was wrong on Windows and imprecise on fish.

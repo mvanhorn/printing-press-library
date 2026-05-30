@@ -91,10 +91,13 @@ npx -y @mvanhorn/printing-press-library search sports
 npx -y @mvanhorn/printing-press-library list --category travel
 npx -y @mvanhorn/printing-press-library list --installed
 npx -y @mvanhorn/printing-press-library update espn
+npx -y @mvanhorn/printing-press-library reinstall espn
 npx -y @mvanhorn/printing-press-library uninstall espn --yes
 ```
 
 `list` shows the public catalog by default. Use `list --installed` when you only want CLIs already present on your machine.
+
+`reinstall` is an alias for `update`: `reinstall <name>` rebuilds one CLI from the latest catalog code and re-adds its skill, while `reinstall` with no name refreshes every Printing Press CLI already on your `PATH`. Reach for it when a binary or skill needs a clean refresh — `install <name>` overwrites in place too, so either works.
 
 ## Options
 

@@ -4,6 +4,7 @@ import { createListCommand } from "../src/commands/list.js";
 import { createSearchCommand, searchRegistry } from "../src/commands/search.js";
 import { createUninstallCommand } from "../src/commands/uninstall.js";
 import { createUpdateCommand } from "../src/commands/update.js";
+import { run } from "../src/cli.js";
 import { CLI_COMMAND_NAME, commandPrefixForInvocation, NPX_COMMAND_PREFIX } from "../src/constants.js";
 import type { RunResult } from "../src/process.js";
 import type { Registry } from "../src/registry.js";
@@ -211,6 +212,37 @@ test("update command refreshes detected installed CLIs", async () => {
 
   assert.equal(await command(["--agent", "claude-code"]), 0);
   assert.deepEqual(installs, [["espn", "--agent", "claude-code"]]);
+});
+
+test("reinstall dispatches to the update handler rather than the unknown-command path", async () => {
+  // `reinstall --bogus` fails in the update arg parser before any network call,
+  // which proves the alias routes to `update` (and not to "Unknown command").
+  const errors: string[] = [];
+  const originalError = console.error;
+  console.error = (message) => errors.push(String(message));
+  let code: number;
+  try {
+    code = await run(["reinstall", "--bogus-flag"]);
+  } finally {
+    console.error = originalError;
+  }
+
+  assert.equal(code, 1);
+  assert.doesNotMatch(errors.join("\n"), /Unknown command/);
+  assert.match(errors.join("\n"), /Unknown option: --bogus-flag/);
+});
+
+test("help lists the reinstall command", async () => {
+  const lines: string[] = [];
+  const originalLog = console.log;
+  console.log = (message) => lines.push(String(message));
+  try {
+    assert.equal(await run(["--help"]), 0);
+  } finally {
+    console.log = originalLog;
+  }
+
+  assert.match(lines.join("\n"), /reinstall \[name\]/);
 });
 
 test("uninstall command requires --yes", async () => {
