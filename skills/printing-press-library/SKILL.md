@@ -10,7 +10,7 @@ tags:
   - agent-skill
   - tool-discovery
   - install
-version: 0.1.1
+version: 0.1.2
 metadata:
   openclaw:
     emoji: "🖨️"
