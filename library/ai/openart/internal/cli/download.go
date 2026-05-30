@@ -1,7 +1,6 @@
 package cli
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -79,7 +78,7 @@ in the current directory.`,
 			if err := os.MkdirAll(filepath.Dir(dst), 0o755); err != nil {
 				return err
 			}
-			ctx := context.Background()
+			ctx := cmd.Context()
 			if err := streamToFile(ctx, snap.URL, dst); err != nil {
 				return fmt.Errorf("download: %w", err)
 			}
