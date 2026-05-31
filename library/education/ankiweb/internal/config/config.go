@@ -181,6 +181,10 @@ func (c *Config) ClearTokens() error {
 	c.ClientID = ""
 	c.ClientSecret = ""
 	c.AnkiwebCookies = ""
+	// The editor commands (notes add, notetypes) read AnkiuserCookies via
+	// newEditorClient, so logout must wipe it too — otherwise they stay fully
+	// operational after the user believes they've logged out.
+	c.AnkiuserCookies = ""
 	return c.save()
 }
 
