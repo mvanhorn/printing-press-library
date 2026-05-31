@@ -17,7 +17,7 @@ import (
 type watchChange struct {
 	ID        string   `json:"id"`
 	Title     string   `json:"title"`
-	Status    string   `json:"status"` // "new", "new (no prior snapshot)", or "changed"
+	Status    string   `json:"status"` // "new", "new (no prior snapshot)", "changed", or "current"
 	Changes   []string `json:"changes,omitempty"`
 	Upvotes   int      `json:"upvotes"`
 	Downvotes int      `json:"downvotes"`
@@ -85,6 +85,12 @@ func newWatchCmd(flags *rootFlags) *cobra.Command {
 
 			changes := make([]watchChange, 0)
 			for _, d := range decks {
+				if !sinceLastSync {
+					// --since-last-sync=false: dump the full current catalog
+					// instead of only decks new or changed since the snapshot.
+					changes = append(changes, mkChange(d, "current", nil))
+					continue
+				}
 				old, seen := prior[d.ID]
 				switch {
 				case !seen && !hadSnapshot:
@@ -110,8 +116,7 @@ func newWatchCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&dbPath, "db", "", "Database path (default: ~/.local/share/ankiweb-pp-cli/data.db)")
-	cmd.Flags().BoolVar(&sinceLastSync, "since-last-sync", true, "Report only decks new or changed since the previous watch snapshot (default behavior)")
-	_ = sinceLastSync
+	cmd.Flags().BoolVar(&sinceLastSync, "since-last-sync", true, "Report only decks new or changed since the previous watch snapshot; --since-last-sync=false dumps the full current catalog")
 	return cmd
 }
 
