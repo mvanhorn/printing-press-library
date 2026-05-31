@@ -853,13 +853,15 @@ func buildUsageReport(ctx context.Context, c *client.Client, db *store.Store, no
 
 // collectDriveUsage returns (driveCount, totalBytes, note). It queries the live
 // API for the drive list and per-drive file sizes; on any auth/network error it
-// falls back to the local drives mirror and annotates the note.
+// falls back to the local drives mirror and annotates the note. Both the drive
+// list and the per-drive file lists are read uncached (GetNoCache) so the usage
+// meter reflects current state right after a sync rather than a cached snapshot.
 func collectDriveUsage(ctx context.Context, c *client.Client, db *store.Store) (int64, int64, string) {
 	if c == nil {
 		count, _ := db.Count("drives")
 		return int64(count), 0, "drive bytes need auth; drive count from local mirror"
 	}
-	raw, err := c.Get(ctx, "/api/v1/drives", nil)
+	raw, err := c.GetNoCache(ctx, "/api/v1/drives", nil)
 	if err != nil {
 		count, _ := db.Count("drives")
 		return int64(count), 0, "live drive stats unavailable (auth required); drive count from local mirror"
