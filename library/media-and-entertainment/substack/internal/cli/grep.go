@@ -2,6 +2,7 @@
 package cli
 
 import (
+	"context"
 	"database/sql"
 	"encoding/json"
 	"fmt"
@@ -129,7 +130,7 @@ func ftsPhraseQuery(q string) string {
 	return `"` + strings.ReplaceAll(q, `"`, `""`) + `"`
 }
 
-func grepScope(ctx interface{ Done() <-chan struct{} }, db *sql.DB, scope, query, publication, since string, limit int) ([]grepHit, error) {
+func grepScope(ctx context.Context, db *sql.DB, scope, query, publication, since string, limit int) ([]grepHit, error) {
 	// All three scopes go through resources_fts. upsertGenericResourceTx
 	// indexes every synced post/note/comment under its resource_type, and
 	// bm25(resources_fts) gives a real relevance score (negated so larger
@@ -156,7 +157,7 @@ func grepScope(ctx interface{ Done() <-chan struct{} }, db *sql.DB, scope, query
 		}
 		q += ` ORDER BY bm25(resources_fts) ASC LIMIT ?`
 		args = append(args, limit)
-		return queryHits(db, q, args, "posts", true)
+		return queryHits(ctx, db, q, args, "posts", true)
 
 	case "notes":
 		q := `SELECT n.id, '', '', COALESCE(n.posted_at, ''),
@@ -172,7 +173,7 @@ func grepScope(ctx interface{ Done() <-chan struct{} }, db *sql.DB, scope, query
 		}
 		q += ` ORDER BY bm25(resources_fts) ASC LIMIT ?`
 		args = append(args, limit)
-		return queryHits(db, q, args, "notes", true)
+		return queryHits(ctx, db, q, args, "notes", true)
 
 	case "comments":
 		q := `SELECT c.id, '', '', COALESCE(c.posted_at, ''),
@@ -188,13 +189,13 @@ func grepScope(ctx interface{ Done() <-chan struct{} }, db *sql.DB, scope, query
 		}
 		q += ` ORDER BY bm25(resources_fts) ASC LIMIT ?`
 		args = append(args, limit)
-		return queryHits(db, q, args, "comments", true)
+		return queryHits(ctx, db, q, args, "comments", true)
 	}
 	return nil, fmt.Errorf("unknown scope %q", scope)
 }
 
-func queryHits(db *sql.DB, q string, args []any, scope string, makeSnippet bool) ([]grepHit, error) {
-	rows, err := db.Query(q, args...)
+func queryHits(ctx context.Context, db *sql.DB, q string, args []any, scope string, makeSnippet bool) ([]grepHit, error) {
+	rows, err := db.QueryContext(ctx, q, args...)
 	if err != nil {
 		return nil, err
 	}
