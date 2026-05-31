@@ -125,11 +125,15 @@ Run with --snapshot at least once before regular runs so a baseline exists.`,
 				COALESCE(ss.tier, '')       AS prev_tier,
 				COALESCE(s.publication_id, ss.publication_id) AS pub
 			FROM (SELECT * FROM subscribers WHERE 1=1 ` + pubFilter + `) s
-			FULL OUTER JOIN (SELECT * FROM subscriber_snapshots WHERE taken_at = ?) ss
+			FULL OUTER JOIN (SELECT * FROM subscriber_snapshots WHERE taken_at = ? ` + pubFilter + `) ss
 			ON s.email = ss.email AND s.publication_id = ss.publication_id`
 			// SQLite supports FULL OUTER JOIN since 3.39 (2022). modernc.org/sqlite ships current.
-			args3 := append([]any{}, pubArgs...)
-			args3 = append(args3, baselineTime)
+			// Filter BOTH sides by publication: otherwise a global baseline
+			// diffed with --publication surfaces every other publication's
+			// snapshot rows as phantom unsubscribes (s.email NULL -> "unsubscribed").
+			args3 := append([]any{}, pubArgs...) // s-side pubFilter
+			args3 = append(args3, baselineTime)  // ss taken_at
+			args3 = append(args3, pubArgs...)    // ss-side pubFilter
 			rows, err := db.QueryContext(cmd.Context(), diffQ, args3...)
 			if err != nil {
 				return fmt.Errorf("diffing snapshots: %w", err)
