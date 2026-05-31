@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "here-now-pp-mcp",
+  "display_name": "here.now",
+  "version": "4.19.0",
+  "description": "Publish a folder to a live URL in one command, mirror your Drives offline, and never lose an anonymous site to the 24-hour clock.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/here-now-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/here-now-pp-mcp",
+      "args": [],
+      "env": {
+        "HERENOW_API_KEY": "${user_config.herenow_api_key}"
+      }
+    }
+  },
+  "user_config": {
+    "herenow_api_key": {
+      "type": "string",
+      "title": "HERENOW_API_KEY",
+      "description": "Sets HERENOW_API_KEY for the here.now MCP server. Get a credential from https://here.now/dashboard.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

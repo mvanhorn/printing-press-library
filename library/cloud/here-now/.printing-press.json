@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-31T05:22:12.225174Z",
+  "printing_press_version": "4.19.0",
+  "api_name": "here-now",
+  "display_name": "here.now",
+  "cli_name": "here-now-pp-cli",
+  "creator": {
+    "handle": "tmchow",
+    "name": "Trevin Chow"
+  },
+  "owner": "tmchow",
+  "printer": "tmchow",
+  "printer_name": "Trevin Chow",
+  "spec_path": "here-now-openapi.json",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:7096a5b672f4e559025e5d5abb2dc6333589be19059c842ac36237971e1e5bef",
+  "run_id": "20260530-170355",
+  "category": "cloud",
+  "description": "Publish a folder to a live URL in one command, mirror your Drives offline, and never lose an anonymous site to the 24-hour clock.",
+  "mcp_binary": "here-now-pp-mcp",
+  "mcp_tool_count": 58,
+  "mcp_public_tool_count": 3,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "HERENOW_API_KEY"
+  ],
+  "auth_key_url": "https://here.now/dashboard",
+  "novel_features": [
+    {
+      "name": "Claim-token vault + auto-claim",
+      "command": "claims",
+      "description": "Every anonymous publish records its slug, claim token, and 24h expiry into a local vault, so you can make an expiring site permanent later without hunting for the token in terminal scrollback."
+    },
+    {
+      "name": "Expiry radar",
+      "command": "claims expiring",
+      "description": "Lists anonymous sites expiring within a time window so you can claim them before they vanish."
+    },
+    {
+      "name": "Publish resume",
+      "command": "publish resume",
+      "description": "Detects a locally-recorded publish that uploaded its files but never finalized, and completes it instead of re-publishing from scratch."
+    },
+    {
+      "name": "Drive sync (sha256 diff)",
+      "command": "drives sync",
+      "description": "Rsync-style sync of a local directory to a Drive: compares local sha256 against the synced file checksums and uploads only what changed, new, or deleted."
+    },
+    {
+      "name": "Drive diff",
+      "command": "drives diff",
+      "description": "Shows which local files differ from a Drive (added, changed, deleted) without uploading anything."
+    },
+    {
+      "name": "Free-plan usage meter",
+      "command": "usage",
+      "description": "Local rollup of site count, drive bytes, and recent publish cadence against the free-plan ceilings (500 sites, 10GB, 60 publishes/hour)."
+    },
+    {
+      "name": "Stale-site finder",
+      "command": "sites stale",
+      "description": "Lists sites not updated in N days from the local mirror, so you can reclaim free-plan slots by deleting dead ones."
+    }
+  ]
+}
