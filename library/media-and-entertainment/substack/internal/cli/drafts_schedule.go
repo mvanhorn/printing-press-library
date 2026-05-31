@@ -142,7 +142,7 @@ Requires --subdomain <publication-subdomain>.`,
 	}
 	cmd.Flags().StringVar(&at, "at", "", "Scheduled publish time (RFC3339, 'YYYY-MM-DD HH:MM', or 'YYYY-MM-DD')")
 	cmd.Flags().StringVar(&postAudience, "post-audience", "everyone", "Who can read: everyone | only_paid | only_founding")
-	cmd.Flags().StringVar(&emailAudience, "email-audience", "only_free", "Who gets the email: only_free | everyone | none")
+	cmd.Flags().StringVar(&emailAudience, "email-audience", "everyone", "Who gets the email: everyone | only_free | none")
 	cmd.Flags().BoolVar(&noEmail, "no-email", false, "Schedule a web-only release with no email")
 	return cmd
 }
