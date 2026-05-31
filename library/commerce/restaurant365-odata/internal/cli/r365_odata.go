@@ -325,34 +325,22 @@ func newR365ExportCmd(flags *rootFlags) *cobra.Command {
 			if format != "jsonl" && format != "csv" {
 				return usageErr(fmt.Errorf("--format must be jsonl or csv"))
 			}
-			if filter == "" && fromValue != "" && toValue != "" {
-				from, err := parseR365Date(fromValue)
-				if err != nil {
-					return usageErr(fmt.Errorf("invalid --from: %w", err))
-				}
-				to, err := parseR365Date(toValue)
-				if err != nil {
-					return usageErr(fmt.Errorf("invalid --to: %w", err))
-				}
-				plan, err := planR365Backfill(view.Name, from, to, 31, "")
-				if err != nil {
-					return usageErr(err)
-				}
-				if len(plan.Chunks) > 0 {
-					filter = plan.Chunks[0].Filter
-				}
-			}
-			if filter == "" && view.DateField != "" {
-				return usageErr(fmt.Errorf("%s exports require --from/--to or --filter to avoid unsafe large pulls", view.Name))
-			}
-			rows, err := fetchR365Rows(cmd.Context(), flags, view.Name, limit, filter, "")
+			filters, err := r365ExportFilters(view, fromValue, toValue, filter)
 			if err != nil {
-				return classifyAPIError(err, flags)
+				return usageErr(err)
+			}
+			var rows []map[string]any
+			for _, exportFilter := range filters {
+				chunkRows, err := fetchR365Rows(cmd.Context(), flags, view.Name, limit, exportFilter, "")
+				if err != nil {
+					return classifyAPIError(err, flags)
+				}
+				rows = append(rows, chunkRows...)
 			}
 			if err := writeR365Export(output, format, rows); err != nil {
 				return err
 			}
-			return flags.printJSON(cmd, map[string]any{"view": view.Name, "rows": len(rows), "output": output, "format": format})
+			return flags.printJSON(cmd, map[string]any{"view": view.Name, "rows": len(rows), "output": output, "format": format, "chunks": len(filters)})
 		},
 	}
 	cmd.Flags().StringVar(&viewName, "view", "Location", "Restaurant365 OData view")
@@ -361,8 +349,40 @@ func newR365ExportCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&filter, "filter", "", "Explicit OData $filter expression")
 	cmd.Flags().StringVar(&format, "format", "jsonl", "Export format: jsonl or csv")
 	cmd.Flags().StringVar(&output, "output", "", "Output file path")
-	cmd.Flags().IntVar(&limit, "limit", 1000, "Maximum rows to fetch in this export call")
+	cmd.Flags().IntVar(&limit, "limit", 1000, "Maximum rows to fetch per API request")
 	return cmd
+}
+
+func r365ExportFilters(view r365View, fromValue, toValue, explicitFilter string) ([]string, error) {
+	if explicitFilter != "" {
+		return []string{explicitFilter}, nil
+	}
+	if fromValue != "" || toValue != "" {
+		if fromValue == "" || toValue == "" {
+			return nil, fmt.Errorf("--from and --to must be provided together")
+		}
+		from, err := parseR365Date(fromValue)
+		if err != nil {
+			return nil, fmt.Errorf("invalid --from: %w", err)
+		}
+		to, err := parseR365Date(toValue)
+		if err != nil {
+			return nil, fmt.Errorf("invalid --to: %w", err)
+		}
+		plan, err := planR365Backfill(view.Name, from, to, 31, "")
+		if err != nil {
+			return nil, err
+		}
+		filters := make([]string, 0, len(plan.Chunks))
+		for _, chunk := range plan.Chunks {
+			filters = append(filters, chunk.Filter)
+		}
+		return filters, nil
+	}
+	if view.DateField != "" {
+		return nil, fmt.Errorf("%s exports require --from/--to or --filter to avoid unsafe large pulls", view.Name)
+	}
+	return []string{""}, nil
 }
 
 func canonicalR365View(input string) (r365View, error) {
@@ -621,7 +641,7 @@ func r365StartOfDay(value time.Time) string {
 }
 
 func r365EndOfDay(value time.Time) string {
-	return time.Date(value.Year(), value.Month(), value.Day(), 23, 59, 59, 0, time.UTC).Format(time.RFC3339)
+	return time.Date(value.Year(), value.Month(), value.Day(), 23, 59, 59, 999999999, time.UTC).Format(time.RFC3339Nano)
 }
 
 func containsString(haystack, needle string) bool {

@@ -101,11 +101,42 @@ func TestBackfillPlanSplitsDateWindow(t *testing.T) {
 	if plan.Chunks[0].From != "2026-05-01" || plan.Chunks[0].To != "2026-05-31" {
 		t.Fatalf("first chunk=%+v", plan.Chunks[0])
 	}
-	if plan.Chunks[0].Filter != "date ge 2026-05-01T00:00:00Z and date le 2026-05-31T23:59:59Z" {
+	if plan.Chunks[0].Filter != "date ge 2026-05-01T00:00:00Z and date le 2026-05-31T23:59:59.999999999Z" {
 		t.Fatalf("first filter=%q", plan.Chunks[0].Filter)
 	}
 	if plan.Chunks[1].From != "2026-06-01" || plan.Chunks[1].To != "2026-06-15" {
 		t.Fatalf("second chunk=%+v", plan.Chunks[1])
+	}
+}
+
+func TestR365ExportFiltersUsesEveryBackfillChunk(t *testing.T) {
+	view, err := canonicalR365View("SalesDetail")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	filters, err := r365ExportFilters(view, "2026-05-01", "2026-06-15", "")
+	if err != nil {
+		t.Fatalf("r365ExportFilters returned error: %v", err)
+	}
+	if len(filters) != 2 {
+		t.Fatalf("len(filters)=%d, want 2", len(filters))
+	}
+	if filters[0] != "date ge 2026-05-01T00:00:00Z and date le 2026-05-31T23:59:59.999999999Z" {
+		t.Fatalf("first filter=%q", filters[0])
+	}
+	if filters[1] != "date ge 2026-06-01T00:00:00Z and date le 2026-06-15T23:59:59.999999999Z" {
+		t.Fatalf("second filter=%q", filters[1])
+	}
+}
+
+func TestR365EndOfDayIncludesSubsecondCeiling(t *testing.T) {
+	value := time.Date(2026, 5, 31, 10, 30, 0, 0, time.UTC)
+
+	got := r365EndOfDay(value)
+
+	if got != "2026-05-31T23:59:59.999999999Z" {
+		t.Fatalf("r365EndOfDay=%q, want sub-second ceiling", got)
 	}
 }
 
