@@ -124,6 +124,10 @@ generally remain accessible cross-publication).`,
 			if err != nil {
 				return err
 			}
+			// Route to the TARGET publication's host — not the source or the
+			// active SUBSTACK_PUBLICATION — so the draft is created in the
+			// publication the user asked for. Mirrors syncOnePublication.
+			setPublicationContext(c, targetSubdomain)
 			// Substack's POST /api/v1/drafts uses the draft_* prefix for
 			// title/subtitle/body/section_id but a bare 'audience' field.
 			// Unknown fields are silently dropped, so getting these names
