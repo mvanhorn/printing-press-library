@@ -3,6 +3,7 @@ package cli
 import (
 	"errors"
 	"fmt"
+	"math"
 	"sort"
 	"strconv"
 	"strings"
@@ -40,6 +41,8 @@ type fairnessPerson struct {
 	DebtAgeDays           *int               `json:"debt_age_days"`
 	LastSettledDays       *int               `json:"last_settled_days"`
 	AvgLatencyDays        *float64           `json:"avg_latency_days"`
+	ProjectedDaysOut      *int               `json:"projected_days_out"`
+	ProjectedSettleDate   *string            `json:"projected_settle_date"`
 	RiskScore             *float64           `json:"risk_score"`
 	RiskTier              string             `json:"risk_tier"`
 	Action                string             `json:"action"`
@@ -197,7 +200,7 @@ func newFairnessCmd(flags *rootFlags) *cobra.Command {
 					_, _ = fmt.Fprintf(tw, "%s\t%.2f\t%.2f\t%.2f\t%s\t%s\n", p.Name, p.Paid, p.Owed, p.Net, ratio, p.Role)
 				}
 			case "collectability":
-				_, _ = fmt.Fprintln(tw, "WHO\tOUTSTANDING\tAGE\tLAST SETTLED\tAVG LATENCY(d)")
+				_, _ = fmt.Fprintln(tw, "WHO\tOUTSTANDING\tAGE\tLAST SETTLED\tAVG LATENCY(d)\tPROJECTED")
 				for _, p := range result.People {
 					age := ageCell(p.DebtAgeDays)
 					last := ageCell(p.LastSettledDays)
@@ -205,7 +208,15 @@ func newFairnessCmd(flags *rootFlags) *cobra.Command {
 					if p.AvgLatencyDays != nil {
 						avg = fmt.Sprintf("%.2f", *p.AvgLatencyDays)
 					}
-					_, _ = fmt.Fprintf(tw, "%s\t%.2f\t%s\t%s\t%s\n", p.Name, p.OutstandingTotal, age, last, avg)
+					projected := "-"
+					if p.ProjectedDaysOut != nil {
+						if *p.ProjectedDaysOut >= 0 {
+							projected = humanizeDays(*p.ProjectedDaysOut) + " out"
+						} else {
+							projected = humanizeDays(-*p.ProjectedDaysOut) + " overdue"
+						}
+					}
+					_, _ = fmt.Fprintf(tw, "%s\t%.2f\t%s\t%s\t%s\t%s\n", p.Name, p.OutstandingTotal, age, last, avg, projected)
 				}
 			}
 			if err := tw.Flush(); err != nil {
@@ -226,6 +237,7 @@ func newFairnessCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().IntVar(&ghostDays, "ghost-days", 180, "Days of inactivity considered ghosted")
 	cmd.Flags().IntVar(&minEpisodes, "min-episodes", 1, "Minimum closed episodes required for avg latency")
 	cmd.Flags().StringVar(&since, "since", "", "Window contribution (paid/owed) to on/after YYYY-MM-DD; collectability and debt age always use full history")
+	cmd.AddCommand(newFairnessNudgeCmd(flags))
 	return cmd
 }
 
@@ -393,6 +405,14 @@ func computeFairness(youID int, friends []Friend, groups []Group, expenses []Exp
 		p.DebtAgeDays = ep.debtAgeDays
 		p.LastSettledDays = ep.lastSettledDays
 		p.AvgLatencyDays = ep.avgLatencyDays
+		// Project a settle date only for people who actually owe right now. The
+		// episode model can leave an "open" episode (and thus a debtAge) for a
+		// fully-settled person whose most recent shared expense wasn't followed by
+		// a payment record; projecting a settle date for someone who owes 0 is
+		// noise ("overdue by 2459d" for a $0 balance), so gate on outstanding>0.
+		if p.OutstandingTotal > 0 {
+			p.ProjectedDaysOut, p.ProjectedSettleDate = projectSettle(p.DebtAgeDays, p.AvgLatencyDays, now)
+		}
 
 		if !p.HasHistory {
 			result.NewMembers++
@@ -531,6 +551,15 @@ func clampUnit(x float64) float64 {
 		return 1
 	}
 	return x
+}
+
+func projectSettle(debtAgeDays *int, avgLatencyDays *float64, now time.Time) (*int, *string) {
+	if debtAgeDays == nil || avgLatencyDays == nil {
+		return nil, nil
+	}
+	daysOut := int(math.Round(*avgLatencyDays)) - *debtAgeDays
+	iso := now.AddDate(0, 0, daysOut).Format("2006-01-02")
+	return &daysOut, &iso
 }
 
 func episodeMetrics(now time.Time, events []subjectEvent, minEpisodes int) episodeState {

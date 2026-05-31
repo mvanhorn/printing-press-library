@@ -109,6 +109,31 @@
         "internal/cli/root.go"
       ],
       "validated_outcome": "TestComputeFairness* table-driven suite (risk-score formula pinned at 90 for the write-off anchor, episode latency 19/15, multi-currency, group-scope via SimplifiedDebts) passes; TestHumanizeDays + TestAgeCell pin the readable-duration rendering; TestComputeFairnessSinceKeepsOutstandingDebtor pins that --since cannot hide an open debt; gofmt, go build/vet/test, govulncheck, and verify-skill all pass; live dogfood on a real account ran all three lenses."
+    },
+    {
+      "id": "splitwise-fairness-projected-settle-date",
+      "summary": "Add projected settle-date fields to fairness output and collectability table projection rendering.",
+      "reason": "Collectability now projects when an open debt is expected to settle by combining current debt age with historical average settle latency; JSON includes raw `projected_days_out` and ISO `projected_settle_date`. Gated on outstanding>0 so a settled $0 balance never gets a projection (dogfood caught it firing for settled people).",
+      "files": [
+        "internal/cli/splitwise_fairness.go",
+        "internal/cli/splitwise_fairness_test.go",
+        "SKILL.md",
+        "README.md"
+      ],
+      "validated_outcome": "Added failing-first tests for projectSettle and computeFairness projection behavior (incl. a settled-debtor regression), then passed gofmt, go build, go vet, go test ./internal/cli/... with projected-days/date wired into collectability human + JSON output."
+    },
+    {
+      "id": "splitwise-fairness-nudge",
+      "summary": "Add fairness nudge as a write action that posts a reminder comment on a shared expense.",
+      "reason": "Splitwise has no send-reminder API; comment creation is the API-native nudge path. The command is preview-by-default and only posts with --send so reminder writes are explicit and safe. The default message quotes the friend's owed share, not the expense total.",
+      "files": [
+        "internal/cli/splitwise_fairness.go",
+        "internal/cli/splitwise_fairness_nudge.go",
+        "internal/cli/splitwise_fairness_nudge_test.go",
+        "SKILL.md",
+        "README.md"
+      ],
+      "validated_outcome": "Added failing-first tests for pure nudge target/message helpers, then passed gofmt, go build, go vet, go test ./internal/cli/... with preview-only default and --send comment posting."
     }
   ]
 }

@@ -238,7 +238,7 @@ Per person: paid, owed, net, carry-ratio, and a carrier/even/rider role. Informa
 splitwise-pp-cli fairness --by collectability
 ```
 
-Sorted by debt age, with average settle latency and days since they last settled.
+Sorted by debt age, with average settle latency and days since they last settled; `--by collectability` now also shows a projected settle date (raw `projected_days_out` in JSON).
 
 **Scope to one friend, or one group/trip:**
 
@@ -260,6 +260,24 @@ Human tables print ages as `4y 3mo 8d`; JSON keeps raw `*_days` integers so tool
 ```bash
 splitwise-pp-cli fairness --by risk --write-off-days 730 --ghost-days 90
 ```
+
+### Nudge a friend to pay — `fairness nudge`
+
+Splitwise has no send-reminder endpoint, so this command posts a comment on a shared unsettled expense; Splitwise then notifies participants per their own notification settings.
+
+Preview only by default:
+
+```bash
+splitwise-pp-cli fairness nudge "Alex"
+```
+
+Actually post the reminder comment:
+
+```bash
+splitwise-pp-cli fairness nudge "Alex" --send
+```
+
+Optional flags: `--message` to override reminder text, `--expense-id` to force a specific expense, and `--send` to post (otherwise preview only). Reachability caveat: this CLI's synced `Friend` shape does not include email/registration status, so v1 does not pre-gate on confirmed-account status.
 
 ### Net position for an agent
 

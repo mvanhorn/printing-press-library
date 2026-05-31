@@ -359,6 +359,99 @@ func TestAgeCell(t *testing.T) {
 	}
 }
 
+func TestProjectSettle(t *testing.T) {
+	now := time.Date(2026, 1, 10, 0, 0, 0, 0, time.UTC)
+
+	lat := 30.0
+	age := 10
+	daysOut, date := projectSettle(&age, &lat, now)
+	if daysOut == nil || *daysOut != 20 {
+		t.Fatalf("daysOut=%v want 20", daysOut)
+	}
+	if date == nil || *date != "2026-01-30" {
+		t.Fatalf("date=%v want 2026-01-30", date)
+	}
+
+	age = 40
+	daysOut, date = projectSettle(&age, &lat, now)
+	if daysOut == nil || *daysOut != -10 {
+		t.Fatalf("daysOut=%v want -10", daysOut)
+	}
+	if date == nil || *date != "2025-12-31" {
+		t.Fatalf("date=%v want 2025-12-31", date)
+	}
+
+	daysOut, date = projectSettle(nil, &lat, now)
+	if daysOut != nil || date != nil {
+		t.Fatalf("nil debt age expected nil,nil got %v,%v", daysOut, date)
+	}
+
+	daysOut, date = projectSettle(&age, nil, now)
+	if daysOut != nil || date != nil {
+		t.Fatalf("nil avg latency expected nil,nil got %v,%v", daysOut, date)
+	}
+
+	rounded := 29.6
+	age = 10
+	daysOut, date = projectSettle(&age, &rounded, now)
+	if daysOut == nil || *daysOut != 20 {
+		t.Fatalf("rounded daysOut=%v want 20", daysOut)
+	}
+	if date == nil || *date != "2026-01-30" {
+		t.Fatalf("rounded date=%v want 2026-01-30", date)
+	}
+}
+
+func TestComputeFairnessCollectabilityProjectedSettle(t *testing.T) {
+	youID := 1
+	alex := Friend{ID: 2, FirstName: "Alex", LastName: "Late", Balance: []Balance{{CurrencyCode: "USD", Amount: "30.00"}}}
+	blair := Friend{ID: 3, FirstName: "Blair", LastName: "New", Balance: []Balance{{CurrencyCode: "USD", Amount: "20.00"}}}
+	// Casey is fully settled (owes 0) but has a closed episode (latency) PLUS a
+	// dangling open episode (debtAge) — so projectSettle would otherwise fire.
+	// The outstanding>0 gate must suppress it: a $0 balance never gets a
+	// projected settle date (this was caught in live dogfood, where the only
+	// people with projections were settled debtors showing "overdue by 2459d").
+	casey := Friend{ID: 6, FirstName: "Casey", LastName: "Settled"}
+	friends := []Friend{alex, blair, casey}
+
+	expenses := []Expense{
+		{ID: 1, Description: "A1", CurrencyCode: "USD", Date: "2025-10-01", Payment: false, Users: []ExpenseUser{{UserID: alex.ID, PaidShare: "0", OwedShare: "30"}, {UserID: youID, PaidShare: "30", OwedShare: "0"}}},
+		{ID: 2, Description: "A2", CurrencyCode: "USD", Date: "2025-10-21", Payment: true, Users: []ExpenseUser{{UserID: alex.ID, PaidShare: "30", OwedShare: "0"}}},
+		{ID: 3, Description: "A3", CurrencyCode: "USD", Date: "2025-12-20", Payment: false, Users: []ExpenseUser{{UserID: alex.ID, PaidShare: "0", OwedShare: "30"}, {UserID: youID, PaidShare: "30", OwedShare: "0"}}},
+		{ID: 4, Description: "B1", CurrencyCode: "USD", Date: "2025-12-25", Payment: false, Users: []ExpenseUser{{UserID: blair.ID, PaidShare: "0", OwedShare: "20"}, {UserID: youID, PaidShare: "20", OwedShare: "0"}}},
+		{ID: 5, Description: "C1", CurrencyCode: "USD", Date: "2025-09-01", Payment: false, Users: []ExpenseUser{{UserID: casey.ID, PaidShare: "0", OwedShare: "15"}, {UserID: youID, PaidShare: "15", OwedShare: "0"}}},
+		{ID: 6, Description: "C2", CurrencyCode: "USD", Date: "2025-09-20", Payment: true, Users: []ExpenseUser{{UserID: casey.ID, PaidShare: "15", OwedShare: "0"}}},
+		{ID: 7, Description: "C3", CurrencyCode: "USD", Date: "2025-12-01", Payment: false, Users: []ExpenseUser{{UserID: casey.ID, PaidShare: "0", OwedShare: "15"}, {UserID: youID, PaidShare: "15", OwedShare: "0"}}},
+	}
+
+	now := time.Date(2026, 1, 10, 0, 0, 0, 0, time.UTC)
+	res := computeFairness(youID, friends, nil, expenses, now, fairnessOpts{by: "collectability", writeOffDays: 365, ghostDays: 180, minEpisodes: 1})
+
+	alexPerson := findFairnessPerson(t, res.People, 2)
+	if alexPerson.ProjectedDaysOut == nil {
+		t.Fatalf("Alex projected_days_out=nil")
+	}
+	if *alexPerson.ProjectedDaysOut >= 0 {
+		t.Fatalf("Alex projected_days_out=%d want negative (overdue)", *alexPerson.ProjectedDaysOut)
+	}
+	if alexPerson.ProjectedSettleDate == nil {
+		t.Fatalf("Alex projected_settle_date=nil")
+	}
+
+	blairPerson := findFairnessPerson(t, res.People, 3)
+	if blairPerson.ProjectedDaysOut != nil || blairPerson.ProjectedSettleDate != nil {
+		t.Fatalf("Blair projection expected nil,nil got %v,%v", blairPerson.ProjectedDaysOut, blairPerson.ProjectedSettleDate)
+	}
+
+	caseyPerson := findFairnessPerson(t, res.People, 6)
+	if caseyPerson.OutstandingTotal != 0 {
+		t.Fatalf("Casey outstanding=%.2f want 0 (test fixture expects a settled debtor)", caseyPerson.OutstandingTotal)
+	}
+	if caseyPerson.ProjectedDaysOut != nil || caseyPerson.ProjectedSettleDate != nil {
+		t.Fatalf("Casey (settled, owes 0) projection expected nil,nil got %v,%v", caseyPerson.ProjectedDaysOut, caseyPerson.ProjectedSettleDate)
+	}
+}
+
 func findFairnessPerson(t *testing.T, people []fairnessPerson, id int) fairnessPerson {
 	t.Helper()
 	for _, p := range people {
