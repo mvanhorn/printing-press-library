@@ -89,6 +89,17 @@ func newPagesPostCmd(flags *rootFlags) *cobra.Command {
 					if err := json.Unmarshal([]byte(bodyParent), &parsedParent); err != nil {
 						return fmt.Errorf("parsing --parent JSON: %w", err)
 					}
+					// PATCH(database-parent-resolve): the 2026-03-11 API rejects a
+					// database_id page parent (404 object_not_found); resolve it to
+					// the database's data_source_id. Skipped under --dry-run so no
+					// live API call happens. Non-database parents pass through.
+					if !flags.dryRun {
+						resolvedParent, err := resolveDatabaseParent(c, parsedParent)
+						if err != nil {
+							return err
+						}
+						parsedParent = resolvedParent
+					}
 					body["parent"] = parsedParent
 				}
 				if bodyPosition != "" {

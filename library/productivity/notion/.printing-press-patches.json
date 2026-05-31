@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "applied_at": "2026-05-14",
+  "applied_at": "2026-05-31",
   "base_run_id": "20260508-225745",
   "base_printing_press_version": "4.0.6",
   "patches": [
@@ -40,6 +40,17 @@
         "internal/cli/sync.go"
       ],
       "validated_outcome": "notion-pp-cli sync --full no longer emits a sync_error for views; the views resource is simply skipped. Per-data-source population via `views list --data-source-id <id>` remains available."
+    },
+    {
+      "id": "database-parent-resolve",
+      "summary": "In `pages create`, auto-resolve a `database_id` page parent to the database's `data_source_id` before POST /v1/pages.",
+      "reason": "The client pins Notion-Version 2026-03-11. Under the 2025-09-03+ API, databases were split into databases + data sources and a page parent must be a `data_source_id`; a `database_id` parent returns HTTP 404 object_not_found ('Could not find database with ID'). The natural `--parent {\"database_id\":...}` form therefore always 404'd. The resolver fetches GET /v1/databases/{id}, reads its data_sources, and substitutes a single data source automatically (erroring with the list when a database has multiple). Skipped under --dry-run; non-database parents pass through untouched.",
+      "files": [
+        "internal/cli/helpers.go",
+        "internal/cli/pages_post.go",
+        "internal/cli/database_parent_resolve_test.go"
+      ],
+      "validated_outcome": "pages create --parent '{\"database_id\":\"<id>\"}' --markdown '...' now resolves to the database's data_source_id and returns 200; previously returned HTTP 404 object_not_found. Unit tests in database_parent_resolve_test.go cover single/multi/zero data sources and non-database parents."
     }
   ]
 }

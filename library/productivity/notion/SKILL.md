@@ -118,7 +118,7 @@ These capabilities aren't available in any other tool for this API.
 **pages** — Page endpoints
 
 - `notion-pp-cli pages update` — Update a page
-- `notion-pp-cli pages create` — Create a page
+- `notion-pp-cli pages create` — Create a page. The `--parent` accepts a `data_source_id` (the API parent for a page under a database in Notion-Version 2026-03-11). A `database_id` parent is auto-resolved to the database's data source; pass `--parent data_source_id:<id>` directly when a database has more than one data source.
 - `notion-pp-cli pages get` — Get a page by ID
 - `notion-pp-cli pages move` — Move a page
 - `notion-pp-cli pages markdown export` — Export a page as markdown

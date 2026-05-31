@@ -1209,3 +1209,97 @@ func defaultDBPath(name string) string {
 	home, _ := os.UserHomeDir()
 	return filepath.Join(home, ".local", "share", name, "data.db")
 }
+
+// PATCH(database-parent-resolve): under Notion-Version 2026-03-11 a page parent
+// must be a data_source_id, not a database_id; auto-resolve so the natural
+// `--parent {"database_id":...}` form keeps working instead of 404ing.
+
+// databaseParentGetter is the minimal client surface resolveDatabaseParent
+// needs. *client.Client satisfies it; tests supply a fake.
+type databaseParentGetter interface {
+	Get(path string, params map[string]string) (json.RawMessage, error)
+}
+
+// resolveDatabaseParent rewrites a `database_id` page parent into the
+// `data_source_id` parent the 2025-09+ Notion API requires.
+//
+// The 2026-03-11 API split databases into databases + data sources: POST
+// /v1/pages no longer accepts a `database_id` parent and returns
+// 404 object_not_found ("Could not find database with ID") when it gets one.
+// Every database owns one or more data sources; the page must be parented to
+// one of them. This resolver looks the database up, finds its data sources, and
+// substitutes the parent so the user's natural `database_id` form keeps working.
+//
+// It is a no-op (returns parent unchanged) for any parent that does not carry a
+// `database_id` — data_source_id / page_id / block_id / workspace parents pass
+// straight through with no network call. Callers must skip it under --dry-run
+// (no live API call should happen in a dry run).
+func resolveDatabaseParent(c databaseParentGetter, parent any) (any, error) {
+	pm, ok := parent.(map[string]any)
+	if !ok {
+		return parent, nil
+	}
+	dbID, ok := pm["database_id"].(string)
+	if !ok || strings.TrimSpace(dbID) == "" {
+		return parent, nil
+	}
+
+	ids, names, err := databaseDataSources(c, dbID)
+	if err != nil {
+		return nil, err
+	}
+	switch len(ids) {
+	case 0:
+		return nil, fmt.Errorf("database %s has no accessible data sources — "+
+			"under Notion-Version 2026-03-11 a page parent must be a data_source_id. "+
+			"Confirm the database is shared with your integration, or pass "+
+			"--parent data_source_id:<id> directly", dbID)
+	case 1:
+		return map[string]any{"type": "data_source_id", "data_source_id": ids[0]}, nil
+	default:
+		var b strings.Builder
+		fmt.Fprintf(&b, "database %s has %d data sources — pass one explicitly with "+
+			"--parent data_source_id:<id> (the 2026-03-11 API parents pages to a data "+
+			"source, not a database):\n", dbID, len(ids))
+		for i, id := range ids {
+			name := ""
+			if i < len(names) {
+				name = names[i]
+			}
+			if name != "" {
+				fmt.Fprintf(&b, "  %s  (%s)\n", id, name)
+			} else {
+				fmt.Fprintf(&b, "  %s\n", id)
+			}
+		}
+		return nil, errors.New(strings.TrimRight(b.String(), "\n"))
+	}
+}
+
+// databaseDataSources fetches GET /v1/databases/{id} and extracts the parallel
+// id + name slices from its `data_sources` array. A database created before the
+// data-source split, or one returned by an older API shape, may omit the array;
+// callers treat an empty result as "no accessible data sources".
+func databaseDataSources(c databaseParentGetter, databaseID string) (ids, names []string, err error) {
+	data, err := c.Get("/v1/databases/"+databaseID, nil)
+	if err != nil {
+		return nil, nil, err
+	}
+	var resp struct {
+		DataSources []struct {
+			ID   string `json:"id"`
+			Name string `json:"name"`
+		} `json:"data_sources"`
+	}
+	if err := json.Unmarshal(data, &resp); err != nil {
+		return nil, nil, fmt.Errorf("parsing database %s response: %w", databaseID, err)
+	}
+	for _, ds := range resp.DataSources {
+		if strings.TrimSpace(ds.ID) == "" {
+			continue
+		}
+		ids = append(ids, ds.ID)
+		names = append(names, ds.Name)
+	}
+	return ids, names, nil
+}
