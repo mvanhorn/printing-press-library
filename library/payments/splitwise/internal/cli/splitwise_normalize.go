@@ -112,8 +112,11 @@ func makeNormalizeMetric(byCurrency map[string]float64, rates map[string]float64
 		metric.Rows = append(metric.Rows, normalizeRow{
 			CurrencyCode: cc,
 			Original:     original,
-			Rate:         round2(rate),
-			Converted:    converted,
+			// Keep the full-precision rate actually used in the conversion so a
+			// reader can reproduce original*rate≈converted; rounding it for display
+			// disagreed with the conversion math (Greptile #970).
+			Rate:      rate,
+			Converted: converted,
 		})
 		metric.TotalBase = round2(metric.TotalBase + converted)
 	}
@@ -203,7 +206,9 @@ func newNormalizeCmd(flags *rootFlags) *cobra.Command {
 			defer db.Close()
 
 			hintIfUnsynced(cmd, db, "get-friends")
+			hintIfUnsynced(cmd, db, "get-expenses")
 			hintIfStale(cmd, db, "get-friends", flags.maxAge)
+			hintIfStale(cmd, db, "get-expenses", flags.maxAge)
 
 			friends, err := loadFriends(db)
 			if err != nil {

@@ -248,3 +248,21 @@ func TestLoadNormalizeRatesFile(t *testing.T) {
 		t.Fatalf("missing file: expected error, got nil")
 	}
 }
+
+func TestComputeNormalize_RatePrecision(t *testing.T) {
+	// The Rate field must carry the FULL-precision rate used in the conversion,
+	// not a rounded display value, so a reader can reproduce original*rate≈converted.
+	friends := []Friend{{Balance: []Balance{{CurrencyCode: "EUR", Amount: "10.00"}}}}
+	got := computeNormalize(friends, nil, 1, map[string]float64{"EUR": 1.3333}, "USD")
+	if len(got.Net.Rows) != 1 {
+		t.Fatalf("len(Net.Rows) = %d, want 1", len(got.Net.Rows))
+	}
+	row := got.Net.Rows[0]
+	if row.Rate != 1.3333 {
+		t.Fatalf("Rate = %v, want 1.3333 (full precision, not rounded)", row.Rate)
+	}
+	// converted = round2(10 * 1.3333) = round2(13.333) = 13.33
+	if row.Converted != 13.33 {
+		t.Fatalf("Converted = %v, want 13.33", row.Converted)
+	}
+}
