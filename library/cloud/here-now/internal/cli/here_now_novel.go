@@ -502,7 +502,7 @@ func roundDuration(d time.Duration) time.Duration {
 	if d < time.Hour {
 		return d.Round(time.Minute)
 	}
-	return d.Round(time.Minute)
+	return d.Round(time.Hour)
 }
 
 // listClaimViews returns every vault row as a display projection.
