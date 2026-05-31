@@ -13,11 +13,11 @@ import (
 	"strings"
 	"time"
 
+	"github.com/mvanhorn/printing-press-library/library/commerce/restaurant365-odata/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/commerce/restaurant365-odata/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/commerce/restaurant365-odata/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/commerce/restaurant365-odata/internal/store"
 	"github.com/spf13/cobra"
-	"restaurant365-odata-pp-cli/internal/client"
-	"restaurant365-odata-pp-cli/internal/cliutil"
-	"restaurant365-odata-pp-cli/internal/config"
-	"restaurant365-odata-pp-cli/internal/store"
 )
 
 // looksLikeDoctorInterstitial reports whether the response body matches a known

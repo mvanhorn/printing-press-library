@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"restaurant365-odata-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/commerce/restaurant365-odata/internal/store"
 )
 
 func TestSyncSingleObject_PreservesLargeIntegerResourceIDs(t *testing.T) {

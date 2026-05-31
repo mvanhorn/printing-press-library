@@ -5,9 +5,9 @@ package cli
 
 import (
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/commerce/restaurant365-odata/internal/config"
 	"github.com/spf13/cobra"
 	"os"
-	"restaurant365-odata-pp-cli/internal/config"
 )
 
 func newAuthCmd(flags *rootFlags) *cobra.Command {

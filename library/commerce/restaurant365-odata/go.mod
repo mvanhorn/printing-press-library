@@ -1,4 +1,4 @@
-module restaurant365-odata-pp-cli
+module github.com/mvanhorn/printing-press-library/library/commerce/restaurant365-odata
 
 go 1.26.3
 

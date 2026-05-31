@@ -15,12 +15,12 @@ import (
 
 	mcplib "github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
-	"restaurant365-odata-pp-cli/internal/cli"
-	"restaurant365-odata-pp-cli/internal/client"
-	"restaurant365-odata-pp-cli/internal/cliutil"
-	"restaurant365-odata-pp-cli/internal/config"
-	"restaurant365-odata-pp-cli/internal/mcp/cobratree"
-	"restaurant365-odata-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/commerce/restaurant365-odata/internal/cli"
+	"github.com/mvanhorn/printing-press-library/library/commerce/restaurant365-odata/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/commerce/restaurant365-odata/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/commerce/restaurant365-odata/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/commerce/restaurant365-odata/internal/mcp/cobratree"
+	"github.com/mvanhorn/printing-press-library/library/commerce/restaurant365-odata/internal/store"
 )
 
 // RegisterTools registers all API operations as MCP tools.

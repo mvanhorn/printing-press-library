@@ -17,8 +17,8 @@ import (
 	"strings"
 	"time"
 
-	"restaurant365-odata-pp-cli/internal/client"
-	"restaurant365-odata-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/commerce/restaurant365-odata/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/commerce/restaurant365-odata/internal/store"
 )
 
 const networkFallbackReason = "api_unreachable"

@@ -6,7 +6,7 @@ package main
 import (
 	"os"
 
-	"restaurant365-odata-pp-cli/internal/cli"
+	"github.com/mvanhorn/printing-press-library/library/commerce/restaurant365-odata/internal/cli"
 )
 
 func main() {

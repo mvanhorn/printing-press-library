@@ -8,8 +8,8 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/mvanhorn/printing-press-library/library/commerce/restaurant365-odata/internal/store"
 	"github.com/spf13/cobra"
-	"restaurant365-odata-pp-cli/internal/store"
 )
 
 func newWorkflowCmd(flags *rootFlags) *cobra.Command {

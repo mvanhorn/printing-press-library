@@ -11,8 +11,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/mvanhorn/printing-press-library/library/commerce/restaurant365-odata/internal/store"
 	"github.com/spf13/cobra"
-	"restaurant365-odata-pp-cli/internal/store"
 )
 
 func newSyncHintTestStore(t *testing.T) *store.Store {

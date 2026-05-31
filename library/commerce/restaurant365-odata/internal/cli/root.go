@@ -12,9 +12,9 @@ import (
 	"text/tabwriter"
 	"time"
 
+	"github.com/mvanhorn/printing-press-library/library/commerce/restaurant365-odata/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/commerce/restaurant365-odata/internal/config"
 	"github.com/spf13/cobra"
-	"restaurant365-odata-pp-cli/internal/client"
-	"restaurant365-odata-pp-cli/internal/config"
 )
 
 var version = "1.0.0"

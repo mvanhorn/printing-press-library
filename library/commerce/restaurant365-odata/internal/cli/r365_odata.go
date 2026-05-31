@@ -13,8 +13,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/mvanhorn/printing-press-library/library/commerce/restaurant365-odata/internal/client"
 	"github.com/spf13/cobra"
-	"restaurant365-odata-pp-cli/internal/client"
 )
 
 type r365View struct {

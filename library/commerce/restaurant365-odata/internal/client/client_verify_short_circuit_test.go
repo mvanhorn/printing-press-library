@@ -12,7 +12,7 @@ import (
 	"testing"
 	"time"
 
-	"restaurant365-odata-pp-cli/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/commerce/restaurant365-odata/internal/config"
 )
 
 // recordingRoundTripper counts how many times its RoundTrip method is
