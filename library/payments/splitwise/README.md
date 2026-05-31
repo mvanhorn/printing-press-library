@@ -202,6 +202,15 @@ These capabilities aren't available in any other tool for this API.
   splitwise-pp-cli normalize --base USD --rate EUR=1.08 --agent
   ```
 
+### Trip & period reports
+- **`report`** — Export an offline trip/period spend report as Markdown, CSV, or JSON. Report output is single-currency: default is the most common filtered currency, other currencies are excluded and counted, and `--currency` pins one explicitly.
+
+  _Use to hand someone a trip summary, or to archive a period's shared spend — totals, per-person paid/owed/net, per-category breakdown, and the expense list, in a format you can paste or commit._
+
+  ```bash
+  splitwise-pp-cli report --group "Tahoe Trip" --format md
+  ```
+
 ### Reconcile and settle
 - **`settle-up`** — Compute the minimum set of transfers that zeroes out balances in a group, then optionally record the payments.
 
@@ -238,6 +247,16 @@ splitwise-pp-cli normalize --base USD --rate EUR=1.08 --rate GBP=1.27
 ```
 
 Add `--agent` for JSON output in automation flows. A currency with no `--rate` is listed as unconverted (not mixed into the total); pin rates with repeated `--rate CUR=FACTOR` or a `--rates-file`.
+
+### Export a trip/period report — `report`
+
+Generate a deterministic offline report for a group/trip or date range.
+
+```bash
+splitwise-pp-cli report --group "Tahoe Trip" --format md
+splitwise-pp-cli report --since 2025-01-01 --until 2025-12-31 --format csv > 2025.csv
+splitwise-pp-cli report --agent
+```
 
 ### Settle the whole network in the fewest transfers — `net`
 

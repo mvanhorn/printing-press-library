@@ -142,6 +142,37 @@ These capabilities aren't available in any other tool for this API.
   splitwise-pp-cli normalize --base USD --rate EUR=1.08 --agent
   ```
 
+### Trip & period reports
+- **`report`** — Export an offline trip/period spend report as Markdown, CSV, or JSON. Single-currency only: defaults to the most common filtered currency, excludes other currencies with an explicit excluded count, and supports `--currency` to pin one. PDF is intentionally out of scope in v1.
+
+  Output shape (`--agent` / `--json`):
+
+  ```json
+  {
+    "scope": "group:Tahoe Trip",
+    "currency": "USD",
+    "period_start": "2025-01-10",
+    "period_end": "2025-02-01",
+    "expense_count": 12,
+    "excluded_other_currency": 0,
+    "total_cost": 1840.00,
+    "your_paid": 920.00,
+    "your_owed": 613.33,
+    "your_net": 306.67,
+    "people": [
+      { "user_id": 1, "name": "You", "paid": 920.00, "owed": 613.33, "net": 306.67 }
+    ],
+    "categories": [
+      { "name": "Lodging", "total": 1200.00, "count": 2 }
+    ],
+    "expenses": [
+      { "id": 9001, "date": "2025-01-10", "description": "Cabin", "cost": 1200.00, "currency_code": "USD", "payer": "You" }
+    ],
+    "truncated": false
+  }
+  ```
+
+  Payment and deleted rows are excluded. Single-currency: other-currency expenses are excluded and counted in `excluded_other_currency`. Read-only; never posts.
 
 ### Reconcile and settle
 - **`settle-up`** — Compute the minimum set of transfers that zeroes out balances in a group, then optionally record the payments.
@@ -346,6 +377,17 @@ splitwise-pp-cli normalize --base USD --rate EUR=1.08 --rate GBP=1.27
 ```
 
 Add `--agent` for JSON output in automation flows. A currency with no `--rate` is listed as unconverted (not mixed into the total); pin rates with repeated `--rate CUR=FACTOR` or a `--rates-file`.
+
+### Export a trip/period report — `report`
+
+Build a deterministic offline report from synced expenses for a trip/group or date window.
+
+```bash
+splitwise-pp-cli report --group "Tahoe Trip" --format md
+splitwise-pp-cli report --since 2025-01-01 --until 2025-12-31 --format csv > 2025.csv
+splitwise-pp-cli report --agent
+```
+
 
 ### Net position for an agent
 
