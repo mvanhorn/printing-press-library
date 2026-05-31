@@ -30,16 +30,30 @@ func resolveOwnUserID(ctx context.Context, c *client.Client) (int64, error) {
 		Subscriptions []struct {
 			UserID int64 `json:"user_id"`
 		} `json:"subscriptions"`
+		PublicationUsers []struct {
+			UserID int64 `json:"user_id"`
+		} `json:"publicationUsers"`
 	}
 	if err := json.Unmarshal(raw, &resp); err != nil {
 		return 0, fmt.Errorf("parsing /subscriptions/page_v2 response: %w", err)
 	}
-	if len(resp.Subscriptions) == 0 {
-		return 0, fmt.Errorf("no subscriptions returned; cannot infer own user_id")
+	var uid int64
+	if len(resp.Subscriptions) > 0 {
+		uid = resp.Subscriptions[0].UserID
 	}
-	uid := resp.Subscriptions[0].UserID
+	// publicationUsers (the creator's role memberships) carries the user's own
+	// id even for a fresh creator account that has never subscribed to a
+	// newsletter, where subscriptions[] is empty — the common drafts-create path.
 	if uid == 0 {
-		return 0, fmt.Errorf("subscriptions response missing user_id")
+		for _, pu := range resp.PublicationUsers {
+			if pu.UserID > 0 {
+				uid = pu.UserID
+				break
+			}
+		}
+	}
+	if uid == 0 {
+		return 0, fmt.Errorf("could not infer own user_id from /subscriptions/page_v2 (no subscriptions or publication memberships); set SUBSTACK_OWN_USER_ID or pass --byline")
 	}
 	_ = os.Setenv("SUBSTACK_OWN_USER_ID", fmt.Sprintf("%d", uid))
 	return uid, nil
