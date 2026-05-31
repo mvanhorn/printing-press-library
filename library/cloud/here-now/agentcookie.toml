@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "here-now-pp-cli"
+display_name = "here.now"
+description = "Publish a folder to a live URL in one command, mirror your Drives offline, and never lose an anonymous site to the 24-hour clock."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/here-now-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+HERENOW_API_KEY = true

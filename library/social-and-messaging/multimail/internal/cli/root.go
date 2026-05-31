@@ -5,7 +5,6 @@ package cli
 
 import (
 	"bytes"
-	"encoding/json"
 	"fmt"
 	"io"
 	"os"
@@ -13,9 +12,9 @@ import (
 	"text/tabwriter"
 	"time"
 
+	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/multimail/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/multimail/internal/config"
-	"github.com/spf13/cobra"
 )
 
 var version = "1.0.0"
@@ -33,14 +32,20 @@ type rootFlags struct {
 	ignoreMissing bool
 	yes           bool
 	agent         bool
-	selectFields  string
-	configPath    string
-	profileName   string
-	deliverSpec   string
-	timeout       time.Duration
-	rateLimit     float64
-	dataSource    string
-	freshnessMeta any
+	// allowPartialFailure downgrades a detected response-body partial-failure
+	// (e.g. Google Ads `partialFailureError`) from a non-zero exit to a
+	// stderr warning. Default false so silent partial successes surface as
+	// failures by default.
+	allowPartialFailure bool
+	selectFields        string
+	configPath          string
+	profileName         string
+	deliverSpec         string
+	timeout             time.Duration
+	rateLimit           float64
+	maxAge              time.Duration
+	dataSource          string
+	freshnessMeta       any
 
 	// deliverBuf captures command output when --deliver is set to a
 	// non-stdout sink. Flushed to the sink after Execute returns.
@@ -67,7 +72,14 @@ func Execute() error {
 		if idx := strings.Index(msg, "unknown flag: "); idx >= 0 {
 			flagStr := strings.TrimSpace(msg[idx+len("unknown flag: "):])
 			if suggestion := suggestFlag(flagStr, rootCmd); suggestion != "" {
-				return fmt.Errorf("%w\nhint: did you mean --%s?", err, suggestion)
+				// Cobra already printed `Error: unknown flag: --foob` before
+				// returning; the wrap below attaches the hint to err.Error()
+				// for downstream consumers and exit-code classification, but
+				// would never reach stderr now that main.go no longer prints
+				// err. Emit the hint explicitly so the suggestion still
+				// shows up under Cobra's error line.
+				fmt.Fprintf(os.Stderr, "hint: did you mean --%s?\n", suggestion)
+				err = fmt.Errorf("%w\nhint: did you mean --%s?", err, suggestion)
 			}
 		}
 	}
@@ -77,17 +89,81 @@ func Execute() error {
 			return derr
 		}
 	}
+	if err != nil && isCobraUsageError(err) {
+		// Cobra/pflag pre-RunE errors (unknown flag, unknown command,
+		// missing required, etc.) never flow through usageErr() because
+		// they originate inside rootCmd.Execute() before any user RunE
+		// runs. Without this wrap, ExitCode() falls through to the
+		// default and emits 1 — clobbering the conventional code-2 for
+		// usage errors that the helpers.go contract already promises.
+		return usageErr(err)
+	}
 	return err
+}
+
+// isCobraUsageError reports whether err matches one of Cobra/pflag's
+// pre-RunE usage-error shapes. Detection is by message prefix to match
+// the same approach the unknown-flag hint path uses above; neither
+// Cobra nor pflag exports typed sentinels for these.
+//
+// Patterns are anchored to the literal punctuation Cobra and pflag
+// emit so an application's own RunE error that happens to contain the
+// substring "required flag" or "invalid argument" doesn't get
+// misclassified as a usage error.
+//
+// Patterns covered (Cobra v1.x + pflag v1.x as of 2026-05):
+//   - "unknown flag: --foo"                            (pflag)
+//   - "unknown shorthand flag: 'x' in -x"              (pflag)
+//   - "unknown command \"foo\" for ..."                (Cobra)
+//   - "required flag \"foo\" not set"                  (Cobra, single missing)
+//   - "required flag(s) \"foo\" not set"               (Cobra, multiple missing)
+//   - "flag needs an argument: --foo"                  (pflag, missing value)
+//   - "invalid argument \"x\" for \"--y\" flag: ..."   (pflag, parse failure)
+//
+// Cobra emits the singular form ("required flag") when exactly one
+// MarkFlagRequired flag is missing, and the plural form ("required
+// flag(s)") only when multiple are missing on the same command. Both
+// shapes must be anchored to avoid matching app-level errors that
+// happen to mention "required flag" as prose; the trailing space + quote
+// (`required flag "`) is the literal punctuation cobra emits.
+//
+// Returns false for nil err.
+func isCobraUsageError(err error) bool {
+	if err == nil {
+		return false
+	}
+	msg := err.Error()
+	return strings.HasPrefix(msg, "unknown flag") ||
+		strings.HasPrefix(msg, "unknown shorthand flag") ||
+		strings.HasPrefix(msg, "unknown command") ||
+		strings.HasPrefix(msg, `required flag "`) ||
+		strings.HasPrefix(msg, `required flag(s) "`) ||
+		strings.HasPrefix(msg, "flag needs an argument:") ||
+		strings.HasPrefix(msg, `invalid argument "`)
 }
 
 func newRootCmd(flags *rootFlags) *cobra.Command {
 	rootCmd := &cobra.Command{
 		Use:   "multimail-pp-cli",
-		Short: "Manage multimail resources via the multimail API",
-		Long: `Manage multimail resources via the multimail API.
+		Short: `Multimail CLI — Every MultiMail feature plus oversight velocity, trust ladder status, and cross-mailbox search no other tool has.`,
+		Long: `Multimail CLI — Every MultiMail feature plus oversight velocity, trust ladder status, and cross-mailbox search no other tool has.
 
-Add --agent to any command for JSON output + non-interactive mode.
-Run 'multimail-pp-cli doctor' to verify auth and connectivity.`,
+Highlights (not in the official API docs):
+  • fleet health   Single-command account-wide health snapshot: mailbox count, oversight queue depth, webhook delivery rate, domain verification status, usage vs plan limits.
+  • oversight bulk-decide   Approve or reject all pending emails matching a filter (by mailbox, sender, or age) in one command.
+  • oversight velocity   See approval/rejection rates and median decision latency per mailbox across your entire fleet.
+  • trust status   Fleet-wide view of each mailbox's oversight mode, time-at-level, and upgrade eligibility.
+  • trust timeline   Per-mailbox chronological history of every oversight mode change with timestamps and who triggered it.
+  • emails send-and-wait   Send an email and block until a reply arrives or timeout — the agent test loop in one command.
+  • mailboxes allowlist coverage   See what percentage of recent recipients are covered by allowlist patterns vs gated.
+  • inbox health   Per-mailbox health snapshot: unread count, oldest unread age, reply rate, and thread depth.
+  • threads stale   List conversation threads with no reply in N days — surfaces dropped conversations.
+  • audit compliance   Cross-entity compliance report: oversight bypass count, approval/rejection counts, decision latency percentiles per mailbox.
+  • webhooks health   Per-webhook success rate, failure count, last delivery timestamp, and consecutive failure streak.
+
+Agent mode: add --agent to any command for JSON output + non-interactive mode.
+Health check: run 'multimail-pp-cli doctor' to verify auth and connectivity.
+See README.md or the bundled SKILL.md for recipes.`,
 		SilenceUsage: true,
 		Version:      version,
 	}
@@ -99,7 +175,7 @@ Run 'multimail-pp-cli doctor' to verify auth and connectivity.`,
 	rootCmd.PersistentFlags().BoolVar(&flags.plain, "plain", false, "Output as plain tab-separated text")
 	rootCmd.PersistentFlags().BoolVar(&flags.quiet, "quiet", false, "Bare output, one value per line")
 	rootCmd.PersistentFlags().StringVar(&flags.configPath, "config", "", "Config file path")
-	rootCmd.PersistentFlags().DurationVar(&flags.timeout, "timeout", 30*time.Second, "Request timeout")
+	rootCmd.PersistentFlags().DurationVar(&flags.timeout, "timeout", 60*time.Second, "Request timeout")
 	rootCmd.PersistentFlags().BoolVar(&flags.dryRun, "dry-run", false, "Show request without sending")
 	rootCmd.PersistentFlags().BoolVar(&flags.noCache, "no-cache", false, "Bypass response cache")
 	rootCmd.PersistentFlags().BoolVar(&flags.noInput, "no-input", false, "Disable all interactive prompts (for CI/agents)")
@@ -110,7 +186,9 @@ Run 'multimail-pp-cli doctor' to verify auth and connectivity.`,
 	rootCmd.PersistentFlags().BoolVar(&noColor, "no-color", false, "Disable colored output")
 	rootCmd.PersistentFlags().BoolVar(&humanFriendly, "human-friendly", false, "Enable colored output and rich formatting")
 	rootCmd.PersistentFlags().BoolVar(&flags.agent, "agent", false, "Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)")
+	rootCmd.PersistentFlags().BoolVar(&flags.allowPartialFailure, "allow-partial-failure", false, "Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit")
 	rootCmd.PersistentFlags().StringVar(&flags.dataSource, "data-source", "auto", "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only)")
+	rootCmd.PersistentFlags().DurationVar(&flags.maxAge, "max-age", 30*time.Minute, "Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables")
 	rootCmd.PersistentFlags().StringVar(&flags.profileName, "profile", "", "Apply values from a saved profile (see 'multimail-pp-cli profile list')")
 	rootCmd.PersistentFlags().StringVar(&flags.deliverSpec, "deliver", "", "Route output to a sink: stdout (default), file:<path>, webhook:<url>")
 	rootCmd.PersistentFlags().Float64Var(&flags.rateLimit, "rate-limit", 0, "Max requests per second (0 to disable)")
@@ -169,6 +247,7 @@ Run 'multimail-pp-cli doctor' to verify auth and connectivity.`,
 		return nil
 	}
 	rootCmd.AddCommand(newAccountCmd(flags))
+	rootCmd.AddCommand(newAgentCmd(flags))
 	rootCmd.AddCommand(newApiKeysCmd(flags))
 	rootCmd.AddCommand(newApproveCmd(flags))
 	rootCmd.AddCommand(newBillingCmd(flags))
@@ -188,19 +267,27 @@ Run 'multimail-pp-cli doctor' to verify auth and connectivity.`,
 	rootCmd.AddCommand(newProfileCmd(flags))
 	rootCmd.AddCommand(newFeedbackCmd(flags))
 	rootCmd.AddCommand(newWhichCmd(flags))
+	rootCmd.AddCommand(newExportCmd(flags))
 	rootCmd.AddCommand(newImportCmd(flags))
 	rootCmd.AddCommand(newSearchCmd(flags))
 	rootCmd.AddCommand(newSyncCmd(flags))
 	rootCmd.AddCommand(newTailCmd(flags))
 	rootCmd.AddCommand(newAnalyticsCmd(flags))
 	rootCmd.AddCommand(newWorkflowCmd(flags))
+	rootCmd.AddCommand(newNovelAuditCmd(flags))
+	rootCmd.AddCommand(newNovelEmailsCmd(flags))
+	rootCmd.AddCommand(newNovelFleetCmd(flags))
+	rootCmd.AddCommand(newNovelInboxCmd(flags))
+	rootCmd.AddCommand(newNovelThreadsCmd(flags))
+	rootCmd.AddCommand(newNovelTrustCmd(flags))
 	rootCmd.AddCommand(newAPICmd(flags))
 	rootCmd.AddCommand(newAdminPromotedCmd(flags))
 	rootCmd.AddCommand(newAuditLogPromotedCmd(flags))
+	rootCmd.AddCommand(newAuthMdPromotedCmd(flags))
+	rootCmd.AddCommand(newDataExportPromotedCmd(flags))
 	rootCmd.AddCommand(newEmailsPromotedCmd(flags))
 	rootCmd.AddCommand(newFunnelPromotedCmd(flags))
-	rootCmd.AddCommand(newMultimailExportPromotedCmd(flags))
-	rootCmd.AddCommand(newMultimailHealthPromotedCmd(flags))
+	rootCmd.AddCommand(newHealthPromotedCmd(flags))
 	rootCmd.AddCommand(newSlugCheckPromotedCmd(flags))
 	rootCmd.AddCommand(newSupportPromotedCmd(flags))
 	rootCmd.AddCommand(newUsagePromotedCmd(flags))
@@ -230,9 +317,7 @@ func (f *rootFlags) newClient() (*client.Client, error) {
 }
 
 func (f *rootFlags) printJSON(w *cobra.Command, v any) error {
-	enc := json.NewEncoder(w.OutOrStdout())
-	enc.SetIndent("", "  ")
-	return enc.Encode(v)
+	return printJSONFiltered(w.OutOrStdout(), v, f)
 }
 
 func (f *rootFlags) printTable(w *cobra.Command, headers []string, rows [][]string) error {
@@ -266,7 +351,7 @@ func newVersionCliCmd() *cobra.Command {
 		Use:   "version",
 		Short: "Print version",
 		Run: func(cmd *cobra.Command, args []string) {
-			fmt.Printf("multimail-pp-cli %s\n", version)
+			fmt.Printf("%s %s\n", cmd.Root().Name(), version)
 		},
 	}
 }

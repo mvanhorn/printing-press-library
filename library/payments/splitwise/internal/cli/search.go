@@ -83,12 +83,16 @@ func newSearchCmd(flags *rootFlags) *cobra.Command {
 	var resourceType string
 	var limit int
 	var dbPath string
+	var fuzzy bool
 
 	cmd := &cobra.Command{
 		Use:   "search <query>",
-		Short: "Full-text search across synced data or live API",
-		Long: `Search data using FTS5 full-text search on locally synced data,
-or hit the API's search endpoint when available.
+		Short: "Search synced data by whole-word text with optional fuzzy matching",
+		Long: `Search meaningful text in locally synced data (for example descriptions,
+member/group names, and categories) using whole-word matching, or hit the
+API's search endpoint when available.
+
+Use --fuzzy for typo-tolerant matching and --type to scope to one resource type.
 
 In auto mode (default): uses the API search endpoint if the API has one,
 otherwise searches local data. Falls back to local on network failure.
@@ -132,34 +136,7 @@ In local mode: searches locally synced data only.`,
 
 			maybeEmitSyncHints(cmd, db, resourceType, flags.maxAge)
 
-			var results []json.RawMessage
-			switch resourceType {
-			case "":
-				// Search every FTS-enabled source — typed per-resource tables
-				// AND the generic resources_fts — and dedup by raw JSON so a
-				// row indexed in multiple FTS sources appears once. Without
-				// the generic-search call, rows that landed in resources_fts
-				// but not in any typed FTS table (e.g., a resource whose sync
-				// populated only the generic index) silently return zero.
-				seen := make(map[string]bool)
-				_ = seen // prevent unused error when no FTS tables exist
-				{
-					partial, searchErr := db.Search(query, limit)
-					if searchErr != nil {
-						return fmt.Errorf("search resources_fts failed: %w", searchErr)
-					}
-					for _, r := range partial {
-						key := string(r)
-						if !seen[key] {
-							seen[key] = true
-							results = append(results, r)
-						}
-					}
-				}
-			default:
-				// Unrecognized type — fall back to generic search
-				results, err = db.Search(query, limit)
-			}
+			results, err := db.Search(query, resourceType, limit, fuzzy)
 			if err != nil {
 				return fmt.Errorf("search failed: %w", err)
 			}
@@ -176,6 +153,7 @@ In local mode: searches locally synced data only.`,
 
 	cmd.Flags().StringVar(&resourceType, "type", "", "Filter by resource type")
 	cmd.Flags().IntVar(&limit, "limit", 50, "Maximum results to return")
+	cmd.Flags().BoolVar(&fuzzy, "fuzzy", false, "Enable typo-tolerant fuzzy matching")
 	cmd.Flags().StringVar(&dbPath, "db", "", "Database path (default: ~/.local/share/splitwise-pp-cli/data.db)")
 
 	return cmd

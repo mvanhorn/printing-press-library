@@ -9,8 +9,10 @@ import (
 
 func newEmailsReportSpamCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "report-spam",
-		Short: "Manage report spam",
+		Use:         "report-spam",
+		Short:       "Create report spam for emails",
+		Annotations: map[string]string{"mcp:read-only": "true"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newEmailsReportSpamCreateCmd(flags))

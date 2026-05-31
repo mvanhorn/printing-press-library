@@ -104,7 +104,7 @@ func newSpendCmd(flags *rootFlags) *cobra.Command {
 			})
 
 			if flags.asJSON || flags.agent || !isTerminal(cmd.OutOrStdout()) {
-				return flags.printJSON(cmd, results)
+				return flags.emitStructured(cmd, results)
 			}
 
 			tw := tabwriter.NewWriter(cmd.OutOrStdout(), 2, 4, 2, ' ', 0)
@@ -259,7 +259,7 @@ func newLedgerCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			if flags.asJSON || flags.agent || !isTerminal(cmd.OutOrStdout()) {
-				return flags.printJSON(cmd, out)
+				return flags.emitStructured(cmd, out)
 			}
 
 			_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Group: %s (%d)\n\n", groupName, groupID)
@@ -302,16 +302,19 @@ func resolveLedgerGroup(input string, groups []Group) (int, string, map[int]stri
 		return 0, "", memberNames, fmt.Errorf("group %q not found; run sync or use a numeric id", input)
 	}
 
-	needle := strings.ToLower(trimmed)
-	for _, g := range groups {
-		if strings.Contains(strings.ToLower(g.Name), needle) {
-			for _, m := range g.Members {
-				memberNames[m.ID] = strings.TrimSpace(strings.TrimSpace(m.FirstName) + " " + strings.TrimSpace(m.LastName))
-			}
-			return g.ID, g.Name, memberNames, nil
+	matches := matchGroupsByName(input, groups)
+	switch len(matches) {
+	case 0:
+		return 0, "", memberNames, fmt.Errorf("group %q not found; run sync or use a numeric id", input)
+	case 1:
+		g := matches[0]
+		for _, m := range g.Members {
+			memberNames[m.ID] = strings.TrimSpace(strings.TrimSpace(m.FirstName) + " " + strings.TrimSpace(m.LastName))
 		}
+		return g.ID, g.Name, memberNames, nil
+	default:
+		return 0, "", memberNames, ambiguousGroupErr(input, matches)
 	}
-	return 0, "", memberNames, fmt.Errorf("group %q not found; run sync or use a numeric id", input)
 }
 
 func spendBucket(groupBy string, e Expense, groupNames map[int]string) string {

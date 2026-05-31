@@ -9,8 +9,11 @@ import (
 
 func newProfilesCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "profiles",
-		Short: "Substack profiles — your own and other writers'",
+		Use:         "profiles",
+		Short:       "Substack profiles — your own and other writers'",
+		Hidden:      true,
+		Annotations: map[string]string{"mcp:read-only": "true"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newProfilesFromLinkedinCmd(flags))

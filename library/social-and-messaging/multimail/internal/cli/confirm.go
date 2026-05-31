@@ -9,8 +9,11 @@ import (
 
 func newConfirmCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "confirm",
-		Short: "Manage confirm",
+		Use:         "confirm",
+		Short:       "List, get, and create confirm",
+		Hidden:      true,
+		Annotations: map[string]string{"mcp:read-only": "true"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newConfirmCreateCmd(flags))

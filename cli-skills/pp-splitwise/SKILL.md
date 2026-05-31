@@ -264,9 +264,11 @@ get-groups returns deeply nested members + balance arrays; --select keeps only t
 
 ```bash
 splitwise-pp-cli search "airbnb" --limit 10
+splitwise-pp-cli search "sushi" --fuzzy        # typo-tolerant
+splitwise-pp-cli search "hotel" --type get-expenses
 ```
 
-Full-text search across your synced expense history for a keyword.
+Word-boundary search across the meaningful text of your synced history (descriptions, member and group names, categories). Add `--fuzzy` for typo tolerance, or `--type <resource>` to scope to one resource type.
 
 ### Plan the fewest transfers to settle a trip
 

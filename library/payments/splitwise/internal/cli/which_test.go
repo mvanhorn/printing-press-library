@@ -96,3 +96,16 @@ func TestWhichIndex_ExistsAndIsWellFormed(t *testing.T) {
 		}
 	}
 }
+
+func TestRankWhich_WhoOwesMeMoneyMatchesDebts(t *testing.T) {
+	got := rankWhich(whichIndex, "who owes me money", 3)
+	if len(got) == 0 {
+		t.Fatalf("expected at least one match, got zero")
+	}
+	if got[0].Entry.Command != "debts" {
+		t.Fatalf("top match: want debts, got %s", got[0].Entry.Command)
+	}
+	if got[0].Score <= 0 {
+		t.Fatalf("top match score should be > 0, got %d", got[0].Score)
+	}
+}

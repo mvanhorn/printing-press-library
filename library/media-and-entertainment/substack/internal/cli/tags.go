@@ -9,8 +9,11 @@ import (
 
 func newTagsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "tags",
-		Short: "Post tags",
+		Use:         "tags",
+		Short:       "List and create tags",
+		Hidden:      true,
+		Annotations: map[string]string{"mcp:read-only": "true"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newTagsCreateCmd(flags))

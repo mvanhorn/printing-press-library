@@ -329,6 +329,15 @@ def run(base: str, head: str) -> int:
             failures.extend(validate_new_cli(head, change))
             continue
 
+        # A wholly-retired CLI (its .printing-press.json deleted at head) is not
+        # an attribution flip. Deleting SKILL.md drops its author to None, which
+        # the change detector records as an attribution change, and the rest of
+        # the deleted tree counts as a surface change -- so without this exemption
+        # every CLI retirement trips the attribution-vs-surface gate. Retirement
+        # is a legitimate operation; skip the gate when the manifest is gone.
+        if not path_exists(head, f"{change.root}/.printing-press.json"):
+            continue
+
         if change.attribution_changes and change.surface_changes:
             detail = "; ".join(change.attribution_changes)
             surface = ", ".join(change.surface_changes[:5])

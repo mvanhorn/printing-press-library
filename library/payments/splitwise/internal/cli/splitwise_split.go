@@ -55,7 +55,10 @@ func newSplitCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			group, ok := resolveSettleGroup(args[0], groups)
+			group, ok, ambErr := resolveSettleGroup(args[0], groups)
+			if ambErr != nil {
+				return usageErr(ambErr)
+			}
 			if !ok {
 				return usageErr(fmt.Errorf("no group matches %q; run sync first", args[0]))
 			}

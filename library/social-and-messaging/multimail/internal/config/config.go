@@ -72,6 +72,21 @@ func Load(configPath string) (*Config, error) {
 		cfg.AuthSource = "config"
 	}
 
+	// Soft agentcookie integration: if the agentcookie daemon manages this
+	// CLI's secrets, it writes a marker file alongside the config file. When
+	// the marker is present AND credentials came from the config (not from a
+	// direct env var override that wins above), upgrade AuthSource to
+	// "agentcookie" so doctor / auth-status can surface the bus state. When
+	// the marker is absent, behavior is identical to pre-agentcookie: no
+	// import, no network, no error. agentcookie itself is never imported
+	// here — the contract is purely on-disk.
+	if cfg.AuthSource == "config" {
+		marker := filepath.Join(filepath.Dir(cfg.Path), ".agentcookie-managed")
+		if _, err := os.Stat(marker); err == nil {
+			cfg.AuthSource = "agentcookie"
+		}
+	}
+
 	// Base URL override (used by printing-press verify to point at mock/test servers)
 	if v := os.Getenv("MULTIMAIL_BASE_URL"); v != "" {
 		cfg.BaseURL = v
@@ -85,11 +100,15 @@ func (c *Config) AuthHeader() string {
 	}
 	// Env-var token wins over file-stored AccessToken (env > config convention).
 	if c.MultimailBearerAuth != "" {
-		c.AuthSource = "env:MULTIMAIL_BEARER_AUTH"
+		if c.AuthSource == "" {
+			c.AuthSource = "env:MULTIMAIL_BEARER_AUTH"
+		}
 		return "Bearer " + c.MultimailBearerAuth
 	}
 	if c.AccessToken != "" {
-		c.AuthSource = "oauth2"
+		if c.AuthSource == "" || strings.HasPrefix(c.AuthSource, "env:") {
+			c.AuthSource = "oauth2"
+		}
 		return "Bearer " + c.AccessToken
 	}
 	return ""
@@ -118,9 +137,19 @@ func (c *Config) SaveTokens(clientID, clientSecret, accessToken, refreshToken st
 }
 
 func (c *Config) ClearTokens() error {
+	// AuthHeader() falls back to the env-var-derived fields when AuthHeaderVal
+	// and AccessToken are empty, so dropping the working credential requires
+	// zeroing every emitted credential field, not just the OAuth trio.
+	// ClientID/ClientSecret persist to disk via SaveTokens for the oauth2
+	// and oauth2-cc flows, so logout must wipe them too; otherwise
+	// `auth login` can re-mint a new access token unattended.
+	c.AuthHeaderVal = ""
 	c.AccessToken = ""
 	c.RefreshToken = ""
 	c.TokenExpiry = time.Time{}
+	c.ClientID = ""
+	c.ClientSecret = ""
+	c.MultimailBearerAuth = ""
 	return c.save()
 }
 

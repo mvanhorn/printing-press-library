@@ -48,6 +48,37 @@ type AdminCreateResponse struct {
 	TenantId  string `json:"tenant_id"`
 }
 
+type AgentCreateAuthResponse struct {
+	Credential        string          `json:"credential"`
+	CredentialExpires string          `json:"credential_expires"`
+	CredentialType    string          `json:"credential_type"`
+	RegistrationId    string          `json:"registration_id"`
+	Scopes            json.RawMessage `json:"scopes"`
+	Status            string          `json:"status"`
+}
+
+type AgentCreateResponse struct {
+	ClaimToken        string          `json:"claim_token"`
+	ClaimTokenExpires string          `json:"claim_token_expires"`
+	ClaimUrl          string          `json:"claim_url"`
+	PostClaimScopes   json.RawMessage `json:"post_claim_scopes"`
+	RegistrationId    string          `json:"registration_id"`
+	RegistrationType  string          `json:"registration_type"`
+}
+
+type AllowlistCreateResponse struct {
+	AddedAt int    `json:"added_at"`
+	Id      string `json:"id"`
+	Note    string `json:"note"`
+	Pattern string `json:"pattern"`
+}
+
+type AllowlistGetResponse struct {
+	Count     int             `json:"count"`
+	Entries   json.RawMessage `json:"entries"`
+	MailboxId string          `json:"mailbox_id"`
+}
+
 type ApiKeyInfo struct {
 	CreatedAt  string          `json:"created_at"`
 	Id         string          `json:"id"`
@@ -263,6 +294,10 @@ type FunnelCreateResponse struct {
 	Ok bool `json:"ok"`
 }
 
+type HealthListResponse struct {
+	Status string `json:"status"`
+}
+
 type Mailbox struct {
 	Address             string `json:"address"`
 	AutoBcc             string `json:"auto_bcc"`
@@ -293,10 +328,6 @@ type MailboxesListResponse struct {
 }
 
 type MailboxesUpdateResponse struct {
-	Status string `json:"status"`
-}
-
-type MultimailHealthListResponse struct {
 	Status string `json:"status"`
 }
 
@@ -459,4 +490,19 @@ type WebhooksDeleteResponse struct {
 
 type WebhooksListResponse struct {
 	Subscriptions json.RawMessage `json:"subscriptions"`
+}
+
+type WellKnownListWellknown2Response struct {
+	AuthorizationServers   json.RawMessage `json:"authorization_servers"`
+	BearerMethodsSupported json.RawMessage `json:"bearer_methods_supported"`
+	Resource               string          `json:"resource"`
+	ResourceDocumentation  string          `json:"resource_documentation"`
+	ResourceLogoUri        string          `json:"resource_logo_uri"`
+	ResourceName           string          `json:"resource_name"`
+	ScopesSupported        json.RawMessage `json:"scopes_supported"`
+}
+
+type WellKnownListWellknownResponse struct {
+	AgentAuth json.RawMessage `json:"agent_auth"`
+	Issuer    string          `json:"issuer"`
 }

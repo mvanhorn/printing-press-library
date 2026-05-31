@@ -1,8 +1,8 @@
-# Multimail CLI
+# MultiMail CLI
 
-CLI for [MultiMail](https://multimail.dev) — verifiable identity and graduated oversight for AI agents over email. Five autonomy modes from read-only to fully autonomous. Inbound email → markdown, outbound markdown → HTML.
+**Every MultiMail feature plus oversight velocity, trust ladder status, and cross-mailbox search no other tool has.**
 
-Created by [@H179922](https://github.com/H179922) (H179922).
+The only CLI that makes MultiMail's trust ladder a first-class operator surface. Sync mailboxes, emails, and audit events to local SQLite, then query oversight velocity, allowlist coverage, and inbox health across your entire fleet — insights no single API call provides.
 
 ## Install
 
@@ -86,7 +86,9 @@ Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple S
 If you can't use the MCPB bundle (older Claude Desktop, unsupported platform), install the MCP binary and configure it manually.
 
 
-Install the MCP binary from this CLI's published public-library entry or pre-built release.
+```bash
+go install github.com/mvanhorn/printing-press-library/library/social-and-messaging/multimail/cmd/multimail-pp-mcp@latest
+```
 
 Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
 
@@ -105,39 +107,154 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
 
 </details>
 
+## Authentication
+
+MultiMail uses Bearer token auth with prefixed keys: mm_live_* for production, mm_test_* for staging. Get your key from the MultiMail dashboard or via the API key management endpoints.
+
 ## Quick Start
 
-### 1. Install
-
-See [Install](#install) above.
-
-### 2. Set Up Credentials
-
-Get your access token from your API provider's developer portal, then store it:
-
 ```bash
-multimail-pp-cli auth set-token YOUR_TOKEN_HERE
+# Verify installation and connectivity
+multimail-pp-cli doctor --dry-run
+
+# Sync recent mailbox and email data to local store
+multimail-pp-cli sync --resources mailboxes,emails --since 7d
+
+# Check what emails are waiting for approval
+multimail-pp-cli oversight list --json
+
+# Search synced emails across all mailboxes
+multimail-pp-cli search 'invoice' --type emails --limit 10 --json
+
 ```
 
-Or set it via environment variable:
+## Unique Features
+
+These capabilities aren't available in any other tool for this API.
+
+### Agent-native plumbing
+- **`fleet health`** — Single-command account-wide health snapshot: mailbox count, oversight queue depth, webhook delivery rate, domain verification status, usage vs plan limits.
+
+  _When an agent needs to know if its MultiMail integration is healthy before sending, one command replaces checking 5 separate endpoints._
+
+  ```bash
+  multimail-pp-cli fleet health --json --agent --select mailboxes.total,oversight.pending_count,webhooks.success_rate
+  ```
+- **`oversight bulk-decide`** — Approve or reject all pending emails matching a filter (by mailbox, sender, or age) in one command.
+
+  _When an agent's test queue has 20 pending emails, one command clears them instead of 20 individual approve calls._
+
+  ```bash
+  multimail-pp-cli oversight bulk-decide --approve --mailbox support-agent --json
+  ```
+- **`oversight velocity`** — See approval/rejection rates and median decision latency per mailbox across your entire fleet.
+
+  _When an agent's sends are stuck in approval queues, this pinpoints which mailbox's operator is the bottleneck._
+
+  ```bash
+  multimail-pp-cli oversight velocity --json --days 7
+  ```
+- **`trust status`** — Fleet-wide view of each mailbox's oversight mode, time-at-level, and upgrade eligibility.
+
+  _Before requesting a trust upgrade, an agent should know which mailboxes are ready and which have been at their current level longest._
+
+  ```bash
+  multimail-pp-cli trust status --json --agent --select name,oversight_mode,time_at_level
+  ```
+- **`trust timeline`** — Per-mailbox chronological history of every oversight mode change with timestamps and who triggered it.
+
+  _When evaluating whether to request a trust upgrade, an agent needs to show its history of responsible operation at each level._
+
+  ```bash
+  multimail-pp-cli trust timeline --mailbox support-agent --json
+  ```
+- **`emails send-and-wait`** — Send an email and block until a reply arrives or timeout — the agent test loop in one command.
+
+  _When an agent needs to send and process the reply in one workflow step, this replaces a manual send-poll-read loop._
+
+  ```bash
+  multimail-pp-cli emails send-and-wait --mailbox test-agent --to user@example.com --subject 'Test' --body 'Hello' --timeout 5m --json
+  ```
+
+### Local state that compounds
+- **`mailboxes allowlist coverage`** — See what percentage of recent recipients are covered by allowlist patterns vs gated.
+
+  _Before adding allowlist entries, an agent should know which recipients are already covered and which cause the most gating friction._
+
+  ```bash
+  multimail-pp-cli mailboxes allowlist coverage --mailbox primary --days 30 --json --agent --select pattern,match_count,percentage
+  ```
+- **`inbox health`** — Per-mailbox health snapshot: unread count, oldest unread age, reply rate, and thread depth.
+
+  _An agent monitoring its own inbox health can detect when it is falling behind on replies before the operator notices._
+
+  ```bash
+  multimail-pp-cli inbox health --json --agent --select mailbox,unread_count,oldest_unread_age,reply_rate
+  ```
+- **`threads stale`** — List conversation threads with no reply in N days — surfaces dropped conversations.
+
+  _A dropped conversation thread is a customer-facing failure; this is the agent's early warning system._
+
+  ```bash
+  multimail-pp-cli threads stale --days 3 --json --agent --select thread_id,subject,last_reply_age,mailbox
+  ```
+- **`audit compliance`** — Cross-entity compliance report: oversight bypass count, approval/rejection counts, decision latency percentiles per mailbox.
+
+  _When an auditor needs to verify that agents operated within their approved trust levels, this replaces manual log correlation._
+
+  ```bash
+  multimail-pp-cli audit compliance --days 30 --json
+  ```
+- **`webhooks health`** — Per-webhook success rate, failure count, last delivery timestamp, and consecutive failure streak.
+
+  _When an agent's real-time event pipeline depends on webhooks, this surfaces delivery health before silent failures accumulate._
+
+  ```bash
+  multimail-pp-cli webhooks health --json --agent --select webhook_id,url,success_rate,consecutive_failures
+  ```
+
+## Recipes
+
+
+### Approve all pending emails for a mailbox
 
 ```bash
-export MULTIMAIL_BEARER_AUTH="your-token-here"
+multimail-pp-cli oversight pending --json --select id,subject,to | multimail-pp-cli oversight decide --approve --stdin
 ```
 
-### 3. Verify Setup
+Pipe pending email IDs into batch approval — useful for clearing a gated mailbox queue.
+
+### Fleet trust ladder overview
 
 ```bash
-multimail-pp-cli doctor
+multimail-pp-cli trust status --json --agent --select name,oversight_mode,time_at_level
 ```
 
-This checks your configuration and credentials.
+See which mailboxes are at which trust level and how long they have been there.
 
-### 4. Try Your First Command
+### Cross-mailbox search with field selection
 
 ```bash
-multimail-pp-cli account list
+multimail-pp-cli search 'quarterly report' --type emails --json --agent --select subject,from,mailbox,received_at
 ```
+
+Find a specific email across all synced mailboxes with narrow field output for agent context efficiency.
+
+### Sync and check inbox health
+
+```bash
+multimail-pp-cli sync --resources mailboxes,emails --since 24h && multimail-pp-cli inbox health --json
+```
+
+Refresh local data then check unread counts, reply rates, and oldest unread age per mailbox.
+
+### Allowlist coverage analysis
+
+```bash
+multimail-pp-cli mailboxes allowlist coverage --mailbox primary --days 30 --json --agent --select pattern,match_count,percentage
+```
+
+See what percentage of recent recipients match allowlist patterns — find which addresses cause the most gating friction.
 
 ## Usage
 
@@ -160,7 +277,15 @@ Manage account
 
 Manage admin
 
-- **`multimail-pp-cli admin create`** - Admin-only. Creates a new API key and emails it to the tenant's oversight email. Used when welcome email failed or KV expired before key retrieval.
+- **`multimail-pp-cli admin`** - Admin-only. Creates a new API key and emails it to the tenant's oversight email. Used when welcome email failed or KV expired before key retrieval.
+
+### agent
+
+Manage agent
+
+- **`multimail-pp-cli agent create`** - Initiates agent registration using verified_email identity assertion. Sends a 6-digit OTP to the provided email and returns a claim_token for completing the registration.
+- **`multimail-pp-cli agent create-auth`** - Completes the auth.md registration by validating the claim_token and OTP. On success, atomically creates the tenant account and returns API credentials.
+- **`multimail-pp-cli agent list`** - Human-facing page that displays the 6-digit OTP for agent registration. Linked from the verification email.
 
 ### api-keys
 
@@ -182,7 +307,13 @@ Manage approve
 
 Manage audit log
 
-- **`multimail-pp-cli audit-log list`** - Returns audit log entries with cursor pagination. Requires admin scope.
+- **`multimail-pp-cli audit-log`** - Returns audit log entries with cursor pagination. Requires admin scope.
+
+### auth-md
+
+Manage auth md
+
+- **`multimail-pp-cli auth-md`** - Returns a markdown document describing MultiMail's agent registration flow, trust ladder, and scope model. Used by agents following the auth.md protocol.
 
 ### billing
 
@@ -213,6 +344,12 @@ Manage contacts
 - **`multimail-pp-cli contacts delete`** - Requires admin scope.
 - **`multimail-pp-cli contacts list`** - Search address book by name or email. Omit query to list all. Requires read scope.
 
+### data_export
+
+Manage data export
+
+- **`multimail-pp-cli data-export`** - Requires admin scope. Rate limited to 1 request per hour.
+
 ### domains
 
 Manage domains
@@ -226,13 +363,19 @@ Manage domains
 
 Manage emails
 
-- **`multimail-pp-cli emails list`** - Requires read scope. Without a status filter, returns spam_flagged and spam_quarantined emails across all tenant mailboxes.
+- **`multimail-pp-cli emails`** - Requires read scope. Without a status filter, returns spam_flagged and spam_quarantined emails across all tenant mailboxes.
 
 ### funnel
 
 Manage funnel
 
-- **`multimail-pp-cli funnel create`** - Pricing page beacon hit via navigator.sendBeacon to track open/submit/error events on the signup modal. Fire-and-forget; counters are best-effort (KV is non-atomic). IP-rate-limited to 30 req/min.
+- **`multimail-pp-cli funnel`** - Pricing page beacon hit via navigator.sendBeacon to track open/submit/error events on the signup modal. Fire-and-forget; counters are best-effort (KV is non-atomic). IP-rate-limited to 30 req/min.
+
+### health
+
+Manage health
+
+- **`multimail-pp-cli health`** - Verifies D1 and R2 connectivity. No auth required.
 
 ### mailboxes
 
@@ -242,18 +385,6 @@ Manage mailboxes
 - **`multimail-pp-cli mailboxes delete`** - Requires admin scope.
 - **`multimail-pp-cli mailboxes list`** - Requires read scope.
 - **`multimail-pp-cli mailboxes update`** - Requires admin scope. Oversight mode can only be downgraded here; upgrades require the upgrade flow.
-
-### multimail-export
-
-Manage multimail export
-
-- **`multimail-pp-cli multimail-export list`** - Requires admin scope. Rate limited to 1 request per hour.
-
-### multimail-health
-
-Manage multimail health
-
-- **`multimail-pp-cli multimail-health list`** - Verifies D1 and R2 connectivity. No auth required.
 
 ### operator
 
@@ -275,13 +406,13 @@ Manage oversight
 
 Manage slug check
 
-- **`multimail-pp-cli slug-check get`** - Check if a slug is available for registration. Returns suggestions if taken or reserved. No auth required.
+- **`multimail-pp-cli slug-check <slug>`** - Check if a slug is available for registration. Returns suggestions if taken or reserved. No auth required.
 
 ### support
 
 Manage support
 
-- **`multimail-pp-cli support create`** - Public endpoint. Requires a solved ALTCHA proof-of-work payload. Sends a message to the operator's support address.
+- **`multimail-pp-cli support`** - Public endpoint. Requires a solved ALTCHA proof-of-work payload. Sends a message to support@multimail.dev.
 
 ### suppression
 
@@ -301,13 +432,13 @@ Manage unsubscribe
 
 Manage usage
 
-- **`multimail-pp-cli usage list`** - Requires read scope. Returns usage counts for the current billing period.
+- **`multimail-pp-cli usage`** - Requires read scope. Returns usage counts for the current billing period.
 
 ### webhook-deliveries
 
 Manage webhook deliveries
 
-- **`multimail-pp-cli webhook-deliveries list`** - Returns recent webhook delivery attempts. Requires admin scope.
+- **`multimail-pp-cli webhook-deliveries`** - Returns recent webhook delivery attempts. Requires admin scope.
 
 ### webhooks
 
@@ -326,6 +457,9 @@ Manage well known
 
 - **`multimail-pp-cli well-known get`** - Rate-limited to 10 lookups per IP per hour.
 - **`multimail-pp-cli well-known list`** - Returns the ECDSA P-256 public key used to sign X-MultiMail-Identity headers.
+- **`multimail-pp-cli well-known list-wellknown`** - Returns OAuth authorization server metadata with an agent_auth extension block describing the auth.md agent registration flow.
+- **`multimail-pp-cli well-known list-wellknown-2`** - Returns metadata about MultiMail as an OAuth-protected resource, including supported scopes and authorization servers. Part of the auth.md agent registration protocol.
+
 
 ## Output Formats
 
@@ -382,6 +516,10 @@ Environment variables:
 | --- | --- | --- | --- |
 | `MULTIMAIL_BEARER_AUTH` | per_call | Yes | Set to your API credential. |
 
+### agentcookie (optional)
+
+If you use agentcookie to sync secrets across machines, this CLI auto-adopts agentcookie-managed credentials with no extra setup. When the daemon writes to this CLI's config, `multimail-pp-cli doctor` reports `agentcookie: detected` and `auth-status` labels the source as `agentcookie`. Skip this section if you don't use agentcookie - the CLI works the same as any other.
+
 ## Troubleshooting
 **Authentication errors (exit code 4)**
 - Run `multimail-pp-cli doctor` to check credentials
@@ -390,6 +528,18 @@ Environment variables:
 - Check the resource ID is correct
 - Run the `list` command to see available items
 
----
+### API-specific
+- **401 Unauthorized on every request** — Run: multimail-pp-cli auth set-token <your-mm_live-key>. Keys start with mm_live_ (prod) or mm_test_ (staging).
+- **Rate limited (429) during sync** — Use --max-pages 5 to limit sync depth, or add --since 24h to narrow the window.
+- **Oversight decide returns 404** — The email may have already been decided. Check: multimail-pp-cli audit-log list --json | head
+- **Empty search results after sync** — Confirm sync completed: multimail-pp-cli doctor. If stale, re-sync: multimail-pp-cli sync --resources emails --full
+
+## Sources & Inspiration
+
+This CLI was built by studying these projects and resources:
+
+- [**multimail-mcp**](https://github.com/multimail-dev/mcp-server) — TypeScript
+- [**agenticmail**](https://github.com/agenticmail/agenticmail) — JavaScript
+- [**agentmail-mcp**](https://github.com/agentmail-to/agentmail-mcp) — TypeScript
 
 Generated by [CLI Printing Press](https://github.com/mvanhorn/cli-printing-press)

@@ -9,11 +9,16 @@ import (
 
 func newOversightCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "oversight",
-		Short: "Manage oversight",
+		Use:         "oversight",
+		Short:       "List and create oversight",
+		Hidden:      true,
+		Annotations: map[string]string{"mcp:read-only": "true"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newOversightCreateCmd(flags))
 	cmd.AddCommand(newOversightListCmd(flags))
+	cmd.AddCommand(newNovelOversightBulkDecideCmd(flags))
+	cmd.AddCommand(newNovelOversightVelocityCmd(flags))
 	return cmd
 }

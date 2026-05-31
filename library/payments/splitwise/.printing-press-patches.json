@@ -29,6 +29,74 @@
           "reason": "Generator-shaped: 13 published CLIs use cursorType==\"offset\" and 12 besides splitwise lack this fallback, so any offset endpoint that omits has_more truncates at one page. The template should emit the offset full-page fallback alongside the existing page-int one."
         }
       ]
+    },
+    {
+      "id": "analytics-read-200-cap",
+      "summary": "Store.List returns all rows for a non-positive limit instead of defaulting to LIMIT 200.",
+      "reason": "Every offline analytic (spend, debts, ledger, balances, recurring, activity) reads via db.List(rt, 0); the 200-row default silently aggregated an arbitrary ~200 of N synced rows ordered by sync time, dropping expenses from every report even when the cache was complete.",
+      "files": [
+        "internal/store/store.go"
+      ],
+      "validated_outcome": "debts --aged null entries 7/9 -> 1/9 and spend --group-by month range 2024 -> 2026 on a 638-expense account."
+    },
+    {
+      "id": "local-read-unscoped-and-paging",
+      "summary": "Local reads signal dropped filters via meta.unscoped/unapplied_params and honor --limit/--offset instead of returning the whole cache.",
+      "reason": "resolveLocal returns all synced rows and never applies endpoint filters; the only signal was a stderr warning that JSON/agent consumers never see. Added Unscoped/UnappliedParams provenance (set only for non-empty, non-pagination params) and threaded the caller's limit/offset into the local list read so a get-* --data-source local request is bounded rather than dumping the store.",
+      "files": [
+        "internal/cli/data_source.go",
+        "internal/cli/helpers.go"
+      ]
+    },
+    {
+      "id": "name-resolver-ambiguity",
+      "summary": "Group/friend name resolution prefers an exact match and errors on ambiguous names instead of silently picking the first substring match.",
+      "reason": "resolveLedgerGroup/resolveSettleGroup/resolveSettleFriend returned the first case-insensitive substring match, so a name matching multiple groups/friends silently resolved to one — dangerous for settle-up --record, which creates real payment expenses. Settle-up falls through to a unique friend when the group name is ambiguous.",
+      "files": [
+        "internal/cli/splitwise_settle.go",
+        "internal/cli/splitwise_spend.go",
+        "internal/cli/splitwise_split.go"
+      ]
+    },
+    {
+      "id": "recurring-regularity-gate",
+      "summary": "recurring requires a regular cadence (mean in [2,400] days, bounded gap spread) and excludes settlement-labeled expenses.",
+      "reason": "recurring reported any description seen >= min-occurrences times as recurring with a meaningless mean-gap cadence, surfacing trips, same-trip bursts, and settle-up records (which Splitwise stores as payment=false so the e.Payment filter missed them). Added the recurringCadence regularity gate and isSettlementDescription, aligned the deleted-expense check with expenseDeleted(), and raised the min-occurrences default to 3.",
+      "files": [
+        "internal/cli/splitwise_recurring.go"
+      ]
+    },
+    {
+      "id": "search-scan-based-relevance-and-fuzzy",
+      "summary": "Rework search to scan extracted meaningful text (word-boundary token matching) instead of the raw-JSON FTS index; honor --type; add --fuzzy.",
+      "reason": "The FTS index stored each resource's whole JSON blob, so field names ('description', 'cost') and ubiquitous values ('USD') matched every record, and the raw user query went to FTS5 MATCH so punctuation (taxi-hotel, a:b) raised cryptic SQL errors. The --type flag was silently ignored. Store.Search is now scan-based over searchableText with word-boundary token matching (exact) plus an optional fuzzy mode (per-term Levenshtein), a real resource_type filter, and no FTS5 syntax exposure. The FTS table/maintenance is left intact but unused by search (candidate for removal upstream).",
+      "files": [
+        "internal/store/store.go",
+        "internal/cli/search.go",
+        "internal/mcp/tools.go"
+      ]
+    },
+    {
+      "id": "analytics-csv-plain-output-flags",
+      "summary": "Analytics commands (balances, debts, ledger, spend, recurring, settle-up) honor --csv/--plain via a new emitStructured helper instead of always emitting JSON.",
+      "reason": "These commands hand-build structured output and called flags.printJSON directly, branching only JSON-vs-human-table, so --csv/--plain were silently ignored (piping `balances --csv` yielded JSON). Added rootFlags.emitStructured which reuses printCSV for --csv and tab-separated printPlain for --plain, unwrapping a single wrapped-array envelope (recurring's {items}, settle-up's {transfers}/{recorded_payments}) before tabulating, and falling back to JSON for multi-array envelopes (balances, ledger) where no single table applies. Generic get-* commands already honored --csv via printOutputWithFlags.",
+      "files": [
+        "internal/cli/helpers.go",
+        "internal/cli/splitwise_balances.go",
+        "internal/cli/splitwise_spend.go",
+        "internal/cli/splitwise_recurring.go",
+        "internal/cli/splitwise_settle.go"
+      ],
+      "validated_outcome": "Live: `spend --csv` emits CSV, `spend --plain` tab-separated, `recurring --csv` unwraps {items}, `balances --csv` falls back to JSON (2-array envelope); default piped output unchanged JSON."
+    },
+    {
+      "id": "which-keyword-aliases",
+      "summary": "Add a Keywords field to whichEntry and keyword scoring so advertised SKILL trigger phrases resolve in `which`.",
+      "reason": "`which \"who owes me money\"` returned no match (exit 2) even though that phrase is an advertised SKILL.md trigger. The curated whichIndex matched only on command/description/group text. Added whichEntry.Keywords plus keyword scoring (+3 full-query phrase match, +1 per query token found in a keyword) and populated keywords for the curated entries; backward compatible since nil-keyword entries score nothing extra.",
+      "files": [
+        "internal/cli/which.go"
+      ],
+      "validated_outcome": "Live: `which \"who owes me money\"` now returns debts (score 3) at exit 0; `which \"venmo\"` returns settle-up."
     }
   ]
 }

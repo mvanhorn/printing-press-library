@@ -11,6 +11,75 @@ import (
 	"github.com/spf13/cobra"
 )
 
+const (
+	// recurringMinCadenceDays is the smallest mean gap that counts as recurring.
+	// Below it, repeats are same-period bursts (several taxis on one trip), not
+	// a recurring charge.
+	recurringMinCadenceDays = 2
+	// recurringMaxGapSpread bounds how irregular the intervals may be: the
+	// largest gap may be at most this multiple of the smallest. Catches
+	// descriptions that recur across unrelated trips at wildly varying spacing.
+	recurringMaxGapSpread = 3.0
+	// recurringMaxCadenceDays caps how infrequent a recurring charge may be. A
+	// recurring charge (rent, utilities, subscriptions) repeats at most about
+	// annually; wider mean spacing means the repeats are coincidental, not a
+	// recurring obligation, even when they happen to be evenly spaced. The cap
+	// sits above a calendar year so an annual charge with late renewals (mean
+	// just over 365 days) is not dropped by rounding/billing drift.
+	recurringMaxCadenceDays = 400
+)
+
+// isSettlementDescription reports whether a description is an auto-generated
+// settle-up label. Splitwise stores some of these as non-payment expenses
+// (payment=false), so the e.Payment filter alone misses them — they are
+// settlements, not recurring charges.
+func isSettlementDescription(desc string) bool {
+	d := strings.ToLower(strings.TrimSpace(desc))
+	switch d {
+	case "settle all balances", "settle up", "payment":
+		return true
+	}
+	return strings.HasPrefix(d, "paid via ")
+}
+
+// recurringCadence returns the mean inter-expense gap (rounded days) and whether
+// the gaps form a regular-enough cadence to count as a recurring charge. It is
+// regular when the mean cadence is at least recurringMinCadenceDays and, with
+// two or more gaps, the largest gap is at most recurringMaxGapSpread times the
+// smallest. Fewer than two gaps (one or two occurrences) cannot establish
+// regularity, so the spread check is skipped and only the cadence floor applies.
+func recurringCadence(gaps []float64) (cadence int, regular bool) {
+	if len(gaps) == 0 {
+		return 0, false
+	}
+	total := 0.0
+	for _, gp := range gaps {
+		total += gp
+	}
+	cadence = int(math.Round(total / float64(len(gaps))))
+	if cadence < 0 {
+		cadence = 0
+	}
+	if cadence < recurringMinCadenceDays || cadence > recurringMaxCadenceDays {
+		return cadence, false
+	}
+	if len(gaps) >= 2 {
+		minGap, maxGap := gaps[0], gaps[0]
+		for _, gp := range gaps {
+			if gp < minGap {
+				minGap = gp
+			}
+			if gp > maxGap {
+				maxGap = gp
+			}
+		}
+		if minGap <= 0 || maxGap > recurringMaxGapSpread*minGap {
+			return cadence, false
+		}
+	}
+	return cadence, true
+}
+
 // pp:data-source local
 func newRecurringCmd(flags *rootFlags) *cobra.Command {
 	limit := 20
@@ -58,7 +127,7 @@ func newRecurringCmd(flags *rootFlags) *cobra.Command {
 			clusters := make(map[string]*grouped)
 			scanned := 0
 			for _, e := range expenses {
-				if e.Payment || e.DeletedAt != nil {
+				if e.Payment || expenseDeleted(e.DeletedAt) || isSettlementDescription(e.Description) {
 					continue
 				}
 				scanned++
@@ -121,16 +190,23 @@ func newRecurringCmd(flags *rootFlags) *cobra.Command {
 					lastTime = dates[len(dates)-1]
 					lastDate = lastTime.Format("2006-01-02")
 				}
-				if len(dates) >= 2 {
-					totalGap := 0.0
-					for i := 1; i < len(dates); i++ {
-						totalGap += dates[i].Sub(dates[i-1]).Hours() / 24
-					}
-					cadence = int(math.Round(totalGap / float64(len(dates)-1)))
-					if cadence < 0 {
-						cadence = 0
-					}
+				gaps := make([]float64, 0, len(dates))
+				for i := 1; i < len(dates); i++ {
+					gaps = append(gaps, dates[i].Sub(dates[i-1]).Hours()/24)
 				}
+				// Regularity gate: a recurring charge repeats at a roughly steady
+				// interval. Drop clusters that are merely the same description seen
+				// repeatedly — same-period bursts (tiny cadence, e.g. several taxis
+				// in one trip) and irregular spreads (a description that recurs
+				// across unrelated trips years apart). Without this, ANY description
+				// seen >= min-occurrences times was reported as "recurring" with a
+				// meaningless mean-gap cadence.
+				var regular bool
+				cadence, regular = recurringCadence(gaps)
+				if !regular {
+					continue
+				}
+
 				overdue := false
 				if cadence > 0 && !lastTime.IsZero() {
 					daysSince := now.Sub(lastTime).Hours() / 24
@@ -186,7 +262,7 @@ func newRecurringCmd(flags *rootFlags) *cobra.Command {
 			}{Items: outItems, ScannedExpenses: scanned}
 
 			if flags.asJSON || flags.agent || !isTerminal(cmd.OutOrStdout()) {
-				return flags.printJSON(cmd, view)
+				return flags.emitStructured(cmd, view)
 			}
 
 			tw := tabwriter.NewWriter(cmd.OutOrStdout(), 2, 4, 2, ' ', 0)
@@ -199,7 +275,7 @@ func newRecurringCmd(flags *rootFlags) *cobra.Command {
 	}
 
 	cmd.Flags().IntVar(&limit, "limit", 20, "Maximum recurring groups to return")
-	cmd.Flags().IntVar(&minOccurrences, "min-occurrences", 2, "Minimum occurrences to treat as recurring")
+	cmd.Flags().IntVar(&minOccurrences, "min-occurrences", 3, "Minimum occurrences to treat as recurring (>= 3 lets regularity be assessed)")
 	return cmd
 }
 

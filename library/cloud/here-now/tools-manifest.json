@@ -1,0 +1,1377 @@
+{
+  "api_name": "here-now",
+  "base_url": "https://here.now",
+  "description": "Publish a folder to a live URL in one command, mirror your Drives offline, and never lose an anonymous site to the 24-hour clock.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "mcp": {
+    "endpoint_tools": "hidden",
+    "orchestration": "code"
+  },
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "HERENOW_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "HERENOW_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ],
+    "key_url": "https://here.now/dashboard"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "domains_create",
+      "description": "Add a custom domain. Required: domain. Returns the new DomainResponse.",
+      "method": "POST",
+      "path": "/api/v1/domains",
+      "params": [
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "body",
+          "description": "Domain",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "domains_delete",
+      "description": "Remove a custom domain. Required: domain. Returns the SuccessResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/api/v1/domains/{domain}",
+      "params": [
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "path",
+          "description": "Domain",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "domains_get",
+      "description": "Get custom domain status. Required: domain. Returns the DomainResponse.",
+      "method": "GET",
+      "path": "/api/v1/domains/{domain}",
+      "params": [
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "path",
+          "description": "Domain",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "domains_list",
+      "description": "List custom domains. Returns the DomainListResponse.",
+      "method": "GET",
+      "path": "/api/v1/domains",
+      "params": []
+    },
+    {
+      "name": "drives_create",
+      "description": "Create a Drive. Optional: description, isDefault, name. Returns the new DriveResponse.",
+      "method": "POST",
+      "path": "/api/v1/drives",
+      "params": [
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description"
+        },
+        {
+          "name": "isDefault",
+          "type": "bool",
+          "location": "body",
+          "description": "Is default"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        }
+      ]
+    },
+    {
+      "name": "drives_delete",
+      "description": "Soft-delete a Drive. Required: driveId. Returns the DeleteDriveResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/api/v1/drives/{driveId}",
+      "params": [
+        {
+          "name": "driveId",
+          "type": "string",
+          "location": "path",
+          "description": "Drive identifier.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "drives_get",
+      "description": "Get Drive details. Required: driveId. Returns the DriveResponse.",
+      "method": "GET",
+      "path": "/api/v1/drives/{driveId}",
+      "params": [
+        {
+          "name": "driveId",
+          "type": "string",
+          "location": "path",
+          "description": "Drive identifier.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "drives_get-default",
+      "description": "Get or create the default Drive. Returns the DriveResponse.",
+      "method": "GET",
+      "path": "/api/v1/drives/default",
+      "params": []
+    },
+    {
+      "name": "drives_list",
+      "description": "List account Drives. Returns the DriveListResponse.",
+      "method": "GET",
+      "path": "/api/v1/drives",
+      "params": []
+    },
+    {
+      "name": "drives_patch",
+      "description": "Patch Drive metadata. Required: driveId. Optional: description, isDefault, name. Returns the updated DriveResponse.",
+      "method": "PATCH",
+      "path": "/api/v1/drives/{driveId}",
+      "params": [
+        {
+          "name": "driveId",
+          "type": "string",
+          "location": "path",
+          "description": "Drive identifier.",
+          "required": true
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description"
+        },
+        {
+          "name": "isDefault",
+          "type": "bool",
+          "location": "body",
+          "description": "Is default"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        }
+      ]
+    },
+    {
+      "name": "drives_files_apply-drive-batch",
+      "description": "Apply a batch of Drive file operations. Required: driveId, ops. Optional: baseVersionId. Returns the updated DriveBatchResponse.",
+      "method": "PATCH",
+      "path": "/api/v1/drives/{driveId}/files",
+      "params": [
+        {
+          "name": "driveId",
+          "type": "string",
+          "location": "path",
+          "description": "Drive identifier.",
+          "required": true
+        },
+        {
+          "name": "baseVersionId",
+          "type": "string",
+          "location": "body",
+          "description": "Base version id"
+        },
+        {
+          "name": "ops",
+          "type": "array",
+          "location": "body",
+          "description": "Ops",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "drives_files_create-drive-upload",
+      "description": "Stage a Drive file write. Required: driveId, path, size. Optional: contentType, ifMatch, ifNoneMatch (plus 1 more). Returns the new DriveUploadCreateResponse.",
+      "method": "POST",
+      "path": "/api/v1/drives/{driveId}/files/uploads",
+      "params": [
+        {
+          "name": "driveId",
+          "type": "string",
+          "location": "path",
+          "description": "Drive identifier.",
+          "required": true
+        },
+        {
+          "name": "contentType",
+          "type": "string",
+          "location": "body",
+          "description": "Content type"
+        },
+        {
+          "name": "ifMatch",
+          "type": "string",
+          "location": "body",
+          "description": "If match"
+        },
+        {
+          "name": "ifNoneMatch",
+          "type": "string",
+          "location": "body",
+          "description": "If none match"
+        },
+        {
+          "name": "path",
+          "type": "string",
+          "location": "body",
+          "description": "Path",
+          "required": true
+        },
+        {
+          "name": "sha256",
+          "type": "string",
+          "location": "body",
+          "description": "Sha256"
+        },
+        {
+          "name": "size",
+          "type": "int",
+          "location": "body",
+          "description": "Size",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "drives_files_delete-drive",
+      "description": "Delete a Drive file or prefix. Required: driveId, path. Optional: recursive, baseVersionId. Returns the DriveBatchResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/api/v1/drives/{driveId}/files/{path}",
+      "params": [
+        {
+          "name": "driveId",
+          "type": "string",
+          "location": "path",
+          "description": "Drive identifier.",
+          "required": true
+        },
+        {
+          "name": "path",
+          "type": "string",
+          "location": "path",
+          "description": "Path",
+          "required": true
+        },
+        {
+          "name": "recursive",
+          "type": "bool",
+          "location": "query",
+          "description": "Recursive"
+        },
+        {
+          "name": "baseVersionId",
+          "type": "string",
+          "location": "query",
+          "description": "Base version id"
+        }
+      ]
+    },
+    {
+      "name": "drives_files_finalize-drive-upload",
+      "description": "Finalize a staged Drive upload. Required: driveId, uploadId. Optional: path. Returns the new DriveBatchResponse.",
+      "method": "POST",
+      "path": "/api/v1/drives/{driveId}/files/finalize",
+      "params": [
+        {
+          "name": "driveId",
+          "type": "string",
+          "location": "path",
+          "description": "Drive identifier.",
+          "required": true
+        },
+        {
+          "name": "path",
+          "type": "string",
+          "location": "body",
+          "description": "Path"
+        },
+        {
+          "name": "uploadId",
+          "type": "string",
+          "location": "body",
+          "description": "Upload id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "drives_files_list-drive",
+      "description": "List Drive files. Required: driveId. Optional: prefix, cursor, limit. Returns the DriveFileListResponse.",
+      "method": "GET",
+      "path": "/api/v1/drives/{driveId}/files",
+      "params": [
+        {
+          "name": "driveId",
+          "type": "string",
+          "location": "path",
+          "description": "Drive identifier.",
+          "required": true
+        },
+        {
+          "name": "prefix",
+          "type": "string",
+          "location": "query",
+          "description": "Prefix"
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Cursor"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        }
+      ]
+    },
+    {
+      "name": "drives_files_move-drive",
+      "description": "Move a Drive file. Required: driveId, from, ifMatch, to. Optional: overwriteIfMatch. Returns the new DriveBatchResponse.",
+      "method": "POST",
+      "path": "/api/v1/drives/{driveId}/files/move",
+      "params": [
+        {
+          "name": "driveId",
+          "type": "string",
+          "location": "path",
+          "description": "Drive identifier.",
+          "required": true
+        },
+        {
+          "name": "from",
+          "type": "string",
+          "location": "body",
+          "description": "From",
+          "required": true
+        },
+        {
+          "name": "ifMatch",
+          "type": "string",
+          "location": "body",
+          "description": "If match",
+          "required": true
+        },
+        {
+          "name": "overwriteIfMatch",
+          "type": "string",
+          "location": "body",
+          "description": "Overwrite if match"
+        },
+        {
+          "name": "to",
+          "type": "string",
+          "location": "body",
+          "description": "To",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "drives_files_read-drive",
+      "description": "Read a Drive file. Required: driveId, path.",
+      "method": "GET",
+      "path": "/api/v1/drives/{driveId}/files/{path}",
+      "params": [
+        {
+          "name": "driveId",
+          "type": "string",
+          "location": "path",
+          "description": "Drive identifier.",
+          "required": true
+        },
+        {
+          "name": "path",
+          "type": "string",
+          "location": "path",
+          "description": "Path",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "drives_tokens_create-drive",
+      "description": "Create a scoped Drive token. Required: driveId. Optional: label, manageTokens (default: false), pathPrefix (plus 3 more). Returns the new DriveTokenCreateResponse.",
+      "method": "POST",
+      "path": "/api/v1/drives/{driveId}/tokens",
+      "params": [
+        {
+          "name": "driveId",
+          "type": "string",
+          "location": "path",
+          "description": "Drive identifier.",
+          "required": true
+        },
+        {
+          "name": "label",
+          "type": "string",
+          "location": "body",
+          "description": "Label"
+        },
+        {
+          "name": "manageTokens",
+          "type": "bool",
+          "location": "body",
+          "description": "Manage tokens"
+        },
+        {
+          "name": "pathPrefix",
+          "type": "string",
+          "location": "body",
+          "description": "Path prefix"
+        },
+        {
+          "name": "permissions",
+          "type": "string",
+          "location": "body",
+          "description": "Permissions"
+        },
+        {
+          "name": "perms",
+          "type": "string",
+          "location": "body",
+          "description": "Perms"
+        },
+        {
+          "name": "ttl",
+          "type": "string",
+          "location": "body",
+          "description": "Ttl"
+        }
+      ]
+    },
+    {
+      "name": "drives_tokens_list-drive",
+      "description": "List Drive tokens. Required: driveId. Returns the DriveTokenListResponse.",
+      "method": "GET",
+      "path": "/api/v1/drives/{driveId}/tokens",
+      "params": [
+        {
+          "name": "driveId",
+          "type": "string",
+          "location": "path",
+          "description": "Drive identifier.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "handle_create",
+      "description": "Create account subdomain handle. Optional: handle, username. Returns the new HandleResponse.",
+      "method": "POST",
+      "path": "/api/v1/handle",
+      "params": [
+        {
+          "name": "handle",
+          "type": "string",
+          "location": "body",
+          "description": "Handle"
+        },
+        {
+          "name": "username",
+          "type": "string",
+          "location": "body",
+          "description": "Username"
+        }
+      ]
+    },
+    {
+      "name": "handle_delete",
+      "description": "Delete account subdomain handle. Returns the SuccessResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/api/v1/handle",
+      "params": []
+    },
+    {
+      "name": "handle_get",
+      "description": "Get account subdomain handle. Returns the HandleResponse.",
+      "method": "GET",
+      "path": "/api/v1/handle",
+      "params": []
+    },
+    {
+      "name": "handle_update",
+      "description": "Update account subdomain handle. Optional: handle, username. Returns the updated HandleResponse.",
+      "method": "PATCH",
+      "path": "/api/v1/handle",
+      "params": [
+        {
+          "name": "handle",
+          "type": "string",
+          "location": "body",
+          "description": "Handle"
+        },
+        {
+          "name": "username",
+          "type": "string",
+          "location": "body",
+          "description": "Username"
+        }
+      ]
+    },
+    {
+      "name": "here-now-analytics_get-account",
+      "description": "Returns aggregate analytics across all Sites owned by the authenticated paid account. Optional: range (default: 30d).",
+      "method": "GET",
+      "path": "/api/v1/analytics",
+      "params": [
+        {
+          "name": "range",
+          "type": "string",
+          "location": "query",
+          "description": "Analytics time range. Defaults to 30d when omitted or invalid."
+        }
+      ]
+    },
+    {
+      "name": "here-now-auth_request-agent-code",
+      "description": "Starts the agent-assisted API key flow by emailing a one-time code to the user. Required: email. Returns the new AgentAuthRequestCodeResponse.",
+      "method": "POST",
+      "path": "/api/auth/agent/request-code",
+      "params": [
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body",
+          "description": "Email",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "here-now-auth_verify-agent-code",
+      "description": "Completes agent-assisted sign-in. If the email is new, the account is created. Required: code, email. Returns the new AgentAuthVerifyCodeResponse.",
+      "method": "POST",
+      "path": "/api/auth/agent/verify-code",
+      "params": [
+        {
+          "name": "code",
+          "type": "string",
+          "location": "body",
+          "description": "Code",
+          "required": true
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body",
+          "description": "Email",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "links_create",
+      "description": "Create a link from a subdomain handle/domain path to a Site. Required: slug. Optional: domain, location, mount_path (plus 1 more). Returns the new LinkResponse.",
+      "method": "POST",
+      "path": "/api/v1/links",
+      "params": [
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "body",
+          "description": "Domain"
+        },
+        {
+          "name": "location",
+          "type": "string",
+          "location": "body",
+          "description": "Location"
+        },
+        {
+          "name": "mount_path",
+          "type": "string",
+          "location": "body",
+          "description": "Mount path"
+        },
+        {
+          "name": "namespace_id",
+          "type": "string",
+          "location": "body",
+          "description": "Namespace id"
+        },
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "body",
+          "description": "Slug",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "links_delete",
+      "description": "Delete a link. Required: location. Returns the DeleteLinkResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/api/v1/links/{location}",
+      "params": [
+        {
+          "name": "location",
+          "type": "string",
+          "location": "path",
+          "description": "Location",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "links_get",
+      "description": "Get a link. Required: location. Returns the LinkResponse.",
+      "method": "GET",
+      "path": "/api/v1/links/{location}",
+      "params": [
+        {
+          "name": "location",
+          "type": "string",
+          "location": "path",
+          "description": "Location",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "links_list",
+      "description": "List subdomain handle or domain links. Returns the LinkListResponse.",
+      "method": "GET",
+      "path": "/api/v1/links",
+      "params": []
+    },
+    {
+      "name": "links_update",
+      "description": "Update a link. Required: location, slug. Optional: domain, namespace_id. Returns the updated LinkResponse.",
+      "method": "PATCH",
+      "path": "/api/v1/links/{location}",
+      "params": [
+        {
+          "name": "location",
+          "type": "string",
+          "location": "path",
+          "description": "Location",
+          "required": true
+        },
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "body",
+          "description": "Domain"
+        },
+        {
+          "name": "namespace_id",
+          "type": "string",
+          "location": "body",
+          "description": "Namespace id"
+        },
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "body",
+          "description": "Slug",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "me_delete-variable",
+      "description": "Delete a service variable. Required: name. Returns the SuccessResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/api/v1/me/variables/{name}",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "path",
+          "description": "Name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "me_list-variables",
+      "description": "List service variables. Returns the VariableListResponse.",
+      "method": "GET",
+      "path": "/api/v1/me/variables",
+      "params": []
+    },
+    {
+      "name": "me_set-variable",
+      "description": "Create or update a service variable. Required: name, value. Optional: pinToUpstreamOrigin. Returns the updated VariableResponse.",
+      "method": "PUT",
+      "path": "/api/v1/me/variables/{name}",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "path",
+          "description": "Name",
+          "required": true
+        },
+        {
+          "name": "pinToUpstreamOrigin",
+          "type": "bool",
+          "location": "body",
+          "description": "Pin to upstream origin"
+        },
+        {
+          "name": "value",
+          "type": "string",
+          "location": "body",
+          "description": "Value",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "profile_resource_add-profile-site",
+      "description": "Shows an active owned Site on the authenticated user's public profile. Password-protected Sites cannot be shown on a profile. Adding a Site already on the profile is idempotent. Required: slug. Returns the new ProfileSitesMutationResponse.",
+      "method": "POST",
+      "path": "/api/v1/profile/sites",
+      "params": [
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "body",
+          "description": "Slug",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "profile_resource_get-profile",
+      "description": "Returns the authenticated user's public profile settings and Sites shown on the profile.",
+      "method": "GET",
+      "path": "/api/v1/profile",
+      "params": []
+    },
+    {
+      "name": "profile_resource_list-profile-sites",
+      "description": "Lists the authenticated user's Sites currently shown on their public profile. Returns the ProfileSitesResponse.",
+      "method": "GET",
+      "path": "/api/v1/profile/sites",
+      "params": []
+    },
+    {
+      "name": "profile_resource_patch-profile",
+      "description": "Turns the public profile on or off and controls whether future Sites are added to the profile automatically. Optional: addNewSitesToProfile, enabled. Returns the updated ProfileResponse.",
+      "method": "PATCH",
+      "path": "/api/v1/profile",
+      "params": [
+        {
+          "name": "addNewSitesToProfile",
+          "type": "bool",
+          "location": "body",
+          "description": "Add new sites to profile"
+        },
+        {
+          "name": "enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Enabled"
+        }
+      ]
+    },
+    {
+      "name": "profile_resource_patch-profile-username",
+      "description": "Changes the authenticated user's profile username and profile URL. Required: username. Returns the updated ProfileResponse.",
+      "method": "PATCH",
+      "path": "/api/v1/profile/username",
+      "params": [
+        {
+          "name": "username",
+          "type": "string",
+          "location": "body",
+          "description": "Username",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "profile_resource_remove-profile-site",
+      "description": "Removes a Site from the authenticated user's public profile without deleting the Site. Required: slug. Returns the ProfileSitesMutationResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/api/v1/profile/sites/{slug}",
+      "params": [
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "path",
+          "description": "here.now Site slug.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "publish_create-site",
+      "description": "Creates a pending Site version and returns presigned upload URLs. Anonymous requests are allowed and create temporary Sites that expire after 24 hours. Required: files. Optional: claimToken, spaMode, ttlSeconds (plus 1 more). (public)",
+      "method": "POST",
+      "path": "/api/v1/publish",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "claimToken",
+          "type": "string",
+          "location": "body",
+          "description": "Claim token"
+        },
+        {
+          "name": "files",
+          "type": "array",
+          "location": "body",
+          "description": "Files",
+          "required": true
+        },
+        {
+          "name": "spaMode",
+          "type": "bool",
+          "location": "body",
+          "description": "Spa mode"
+        },
+        {
+          "name": "ttlSeconds",
+          "type": "int",
+          "location": "body",
+          "description": "Ttl seconds"
+        },
+        {
+          "name": "viewer-description",
+          "wire_name": "viewer.description",
+          "type": "string",
+          "location": "body",
+          "description": "Description"
+        },
+        {
+          "name": "viewer-og-image-path",
+          "wire_name": "viewer.ogImagePath",
+          "type": "string",
+          "location": "body",
+          "description": "Og image path"
+        },
+        {
+          "name": "viewer-title",
+          "wire_name": "viewer.title",
+          "type": "string",
+          "location": "body",
+          "description": "Title"
+        }
+      ]
+    },
+    {
+      "name": "publish_delete-site",
+      "description": "Delete a Site. Required: slug. Returns the SuccessResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/api/v1/publish/{slug}",
+      "params": [
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "path",
+          "description": "here.now Site slug.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "publish_from-drive",
+      "description": "Publish a Drive version as a Site. Required: driveId. Optional: password, slug, spaMode (plus 2 more). Returns the new PublishFromDriveResponse.",
+      "method": "POST",
+      "path": "/api/v1/publish/from-drive",
+      "params": [
+        {
+          "name": "driveId",
+          "type": "string",
+          "location": "body",
+          "description": "Drive id",
+          "required": true
+        },
+        {
+          "name": "password",
+          "type": "string",
+          "location": "body",
+          "description": "Password"
+        },
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "body",
+          "description": "Slug"
+        },
+        {
+          "name": "spaMode",
+          "type": "bool",
+          "location": "body",
+          "description": "Spa mode"
+        },
+        {
+          "name": "versionId",
+          "type": "string",
+          "location": "body",
+          "description": "Version id"
+        },
+        {
+          "name": "viewer-description",
+          "wire_name": "viewer.description",
+          "type": "string",
+          "location": "body",
+          "description": "Description"
+        },
+        {
+          "name": "viewer-og-image-path",
+          "wire_name": "viewer.ogImagePath",
+          "type": "string",
+          "location": "body",
+          "description": "Og image path"
+        },
+        {
+          "name": "viewer-title",
+          "wire_name": "viewer.title",
+          "type": "string",
+          "location": "body",
+          "description": "Title"
+        }
+      ]
+    },
+    {
+      "name": "publish_get-site",
+      "description": "Get Site details. Required: slug. Returns the PublishDetailsResponse.",
+      "method": "GET",
+      "path": "/api/v1/publish/{slug}",
+      "params": [
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "path",
+          "description": "here.now Site slug.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "publish_update-site",
+      "description": "Creates a pending replacement version for an existing Site. Authenticated Sites require API key ownership. Anonymous Sites require claimToken. Required: slug, files. Optional: claimToken, spaMode, ttlSeconds (plus 1 more). Returns the updated PublishCreateResponse. (public)",
+      "method": "PUT",
+      "path": "/api/v1/publish/{slug}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "path",
+          "description": "here.now Site slug.",
+          "required": true
+        },
+        {
+          "name": "claimToken",
+          "type": "string",
+          "location": "body",
+          "description": "Claim token"
+        },
+        {
+          "name": "files",
+          "type": "array",
+          "location": "body",
+          "description": "Files",
+          "required": true
+        },
+        {
+          "name": "spaMode",
+          "type": "bool",
+          "location": "body",
+          "description": "Spa mode"
+        },
+        {
+          "name": "ttlSeconds",
+          "type": "int",
+          "location": "body",
+          "description": "Ttl seconds"
+        },
+        {
+          "name": "viewer-description",
+          "wire_name": "viewer.description",
+          "type": "string",
+          "location": "body",
+          "description": "Description"
+        },
+        {
+          "name": "viewer-og-image-path",
+          "wire_name": "viewer.ogImagePath",
+          "type": "string",
+          "location": "body",
+          "description": "Og image path"
+        },
+        {
+          "name": "viewer-title",
+          "wire_name": "viewer.title",
+          "type": "string",
+          "location": "body",
+          "description": "Title"
+        }
+      ]
+    },
+    {
+      "name": "publish_claim_anonymous-site",
+      "description": "Transfers an anonymous Site to the authenticated account or browser session using a claim token. Required: slug, claimToken. Returns the new ClaimSiteResponse.",
+      "method": "POST",
+      "path": "/api/v1/publish/{slug}/claim",
+      "params": [
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "path",
+          "description": "here.now Site slug.",
+          "required": true
+        },
+        {
+          "name": "claimToken",
+          "type": "string",
+          "location": "body",
+          "description": "Claim token",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "publish_finalize_site-version",
+      "description": "Makes a pending version live after all files have been uploaded. Required: slug, versionId. Returns the new FinalizePublishResponse. (public)",
+      "method": "POST",
+      "path": "/api/v1/publish/{slug}/finalize",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "path",
+          "description": "here.now Site slug.",
+          "required": true
+        },
+        {
+          "name": "versionId",
+          "type": "string",
+          "location": "body",
+          "description": "Version id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "publish_metadata_patch-site",
+      "description": "Updates TTL, viewer metadata, password protection, and SPA routing for an authenticated Site. Required: slug. Optional: password, spaMode, ttlSeconds (plus 1 more). Returns the updated PublishMetadataPatchResponse.",
+      "method": "PATCH",
+      "path": "/api/v1/publish/{slug}/metadata",
+      "params": [
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "path",
+          "description": "here.now Site slug.",
+          "required": true
+        },
+        {
+          "name": "password",
+          "type": "string",
+          "location": "body",
+          "description": "Password"
+        },
+        {
+          "name": "spaMode",
+          "type": "bool",
+          "location": "body",
+          "description": "Spa mode"
+        },
+        {
+          "name": "ttlSeconds",
+          "type": "int",
+          "location": "body",
+          "description": "Ttl seconds"
+        },
+        {
+          "name": "viewer-description",
+          "wire_name": "viewer.description",
+          "type": "string",
+          "location": "body",
+          "description": "Description"
+        },
+        {
+          "name": "viewer-og-image-path",
+          "wire_name": "viewer.ogImagePath",
+          "type": "string",
+          "location": "body",
+          "description": "Og image path"
+        },
+        {
+          "name": "viewer-title",
+          "wire_name": "viewer.title",
+          "type": "string",
+          "location": "body",
+          "description": "Title"
+        }
+      ]
+    },
+    {
+      "name": "publish_uploads_refresh-site-urls",
+      "description": "Refresh upload URLs for a pending Site version. Required: slug. Returns the new PublishCreateResponse.",
+      "method": "POST",
+      "path": "/api/v1/publish/{slug}/uploads/refresh",
+      "params": [
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "path",
+          "description": "here.now Site slug.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "publishes_list-sites",
+      "description": "List account Sites. Returns the PublishListResponse.",
+      "method": "GET",
+      "path": "/api/v1/publishes",
+      "params": []
+    },
+    {
+      "name": "publishes_search-sites",
+      "description": "Searches the authenticated user's active owned Sites by slug, URL/domain, viewer metadata, file path, and indexed text content. Password-protected Sites are included for the owner because search reads stored publish files, not public URLs. Required: q. Optional: limit (default: 20), cursor. Returns the SiteSearchResponse.",
+      "method": "GET",
+      "path": "/api/v1/publishes/search",
+      "params": [
+        {
+          "name": "q",
+          "type": "string",
+          "location": "query",
+          "description": "Search query. Uses Postgres websearch syntax with the simple text search configuration.",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum results to return. Defaults to 20 and is capped at 100."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Opaque pagination cursor returned as nextCursor from a previous response."
+        }
+      ]
+    },
+    {
+      "name": "publishes_analytics_get-site",
+      "description": "Returns analytics for one Site owned by the authenticated paid account. Required: slug. Optional: range (default: 30d).",
+      "method": "GET",
+      "path": "/api/v1/publishes/{slug}/analytics",
+      "params": [
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "path",
+          "description": "here.now Site slug.",
+          "required": true
+        },
+        {
+          "name": "range",
+          "type": "string",
+          "location": "query",
+          "description": "Analytics time range. Defaults to 30d when omitted or invalid."
+        }
+      ]
+    },
+    {
+      "name": "publishes_data_create-site-record",
+      "description": "Creates one record in a Site Data collection for a Site owned by the authenticated account. The request body is validated against the collection schema. Required: slug, collection. Returns the new SiteDataRecordResponse.",
+      "method": "POST",
+      "path": "/api/v1/publishes/{slug}/data/{collection}",
+      "params": [
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "path",
+          "description": "here.now Site slug.",
+          "required": true
+        },
+        {
+          "name": "collection",
+          "type": "string",
+          "location": "path",
+          "description": "Site Data collection name from the Site's .herenow/data.json manifest.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "publishes_data_delete-site-record",
+      "description": "Soft-deletes one active record from a Site Data collection for a Site owned by the authenticated account. Required: slug, collection, recordId. Returns the SiteDataDeleteResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/api/v1/publishes/{slug}/data/{collection}/{recordId}",
+      "params": [
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "path",
+          "description": "here.now Site slug.",
+          "required": true
+        },
+        {
+          "name": "collection",
+          "type": "string",
+          "location": "path",
+          "description": "Site Data collection name from the Site's .herenow/data.json manifest.",
+          "required": true
+        },
+        {
+          "name": "recordId",
+          "type": "string",
+          "location": "path",
+          "description": "Site Data record id.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "publishes_data_get-site-record",
+      "description": "Returns one active record from a Site Data collection for a Site owned by the authenticated account. Required: slug, collection, recordId.",
+      "method": "GET",
+      "path": "/api/v1/publishes/{slug}/data/{collection}/{recordId}",
+      "params": [
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "path",
+          "description": "here.now Site slug.",
+          "required": true
+        },
+        {
+          "name": "collection",
+          "type": "string",
+          "location": "path",
+          "description": "Site Data collection name from the Site's .herenow/data.json manifest.",
+          "required": true
+        },
+        {
+          "name": "recordId",
+          "type": "string",
+          "location": "path",
+          "description": "Site Data record id.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "publishes_data_list-site-records",
+      "description": "Lists active records in one Site Data collection for a Site owned by the authenticated account. This is the central owner API; browser pages usually use the Site-local /.herenow/data/:collection endpoint instead. Required: slug, collection. Optional: limit (default: 50), cursor. Returns the SiteDataRecordListResponse.",
+      "method": "GET",
+      "path": "/api/v1/publishes/{slug}/data/{collection}",
+      "params": [
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "path",
+          "description": "here.now Site slug.",
+          "required": true
+        },
+        {
+          "name": "collection",
+          "type": "string",
+          "location": "path",
+          "description": "Site Data collection name from the Site's .herenow/data.json manifest.",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum records to return. Defaults to 50 and is capped at 100."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Opaque pagination cursor returned as nextCursor from a previous response."
+        }
+      ]
+    },
+    {
+      "name": "publishes_data_patch-site-record",
+      "description": "Merges submitted fields into an existing Site Data record for a Site owned by the authenticated account. The resulting record is validated against the collection schema. Required: slug, collection, recordId. Returns the updated SiteDataRecordResponse.",
+      "method": "PATCH",
+      "path": "/api/v1/publishes/{slug}/data/{collection}/{recordId}",
+      "params": [
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "path",
+          "description": "here.now Site slug.",
+          "required": true
+        },
+        {
+          "name": "collection",
+          "type": "string",
+          "location": "path",
+          "description": "Site Data collection name from the Site's .herenow/data.json manifest.",
+          "required": true
+        },
+        {
+          "name": "recordId",
+          "type": "string",
+          "location": "path",
+          "description": "Site Data record id.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "support_create-request",
+      "description": "Send an authenticated support request. Required: message, subject. Returns the new OkResponse.",
+      "method": "POST",
+      "path": "/api/v1/support",
+      "params": [
+        {
+          "name": "message",
+          "type": "string",
+          "location": "body",
+          "description": "Message",
+          "required": true
+        },
+        {
+          "name": "subject",
+          "type": "string",
+          "location": "body",
+          "description": "Subject",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

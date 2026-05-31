@@ -8,15 +8,21 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strconv"
 
 	"github.com/spf13/cobra"
 )
 
 func newAccountCreateCmd(flags *rootFlags) *cobra.Command {
-	var bodyAcceptedAntiSpamPolicy bool
-	var bodyAcceptedOperatorAgreement bool
-	var bodyAcceptedTos bool
-	var bodyAttribution string
+	var bodyAcceptedAntiSpamPolicy string
+	var bodyAcceptedOperatorAgreement string
+	var bodyAcceptedTos string
+	var bodyAttributionFirstLandingPath string
+	var bodyAttributionFirstTs int
+	var bodyAttributionLastLandingPath string
+	var bodyAttributionLastTs int
+	var bodyAttributionVersion int
+	var bodyAttributionVisits int
 	var bodyCfChallengeResponse string
 	var bodyEmailUseType string
 	var bodyFingerprint string
@@ -26,7 +32,11 @@ func newAccountCreateCmd(flags *rootFlags) *cobra.Command {
 	var bodyOversightMode string
 	var bodyPaymentMethod string
 	var bodyPhysicalAddress string
-	var bodyPowSolution string
+	var bodyPowSolutionAlgorithm string
+	var bodyPowSolutionChallenge string
+	var bodyPowSolutionNumber int
+	var bodyPowSolutionSalt string
+	var bodyPowSolutionSignature string
 	var bodySlug string
 	var bodyTurnstileToken string
 	var bodyUseCase string
@@ -34,10 +44,16 @@ func newAccountCreateCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:         "create",
-		Short:       "Requires a solved proof-of-work challenge. Creates a pending signup and sends a confirmation email. Response is...",
+		Short:       "Requires a solved proof-of-work challenge. Creates a pending signup and sends a confirmation email.",
 		Example:     "  multimail-pp-cli account create --operator-name example-resource",
 		Annotations: map[string]string{"pp:endpoint": "account.create", "pp:method": "POST", "pp:path": "/v1/account"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			// Bare invocation of a command with required input prints help
+			// instead of pflag's terse "required flag not set" error. Optional-
+			// only read commands fall through so a bare call still executes.
+			if cmd.Flags().NFlag() == 0 && len(args) == 0 && !flags.dryRun {
+				return cmd.Help()
+			}
 			if !stdinBody {
 				if !cmd.Flags().Changed("accepted-anti-spam-policy") && !flags.dryRun {
 					return fmt.Errorf("required flag \"%s\" not set", "accepted-anti-spam-policy")
@@ -54,8 +70,20 @@ func newAccountCreateCmd(flags *rootFlags) *cobra.Command {
 				if !cmd.Flags().Changed("oversight-email") && !flags.dryRun {
 					return fmt.Errorf("required flag \"%s\" not set", "oversight-email")
 				}
-				if !cmd.Flags().Changed("pow-solution") && !flags.dryRun {
-					return fmt.Errorf("required flag \"%s\" not set", "pow-solution")
+				if !cmd.Flags().Changed("pow-solution-algorithm") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "pow-solution-algorithm")
+				}
+				if !cmd.Flags().Changed("pow-solution-challenge") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "pow-solution-challenge")
+				}
+				if !cmd.Flags().Changed("pow-solution-number") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "pow-solution-number")
+				}
+				if !cmd.Flags().Changed("pow-solution-salt") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "pow-solution-salt")
+				}
+				if !cmd.Flags().Changed("pow-solution-signature") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "pow-solution-signature")
 				}
 			}
 			c, err := flags.newClient()
@@ -64,6 +92,7 @@ func newAccountCreateCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			path := "/v1/account"
+			params := map[string]string{}
 			var body map[string]any
 			if stdinBody {
 				stdinData, err := io.ReadAll(os.Stdin)
@@ -77,21 +106,62 @@ func newAccountCreateCmd(flags *rootFlags) *cobra.Command {
 				body = jsonBody
 			} else {
 				body = map[string]any{}
-				if bodyAcceptedAntiSpamPolicy != false {
-					body["accepted_anti_spam_policy"] = bodyAcceptedAntiSpamPolicy
-				}
-				if bodyAcceptedOperatorAgreement != false {
-					body["accepted_operator_agreement"] = bodyAcceptedOperatorAgreement
-				}
-				if bodyAcceptedTos != false {
-					body["accepted_tos"] = bodyAcceptedTos
-				}
-				if bodyAttribution != "" {
-					var parsedAttribution any
-					if err := json.Unmarshal([]byte(bodyAttribution), &parsedAttribution); err != nil {
-						return fmt.Errorf("parsing --attribution JSON: %w", err)
+				if bodyAcceptedAntiSpamPolicy != "" {
+					parsedAcceptedAntiSpamPolicy, err := strconv.ParseBool(bodyAcceptedAntiSpamPolicy)
+					if err != nil {
+						return fmt.Errorf("parsing --accepted-anti-spam-policy as bool: %w", err)
 					}
-					body["attribution"] = parsedAttribution
+					body["accepted_anti_spam_policy"] = parsedAcceptedAntiSpamPolicy
+				}
+				if bodyAcceptedOperatorAgreement != "" {
+					parsedAcceptedOperatorAgreement, err := strconv.ParseBool(bodyAcceptedOperatorAgreement)
+					if err != nil {
+						return fmt.Errorf("parsing --accepted-operator-agreement as bool: %w", err)
+					}
+					body["accepted_operator_agreement"] = parsedAcceptedOperatorAgreement
+				}
+				if bodyAcceptedTos != "" {
+					parsedAcceptedTos, err := strconv.ParseBool(bodyAcceptedTos)
+					if err != nil {
+						return fmt.Errorf("parsing --accepted-tos as bool: %w", err)
+					}
+					body["accepted_tos"] = parsedAcceptedTos
+				}
+				{
+					nestedAttribution := map[string]any{}
+					{
+						nestedAttributionFirst := map[string]any{}
+						if bodyAttributionFirstLandingPath != "" {
+							nestedAttributionFirst["landing_path"] = bodyAttributionFirstLandingPath
+						}
+						if bodyAttributionFirstTs != 0 {
+							nestedAttributionFirst["ts"] = bodyAttributionFirstTs
+						}
+						if len(nestedAttributionFirst) > 0 {
+							nestedAttribution["first"] = nestedAttributionFirst
+						}
+					}
+					{
+						nestedAttributionLast := map[string]any{}
+						if bodyAttributionLastLandingPath != "" {
+							nestedAttributionLast["landing_path"] = bodyAttributionLastLandingPath
+						}
+						if bodyAttributionLastTs != 0 {
+							nestedAttributionLast["ts"] = bodyAttributionLastTs
+						}
+						if len(nestedAttributionLast) > 0 {
+							nestedAttribution["last"] = nestedAttributionLast
+						}
+					}
+					if bodyAttributionVersion != 0 {
+						nestedAttribution["version"] = bodyAttributionVersion
+					}
+					if bodyAttributionVisits != 0 {
+						nestedAttribution["visits"] = bodyAttributionVisits
+					}
+					if len(nestedAttribution) > 0 {
+						body["attribution"] = nestedAttribution
+					}
 				}
 				if bodyCfChallengeResponse != "" {
 					body["cf_challenge_response"] = bodyCfChallengeResponse
@@ -120,12 +190,26 @@ func newAccountCreateCmd(flags *rootFlags) *cobra.Command {
 				if bodyPhysicalAddress != "" {
 					body["physical_address"] = bodyPhysicalAddress
 				}
-				if bodyPowSolution != "" {
-					var parsedPowSolution any
-					if err := json.Unmarshal([]byte(bodyPowSolution), &parsedPowSolution); err != nil {
-						return fmt.Errorf("parsing --pow-solution JSON: %w", err)
+				{
+					nestedPowSolution := map[string]any{}
+					if bodyPowSolutionAlgorithm != "" {
+						nestedPowSolution["algorithm"] = bodyPowSolutionAlgorithm
 					}
-					body["pow_solution"] = parsedPowSolution
+					if bodyPowSolutionChallenge != "" {
+						nestedPowSolution["challenge"] = bodyPowSolutionChallenge
+					}
+					if bodyPowSolutionNumber != 0 {
+						nestedPowSolution["number"] = bodyPowSolutionNumber
+					}
+					if bodyPowSolutionSalt != "" {
+						nestedPowSolution["salt"] = bodyPowSolutionSalt
+					}
+					if bodyPowSolutionSignature != "" {
+						nestedPowSolution["signature"] = bodyPowSolutionSignature
+					}
+					if len(nestedPowSolution) > 0 {
+						body["pow_solution"] = nestedPowSolution
+					}
 				}
 				if bodySlug != "" {
 					body["slug"] = bodySlug
@@ -137,9 +221,30 @@ func newAccountCreateCmd(flags *rootFlags) *cobra.Command {
 					body["use_case"] = bodyUseCase
 				}
 			}
-			data, statusCode, err := c.Post(path, body)
+			data, statusCode, err := c.PostWithParams(cmd.Context(), path, params, body)
 			if err != nil {
 				return classifyAPIError(err, flags)
+			}
+			// Inspect the mutate response body for a partial-failure-shaped
+			// field (e.g. Google Ads `partialFailureError`). Several Google
+			// APIs return 200 OK with a partial-failure field when some
+			// operations in the batch failed; ignoring it silently swallows
+			// real failures. Detection runs before output-mode selection so
+			// the exit code is consistent regardless of how stdout is
+			// rendered. --dry-run short-circuits because no real request
+			// was sent.
+			var partialFailure *partialFailureReport
+			if !flags.dryRun && statusCode >= 200 && statusCode < 300 {
+				partialFailure = detectPartialFailure(data)
+				if partialFailure != nil {
+					fmt.Fprintf(os.Stderr, "warning: partial failure detected in %s response: %s\n", "account", partialFailure.Message)
+					if len(partialFailure.ResourceNames) > 0 {
+						fmt.Fprintf(os.Stderr, "         succeeded: %d operation(s)\n", len(partialFailure.ResourceNames))
+					}
+				}
+			}
+			if !flags.dryRun && statusCode >= 200 && statusCode < 300 && (partialFailure == nil || flags.allowPartialFailure) {
+				writeMutationResponseToStore(cmd.Context(), "account", data, "")
 			}
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				// Check if response contains an array (directly or wrapped in "data")
@@ -148,6 +253,9 @@ func newAccountCreateCmd(flags *rootFlags) *cobra.Command {
 					if err := printAutoTable(cmd.OutOrStdout(), items); err != nil {
 						fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)
 					} else {
+						if partialFailure != nil && !flags.allowPartialFailure {
+							return partialFailureErr(fmt.Errorf("partial failure in %s response: %s", "account", partialFailure.Message))
+						}
 						return nil
 					}
 				} else {
@@ -158,14 +266,52 @@ func newAccountCreateCmd(flags *rootFlags) *cobra.Command {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)
 						} else {
+							if partialFailure != nil && !flags.allowPartialFailure {
+								return partialFailureErr(fmt.Errorf("partial failure in %s response: %s", "account", partialFailure.Message))
+							}
 							return nil
 						}
 					}
 				}
 			}
-			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
+			if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
 				if flags.quiet {
+					if partialFailure != nil && !flags.allowPartialFailure {
+						return partialFailureErr(fmt.Errorf("partial failure in %s response: %s", "account", partialFailure.Message))
+					}
 					return nil
+				}
+				envelope := map[string]any{
+					"action":   "post",
+					"resource": "account",
+					"path":     path,
+					"status":   statusCode,
+					"success":  statusCode >= 200 && statusCode < 300 && (partialFailure == nil || flags.allowPartialFailure),
+				}
+				if partialFailure != nil {
+					envelope["partial_failure"] = partialFailure
+				}
+				if flags.dryRun {
+					envelope["dry_run"] = true
+					envelope["status"] = 0
+					envelope["success"] = false
+				}
+				// Verify-mode synthetic envelope detection runs against RAW data
+				// (before --compact/--select filtering) so the sentinel field is
+				// guaranteed to be visible even if the operator passes a filter
+				// flag that would otherwise strip it. Surfaces a top-level
+				// verify_noop signal + flips success to false. Mirrors the dry_run
+				// shape above.
+				if len(data) > 0 {
+					var rawParsed any
+					if err := json.Unmarshal(data, &rawParsed); err == nil {
+						if m, ok := rawParsed.(map[string]any); ok {
+							if v, ok := m["__pp_verify_synthetic__"].(bool); ok && v {
+								envelope["verify_noop"] = true
+								envelope["success"] = false
+							}
+						}
+					}
 				}
 				// Apply --compact and --select to the API response before wrapping.
 				// --select wins when both are set: explicit field choice trumps the
@@ -177,18 +323,6 @@ func newAccountCreateCmd(flags *rootFlags) *cobra.Command {
 				} else if flags.compact {
 					filtered = compactFields(filtered)
 				}
-				envelope := map[string]any{
-					"action":   "post",
-					"resource": "account",
-					"path":     path,
-					"status":   statusCode,
-					"success":  statusCode >= 200 && statusCode < 300,
-				}
-				if flags.dryRun {
-					envelope["dry_run"] = true
-					envelope["status"] = 0
-					envelope["success"] = false
-				}
 				if len(filtered) > 0 {
 					var parsed any
 					if err := json.Unmarshal(filtered, &parsed); err == nil {
@@ -199,16 +333,40 @@ func newAccountCreateCmd(flags *rootFlags) *cobra.Command {
 				if err != nil {
 					return err
 				}
-				return printOutput(cmd.OutOrStdout(), json.RawMessage(envelopeJSON), true)
+				if perr := printOutput(cmd.OutOrStdout(), json.RawMessage(envelopeJSON), true); perr != nil {
+					return perr
+				}
+				if partialFailure != nil && !flags.allowPartialFailure {
+					return partialFailureErr(fmt.Errorf("partial failure in %s response: %s", "account", partialFailure.Message))
+				}
+				return nil
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			// Fall-through for mutate paths that did not hit the table or
+			// asJSON branches: --quiet, --csv, --plain, and default terminal
+			// raw output. printOutputWithFlags renders the body, then the
+			// typed partial-failure exit fires unless --allow-partial-failure
+			// downgrades it. Without this guard a partial failure would exit
+			// 0 for these output modes — the exact silent-swallow regression
+			// the surrounding patch is preventing for asJSON / piped output.
+			if perr := printOutputWithFlags(cmd.OutOrStdout(), data, flags); perr != nil {
+				return perr
+			}
+			if partialFailure != nil && !flags.allowPartialFailure {
+				return partialFailureErr(fmt.Errorf("partial failure in %s response: %s", "account", partialFailure.Message))
+			}
+			return nil
 		},
 	}
-	cmd.Flags().BoolVar(&bodyAcceptedAntiSpamPolicy, "accepted-anti-spam-policy", false, "Must be true.")
-	cmd.Flags().BoolVar(&bodyAcceptedOperatorAgreement, "accepted-operator-agreement", false, "Must be true.")
-	cmd.Flags().BoolVar(&bodyAcceptedTos, "accepted-tos", false, "Must be true.")
-	cmd.Flags().StringVar(&bodyAttribution, "attribution", "", "Optional client-captured conversion attribution (Phase 2 of plan 2026-04-27-003). The browser persists this in...")
-	cmd.Flags().StringVar(&bodyCfChallengeResponse, "cf-challenge-response", "", "Preferred browser Turnstile token field. Mirrors the hidden cf-turnstile-response input value. maxLength keeps API...")
+	cmd.Flags().StringVar(&bodyAcceptedAntiSpamPolicy, "accepted-anti-spam-policy", "", "Must be true.")
+	cmd.Flags().StringVar(&bodyAcceptedOperatorAgreement, "accepted-operator-agreement", "", "Must be true.")
+	cmd.Flags().StringVar(&bodyAcceptedTos, "accepted-tos", "", "Must be true.")
+	cmd.Flags().StringVar(&bodyAttributionFirstLandingPath, "attribution-first-landing-path", "", "Pathname of the landing page (no host).")
+	cmd.Flags().IntVar(&bodyAttributionFirstTs, "attribution-first-ts", 0, "Epoch milliseconds at landing.")
+	cmd.Flags().StringVar(&bodyAttributionLastLandingPath, "attribution-last-landing-path", "", "Pathname of the landing page (no host).")
+	cmd.Flags().IntVar(&bodyAttributionLastTs, "attribution-last-ts", 0, "Epoch milliseconds at landing.")
+	cmd.Flags().IntVar(&bodyAttributionVersion, "attribution-version", 0, "Schema version.")
+	cmd.Flags().IntVar(&bodyAttributionVisits, "attribution-visits", 0, "Visit counter, incremented client-side. Server validator coerces missing/zero/negative values to 1.")
+	cmd.Flags().StringVar(&bodyCfChallengeResponse, "cf-challenge-response", "", "Preferred browser Turnstile token field. Mirrors the hidden cf-turnstile-response input value.")
 	cmd.Flags().StringVar(&bodyEmailUseType, "email-use-type", "", "Only transactional is accepted today.")
 	cmd.Flags().StringVar(&bodyFingerprint, "fingerprint", "", "Optional browser fingerprint used for signup throttling.")
 	cmd.Flags().IntVar(&bodyFormOpenAt, "form-open-at", 0, "Epoch milliseconds when the signup modal opened.")
@@ -217,11 +375,15 @@ func newAccountCreateCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&bodyOversightMode, "oversight-mode", "", "Optional initial mailbox oversight mode. Unsafe modes are rejected.")
 	cmd.Flags().StringVar(&bodyPaymentMethod, "payment-method", "", "Signup intent source. Pricing page starter flow sends stripe.")
 	cmd.Flags().StringVar(&bodyPhysicalAddress, "physical-address", "", "Physical address")
-	cmd.Flags().StringVar(&bodyPowSolution, "pow-solution", "", "Solved ALTCHA proof-of-work challenge from POST /v1/account/challenge.")
+	cmd.Flags().StringVar(&bodyPowSolutionAlgorithm, "pow-solution-algorithm", "", "Algorithm")
+	cmd.Flags().StringVar(&bodyPowSolutionChallenge, "pow-solution-challenge", "", "Challenge hash from the challenge endpoint")
+	cmd.Flags().IntVar(&bodyPowSolutionNumber, "pow-solution-number", 0, "Solved number N where SHA-256(salt + N) matches challenge")
+	cmd.Flags().StringVar(&bodyPowSolutionSalt, "pow-solution-salt", "", "Salt from the challenge (echo back unchanged)")
+	cmd.Flags().StringVar(&bodyPowSolutionSignature, "pow-solution-signature", "", "Signature from the challenge (echo back unchanged)")
 	cmd.Flags().StringVar(&bodySlug, "slug", "", "URL-safe slug. Auto-generated from operator_name if omitted.")
-	cmd.Flags().StringVar(&bodyTurnstileToken, "turnstile-token", "", "Legacy Turnstile token field. Accepted for backward compatibility. maxLength matches cf_challenge_response — see...")
+	cmd.Flags().StringVar(&bodyTurnstileToken, "turnstile-token", "", "Legacy Turnstile token field. Accepted for backward compatibility.")
 	cmd.Flags().StringVar(&bodyUseCase, "use-case", "", "Use case")
-	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
+	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin (use this for deeply nested fields not exposed as flags)")
 
 	return cmd
 }

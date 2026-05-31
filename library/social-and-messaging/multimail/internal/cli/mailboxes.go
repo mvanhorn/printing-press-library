@@ -9,14 +9,18 @@ import (
 
 func newMailboxesCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "mailboxes",
-		Short: "Manage mailboxes",
+		Use:         "mailboxes",
+		Short:       "List, create, update, and delete mailboxes",
+		Hidden:      true,
+		Annotations: map[string]string{"mcp:read-only": "true"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newMailboxesCreateCmd(flags))
 	cmd.AddCommand(newMailboxesDeleteCmd(flags))
 	cmd.AddCommand(newMailboxesListCmd(flags))
 	cmd.AddCommand(newMailboxesUpdateCmd(flags))
+	cmd.AddCommand(newMailboxesAllowlistCmd(flags))
 	cmd.AddCommand(newMailboxesEmailsCmd(flags))
 	cmd.AddCommand(newMailboxesReplyCmd(flags))
 	cmd.AddCommand(newMailboxesRequestUpgradeCmd(flags))

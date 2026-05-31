@@ -16,10 +16,11 @@ import (
 // the SKILL.md feature section, so the command a `which` query returns
 // is guaranteed to exist and to match what the skill advertises.
 type whichEntry struct {
-	Command      string `json:"command"`
-	Description  string `json:"description"`
-	Group        string `json:"group,omitempty"`
-	WhyItMatters string `json:"why_it_matters,omitempty"`
+	Command      string   `json:"command"`
+	Description  string   `json:"description"`
+	Group        string   `json:"group,omitempty"`
+	WhyItMatters string   `json:"why_it_matters,omitempty"`
+	Keywords     []string `json:"keywords,omitempty"`
 }
 
 // whichIndex is the curated list of capabilities this CLI advertises as
@@ -27,13 +28,13 @@ type whichEntry struct {
 // `--help`; `which` exists to resolve a natural-language capability
 // query to one of the commands the skill says matter most.
 var whichIndex = []whichEntry{
-	{Command: "balances", Description: "See everything you owe and are owed across every friend and group in one net-position view.", Group: "Balances at a glance", WhyItMatters: "Reach for this instead of N get_groups + get_friends calls when an agent needs the user's overall money position."},
-	{Command: "debts", Description: "List who owes you (and whom you owe) sorted by how long the balance has gone unsettled.", Group: "Balances at a glance", WhyItMatters: "Use when the task is 'who never pays me back' or chasing stale IOUs."},
-	{Command: "ledger", Description: "Every expense in a group, in date order, with a cumulative running balance per member.", Group: "Balances at a glance", WhyItMatters: "Use to audit how a group's balances got to where they are, not just the snapshot."},
-	{Command: "spend", Description: "Total shared spend broken down by category, group, or month from your synced history.", Group: "Offline spend intelligence", WhyItMatters: "Use for any 'how much did we spend on X' question instead of paging the whole expense list."},
-	{Command: "search", Description: "Full-text search across your entire expense history, comments, and group/friend names — offline.", Group: "Offline spend intelligence", WhyItMatters: "Use to find a specific past expense by keyword without paging the API."},
-	{Command: "settle-up", Description: "Compute the minimum set of transfers that zeroes out balances in a group, then optionally record the payments.", Group: "Reconcile and settle", WhyItMatters: "Use when a group wants the fewest Venmo transfers to get everyone to zero."},
-	{Command: "activity", Description: "Show what changed since your last sync — new, edited, and deleted expenses to review.", Group: "Reconcile and settle", WhyItMatters: "Use to reconcile recent account activity before settling or reporting."},
+	{Command: "balances", Description: "See everything you owe and are owed across every friend and group in one net-position view.", Group: "Balances at a glance", WhyItMatters: "Reach for this instead of N get_groups + get_friends calls when an agent needs the user's overall money position.", Keywords: []string{"what do i owe", "what i owe", "net position", "money position", "overall balance"}},
+	{Command: "debts", Description: "List who owes you (and whom you owe) sorted by how long the balance has gone unsettled.", Group: "Balances at a glance", WhyItMatters: "Use when the task is 'who never pays me back' or chasing stale IOUs.", Keywords: []string{"who owes me", "who owes me money", "owes me", "who never pays", "stale iou", "unsettled balances"}},
+	{Command: "ledger", Description: "Every expense in a group, in date order, with a cumulative running balance per member.", Group: "Balances at a glance", WhyItMatters: "Use to audit how a group's balances got to where they are, not just the snapshot.", Keywords: []string{"running balance", "audit balances"}},
+	{Command: "spend", Description: "Total shared spend broken down by category, group, or month from your synced history.", Group: "Offline spend intelligence", WhyItMatters: "Use for any 'how much did we spend on X' question instead of paging the whole expense list.", Keywords: []string{"how much did we spend", "spending", "spend on"}},
+	{Command: "search", Description: "Full-text search across your entire expense history, comments, and group/friend names — offline.", Group: "Offline spend intelligence", WhyItMatters: "Use to find a specific past expense by keyword without paging the API.", Keywords: []string{"find an expense", "search expenses"}},
+	{Command: "settle-up", Description: "Compute the minimum set of transfers that zeroes out balances in a group, then optionally record the payments.", Group: "Reconcile and settle", WhyItMatters: "Use when a group wants the fewest Venmo transfers to get everyone to zero.", Keywords: []string{"settle up", "pay everyone back", "venmo", "zero out balances"}},
+	{Command: "activity", Description: "Show what changed since your last sync — new, edited, and deleted expenses to review.", Group: "Reconcile and settle", WhyItMatters: "Use to reconcile recent account activity before settling or reporting.", Keywords: []string{"what changed", "recent activity"}},
 }
 
 // whichMatch pairs an index entry with its ranking score for a query.
@@ -125,6 +126,31 @@ func whichScoreEntry(e whichEntry, query string, qTokens []string) int {
 			if strings.Contains(group, qt) {
 				score += 1
 				break
+			}
+		}
+	}
+	if len(e.Keywords) > 0 {
+		matchedPhrase := false
+		for _, kw := range e.Keywords {
+			lowerKW := strings.ToLower(kw)
+			if query == lowerKW || strings.Contains(lowerKW, query) {
+				score += 3
+				matchedPhrase = true
+				break
+			}
+		}
+		if !matchedPhrase {
+			for _, qt := range qTokens {
+				tokenMatched := false
+				for _, kw := range e.Keywords {
+					if strings.Contains(strings.ToLower(kw), qt) {
+						tokenMatched = true
+						break
+					}
+				}
+				if tokenMatched {
+					score += 1
+				}
 			}
 		}
 	}

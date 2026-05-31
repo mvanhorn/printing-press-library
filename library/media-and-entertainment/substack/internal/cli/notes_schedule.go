@@ -3,6 +3,7 @@
 package cli
 
 import (
+	"context"
 	"fmt"
 	"math"
 	"os"
@@ -101,7 +102,7 @@ func newNotesScheduleCmd(flags *rootFlags) *cobra.Command {
 					fmt.Fprintln(cmd.ErrOrStderr(), "verify mode short-circuit — would have POSTed to /comment/feed")
 					return printJSONFiltered(cmd.OutOrStdout(), result, flags)
 				}
-				if err := postScheduledNote(flags, pmJSON); err != nil {
+				if err := postScheduledNote(cmd.Context(), flags, pmJSON); err != nil {
 					fmt.Fprintf(cmd.ErrOrStderr(), "warning: send failed: %v\n", err)
 				} else {
 					result.Sent = true
@@ -187,12 +188,12 @@ func markFired(flags *rootFlags, id int64) error {
 	return err
 }
 
-func postScheduledNote(flags *rootFlags, pmJSON []byte) error {
+func postScheduledNote(ctx context.Context, flags *rootFlags, pmJSON []byte) error {
 	c, err := flags.newClient()
 	if err != nil {
 		return err
 	}
-	_, _, err = c.Post("/comment/feed", map[string]any{
+	_, _, err = c.Post(ctx, "/comment/feed", map[string]any{
 		"type":     "feed",
 		"bodyJson": string(pmJSON),
 	})

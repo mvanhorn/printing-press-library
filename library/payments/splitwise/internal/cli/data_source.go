@@ -14,6 +14,8 @@ import (
 	"net"
 	"net/url"
 	"os"
+	"sort"
+	"strconv"
 	"strings"
 	"time"
 
@@ -22,6 +24,54 @@ import (
 )
 
 const networkFallbackReason = "api_unreachable"
+
+// paginationParamNames are query params that page a result set rather than
+// filter its content. Local reads ignore them (they return all synced rows), so
+// they must not count toward the "unscoped" provenance signal — otherwise every
+// local read would report itself unfiltered because limit/offset carry defaults.
+var paginationParamNames = map[string]bool{
+	"limit":    true,
+	"offset":   true,
+	"cursor":   true,
+	"page":     true,
+	"per_page": true,
+}
+
+// droppedFilterParams returns the sorted set of content-filter params that a
+// local read cannot honor against the cache: those with a non-empty value that
+// are not pure pagination. Unset flags arrive as "" and limit/offset carry
+// defaults, so this deliberately excludes both — otherwise every local read
+// would report itself unscoped and the signal would be meaningless.
+func droppedFilterParams(params map[string]string) []string {
+	dropped := make([]string, 0, len(params))
+	for k, v := range params {
+		if strings.TrimSpace(v) == "" || paginationParamNames[k] {
+			continue
+		}
+		dropped = append(dropped, k)
+	}
+	sort.Strings(dropped)
+	return dropped
+}
+
+// localPageBounds extracts a positive offset and limit from the caller's
+// pagination params so a local list read honors the requested page size instead
+// of returning the whole cache. Zero means "unbounded" — analytics callers go
+// straight to db.List and never pass through here, but the generic get-* list
+// commands carry the user's --limit and must not have it silently dropped.
+func localPageBounds(params map[string]string) (offset, limit int) {
+	if v := strings.TrimSpace(params["limit"]); v != "" {
+		if n, err := strconv.Atoi(v); err == nil && n > 0 {
+			limit = n
+		}
+	}
+	if v := strings.TrimSpace(params["offset"]); v != "" {
+		if n, err := strconv.Atoi(v); err == nil && n > 0 {
+			offset = n
+		}
+	}
+	return offset, limit
+}
 
 func unsupportedDataSourceError(strategy, requested string) error {
 	switch strategy {
@@ -563,30 +613,48 @@ func resolveLocal(ctx context.Context, flags *rootFlags, hintWriter io.Writer, r
 
 	prov := localProvenance(db, resourceType, reason)
 
-	// Warn if endpoint had filters that local reads can't reproduce
-	if len(params) > 0 {
-		fmt.Fprintf(os.Stderr, "warning: local data is unfiltered — endpoint filters are not applied to cached data\n")
+	// Local reads return ALL synced rows; endpoint filters are not applied to
+	// the cache. Surface that both on stderr (for TTY users) and in the
+	// provenance (so JSON/agent consumers, who never see stderr, get an in-band
+	// signal).
+	if dropped := droppedFilterParams(params); len(dropped) > 0 {
+		prov.Unscoped = true
+		prov.UnappliedParams = dropped
+		fmt.Fprintf(os.Stderr, "warning: local data is unfiltered — filters (%s) are not applied to cached data; re-run with --data-source live to apply them\n", strings.Join(dropped, ", "))
 	}
 
 	if isList {
-		raw, err := db.List(resourceType, 0) // 0 = no limit, return all synced data
+		// Honor the caller's pagination on local reads. db.List orders by
+		// updated_at DESC, so fetching offset+limit rows and trimming the offset
+		// yields a stable page; a non-positive limit fetches everything (analytics
+		// resources with no limit param). Without this, a plain
+		// `--data-source local --limit N` returned the entire store.
+		offset, limit := localPageBounds(params)
+		fetch := 0
+		if limit > 0 {
+			fetch = offset + limit
+		}
+		raw, err := db.List(resourceType, fetch)
 		if err != nil {
 			return nil, DataProvenance{}, fmt.Errorf("querying local store: %w", err)
 		}
-		// Filter out empty/invalid records (empty arrays, null, whitespace-only)
-		// that can end up in the store from pagination boundary artifacts.
-		var items []json.RawMessage
-		for _, r := range raw {
-			trimmed := strings.TrimSpace(string(r))
-			if trimmed == "" || trimmed == "null" || trimmed == "[]" || trimmed == "{}" {
-				continue
-			}
-			items = append(items, r)
-		}
+		items := raw
 		if len(items) == 0 {
 			return nil, DataProvenance{}, fmt.Errorf("no local data for %q. Run 'splitwise-pp-cli sync' first", resourceType)
 		}
-		// Marshal []json.RawMessage into a single JSON array
+		// Apply the requested page within the fetched rows. An offset past the
+		// end is a valid empty page, not an error.
+		if offset > 0 {
+			if offset >= len(items) {
+				items = items[:0]
+			} else {
+				items = items[offset:]
+			}
+		}
+		if limit > 0 && limit < len(items) {
+			items = items[:limit]
+		}
+		// Marshal []json.RawMessage into a single JSON array ([] when empty).
 		data, err := json.Marshal(items)
 		if err != nil {
 			return nil, DataProvenance{}, fmt.Errorf("marshaling local data: %w", err)

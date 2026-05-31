@@ -4,6 +4,7 @@
 package cli
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -74,7 +75,7 @@ native streaming instead of polling.`,
 			fmt.Fprintf(os.Stderr, "Tailing %s every %s (Ctrl+C to stop)\n", resource, interval)
 
 			// Initial fetch
-			if err := fetchAndEmit(c, path, enc); err != nil {
+			if err := fetchAndEmit(cmd.Context(), c, path, enc); err != nil {
 				fmt.Fprintf(os.Stderr, "warning: initial fetch failed: %v\n", err)
 			}
 
@@ -84,7 +85,7 @@ native streaming instead of polling.`,
 					fmt.Fprintln(os.Stderr, "\nShutting down gracefully...")
 					return nil
 				case <-ticker.C:
-					if err := fetchAndEmit(c, path, enc); err != nil {
+					if err := fetchAndEmit(cmd.Context(), c, path, enc); err != nil {
 						fmt.Fprintf(os.Stderr, "warning: poll failed: %v\n", err)
 					}
 				}
@@ -106,18 +107,20 @@ func tailKnownResources() []string {
 	return []string{
 		"account",
 		"admin",
+		"agent",
 		"api-keys",
 		"approve",
 		"audit-log",
+		"auth-md",
 		"billing",
 		"confirm",
 		"contacts",
+		"data_export",
 		"domains",
 		"emails",
 		"funnel",
+		"health",
 		"mailboxes",
-		"multimail-export",
-		"multimail-health",
 		"operator",
 		"oversight",
 		"slug-check",
@@ -131,10 +134,10 @@ func tailKnownResources() []string {
 	}
 }
 
-func fetchAndEmit(c interface {
-	Get(string, map[string]string) (json.RawMessage, error)
+func fetchAndEmit(ctx context.Context, c interface {
+	Get(context.Context, string, map[string]string) (json.RawMessage, error)
 }, path string, enc *json.Encoder) error {
-	data, err := c.Get(path, nil)
+	data, err := c.Get(ctx, path, nil)
 	if err != nil {
 		return err
 	}

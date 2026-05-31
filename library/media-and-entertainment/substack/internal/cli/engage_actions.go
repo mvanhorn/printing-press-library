@@ -9,6 +9,7 @@
 package cli
 
 import (
+	"context"
 	"fmt"
 	"strings"
 
@@ -63,7 +64,7 @@ func newEngageLikeCmd(flags *rootFlags) *cobra.Command {
 				fmt.Fprintln(cmd.ErrOrStderr(), "verify mode short-circuit — would have POSTed to /reaction")
 				return printJSONFiltered(cmd.OutOrStdout(), result, flags)
 			}
-			if err := postEngagement(flags, "like", noteID, "", ""); err != nil {
+			if err := postEngagement(cmd.Context(), flags, "like", noteID, "", ""); err != nil {
 				fmt.Fprintf(cmd.ErrOrStderr(), "warning: %v — endpoint may have changed; capture from DevTools and run 'substack-pp-cli feedback'\n", err)
 			} else {
 				result.Sent = true
@@ -105,7 +106,7 @@ func newEngageRestackCmd(flags *rootFlags) *cobra.Command {
 				fmt.Fprintln(cmd.ErrOrStderr(), "verify mode short-circuit — would have POSTed to /comment/feed")
 				return printJSONFiltered(cmd.OutOrStdout(), result, flags)
 			}
-			if err := postEngagement(flags, "restack", noteID, "", ""); err != nil {
+			if err := postEngagement(cmd.Context(), flags, "restack", noteID, "", ""); err != nil {
 				fmt.Fprintf(cmd.ErrOrStderr(), "warning: %v\n", err)
 			} else {
 				result.Sent = true
@@ -162,7 +163,7 @@ func newEngageRestackWithCommentCmd(flags *rootFlags) *cobra.Command {
 				fmt.Fprintln(cmd.ErrOrStderr(), "verify mode short-circuit")
 				return printJSONFiltered(cmd.OutOrStdout(), result, flags)
 			}
-			if err := postEngagement(flags, "restack-with-comment", noteID, body, pattern); err != nil {
+			if err := postEngagement(cmd.Context(), flags, "restack-with-comment", noteID, body, pattern); err != nil {
 				fmt.Fprintf(cmd.ErrOrStderr(), "warning: %v\n", err)
 			} else {
 				result.Sent = true
@@ -208,20 +209,20 @@ func restackCurl(noteID, body string) string {
   -d '{"type":"feed","parent_id":"%s","body":%q}'`, noteID, body)
 }
 
-func postEngagement(flags *rootFlags, kind, noteID, body, pattern string) error {
+func postEngagement(ctx context.Context, flags *rootFlags, kind, noteID, body, pattern string) error {
 	c, err := flags.newClient()
 	if err != nil {
 		return err
 	}
 	switch kind {
 	case "like":
-		_, _, err := c.Post(fmt.Sprintf("/comment/%s/reaction", noteID), map[string]any{"emoji": "❤"})
+		_, _, err := c.Post(ctx, fmt.Sprintf("/comment/%s/reaction", noteID), map[string]any{"emoji": "❤"})
 		return err
 	case "restack":
-		_, _, err := c.Post("/comment/feed", map[string]any{"type": "feed", "parent_id": noteID})
+		_, _, err := c.Post(ctx, "/comment/feed", map[string]any{"type": "feed", "parent_id": noteID})
 		return err
 	case "restack-with-comment":
-		_, _, err := c.Post("/comment/feed", map[string]any{"type": "feed", "parent_id": noteID, "body": body, "pattern": pattern})
+		_, _, err := c.Post(ctx, "/comment/feed", map[string]any{"type": "feed", "parent_id": noteID, "body": body, "pattern": pattern})
 		return err
 	}
 	return fmt.Errorf("unknown engagement kind %q", kind)
