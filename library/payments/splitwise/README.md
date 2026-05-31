@@ -193,6 +193,15 @@ These capabilities aren't available in any other tool for this API.
   splitwise-pp-cli forecast --days 60 --json
   ```
 
+### Multi-currency normalization
+- **`normalize`** — Normalize multi-currency net position and spend into one base currency using user-supplied offline FX rates (`--rate` / `--rates-file`); historical/automatic FX lookup is intentionally out of scope.
+
+  _Use to compare or total spend across trips in different currencies — supply the rates and get one base-currency number; a currency with no rate is surfaced as unconverted, never silently dropped._
+
+  ```bash
+  splitwise-pp-cli normalize --base USD --rate EUR=1.08 --agent
+  ```
+
 ### Reconcile and settle
 - **`settle-up`** — Compute the minimum set of transfers that zeroes out balances in a group, then optionally record the payments.
 
@@ -220,6 +229,15 @@ These capabilities aren't available in any other tool for this API.
 
 ## Recipes
 
+### Normalize multi-currency spend — `normalize`
+
+Convert mixed-currency balances/spend into one base currency with deterministic, user-supplied rates.
+
+```bash
+splitwise-pp-cli normalize --base USD --rate EUR=1.08 --rate GBP=1.27
+```
+
+Add `--agent` for JSON output in automation flows. A currency with no `--rate` is listed as unconverted (not mixed into the total); pin rates with repeated `--rate CUR=FACTOR` or a `--rates-file`.
 
 ### Settle the whole network in the fewest transfers — `net`
 
