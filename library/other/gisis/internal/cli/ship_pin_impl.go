@@ -34,11 +34,11 @@ func newShipPinCmd(flags *rootFlags) *cobra.Command {
 	var flagList bool
 
 	cmd := &cobra.Command{
-		Use:         "pin <imo>",
-		Short:       "Pin a vessel to your watchlist, optionally with a label.",
-		Long:        "Adds an IMO to the local watchlist so 'ship refresh --pinned' can re-fetch it on demand. Re-pinning updates the label. Use 'ship pin --list' to see the watchlist.",
-		Example:     "  gisis-pp-cli ship pin 9866641 --label \"Lagos deal\"\n  gisis-pp-cli ship pin --list --json",
-		Annotations: map[string]string{"mcp:read-only": "true"},
+		Use:     "pin <imo>",
+		Short:   "Pin a vessel to your watchlist, optionally with a label.",
+		Long:    "Adds an IMO to the local watchlist so 'ship refresh --pinned' can re-fetch it on demand. Re-pinning updates the label. Use 'ship pin --list' to see the watchlist.",
+		Example: "  gisis-pp-cli ship pin 9866641 --label \"Lagos deal\"\n  gisis-pp-cli ship pin --list --json",
+		// PATCH(pr-953 greptile): no mcp:read-only — pin writes the local watchlist.
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if flagList {
 				if dryRunOK(flags) {
@@ -94,10 +94,10 @@ func newShipPinCmd(flags *rootFlags) *cobra.Command {
 
 func newShipUnpinCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:         "unpin <imo>",
-		Short:       "Remove a vessel from your watchlist.",
-		Example:     "  gisis-pp-cli ship unpin 9866641",
-		Annotations: map[string]string{"mcp:read-only": "true"},
+		Use:     "unpin <imo>",
+		Short:   "Remove a vessel from your watchlist.",
+		Example: "  gisis-pp-cli ship unpin 9866641",
+		// PATCH(pr-953 greptile): no mcp:read-only — unpin deletes from the local watchlist.
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -180,11 +180,11 @@ func newShipRefreshCmd(flags *rootFlags) *cobra.Command {
 	var flagThrottle time.Duration
 
 	cmd := &cobra.Command{
-		Use:         "refresh [imo...]",
-		Short:       "Re-fetch vessels from GISIS and update the local cache.",
-		Long:        "Re-fetches the given IMOs (positional args), all pinned vessels (--pinned), and/or cached vessels older than a threshold (--older-than), then updates the local cache. Forces a fresh fetch (bypasses the HTTP response cache) and honors the request throttle.",
-		Example:     "  gisis-pp-cli ship refresh 9866641\n  gisis-pp-cli ship refresh --pinned\n  gisis-pp-cli ship refresh --older-than 30d",
-		Annotations: map[string]string{"mcp:read-only": "true"},
+		Use:     "refresh [imo...]",
+		Short:   "Re-fetch vessels from GISIS and update the local cache.",
+		Long:    "Re-fetches the given IMOs (positional args), all pinned vessels (--pinned), and/or cached vessels older than a threshold (--older-than), then updates the local cache. Forces a fresh fetch (bypasses the HTTP response cache) and honors the request throttle.",
+		Example: "  gisis-pp-cli ship refresh 9866641\n  gisis-pp-cli ship refresh --pinned\n  gisis-pp-cli ship refresh --older-than 30d",
+		// PATCH(pr-953 greptile): no mcp:read-only — refresh fetches from GISIS and writes the cache.
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {
 				return nil
@@ -197,6 +197,17 @@ func newShipRefreshCmd(flags *rootFlags) *cobra.Command {
 			imos = dedupeIMOs(append(imos, extra...))
 			if len(imos) == 0 {
 				return usageErr(fmt.Errorf("nothing to refresh: pass IMO args, --pinned, or --older-than"))
+			}
+			// PATCH(pr-953 greptile): same 7-digit guard as batch — reject malformed
+			// positional IMOs up front (pinned/stale targets are already valid).
+			var badIMOs []string
+			for _, imo := range imos {
+				if !isValidIMOFormat(imo) {
+					badIMOs = append(badIMOs, imo)
+				}
+			}
+			if len(badIMOs) > 0 {
+				return usageErr(fmt.Errorf("invalid IMO number(s): %s — each must be 7 digits", strings.Join(badIMOs, ", ")))
 			}
 			results, err := resolveIMOs(cmd, flags, imos, flagThrottle, true)
 			return emitBatchResults(cmd, flags, results, err)

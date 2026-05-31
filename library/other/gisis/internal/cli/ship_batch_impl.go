@@ -119,12 +119,12 @@ func newShipBatchCmd(flags *rootFlags) *cobra.Command {
 	var flagThrottle time.Duration
 
 	cmd := &cobra.Command{
-		Use:         "batch",
-		Short:       "Resolve many IMOs in one run, throttled, persisting each to the local cache.",
-		Long:        "Fetches each IMO's Ship Particulars in turn (default 2s between requests for GISIS politeness) and caches the result. Per-vessel failures are reported in the output without stopping the run, so a bad IMO never sinks the batch.",
-		Example:     "  gisis-pp-cli ship batch --imos 9866641,9966233 --json\n  gisis-pp-cli ship batch --file imos.txt --throttle 3s",
-		Annotations: map[string]string{"mcp:read-only": "true"},
-		Args:        cobra.NoArgs,
+		Use:     "batch",
+		Short:   "Resolve many IMOs in one run, throttled, persisting each to the local cache.",
+		Long:    "Fetches each IMO's Ship Particulars in turn (default 2s between requests for GISIS politeness) and caches the result. Per-vessel failures are reported in the output without stopping the run, so a bad IMO never sinks the batch.",
+		Example: "  gisis-pp-cli ship batch --imos 9866641,9966233 --json\n  gisis-pp-cli ship batch --file imos.txt --throttle 3s",
+		// PATCH(pr-953 greptile): no mcp:read-only — batch fetches from GISIS and writes the cache.
+		Args: cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {
 				return nil
@@ -140,6 +140,18 @@ func newShipBatchCmd(flags *rootFlags) *cobra.Command {
 			imos = dedupeIMOs(imos)
 			if len(imos) == 0 {
 				return usageErr(fmt.Errorf("no IMO numbers given: pass --imos 9866641,9966233 or --file path"))
+			}
+			// PATCH(pr-953 greptile): reject malformed IMOs up front (same 7-digit guard
+			// as ship pin/unpin) so typos and runner sentinels exit 2 instead of each
+			// firing a throttled GISIS request that just logs not_found.
+			var badIMOs []string
+			for _, imo := range imos {
+				if !isValidIMOFormat(imo) {
+					badIMOs = append(badIMOs, imo)
+				}
+			}
+			if len(badIMOs) > 0 {
+				return usageErr(fmt.Errorf("invalid IMO number(s): %s — each must be 7 digits", strings.Join(badIMOs, ", ")))
 			}
 			results, err := resolveIMOs(cmd, flags, imos, flagThrottle, false)
 			return emitBatchResults(cmd, flags, results, err)

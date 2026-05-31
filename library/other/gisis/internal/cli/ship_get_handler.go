@@ -93,6 +93,10 @@ func runShipGet(flags *rootFlags) func(cmd *cobra.Command, args []string) error 
 		if imo == "" {
 			return usageErr(fmt.Errorf("IMO number is required"))
 		}
+		// PATCH(pr-953 greptile): reject malformed IMOs before the GISIS fetch.
+		if !isValidIMOFormat(imo) {
+			return usageErr(fmt.Errorf("invalid IMO %q: expected a 7-digit number", imo))
+		}
 
 		c, err := flags.newClient()
 		if err != nil {
