@@ -84,3 +84,32 @@ func TestFindExpenseByID(t *testing.T) {
 		t.Fatalf("findExpenseByID(99) returned ok=true, want false")
 	}
 }
+
+func TestNudgeExpenseProblem(t *testing.T) {
+	friendID := 2
+	owes := []ExpenseUser{{UserID: friendID, OwedShare: "10"}, {UserID: 1, PaidShare: "10"}}
+	deleted := "2026-01-01"
+
+	// valid target → no problem
+	if got := nudgeExpenseProblem(Expense{Users: owes}, friendID); got != "" {
+		t.Fatalf("valid target problem=%q, want empty", got)
+	}
+	// deleted → flagged
+	if got := nudgeExpenseProblem(Expense{DeletedAt: &deleted, Users: owes}, friendID); !strings.Contains(got, "deleted") {
+		t.Fatalf("deleted problem=%q, want 'deleted'", got)
+	}
+	// payment/settlement → flagged
+	if got := nudgeExpenseProblem(Expense{Payment: true, Users: owes}, friendID); !strings.Contains(got, "payment") {
+		t.Fatalf("payment problem=%q, want 'payment'", got)
+	}
+	// friend not a member → flagged (prevents a wrong-amount reminder)
+	notMember := []ExpenseUser{{UserID: 999, OwedShare: "10"}, {UserID: 1, PaidShare: "10"}}
+	if got := nudgeExpenseProblem(Expense{Users: notMember}, friendID); !strings.Contains(got, "owed share") {
+		t.Fatalf("non-member problem=%q, want 'owed share'", got)
+	}
+	// friend on it but owes zero → flagged
+	owesZero := []ExpenseUser{{UserID: friendID, OwedShare: "0"}, {UserID: 1, PaidShare: "10"}}
+	if got := nudgeExpenseProblem(Expense{Users: owesZero}, friendID); got == "" {
+		t.Fatalf("zero-owed problem empty, want flagged")
+	}
+}

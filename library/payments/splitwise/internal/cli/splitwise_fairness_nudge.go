@@ -17,6 +17,10 @@ func newFairnessNudgeCmd(flags *rootFlags) *cobra.Command {
 		Use:   "nudge <friend>",
 		Args:  cobra.ExactArgs(1),
 		Short: "Send a friendly payment reminder to a friend who owes you",
+		// CLI-only write action: keep nudge off the MCP surface so an agent can't
+		// auto-post reminders, and so it is never grouped under the read-only
+		// fairness parent tool.
+		Annotations: map[string]string{"mcp:hidden": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {
 				_, _ = fmt.Fprintln(cmd.OutOrStdout(), "would send a nudge")
@@ -49,6 +53,13 @@ func newFairnessNudgeCmd(flags *rootFlags) *cobra.Command {
 				overrideTarget, found := findExpenseByID(expenses, overrideExpenseID)
 				if !found {
 					return usageErr(fmt.Errorf("no expense matches --expense-id %d", overrideExpenseID))
+				}
+				// Apply the same guards selectNudgeExpense uses, so a manual
+				// --expense-id can't post a wrong-amount reminder (friend not on the
+				// expense → message quotes the total) or a doomed comment (deleted /
+				// payment row → opaque API error).
+				if problem := nudgeExpenseProblem(overrideTarget, friendID); problem != "" {
+					return usageErr(fmt.Errorf("--expense-id %d is not a valid nudge target: %s", overrideExpenseID, problem))
 				}
 				target = overrideTarget
 				ok = true
@@ -214,4 +225,24 @@ func findExpenseByID(expenses []Expense, id int) (Expense, bool) {
 		}
 	}
 	return Expense{}, false
+}
+
+// nudgeExpenseProblem returns a human-readable reason the expense is not a valid
+// nudge target for friendID, or "" if it is. Mirrors the guards selectNudgeExpense
+// applies so a manual --expense-id override can't post a wrong-amount reminder
+// (friend not on the expense → message would quote the total cost) or a doomed
+// comment (a deleted or payment/settlement row).
+func nudgeExpenseProblem(e Expense, friendID int) string {
+	if expenseDeleted(e.DeletedAt) {
+		return "that expense is deleted"
+	}
+	if e.Payment {
+		return "that expense is a payment/settlement record, not a shared charge"
+	}
+	for _, u := range e.Users {
+		if u.UserID == friendID && parseAmount(u.OwedShare) > 0 {
+			return ""
+		}
+	}
+	return "that friend has no positive owed share on that expense"
 }
