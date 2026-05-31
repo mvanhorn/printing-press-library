@@ -10,7 +10,7 @@ import (
 func newHereNowAuthCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "here-now-auth",
-		Short:       "Manage here now auth",
+		Short:       "Manage here.now auth",
 		Hidden:      true,
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE:        parentNoSubcommandRunE(flags),

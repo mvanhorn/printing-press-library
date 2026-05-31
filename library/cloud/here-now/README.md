@@ -271,13 +271,13 @@ Manage handle
 
 ### here-now-analytics
 
-Manage here now analytics
+Manage here.now analytics
 
 - **`here-now-pp-cli here-now-analytics`** - Returns aggregate analytics across all Sites owned by the authenticated paid account.
 
 ### here-now-auth
 
-Manage here now auth
+Manage here.now auth
 
 - **`here-now-pp-cli here-now-auth request-agent-code`** - Starts the agent-assisted API key flow by emailing a one-time code to the user.
 - **`here-now-pp-cli here-now-auth verify-agent-code`** - Completes agent-assisted sign-in. If the email is new, the account is created.

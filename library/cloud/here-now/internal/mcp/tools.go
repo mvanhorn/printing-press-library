@@ -470,13 +470,13 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 			},
 			{
 				"name":        "here-now-analytics",
-				"description": "Manage here now analytics",
+				"description": "Manage here.now analytics",
 				"endpoints":   []string{"get-account"},
 				"searchable":  true,
 			},
 			{
 				"name":        "here-now-auth",
-				"description": "Manage here now auth",
+				"description": "Manage here.now auth",
 				"endpoints":   []string{"request-agent-code", "verify-agent-code"},
 				"searchable":  true,
 			},
