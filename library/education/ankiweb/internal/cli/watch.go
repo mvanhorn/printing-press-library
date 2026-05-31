@@ -104,11 +104,16 @@ func newWatchCmd(flags *rootFlags) *cobra.Command {
 				}
 			}
 
-			// Update the snapshot to the current set.
-			for _, d := range decks {
-				raw, _ := json.Marshal(d)
-				if err := db.Upsert(rt, d.ID, raw); err != nil {
-					return fmt.Errorf("updating watch snapshot for %q: %w", term, err)
+			// Update the snapshot to the current set — but only in change-tracking
+			// mode. A --since-last-sync=false full-catalog dump is a read-only
+			// export; advancing the baseline here would silently reset the user's
+			// change-tracking history so the next default run misses prior "new" decks.
+			if sinceLastSync {
+				for _, d := range decks {
+					raw, _ := json.Marshal(d)
+					if err := db.Upsert(rt, d.ID, raw); err != nil {
+						return fmt.Errorf("updating watch snapshot for %q: %w", term, err)
+					}
 				}
 			}
 
