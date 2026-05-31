@@ -63,11 +63,11 @@ func newWatchPinCmd(flags *rootFlags) *cobra.Command {
 	var label string
 	var list bool
 	cmd := &cobra.Command{
-		Use:         "pin <vesselId>",
-		Short:       "Pin a vessel to the watchlist (or --list the watchlist).",
-		Long:        "Adds a GFW vessel id to the local watchlist (re-pinning updates the label). 'watch pin --list' shows the watchlist; 'watch refresh' brings pinned vessels current.",
-		Example:     "  gfw-pp-cli watch pin 8c7304226-6c71-edbe-0b63-c246734b3c01 --label \"Lagos deal\"\n  gfw-pp-cli watch pin --list --json",
-		Annotations: map[string]string{"mcp:read-only": "true"},
+		Use:     "pin <vesselId>",
+		Short:   "Pin a vessel to the watchlist (or --list the watchlist).",
+		Long:    "Adds a GFW vessel id to the local watchlist (re-pinning updates the label). 'watch pin --list' shows the watchlist; 'watch refresh' brings pinned vessels current.",
+		Example: "  gfw-pp-cli watch pin 8c7304226-6c71-edbe-0b63-c246734b3c01 --label \"Lagos deal\"\n  gfw-pp-cli watch pin --list --json",
+		// PATCH(pr-952 greptile): no mcp:read-only — pin writes the local watchlist.
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if list {
 				if dryRunOK(flags) {
@@ -117,10 +117,10 @@ func newWatchPinCmd(flags *rootFlags) *cobra.Command {
 
 func newWatchUnpinCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:         "unpin <vesselId>",
-		Short:       "Remove a vessel from the watchlist.",
-		Example:     "  gfw-pp-cli watch unpin 8c7304226-6c71-edbe-0b63-c246734b3c01",
-		Annotations: map[string]string{"mcp:read-only": "true"},
+		Use:     "unpin <vesselId>",
+		Short:   "Remove a vessel from the watchlist.",
+		Example: "  gfw-pp-cli watch unpin 8c7304226-6c71-edbe-0b63-c246734b3c01",
+		// PATCH(pr-952 greptile): no mcp:read-only — unpin deletes from the local watchlist.
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -170,12 +170,12 @@ func newWatchRefreshCmd(flags *rootFlags) *cobra.Command {
 	var throttle time.Duration
 	var eventLimit int
 	cmd := &cobra.Command{
-		Use:         "refresh",
-		Short:       "Re-fetch identity + recent events for every watchlisted vessel.",
-		Long:        "Iterates the watchlist, re-fetches each vessel's identity (refreshing the cache) and recent event counts, under a polite throttle.",
-		Example:     "  gfw-pp-cli watch refresh --json",
-		Annotations: map[string]string{"mcp:read-only": "true"},
-		Args:        cobra.NoArgs,
+		Use:     "refresh",
+		Short:   "Re-fetch identity + recent events for every watchlisted vessel.",
+		Long:    "Iterates the watchlist, re-fetches each vessel's identity (refreshing the cache) and recent event counts, under a polite throttle.",
+		Example: "  gfw-pp-cli watch refresh --json",
+		// PATCH(pr-952 greptile): no mcp:read-only — refresh fetches from GFW and writes the cache.
+		Args: cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			_ = pinned // watchlist is always the pinned set; flag kept for the documented example
 			if dryRunOK(flags) {
@@ -300,8 +300,11 @@ func sleepCtx(ctx context.Context, d time.Duration) bool {
 	if d <= 0 {
 		return true
 	}
+	// PATCH(pr-952 greptile): NewTimer+Stop so a cancelled ctx doesn't leak the timer.
+	t := time.NewTimer(d)
+	defer t.Stop()
 	select {
-	case <-time.After(d):
+	case <-t.C:
 		return true
 	case <-ctx.Done():
 		return false

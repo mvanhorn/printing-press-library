@@ -37,6 +37,22 @@
           "reason": "Authors who set pp:happy-args expect the probe to use those args. Currently the only effective workaround for required-by-API query params is tier-gating, which conflates 'requires elevated credential' with 'requires runtime args'. Separating these would let happy_path probes 200-OK on free-tier endpoints that just need params."
         }
       ]
+    },
+    {
+      "id": "gfw-greptile-review-fixes",
+      "summary": "Resolved the four Greptile findings on publish PR #952: (1+2) dropped the mcp:read-only annotation from `watch pin` and `watch unpin` (both write the local SQLite watchlist), (3) also dropped it from `watch refresh` (fetches GFW + writes the identity cache) for consistency with the same fix on GISIS's `ship refresh`, (4) collapsed scoreRisk's dual-case weight table to a single lowercase table looked up via strings.ToLower (a title-case event type like \"Gap\" now maps to its real weight instead of the w=1 default), and (5) rewrote sleepCtx to use time.NewTimer + defer Stop() instead of time.After so a cancelled context during watch refresh/since does not leak the backing timer.",
+      "reason": "Greptile flagged mcp:read-only on state-mutating commands as misleading to MCP hosts (which may auto-invoke read-only tools without user confirmation), the mixed-case weight lookup as a scoring ambiguity, and time.After as a per-iteration timer leak on context cancellation across a large watchlist. The maintainer (tmchow) requested the feedback be addressed before merge.",
+      "files": [
+        "internal/cli/gfw_watch_impl.go",
+        "internal/cli/gfw_vessel_impl.go"
+      ],
+      "validated_outcome": "go build ./... + go vet ./... clean; go test ./internal/cli/ PASS. (Pre-existing, unrelated: go test ./internal/store/ still fails TestUpsertBatch_SetsQueryParentID — the documented bulk-sub-path mis-modeling artifact, not run by CI and not touched by this patch.)",
+      "deferred_to_upstream": [
+        {
+          "feature": "The generated novel-feature stub template applies `mcp:read-only: \"true\"` to commands that mutate state (local store writes and/or outbound non-idempotent calls). The same wrong annotation appeared on gfw watch pin/unpin/refresh AND gisis ship refresh/batch — a multi-CLI template bug per AGENTS.md. The template should only emit mcp:read-only for commands that neither write local state nor mutate remote state, or introduce a distinct value (e.g. mcp:read-only: \"local\") for network-read-no-write commands.",
+          "reason": "Reproduces across at least two published CLIs (gfw, gisis) from the same generator, which is the AGENTS.md signal for a genuine template fix rather than a one-off. Filed upstream against mvanhorn/cli-printing-press."
+        }
+      ]
     }
   ]
 }

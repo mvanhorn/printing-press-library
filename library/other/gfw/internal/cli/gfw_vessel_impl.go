@@ -302,11 +302,14 @@ type vesselRiskView struct {
 // scoreRisk turns event counts into a 0-100 heuristic + human signals. Pure
 // function (no IO) so it is unit-testable.
 func scoreRisk(counts map[string]int) (int, string, []string) {
-	weights := map[string]int{"GAP": 18, "gap": 18, "ENCOUNTER": 12, "encounter": 12, "LOITERING": 8, "loitering": 8, "PORT_VISIT": 1, "port_visit": 1, "FISHING": 1, "fishing": 1}
+	// PATCH(pr-952 greptile): single lowercase weight table + ToLower lookup, so a
+	// mixed-case event type (e.g. "Gap") maps to its real weight instead of falling
+	// through to the w=1 default.
+	weights := map[string]int{"gap": 18, "encounter": 12, "loitering": 8, "port_visit": 1, "fishing": 1}
 	score := 0
 	var signals []string
 	for t, n := range counts {
-		w := weights[t]
+		w := weights[strings.ToLower(t)]
 		if w == 0 {
 			w = 1
 		}
