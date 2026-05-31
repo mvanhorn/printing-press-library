@@ -9,8 +9,11 @@ import (
 
 func newSettingsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "settings",
-		Short: "Account settings + connectivity probe (used by doctor)",
+		Use:         "settings",
+		Short:       "Account settings + connectivity probe (used by doctor)",
+		Hidden:      true,
+		Annotations: map[string]string{"mcp:read-only": "true"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newSettingsGetCmd(flags))

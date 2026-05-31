@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-31",
+  "base_run_id": "20260531-014452",
+  "base_printing_press_version": "4.19.0",
+  "patches": [
+    {
+      "id": "auth-connect-sid-optional",
+      "summary": "auth login --chrome requires substack.sid and treats connect.sid as optional (carried only when present), instead of requiring both.",
+      "reason": "Live Substack sessions do not always set connect.sid on .substack.com — custom-domain publications carry it in the custom domain's cookie jar instead. Requiring both blocked every otherwise-valid logged-in user from authenticating at all, including the read/apex surface that needs only substack.sid.",
+      "files": ["internal/cli/auth.go"],
+      "validated_outcome": "auth login --chrome succeeds with substack.sid alone; doctor reports Credentials: valid; 14/16 live read commands pass against real Substack."
+    },
+    {
+      "id": "custom-domain-creator-auth",
+      "summary": "auth login --chrome also captures the publication's Creator-session cookie (connect.sid) from its custom domain, so Creator endpoints (drafts, scheduled_release, sections) work for custom-domain publications.",
+      "reason": "Substack stores connect.sid on the publication's Creator host. For a custom-domain publication that is the custom domain (e.g. trevinsays.com), reached when {pub}.substack.com 301-redirects there; the .substack.com session cookie does not follow cross-domain, so Creator endpoints returned 403. resolveCreatorHost follows the redirect; captureCreatorDomainCookie writes connect.sid into the cookie jar scoped to that host, and the stdlib http.Client carries it across the 301 hop automatically — no per-endpoint routing change needed.",
+      "files": ["internal/cli/substack_creator_auth.go", "internal/cli/auth.go"],
+      "validated_outcome": "With SUBSTACK_PUBLICATION set, auth login --chrome reports 'Captured Creator session for trevinsays.com'; `drafts list --data-source live` returns real drafts (HTTP 200, byline Trevin Chow) with zero 403s. Note: a session that 403s after expiry can leave a rotated duplicate connect.sid in the jar; clearing ~/.local/share/substack-pp-cli/cookies.json + re-running auth login --chrome restores a clean capture."
+    },
+    {
+      "id": "merged-substack-creator-authoring",
+      "summary": "Merged the authoring + multi-publication surface from the sibling substack-creator CLI: rich drafts create/update (30+ fields), the markdown→ProseMirror draft-body converter (prosemirror.go), posts list --type, and the transcendence commands portfolio, posts twin/best/pair/pairs, subs churn, subs cross-sell, grep (FTS5), schedule board, plus the SQLite store schema they read.",
+      "reason": "substack-creator (creator JPresting) and substack (creator chirantan) were two CLIs for the same API split by emphasis (authoring/portfolio vs growth/discovery). Consolidated into one substack CLI: substack-creator's hand-authored surface was ported verbatim onto the machine-lifted substack base, with import-path rewrite, chirantan copyright headers (JPresting recorded in contributors[]), the subscribers→subs naming unified, and 4.3.0→4.19.0 client API-drift (context.Context HTTP methods) adapted at the call sites. The substack-creator catalog entry is retired in the same change.",
+      "files": [
+        "internal/cli/drafts_create.go", "internal/cli/drafts_update.go", "internal/cli/drafts_helpers.go",
+        "internal/cli/drafts_schedule.go", "internal/cli/prosemirror.go", "internal/cli/posts_twin.go",
+        "internal/cli/posts_best.go", "internal/cli/posts_pair.go", "internal/cli/subs_churn.go",
+        "internal/cli/subs_cross_sell.go", "internal/cli/portfolio.go", "internal/cli/grep.go",
+        "internal/cli/schedule.go", "internal/cli/posts_list-published.go", "internal/cli/posts.go",
+        "internal/cli/subs.go", "internal/cli/root.go", "internal/store/substack_creator_migrations.go"
+      ],
+      "validated_outcome": "go build/vet/test (281 pass) + govulncheck clean; all new commands resolve; drafts create exposes 30+ fields; store-backed commands create their tables on open. Original surface authored by JPresting in substack-creator (validated there against three real publications)."
+    },
+    {
+      "id": "multi-publication-columnar-sync",
+      "summary": "Added the columnar data layer + a multi-publication sync so the eight transcendence commands return real data. Ported substack-creator's typed column extractors (upsert<Resource>Tx for posts/publications/subscribers/drafts/notes/comments) into internal/store/substack_creator_columnar.go, and added a `portfolio sync` command that discovers every publication the user owns and populates the columnar posts/publications/subscribers/drafts tables keyed by publication_id.",
+      "reason": "The columnar tables created by substack_creator_migrations.go were empty — the lift's generic `sync` writes only the `resources` table, single-publication, so portfolio/posts best/grep/schedule board/subs churn/subs cross-sell/posts twin/posts pair[s] all returned empty or 'no such table'. Owned publications are discovered from /subscriptions/page_v2's publicationUsers[] (role=admin publication_ids) anchored on the configured SUBSTACK_PUBLICATION's /publication object; per-pub data comes from /post_management/published (posts+engagement, paginated by offset at the endpoint's 12-row page cap), /drafts, and /publication_launch_checklist (subscriber rows — Substack exposes user.handle, not email, so handle is the cross-pub identity projected into the columnar email column). 4.3.0→4.19.0 drift adapted: context.Context-bearing client.Get and store.OpenWithContext, flags.newClient()/cmd.Context()/defaultDBPath helpers, and a batched upsertColumnarBatch (one tx per per-pub fetch) instead of the source's one-tx-per-row Upsert<Resource> wrappers.",
+      "files": [
+        "internal/store/substack_creator_columnar.go",
+        "internal/cli/portfolio_sync.go",
+        "internal/cli/portfolio.go",
+        "internal/cli/subs_cross_sell.go"
+      ],
+      "validated_outcome": "Live against trevinsays (single owned publication): `portfolio sync` populates publications=1, posts=13, drafts=10, subscribers=11 (exit 0, no warnings). portfolio lists trevinsays with 11 subs; posts best --by likes ranks real posts; grep 'agent' returns FTS bm25 matches with canonical URLs; schedule board renders 'Nothing scheduled' cleanly; subs churn --snapshot writes 11 rows then diff runs; posts twin/pair/pairs resolve real slugs. subs cross-sell softened to exit 0 with an empty result for a single-publication account (trevin owns only one pub, so cross-sell is legitimately empty) instead of erroring. Generic `sync` resources path and drafts list --data-source live (200) unchanged."
+    }
+  ]
+}

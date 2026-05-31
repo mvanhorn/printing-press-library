@@ -9,11 +9,17 @@ import (
 
 func newSubsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "subs",
-		Short: "Subscriber count + publication metadata",
+		Use:         "subs",
+		Short:       "Subscriber count + publication metadata",
+		Hidden:      true,
+		Annotations: map[string]string{"mcp:read-only": "true"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newSubsAuthorsCmd(flags))
 	cmd.AddCommand(newSubsCountCmd(flags))
+	// Hand-authored subscriber-analytics commands ported from substack-creator.
+	cmd.AddCommand(newSubsChurnCmd(flags))
+	cmd.AddCommand(newSubsCrossSellCmd(flags))
 	return cmd
 }

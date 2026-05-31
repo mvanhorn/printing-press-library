@@ -9,13 +9,21 @@ import (
 
 func newPostsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "posts",
-		Short: "Long-form posts and archives on a specific publication",
+		Use:         "posts",
+		Short:       "Long-form posts and archives on a specific publication",
+		Hidden:      true,
+		Annotations: map[string]string{"mcp:read-only": "true"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newPostsArchiveCmd(flags))
 	cmd.AddCommand(newPostsGetBySlugCmd(flags))
 	cmd.AddCommand(newPostsListPublishedCmd(flags))
 	cmd.AddCommand(newPostsRankedAuthorsCmd(flags))
+	// Hand-authored portfolio commands ported from substack-creator.
+	cmd.AddCommand(newPostsTwinCmd(flags))
+	cmd.AddCommand(newPostsBestCmd(flags))
+	cmd.AddCommand(newPostsPairCmd(flags))
+	cmd.AddCommand(newPostsPairsCmd(flags))
 	return cmd
 }

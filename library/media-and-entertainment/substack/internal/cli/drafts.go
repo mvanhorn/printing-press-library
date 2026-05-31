@@ -9,8 +9,11 @@ import (
 
 func newDraftsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "drafts",
-		Short: "Drafts CRUD + publish + schedule",
+		Use:         "drafts",
+		Short:       "Drafts CRUD + publish + schedule",
+		Hidden:      true,
+		Annotations: map[string]string{"mcp:read-only": "true"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newDraftsCreateCmd(flags))

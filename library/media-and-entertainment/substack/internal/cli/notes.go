@@ -9,15 +9,18 @@ import (
 
 func newNotesCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "notes",
-		Short: "Substack Notes — short-form posts (Substack treats Notes as comments internally)",
+		Use:         "notes",
+		Short:       "Substack Notes — short-form posts (Substack treats Notes as comments internally)",
+		Hidden:      true,
+		Annotations: map[string]string{"mcp:read-only": "true"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newNotesCreateCmd(flags))
 	cmd.AddCommand(newNotesGetCmd(flags))
 	cmd.AddCommand(newNotesListByProfileCmd(flags))
-	cmd.AddCommand(newNotesNewCmd(flags))
 	cmd.AddCommand(newNotesReplyCmd(flags))
 	cmd.AddCommand(newNotesScheduleCmd(flags))
+	cmd.AddCommand(newNotesNewCmd(flags))
 	return cmd
 }

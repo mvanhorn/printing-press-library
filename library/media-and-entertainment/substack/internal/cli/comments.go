@@ -9,8 +9,11 @@ import (
 
 func newCommentsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "comments",
-		Short: "Long-form post comments (distinct from Notes)",
+		Use:         "comments",
+		Short:       "Long-form post comments (distinct from Notes)",
+		Hidden:      true,
+		Annotations: map[string]string{"mcp:read-only": "true"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newCommentsGetCmd(flags))
