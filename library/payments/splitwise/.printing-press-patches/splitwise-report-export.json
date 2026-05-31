@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "splitwise-report-export",
+  "applied_at": "2026-05-30",
+  "base_run_id": "20260528-002755",
+  "base_printing_press_version": "4.19.0",
+  "summary": "Add an offline report command that exports trip/period spending to Markdown, CSV, or JSON.",
+  "reason": "Provide deterministic, read-only trip/period report export from the local store with single-currency output (most-common by default, or explicit --currency) so mixed currencies are never incorrectly combined; PDF is intentionally out of scope for v1. Markdown table cells escape pipes/newlines from user descriptions. Uses a self-contained resolveReportGroup so report does not depend on any other novel command.",
+  "files": [
+    "internal/cli/splitwise_report.go",
+    "internal/cli/splitwise_report_test.go",
+    "internal/cli/root.go",
+    "SKILL.md",
+    "README.md"
+  ],
+  "validated_outcome": "Required offline gates pass: gofmt, go build, go vet, go test ./..., govulncheck (0 reachable), verify-skill."
+}
