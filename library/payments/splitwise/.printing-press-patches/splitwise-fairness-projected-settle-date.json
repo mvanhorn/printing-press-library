@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "splitwise-fairness-projected-settle-date",
+  "applied_at": "2026-05-30",
+  "base_run_id": "20260528-002755",
+  "base_printing_press_version": "4.19.0",
+  "summary": "Add projected settle-date fields to fairness output and collectability table projection rendering.",
+  "reason": "Collectability now projects when an open debt is expected to settle by combining current debt age with historical average settle latency; JSON includes raw `projected_days_out` and ISO `projected_settle_date`. Gated on outstanding>0 so a settled $0 balance never gets a projection (dogfood caught it firing for settled people).",
+  "files": [
+    "internal/cli/splitwise_fairness.go",
+    "internal/cli/splitwise_fairness_test.go",
+    "SKILL.md",
+    "README.md"
+  ],
+  "validated_outcome": "Added failing-first tests for projectSettle and computeFairness projection behavior (incl. a settled-debtor regression), then passed gofmt, go build, go vet, go test ./internal/cli/... with projected-days/date wired into collectability human + JSON output."
+}
