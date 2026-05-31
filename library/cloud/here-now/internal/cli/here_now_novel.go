@@ -595,7 +595,11 @@ type driveDiff struct {
 }
 
 // listDriveFiles fetches the full file list for a Drive, following cursor
-// pagination, and returns a path->meta map.
+// pagination, and returns a path->meta map. It bypasses the response
+// cache (GetNoCache) so drive sync/diff always compute against the
+// live remote state; a stale cached list would let sync skip files
+// that changed externally and report success while leaving the Drive
+// out of sync.
 func listDriveFiles(ctx context.Context, c *client.Client, driveID string) (map[string]driveFileMeta, error) {
 	out := map[string]driveFileMeta{}
 	cursor := ""
@@ -605,7 +609,7 @@ func listDriveFiles(ctx context.Context, c *client.Client, driveID string) (map[
 		if cursor != "" {
 			params["cursor"] = cursor
 		}
-		raw, err := c.Get(ctx, path, params)
+		raw, err := c.GetNoCache(ctx, path, params)
 		if err != nil {
 			return nil, fmt.Errorf("list drive files: %w", err)
 		}
