@@ -381,6 +381,29 @@ func runPublishDir(ctx context.Context, c *client.Client, db *store.Store, opts 
 		return nil, fmt.Errorf("publish response missing slug: %s", string(raw))
 	}
 
+	// Persist the anonymous claim token IMMEDIATELY, before uploads, state
+	// writes, or finalize. The create-publish response returns the claim token
+	// exactly once and it is unrecoverable if lost; saving it first protects it
+	// against any downstream failure (disk full on SavePublishState, finalize
+	// error). The site already exists server-side at this point and can be made
+	// permanent later via `claims redeem`.
+	if opts.Anon && resp.ClaimToken != "" {
+		expiresAt := resp.ExpiresAt
+		if expiresAt == "" {
+			expiresAt = time.Now().UTC().Add(anonClaimTTL).Format(time.RFC3339)
+		}
+		if cerr := db.SaveClaim(store.ClaimRecord{
+			Slug:        resp.Slug,
+			ClaimToken:  resp.ClaimToken,
+			URL:         resp.SiteURL,
+			PublishedAt: time.Now().UTC().Format(time.RFC3339),
+			ExpiresAt:   expiresAt,
+			Claimed:     false,
+		}); cerr != nil {
+			return &resp, cerr
+		}
+	}
+
 	// PUT every upload target the server requested before finalizing.
 	for _, target := range resp.Upload.Uploads {
 		src, ok := plan.src[target.Path]
@@ -419,24 +442,6 @@ func runPublishDir(ctx context.Context, c *client.Client, db *store.Store, opts 
 	}
 	if merr := db.MarkFinalized(resp.Slug); merr != nil {
 		return &resp, merr
-	}
-
-	if opts.Anon && resp.ClaimToken != "" {
-		expiresAt := resp.ExpiresAt
-		if expiresAt == "" {
-			expiresAt = time.Now().UTC().Add(anonClaimTTL).Format(time.RFC3339)
-		}
-		claim := store.ClaimRecord{
-			Slug:        resp.Slug,
-			ClaimToken:  resp.ClaimToken,
-			URL:         resp.SiteURL,
-			PublishedAt: now,
-			ExpiresAt:   expiresAt,
-			Claimed:     false,
-		}
-		if cerr := db.SaveClaim(claim); cerr != nil {
-			return &resp, cerr
-		}
 	}
 
 	return &resp, nil
