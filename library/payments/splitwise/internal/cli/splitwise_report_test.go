@@ -313,4 +313,20 @@ func TestComputeReport_NoPayer(t *testing.T) {
 	}
 }
 
+func TestComputeReport_UnresolvableGroupYieldsEmpty(t *testing.T) {
+	// A --group that matches no group must NOT silently fall through to an
+	// unfiltered report; the pure function filters to nothing and scopes the label.
+	expenses := []Expense{
+		{ID: 1, Description: "x", Cost: "10", CurrencyCode: "USD", Date: "2025-01-01", GroupID: 7, Users: []ExpenseUser{{UserID: 1, PaidShare: "10", OwedShare: "10"}}},
+	}
+	groups := []Group{{ID: 7, Name: "Real Group"}}
+	got := computeReport(expenses, groups, 1, reportOpts{GroupInput: "Nonexistent Group", Limit: 0})
+	if got.ExpenseCount != 0 || len(got.Expenses) != 0 {
+		t.Fatalf("expense_count=%d len=%d, want 0/0 (unresolvable group must filter to nothing)", got.ExpenseCount, len(got.Expenses))
+	}
+	if !strings.Contains(got.Scope, "no match") {
+		t.Fatalf("scope=%q, want it to flag the unmatched group", got.Scope)
+	}
+}
+
 func ptr(s string) *string { return &s }

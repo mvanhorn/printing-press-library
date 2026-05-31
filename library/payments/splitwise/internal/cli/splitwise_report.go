@@ -19,7 +19,6 @@ type reportOpts struct {
 	Until      string
 	Currency   string
 	Limit      int
-	Scope      string
 }
 
 type reportPerson struct {
@@ -129,13 +128,10 @@ func newReportCmd(flags *rootFlags) *cobra.Command {
 			}
 			youID := loadCurrentUserID(db)
 
-			scope := "all"
 			if strings.TrimSpace(groupRef) != "" {
-				_, groupName, ok := resolveReportGroup(groupRef, groups)
-				if !ok {
+				if _, _, ok := resolveReportGroup(groupRef, groups); !ok {
 					return usageErr(fmt.Errorf("no group matches %q; run sync first", groupRef))
 				}
-				scope = "group:" + groupName
 			}
 
 			res := computeReport(expenses, groups, youID, reportOpts{
@@ -144,7 +140,6 @@ func newReportCmd(flags *rootFlags) *cobra.Command {
 				Until:      until,
 				Currency:   currency,
 				Limit:      limit,
-				Scope:      scope,
 			})
 
 			switch format {
@@ -201,23 +196,28 @@ func resolveReportGroup(input string, groups []Group) (int, string, bool) {
 
 func computeReport(expenses []Expense, groups []Group, youID int, opts reportOpts) reportResult {
 	res := reportResult{
-		Scope:      strings.TrimSpace(opts.Scope),
+		Scope:      "all",
 		People:     make([]reportPerson, 0),
 		Categories: make([]reportCategory, 0),
 		Expenses:   make([]reportExpenseRow, 0),
-	}
-	if res.Scope == "" {
-		res.Scope = "all"
 	}
 
 	var groupID int
 	groupFilter := false
 	if strings.TrimSpace(opts.GroupInput) != "" {
 		id, name, ok := resolveReportGroup(opts.GroupInput, groups)
+		groupFilter = true
 		if ok {
-			groupFilter = true
 			groupID = id
 			res.Scope = "group:" + name
+		} else {
+			// GroupInput was given but matches no group. Filter to nothing rather
+			// than silently falling through to an unfiltered report — no expense has
+			// a negative group id, so this yields an empty, correctly-scoped report
+			// even if this pure function is called without the command's
+			// pre-validation. (Greptile #971)
+			groupID = -1
+			res.Scope = "group:" + strings.TrimSpace(opts.GroupInput) + " (no match)"
 		}
 	}
 
@@ -253,7 +253,11 @@ func computeReport(expenses []Expense, groups []Group, youID int, opts reportOpt
 			}
 		}
 		if hasUntil {
-			if !ok || t.After(untilT.Add(24*time.Hour-time.Nanosecond)) {
+			// --until is inclusive of the whole named day: extend the bound to just
+			// before the next midnight so a same-day timestamp with a time component
+			// (e.g. "2025-12-31T18:00") still matches.
+			endOfUntil := untilT.Add(24*time.Hour - time.Nanosecond)
+			if !ok || t.After(endOfUntil) {
 				continue
 			}
 		}
