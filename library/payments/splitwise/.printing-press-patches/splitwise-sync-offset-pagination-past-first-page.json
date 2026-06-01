@@ -1,0 +1,20 @@
+{
+  "schema_version": 2,
+  "id": "splitwise-sync-offset-pagination-past-first-page",
+  "applied_at": "2026-05-30",
+  "base_run_id": "20260528-002755",
+  "base_printing_press_version": "4.19.0",
+  "summary": "Make offset-paginated sync advance past the first page when the API returns no has_more/cursor signal.",
+  "reason": "Splitwise /get_expenses paginates by offset and returns a bare {\"expenses\":[...]} envelope with no has_more field, so extractPageItems returns hasMore=false. The sync loop's natural-end check (!hasMore) fired after the first 100 rows even under --full --max-pages 0, so the 43 oldest of 143 expenses never reached the local store — breaking debts --aged (age_days:null) and under-counting spend. Added an offset-paginator full-page fallback mirroring the existing page-int fallback: when cursorType==\"offset\", nextCursor is empty, and the page is full, synthesize hasMore and the next offset so the loop continues until a short/empty page.",
+  "files": [
+    "internal/cli/sync.go",
+    "internal/cli/sync_offset_pagination_test.go"
+  ],
+  "validated_outcome": "New TestSyncGetExpenses_PaginatesPastFirstPage syncs all 143 rows (fails at 100 without the fix); go build/vet/test, govulncheck, and verify-skill all pass.",
+  "deferred_to_upstream": [
+    {
+      "feature": "Offset-class paginator support in the sync loop template (sync.go.tmpl) that does not rely on an envelope has_more/cursor field to advance.",
+      "reason": "Generator-shaped: 13 published CLIs use cursorType==\"offset\" and 12 besides splitwise lack this fallback, so any offset endpoint that omits has_more truncates at one page. The template should emit the offset full-page fallback alongside the existing page-int one."
+    }
+  ]
+}

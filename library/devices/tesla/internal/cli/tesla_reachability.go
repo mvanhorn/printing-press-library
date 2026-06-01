@@ -108,7 +108,8 @@ func probeReachability(ctx context.Context, c *client.Client, vehicleID string) 
 		return r
 	}
 
-	// Probe 2: fetch products to pick a vehicle if not provided
+	// Probe 2: fetch products to pick a vehicle if not provided, and to learn
+	// the VIN (the Fleet API addresses vehicles by VIN, not the numeric id).
 	if vehicleID == "" {
 		raw, err := c.Get("/api/1/products", nil)
 		if err == nil {
@@ -125,6 +126,11 @@ func probeReachability(ctx context.Context, c *client.Client, vehicleID string) 
 		}
 	}
 	r.VehicleID = vehicleID
+	// A 17-char alphanumeric --vehicle arg is itself a VIN; record it so the
+	// Fleet probe below can address the car even when products wasn't queried.
+	if r.VIN == "" && looksLikeVIN(vehicleID) {
+		r.VIN = vehicleID
+	}
 	if vehicleID == "" {
 		r.Classification = "REST_OK"
 		r.Detail = "products endpoint reachable; no vehicle to probe further"
@@ -132,7 +138,24 @@ func probeReachability(ctx context.Context, c *client.Client, vehicleID string) 
 		return r
 	}
 
-	// Probe 3: try a benign command via vehicle_state (GET, no signed-command impact)
+	// Probe 3: vehicle_state read to classify. Owner-api addresses vehicles by
+	// the numeric vehicle_id; the Fleet API by VIN. A pre-2021 REST car answers
+	// on owner-api; a 2021+/non-NA car 404s there and answers only on Fleet —
+	// and that Fleet-only reachability is itself the signed-command signal,
+	// since owner-api reads are gone for those cars.
+
+	// When reads are already routed to Fleet (no usable owner-api token at all),
+	// probe Fleet directly by VIN.
+	if c.FleetMode {
+		return classifyViaFleet(c, r, firstNonEmpty(r.VIN, vehicleID))
+	}
+
+	// Owner-api probe first. Suppress the transparent Fleet fallback so a clean
+	// owner-api answer classifies a REST car correctly instead of being masked
+	// by a Fleet retry on the wrong (numeric) id; the Fleet probe is driven
+	// explicitly below when owner-api can't serve the read.
+	fleetArmed := c.FleetFallback
+	c.FleetFallback = false
 	statePath := strings.ReplaceAll("/api/1/vehicles/{vehicle_id}/data_request/vehicle_state", "{vehicle_id}", vehicleID)
 	vsStatus, vsErr := c.ProbeGet(statePath)
 	r.Checks = append(r.Checks, probeCheck{Name: "vehicle_state", Status: vsStatus, OK: vsStatus >= 200 && vsStatus < 300, Detail: errToString(vsErr)})
@@ -155,11 +178,61 @@ func probeReachability(ctx context.Context, c *client.Client, vehicleID string) 
 		return r
 	}
 
-	// vehicle_state failed - vehicle likely asleep; can't classify firmly
+	// Owner-api couldn't serve the read. If Fleet is configured and we know the
+	// VIN, the car is a 2021+/non-NA vehicle reachable only via Fleet: probe it
+	// by VIN to confirm online and classify.
+	if fleetArmed && r.VIN != "" {
+		c.ActivateFleetFallback()
+		return classifyViaFleet(c, r, r.VIN)
+	}
+
+	// vehicle_state failed and no Fleet path - vehicle likely asleep.
 	r.Classification = "VEHICLE_ASLEEP_OR_OFFLINE"
 	r.Detail = "vehicle_state read failed; vehicle may be asleep. Run `tesla vehicles get <id>` to wake."
 	r.Recommended = "Wake the vehicle first: tesla-pp-cli vehicles get " + vehicleID
 	return r
+}
+
+// classifyViaFleet probes vehicle_state through the Fleet API (addressed by
+// VIN) and classifies from the result. A 2xx means the car answers only on
+// Fleet, so it is on the signed-command protocol — owner-api reads are gone for
+// 2021+/non-NA vehicles; anything else means asleep/offline. The client must
+// already be in Fleet mode (base + bearer switched, FleetMode true).
+func classifyViaFleet(c *client.Client, r *reachabilityReport, vin string) *reachabilityReport {
+	statePath := strings.ReplaceAll("/api/1/vehicles/{vehicle_id}/data_request/vehicle_state", "{vehicle_id}", vin)
+	status, err := c.ProbeGet(statePath)
+	r.Checks = append(r.Checks, probeCheck{Name: "vehicle_state_fleet", Status: status, OK: status >= 200 && status < 300, Detail: errToString(err)})
+	if status >= 200 && status < 300 {
+		r.Classification = "SIGNED_COMMAND_REQ"
+		r.Detail = "vehicle answers only via the Fleet API; owner-api reads are unavailable, so commands require the vehicle-command protocol"
+		r.ShimURL = "https://github.com/teslamotors/vehicle-command"
+		r.Recommended = "Fleet reads work; for commands use the Fleet API (tesla command --via fleet) or install tesla-control and enroll a public key."
+		annotateReachabilityPaths(r, VehicleClassSignedCmd)
+		return r
+	}
+	r.Classification = "VEHICLE_ASLEEP_OR_OFFLINE"
+	r.Detail = "vehicle_state read failed on both owner-api and Fleet; vehicle may be asleep."
+	r.Recommended = "Wake the vehicle, then retry."
+	return r
+}
+
+// looksLikeVIN reports whether s is a 17-char alphanumeric Tesla VIN (as
+// opposed to the all-digit owner-api numeric vehicle_id).
+func looksLikeVIN(s string) bool {
+	if len(s) != 17 {
+		return false
+	}
+	hasLetter := false
+	for _, ch := range s {
+		switch {
+		case ch >= '0' && ch <= '9':
+		case (ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z'):
+			hasLetter = true
+		default:
+			return false
+		}
+	}
+	return hasLetter
 }
 
 func containsSignedCmdSignal(raw json.RawMessage) bool {
