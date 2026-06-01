@@ -14,8 +14,14 @@ func newFairnessNudgeCmd(flags *rootFlags) *cobra.Command {
 	var send bool
 
 	cmd := &cobra.Command{
-		Use:   "nudge <friend>",
-		Args:  cobra.ExactArgs(1),
+		Use: "nudge <friend>",
+		// MinimumNArgs(1), not ExactArgs(1): the MCP command-mirror whitespace-splits
+		// a quoted multi-word friend name (args:"Tahoe Trip") into several positionals
+		// (["Tahoe","Trip"]). ExactArgs(1) rejected those before resolution could run,
+		// and even when it didn't, only the first token reached resolveFairnessFriend
+		// and substring-matched the wrong friend. Accept the extra positionals and
+		// rejoin them below.
+		Args:  cobra.MinimumNArgs(1),
 		Short: "Send a friendly payment reminder to a friend who owes you",
 		// CLI-only write action: keep nudge off the MCP surface so an agent can't
 		// auto-post reminders, and so it is never grouped under the read-only
@@ -43,9 +49,14 @@ func newFairnessNudgeCmd(flags *rootFlags) *cobra.Command {
 			}
 			youID := loadCurrentUserID(db)
 
-			friendID, friendName, ok := resolveFairnessFriend(args[0], friends)
+			// Rejoin multi-word names split into separate positionals by the MCP
+			// command-mirror. Inline join (not joinNameArgs) keeps this branch
+			// self-contained; once the multiword settle/resolve PR lands joinNameArgs
+			// in this package, this can be refactored to call it.
+			friendQuery := strings.TrimSpace(strings.Join(args, " "))
+			friendID, friendName, ok := resolveFairnessFriend(friendQuery, friends)
 			if !ok {
-				return usageErr(fmt.Errorf("no friend matches %q; run sync first", args[0]))
+				return usageErr(fmt.Errorf("no friend matches %q; run sync first", friendQuery))
 			}
 
 			target, ok := selectNudgeExpense(expenses, friendID, youID)
