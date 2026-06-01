@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.15
+
+- Add a version-lifecycle guard for npm releases: `preversion` now checks that `package-lock.json` is in sync before the bump, and `version` refreshes/checks the lockfile after `package.json` changes so future release commits cannot accidentally leave the lockfile version stale.
+- Make the installer shadow-warning JSON test hermetic by explicitly stubbing `realpath` in the stale-binary case.
+
 ## 0.1.14
 
 - Treat "installed but not on PATH" as a warning instead of aborting `install`. `go install` can succeed while the current agent or gateway process cannot discover `$GOPATH/bin`; the installer now prints the platform-specific PATH fix, continues installing the focused `pp-*` skill, and reports a successful install with a `pathWarning: "not_on_path"` field in JSON output. This avoids half-installed agent setups where the binary exists but the matching skill was skipped.
