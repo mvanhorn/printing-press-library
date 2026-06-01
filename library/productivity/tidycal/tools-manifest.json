@@ -1,0 +1,664 @@
+{
+  "api_name": "tidycal",
+  "base_url": "https://tidycal.com/api",
+  "description": "Scheduling and booking API for meetings, contacts, booking types, and team calendars.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "TIDYCAL_API_TOKEN",
+      "TIDYCAL_BEARER_AUTH"
+    ],
+    "env_var_specs": [
+      {
+        "name": "TIDYCAL_API_TOKEN",
+        "kind": "per_call",
+        "required": false,
+        "sensitive": true
+      },
+      {
+        "name": "TIDYCAL_BEARER_AUTH",
+        "kind": "per_call",
+        "required": false,
+        "sensitive": true
+      }
+    ],
+    "key_url": "https://tidycal.com/integrations/oauth"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "booking-types_create",
+      "description": "Create a new booking type. Required: description, duration_minutes, title, url_slug. Optional: approval_required, booking_availability_interval_minutes (default: 15), booking_type_category_id (plus 10 more). Returns the new BookingTypesCreateResponse.",
+      "method": "POST",
+      "path": "/booking-types",
+      "params": [
+        {
+          "name": "approval_required",
+          "type": "bool",
+          "location": "body",
+          "description": "Approval required"
+        },
+        {
+          "name": "booking_availability_interval_minutes",
+          "type": "int",
+          "location": "body",
+          "description": "Booking availability interval minutes"
+        },
+        {
+          "name": "booking_type_category_id",
+          "type": "int",
+          "location": "body",
+          "description": "Booking type category id"
+        },
+        {
+          "name": "currency_code",
+          "type": "string",
+          "location": "body",
+          "description": "ISO 4217 currency code (e.g. USD, EUR, GBP). Defaults to your account currency."
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description",
+          "required": true
+        },
+        {
+          "name": "display_seats_remaining",
+          "type": "bool",
+          "location": "body",
+          "description": "Display seats remaining"
+        },
+        {
+          "name": "duration_minutes",
+          "type": "int",
+          "location": "body",
+          "description": "Duration minutes",
+          "required": true
+        },
+        {
+          "name": "latest_availability_days",
+          "type": "int",
+          "location": "body",
+          "description": "Latest availability days"
+        },
+        {
+          "name": "max_bookings",
+          "type": "int",
+          "location": "body",
+          "description": "Max bookings"
+        },
+        {
+          "name": "max_guest_invites_per_booker",
+          "type": "int",
+          "location": "body",
+          "description": "Max guest invites per booker"
+        },
+        {
+          "name": "padding_minutes",
+          "type": "int",
+          "location": "body",
+          "description": "Padding minutes"
+        },
+        {
+          "name": "payment_platform",
+          "type": "string",
+          "location": "body",
+          "description": "Payment platform to use. The platform must be connected in your account Integrations settings. Required when price \u003e 0."
+        },
+        {
+          "name": "price",
+          "type": "float",
+          "location": "body",
+          "description": "Price for the booking type. Set to 0 for free booking types."
+        },
+        {
+          "name": "private",
+          "type": "bool",
+          "location": "body",
+          "description": "Private"
+        },
+        {
+          "name": "redirect_url",
+          "type": "string",
+          "location": "body",
+          "description": "Redirect url"
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "Title",
+          "required": true
+        },
+        {
+          "name": "url_slug",
+          "type": "string",
+          "location": "body",
+          "description": "Url slug",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "booking-types_list",
+      "description": "Get a list of booking types. Required: page (default: 1). Returns array of BookingType.",
+      "method": "GET",
+      "path": "/booking-types",
+      "params": [
+        {
+          "name": "page",
+          "type": "float",
+          "location": "path",
+          "description": "Page number."
+        }
+      ]
+    },
+    {
+      "name": "booking-types_bookings_create",
+      "description": "Create a new booking for a specific booking type. **Single vs Package Bookings:** - For single bookings, use `starts_at` to specify the booking time - For package/multi-session bookings, use the `bookings` array to specify multiple time slots **Response Format:** - Single booking: Returns `{'data': {Booking}}` - Multiple bookings (package): Returns `{'data': [{Booking}, ...]}`. Required: bookingType, email, name, timezone. Optional: booking_questions, bookings, starts_at.",
+      "method": "POST",
+      "path": "/booking-types/{bookingType}/bookings",
+      "params": [
+        {
+          "name": "bookingType",
+          "type": "int",
+          "location": "path",
+          "description": "The ID of the booking type.",
+          "required": true
+        },
+        {
+          "name": "booking_questions",
+          "type": "array",
+          "location": "body",
+          "description": "Answers to booking type questions"
+        },
+        {
+          "name": "bookings",
+          "type": "array",
+          "location": "body",
+          "description": "Array of booking times for package/multi-session bookings. If provided, `starts_at` is ignored."
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body",
+          "description": "Email of the person making the booking",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name of the person making the booking",
+          "required": true
+        },
+        {
+          "name": "starts_at",
+          "type": "string",
+          "location": "body",
+          "description": "The start time of the booking in UTC. Required for single bookings. Ignored if `bookings` array is provided."
+        },
+        {
+          "name": "timezone",
+          "type": "string",
+          "location": "body",
+          "description": "The timezone of the booking",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "booking-types_timeslots_list-booking-type",
+      "description": "Get a list of available timeslots for a specific booking type. Required: bookingType, starts_at, ends_at. Returns array of Timeslot.",
+      "method": "GET",
+      "path": "/booking-types/{bookingType}/timeslots",
+      "params": [
+        {
+          "name": "bookingType",
+          "type": "int",
+          "location": "path",
+          "description": "The ID of the booking type.",
+          "required": true
+        },
+        {
+          "name": "starts_at",
+          "type": "string",
+          "location": "query",
+          "description": "Start date to get timeslots from (UTC).",
+          "required": true
+        },
+        {
+          "name": "ends_at",
+          "type": "string",
+          "location": "query",
+          "description": "End date to get timeslots until (UTC).",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "bookings_get",
+      "description": "Get a booking by ID. Required: booking. Returns array of Question.",
+      "method": "GET",
+      "path": "/bookings/{booking}",
+      "params": [
+        {
+          "name": "booking",
+          "type": "int",
+          "location": "path",
+          "description": "The ID of the booking.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "bookings_list",
+      "description": "Get a list of bookings. Required: starts_at, ends_at, cancelled, page (default: 1), include_teams. Returns array of Booking.",
+      "method": "GET",
+      "path": "/bookings",
+      "params": [
+        {
+          "name": "starts_at",
+          "type": "string",
+          "location": "path",
+          "description": "Get bookings starting from a specific date.",
+          "required": true
+        },
+        {
+          "name": "ends_at",
+          "type": "string",
+          "location": "path",
+          "description": "Get bookings ending before a specific date.",
+          "required": true
+        },
+        {
+          "name": "cancelled",
+          "type": "bool",
+          "location": "path",
+          "description": "Get only cancelled bookings.",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "float",
+          "location": "path",
+          "description": "Page number."
+        },
+        {
+          "name": "include_teams",
+          "type": "bool",
+          "location": "path",
+          "description": "Include team bookings.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "bookings_cancel_booking",
+      "description": "Cancel a booking by ID. Required: booking. Optional: reason. Returns array of Question.",
+      "method": "PATCH",
+      "path": "/bookings/{booking}/cancel",
+      "params": [
+        {
+          "name": "booking",
+          "type": "int",
+          "location": "path",
+          "description": "The ID of the booking to cancel.",
+          "required": true
+        },
+        {
+          "name": "reason",
+          "type": "string",
+          "location": "body",
+          "description": "Optional reason for cancellation"
+        }
+      ]
+    },
+    {
+      "name": "contacts_create",
+      "description": "Create a new contact. Required: email, name. Optional: timezone. Returns the new ContactsCreateResponse.",
+      "method": "POST",
+      "path": "/contacts",
+      "params": [
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body",
+          "description": "Email",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        },
+        {
+          "name": "timezone",
+          "type": "string",
+          "location": "body",
+          "description": "Timezone"
+        }
+      ]
+    },
+    {
+      "name": "contacts_list",
+      "description": "Get a list of contacts. Required: page (default: 1). Returns array of Contact.",
+      "method": "GET",
+      "path": "/contacts",
+      "params": [
+        {
+          "name": "page",
+          "type": "float",
+          "location": "path",
+          "description": "Page number."
+        }
+      ]
+    },
+    {
+      "name": "me_get-account",
+      "description": "Get account details. Returns the User.",
+      "method": "GET",
+      "path": "/me",
+      "params": []
+    },
+    {
+      "name": "teams_get",
+      "description": "Get details of a specific team. Required: team. Returns the Team.",
+      "method": "GET",
+      "path": "/teams/{team}",
+      "params": [
+        {
+          "name": "team",
+          "type": "int",
+          "location": "path",
+          "description": "The ID of the team.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "teams_list",
+      "description": "Get a list of teams the authenticated user has access to. Required: page (default: 1). Returns array of Team.",
+      "method": "GET",
+      "path": "/teams",
+      "params": [
+        {
+          "name": "page",
+          "type": "float",
+          "location": "path",
+          "description": "Page number."
+        }
+      ]
+    },
+    {
+      "name": "teams_booking-types_create-team",
+      "description": "Create a new booking type for a specific team. Required: team, description, duration_minutes, title, url_slug. Optional: approval_required, booking_availability_interval_minutes (default: 15), booking_type_category_id (plus 10 more). Returns the new BookingTypesCreateTeamResponse.",
+      "method": "POST",
+      "path": "/teams/{team}/booking-types",
+      "params": [
+        {
+          "name": "team",
+          "type": "int",
+          "location": "path",
+          "description": "The ID of the team.",
+          "required": true
+        },
+        {
+          "name": "approval_required",
+          "type": "bool",
+          "location": "body",
+          "description": "Approval required"
+        },
+        {
+          "name": "booking_availability_interval_minutes",
+          "type": "int",
+          "location": "body",
+          "description": "Booking availability interval minutes"
+        },
+        {
+          "name": "booking_type_category_id",
+          "type": "int",
+          "location": "body",
+          "description": "Booking type category id"
+        },
+        {
+          "name": "currency_code",
+          "type": "string",
+          "location": "body",
+          "description": "ISO 4217 currency code (e.g. USD, EUR, GBP). Defaults to your account currency."
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description",
+          "required": true
+        },
+        {
+          "name": "display_seats_remaining",
+          "type": "bool",
+          "location": "body",
+          "description": "Display seats remaining"
+        },
+        {
+          "name": "duration_minutes",
+          "type": "int",
+          "location": "body",
+          "description": "Duration minutes",
+          "required": true
+        },
+        {
+          "name": "latest_availability_days",
+          "type": "int",
+          "location": "body",
+          "description": "Latest availability days"
+        },
+        {
+          "name": "max_bookings",
+          "type": "int",
+          "location": "body",
+          "description": "Max bookings"
+        },
+        {
+          "name": "max_guest_invites_per_booker",
+          "type": "int",
+          "location": "body",
+          "description": "Max guest invites per booker"
+        },
+        {
+          "name": "padding_minutes",
+          "type": "int",
+          "location": "body",
+          "description": "Padding minutes"
+        },
+        {
+          "name": "payment_platform",
+          "type": "string",
+          "location": "body",
+          "description": "Payment platform to use. The platform must be connected in your account Integrations settings. Required when price \u003e 0."
+        },
+        {
+          "name": "price",
+          "type": "float",
+          "location": "body",
+          "description": "Price for the booking type. Set to 0 for free booking types."
+        },
+        {
+          "name": "private",
+          "type": "bool",
+          "location": "body",
+          "description": "Private"
+        },
+        {
+          "name": "redirect_url",
+          "type": "string",
+          "location": "body",
+          "description": "Redirect url"
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "Title",
+          "required": true
+        },
+        {
+          "name": "url_slug",
+          "type": "string",
+          "location": "body",
+          "description": "Url slug",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "teams_booking-types_list-team",
+      "description": "Get a list of booking types for a specific team. Required: team. Optional: page. Returns array of BookingType.",
+      "method": "GET",
+      "path": "/teams/{team}/booking-types",
+      "params": [
+        {
+          "name": "team",
+          "type": "int",
+          "location": "path",
+          "description": "The ID of the team.",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "float",
+          "location": "query",
+          "description": "Page number."
+        }
+      ]
+    },
+    {
+      "name": "teams_bookings_list-team",
+      "description": "Get a list of bookings for a specific team. Required: team. Optional: page, start_date, end_date (plus 3 more). Returns array of Booking.",
+      "method": "GET",
+      "path": "/teams/{team}/bookings",
+      "params": [
+        {
+          "name": "team",
+          "type": "int",
+          "location": "path",
+          "description": "The ID of the team.",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "float",
+          "location": "query",
+          "description": "Page number."
+        },
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "query",
+          "description": "Get bookings starting from a specific date."
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "location": "query",
+          "description": "Get bookings ending before a specific date."
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "location": "query",
+          "description": "Get bookings for a specific email address."
+        },
+        {
+          "name": "host_id",
+          "type": "int",
+          "location": "query",
+          "description": "Get bookings for a specific user ID."
+        },
+        {
+          "name": "cancelled",
+          "type": "bool",
+          "location": "query",
+          "description": "Filter by cancellation status. Use true for cancelled bookings, false for non-cancelled bookings, or omit for all bookings."
+        }
+      ]
+    },
+    {
+      "name": "teams_users_add-team",
+      "description": "Add a user to a team by sending an invitation email. Required: team, email. Optional: role_name. Returns the new UsersAddTeamResponse.",
+      "method": "POST",
+      "path": "/teams/{team}/users",
+      "params": [
+        {
+          "name": "team",
+          "type": "int",
+          "location": "path",
+          "description": "The ID of the team.",
+          "required": true
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body",
+          "description": "Email address of the user to invite",
+          "required": true
+        },
+        {
+          "name": "role_name",
+          "type": "string",
+          "location": "body",
+          "description": "Role name for the user in the team"
+        }
+      ]
+    },
+    {
+      "name": "teams_users_list-team",
+      "description": "Get a list of users in a specific team. Required: team, page (default: 1). Returns array of TeamUser.",
+      "method": "GET",
+      "path": "/teams/{team}/users",
+      "params": [
+        {
+          "name": "team",
+          "type": "int",
+          "location": "path",
+          "description": "The ID of the team.",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "float",
+          "location": "path",
+          "description": "Page number."
+        }
+      ]
+    },
+    {
+      "name": "teams_users_remove-team",
+      "description": "Remove a user from a team. Required: team, teamUser. Returns the UsersRemoveTeamResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/teams/{team}/users/{teamUser}",
+      "params": [
+        {
+          "name": "team",
+          "type": "int",
+          "location": "path",
+          "description": "The ID of the team.",
+          "required": true
+        },
+        {
+          "name": "teamUser",
+          "type": "int",
+          "location": "path",
+          "description": "The ID of the team user to remove.",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

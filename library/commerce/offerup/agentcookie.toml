@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "offerup-pp-cli"
+display_name = "Offerup"
+description = "Search local OfferUp listings, track prices, and surface deals from your terminal"
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/offerup-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+OFFERUP_COOKIE = true

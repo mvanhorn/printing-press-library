@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-01T05:52:27.237431Z",
+  "printing_press_version": "4.19.1",
+  "api_name": "offerup",
+  "display_name": "OfferUp",
+  "cli_name": "offerup-pp-cli",
+  "creator": {
+    "handle": "tmchow",
+    "name": "Trevin Chow"
+  },
+  "owner": "tmchow",
+  "printer": "tmchow",
+  "printer_name": "Trevin Chow",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:4e6f56d67e006a6984f97f12c85d43427aa2b8a28635e65ff2432b8743c94db4",
+  "run_id": "20260531-200239",
+  "category": "commerce",
+  "description": "Search local OfferUp listings from your terminal, keep them in a local database, and spot underpriced deals before anyone else — no login and no paid key for the things that matter most.",
+  "mcp_binary": "offerup-pp-mcp",
+  "mcp_tool_count": 2,
+  "mcp_public_tool_count": 2,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "cookie",
+  "novel_features": [
+    {
+      "name": "The real going rate",
+      "command": "price-check",
+      "description": "See the real going rate for an item in your area — median, 25th/75th percentile, min, max, and the firm-vs-negotiable split — computed across every listing you've pulled."
+    },
+    {
+      "name": "Spot the underpriced finds",
+      "command": "deals",
+      "description": "Surface listings priced a chosen percentage below the local median for that item — the underpriced finds, ranked by how far under they are."
+    },
+    {
+      "name": "What's new since you looked",
+      "command": "new-since",
+      "description": "Show only the listings that appeared since a cutoff for a saved search, so you never re-scan items you already saw."
+    },
+    {
+      "name": "Catch price drops",
+      "command": "price-drops",
+      "description": "Detect listings whose price fell between syncs — the same item, now cheaper — sorted by the size of the drop."
+    },
+    {
+      "name": "Size up a seller",
+      "command": "seller-scan",
+      "description": "Pull a seller's full synced inventory alongside their reputation badges (business/dealer/TruYou), join date, and the median asking price across their listings."
+    },
+    {
+      "name": "Daily deal briefing",
+      "command": "digest",
+      "description": "A single composite report for a saved search combining what's new, what dropped in price, and what's underpriced."
+    }
+  ],
+  "auth_env_vars": [
+    "OFFERUP_COOKIE"
+  ]
+}

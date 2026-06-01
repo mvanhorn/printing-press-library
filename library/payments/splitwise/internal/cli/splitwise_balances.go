@@ -113,6 +113,7 @@ func newResolveCmd(flags *rootFlags) *cobra.Command {
 
 func newBalancesCmd(flags *rootFlags) *cobra.Command {
 	var byCurrency bool
+	var byGroup bool
 	cmd := &cobra.Command{
 		Use:         "balances",
 		Short:       "Show net friend balances",
@@ -132,6 +133,35 @@ func newBalancesCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 			defer db.Close()
+
+			if byGroup {
+				hintIfUnsynced(cmd, db, "get-groups")
+				hintIfStale(cmd, db, "get-groups", flags.maxAge)
+				groups, err := loadGroups(db)
+				if err != nil {
+					return err
+				}
+				youID := loadCurrentUserID(db)
+				rows := groupBalances(groups, youID)
+				out := map[string]any{"by_group": rows}
+				// Emit the unsynced-current-user note before the structured-output
+				// early return so it reaches stderr in every mode. Without a current
+				// user id groupBalances yields no rows; an agent reading {"by_group":[]}
+				// would otherwise have no signal that the result is empty because the
+				// identity is unknown rather than because there are no balances.
+				if youID == 0 {
+					_, _ = fmt.Fprintln(cmd.ErrOrStderr(), "note: current user not synced; run sync to populate get-current-user")
+				}
+				if flags.asJSON || flags.agent || !isTerminal(cmd.OutOrStdout()) {
+					return flags.emitStructured(cmd, out)
+				}
+				tw := tabwriter.NewWriter(cmd.OutOrStdout(), 2, 4, 2, ' ', 0)
+				_, _ = fmt.Fprintln(tw, "GROUP\tCURRENCY\tAMOUNT")
+				for _, row := range rows {
+					_, _ = fmt.Fprintf(tw, "%s\t%s\t%.2f\n", row.GroupName, row.CurrencyCode, row.Amount)
+				}
+				return tw.Flush()
+			}
 
 			hintIfUnsynced(cmd, db, "get-friends")
 			hintIfStale(cmd, db, "get-friends", flags.maxAge)
@@ -232,6 +262,7 @@ func newBalancesCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	cmd.Flags().BoolVar(&byCurrency, "by-currency", false, "Show only the per-currency net totals (omit the per-friend breakdown)")
+	cmd.Flags().BoolVar(&byGroup, "by-group", false, "Show your net balance in each group (per group, per currency) instead of the per-friend breakdown (takes precedence over --by-currency)")
 	return cmd
 }
 
