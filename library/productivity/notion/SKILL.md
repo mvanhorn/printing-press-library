@@ -195,7 +195,7 @@ List all top-level blocks on a page with their types and IDs.
 notion-pp-cli pages create --parent data_source_id:<id> --markdown '## My heading'
 ```
 
-The `--parent` flag accepts either the raw Notion parent JSON (`'{"data_source_id":"<id>"}'`) or a `<type>:<value>` shorthand — `data_source_id:<id>`, `database_id:<id>`, `page_id:<id>`, `block_id:<id>`, or `workspace:true`. The shorthand expands to the discriminated parent object the API requires, so you don't have to hand-author the JSON. `--parent` is available on `pages create`, `pages update`, `databases create`, `databases update`, `data-sources create-a-database`, and `data-sources update-a`.
+The `--parent` flag accepts either the raw Notion parent JSON (`'{"data_source_id":"<id>"}'`) or a `<type>:<value>` shorthand: `data_source_id:<id>`, `database_id:<id>`, `page_id:<id>`, `block_id:<id>`, or `workspace:true`. The shorthand expands to the discriminated parent object the API requires, so you don't have to hand-author the JSON. `--parent` is available on `pages create`, `databases create`, `databases update`, `data-sources create-a-database`, and `data-sources update-a`.
 
 ## Auth Setup
 

@@ -75,6 +75,11 @@ func TestParseParentFlag(t *testing.T) {
 			wantErr: true,
 		},
 		{
+			name:    "raw JSON array errors",
+			input:   `[{"data_source_id":"abc123"}]`,
+			wantErr: true,
+		},
+		{
 			name:    "bare value with no separator errors",
 			input:   "abc123",
 			wantErr: true,

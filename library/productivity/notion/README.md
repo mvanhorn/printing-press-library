@@ -135,7 +135,7 @@ notion-pp-cli pages create --parent data_source_id:<id> --markdown '## My headin
 
 ```
 
-> `--parent` accepts either raw Notion parent JSON (`'{"data_source_id":"<id>"}'`) or a `<type>:<value>` shorthand: `data_source_id:<id>`, `database_id:<id>`, `page_id:<id>`, `block_id:<id>`, or `workspace:true`. The shorthand is expanded into the discriminated parent object the API requires. Same flag and forms apply to `pages update`, `databases create`, `databases update`, `data-sources create-a-database`, and `data-sources update-a`.
+> `--parent` accepts either raw Notion parent JSON (`'{"data_source_id":"<id>"}'`) or a `<type>:<value>` shorthand: `data_source_id:<id>`, `database_id:<id>`, `page_id:<id>`, `block_id:<id>`, or `workspace:true`. The shorthand is expanded into the discriminated parent object the API requires. Same flag and forms apply to `pages create`, `databases create`, `databases update`, `data-sources create-a-database`, and `data-sources update-a`.
 
 ## Unique Features
 

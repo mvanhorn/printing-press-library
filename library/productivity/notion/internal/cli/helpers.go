@@ -303,9 +303,9 @@ var notionParentTypes = map[string]bool{
 func parseParentFlag(raw string) (any, error) {
 	trimmed := strings.TrimSpace(raw)
 
-	// Form 1: raw JSON (object or any valid JSON value). Try this first so
+	// Form 1: raw JSON object. Try this first so
 	// callers who already pass the full object keep working unchanged.
-	if strings.HasPrefix(trimmed, "{") || strings.HasPrefix(trimmed, "[") {
+	if strings.HasPrefix(trimmed, "{") {
 		var parsed any
 		if err := json.Unmarshal([]byte(trimmed), &parsed); err != nil {
 			return nil, fmt.Errorf("parsing --parent JSON: %w", err)
