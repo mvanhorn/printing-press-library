@@ -10,7 +10,7 @@ tags:
   - agent-skill
   - tool-discovery
   - install
-version: 0.2.0
+version: 0.2.1
 metadata:
   hermes:
     tags:
@@ -62,6 +62,8 @@ The library is an open-source catalog of focused CLIs and matching agent skills 
    - The install command installs both the CLI and the matching focused agent skill.
    - `install <slug>` is idempotent: re-running it on an already-installed tool refreshes the Go binary and overwrites/re-adds the focused skill in place.
    - Behind the scenes, the installer uses `go install <module>@latest` for the CLI and the Vercel Agent Skills-compatible `skills` CLI to install the focused `pp-*` skill globally from this repo.
+   - If the Go binary installs successfully but is not on the current process `PATH`, treat that as a warning, not a failed skill install. The installer should still install the focused skill and print platform-specific PATH instructions.
+   - In agent/gateway environments, shell startup files may not affect the already-running process. Restart the session/gateway after PATH changes, or use a PATH-visible user bin directory such as `~/.local/bin` when that is already exposed by the harness.
    - In OpenClaw, this same install command installs the focused skill for OpenClaw; do not replace it with a separate repo-path skill install unless the user explicitly asks for skill-only installation.
    - Pass `--cli-only` or `--skill-only` only when the user explicitly wants just one side.
 
@@ -124,6 +126,12 @@ npx -y skills@latest add mvanhorn/printing-press-library/cli-skills/pp-<slug> -g
 So the catalog installer is still the right top-level command: it installs the CLI, then installs the focused skill globally using the same agent-skills mechanism rather than asking the agent to hand-roll a separate skill install path.
 
 The install operation is idempotent and works as a reinstall for one tool. Re-running `install <slug>` uses `go install <module>@latest` for the binary and re-adds the focused skill non-interactively, overwriting the existing install in place. No uninstall-first step is needed.
+
+If install warns that the binary directory is not on `PATH`, the binary and focused skill can still be installed successfully. Follow the printed platform-specific PATH instructions, then restart the running agent session or gateway if it inherits a fixed environment. On Unix-like systems where the harness already exposes `~/.local/bin`, a symlink can be a practical bridge:
+
+```bash
+ln -sf "$(go env GOPATH)/bin/<tool>" "$HOME/.local/bin/<tool>"
+```
 
 Use `update` when the user asks to refresh or reinstall existing tools:
 

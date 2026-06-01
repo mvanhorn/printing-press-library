@@ -824,6 +824,19 @@ func resolveClientSecret(flag, filePath string) (string, error) {
 	return os.Getenv("TESLA_FLEET_CLIENT_SECRET"), nil
 }
 
+// teslaFleetHasLocationScope reports whether the active Fleet token (env
+// override or [fleet] block) carries the vehicle_location scope, decoded from
+// the JWT. drive_state reads only request the location_data endpoint when this
+// is true, since Tesla 403s the whole call if it's requested without the scope.
+func teslaFleetHasLocationScope(cfg *config.Config) bool {
+	if cfg == nil {
+		return false
+	}
+	tok := firstNonEmpty(os.Getenv("TESLA_FLEET_TOKEN"), cfg.Fleet.AccessToken)
+	_, scopes, err := decodeJWTClaims(tok)
+	return err == nil && strings.Contains(scopes, "vehicle_location")
+}
+
 // firstNonEmpty returns the first non-empty string in vals, or "" if all empty.
 func firstNonEmpty(vals ...string) string {
 	for _, v := range vals {

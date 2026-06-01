@@ -17,7 +17,7 @@
     {
       "id": "splitwise-sync-offset-pagination-past-first-page",
       "summary": "Make offset-paginated sync advance past the first page when the API returns no has_more/cursor signal.",
-      "reason": "Splitwise /get_expenses paginates by offset and returns a bare {\"expenses\":[...]} envelope with no has_more field, so extractPageItems returns hasMore=false. The sync loop's natural-end check (!hasMore) fired after the first 100 rows even under --full --max-pages 0, so the 43 oldest of 143 expenses never reached the local store \u2014 breaking debts --aged (age_days:null) and under-counting spend. Added an offset-paginator full-page fallback mirroring the existing page-int fallback: when cursorType==\"offset\", nextCursor is empty, and the page is full, synthesize hasMore and the next offset so the loop continues until a short/empty page.",
+      "reason": "Splitwise /get_expenses paginates by offset and returns a bare {\"expenses\":[...]} envelope with no has_more field, so extractPageItems returns hasMore=false. The sync loop's natural-end check (!hasMore) fired after the first 100 rows even under --full --max-pages 0, so the 43 oldest of 143 expenses never reached the local store — breaking debts --aged (age_days:null) and under-counting spend. Added an offset-paginator full-page fallback mirroring the existing page-int fallback: when cursorType==\"offset\", nextCursor is empty, and the page is full, synthesize hasMore and the next offset so the loop continues until a short/empty page.",
       "files": [
         "internal/cli/sync.go",
         "internal/cli/sync_offset_pagination_test.go"
@@ -51,7 +51,7 @@
     {
       "id": "name-resolver-ambiguity",
       "summary": "Group/friend name resolution prefers an exact match and errors on ambiguous names instead of silently picking the first substring match.",
-      "reason": "resolveLedgerGroup/resolveSettleGroup/resolveSettleFriend returned the first case-insensitive substring match, so a name matching multiple groups/friends silently resolved to one \u2014 dangerous for settle-up --record, which creates real payment expenses. Settle-up falls through to a unique friend when the group name is ambiguous.",
+      "reason": "resolveLedgerGroup/resolveSettleGroup/resolveSettleFriend returned the first case-insensitive substring match, so a name matching multiple groups/friends silently resolved to one — dangerous for settle-up --record, which creates real payment expenses. Settle-up falls through to a unique friend when the group name is ambiguous.",
       "files": [
         "internal/cli/splitwise_settle.go",
         "internal/cli/splitwise_spend.go",
@@ -99,9 +99,23 @@
       "validated_outcome": "Live: `which \"who owes me money\"` now returns debts (score 3) at exit 0; `which \"venmo\"` returns settle-up."
     },
     {
+      "id": "balances-by-group",
+      "summary": "Add a --by-group flag to the balances command: the current user's net position per group (one row per group per currency, non-zero only, biggest absolute balance first) computed offline from synced group members.",
+      "reason": "balances only broke down per friend or per currency; there was no first-class 'outstanding balance by group' view, even though every synced group object carries members[].balance. Agent hosts had to hand-roll raw SQL (and one falsely concluded the store lacked per-group debt). Added a pure groupBalances(groups, currentUserID) helper plus the --by-group branch reusing loadGroups/loadCurrentUserID/emitStructured. The 'current user not synced' note is emitted before the structured-output early return so it reaches stderr in agent/JSON/pipe mode (otherwise an agent reading {\"by_group\":[]} had no signal that the empty result was due to an unknown identity rather than no balances).",
+      "files": [
+        "internal/cli/splitwise_balances_bygroup.go",
+        "internal/cli/splitwise_balances_bygroup_test.go",
+        "internal/cli/splitwise_balances_bygroup_cmd_test.go",
+        "internal/cli/splitwise_balances.go",
+        "SKILL.md",
+        "README.md"
+      ],
+      "validated_outcome": "TestGroupBalances_* (7 cases: single/zero-excluded/multi-currency/non-member-skip/abs-desc-sort/name-tiebreak/empty), TestBalancesByGroupCommand (end-to-end: by_group envelope + --by-group precedence over --by-currency against a seeded store), and TestBalancesByGroupUnsyncedUserNoteInAgentMode (the unsynced-current-user note reaches stderr in agent mode) pass; gofmt/build/vet/test, govulncheck, verify-skill pass."
+    },
+    {
       "id": "mcp-sql-tool-schema-description",
       "summary": "The sql MCP tool's query-param description now documents the real store schema (single resources table keyed by resource_type, JSON data, json_extract) instead of the false 'Tables match resource names'.",
-      "reason": "The local store keeps every synced record in ONE resources(resource_type, id, data, ...) table with the record JSON in `data` \u2014 there are no per-resource tables. The generated description claimed 'Tables match resource names', so MCP hosts tried FROM groups / FROM get_groups and got 'no such table', burning queries before stumbling onto the resources/json_extract pattern. Extracted the description to a sqlQueryParamDesc constant naming resources/resource_type/json_extract with a worked example.",
+      "reason": "The local store keeps every synced record in ONE resources(resource_type, id, data, ...) table with the record JSON in `data` — there are no per-resource tables. The generated description claimed 'Tables match resource names', so MCP hosts tried FROM groups / FROM get_groups and got 'no such table', burning queries before stumbling onto the resources/json_extract pattern. Extracted the description to a sqlQueryParamDesc constant naming resources/resource_type/json_extract with a worked example.",
       "files": [
         "internal/mcp/tools.go",
         "internal/mcp/sql_description_test.go"
@@ -111,7 +125,7 @@
       "deferred_to_upstream": [
         {
           "feature": "Generator fix: the sql tool template must describe the real resources/resource_type/json_extract schema, not 'Tables match resource names'.",
-          "reason": "Generator-shaped \u2014 tools.go is generated DO-NOT-EDIT; every store-backed printed CLI ships the same misleading sql-tool description that sends MCP hosts to non-existent per-resource tables. Filed as a cli-printing-press retro."
+          "reason": "Generator-shaped — tools.go is generated DO-NOT-EDIT; every store-backed printed CLI ships the same misleading sql-tool description that sends MCP hosts to non-existent per-resource tables. Filed as a cli-printing-press retro."
         }
       ]
     },
@@ -128,7 +142,7 @@
       "deferred_to_upstream": [
         {
           "feature": "Generator fix: front-load the API/app name into generated MCP tool descriptions (at minimum the context/search/sql entry-point tools).",
-          "reason": "Generator-shaped \u2014 every printed CLI's MCP tool surface is resource/verb-based with the API name absent, so deferred-tool hosts that search by app name miss the connector. Filed as a cli-printing-press retro."
+          "reason": "Generator-shaped — every printed CLI's MCP tool surface is resource/verb-based with the API name absent, so deferred-tool hosts that search by app name miss the connector. Filed as a cli-printing-press retro."
         }
       ]
     },
@@ -146,14 +160,14 @@
       "deferred_to_upstream": [
         {
           "feature": "Generator fix: the MCP main template must report the real build version (wire NewMCPServer to the ldflags-injected internal/cli.version) and write a startup banner to stderr.",
-          "reason": "Generator-shaped \u2014 every printed CLI's MCP main hardcodes \"1.0.0\" and is silent on stdio startup, so no host log identifies the running build. Filed as a cli-printing-press retro."
+          "reason": "Generator-shaped — every printed CLI's MCP main hardcodes \"1.0.0\" and is silent on stdio startup, so no host log identifies the running build. Filed as a cli-printing-press retro."
         }
       ]
     },
     {
       "id": "mcp-numeric-param-scientific-notation",
       "summary": "MCP path/query params no longer render large integer IDs in scientific notation (get-friend 1925035 was building /get_friend/1.925035e+06 and 403ing).",
-      "reason": "makeAPIHandler stringified MCP arguments with fmt.Sprintf(\"%v\", v). JSON numbers arrive as float64, and %v prints a large integer-valued float in scientific notation, so a numeric path id (id 1925035 -> 1.925035e+06) or numeric query filter (group_id/friend_id/limit/offset) was corrupted \u2014 get-friend/get-expense/get-group/get-user and the delete/update endpoints all break for real Splitwise IDs (>1e6). Added formatMCPParamValue which uses strconv.FormatFloat('f', -1) for float64 (minimal decimal, no exponent) and falls back to %v otherwise. Fixing the path also resolved the 403 (it was Splitwise rejecting the malformed id, not a permission restriction).",
+      "reason": "makeAPIHandler stringified MCP arguments with fmt.Sprintf(\"%v\", v). JSON numbers arrive as float64, and %v prints a large integer-valued float in scientific notation, so a numeric path id (id 1925035 -> 1.925035e+06) or numeric query filter (group_id/friend_id/limit/offset) was corrupted — get-friend/get-expense/get-group/get-user and the delete/update endpoints all break for real Splitwise IDs (>1e6). Added formatMCPParamValue which uses strconv.FormatFloat('f', -1) for float64 (minimal decimal, no exponent) and falls back to %v otherwise. Fixing the path also resolved the 403 (it was Splitwise rejecting the malformed id, not a permission restriction).",
       "files": [
         "internal/mcp/tools.go",
         "internal/mcp/format_param_test.go"
@@ -162,7 +176,7 @@
       "deferred_to_upstream": [
         {
           "feature": "Generator fix: command_endpoint MCP handler template (makeAPIHandler) must format numeric path/query params without scientific notation.",
-          "reason": "Generator-shaped \u2014 tools.go is generated DO-NOT-EDIT; every printed CLI whose API has numeric path/query params (IDs, limits, offsets) over ~1e6 is affected. The %v-on-float64 should be FormatFloat('f') in the template. Filed as a cli-printing-press retro."
+          "reason": "Generator-shaped — tools.go is generated DO-NOT-EDIT; every printed CLI whose API has numeric path/query params (IDs, limits, offsets) over ~1e6 is affected. The %v-on-float64 should be FormatFloat('f') in the template. Filed as a cli-printing-press retro."
         }
       ]
     }
