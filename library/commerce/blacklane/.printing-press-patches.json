@@ -70,7 +70,7 @@
         "internal/cli/chrome_auth.go",
         "internal/cli/auth.go"
       ],
-      "validated_outcome": "auth login --chrome imports from the Default profile and `me` returns the account; non-invasive to the browser session."
+      "validated_outcome": "auth login --chrome imports from the Default profile and `me` returns the account; non-invasive to the browser session. auth0CacheTokens falls back to a 24h relative lifetime when the cache entry carries neither expiresAt nor expires_in, so an imported token is never stamped already-expired."
     }
   ]
 }

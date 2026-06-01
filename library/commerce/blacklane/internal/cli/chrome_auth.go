@@ -222,6 +222,15 @@ func auth0CacheTokens(val string) (accessToken string, expiresAt int64) {
 	if exp == 0 && c.Body.ExpiresIn > 0 {
 		exp = c.Body.ExpiresIn // best effort; treated as absolute below if large
 	}
+	if exp == 0 {
+		// Neither expiresAt nor expires_in present in the cache entry — assume the
+		// standard 24h Auth0 SPA access-token lifetime so the imported token is
+		// usable. The caller treats this small value as a relative duration and
+		// converts it to an absolute expiry. Without this fallback, exp=0 would
+		// stamp the token already-expired and a successful `auth login --chrome`
+		// would immediately report "session expired".
+		exp = 86400
+	}
 	return c.Body.AccessToken, exp
 }
 
