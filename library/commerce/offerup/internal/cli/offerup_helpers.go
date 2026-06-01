@@ -105,7 +105,7 @@ func storeKeyFor(query string, loc *offerup.Location) string {
 	label := "default"
 	switch {
 	case loc == nil:
-		label = "default"
+		// A nil location keeps the "default" key and guards the loc.* dereferences below.
 	case loc.Zip != "":
 		label = "zip:" + loc.Zip
 	case loc.Lat != "" && loc.Lon != "":
