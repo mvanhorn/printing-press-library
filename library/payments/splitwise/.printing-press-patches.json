@@ -124,8 +124,8 @@
     },
     {
       "id": "splitwise-fairness-nudge",
-      "summary": "Add fairness nudge as a write action that posts a reminder comment on a shared expense.",
-      "reason": "Splitwise has no send-reminder API; comment creation is the API-native nudge path. The command is preview-by-default and only posts with --send so reminder writes are explicit and safe. The default message quotes the friend's owed share, not the expense total.",
+      "summary": "Add fairness nudge as a write action that posts a reminder comment on a shared expense, accepting multi-word friend names.",
+      "reason": "Splitwise has no send-reminder API; comment creation is the API-native nudge path. The command is preview-by-default and only posts with --send so reminder writes are explicit and safe. The default message quotes the friend's owed share, not the expense total. The Args validator is cobra.MinimumNArgs(1) (not ExactArgs(1)) and the friend name is rejoined with an inline strings.TrimSpace(strings.Join(args, \" \")) so a quoted multi-word friend name whitespace-split by the MCP command-mirror resolves to the full name instead of substring-matching on the first token. The inline join can be refactored to call joinNameArgs once the multiword settle/resolve patch lands that helper in the cli package.",
       "files": [
         "internal/cli/splitwise_fairness.go",
         "internal/cli/splitwise_fairness_nudge.go",
@@ -133,7 +133,7 @@
         "SKILL.md",
         "README.md"
       ],
-      "validated_outcome": "Added failing-first tests for pure nudge target/message helpers, then passed gofmt, go build, go vet, go test ./internal/cli/... with preview-only default and --send comment posting."
+      "validated_outcome": "Added failing-first tests for pure nudge target/message helpers plus a multi-word-positional Args test, then passed gofmt, go build, go vet, go test ./internal/cli/... with preview-only default and --send comment posting."
     }
   ]
 }
