@@ -239,18 +239,28 @@ func (f *rootFlags) runGoverned(ctx context.Context, ext *store.ScrapeExtras, re
 	return res, nil
 }
 
+// buildRequestURL composes the full Scrape.do request URL from the request
+// params plus the configured token. The configured token is applied LAST and
+// `token` is skipped inside the param loop, so a user-supplied `--param
+// token=...` can never override the real API key (which would send the wrong
+// token and leak the injected value into the ledger error column).
+func buildRequestURL(cfg *config.Config, req scrapeRequest) string {
+	vals := url.Values{}
+	for k, v := range req.params {
+		if strings.EqualFold(k, "token") || v == "" {
+			continue
+		}
+		vals.Set(k, v)
+	}
+	vals.Set("token", cfg.ScrapedoApiKey)
+	base := strings.TrimRight(cfg.BaseURL, "/")
+	return base + req.path + "?" + vals.Encode()
+}
+
 // dispatch issues the HTTP request with retry on the non-billed failure
 // classes, parses the cost headers, and returns the result.
 func (f *rootFlags) dispatch(ctx context.Context, cfg *config.Config, req scrapeRequest) (*scrapeResult, error) {
-	vals := url.Values{}
-	vals.Set("token", cfg.ScrapedoApiKey)
-	for k, v := range req.params {
-		if v != "" {
-			vals.Set(k, v)
-		}
-	}
-	base := strings.TrimRight(cfg.BaseURL, "/")
-	full := base + req.path + "?" + vals.Encode()
+	full := buildRequestURL(cfg, req)
 
 	client := f.govHTTPClient()
 	maxAttempts := 3

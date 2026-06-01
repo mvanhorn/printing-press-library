@@ -8,10 +8,28 @@
 package cli
 
 import (
+	"strings"
 	"testing"
 
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/scrape-do/internal/config"
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/scrape-do/internal/store"
 )
+
+func TestBuildRequestURLTokenGuard(t *testing.T) {
+	cfg := &config.Config{BaseURL: "https://api.scrape.do", ScrapedoApiKey: "REALTOKEN"}
+	// An accidental or malicious `--param token=bad` must not override the key.
+	req := scrapeRequest{path: "/plugin/google/search", params: map[string]string{"q": "x", "token": "bad"}}
+	got := buildRequestURL(cfg, req)
+	if !strings.Contains(got, "token=REALTOKEN") {
+		t.Errorf("URL must carry the configured token; got %q", got)
+	}
+	if strings.Contains(got, "token=bad") {
+		t.Errorf("user-supplied token must be dropped, not sent; got %q", got)
+	}
+	if !strings.Contains(got, "q=x") {
+		t.Errorf("non-reserved params must pass through; got %q", got)
+	}
+}
 
 func TestEstimateScrapeCost(t *testing.T) {
 	tests := []struct {
