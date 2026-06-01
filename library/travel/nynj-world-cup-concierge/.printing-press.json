@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-31T23:25:00Z",
+  "printing_press_version": "4.19.0",
+  "api_name": "nynj-world-cup-concierge",
+  "display_name": "NYNJ World Cup Concierge",
+  "cli_name": "nynj-world-cup-concierge-pp-cli",
+  "creator": {
+    "handle": "amit",
+    "name": "Amit"
+  },
+  "contributors": [
+    {
+      "handle": "ridegoodwaves",
+      "name": "Amit"
+    }
+  ],
+  "owner": "amit",
+  "printer": "amit",
+  "printer_name": "Amit",
+  "spec_path": "docs/plans/2026-05-31-nynj-world-cup-concierge-cli-plan.md",
+  "spec_format": "plan",
+  "run_id": "nynj-world-cup-concierge-20260531",
+  "category": "travel",
+  "description": "Read-only extractor for the public NYNJ World Cup Concierge Explore NYNJ, Fan Experiences, and match-viewing guidance.",
+  "api_version": "2026",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Trip-window fan experience extraction",
+      "command": "extract --category Fan Experiences --date-window-start 2026-07-02 --date-window-end 2026-07-06 --exclude-undated --agent",
+      "description": "Filters official NYNJ fan experiences to activities whose public date ranges overlap a trip window, excluding undated guidance from itinerary feeds."
+    }
+  ],
+  "api_language": "en",
+  "spec_source": "prototype"
+}
