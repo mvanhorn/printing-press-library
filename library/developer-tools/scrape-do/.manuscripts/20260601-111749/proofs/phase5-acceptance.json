@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "scrape-do",
+  "run_id": "20260601-111749",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 68,
+  "tests_passed": 68,
+  "tests_skipped": 50,
+  "auth_context": {
+    "type": "api_key"
+  }
+}

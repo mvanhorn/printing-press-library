@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "scrape-do-pp-mcp",
+  "display_name": "Scrape.do",
+  "version": "4.20.0",
+  "description": "The first CLI for Scrape.do — Google SERP scraping and full proxy control, with a local credit-budget and concurrency governor that lets multiple AI agents share one account safely.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/scrape-do-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/scrape-do-pp-mcp",
+      "args": [],
+      "env": {
+        "SCRAPEDO_API_KEY": "${user_config.scrapedo_api_key}"
+      }
+    }
+  },
+  "user_config": {
+    "scrapedo_api_key": {
+      "type": "string",
+      "title": "SCRAPEDO_API_KEY",
+      "description": "Sets SCRAPEDO_API_KEY for the Scrape.do MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

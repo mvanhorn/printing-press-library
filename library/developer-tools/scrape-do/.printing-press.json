@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-01T17:03:25.14747Z",
+  "printing_press_version": "4.20.0",
+  "api_name": "scrape-do",
+  "display_name": "Scrape.do",
+  "cli_name": "scrape-do-pp-cli",
+  "creator": {
+    "handle": "Charles-Garrison",
+    "name": "Charles Garrison"
+  },
+  "owner": "charles-garrison",
+  "printer": "Charles-Garrison",
+  "printer_name": "Charles Garrison",
+  "spec_path": "scrape-do-spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:91c5ffa2b2ae737cf86fff908016329e4ab694761721fba1361b8a86ef448510",
+  "run_id": "20260601-111749",
+  "category": "developer-tools",
+  "description": "The first CLI for Scrape-do with Google SERP scraping plus a credit and concurrency governor",
+  "mcp_binary": "scrape-do-pp-mcp",
+  "mcp_tool_count": 1,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "SCRAPEDO_API_KEY"
+  ],
+  "novel_features": [
+    {
+      "name": "SERP rank-drift diff",
+      "command": "drift",
+      "description": "Diff a Google query's two most recent stored SERPs and see exactly which results moved, appeared, or dropped — entirely offline, no credits spent."
+    },
+    {
+      "name": "Multi-agent safe fan-out",
+      "command": "batch",
+      "description": "Dispatch a list of URLs or queries through a shared concurrency lease and per-call credit ledger, auto-retrying only the non-billed 429/502/510 classes and stopping before a credit ceiling."
+    },
+    {
+      "name": "Local credit ledger + spend forecast",
+      "command": "budget",
+      "description": "Attribute spend by mode and query-family from a local ledger debited off the authoritative per-call cost header, joined with cached account state to forecast burn-rate against days remaining."
+    },
+    {
+      "name": "Pre-flight cost estimator",
+      "command": "cost",
+      "description": "Print the exact credit cost a request will incur — accounting for render, super-proxy, Google endpoints, and per-domain overrides — before spending a single credit."
+    },
+    {
+      "name": "Cross-query movers digest",
+      "command": "movers",
+      "description": "Scan every tracked query's latest-versus-previous SERP snapshot and surface only the queries whose top positions moved past a threshold."
+    }
+  ]
+}

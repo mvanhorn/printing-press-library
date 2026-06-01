@@ -1,0 +1,56 @@
+name: scrape-do
+description: "Scrape.do CLI: Google SERP scraping and full proxy control over the Scrape.do API, plus a local SQLite credit-budget and cross-process concurrency governor that lets multiple AI agents share one account safely."
+version: "0.1.0"
+base_url: "https://api.scrape.do"
+health_check_path: "/info"
+category: developer-tools
+cli_description: "The first CLI for Scrape-do with Google SERP scraping plus a credit and concurrency governor"
+
+# Auth: single API token passed as the `token` query parameter.
+# Canonical env var is SCRAPEDO_API_KEY (user-set; NOT the slug-derived SCRAPE_DO_API_KEY).
+auth:
+  type: api_key
+  in: query
+  header: "token"
+  format: "{token}"
+  env_vars:
+    - SCRAPEDO_API_KEY
+
+config:
+  format: toml
+  path: "~/.config/scrape-do-pp-cli/config.toml"
+
+# Cache freshness intentionally DISABLED: Scrape.do is a paid, quota-metered API
+# and the local store is per-user working state (scrape results, SERP snapshots,
+# credit ledger), not a syncable upstream catalog. A pre-read upstream refresh
+# would spend credits and is never desirable here. The governor (budget/cost)
+# and manual usage polling cover freshness instead.
+
+resources:
+  # Account state endpoint (free; does not consume scraping credits).
+  # Generated typed command `account info`; also seeds doctor's health check.
+  # Rate-limited to 10 req/min upstream — poll sparingly.
+  account:
+    description: "Live Scrape.do account state: subscription status, concurrency allowance and headroom, monthly credit cap and remaining credits."
+    endpoints:
+      info:
+        method: GET
+        path: "/info"
+        description: "Fetch live account state: IsActive, ConcurrentRequest, RemainingConcurrentRequest, MaxMonthlyRequest, RemainingMonthlyRequest. Free; rate-limited to 10 requests/minute upstream."
+        response:
+          type: object
+          item: AccountInfo
+
+types:
+  AccountInfo:
+    fields:
+      - name: IsActive
+        type: bool
+      - name: ConcurrentRequest
+        type: int
+      - name: RemainingConcurrentRequest
+        type: int
+      - name: MaxMonthlyRequest
+        type: int
+      - name: RemainingMonthlyRequest
+        type: int

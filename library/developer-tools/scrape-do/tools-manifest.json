@@ -1,0 +1,35 @@
+{
+  "api_name": "scrape-do",
+  "base_url": "https://api.scrape.do",
+  "description": "The first CLI for Scrape-do with Google SERP scraping plus a credit and concurrency governor",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "api_key",
+    "header": "token",
+    "format": "{SCRAPEDO_API_KEY}",
+    "in": "query",
+    "env_vars": [
+      "SCRAPEDO_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "SCRAPEDO_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "account_info",
+      "description": "Fetch live account state: IsActive, ConcurrentRequest, RemainingConcurrentRequest, MaxMonthlyRequest, RemainingMonthlyRequest. Free; rate-limited to 10 requests/minute upstream. Returns the AccountInfo.",
+      "method": "GET",
+      "path": "/info",
+      "params": []
+    }
+  ]
+}

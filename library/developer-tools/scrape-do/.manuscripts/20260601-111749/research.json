@@ -1,0 +1,254 @@
+{
+  "api_name": "scrape-do",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "@scrape-do/client (node-client)",
+      "url": "https://github.com/scrape-do/node-client",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 7,
+      "last_updated": "",
+      "command_count": 2,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "scrapy-scrapedo",
+      "url": "https://github.com/scrape-do/scrapy-scrapedo",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "scrapedo-scrapers",
+      "url": "https://github.com/scrape-do/scrapedo-scrapers",
+      "language": "Python",
+      "install_method": "",
+      "stars": 21,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "amazon-scraper",
+      "url": "https://github.com/scrape-do/amazon-scraper",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 23,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Bright Data CLI",
+      "url": "https://github.com/brightdata/cli",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 211,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "scrapingbee-python",
+      "url": "https://github.com/ScrapingBee/scrapingbee-python",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-06-01T15:30:00Z",
+  "novel_features": [
+    {
+      "name": "SERP rank-drift diff",
+      "command": "drift",
+      "description": "Diff a Google query's two most recent stored SERPs and see exactly which results moved, appeared, or dropped — entirely offline, no credits spent.",
+      "rationale": "Only possible with a local snapshot history keyed by query and params; the live API has no memory, so rank deltas require stored SERPs no other Scrape.do tool keeps.",
+      "example": "scrape-do-pp-cli drift \"best crm software\" --json",
+      "why_it_matters": "When an agent needs to know whether a ranking changed since last check, this answers it without re-spending a 10-credit SERP call.",
+      "group": "Offline SERP intelligence"
+    },
+    {
+      "name": "Multi-agent safe fan-out",
+      "command": "batch",
+      "description": "Dispatch a list of URLs or queries through a shared concurrency lease and per-call credit ledger, auto-retrying only the non-billed 429/502/510 classes and stopping before a credit ceiling.",
+      "rationale": "A SQLite-backed shared lease caps any number of independent agent processes at the account's live concurrent-request limit — impossible without shared local state the API itself doesn't provide.",
+      "example": "scrape-do-pp-cli batch --input urls.txt --max-credits 500 --agent",
+      "why_it_matters": "Lets an agent swarm hammer one account at full speed without 429 storms or blowing the monthly budget.",
+      "group": "Credit \u0026 concurrency governance"
+    },
+    {
+      "name": "Local credit ledger + spend forecast",
+      "command": "budget",
+      "description": "Attribute spend by mode and query-family from a local ledger debited off the authoritative per-call cost header, joined with cached account state to forecast burn-rate against days remaining.",
+      "rationale": "The authoritative cost lives in the Scrape.do-Request-Cost response header and is discarded after each call; persisting it locally is the only way to attribute and forecast spend the live monthly counter can't.",
+      "example": "scrape-do-pp-cli budget --agent",
+      "why_it_matters": "Tells an agent how much budget is left and which workloads are eating it before the account hits a hard 401.",
+      "group": "Credit \u0026 concurrency governance"
+    },
+    {
+      "name": "Pre-flight cost estimator",
+      "command": "cost",
+      "description": "Print the exact credit cost a request will incur — accounting for render, super-proxy, Google endpoints, and per-domain overrides — before spending a single credit.",
+      "rationale": "A local credit-table lookup (datacenter 1, +render 5, super 10, super+render 25, Google 10, domain overrides) that never touches the API, so an agent can decide before it spends.",
+      "example": "scrape-do-pp-cli cost --url https://www.linkedin.com/company/example --render --super",
+      "why_it_matters": "Lets an agent compare the cost of cheap vs expensive scrape modes and pick the cheapest path that works.",
+      "group": "Credit \u0026 concurrency governance"
+    },
+    {
+      "name": "Cross-query movers digest",
+      "command": "movers",
+      "description": "Scan every tracked query's latest-versus-previous SERP snapshot and surface only the queries whose top positions moved past a threshold.",
+      "rationale": "A local aggregation across all stored snapshots that no single SERP API call can produce — it compares history, not a single live response.",
+      "example": "scrape-do-pp-cli movers --threshold 3 --agent",
+      "why_it_matters": "Turns hundreds of tracked keywords into a short 'what changed this week' list an agent can act on.",
+      "group": "Offline SERP intelligence"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "SERP rank-drift diff",
+      "command": "drift",
+      "description": "Diff a Google query's two most recent stored SERPs and see exactly which results moved, appeared, or dropped — entirely offline, no credits spent.",
+      "rationale": "Only possible with a local snapshot history keyed by query and params; the live API has no memory, so rank deltas require stored SERPs no other Scrape.do tool keeps.",
+      "example": "scrape-do-pp-cli drift \"best crm software\" --json",
+      "why_it_matters": "When an agent needs to know whether a ranking changed since last check, this answers it without re-spending a 10-credit SERP call.",
+      "group": "Offline SERP intelligence"
+    },
+    {
+      "name": "Multi-agent safe fan-out",
+      "command": "batch",
+      "description": "Dispatch a list of URLs or queries through a shared concurrency lease and per-call credit ledger, auto-retrying only the non-billed 429/502/510 classes and stopping before a credit ceiling.",
+      "rationale": "A SQLite-backed shared lease caps any number of independent agent processes at the account's live concurrent-request limit — impossible without shared local state the API itself doesn't provide.",
+      "example": "scrape-do-pp-cli batch --input urls.txt --max-credits 500 --agent",
+      "why_it_matters": "Lets an agent swarm hammer one account at full speed without 429 storms or blowing the monthly budget.",
+      "group": "Credit \u0026 concurrency governance"
+    },
+    {
+      "name": "Local credit ledger + spend forecast",
+      "command": "budget",
+      "description": "Attribute spend by mode and query-family from a local ledger debited off the authoritative per-call cost header, joined with cached account state to forecast burn-rate against days remaining.",
+      "rationale": "The authoritative cost lives in the Scrape.do-Request-Cost response header and is discarded after each call; persisting it locally is the only way to attribute and forecast spend the live monthly counter can't.",
+      "example": "scrape-do-pp-cli budget --agent",
+      "why_it_matters": "Tells an agent how much budget is left and which workloads are eating it before the account hits a hard 401.",
+      "group": "Credit \u0026 concurrency governance"
+    },
+    {
+      "name": "Pre-flight cost estimator",
+      "command": "cost",
+      "description": "Print the exact credit cost a request will incur — accounting for render, super-proxy, Google endpoints, and per-domain overrides — before spending a single credit.",
+      "rationale": "A local credit-table lookup (datacenter 1, +render 5, super 10, super+render 25, Google 10, domain overrides) that never touches the API, so an agent can decide before it spends.",
+      "example": "scrape-do-pp-cli cost --url https://www.linkedin.com/company/example --render --super",
+      "why_it_matters": "Lets an agent compare the cost of cheap vs expensive scrape modes and pick the cheapest path that works.",
+      "group": "Credit \u0026 concurrency governance"
+    },
+    {
+      "name": "Cross-query movers digest",
+      "command": "movers",
+      "description": "Scan every tracked query's latest-versus-previous SERP snapshot and surface only the queries whose top positions moved past a threshold.",
+      "rationale": "A local aggregation across all stored snapshots that no single SERP API call can produce — it compares history, not a single live response.",
+      "example": "scrape-do-pp-cli movers --threshold 3 --agent",
+      "why_it_matters": "Turns hundreds of tracked keywords into a short 'what changed this week' list an agent can act on.",
+      "group": "Offline SERP intelligence"
+    }
+  ],
+  "narrative": {
+    "display_name": "Scrape.do",
+    "headline": "The first CLI for Scrape-do with Google SERP scraping plus a credit and concurrency governor",
+    "value_prop": "Every Scrape.do surface — the core scraper plus the whole Google family (search, maps, news, shopping, flights, hotels, trends) — wrapped with an offline SQLite history. The governor estimates credit cost before every call with `cost`, debits a local ledger from the authoritative cost header with `budget`, and gates concurrent requests against your plan's live ceiling so an agent swarm never 429s itself or burns the monthly budget. SERPs become queryable history: `drift` and `movers` surface rank changes offline with no re-spend.",
+    "auth_narrative": "Scrape.do uses a single API token passed as the `token` query parameter. Set it as `SCRAPEDO_API_KEY` in your environment and the CLI never logs the value. The same token drives the core scraper and every Google and Ready-API endpoint.",
+    "quickstart": [
+      {
+        "command": "scrape-do-pp-cli doctor",
+        "comment": "Confirm SCRAPEDO_API_KEY is set and the API is reachable."
+      },
+      {
+        "command": "scrape-do-pp-cli google search \"best crm software\" --json",
+        "comment": "The primary workflow: a structured Google SERP, stored locally."
+      },
+      {
+        "command": "scrape-do-pp-cli budget",
+        "comment": "See remaining credits, concurrency headroom, and burn-rate forecast."
+      },
+      {
+        "command": "scrape-do-pp-cli drift \"best crm software\"",
+        "comment": "Run the search again later, then diff the rank changes offline."
+      },
+      {
+        "command": "scrape-do-pp-cli scrape \"https://example.com\" --render --markdown",
+        "comment": "General page scrape with JS rendering, returned as clean markdown."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "429 Too Many Requests during a fan-out",
+        "fix": "You hit the plan's concurrent-request cap; the lease backs off automatically — lower throughput with `batch --max-concurrency \u003cN\u003e` or upgrade the plan."
+      },
+      {
+        "symptom": "401 with no obvious auth error",
+        "fix": "Scrape.do returns 401 when monthly credits are exhausted or the subscription is suspended; check `scrape-do-pp-cli budget` and the dashboard."
+      },
+      {
+        "symptom": "doctor reports auth not configured",
+        "fix": "export SCRAPEDO_API_KEY=\u003cyour-token\u003e (the value is never logged); re-run doctor."
+      },
+      {
+        "symptom": "A render request returned raw HTML instead of JSON",
+        "fix": "returnJSON requires render — pass both --return-json and --render."
+      }
+    ],
+    "when_to_use": "Reach for this CLI whenever a task needs Google search results, structured SERP data, or any proxied web scrape via Scrape.do — and especially when several agents share one Scrape.do account. Its governor (cost/budget/batch) keeps concurrent usage inside the plan's limits and the monthly credit budget, and its offline SERP history (drift/movers) answers rank-change questions without re-spending credits. Prefer it over raw curl calls when you care about credit cost, concurrency safety, or comparing results over time.",
+    "recipes": [
+      {
+        "title": "Narrow a deep SERP payload for an agent",
+        "command": "scrape-do-pp-cli google search \"coffee makers\" --agent --select organic_results.position,organic_results.title,organic_results.link",
+        "explanation": "The SERP JSON is large and deeply nested; --select with dotted paths returns just rank, title, and link so an agent doesn't burn context parsing the full payload."
+      },
+      {
+        "title": "Estimate cost before an expensive scrape",
+        "command": "scrape-do-pp-cli cost --url https://www.linkedin.com/company/example --render --super",
+        "explanation": "Prints the expected credits (LinkedIn domain override + render + super proxy) with no API spend, so you can choose the cheapest mode that works."
+      },
+      {
+        "title": "Fan out a URL list under the concurrency cap",
+        "command": "scrape-do-pp-cli batch --input urls.txt --max-credits 500 --agent",
+        "explanation": "Dispatches every URL through the shared concurrency lease, retries only the non-billed 429/502/510 classes, and stops before the 500-credit ceiling."
+      },
+      {
+        "title": "See what ranked-changes happened this week",
+        "command": "scrape-do-pp-cli movers --threshold 3 --agent",
+        "explanation": "Compares each tracked query's two latest stored SERPs and lists only the queries whose top positions moved by 3 or more — entirely offline."
+      },
+      {
+        "title": "Query your stored SERP history with SQL",
+        "command": "scrape-do-pp-cli sql \"SELECT domain, COUNT(*) c FROM serp_organic GROUP BY domain ORDER BY c DESC LIMIT 10\"",
+        "explanation": "Read-only SQL over the local store — share-of-voice by domain across every stored SERP, with no credit spent."
+      }
+    ],
+    "trigger_phrases": [
+      "scrape google for",
+      "get google search results for",
+      "track keyword rank for",
+      "scrape this url with scrape.do",
+      "estimate scrape.do cost for",
+      "check my scrape.do credits",
+      "use scrape-do",
+      "run scrape-do"
+    ]
+  }
+}
