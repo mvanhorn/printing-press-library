@@ -1,10 +1,7 @@
 // Copyright 2026 Vinny Pasceri and contributors. Licensed under Apache-2.0. See LICENSE.
 package mcp
 
-import (
-	"strings"
-	"testing"
-)
+import "testing"
 
 func TestMCPIntArg(t *testing.T) {
 	args := map[string]any{"offset": float64(7), "limit": float64(0)}
@@ -26,34 +23,30 @@ func TestBindingHasName(t *testing.T) {
 	}
 }
 
-// TestClientCursorNames guards the wiring that stops a client-side pagination
-// cursor from leaking into the upstream query string. A cursor name is consumed
-// by the client pager (and so must be marked known, NOT forwarded) only when the
-// tool has no native binding of that name. For an endpoint that pages
-// server-side, the native binding owns the arg, so it is excluded here and still
-// reaches the API.
-func TestClientCursorNames(t *testing.T) {
-	// No native offset/limit (e.g. get_comments as a list tool): both are
-	// client cursors and must be consumed.
-	noNative := clientCursorNames([]mcpParamBinding{{PublicName: "expense_id", WireName: "expense_id", Location: "query"}})
-	if got := strings.Join(noNative, ","); got != "offset,limit" {
-		t.Fatalf("clientCursorNames(no native) = %q, want \"offset,limit\"", got)
+// TestPaginatesNatively guards the gate that decides whether a GET tool's
+// response is left untouched (the API already paged it) or re-wrapped by the
+// client byte-budget pager. A tool pages natively when it declares an offset or
+// limit query binding; for those the pager is disabled so the native response
+// schema and full-collection total are preserved. Tools with no such binding are
+// client-paged, so offset/limit are consumed locally and not forwarded upstream.
+func TestPaginatesNatively(t *testing.T) {
+	// No native offset/limit (e.g. get_comments as a list tool): client-paged.
+	if paginatesNatively([]mcpParamBinding{{PublicName: "expense_id", WireName: "expense_id", Location: "query"}}) {
+		t.Fatalf("expense_id-only tool must not be treated as natively paged")
 	}
-
-	// Native offset AND limit (e.g. get_expenses): neither is a client cursor;
-	// both must reach the upstream API, so the consumed set is empty.
-	bothNative := clientCursorNames([]mcpParamBinding{
+	// No bindings at all (e.g. get_groups): client-paged.
+	if paginatesNatively(nil) {
+		t.Fatalf("binding-less list tool must not be treated as natively paged")
+	}
+	// Native offset AND limit (e.g. get_expenses): natively paged.
+	if !paginatesNatively([]mcpParamBinding{
 		{PublicName: "offset", WireName: "offset", Location: "query"},
 		{PublicName: "limit", WireName: "limit", Location: "query"},
-	})
-	if len(bothNative) != 0 {
-		t.Fatalf("clientCursorNames(both native) = %v, want empty", bothNative)
+	}) {
+		t.Fatalf("offset+limit tool must be treated as natively paged")
 	}
-
-	// Mixed (e.g. get_notifications declares limit but not offset): only the
-	// undeclared cursor (offset) is consumed.
-	mixed := clientCursorNames([]mcpParamBinding{{PublicName: "limit", WireName: "limit", Location: "query"}})
-	if got := strings.Join(mixed, ","); got != "offset" {
-		t.Fatalf("clientCursorNames(limit native) = %q, want \"offset\"", got)
+	// limit-only (e.g. get_notifications): natively paged.
+	if !paginatesNatively([]mcpParamBinding{{PublicName: "limit", WireName: "limit", Location: "query"}}) {
+		t.Fatalf("limit-only tool must be treated as natively paged")
 	}
 }

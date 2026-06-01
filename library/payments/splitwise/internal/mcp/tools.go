@@ -55,20 +55,16 @@ func bindingHasName(bindings []mcpParamBinding, name string) bool {
 	return false
 }
 
-// clientCursorNames returns the pagination cursor args (offset/limit) that the
-// client-side byte-budget pager consumes for a GET tool — i.e. the cursor names
-// the tool does NOT declare as a native query binding. These must both be read
-// for PaginateBody and be marked as consumed so the generic args-forwarding loop
-// does not also append them to the upstream query string (a leaked client cursor
-// makes the API return a partial slice, which then yields a wrong page total).
-func clientCursorNames(bindings []mcpParamBinding) []string {
-	var names []string
-	for _, name := range []string{"offset", "limit"} {
-		if !bindingHasName(bindings, name) {
-			names = append(names, name)
-		}
-	}
-	return names
+// paginatesNatively reports whether a GET tool already pages server-side, i.e.
+// it declares a native offset or limit query binding (e.g. get_expenses,
+// get_notifications). For those tools the byte-budget client pager is disabled
+// entirely: their response is already paginated by the API, so re-wrapping it in
+// the {total,...,items} envelope would change the schema and report a `total`
+// covering only the server's returned page. For tools that do NOT page natively,
+// offset/limit are purely client-side cursors owned by the pager — consumed
+// locally and never forwarded upstream.
+func paginatesNatively(bindings []mcpParamBinding) bool {
+	return bindingHasName(bindings, "offset") || bindingHasName(bindings, "limit")
 }
 
 // RegisterTools registers all API operations as MCP tools.
@@ -480,15 +476,15 @@ func makeAPIHandler(method, pathTemplate string, readOnly bool, binaryResponse b
 		}
 		// Mark the client-side pagination cursor (offset/limit) as consumed so
 		// the generic args-forwarding loop below does not append it to the
-		// upstream query string. For endpoints that page server-side (e.g.
-		// get_expenses, get_comments) the native binding owns the arg, so
-		// clientCursorNames excludes it and it still reaches the API. Without
-		// this guard a client-cursor offset leaks upstream, the API returns a
-		// partial slice, and PaginateBody then reports a wrong total/next_offset.
-		if method == "GET" {
-			for _, name := range clientCursorNames(bindings) {
-				knownArgs[name] = true
-			}
+		// upstream query string. This applies only to GET tools that do NOT page
+		// natively — for those, the client pager (below) owns offset/limit, so
+		// neither must reach the API (a leaked client-cursor offset makes the API
+		// return a partial slice, which PaginateBody then mis-totals). Tools that
+		// page natively keep offset/limit as real query bindings, so they are
+		// left in knownArgs via the bindings loop and forwarded normally.
+		if method == "GET" && !paginatesNatively(bindings) {
+			knownArgs["offset"] = true
+			knownArgs["limit"] = true
 		}
 		for _, p := range positionalParams {
 			placeholder := "{" + p + "}"
@@ -621,21 +617,18 @@ func makeAPIHandler(method, pathTemplate string, readOnly bool, binaryResponse b
 			}
 		}
 
-		// For GET list responses, byte-budget-paginate by default so a large
-		// collection never blows the host token budget. The client cursor
-		// (offset/limit) is only consumed for tools WITHOUT a native query
-		// binding of that name, so endpoints that page server-side (e.g.
-		// get_expenses) are not double-skipped.
-		if method == "GET" {
-			clientOffset, clientLimit := 0, 0
-			for _, name := range clientCursorNames(bindings) {
-				switch name {
-				case "offset":
-					clientOffset = mcpIntArg(args, "offset")
-				case "limit":
-					clientLimit = mcpIntArg(args, "limit")
-				}
-			}
+		// For GET list responses on tools WITHOUT native server-side paging,
+		// byte-budget-paginate by default so a large collection never blows the
+		// host token budget. Endpoints that already page server-side
+		// (get_expenses, get_notifications declare native offset/limit query
+		// bindings) are left untouched: re-wrapping their already-paginated
+		// response in the {total,...,items} envelope would both change their
+		// schema and report a `total` that reflects only the server's returned
+		// page rather than the full collection. paginatesNatively gates the
+		// whole pager off for those tools.
+		if method == "GET" && !paginatesNatively(bindings) {
+			clientOffset := mcpIntArg(args, "offset")
+			clientLimit := mcpIntArg(args, "limit")
 			if out, ok := cli.PaginateBody(data, clientOffset, clientLimit, mcpListMaxBytes(), ""); ok {
 				return mcplib.NewToolResultText(string(out)), nil
 			}
