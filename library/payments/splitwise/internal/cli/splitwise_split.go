@@ -55,12 +55,15 @@ func newSplitCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			group, ok, ambErr := resolveSettleGroup(args[0], groups)
+			// Rejoin a multi-word group name the MCP command-mirror split into
+			// several positionals (see joinNameArgs in splitwise_settle.go).
+			groupName := joinNameArgs(args)
+			group, ok, ambErr := resolveSettleGroup(groupName, groups)
 			if ambErr != nil {
 				return usageErr(ambErr)
 			}
 			if !ok {
-				return usageErr(fmt.Errorf("no group matches %q; run sync first", args[0]))
+				return usageErr(fmt.Errorf("no group matches %q; run sync first", groupName))
 			}
 
 			payer := paidBy
