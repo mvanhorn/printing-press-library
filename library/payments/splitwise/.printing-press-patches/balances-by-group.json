@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "balances-by-group",
+  "applied_at": "2026-05-30",
+  "base_run_id": "20260528-002755",
+  "base_printing_press_version": "4.19.0",
+  "summary": "Add a --by-group flag to the balances command: the current user's net position per group (one row per group per currency, non-zero only, biggest absolute balance first) computed offline from synced group members.",
+  "reason": "balances only broke down per friend or per currency; there was no first-class 'outstanding balance by group' view, even though every synced group object carries members[].balance. Agent hosts had to hand-roll raw SQL (and one falsely concluded the store lacked per-group debt). Added a pure groupBalances(groups, currentUserID) helper plus the --by-group branch reusing loadGroups/loadCurrentUserID/emitStructured. The 'current user not synced' note is emitted before the structured-output early return so it reaches stderr in agent/JSON/pipe mode (otherwise an agent reading {\"by_group\":[]} had no signal that the empty result was due to an unknown identity rather than no balances).",
+  "files": [
+    "internal/cli/splitwise_balances_bygroup.go",
+    "internal/cli/splitwise_balances_bygroup_test.go",
+    "internal/cli/splitwise_balances_bygroup_cmd_test.go",
+    "internal/cli/splitwise_balances.go",
+    "SKILL.md",
+    "README.md"
+  ],
+  "validated_outcome": "TestGroupBalances_* (7 cases: single/zero-excluded/multi-currency/non-member-skip/abs-desc-sort/name-tiebreak/empty), TestBalancesByGroupCommand (end-to-end: by_group envelope + --by-group precedence over --by-currency against a seeded store), and TestBalancesByGroupUnsyncedUserNoteInAgentMode (the unsynced-current-user note reaches stderr in agent mode) pass; gofmt/build/vet/test, govulncheck, verify-skill pass."
+}

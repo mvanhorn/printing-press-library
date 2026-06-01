@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "analytics-csv-plain-output-flags",
+  "applied_at": "2026-05-30",
+  "base_run_id": "20260528-002755",
+  "base_printing_press_version": "4.19.0",
+  "summary": "Analytics commands (balances, debts, ledger, spend, recurring, settle-up) honor --csv/--plain via a new emitStructured helper instead of always emitting JSON.",
+  "reason": "These commands hand-build structured output and called flags.printJSON directly, branching only JSON-vs-human-table, so --csv/--plain were silently ignored (piping `balances --csv` yielded JSON). Added rootFlags.emitStructured which reuses printCSV for --csv and tab-separated printPlain for --plain, unwrapping a single wrapped-array envelope (recurring's {items}, settle-up's {transfers}/{recorded_payments}) before tabulating, and falling back to JSON for multi-array envelopes (balances, ledger) where no single table applies. Generic get-* commands already honored --csv via printOutputWithFlags.",
+  "files": [
+    "internal/cli/helpers.go",
+    "internal/cli/splitwise_balances.go",
+    "internal/cli/splitwise_spend.go",
+    "internal/cli/splitwise_recurring.go",
+    "internal/cli/splitwise_settle.go"
+  ],
+  "validated_outcome": "Live: `spend --csv` emits CSV, `spend --plain` tab-separated, `recurring --csv` unwraps {items}, `balances --csv` falls back to JSON (2-array envelope); default piped output unchanged JSON."
+}

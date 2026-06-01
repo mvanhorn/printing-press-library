@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "search-scan-based-relevance-and-fuzzy",
+  "applied_at": "2026-05-30",
+  "base_run_id": "20260528-002755",
+  "base_printing_press_version": "4.19.0",
+  "summary": "Rework search to scan extracted meaningful text (word-boundary token matching) instead of the raw-JSON FTS index; honor --type; add --fuzzy.",
+  "reason": "The FTS index stored each resource's whole JSON blob, so field names ('description', 'cost') and ubiquitous values ('USD') matched every record, and the raw user query went to FTS5 MATCH so punctuation (taxi-hotel, a:b) raised cryptic SQL errors. The --type flag was silently ignored. Store.Search is now scan-based over searchableText with word-boundary token matching (exact) plus an optional fuzzy mode (per-term Levenshtein), a real resource_type filter, and no FTS5 syntax exposure. The FTS table/maintenance is left intact but unused by search (candidate for removal upstream).",
+  "files": [
+    "internal/store/store.go",
+    "internal/cli/search.go",
+    "internal/mcp/tools.go"
+  ]
+}
