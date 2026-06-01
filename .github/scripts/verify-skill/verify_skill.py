@@ -1,8 +1,12 @@
 #!/usr/bin/env python3
 """verify_skill.py — validate that SKILL.md matches the shipped CLI source.
 
-Four checks run in sequence:
+Five checks run in sequence:
 
+  0. skill-guard-literals — SKILL.md references no agent-config filename
+     literal (AGENTS.md, CLAUDE.md, .cursorrules, .clinerules). Hermes'
+     skills guard flags those as CRITICAL persistence, hard-blocking install
+     of the generated cli-skills/pp-*/SKILL.md mirror.
   1. flag-names — every `--flag` used on a `<cli_binary> ...` invocation in
      SKILL.md is declared as a cobra flag somewhere in internal/cli/*.go.
      Flags on lines that invoke other tools (npx installers, gh, go,
@@ -33,6 +37,7 @@ USAGE
     python3 verify_skill.py --dir <cli-dir> --json
     python3 verify_skill.py --dir <cli-dir> --only flag-names
     python3 verify_skill.py --dir <cli-dir> --only unknown-command
+    python3 verify_skill.py --dir <cli-dir> --only skill-guard-literals
     python3 verify_skill.py --dir <cli-dir> --strict  # treat known-FPs as failures
 
 Exit codes:

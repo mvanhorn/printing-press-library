@@ -63,5 +63,37 @@ class SkillGuardLiteralsTest(unittest.TestCase):
         self.assertEqual(len(report.findings), 2)
 
 
+class SkillGuardLiteralsRunChecksTest(unittest.TestCase):
+    """Exercises the full run_checks path so the check's registration in the
+    default set (and in checks_run) is covered, not just the function in
+    isolation."""
+
+    def _cli_dir(self, tmp: str, skill_text: str) -> Path:
+        cli_dir = Path(tmp)
+        (cli_dir / "internal" / "cli").mkdir(parents=True)
+        (cli_dir / "internal" / "cli" / "root.go").write_text(
+            "package cli\n", encoding="utf-8"
+        )
+        (cli_dir / "SKILL.md").write_text(skill_text, encoding="utf-8")
+        return cli_dir
+
+    def test_default_set_runs_and_flags_literal(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            cli_dir = self._cli_dir(tmp, "# Thing\n\nSee AGENTS.md for the contract.\n")
+            report = verify_skill.run_checks(cli_dir, only=None)
+        self.assertIn("skill-guard-literals", report.checks_run)
+        self.assertTrue(report.has_real_failures())
+        self.assertTrue(
+            any(f.check == "skill-guard-literals" for f in report.findings)
+        )
+
+    def test_only_isolation_registers_check(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            cli_dir = self._cli_dir(tmp, "# Thing\n\nClean prose, no config files.\n")
+            report = verify_skill.run_checks(cli_dir, only={"skill-guard-literals"})
+        self.assertEqual(report.checks_run, ["skill-guard-literals"])
+        self.assertFalse(report.has_real_failures())
+
+
 if __name__ == "__main__":
     unittest.main()
