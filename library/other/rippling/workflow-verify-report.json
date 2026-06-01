@@ -1,0 +1,8 @@
+{
+  "dir": "/Users/carter/printing-press/library/rippling",
+  "workflows": null,
+  "verdict": "workflow-pass",
+  "issues": [
+    "no workflow manifest found, skipping"
+  ]
+}

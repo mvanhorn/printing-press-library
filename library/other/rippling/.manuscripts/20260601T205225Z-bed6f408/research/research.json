@@ -1,0 +1,65 @@
+{
+  "api_name": "rippling",
+  "novelty_score": 7,
+  "alternatives": [
+    {
+      "name": "Rippling public REST API docs",
+      "url": "https://developer.rippling.com/documentation/rest-api",
+      "summary": "Official API surface exposes HR, reports, software deployments, and draft hires but not the full IT device lifecycle UI."
+    }
+  ],
+  "gaps": [
+    "No public endpoints found for laptop ordering, shipping, return box retrieval, device lock, or wipe.",
+    "Generated REST-beta CLI had no curated IT workflow namespace before this publish pass."
+  ],
+  "patterns": [
+    "Public API supports draft hires, software deployments, reports, report-runs, and identity/access-adjacent resources.",
+    "Dry-run-first workflow commands are safer for mutating enterprise admin surfaces."
+  ],
+  "recommendation": "proceed-with-gaps",
+  "researched_at": "2026-06-01T22:08:26Z",
+  "novel_features": [
+    {
+      "name": "IT public API coverage map",
+      "command": "it overview",
+      "description": "Summarizes public-API-backed Rippling IT capabilities and explicitly documents unsupported device ordering, retrieval, lock, and wipe gaps."
+    },
+    {
+      "name": "New-hire IT onboarding plan",
+      "command": "it onboarding-plan",
+      "description": "Builds a safe dry-run-first IT onboarding plan that can create draft hires and software deployments through documented public endpoints."
+    },
+    {
+      "name": "Device software deployment workflow",
+      "command": "it deploy-software",
+      "description": "Wraps software deployment list/create operations with IT-friendly flags for role and device-group deployment workflows."
+    },
+    {
+      "name": "Hardware inventory report schema",
+      "command": "it inventory-schema",
+      "description": "Exposes documented Reports API hardware inventory fields so agents can build device inventory reports without guessing field names."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "IT public API coverage map",
+      "command": "it overview",
+      "description": "Summarizes public-API-backed Rippling IT capabilities and explicitly documents unsupported device ordering, retrieval, lock, and wipe gaps."
+    },
+    {
+      "name": "New-hire IT onboarding plan",
+      "command": "it onboarding-plan",
+      "description": "Builds a safe dry-run-first IT onboarding plan that can create draft hires and software deployments through documented public endpoints."
+    },
+    {
+      "name": "Device software deployment workflow",
+      "command": "it deploy-software",
+      "description": "Wraps software deployment list/create operations with IT-friendly flags for role and device-group deployment workflows."
+    },
+    {
+      "name": "Hardware inventory report schema",
+      "command": "it inventory-schema",
+      "description": "Exposes documented Reports API hardware inventory fields so agents can build device inventory reports without guessing field names."
+    }
+  ]
+}

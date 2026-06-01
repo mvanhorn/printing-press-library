@@ -1,0 +1,51 @@
+version: 2
+project_name: rippling-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: rippling-pp-cli
+    main: ./cmd/rippling-pp-cli
+    binary: rippling-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/other/rippling/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: rippling-pp-mcp
+    main: ./cmd/rippling-pp-mcp
+    binary: rippling-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: rippling-pp-cli
+    repository:
+      owner: carter
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Documentation for the Rippling Platform API."
+    install: |
+      bin.install "rippling-pp-cli"
+      bin.install "rippling-pp-mcp"

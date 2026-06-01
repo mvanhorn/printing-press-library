@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "rippling-pp-mcp",
+  "display_name": "Rippling Platform",
+  "version": "4.0.3",
+  "description": "Rippling Platform API surface as MCP tools.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/rippling-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/rippling-pp-mcp",
+      "args": [],
+      "env": {
+        "RIPPLING_PLATFORM_OAUTH2_PRODUCTION": "${user_config.rippling_platform_oauth2_production}"
+      }
+    }
+  },
+  "user_config": {
+    "rippling_platform_oauth2_production": {
+      "type": "string",
+      "title": "RIPPLING_PLATFORM_OAUTH2_PRODUCTION",
+      "description": "Sets RIPPLING_PLATFORM_OAUTH2_PRODUCTION for the Rippling Platform MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

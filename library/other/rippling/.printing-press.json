@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-01T20:57:01.603641Z",
+  "printing_press_version": "4.0.3",
+  "api_name": "rippling",
+  "display_name": "Rippling Platform",
+  "cli_name": "rippling-pp-cli",
+  "owner": "carter",
+  "spec_url": "https://developer.rippling.com/docs/rest-beta.yaml",
+  "mcp_binary": "rippling-pp-mcp",
+  "mcp_tool_count": 218,
+  "mcp_ready": "full",
+  "api_version": "1.0.0",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "RIPPLING_PLATFORM_OAUTH2_PRODUCTION"
+  ],
+  "run_id": "20260601T205225Z-bed6f408",
+  "category": "other",
+  "creator": {
+    "handle": "carter",
+    "name": "Carter McAlister"
+  },
+  "printer": "carter",
+  "printer_name": "Carter McAlister",
+  "description": "Rippling Platform REST API CLI with IT-focused workflows for onboarding, software deployment, and device inventory reporting.",
+  "novel_features": [
+    {
+      "name": "IT public API coverage map",
+      "command": "it overview",
+      "description": "Summarizes public-API-backed Rippling IT capabilities and explicitly documents unsupported device ordering, retrieval, lock, and wipe gaps."
+    },
+    {
+      "name": "New-hire IT onboarding plan",
+      "command": "it onboarding-plan",
+      "description": "Builds a safe dry-run-first IT onboarding plan that can create draft hires and software deployments through documented public endpoints."
+    },
+    {
+      "name": "Device software deployment workflow",
+      "command": "it deploy-software",
+      "description": "Wraps software deployment list/create operations with IT-friendly flags for role and device-group deployment workflows."
+    },
+    {
+      "name": "Hardware inventory report schema",
+      "command": "it inventory-schema",
+      "description": "Exposes documented Reports API hardware inventory fields so agents can build device inventory reports without guessing field names."
+    }
+  ]
+}
