@@ -9,6 +9,7 @@ import (
 	"io"
 	"net/url"
 	"os"
+	"path/filepath"
 	"sort"
 	"strconv"
 	"strings"
@@ -674,11 +675,27 @@ func attrValue(start xml.StartElement, name string) string {
 }
 
 func writeR365Export(path, format string, rows []map[string]any) error {
-	file, err := os.Create(path)
+	file, err := os.CreateTemp(filepath.Dir(path), "."+filepath.Base(path)+".tmp-*")
 	if err != nil {
 		return err
 	}
-	defer file.Close()
+	tmpPath := file.Name()
+	keepTemp := true
+	closed := false
+	closeFile := func() error {
+		if closed {
+			return nil
+		}
+		closed = true
+		return file.Close()
+	}
+	defer func() {
+		_ = closeFile()
+		if keepTemp {
+			_ = os.Remove(tmpPath)
+		}
+	}()
+
 	switch format {
 	case "jsonl":
 		enc := json.NewEncoder(file)
@@ -705,8 +722,17 @@ func writeR365Export(path, format string, rows []map[string]any) error {
 			}
 		}
 		writer.Flush()
-		return writer.Error()
+		if err := writer.Error(); err != nil {
+			return err
+		}
 	}
+	if err := closeFile(); err != nil {
+		return err
+	}
+	if err := os.Rename(tmpPath, path); err != nil {
+		return err
+	}
+	keepTemp = false
 	return nil
 }
 

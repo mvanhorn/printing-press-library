@@ -264,6 +264,19 @@ func TestR365ExportDryRunDoesNotWriteOutput(t *testing.T) {
 	}
 }
 
+func TestWriteR365ExportRemovesOutputOnEncodeError(t *testing.T) {
+	output := filepath.Join(t.TempDir(), "sales.jsonl")
+	rows := []map[string]any{{"bad": func() {}}}
+
+	err := writeR365Export(output, "jsonl", rows)
+	if err == nil {
+		t.Fatalf("writeR365Export accepted a JSON-unsupported value")
+	}
+	if _, statErr := os.Stat(output); !os.IsNotExist(statErr) {
+		t.Fatalf("output file exists after encode error or stat failed: %v", statErr)
+	}
+}
+
 func TestDeletedRecordsDryRunDoesNotParseSyntheticBody(t *testing.T) {
 	var flags rootFlags
 	cmd := newRootCmd(&flags)
