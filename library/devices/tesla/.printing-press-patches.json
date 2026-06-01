@@ -166,7 +166,7 @@
     {
       "id": "fix-products-parser-wall-connector-string-id",
       "summary": "Handle Wall Connector accounts in /api/1/products: change productEntry.VehicleCommandID to json.RawMessage so the unmarshal succeeds, and filter empty-VIN entries in fetchProductsList so energy devices can't accidentally match an empty --vehicle in the exact-match loop.",
-      "reason": "Tesla's /api/1/products returns a heterogeneous array: vehicles have integer IDs, energy devices (Wall Connectors, Powerwalls) have non-numeric string IDs (e.g. \"STE20240625-00048\") and no VIN. int64 fails the parse for any account with a Wall Connector. json.Number is also insufficient — it rejects non-numeric strings via isValidNumber, so the runtime parse still fails even though the code compiles. json.RawMessage implements json.Unmarshaler and accepts any JSON token, which is the only stdlib type that works for both shapes without a custom unmarshaler. Once the parse succeeds, energy-device entries with empty VINs would still slip into resolveCommandVehicle, where strings.EqualFold(\"\", \"\") would match a Wall Connector against an empty --vehicle and silently route a vehicle command at a charger; dropping empty-VIN entries at the data-source boundary closes that hole without scattering nil checks across the matching loops.",
+      "reason": "Tesla's /api/1/products returns a heterogeneous array: vehicles have integer IDs, energy devices (Wall Connectors, Powerwalls) have non-numeric string IDs (e.g. \"STE20240625-00048\") and no VIN. int64 fails the parse for any account with a Wall Connector. json.Number is also insufficient \u2014 it rejects non-numeric strings via isValidNumber, so the runtime parse still fails even though the code compiles. json.RawMessage implements json.Unmarshaler and accepts any JSON token, which is the only stdlib type that works for both shapes without a custom unmarshaler. Once the parse succeeds, energy-device entries with empty VINs would still slip into resolveCommandVehicle, where strings.EqualFold(\"\", \"\") would match a Wall Connector against an empty --vehicle and silently route a vehicle command at a charger; dropping empty-VIN entries at the data-source boundary closes that hole without scattering nil checks across the matching loops.",
       "files": [
         "internal/cli/tesla_command.go"
       ],
@@ -207,6 +207,16 @@
       ],
       "validated_outcome": "Unit tests (fleetAPIBase, teslaShouldUseFleetForReads, SaveFleetAPIBase, rewriteFleetSubsetPath, unwrapFleetSubset, AuthHeader fleet-bearer, no-persist regression, newClient routing) plus full module build/vet/test/govulncheck pass. Read-routing uses a non-persisted UseFleetBearer flag + a client-level base URL so a token refresh never writes a transient auth_header/base_url to disk. Validated live against an EU vehicle: products, full vehicle_data, ready --force-refresh, and get-data-* subset commands return real data with zero env vars; the fleet 401->refresh path was exercised with an invalid token and re-minted cleanly without polluting the config. Hardened after an independent Codex adversarial review: Fleet base-host allowlist (https + tesla.com, loopback for tests/relay) blocks bearer exfiltration via TESLA_FLEET_API_URL/api_base; TESLA_FLEET_TOKEN is honored for read routing; cacheKey resolves AuthHeader before reading AuthSource; the refresh callback validates client_id. Fleet drive_state GPS is gated on the vehicle_location scope (decoded from the Fleet JWT): with the scope, drive_state also requests the location_data endpoint and merges GPS into the response; without it, drive_state is fetched alone so the call never 403s.",
       "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/issues/2181"
+    },
+    {
+      "id": "fleet-token-401-self-heal",
+      "summary": "Reactive [fleet] token refresh + single retry when the signed-command tesla-control subprocess fails with a 401, plus a skew-window-hardened proactive refresh.",
+      "reason": "An agentcookie sink reading a synced config holds a short-lived [fleet] token that can lapse between sync and use (or read valid locally while Tesla rejects it). The owner-API read path self-heals via the transport OnTokenExpired hook, but the signed-command path shells out to tesla-control so the Go transport never sees that 401. Re-minting from the stored fleet refresh token and retrying once lets the sink control cars with no source-side fleet-refresh.",
+      "files": [
+        "internal/cli/tesla_command.go",
+        "internal/cli/tesla_command_test.go"
+      ],
+      "validated_outcome": "Full module build/vet/test/govulncheck pass (310 cli tests). Covers: self-heal happy path (401 then retry succeeds, exactly 1 refresh + 2 subprocess calls), retry bounded to one, refresh-failure surfaces the original 401 with fleet-login guidance, non-auth failures (sleeping car/timeout) trigger no refresh, isFleetAuthError classification table, concurrent-refresh guard under -race, proactive skew-window table, and a read-path guard asserting both routing modes wire a 401 self-heal callback."
     }
   ]
 }
