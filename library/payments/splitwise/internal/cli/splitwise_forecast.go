@@ -117,10 +117,17 @@ func computeForecast(expenses []Expense, groupNames map[int]string, now time.Tim
 		lastDate := c.dates[len(c.dates)-1]
 		expectedDate := lastDate.AddDate(0, 0, cadence)
 		overdue := expectedDate.Before(today)
-		if !overdue {
-			if expectedDate.After(windowEnd) {
+		if overdue {
+			// Staleness cap: once a recurring series has missed several
+			// consecutive cycles it has clearly stopped (e.g. a charge shared
+			// with a since-departed roommate), so stop surfacing it as
+			// "overdue" forever.
+			const maxMissedCycles = 3
+			if today.After(expectedDate.AddDate(0, 0, maxMissedCycles*cadence)) {
 				continue
 			}
+		} else if expectedDate.After(windowEnd) {
+			continue
 		}
 
 		totalCost := 0.0

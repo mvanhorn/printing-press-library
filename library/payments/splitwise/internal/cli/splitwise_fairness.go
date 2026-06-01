@@ -447,6 +447,11 @@ func computeFairness(youID int, friends []Friend, groups []Group, expenses []Exp
 		lastActivity := float64(raw[i].lastActivityDays)
 		ageScore := clampUnit(debtAge/float64(opts.writeOffDays)) * 40
 		ghostScore := clampUnit(lastActivity/float64(opts.ghostDays)) * 30
+		// latScore: 0-20 points when average settle latency is known; a neutral
+		// 10 (the midpoint) when fewer than --min-episodes closed cycles exist.
+		// This intentionally caps the achievable risk score at 90 for
+		// unknown-latency debtors -- they get the benefit of the doubt versus a
+		// confirmed slow payer (score 100).
 		latScore := 10.0
 		if p.AvgLatencyDays != nil {
 			latScore = clampUnit(*p.AvgLatencyDays/float64(opts.ghostDays)) * 20

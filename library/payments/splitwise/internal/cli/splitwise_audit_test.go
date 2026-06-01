@@ -133,6 +133,27 @@ func TestDetectCostOutliersFlagsWhaleInSmallCategory(t *testing.T) {
 	}
 }
 
+func TestDetectCostOutliersFlagsUnusuallyCheapItem(t *testing.T) {
+	expenses := []Expense{
+		{ID: 1, Description: "A", Cost: "80.00", CurrencyCode: "USD", Date: "2026-05-01T10:00:00Z", Category: Category{Name: "Meals"}},
+		{ID: 2, Description: "B", Cost: "82.00", CurrencyCode: "USD", Date: "2026-05-02T10:00:00Z", Category: Category{Name: "Meals"}},
+		{ID: 3, Description: "C", Cost: "78.00", CurrencyCode: "USD", Date: "2026-05-03T10:00:00Z", Category: Category{Name: "Meals"}},
+		{ID: 4, Description: "D", Cost: "81.00", CurrencyCode: "USD", Date: "2026-05-04T10:00:00Z", Category: Category{Name: "Meals"}},
+		{ID: 5, Description: "E", Cost: "79.00", CurrencyCode: "USD", Date: "2026-05-05T10:00:00Z", Category: Category{Name: "Meals"}},
+		{ID: 6, Description: "F", Cost: "80.50", CurrencyCode: "USD", Date: "2026-05-06T10:00:00Z", Category: Category{Name: "Meals"}},
+		{ID: 7, Description: "G", Cost: "79.50", CurrencyCode: "USD", Date: "2026-05-07T10:00:00Z", Category: Category{Name: "Meals"}},
+		{ID: 8, Description: "H", Cost: "80.00", CurrencyCode: "USD", Date: "2026-05-08T10:00:00Z", Category: Category{Name: "Meals"}},
+		{ID: 9, Description: "Misfiled $1 dinner", Cost: "1.00", CurrencyCode: "USD", Date: "2026-05-09T10:00:00Z", Category: Category{Name: "Meals"}},
+	}
+	outliers := detectCostOutliers(expenses)
+	if len(outliers) != 1 {
+		t.Fatalf("outliers len = %d, want 1 (the $1 misfiled item)", len(outliers))
+	}
+	if outliers[0].ExpenseID != 9 {
+		t.Fatalf("outlier expense_id = %d, want 9", outliers[0].ExpenseID)
+	}
+}
+
 func TestDetectCostOutliersSkipsMADZero(t *testing.T) {
 	expenses := []Expense{
 		{ID: 1, Description: "A", Cost: "10.00", CurrencyCode: "USD", Date: "2026-05-01T10:00:00Z", Category: Category{Name: "Meals"}},

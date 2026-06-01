@@ -218,8 +218,12 @@ func detectCostOutliers(expenses []Expense) []auditCostOutlier {
 		}
 		for idx, e := range items {
 			v := values[idx]
+			// Two-sided: flag items far from the category median in EITHER
+			// direction. An unusually cheap entry (a $1 item in an $80-median
+			// category) is as likely a data-quality error as an unusually
+			// expensive one.
 			modifiedZ := 0.6745 * (v - categoryMedian) / mad
-			if modifiedZ > 3.5 {
+			if math.Abs(modifiedZ) > 3.5 {
 				out = append(out, auditCostOutlier{
 					ExpenseID:      e.ID,
 					Description:    strings.TrimSpace(e.Description),

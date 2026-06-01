@@ -243,7 +243,7 @@ These capabilities aren't available in any other tool for this API.
   splitwise-pp-cli split "Tahoe Trip" --amount 84 --equal --agent
   ```
 - **`net`** — Net balances across all groups into the fewest direct transfers to settle your whole account (plan-only; `--record` planned).
-- **`audit`** — Scan synced expenses offline for likely duplicates (same description, cost, currency, date, and group) and per-category cost outliers (robust modified z-score using median/MAD; high-side threshold > 3.5); read-only, `--limit` caps findings per type (default 50).
+- **`audit`** — Scan synced expenses offline for likely duplicates (same description, cost, currency, date, and group) and per-category cost outliers (robust modified z-score using median/MAD; two-sided threshold |z| > 3.5, flagging items far above OR below the category median); read-only, `--limit` caps findings per type (default 50).
 
 ## Recipes
 
@@ -285,7 +285,7 @@ Nets each friend's balances (cancelling A→B→C→A cycles) into the minimum s
 splitwise-pp-cli audit
 ```
 
-Flags repeated near-identical expenses (same description, cost, date, currency, and group) and unusually large expenses vs. their category baseline using a robust median/MAD score. Use `--limit N` to cap findings per type, `--agent` for JSON.
+Flags repeated near-identical expenses (same description, cost, date, currency, and group) and expenses far from their category baseline (either unusually expensive or unusually cheap) using a robust median/MAD score. Use `--limit N` to cap findings per type, `--agent` for JSON.
 
 ### See what's coming — `forecast`
 

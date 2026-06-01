@@ -79,7 +79,7 @@ func TestComputeForecastIrregularExcluded(t *testing.T) {
 }
 
 func TestComputeForecastOverdueIncluded(t *testing.T) {
-	now := time.Date(2026, 7, 1, 0, 0, 0, 0, time.UTC)
+	now := time.Date(2026, 4, 20, 0, 0, 0, 0, time.UTC)
 	expenses := []Expense{
 		{Description: "Utilities", GroupID: 0, Cost: "90", Date: "2026-01-01"},
 		{Description: "Utilities", GroupID: 0, Cost: "100", Date: "2026-01-31"},
@@ -96,6 +96,23 @@ func TestComputeForecastOverdueIncluded(t *testing.T) {
 	}
 	if got[0].ExpectedDate != "2026-04-01" {
 		t.Fatalf("ExpectedDate = %q, want %q", got[0].ExpectedDate, "2026-04-01")
+	}
+}
+
+func TestComputeForecastVeryStaleExcluded(t *testing.T) {
+	// A recurring series silent for years has clearly stopped and must not
+	// keep appearing as "overdue".
+	now := time.Date(2029, 1, 1, 0, 0, 0, 0, time.UTC)
+	expenses := []Expense{
+		{Description: "Utilities", GroupID: 0, Cost: "90", Date: "2026-01-01"},
+		{Description: "Utilities", GroupID: 0, Cost: "100", Date: "2026-01-31"},
+		{Description: "Utilities", GroupID: 0, Cost: "110", Date: "2026-03-02"},
+	}
+	groups := map[int]string{0: "Non-group"}
+
+	got := computeForecast(expenses, groups, now, 20, 50)
+	if len(got) != 0 {
+		t.Fatalf("len(got) = %d, want 0 (series silent for years should be dropped)", len(got))
 	}
 }
 
