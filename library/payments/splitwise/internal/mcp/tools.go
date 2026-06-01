@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
 
@@ -22,6 +23,37 @@ import (
 	"github.com/mvanhorn/printing-press-library/library/payments/splitwise/internal/mcp/cobratree"
 	"github.com/mvanhorn/printing-press-library/library/payments/splitwise/internal/store"
 )
+
+// mcpListMaxBytes is the per-page byte budget for paginated GET list responses.
+// Overridable via PP_MCP_MAX_BYTES for tuning.
+func mcpListMaxBytes() int {
+	if v := os.Getenv("PP_MCP_MAX_BYTES"); v != "" {
+		if n, err := strconv.Atoi(v); err == nil && n > 0 {
+			return n
+		}
+	}
+	return 24000
+}
+
+// mcpIntArg reads an integer-valued MCP argument (JSON numbers arrive as float64);
+// returns 0 when absent or not a number.
+func mcpIntArg(args map[string]any, key string) int {
+	if f, ok := args[key].(float64); ok {
+		return int(f)
+	}
+	return 0
+}
+
+// bindingHasName reports whether the tool already declares a query/path binding of
+// this name, so the client-side pager must not also consume it.
+func bindingHasName(bindings []mcpParamBinding, name string) bool {
+	for _, b := range bindings {
+		if b.PublicName == name {
+			return true
+		}
+	}
+	return false
+}
 
 // RegisterTools registers all API operations as MCP tools.
 func RegisterTools(s *server.MCPServer) {
@@ -121,6 +153,8 @@ func RegisterTools(s *server.MCPServer) {
 	)
 	s.AddTool(
 		mcplib.NewTool("get-categories_list",
+			mcplib.WithNumber("offset", mcplib.Description("Pagination cursor: index of the first item to return (use the next_offset from a prior page). Default 0.")),
+			mcplib.WithNumber("limit", mcplib.Description("Max items to return in this page (the byte budget may return fewer). Default: as many as fit.")),
 			mcplib.WithDescription("Returns a list of all categories Splitwise allows for expenses. There are parent categories that represent groups of categories with subcategories for more specific categorization. When creating expenses, you must use a subcategory, not a parent category. If you intend for an expense to be represented by the parent category and nothing more specific, please use the 'Other' subcategory. (public)"),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
@@ -130,6 +164,8 @@ func RegisterTools(s *server.MCPServer) {
 	)
 	s.AddTool(
 		mcplib.NewTool("get-comments_list",
+			mcplib.WithNumber("offset", mcplib.Description("Pagination cursor: index of the first item to return (use the next_offset from a prior page). Default 0.")),
+			mcplib.WithNumber("limit", mcplib.Description("Max items to return in this page (the byte budget may return fewer). Default: as many as fit.")),
 			mcplib.WithDescription("Get expense comments. Required: expense_id. Returns the GetCommentsListResponse."),
 			mcplib.WithNumber("expense_id", mcplib.Required(), mcplib.Description("Expense id")),
 			mcplib.WithReadOnlyHintAnnotation(true),
@@ -140,6 +176,8 @@ func RegisterTools(s *server.MCPServer) {
 	)
 	s.AddTool(
 		mcplib.NewTool("get-currencies_list",
+			mcplib.WithNumber("offset", mcplib.Description("Pagination cursor: index of the first item to return (use the next_offset from a prior page). Default 0.")),
+			mcplib.WithNumber("limit", mcplib.Description("Max items to return in this page (the byte budget may return fewer). Default: as many as fit.")),
 			mcplib.WithDescription("Returns a list of all currencies allowed by the system. These are mostly ISO 4217 codes, but we do sometimes use pending codes or unofficial, colloquial codes (like BTC instead of XBT for Bitcoin). (public)"),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
@@ -195,6 +233,8 @@ func RegisterTools(s *server.MCPServer) {
 	)
 	s.AddTool(
 		mcplib.NewTool("get-friends_list",
+			mcplib.WithNumber("offset", mcplib.Description("Pagination cursor: index of the first item to return (use the next_offset from a prior page). Default 0.")),
+			mcplib.WithNumber("limit", mcplib.Description("Max items to return in this page (the byte budget may return fewer). Default: as many as fit.")),
 			mcplib.WithDescription("**Note**: `group` objects only include group balances with that friend. Returns the GetFriendsListResponse."),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
@@ -214,6 +254,8 @@ func RegisterTools(s *server.MCPServer) {
 	)
 	s.AddTool(
 		mcplib.NewTool("get-groups_list",
+			mcplib.WithNumber("offset", mcplib.Description("Pagination cursor: index of the first item to return (use the next_offset from a prior page). Default 0.")),
+			mcplib.WithNumber("limit", mcplib.Description("Max items to return in this page (the byte budget may return fewer). Default: as many as fit.")),
 			mcplib.WithDescription("**Note**: Expenses that are not associated with a group are listed in a group with ID 0. Returns the GetGroupsListResponse."),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
@@ -551,19 +593,21 @@ func makeAPIHandler(method, pathTemplate string, readOnly bool, binaryResponse b
 			}
 		}
 
-		// For GET responses, wrap bare arrays with count metadata
+		// For GET list responses, byte-budget-paginate by default so a large
+		// collection never blows the host token budget. The client cursor
+		// (offset/limit) is only consumed for tools WITHOUT a native query
+		// binding of that name, so endpoints that page server-side (e.g.
+		// get_expenses) are not double-skipped.
 		if method == "GET" {
-			trimmed := strings.TrimSpace(string(data))
-			if len(trimmed) > 0 && trimmed[0] == '[' {
-				var items []json.RawMessage
-				if json.Unmarshal(data, &items) == nil {
-					wrapped := map[string]any{
-						"count": len(items),
-						"items": items,
-					}
-					out, _ := json.Marshal(wrapped)
-					return mcplib.NewToolResultText(string(out)), nil
-				}
+			clientOffset, clientLimit := 0, 0
+			if !bindingHasName(bindings, "offset") {
+				clientOffset = mcpIntArg(args, "offset")
+			}
+			if !bindingHasName(bindings, "limit") {
+				clientLimit = mcpIntArg(args, "limit")
+			}
+			if out, ok := cli.PaginateBody(data, clientOffset, clientLimit, mcpListMaxBytes(), ""); ok {
+				return mcplib.NewToolResultText(string(out)), nil
 			}
 		}
 		if binaryResponse {
