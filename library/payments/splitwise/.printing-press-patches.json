@@ -17,7 +17,7 @@
     {
       "id": "splitwise-sync-offset-pagination-past-first-page",
       "summary": "Make offset-paginated sync advance past the first page when the API returns no has_more/cursor signal.",
-      "reason": "Splitwise /get_expenses paginates by offset and returns a bare {\"expenses\":[...]} envelope with no has_more field, so extractPageItems returns hasMore=false. The sync loop's natural-end check (!hasMore) fired after the first 100 rows even under --full --max-pages 0, so the 43 oldest of 143 expenses never reached the local store — breaking debts --aged (age_days:null) and under-counting spend. Added an offset-paginator full-page fallback mirroring the existing page-int fallback: when cursorType==\"offset\", nextCursor is empty, and the page is full, synthesize hasMore and the next offset so the loop continues until a short/empty page.",
+      "reason": "Splitwise /get_expenses paginates by offset and returns a bare {\"expenses\":[...]} envelope with no has_more field, so extractPageItems returns hasMore=false. The sync loop's natural-end check (!hasMore) fired after the first 100 rows even under --full --max-pages 0, so the 43 oldest of 143 expenses never reached the local store \u2014 breaking debts --aged (age_days:null) and under-counting spend. Added an offset-paginator full-page fallback mirroring the existing page-int fallback: when cursorType==\"offset\", nextCursor is empty, and the page is full, synthesize hasMore and the next offset so the loop continues until a short/empty page.",
       "files": [
         "internal/cli/sync.go",
         "internal/cli/sync_offset_pagination_test.go"
@@ -51,7 +51,7 @@
     {
       "id": "name-resolver-ambiguity",
       "summary": "Group/friend name resolution prefers an exact match and errors on ambiguous names instead of silently picking the first substring match.",
-      "reason": "resolveLedgerGroup/resolveSettleGroup/resolveSettleFriend returned the first case-insensitive substring match, so a name matching multiple groups/friends silently resolved to one — dangerous for settle-up --record, which creates real payment expenses. Settle-up falls through to a unique friend when the group name is ambiguous.",
+      "reason": "resolveLedgerGroup/resolveSettleGroup/resolveSettleFriend returned the first case-insensitive substring match, so a name matching multiple groups/friends silently resolved to one \u2014 dangerous for settle-up --record, which creates real payment expenses. Settle-up falls through to a unique friend when the group name is ambiguous.",
       "files": [
         "internal/cli/splitwise_settle.go",
         "internal/cli/splitwise_spend.go",
@@ -97,6 +97,26 @@
         "internal/cli/which.go"
       ],
       "validated_outcome": "Live: `which \"who owes me money\"` now returns debts (score 3) at exit 0; `which \"venmo\"` returns settle-up."
+    },
+    {
+      "id": "mcp-list-tool-byte-pagination",
+      "summary": "GET list MCP tools byte-budget-paginate by default (PaginateByBytes/ListFromResponse/PaginateBody in internal/cli); the 5 no-native-paging list tools gain client offset/limit params. Stops get-groups_list's ~118KB firehose.",
+      "reason": "makeAPIHandler returned raw list bodies with no size control, so get-groups_list (~118,973 chars) exceeded the host token budget. Added a shared byte-budget pager in internal/cli (the CLI owns output shaping); makeAPIHandler calls it on GET responses with a binding-collision guard so endpoints with native offset/limit (get-expenses, get-notifications) are not double-skipped. maxBytes default 24KB, PP_MCP_MAX_BYTES override.",
+      "known_limitation": "List detection at the MCP call site uses lone-top-level-array auto-detection (listField=\"\"). A GET 200 body carrying a SIBLING top-level array (e.g. an errors:[] companion) would fail auto-detect and pass through unpaginated. Not the case for the 5 targeted GET list success shapes ({groups|friends|categories|comments|currencies}:[...] are lone-array envelopes). Closed in Increment 2, where the generator passes the spec-derived listField per tool so detection never depends on the array-count heuristic.",
+      "files": [
+        "internal/cli/pagination.go",
+        "internal/cli/pagination_test.go",
+        "internal/mcp/tools.go",
+        "internal/mcp/pagination_wiring_test.go"
+      ],
+      "validated_outcome": "PaginateByBytes/ListFromResponse/PaginateBody (15 cases) + mcpIntArg/bindingHasName pass; get-groups_list returns a {total,offset,returned,next_offset,items} page under the byte budget instead of ~118KB; the 5 no-native list tools expose offset/limit while get-expenses/notifications keep native paging; gofmt/build/vet/test, govulncheck, verify-skill pass.",
+      "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/issues/2515",
+      "deferred_to_upstream": [
+        {
+          "feature": "Generator: emit listField + offset/limit params + the shared PaginateByBytes/ListFromResponse/PaginateBody helpers into every printed CLI's list tools; reconcile native-paged endpoints; add CLI --agent/--max-bytes routing through the same pager.",
+          "reason": "Generator-shaped (#2515). Increment 2 \u2014 developed in cli-printing-press-private, promoted to a public PR closing #2515. Design: workshop hub splitwise-list-pagination-design.md."
+        }
+      ]
     }
   ]
 }
