@@ -6,6 +6,7 @@
 package cli
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -157,7 +158,7 @@ func doQuote(flags *rootFlags, serviceType, departAt string, durationSecs int, p
 		body["dropoff"] = locToPrices(*dropoff)
 	}
 
-	data, _, err := c.Post("/prices", body)
+	data, _, err := c.Post(context.Background(), "/prices", body)
 	if err != nil {
 		return nil, classifyAPIError(err, flags)
 	}
@@ -378,7 +379,7 @@ func newQuoteCmd(flags *rootFlags) *cobra.Command {
 
 // ---- compare command ----
 
-func newCompareCmd(flags *rootFlags) *cobra.Command {
+func newNovelCompareCmd(flags *rootFlags) *cobra.Command {
 	var dates string
 	var hourly int
 
@@ -475,7 +476,7 @@ func newCompareCmd(flags *rootFlags) *cobra.Command {
 
 // ---- fit command ----
 
-func newFitCmd(flags *rootFlags) *cobra.Command {
+func newNovelFitCmd(flags *rootFlags) *cobra.Command {
 	var at string
 	var pax, bags, hourly int
 
@@ -558,7 +559,7 @@ func newFitCmd(flags *rootFlags) *cobra.Command {
 
 // ---- trip command (multi-leg) ----
 
-func newTripCmd(flags *rootFlags) *cobra.Command {
+func newNovelTripCmd(flags *rootFlags) *cobra.Command {
 	var at string
 	var legs []string
 

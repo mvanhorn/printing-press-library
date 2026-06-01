@@ -4,22 +4,32 @@
 
 Quote Blacklane's fixed all-inclusive chauffeur fares (airport transfers and by-the-hour) by address, compare vehicle classes, and keep a searchable local log of every quote. Addresses resolve via OpenStreetMap — no API key, no login, no booking.
 
-Printed by [@omarshahine](https://github.com/omarshahine) (Omar Shahine).
-
 ## Install
 
-The recommended path installs both the `blacklane-pp-cli` binary and the `pp-blacklane` agent skill in one shot:
+The recommended path installs both the `blacklane-pp-cli` binary and the `pp-blacklane` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
 
 ```bash
-npx -y @mvanhorn/printing-press install blacklane
+npx -y @mvanhorn/printing-press-library install blacklane
 ```
 
 For CLI only (no skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install blacklane --cli-only
+npx -y @mvanhorn/printing-press-library install blacklane --cli-only
 ```
 
+For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
+
+```bash
+npx -y @mvanhorn/printing-press-library install blacklane --skill-only
+```
+
+To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
+
+```bash
+npx -y @mvanhorn/printing-press-library install blacklane --agent claude-code
+npx -y @mvanhorn/printing-press-library install blacklane --agent claude-code --agent codex
+```
 
 ### Without Node
 
@@ -52,19 +62,50 @@ Tell your OpenClaw agent (copy this):
 Install the pp-blacklane skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-blacklane. The skill defines how its required CLI can be installed.
 ```
 
+## Use with Claude Desktop
+
+This CLI ships an [MCPB](https://github.com/modelcontextprotocol/mcpb) bundle — Claude Desktop's standard format for one-click MCP extension installs (no JSON config required).
+
+To install:
+
+1. Download the `.mcpb` for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/blacklane-current).
+2. Double-click the `.mcpb` file. Claude Desktop opens and walks you through the install.
+
+Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple Silicon (`darwin-arm64`) and Windows (`amd64`, `arm64`); for other platforms, use the manual config below.
+
+<details>
+<summary>Manual JSON config (advanced)</summary>
+
+If you can't use the MCPB bundle (older Claude Desktop, unsupported platform), install the MCP binary and configure it manually.
+
+
+Install the MCP binary from this CLI's published public-library entry or pre-built release.
+
+Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
+
+```json
+{
+  "mcpServers": {
+    "blacklane": {
+      "command": "blacklane-pp-mcp"
+    }
+  }
+}
+```
+
+</details>
+
 ## Quick Start
 
 ```bash
 # Point-to-point transfer quote across vehicle classes.
-blacklane-pp-cli quote 'San Francisco Airport' 'Union Square San Francisco' --at 2026-06-25T15:00
-
+blacklane-pp-cli quote "San Francisco Airport" "Union Square San Francisco" --at 2026-06-25T15:00
 
 # By-the-hour chauffeur quote (3 hours).
-blacklane-pp-cli quote 'Union Square San Francisco' --hourly 3 --at 2026-06-25T15:00
-
+blacklane-pp-cli quote "Union Square San Francisco" --hourly 3 --at 2026-06-25T15:00
 
 # Inspect a vehicle class's models, capacity, and features.
-blacklane-pp-cli catalog get business
+blacklane-pp-cli catalog business
 
 ```
 
@@ -143,6 +184,25 @@ These capabilities aren't available in any other tool for this API.
   blacklane-pp-cli book 'JFK Airport' 'Times Square New York' --at 2026-06-25T15:00 --class business
   ```
 
+## Recipes
+
+
+### Quote and keep only class + price
+
+```bash
+blacklane-pp-cli quote "JFK Airport" "Times Square New York" --at 2026-06-20T15:00 --agent --select packages.title,packages.grossAmount,packages.currency
+```
+
+Narrow a verbose quote to just the class and total.
+
+### Find the cheapest departure
+
+```bash
+blacklane-pp-cli compare "JFK Airport" "Times Square New York" --dates 2026-06-20T15:00,2026-06-21T09:00,2026-06-22T09:00 --agent
+```
+
+Fan out quotes across times and rank by price.
+
 ## Usage
 
 Run `blacklane-pp-cli --help` for the full command reference and flag list.
@@ -153,22 +213,13 @@ Run `blacklane-pp-cli --help` for the full command reference and flag list.
 
 Vehicle-class service catalog (models, capacity, features)
 
-- **`blacklane-pp-cli catalog get`** - Get a vehicle class by slug (business, first, van)
+- **`blacklane-pp-cli catalog <slug>`** - Get a vehicle class by slug (business, first, van)
 
 ### prices
 
 Raw pricing quotes (prefer the top-level 'quote' command)
 
-- **`blacklane-pp-cli prices create`** - Request prices for a journey (raw body; see 'quote' for a friendly interface)
-
-### Authenticated account (requires `auth login`)
-
-- **`blacklane-pp-cli auth login --chrome`** - Import your login automatically from Chrome (or paste a refresh token via stdin/`--token-file`)
-- **`blacklane-pp-cli auth status` / `auth logout`** - Show / clear the active account
-- **`blacklane-pp-cli me`** - Your account profile
-- **`blacklane-pp-cli bookings --when upcoming|past`** - Your rides
-- **`blacklane-pp-cli wallet`** - Credits and vouchers
-- **`blacklane-pp-cli book <pickup> <dropoff> --at <time> [--class] [--confirm]`** - Quote + assemble a booking and hand payment off to your browser. Never charges or books on its own.
+- **`blacklane-pp-cli prices`** - Request prices for a journey (raw body; see 'quote' for a friendly interface)
 
 
 ## Output Formats
@@ -206,65 +257,6 @@ This CLI is designed for AI agent consumption:
 
 Exit codes: `0` success, `2` usage error, `3` not found, `5` API error, `7` rate limited, `10` config error.
 
-## Use with Claude Code
-
-Install the focused skill — it auto-installs the CLI on first invocation:
-
-```bash
-npx skills add mvanhorn/printing-press-library/cli-skills/pp-blacklane -g
-```
-
-Then invoke `/pp-blacklane <query>` in Claude Code. The skill is the most efficient path — Claude Code drives the CLI directly without an MCP server in the middle.
-
-<details>
-<summary>Use as an MCP server in Claude Code (advanced)</summary>
-
-If you'd rather register this CLI as an MCP server in Claude Code, install the MCP binary first:
-
-
-Install the MCP binary from this CLI's published public-library entry or pre-built release.
-
-Then register it:
-
-```bash
-claude mcp add blacklane blacklane-pp-mcp
-```
-
-</details>
-
-## Use with Claude Desktop
-
-This CLI ships an [MCPB](https://github.com/modelcontextprotocol/mcpb) bundle — Claude Desktop's standard format for one-click MCP extension installs (no JSON config required).
-
-To install:
-
-1. Download the `.mcpb` for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/blacklane-current).
-2. Double-click the `.mcpb` file. Claude Desktop opens and walks you through the install.
-
-Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple Silicon (`darwin-arm64`) and Windows (`amd64`, `arm64`); for other platforms, use the manual config below.
-
-<details>
-<summary>Manual JSON config (advanced)</summary>
-
-If you can't use the MCPB bundle (older Claude Desktop, unsupported platform), install the MCP binary and configure it manually.
-
-
-Install the MCP binary from this CLI's published public-library entry or pre-built release.
-
-Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
-
-```json
-{
-  "mcpServers": {
-    "blacklane": {
-      "command": "blacklane-pp-mcp"
-    }
-  }
-}
-```
-
-</details>
-
 ## Health Check
 
 ```bash
@@ -275,13 +267,12 @@ Verifies configuration and connectivity to the API.
 
 ## Authentication
 
-Quotes, the catalog, and geocoding need no auth. The account commands (`me`, `bookings`, `wallet`) and `book` require a one-time login. Easiest path — import from Chrome (log in to blacklane.com in Chrome first):
+Quotes, catalog, and geocoding need no auth. The account commands and `book` use your own Blacklane login — easiest via Chrome:
 
 ```bash
-blacklane-pp-cli auth login --chrome
+blacklane-pp-cli auth login --chrome    # imports your 24h access token from Chrome (non-invasive)
+# durable alternative: pbpaste | blacklane-pp-cli auth login   (refresh token from DevTools)
 ```
-
-That reads your current 24h access token from Chrome's local storage (re-run to renew); it does not touch your browser's refresh session. For a durable, self-refreshing login, paste the refresh token from DevTools (Local Storage -> the `@@auth0spajs@@...` key -> `body` -> `refresh_token`) instead: `pbpaste | blacklane-pp-cli auth login`.
 
 Credentials are stored owner-only at `~/.config/blacklane-pp-cli/auth.json`. `book` never charges — payment (Braintree + 3-D Secure) is completed by you in the browser.
 
@@ -297,10 +288,5 @@ Static request headers can be configured under `headers`; per-command header ove
 - Run the `list` command to see available items
 
 ### API-specific
-
 - **Quote returns no vehicle classes** — The route may be outside Blacklane's service area, or the date is in the past — try a major city/airport and a future time.
 - **Address resolves to the wrong place** — Pass more specific text or use --pickup-lat/--pickup-lng (and --dropoff-lat/lng) to set coordinates directly.
-
----
-
-Generated by [CLI Printing Press](https://github.com/mvanhorn/cli-printing-press)

@@ -1,8 +1,0 @@
-{
-  "dir": "/Users/omarshahine/printing-press/.runstate/printing-press-library-0afd6870/runs/20260601-000336/working/blacklane-pp-cli",
-  "workflows": null,
-  "verdict": "workflow-pass",
-  "issues": [
-    "no workflow manifest found, skipping"
-  ]
-}

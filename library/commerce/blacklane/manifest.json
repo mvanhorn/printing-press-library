@@ -2,8 +2,8 @@
   "manifest_version": "0.3",
   "name": "blacklane-pp-mcp",
   "display_name": "Blacklane",
-  "version": "4.2.2",
-  "description": "Blacklane API surface as MCP tools.",
+  "version": "4.19.1",
+  "description": "Upfront chauffeur quotes from the terminal — transfer and hourly, with a local price history no other tool has.",
   "author": {
     "name": "CLI Printing Press"
   },

@@ -42,7 +42,7 @@ const gqlWallet = `query Wallet($input: WalletInput!) {
   }
 }`
 
-func newMeCmd(flags *rootFlags) *cobra.Command {
+func newNovelMeCmd(flags *rootFlags) *cobra.Command {
 	return &cobra.Command{
 		Use:         "me",
 		Short:       "Show your Blacklane account profile (requires auth login)",
@@ -61,7 +61,7 @@ func newMeCmd(flags *rootFlags) *cobra.Command {
 	}
 }
 
-func newBookingsCmd(flags *rootFlags) *cobra.Command {
+func newNovelBookingsCmd(flags *rootFlags) *cobra.Command {
 	var when string
 	var filterJSON string
 	var limit, offset int
@@ -111,7 +111,7 @@ func newBookingsCmd(flags *rootFlags) *cobra.Command {
 	return cmd
 }
 
-func newWalletCmd(flags *rootFlags) *cobra.Command {
+func newNovelWalletCmd(flags *rootFlags) *cobra.Command {
 	var inputJSON string
 	cmd := &cobra.Command{
 		Use:         "wallet",

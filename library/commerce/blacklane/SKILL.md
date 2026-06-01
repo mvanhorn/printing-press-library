@@ -20,7 +20,7 @@ This skill drives the `blacklane-pp-cli` binary. **You must verify the CLI is in
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install blacklane --cli-only
+   npx -y @mvanhorn/printing-press-library install blacklane --cli-only
    ```
 2. Verify: `blacklane-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
@@ -133,11 +133,10 @@ blacklane-pp-cli which "<capability in your own words>"
 
 ## Recipes
 
-
-### Quote and keep only price + class
+### Quote and keep only class + price
 
 ```bash
-blacklane-pp-cli quote 'JFK' 'Times Square NYC' --at 2026-06-20T15:00 --agent --select packages.packageSlug,packages.price.totals.grossAmount
+blacklane-pp-cli quote "JFK Airport" "Times Square New York" --at 2026-06-20T15:00 --agent --select packages.title,packages.grossAmount,packages.currency
 ```
 
 Narrow a verbose quote to just the class and total.
@@ -145,39 +144,28 @@ Narrow a verbose quote to just the class and total.
 ### Find the cheapest departure
 
 ```bash
-blacklane-pp-cli compare 'JFK' 'Times Square NYC' --dates 2026-06-20,2026-06-21,2026-06-22 --agent
+blacklane-pp-cli compare "JFK Airport" "Times Square New York" --dates 2026-06-20T15:00,2026-06-21T09:00,2026-06-22T09:00 --agent
 ```
 
-Fan out quotes across dates and rank by price.
+Fan out quotes across times and rank by price.
 
 ## Auth Setup
 
-**Quotes, the catalog, geocoding, and all transcendence commands need no authentication.**
-
-The account commands (`me`, `bookings`, `wallet`) and `book` act on your own Blacklane account. Easiest login — import straight from Chrome (log in to blacklane.com in Chrome first):
+Quotes, the catalog, and geocoding need no auth. The account commands (`me`, `bookings`, `wallet`) and `book` act on your own Blacklane account. Easiest login — import straight from Chrome (log in to blacklane.com in Chrome first):
 
 ```bash
 blacklane-pp-cli auth login --chrome
 ```
 
-This reads your current access token from Chrome's local storage (valid ~24h; re-run `--chrome` to renew). It is non-invasive — it does not touch your browser's refresh session.
-
-For a durable, self-refreshing login, paste the refresh token instead (DevTools -> Application -> Local Storage -> `https://www.blacklane.com` -> the `@@auth0spajs@@...` key -> `body` -> `refresh_token`):
+This reads your current access token from Chrome's local storage (valid ~24h; re-run `--chrome` to renew) and is non-invasive — it does not touch your browser's refresh session. For a durable, self-refreshing login, paste the refresh token instead (DevTools -> Application -> Local Storage -> `https://www.blacklane.com` -> the `@@auth0spajs@@...` key -> `body` -> `refresh_token`):
 
 ```bash
 pbpaste | blacklane-pp-cli auth login
 ```
 
-`blacklane-pp-cli auth status` shows the active account; `blacklane-pp-cli auth logout` clears stored credentials. No auth command ever places a booking.
+`blacklane-pp-cli auth status` / `auth logout` manage the session. No auth command ever places a booking; `book` hands payment off to your browser.
 
-### Account & booking commands
-
-- `blacklane-pp-cli me` -- your account profile
-- `blacklane-pp-cli bookings --when upcoming|past` -- your rides
-- `blacklane-pp-cli wallet` -- credits and vouchers
-- `blacklane-pp-cli book <pickup> <dropoff> --at <time> [--class business]` -- quote + assemble a booking, then with `--confirm` open browser checkout to pay. **The CLI never charges or books on its own** — payment (Braintree + 3-D Secure) is completed by you in the browser.
-
-Run `blacklane-pp-cli doctor` to verify the public surface.
+Run `blacklane-pp-cli doctor` to verify setup.
 
 ## Agent Mode
 
@@ -205,7 +193,7 @@ Commands that read from the local store or the API wrap output in a provenance e
 }
 ```
 
-Parse `.results` for data and `.meta.source` to know whether it's live or local. A human-readable `N results (live)` summary is printed to stderr only when stdout is a terminal — piped/agent consumers get pure JSON on stdout.
+Parse `.results` for data and `.meta.source` to know whether it's live or local. A human-readable `N results (live)` summary is printed to stderr only when stdout is a terminal AND no machine-format flag (`--json`, `--csv`, `--compact`, `--quiet`, `--plain`, `--select`) is set — piped/agent consumers and explicit-format runs get pure JSON on stdout.
 
 ## Agent Feedback
 
@@ -217,7 +205,7 @@ blacklane-pp-cli feedback --stdin < notes.txt
 blacklane-pp-cli feedback list --json --limit 10
 ```
 
-Entries are stored locally at `~/.blacklane-pp-cli/feedback.jsonl`. They are never POSTed unless `BLACKLANE_FEEDBACK_ENDPOINT` is set AND either `--send` is passed or `BLACKLANE_FEEDBACK_AUTO_SEND=true`. Default behavior is local-only.
+Entries are stored locally at `~/.local/share/blacklane-pp-cli/feedback.jsonl`. They are never POSTed unless `BLACKLANE_FEEDBACK_ENDPOINT` is set AND either `--send` is passed or `BLACKLANE_FEEDBACK_AUTO_SEND=true`. Default behavior is local-only.
 
 Write what *surprised* you, not a bug report. Short, specific, one line: that is the part that compounds.
 

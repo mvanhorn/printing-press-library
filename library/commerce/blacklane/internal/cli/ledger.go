@@ -79,7 +79,7 @@ func recordQuote(db *sql.DB, r *quoteResult) error {
 
 // ---- watch: take a price snapshot and report change vs the prior one ----
 
-func newWatchCmd(flags *rootFlags) *cobra.Command {
+func newNovelWatchCmd(flags *rootFlags) *cobra.Command {
 	var at string
 	var hourly int
 
@@ -246,7 +246,7 @@ func renderLedger(cmd *cobra.Command, flags *rootFlags, rows []ledgerRow) error 
 	return nil
 }
 
-func newLogCmd(flags *rootFlags) *cobra.Command {
+func newNovelLogCmd(flags *rootFlags) *cobra.Command {
 	var limit int
 	cmd := &cobra.Command{
 		Use:         "log",

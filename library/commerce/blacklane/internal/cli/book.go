@@ -32,7 +32,7 @@ func openInBrowser(url string) error {
 	return exec.Command(bin, args...).Start()
 }
 
-func newBookCmd(flags *rootFlags) *cobra.Command {
+func newNovelBookCmd(flags *rootFlags) *cobra.Command {
 	var at string
 	var hourly int
 	var class string
