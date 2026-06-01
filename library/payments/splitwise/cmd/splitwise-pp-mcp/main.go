@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/mark3labs/mcp-go/server"
+	"github.com/mvanhorn/printing-press-library/library/payments/splitwise/internal/cli"
 	mcptools "github.com/mvanhorn/printing-press-library/library/payments/splitwise/internal/mcp"
 )
 
@@ -24,9 +25,11 @@ const (
 )
 
 func main() {
+	buildVersion := cli.Version()
+
 	s := server.NewMCPServer(
 		"Splitwise",
-		"1.0.0",
+		buildVersion,
 		server.WithToolCapabilities(false),
 	)
 
@@ -36,7 +39,11 @@ func main() {
 	addr := flag.String("addr", defaultHTTPAddr, "bind address for http transport (host:port or :port)")
 	flag.Parse()
 
-	switch strings.ToLower(*transport) {
+	// Startup banner to stderr so the host's MCP log identifies the running build.
+	resolvedTransport := strings.ToLower(*transport)
+	fmt.Fprintln(os.Stderr, startupBanner(buildVersion, resolvedTransport))
+
+	switch resolvedTransport {
 	case "stdio":
 		if err := server.ServeStdio(s); err != nil {
 			fmt.Fprintf(os.Stderr, "MCP server error: %v\n", err)
@@ -53,6 +60,13 @@ func main() {
 		fmt.Fprintf(os.Stderr, "unknown --transport %q (supported: stdio, http)\n", *transport)
 		os.Exit(2)
 	}
+}
+
+// startupBanner is the one line the MCP server writes to stderr on load. It lands
+// in the host's MCP log (e.g. Claude Desktop) and identifies exactly which build
+// is running.
+func startupBanner(version, transport string) string {
+	return fmt.Sprintf("splitwise-pp-mcp %s starting (transport=%s)", version, transport)
 }
 
 // defaultTransport reads PP_MCP_TRANSPORT env when set, otherwise falls back

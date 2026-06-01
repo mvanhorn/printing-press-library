@@ -67,6 +67,22 @@ func paginatesNatively(bindings []mcpParamBinding) bool {
 	return bindingHasName(bindings, "offset") || bindingHasName(bindings, "limit")
 }
 
+// sqlQueryParamDesc documents the real local schema for the sql tool: a single
+// `resources` table keyed by resource_type with the raw record in a JSON `data`
+// column (there are no per-resource tables). Agents that assume table-per-resource
+// hit "no such table"; this points them at resource_type + json_extract instead.
+const sqlQueryParamDesc = "SQL query (SELECT or WITH...SELECT). All synced records live in ONE table: resources(resource_type, id, data, synced_at, updated_at), where data is the raw JSON record. Filter by resource_type (e.g. 'get-groups', 'get-friends', 'get-expenses') and read fields with json_extract(data,'$.field'); expand nested arrays with json_each. Example: SELECT json_extract(data,'$.name') FROM resources WHERE resource_type='get-groups'."
+
+// contextToolDesc / searchToolDesc / sqlToolDesc front-load the "Splitwise" app
+// name so a deferred-tool host (e.g. Claude Cowork) that searches the tool surface
+// by app name surfaces these entry-point tools instead of concluding no connector
+// is installed.
+const (
+	contextToolDesc = "Splitwise: API domain context — resource taxonomy, auth requirements, query tips, and unique capabilities. Call this first when working with Splitwise."
+	searchToolDesc  = "Splitwise: full-text search across all synced Splitwise data. Faster than paginating list endpoints. Requires sync first."
+	sqlToolDesc     = "Splitwise: read-only SQL against the local Splitwise database. Use for ad-hoc analysis, aggregations, and joins across synced resources. Requires sync first."
+)
+
 // RegisterTools registers all API operations as MCP tools.
 func RegisterTools(s *server.MCPServer) {
 	s.AddTool(
@@ -367,7 +383,7 @@ func RegisterTools(s *server.MCPServer) {
 	// Search tool — faster than iterating list endpoints for finding specific items
 	s.AddTool(
 		mcplib.NewTool("search",
-			mcplib.WithDescription("Full-text search across all synced data. Faster than paginating list endpoints. Requires sync first."),
+			mcplib.WithDescription(searchToolDesc),
 			mcplib.WithString("query", mcplib.Required(), mcplib.Description("Search query (supports FTS5 syntax: AND, OR, NOT, quotes for phrases)")),
 			mcplib.WithNumber("limit", mcplib.Description("Max results (default 25)")),
 			mcplib.WithReadOnlyHintAnnotation(true),
@@ -378,8 +394,8 @@ func RegisterTools(s *server.MCPServer) {
 	// SQL tool — ad-hoc analysis on synced data without API calls
 	s.AddTool(
 		mcplib.NewTool("sql",
-			mcplib.WithDescription("Run read-only SQL against local database. Use for ad-hoc analysis, aggregations, and joins across synced resources. Requires sync first."),
-			mcplib.WithString("query", mcplib.Required(), mcplib.Description("SQL query (SELECT or WITH...SELECT). Tables match resource names.")),
+			mcplib.WithDescription(sqlToolDesc),
+			mcplib.WithString("query", mcplib.Required(), mcplib.Description(sqlQueryParamDesc)),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 		),
@@ -390,7 +406,7 @@ func RegisterTools(s *server.MCPServer) {
 	// Call this first to understand the API taxonomy, query patterns, and capabilities.
 	s.AddTool(
 		mcplib.NewTool("context",
-			mcplib.WithDescription("Get API domain context: resource taxonomy, auth requirements, query tips, and unique capabilities. Call this first."),
+			mcplib.WithDescription(contextToolDesc),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 		),

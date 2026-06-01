@@ -1,0 +1,22 @@
+{
+  "schema_version": 2,
+  "id": "mcp-version-startup-banner",
+  "applied_at": "2026-05-30",
+  "base_run_id": "20260528-002755",
+  "base_printing_press_version": "4.19.0",
+  "summary": "The MCP server now reports the real build version (via cli.Version() instead of a hardcoded \"1.0.0\") and writes a startup banner to stderr on load, so a host's MCP log identifies which build is running.",
+  "reason": "cmd/splitwise-pp-mcp/main.go passed a literal \"1.0.0\" to NewMCPServer (ignoring the ldflags-injected internal/cli.version the CLI uses) and logged nothing on stdio startup, so there was no way to tell which build Claude Desktop loaded when dogfooding multiple builds. Added cli.Version() accessor, wired it into NewMCPServer, and added startupBanner(version, transport) printed to stderr. Because goreleaser already injects internal/cli.version into all binaries, published MCP builds now report their real release version for free.",
+  "files": [
+    "internal/cli/root.go",
+    "cmd/splitwise-pp-mcp/main.go",
+    "cmd/splitwise-pp-mcp/main_test.go"
+  ],
+  "validated_outcome": "TestStartupBannerIncludesVersionAndTransport passes; a plain build prints 'splitwise-pp-mcp 1.0.0 starting (transport=stdio)' to stderr, and an ldflags build (-X internal/cli.version=...) prints the injected version; gofmt/build/vet/test, govulncheck, verify-skill pass.",
+  "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/issues/2554",
+  "deferred_to_upstream": [
+    {
+      "feature": "Generator fix: the MCP main template must report the real build version (wire NewMCPServer to the ldflags-injected internal/cli.version) and write a startup banner to stderr.",
+      "reason": "Generator-shaped — every printed CLI's MCP main hardcodes \"1.0.0\" and is silent on stdio startup, so no host log identifies the running build. Filed as a cli-printing-press retro."
+    }
+  ]
+}
