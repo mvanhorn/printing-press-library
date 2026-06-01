@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "recurring-regularity-gate",
+  "applied_at": "2026-05-30",
+  "base_run_id": "20260528-002755",
+  "base_printing_press_version": "4.19.0",
+  "summary": "recurring requires a regular cadence (mean in [2,400] days, bounded gap spread) and excludes settlement-labeled expenses.",
+  "reason": "recurring reported any description seen >= min-occurrences times as recurring with a meaningless mean-gap cadence, surfacing trips, same-trip bursts, and settle-up records (which Splitwise stores as payment=false so the e.Payment filter missed them). Added the recurringCadence regularity gate and isSettlementDescription, aligned the deleted-expense check with expenseDeleted(), and raised the min-occurrences default to 3.",
+  "files": [
+    "internal/cli/splitwise_recurring.go"
+  ]
+}
