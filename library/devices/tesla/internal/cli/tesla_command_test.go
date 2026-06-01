@@ -840,6 +840,42 @@ func TestTryRefreshFleetToken_ConcurrentGuard(t *testing.T) {
 	}
 }
 
+// TestTryRefreshFleetToken_SaveFailureStillReturnsToken locks the return
+// contract: a successful grant whose config persistence fails must still return
+// the freshly-minted token (alongside the save error) so the caller can use it
+// for the current request. Greptile flagged callers dropping this token.
+func TestTryRefreshFleetToken_SaveFailureStillReturnsToken(t *testing.T) {
+	// Point the config at a path whose parent is a regular file, so save()'s
+	// MkdirAll fails and the write cannot land.
+	blocker := filepath.Join(t.TempDir(), "not-a-dir")
+	if err := os.WriteFile(blocker, []byte("x"), 0o600); err != nil {
+		t.Fatalf("write blocker: %v", err)
+	}
+	cfg := &config.Config{
+		Path:  filepath.Join(blocker, "config.toml"),
+		Fleet: config.FleetConfig{ClientID: "cid", RefreshToken: "refresh-tok"},
+	}
+	mux := http.NewServeMux()
+	mux.HandleFunc("/oauth2/v3/token", func(w http.ResponseWriter, r *http.Request) {
+		_ = json.NewEncoder(w).Encode(map[string]any{
+			"access_token":  "minted-but-unsaved",
+			"refresh_token": "new-refresh",
+			"expires_in":    28800,
+		})
+	})
+	srv := httptest.NewServer(mux)
+	defer srv.Close()
+	t.Setenv("TESLA_FLEET_AUTH_URL", srv.URL)
+
+	tok, err := tryRefreshFleetToken(cfg)
+	if tok != "minted-but-unsaved" {
+		t.Errorf("expected minted token returned despite save failure, got %q", tok)
+	}
+	if err == nil {
+		t.Errorf("expected a non-nil save error alongside the token")
+	}
+}
+
 // TestFleetTokenNeedsProactiveRefresh covers the skew-window proactive check
 // (plan U3): refresh when expired, near-expiry, or unknown-expiry-with-refresh;
 // skip when comfortably valid or when no refresh token exists.

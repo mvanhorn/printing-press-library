@@ -517,7 +517,10 @@ func commandDispatchFleet(cmd *cobra.Command, flags *rootFlags, cfg *config.Conf
 	// dispatch avoids racing the network. If refresh fails we still attempt the
 	// call; the reactive 401 path below is the safety net.
 	if fleetTokenNeedsProactiveRefresh(ft, fleetTokenRefreshSkew) {
-		if refreshed, rerr := tryRefreshFleetToken(cfg); rerr == nil && refreshed != "" {
+		// Use the minted token whenever it is non-empty, even if persistence
+		// failed (tryRefreshFleetToken returns token+err in that case): a fresh
+		// token is usable for this dispatch regardless of the disk write.
+		if refreshed, _ := refreshFleetTokenGuarded(cfg); refreshed != "" {
 			token = refreshed
 		}
 	}
@@ -575,10 +578,7 @@ func commandDispatchFleet(cmd *cobra.Command, flags *rootFlags, cfg *config.Conf
 	// retry (no loop) and serialized so concurrent commands don't double-POST
 	// the token endpoint or tear config.toml.
 	if runErr != nil && isFleetAuthError(stdout, stderr, runErr) {
-		teslaFleetRefreshGuard.Lock()
-		newTok, rerr := tryRefreshFleetToken(cfg)
-		teslaFleetRefreshGuard.Unlock()
-		if rerr == nil && newTok != "" {
+		if newTok, _ := refreshFleetTokenGuarded(cfg); newTok != "" {
 			stdout, stderr, runErr = dispatchOnce(newTok)
 		}
 	}
@@ -709,12 +709,22 @@ func fleetTokenNeedsProactiveRefresh(ft config.FleetConfig, skew time.Duration) 
 	return time.Now().Add(skew).After(ft.TokenExpiry)
 }
 
-// teslaFleetRefreshGuard serializes reactive fleet-token refreshes across
-// goroutines, mirroring teslaRefreshGuard for the owner-API path. Two commands
-// hitting a 401 at once would otherwise both POST /oauth2/v3/token and race the
-// config.toml write; tryRefreshFleetToken persists atomically, but serializing
-// avoids the duplicate grant entirely.
+// teslaFleetRefreshGuard serializes fleet-token refreshes across goroutines,
+// mirroring teslaRefreshGuard for the owner-API path. Two commands refreshing
+// at once (whether proactively or on a 401) would otherwise both POST
+// /oauth2/v3/token and race the config.toml write; tryRefreshFleetToken
+// persists atomically, but serializing avoids the duplicate grant entirely.
 var teslaFleetRefreshGuard sync.Mutex
+
+// refreshFleetTokenGuarded runs tryRefreshFleetToken under teslaFleetRefreshGuard
+// so the proactive and reactive refresh paths can never race a duplicate grant
+// or config.toml write against each other. Both paths must go through here, not
+// call tryRefreshFleetToken directly.
+func refreshFleetTokenGuarded(cfg *config.Config) (string, error) {
+	teslaFleetRefreshGuard.Lock()
+	defer teslaFleetRefreshGuard.Unlock()
+	return tryRefreshFleetToken(cfg)
+}
 
 // isFleetAuthError reports whether a tesla-control result is an authentication
 // failure that a token refresh could plausibly fix. It is deliberately
@@ -746,10 +756,14 @@ func isFleetAuthError(stdout, stderr string, err error) bool {
 	return false
 }
 
-// tryRefreshFleetToken attempts a silent refresh_token grant. Returns the new
-// access token on success, "" on any failure. Errors are swallowed so the
-// caller can fall through to dispatch with the stale token and let
-// tesla-control surface a clear 401.
+// tryRefreshFleetToken attempts a silent refresh_token grant. Return contract:
+//   - grant failure (no creds, network, invalid_grant): returns ("", err)
+//   - grant success, persistence success: returns (newAccessToken, nil)
+//   - grant success, persistence FAILURE: returns (newAccessToken, saveErr) —
+//     the token is freshly minted and usable for the current request even
+//     though it did not reach disk, so callers should prefer a non-empty token
+//     over the error. Callers that want serialization must use
+//     refreshFleetTokenGuarded rather than calling this directly.
 func tryRefreshFleetToken(cfg *config.Config) (string, error) {
 	if cfg == nil {
 		return "", fmt.Errorf("nil cfg")
