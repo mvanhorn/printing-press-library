@@ -1,0 +1,236 @@
+{
+  "api_name": "pinterest",
+  "novelty_score": 72,
+  "alternatives": [
+    {
+      "name": "collactivelabs/pinterest-mcp-server",
+      "url": "https://github.com/collactivelabs/pinterest-mcp-server",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 8,
+      "last_updated": "",
+      "command_count": 7,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "brtdwchtr/pinterest-export",
+      "url": "https://github.com/brtdwchtr/pinterest-export",
+      "language": "Python",
+      "install_method": "",
+      "stars": 1,
+      "last_updated": "",
+      "command_count": 5,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "CDataSoftware/pinterest-mcp-server-by-cdata",
+      "url": "https://github.com/CDataSoftware/pinterest-mcp-server-by-cdata",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 4,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-06-01T23:18:00Z",
+  "novel_features": [
+    {
+      "name": "Top Boards by Saves",
+      "command": "top-boards",
+      "description": "Rank all your boards by total saves across all their pins.",
+      "rationale": "Requires joining boards with pin analytics snapshots in SQLite â€” no single API call returns this aggregate.",
+      "example": "pinterest-pp-cli top-boards --limit 10 --agent",
+      "why_it_matters": "Use when you need to know which boards drive the most engagement before planning content.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Pin Performance Trends",
+      "command": "trends",
+      "description": "Track how your pin impressions and saves change week-over-week.",
+      "rationale": "Requires time-series analytics snapshots stored in SQLite across multiple sync runs.",
+      "example": "pinterest-pp-cli trends --weeks 4 --json",
+      "why_it_matters": "Use to identify content timing patterns and seasonal peaks for your account.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Stale Boards Detector",
+      "command": "boards stale",
+      "description": "List boards that haven't received a new pin in the last N days.",
+      "rationale": "Requires time-windowed query on last-pin-created timestamp â€” only possible with local SQLite.",
+      "example": "pinterest-pp-cli boards stale --days 30 --json",
+      "why_it_matters": "Use for content calendar planning to find gaps before a content audit.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Ad vs Organic Comparison",
+      "command": "compare",
+      "description": "Compare paid campaign performance against organic pin performance side-by-side.",
+      "rationale": "Requires joining ad analytics and organic pin analytics â€” no API returns both in one response.",
+      "example": "pinterest-pp-cli compare --days 30 --json",
+      "why_it_matters": "Use when deciding whether to boost organic pins or increase ad spend.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Best Posting Time",
+      "command": "timing",
+      "description": "Surface which days of the week historically generate the most saves for your account.",
+      "rationale": "Requires aggregating engagement by day-of-week from stored analytics snapshots.",
+      "example": "pinterest-pp-cli timing --weeks 8 --json",
+      "why_it_matters": "Use before scheduling new pins to maximize reach based on your own historical data.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Board Gap Analysis",
+      "command": "boards gap",
+      "description": "Find trending Pinterest topics you haven't covered in your boards recently.",
+      "rationale": "Requires comparing trending API results against local board/pin topic index â€” two data streams no existing tool joins.",
+      "example": "pinterest-pp-cli boards gap --region US --days 14 --json",
+      "why_it_matters": "Use when planning content strategy to identify high-opportunity trending topics you're missing.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Top Boards by Saves",
+      "command": "top-boards",
+      "description": "Rank all your boards by total saves across all their pins.",
+      "rationale": "Requires joining boards with pin analytics snapshots in SQLite â€” no single API call returns this aggregate.",
+      "example": "pinterest-pp-cli top-boards --limit 10 --agent",
+      "why_it_matters": "Use when you need to know which boards drive the most engagement before planning content.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Pin Performance Trends",
+      "command": "trends",
+      "description": "Track how your pin impressions and saves change week-over-week.",
+      "rationale": "Requires time-series analytics snapshots stored in SQLite across multiple sync runs.",
+      "example": "pinterest-pp-cli trends --weeks 4 --json",
+      "why_it_matters": "Use to identify content timing patterns and seasonal peaks for your account.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Stale Boards Detector",
+      "command": "boards stale",
+      "description": "List boards that haven't received a new pin in the last N days.",
+      "rationale": "Requires time-windowed query on last-pin-created timestamp â€” only possible with local SQLite.",
+      "example": "pinterest-pp-cli boards stale --days 30 --json",
+      "why_it_matters": "Use for content calendar planning to find gaps before a content audit.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Ad vs Organic Comparison",
+      "command": "compare",
+      "description": "Compare paid campaign performance against organic pin performance side-by-side.",
+      "rationale": "Requires joining ad analytics and organic pin analytics â€” no API returns both in one response.",
+      "example": "pinterest-pp-cli compare --days 30 --json",
+      "why_it_matters": "Use when deciding whether to boost organic pins or increase ad spend.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Best Posting Time",
+      "command": "timing",
+      "description": "Surface which days of the week historically generate the most saves for your account.",
+      "rationale": "Requires aggregating engagement by day-of-week from stored analytics snapshots.",
+      "example": "pinterest-pp-cli timing --weeks 8 --json",
+      "why_it_matters": "Use before scheduling new pins to maximize reach based on your own historical data.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Board Gap Analysis",
+      "command": "boards gap",
+      "description": "Find trending Pinterest topics you haven't covered in your boards recently.",
+      "rationale": "Requires comparing trending API results against local board/pin topic index â€” two data streams no existing tool joins.",
+      "example": "pinterest-pp-cli boards gap --region US --days 14 --json",
+      "why_it_matters": "Use when planning content strategy to identify high-opportunity trending topics you're missing.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "PINTEREST_ACCESS_TOKEN"
+  },
+  "narrative": {
+    "display_name": "Pinterest",
+    "headline": "Every Pinterest board, pin, and ad â€” plus offline analytics no other tool can answer in a single command.",
+    "value_prop": "pinterest-pp-cli wraps the full Pinterest API v5 with a local SQLite data layer that makes compound queries possible. Ask which boards drive the most saves, which days generate peak engagement, or where your ad spend outperforms organic â€” without writing a single API call.",
+    "auth_narrative": "Pinterest uses OAuth2. Run 'auth login' to open a browser window for consent. Your access token and refresh token are stored locally and refreshed automatically.",
+    "quickstart": [
+      {
+        "command": "pinterest-pp-cli doctor --dry-run",
+        "comment": "Verify setup"
+      },
+      {
+        "command": "pinterest-pp-cli auth login",
+        "comment": "Authenticate via Pinterest OAuth"
+      },
+      {
+        "command": "pinterest-pp-cli sync",
+        "comment": "Sync boards, pins, and analytics to local SQLite"
+      },
+      {
+        "command": "pinterest-pp-cli boards list --json",
+        "comment": "List all your boards"
+      },
+      {
+        "command": "pinterest-pp-cli top-boards --limit 10 --agent",
+        "comment": "See your highest-performing boards"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 Unauthorized",
+        "fix": "Run 'pinterest-pp-cli auth login' to refresh your OAuth token"
+      },
+      {
+        "symptom": "Rate limit exceeded (429)",
+        "fix": "Pinterest trial access limits to 1000 req/day per category. Wait or apply for standard access."
+      },
+      {
+        "symptom": "Empty results from top-boards",
+        "fix": "Run 'pinterest-pp-cli sync' first to populate the local store"
+      }
+    ],
+    "when_to_use": "Use pinterest-pp-cli when managing Pinterest boards/pins for a brand, pulling ad performance data, or analyzing which content drives the most engagement. Ideal for agents that need to audit content strategy, compare ad vs organic performance, or find gaps in a content calendar.",
+    "anti_triggers": [
+      "downloading Pinterest images from random URLs without auth",
+      "scraping public boards without an API key",
+      "Instagram or Facebook management"
+    ],
+    "recipes": [
+      {
+        "title": "Find your top boards",
+        "command": "pinterest-pp-cli top-boards --limit 5 --agent --select name,total_saves,pin_count",
+        "explanation": "After syncing, ranks boards by cumulative pin saves."
+      },
+      {
+        "title": "Export board data for analysis",
+        "command": "pinterest-pp-cli export --format jsonl --output boards.jsonl boards",
+        "explanation": "Exports all board metadata as JSONL to a local file for AI analysis or import into other tools."
+      },
+      {
+        "title": "Spot stale boards",
+        "command": "pinterest-pp-cli boards stale --days 14 --json",
+        "explanation": "Lists boards with no new pins in the past 2 weeks â€” useful for content planning."
+      },
+      {
+        "title": "Compare ad vs organic",
+        "command": "pinterest-pp-cli compare --days 30 --json --select metric,paid,organic",
+        "explanation": "Side-by-side paid campaign vs organic pin metrics for the last 30 days."
+      }
+    ],
+    "trigger_phrases": [
+      "list my Pinterest boards",
+      "show Pinterest analytics",
+      "find top performing pins",
+      "sync Pinterest",
+      "Pinterest board management",
+      "use pinterest-pp-cli"
+    ]
+  }
+}
