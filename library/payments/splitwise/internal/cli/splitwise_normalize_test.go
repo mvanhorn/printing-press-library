@@ -1,11 +1,15 @@
 package cli
 
 import (
+	"bytes"
 	"math"
 	"os"
 	"path/filepath"
 	"reflect"
+	"strings"
 	"testing"
+
+	"github.com/mvanhorn/printing-press-library/library/payments/splitwise/internal/store"
 )
 
 func TestComputeNormalize(t *testing.T) {
@@ -264,5 +268,45 @@ func TestComputeNormalize_RatePrecision(t *testing.T) {
 	// converted = round2(10 * 1.3333) = round2(13.333) = 13.33
 	if row.Converted != 13.33 {
 		t.Fatalf("Converted = %v, want 13.33", row.Converted)
+	}
+}
+
+// TestNormalizeUnsyncedUserNote guards that normalize emits the
+// "current user not synced" stderr note when get-current-user is unsynced
+// (youID == 0), so a silently-zero Spend total is explained rather than
+// mistaken for real data. Mirrors balances --by-group.
+func TestNormalizeUnsyncedUserNote(t *testing.T) {
+	home := t.TempDir()
+	t.Setenv("HOME", home)
+
+	dbPath := defaultDBPath("splitwise-pp-cli")
+	if err := os.MkdirAll(filepath.Dir(dbPath), 0o755); err != nil {
+		t.Fatalf("mkdir db dir: %v", err)
+	}
+	s, err := store.Open(dbPath)
+	if err != nil {
+		t.Fatalf("open store: %v", err)
+	}
+	// An expense is present, but get-current-user is NOT synced -> youID == 0.
+	if err := s.Upsert("get-expenses", "1", []byte(`{"id":1,"currency_code":"USD","cost":"10.00","users":[{"user_id":42,"owed_share":"10.00"}]}`)); err != nil {
+		t.Fatalf("seed expense: %v", err)
+	}
+	if err := s.Close(); err != nil {
+		t.Fatalf("close store: %v", err)
+	}
+
+	flags := &rootFlags{agent: true} // structured output path
+	cmd := newNormalizeCmd(flags)
+	var out, errBuf bytes.Buffer
+	cmd.SetOut(&out)
+	cmd.SetErr(&errBuf)
+	// --base is required to bypass the "no flags → help" guard (NFlag()==0 check).
+	cmd.SetArgs([]string{"--base=USD"})
+
+	if err := cmd.Execute(); err != nil {
+		t.Fatalf("execute: %v (stderr: %s)", err, errBuf.String())
+	}
+	if !strings.Contains(errBuf.String(), "current user not synced") {
+		t.Errorf("expected unsynced-current-user note on stderr, got: %q", errBuf.String())
 	}
 }

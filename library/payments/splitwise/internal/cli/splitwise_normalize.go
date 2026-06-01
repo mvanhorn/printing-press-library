@@ -219,6 +219,13 @@ func newNormalizeCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 			youID := loadCurrentUserID(db)
+			if youID == 0 {
+				// Without a synced current user the Spend per-user owed-share loop
+				// never matches, so Spend totals are silently 0.00. Warn on stderr in
+				// every output mode (mirrors balances --by-group) so the zero reads as
+				// an unknown-identity artifact, not a real total.
+				_, _ = fmt.Fprintln(cmd.ErrOrStderr(), "note: current user not synced; run sync to populate get-current-user")
+			}
 
 			res := computeNormalize(friends, expenses, youID, mergedRates, baseCode)
 			if flags.asJSON || flags.agent || !isTerminal(cmd.OutOrStdout()) {
