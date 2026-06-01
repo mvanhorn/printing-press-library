@@ -505,6 +505,23 @@ func syncResource(ctx context.Context, c interface {
 			hasMore = true
 		}
 
+		// PATCH(amend-2026-05-30: paginate offset APIs past the first page) —
+		// Offset paginator fallback: when the API paginates by ?offset=N and
+		// returns a bare item-array envelope with no body has_more/cursor
+		// signal (Splitwise's {"expenses":[...]} shape), a full page must be
+		// treated as "there may be more" so the loop advances the offset
+		// instead of stopping at pageSize.limit. Without this, get-expenses
+		// hard-caps at 100 even under --full --max-pages 0: extractPageItems
+		// returns hasMore=false, the natural-end check (`!hasMore`) fires after
+		// page 1, and the offset-advance branch below is never reached. Mirrors
+		// the page-int fallback above; guards on cursorType so it only affects
+		// offset-class paginators.
+		if pageSize.cursorType == "offset" && nextCursor == "" && len(items) >= pageSize.limit {
+			currentOffset, _ := strconv.Atoi(cursor)
+			nextCursor = strconv.Itoa(currentOffset + pageSize.limit)
+			hasMore = true
+		}
+
 		if len(items) == 0 {
 			if isEmptyPageResponse(data) {
 				break

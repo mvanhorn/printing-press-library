@@ -1174,6 +1174,106 @@ func printCSV(w io.Writer, data json.RawMessage) error {
 	return nil
 }
 
+// emitStructured renders a hand-built structured value honoring output-format
+// flags. It is the analytics-command counterpart to get-* commands that route
+// typed output through printOutputWithFlags.
+func (f *rootFlags) emitStructured(cmd *cobra.Command, v any) error {
+	rawBytes, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+	raw := json.RawMessage(rawBytes)
+
+	if f.csv {
+		if table, ok := structuredTableData(raw); ok {
+			return printCSV(cmd.OutOrStdout(), table)
+		}
+		return printCSV(cmd.OutOrStdout(), raw)
+	}
+	if f.plain {
+		if table, ok := structuredTableData(raw); ok {
+			return printPlain(cmd.OutOrStdout(), table)
+		}
+		compact, err := json.Marshal(v)
+		if err != nil {
+			return err
+		}
+		_, err = fmt.Fprintln(cmd.OutOrStdout(), string(compact))
+		return err
+	}
+
+	return f.printJSON(cmd, v)
+}
+
+func structuredTableData(raw json.RawMessage) (json.RawMessage, bool) {
+	var arr []map[string]any
+	if err := json.Unmarshal(raw, &arr); err == nil {
+		return raw, true
+	}
+	if unwrapped, ok := unwrapSingleArrayField(raw); ok {
+		return unwrapped, true
+	}
+	return nil, false
+}
+
+func unwrapSingleArrayField(raw json.RawMessage) (json.RawMessage, bool) {
+	var obj map[string]json.RawMessage
+	if err := json.Unmarshal(raw, &obj); err != nil {
+		return nil, false
+	}
+	var arrayRaw json.RawMessage
+	arrayCount := 0
+	for _, v := range obj {
+		var arr []map[string]any
+		if err := json.Unmarshal(v, &arr); err == nil {
+			arrayRaw = v
+			arrayCount++
+		}
+	}
+	if arrayCount != 1 {
+		return nil, false
+	}
+	return arrayRaw, true
+}
+
+func printPlain(w io.Writer, data json.RawMessage) error {
+	var items []map[string]any
+	if err := json.Unmarshal(data, &items); err != nil || len(items) == 0 {
+		fmt.Fprintln(w, string(data))
+		return nil
+	}
+
+	keySet := map[string]bool{}
+	for _, item := range items {
+		for k := range item {
+			keySet[k] = true
+		}
+	}
+	var keys []string
+	for k := range keySet {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+
+	fmt.Fprintln(w, strings.Join(keys, "\t"))
+	for _, item := range items {
+		vals := make([]string, 0, len(keys))
+		for _, k := range keys {
+			v := item[k]
+			switch vv := v.(type) {
+			case nil:
+				vals = append(vals, "")
+			case float64:
+				vals = append(vals, strconv.FormatFloat(vv, 'f', -1, 64))
+			default:
+				vals = append(vals, fmt.Sprintf("%v", vv))
+			}
+		}
+		fmt.Fprintln(w, strings.Join(vals, "\t"))
+	}
+	return nil
+}
+
 // printOutput auto-detects arrays and renders as tables, or prints raw JSON for objects.
 func printOutput(w io.Writer, data json.RawMessage, asJSON bool) error {
 	if !asJSON && !isTerminal(w) {
@@ -1678,6 +1778,13 @@ type DataProvenance struct {
 	Reason       string     `json:"reason,omitempty"`        // why local was used: "user_requested", "api_unreachable", "no_search_endpoint"
 	ResourceType string     `json:"resource_type,omitempty"` // which resource type was queried
 	Freshness    any        `json:"freshness,omitempty"`     // optional machine-owned freshness metadata for covered command paths
+	// PATCH(local-unscoped-meta): local reads return ALL synced rows; endpoint
+	// filters (friend_id, group_id, dated_after, …) are NOT applied to the cache.
+	// Unscoped surfaces that in-band so agents parsing JSON (who never see the
+	// stderr warning) know the result is unfiltered. UnappliedParams names the
+	// dropped filter keys so a caller can re-issue against --data-source live.
+	Unscoped        bool     `json:"unscoped,omitempty"`
+	UnappliedParams []string `json:"unapplied_params,omitempty"`
 }
 
 // printProvenance writes a one-line provenance message to stderr for TTY users.
@@ -1770,6 +1877,12 @@ func wrapWithProvenance(data json.RawMessage, prov DataProvenance) (json.RawMess
 	}
 	if prov.Freshness != nil {
 		meta["freshness"] = prov.Freshness
+	}
+	if prov.Unscoped {
+		meta["unscoped"] = true
+	}
+	if len(prov.UnappliedParams) > 0 {
+		meta["unapplied_params"] = prov.UnappliedParams
 	}
 	var results any
 	if json.Valid(data) {

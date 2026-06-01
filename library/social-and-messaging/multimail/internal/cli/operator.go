@@ -9,8 +9,11 @@ import (
 
 func newOperatorCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "operator",
-		Short: "Manage operator",
+		Use:         "operator",
+		Short:       "List and create operator",
+		Hidden:      true,
+		Annotations: map[string]string{"mcp:read-only": "true"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newOperatorCreateCmd(flags))

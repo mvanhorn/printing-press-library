@@ -370,7 +370,7 @@ func TestResources_CompositeKeyPreservesOverlappingIDs(t *testing.T) {
 		t.Fatalf("overlapping row count = %d, want 2", count)
 	}
 
-	matches, err := s.Search("restaurant", 10)
+	matches, err := s.Search("restaurant", "", 10, false)
 	if err != nil {
 		t.Fatalf("search restaurant: %v", err)
 	}
@@ -504,7 +504,7 @@ func TestMigrate_ResourcesCompositeKeyUpgrade(t *testing.T) {
 		t.Fatalf("upgraded bookmark payload = %s", bookmark)
 	}
 
-	matches, err := s.Search("legacy", 10)
+	matches, err := s.Search("legacy", "", 10, false)
 	if err != nil {
 		t.Fatalf("search migrated fts: %v", err)
 	}

@@ -1,0 +1,96 @@
+{
+  "api_name": "vestaboard",
+  "base_url": "https://cloud.vestaboard.com",
+  "description": "Read and write messages on a Vestaboard split-flap display, with transition control and VBML text formatting.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "api_key",
+    "header": "X-Vestaboard-Token",
+    "env_vars": [
+      "VESTABOARD_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "VESTABOARD_API_KEY",
+        "kind": "per_call",
+        "required": false,
+        "sensitive": true
+      }
+    ],
+    "key_url": "https://web.vestaboard.com"
+  },
+  "tier_routing": {
+    "tiers": {
+      "vbml": {
+        "base_url": "https://vbml.vestaboard.com",
+        "auth": {
+          "type": "none"
+        }
+      }
+    }
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "message_get",
+      "description": "Read the message currently displayed on the board. The layout is a JSON-encoded 2D array of character codes whose dimensions depend on the board type.",
+      "method": "GET",
+      "path": "/",
+      "params": []
+    },
+    {
+      "name": "message_send",
+      "description": "Send a new message to the board. Provide --text (plain text / VBML) or --characters (a JSON 2D array of character codes). Rate limited to 1 message per 15 seconds. Optional: text, characters, forced.",
+      "method": "POST",
+      "path": "/",
+      "params": []
+    },
+    {
+      "name": "transition_get",
+      "description": "Get the current transition style and speed.",
+      "method": "GET",
+      "path": "/transition",
+      "params": []
+    },
+    {
+      "name": "transition_set",
+      "description": "Set the transition style and speed. Both fields are required. Required: transition, transitionSpeed.",
+      "method": "PUT",
+      "path": "/transition",
+      "params": [
+        {
+          "name": "transition",
+          "type": "string",
+          "location": "body",
+          "description": "Transition style: classic, wave, drift, or curtain.",
+          "required": true
+        },
+        {
+          "name": "transitionSpeed",
+          "type": "string",
+          "location": "body",
+          "description": "Transition speed: gentle or fast.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "vbml_format",
+      "description": "Convert a text string into a 2D array of Vestaboard character codes. Required: message. (public)",
+      "method": "POST",
+      "path": "/format",
+      "tier": "vbml",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "message",
+          "type": "string",
+          "location": "body",
+          "description": "The text string to format into character codes.",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

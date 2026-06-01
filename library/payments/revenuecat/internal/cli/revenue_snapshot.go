@@ -8,6 +8,7 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"sort"
 	"time"
@@ -167,7 +168,7 @@ func runRevenueSnapshot(ctx context.Context, c *client.Client, db *store.Store, 
 	}
 
 	// Pull prior snapshot (if any) to compute deltas before we persist this run.
-	prior, priorAt, hasPrior := loadPriorSnapshot(ctx, db, projectID)
+	prior, priorAt, hasPrior, priorErr := loadPriorSnapshot(ctx, db, projectID)
 	view.HasPrior = hasPrior
 	if hasPrior {
 		view.PriorAt = priorAt
@@ -204,6 +205,10 @@ func runRevenueSnapshot(ctx context.Context, c *client.Client, db *store.Store, 
 	}
 	if len(view.Metrics) == 0 && view.Note == "" {
 		view.Note = "overview endpoint returned no metrics"
+	} else if priorErr != nil && view.Note == "" {
+		// Distinct from a genuine first run: the prior snapshot existed but
+		// couldn't be read, so deltas are zero because they were suppressed.
+		view.Note = "prior snapshot unavailable (" + priorErr.Error() + "); deltas suppressed"
 	} else if !hasPrior && view.Note == "" {
 		view.Note = "first snapshot for this project; deltas are zero until the next run"
 	}
@@ -211,8 +216,11 @@ func runRevenueSnapshot(ctx context.Context, c *client.Client, db *store.Store, 
 }
 
 // loadPriorSnapshot returns the most recent prior snapshot's per-metric values
-// keyed by metric id, its captured_at, and whether one exists.
-func loadPriorSnapshot(ctx context.Context, db *store.Store, projectID string) (map[string]float64, string, bool) {
+// keyed by metric id, its captured_at, and whether one exists. The returned
+// error is non-nil only for a real failure (DB error or a corrupt prior blob),
+// distinct from the normal first-run case (no row → ok=false, err=nil) so the
+// caller can tell "no prior yet" apart from "prior unreadable".
+func loadPriorSnapshot(ctx context.Context, db *store.Store, projectID string) (map[string]float64, string, bool, error) {
 	out := map[string]float64{}
 	row := db.DB().QueryRowContext(ctx,
 		`SELECT captured_at, metrics_json FROM rc_snapshots
@@ -222,12 +230,19 @@ func loadPriorSnapshot(ctx context.Context, db *store.Store, projectID string) (
 	var capturedAt string
 	var metricsJSON sql.NullString
 	if err := row.Scan(&capturedAt, &metricsJSON); err != nil {
-		return out, "", false
+		if errors.Is(err, sql.ErrNoRows) {
+			return out, "", false, nil // normal first run
+		}
+		return out, "", false, fmt.Errorf("reading prior snapshot: %w", err)
 	}
 	if metricsJSON.Valid && metricsJSON.String != "" {
-		_ = json.Unmarshal([]byte(metricsJSON.String), &out)
+		if err := json.Unmarshal([]byte(metricsJSON.String), &out); err != nil {
+			// A corrupt prior blob would otherwise yield an empty prior map and
+			// make every delta read as the full current value; suppress deltas.
+			return map[string]float64{}, "", false, fmt.Errorf("prior snapshot metrics are corrupt: %w", err)
+		}
 	}
-	return out, capturedAt, true
+	return out, capturedAt, true, nil
 }
 
 // persistSnapshot writes one rc_snapshots row for this run.

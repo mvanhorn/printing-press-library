@@ -91,10 +91,13 @@ npx -y @mvanhorn/printing-press-library search sports
 npx -y @mvanhorn/printing-press-library list --category travel
 npx -y @mvanhorn/printing-press-library list --installed
 npx -y @mvanhorn/printing-press-library update espn
+npx -y @mvanhorn/printing-press-library reinstall espn
 npx -y @mvanhorn/printing-press-library uninstall espn --yes
 ```
 
 `list` shows the public catalog by default. Use `list --installed` when you only want CLIs already present on your machine.
+
+`reinstall` is an alias for `update`: `reinstall <name>` rebuilds one CLI from the latest catalog code and re-adds its skill, while `reinstall` with no name refreshes every Printing Press CLI already on your `PATH`. Reach for it when a binary or skill needs a clean refresh — `install <name>` overwrites in place too, so either works.
 
 ## Options
 
@@ -132,7 +135,13 @@ More bundles will be added over time. To suggest one, open an issue at the [prin
 
 - Node.js 20+
 - Go 1.26.3 or newer (for `go install`)
-- `$(go env GOPATH)/bin` on `$PATH` (usually `$HOME/go/bin`) so installed CLIs are runnable
+- The Go install directory on your `PATH` so installed CLIs are runnable by name — `$(go env GOPATH)/bin` (usually `$HOME/go/bin`) on macOS/Linux, or `%USERPROFILE%\go\bin` on Windows. Go does not add this to `PATH` for you. If it's missing, `install` still installs the focused skill, then prints the exact, copy-pasteable line to add for your platform and shell (zsh/bash/fish, PowerShell, cmd, or Git Bash).
+
+Agent and gateway environments often run with a frozen or sanitized `PATH`. Updating `.zshrc`, `.bashrc`, or the Windows user environment may not affect an already-running agent process until you restart that session or gateway. If your harness already includes a user bin directory such as `~/.local/bin`, a symlink from the Go-installed binary into that directory is also a reasonable bridge:
+
+```bash
+ln -sf "$(go env GOPATH)/bin/<tool>" "$HOME/.local/bin/<tool>"
+```
 
 ## Migration from @mvanhorn/printing-press
 

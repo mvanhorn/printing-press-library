@@ -9,8 +9,11 @@ import (
 
 func newInboxCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "inbox",
-		Short: "Authenticated reader feed (home feed) — Notes + posts surfaced for the current user",
+		Use:         "inbox",
+		Short:       "Authenticated reader feed (home feed) — Notes + posts surfaced for the current user",
+		Hidden:      true,
+		Annotations: map[string]string{"mcp:read-only": "true"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newInboxHomeCmd(flags))

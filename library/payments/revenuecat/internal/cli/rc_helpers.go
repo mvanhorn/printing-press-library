@@ -144,6 +144,9 @@ func loadResourceRowsRC(db *store.Store, resourceTypes []string, capRows int, he
 		}
 		apply(obj)
 	}
+	if err := rows.Err(); err != nil {
+		fmt.Fprintf(os.Stderr, "warning: %s iteration failed (%v); results may be incomplete\n", helperName, err)
+	}
 	if loaded >= capRows {
 		fmt.Fprintf(os.Stderr, "warning: %s hit %d-row cap; lookups may be missing for resources beyond the cap\n", helperName, capRows)
 	}

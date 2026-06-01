@@ -4,6 +4,10 @@
   "description": "Email-as-a-Service for AI agents. Inbound email converted to markdown, outbound markdown converted to HTML. Built on Cloudflare Workers.",
   "mcp_ready": "full",
   "http_transport": "standard",
+  "mcp": {
+    "endpoint_tools": "hidden",
+    "orchestration": "code"
+  },
   "auth": {
     "type": "bearer_token",
     "header": "Authorization",
@@ -50,10 +54,46 @@
           "required": true
         },
         {
-          "name": "attribution",
-          "type": "object",
+          "name": "attribution-first-landing-path",
+          "wire_name": "attribution.first.landing_path",
+          "type": "string",
           "location": "body",
-          "description": "Optional client-captured conversion attribution (Phase 2 of plan 2026-04-27-003). The browser persists this in localStorage.mm_attribution_v1 and forwards it on signup. Server-side validator at src/lib/attribution.ts is the source of truth — bad shapes are silently dropped, NEVER reject the signup. additionalProperties:false on this object AND its sub-objects keeps the API Shield body-size cap honest even if the per-operation mitigation pin in scripts/sync-api-shield.sh is ever undone: an attacker cannot pad the body with arbitrary unknown keys to bypass the per-field maxLengths (adversary review iter1 finding ATTR-1)."
+          "description": "Pathname of the landing page (no host)."
+        },
+        {
+          "name": "attribution-first-ts",
+          "wire_name": "attribution.first.ts",
+          "type": "int",
+          "location": "body",
+          "description": "Epoch milliseconds at landing."
+        },
+        {
+          "name": "attribution-last-landing-path",
+          "wire_name": "attribution.last.landing_path",
+          "type": "string",
+          "location": "body",
+          "description": "Pathname of the landing page (no host)."
+        },
+        {
+          "name": "attribution-last-ts",
+          "wire_name": "attribution.last.ts",
+          "type": "int",
+          "location": "body",
+          "description": "Epoch milliseconds at landing."
+        },
+        {
+          "name": "attribution-version",
+          "wire_name": "attribution.version",
+          "type": "int",
+          "location": "body",
+          "description": "Schema version. Only 1 is currently accepted; future bumps will rotate the localStorage key client-side and add new branches server-side."
+        },
+        {
+          "name": "attribution-visits",
+          "wire_name": "attribution.visits",
+          "type": "int",
+          "location": "body",
+          "description": "Visit counter, incremented client-side. Server validator coerces missing/zero/negative values to 1."
         },
         {
           "name": "cf_challenge_response",
@@ -112,10 +152,43 @@
           "description": "Physical address"
         },
         {
-          "name": "pow_solution",
-          "type": "object",
+          "name": "pow-solution-algorithm",
+          "wire_name": "pow_solution.algorithm",
+          "type": "string",
           "location": "body",
-          "description": "Solved ALTCHA proof-of-work challenge from POST /v1/account/challenge.",
+          "description": "Algorithm",
+          "required": true
+        },
+        {
+          "name": "pow-solution-challenge",
+          "wire_name": "pow_solution.challenge",
+          "type": "string",
+          "location": "body",
+          "description": "Challenge hash from the challenge endpoint",
+          "required": true
+        },
+        {
+          "name": "pow-solution-number",
+          "wire_name": "pow_solution.number",
+          "type": "int",
+          "location": "body",
+          "description": "Solved number N where SHA-256(salt + N) matches challenge",
+          "required": true
+        },
+        {
+          "name": "pow-solution-salt",
+          "wire_name": "pow_solution.salt",
+          "type": "string",
+          "location": "body",
+          "description": "Salt from the challenge (echo back unchanged)",
+          "required": true
+        },
+        {
+          "name": "pow-solution-signature",
+          "wire_name": "pow_solution.signature",
+          "type": "string",
+          "location": "body",
+          "description": "Signature from the challenge (echo back unchanged)",
           "required": true
         },
         {
@@ -235,6 +308,91 @@
       ]
     },
     {
+      "name": "agent_create",
+      "description": "Initiates agent registration using verified_email identity assertion. Sends a 6-digit OTP to the provided email and returns a claim_token for completing the registration. Required: assertion, assertion_type, type. Optional: operator_name, requested_credential_type, requested_oversight_mode.",
+      "method": "POST",
+      "path": "/agent/auth",
+      "params": [
+        {
+          "name": "assertion-email",
+          "wire_name": "assertion.email",
+          "type": "string",
+          "location": "body",
+          "description": "Email",
+          "required": true
+        },
+        {
+          "name": "assertion_type",
+          "type": "string",
+          "location": "body",
+          "description": "Assertion type. Only verified_email is supported.",
+          "required": true
+        },
+        {
+          "name": "operator_name",
+          "type": "string",
+          "location": "body",
+          "description": "Optional operator name. Derived from email local part if absent."
+        },
+        {
+          "name": "requested_credential_type",
+          "type": "string",
+          "location": "body",
+          "description": "Credential type. Only api_key is supported."
+        },
+        {
+          "name": "requested_oversight_mode",
+          "type": "string",
+          "location": "body",
+          "description": "Optional initial oversight mode for the mailbox."
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Registration type. Only identity_assertion is supported.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "agent_create-auth",
+      "description": "Completes the auth.md registration by validating the claim_token and OTP. On success, atomically creates the tenant account and returns API credentials. Required: claim_token, otp.",
+      "method": "POST",
+      "path": "/agent/auth/claim/complete",
+      "params": [
+        {
+          "name": "claim_token",
+          "type": "string",
+          "location": "body",
+          "description": "Claim token returned from POST /agent/auth",
+          "required": true
+        },
+        {
+          "name": "otp",
+          "type": "string",
+          "location": "body",
+          "description": "6-digit OTP from verification email",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "agent_list",
+      "description": "Human-facing page that displays the 6-digit OTP for agent registration. Linked from the verification email. Required: token.",
+      "method": "GET",
+      "path": "/agent/auth/claim/view",
+      "params": [
+        {
+          "name": "token",
+          "type": "string",
+          "location": "query",
+          "description": "Claim view token from verification email",
+          "required": true
+        }
+      ]
+    },
+    {
       "name": "api-keys_create",
       "description": "Requires admin scope. The raw key is returned only once in the response. Required: name. Optional: scopes (default: [read]). Returns the new ApiKeysCreateResponse.",
       "method": "POST",
@@ -249,7 +407,7 @@
         },
         {
           "name": "scopes",
-          "type": "array",
+          "type": "string_csv_array",
           "location": "body",
           "description": "Scopes"
         }
@@ -304,7 +462,7 @@
         },
         {
           "name": "scopes",
-          "type": "array",
+          "type": "string_csv_array",
           "location": "body",
           "description": "Scopes"
         }
@@ -359,6 +517,13 @@
           "description": "Cursor"
         }
       ]
+    },
+    {
+      "name": "auth-md_list",
+      "description": "Returns a markdown document describing MultiMail's agent registration flow, trust ladder, and scope model. Used by agents following the auth.md protocol.",
+      "method": "GET",
+      "path": "/auth.md",
+      "params": []
     },
     {
       "name": "billing_create",
@@ -464,10 +629,46 @@
           "required": true
         },
         {
-          "name": "attribution",
-          "type": "object",
+          "name": "attribution-first-landing-path",
+          "wire_name": "attribution.first.landing_path",
+          "type": "string",
           "location": "body",
-          "description": "Optional client-captured conversion attribution (Phase 2 of plan 2026-04-27-003). The browser persists this in localStorage.mm_attribution_v1 and forwards it on signup. Server-side validator at src/lib/attribution.ts is the source of truth — bad shapes are silently dropped, NEVER reject the signup. additionalProperties:false on this object AND its sub-objects keeps the API Shield body-size cap honest even if the per-operation mitigation pin in scripts/sync-api-shield.sh is ever undone: an attacker cannot pad the body with arbitrary unknown keys to bypass the per-field maxLengths (adversary review iter1 finding ATTR-1)."
+          "description": "Pathname of the landing page (no host)."
+        },
+        {
+          "name": "attribution-first-ts",
+          "wire_name": "attribution.first.ts",
+          "type": "int",
+          "location": "body",
+          "description": "Epoch milliseconds at landing."
+        },
+        {
+          "name": "attribution-last-landing-path",
+          "wire_name": "attribution.last.landing_path",
+          "type": "string",
+          "location": "body",
+          "description": "Pathname of the landing page (no host)."
+        },
+        {
+          "name": "attribution-last-ts",
+          "wire_name": "attribution.last.ts",
+          "type": "int",
+          "location": "body",
+          "description": "Epoch milliseconds at landing."
+        },
+        {
+          "name": "attribution-version",
+          "wire_name": "attribution.version",
+          "type": "int",
+          "location": "body",
+          "description": "Schema version. Only 1 is currently accepted; future bumps will rotate the localStorage key client-side and add new branches server-side."
+        },
+        {
+          "name": "attribution-visits",
+          "wire_name": "attribution.visits",
+          "type": "int",
+          "location": "body",
+          "description": "Visit counter, incremented client-side. Server validator coerces missing/zero/negative values to 1."
         },
         {
           "name": "interval",
@@ -589,7 +790,7 @@
         },
         {
           "name": "tags",
-          "type": "array",
+          "type": "string_csv_array",
           "location": "body",
           "description": "Tags"
         }
@@ -623,6 +824,13 @@
           "description": "Search by name or email (partial match)"
         }
       ]
+    },
+    {
+      "name": "data_export_list",
+      "description": "Requires admin scope. Rate limited to 1 request per hour.",
+      "method": "GET",
+      "path": "/v1/export",
+      "params": []
     },
     {
       "name": "domains_create",
@@ -763,6 +971,13 @@
       ]
     },
     {
+      "name": "health_list",
+      "description": "Verifies D1 and R2 connectivity. No auth required. Returns the HealthListResponse.",
+      "method": "GET",
+      "path": "/health",
+      "params": []
+    },
+    {
       "name": "mailboxes_create",
       "description": "Requires admin scope. Address can be a local part (appended to tenant subdomain) or full address on a verified custom domain. Required: address_local. Optional: display_name, oversight_mode (default: gated_send), webhook_url. Returns the new MailboxesCreateResponse.",
       "method": "POST",
@@ -877,6 +1092,83 @@
           "type": "string",
           "location": "body",
           "description": "Webhook url"
+        }
+      ]
+    },
+    {
+      "name": "mailboxes_allowlist_create",
+      "description": "Requires admin scope + operator approval. Adds a recipient pattern (exact email or *@domain.com wildcard) that bypasses gated_send approval. Subject to plan-tier limits. Required: mailboxId, pattern. Optional: approval_code, note. Returns the new AllowlistCreateResponse.",
+      "method": "POST",
+      "path": "/v1/mailboxes/{mailboxId}/allowlist",
+      "params": [
+        {
+          "name": "mailboxId",
+          "type": "string",
+          "location": "path",
+          "description": "Mailbox id",
+          "required": true
+        },
+        {
+          "name": "approval_code",
+          "type": "string",
+          "location": "body",
+          "description": "Operator approval code (omit to request one)"
+        },
+        {
+          "name": "note",
+          "type": "string",
+          "location": "body",
+          "description": "Optional note for audit trail"
+        },
+        {
+          "name": "pattern",
+          "type": "string",
+          "location": "body",
+          "description": "Email address or *@domain.com wildcard",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "mailboxes_allowlist_delete",
+      "description": "Requires admin scope + operator approval. Removes a sending allowlist pattern. Required: mailboxId, entryId. Optional: approval_code. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/mailboxes/{mailboxId}/allowlist/{entryId}",
+      "params": [
+        {
+          "name": "mailboxId",
+          "type": "string",
+          "location": "path",
+          "description": "Mailbox id",
+          "required": true
+        },
+        {
+          "name": "entryId",
+          "type": "string",
+          "location": "path",
+          "description": "Entry id",
+          "required": true
+        },
+        {
+          "name": "approval_code",
+          "type": "string",
+          "location": "body",
+          "description": "Operator approval code (omit to request one)"
+        }
+      ]
+    },
+    {
+      "name": "mailboxes_allowlist_get",
+      "description": "Any API key with read scope can list entries. Returns all sending allowlist patterns for the mailbox. The allowlist does not grant send permission — it only determines whether approved sends skip the oversight queue. Required: mailboxId.",
+      "method": "GET",
+      "path": "/v1/mailboxes/{mailboxId}/allowlist",
+      "params": [
+        {
+          "name": "mailboxId",
+          "type": "string",
+          "location": "path",
+          "description": "Mailbox id",
+          "required": true
         }
       ]
     },
@@ -1136,13 +1428,13 @@
         },
         {
           "name": "bcc",
-          "type": "array",
+          "type": "string_csv_array",
           "location": "body",
           "description": "Bcc"
         },
         {
           "name": "cc",
-          "type": "array",
+          "type": "string_csv_array",
           "location": "body",
           "description": "Cc"
         },
@@ -1204,13 +1496,13 @@
         },
         {
           "name": "bcc",
-          "type": "array",
+          "type": "string_csv_array",
           "location": "body",
           "description": "Bcc"
         },
         {
           "name": "cc",
-          "type": "array",
+          "type": "string_csv_array",
           "location": "body",
           "description": "Cc"
         },
@@ -1248,7 +1540,7 @@
         },
         {
           "name": "to",
-          "type": "array",
+          "type": "string_csv_array",
           "location": "body",
           "description": "To",
           "required": true
@@ -1298,20 +1590,6 @@
           "required": true
         }
       ]
-    },
-    {
-      "name": "multimail-export_list",
-      "description": "Requires admin scope. Rate limited to 1 request per hour.",
-      "method": "GET",
-      "path": "/v1/export",
-      "params": []
-    },
-    {
-      "name": "multimail-health_list",
-      "description": "Verifies D1 and R2 connectivity. No auth required. Returns the MultimailHealthListResponse.",
-      "method": "GET",
-      "path": "/health",
-      "params": []
     },
     {
       "name": "operator_create",
@@ -1421,10 +1699,43 @@
           "required": true
         },
         {
-          "name": "pow_solution",
-          "type": "object",
+          "name": "pow-solution-algorithm",
+          "wire_name": "pow_solution.algorithm",
+          "type": "string",
           "location": "body",
-          "description": "Pow solution",
+          "description": "Algorithm",
+          "required": true
+        },
+        {
+          "name": "pow-solution-challenge",
+          "wire_name": "pow_solution.challenge",
+          "type": "string",
+          "location": "body",
+          "description": "Challenge",
+          "required": true
+        },
+        {
+          "name": "pow-solution-number",
+          "wire_name": "pow_solution.number",
+          "type": "int",
+          "location": "body",
+          "description": "Number",
+          "required": true
+        },
+        {
+          "name": "pow-solution-salt",
+          "wire_name": "pow_solution.salt",
+          "type": "string",
+          "location": "body",
+          "description": "Salt",
+          "required": true
+        },
+        {
+          "name": "pow-solution-signature",
+          "wire_name": "pow_solution.signature",
+          "type": "string",
+          "location": "body",
+          "description": "Signature",
           "required": true
         },
         {
@@ -1542,7 +1853,7 @@
       "params": [
         {
           "name": "events",
-          "type": "array",
+          "type": "string_csv_array",
           "location": "body",
           "description": "Event types to subscribe to",
           "required": true
@@ -1633,6 +1944,20 @@
       "description": "Returns the ECDSA P-256 public key used to sign X-MultiMail-Identity headers.",
       "method": "GET",
       "path": "/.well-known/multimail-signing-key",
+      "params": []
+    },
+    {
+      "name": "well-known_list-wellknown",
+      "description": "Returns OAuth authorization server metadata with an agent_auth extension block describing the auth.md agent registration flow.",
+      "method": "GET",
+      "path": "/.well-known/oauth-authorization-server",
+      "params": []
+    },
+    {
+      "name": "well-known_list-wellknown-2",
+      "description": "Returns metadata about MultiMail as an OAuth-protected resource, including supported scopes and authorization servers. Part of the auth.md agent registration protocol.",
+      "method": "GET",
+      "path": "/.well-known/oauth-protected-resource",
       "params": []
     }
   ]

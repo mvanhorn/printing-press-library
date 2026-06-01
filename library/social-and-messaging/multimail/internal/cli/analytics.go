@@ -6,11 +6,11 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
-	"os"
+	"io"
 	"sort"
 
-	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/multimail/internal/store"
 	"github.com/spf13/cobra"
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/multimail/internal/store"
 )
 
 func newAnalyticsCmd(flags *rootFlags) *cobra.Command {
@@ -34,6 +34,7 @@ Data must be synced first with the sync command.`,
   # Top 10 most frequent values
   multimail-pp-cli analytics --type messages --group-by channel_id --limit 10 --json`,
 		RunE: func(cmd *cobra.Command, args []string) error {
+			out := cmd.OutOrStdout()
 			if dbPath == "" {
 				dbPath = defaultDBPath("multimail-pp-cli")
 			}
@@ -44,6 +45,8 @@ Data must be synced first with the sync command.`,
 			}
 			defer db.Close()
 
+			maybeEmitSyncHints(cmd, db, resourceType, flags.maxAge)
+
 			if resourceType == "" {
 				// Show summary of all resource types
 				status, err := db.Status()
@@ -51,20 +54,20 @@ Data must be synced first with the sync command.`,
 					return fmt.Errorf("getting status: %w", err)
 				}
 				if flags.asJSON {
-					enc := json.NewEncoder(os.Stdout)
+					enc := json.NewEncoder(out)
 					enc.SetIndent("", "  ")
 					return enc.Encode(status)
 				}
-				fmt.Println("Resource Type\tCount")
-				fmt.Println("-------------\t-----")
+				fmt.Fprintln(out, "Resource Type\tCount")
+				fmt.Fprintln(out, "-------------\t-----")
 				for rt, count := range status {
-					fmt.Printf("%s\t%d\n", rt, count)
+					fmt.Fprintf(out, "%s\t%d\n", rt, count)
 				}
 				return nil
 			}
 
 			if groupBy != "" {
-				return runGroupBy(db, resourceType, groupBy, limit, flags)
+				return runGroupBy(out, db, resourceType, groupBy, limit, flags)
 			}
 
 			count, err := db.Count(resourceType)
@@ -74,12 +77,12 @@ Data must be synced first with the sync command.`,
 
 			if flags.asJSON {
 				result := map[string]any{"resource_type": resourceType, "count": count}
-				enc := json.NewEncoder(os.Stdout)
+				enc := json.NewEncoder(out)
 				enc.SetIndent("", "  ")
 				return enc.Encode(result)
 			}
 
-			fmt.Printf("%s: %d records\n", resourceType, count)
+			fmt.Fprintf(out, "%s: %d records\n", resourceType, count)
 			return nil
 		},
 	}
@@ -92,7 +95,7 @@ Data must be synced first with the sync command.`,
 	return cmd
 }
 
-func runGroupBy(db *store.Store, resourceType, field string, limit int, flags *rootFlags) error {
+func runGroupBy(out io.Writer, db *store.Store, resourceType, field string, limit int, flags *rootFlags) error {
 	items, err := db.List(resourceType, 0)
 	if err != nil {
 		return err
@@ -122,15 +125,15 @@ func runGroupBy(db *store.Store, resourceType, field string, limit int, flags *r
 	}
 
 	if flags.asJSON {
-		enc := json.NewEncoder(os.Stdout)
+		enc := json.NewEncoder(out)
 		enc.SetIndent("", "  ")
 		return enc.Encode(sorted)
 	}
 
-	fmt.Printf("%s\tCount\n", field)
-	fmt.Println("---\t-----")
+	fmt.Fprintf(out, "%s\tCount\n", field)
+	fmt.Fprintln(out, "---\t-----")
 	for _, kv := range sorted {
-		fmt.Printf("%s\t%d\n", kv.Key, kv.Count)
+		fmt.Fprintf(out, "%s\t%d\n", kv.Key, kv.Count)
 	}
 	return nil
 }

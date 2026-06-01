@@ -1,5 +1,7 @@
 import { BUNDLES, isBundle } from "../bundles.js";
+import { realpath } from "node:fs/promises";
 import { detectGo, goInstall, goInstallDir, type GoDetection, type GoInstallDir } from "../go.js";
+import { pathFixInstructions } from "../pathfix.js";
 import { commandOnPath, type RunResult } from "../process.js";
 import {
   cliBinaryName,
@@ -27,10 +29,15 @@ interface InstallDeps {
   goInstall: (modulePath: string, ref: string, env?: NodeJS.ProcessEnv) => Promise<RunResult>;
   goInstallDir: () => Promise<GoInstallDir>;
   commandOnPath: (binary: string) => Promise<string | null>;
+  realpath: (path: string) => Promise<string | null>;
   installSkill: (skillName: string, agents: string[]) => Promise<RunResult>;
   stdout: (message: string) => void;
   stderr: (message: string) => void;
   platform: NodeJS.Platform;
+  /** Login shell (Unix) or Git Bash marker (Windows); drives the per-shell PATH fix. */
+  shell?: string;
+  /** Home directory, used to prefer the portable `$HOME/go/bin` form in PATH instructions. */
+  home?: string;
 }
 
 interface InstallSummary {
@@ -49,6 +56,8 @@ interface InstallSummary {
   installedPath?: string;
   /** Set when an older binary earlier in PATH would shadow the freshly installed one. */
   shadowedBy?: string;
+  /** Set when the binary was installed but is not currently discoverable by name. */
+  pathWarning?: "not_on_path";
 }
 
 interface InstallOutcome {
@@ -66,10 +75,19 @@ export function createInstallCommand(overrides: Partial<InstallDeps> = {}) {
     goInstall: (modulePath, ref, env) => goInstall(modulePath, { ref, env }),
     goInstallDir: () => goInstallDir(),
     commandOnPath: (binary) => commandOnPath(binary),
+    realpath: async (path) => {
+      try {
+        return await realpath(path);
+      } catch {
+        return null;
+      }
+    },
     installSkill: (skillName, agents) => installSkill(skillName, { agents }),
     stdout: (message) => console.log(message),
     stderr: (message) => console.error(message),
     platform: process.platform,
+    shell: process.env.SHELL,
+    home: process.env.HOME ?? process.env.USERPROFILE,
     ...overrides,
   };
 
@@ -147,15 +165,16 @@ async function installOne(
       return { ok: false, name: entry.name, error: "go install failed" };
     }
 
-    const installedPath = await resolveInstalledPath(binary, deps);
+    const installed = await resolveInstalledPath(binary, deps);
+    const installedPath = installed?.binaryPath ?? null;
     const pathBinaryPath = await deps.commandOnPath(binary);
 
     if (!pathBinaryPath) {
       // `go install` succeeded, but `which`/`where` cannot find the binary —
-      // PATH does not include the directory go install wrote to. Tell the user
-      // exactly which directory to add when we know it.
-      deps.stderr(installedPath ? installedNotOnPathMessage(binary, installedPath) : pathMessage(binary));
-      return { ok: false, name: entry.name, error: "binary not on PATH" };
+      // PATH does not include the directory go install wrote to. Print the exact,
+      // copy-pasteable PATH fix for this platform and shell, but keep going so
+      // the matching focused skill is still installed.
+      deps.stderr(notOnPathMessage(binary, installed, deps));
     }
 
     summary.binary = binary;
@@ -163,9 +182,12 @@ async function installOne(
     if (installedPath) {
       summary.installedPath = installedPath;
     }
-    summary.binaryPath = pathBinaryPath;
+    summary.binaryPath = installedPath ?? pathBinaryPath ?? undefined;
+    if (!pathBinaryPath) {
+      summary.pathWarning = "not_on_path";
+    }
 
-    if (installedPath && !samePath(installedPath, pathBinaryPath, deps.platform)) {
+    if (installedPath && pathBinaryPath && !(await sameInstalledBinary(installedPath, pathBinaryPath, deps))) {
       // `which`/`where` resolved to a different binary than `go install` wrote.
       // The older binary earlier in PATH will shadow the freshly built one.
       summary.shadowedBy = pathBinaryPath;
@@ -197,6 +219,11 @@ async function installOne(
     }
     if (summary.shadowedBy) {
       deps.stdout(`  shadowed by: ${summary.shadowedBy} (earlier in PATH)`);
+    }
+    if (summary.pathWarning === "not_on_path") {
+      deps.stdout(
+        "  warning: binary is not on PATH; run it by full path or add the Go install directory to PATH (see stderr for platform-specific instructions)",
+      );
     }
     if (summary.skill) {
       deps.stdout(`  skill: ${summary.skill}`);
@@ -325,21 +352,24 @@ function goMissingMessage(platform: NodeJS.Platform): string {
   return `Go is required to install Printing Press CLIs. ${installHint}`;
 }
 
-function pathMessage(binary: string): string {
-  return `${binary} was installed, but it is not on PATH. Add $(go env GOPATH)/bin, usually $HOME/go/bin, to PATH and retry.`;
+interface InstalledPath {
+  /** Directory `go install` wrote to (GOBIN or GOPATH/bin). */
+  binDir: string;
+  /** Full path to the installed binary (binDir + binary + platform suffix). */
+  binaryPath: string;
 }
 
 async function resolveInstalledPath(
   binary: string,
   deps: InstallDeps,
-): Promise<string | null> {
+): Promise<InstalledPath | null> {
   const info = await deps.goInstallDir();
   if (!info.binDir) {
     return null;
   }
   const sep = deps.platform === "win32" ? "\\" : "/";
   const suffix = deps.platform === "win32" ? ".exe" : "";
-  return `${info.binDir}${sep}${binary}${suffix}`;
+  return { binDir: info.binDir, binaryPath: `${info.binDir}${sep}${binary}${suffix}` };
 }
 
 function memoize<T>(fn: () => Promise<T>): () => Promise<T> {
@@ -360,6 +390,14 @@ function samePath(a: string, b: string, platform: NodeJS.Platform): boolean {
   return norm(a) === norm(b);
 }
 
+async function sameInstalledBinary(a: string, b: string, deps: InstallDeps): Promise<boolean> {
+  if (samePath(a, b, deps.platform)) {
+    return true;
+  }
+  const [realA, realB] = await Promise.all([deps.realpath(a), deps.realpath(b)]);
+  return !!realA && !!realB && samePath(realA, realB, deps.platform);
+}
+
 function shadowMessage(binary: string, installedPath: string, shadowedBy: string): string {
   return (
     `WARNING: installed ${binary} at ${installedPath}, but ${shadowedBy} appears earlier in PATH and will shadow it. ` +
@@ -367,9 +405,20 @@ function shadowMessage(binary: string, installedPath: string, shadowedBy: string
   );
 }
 
-function installedNotOnPathMessage(binary: string, installedPath: string): string {
-  return (
-    `WARNING: installed ${binary} at ${installedPath}, but its directory is not on PATH. ` +
-    `Add it to PATH (e.g. $(go env GOPATH)/bin, usually $HOME/go/bin) and retry, or invoke the binary by absolute path.`
-  );
+function notOnPathMessage(
+  binary: string,
+  installed: InstalledPath | null,
+  deps: InstallDeps,
+): string {
+  const head = installed
+    ? `WARNING: installed ${binary} at ${installed.binaryPath}, but its directory is not on PATH.`
+    : `WARNING: ${binary} was installed, but it is not on PATH.`;
+  const fix = pathFixInstructions({
+    binDir: installed?.binDir ?? null,
+    platform: deps.platform,
+    shell: deps.shell,
+    home: deps.home,
+  });
+  const tail = installed ? `\n\nOr run it directly: ${installed.binaryPath}` : "";
+  return `${head}\n${fix}${tail}`;
 }

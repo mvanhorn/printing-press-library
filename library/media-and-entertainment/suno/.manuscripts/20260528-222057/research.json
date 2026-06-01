@@ -1,0 +1,274 @@
+{
+  "api_name": "suno",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "gcui-art/suno-api",
+      "url": "https://github.com/gcui-art/suno-api",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 2960,
+      "last_updated": "",
+      "command_count": 11,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "SunoAI-API/Suno-API",
+      "url": "https://github.com/SunoAI-API/Suno-API",
+      "language": "Python",
+      "install_method": "",
+      "stars": 1780,
+      "last_updated": "",
+      "command_count": 6,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "yihong0618/SunoSongsCreator",
+      "url": "https://github.com/yihong0618/SunoSongsCreator",
+      "language": "Python",
+      "install_method": "",
+      "stars": 349,
+      "last_updated": "",
+      "command_count": 3,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Suno-API/Suno-API",
+      "url": "https://github.com/Suno-API/Suno-API",
+      "language": "Go",
+      "install_method": "",
+      "stars": 140,
+      "last_updated": "",
+      "command_count": 5,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Malith-Rukshan/Suno-API",
+      "url": "https://github.com/Malith-Rukshan/Suno-API",
+      "language": "Python",
+      "install_method": "",
+      "stars": 124,
+      "last_updated": "",
+      "command_count": 5,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "paperfoot/suno-cli",
+      "url": "https://github.com/paperfoot/suno-cli",
+      "language": "Rust",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 26,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-28T22:30:00Z",
+  "novel_features": [
+    {
+      "name": "Lyric-line grep",
+      "command": "grep",
+      "description": "Find clips by remembered lyric, prompt, or tag phrases via local full-text search.",
+      "rationale": "Suno's server-side search is title-text only; this runs FTS5 over the title/tags of your locally synced library.",
+      "example": "suno-pp-cli grep \"rain\" --json --select id,title,tags",
+      "why_it_matters": "Reach for this when an agent needs to locate a specific past song by its content, not its title.",
+      "group": "Local library no Suno tool has"
+    },
+    {
+      "name": "Library analytics",
+      "command": "analytics",
+      "description": "Grouped roll-ups across your whole library: counts, average duration/bpm, total plays and upvotes by any clip field.",
+      "rationale": "No single Suno API call returns cross-clip aggregates; this is a pure local SQL roll-up over the synced store.",
+      "example": "suno-pp-cli analytics --type clips --group-by model_name --json",
+      "why_it_matters": "Use this to see which models or settings produced your most-played tracks before the next session.",
+      "group": "Local library no Suno tool has"
+    },
+    {
+      "name": "Variation lineage",
+      "command": "lineage",
+      "description": "Render the iteration tree of a track: its extends, covers, and remixes, reconstructed from local links.",
+      "rationale": "Suno never exposes iteration as a tree; this walks is_remix and extend/cover parent references in local SQLite.",
+      "example": "suno-pp-cli lineage 7d869de4-9476-4a4d-a6f2-c0eec968a3e2 --json",
+      "why_it_matters": "Reach for this to trace which seed a finished song descended from across many variations.",
+      "group": "Local library no Suno tool has"
+    },
+    {
+      "name": "Top tracks",
+      "command": "top",
+      "description": "Ranked flat list of your best clips by plays, upvotes, or duration, with machine-readable output.",
+      "rationale": "No competitor persists a local library to rank; this orders the synced clips table and emits clean JSON.",
+      "example": "suno-pp-cli top --by upvote_count --limit 10 --json",
+      "why_it_matters": "Use this to pipe your strongest tracks into a publishing or playlist workflow.",
+      "group": "Local library no Suno tool has"
+    },
+    {
+      "name": "Raw SQL",
+      "command": "sql",
+      "description": "Run read-only SQL directly against your local synced clip store.",
+      "rationale": "Every existing Suno client is stateless; this is the escape hatch over a real persisted library.",
+      "example": "suno-pp-cli sql \"SELECT title, duration FROM clips WHERE make_instrumental = 1 ORDER BY duration DESC LIMIT 5\" --json",
+      "why_it_matters": "Reach for this when an agent needs an arbitrary query no fixed command covers.",
+      "group": "Local library no Suno tool has"
+    },
+    {
+      "name": "Credit throttle report",
+      "command": "credits --forecast",
+      "description": "Remaining credits plus your recent generation volume measured against Suno's captcha-throttle threshold.",
+      "rationale": "Joins the live billing snapshot with a trailing-window count of local clip timestamps against the documented ~200-credit threshold.",
+      "example": "suno-pp-cli credits --forecast --json",
+      "why_it_matters": "Use this before a batch session to judge how many more generations you can run before hCaptcha kicks in.",
+      "group": "Reachability awareness"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Lyric-line grep",
+      "command": "grep",
+      "description": "Find clips by remembered lyric, prompt, or tag phrases via local full-text search.",
+      "rationale": "Suno's server-side search is title-text only; this runs FTS5 over the title/tags of your locally synced library.",
+      "example": "suno-pp-cli grep \"rain\" --json --select id,title,tags",
+      "why_it_matters": "Reach for this when an agent needs to locate a specific past song by its content, not its title.",
+      "group": "Local library no Suno tool has"
+    },
+    {
+      "name": "Library analytics",
+      "command": "analytics",
+      "description": "Grouped roll-ups across your whole library: counts, average duration/bpm, total plays and upvotes by any clip field.",
+      "rationale": "No single Suno API call returns cross-clip aggregates; this is a pure local SQL roll-up over the synced store.",
+      "example": "suno-pp-cli analytics --type clips --group-by model_name --json",
+      "why_it_matters": "Use this to see which models or settings produced your most-played tracks before the next session.",
+      "group": "Local library no Suno tool has"
+    },
+    {
+      "name": "Variation lineage",
+      "command": "lineage",
+      "description": "Render the iteration tree of a track: its extends, covers, and remixes, reconstructed from local links.",
+      "rationale": "Suno never exposes iteration as a tree; this walks is_remix and extend/cover parent references in local SQLite.",
+      "example": "suno-pp-cli lineage 7d869de4-9476-4a4d-a6f2-c0eec968a3e2 --json",
+      "why_it_matters": "Reach for this to trace which seed a finished song descended from across many variations.",
+      "group": "Local library no Suno tool has"
+    },
+    {
+      "name": "Top tracks",
+      "command": "top",
+      "description": "Ranked flat list of your best clips by plays, upvotes, or duration, with machine-readable output.",
+      "rationale": "No competitor persists a local library to rank; this orders the synced clips table and emits clean JSON.",
+      "example": "suno-pp-cli top --by upvote_count --limit 10 --json",
+      "why_it_matters": "Use this to pipe your strongest tracks into a publishing or playlist workflow.",
+      "group": "Local library no Suno tool has"
+    },
+    {
+      "name": "Raw SQL",
+      "command": "sql",
+      "description": "Run read-only SQL directly against your local synced clip store.",
+      "rationale": "Every existing Suno client is stateless; this is the escape hatch over a real persisted library.",
+      "example": "suno-pp-cli sql \"SELECT title, duration FROM clips WHERE make_instrumental = 1 ORDER BY duration DESC LIMIT 5\" --json",
+      "why_it_matters": "Reach for this when an agent needs an arbitrary query no fixed command covers.",
+      "group": "Local library no Suno tool has"
+    },
+    {
+      "name": "Credit throttle report",
+      "command": "credits --forecast",
+      "description": "Remaining credits plus your recent generation volume measured against Suno's captcha-throttle threshold.",
+      "rationale": "Joins the live billing snapshot with a trailing-window count of local clip timestamps against the documented ~200-credit threshold.",
+      "example": "suno-pp-cli credits --forecast --json",
+      "why_it_matters": "Use this before a batch session to judge how many more generations you can run before hCaptcha kicks in.",
+      "group": "Reachability awareness"
+    }
+  ],
+  "narrative": {
+    "display_name": "Suno",
+    "headline": "The correct, offline-first Suno CLI: every feature the abandoned clients have, plus a local SQLite library, full-text search, and agent-native output none of them ship.",
+    "value_prop": "Suno has no official API and every reverse-engineered client is abandoned and wrong in ways that matter today: broken pagination, broken cover, stale pre-2026 auth, no local persistence. This CLI is built from the current contract. It walks the real opaque feed cursor, sends the now-required cover title, tolerates the drifted billing schema, authenticates against the current auth.suno.com Clerk flow via your logged-in browser, and persists your whole library to local SQLite for offline grep, SQL, lineage, and analytics. Generate, extend, cover, remaster, stems, lyrics, WAV download, and workspaces, all with --json, --select, --dry-run, and typed exit codes.",
+    "auth_narrative": "Suno uses Clerk session auth (auth.suno.com). Run `suno-pp-cli auth login --chrome` to capture your logged-in session cookie from Chrome; the CLI mints and refreshes the short-lived JWT for you. No password or API key is stored. Music generation is attempted optimistically with no token. Suno gates generation adaptively (an hCaptcha anti-bot challenge that usually fires only after sustained use), so many generations succeed outright; if Suno challenges a request, the CLI tells you to retry with `--token` carrying an hCaptcha token (e.g. solved via 2Captcha). All read, library, and metadata commands never need a captcha.",
+    "quickstart": [
+      {
+        "command": "suno-pp-cli doctor --dry-run",
+        "comment": "Confirm the binary and config resolve before anything touches the network."
+      },
+      {
+        "command": "suno-pp-cli sync --full",
+        "comment": "After 'auth login --chrome', pull your whole library into local SQLite (walks the opaque feed cursor)."
+      },
+      {
+        "command": "suno-pp-cli grep \"chorus\" --json",
+        "comment": "Find clips by a remembered lyric phrase via local full-text search."
+      },
+      {
+        "command": "suno-pp-cli top --by upvote_count --limit 10 --json",
+        "comment": "Rank your best tracks for a publishing workflow."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "auth login fails or commands return 401 or Token validation failed",
+        "fix": "Re-run `suno-pp-cli auth login --chrome` while logged in to suno.com in Chrome; JWTs are short-lived and refreshed from the captured Clerk cookie."
+      },
+      {
+        "symptom": "generate returns a captcha-required error",
+        "fix": "Supply an hCaptcha token with `--token \u003ctoken\u003e` (e.g. from 2Captcha) or pass `--no-captcha` if your environment provides one; read/library commands never need it."
+      },
+      {
+        "symptom": "list or sync only returns the first page",
+        "fix": "This CLI walks the opaque next_cursor automatically; pass `--all` to drain the entire library, or `--full` on sync."
+      },
+      {
+        "symptom": "cover returns HTTP 422",
+        "fix": "This CLI sends the now-required title field automatically; pass `--title` if you want a specific cover title."
+      }
+    ],
+    "when_to_use": "Use this CLI when an agent or script needs to generate Suno music programmatically, manage and search a personal Suno library offline, organize tracks into workspaces, or run reproducible generate/poll/download pipelines with typed exit codes and JSON output. It is the right choice over the abandoned community wrappers because it tracks the current Suno contract and persists everything locally.",
+    "recipes": [
+      {
+        "title": "Generate a custom song and wait for it",
+        "command": "suno-pp-cli generate --title \"Night Drive\" --tags \"synthwave, retro\" --lyrics \"Neon lights on wet asphalt\" --token hc_demo_token --wait --json",
+        "explanation": "Submits a custom generation, polls until complete, and prints the finished clip as JSON. Replace the token with a real hCaptcha token."
+      },
+      {
+        "title": "Pull a deeply nested clip and select only what you need",
+        "command": "suno-pp-cli clips get --ids 7d869de4-9476-4a4d-a6f2-c0eec968a3e2 --agent --select id,title,status,audio_url,metadata.duration,metadata.tags",
+        "explanation": "Fetches a clip and narrows the verbose nested payload to just the fields an agent needs, saving context."
+      },
+      {
+        "title": "Find and rank instrumentals offline",
+        "command": "suno-pp-cli sql \"SELECT title, duration FROM clips WHERE make_instrumental = 1 ORDER BY duration DESC LIMIT 5\" --json",
+        "explanation": "Queries the local store directly for your longest instrumental tracks, no API call."
+      },
+      {
+        "title": "Check throttle headroom before a session",
+        "command": "suno-pp-cli credits --forecast --json",
+        "explanation": "Shows remaining credits and recent generation volume against the captcha-throttle threshold."
+      },
+      {
+        "title": "Organize tracks into a workspace",
+        "command": "suno-pp-cli workspace add ws_3f2a91 --clip clip_a1b2 --clip clip_c3d4",
+        "explanation": "Adds clips to a Suno workspace (project) so they stay organized on suno.com."
+      },
+      {
+        "title": "Download a lossless WAV",
+        "command": "suno-pp-cli download clip_a1b2c3 --format wav --out ./tracks",
+        "explanation": "Triggers WAV conversion, polls until ready, and saves the lossless file (Pro/Premier)."
+      }
+    ],
+    "trigger_phrases": [
+      "generate a song with suno",
+      "make music with suno",
+      "search my suno library",
+      "download my suno tracks",
+      "download a wav from suno",
+      "organize my suno tracks into a workspace",
+      "what are my top suno songs",
+      "use suno",
+      "run suno"
+    ]
+  }
+}

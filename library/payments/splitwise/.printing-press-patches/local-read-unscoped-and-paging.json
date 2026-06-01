@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "local-read-unscoped-and-paging",
+  "applied_at": "2026-05-30",
+  "base_run_id": "20260528-002755",
+  "base_printing_press_version": "4.19.0",
+  "summary": "Local reads signal dropped filters via meta.unscoped/unapplied_params and honor --limit/--offset instead of returning the whole cache.",
+  "reason": "resolveLocal returns all synced rows and never applies endpoint filters; the only signal was a stderr warning that JSON/agent consumers never see. Added Unscoped/UnappliedParams provenance (set only for non-empty, non-pagination params) and threaded the caller's limit/offset into the local list read so a get-* --data-source local request is bounded rather than dumping the store.",
+  "files": [
+    "internal/cli/data_source.go",
+    "internal/cli/helpers.go"
+  ]
+}

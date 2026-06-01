@@ -5,22 +5,50 @@ package cli
 
 import (
 	"fmt"
-	"os"
-
-	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/multimail/internal/config"
 	"github.com/spf13/cobra"
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/multimail/internal/config"
+	"os"
 )
 
 func newAuthCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "auth",
 		Short: "Manage authentication for Multimail",
+		RunE:  parentNoSubcommandRunE(flags),
 	}
 
+	cmd.AddCommand(newAuthSetupCmd(flags))
 	cmd.AddCommand(newAuthStatusCmd(flags))
 	cmd.AddCommand(newAuthSetTokenCmd(flags))
 	cmd.AddCommand(newAuthLogoutCmd(flags))
 
+	return cmd
+}
+
+// newAuthSetupCmd prints concrete steps for getting a credential. Side-effect
+// rule: print by default, --launch opt-in to open the URL, short-circuit when
+// the verifier is running this in a sandboxed subprocess.
+func newAuthSetupCmd(_ *rootFlags) *cobra.Command {
+	var launch bool
+	cmd := &cobra.Command{
+		Use:     "setup",
+		Short:   "Print steps for obtaining a credential (use --launch to open the URL)",
+		Example: "  multimail-pp-cli auth setup\n  multimail-pp-cli auth setup --launch",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			w := cmd.OutOrStdout()
+			fmt.Fprintln(w, "No setup URL is configured for this CLI; check the API's docs.")
+			fmt.Fprintln(w, "")
+			fmt.Fprintln(w, "Then set:")
+			fmt.Fprintln(w, "  export MULTIMAIL_BEARER_AUTH=\"<your-token>\"")
+			fmt.Fprintln(w, "  multimail-pp-cli auth set-token <token>")
+			if !launch {
+				return nil
+			}
+			fmt.Fprintln(cmd.ErrOrStderr(), "no setup URL configured; cannot launch")
+			return nil
+		},
+	}
+	cmd.Flags().BoolVar(&launch, "launch", false, "Open the setup URL in your default browser")
 	return cmd
 }
 
@@ -38,12 +66,13 @@ func newAuthStatusCmd(flags *rootFlags) *cobra.Command {
 			w := cmd.OutOrStdout()
 			header := cfg.AuthHeader()
 			authed := header != ""
-			// JSON envelope: {authenticated, source, config}. When not
+			// JSON envelope: {authenticated, verified, source, config}. When not
 			// authenticated, write the envelope first then return authErr
 			// so exit code carries the auth-failure signal.
 			if flags.asJSON {
 				out := map[string]any{
 					"authenticated": authed,
+					"verified":      false,
 					"source":        cfg.AuthSource,
 					"config":        cfg.Path,
 				}
@@ -64,7 +93,7 @@ func newAuthStatusCmd(flags *rootFlags) *cobra.Command {
 				return authErr(fmt.Errorf("no credentials configured"))
 			}
 
-			fmt.Fprintln(w, green("Authenticated"))
+			fmt.Fprintln(w, green("Credentials present (not verified)"))
 			fmt.Fprintf(w, "  Source: %s\n", cfg.AuthSource)
 			fmt.Fprintf(w, "  Config: %s\n", cfg.Path)
 			return nil

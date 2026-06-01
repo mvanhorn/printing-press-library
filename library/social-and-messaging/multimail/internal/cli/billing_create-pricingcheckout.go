@@ -8,15 +8,21 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strconv"
 
 	"github.com/spf13/cobra"
 )
 
 func newBillingCreatePricingcheckoutCmd(flags *rootFlags) *cobra.Command {
-	var bodyAcceptedAntiSpamPolicy bool
-	var bodyAcceptedOperatorAgreement bool
-	var bodyAcceptedTos bool
-	var bodyAttribution string
+	var bodyAcceptedAntiSpamPolicy string
+	var bodyAcceptedOperatorAgreement string
+	var bodyAcceptedTos string
+	var bodyAttributionFirstLandingPath string
+	var bodyAttributionFirstTs int
+	var bodyAttributionLastLandingPath string
+	var bodyAttributionLastTs int
+	var bodyAttributionVersion int
+	var bodyAttributionVisits int
 	var bodyInterval string
 	var bodyOperatorName string
 	var bodyOversightEmail string
@@ -28,10 +34,16 @@ func newBillingCreatePricingcheckoutCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:         "create-pricingcheckout",
-		Short:       "Creates an inactive tenant, provisions a default mailbox, and returns a Stripe checkout URL. After payment, call GET...",
+		Short:       "Creates an inactive tenant, provisions a default mailbox, and returns a Stripe checkout URL.",
 		Example:     "  multimail-pp-cli billing create-pricingcheckout --operator-name example-resource",
 		Annotations: map[string]string{"pp:endpoint": "billing.create-pricingcheckout", "pp:method": "POST", "pp:path": "/v1/billing/pricing-checkout"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			// Bare invocation of a command with required input prints help
+			// instead of pflag's terse "required flag not set" error. Optional-
+			// only read commands fall through so a bare call still executes.
+			if cmd.Flags().NFlag() == 0 && len(args) == 0 && !flags.dryRun {
+				return cmd.Help()
+			}
 			if !stdinBody {
 				if !cmd.Flags().Changed("accepted-anti-spam-policy") && !flags.dryRun {
 					return fmt.Errorf("required flag \"%s\" not set", "accepted-anti-spam-policy")
@@ -58,6 +70,7 @@ func newBillingCreatePricingcheckoutCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			path := "/v1/billing/pricing-checkout"
+			params := map[string]string{}
 			var body map[string]any
 			if stdinBody {
 				stdinData, err := io.ReadAll(os.Stdin)
@@ -71,21 +84,62 @@ func newBillingCreatePricingcheckoutCmd(flags *rootFlags) *cobra.Command {
 				body = jsonBody
 			} else {
 				body = map[string]any{}
-				if bodyAcceptedAntiSpamPolicy != false {
-					body["accepted_anti_spam_policy"] = bodyAcceptedAntiSpamPolicy
-				}
-				if bodyAcceptedOperatorAgreement != false {
-					body["accepted_operator_agreement"] = bodyAcceptedOperatorAgreement
-				}
-				if bodyAcceptedTos != false {
-					body["accepted_tos"] = bodyAcceptedTos
-				}
-				if bodyAttribution != "" {
-					var parsedAttribution any
-					if err := json.Unmarshal([]byte(bodyAttribution), &parsedAttribution); err != nil {
-						return fmt.Errorf("parsing --attribution JSON: %w", err)
+				if bodyAcceptedAntiSpamPolicy != "" {
+					parsedAcceptedAntiSpamPolicy, err := strconv.ParseBool(bodyAcceptedAntiSpamPolicy)
+					if err != nil {
+						return fmt.Errorf("parsing --accepted-anti-spam-policy as bool: %w", err)
 					}
-					body["attribution"] = parsedAttribution
+					body["accepted_anti_spam_policy"] = parsedAcceptedAntiSpamPolicy
+				}
+				if bodyAcceptedOperatorAgreement != "" {
+					parsedAcceptedOperatorAgreement, err := strconv.ParseBool(bodyAcceptedOperatorAgreement)
+					if err != nil {
+						return fmt.Errorf("parsing --accepted-operator-agreement as bool: %w", err)
+					}
+					body["accepted_operator_agreement"] = parsedAcceptedOperatorAgreement
+				}
+				if bodyAcceptedTos != "" {
+					parsedAcceptedTos, err := strconv.ParseBool(bodyAcceptedTos)
+					if err != nil {
+						return fmt.Errorf("parsing --accepted-tos as bool: %w", err)
+					}
+					body["accepted_tos"] = parsedAcceptedTos
+				}
+				{
+					nestedAttribution := map[string]any{}
+					{
+						nestedAttributionFirst := map[string]any{}
+						if bodyAttributionFirstLandingPath != "" {
+							nestedAttributionFirst["landing_path"] = bodyAttributionFirstLandingPath
+						}
+						if bodyAttributionFirstTs != 0 {
+							nestedAttributionFirst["ts"] = bodyAttributionFirstTs
+						}
+						if len(nestedAttributionFirst) > 0 {
+							nestedAttribution["first"] = nestedAttributionFirst
+						}
+					}
+					{
+						nestedAttributionLast := map[string]any{}
+						if bodyAttributionLastLandingPath != "" {
+							nestedAttributionLast["landing_path"] = bodyAttributionLastLandingPath
+						}
+						if bodyAttributionLastTs != 0 {
+							nestedAttributionLast["ts"] = bodyAttributionLastTs
+						}
+						if len(nestedAttributionLast) > 0 {
+							nestedAttribution["last"] = nestedAttributionLast
+						}
+					}
+					if bodyAttributionVersion != 0 {
+						nestedAttribution["version"] = bodyAttributionVersion
+					}
+					if bodyAttributionVisits != 0 {
+						nestedAttribution["visits"] = bodyAttributionVisits
+					}
+					if len(nestedAttribution) > 0 {
+						body["attribution"] = nestedAttribution
+					}
 				}
 				if bodyInterval != "" {
 					body["interval"] = bodyInterval
@@ -109,9 +163,30 @@ func newBillingCreatePricingcheckoutCmd(flags *rootFlags) *cobra.Command {
 					body["use_case"] = bodyUseCase
 				}
 			}
-			data, statusCode, err := c.Post(path, body)
+			data, statusCode, err := c.PostWithParams(cmd.Context(), path, params, body)
 			if err != nil {
 				return classifyAPIError(err, flags)
+			}
+			// Inspect the mutate response body for a partial-failure-shaped
+			// field (e.g. Google Ads `partialFailureError`). Several Google
+			// APIs return 200 OK with a partial-failure field when some
+			// operations in the batch failed; ignoring it silently swallows
+			// real failures. Detection runs before output-mode selection so
+			// the exit code is consistent regardless of how stdout is
+			// rendered. --dry-run short-circuits because no real request
+			// was sent.
+			var partialFailure *partialFailureReport
+			if !flags.dryRun && statusCode >= 200 && statusCode < 300 {
+				partialFailure = detectPartialFailure(data)
+				if partialFailure != nil {
+					fmt.Fprintf(os.Stderr, "warning: partial failure detected in %s response: %s\n", "billing", partialFailure.Message)
+					if len(partialFailure.ResourceNames) > 0 {
+						fmt.Fprintf(os.Stderr, "         succeeded: %d operation(s)\n", len(partialFailure.ResourceNames))
+					}
+				}
+			}
+			if !flags.dryRun && statusCode >= 200 && statusCode < 300 && (partialFailure == nil || flags.allowPartialFailure) {
+				writeMutationResponseToStore(cmd.Context(), "billing", data, "")
 			}
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				// Check if response contains an array (directly or wrapped in "data")
@@ -120,6 +195,9 @@ func newBillingCreatePricingcheckoutCmd(flags *rootFlags) *cobra.Command {
 					if err := printAutoTable(cmd.OutOrStdout(), items); err != nil {
 						fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)
 					} else {
+						if partialFailure != nil && !flags.allowPartialFailure {
+							return partialFailureErr(fmt.Errorf("partial failure in %s response: %s", "billing", partialFailure.Message))
+						}
 						return nil
 					}
 				} else {
@@ -130,14 +208,52 @@ func newBillingCreatePricingcheckoutCmd(flags *rootFlags) *cobra.Command {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)
 						} else {
+							if partialFailure != nil && !flags.allowPartialFailure {
+								return partialFailureErr(fmt.Errorf("partial failure in %s response: %s", "billing", partialFailure.Message))
+							}
 							return nil
 						}
 					}
 				}
 			}
-			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
+			if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
 				if flags.quiet {
+					if partialFailure != nil && !flags.allowPartialFailure {
+						return partialFailureErr(fmt.Errorf("partial failure in %s response: %s", "billing", partialFailure.Message))
+					}
 					return nil
+				}
+				envelope := map[string]any{
+					"action":   "post",
+					"resource": "billing",
+					"path":     path,
+					"status":   statusCode,
+					"success":  statusCode >= 200 && statusCode < 300 && (partialFailure == nil || flags.allowPartialFailure),
+				}
+				if partialFailure != nil {
+					envelope["partial_failure"] = partialFailure
+				}
+				if flags.dryRun {
+					envelope["dry_run"] = true
+					envelope["status"] = 0
+					envelope["success"] = false
+				}
+				// Verify-mode synthetic envelope detection runs against RAW data
+				// (before --compact/--select filtering) so the sentinel field is
+				// guaranteed to be visible even if the operator passes a filter
+				// flag that would otherwise strip it. Surfaces a top-level
+				// verify_noop signal + flips success to false. Mirrors the dry_run
+				// shape above.
+				if len(data) > 0 {
+					var rawParsed any
+					if err := json.Unmarshal(data, &rawParsed); err == nil {
+						if m, ok := rawParsed.(map[string]any); ok {
+							if v, ok := m["__pp_verify_synthetic__"].(bool); ok && v {
+								envelope["verify_noop"] = true
+								envelope["success"] = false
+							}
+						}
+					}
 				}
 				// Apply --compact and --select to the API response before wrapping.
 				// --select wins when both are set: explicit field choice trumps the
@@ -149,18 +265,6 @@ func newBillingCreatePricingcheckoutCmd(flags *rootFlags) *cobra.Command {
 				} else if flags.compact {
 					filtered = compactFields(filtered)
 				}
-				envelope := map[string]any{
-					"action":   "post",
-					"resource": "billing",
-					"path":     path,
-					"status":   statusCode,
-					"success":  statusCode >= 200 && statusCode < 300,
-				}
-				if flags.dryRun {
-					envelope["dry_run"] = true
-					envelope["status"] = 0
-					envelope["success"] = false
-				}
 				if len(filtered) > 0 {
 					var parsed any
 					if err := json.Unmarshal(filtered, &parsed); err == nil {
@@ -171,15 +275,39 @@ func newBillingCreatePricingcheckoutCmd(flags *rootFlags) *cobra.Command {
 				if err != nil {
 					return err
 				}
-				return printOutput(cmd.OutOrStdout(), json.RawMessage(envelopeJSON), true)
+				if perr := printOutput(cmd.OutOrStdout(), json.RawMessage(envelopeJSON), true); perr != nil {
+					return perr
+				}
+				if partialFailure != nil && !flags.allowPartialFailure {
+					return partialFailureErr(fmt.Errorf("partial failure in %s response: %s", "billing", partialFailure.Message))
+				}
+				return nil
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			// Fall-through for mutate paths that did not hit the table or
+			// asJSON branches: --quiet, --csv, --plain, and default terminal
+			// raw output. printOutputWithFlags renders the body, then the
+			// typed partial-failure exit fires unless --allow-partial-failure
+			// downgrades it. Without this guard a partial failure would exit
+			// 0 for these output modes — the exact silent-swallow regression
+			// the surrounding patch is preventing for asJSON / piped output.
+			if perr := printOutputWithFlags(cmd.OutOrStdout(), data, flags); perr != nil {
+				return perr
+			}
+			if partialFailure != nil && !flags.allowPartialFailure {
+				return partialFailureErr(fmt.Errorf("partial failure in %s response: %s", "billing", partialFailure.Message))
+			}
+			return nil
 		},
 	}
-	cmd.Flags().BoolVar(&bodyAcceptedAntiSpamPolicy, "accepted-anti-spam-policy", false, "Accepted anti spam policy")
-	cmd.Flags().BoolVar(&bodyAcceptedOperatorAgreement, "accepted-operator-agreement", false, "Accepted operator agreement")
-	cmd.Flags().BoolVar(&bodyAcceptedTos, "accepted-tos", false, "Accepted tos")
-	cmd.Flags().StringVar(&bodyAttribution, "attribution", "", "Optional client-captured conversion attribution (Phase 2 of plan 2026-04-27-003). The browser persists this in...")
+	cmd.Flags().StringVar(&bodyAcceptedAntiSpamPolicy, "accepted-anti-spam-policy", "", "Accepted anti spam policy")
+	cmd.Flags().StringVar(&bodyAcceptedOperatorAgreement, "accepted-operator-agreement", "", "Accepted operator agreement")
+	cmd.Flags().StringVar(&bodyAcceptedTos, "accepted-tos", "", "Accepted tos")
+	cmd.Flags().StringVar(&bodyAttributionFirstLandingPath, "attribution-first-landing-path", "", "Pathname of the landing page (no host).")
+	cmd.Flags().IntVar(&bodyAttributionFirstTs, "attribution-first-ts", 0, "Epoch milliseconds at landing.")
+	cmd.Flags().StringVar(&bodyAttributionLastLandingPath, "attribution-last-landing-path", "", "Pathname of the landing page (no host).")
+	cmd.Flags().IntVar(&bodyAttributionLastTs, "attribution-last-ts", 0, "Epoch milliseconds at landing.")
+	cmd.Flags().IntVar(&bodyAttributionVersion, "attribution-version", 0, "Schema version.")
+	cmd.Flags().IntVar(&bodyAttributionVisits, "attribution-visits", 0, "Visit counter, incremented client-side. Server validator coerces missing/zero/negative values to 1.")
 	cmd.Flags().StringVar(&bodyInterval, "interval", "monthly", "Interval")
 	cmd.Flags().StringVar(&bodyOperatorName, "operator-name", "", "Operator name")
 	cmd.Flags().StringVar(&bodyOversightEmail, "oversight-email", "", "Oversight email")
@@ -187,7 +315,7 @@ func newBillingCreatePricingcheckoutCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&bodyPlan, "plan", "", "Plan")
 	cmd.Flags().StringVar(&bodyTurnstileToken, "turnstile-token", "", "Turnstile token")
 	cmd.Flags().StringVar(&bodyUseCase, "use-case", "", "Use case")
-	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
+	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin (use this for deeply nested fields not exposed as flags)")
 
 	return cmd
 }

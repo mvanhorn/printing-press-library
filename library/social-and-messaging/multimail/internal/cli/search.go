@@ -8,8 +8,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/multimail/internal/store"
 	"github.com/spf13/cobra"
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/multimail/internal/store"
 )
 
 // isNilOrEmpty checks whether a JSON object has nil or empty values for
@@ -130,12 +130,32 @@ In local mode: searches locally synced data only.`,
 			}
 			defer db.Close()
 
+			maybeEmitSyncHints(cmd, db, resourceType, flags.maxAge)
+
 			var results []json.RawMessage
 			switch resourceType {
 			case "":
-				// Search all FTS-enabled tables individually to avoid duplicates.
+				// Search every FTS-enabled source — typed per-resource tables
+				// AND the generic resources_fts — and dedup by raw JSON so a
+				// row indexed in multiple FTS sources appears once. Without
+				// the generic-search call, rows that landed in resources_fts
+				// but not in any typed FTS table (e.g., a resource whose sync
+				// populated only the generic index) silently return zero.
 				seen := make(map[string]bool)
 				_ = seen // prevent unused error when no FTS tables exist
+				{
+					partial, searchErr := db.Search(query, limit)
+					if searchErr != nil {
+						return fmt.Errorf("search resources_fts failed: %w", searchErr)
+					}
+					for _, r := range partial {
+						key := string(r)
+						if !seen[key] {
+							seen[key] = true
+							results = append(results, r)
+						}
+					}
+				}
 			default:
 				// Unrecognized type — fall back to generic search
 				results, err = db.Search(query, limit)

@@ -182,6 +182,9 @@ func buildWebhookAudit(db *store.Store, projectID string) (webhookAuditView, err
 		})
 		grp.EventCount += len(obj.EventTypes)
 	}
+	if err := rows.Err(); err != nil {
+		return view, fmt.Errorf("iterating integrations: %w", err)
+	}
 	if scanned >= webhookAuditScanCap {
 		fmt.Fprintf(os.Stderr, "warning: webhook-audit hit the %d-webhook scan cap; some webhooks may be missing from this view\n", webhookAuditScanCap)
 		view.Note = fmt.Sprintf("hit the %d-webhook scan cap; some entries may be missing.", webhookAuditScanCap)

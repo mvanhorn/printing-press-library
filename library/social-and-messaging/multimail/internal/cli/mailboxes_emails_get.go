@@ -43,7 +43,7 @@ func newMailboxesEmailsGetCmd(flags *rootFlags) *cobra.Command {
 					}
 				}
 				if !validStatus {
-					fmt.Fprintf(os.Stderr, "warning: --%s %q not in allowed set %v\n", "status", flagStatus, allowedStatus)
+					return fmt.Errorf("invalid value %q for --%s: must be one of %v", flagStatus, "status", allowedStatus)
 				}
 			}
 			if cmd.Flags().Changed("direction") {
@@ -56,7 +56,7 @@ func newMailboxesEmailsGetCmd(flags *rootFlags) *cobra.Command {
 					}
 				}
 				if !validDirection {
-					fmt.Fprintf(os.Stderr, "warning: --%s %q not in allowed set %v\n", "direction", flagDirection, allowedDirection)
+					return fmt.Errorf("invalid value %q for --%s: must be one of %v", flagDirection, "direction", allowedDirection)
 				}
 			}
 			if cmd.Flags().Changed("has-attachments") {
@@ -69,7 +69,7 @@ func newMailboxesEmailsGetCmd(flags *rootFlags) *cobra.Command {
 					}
 				}
 				if !validHasAttachments {
-					fmt.Fprintf(os.Stderr, "warning: --%s %q not in allowed set %v\n", "has-attachments", flagHasAttachments, allowedHasAttachments)
+					return fmt.Errorf("invalid value %q for --%s: must be one of %v", flagHasAttachments, "has-attachments", allowedHasAttachments)
 				}
 			}
 			c, err := flags.newClient()
@@ -79,7 +79,7 @@ func newMailboxesEmailsGetCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/v1/mailboxes/{mailboxId}/emails"
 			path = replacePathParam(path, "mailboxId", args[0])
-			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "emails", path, map[string]string{
+			data, prov, err := resolvePaginatedReadWithStrategy(cmd.Context(), c, flags, "auto", "emails", path, map[string]string{
 				"status":           fmt.Sprintf("%v", flagStatus),
 				"limit":            fmt.Sprintf("%v", flagLimit),
 				"cursor":           fmt.Sprintf("%v", flagCursor),
@@ -90,20 +90,26 @@ func newMailboxesEmailsGetCmd(flags *rootFlags) *cobra.Command {
 				"direction":        fmt.Sprintf("%v", flagDirection),
 				"has_attachments":  fmt.Sprintf("%v", flagHasAttachments),
 				"since_id":         fmt.Sprintf("%v", flagSinceId),
-			}, nil, flagAll, "cursor", "", "")
+			}, nil, flagAll, "cursor", "cursor", "limit", "cursor", "", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
-			// Print provenance to stderr for human-facing output
-			{
+			// Print provenance to stderr for human-facing output only.
+			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
+			// --select) and piped stdout suppress this line; the JSON envelope
+			// already carries meta.source for those consumers.
+			// SYNC: keep this gate aligned with command_promoted.go.tmpl.
+			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
 			// For JSON output, wrap with provenance envelope before passing through flags.
 			// --select wins over --compact when both are set; --compact only runs when
-			// no explicit fields were requested.
-			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
+			// no explicit fields were requested. Explicit format flags (--csv, --quiet,
+			// --plain) opt out of the auto-JSON path so piped consumers that asked for
+			// a non-JSON format reach the standard pipeline below.
+			if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
 				filtered := data
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)

@@ -1,0 +1,218 @@
+{
+  "api_name": "here-now",
+  "novelty_score": 9,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-30T17:12:00Z",
+  "novel_features": [
+    {
+      "name": "Claim-token vault + auto-claim",
+      "command": "claims",
+      "description": "Every anonymous publish records its slug, claim token, and 24h expiry into a local vault, so you can make an expiring site permanent later without hunting for the token in terminal scrollback.",
+      "rationale": "The claim token is returned exactly once at anonymous-publish time and never again by any API; only a local store can persist it to drive a later claim.",
+      "example": "here-now-pp-cli claims --json",
+      "why_it_matters": "Reach for this when an agent publishes anonymously and needs to keep the site — the token to do so exists nowhere else.",
+      "group": "Anonymous publish lifecycle"
+    },
+    {
+      "name": "Expiry radar",
+      "command": "claims expiring",
+      "description": "Lists anonymous sites expiring within a time window so you can claim them before they vanish.",
+      "rationale": "Anonymous-expiry countdown is a pure local time-window query over the vault; no API endpoint reports 'expiring soon'.",
+      "example": "here-now-pp-cli claims expiring --within 6h --json",
+      "why_it_matters": "Run this before anonymous sites silently expire at 24h to catch the ones worth keeping.",
+      "group": "Anonymous publish lifecycle"
+    },
+    {
+      "name": "Publish resume",
+      "command": "publish resume",
+      "description": "Detects a locally-recorded publish that uploaded its files but never finalized, and completes it instead of re-publishing from scratch.",
+      "rationale": "Recovery requires the in-flight upload state that only the CLI persisted locally during the original publish.",
+      "example": "here-now-pp-cli publish resume my-site --dry-run",
+      "why_it_matters": "Use this when a publish half-failed (uploads done, finalize missed) to finish it without burning publish-rate budget on a redo.",
+      "group": "Anonymous publish lifecycle"
+    },
+    {
+      "name": "Drive sync (sha256 diff)",
+      "command": "drives sync",
+      "description": "Rsync-style sync of a local directory to a Drive: compares local sha256 against the synced file checksums and uploads only what changed, new, or deleted.",
+      "rationale": "The API offers per-file PUT but no diff; computing drift requires a local mirror of each DriveFile's sha256.",
+      "example": "here-now-pp-cli drives sync ./assets --drive drv_example --dry-run",
+      "why_it_matters": "Reach for this instead of re-uploading a whole folder — it only sends drift, saving rate budget and time.",
+      "group": "Drive as a filesystem"
+    },
+    {
+      "name": "Drive diff",
+      "command": "drives diff",
+      "description": "Shows which local files differ from a Drive (added, changed, deleted) without uploading anything.",
+      "rationale": "Read-only local-vs-remote comparison over the synced drive table; no single API call expresses 'what differs from this folder'.",
+      "example": "here-now-pp-cli drives diff ./assets --drive drv_example --json",
+      "why_it_matters": "Use this to preview exactly what a sync would change before committing to the upload.",
+      "group": "Drive as a filesystem"
+    },
+    {
+      "name": "Free-plan usage meter",
+      "command": "usage",
+      "description": "Local rollup of site count, drive bytes, and recent publish cadence against the free-plan ceilings (500 sites, 10GB, 60 publishes/hour).",
+      "rationale": "Rolls up synced sites and drives against free-tier limits entirely locally — the health signal that analytics paywalls.",
+      "example": "here-now-pp-cli usage --json",
+      "why_it_matters": "Use this to stay under the free-plan caps without paying for analytics; it's the free user's only proactive limit signal.",
+      "group": "Free-plan health"
+    },
+    {
+      "name": "Stale-site finder",
+      "command": "sites stale",
+      "description": "Lists sites not updated in N days from the local mirror, so you can reclaim free-plan slots by deleting dead ones.",
+      "rationale": "Time-window query over the local sites mirror; no free API surface ranks sites by staleness.",
+      "example": "here-now-pp-cli sites stale --days 30 --json",
+      "why_it_matters": "Run this near the 500-site free cap to find which sites to prune.",
+      "group": "Free-plan health"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Claim-token vault + auto-claim",
+      "command": "claims",
+      "description": "Every anonymous publish records its slug, claim token, and 24h expiry into a local vault, so you can make an expiring site permanent later without hunting for the token in terminal scrollback.",
+      "rationale": "The claim token is returned exactly once at anonymous-publish time and never again by any API; only a local store can persist it to drive a later claim.",
+      "example": "here-now-pp-cli claims --json",
+      "why_it_matters": "Reach for this when an agent publishes anonymously and needs to keep the site — the token to do so exists nowhere else.",
+      "group": "Anonymous publish lifecycle"
+    },
+    {
+      "name": "Expiry radar",
+      "command": "claims expiring",
+      "description": "Lists anonymous sites expiring within a time window so you can claim them before they vanish.",
+      "rationale": "Anonymous-expiry countdown is a pure local time-window query over the vault; no API endpoint reports 'expiring soon'.",
+      "example": "here-now-pp-cli claims expiring --within 6h --json",
+      "why_it_matters": "Run this before anonymous sites silently expire at 24h to catch the ones worth keeping.",
+      "group": "Anonymous publish lifecycle"
+    },
+    {
+      "name": "Publish resume",
+      "command": "publish resume",
+      "description": "Detects a locally-recorded publish that uploaded its files but never finalized, and completes it instead of re-publishing from scratch.",
+      "rationale": "Recovery requires the in-flight upload state that only the CLI persisted locally during the original publish.",
+      "example": "here-now-pp-cli publish resume my-site --dry-run",
+      "why_it_matters": "Use this when a publish half-failed (uploads done, finalize missed) to finish it without burning publish-rate budget on a redo.",
+      "group": "Anonymous publish lifecycle"
+    },
+    {
+      "name": "Drive sync (sha256 diff)",
+      "command": "drives sync",
+      "description": "Rsync-style sync of a local directory to a Drive: compares local sha256 against the synced file checksums and uploads only what changed, new, or deleted.",
+      "rationale": "The API offers per-file PUT but no diff; computing drift requires a local mirror of each DriveFile's sha256.",
+      "example": "here-now-pp-cli drives sync ./assets --drive drv_example --dry-run",
+      "why_it_matters": "Reach for this instead of re-uploading a whole folder — it only sends drift, saving rate budget and time.",
+      "group": "Drive as a filesystem"
+    },
+    {
+      "name": "Drive diff",
+      "command": "drives diff",
+      "description": "Shows which local files differ from a Drive (added, changed, deleted) without uploading anything.",
+      "rationale": "Read-only local-vs-remote comparison over the synced drive table; no single API call expresses 'what differs from this folder'.",
+      "example": "here-now-pp-cli drives diff ./assets --drive drv_example --json",
+      "why_it_matters": "Use this to preview exactly what a sync would change before committing to the upload.",
+      "group": "Drive as a filesystem"
+    },
+    {
+      "name": "Free-plan usage meter",
+      "command": "usage",
+      "description": "Local rollup of site count, drive bytes, and recent publish cadence against the free-plan ceilings (500 sites, 10GB, 60 publishes/hour).",
+      "rationale": "Rolls up synced sites and drives against free-tier limits entirely locally — the health signal that analytics paywalls.",
+      "example": "here-now-pp-cli usage --json",
+      "why_it_matters": "Use this to stay under the free-plan caps without paying for analytics; it's the free user's only proactive limit signal.",
+      "group": "Free-plan health"
+    },
+    {
+      "name": "Stale-site finder",
+      "command": "sites stale",
+      "description": "Lists sites not updated in N days from the local mirror, so you can reclaim free-plan slots by deleting dead ones.",
+      "rationale": "Time-window query over the local sites mirror; no free API surface ranks sites by staleness.",
+      "example": "here-now-pp-cli sites stale --days 30 --json",
+      "why_it_matters": "Run this near the 500-site free cap to find which sites to prune.",
+      "group": "Free-plan health"
+    }
+  ],
+  "narrative": {
+    "display_name": "here.now",
+    "headline": "Publish a folder to a live URL in one command, mirror your Drives offline, and never lose an anonymous site to the 24-hour clock.",
+    "value_prop": "here.now lets agents publish static Sites to live URLs and keep private files in cloud Drives. This CLI is the missing layer on top: `publish dir ./site` orchestrates the whole inline-upload-finalize dance for you, `drives sync` pushes only what changed, and a local claim-token vault keeps your free-tier anonymous sites from silently expiring. Built free-plan-first — anonymous publishing needs no account, and paid-only analytics fails soft with a clear message instead of a raw error.",
+    "auth_narrative": "Most onboarding is key-less: anonymous publish, public site reads, and Site Data writes work with no credential at all. When you want permanent sites and your own Drives, run `here-now-pp-cli auth login` to do the email-code flow (a one-time code is emailed, you paste it back) and the API key is stored locally, or set HERENOW_API_KEY in your environment. Drive share tokens also authenticate Drive-scoped reads.",
+    "quickstart": [
+      {
+        "command": "here-now-pp-cli doctor --dry-run",
+        "comment": "Health check — confirms reachability and whether you're on the free or paid plan; works with no key."
+      },
+      {
+        "command": "here-now-pp-cli publish dir ./site --anon --dry-run",
+        "comment": "Preview an anonymous publish of a local folder; no account needed."
+      },
+      {
+        "command": "here-now-pp-cli claims --json",
+        "comment": "See the anonymous sites you've published and their claim tokens before they expire."
+      },
+      {
+        "command": "here-now-pp-cli usage --json",
+        "comment": "Check how close you are to the free-plan limits."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "analytics command returns a paid-plan error",
+        "fix": "Analytics is a paid feature; on the free plan use `here-now-pp-cli usage` for local site/drive/publish-rate stats instead."
+      },
+      {
+        "symptom": "an anonymous site disappeared",
+        "fix": "Anonymous sites expire after 24h. Run `here-now-pp-cli claims expiring --within 6h` regularly and `here-now-pp-cli sites claim \u003cslug\u003e` to make them permanent."
+      },
+      {
+        "symptom": "publish failed partway with files uploaded but no live URL",
+        "fix": "Run `here-now-pp-cli publish resume \u003cslug\u003e` to finalize the existing upload instead of republishing."
+      },
+      {
+        "symptom": "presigned upload URL expired during a large publish",
+        "fix": "Run `here-now-pp-cli sites refresh-uploads \u003cslug\u003e` to get fresh upload targets, then resume."
+      }
+    ],
+    "when_to_use": "Reach for this CLI whenever an agent needs to turn generated content into a live URL, manage private Drive files, or read back Site Data form submissions. It is the right tool for free-tier-heavy workflows: anonymous-publish-and-claim, drives sync, and staying under plan limits without paid analytics. Prefer it over raw API calls when publishing a directory, syncing files to a Drive, or tracking which anonymous sites still need claiming.",
+    "recipes": [
+      {
+        "title": "Publish a folder and keep it permanently",
+        "command": "here-now-pp-cli publish dir ./site --anon \u0026\u0026 here-now-pp-cli claims expiring --within 24h",
+        "explanation": "Publish anonymously for a live URL, then see the claim window so you can `sites claim` before it expires."
+      },
+      {
+        "title": "Sync a working folder to your Drive",
+        "command": "here-now-pp-cli drives sync ./project --drive drv_example",
+        "explanation": "Uploads only files that changed since the last sync, computed from local sha256 vs the mirror."
+      },
+      {
+        "title": "Read form submissions from a site's collection",
+        "command": "here-now-pp-cli publishes data list-site-records my-site signups --json --select id,data,createdAt",
+        "explanation": "List a site's Site Data records with field selection so the agent's context stays small on deeply nested records."
+      },
+      {
+        "title": "Find sites to prune before hitting the free cap",
+        "command": "here-now-pp-cli sites stale --days 30 --json --select slug,url,updatedAt",
+        "explanation": "Lists the least-recently-updated sites so you can reclaim free-plan slots."
+      },
+      {
+        "title": "Check free-plan headroom",
+        "command": "here-now-pp-cli usage --json",
+        "explanation": "Local rollup of site count, drive bytes, and publish cadence against free-tier limits — no paid analytics required."
+      }
+    ],
+    "trigger_phrases": [
+      "publish this folder to here.now",
+      "deploy my site to here.now",
+      "sync this folder to my here.now drive",
+      "what here.now sites are about to expire",
+      "how close am I to the here.now free plan limit",
+      "use here-now",
+      "run here-now-pp-cli"
+    ]
+  }
+}

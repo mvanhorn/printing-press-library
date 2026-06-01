@@ -1,15 +1,16 @@
 {
   "api_name": "suno",
   "base_url": "https://studio-api-prod.suno.com",
-  "description": "Suno AI music generation CLI - reverse-engineered from the suno.com web app",
-  "mcp_ready": "partial",
-  "http_transport": "browser-chrome",
+  "description": "The correct, offline-first Suno CLI — every feature the abandoned clients have, plus a local SQLite library, full-text search, and agent-native output none of them ship.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
   "auth": {
-    "type": "composed",
+    "type": "bearer_token",
     "header": "Authorization",
-    "format": "Bearer {__session}",
+    "format": "Bearer {SUNO_TOKEN}",
     "env_vars": [
-      "SUNO_TOKEN"
+      "SUNO_TOKEN",
+      "SUNO_JWT"
     ],
     "env_var_specs": [
       {
@@ -18,10 +19,579 @@
         "required": true,
         "sensitive": true,
         "inferred": true
+      },
+      {
+        "name": "SUNO_JWT",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
       }
-    ],
-    "cookie_domain": "suno.com"
+    ]
   },
-  "required_headers": [],
-  "tools": []
+  "required_headers": [
+    {
+      "name": "Origin",
+      "value": "https://suno.com"
+    },
+    {
+      "name": "Referer",
+      "value": "https://suno.com/"
+    },
+    {
+      "name": "User-Agent",
+      "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36"
+    }
+  ],
+  "tools": [
+    {
+      "name": "billing_eligible-discounts",
+      "description": "Show promotional discounts your account currently qualifies for. Returns the available offers and their terms; use before upgrading or to surface pricing promotions.",
+      "method": "GET",
+      "path": "/api/billing/eligible-discounts",
+      "params": []
+    },
+    {
+      "name": "billing_info",
+      "description": "Show credits, plan, and models. Returns the BillingInfo.",
+      "method": "GET",
+      "path": "/api/billing/info/",
+      "params": []
+    },
+    {
+      "name": "billing_usage-plan",
+      "description": "Show the side-by-side plan comparison (Basic/Pro/Premier): credits, features, and limits per tier. Use to compare what each subscription level includes.",
+      "method": "GET",
+      "path": "/api/billing/usage-plan-web-table-comparison/",
+      "params": []
+    },
+    {
+      "name": "billing_usage-plan-faq",
+      "description": "Show the frequently-asked questions about plans, credits, and usage limits. Use to answer billing or quota questions without leaving the terminal.",
+      "method": "GET",
+      "path": "/api/billing/usage-plan-faq/",
+      "params": []
+    },
+    {
+      "name": "clips_attribution",
+      "description": "Show a clip's sample/attribution info. Required: clip_id. Returns the Clip.",
+      "method": "GET",
+      "path": "/api/clips/{clip_id}/attribution",
+      "params": [
+        {
+          "name": "clip_id",
+          "type": "string",
+          "location": "path",
+          "description": "Clip ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "clips_comments",
+      "description": "List comments on a clip. Required: clip_id. Returns array.",
+      "method": "GET",
+      "path": "/api/gen/{clip_id}/comments",
+      "params": [
+        {
+          "name": "clip_id",
+          "type": "string",
+          "location": "path",
+          "description": "Clip ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "clips_convert-wav",
+      "description": "Trigger WAV (lossless) conversion for a clip (Pro/Premier). Poll wav-url for the result. Required: clip_id.",
+      "method": "POST",
+      "path": "/api/gen/{clip_id}/convert_wav/",
+      "params": [
+        {
+          "name": "clip_id",
+          "type": "string",
+          "location": "path",
+          "description": "Clip ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "clips_delete",
+      "description": "Trash (or restore) one or more clips. Required: clip_ids. Optional: undo_trash.",
+      "method": "POST",
+      "path": "/api/feed/trash",
+      "params": [
+        {
+          "name": "clip_ids",
+          "type": "array",
+          "location": "body",
+          "description": "Clip IDs to trash",
+          "required": true
+        },
+        {
+          "name": "undo_trash",
+          "type": "bool",
+          "location": "body",
+          "description": "true restores"
+        }
+      ]
+    },
+    {
+      "name": "clips_direct-children-count",
+      "description": "Count direct children (extends/covers) of clip(s). Required: clip_ids.",
+      "method": "GET",
+      "path": "/api/clips/direct_children_count",
+      "params": [
+        {
+          "name": "clip_ids",
+          "type": "string",
+          "location": "query",
+          "description": "comma-separated clip IDs",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "clips_get",
+      "description": "Fetch clip(s) by ID (comma-separated; Suno batches 2 at a time). Required: ids. Returns array of Clip.",
+      "method": "GET",
+      "path": "/api/feed/",
+      "params": [
+        {
+          "name": "ids",
+          "type": "string",
+          "location": "query",
+          "description": "Clip ID(s), comma-separated",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "clips_list",
+      "description": "List your library (walks the opaque next_cursor; use --all to drain). Optional: cursor, limit (default: 20). Returns array of Clip.",
+      "method": "POST",
+      "path": "/api/feed/v3",
+      "params": [
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "body",
+          "description": "Opaque pagination cursor (the next_cursor from the prior page; omit for first page)"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "body",
+          "description": "Page size"
+        }
+      ]
+    },
+    {
+      "name": "clips_parent",
+      "description": "Show a clip's parent (the clip it was derived from). Required: clip_id. Returns the Clip.",
+      "method": "GET",
+      "path": "/api/clips/parent",
+      "params": [
+        {
+          "name": "clip_id",
+          "type": "string",
+          "location": "query",
+          "description": "Clip ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "clips_publish",
+      "description": "Toggle a clip public or private. Required: clip_id, is_public.",
+      "method": "POST",
+      "path": "/api/gen/{clip_id}/set_visibility/",
+      "params": [
+        {
+          "name": "clip_id",
+          "type": "string",
+          "location": "path",
+          "description": "Clip ID",
+          "required": true
+        },
+        {
+          "name": "is_public",
+          "type": "bool",
+          "location": "body",
+          "description": "true = public, false = private",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "clips_set",
+      "description": "Update a clip's title, caption, or lyrics. Required: clip_id. Optional: title, caption, lyrics.",
+      "method": "POST",
+      "path": "/api/gen/{clip_id}/set_metadata/",
+      "params": [
+        {
+          "name": "clip_id",
+          "type": "string",
+          "location": "path",
+          "description": "Clip ID",
+          "required": true
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "New title"
+        },
+        {
+          "name": "caption",
+          "type": "string",
+          "location": "body",
+          "description": "New caption"
+        },
+        {
+          "name": "lyrics",
+          "type": "string",
+          "location": "body",
+          "description": "New lyrics"
+        }
+      ]
+    },
+    {
+      "name": "clips_similar",
+      "description": "Find clips similar to a given clip. Required: clip_id. Returns array of Clip.",
+      "method": "GET",
+      "path": "/api/clips/get_similar/",
+      "params": [
+        {
+          "name": "clip_id",
+          "type": "string",
+          "location": "query",
+          "description": "Clip ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "clips_stems",
+      "description": "Separate a clip into stems (vocals + instruments). Required: clip_id. Returns the new Clip.",
+      "method": "POST",
+      "path": "/api/edit/stems/{clip_id}",
+      "params": [
+        {
+          "name": "clip_id",
+          "type": "string",
+          "location": "path",
+          "description": "Clip ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "clips_timed-lyrics",
+      "description": "Word-level timestamped lyrics for a clip. Required: clip_id. Returns the AlignedLyrics.",
+      "method": "GET",
+      "path": "/api/gen/{clip_id}/aligned_lyrics/v2/",
+      "params": [
+        {
+          "name": "clip_id",
+          "type": "string",
+          "location": "path",
+          "description": "Clip ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "clips_wav-url",
+      "description": "Get the WAV download URL for a clip (null until conversion finishes). Required: clip_id. Returns the WavFile.",
+      "method": "GET",
+      "path": "/api/gen/{clip_id}/wav_file/",
+      "params": [
+        {
+          "name": "clip_id",
+          "type": "string",
+          "location": "path",
+          "description": "Clip ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "generate_concat",
+      "description": "Finalize/concatenate an extended clip into a full song. Required: clip_id. Returns the new Clip.",
+      "method": "POST",
+      "path": "/api/generate/concat/v2/",
+      "params": [
+        {
+          "name": "clip_id",
+          "type": "string",
+          "location": "body",
+          "description": "Clip ID to finalize",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "generate_lyrics",
+      "description": "Submit a lyrics-generation job (returns an id to poll). Required: prompt.",
+      "method": "POST",
+      "path": "/api/generate/lyrics/",
+      "params": [
+        {
+          "name": "prompt",
+          "type": "string",
+          "location": "body",
+          "description": "Description of the lyrics to write",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "generate_lyrics-status",
+      "description": "Poll a lyrics-generation job by id. Required: id. Returns the LyricsResult.",
+      "method": "GET",
+      "path": "/api/generate/lyrics/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Lyrics job ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "generate_video-status",
+      "description": "Check video-generation status for a clip. Required: id.",
+      "method": "GET",
+      "path": "/api/video/generate/{id}/status/",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Clip/video ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "notification_badge-count",
+      "description": "Show the count of unread notifications (the number on the bell badge). Use for a quick check of pending activity without fetching the full list.",
+      "method": "GET",
+      "path": "/api/notification/v2/badge-count",
+      "params": []
+    },
+    {
+      "name": "notification_list",
+      "description": "List your account notifications (likes, comments, follows, system messages), paginated. Use to review recent activity on your tracks and account. Optional: page.",
+      "method": "GET",
+      "path": "/api/notification/v2",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number"
+        }
+      ]
+    },
+    {
+      "name": "persona_get",
+      "description": "View a voice persona. Required: persona_id. Optional: page (default: 0). Returns the Persona.",
+      "method": "GET",
+      "path": "/api/persona/get-persona-paginated/{persona_id}/",
+      "params": [
+        {
+          "name": "persona_id",
+          "type": "string",
+          "location": "path",
+          "description": "Persona ID",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page of persona clips"
+        }
+      ]
+    },
+    {
+      "name": "playlist_list",
+      "description": "List the playlists you've created or saved, paginated. Returns each playlist's id, name, and clip count; use to browse or pick a playlist to inspect. Optional: page (default: 1).",
+      "method": "GET",
+      "path": "/api/playlist/me",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number"
+        }
+      ]
+    },
+    {
+      "name": "project_create",
+      "description": "Create a new workspace. Required: name. Optional: description. Returns the new Project.",
+      "method": "POST",
+      "path": "/api/project",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Workspace name (max 100 chars)",
+          "required": true
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Workspace description"
+        }
+      ]
+    },
+    {
+      "name": "project_default",
+      "description": "Show your default workspace (project) — the collection new tracks land in by default. Returns the project and its metadata; pair with 'project pinned-clips' for its pinned tracks.",
+      "method": "GET",
+      "path": "/api/project/default",
+      "params": []
+    },
+    {
+      "name": "project_get",
+      "description": "Show a workspace and its clips. Required: project_id. Returns the Project.",
+      "method": "GET",
+      "path": "/api/project/{project_id}",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Workspace ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "project_list",
+      "description": "List your workspaces. Optional: page (default: 1), sort (default: created_at), show_trashed (plus 1 more). Returns array of Project.",
+      "method": "GET",
+      "path": "/api/project/me",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort field"
+        },
+        {
+          "name": "show_trashed",
+          "type": "bool",
+          "location": "query",
+          "description": "Include trashed workspaces"
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Search workspaces by name"
+        }
+      ]
+    },
+    {
+      "name": "project_pinned-clips",
+      "description": "List clips pinned to your default workspace. Returns array of Clip.",
+      "method": "GET",
+      "path": "/api/project/default/pinned-clips",
+      "params": []
+    },
+    {
+      "name": "project_rename",
+      "description": "Rename a workspace. Required: project_id, name. Optional: description.",
+      "method": "POST",
+      "path": "/api/project/{project_id}/metadata",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Workspace ID",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "New workspace name (max 100 chars)",
+          "required": true
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "New description"
+        }
+      ]
+    },
+    {
+      "name": "project_trash",
+      "description": "Trash (or restore) a workspace. Required: project_id. Optional: undo_trash.",
+      "method": "POST",
+      "path": "/api/project/trash",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "body",
+          "description": "Workspace ID",
+          "required": true
+        },
+        {
+          "name": "undo_trash",
+          "type": "bool",
+          "location": "body",
+          "description": "true restores instead of trashing"
+        }
+      ]
+    },
+    {
+      "name": "trending_list",
+      "description": "Show the clips currently trending on Suno. Returns a ranked list of popular public tracks; use for discovery or to sample what's resonating right now.",
+      "method": "GET",
+      "path": "/api/trending/",
+      "params": []
+    },
+    {
+      "name": "user_config",
+      "description": "Show your account configuration and feature flags. Returns server-side user settings (tier, toggles, preferences); use to inspect how your account is provisioned.",
+      "method": "GET",
+      "path": "/api/user/user_config/",
+      "params": []
+    },
+    {
+      "name": "user_personalization",
+      "description": "Show your personalization settings — the preferences Suno uses to tailor recommendations and generation defaults. Use to review what's been opted into.",
+      "method": "GET",
+      "path": "/api/personalization/settings",
+      "params": []
+    },
+    {
+      "name": "user_personalization-memory",
+      "description": "Show the personalization memory Suno has stored about your tastes and history. Use to inspect the signals driving your recommendations.",
+      "method": "GET",
+      "path": "/api/personalization/memory",
+      "params": []
+    }
+  ]
 }

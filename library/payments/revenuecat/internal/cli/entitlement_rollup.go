@@ -235,6 +235,9 @@ func buildEntitlementRollup(db *store.Store, projectID string, flagDisagreements
 			}
 		}
 	}
+	if err := rows.Err(); err != nil {
+		return view, fmt.Errorf("iterating active_entitlements: %w", err)
+	}
 
 	// Union of entitlement ids from the catalog and any seen on active grants.
 	seen := map[string]bool{}

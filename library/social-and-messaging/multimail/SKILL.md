@@ -1,6 +1,6 @@
 ---
 name: pp-multimail
-description: "Printing Press CLI for Multimail. Email-as-a-Service for AI agents. Inbound email converted to markdown, outbound markdown converted to HTML. Built on..."
+description: "Every MultiMail feature plus oversight velocity, trust ladder status, and cross-mailbox search no other tool has. Trigger phrases: `check my multimail inbox`, `approve pending emails`, `multimail trust status`, `search multimail for`, `sync multimail mailboxes`, `use multimail`, `run multimail`."
 author: "H179922"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"
@@ -10,9 +10,13 @@ metadata:
     requires:
       bins:
         - multimail-pp-cli
+    install:
+      - kind: go
+        bins: [multimail-pp-cli]
+        module: github.com/mvanhorn/printing-press-library/library/social-and-messaging/multimail/cmd/multimail-pp-cli
 ---
 
-# Multimail — Printing Press CLI
+# MultiMail — Printing Press CLI
 
 ## Prerequisites: Install the CLI
 
@@ -33,20 +37,125 @@ go install github.com/mvanhorn/printing-press-library/library/social-and-messagi
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
 
+The only CLI that makes MultiMail's trust ladder a first-class operator surface. Sync mailboxes, emails, and audit events to local SQLite, then query oversight velocity, allowlist coverage, and inbox health across your entire fleet — insights no single API call provides.
+
+## When to Use This CLI
+
+Use multimail-pp-cli when you need to manage an agent email fleet — process oversight queues, monitor trust ladder progression, search across mailboxes, and track inbox health. It turns MultiMail's graduated autonomy model into a daily operator workflow.
+
+## Anti-triggers
+
+Do not use this CLI for:
+- Sending bulk marketing email — MultiMail is for agent-to-human communication, not mass email
+- Managing non-MultiMail email accounts (Gmail, Outlook) — use better-email-mcp or native MCP tools
+- Real-time email streaming — use MultiMail webhooks directly for sub-second event delivery
+- Account billing changes — use the MultiMail dashboard for payment and plan management
+
+## Unique Capabilities
+
+These capabilities aren't available in any other tool for this API.
+
+### Agent-native plumbing
+- **`fleet health`** — Single-command account-wide health snapshot: mailbox count, oversight queue depth, webhook delivery rate, domain verification status, usage vs plan limits.
+
+  _When an agent needs to know if its MultiMail integration is healthy before sending, one command replaces checking 5 separate endpoints._
+
+  ```bash
+  multimail-pp-cli fleet health --json --agent --select mailboxes.total,oversight.pending_count,webhooks.success_rate
+  ```
+- **`oversight bulk-decide`** — Approve or reject all pending emails matching a filter (by mailbox, sender, or age) in one command.
+
+  _When an agent's test queue has 20 pending emails, one command clears them instead of 20 individual approve calls._
+
+  ```bash
+  multimail-pp-cli oversight bulk-decide --approve --mailbox support-agent --json
+  ```
+- **`oversight velocity`** — See approval/rejection rates and median decision latency per mailbox across your entire fleet.
+
+  _When an agent's sends are stuck in approval queues, this pinpoints which mailbox's operator is the bottleneck._
+
+  ```bash
+  multimail-pp-cli oversight velocity --json --days 7
+  ```
+- **`trust status`** — Fleet-wide view of each mailbox's oversight mode, time-at-level, and upgrade eligibility.
+
+  _Before requesting a trust upgrade, an agent should know which mailboxes are ready and which have been at their current level longest._
+
+  ```bash
+  multimail-pp-cli trust status --json --agent --select name,oversight_mode,time_at_level
+  ```
+- **`trust timeline`** — Per-mailbox chronological history of every oversight mode change with timestamps and who triggered it.
+
+  _When evaluating whether to request a trust upgrade, an agent needs to show its history of responsible operation at each level._
+
+  ```bash
+  multimail-pp-cli trust timeline --mailbox support-agent --json
+  ```
+- **`emails send-and-wait`** — Send an email and block until a reply arrives or timeout — the agent test loop in one command.
+
+  _When an agent needs to send and process the reply in one workflow step, this replaces a manual send-poll-read loop._
+
+  ```bash
+  multimail-pp-cli emails send-and-wait --mailbox test-agent --to user@example.com --subject 'Test' --body 'Hello' --timeout 5m --json
+  ```
+
+### Local state that compounds
+- **`mailboxes allowlist coverage`** — See what percentage of recent recipients are covered by allowlist patterns vs gated.
+
+  _Before adding allowlist entries, an agent should know which recipients are already covered and which cause the most gating friction._
+
+  ```bash
+  multimail-pp-cli mailboxes allowlist coverage --mailbox primary --days 30 --json --agent --select pattern,match_count,percentage
+  ```
+- **`inbox health`** — Per-mailbox health snapshot: unread count, oldest unread age, reply rate, and thread depth.
+
+  _An agent monitoring its own inbox health can detect when it is falling behind on replies before the operator notices._
+
+  ```bash
+  multimail-pp-cli inbox health --json --agent --select mailbox,unread_count,oldest_unread_age,reply_rate
+  ```
+- **`threads stale`** — List conversation threads with no reply in N days — surfaces dropped conversations.
+
+  _A dropped conversation thread is a customer-facing failure; this is the agent's early warning system._
+
+  ```bash
+  multimail-pp-cli threads stale --days 3 --json --agent --select thread_id,subject,last_reply_age,mailbox
+  ```
+- **`audit compliance`** — Cross-entity compliance report: oversight bypass count, approval/rejection counts, decision latency percentiles per mailbox.
+
+  _When an auditor needs to verify that agents operated within their approved trust levels, this replaces manual log correlation._
+
+  ```bash
+  multimail-pp-cli audit compliance --days 30 --json
+  ```
+- **`webhooks health`** — Per-webhook success rate, failure count, last delivery timestamp, and consecutive failure streak.
+
+  _When an agent's real-time event pipeline depends on webhooks, this surfaces delivery health before silent failures accumulate._
+
+  ```bash
+  multimail-pp-cli webhooks health --json --agent --select webhook_id,url,success_rate,consecutive_failures
+  ```
+
 ## Command Reference
 
 **account** — Manage account
 
-- `multimail-pp-cli account create` — Requires a solved proof-of-work challenge. Creates a pending signup and sends a confirmation email. Response is...
-- `multimail-pp-cli account create-challenge` — Returns an ALTCHA challenge. Solve it and include the solution as pow_solution in POST /v1/account. Challenge...
-- `multimail-pp-cli account create-resendconfirmation` — Public endpoint (no auth required). Resends the activation email with a new code for unconfirmed accounts. Rate...
-- `multimail-pp-cli account delete` — Hard-deletes all tenant data (mailboxes, emails, API keys, usage, audit log). Frees the slug for re-registration....
+- `multimail-pp-cli account create` — Requires a solved proof-of-work challenge. Creates a pending signup and sends a confirmation email.
+- `multimail-pp-cli account create-challenge` — Returns an ALTCHA challenge. Solve it and include the solution as pow_solution in POST /v1/account.
+- `multimail-pp-cli account create-resendconfirmation` — Public endpoint (no auth required). Resends the activation email with a new code for unconfirmed accounts.
+- `multimail-pp-cli account delete` — Hard-deletes all tenant data (mailboxes, emails, API keys, usage, audit log). Frees the slug for re-registration.
 - `multimail-pp-cli account list` — Get current tenant info and usage
 - `multimail-pp-cli account update` — Update tenant settings
 
 **admin** — Manage admin
 
-- `multimail-pp-cli admin` — Admin-only. Creates a new API key and emails it to the tenant's oversight email. Used when welcome email failed or...
+- `multimail-pp-cli admin` — Admin-only. Creates a new API key and emails it to the tenant's oversight email.
+
+**agent** — Manage agent
+
+- `multimail-pp-cli agent create` — Initiates agent registration using verified_email identity assertion.
+- `multimail-pp-cli agent create-auth` — Completes the auth.md registration by validating the claim_token and OTP.
+- `multimail-pp-cli agent list` — Human-facing page that displays the 6-digit OTP for agent registration. Linked from the verification email.
 
 **api-keys** — Manage api keys
 
@@ -64,20 +173,24 @@ If `--version` reports "command not found" after install, the install step did n
 
 - `multimail-pp-cli audit-log` — Returns audit log entries with cursor pagination. Requires admin scope.
 
+**auth-md** — Manage auth md
+
+- `multimail-pp-cli auth-md` — Returns a markdown document describing MultiMail's agent registration flow, trust ladder, and scope model.
+
 **billing** — Manage billing
 
-- `multimail-pp-cli billing create` — Requires admin scope. Sets cancel_at_period_end on the Stripe subscription so the tenant retains access until the...
+- `multimail-pp-cli billing create` — Requires admin scope.
 - `multimail-pp-cli billing create-checkout` — Create a Stripe checkout session for plan upgrade
 - `multimail-pp-cli billing create-coinbasewebhook` — Coinbase Commerce webhook handler (public, signature-verified)
 - `multimail-pp-cli billing create-cryptocheckout` — Create a Coinbase Commerce checkout (crypto payment)
-- `multimail-pp-cli billing create-portal` — Requires admin scope. Returns a URL to the Stripe-hosted billing portal for self-service invoice, payment method,...
-- `multimail-pp-cli billing create-pricingcheckout` — Creates an inactive tenant, provisions a default mailbox, and returns a Stripe checkout URL. After payment, call GET...
+- `multimail-pp-cli billing create-portal` — Requires admin scope.
+- `multimail-pp-cli billing create-pricingcheckout` — Creates an inactive tenant, provisions a default mailbox, and returns a Stripe checkout URL.
 - `multimail-pp-cli billing create-stripewebhook` — Stripe webhook handler (public, signature-verified)
-- `multimail-pp-cli billing list` — Public endpoint. Returns the API key stored during pricing-checkout, then deletes it. Key expires after 1 hour if...
+- `multimail-pp-cli billing list` — Public endpoint. Returns the API key stored during pricing-checkout, then deletes it.
 
 **confirm** — Manage confirm
 
-- `multimail-pp-cli confirm create` — JSON response includes: status, name, oversight_mode, api_key, mailbox_id, mailbox_address, oversight_email,...
+- `multimail-pp-cli confirm create` — JSON response includes: status, name, oversight_mode, api_key, mailbox_id, mailbox_address, oversight_email, use_case.
 - `multimail-pp-cli confirm get` — Redirect to frontend confirmation page with code prefilled
 - `multimail-pp-cli confirm list` — Redirect to frontend confirmation page at multimail.dev/confirm
 
@@ -86,6 +199,10 @@ If `--version` reports "command not found" after install, the install step did n
 - `multimail-pp-cli contacts create` — Add a contact to the address book. Requires send scope.
 - `multimail-pp-cli contacts delete` — Requires admin scope.
 - `multimail-pp-cli contacts list` — Search address book by name or email. Omit query to list all. Requires read scope.
+
+**data_export** — Manage data export
+
+- `multimail-pp-cli data-export` — Requires admin scope. Rate limited to 1 request per hour.
 
 **domains** — Manage domains
 
@@ -96,26 +213,22 @@ If `--version` reports "command not found" after install, the install step did n
 
 **emails** — Manage emails
 
-- `multimail-pp-cli emails` — Requires read scope. Without a status filter, returns spam_flagged and spam_quarantined emails across all tenant...
+- `multimail-pp-cli emails` — Requires read scope.
 
 **funnel** — Manage funnel
 
-- `multimail-pp-cli funnel` — Pricing page beacon hit via navigator.sendBeacon to track open/submit/error events on the signup modal....
+- `multimail-pp-cli funnel` — Pricing page beacon hit via navigator.sendBeacon to track open/submit/error events on the signup modal.
+
+**health** — Manage health
+
+- `multimail-pp-cli health` — Verifies D1 and R2 connectivity. No auth required.
 
 **mailboxes** — Manage mailboxes
 
-- `multimail-pp-cli mailboxes create` — Requires admin scope. Address can be a local part (appended to tenant subdomain) or full address on a verified...
+- `multimail-pp-cli mailboxes create` — Requires admin scope.
 - `multimail-pp-cli mailboxes delete` — Requires admin scope.
 - `multimail-pp-cli mailboxes list` — Requires read scope.
 - `multimail-pp-cli mailboxes update` — Requires admin scope. Oversight mode can only be downgraded here; upgrades require the upgrade flow.
-
-**multimail-export** — Manage multimail export
-
-- `multimail-pp-cli multimail-export` — Requires admin scope. Rate limited to 1 request per hour.
-
-**multimail-health** — Manage multimail health
-
-- `multimail-pp-cli multimail-health` — Verifies D1 and R2 connectivity. No auth required.
 
 **operator** — Manage operator
 
@@ -135,7 +248,7 @@ If `--version` reports "command not found" after install, the install step did n
 
 **support** — Manage support
 
-- `multimail-pp-cli support` — Public endpoint. Requires a solved ALTCHA proof-of-work payload. Sends a message to the operator's support address.
+- `multimail-pp-cli support` — Public endpoint. Requires a solved ALTCHA proof-of-work payload. Sends a message to support@multimail.dev.
 
 **suppression** — Manage suppression
 
@@ -159,7 +272,7 @@ If `--version` reports "command not found" after install, the install step did n
 
 - `multimail-pp-cli webhooks create` — Subscribe to email events. Returns the signing secret (shown only on creation). Requires admin scope.
 - `multimail-pp-cli webhooks create-postmark` — Postmark bounce/complaint/delivery webhook handler
-- `multimail-pp-cli webhooks create-postmarkinbound` — Receives inbound emails from Postmark. Authenticated via HTTP Basic Auth with the Postmark webhook secret. Not a...
+- `multimail-pp-cli webhooks create-postmarkinbound` — Receives inbound emails from Postmark. Authenticated via HTTP Basic Auth with the Postmark webhook secret.
 - `multimail-pp-cli webhooks delete` — Delete a webhook subscription
 - `multimail-pp-cli webhooks get` — Includes signing secret. Requires admin scope.
 - `multimail-pp-cli webhooks list` — Requires admin scope. Signing secrets are not included in the list.
@@ -168,6 +281,8 @@ If `--version` reports "command not found" after install, the install step did n
 
 - `multimail-pp-cli well-known get` — Rate-limited to 10 lookups per IP per hour.
 - `multimail-pp-cli well-known list` — Returns the ECDSA P-256 public key used to sign X-MultiMail-Identity headers.
+- `multimail-pp-cli well-known list-wellknown` — Returns OAuth authorization server metadata with an agent_auth extension block describing the auth.
+- `multimail-pp-cli well-known list-wellknown-2` — Returns metadata about MultiMail as an OAuth-protected resource, including supported scopes and authorization servers.
 
 
 ### Finding the right command
@@ -180,15 +295,51 @@ multimail-pp-cli which "<capability in your own words>"
 
 `which` resolves a natural-language capability query to the best matching command from this CLI's curated feature index. Exit code `0` means at least one match; exit code `2` means no confident match — fall back to `--help` or use a narrower query.
 
-## Auth Setup
+## Recipes
 
-Store your access token:
+### Approve all pending emails for a mailbox
 
 ```bash
-multimail-pp-cli auth set-token YOUR_TOKEN_HERE
+multimail-pp-cli oversight list --json --select id,subject,to | multimail-pp-cli oversight bulk-decide --approve --stdin
 ```
 
-Or set `MULTIMAIL_BEARER_AUTH` as an environment variable.
+Pipe pending email IDs into batch approval — useful for clearing a gated mailbox queue.
+
+### Fleet trust ladder overview
+
+```bash
+multimail-pp-cli trust status --json --agent --select name,oversight_mode,time_at_level
+```
+
+See which mailboxes are at which trust level and how long they have been there.
+
+### Cross-mailbox search with field selection
+
+```bash
+multimail-pp-cli search 'quarterly report' --type emails --json --agent --select subject,from,mailbox,received_at
+```
+
+Find a specific email across all synced mailboxes with narrow field output for agent context efficiency.
+
+### Sync and check inbox health
+
+```bash
+multimail-pp-cli sync --resources mailboxes,emails --since 24h && multimail-pp-cli inbox health --json
+```
+
+Refresh local data then check unread counts, reply rates, and oldest unread age per mailbox.
+
+### Allowlist coverage analysis
+
+```bash
+multimail-pp-cli mailboxes allowlist coverage --mailbox primary --days 30 --json --agent --select pattern,match_count,percentage
+```
+
+See what percentage of recent recipients match allowlist patterns — find which addresses cause the most gating friction.
+
+## Auth Setup
+
+MultiMail uses Bearer token auth with prefixed keys: mm_live_* for production, mm_test_* for staging. Get your key from the MultiMail dashboard or via the API key management endpoints.
 
 Run `multimail-pp-cli doctor` to verify setup.
 
@@ -218,7 +369,7 @@ Commands that read from the local store or the API wrap output in a provenance e
 }
 ```
 
-Parse `.results` for data and `.meta.source` to know whether it's live or local. A human-readable `N results (live)` summary is printed to stderr only when stdout is a terminal — piped/agent consumers get pure JSON on stdout.
+Parse `.results` for data and `.meta.source` to know whether it's live or local. A human-readable `N results (live)` summary is printed to stderr only when stdout is a terminal AND no machine-format flag (`--json`, `--csv`, `--compact`, `--quiet`, `--plain`, `--select`) is set — piped/agent consumers and explicit-format runs get pure JSON on stdout.
 
 ## Agent Feedback
 
@@ -230,7 +381,7 @@ multimail-pp-cli feedback --stdin < notes.txt
 multimail-pp-cli feedback list --json --limit 10
 ```
 
-Entries are stored locally at `~/.multimail-pp-cli/feedback.jsonl`. They are never POSTed unless `MULTIMAIL_FEEDBACK_ENDPOINT` is set AND either `--send` is passed or `MULTIMAIL_FEEDBACK_AUTO_SEND=true`. Default behavior is local-only.
+Entries are stored locally at `~/.local/share/multimail-pp-cli/feedback.jsonl`. They are never POSTed unless `MULTIMAIL_FEEDBACK_ENDPOINT` is set AND either `--send` is passed or `MULTIMAIL_FEEDBACK_AUTO_SEND=true`. Default behavior is local-only.
 
 Write what *surprised* you, not a bug report. Short, specific, one line: that is the part that compounds.
 
@@ -282,13 +433,15 @@ Parse `$ARGUMENTS`:
 
 ## MCP Server Installation
 
-Install the MCP binary from this CLI's published public-library entry or pre-built release, then register it:
-
-```bash
-claude mcp add multimail-pp-mcp -- multimail-pp-mcp
-```
-
-Verify: `claude mcp list`
+1. Install the MCP server:
+   ```bash
+   go install github.com/mvanhorn/printing-press-library/library/social-and-messaging/multimail/cmd/multimail-pp-mcp@latest
+   ```
+2. Register with Claude Code:
+   ```bash
+   claude mcp add multimail-pp-mcp -- multimail-pp-mcp
+   ```
+3. Verify: `claude mcp list`
 
 ## Direct Use
 

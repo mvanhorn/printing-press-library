@@ -120,7 +120,7 @@ func newNotesNewCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			data, statusCode, err := c.Post("/comment/feed", reqBody)
+			data, statusCode, err := c.Post(cmd.Context(), "/comment/feed", reqBody)
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}

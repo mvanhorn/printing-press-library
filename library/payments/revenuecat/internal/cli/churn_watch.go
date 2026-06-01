@@ -168,7 +168,9 @@ func emitChurnWatch(cmd *cobra.Command, flags *rootFlags, view churnWatchView) e
 }
 
 // churnWatchSubScanCap bounds the subscriptions scan.
-const churnWatchSubScanCap = 200000
+// Aligned with loadSubscriptionStatusCap (rc_helpers.go) so the same
+// subscriptions scan is truncated identically across commands.
+const churnWatchSubScanCap = 500000
 
 func buildChurnWatch(db *store.Store, projectID string, window time.Duration, sinceLabel string) (churnWatchView, error) {
 	now := time.Now().UTC()
@@ -229,6 +231,9 @@ func buildChurnWatch(db *store.Store, projectID string, window time.Duration, si
 		row.AutoRenewalStatus = autoRenewal
 		view.Rows = append(view.Rows, row)
 		view.DollarExposure += row.ExposureUSD
+	}
+	if err := rows.Err(); err != nil {
+		return view, fmt.Errorf("iterating subscriptions: %w", err)
 	}
 	if scanned >= churnWatchSubScanCap {
 		fmt.Fprintf(os.Stderr, "warning: churn-watch hit the %d-subscription scan cap; results may be incomplete\n", churnWatchSubScanCap)

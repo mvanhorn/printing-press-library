@@ -1413,6 +1413,53 @@
       }
     },
     {
+      "name": "breezedoc",
+      "category": "productivity",
+      "api": "BreezeDoc",
+      "description": "BreezeDoc's REST API provides a handful of endpoints which can be used to get information about your account and",
+      "search_terms": [
+        "breezedoc",
+        "breezedoc-pp-cli",
+        "E-signature and invoicing API for documents, templates, recipients, teams, and invoice workflows.",
+        "Invoice lifecycle",
+        "workflow invoice-lifecycle",
+        "Create, update, optionally send, and refetch BreezeDoc invoices as one structured agent workflow.",
+        "Client workspace snapshot",
+        "workflow client-workspace-snapshot",
+        "Collect a compact account snapshot across user, documents, templates, recipients, invoices, and optional teams.",
+        "Document follow-up",
+        "workflow document-follow-up",
+        "Inspect a document and its recipients, derive follow-up statuses, and optionally resend with explicit opt-in.",
+        "Signature packet prep",
+        "workflow signature-packet-prep",
+        "Prepare a signature packet from a template or raw document payload and optionally send it with explicit opt-in."
+      ],
+      "path": "library/productivity/breezedoc",
+      "printer": "cathrynlavery",
+      "printer_name": "Cathryn Lavery",
+      "creator": {
+        "handle": "cathrynlavery",
+        "name": "Cathryn Lavery"
+      },
+      "mcp": {
+        "binary": "breezedoc-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 19,
+        "public_tool_count": 0,
+        "auth_type": "bearer_token",
+        "env_vars": [
+          "BREEZEDOC_API_TOKEN",
+          "BREEZEDOC_BEARER_TOKEN",
+          "BREEZEDOC_BEARER_AUTH"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
+      }
+    },
+    {
       "name": "cal-com",
       "category": "productivity",
       "api": "Cal.com",
@@ -4420,6 +4467,60 @@
       }
     },
     {
+      "name": "here-now",
+      "category": "cloud",
+      "api": "here.now",
+      "description": "Publish a folder to a live URL in one command, mirror your Drives offline",
+      "search_terms": [
+        "here-now",
+        "here.now",
+        "here-now-pp-cli",
+        "Publish a folder to a live URL in one command, mirror your Drives offline, and never lose an anonymous site to the 24-hour clock.",
+        "Claim-token vault + auto-claim",
+        "claims",
+        "Every anonymous publish records its slug, claim token, and 24h expiry into a local vault, so you can make an expiring site permanent later without hunting for the token in terminal scrollback.",
+        "Expiry radar",
+        "claims expiring",
+        "Lists anonymous sites expiring within a time window so you can claim them before they vanish.",
+        "Publish resume",
+        "Detects a locally-recorded publish that uploaded its files but never finalized, and completes it instead of re-publishing from scratch.",
+        "Drive sync (sha256 diff)",
+        "drives sync",
+        "Rsync-style sync of a local directory to a Drive: compares local sha256 against the synced file checksums and uploads only what changed, new, or deleted.",
+        "Drive diff",
+        "drives diff",
+        "Shows which local files differ from a Drive (added, changed, deleted) without uploading anything.",
+        "Free-plan usage meter",
+        "usage",
+        "Local rollup of site count, drive bytes, and recent publish cadence against the free-plan ceilings (500 sites, 10GB, 60 publishes/hour).",
+        "Stale-site finder",
+        "sites stale",
+        "Lists sites not updated in N days from the local mirror, so you can reclaim free-plan slots by deleting dead ones."
+      ],
+      "path": "library/cloud/here-now",
+      "printer": "tmchow",
+      "printer_name": "Trevin Chow",
+      "creator": {
+        "handle": "tmchow",
+        "name": "Trevin Chow"
+      },
+      "mcp": {
+        "binary": "here-now-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 58,
+        "public_tool_count": 3,
+        "auth_type": "bearer_token",
+        "env_vars": [
+          "HERENOW_API_KEY"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
+      }
+    },
+    {
       "name": "hotel-goat",
       "category": "travel",
       "api": "Google Hotels",
@@ -5581,35 +5682,40 @@
     {
       "name": "multimail",
       "category": "social-and-messaging",
-      "api": "Multimail",
-      "description": "Email-as-a-Service for AI agents. Inbound email converted to markdown, outbound markdown converted to HTML. Built on...",
+      "api": "MultiMail",
+      "description": "Every MultiMail feature plus oversight velocity, trust ladder status, and cross-mailbox search no other tool has.",
       "search_terms": [
         "multimail",
         "multimail-pp-cli",
-        "Inbox health composite score",
-        "mm health",
-        "Compute a 0-100 inbox health score from local SQLite, factoring in unread count, stale thread ratio, bounce rate, spam score, and quota utilization.",
-        "Stale thread detection",
-        "mm stale",
-        "Scan synced mailboxes for threads with unanswered inbound messages older than a configurable threshold (default 48h).",
-        "Oversight dashboard",
-        "mm oversight summary",
-        "Display a summary of pending oversight approvals across all mailboxes, grouped by direction and mailbox.",
+        "Fleet health",
+        "Single-command account-wide health snapshot: mailbox count, oversight queue depth, webhook delivery rate, domain verification status, usage vs plan limits.",
+        "Bulk oversight decide",
+        "oversight bulk-decide",
+        "Approve or reject all pending emails matching a filter (by mailbox, sender, or age) in one command.",
+        "Oversight velocity",
+        "See approval/rejection rates and median decision latency per mailbox across your entire fleet.",
         "Trust ladder status",
-        "mm trust status",
-        "Show the current trust ladder position for each mailbox with upgrade eligibility and operator approval flow status.",
-        "Quota forecast",
-        "mm quota forecast",
-        "Project email quota usage for the remainder of the billing period based on the current send rate.",
-        "Send analytics",
-        "mm stats",
-        "Display send/receive analytics for the current billing period from the /v1/usage endpoint.",
-        "Offline email search",
-        "mm search",
-        "Full-text search across locally synced emails by subject, sender, or body content without making API calls.",
-        "Incremental sync",
-        "mm sync",
-        "Pull new and updated emails from the API into the local SQLite cache using cursor-based pagination."
+        "trust status",
+        "Fleet-wide view of each mailbox's oversight mode, time-at-level, and upgrade eligibility.",
+        "Trust timeline",
+        "Per-mailbox chronological history of every oversight mode change with timestamps and who triggered it.",
+        "Send and wait",
+        "emails send-and-wait",
+        "Send an email and block until a reply arrives or timeout — the agent test loop in one command.",
+        "Allowlist coverage",
+        "mailboxes allowlist coverage",
+        "See what percentage of recent recipients are covered by allowlist patterns vs gated.",
+        "Inbox health",
+        "Per-mailbox health snapshot: unread count, oldest unread age, reply rate, and thread depth.",
+        "Stale thread detection",
+        "threads stale",
+        "List conversation threads with no reply in N days — surfaces dropped conversations.",
+        "Compliance snapshot",
+        "audit compliance",
+        "Cross-entity compliance report: oversight bypass count, approval/rejection counts, decision latency percentiles per mailbox.",
+        "Webhook health",
+        "webhooks health",
+        "Per-webhook success rate, failure count, last delivery timestamp, and consecutive failure streak."
       ],
       "path": "library/social-and-messaging/multimail",
       "printer": "H179922",
@@ -5621,9 +5727,10 @@
       "mcp": {
         "binary": "multimail-pp-mcp",
         "transports": [
-          "stdio"
+          "stdio",
+          "http"
         ],
-        "tool_count": 77,
+        "tool_count": 86,
         "public_tool_count": 0,
         "auth_type": "bearer_token",
         "env_vars": [
@@ -6073,6 +6180,57 @@
         "env_vars": [],
         "mcp_ready": "full",
         "spec_format": "openapi3"
+      }
+    },
+    {
+      "name": "offerup",
+      "category": "commerce",
+      "api": "OfferUp",
+      "description": "Search local OfferUp listings from your terminal, keep them in a local database",
+      "search_terms": [
+        "offerup",
+        "offerup-pp-cli",
+        "Search local OfferUp listings from your terminal, keep them in a local database, and spot underpriced deals before anyone else — no login and no paid key for the things that matter most.",
+        "The real going rate",
+        "price-check",
+        "See the real going rate for an item in your area — median, 25th/75th percentile, min, max, and the firm-vs-negotiable split — computed across every listing you've pulled.",
+        "Spot the underpriced finds",
+        "deals",
+        "Surface listings priced a chosen percentage below the local median for that item — the underpriced finds, ranked by how far under they are.",
+        "What's new since you looked",
+        "new-since",
+        "Show only the listings that appeared since a cutoff for a saved search, so you never re-scan items you already saw.",
+        "Catch price drops",
+        "price-drops",
+        "Detect listings whose price fell between syncs — the same item, now cheaper — sorted by the size of the drop.",
+        "Size up a seller",
+        "seller-scan",
+        "Pull a seller's full synced inventory alongside their reputation badges (business/dealer/TruYou), join date, and the median asking price across their listings.",
+        "Daily deal briefing",
+        "digest",
+        "A single composite report for a saved search combining what's new, what dropped in price, and what's underpriced."
+      ],
+      "path": "library/commerce/offerup",
+      "printer": "tmchow",
+      "printer_name": "Trevin Chow",
+      "creator": {
+        "handle": "tmchow",
+        "name": "Trevin Chow"
+      },
+      "mcp": {
+        "binary": "offerup-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 2,
+        "public_tool_count": 2,
+        "auth_type": "cookie",
+        "env_vars": [
+          "OFFERUP_COOKIE"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "internal"
       }
     },
     {
@@ -9092,11 +9250,11 @@
       "name": "substack",
       "category": "media-and-entertainment",
       "api": "Substack",
-      "description": "Run your Substack growth loop from the command line — publish, schedule, engage, and measure with cross-table...",
+      "description": "Run your Substack growth loop from the command line — publish, schedule, engage",
       "search_terms": [
         "substack",
         "substack-pp-cli",
-        "Run your Substack growth loop from the terminal — publish, schedule, engage, and measure with cross-table joins no single Substack API call can.",
+        "Run your Substack growth loop from the command line — publish, schedule, engage, and measure with cross-table joins no single Substack API call can.",
         "Note-to-subscriber attribution ledger",
         "growth attribution",
         "Connect every Note you posted to the paid and free subscribers that actually arrived in the 24-hour window after, so you stop guessing which content drove growth.",
@@ -9119,7 +9277,30 @@
         "growth pod",
         "Given a list of handles, render a member × member engagement matrix — last 30 days of restacks/comments/likes between every pair.",
         "Voice fingerprint",
-        "Measurable voice profile — sentence length, em-dash rate, colon-hook rate, hook-line ratios, vocabulary uniqueness — for any handle, with --diff to compare against another writer."
+        "Measurable voice profile — sentence length, em-dash rate, colon-hook rate, hook-line ratios, vocabulary uniqueness — for any handle, with --diff to compare against another writer.",
+        "Portfolio Dashboard",
+        "portfolio",
+        "One-screen status of every publication you own: subscriber count, paid count, last-published-at, drafts pending, next scheduled. No tab-switching, no CSV exports.",
+        "Cross-Publication Twin",
+        "posts twin",
+        "Duplicate a published post into another publication you own as a draft. Preserves paywall markers, sections, and re-uploads images to the target publication's CDN.",
+        "Subscriber Churn Diff",
+        "subs churn",
+        "Diff two SQLite snapshots of your subscriber list: who newly subscribed, who unsubscribed, who upgraded free->paid, who downgraded paid->free, since a chosen window.",
+        "Cross-Sell Candidates",
+        "subs cross-sell",
+        "SQL join across your publications' subscriber lists: emails paid on one publication but free or absent on the others, sorted by paid-publication coverage. The cross-sell list Substack does not ship.",
+        "Best Posts Cross-Publication",
+        "posts best",
+        "Rank posts by views, likes, comments, or restacks within a window. Optionally aggregate across every publication you own to find your overall top performer.",
+        "Bilingual Pair Tracker",
+        "posts pairs",
+        "Record EN<->DE post pairings in a local table. 'posts pair <en> <de>' adds; 'posts pairs --missing' lists posts in one language with no recorded twin in the other.",
+        "Full-Text Grep",
+        "grep",
+        "FTS5 over post bodies + Notes + comments, ranked by bm25, returning snippets and source URLs. Optional scope (posts/notes/comments/all), publication, and since filter.",
+        "Schedule Board",
+        "ASCII calendar of the next 30 days showing scheduled posts across every publication you own. Multi-pub editorial overview in one screen."
       ],
       "path": "library/media-and-entertainment/substack",
       "printer": "chirantan",
@@ -9128,6 +9309,16 @@
         "handle": "chirantan",
         "name": "Chirantan Rajhans"
       },
+      "contributors": [
+        {
+          "handle": "JPresting",
+          "name": "JimPresting"
+        },
+        {
+          "handle": "tmchow",
+          "name": "Trevin Chow"
+        }
+      ],
       "mcp": {
         "binary": "substack-pp-mcp",
         "transports": [
@@ -9143,87 +9334,32 @@
       }
     },
     {
-      "name": "substack-creator",
-      "category": "media-and-entertainment",
-      "api": "Substack Creator",
-      "description": "Manage Substack posts, drafts, subscribers, notes, comments, and cross-publication analytics from a local SQLite cache.",
-      "search_terms": [
-        "substack-creator",
-        "Substack Creator",
-        "substack-creator-pp-cli",
-        "Manage Substack posts, drafts, subscribers, notes, comments, and cross-publication analytics from a local SQLite cache.",
-        "Portfolio Dashboard",
-        "portfolio",
-        "One-screen status of every publication you own: subscriber count, paid count, last-published-at, drafts pending, next scheduled. No tab-switching, no CSV exports.",
-        "Cross-Publication Twin",
-        "posts twin",
-        "Duplicate a published post into another publication you own as a draft. Preserves paywall markers, sections, and re-uploads images to the target publication's CDN.",
-        "Subscriber Churn Diff",
-        "subscribers churn",
-        "Diff two SQLite snapshots of your subscriber list: who newly subscribed, who unsubscribed, who upgraded free->paid, who downgraded paid->free, since a chosen window.",
-        "Cross-Sell Candidates",
-        "subscribers cross-sell",
-        "SQL join across your publications' subscriber lists: emails paid on one publication but free or absent on the others, sorted by paid-publication coverage. The cross-sell list Substack does not ship.",
-        "Best Posts Cross-Publication",
-        "posts best",
-        "Rank posts by views, likes, comments, or restacks within a window. Optionally aggregate across every publication you own to find your overall top performer.",
-        "Bilingual Pair Tracker",
-        "posts pairs",
-        "Record EN<->DE post pairings in a local table. 'posts pair <en> <de>' adds; 'posts pairs --missing' lists posts in one language with no recorded twin in the other.",
-        "Full-Text Grep",
-        "grep",
-        "FTS5 over post bodies + Notes + comments, ranked by bm25, returning snippets and source URLs. Optional scope (posts/notes/comments/all), publication, and since filter.",
-        "Schedule Board",
-        "ASCII calendar of the next 30 days showing scheduled posts across every publication you own. Multi-pub editorial overview in one screen."
-      ],
-      "path": "library/media-and-entertainment/substack-creator",
-      "printer": "JPresting",
-      "printer_name": "JimPresting",
-      "creator": {
-        "handle": "JPresting",
-        "name": "JimPresting"
-      }
-    },
-    {
       "name": "suno",
       "category": "media-and-entertainment",
       "api": "Suno",
-      "description": "Every Suno feature, plus a local SQLite library, offline FTS5 search, MCP-native agent surface, and a single-binary...",
+      "description": "The correct, offline-first Suno CLI — every feature the abandoned clients have, plus a local SQLite library",
       "search_terms": [
         "suno",
         "suno-pp-cli",
-        "Every Suno feature, plus a local SQLite library, offline FTS5 search, MCP-native agent surface, and a single-binary Go install.",
-        "Vibe recipes",
-        "vibes",
-        "Save prompt + tag + persona + model bundles as named recipes and replay them with one-line topic substitution.",
-        "A/B variant auto-picker",
-        "generate create",
-        "Suno returns two clip variants per generation; this auto-ranks them on duration match, lyrics-word-count, and bitrate, downloads only the winner.",
-        "Credit burn analytics",
-        "burn",
-        "Cross-table aggregation showing credits spent by tag, persona, model, or hour-of-day over a window.",
-        "Persona leaderboard",
-        "Ranks the user's voice personas by which produced the most-liked, most-played, or most-extended clips.",
-        "Lineage tree",
-        "tree",
-        "Walks parent_id and direct_children recursively to render the ASCII tree of an extend/concat/cover/remaster ancestry.",
-        "Reachability self-test",
-        "doctor",
-        "Beyond standard health checks: fires a zero-credit lyrics-only generation to confirm the live generate path is reachable and not intercepted by CAPTCHA.",
-        "Credit-budget guard",
-        "budget",
-        "Sets a daily or monthly credit cap; generate refuses to submit when the projected spend would exceed the cap.",
-        "Prompt evolution",
-        "generate evolve",
-        "Takes an existing clip's full parameter bundle and mutates one axis (tag, persona, model) for a focused re-roll.",
-        "Ship pack",
-        "ship",
-        "One-shot publishing bundle: MP3 with ID3+USLT+SYLT, MP4, cover PNG, LRC subtitle, JSON sidecar of metadata.",
-        "Reroll until match",
-        "Resubmits a prompt until a returned variant lands in the requested duration window or attempts run out.",
-        "Sessionized history",
-        "sessions",
-        "Groups recent generations into ~30-minute-gap sessions and reports per-session credit spend, persona usage, and tag drift."
+        "The correct, offline-first Suno CLI — every feature the abandoned clients have, plus a local SQLite library, full-text search, and agent-native output none of them ship.",
+        "Lyric-line grep",
+        "grep",
+        "Find clips by remembered lyric, prompt, or tag phrases via local full-text search.",
+        "Library analytics",
+        "analytics",
+        "Grouped roll-ups across your whole library: counts, average duration/bpm, total plays and upvotes by any clip field.",
+        "Variation lineage",
+        "lineage",
+        "Render the iteration tree of a track: its extends, covers, and remixes, reconstructed from local links.",
+        "Top tracks",
+        "top",
+        "Ranked flat list of your best clips by plays, upvotes, or duration, with machine-readable output.",
+        "Raw SQL",
+        "sql",
+        "Run read-only SQL directly against your local synced clip store.",
+        "Credit throttle report",
+        "credits --forecast",
+        "Remaining credits plus your recent generation volume measured against Suno's captcha-throttle threshold."
       ],
       "path": "library/media-and-entertainment/suno",
       "printer": "mvanhorn",
@@ -9232,19 +9368,26 @@
         "handle": "mvanhorn",
         "name": "Matt Van Horn"
       },
+      "contributors": [
+        {
+          "handle": "horknfbr",
+          "name": "Scott Macdonald"
+        }
+      ],
       "mcp": {
         "binary": "suno-pp-mcp",
         "transports": [
           "stdio",
           "http"
         ],
-        "tool_count": 31,
+        "tool_count": 37,
         "public_tool_count": 0,
-        "auth_type": "composed",
+        "auth_type": "bearer_token",
         "env_vars": [
-          "SUNO_TOKEN"
+          "SUNO_TOKEN",
+          "SUNO_JWT"
         ],
-        "mcp_ready": "partial",
+        "mcp_ready": "full",
         "spec_format": "internal"
       }
     },
@@ -9715,6 +9858,55 @@
         "auth_type": "api_key",
         "env_vars": [
           "TICKETMASTER_API_KEY"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
+      }
+    },
+    {
+      "name": "tidycal",
+      "category": "productivity",
+      "api": "TidyCal",
+      "description": "TidyCal's REST API provides a handful of endpoints which can be used to get information about your account and bookings.",
+      "search_terms": [
+        "tidycal",
+        "tidycal-pp-cli",
+        "Scheduling and booking API for meetings, contacts, booking types, and team calendars.",
+        "Schedule brief",
+        "brief",
+        "Produce a contact-aware schedule brief for a day or date range.",
+        "Schedule triage",
+        "triage",
+        "Identify booking problems such as missing meeting URLs, duplicate contacts, off-hours bookings, cancelled bookings, and incomplete contact data.",
+        "Availability shortlist",
+        "propose-times",
+        "Fetch available TidyCal timeslots for a booking type and rank a paste-ready shortlist by date window, timezone, preference, and weekend policy.",
+        "Follow-up queue",
+        "followups",
+        "Create an AI-ready follow-up queue from recent bookings without sending messages or notifications.",
+        "Assisted booking",
+        "assisted-book",
+        "Book on behalf of a contact through an inspectable dry-run and explicit confirmation gate."
+      ],
+      "path": "library/productivity/tidycal",
+      "printer": "cathrynlavery",
+      "printer_name": "Cathryn Lavery",
+      "creator": {
+        "handle": "cathrynlavery",
+        "name": "Cathryn Lavery"
+      },
+      "mcp": {
+        "binary": "tidycal-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 18,
+        "public_tool_count": 0,
+        "auth_type": "bearer_token",
+        "env_vars": [
+          "TIDYCAL_API_TOKEN",
+          "TIDYCAL_BEARER_AUTH"
         ],
         "mcp_ready": "full",
         "spec_format": "openapi3"
@@ -10216,6 +10408,45 @@
         ],
         "mcp_ready": "full",
         "spec_format": "openapi3"
+      }
+    },
+    {
+      "name": "vestaboard",
+      "category": "devices",
+      "api": "Vestaboard",
+      "description": "Read, render",
+      "search_terms": [
+        "vestaboard",
+        "vestaboard-pp-cli",
+        "Read, render, and write your Vestaboard from the terminal — with a board preview and character-code table no other Vestaboard tool ships.",
+        "Board preview",
+        "message preview",
+        "See what's on your Vestaboard right now as readable text instead of a raw integer grid.",
+        "Character-code table",
+        "characters",
+        "Print the full Vestaboard character-code table (code to glyph) for hand-building a character-array message."
+      ],
+      "path": "library/devices/vestaboard",
+      "printer": "cathrynlavery",
+      "printer_name": "Cathryn Lavery",
+      "creator": {
+        "handle": "cathrynlavery",
+        "name": "Cathryn Lavery"
+      },
+      "mcp": {
+        "binary": "vestaboard-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 5,
+        "public_tool_count": 1,
+        "auth_type": "api_key",
+        "env_vars": [
+          "VESTABOARD_API_KEY"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "internal"
       }
     },
     {

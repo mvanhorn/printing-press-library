@@ -125,7 +125,9 @@ func emitDunningAlert(cmd *cobra.Command, flags *rootFlags, view dunningAlertVie
 }
 
 // dunningSubScanCap bounds the subscriptions scan.
-const dunningSubScanCap = 200000
+// Aligned with loadSubscriptionStatusCap (rc_helpers.go) so the same
+// subscriptions scan is truncated identically across commands.
+const dunningSubScanCap = 500000
 
 // buildDunningAlert joins recoverable-state subscriptions with their customer's
 // unpaid invoices. RevenueCat invoices carry no subscription_id (per the v2
@@ -181,12 +183,12 @@ func buildDunningAlert(db *store.Store, projectID string) (dunningAlertView, err
 		// are mirrored (invoice sync is optional).
 		if amt, ok := recoverableByCustomer[customerID]; ok && amt > 0 {
 			row.RecoverableUSD = amt
-			// Add the customer-level invoice total to the project total once.
-			if customerID == "" || !countedCustomers[customerID] {
+			// recoverableByCustomer is keyed only by non-empty customer ids
+			// (loadUnpaidInvoicesByCustomer skips empty cid), so add each
+			// customer's invoice total to the project total exactly once.
+			if !countedCustomers[customerID] {
 				view.RecoverableUSD += amt
-				if customerID != "" {
-					countedCustomers[customerID] = true
-				}
+				countedCustomers[customerID] = true
 			}
 		} else {
 			// Per-subscription fallback is unique to this row; always add it.
@@ -194,6 +196,9 @@ func buildDunningAlert(db *store.Store, projectID string) (dunningAlertView, err
 			view.RecoverableUSD += row.RecoverableUSD
 		}
 		view.Rows = append(view.Rows, row)
+	}
+	if err := rows.Err(); err != nil {
+		return view, fmt.Errorf("iterating subscriptions: %w", err)
 	}
 	if scanned >= dunningSubScanCap {
 		fmt.Fprintf(os.Stderr, "warning: dunning-alert hit the %d-subscription scan cap; recoverable subscriptions may exist beyond the window\n", dunningSubScanCap)
@@ -246,6 +251,9 @@ func loadUnpaidInvoicesByCustomer(db *store.Store) (counts map[string]int, amoun
 		}
 		counts[cid]++
 		amounts[cid] += monetaryGrossUSD(obj["total_amount"])
+	}
+	if err := rows.Err(); err != nil {
+		fmt.Fprintf(os.Stderr, "warning: iterating invoices failed (%v); dunning totals may be incomplete\n", err)
 	}
 	return counts, amounts
 }

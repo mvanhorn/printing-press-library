@@ -154,6 +154,7 @@ Highlights (not in the official API docs):
   • spend   Total shared spend broken down by category, group, or month from your synced history.
   • search   Full-text search across your entire expense history, comments, and group/friend names — offline.
   • settle-up   Compute the minimum set of transfers that zeroes out balances in a group, then optionally record the payments.
+  • net   Net what you owe and are owed across every group into the fewest direct transfers to settle your whole account.
   • activity   Show what changed since your last sync — new, edited, and deleted expenses to review.
   • split   Build and preview the exact expense split (equal, exact, percentage, or shares) before recording it.
   • recurring   Surface repeating charges (rent, utilities, subscriptions) from your synced history and flag a month missing an expected entry.
@@ -260,6 +261,7 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.AddCommand(newLedgerCmd(flags))
 	rootCmd.AddCommand(newActivityCmd(flags))
 	rootCmd.AddCommand(newSettleUpCmd(flags))
+	rootCmd.AddCommand(newNetCmd(flags))
 	rootCmd.AddCommand(newSplitCmd(flags))
 	rootCmd.AddCommand(newRecurringCmd(flags))
 	rootCmd.AddCommand(newAPICmd(flags))

@@ -17,15 +17,19 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"sort"
 	"strconv"
 	"strings"
 	"sync"
 	"time"
+	"unicode"
+	"unicode/utf8"
 
 	_ "modernc.org/sqlite"
 )
 
 var uuidPattern = regexp.MustCompile(`^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$`)
+var emailLikeRe = regexp.MustCompile(`^[^@\s]+@[^@\s]+\.[^@\s]+$`)
 
 // validIdentifierRE pins ListField's `field` argument to a safe SQL
 // identifier shape before any Sprintf interpolation. Matches what
@@ -664,13 +668,28 @@ func (s *Store) Get(resourceType, id string) (json.RawMessage, error) {
 }
 
 func (s *Store) List(resourceType string, limit int) ([]json.RawMessage, error) {
-	if limit <= 0 {
-		limit = 200
+	// PATCH(analytics-read-cap): a non-positive limit returns every synced row.
+	// Callers pass 0 meaning "all synced data" (see data_source.go and the
+	// analytics loaders in splitwise_data.go). The previous `limit = 200`
+	// default silently truncated those reads to an arbitrary ~200 of N rows,
+	// ordered by sync time, which dropped expenses from spend/debts/ledger/
+	// balances even when the local store was complete. A positive limit still
+	// caps the result for callers that genuinely want a bounded page.
+	emptyRecordExclusion := `TRIM(data, char(32)||char(9)||char(10)||char(13)) NOT IN ('', '[]', '{}', 'null')`
+	query := `SELECT data FROM resources`
+	var args []any
+	if resourceType != "" {
+		query += ` WHERE resource_type = ? AND ` + emptyRecordExclusion
+		args = append(args, resourceType)
+	} else {
+		query += ` WHERE ` + emptyRecordExclusion
 	}
-	rows, err := s.db.Query(
-		`SELECT data FROM resources WHERE resource_type = ? ORDER BY updated_at DESC LIMIT ?`,
-		resourceType, limit,
-	)
+	query += ` ORDER BY updated_at DESC`
+	if limit > 0 {
+		query += ` LIMIT ?`
+		args = append(args, limit)
+	}
+	rows, err := s.db.Query(query, args...)
 	if err != nil {
 		return nil, err
 	}
@@ -687,32 +706,212 @@ func (s *Store) List(resourceType string, limit int) ([]json.RawMessage, error) 
 	return results, rows.Err()
 }
 
-func (s *Store) Search(query string, limit int) ([]json.RawMessage, error) {
+func searchableText(data string) string {
+	var payload any
+	if err := json.Unmarshal([]byte(data), &payload); err != nil {
+		return strings.ToLower(data)
+	}
+
+	var values []string
+	var walk func(v any, key string)
+	walk = func(v any, key string) {
+		switch t := v.(type) {
+		case map[string]any:
+			for childKey, child := range t {
+				walk(child, childKey)
+			}
+		case []any:
+			for _, child := range t {
+				walk(child, "")
+			}
+		case string:
+			keyLower := strings.ToLower(strings.TrimSpace(key))
+			if strings.Contains(keyLower, "currency") {
+				return
+			}
+			if isMeaningfulSearchText(t) {
+				values = append(values, strings.ToLower(strings.TrimSpace(t)))
+			}
+		}
+	}
+	walk(payload, "")
+	return strings.Join(values, " ")
+}
+
+func isMeaningfulSearchText(s string) bool {
+	trimmed := strings.TrimSpace(s)
+	if trimmed == "" {
+		return false
+	}
+	lower := strings.ToLower(trimmed)
+	if lower == "true" || lower == "false" || lower == "null" {
+		return false
+	}
+	if strings.HasPrefix(lower, "http://") || strings.HasPrefix(lower, "https://") {
+		return false
+	}
+	if !strings.ContainsAny(trimmed, " \t\r\n") && emailLikeRe.MatchString(trimmed) {
+		return false
+	}
+	if len(trimmed) >= 5 &&
+		trimmed[0] >= '0' && trimmed[0] <= '9' &&
+		trimmed[1] >= '0' && trimmed[1] <= '9' &&
+		trimmed[2] >= '0' && trimmed[2] <= '9' &&
+		trimmed[3] >= '0' && trimmed[3] <= '9' &&
+		trimmed[4] == '-' {
+		return false
+	}
+	hasLetter := false
+	for _, r := range trimmed {
+		if unicode.IsLetter(r) {
+			hasLetter = true
+			break
+		}
+	}
+	return hasLetter
+}
+
+func searchTerms(query string) []string {
+	parts := strings.FieldsFunc(strings.ToLower(query), func(r rune) bool {
+		return !unicode.IsLetter(r) && !unicode.IsNumber(r)
+	})
+	terms := make([]string, 0, len(parts))
+	for _, part := range parts {
+		if part != "" {
+			terms = append(terms, part)
+		}
+	}
+	return terms
+}
+
+func searchLevenshtein(a, b string) int {
+	ar := []rune(a)
+	br := []rune(b)
+	if len(ar) == 0 {
+		return len(br)
+	}
+	if len(br) == 0 {
+		return len(ar)
+	}
+	prev := make([]int, len(br)+1)
+	curr := make([]int, len(br)+1)
+	for j := 0; j <= len(br); j++ {
+		prev[j] = j
+	}
+	for i := 1; i <= len(ar); i++ {
+		curr[0] = i
+		for j := 1; j <= len(br); j++ {
+			cost := 0
+			if ar[i-1] != br[j-1] {
+				cost = 1
+			}
+			del := prev[j] + 1
+			ins := curr[j-1] + 1
+			sub := prev[j-1] + cost
+			curr[j] = min(del, min(ins, sub))
+		}
+		prev, curr = curr, prev
+	}
+	return prev[len(br)]
+}
+
+func fuzzyMaxDistance(term string) int {
+	if utf8.RuneCountInString(term) <= 4 {
+		return 1
+	}
+	return 2
+}
+
+func matchTermsAgainstTokens(terms []string, tokenSet map[string]bool, tokens []string, fuzzy bool) (score int, ok bool) {
+	totalDistance := 0
+	for _, term := range terms {
+		if tokenSet[term] {
+			continue
+		}
+		if !fuzzy {
+			return 0, false
+		}
+
+		maxDistance := fuzzyMaxDistance(term)
+		best := maxDistance + 1
+		for _, token := range tokens {
+			d := searchLevenshtein(term, token)
+			if d <= maxDistance && d < best {
+				best = d
+				if best == 0 {
+					break
+				}
+			}
+		}
+		if best > maxDistance {
+			return 0, false
+		}
+		totalDistance += best
+	}
+	return totalDistance, true
+}
+
+func (s *Store) Search(query, resourceType string, limit int, fuzzy bool) ([]json.RawMessage, error) {
 	if limit <= 0 {
 		limit = 50
 	}
-	rows, err := s.db.Query(
-		`SELECT r.data FROM resources r
-		 JOIN resources_fts f ON r.id = f.id AND r.resource_type = f.resource_type
-		 WHERE resources_fts MATCH ?
-		 ORDER BY rank
-		 LIMIT ?`,
-		query, limit,
-	)
+	terms := searchTerms(query)
+	if len(terms) == 0 {
+		return []json.RawMessage{}, nil
+	}
+
+	sqlQuery := `SELECT data FROM resources`
+	var args []any
+	if resourceType != "" {
+		sqlQuery += ` WHERE resource_type = ?`
+		args = append(args, resourceType)
+	}
+	sqlQuery += ` ORDER BY updated_at DESC`
+
+	rows, err := s.db.Query(sqlQuery, args...)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	var results []json.RawMessage
+	type scoredResult struct {
+		data  json.RawMessage
+		score int
+	}
+	var scored []scoredResult
 	for rows.Next() {
 		var data string
 		if err := rows.Scan(&data); err != nil {
 			return nil, err
 		}
-		results = append(results, json.RawMessage(data))
+		content := searchableText(data)
+		tokens := searchTerms(content)
+		tokenSet := make(map[string]bool, len(tokens))
+		for _, token := range tokens {
+			tokenSet[token] = true
+		}
+
+		totalDistance, matchedAllTerms := matchTermsAgainstTokens(terms, tokenSet, tokens, fuzzy)
+		if matchedAllTerms {
+			scored = append(scored, scoredResult{
+				data:  json.RawMessage(data),
+				score: totalDistance,
+			})
+		}
 	}
-	return results, rows.Err()
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	sort.SliceStable(scored, func(i, j int) bool {
+		return scored[i].score < scored[j].score
+	})
+
+	results := make([]json.RawMessage, 0, min(limit, len(scored)))
+	for i := 0; i < len(scored) && i < limit; i++ {
+		results = append(results, scored[i].data)
+	}
+	return results, nil
 }
 
 func extractObjectID(obj map[string]any) string {

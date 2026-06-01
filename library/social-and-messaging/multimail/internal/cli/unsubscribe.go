@@ -9,8 +9,11 @@ import (
 
 func newUnsubscribeCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "unsubscribe",
-		Short: "Manage unsubscribe",
+		Use:         "unsubscribe",
+		Short:       "Get and create unsubscribe",
+		Hidden:      true,
+		Annotations: map[string]string{"mcp:read-only": "true"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newUnsubscribeCreateCmd(flags))

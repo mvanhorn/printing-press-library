@@ -9,8 +9,11 @@ import (
 
 func newBillingCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "billing",
-		Short: "Manage billing",
+		Use:         "billing",
+		Short:       "List and create billing",
+		Hidden:      true,
+		Annotations: map[string]string{"mcp:read-only": "true"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newBillingCreateCmd(flags))

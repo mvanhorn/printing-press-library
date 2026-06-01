@@ -78,12 +78,21 @@ func Load(configPath string) (*Config, error) {
 	// GraphQL path against the matching env var. Populated even when values
 	// are empty so the client's buildURL helper can issue an actionable
 	// "export FOO_BAR=..." error instead of silently sending a request to a
-	// URL with literal "{shop}" in it.
+	// URL with literal "{shop}" in it. Under PRINTING_PRESS_VERIFY=1 (set by
+	// the printing-press verifier in every mock subprocess), an unset
+	// template var falls through to "<name>_placeholder" so dry-run legs
+	// reach Cobra instead of hitting buildURL's actionable error first.
+	// Placeholders with a spec-declared default (server-URL variables) skip
+	// the verify branch; the default is a real value that lets verify probe
+	// a real-shaped URL.
 	if cfg.TemplateVars == nil {
 		cfg.TemplateVars = map[string]string{}
 	}
-	if v := os.Getenv("SUBSTACK_PUBLICATION"); v != "" {
+	verifyMode := os.Getenv("PRINTING_PRESS_VERIFY") == "1"
+	if v := strings.TrimSpace(os.Getenv("SUBSTACK_PUBLICATION")); validPublicationLabel(v) {
 		cfg.TemplateVars["publication"] = v
+	} else if verifyMode {
+		cfg.TemplateVars["publication"] = "publication_placeholder"
 	}
 	return cfg, nil
 }
@@ -94,8 +103,10 @@ func (c *Config) AuthHeader() string {
 	}
 	// Env-var token wins over file-stored AccessToken (env > config convention).
 	if c.AccessToken != "" {
-		c.AuthSource = "browser"
-		return c.AccessToken
+		if c.AuthSource == "" {
+			c.AuthSource = "browser"
+		}
+		return ensureAuthScheme("Bearer", c.AccessToken)
 	}
 	return ""
 }
@@ -113,6 +124,24 @@ func applyAuthFormat(format string, replacements map[string]string) string {
 	return format
 }
 
+// ensureAuthScheme returns "<scheme> <token>" but skips the prefix when the
+// token already carries it case-insensitively, so a user who exports the
+// env var with the scheme already attached doesn't end up double-prefixed.
+// Empty scheme returns the token as-is.
+func ensureAuthScheme(scheme, token string) string {
+	if token == "" {
+		return ""
+	}
+	if scheme == "" {
+		return token
+	}
+	schemeWithSpace := scheme + " "
+	if len(token) >= len(schemeWithSpace) && strings.EqualFold(token[:len(schemeWithSpace)], schemeWithSpace) {
+		return token
+	}
+	return schemeWithSpace + token
+}
+
 func (c *Config) SaveTokens(clientID, clientSecret, accessToken, refreshToken string, expiry time.Time) error {
 	c.ClientID = clientID
 	c.ClientSecret = clientSecret
@@ -123,9 +152,18 @@ func (c *Config) SaveTokens(clientID, clientSecret, accessToken, refreshToken st
 }
 
 func (c *Config) ClearTokens() error {
+	// AuthHeader() falls back to the env-var-derived fields when AuthHeaderVal
+	// and AccessToken are empty, so dropping the working credential requires
+	// zeroing every emitted credential field, not just the OAuth trio.
+	// ClientID/ClientSecret persist to disk via SaveTokens for the oauth2
+	// and oauth2-cc flows, so logout must wipe them too; otherwise
+	// `auth login` can re-mint a new access token unattended.
+	c.AuthHeaderVal = ""
 	c.AccessToken = ""
 	c.RefreshToken = ""
 	c.TokenExpiry = time.Time{}
+	c.ClientID = ""
+	c.ClientSecret = ""
 	return c.save()
 }
 

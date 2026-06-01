@@ -1,6 +1,6 @@
 ---
 name: pp-suno
-description: "Every Suno feature, plus a local SQLite library, offline FTS5 search, MCP-native agent surface, and a single-binary... Trigger phrases: `generate a song`, `make me a track`, `suno that`, `extend this song`, `find my synthwave clips`, `how many credits have I burned`, `use suno`, `run suno`."
+description: "The correct, offline-first Suno CLI — every feature the abandoned clients have, plus a local SQLite library Trigger phrases: `generate a song with suno`, `make music with suno`, `search my suno library`, `download my suno tracks`, `download a wav from suno`, `organize my suno tracks into a workspace`, `what are my top suno songs`, `use suno`, `run suno`."
 author: "Matt Van Horn"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"
@@ -10,6 +10,10 @@ metadata:
     requires:
       bins:
         - suno-pp-cli
+    install:
+      - kind: go
+        bins: [suno-pp-cli]
+        module: github.com/mvanhorn/printing-press-library/library/media-and-entertainment/suno/cmd/suno-pp-cli
 ---
 <!-- GENERATED FILE — DO NOT EDIT.
      This file is a verbatim mirror of library/media-and-entertainment/suno/SKILL.md,
@@ -38,168 +42,141 @@ go install github.com/mvanhorn/printing-press-library/library/media-and-entertai
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
 
+Suno has no official API and every reverse-engineered client is abandoned and wrong in ways that matter today — broken pagination, broken cover, stale pre-2026 auth, no local persistence. This CLI is built from the current contract: it walks the real opaque feed cursor, sends the now-required cover title, tolerates the drifted billing schema, authenticates against the current auth.suno.com Clerk flow via your logged-in browser, and persists your whole library to local SQLite for offline grep, SQL, lineage, and analytics. Generate, extend, cover, remaster, stems, lyrics, download — all with --json, --select, --dry-run, and typed exit codes.
+
 ## When to Use This CLI
 
-Reach for suno-pp-cli when you need agent-controlled music generation against your real Suno account: producing background music for video, building music-aware workflows, exploring prompt evolutions, analyzing your credit burn by tag, or running an MCP-served music tool that any LLM-driven host can call. Skip it when you only need one-off song generation - the suno.com web UI is faster for single tracks. Skip it when you need to access someone else's Suno library; the CLI authenticates as the logged-in user only.
+Use this CLI when an agent or script needs to generate Suno music programmatically, manage and search a personal Suno library offline, or run reproducible generate/poll/download pipelines with typed exit codes and JSON output. It is the right choice over the abandoned community wrappers because it tracks the current Suno contract and persists everything locally.
 
 ## Unique Capabilities
 
 These capabilities aren't available in any other tool for this API.
 
-### Local state that compounds
-- **`vibes`** — Save prompt + tag + persona + model bundles as named recipes and replay them with one-line topic substitution.
+### Local library no Suno tool has
+- **`grep`** — Find clips by remembered lyric, prompt, or tag phrases via local full-text search.
 
-  _When an agent needs the same vibe applied to many topics, this beats re-pasting tags every call._
-
-  ```bash
-  suno vibes use synthwave-banger debugging-at-3am --json
-  ```
-- **`burn`** — Cross-table aggregation showing credits spent by tag, persona, model, or hour-of-day over a window.
-
-  _Agents asking "how much did we spend on test runs today?" need this; existing wrappers cannot answer._
+  _Reach for this when an agent needs to locate a specific past song by its content, not its title._
 
   ```bash
-  suno burn --by tag --since 30d --json --select tag,credits,count
+  suno-pp-cli grep "rain" --json --select id,title,tags
   ```
-- **`persona leaderboard`** — Ranks the user's voice personas by which produced the most-liked, most-played, or most-extended clips.
+- **`analytics`** — Grouped roll-ups across your whole library: counts, average duration/bpm, total plays and upvotes by any clip field.
 
-  _Tells the user which voice has been working for them so they invest credits in winners, not duds._
+  _Use this to see which models or settings produced your most-played tracks before the next session._
 
   ```bash
-  suno persona leaderboard --by likes --since 90d --json
+  suno-pp-cli analytics --type clips --group-by model_name --json
   ```
-- **`sessions`** — Groups recent generations into ~30-minute-gap sessions and reports per-session credit spend, persona usage, and tag drift.
+- **`lineage`** — Render the iteration tree of a track: its extends, covers, and remixes, reconstructed from local links.
 
-  _Agents and humans alike can ask "what did I work on last Tuesday afternoon?" against their library._
+  _Reach for this to trace which seed a finished song descended from across many variations._
 
   ```bash
-  suno sessions --today --json
+  suno-pp-cli lineage 7d869de4-9476-4a4d-a6f2-c0eec968a3e2 --json
   ```
+- **`top`** — Ranked flat list of your best clips by plays, upvotes, or duration, with machine-readable output.
 
-### Suno-specific dual-variant pattern
-- **`generate create`** — Suno returns two clip variants per generation; this auto-ranks them on duration match, lyrics-word-count, and bitrate, downloads only the winner.
-
-  _Half of Suno's credit spend goes to the variant you ignore; agents that pick mechanically reclaim it._
+  _Use this to pipe your strongest tracks into a publishing or playlist workflow._
 
   ```bash
-  suno generate create --gpt-description-prompt "30 second piano interlude" --pick best --target-duration 30 --json
+  suno-pp-cli top --by upvote_count --limit 10 --json
   ```
-- **`tree`** — Walks parent_id and direct_children recursively to render the ASCII tree of an extend/concat/cover/remaster ancestry.
+- **`sql`** — Run read-only SQL directly against your local synced clip store.
 
-  _Find the head of a remix chain, see every variant of a song concept in one view._
+  _Reach for this when an agent needs an arbitrary query no fixed command covers._
 
   ```bash
-  suno tree <clip-id>
+  suno-pp-cli sql "SELECT title, duration FROM clips WHERE make_instrumental = 1 ORDER BY duration DESC LIMIT 5" --json
   ```
-- **`generate evolve`** — Takes an existing clip's full parameter bundle and mutates one axis (tag, persona, model) for a focused re-roll.
 
-  _Casey's tweak-and-reroll ritual becomes one command instead of three clicks._
+### Reachability awareness
+- **`credits --forecast`** — Remaining credits plus your recent generation volume measured against Suno's captcha-throttle threshold.
+
+  _Use this before a batch session to judge how many more generations you can run before hCaptcha kicks in._
 
   ```bash
-  suno generate evolve 6b055eee-3b1c-4a74-9aa9-1f16c0818fba --mutate tags+1 --tags-add reverb
+  suno-pp-cli credits --forecast --json
   ```
-- **`generate create`** — Resubmits a prompt until a returned variant lands in the requested duration window or attempts run out.
-
-  _Mechanically achieves what manual re-clicking does in the web app, with budget enforcement._
-
-  ```bash
-  suno generate create --gpt-description-prompt "upbeat 30s" --until-duration 30-45 --max-attempts 5 --max-spend 50
-  ```
-
-### Reachability mitigation
-- **`doctor`** — Beyond standard health checks: fires a zero-credit lyrics-only generation to confirm the live generate path is reachable and not intercepted by CAPTCHA.
-
-  _Agents running scheduled music tasks must distinguish 'auth expired' from 'Suno offline'; this is the only tool that does it._
-
-  ```bash
-  suno doctor --probe-generate --json
-  ```
-- **`budget`** — Sets a daily or monthly credit cap; generate refuses to submit when the projected spend would exceed the cap.
-
-  _Prevents an agent in a runaway loop from burning the user's whole quota._
-
-  ```bash
-  suno budget set monthly 1500 && suno generate "..." --max-spend 50
-  ```
-
-### Agent-native plumbing
-- **`ship`** — One-shot publishing bundle: MP3 with ID3+USLT+SYLT, MP4, cover PNG, LRC subtitle, JSON sidecar of metadata.
-
-  _Content creator prepping a CapCut import needs every artifact at once; one command versus a download chain._
-
-  ```bash
-  suno ship 9baa5d3c-02fb-466d-80f9-a4edfc9f0a65 --to ./vid-2026-05-14/
-  ```
-
-## HTTP Transport
-
-This CLI uses Chrome-compatible HTTP transport for browser-facing endpoints. It does not require a resident browser process for normal API calls.
-
-## Discovery Signals
-
-This CLI was generated with browser-observed traffic context.
-- Capture coverage: 27 API entries from 27 total network entries
-- Protocols: rest_json (75% confidence)
-- Generation hints: requires_protected_client
-- Candidate command ideas: create_check — Derived from observed POST /api/c/check traffic.; create_feed — Derived from observed POST /api/feed/v3 traffic.; create_v2_web — Derived from observed POST /api/generate/v2-web/ traffic.; get_attribution — Derived from observed GET /api/clips/{uuid}/attribution traffic.; get_comments — Derived from observed GET /api/gen/{uuid}/comments traffic.; list_badge_count — Derived from observed GET /api/notification/v2/badge-count traffic.; list_direct_children_count — Derived from observed GET /api/clips/direct_children_count traffic.; list_forked_onboarding — Derived from observed GET /api/statsig/experiment/forked-onboarding traffic.
-- Caveats: error_status_cluster: Endpoint cluster only observed error HTTP statuses.
 
 ## Command Reference
 
-**billing** — Credits, plans, billing info
+**billing** — Account credits, plan, and available models
 
-- `suno-pp-cli billing eligible_discounts` — List discounts the account is eligible for
-- `suno-pp-cli billing get` — Account credits, plan tier, renewal date
-- `suno-pp-cli billing usage_plan` — Plan comparison table
-- `suno-pp-cli billing usage_plan_faq` — Plan FAQ
+- `suno-pp-cli billing` — Show credits, plan, and models
+- `suno-pp-cli billing eligible-discounts` — Show discounts you're eligible for
+- `suno-pp-cli billing usage-plan` — Show the plan comparison table
+- `suno-pp-cli billing usage-plan-faq` — Show plan/usage FAQ
 
-**clips** — User's generated songs (clips). Each clip is one song variation.
+**clips** — Your Suno songs (clips) — list, fetch, manage
 
-- `suno-pp-cli clips aligned_lyrics` — Word-aligned lyrics with timestamps (LRC-compatible)
-- `suno-pp-cli clips attribution` — Get attribution info (who generated, when, lineage)
-- `suno-pp-cli clips comments` — Comments on a clip
-- `suno-pp-cli clips delete` — Move clips to trash
-- `suno-pp-cli clips direct_children_count` — Count of direct child clips (extends/covers)
-- `suno-pp-cli clips edit` — Edit clip metadata (title, tags, lyrics)
-- `suno-pp-cli clips get` — Get a single clip by ID
-- `suno-pp-cli clips list` — List clips in the user's library (paginated feed)
-- `suno-pp-cli clips parent` — Get the parent clip (for extends/covers/remixes)
-- `suno-pp-cli clips set_visibility` — Set clip visibility (public/private/unlisted)
-- `suno-pp-cli clips similar` — Get similar clips by ID
+- `suno-pp-cli clips list` — List your library (walks the opaque next_cursor; use --all to drain). Shows a `workspace` column from the local membership index.
+- `suno-pp-cli clips get` — Fetch clip(s) by ID (comma-separated; Suno batches 2 at a time)
+- `suno-pp-cli clips set <clip_id>` — Update a clip's title, caption, or lyrics
+- `suno-pp-cli clips publish <clip_id>` — Toggle a clip public or private
+- `suno-pp-cli clips delete <clip_id>…` — Trash (or, with `--undo`, restore) one or more clips
+- `suno-pp-cli clips timed-lyrics <clip_id>` — Word-level timestamped lyrics for a clip
+- `suno-pp-cli clips stems <clip_id>` — Separate a clip into stems (vocals + instruments)
+- `suno-pp-cli clips convert-wav <clip_id>` — Trigger WAV (lossless) conversion (Pro/Premier); poll wav-url
+- `suno-pp-cli clips wav-url <clip_id>` — Get the WAV download URL (null until conversion finishes)
+- `suno-pp-cli clips attribution <clip_id>` — Show a clip's sample/attribution info
+- `suno-pp-cli clips comments <clip_id>` — List comments on a clip
+- `suno-pp-cli clips parent <clip_id>` — Show a clip's parent (the clip it was derived from)
+- `suno-pp-cli clips similar <clip_id>` — Find clips similar to a given clip
+- `suno-pp-cli clips direct-children-count <clip_ids>` — Count direct children (extends/covers)
 
-**custom_model** — Custom model training (Suno Pro feature)
+**generate** — Music, lyrics, and video generation jobs
 
-- `suno-pp-cli custom_model` — List pending custom-model training jobs
+- `suno-pp-cli generate create` — Generate a custom song from lyrics (captcha-gated). `--variation high|normal|subtle`, `--project <id>`.
+- `suno-pp-cli generate describe` — Description-driven (inspiration) generation. `--variation`, `--instrumental`.
+- `suno-pp-cli generate extend <clip_id>` — Extend a clip from a timestamp
+- `suno-pp-cli generate cover <clip_id>` — Cover / restyle a clip
+- `suno-pp-cli generate remaster <clip_id>` — Remaster a clip
+- `suno-pp-cli generate concat` — Finalize/concatenate an extended clip into a full song
+- `suno-pp-cli generate lyrics` — Submit a lyrics-generation job (returns an id to poll)
+- `suno-pp-cli generate lyrics-status <id>` — Poll a lyrics-generation job by id
+- `suno-pp-cli generate video-status <id>` — Check video-generation status for a clip
 
-**generate** — Music generation (create new songs, extend, cover, remix)
+**persona** — Voice personas
 
-- `suno-pp-cli generate concat` — Concatenate clip extensions into a single song
-- `suno-pp-cli generate create` — Generate a new song from a description or custom lyrics
-- `suno-pp-cli generate lyrics` — Generate lyrics from a prompt (free, no credits)
-- `suno-pp-cli generate lyrics_status` — Poll lyrics generation status
-- `suno-pp-cli generate video_status` — Poll video render status for a clip
+- `suno-pp-cli persona get <persona_id>` — View a voice persona
+- `suno-pp-cli persona usage` — Show how many clips use each persona (and which are orphans)
 
-**notification** — User notifications
+**project** — Workspaces (Suno 'projects') — organize your tracks into collections
 
-- `suno-pp-cli notification badge_count` — Unread notification count
-- `suno-pp-cli notification list` — List notifications
+- `suno-pp-cli project list` — List your workspaces
+- `suno-pp-cli project get <project_id>` — Show a workspace and its clips
+- `suno-pp-cli project create` — Create a new workspace
+- `suno-pp-cli project rename <project_id>` — Rename a workspace
+- `suno-pp-cli project trash` — Trash (or restore) a workspace
+- `suno-pp-cli project default` — Show your default workspace
+- `suno-pp-cli project pinned-clips` — List clips pinned to your default workspace
+- `suno-pp-cli project add <project_id>` — Add clip(s) to a workspace (repeatable `--clip`)
+- `suno-pp-cli project remove <project_id>` — Remove clip(s) from a workspace (repeatable `--clip`)
 
-**persona** — Voice personas (saved voice characteristics)
+**playlist / trending / user / notification** — library and account reads
 
-- `suno-pp-cli persona get` — Get persona by ID with linked clips
-- `suno-pp-cli persona list` — List user's personas
+- `suno-pp-cli playlist list` — List your playlists
+- `suno-pp-cli trending list` — Show trending clips
+- `suno-pp-cli user config` — Show your user config
+- `suno-pp-cli user personalization` — Show your personalization settings
+- `suno-pp-cli user personalization-memory` — Show your personalization memory
+- `suno-pp-cli notification list` — List your notifications
+- `suno-pp-cli notification badge-count` — Show unread notification badge count
 
-**project** — Workspaces (default workspace is auto-created)
+**skill** — Install the Suno CLI as a coding-agent skill
 
-- `suno-pp-cli project default` — Default workspace details
-- `suno-pp-cli project me` — User's project memberships
-- `suno-pp-cli project pinned_clips` — Pinned clips in default workspace
+- `suno-pp-cli skill install` — Write this SKILL into Claude/Codex/Cursor locations. `--agent claude|codex|cursor|all`, `--print`, `--path <file>`, `--force`.
 
-**user** — User profile and settings
+**Restored local & utility commands** — parity with the 2026-05-15 build; these coexist with the novel commands above
 
-- `suno-pp-cli user config` — User config (feature flags, plan tier, preferences)
-- `suno-pp-cli user personalization` — Personalization settings
-- `suno-pp-cli user personalization_memory` — Personalization memory entries
+- `suno-pp-cli vibes save <name>` — Save a local generation recipe (tags/prompt-template/persona/mv); replay with `vibes use <name> [topic]`. Also `vibes list|get|delete`.
+- `suno-pp-cli burn --by tag|persona|model|hour` — Aggregate estimated generation credits across your local library
+- `suno-pp-cli budget set daily|monthly <N>` — Set a local credit cap; `budget show` reports spend; caps block over-limit `generate` calls. `budget clear` removes the cap.
+- `suno-pp-cli sessions` — Group synced clips into 30-minute-gap working sessions
+- `suno-pp-cli ship <clip-id>` — Export an editor-ready bundle (audio + video + cover + `.lrc` + `.json` sidecar)
+- `suno-pp-cli tail <resource> --interval 10s` — Poll the API and stream changes as NDJSON
+- `suno-pp-cli tree <clip-id>` — Render a clip's local lineage tree (legacy view; see also `lineage`)
+- `suno-pp-cli custom-model` — List pending custom-model training jobs
 
 
 ### Finding the right command
@@ -214,50 +191,57 @@ suno-pp-cli which "<capability in your own words>"
 
 ## Recipes
 
-
-### Generate a song and ship it ready for CapCut
-
-```bash
-suno generate "upbeat lo-fi for product demo" --pick best --wait --json --select id | xargs -I% suno ship % --to ./demo-bgm/
-```
-
-Generates, waits for completion, picks the winning variant, then bundles MP3+MP4+cover+LRC+JSON into a directory ready for video editor import.
-
-### Save and reuse a vibe recipe
+### Generate a custom song and wait for it
 
 ```bash
-suno vibes save synthwave-banger --tags "synthwave, female vocal, melancholic" --mv chirp-v5 --persona-id <id> && suno vibes use synthwave-banger "another rainy night" --json
+suno-pp-cli generate create --title "Night Drive" --tags "synthwave, retro" --lyrics "Neon lights on wet asphalt" --token hc_demo_token --wait --json
 ```
 
-Persists the recipe to local SQLite; future invocations swap in any topic without remembering the tag list.
+Submits a custom generation, polls until complete, and prints the finished clip as JSON. Replace the token with a real hCaptcha token.
 
-### Audit credit spend by tag for the last month
+### Pull a deeply nested clip and select only what you need
 
 ```bash
-suno burn --by tag --since 30d --json --select tag,credits,count,first_at,last_at
+suno-pp-cli clips get --ids 7d869de4-9476-4a4d-a6f2-c0eec968a3e2 --agent --select id,title,status,audio_url,metadata.duration,metadata.tags
 ```
 
-Joins local credits_snapshots against generations; uses dotted-path select to keep the agent's context small.
+Fetches a clip and narrows the verbose nested payload to just the fields an agent needs, saving context.
 
-### Find the lineage of a remix
+### Find and rank instrumentals offline
 
 ```bash
-suno tree 9baa5d3c-02fb-466d-80f9-a4edfc9f0a65 --json
+suno-pp-cli sql "SELECT title, duration FROM clips WHERE make_instrumental = 1 ORDER BY duration DESC LIMIT 5" --json
 ```
 
-Walks parent_id and direct_children to render the extend/concat/cover ancestry.
+Queries the local store directly for your longest instrumental tracks, no API call.
 
-### Reroll until a clip fits a TikTok slot
+### Check throttle headroom before a session
 
 ```bash
-suno generate "hyperpop bedroom-producer 30-45s" --until-duration 30-45 --max-attempts 5 --max-spend 50 --pick best --json
+suno-pp-cli credits --forecast --json
 ```
 
-Loops generation until a variant lands in the duration window, capped at 50 credits, picking the winner each time.
+Shows remaining credits and recent generation volume against the captcha-throttle threshold.
+
+### Organize tracks into a workspace
+
+```bash
+suno-pp-cli workspace add ws_3f2a91 --clip clip_a1b2 --clip clip_c3d4
+```
+
+Adds clips to a Suno workspace (project) so they stay organized on suno.com.
+
+### Download a lossless WAV
+
+```bash
+suno-pp-cli download clip_a1b2c3 --format wav --out ./tracks
+```
+
+Triggers WAV conversion, polls until ready, and saves the lossless file (Pro/Premier).
 
 ## Auth Setup
 
-Suno has no official API. Auth is Clerk: import your `__session` cookie from Chrome with `suno auth login --chrome` and the CLI sends `Authorization: Bearer <__session>` on every request. The CLI refreshes the JWT in the background by exchanging the longer-lived `__client` cookie against `clerk.suno.com`. If your browser session is signed in, the CLI is signed in.
+Suno uses Clerk session auth (auth.suno.com). Run `suno-pp-cli auth login --chrome` to capture your logged-in session cookie from Chrome; the CLI mints and refreshes the short-lived JWT for you. No password or API key is stored. Music generation is attempted optimistically with no token. Suno gates generation adaptively (an hCaptcha anti-bot challenge that usually fires only after sustained use), so many generations succeed outright; if Suno challenges a request, the CLI tells you to retry with `--token` carrying an hCaptcha token (e.g. solved via 2Captcha). All read, library, and metadata commands never need a captcha.
 
 Run `suno-pp-cli doctor` to verify setup.
 
@@ -299,7 +283,7 @@ suno-pp-cli feedback --stdin < notes.txt
 suno-pp-cli feedback list --json --limit 10
 ```
 
-Entries are stored locally at `~/.suno-pp-cli/feedback.jsonl`. They are never POSTed unless `SUNO_FEEDBACK_ENDPOINT` is set AND either `--send` is passed or `SUNO_FEEDBACK_AUTO_SEND=true`. Default behavior is local-only.
+Entries are stored locally at `~/.local/share/suno-pp-cli/feedback.jsonl`. They are never POSTed unless `SUNO_FEEDBACK_ENDPOINT` is set AND either `--send` is passed or `SUNO_FEEDBACK_AUTO_SEND=true`. Default behavior is local-only.
 
 Write what *surprised* you, not a bug report. Short, specific, one line: that is the part that compounds.
 
@@ -351,13 +335,15 @@ Parse `$ARGUMENTS`:
 
 ## MCP Server Installation
 
-Install the MCP binary from this CLI's published public-library entry or pre-built release, then register it:
-
-```bash
-claude mcp add suno-pp-mcp -- suno-pp-mcp
-```
-
-Verify: `claude mcp list`
+1. Install the MCP server:
+   ```bash
+   go install github.com/mvanhorn/printing-press-library/library/media-and-entertainment/suno/cmd/suno-pp-mcp@latest
+   ```
+2. Register with Claude Code:
+   ```bash
+   claude mcp add suno-pp-mcp -- suno-pp-mcp
+   ```
+3. Verify: `claude mcp list`
 
 ## Direct Use
 
