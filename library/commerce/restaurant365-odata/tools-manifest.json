@@ -1,0 +1,154 @@
+{
+  "api_name": "restaurant365-odata",
+  "base_url": "https://odata.restaurant365.net/api/v2/views",
+  "description": "Read-only Restaurant365 OData CLI for schema discovery, safe sampling, backfill planning, export, sync, and deleted-record checks.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "basic",
+    "header": "Authorization",
+    "format": "Basic {RESTAURANT365_ODATA_USERNAME}:{RESTAURANT365_ODATA_PASSWORD}",
+    "env_vars": [
+      "RESTAURANT365_ODATA_USERNAME",
+      "RESTAURANT365_ODATA_PASSWORD"
+    ],
+    "env_var_specs": [
+      {
+        "name": "RESTAURANT365_ODATA_USERNAME",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": false,
+        "inferred": true
+      },
+      {
+        "name": "RESTAURANT365_ODATA_PASSWORD",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "company_list",
+      "description": "Returns Company reporting rows from Restaurant365 OData.",
+      "method": "GET",
+      "path": "/Company",
+      "params": []
+    },
+    {
+      "name": "employee_list",
+      "description": "Returns Employee reporting rows from Restaurant365 OData.",
+      "method": "GET",
+      "path": "/Employee",
+      "params": []
+    },
+    {
+      "name": "entity-deleted_list",
+      "description": "Returns deletion tombstone rows from Restaurant365 OData.",
+      "method": "GET",
+      "path": "/EntityDeleted",
+      "params": []
+    },
+    {
+      "name": "gl-account_list",
+      "description": "Returns GlAccount reporting rows from Restaurant365 OData.",
+      "method": "GET",
+      "path": "/GlAccount",
+      "params": []
+    },
+    {
+      "name": "glaccount_list",
+      "description": "Returns GLAccount reporting rows from Restaurant365 OData.",
+      "method": "GET",
+      "path": "/GLAccount",
+      "params": []
+    },
+    {
+      "name": "item_list",
+      "description": "Returns Item reporting rows from Restaurant365 OData.",
+      "method": "GET",
+      "path": "/Item",
+      "params": []
+    },
+    {
+      "name": "job-title_list",
+      "description": "Returns JobTitle reporting rows from Restaurant365 OData.",
+      "method": "GET",
+      "path": "/JobTitle",
+      "params": []
+    },
+    {
+      "name": "labor-detail_list",
+      "description": "Returns LaborDetail reporting rows from Restaurant365 OData.",
+      "method": "GET",
+      "path": "/LaborDetail",
+      "params": []
+    },
+    {
+      "name": "location_list",
+      "description": "Returns Location reporting rows from Restaurant365 OData.",
+      "method": "GET",
+      "path": "/Location",
+      "params": []
+    },
+    {
+      "name": "metadata_get",
+      "description": "Returns the service metadata document describing available Restaurant365 OData views and fields.",
+      "method": "GET",
+      "path": "/$metadata",
+      "params": []
+    },
+    {
+      "name": "payroll-summary_list",
+      "description": "Returns PayrollSummary reporting rows from Restaurant365 OData.",
+      "method": "GET",
+      "path": "/PayrollSummary",
+      "params": []
+    },
+    {
+      "name": "posemployee_list",
+      "description": "Returns POSEmployee reporting rows from Restaurant365 OData.",
+      "method": "GET",
+      "path": "/POSEmployee",
+      "params": []
+    },
+    {
+      "name": "sales-detail_list",
+      "description": "Returns SalesDetail reporting rows from Restaurant365 OData.",
+      "method": "GET",
+      "path": "/SalesDetail",
+      "params": []
+    },
+    {
+      "name": "sales-employee_list",
+      "description": "Returns SalesEmployee reporting rows from Restaurant365 OData.",
+      "method": "GET",
+      "path": "/SalesEmployee",
+      "params": []
+    },
+    {
+      "name": "sales-payment_list",
+      "description": "Returns SalesPayment reporting rows from Restaurant365 OData.",
+      "method": "GET",
+      "path": "/SalesPayment",
+      "params": []
+    },
+    {
+      "name": "transaction_list",
+      "description": "Returns Transaction reporting rows from Restaurant365 OData.",
+      "method": "GET",
+      "path": "/Transaction",
+      "params": []
+    },
+    {
+      "name": "transaction-detail_list",
+      "description": "Returns TransactionDetail reporting rows from Restaurant365 OData.",
+      "method": "GET",
+      "path": "/TransactionDetail",
+      "params": []
+    }
+  ]
+}
