@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.1.15
+
+- Add a version-lifecycle guard for npm releases: `preversion` now checks that `package-lock.json` is in sync before the bump, and `version` refreshes/checks the lockfile after `package.json` changes so future release commits cannot accidentally leave the lockfile version stale.
+- Make the installer shadow-warning JSON test hermetic by explicitly stubbing `realpath` in the stale-binary case.
+
+## 0.1.14
+
+- Treat "installed but not on PATH" as a warning instead of aborting `install`. `go install` can succeed while the current agent or gateway process cannot discover `$GOPATH/bin`; the installer now prints the platform-specific PATH fix, continues installing the focused `pp-*` skill, and reports a successful install with a `pathWarning: "not_on_path"` field in JSON output. This avoids half-installed agent setups where the binary exists but the matching skill was skipped.
+- Suppress stale-binary shadow warnings when the earlier PATH hit resolves to the same file as the freshly installed Go binary, such as a `~/.local/bin/<tool>` symlink pointing at `~/go/bin/<tool>`.
+- Document that agent/gateway sessions may need a restart after PATH changes, and that a PATH-visible symlink can be a practical bridge in environments that already expose `~/.local/bin`.
+
 ## 0.1.13
 
 - Speed up `update` (and `update` with no name) by refreshing detected CLIs concurrently instead of one at a time. The cost of a bulk update is dominated by per-CLI network round-trips — the go-proxy `@latest` resolution (~1s each, even when nothing changed, because the build cache can't shortcut it) plus the skill fetch — which serialized into ~30s for a dozen CLIs. These are independent, so they now run with bounded concurrency, and the catalog detection sweep (a `which`/`where` probe per catalog entry) is parallelized the same way. Each install's output is buffered and replayed in catalog order (preserving stdout/stderr ordering within each CLI), so concurrent runs don't interleave into scrambled lines. A failed PATH probe degrades to "not installed" instead of aborting the run. No command, flag, or output-shape changes — same behavior, less waiting.
