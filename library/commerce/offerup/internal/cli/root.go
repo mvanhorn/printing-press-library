@@ -248,7 +248,7 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.AddCommand(newNovelPriceCheckCmd(flags))
 	rootCmd.AddCommand(newNovelPriceDropsCmd(flags))
 	rootCmd.AddCommand(newNovelSellerScanCmd(flags))
-	// Authenticated surface (cookie session via press-auth): account commands.
+	// Authenticated surface (cookie session via 'auth login --chrome'): account commands.
 	rootCmd.AddCommand(newAuthCmd(flags))
 	rootCmd.AddCommand(newAccountCmd(flags))
 	rootCmd.AddCommand(newMyListingsCmd(flags))

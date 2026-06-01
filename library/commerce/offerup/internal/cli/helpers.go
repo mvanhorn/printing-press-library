@@ -10,12 +10,14 @@ import (
 	"errors"
 	"fmt"
 	"github.com/mvanhorn/printing-press-library/library/commerce/offerup/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/commerce/offerup/internal/cliutil"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"io"
 	"net/url"
 	"os"
 	"path/filepath"
+	"regexp"
 	"sort"
 	"strconv"
 	"strings"
@@ -312,11 +314,68 @@ func (p *syncUserParams) validateResourceNames(known []string) error {
 		strings.Join(unknown, ", "), strings.Join(known, ", "))
 }
 
-// isSyncAccessWarning is a stub: this CLI has no auth, so the API cannot
-// reject sync requests on access-policy grounds. Every error stays a hard
-// failure. Defining the function unconditionally keeps sync.go agnostic to
-// auth presence.
-func isSyncAccessWarning(err error) (*accessWarning, bool) { return nil, false }
+// accessDenialPatterns matches API error bodies that indicate the request was
+// rejected for access-policy reasons rather than for input validity. Matching
+// is case-insensitive and uses word boundaries so common substrings inside
+// unrelated tokens (e.g. "author", "pagination_token", "insufficient_funds")
+// do not produce false positives. The set deliberately excludes brand names —
+// vendor-specific phrasings should be addressed at the spec/profiler level,
+// not in this universal classifier.
+var accessDenialPatterns = []*regexp.Regexp{
+	regexp.MustCompile(`\bforbidden\b`),
+	regexp.MustCompile(`\bunauthorized\b`),
+	regexp.MustCompile(`\bnot[\s_-]?authorized\b`),
+	regexp.MustCompile(`\bpermission[\s_-]?denied\b`),
+	regexp.MustCompile(`\baccess[\s_-]?denied\b`),
+	regexp.MustCompile(`\binsufficient[\s_-]?(scope|permission|privilege)`),
+	regexp.MustCompile(`\binvalid[\s_-]?scope\b`),
+	regexp.MustCompile(`\bmissing[\s_-]?scope\b`),
+	regexp.MustCompile(`\brequires?\s+(elevated|admin|enterprise|business|workspace|enterprise[\s_-]?tier)`),
+}
+
+// looksLikeAccessDenial reports whether body text describes an access-policy
+// rejection. Use it on response-body content (apiErr.Body), not on the full
+// error string — the request path can contain words like "auth" or "tokens"
+// that would produce false positives if the whole error message were scanned.
+func looksLikeAccessDenial(body string) bool {
+	lower := strings.ToLower(body)
+	for _, p := range accessDenialPatterns {
+		if p.MatchString(lower) {
+			return true
+		}
+	}
+	return false
+}
+
+// isSyncAccessWarning classifies err as an access-denial warning suitable for
+// sync's warn-and-continue path. It returns nil, false for any error that
+// should remain a hard sync failure: HTTP 401 (token-level auth failure
+// requiring re-auth), 5xx, network errors, and HTTP 400 responses whose
+// bodies do not match an access-policy pattern.
+//
+// Recognized warning shapes:
+//   - HTTP 403 (per-resource ACL rejection)
+//   - HTTP 400 + access-denial body keyword (insufficient scope, etc.)
+//   - GraphQL response carrying only access-denial extension codes
+func isSyncAccessWarning(err error) (*accessWarning, bool) {
+	if err == nil {
+		return nil, false
+	}
+
+	var apiErr *client.APIError
+	if errors.As(err, &apiErr) {
+		switch apiErr.StatusCode {
+		case 403:
+			return &accessWarning{Status: 403, Reason: "forbidden", Message: apiErr.Body}, true
+		case 400:
+			if looksLikeAccessDenial(apiErr.Body) {
+				return &accessWarning{Status: 400, Reason: "insufficient_access", Message: apiErr.Body}, true
+			}
+		}
+	}
+
+	return nil, false
+}
 
 type noopResult struct {
 	Status string `json:"status"`
@@ -357,13 +416,25 @@ func classifyAPIError(err error, flags *rootFlags) error {
 		classified := apiErr(err)
 		writeAPIErrorEnvelope(flags, classified, ExitCode(classified))
 		return classified
+	case errors.Is(err, client.ErrPlaceholderCredential):
+		return authErr(err)
+	case strings.Contains(msg, "HTTP 400") && cliutil.LooksLikeAuthError(msg):
+		return authErr(fmt.Errorf("%w\nhint: the API rejected the request — this usually means auth is missing or invalid."+
+			"\n      Set your API key: export OFFERUP_COOKIE=<your-key>"+
+			"\n      See API docs: https://offerup.com"+
+			"\n      Run 'offerup-pp-cli doctor' to check auth status."+
+			"\n      Response: "+cliutil.SanitizeErrorBody(msg), err))
 	case strings.Contains(msg, "HTTP 401"):
 		return authErr(fmt.Errorf("%w\nhint: check your API credentials."+
+			" Set it with: export OFFERUP_COOKIE=<your-key>"+
 			"\n      See API docs: https://offerup.com"+
 			"\n      Run 'offerup-pp-cli doctor' to check auth status.", err))
 	case strings.Contains(msg, "HTTP 403"):
-		return authErr(fmt.Errorf("%w\nhint: permission denied. This API is configured without credentials, so the service may be blocking the request by rate limit, geography, bot protection, or endpoint policy."+
-			"\n      Run 'offerup-pp-cli doctor' to check connectivity.", err))
+		return authErr(fmt.Errorf("%w\nhint: permission denied. Your credentials are valid but lack access to this resource."+
+			"\n      Check that your API key has the required permissions."+
+			"\n      Set it with: export OFFERUP_COOKIE=<your-key>"+
+			"\n      See API docs: https://offerup.com"+
+			"\n      Run 'offerup-pp-cli doctor' to check auth status.", err))
 	case strings.Contains(msg, "HTTP 404"):
 		return notFoundErr(fmt.Errorf("%w\nhint: resource not found. Run the 'list' command to see available items", err))
 	case strings.Contains(msg, "HTTP 429"):

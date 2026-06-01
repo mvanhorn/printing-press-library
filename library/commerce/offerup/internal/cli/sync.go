@@ -6,7 +6,9 @@ package cli
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/commerce/offerup/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/commerce/offerup/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/commerce/offerup/internal/store"
 	"github.com/spf13/cobra"
@@ -247,12 +249,20 @@ Resource scoping:
 			var criticalErrCount int
 			var warnCount int
 			var successCount int
+			var firstErr error
+			var firstPlaceholderErr error
 			for res := range results {
 				if res.Err != nil {
 					if humanFriendly {
 						fmt.Fprintf(os.Stderr, "  %s: error: %v\n", res.Resource, res.Err)
 					}
 					errCount++
+					if firstErr == nil {
+						firstErr = res.Err
+					}
+					if firstPlaceholderErr == nil && errors.Is(res.Err, client.ErrPlaceholderCredential) {
+						firstPlaceholderErr = res.Err
+					}
 					if criticalResources[res.Resource] {
 						criticalErrCount++
 					}
@@ -294,6 +304,9 @@ Resource scoping:
 			// one-shot sync_warning with reason "exit_policy_default_changed" so
 			// CI scripts that depend on $? != 0 can discover the contract change
 			// without reading the CHANGELOG.
+			if firstPlaceholderErr != nil {
+				return classifyAPIError(firstPlaceholderErr, flags)
+			}
 			if strict && errCount > 0 {
 				return fmt.Errorf("%d resource(s) failed to sync", errCount)
 			}

@@ -30,6 +30,8 @@ import (
 
 const BinaryResponseHeader = "X-Printing-Press-Binary-Response"
 
+var ErrPlaceholderCredential = errors.New("auth placeholder credential")
+
 type Client struct {
 	BaseURL         string
 	Config          *config.Config
@@ -130,20 +132,10 @@ func New(cfg *config.Config, timeout time.Duration, rateLimit float64) *Client {
 			// "Moved Permanently" body back to the caller.
 			return errors.New("stopped after 10 redirects")
 		}
-		// Same-host gate mirrors Go's shouldCopyHeaderOnRedirect: a
-		// cross-domain 3xx (open redirect or partner handoff) must not
-		// receive the auth credential, even though we are inside
-		// CheckRedirect where Go's automatic stripping has already run.
-		if req.URL.Host == via[0].URL.Host {
-			if h, err := c.authHeader(req.Context()); err == nil && h != "" {
-				req.Header.Set("Authorization", h)
-			}
-		} else {
-			// Cross-host hop: Go strips standard auth headers (Authorization,
-			// Cookie) but not custom ones, so a custom API-key header would be
-			// forwarded verbatim to the redirect target. Delete it explicitly.
-			req.Header.Del("Authorization")
-		}
+		// Cookie-auth redirects: Go's http.Client + http.CookieJar handle
+		// cookie carriage on 3xx hops natively. Setting the Cookie header
+		// manually here would double the jar's cookies on the redirected
+		// request.
 		return nil
 	}
 	return c
@@ -236,6 +228,12 @@ func binaryResponseHeaderValue(headers map[string]string) (bool, bool) {
 }
 
 func (c *Client) validateCachedRequestAuth(ctx context.Context) error {
+	if c == nil || c.Config == nil {
+		return nil
+	}
+	if authHeaderLooksLikePlaceholderCredential(c.Config.AuthHeader()) {
+		return authPlaceholderCredentialError(c.Config)
+	}
 	return nil
 }
 
@@ -561,7 +559,15 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 		}
 
 		if authHeader != "" {
-			req.Header.Set("Authorization", authHeader)
+			// Cookie-auth: LoadCookieJar is the sole source of outbound
+			// cookies. net/http's Client.send calls jar.Cookies + AddCookie
+			// for each cookie, which concatenates without dedup; a manual
+			// req.Header.Set here would ship every session cookie twice and
+			// trip upstream WAFs. auth login persists the same cookie set
+			// to both the jar and config, so the jar carries every value
+			// SaveTokens stores. authHeader is read only by the dry-run /
+			// signing paths above; intentionally not consumed on the live
+			// wire here.
 		}
 		if c.Config != nil {
 			for k, v := range c.Config.Headers {
@@ -688,7 +694,7 @@ func (c *Client) dryRun(method, targetURL, path string, params map[string]string
 		}
 	}
 	if authHeader != "" {
-		fmt.Fprintf(os.Stderr, "  %s: %s\n", "Authorization", maskToken(authHeader))
+		fmt.Fprintf(os.Stderr, "  %s: %s\n", "Cookie", maskToken(authHeader))
 	}
 	fmt.Fprintf(os.Stderr, "\n(dry run - no request sent)\n")
 	return json.RawMessage(`{"dry_run": true}`), 0, nil
@@ -706,7 +712,67 @@ func (c *Client) authHeader(ctx context.Context) (string, error) {
 		return "", nil
 	}
 	authHeader := c.Config.AuthHeader()
+	if authHeaderLooksLikePlaceholderCredential(authHeader) {
+		return "", authPlaceholderCredentialError(c.Config)
+	}
 	return authHeader, nil
+}
+
+func authHeaderLooksLikePlaceholderCredential(header string) bool {
+	if scheme, encoded, ok := strings.Cut(strings.TrimSpace(header), " "); ok && strings.EqualFold(scheme, "Basic") {
+		encoded = strings.TrimSpace(encoded)
+		decoded, err := base64.StdEncoding.DecodeString(encoded)
+		if err == nil && authHeaderLooksLikePlaceholderCredential(string(decoded)) {
+			return true
+		}
+	}
+	if !strings.Contains(header, "<") && !strings.Contains(header, "YOUR_TOKEN_HERE") && !strings.Contains(header, "your-token") && !strings.Contains(header, "your-key") {
+		return false
+	}
+	for _, field := range strings.Fields(header) {
+		field = strings.Trim(field, `"'`)
+		if idx := strings.LastIndex(field, "="); idx >= 0 {
+			field = field[idx+1:]
+		}
+		if idx := strings.Index(field, ":"); idx >= 0 {
+			if looksLikeCredentialPlaceholder(field[:idx]) || looksLikeCredentialPlaceholder(field[idx+1:]) {
+				return true
+			}
+		}
+		if looksLikeCredentialPlaceholder(field) {
+			return true
+		}
+	}
+	return looksLikeCredentialPlaceholder(header)
+}
+
+func looksLikeCredentialPlaceholder(value string) bool {
+	value = strings.Trim(strings.TrimSpace(value), `"'`)
+	switch value {
+	case "<your-token>", "<your-key>", "<paste-your-key>", "YOUR_TOKEN_HERE", "your-token-here":
+		return true
+	}
+	if len(value) < 3 || value[0] != '<' || value[len(value)-1] != '>' {
+		return false
+	}
+	for _, r := range value[1 : len(value)-1] {
+		if r != '_' && (r < 'A' || r > 'Z') {
+			return false
+		}
+	}
+	return true
+}
+
+func authPlaceholderCredentialError(cfg *config.Config) error {
+	return authPlaceholderCredentialErrorWithSetup(cfg, "export OFFERUP_COOKIE=<your-token> or offerup-pp-cli auth set-token <token>")
+}
+
+func authPlaceholderCredentialErrorWithSetup(cfg *config.Config, setup string) error {
+	location := "config file"
+	if cfg != nil && cfg.Path != "" {
+		location = cfg.Path
+	}
+	return fmt.Errorf("%w configured in %s; set a real token with: %s", ErrPlaceholderCredential, location, setup)
 }
 
 // binaryResponseEnvelope wraps a non-textual success body so it survives the
@@ -873,6 +939,10 @@ func (c *Client) maskCredentialText(text string, extraCredentials ...string) str
 	if c != nil && c.Config != nil {
 		addCredential(c.Config.AuthHeaderVal)
 		addCredential(c.Config.AuthHeader())
+		addCredential(c.Config.AccessToken)
+		addCredential(c.Config.RefreshToken)
+		addCredential(c.Config.ClientSecret)
+		addCredential(c.Config.OfferupCookie)
 	}
 	sort.SliceStable(masks, func(i, j int) bool {
 		return len(masks[i].needle) > len(masks[j].needle)

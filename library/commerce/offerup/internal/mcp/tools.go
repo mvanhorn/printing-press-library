@@ -17,6 +17,7 @@ import (
 	"github.com/mark3labs/mcp-go/server"
 	"github.com/mvanhorn/printing-press-library/library/commerce/offerup/internal/cli"
 	"github.com/mvanhorn/printing-press-library/library/commerce/offerup/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/commerce/offerup/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/commerce/offerup/internal/config"
 	"github.com/mvanhorn/printing-press-library/library/commerce/offerup/internal/mcp/cobratree"
 	"github.com/mvanhorn/printing-press-library/library/commerce/offerup/internal/store"
@@ -201,14 +202,22 @@ func makeAPIHandler(method, pathTemplate string, readOnly bool, binaryResponse b
 			switch {
 			case strings.Contains(msg, "HTTP 409"):
 				return mcplib.NewToolResultText("already exists (no-op)"), nil
+			case strings.Contains(msg, "HTTP 400") && cliutil.LooksLikeAuthError(msg):
+				return mcplib.NewToolResultError("authentication error: " + cliutil.SanitizeErrorBody(msg) +
+					"\nhint: the API rejected the request — this usually means auth is missing or invalid." +
+					"\n      Set your API key: export OFFERUP_COOKIE=<your-key>" +
+					"\n      See API docs: https://offerup.com" +
+					"\n      Run 'offerup-pp-cli doctor' to check auth status."), nil
 			case strings.Contains(msg, "HTTP 401"):
-				return mcplib.NewToolResultError("authentication failed: " + msg +
+				return mcplib.NewToolResultError("authentication failed: " + cliutil.SanitizeErrorBody(msg) +
 					"\nhint: check your API credentials." +
+					"\n      Set it with: export OFFERUP_COOKIE=<your-key>" +
 					"\n      See API docs: https://offerup.com" +
 					"\n      Run 'offerup-pp-cli doctor' to check auth status."), nil
 			case strings.Contains(msg, "HTTP 403"):
-				return mcplib.NewToolResultError("permission denied: " + msg +
-					"\nhint: this API is configured without credentials; the service may be blocking the request by rate limit, geography, bot protection, or endpoint policy." +
+				return mcplib.NewToolResultError("permission denied: " + cliutil.SanitizeErrorBody(msg) +
+					"\nhint: your credentials are valid but lack access to this resource." +
+					"\n      Set it with: export OFFERUP_COOKIE=<your-key>" +
 					"\n      See API docs: https://offerup.com" +
 					"\n      Run 'offerup-pp-cli doctor' to check auth status."), nil
 			case strings.Contains(msg, "HTTP 404"):
@@ -375,11 +384,24 @@ func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToo
 func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
 	ctx := map[string]any{
 		"api":         "offerup",
-		"description": "Search local OfferUp listings from your terminal, keep them in a local database",
+		"description": "Search local OfferUp listings, track prices, and surface deals from your terminal",
 		"archetype":   "generic",
 		"tool_count":  2,
 		// tool_surface tells agents which surface a capability lives on.
 		"tool_surface": "MCP exposes typed endpoint tools plus a runtime mirror of user-facing CLI commands. Endpoint tools keep typed schemas; command-mirror tools shell out to the companion offerup-pp-cli binary.",
+		"auth": map[string]any{
+			"type": "cookie",
+			"env_vars": []map[string]any{
+				{
+					"name":        "OFFERUP_COOKIE",
+					"kind":        "per_call",
+					"required":    true,
+					"sensitive":   true,
+					"description": "Set to your API credential.",
+				},
+			},
+			"docs_url": "https://offerup.com",
+		},
 		"resources": []map[string]any{
 			{
 				"name":        "listings",

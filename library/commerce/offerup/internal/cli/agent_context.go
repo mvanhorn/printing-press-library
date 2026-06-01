@@ -103,8 +103,16 @@ reading source. Schema is versioned via schema_version.`,
 }
 
 func buildAgentContext(rootCmd *cobra.Command) agentContext {
-	envVars := []agentContextAuthEnvVar{}
-	authMode := "none"
+	envVars := []agentContextAuthEnvVar{
+		{
+			Name:        "OFFERUP_COOKIE",
+			Kind:        "per_call",
+			Required:    true,
+			Sensitive:   true,
+			Description: "Set to your API credential.",
+		},
+	}
+	authMode := "cookie"
 	if authMode == "" {
 		authMode = "none"
 	}
@@ -116,7 +124,7 @@ func buildAgentContext(rootCmd *cobra.Command) agentContext {
 		SchemaVersion: agentContextSchemaVersion,
 		CLI: agentContextCLI{
 			Name:        "offerup-pp-cli",
-			Description: "Search local OfferUp listings from your terminal, keep them in a local database",
+			Description: "Search local OfferUp listings, track prices, and surface deals from your terminal",
 			Version:     rootCmd.Version,
 		},
 		Auth: agentContextAuth{

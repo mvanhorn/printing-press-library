@@ -4,6 +4,7 @@ go 1.26.3
 
 require (
 	github.com/enetx/surf v1.0.199
+	github.com/gorilla/websocket v1.5.3
 	github.com/pelletier/go-toml/v2 v2.2.4
 	github.com/spf13/cobra v1.9.1
 	golang.org/x/net v0.55.0

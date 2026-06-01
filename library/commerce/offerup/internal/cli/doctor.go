@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"os/exec"
 	"strings"
 	"time"
 
@@ -156,12 +157,78 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 				report["config"] = "ok"
 				report["config_path"] = cfg.Path
 				report["base_url"] = cfg.BaseURL
+				// agentcookie integration is soft: if the agentcookie daemon manages
+				// this CLI's config, it writes a marker file alongside the config and
+				// AuthSource is upgraded to "agentcookie" in config.Load. Surface the
+				// state explicitly so users can tell whether the bus is wired up.
+				if cfg.AuthSource == "agentcookie" {
+					report["agentcookie"] = "detected (managing credentials)"
+				} else {
+					report["agentcookie"] = "not detected (optional)"
+				}
 			}
 
 			// Check auth
-			report["auth"] = "not required"
+			authConfigured := false
+			if cfg != nil {
+				header := cfg.AuthHeader()
+				if header == "" {
+					report["auth"] = "not configured"
+					report["auth_hint"] = "offerup-pp-cli auth login --chrome"
+				} else {
+					authConfigured = true
+					report["auth"] = "configured (browser session)"
+					report["auth_source"] = cfg.AuthSource
+					report["auth_domain"] = ".offerup.com"
+				}
+			}
+			// Check cookie tool availability
+			cookieToolFound := false
+			for _, check := range [][]string{
+				{"python3", "-c", "import pycookiecheat"},
+				{"cookies", "--help"},
+				{"cookie-scoop", "--help"},
+			} {
+				if err := exec.Command(check[0], check[1:]...).Run(); err == nil {
+					cookieToolFound = true
+					report["cookie_tool"] = check[0]
+					break
+				}
+			}
+			if !cookieToolFound {
+				report["cookie_tool"] = "not found (install: pip install pycookiecheat)"
+			}
 
 			// Check auth environment variables
+			authEnvSet := []string{}
+			authEnvRequiredMissing := []string{}
+			authEnvInfo := []string{}
+			authEnvOptionalNames := []string{}
+			// Validation rejects multi-OR-group specs upstream, so the single optional-satisfied state is sufficient at runtime.
+			authEnvOptionalSatisfied := false
+			if os.Getenv("OFFERUP_COOKIE") != "" {
+				authEnvSet = append(authEnvSet, "OFFERUP_COOKIE")
+			} else if authConfigured {
+				authSource, _ := report["auth_source"].(string)
+				if authSource == "" {
+					authSource = "config"
+				}
+				authEnvInfo = append(authEnvInfo, "credentials available from "+authSource)
+			} else {
+				authEnvRequiredMissing = append(authEnvRequiredMissing, "OFFERUP_COOKIE")
+			}
+			switch {
+			case len(authEnvRequiredMissing) > 0:
+				report["env_vars"] = "ERROR missing required: " + strings.Join(authEnvRequiredMissing, ", ")
+			case len(authEnvOptionalNames) > 1 && !authEnvOptionalSatisfied:
+				report["env_vars"] = "INFO set one of: " + strings.Join(authEnvOptionalNames, " or ")
+			case len(authEnvInfo) > 0 && authConfigured:
+				report["env_vars"] = "OK " + strings.Join(authEnvInfo, "; ")
+			case len(authEnvInfo) > 0:
+				report["env_vars"] = "INFO " + strings.Join(authEnvInfo, "; ")
+			default:
+				report["env_vars"] = fmt.Sprintf("OK %d/%d available", len(authEnvSet), 1)
+			}
 
 			// Check API connectivity and validate credentials.
 			//
@@ -306,6 +373,9 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 				}
 			}
 			// Print auth setup hints (indented under Auth line)
+			if hint, ok := report["auth_hint"]; ok {
+				fmt.Fprintf(w, "  hint: %v\n", hint)
+			}
 			if docsURL, ok := report["auth_docs_url"]; ok {
 				fmt.Fprintf(w, "  See API docs: %v\n", docsURL)
 			}

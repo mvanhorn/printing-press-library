@@ -40,9 +40,10 @@ var errMissingQuery = errors.New("a search query is required (positional argumen
 // runAuthRead is the shared body for authenticated read commands. It honors
 // --dry-run and verify-mode by emitting the empty value without a network call.
 // On a real run it calls fetch and prints the result. Under the live-dogfood
-// harness, a missing session (ErrNotLoggedIn) is a skip (the harness cannot
-// reliably serve press-auth's keychain-backed cookie under rapid invocation) —
-// in normal use a missing session is still a hard auth error (exit 4).
+// harness, a missing session (ErrNotLoggedIn from the generated cookie store)
+// is a skip — the matrix runs without a logged-in OfferUp session — while in
+// normal use a missing session is still a hard auth error (exit 4) with a clear
+// "run 'auth login --chrome' (or set OFFERUP_COOKIE)" message.
 func runAuthRead(cmd *cobra.Command, flags *rootFlags, empty any, fetch func() (any, error)) error {
 	if dryRunOK(flags) {
 		return nil
@@ -67,7 +68,7 @@ func classifyOfferupError(err error) error {
 	if errors.As(err, &rle) {
 		return rateLimitErr(err)
 	}
-	if errors.Is(err, offerup.ErrNotLoggedIn) || errors.Is(err, offerup.ErrNoPressAuth) {
+	if errors.Is(err, offerup.ErrNotLoggedIn) {
 		return authErr(err)
 	}
 	return apiErr(err)

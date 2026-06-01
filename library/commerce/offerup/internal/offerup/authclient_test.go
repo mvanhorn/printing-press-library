@@ -4,7 +4,6 @@ import (
 	"context"
 	"net/http"
 	"net/http/httptest"
-	"os"
 	"path/filepath"
 	"testing"
 	"time"
@@ -51,14 +50,32 @@ func TestCleanStripsTypenameAndTokens(t *testing.T) {
 	assert.False(t, tn)
 }
 
-// fakePressAuth writes an executable stub that prints a cookie header for the
-// `cookies` subcommand, so CookieHeader resolves without real press-auth.
-func fakePressAuth(t *testing.T) string {
+// withStubSession points the generated cookie store at an isolated temp config
+// and seeds a stub session cookie via the OFFERUP_COOKIE env var, so
+// sessionCookie() resolves without a real login. Returns the stub cookie value.
+// Uses a placeholder cookie, never a real secret.
+func withStubSession(t *testing.T) string {
 	t.Helper()
-	path := filepath.Join(t.TempDir(), "press-auth")
-	script := "#!/bin/sh\nif [ \"$1\" = cookies ]; then printf 'ou_sess=test-cookie'; fi\n"
-	require.NoError(t, os.WriteFile(path, []byte(script), 0o755))
-	return path
+	const cookie = "ou_sess=test-cookie"
+	// Isolate config.Load from any real config.toml in the dev's home dir.
+	t.Setenv("OFFERUP_CONFIG", filepath.Join(t.TempDir(), "config.toml"))
+	t.Setenv("OFFERUP_COOKIE", cookie)
+	return cookie
+}
+
+func TestSessionCookiePrefersEnv(t *testing.T) {
+	want := withStubSession(t)
+	got, err := sessionCookie()
+	require.NoError(t, err)
+	assert.Equal(t, want, got)
+}
+
+func TestSessionCookieMissingErrsNotLoggedIn(t *testing.T) {
+	// Isolate config and ensure no cookie env var is present.
+	t.Setenv("OFFERUP_CONFIG", filepath.Join(t.TempDir(), "config.toml"))
+	t.Setenv("OFFERUP_COOKIE", "")
+	_, err := sessionCookie()
+	require.ErrorIs(t, err, ErrNotLoggedIn)
 }
 
 func TestAccountAuthPathStripsTokens(t *testing.T) {
@@ -69,7 +86,7 @@ func TestAccountAuthPathStripsTokens(t *testing.T) {
 	}))
 	defer srv.Close()
 	t.Setenv("OFFERUP_BASE_URL", srv.URL)
-	t.Setenv("PRESS_AUTH_BIN", fakePressAuth(t))
+	withStubSession(t)
 
 	c := NewClient(5*time.Second, 0)
 	v, err := c.Account(context.Background())
@@ -87,7 +104,7 @@ func TestGqlAuthSurfacesGraphQLErrors(t *testing.T) {
 	}))
 	defer srv.Close()
 	t.Setenv("OFFERUP_BASE_URL", srv.URL)
-	t.Setenv("PRESS_AUTH_BIN", fakePressAuth(t))
+	withStubSession(t)
 
 	c := NewClient(5*time.Second, 0)
 	_, err := c.MyListings(context.Background(), 5)

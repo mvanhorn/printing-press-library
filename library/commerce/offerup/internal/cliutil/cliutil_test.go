@@ -82,6 +82,20 @@ func TestParseStoredTime(t *testing.T) {
 	}
 }
 
+func TestAuthErrorHelpers(t *testing.T) {
+	if !LooksLikeAuthError("HTTP 400: missing api_key") {
+		t.Fatal("expected missing api_key to look like an auth error")
+	}
+	if LooksLikeAuthError("HTTP 400: malformed page number") {
+		t.Fatal("unexpected auth classification for non-auth message")
+	}
+
+	got := SanitizeErrorBody("token sk-abcdefghi Bearer abc.def key=secretvalue")
+	if got != "token [REDACTED] [REDACTED] [REDACTED]" {
+		t.Fatalf("SanitizeErrorBody redaction = %q", got)
+	}
+}
+
 // ---- FanoutRun ----
 
 func TestFanoutRunAllSucceed(t *testing.T) {

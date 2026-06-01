@@ -22,7 +22,7 @@
   "mcp_public_tool_count": 2,
   "mcp_ready": "full",
   "api_version": "0.1.0",
-  "auth_type": "none",
+  "auth_type": "cookie",
   "novel_features": [
     {
       "name": "The real going rate",
@@ -54,5 +54,8 @@
       "command": "digest",
       "description": "A single composite report for a saved search combining what's new, what dropped in price, and what's underpriced."
     }
+  ],
+  "auth_env_vars": [
+    "OFFERUP_COOKIE"
   ]
 }

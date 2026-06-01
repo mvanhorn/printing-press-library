@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/pelletier/go-toml/v2"
 )
@@ -17,7 +18,13 @@ type Config struct {
 	AuthHeaderVal string            `toml:"auth_header"`
 	Headers       map[string]string `toml:"headers,omitempty"`
 	AuthSource    string            `toml:"-"`
+	AccessToken   string            `toml:"access_token"`
+	RefreshToken  string            `toml:"refresh_token"`
+	TokenExpiry   time.Time         `toml:"token_expiry"`
+	ClientID      string            `toml:"client_id"`
+	ClientSecret  string            `toml:"client_secret"`
 	Path          string            `toml:"-"`
+	OfferupCookie string            `toml:"cookie"`
 }
 
 func Load(configPath string) (*Config, error) {
@@ -45,6 +52,10 @@ func Load(configPath string) (*Config, error) {
 	}
 
 	// Env var overrides
+	if v := os.Getenv("OFFERUP_COOKIE"); v != "" {
+		cfg.OfferupCookie = v
+		cfg.AuthSource = "env:OFFERUP_COOKIE"
+	}
 
 	// Label config-file-derived credentials so doctor can distinguish
 	// "credentials persisted on disk" from "no credentials at all" — without
@@ -54,8 +65,26 @@ func Load(configPath string) (*Config, error) {
 	// config file path is exposed separately as report["config_path"], and
 	// embedding it in auth_source leaks the user's home directory through
 	// doctor's JSON envelope.
-	if cfg.AuthSource == "" && (cfg.AuthHeaderVal != "") {
+	if cfg.AuthSource == "" && (cfg.AuthHeaderVal != "" || cfg.AccessToken != "") {
 		cfg.AuthSource = "config"
+	}
+	if cfg.AuthSource == "" && cfg.OfferupCookie != "" {
+		cfg.AuthSource = "config"
+	}
+
+	// Soft agentcookie integration: if the agentcookie daemon manages this
+	// CLI's secrets, it writes a marker file alongside the config file. When
+	// the marker is present AND credentials came from the config (not from a
+	// direct env var override that wins above), upgrade AuthSource to
+	// "agentcookie" so doctor / auth-status can surface the bus state. When
+	// the marker is absent, behavior is identical to pre-agentcookie: no
+	// import, no network, no error. agentcookie itself is never imported
+	// here — the contract is purely on-disk.
+	if cfg.AuthSource == "config" {
+		marker := filepath.Join(filepath.Dir(cfg.Path), ".agentcookie-managed")
+		if _, err := os.Stat(marker); err == nil {
+			cfg.AuthSource = "agentcookie"
+		}
 	}
 
 	// Base URL override (used by printing-press verify to point at mock/test servers)
@@ -68,6 +97,19 @@ func Load(configPath string) (*Config, error) {
 func (c *Config) AuthHeader() string {
 	if c.AuthHeaderVal != "" {
 		return c.AuthHeaderVal
+	}
+	// Env-var token wins over file-stored AccessToken (env > config convention).
+	if c.OfferupCookie != "" {
+		if c.AuthSource == "" {
+			c.AuthSource = "env:OFFERUP_COOKIE"
+		}
+		return ensureAuthScheme("Bearer", c.OfferupCookie)
+	}
+	if c.AccessToken != "" {
+		if c.AuthSource == "" {
+			c.AuthSource = "browser"
+		}
+		return ensureAuthScheme("Bearer", c.AccessToken)
 	}
 	return ""
 }
@@ -83,6 +125,50 @@ func applyAuthFormat(format string, replacements map[string]string) string {
 		return ""
 	}
 	return format
+}
+
+// ensureAuthScheme returns "<scheme> <token>" but skips the prefix when the
+// token already carries it case-insensitively, so a user who exports the
+// env var with the scheme already attached doesn't end up double-prefixed.
+// Empty scheme returns the token as-is.
+func ensureAuthScheme(scheme, token string) string {
+	if token == "" {
+		return ""
+	}
+	if scheme == "" {
+		return token
+	}
+	schemeWithSpace := scheme + " "
+	if len(token) >= len(schemeWithSpace) && strings.EqualFold(token[:len(schemeWithSpace)], schemeWithSpace) {
+		return token
+	}
+	return schemeWithSpace + token
+}
+
+func (c *Config) SaveTokens(clientID, clientSecret, accessToken, refreshToken string, expiry time.Time) error {
+	c.ClientID = clientID
+	c.ClientSecret = clientSecret
+	c.AccessToken = accessToken
+	c.RefreshToken = refreshToken
+	c.TokenExpiry = expiry
+	return c.save()
+}
+
+func (c *Config) ClearTokens() error {
+	// AuthHeader() falls back to the env-var-derived fields when AuthHeaderVal
+	// and AccessToken are empty, so dropping the working credential requires
+	// zeroing every emitted credential field, not just the OAuth trio.
+	// ClientID/ClientSecret persist to disk via SaveTokens for the oauth2
+	// and oauth2-cc flows, so logout must wipe them too; otherwise
+	// `auth login` can re-mint a new access token unattended.
+	c.AuthHeaderVal = ""
+	c.AccessToken = ""
+	c.RefreshToken = ""
+	c.TokenExpiry = time.Time{}
+	c.ClientID = ""
+	c.ClientSecret = ""
+	c.OfferupCookie = ""
+	return c.save()
 }
 
 func (c *Config) save() error {
