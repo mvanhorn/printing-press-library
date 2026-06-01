@@ -1,0 +1,32 @@
+# Secrets and local config
+.env
+.env.*
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+config.toml
+session-state.json
+
+# Logs and temporary files
+*.log
+*.tmp
+*.bak
+.DS_Store
+
+# Local caches/databases
+.cache/
+*.db
+*.sqlite
+*.sqlite3
+
+# Go build/test artifacts
+coverage.out
+*.test
+
+# Generated build output: keep distributable MCP bundle, ignore staged binaries
+build/stage/
+build/bin/
+build/dist/
+!build/*.mcpb

@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-06-01",
+  "base_run_id": "20260601-112500-seranking",
+  "base_printing_press_version": "4.10.0",
+  "patches": [
+    {
+      "id": "friendly-api-key-env-alias",
+      "summary": "Accept SE_RANKING_API_KEY as the preferred alias while retaining generated SE_RANKING_API_KEY_QUERY compatibility.",
+      "reason": "SE Ranking documentation refers to a standard API key. Agents should be able to use SE_RANKING_API_KEY without being silently overridden by the generated query-name compatibility variable.",
+      "files": [
+        "internal/config/config.go",
+        "internal/cli/doctor.go",
+        "manifest.json",
+        "README.md",
+        "SKILL.md"
+      ],
+      "validated_outcome": "go test ./... passes; when both environment variables are present, SE_RANKING_API_KEY wins."
+    },
+    {
+      "id": "publish-provenance-artifacts",
+      "summary": "Add public-library provenance fields plus research, shipcheck-skip, and dogfood-results artifacts for review.",
+      "reason": "The public library requires current Printing Press provenance, manuscript research/proofs, and a dogfood-results.json artifact for new CLI submissions.",
+      "files": [
+        ".printing-press.json",
+        ".manuscripts/20260601-112500-seranking/research/research.json",
+        ".manuscripts/20260601-112500-seranking/proofs/shipcheck-skip.json",
+        "dogfood-results.json"
+      ],
+      "validated_outcome": "publish validate, verify-publish-package, verify-press-version, and verify-manifest pass locally."
+    }
+  ]
+}

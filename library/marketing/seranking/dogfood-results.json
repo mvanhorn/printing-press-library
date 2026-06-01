@@ -1,0 +1,65 @@
+{
+  "dir": "<cli-dir>/seranking",
+  "spec_path": "<cli-dir>/spec.json",
+  "spec_source": "official_docs_openapi",
+  "verdict": "WARN",
+  "path_check": {
+    "tested": 85,
+    "valid": 85,
+    "valid_pct": 100
+  },
+  "auth_check": {
+    "spec_scheme": "api_key",
+    "generated_format": "query parameter api_key",
+    "match": true,
+    "detail": "SE_RANKING_API_KEY preferred; SE_RANKING_API_KEY_QUERY compatibility retained."
+  },
+  "browser_session_check": {
+    "required": false,
+    "pass": true,
+    "detail": "browser-session auth not required"
+  },
+  "oauth_scope_coverage_check": {
+    "checked": 0,
+    "covered": 0,
+    "skipped": true,
+    "detail": "no OAuth-scoped endpoints in spec"
+  },
+  "dead_flags": {
+    "total": 0,
+    "dead": 0,
+    "skipped": true,
+    "detail": "full dogfood not run without API credentials"
+  },
+  "dead_functions": {
+    "total": 0,
+    "dead": 0,
+    "skipped": true,
+    "detail": "full dogfood not run without API credentials"
+  },
+  "example_check": {
+    "tested": 0,
+    "with_examples": 0,
+    "valid_examples": 0,
+    "skipped": true,
+    "detail": "no live API key available during publish prep"
+  },
+  "mcp_surface_parity": {
+    "state": "runtime_walking",
+    "pass": true,
+    "detail": "tools-manifest generated from Cobra command surface"
+  },
+  "novel_features_check": {
+    "planned": 5,
+    "found": 5,
+    "skipped": false
+  },
+  "live_api_check": {
+    "skipped": true,
+    "detail": "No SE Ranking API key was available in the publishing environment; no live data included."
+  },
+  "secret_scan": {
+    "pass": true,
+    "detail": "No secrets or live credentials included."
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "manifest_version": "0.3",
+  "name": "seranking-pp-mcp",
+  "display_name": "Se Ranking",
+  "version": "4.5.2",
+  "description": "Se Ranking API surface as MCP tools.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/seranking-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/seranking-pp-mcp",
+      "args": [],
+      "env": {
+        "SE_RANKING_API_KEY_QUERY": "${user_config.se_ranking_api_key_query}",
+        "SE_RANKING_API_KEY": "${user_config.se_ranking_api_key}"
+      }
+    }
+  },
+  "user_config": {
+    "se_ranking_api_key_query": {
+      "type": "string",
+      "title": "SE_RANKING_API_KEY_QUERY",
+      "description": "Sets SE_RANKING_API_KEY_QUERY for generated per-call compatibility.",
+      "sensitive": true,
+      "required": false
+    },
+    "se_ranking_api_key": {
+      "type": "string",
+      "title": "SE_RANKING_API_KEY",
+      "description": "Sets SE_RANKING_API_KEY for the Se Ranking MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

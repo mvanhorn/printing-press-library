@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "api_name": "seranking",
+  "run_id": "20260601-112500-seranking",
+  "status": "skip",
+  "auth_context": {
+    "type": "api_key",
+    "api_key_available": false
+  },
+  "skip_reason": "No SE Ranking API key was available in this Hermes CLI environment during public-library publication prep; only mock/dry-run validation was performed."
+}

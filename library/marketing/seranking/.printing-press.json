@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-01T10:47:01.234380293Z",
+  "printing_press_version": "4.10.0",
+  "api_name": "seranking",
+  "display_name": "Se Ranking",
+  "cli_name": "seranking-pp-cli",
+  "owner": "pimmetjeoss",
+  "printer": "Pimmetjeoss",
+  "printer_name": "Pimmetjeoss",
+  "spec_url": "https://seranking.com/api.html",
+  "spec_path": "/home/pimmetje/.hermes/profiles/cli/workspace/projects/seranking-openapi.json",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:3df9a1f48c3ee68d5f5eb30b13cb49e4251fac071af9edb4d5190d850a3996d8",
+  "mcp_binary": "seranking-pp-mcp",
+  "mcp_tool_count": 85,
+  "mcp_ready": "full",
+  "api_version": "2026.06.01",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "SE_RANKING_API_KEY",
+    "SE_RANKING_API_KEY_QUERY"
+  ],
+  "run_id": "20260601-112500-seranking",
+  "category": "marketing",
+  "description": "Agent-native SE Ranking CLI for SEO data, backlinks, keyword research, domain analysis, AI Search visibility, project rank data, and site-audit workflows.",
+  "novel_features": [
+    {
+      "name": "AI Search visibility discovery",
+      "command": "seranking-pp-cli ai-search discover-brand-by-url",
+      "description": "Discover brand visibility and answer-engine coverage for a target URL using SE Ranking AI Search data."
+    },
+    {
+      "name": "Keyword opportunity pack",
+      "command": "seranking-pp-cli keywords research-get-similar",
+      "description": "Build keyword expansion workflows from similar, question, related, and long-tail keyword research endpoints."
+    },
+    {
+      "name": "Competitor gap radar",
+      "command": "seranking-pp-cli domain analysis-analyze-keyword-overlap-and-gaps",
+      "description": "Compare a domain against competitors to identify keyword overlap and organic search gaps."
+    },
+    {
+      "name": "Backlink decay sentinel",
+      "command": "seranking-pp-cli backlinks list-new-or-lost",
+      "description": "Track new and lost backlinks or referring domains for outreach and SEO-health monitoring."
+    },
+    {
+      "name": "Site-audit issue triage",
+      "command": "seranking-pp-cli site-audit get-audit-pages-by-issue",
+      "description": "Inspect audited pages by issue so agents can group technical SEO problems into actionable tickets."
+    }
+  ],
+  "spec_source": "official_docs_openapi",
+  "creator": {
+    "handle": "Pimmetjeoss",
+    "name": "Pimmetjeoss"
+  }
+}

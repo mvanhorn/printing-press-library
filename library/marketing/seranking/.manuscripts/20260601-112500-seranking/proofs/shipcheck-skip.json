@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "api_name": "seranking",
+  "run_id": "20260601-112500-seranking",
+  "status": "shipcheck-skip",
+  "reason": "No SE Ranking API key was available in the Hermes CLI publishing environment; live Phase 5 API dogfood was skipped.",
+  "validated_checks": [
+    "printing-press publish validate",
+    "go build ./...",
+    "go vet ./...",
+    "govulncheck ./...",
+    "printing-press verify-skill",
+    "secret scan"
+  ],
+  "no_live_data_included": true
+}

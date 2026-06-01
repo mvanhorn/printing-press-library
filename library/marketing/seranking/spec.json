@@ -1,0 +1,4162 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "SE Ranking API",
+    "version": "2026.06.01",
+    "description": "Agent-native OpenAPI subset for SE Ranking Data API and Project API based on official docs at https://seranking.com/api.html. Includes high-value read endpoints plus guarded write/recheck audit operations."
+  },
+  "servers": [
+    {
+      "url": "https://api.seranking.com"
+    }
+  ],
+  "paths": {
+    "/v1/account/subscription": {
+      "get": {
+        "tags": [
+          "account"
+        ],
+        "summary": "Get subscription details",
+        "description": "Get subscription details",
+        "operationId": "account_get_subscription_details",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/apikey"
+          },
+          {
+            "$ref": "#/components/parameters/output"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SE Ranking JSON response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyQuery": []
+          }
+        ]
+      }
+    },
+    "/v1/project-management/users/me": {
+      "get": {
+        "tags": [
+          "project-account"
+        ],
+        "summary": "Get user profile",
+        "description": "Get user profile",
+        "operationId": "project_account_get_user_profile",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/apikey"
+          },
+          {
+            "$ref": "#/components/parameters/output"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SE Ranking JSON response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyQuery": []
+          }
+        ]
+      }
+    },
+    "/v1/project-management/users": {
+      "get": {
+        "tags": [
+          "project-account"
+        ],
+        "summary": "List or manage sub accounts",
+        "description": "List or manage sub accounts",
+        "operationId": "project_account_list_or_manage_sub_accounts",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/apikey"
+          },
+          {
+            "$ref": "#/components/parameters/limit"
+          },
+          {
+            "$ref": "#/components/parameters/offset"
+          },
+          {
+            "$ref": "#/components/parameters/user_id"
+          },
+          {
+            "$ref": "#/components/parameters/output"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SE Ranking JSON response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyQuery": []
+          }
+        ]
+      }
+    },
+    "/v1/project-management/users/shared-sites": {
+      "get": {
+        "tags": [
+          "project-account"
+        ],
+        "summary": "List shared projects",
+        "description": "List shared projects",
+        "operationId": "project_account_list_shared_projects",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/apikey"
+          },
+          {
+            "$ref": "#/components/parameters/user_id"
+          },
+          {
+            "$ref": "#/components/parameters/output"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SE Ranking JSON response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyQuery": []
+          }
+        ]
+      }
+    },
+    "/v1/project-management/users/owned-sites": {
+      "get": {
+        "tags": [
+          "project-account"
+        ],
+        "summary": "List owned projects",
+        "description": "List owned projects",
+        "operationId": "project_account_list_owned_projects",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/apikey"
+          },
+          {
+            "$ref": "#/components/parameters/user_id"
+          },
+          {
+            "$ref": "#/components/parameters/output"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SE Ranking JSON response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyQuery": []
+          }
+        ]
+      }
+    },
+    "/v1/project-management/system/search-engines": {
+      "get": {
+        "tags": [
+          "reference"
+        ],
+        "summary": "List search engines",
+        "description": "List search engines",
+        "operationId": "reference_list_search_engines",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/apikey"
+          },
+          {
+            "$ref": "#/components/parameters/output"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SE Ranking JSON response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyQuery": []
+          }
+        ]
+      }
+    },
+    "/v1/project-management/system/google/regions": {
+      "get": {
+        "tags": [
+          "reference"
+        ],
+        "summary": "List Google regions",
+        "description": "List Google regions",
+        "operationId": "reference_list_google_regions",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/apikey"
+          },
+          {
+            "$ref": "#/components/parameters/output"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SE Ranking JSON response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyQuery": []
+          }
+        ]
+      }
+    },
+    "/v1/project-management/system/google/languages": {
+      "get": {
+        "tags": [
+          "reference"
+        ],
+        "summary": "List Google languages",
+        "description": "List Google languages",
+        "operationId": "reference_list_google_languages",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/apikey"
+          },
+          {
+            "$ref": "#/components/parameters/output"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SE Ranking JSON response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyQuery": []
+          }
+        ]
+      }
+    },
+    "/v1/backlinks/summary": {
+      "get": {
+        "tags": [
+          "backlinks"
+        ],
+        "summary": "Get backlink summary",
+        "description": "Get backlink summary",
+        "operationId": "backlinks_get_backlink_summary",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/apikey"
+          },
+          {
+            "$ref": "#/components/parameters/target"
+          },
+          {
+            "$ref": "#/components/parameters/mode"
+          },
+          {
+            "$ref": "#/components/parameters/output"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SE Ranking JSON response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyQuery": []
+          }
+        ]
+      }
+    },
+    "/v1/backlinks/metrics": {
+      "get": {
+        "tags": [
+          "backlinks"
+        ],
+        "summary": "Get backlink metrics",
+        "description": "Get backlink metrics",
+        "operationId": "backlinks_get_backlink_metrics",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/apikey"
+          },
+          {
+            "$ref": "#/components/parameters/target"
+          },
+          {
+            "$ref": "#/components/parameters/mode"
+          },
+          {
+            "$ref": "#/components/parameters/output"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SE Ranking JSON response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyQuery": []
+          }
+        ]
+      }
+    },
+    "/v1/backlinks/all": {
+      "get": {
+        "tags": [
+          "backlinks"
+        ],
+        "summary": "List backlinks",
+        "description": "List backlinks",
+        "operationId": "backlinks_list_backlinks",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/apikey"
+          },
+          {
+            "$ref": "#/components/parameters/target"
+          },
+          {
+            "$ref": "#/components/parameters/mode"
+          },
+          {
+            "$ref": "#/components/parameters/limit"
+          },
+          {
+            "$ref": "#/components/parameters/offset"
+          },
+          {
+            "$ref": "#/components/parameters/order_field"
+          },
+          {
+            "$ref": "#/components/parameters/order_type"
+          },
+          {
+            "$ref": "#/components/parameters/output"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SE Ranking JSON response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyQuery": []
+          }
+        ]
+      }
+    },
+    "/v1/backlinks/raw": {
+      "get": {
+        "tags": [
+          "backlinks"
+        ],
+        "summary": "Fetch raw backlinks batch",
+        "description": "Fetch raw backlinks batch",
+        "operationId": "backlinks_fetch_raw_backlinks_batch",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/apikey"
+          },
+          {
+            "$ref": "#/components/parameters/target"
+          },
+          {
+            "$ref": "#/components/parameters/mode"
+          },
+          {
+            "$ref": "#/components/parameters/limit"
+          },
+          {
+            "$ref": "#/components/parameters/output"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SE Ranking JSON response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyQuery": []
+          }
+        ]
+      }
+    },
+    "/v1/backlinks/count": {
+      "get": {
+        "tags": [
+          "backlinks"
+        ],
+        "summary": "Get backlink count",
+        "description": "Get backlink count",
+        "operationId": "backlinks_get_backlink_count",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/apikey"
+          },
+          {
+            "$ref": "#/components/parameters/target"
+          },
+          {
+            "$ref": "#/components/parameters/mode"
+          },
+          {
+            "$ref": "#/components/parameters/output"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SE Ranking JSON response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyQuery": []
+          }
+        ]
+      }
+    },
+    "/v1/backlinks/history": {
+      "get": {
+        "tags": [
+          "backlinks"
+        ],
+        "summary": "List new or lost backlinks",
+        "description": "List new or lost backlinks",
+        "operationId": "backlinks_list_new_or_lost_backlinks",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/apikey"
+          },
+          {
+            "$ref": "#/components/parameters/target"
+          },
+          {
+            "$ref": "#/components/parameters/mode"
+          },
+          {
+            "$ref": "#/components/parameters/date_from"
+          },
+          {
+            "$ref": "#/components/parameters/date_to"
+          },
+          {
+            "$ref": "#/components/parameters/type"
+          },
+          {
+            "$ref": "#/components/parameters/limit"
+          },
+          {
+            "$ref": "#/components/parameters/offset"
+          },
+          {
+            "$ref": "#/components/parameters/output"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SE Ranking JSON response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyQuery": []
+          }
+        ]
+      }
+    },
+    "/v1/backlinks/history/count": {
+      "get": {
+        "tags": [
+          "backlinks"
+        ],
+        "summary": "Get backlink history count",
+        "description": "Get backlink history count",
+        "operationId": "backlinks_get_backlink_history_count",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/apikey"
+          },
+          {
+            "$ref": "#/components/parameters/target"
+          },
+          {
+            "$ref": "#/components/parameters/mode"
+          },
+          {
+            "$ref": "#/components/parameters/date_from"
+          },
+          {
+            "$ref": "#/components/parameters/date_to"
+          },
+          {
+            "$ref": "#/components/parameters/type"
+          },
+          {
+            "$ref": "#/components/parameters/output"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SE Ranking JSON response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyQuery": []
+          }
+        ]
+      }
+    },
+    "/v1/backlinks/history/cumulative": {
+      "get": {
+        "tags": [
+          "backlinks"
+        ],
+        "summary": "Get cumulative backlinks history",
+        "description": "Get cumulative backlinks history",
+        "operationId": "backlinks_get_cumulative_backlinks_history",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/apikey"
+          },
+          {
+            "$ref": "#/components/parameters/target"
+          },
+          {
+            "$ref": "#/components/parameters/mode"
+          },
+          {
+            "$ref": "#/components/parameters/date_from"
+          },
+          {
+            "$ref": "#/components/parameters/date_to"
+          },
+          {
+            "$ref": "#/components/parameters/output"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SE Ranking JSON response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyQuery": []
+          }
+        ]
+      }
+    },
+    "/v1/backlinks/anchors": {
+      "get": {
+        "tags": [
+          "backlinks"
+        ],
+        "summary": "Get backlink anchor texts",
+        "description": "Get backlink anchor texts",
+        "operationId": "backlinks_get_backlink_anchor_texts",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/apikey"
+          },
+          {
+            "$ref": "#/components/parameters/target"
+          },
+          {
+            "$ref": "#/components/parameters/mode"
+          },
+          {
+            "$ref": "#/components/parameters/limit"
+          },
+          {
+            "$ref": "#/components/parameters/order_field"
+          },
+          {
+            "$ref": "#/components/parameters/order_type"
+          },
+          {
+            "$ref": "#/components/parameters/output"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SE Ranking JSON response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyQuery": []
+          }
+        ]
+      }
+    },
+    "/v1/backlinks/refdomains": {
+      "get": {
+        "tags": [
+          "backlinks"
+        ],
+        "summary": "List referring domains",
+        "description": "List referring domains",
+        "operationId": "backlinks_list_referring_domains",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/apikey"
+          },
+          {
+            "$ref": "#/components/parameters/target"
+          },
+          {
+            "$ref": "#/components/parameters/mode"
+          },
+          {
+            "$ref": "#/components/parameters/limit"
+          },
+          {
+            "$ref": "#/components/parameters/order_field"
+          },
+          {
+            "$ref": "#/components/parameters/order_type"
+          },
+          {
+            "$ref": "#/components/parameters/output"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SE Ranking JSON response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyQuery": []
+          }
+        ]
+      }
+    },
+    "/v1/backlinks/refdomains/count": {
+      "get": {
+        "tags": [
+          "backlinks"
+        ],
+        "summary": "Get referring domain count",
+        "description": "Get referring domain count",
+        "operationId": "backlinks_get_referring_domain_count",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/apikey"
+          },
+          {
+            "$ref": "#/components/parameters/target"
+          },
+          {
+            "$ref": "#/components/parameters/mode"
+          },
+          {
+            "$ref": "#/components/parameters/output"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SE Ranking JSON response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyQuery": []
+          }
+        ]
+      }
+    },
+    "/v1/backlinks/refdomains/history": {
+      "get": {
+        "tags": [
+          "backlinks"
+        ],
+        "summary": "List new or lost referring domains",
+        "description": "List new or lost referring domains",
+        "operationId": "backlinks_list_new_or_lost_referring_domains",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/apikey"
+          },
+          {
+            "$ref": "#/components/parameters/target"
+          },
+          {
+            "$ref": "#/components/parameters/mode"
+          },
+          {
+            "$ref": "#/components/parameters/date_from"
+          },
+          {
+            "$ref": "#/components/parameters/date_to"
+          },
+          {
+            "$ref": "#/components/parameters/output"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SE Ranking JSON response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyQuery": []
+          }
+        ]
+      }
+    },
+    "/v1/backlinks/refdomains/history/count": {
+      "get": {
+        "tags": [
+          "backlinks"
+        ],
+        "summary": "Get referring domain history count",
+        "description": "Get referring domain history count",
+        "operationId": "backlinks_get_referring_domain_history_count",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/apikey"
+          },
+          {
+            "$ref": "#/components/parameters/target"
+          },
+          {
+            "$ref": "#/components/parameters/mode"
+          },
+          {
+            "$ref": "#/components/parameters/date_from"
+          },
+          {
+            "$ref": "#/components/parameters/date_to"
+          },
+          {
+            "$ref": "#/components/parameters/output"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SE Ranking JSON response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyQuery": []
+          }
+        ]
+      }
+    },
+    "/v1/backlinks/referring-ips": {
+      "get": {
+        "tags": [
+          "backlinks"
+        ],
+        "summary": "List referring IPs",
+        "description": "List referring IPs",
+        "operationId": "backlinks_list_referring_ips",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/apikey"
+          },
+          {
+            "$ref": "#/components/parameters/target"
+          },
+          {
+            "$ref": "#/components/parameters/mode"
+          },
+          {
+            "$ref": "#/components/parameters/limit"
+          },
+          {
+            "$ref": "#/components/parameters/order_field"
+          },
+          {
+            "$ref": "#/components/parameters/order_type"
+          },
+          {
+            "$ref": "#/components/parameters/output"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SE Ranking JSON response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyQuery": []
+          }
+        ]
+      }
+    },
+    "/v1/backlinks/referring-ips/count": {
+      "get": {
+        "tags": [
+          "backlinks"
+        ],
+        "summary": "Get referring IP count",
+        "description": "Get referring IP count",
+        "operationId": "backlinks_get_referring_ip_count",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/apikey"
+          },
+          {
+            "$ref": "#/components/parameters/target"
+          },
+          {
+            "$ref": "#/components/parameters/mode"
+          },
+          {
+            "$ref": "#/components/parameters/output"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SE Ranking JSON response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyQuery": []
+          }
+        ]
+      }
+    },
+    "/v1/backlinks/referring-subnets/count": {
+      "get": {
+        "tags": [
+          "backlinks"
+        ],
+        "summary": "Get referring subnet count",
+        "description": "Get referring subnet count",
+        "operationId": "backlinks_get_referring_subnet_count",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/apikey"
+          },
+          {
+            "$ref": "#/components/parameters/target"
+          },
+          {
+            "$ref": "#/components/parameters/mode"
+          },
+          {
+            "$ref": "#/components/parameters/output"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SE Ranking JSON response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyQuery": []
+          }
+        ]
+      }
+    },
+    "/v1/backlinks/indexed-pages": {
+      "get": {
+        "tags": [
+          "backlinks"
+        ],
+        "summary": "List pages with backlinks",
+        "description": "List pages with backlinks",
+        "operationId": "backlinks_list_pages_with_backlinks",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/apikey"
+          },
+          {
+            "$ref": "#/components/parameters/target"
+          },
+          {
+            "$ref": "#/components/parameters/mode"
+          },
+          {
+            "$ref": "#/components/parameters/limit"
+          },
+          {
+            "$ref": "#/components/parameters/order_field"
+          },
+          {
+            "$ref": "#/components/parameters/order_type"
+          },
+          {
+            "$ref": "#/components/parameters/output"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SE Ranking JSON response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyQuery": []
+          }
+        ]
+      }
+    },
+    "/v1/backlinks/authority": {
+      "get": {
+        "tags": [
+          "backlinks"
+        ],
+        "summary": "Get page or domain authority",
+        "description": "Get page or domain authority",
+        "operationId": "backlinks_get_page_or_domain_authority",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/apikey"
+          },
+          {
+            "$ref": "#/components/parameters/target"
+          },
+          {
+            "$ref": "#/components/parameters/output"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SE Ranking JSON response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyQuery": []
+          }
+        ]
+      }
+    },
+    "/v1/backlinks/authority/domain": {
+      "get": {
+        "tags": [
+          "backlinks"
+        ],
+        "summary": "Get domain authority",
+        "description": "Get domain authority",
+        "operationId": "backlinks_get_domain_authority",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/apikey"
+          },
+          {
+            "$ref": "#/components/parameters/target"
+          },
+          {
+            "$ref": "#/components/parameters/output"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SE Ranking JSON response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyQuery": []
+          }
+        ]
+      }
+    },
+    "/v1/backlinks/authority/domain/distribution": {
+      "get": {
+        "tags": [
+          "backlinks"
+        ],
+        "summary": "Get domain authority distribution",
+        "description": "Get domain authority distribution",
+        "operationId": "backlinks_get_domain_authority_distribution",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/apikey"
+          },
+          {
+            "$ref": "#/components/parameters/target"
+          },
+          {
+            "$ref": "#/components/parameters/mode"
+          },
+          {
+            "$ref": "#/components/parameters/output"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SE Ranking JSON response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyQuery": []
+          }
+        ]
+      }
+    },
+    "/v1/backlinks/authority/domain/history": {
+      "get": {
+        "tags": [
+          "backlinks"
+        ],
+        "summary": "Get domain authority history",
+        "description": "Get domain authority history",
+        "operationId": "backlinks_get_domain_authority_history",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/apikey"
+          },
+          {
+            "$ref": "#/components/parameters/target"
+          },
+          {
+            "$ref": "#/components/parameters/date_from"
+          },
+          {
+            "$ref": "#/components/parameters/date_to"
+          },
+          {
+            "$ref": "#/components/parameters/output"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SE Ranking JSON response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyQuery": []
+          }
+        ]
+      }
+    },
+    "/v1/backlinks/authority/page": {
+      "get": {
+        "tags": [
+          "backlinks"
+        ],
+        "summary": "Get page authority",
+        "description": "Get page authority",
+        "operationId": "backlinks_get_page_authority",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/apikey"
+          },
+          {
+            "$ref": "#/components/parameters/target"
+          },
+          {
+            "$ref": "#/components/parameters/mode"
+          },
+          {
+            "$ref": "#/components/parameters/output"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SE Ranking JSON response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyQuery": []
+          }
+        ]
+      }
+    },
+    "/v1/backlinks/authority/page/history": {
+      "get": {
+        "tags": [
+          "backlinks"
+        ],
+        "summary": "Get page authority history",
+        "description": "Get page authority history",
+        "operationId": "backlinks_get_page_authority_history",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/apikey"
+          },
+          {
+            "$ref": "#/components/parameters/target"
+          },
+          {
+            "$ref": "#/components/parameters/date_from"
+          },
+          {
+            "$ref": "#/components/parameters/date_to"
+          },
+          {
+            "$ref": "#/components/parameters/output"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SE Ranking JSON response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyQuery": []
+          }
+        ]
+      }
+    },
+    "/v1/domain/overview/db": {
+      "get": {
+        "tags": [
+          "domain-analysis"
+        ],
+        "summary": "Get domain overview by region",
+        "description": "Get domain overview by region",
+        "operationId": "domain_analysis_get_domain_overview_by_region",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/apikey"
+          },
+          {
+            "$ref": "#/components/parameters/source"
+          },
+          {
+            "$ref": "#/components/parameters/domain"
+          },
+          {
+            "$ref": "#/components/parameters/output"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SE Ranking JSON response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyQuery": []
+          }
+        ]
+      }
+    },
+    "/v1/domain/overview/worldwide": {
+      "get": {
+        "tags": [
+          "domain-analysis"
+        ],
+        "summary": "Get worldwide domain overview",
+        "description": "Get worldwide domain overview",
+        "operationId": "domain_analysis_get_worldwide_domain_overview",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/apikey"
+          },
+          {
+            "$ref": "#/components/parameters/domain"
+          },
+          {
+            "$ref": "#/components/parameters/output"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SE Ranking JSON response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyQuery": []
+          }
+        ]
+      }
+    },
+    "/v1/domain/overview/worldwide/url": {
+      "get": {
+        "tags": [
+          "domain-analysis"
+        ],
+        "summary": "Get worldwide URL overview",
+        "description": "Get worldwide URL overview",
+        "operationId": "domain_analysis_get_worldwide_url_overview",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/apikey"
+          },
+          {
+            "$ref": "#/components/parameters/url"
+          },
+          {
+            "$ref": "#/components/parameters/output"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SE Ranking JSON response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyQuery": []
+          }
+        ]
+      }
+    },
+    "/v1/domain/overview/history": {
+      "get": {
+        "tags": [
+          "domain-analysis"
+        ],
+        "summary": "Get traffic and keyword history",
+        "description": "Get traffic and keyword history",
+        "operationId": "domain_analysis_get_traffic_and_keyword_history",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/apikey"
+          },
+          {
+            "$ref": "#/components/parameters/source"
+          },
+          {
+            "$ref": "#/components/parameters/domain"
+          },
+          {
+            "$ref": "#/components/parameters/type"
+          },
+          {
+            "$ref": "#/components/parameters/output"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SE Ranking JSON response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyQuery": []
+          }
+        ]
+      }
+    },
+    "/v1/domain/keywords": {
+      "get": {
+        "tags": [
+          "domain-analysis"
+        ],
+        "summary": "Get domain keyword rankings",
+        "description": "Get domain keyword rankings",
+        "operationId": "domain_analysis_get_domain_keyword_rankings",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/apikey"
+          },
+          {
+            "$ref": "#/components/parameters/source"
+          },
+          {
+            "$ref": "#/components/parameters/domain"
+          },
+          {
+            "$ref": "#/components/parameters/url"
+          },
+          {
+            "$ref": "#/components/parameters/type"
+          },
+          {
+            "$ref": "#/components/parameters/limit"
+          },
+          {
+            "$ref": "#/components/parameters/offset"
+          },
+          {
+            "$ref": "#/components/parameters/order_field"
+          },
+          {
+            "$ref": "#/components/parameters/order_type"
+          },
+          {
+            "$ref": "#/components/parameters/output"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SE Ranking JSON response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyQuery": []
+          }
+        ]
+      }
+    },
+    "/v1/domain/pages": {
+      "get": {
+        "tags": [
+          "domain-analysis"
+        ],
+        "summary": "Get domain pages",
+        "description": "Get domain pages",
+        "operationId": "domain_analysis_get_domain_pages",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/apikey"
+          },
+          {
+            "$ref": "#/components/parameters/source"
+          },
+          {
+            "$ref": "#/components/parameters/domain"
+          },
+          {
+            "$ref": "#/components/parameters/type"
+          },
+          {
+            "$ref": "#/components/parameters/limit"
+          },
+          {
+            "$ref": "#/components/parameters/offset"
+          },
+          {
+            "$ref": "#/components/parameters/order_field"
+          },
+          {
+            "$ref": "#/components/parameters/order_type"
+          },
+          {
+            "$ref": "#/components/parameters/output"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SE Ranking JSON response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyQuery": []
+          }
+        ]
+      }
+    },
+    "/v1/domain/subdomains": {
+      "get": {
+        "tags": [
+          "domain-analysis"
+        ],
+        "summary": "Get domain subdomains",
+        "description": "Get domain subdomains",
+        "operationId": "domain_analysis_get_domain_subdomains",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/apikey"
+          },
+          {
+            "$ref": "#/components/parameters/source"
+          },
+          {
+            "$ref": "#/components/parameters/target"
+          },
+          {
+            "$ref": "#/components/parameters/scope"
+          },
+          {
+            "$ref": "#/components/parameters/type"
+          },
+          {
+            "$ref": "#/components/parameters/limit"
+          },
+          {
+            "$ref": "#/components/parameters/offset"
+          },
+          {
+            "$ref": "#/components/parameters/order_field"
+          },
+          {
+            "$ref": "#/components/parameters/order_type"
+          },
+          {
+            "$ref": "#/components/parameters/output"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SE Ranking JSON response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyQuery": []
+          }
+        ]
+      }
+    },
+    "/v1/domain/ads": {
+      "get": {
+        "tags": [
+          "domain-analysis"
+        ],
+        "summary": "Get paid ads by keyword or domain",
+        "description": "Get paid ads by keyword or domain",
+        "operationId": "domain_analysis_get_paid_ads_by_keyword_or_domain",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/apikey"
+          },
+          {
+            "$ref": "#/components/parameters/source"
+          },
+          {
+            "$ref": "#/components/parameters/keyword"
+          },
+          {
+            "$ref": "#/components/parameters/domain"
+          },
+          {
+            "$ref": "#/components/parameters/date_from"
+          },
+          {
+            "$ref": "#/components/parameters/date_to"
+          },
+          {
+            "$ref": "#/components/parameters/limit"
+          },
+          {
+            "$ref": "#/components/parameters/offset"
+          },
+          {
+            "$ref": "#/components/parameters/output"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SE Ranking JSON response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyQuery": []
+          }
+        ]
+      }
+    },
+    "/v1/domain/competitors": {
+      "get": {
+        "tags": [
+          "domain-analysis"
+        ],
+        "summary": "Get domain competitors",
+        "description": "Get domain competitors",
+        "operationId": "domain_analysis_get_domain_competitors",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/apikey"
+          },
+          {
+            "$ref": "#/components/parameters/source"
+          },
+          {
+            "$ref": "#/components/parameters/domain"
+          },
+          {
+            "$ref": "#/components/parameters/type"
+          },
+          {
+            "$ref": "#/components/parameters/limit"
+          },
+          {
+            "$ref": "#/components/parameters/offset"
+          },
+          {
+            "$ref": "#/components/parameters/output"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SE Ranking JSON response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyQuery": []
+          }
+        ]
+      }
+    },
+    "/v1/domain/keywords/comparison": {
+      "get": {
+        "tags": [
+          "domain-analysis"
+        ],
+        "summary": "Analyze keyword overlap and gaps",
+        "description": "Analyze keyword overlap and gaps",
+        "operationId": "domain_analysis_analyze_keyword_overlap_and_gaps",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/apikey"
+          },
+          {
+            "$ref": "#/components/parameters/source"
+          },
+          {
+            "$ref": "#/components/parameters/domain"
+          },
+          {
+            "$ref": "#/components/parameters/url"
+          },
+          {
+            "$ref": "#/components/parameters/type"
+          },
+          {
+            "$ref": "#/components/parameters/limit"
+          },
+          {
+            "$ref": "#/components/parameters/offset"
+          },
+          {
+            "$ref": "#/components/parameters/order_field"
+          },
+          {
+            "$ref": "#/components/parameters/order_type"
+          },
+          {
+            "$ref": "#/components/parameters/output"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SE Ranking JSON response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyQuery": []
+          }
+        ]
+      }
+    },
+    "/v1/keywords/export": {
+      "get": {
+        "tags": [
+          "keyword-research"
+        ],
+        "summary": "Export keyword metrics",
+        "description": "Export keyword metrics",
+        "operationId": "keyword_research_export_keyword_metrics",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/apikey"
+          },
+          {
+            "$ref": "#/components/parameters/source"
+          },
+          {
+            "$ref": "#/components/parameters/keyword"
+          },
+          {
+            "$ref": "#/components/parameters/output"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SE Ranking JSON response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyQuery": []
+          }
+        ]
+      }
+    },
+    "/v1/keywords/similar": {
+      "get": {
+        "tags": [
+          "keyword-research"
+        ],
+        "summary": "Get similar keywords",
+        "description": "Get similar keywords",
+        "operationId": "keyword_research_get_similar_keywords",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/apikey"
+          },
+          {
+            "$ref": "#/components/parameters/source"
+          },
+          {
+            "$ref": "#/components/parameters/keyword"
+          },
+          {
+            "$ref": "#/components/parameters/limit"
+          },
+          {
+            "$ref": "#/components/parameters/offset"
+          },
+          {
+            "$ref": "#/components/parameters/sort"
+          },
+          {
+            "$ref": "#/components/parameters/sort_order"
+          },
+          {
+            "$ref": "#/components/parameters/output"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SE Ranking JSON response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyQuery": []
+          }
+        ]
+      }
+    },
+    "/v1/keywords/related": {
+      "get": {
+        "tags": [
+          "keyword-research"
+        ],
+        "summary": "Get related keywords",
+        "description": "Get related keywords",
+        "operationId": "keyword_research_get_related_keywords",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/apikey"
+          },
+          {
+            "$ref": "#/components/parameters/source"
+          },
+          {
+            "$ref": "#/components/parameters/keyword"
+          },
+          {
+            "$ref": "#/components/parameters/limit"
+          },
+          {
+            "$ref": "#/components/parameters/offset"
+          },
+          {
+            "$ref": "#/components/parameters/sort"
+          },
+          {
+            "$ref": "#/components/parameters/sort_order"
+          },
+          {
+            "$ref": "#/components/parameters/output"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SE Ranking JSON response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyQuery": []
+          }
+        ]
+      }
+    },
+    "/v1/keywords/questions": {
+      "get": {
+        "tags": [
+          "keyword-research"
+        ],
+        "summary": "Get question keywords",
+        "description": "Get question keywords",
+        "operationId": "keyword_research_get_question_keywords",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/apikey"
+          },
+          {
+            "$ref": "#/components/parameters/source"
+          },
+          {
+            "$ref": "#/components/parameters/keyword"
+          },
+          {
+            "$ref": "#/components/parameters/limit"
+          },
+          {
+            "$ref": "#/components/parameters/offset"
+          },
+          {
+            "$ref": "#/components/parameters/sort"
+          },
+          {
+            "$ref": "#/components/parameters/sort_order"
+          },
+          {
+            "$ref": "#/components/parameters/output"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SE Ranking JSON response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyQuery": []
+          }
+        ]
+      }
+    },
+    "/v1/keywords/longtail": {
+      "get": {
+        "tags": [
+          "keyword-research"
+        ],
+        "summary": "Get longtail keywords",
+        "description": "Get longtail keywords",
+        "operationId": "keyword_research_get_longtail_keywords",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/apikey"
+          },
+          {
+            "$ref": "#/components/parameters/source"
+          },
+          {
+            "$ref": "#/components/parameters/keyword"
+          },
+          {
+            "$ref": "#/components/parameters/limit"
+          },
+          {
+            "$ref": "#/components/parameters/offset"
+          },
+          {
+            "$ref": "#/components/parameters/output"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SE Ranking JSON response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyQuery": []
+          }
+        ]
+      }
+    },
+    "/v1/ai-search/overview/by-engine/time-series": {
+      "get": {
+        "tags": [
+          "ai-search"
+        ],
+        "summary": "Get AI search overview time series",
+        "description": "Get AI search overview time series",
+        "operationId": "ai_search_get_ai_search_overview_time_series",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/apikey"
+          },
+          {
+            "$ref": "#/components/parameters/target"
+          },
+          {
+            "$ref": "#/components/parameters/source"
+          },
+          {
+            "$ref": "#/components/parameters/engine"
+          },
+          {
+            "$ref": "#/components/parameters/output"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SE Ranking JSON response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyQuery": []
+          }
+        ]
+      }
+    },
+    "/v1/ai-search/overview/leaderboard": {
+      "get": {
+        "tags": [
+          "ai-search"
+        ],
+        "summary": "Get AI search leaderboard",
+        "description": "Get AI search leaderboard",
+        "operationId": "ai_search_get_ai_search_leaderboard",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/apikey"
+          },
+          {
+            "$ref": "#/components/parameters/source"
+          },
+          {
+            "$ref": "#/components/parameters/engine"
+          },
+          {
+            "$ref": "#/components/parameters/limit"
+          },
+          {
+            "$ref": "#/components/parameters/offset"
+          },
+          {
+            "$ref": "#/components/parameters/output"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SE Ranking JSON response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyQuery": []
+          }
+        ]
+      }
+    },
+    "/v1/ai-search/discover-brand": {
+      "get": {
+        "tags": [
+          "ai-search"
+        ],
+        "summary": "Discover brand by URL",
+        "description": "Discover brand by URL",
+        "operationId": "ai_search_discover_brand_by_url",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/apikey"
+          },
+          {
+            "$ref": "#/components/parameters/target"
+          },
+          {
+            "$ref": "#/components/parameters/scope"
+          },
+          {
+            "$ref": "#/components/parameters/source"
+          },
+          {
+            "$ref": "#/components/parameters/output"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SE Ranking JSON response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyQuery": []
+          }
+        ]
+      }
+    },
+    "/v1/ai-search/prompts-by-target": {
+      "get": {
+        "tags": [
+          "ai-search"
+        ],
+        "summary": "Get prompts by target",
+        "description": "Get prompts by target",
+        "operationId": "ai_search_get_prompts_by_target",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/apikey"
+          },
+          {
+            "$ref": "#/components/parameters/target"
+          },
+          {
+            "$ref": "#/components/parameters/scope"
+          },
+          {
+            "$ref": "#/components/parameters/source"
+          },
+          {
+            "$ref": "#/components/parameters/engine"
+          },
+          {
+            "$ref": "#/components/parameters/limit"
+          },
+          {
+            "$ref": "#/components/parameters/offset"
+          },
+          {
+            "$ref": "#/components/parameters/output"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SE Ranking JSON response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyQuery": []
+          }
+        ]
+      }
+    },
+    "/v1/ai-search/prompts-by-brand": {
+      "get": {
+        "tags": [
+          "ai-search"
+        ],
+        "summary": "Get prompts by brand",
+        "description": "Get prompts by brand",
+        "operationId": "ai_search_get_prompts_by_brand",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/apikey"
+          },
+          {
+            "$ref": "#/components/parameters/brand"
+          },
+          {
+            "$ref": "#/components/parameters/source"
+          },
+          {
+            "$ref": "#/components/parameters/engine"
+          },
+          {
+            "$ref": "#/components/parameters/limit"
+          },
+          {
+            "$ref": "#/components/parameters/offset"
+          },
+          {
+            "$ref": "#/components/parameters/sort"
+          },
+          {
+            "$ref": "#/components/parameters/sort_order"
+          },
+          {
+            "$ref": "#/components/parameters/output"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SE Ranking JSON response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyQuery": []
+          }
+        ]
+      }
+    },
+    "/v1/site-audit/audits": {
+      "get": {
+        "tags": [
+          "site-audit"
+        ],
+        "summary": "List audits",
+        "description": "List audits",
+        "operationId": "site_audit_list_audits",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/apikey"
+          },
+          {
+            "$ref": "#/components/parameters/limit"
+          },
+          {
+            "$ref": "#/components/parameters/offset"
+          },
+          {
+            "$ref": "#/components/parameters/audit_id"
+          },
+          {
+            "$ref": "#/components/parameters/output"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SE Ranking JSON response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyQuery": []
+          }
+        ]
+      }
+    },
+    "/v1/site-audit/audits/status": {
+      "get": {
+        "tags": [
+          "site-audit"
+        ],
+        "summary": "Get audit status",
+        "description": "Get audit status",
+        "operationId": "site_audit_get_audit_status",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/apikey"
+          },
+          {
+            "$ref": "#/components/parameters/audit_id"
+          },
+          {
+            "$ref": "#/components/parameters/output"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SE Ranking JSON response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyQuery": []
+          }
+        ]
+      }
+    },
+    "/v1/site-audit/audits/report": {
+      "get": {
+        "tags": [
+          "site-audit"
+        ],
+        "summary": "Get audit report",
+        "description": "Get audit report",
+        "operationId": "site_audit_get_audit_report",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/apikey"
+          },
+          {
+            "$ref": "#/components/parameters/audit_id"
+          },
+          {
+            "$ref": "#/components/parameters/output"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SE Ranking JSON response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyQuery": []
+          }
+        ]
+      }
+    },
+    "/v1/site-audit/audits/pages": {
+      "get": {
+        "tags": [
+          "site-audit"
+        ],
+        "summary": "Get crawled pages",
+        "description": "Get crawled pages",
+        "operationId": "site_audit_get_crawled_pages",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/apikey"
+          },
+          {
+            "$ref": "#/components/parameters/audit_id"
+          },
+          {
+            "$ref": "#/components/parameters/limit"
+          },
+          {
+            "$ref": "#/components/parameters/offset"
+          },
+          {
+            "$ref": "#/components/parameters/output"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SE Ranking JSON response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyQuery": []
+          }
+        ]
+      }
+    },
+    "/v1/site-audit/audits/issue-pages": {
+      "get": {
+        "tags": [
+          "site-audit"
+        ],
+        "summary": "Get audit pages by issue",
+        "description": "Get audit pages by issue",
+        "operationId": "site_audit_get_audit_pages_by_issue",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/apikey"
+          },
+          {
+            "$ref": "#/components/parameters/audit_id"
+          },
+          {
+            "$ref": "#/components/parameters/limit"
+          },
+          {
+            "$ref": "#/components/parameters/offset"
+          },
+          {
+            "$ref": "#/components/parameters/output"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SE Ranking JSON response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyQuery": []
+          }
+        ]
+      }
+    },
+    "/v1/site-audit/audits/issues": {
+      "get": {
+        "tags": [
+          "site-audit"
+        ],
+        "summary": "Get issues for URL",
+        "description": "Get issues for URL",
+        "operationId": "site_audit_get_issues_for_url",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/apikey"
+          },
+          {
+            "$ref": "#/components/parameters/audit_id"
+          },
+          {
+            "$ref": "#/components/parameters/url"
+          },
+          {
+            "$ref": "#/components/parameters/output"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SE Ranking JSON response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyQuery": []
+          }
+        ]
+      }
+    },
+    "/v1/site-audit/audits/links": {
+      "get": {
+        "tags": [
+          "site-audit"
+        ],
+        "summary": "Get audit links",
+        "description": "Get audit links",
+        "operationId": "site_audit_get_audit_links",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/apikey"
+          },
+          {
+            "$ref": "#/components/parameters/audit_id"
+          },
+          {
+            "$ref": "#/components/parameters/limit"
+          },
+          {
+            "$ref": "#/components/parameters/offset"
+          },
+          {
+            "$ref": "#/components/parameters/output"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SE Ranking JSON response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyQuery": []
+          }
+        ]
+      }
+    },
+    "/v1/site-audit/audits/history": {
+      "get": {
+        "tags": [
+          "site-audit"
+        ],
+        "summary": "Get audit history",
+        "description": "Get audit history",
+        "operationId": "site_audit_get_audit_history",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/apikey"
+          },
+          {
+            "$ref": "#/components/parameters/audit_id"
+          },
+          {
+            "$ref": "#/components/parameters/date"
+          },
+          {
+            "$ref": "#/components/parameters/output"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SE Ranking JSON response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyQuery": []
+          }
+        ]
+      }
+    },
+    "/v1/site-audit/audits/standard": {
+      "post": {
+        "tags": [
+          "site-audit"
+        ],
+        "summary": "Create standard audit",
+        "description": "Create standard audit",
+        "operationId": "site_audit_create_standard_audit",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/apikey"
+          },
+          {
+            "$ref": "#/components/parameters/url"
+          },
+          {
+            "$ref": "#/components/parameters/output"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SE Ranking JSON response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyQuery": []
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/site-audit/audits/advanced": {
+      "post": {
+        "tags": [
+          "site-audit"
+        ],
+        "summary": "Create advanced audit",
+        "description": "Create advanced audit",
+        "operationId": "site_audit_create_advanced_audit",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/apikey"
+          },
+          {
+            "$ref": "#/components/parameters/url"
+          },
+          {
+            "$ref": "#/components/parameters/output"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SE Ranking JSON response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyQuery": []
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/site-audit/audits/recheck/standard": {
+      "post": {
+        "tags": [
+          "site-audit"
+        ],
+        "summary": "Recheck standard audit",
+        "description": "Recheck standard audit",
+        "operationId": "site_audit_recheck_standard_audit",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/apikey"
+          },
+          {
+            "$ref": "#/components/parameters/audit_id"
+          },
+          {
+            "$ref": "#/components/parameters/output"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SE Ranking JSON response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyQuery": []
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/site-audit/audits/recheck/advanced": {
+      "post": {
+        "tags": [
+          "site-audit"
+        ],
+        "summary": "Recheck advanced audit",
+        "description": "Recheck advanced audit",
+        "operationId": "site_audit_recheck_advanced_audit",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/apikey"
+          },
+          {
+            "$ref": "#/components/parameters/audit_id"
+          },
+          {
+            "$ref": "#/components/parameters/output"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SE Ranking JSON response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyQuery": []
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/project-management/sites": {
+      "get": {
+        "tags": [
+          "projects"
+        ],
+        "summary": "List or manage projects",
+        "description": "List or manage projects",
+        "operationId": "projects_list_or_manage_projects",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/apikey"
+          },
+          {
+            "$ref": "#/components/parameters/site_id"
+          },
+          {
+            "$ref": "#/components/parameters/limit"
+          },
+          {
+            "$ref": "#/components/parameters/offset"
+          },
+          {
+            "$ref": "#/components/parameters/output"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SE Ranking JSON response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyQuery": []
+          }
+        ]
+      }
+    },
+    "/v1/project-management/sites/search-engines": {
+      "get": {
+        "tags": [
+          "projects"
+        ],
+        "summary": "List project search engines",
+        "description": "List project search engines",
+        "operationId": "projects_list_project_search_engines",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/apikey"
+          },
+          {
+            "$ref": "#/components/parameters/site_id"
+          },
+          {
+            "$ref": "#/components/parameters/site_engine_id"
+          },
+          {
+            "$ref": "#/components/parameters/output"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SE Ranking JSON response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyQuery": []
+          }
+        ]
+      }
+    },
+    "/v1/project-management/keywords": {
+      "get": {
+        "tags": [
+          "projects"
+        ],
+        "summary": "List website keywords",
+        "description": "List website keywords",
+        "operationId": "projects_list_website_keywords",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/apikey"
+          },
+          {
+            "$ref": "#/components/parameters/site_id"
+          },
+          {
+            "$ref": "#/components/parameters/site_engine_id"
+          },
+          {
+            "$ref": "#/components/parameters/limit"
+          },
+          {
+            "$ref": "#/components/parameters/offset"
+          },
+          {
+            "$ref": "#/components/parameters/output"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SE Ranking JSON response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyQuery": []
+          }
+        ]
+      }
+    },
+    "/v1/project-management/sites/summary": {
+      "get": {
+        "tags": [
+          "projects"
+        ],
+        "summary": "Get project summary statistics",
+        "description": "Get project summary statistics",
+        "operationId": "projects_get_project_summary_statistics",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/apikey"
+          },
+          {
+            "$ref": "#/components/parameters/site_id"
+          },
+          {
+            "$ref": "#/components/parameters/output"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SE Ranking JSON response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyQuery": []
+          }
+        ]
+      }
+    },
+    "/v1/project-management/sites/positions": {
+      "get": {
+        "tags": [
+          "projects"
+        ],
+        "summary": "Get keyword positions",
+        "description": "Get keyword positions",
+        "operationId": "projects_get_keyword_positions",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/apikey"
+          },
+          {
+            "$ref": "#/components/parameters/site_id"
+          },
+          {
+            "$ref": "#/components/parameters/site_engine_id"
+          },
+          {
+            "$ref": "#/components/parameters/date_from"
+          },
+          {
+            "$ref": "#/components/parameters/date_to"
+          },
+          {
+            "$ref": "#/components/parameters/output"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SE Ranking JSON response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyQuery": []
+          }
+        ]
+      }
+    },
+    "/v1/project-management/sites/ads-stats": {
+      "get": {
+        "tags": [
+          "projects"
+        ],
+        "summary": "Get ads chart statistics",
+        "description": "Get ads chart statistics",
+        "operationId": "projects_get_ads_chart_statistics",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/apikey"
+          },
+          {
+            "$ref": "#/components/parameters/site_id"
+          },
+          {
+            "$ref": "#/components/parameters/date_from"
+          },
+          {
+            "$ref": "#/components/parameters/date_to"
+          },
+          {
+            "$ref": "#/components/parameters/output"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SE Ranking JSON response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyQuery": []
+          }
+        ]
+      }
+    },
+    "/v1/project-management/sites/positions/checkpoints": {
+      "get": {
+        "tags": [
+          "projects"
+        ],
+        "summary": "Get historical dates",
+        "description": "Get historical dates",
+        "operationId": "projects_get_historical_dates",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/apikey"
+          },
+          {
+            "$ref": "#/components/parameters/site_id"
+          },
+          {
+            "$ref": "#/components/parameters/output"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SE Ranking JSON response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyQuery": []
+          }
+        ]
+      }
+    },
+    "/v1/project-management/sites/check-dates": {
+      "get": {
+        "tags": [
+          "projects"
+        ],
+        "summary": "Get check dates",
+        "description": "Get check dates",
+        "operationId": "projects_get_check_dates",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/apikey"
+          },
+          {
+            "$ref": "#/components/parameters/site_id"
+          },
+          {
+            "$ref": "#/components/parameters/date_from"
+          },
+          {
+            "$ref": "#/components/parameters/date_to"
+          },
+          {
+            "$ref": "#/components/parameters/output"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SE Ranking JSON response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyQuery": []
+          }
+        ]
+      }
+    },
+    "/v1/project-management/sites/positions/history": {
+      "get": {
+        "tags": [
+          "projects"
+        ],
+        "summary": "Get project position history",
+        "description": "Get project position history",
+        "operationId": "projects_get_project_position_history",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/apikey"
+          },
+          {
+            "$ref": "#/components/parameters/site_id"
+          },
+          {
+            "$ref": "#/components/parameters/type"
+          },
+          {
+            "$ref": "#/components/parameters/date_from"
+          },
+          {
+            "$ref": "#/components/parameters/date_to"
+          },
+          {
+            "$ref": "#/components/parameters/output"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SE Ranking JSON response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyQuery": []
+          }
+        ]
+      }
+    },
+    "/v1/project-management/sites/positions/recheck": {
+      "post": {
+        "tags": [
+          "projects"
+        ],
+        "summary": "Run position check",
+        "description": "Run position check",
+        "operationId": "projects_run_position_check",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/apikey"
+          },
+          {
+            "$ref": "#/components/parameters/site_id"
+          },
+          {
+            "$ref": "#/components/parameters/output"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SE Ranking JSON response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyQuery": []
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/project-management/competitors": {
+      "get": {
+        "tags": [
+          "competitors"
+        ],
+        "summary": "List competitors",
+        "description": "List competitors",
+        "operationId": "competitors_list_competitors",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/apikey"
+          },
+          {
+            "$ref": "#/components/parameters/site_id"
+          },
+          {
+            "$ref": "#/components/parameters/competitor_id"
+          },
+          {
+            "$ref": "#/components/parameters/output"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SE Ranking JSON response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyQuery": []
+          }
+        ]
+      }
+    },
+    "/v1/project-management/competitors/positions": {
+      "get": {
+        "tags": [
+          "competitors"
+        ],
+        "summary": "Get competitor keyword positions",
+        "description": "Get competitor keyword positions",
+        "operationId": "competitors_get_competitor_keyword_positions",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/apikey"
+          },
+          {
+            "$ref": "#/components/parameters/competitor_id"
+          },
+          {
+            "$ref": "#/components/parameters/date_from"
+          },
+          {
+            "$ref": "#/components/parameters/date_to"
+          },
+          {
+            "$ref": "#/components/parameters/site_engine_id"
+          },
+          {
+            "$ref": "#/components/parameters/output"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SE Ranking JSON response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyQuery": []
+          }
+        ]
+      }
+    },
+    "/v1/project-management/competitors/serp10": {
+      "get": {
+        "tags": [
+          "competitors"
+        ],
+        "summary": "Get top 10 results",
+        "description": "Get top 10 results",
+        "operationId": "competitors_get_top_10_results",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/apikey"
+          },
+          {
+            "$ref": "#/components/parameters/site_id"
+          },
+          {
+            "$ref": "#/components/parameters/date"
+          },
+          {
+            "$ref": "#/components/parameters/site_engine_id"
+          },
+          {
+            "$ref": "#/components/parameters/output"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SE Ranking JSON response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyQuery": []
+          }
+        ]
+      }
+    },
+    "/v1/project-management/competitors/serp100": {
+      "get": {
+        "tags": [
+          "competitors"
+        ],
+        "summary": "Get top 100 results",
+        "description": "Get top 100 results",
+        "operationId": "competitors_get_top_100_results",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/apikey"
+          },
+          {
+            "$ref": "#/components/parameters/site_id"
+          },
+          {
+            "$ref": "#/components/parameters/date"
+          },
+          {
+            "$ref": "#/components/parameters/site_engine_id"
+          },
+          {
+            "$ref": "#/components/parameters/limit"
+          },
+          {
+            "$ref": "#/components/parameters/output"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SE Ranking JSON response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyQuery": []
+          }
+        ]
+      }
+    },
+    "/v1/project-management/competitors/metrics": {
+      "get": {
+        "tags": [
+          "competitors"
+        ],
+        "summary": "Get all competitors metrics",
+        "description": "Get all competitors metrics",
+        "operationId": "competitors_get_all_competitors_metrics",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/apikey"
+          },
+          {
+            "$ref": "#/components/parameters/site_id"
+          },
+          {
+            "$ref": "#/components/parameters/date"
+          },
+          {
+            "$ref": "#/components/parameters/site_engine_id"
+          },
+          {
+            "$ref": "#/components/parameters/output"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SE Ranking JSON response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyQuery": []
+          }
+        ]
+      }
+    },
+    "/v1/project-management/airt/brand": {
+      "get": {
+        "tags": [
+          "ai-result-tracker"
+        ],
+        "summary": "Get site brand",
+        "description": "Get site brand",
+        "operationId": "ai_result_tracker_get_site_brand",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/apikey"
+          },
+          {
+            "$ref": "#/components/parameters/site_id"
+          },
+          {
+            "$ref": "#/components/parameters/output"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SE Ranking JSON response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyQuery": []
+          }
+        ]
+      }
+    },
+    "/v1/project-management/airt/llm": {
+      "get": {
+        "tags": [
+          "ai-result-tracker"
+        ],
+        "summary": "List or get LLM engines",
+        "description": "List or get LLM engines",
+        "operationId": "ai_result_tracker_list_or_get_llm_engines",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/apikey"
+          },
+          {
+            "$ref": "#/components/parameters/site_id"
+          },
+          {
+            "$ref": "#/components/parameters/llm_id"
+          },
+          {
+            "$ref": "#/components/parameters/output"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SE Ranking JSON response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyQuery": []
+          }
+        ]
+      }
+    },
+    "/v1/project-management/airt/llm/status": {
+      "get": {
+        "tags": [
+          "ai-result-tracker"
+        ],
+        "summary": "Get LLM status",
+        "description": "Get LLM status",
+        "operationId": "ai_result_tracker_get_llm_status",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/apikey"
+          },
+          {
+            "$ref": "#/components/parameters/site_id"
+          },
+          {
+            "$ref": "#/components/parameters/llm_id"
+          },
+          {
+            "$ref": "#/components/parameters/output"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SE Ranking JSON response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyQuery": []
+          }
+        ]
+      }
+    },
+    "/v1/project-management/airt/llm/statistics": {
+      "get": {
+        "tags": [
+          "ai-result-tracker"
+        ],
+        "summary": "Get LLM statistics",
+        "description": "Get LLM statistics",
+        "operationId": "ai_result_tracker_get_llm_statistics",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/apikey"
+          },
+          {
+            "$ref": "#/components/parameters/site_id"
+          },
+          {
+            "$ref": "#/components/parameters/llm_id"
+          },
+          {
+            "$ref": "#/components/parameters/date_from"
+          },
+          {
+            "$ref": "#/components/parameters/date_to"
+          },
+          {
+            "$ref": "#/components/parameters/output"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SE Ranking JSON response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyQuery": []
+          }
+        ]
+      }
+    },
+    "/v1/project-management/airt/prompts": {
+      "get": {
+        "tags": [
+          "ai-result-tracker"
+        ],
+        "summary": "List prompts",
+        "description": "List prompts",
+        "operationId": "ai_result_tracker_list_prompts",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/apikey"
+          },
+          {
+            "$ref": "#/components/parameters/site_id"
+          },
+          {
+            "$ref": "#/components/parameters/llm_id"
+          },
+          {
+            "$ref": "#/components/parameters/output"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SE Ranking JSON response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyQuery": []
+          }
+        ]
+      }
+    },
+    "/v1/project-management/airt/prompts/answer": {
+      "get": {
+        "tags": [
+          "ai-result-tracker"
+        ],
+        "summary": "Get prompt answer",
+        "description": "Get prompt answer",
+        "operationId": "ai_result_tracker_get_prompt_answer",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/apikey"
+          },
+          {
+            "$ref": "#/components/parameters/site_id"
+          },
+          {
+            "$ref": "#/components/parameters/llm_id"
+          },
+          {
+            "$ref": "#/components/parameters/date"
+          },
+          {
+            "$ref": "#/components/parameters/output"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SE Ranking JSON response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyQuery": []
+          }
+        ]
+      }
+    },
+    "/v1/project-management/airt/prompts/rankings": {
+      "get": {
+        "tags": [
+          "ai-result-tracker"
+        ],
+        "summary": "Get prompt rankings",
+        "description": "Get prompt rankings",
+        "operationId": "ai_result_tracker_get_prompt_rankings",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/apikey"
+          },
+          {
+            "$ref": "#/components/parameters/site_id"
+          },
+          {
+            "$ref": "#/components/parameters/llm_id"
+          },
+          {
+            "$ref": "#/components/parameters/date_from"
+          },
+          {
+            "$ref": "#/components/parameters/date_to"
+          },
+          {
+            "$ref": "#/components/parameters/limit"
+          },
+          {
+            "$ref": "#/components/parameters/offset"
+          },
+          {
+            "$ref": "#/components/parameters/output"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SE Ranking JSON response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyQuery": []
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "ApiKeyQuery": {
+        "type": "apiKey",
+        "in": "query",
+        "name": "apikey"
+      }
+    },
+    "parameters": {
+      "apikey": {
+        "name": "apikey",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string"
+        },
+        "description": "SE Ranking API key. Prefer SE_RANKING_API_KEY env; examples in official docs also show apikey query parameter."
+      },
+      "output": {
+        "name": "output",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "default": "json"
+        },
+        "description": "Response format; use json for agent-native use."
+      },
+      "target": {
+        "name": "target",
+        "in": "query",
+        "schema": {
+          "type": "string"
+        },
+        "description": "Target domain/host/URL depending on endpoint."
+      },
+      "mode": {
+        "name": "mode",
+        "in": "query",
+        "schema": {
+          "type": "string",
+          "enum": [
+            "domain",
+            "host",
+            "url"
+          ]
+        },
+        "description": "Target scope for backlinks/domain endpoints."
+      },
+      "source": {
+        "name": "source",
+        "in": "query",
+        "schema": {
+          "type": "string"
+        },
+        "description": "Regional database code such as us, uk, nl."
+      },
+      "domain": {
+        "name": "domain",
+        "in": "query",
+        "schema": {
+          "type": "string"
+        },
+        "description": "Domain name to analyze."
+      },
+      "url": {
+        "name": "url",
+        "in": "query",
+        "schema": {
+          "type": "string"
+        },
+        "description": "URL to analyze."
+      },
+      "keyword": {
+        "name": "keyword",
+        "in": "query",
+        "schema": {
+          "type": "string"
+        },
+        "description": "Keyword query."
+      },
+      "limit": {
+        "name": "limit",
+        "in": "query",
+        "schema": {
+          "type": "integer"
+        },
+        "description": "Maximum rows to return."
+      },
+      "offset": {
+        "name": "offset",
+        "in": "query",
+        "schema": {
+          "type": "integer"
+        },
+        "description": "Pagination offset."
+      },
+      "date_from": {
+        "name": "date_from",
+        "in": "query",
+        "schema": {
+          "type": "string"
+        },
+        "description": "Start date YYYY-MM-DD."
+      },
+      "date_to": {
+        "name": "date_to",
+        "in": "query",
+        "schema": {
+          "type": "string"
+        },
+        "description": "End date YYYY-MM-DD."
+      },
+      "date": {
+        "name": "date",
+        "in": "query",
+        "schema": {
+          "type": "string"
+        },
+        "description": "Date YYYY-MM-DD."
+      },
+      "site_id": {
+        "name": "site_id",
+        "in": "query",
+        "schema": {
+          "type": "integer"
+        },
+        "description": "SE Ranking project/site ID."
+      },
+      "site_engine_id": {
+        "name": "site_engine_id",
+        "in": "query",
+        "schema": {
+          "type": "integer"
+        },
+        "description": "Project search engine ID."
+      },
+      "audit_id": {
+        "name": "audit_id",
+        "in": "query",
+        "schema": {
+          "type": "integer"
+        },
+        "description": "Website audit ID."
+      },
+      "llm_id": {
+        "name": "llm_id",
+        "in": "query",
+        "schema": {
+          "type": "integer"
+        },
+        "description": "AI Result Tracker LLM engine ID."
+      },
+      "competitor_id": {
+        "name": "competitor_id",
+        "in": "query",
+        "schema": {
+          "type": "integer"
+        },
+        "description": "Competitor ID."
+      },
+      "user_id": {
+        "name": "user_id",
+        "in": "query",
+        "schema": {
+          "type": "integer"
+        },
+        "description": "Sub-account/user ID."
+      },
+      "type": {
+        "name": "type",
+        "in": "query",
+        "schema": {
+          "type": "string"
+        },
+        "description": "Result type, e.g. organic or adv where supported."
+      },
+      "order_field": {
+        "name": "order_field",
+        "in": "query",
+        "schema": {
+          "type": "string"
+        },
+        "description": "Sort field."
+      },
+      "order_type": {
+        "name": "order_type",
+        "in": "query",
+        "schema": {
+          "type": "string",
+          "enum": [
+            "asc",
+            "desc"
+          ]
+        },
+        "description": "Sort direction."
+      },
+      "sort": {
+        "name": "sort",
+        "in": "query",
+        "schema": {
+          "type": "string"
+        },
+        "description": "Sort field."
+      },
+      "sort_order": {
+        "name": "sort_order",
+        "in": "query",
+        "schema": {
+          "type": "string",
+          "enum": [
+            "asc",
+            "desc"
+          ]
+        },
+        "description": "Sort direction."
+      },
+      "engine": {
+        "name": "engine",
+        "in": "query",
+        "schema": {
+          "type": "string"
+        },
+        "description": "AI Search engine, e.g. ai-overview, ai-mode, perplexity."
+      },
+      "brand": {
+        "name": "brand",
+        "in": "query",
+        "schema": {
+          "type": "string"
+        },
+        "description": "Brand name."
+      },
+      "scope": {
+        "name": "scope",
+        "in": "query",
+        "schema": {
+          "type": "string"
+        },
+        "description": "Scope, e.g. domain/base_domain/url."
+      }
+    }
+  }
+}

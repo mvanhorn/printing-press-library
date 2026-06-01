@@ -1,0 +1,2280 @@
+{
+  "api_name": "seranking",
+  "base_url": "https://api.seranking.com",
+  "description": "Agent-native OpenAPI subset for SE Ranking Data API and Project API based on official docs at https://seranking.com/api.html. Includes high-value read endpoints plus guarded write/recheck audit operations.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "api_key",
+    "header": "apikey",
+    "in": "query",
+    "env_vars": [
+      "SE_RANKING_API_KEY_QUERY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "SE_RANKING_API_KEY_QUERY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "account_get-subscription-details",
+      "description": "Get subscription details. Returns the AccountGetSubscriptionDetailsResponse.",
+      "method": "GET",
+      "path": "/v1/account/subscription",
+      "params": []
+    },
+    {
+      "name": "ai-search_discover-brand-by-url",
+      "description": "Discover brand by URL. Optional: target, scope, source. Returns the AiSearchDiscoverBrandByUrlResponse.",
+      "method": "GET",
+      "path": "/v1/ai-search/discover-brand",
+      "params": [
+        {
+          "name": "target",
+          "type": "string",
+          "location": "query",
+          "description": "Target domain/host/URL depending on endpoint."
+        },
+        {
+          "name": "scope",
+          "type": "string",
+          "location": "query",
+          "description": "Scope, e.g. domain/base_domain/url."
+        },
+        {
+          "name": "source",
+          "type": "string",
+          "location": "query",
+          "description": "Regional database code such as us, uk, nl."
+        }
+      ]
+    },
+    {
+      "name": "ai-search_get-leaderboard",
+      "description": "Get AI search leaderboard. Optional: source, engine, limit (plus 1 more). Returns the AiSearchGetLeaderboardResponse.",
+      "method": "GET",
+      "path": "/v1/ai-search/overview/leaderboard",
+      "params": [
+        {
+          "name": "source",
+          "type": "string",
+          "location": "query",
+          "description": "Regional database code such as us, uk, nl."
+        },
+        {
+          "name": "engine",
+          "type": "string",
+          "location": "query",
+          "description": "AI Search engine, e.g. ai-overview, ai-mode, perplexity."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum rows to return."
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Pagination offset."
+        }
+      ]
+    },
+    {
+      "name": "ai-search_get-overview-time-series",
+      "description": "Get AI search overview time series. Optional: target, source, engine. Returns the AiSearchGetOverviewTimeSeriesResponse.",
+      "method": "GET",
+      "path": "/v1/ai-search/overview/by-engine/time-series",
+      "params": [
+        {
+          "name": "target",
+          "type": "string",
+          "location": "query",
+          "description": "Target domain/host/URL depending on endpoint."
+        },
+        {
+          "name": "source",
+          "type": "string",
+          "location": "query",
+          "description": "Regional database code such as us, uk, nl."
+        },
+        {
+          "name": "engine",
+          "type": "string",
+          "location": "query",
+          "description": "AI Search engine, e.g. ai-overview, ai-mode, perplexity."
+        }
+      ]
+    },
+    {
+      "name": "ai-search_get-prompts-by-brand",
+      "description": "Get prompts by brand. Optional: brand, source, engine (plus 4 more). Returns the AiSearchGetPromptsByBrandResponse.",
+      "method": "GET",
+      "path": "/v1/ai-search/prompts-by-brand",
+      "params": [
+        {
+          "name": "brand",
+          "type": "string",
+          "location": "query",
+          "description": "Brand name."
+        },
+        {
+          "name": "source",
+          "type": "string",
+          "location": "query",
+          "description": "Regional database code such as us, uk, nl."
+        },
+        {
+          "name": "engine",
+          "type": "string",
+          "location": "query",
+          "description": "AI Search engine, e.g. ai-overview, ai-mode, perplexity."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum rows to return."
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Pagination offset."
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort field."
+        },
+        {
+          "name": "sort_order",
+          "type": "string",
+          "location": "query",
+          "description": "Sort direction."
+        }
+      ]
+    },
+    {
+      "name": "ai-search_get-prompts-by-target",
+      "description": "Get prompts by target. Optional: target, scope, source (plus 3 more). Returns the AiSearchGetPromptsByTargetResponse.",
+      "method": "GET",
+      "path": "/v1/ai-search/prompts-by-target",
+      "params": [
+        {
+          "name": "target",
+          "type": "string",
+          "location": "query",
+          "description": "Target domain/host/URL depending on endpoint."
+        },
+        {
+          "name": "scope",
+          "type": "string",
+          "location": "query",
+          "description": "Scope, e.g. domain/base_domain/url."
+        },
+        {
+          "name": "source",
+          "type": "string",
+          "location": "query",
+          "description": "Regional database code such as us, uk, nl."
+        },
+        {
+          "name": "engine",
+          "type": "string",
+          "location": "query",
+          "description": "AI Search engine, e.g. ai-overview, ai-mode, perplexity."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum rows to return."
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Pagination offset."
+        }
+      ]
+    },
+    {
+      "name": "backlinks_fetch-raw-batch",
+      "description": "Fetch raw backlinks batch. Optional: target, mode, limit. Returns the BacklinksFetchRawBatchResponse.",
+      "method": "GET",
+      "path": "/v1/backlinks/raw",
+      "params": [
+        {
+          "name": "target",
+          "type": "string",
+          "location": "query",
+          "description": "Target domain/host/URL depending on endpoint."
+        },
+        {
+          "name": "mode",
+          "type": "string",
+          "location": "query",
+          "description": "Target scope for backlinks/domain endpoints."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum rows to return."
+        }
+      ]
+    },
+    {
+      "name": "backlinks_get-anchor-texts",
+      "description": "Get backlink anchor texts. Optional: target, mode, limit (plus 2 more). Returns the BacklinksGetAnchorTextsResponse.",
+      "method": "GET",
+      "path": "/v1/backlinks/anchors",
+      "params": [
+        {
+          "name": "target",
+          "type": "string",
+          "location": "query",
+          "description": "Target domain/host/URL depending on endpoint."
+        },
+        {
+          "name": "mode",
+          "type": "string",
+          "location": "query",
+          "description": "Target scope for backlinks/domain endpoints."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum rows to return."
+        },
+        {
+          "name": "order_field",
+          "type": "string",
+          "location": "query",
+          "description": "Sort field."
+        },
+        {
+          "name": "order_type",
+          "type": "string",
+          "location": "query",
+          "description": "Sort direction."
+        }
+      ]
+    },
+    {
+      "name": "backlinks_get-count",
+      "description": "Get backlink count. Optional: target, mode. Returns the BacklinksGetCountResponse.",
+      "method": "GET",
+      "path": "/v1/backlinks/count",
+      "params": [
+        {
+          "name": "target",
+          "type": "string",
+          "location": "query",
+          "description": "Target domain/host/URL depending on endpoint."
+        },
+        {
+          "name": "mode",
+          "type": "string",
+          "location": "query",
+          "description": "Target scope for backlinks/domain endpoints."
+        }
+      ]
+    },
+    {
+      "name": "backlinks_get-cumulative-history",
+      "description": "Get cumulative backlinks history. Optional: target, mode, date_from (plus 1 more). Returns the BacklinksGetCumulativeHistoryResponse.",
+      "method": "GET",
+      "path": "/v1/backlinks/history/cumulative",
+      "params": [
+        {
+          "name": "target",
+          "type": "string",
+          "location": "query",
+          "description": "Target domain/host/URL depending on endpoint."
+        },
+        {
+          "name": "mode",
+          "type": "string",
+          "location": "query",
+          "description": "Target scope for backlinks/domain endpoints."
+        },
+        {
+          "name": "date_from",
+          "type": "string",
+          "location": "query",
+          "description": "Start date YYYY-MM-DD."
+        },
+        {
+          "name": "date_to",
+          "type": "string",
+          "location": "query",
+          "description": "End date YYYY-MM-DD."
+        }
+      ]
+    },
+    {
+      "name": "backlinks_get-domain-authority",
+      "description": "Get domain authority. Optional: target. Returns the BacklinksGetDomainAuthorityResponse.",
+      "method": "GET",
+      "path": "/v1/backlinks/authority/domain",
+      "params": [
+        {
+          "name": "target",
+          "type": "string",
+          "location": "query",
+          "description": "Target domain/host/URL depending on endpoint."
+        }
+      ]
+    },
+    {
+      "name": "backlinks_get-domain-authority-distribution",
+      "description": "Get domain authority distribution. Optional: target, mode. Returns the BacklinksGetDomainAuthorityDistributionResponse.",
+      "method": "GET",
+      "path": "/v1/backlinks/authority/domain/distribution",
+      "params": [
+        {
+          "name": "target",
+          "type": "string",
+          "location": "query",
+          "description": "Target domain/host/URL depending on endpoint."
+        },
+        {
+          "name": "mode",
+          "type": "string",
+          "location": "query",
+          "description": "Target scope for backlinks/domain endpoints."
+        }
+      ]
+    },
+    {
+      "name": "backlinks_get-domain-authority-history",
+      "description": "Get domain authority history. Optional: target, date_from, date_to. Returns the BacklinksGetDomainAuthorityHistoryResponse.",
+      "method": "GET",
+      "path": "/v1/backlinks/authority/domain/history",
+      "params": [
+        {
+          "name": "target",
+          "type": "string",
+          "location": "query",
+          "description": "Target domain/host/URL depending on endpoint."
+        },
+        {
+          "name": "date_from",
+          "type": "string",
+          "location": "query",
+          "description": "Start date YYYY-MM-DD."
+        },
+        {
+          "name": "date_to",
+          "type": "string",
+          "location": "query",
+          "description": "End date YYYY-MM-DD."
+        }
+      ]
+    },
+    {
+      "name": "backlinks_get-history-count",
+      "description": "Get backlink history count. Optional: target, mode, date_from (plus 2 more). Returns the BacklinksGetHistoryCountResponse.",
+      "method": "GET",
+      "path": "/v1/backlinks/history/count",
+      "params": [
+        {
+          "name": "target",
+          "type": "string",
+          "location": "query",
+          "description": "Target domain/host/URL depending on endpoint."
+        },
+        {
+          "name": "mode",
+          "type": "string",
+          "location": "query",
+          "description": "Target scope for backlinks/domain endpoints."
+        },
+        {
+          "name": "date_from",
+          "type": "string",
+          "location": "query",
+          "description": "Start date YYYY-MM-DD."
+        },
+        {
+          "name": "date_to",
+          "type": "string",
+          "location": "query",
+          "description": "End date YYYY-MM-DD."
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Result type, e.g. organic or adv where supported."
+        }
+      ]
+    },
+    {
+      "name": "backlinks_get-metrics",
+      "description": "Get backlink metrics. Optional: target, mode. Returns the BacklinksGetMetricsResponse.",
+      "method": "GET",
+      "path": "/v1/backlinks/metrics",
+      "params": [
+        {
+          "name": "target",
+          "type": "string",
+          "location": "query",
+          "description": "Target domain/host/URL depending on endpoint."
+        },
+        {
+          "name": "mode",
+          "type": "string",
+          "location": "query",
+          "description": "Target scope for backlinks/domain endpoints."
+        }
+      ]
+    },
+    {
+      "name": "backlinks_get-page-authority",
+      "description": "Get page authority. Optional: target, mode. Returns the BacklinksGetPageAuthorityResponse.",
+      "method": "GET",
+      "path": "/v1/backlinks/authority/page",
+      "params": [
+        {
+          "name": "target",
+          "type": "string",
+          "location": "query",
+          "description": "Target domain/host/URL depending on endpoint."
+        },
+        {
+          "name": "mode",
+          "type": "string",
+          "location": "query",
+          "description": "Target scope for backlinks/domain endpoints."
+        }
+      ]
+    },
+    {
+      "name": "backlinks_get-page-authority-history",
+      "description": "Get page authority history. Optional: target, date_from, date_to. Returns the BacklinksGetPageAuthorityHistoryResponse.",
+      "method": "GET",
+      "path": "/v1/backlinks/authority/page/history",
+      "params": [
+        {
+          "name": "target",
+          "type": "string",
+          "location": "query",
+          "description": "Target domain/host/URL depending on endpoint."
+        },
+        {
+          "name": "date_from",
+          "type": "string",
+          "location": "query",
+          "description": "Start date YYYY-MM-DD."
+        },
+        {
+          "name": "date_to",
+          "type": "string",
+          "location": "query",
+          "description": "End date YYYY-MM-DD."
+        }
+      ]
+    },
+    {
+      "name": "backlinks_get-page-or-domain-authority",
+      "description": "Get page or domain authority. Optional: target. Returns the BacklinksGetPageOrDomainAuthorityResponse.",
+      "method": "GET",
+      "path": "/v1/backlinks/authority",
+      "params": [
+        {
+          "name": "target",
+          "type": "string",
+          "location": "query",
+          "description": "Target domain/host/URL depending on endpoint."
+        }
+      ]
+    },
+    {
+      "name": "backlinks_get-referring-domain-count",
+      "description": "Get referring domain count. Optional: target, mode. Returns the BacklinksGetReferringDomainCountResponse.",
+      "method": "GET",
+      "path": "/v1/backlinks/refdomains/count",
+      "params": [
+        {
+          "name": "target",
+          "type": "string",
+          "location": "query",
+          "description": "Target domain/host/URL depending on endpoint."
+        },
+        {
+          "name": "mode",
+          "type": "string",
+          "location": "query",
+          "description": "Target scope for backlinks/domain endpoints."
+        }
+      ]
+    },
+    {
+      "name": "backlinks_get-referring-domain-history-count",
+      "description": "Get referring domain history count. Optional: target, mode, date_from (plus 1 more). Returns the BacklinksGetReferringDomainHistoryCountResponse.",
+      "method": "GET",
+      "path": "/v1/backlinks/refdomains/history/count",
+      "params": [
+        {
+          "name": "target",
+          "type": "string",
+          "location": "query",
+          "description": "Target domain/host/URL depending on endpoint."
+        },
+        {
+          "name": "mode",
+          "type": "string",
+          "location": "query",
+          "description": "Target scope for backlinks/domain endpoints."
+        },
+        {
+          "name": "date_from",
+          "type": "string",
+          "location": "query",
+          "description": "Start date YYYY-MM-DD."
+        },
+        {
+          "name": "date_to",
+          "type": "string",
+          "location": "query",
+          "description": "End date YYYY-MM-DD."
+        }
+      ]
+    },
+    {
+      "name": "backlinks_get-referring-ip-count",
+      "description": "Get referring IP count. Optional: target, mode. Returns the BacklinksGetReferringIpCountResponse.",
+      "method": "GET",
+      "path": "/v1/backlinks/referring-ips/count",
+      "params": [
+        {
+          "name": "target",
+          "type": "string",
+          "location": "query",
+          "description": "Target domain/host/URL depending on endpoint."
+        },
+        {
+          "name": "mode",
+          "type": "string",
+          "location": "query",
+          "description": "Target scope for backlinks/domain endpoints."
+        }
+      ]
+    },
+    {
+      "name": "backlinks_get-referring-subnet-count",
+      "description": "Get referring subnet count. Optional: target, mode. Returns the BacklinksGetReferringSubnetCountResponse.",
+      "method": "GET",
+      "path": "/v1/backlinks/referring-subnets/count",
+      "params": [
+        {
+          "name": "target",
+          "type": "string",
+          "location": "query",
+          "description": "Target domain/host/URL depending on endpoint."
+        },
+        {
+          "name": "mode",
+          "type": "string",
+          "location": "query",
+          "description": "Target scope for backlinks/domain endpoints."
+        }
+      ]
+    },
+    {
+      "name": "backlinks_get-summary",
+      "description": "Get backlink summary. Optional: target, mode. Returns the BacklinksGetSummaryResponse.",
+      "method": "GET",
+      "path": "/v1/backlinks/summary",
+      "params": [
+        {
+          "name": "target",
+          "type": "string",
+          "location": "query",
+          "description": "Target domain/host/URL depending on endpoint."
+        },
+        {
+          "name": "mode",
+          "type": "string",
+          "location": "query",
+          "description": "Target scope for backlinks/domain endpoints."
+        }
+      ]
+    },
+    {
+      "name": "backlinks_list",
+      "description": "List backlinks. Optional: target, mode, limit (plus 3 more). Returns the BacklinksListResponse.",
+      "method": "GET",
+      "path": "/v1/backlinks/all",
+      "params": [
+        {
+          "name": "target",
+          "type": "string",
+          "location": "query",
+          "description": "Target domain/host/URL depending on endpoint."
+        },
+        {
+          "name": "mode",
+          "type": "string",
+          "location": "query",
+          "description": "Target scope for backlinks/domain endpoints."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum rows to return."
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Pagination offset."
+        },
+        {
+          "name": "order_field",
+          "type": "string",
+          "location": "query",
+          "description": "Sort field."
+        },
+        {
+          "name": "order_type",
+          "type": "string",
+          "location": "query",
+          "description": "Sort direction."
+        }
+      ]
+    },
+    {
+      "name": "backlinks_list-new-or-lost",
+      "description": "List new or lost backlinks. Optional: target, mode, date_from (plus 4 more). Returns the BacklinksListNewOrLostResponse.",
+      "method": "GET",
+      "path": "/v1/backlinks/history",
+      "params": [
+        {
+          "name": "target",
+          "type": "string",
+          "location": "query",
+          "description": "Target domain/host/URL depending on endpoint."
+        },
+        {
+          "name": "mode",
+          "type": "string",
+          "location": "query",
+          "description": "Target scope for backlinks/domain endpoints."
+        },
+        {
+          "name": "date_from",
+          "type": "string",
+          "location": "query",
+          "description": "Start date YYYY-MM-DD."
+        },
+        {
+          "name": "date_to",
+          "type": "string",
+          "location": "query",
+          "description": "End date YYYY-MM-DD."
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Result type, e.g. organic or adv where supported."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum rows to return."
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Pagination offset."
+        }
+      ]
+    },
+    {
+      "name": "backlinks_list-new-or-lost-referring-domains",
+      "description": "List new or lost referring domains. Optional: target, mode, date_from (plus 1 more). Returns the BacklinksListNewOrLostReferringDomainsResponse.",
+      "method": "GET",
+      "path": "/v1/backlinks/refdomains/history",
+      "params": [
+        {
+          "name": "target",
+          "type": "string",
+          "location": "query",
+          "description": "Target domain/host/URL depending on endpoint."
+        },
+        {
+          "name": "mode",
+          "type": "string",
+          "location": "query",
+          "description": "Target scope for backlinks/domain endpoints."
+        },
+        {
+          "name": "date_from",
+          "type": "string",
+          "location": "query",
+          "description": "Start date YYYY-MM-DD."
+        },
+        {
+          "name": "date_to",
+          "type": "string",
+          "location": "query",
+          "description": "End date YYYY-MM-DD."
+        }
+      ]
+    },
+    {
+      "name": "backlinks_list-pages-with",
+      "description": "List pages with backlinks. Optional: target, mode, limit (plus 2 more). Returns the BacklinksListPagesWithResponse.",
+      "method": "GET",
+      "path": "/v1/backlinks/indexed-pages",
+      "params": [
+        {
+          "name": "target",
+          "type": "string",
+          "location": "query",
+          "description": "Target domain/host/URL depending on endpoint."
+        },
+        {
+          "name": "mode",
+          "type": "string",
+          "location": "query",
+          "description": "Target scope for backlinks/domain endpoints."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum rows to return."
+        },
+        {
+          "name": "order_field",
+          "type": "string",
+          "location": "query",
+          "description": "Sort field."
+        },
+        {
+          "name": "order_type",
+          "type": "string",
+          "location": "query",
+          "description": "Sort direction."
+        }
+      ]
+    },
+    {
+      "name": "backlinks_list-referring-domains",
+      "description": "List referring domains. Optional: target, mode, limit (plus 2 more). Returns the BacklinksListReferringDomainsResponse.",
+      "method": "GET",
+      "path": "/v1/backlinks/refdomains",
+      "params": [
+        {
+          "name": "target",
+          "type": "string",
+          "location": "query",
+          "description": "Target domain/host/URL depending on endpoint."
+        },
+        {
+          "name": "mode",
+          "type": "string",
+          "location": "query",
+          "description": "Target scope for backlinks/domain endpoints."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum rows to return."
+        },
+        {
+          "name": "order_field",
+          "type": "string",
+          "location": "query",
+          "description": "Sort field."
+        },
+        {
+          "name": "order_type",
+          "type": "string",
+          "location": "query",
+          "description": "Sort direction."
+        }
+      ]
+    },
+    {
+      "name": "backlinks_list-referring-ips",
+      "description": "List referring IPs. Optional: target, mode, limit (plus 2 more). Returns the BacklinksListReferringIpsResponse.",
+      "method": "GET",
+      "path": "/v1/backlinks/referring-ips",
+      "params": [
+        {
+          "name": "target",
+          "type": "string",
+          "location": "query",
+          "description": "Target domain/host/URL depending on endpoint."
+        },
+        {
+          "name": "mode",
+          "type": "string",
+          "location": "query",
+          "description": "Target scope for backlinks/domain endpoints."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum rows to return."
+        },
+        {
+          "name": "order_field",
+          "type": "string",
+          "location": "query",
+          "description": "Sort field."
+        },
+        {
+          "name": "order_type",
+          "type": "string",
+          "location": "query",
+          "description": "Sort direction."
+        }
+      ]
+    },
+    {
+      "name": "domain_analysis-analyze-keyword-overlap-and-gaps",
+      "description": "Analyze keyword overlap and gaps. Optional: source, domain, url (plus 5 more). Returns the DomainAnalysisAnalyzeKeywordOverlapAndGapsResponse.",
+      "method": "GET",
+      "path": "/v1/domain/keywords/comparison",
+      "params": [
+        {
+          "name": "source",
+          "type": "string",
+          "location": "query",
+          "description": "Regional database code such as us, uk, nl."
+        },
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "query",
+          "description": "Domain name to analyze."
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "URL to analyze."
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Result type, e.g. organic or adv where supported."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum rows to return."
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Pagination offset."
+        },
+        {
+          "name": "order_field",
+          "type": "string",
+          "location": "query",
+          "description": "Sort field."
+        },
+        {
+          "name": "order_type",
+          "type": "string",
+          "location": "query",
+          "description": "Sort direction."
+        }
+      ]
+    },
+    {
+      "name": "domain_analysis-get-competitors",
+      "description": "Get domain competitors. Optional: source, domain, type (plus 2 more). Returns the DomainAnalysisGetCompetitorsResponse.",
+      "method": "GET",
+      "path": "/v1/domain/competitors",
+      "params": [
+        {
+          "name": "source",
+          "type": "string",
+          "location": "query",
+          "description": "Regional database code such as us, uk, nl."
+        },
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "query",
+          "description": "Domain name to analyze."
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Result type, e.g. organic or adv where supported."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum rows to return."
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Pagination offset."
+        }
+      ]
+    },
+    {
+      "name": "domain_analysis-get-keyword-rankings",
+      "description": "Get domain keyword rankings. Optional: source, domain, url (plus 5 more). Returns the DomainAnalysisGetKeywordRankingsResponse.",
+      "method": "GET",
+      "path": "/v1/domain/keywords",
+      "params": [
+        {
+          "name": "source",
+          "type": "string",
+          "location": "query",
+          "description": "Regional database code such as us, uk, nl."
+        },
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "query",
+          "description": "Domain name to analyze."
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "URL to analyze."
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Result type, e.g. organic or adv where supported."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum rows to return."
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Pagination offset."
+        },
+        {
+          "name": "order_field",
+          "type": "string",
+          "location": "query",
+          "description": "Sort field."
+        },
+        {
+          "name": "order_type",
+          "type": "string",
+          "location": "query",
+          "description": "Sort direction."
+        }
+      ]
+    },
+    {
+      "name": "domain_analysis-get-overview-by-region",
+      "description": "Get domain overview by region. Optional: source, domain. Returns the DomainAnalysisGetOverviewByRegionResponse.",
+      "method": "GET",
+      "path": "/v1/domain/overview/db",
+      "params": [
+        {
+          "name": "source",
+          "type": "string",
+          "location": "query",
+          "description": "Regional database code such as us, uk, nl."
+        },
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "query",
+          "description": "Domain name to analyze."
+        }
+      ]
+    },
+    {
+      "name": "domain_analysis-get-pages",
+      "description": "Get domain pages. Optional: source, domain, type (plus 4 more). Returns the DomainAnalysisGetPagesResponse.",
+      "method": "GET",
+      "path": "/v1/domain/pages",
+      "params": [
+        {
+          "name": "source",
+          "type": "string",
+          "location": "query",
+          "description": "Regional database code such as us, uk, nl."
+        },
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "query",
+          "description": "Domain name to analyze."
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Result type, e.g. organic or adv where supported."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum rows to return."
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Pagination offset."
+        },
+        {
+          "name": "order_field",
+          "type": "string",
+          "location": "query",
+          "description": "Sort field."
+        },
+        {
+          "name": "order_type",
+          "type": "string",
+          "location": "query",
+          "description": "Sort direction."
+        }
+      ]
+    },
+    {
+      "name": "domain_analysis-get-paid-ads-by-keyword-or",
+      "description": "Get paid ads by keyword or domain. Optional: source, keyword, domain (plus 4 more). Returns the DomainAnalysisGetPaidAdsByKeywordOrResponse.",
+      "method": "GET",
+      "path": "/v1/domain/ads",
+      "params": [
+        {
+          "name": "source",
+          "type": "string",
+          "location": "query",
+          "description": "Regional database code such as us, uk, nl."
+        },
+        {
+          "name": "keyword",
+          "type": "string",
+          "location": "query",
+          "description": "Keyword query."
+        },
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "query",
+          "description": "Domain name to analyze."
+        },
+        {
+          "name": "date_from",
+          "type": "string",
+          "location": "query",
+          "description": "Start date YYYY-MM-DD."
+        },
+        {
+          "name": "date_to",
+          "type": "string",
+          "location": "query",
+          "description": "End date YYYY-MM-DD."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum rows to return."
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Pagination offset."
+        }
+      ]
+    },
+    {
+      "name": "domain_analysis-get-subdomains",
+      "description": "Get domain subdomains. Optional: source, target, scope (plus 5 more). Returns the DomainAnalysisGetSubdomainsResponse.",
+      "method": "GET",
+      "path": "/v1/domain/subdomains",
+      "params": [
+        {
+          "name": "source",
+          "type": "string",
+          "location": "query",
+          "description": "Regional database code such as us, uk, nl."
+        },
+        {
+          "name": "target",
+          "type": "string",
+          "location": "query",
+          "description": "Target domain/host/URL depending on endpoint."
+        },
+        {
+          "name": "scope",
+          "type": "string",
+          "location": "query",
+          "description": "Scope, e.g. domain/base_domain/url."
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Result type, e.g. organic or adv where supported."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum rows to return."
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Pagination offset."
+        },
+        {
+          "name": "order_field",
+          "type": "string",
+          "location": "query",
+          "description": "Sort field."
+        },
+        {
+          "name": "order_type",
+          "type": "string",
+          "location": "query",
+          "description": "Sort direction."
+        }
+      ]
+    },
+    {
+      "name": "domain_analysis-get-traffic-and-keyword-history",
+      "description": "Get traffic and keyword history. Optional: source, domain, type. Returns the DomainAnalysisGetTrafficAndKeywordHistoryResponse.",
+      "method": "GET",
+      "path": "/v1/domain/overview/history",
+      "params": [
+        {
+          "name": "source",
+          "type": "string",
+          "location": "query",
+          "description": "Regional database code such as us, uk, nl."
+        },
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "query",
+          "description": "Domain name to analyze."
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Result type, e.g. organic or adv where supported."
+        }
+      ]
+    },
+    {
+      "name": "domain_analysis-get-worldwide-overview",
+      "description": "Get worldwide domain overview. Optional: domain. Returns the DomainAnalysisGetWorldwideOverviewResponse.",
+      "method": "GET",
+      "path": "/v1/domain/overview/worldwide",
+      "params": [
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "query",
+          "description": "Domain name to analyze."
+        }
+      ]
+    },
+    {
+      "name": "domain_analysis-get-worldwide-url-overview",
+      "description": "Get worldwide URL overview. Optional: url. Returns the DomainAnalysisGetWorldwideUrlOverviewResponse.",
+      "method": "GET",
+      "path": "/v1/domain/overview/worldwide/url",
+      "params": [
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "URL to analyze."
+        }
+      ]
+    },
+    {
+      "name": "keywords_research-export-metrics",
+      "description": "Export keyword metrics. Optional: source, keyword. Returns the KeywordsResearchExportMetricsResponse.",
+      "method": "GET",
+      "path": "/v1/keywords/export",
+      "params": [
+        {
+          "name": "source",
+          "type": "string",
+          "location": "query",
+          "description": "Regional database code such as us, uk, nl."
+        },
+        {
+          "name": "keyword",
+          "type": "string",
+          "location": "query",
+          "description": "Keyword query."
+        }
+      ]
+    },
+    {
+      "name": "keywords_research-get-longtail",
+      "description": "Get longtail keywords. Optional: source, keyword, limit (plus 1 more). Returns the KeywordsResearchGetLongtailResponse.",
+      "method": "GET",
+      "path": "/v1/keywords/longtail",
+      "params": [
+        {
+          "name": "source",
+          "type": "string",
+          "location": "query",
+          "description": "Regional database code such as us, uk, nl."
+        },
+        {
+          "name": "keyword",
+          "type": "string",
+          "location": "query",
+          "description": "Keyword query."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum rows to return."
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Pagination offset."
+        }
+      ]
+    },
+    {
+      "name": "keywords_research-get-question",
+      "description": "Get question keywords. Optional: source, keyword, limit (plus 3 more). Returns the KeywordsResearchGetQuestionResponse.",
+      "method": "GET",
+      "path": "/v1/keywords/questions",
+      "params": [
+        {
+          "name": "source",
+          "type": "string",
+          "location": "query",
+          "description": "Regional database code such as us, uk, nl."
+        },
+        {
+          "name": "keyword",
+          "type": "string",
+          "location": "query",
+          "description": "Keyword query."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum rows to return."
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Pagination offset."
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort field."
+        },
+        {
+          "name": "sort_order",
+          "type": "string",
+          "location": "query",
+          "description": "Sort direction."
+        }
+      ]
+    },
+    {
+      "name": "keywords_research-get-related",
+      "description": "Get related keywords. Optional: source, keyword, limit (plus 3 more). Returns the KeywordsResearchGetRelatedResponse.",
+      "method": "GET",
+      "path": "/v1/keywords/related",
+      "params": [
+        {
+          "name": "source",
+          "type": "string",
+          "location": "query",
+          "description": "Regional database code such as us, uk, nl."
+        },
+        {
+          "name": "keyword",
+          "type": "string",
+          "location": "query",
+          "description": "Keyword query."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum rows to return."
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Pagination offset."
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort field."
+        },
+        {
+          "name": "sort_order",
+          "type": "string",
+          "location": "query",
+          "description": "Sort direction."
+        }
+      ]
+    },
+    {
+      "name": "keywords_research-get-similar",
+      "description": "Get similar keywords. Optional: source, keyword, limit (plus 3 more). Returns the KeywordsResearchGetSimilarResponse.",
+      "method": "GET",
+      "path": "/v1/keywords/similar",
+      "params": [
+        {
+          "name": "source",
+          "type": "string",
+          "location": "query",
+          "description": "Regional database code such as us, uk, nl."
+        },
+        {
+          "name": "keyword",
+          "type": "string",
+          "location": "query",
+          "description": "Keyword query."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum rows to return."
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Pagination offset."
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort field."
+        },
+        {
+          "name": "sort_order",
+          "type": "string",
+          "location": "query",
+          "description": "Sort direction."
+        }
+      ]
+    },
+    {
+      "name": "project-management_ai-result-tracker-get-llm-statistics",
+      "description": "Get LLM statistics. Optional: site_id, llm_id, date_from (plus 1 more). Returns the ProjectManagementAiResultTrackerGetLlmStatisticsResponse.",
+      "method": "GET",
+      "path": "/v1/project-management/airt/llm/statistics",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "int",
+          "location": "query",
+          "description": "SE Ranking project/site ID."
+        },
+        {
+          "name": "llm_id",
+          "type": "int",
+          "location": "query",
+          "description": "AI Result Tracker LLM engine ID."
+        },
+        {
+          "name": "date_from",
+          "type": "string",
+          "location": "query",
+          "description": "Start date YYYY-MM-DD."
+        },
+        {
+          "name": "date_to",
+          "type": "string",
+          "location": "query",
+          "description": "End date YYYY-MM-DD."
+        }
+      ]
+    },
+    {
+      "name": "project-management_ai-result-tracker-get-llm-status",
+      "description": "Get LLM status. Optional: site_id, llm_id. Returns the ProjectManagementAiResultTrackerGetLlmStatusResponse.",
+      "method": "GET",
+      "path": "/v1/project-management/airt/llm/status",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "int",
+          "location": "query",
+          "description": "SE Ranking project/site ID."
+        },
+        {
+          "name": "llm_id",
+          "type": "int",
+          "location": "query",
+          "description": "AI Result Tracker LLM engine ID."
+        }
+      ]
+    },
+    {
+      "name": "project-management_ai-result-tracker-get-prompt-answer",
+      "description": "Get prompt answer. Optional: site_id, llm_id, date. Returns the ProjectManagementAiResultTrackerGetPromptAnswerResponse.",
+      "method": "GET",
+      "path": "/v1/project-management/airt/prompts/answer",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "int",
+          "location": "query",
+          "description": "SE Ranking project/site ID."
+        },
+        {
+          "name": "llm_id",
+          "type": "int",
+          "location": "query",
+          "description": "AI Result Tracker LLM engine ID."
+        },
+        {
+          "name": "date",
+          "type": "string",
+          "location": "query",
+          "description": "Date YYYY-MM-DD."
+        }
+      ]
+    },
+    {
+      "name": "project-management_ai-result-tracker-get-prompt-rankings",
+      "description": "Get prompt rankings. Optional: site_id, llm_id, date_from (plus 3 more). Returns the ProjectManagementAiResultTrackerGetPromptRankingsResponse.",
+      "method": "GET",
+      "path": "/v1/project-management/airt/prompts/rankings",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "int",
+          "location": "query",
+          "description": "SE Ranking project/site ID."
+        },
+        {
+          "name": "llm_id",
+          "type": "int",
+          "location": "query",
+          "description": "AI Result Tracker LLM engine ID."
+        },
+        {
+          "name": "date_from",
+          "type": "string",
+          "location": "query",
+          "description": "Start date YYYY-MM-DD."
+        },
+        {
+          "name": "date_to",
+          "type": "string",
+          "location": "query",
+          "description": "End date YYYY-MM-DD."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum rows to return."
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Pagination offset."
+        }
+      ]
+    },
+    {
+      "name": "project-management_ai-result-tracker-get-site-brand",
+      "description": "Get site brand. Optional: site_id. Returns the ProjectManagementAiResultTrackerGetSiteBrandResponse.",
+      "method": "GET",
+      "path": "/v1/project-management/airt/brand",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "int",
+          "location": "query",
+          "description": "SE Ranking project/site ID."
+        }
+      ]
+    },
+    {
+      "name": "project-management_ai-result-tracker-list-or-get-llm-engines",
+      "description": "List or get LLM engines. Optional: site_id, llm_id. Returns the ProjectManagementAiResultTrackerListOrGetLlmEnginesResponse.",
+      "method": "GET",
+      "path": "/v1/project-management/airt/llm",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "int",
+          "location": "query",
+          "description": "SE Ranking project/site ID."
+        },
+        {
+          "name": "llm_id",
+          "type": "int",
+          "location": "query",
+          "description": "AI Result Tracker LLM engine ID."
+        }
+      ]
+    },
+    {
+      "name": "project-management_ai-result-tracker-list-prompts",
+      "description": "List prompts. Optional: site_id, llm_id. Returns the ProjectManagementAiResultTrackerListPromptsResponse.",
+      "method": "GET",
+      "path": "/v1/project-management/airt/prompts",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "int",
+          "location": "query",
+          "description": "SE Ranking project/site ID."
+        },
+        {
+          "name": "llm_id",
+          "type": "int",
+          "location": "query",
+          "description": "AI Result Tracker LLM engine ID."
+        }
+      ]
+    },
+    {
+      "name": "project-management_competitors-get-all-competitors-metrics",
+      "description": "Get all competitors metrics. Optional: site_id, date, site_engine_id. Returns the ProjectManagementCompetitorsGetAllCompetitorsMetricsResponse.",
+      "method": "GET",
+      "path": "/v1/project-management/competitors/metrics",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "int",
+          "location": "query",
+          "description": "SE Ranking project/site ID."
+        },
+        {
+          "name": "date",
+          "type": "string",
+          "location": "query",
+          "description": "Date YYYY-MM-DD."
+        },
+        {
+          "name": "site_engine_id",
+          "type": "int",
+          "location": "query",
+          "description": "Project search engine ID."
+        }
+      ]
+    },
+    {
+      "name": "project-management_competitors-get-competitor-keyword-positions",
+      "description": "Get competitor keyword positions. Optional: competitor_id, date_from, date_to (plus 1 more). Returns the ProjectManagementCompetitorsGetCompetitorKeywordPositionsResponse.",
+      "method": "GET",
+      "path": "/v1/project-management/competitors/positions",
+      "params": [
+        {
+          "name": "competitor_id",
+          "type": "int",
+          "location": "query",
+          "description": "Competitor ID."
+        },
+        {
+          "name": "date_from",
+          "type": "string",
+          "location": "query",
+          "description": "Start date YYYY-MM-DD."
+        },
+        {
+          "name": "date_to",
+          "type": "string",
+          "location": "query",
+          "description": "End date YYYY-MM-DD."
+        },
+        {
+          "name": "site_engine_id",
+          "type": "int",
+          "location": "query",
+          "description": "Project search engine ID."
+        }
+      ]
+    },
+    {
+      "name": "project-management_competitors-get-top-10-results",
+      "description": "Get top 10 results. Optional: site_id, date, site_engine_id. Returns the ProjectManagementCompetitorsGetTop10ResultsResponse.",
+      "method": "GET",
+      "path": "/v1/project-management/competitors/serp10",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "int",
+          "location": "query",
+          "description": "SE Ranking project/site ID."
+        },
+        {
+          "name": "date",
+          "type": "string",
+          "location": "query",
+          "description": "Date YYYY-MM-DD."
+        },
+        {
+          "name": "site_engine_id",
+          "type": "int",
+          "location": "query",
+          "description": "Project search engine ID."
+        }
+      ]
+    },
+    {
+      "name": "project-management_competitors-get-top-100-results",
+      "description": "Get top 100 results. Optional: site_id, date, site_engine_id (plus 1 more). Returns the ProjectManagementCompetitorsGetTop100ResultsResponse.",
+      "method": "GET",
+      "path": "/v1/project-management/competitors/serp100",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "int",
+          "location": "query",
+          "description": "SE Ranking project/site ID."
+        },
+        {
+          "name": "date",
+          "type": "string",
+          "location": "query",
+          "description": "Date YYYY-MM-DD."
+        },
+        {
+          "name": "site_engine_id",
+          "type": "int",
+          "location": "query",
+          "description": "Project search engine ID."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum rows to return."
+        }
+      ]
+    },
+    {
+      "name": "project-management_competitors-list-competitors",
+      "description": "List competitors. Optional: site_id, competitor_id. Returns the ProjectManagementCompetitorsListCompetitorsResponse.",
+      "method": "GET",
+      "path": "/v1/project-management/competitors",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "int",
+          "location": "query",
+          "description": "SE Ranking project/site ID."
+        },
+        {
+          "name": "competitor_id",
+          "type": "int",
+          "location": "query",
+          "description": "Competitor ID."
+        }
+      ]
+    },
+    {
+      "name": "project-management_project-account-get-user-profile",
+      "description": "Get user profile. Returns the ProjectManagementProjectAccountGetUserProfileResponse.",
+      "method": "GET",
+      "path": "/v1/project-management/users/me",
+      "params": []
+    },
+    {
+      "name": "project-management_project-account-list-or-manage-sub-accounts",
+      "description": "List or manage sub accounts. Optional: limit, offset, user_id. Returns the ProjectManagementProjectAccountListOrManageSubAccountsResponse.",
+      "method": "GET",
+      "path": "/v1/project-management/users",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum rows to return."
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Pagination offset."
+        },
+        {
+          "name": "user_id",
+          "type": "int",
+          "location": "query",
+          "description": "Sub-account/user ID."
+        }
+      ]
+    },
+    {
+      "name": "project-management_project-account-list-owned-projects",
+      "description": "List owned projects. Optional: user_id. Returns the ProjectManagementProjectAccountListOwnedProjectsResponse.",
+      "method": "GET",
+      "path": "/v1/project-management/users/owned-sites",
+      "params": [
+        {
+          "name": "user_id",
+          "type": "int",
+          "location": "query",
+          "description": "Sub-account/user ID."
+        }
+      ]
+    },
+    {
+      "name": "project-management_project-account-list-shared-projects",
+      "description": "List shared projects. Optional: user_id. Returns the ProjectManagementProjectAccountListSharedProjectsResponse.",
+      "method": "GET",
+      "path": "/v1/project-management/users/shared-sites",
+      "params": [
+        {
+          "name": "user_id",
+          "type": "int",
+          "location": "query",
+          "description": "Sub-account/user ID."
+        }
+      ]
+    },
+    {
+      "name": "project-management_projects-get-ads-chart-statistics",
+      "description": "Get ads chart statistics. Optional: site_id, date_from, date_to. Returns the ProjectManagementProjectsGetAdsChartStatisticsResponse.",
+      "method": "GET",
+      "path": "/v1/project-management/sites/ads-stats",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "int",
+          "location": "query",
+          "description": "SE Ranking project/site ID."
+        },
+        {
+          "name": "date_from",
+          "type": "string",
+          "location": "query",
+          "description": "Start date YYYY-MM-DD."
+        },
+        {
+          "name": "date_to",
+          "type": "string",
+          "location": "query",
+          "description": "End date YYYY-MM-DD."
+        }
+      ]
+    },
+    {
+      "name": "project-management_projects-get-check-dates",
+      "description": "Get check dates. Optional: site_id, date_from, date_to. Returns the ProjectManagementProjectsGetCheckDatesResponse.",
+      "method": "GET",
+      "path": "/v1/project-management/sites/check-dates",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "int",
+          "location": "query",
+          "description": "SE Ranking project/site ID."
+        },
+        {
+          "name": "date_from",
+          "type": "string",
+          "location": "query",
+          "description": "Start date YYYY-MM-DD."
+        },
+        {
+          "name": "date_to",
+          "type": "string",
+          "location": "query",
+          "description": "End date YYYY-MM-DD."
+        }
+      ]
+    },
+    {
+      "name": "project-management_projects-get-historical-dates",
+      "description": "Get historical dates. Optional: site_id. Returns the ProjectManagementProjectsGetHistoricalDatesResponse.",
+      "method": "GET",
+      "path": "/v1/project-management/sites/positions/checkpoints",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "int",
+          "location": "query",
+          "description": "SE Ranking project/site ID."
+        }
+      ]
+    },
+    {
+      "name": "project-management_projects-get-keyword-positions",
+      "description": "Get keyword positions. Optional: site_id, site_engine_id, date_from (plus 1 more). Returns the ProjectManagementProjectsGetKeywordPositionsResponse.",
+      "method": "GET",
+      "path": "/v1/project-management/sites/positions",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "int",
+          "location": "query",
+          "description": "SE Ranking project/site ID."
+        },
+        {
+          "name": "site_engine_id",
+          "type": "int",
+          "location": "query",
+          "description": "Project search engine ID."
+        },
+        {
+          "name": "date_from",
+          "type": "string",
+          "location": "query",
+          "description": "Start date YYYY-MM-DD."
+        },
+        {
+          "name": "date_to",
+          "type": "string",
+          "location": "query",
+          "description": "End date YYYY-MM-DD."
+        }
+      ]
+    },
+    {
+      "name": "project-management_projects-get-project-position-history",
+      "description": "Get project position history. Optional: site_id, type, date_from (plus 1 more). Returns the ProjectManagementProjectsGetProjectPositionHistoryResponse.",
+      "method": "GET",
+      "path": "/v1/project-management/sites/positions/history",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "int",
+          "location": "query",
+          "description": "SE Ranking project/site ID."
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Result type, e.g. organic or adv where supported."
+        },
+        {
+          "name": "date_from",
+          "type": "string",
+          "location": "query",
+          "description": "Start date YYYY-MM-DD."
+        },
+        {
+          "name": "date_to",
+          "type": "string",
+          "location": "query",
+          "description": "End date YYYY-MM-DD."
+        }
+      ]
+    },
+    {
+      "name": "project-management_projects-get-project-summary-statistics",
+      "description": "Get project summary statistics. Optional: site_id. Returns the ProjectManagementProjectsGetProjectSummaryStatisticsResponse.",
+      "method": "GET",
+      "path": "/v1/project-management/sites/summary",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "int",
+          "location": "query",
+          "description": "SE Ranking project/site ID."
+        }
+      ]
+    },
+    {
+      "name": "project-management_projects-list-or-manage-projects",
+      "description": "List or manage projects. Optional: site_id, limit, offset. Returns the ProjectManagementProjectsListOrManageProjectsResponse.",
+      "method": "GET",
+      "path": "/v1/project-management/sites",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "int",
+          "location": "query",
+          "description": "SE Ranking project/site ID."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum rows to return."
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Pagination offset."
+        }
+      ]
+    },
+    {
+      "name": "project-management_projects-list-project-search-engines",
+      "description": "List project search engines. Optional: site_id, site_engine_id. Returns the ProjectManagementProjectsListProjectSearchEnginesResponse.",
+      "method": "GET",
+      "path": "/v1/project-management/sites/search-engines",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "int",
+          "location": "query",
+          "description": "SE Ranking project/site ID."
+        },
+        {
+          "name": "site_engine_id",
+          "type": "int",
+          "location": "query",
+          "description": "Project search engine ID."
+        }
+      ]
+    },
+    {
+      "name": "project-management_projects-list-website-keywords",
+      "description": "List website keywords. Optional: site_id, site_engine_id, limit (plus 1 more). Returns the ProjectManagementProjectsListWebsiteKeywordsResponse.",
+      "method": "GET",
+      "path": "/v1/project-management/keywords",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "int",
+          "location": "query",
+          "description": "SE Ranking project/site ID."
+        },
+        {
+          "name": "site_engine_id",
+          "type": "int",
+          "location": "query",
+          "description": "Project search engine ID."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum rows to return."
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Pagination offset."
+        }
+      ]
+    },
+    {
+      "name": "project-management_projects-run-position-check",
+      "description": "Run position check. Optional: site_id. Returns the new ProjectManagementProjectsRunPositionCheckResponse.",
+      "method": "POST",
+      "path": "/v1/project-management/sites/positions/recheck",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "int",
+          "location": "query",
+          "description": "SE Ranking project/site ID."
+        }
+      ]
+    },
+    {
+      "name": "project-management_reference-list-google-languages",
+      "description": "List Google languages. Returns the ProjectManagementReferenceListGoogleLanguagesResponse.",
+      "method": "GET",
+      "path": "/v1/project-management/system/google/languages",
+      "params": []
+    },
+    {
+      "name": "project-management_reference-list-google-regions",
+      "description": "List Google regions. Returns the ProjectManagementReferenceListGoogleRegionsResponse.",
+      "method": "GET",
+      "path": "/v1/project-management/system/google/regions",
+      "params": []
+    },
+    {
+      "name": "project-management_reference-list-search-engines",
+      "description": "List search engines. Returns the ProjectManagementReferenceListSearchEnginesResponse.",
+      "method": "GET",
+      "path": "/v1/project-management/system/search-engines",
+      "params": []
+    },
+    {
+      "name": "site-audit_create-advanced-audit",
+      "description": "Create advanced audit. Optional: url. Returns the new SiteAuditCreateAdvancedAuditResponse.",
+      "method": "POST",
+      "path": "/v1/site-audit/audits/advanced",
+      "params": [
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "URL to analyze."
+        }
+      ]
+    },
+    {
+      "name": "site-audit_create-standard-audit",
+      "description": "Create standard audit. Optional: url. Returns the new SiteAuditCreateStandardAuditResponse.",
+      "method": "POST",
+      "path": "/v1/site-audit/audits/standard",
+      "params": [
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "URL to analyze."
+        }
+      ]
+    },
+    {
+      "name": "site-audit_get-audit-history",
+      "description": "Get audit history. Optional: audit_id, date. Returns the SiteAuditGetAuditHistoryResponse.",
+      "method": "GET",
+      "path": "/v1/site-audit/audits/history",
+      "params": [
+        {
+          "name": "audit_id",
+          "type": "int",
+          "location": "query",
+          "description": "Website audit ID."
+        },
+        {
+          "name": "date",
+          "type": "string",
+          "location": "query",
+          "description": "Date YYYY-MM-DD."
+        }
+      ]
+    },
+    {
+      "name": "site-audit_get-audit-links",
+      "description": "Get audit links. Optional: audit_id, limit, offset. Returns the SiteAuditGetAuditLinksResponse.",
+      "method": "GET",
+      "path": "/v1/site-audit/audits/links",
+      "params": [
+        {
+          "name": "audit_id",
+          "type": "int",
+          "location": "query",
+          "description": "Website audit ID."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum rows to return."
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Pagination offset."
+        }
+      ]
+    },
+    {
+      "name": "site-audit_get-audit-pages-by-issue",
+      "description": "Get audit pages by issue. Optional: audit_id, limit, offset. Returns the SiteAuditGetAuditPagesByIssueResponse.",
+      "method": "GET",
+      "path": "/v1/site-audit/audits/issue-pages",
+      "params": [
+        {
+          "name": "audit_id",
+          "type": "int",
+          "location": "query",
+          "description": "Website audit ID."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum rows to return."
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Pagination offset."
+        }
+      ]
+    },
+    {
+      "name": "site-audit_get-audit-report",
+      "description": "Get audit report. Optional: audit_id. Returns the SiteAuditGetAuditReportResponse.",
+      "method": "GET",
+      "path": "/v1/site-audit/audits/report",
+      "params": [
+        {
+          "name": "audit_id",
+          "type": "int",
+          "location": "query",
+          "description": "Website audit ID."
+        }
+      ]
+    },
+    {
+      "name": "site-audit_get-audit-status",
+      "description": "Get audit status. Optional: audit_id. Returns the SiteAuditGetAuditStatusResponse.",
+      "method": "GET",
+      "path": "/v1/site-audit/audits/status",
+      "params": [
+        {
+          "name": "audit_id",
+          "type": "int",
+          "location": "query",
+          "description": "Website audit ID."
+        }
+      ]
+    },
+    {
+      "name": "site-audit_get-crawled-pages",
+      "description": "Get crawled pages. Optional: audit_id, limit, offset. Returns the SiteAuditGetCrawledPagesResponse.",
+      "method": "GET",
+      "path": "/v1/site-audit/audits/pages",
+      "params": [
+        {
+          "name": "audit_id",
+          "type": "int",
+          "location": "query",
+          "description": "Website audit ID."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum rows to return."
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Pagination offset."
+        }
+      ]
+    },
+    {
+      "name": "site-audit_get-issues-for-url",
+      "description": "Get issues for URL. Optional: audit_id, url. Returns the SiteAuditGetIssuesForUrlResponse.",
+      "method": "GET",
+      "path": "/v1/site-audit/audits/issues",
+      "params": [
+        {
+          "name": "audit_id",
+          "type": "int",
+          "location": "query",
+          "description": "Website audit ID."
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "URL to analyze."
+        }
+      ]
+    },
+    {
+      "name": "site-audit_list-audits",
+      "description": "List audits. Optional: limit, offset, audit_id. Returns the SiteAuditListAuditsResponse.",
+      "method": "GET",
+      "path": "/v1/site-audit/audits",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum rows to return."
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Pagination offset."
+        },
+        {
+          "name": "audit_id",
+          "type": "int",
+          "location": "query",
+          "description": "Website audit ID."
+        }
+      ]
+    },
+    {
+      "name": "site-audit_recheck-advanced-audit",
+      "description": "Recheck advanced audit. Optional: audit_id. Returns the new SiteAuditRecheckAdvancedAuditResponse.",
+      "method": "POST",
+      "path": "/v1/site-audit/audits/recheck/advanced",
+      "params": [
+        {
+          "name": "audit_id",
+          "type": "int",
+          "location": "query",
+          "description": "Website audit ID."
+        }
+      ]
+    },
+    {
+      "name": "site-audit_recheck-standard-audit",
+      "description": "Recheck standard audit. Optional: audit_id. Returns the new SiteAuditRecheckStandardAuditResponse.",
+      "method": "POST",
+      "path": "/v1/site-audit/audits/recheck/standard",
+      "params": [
+        {
+          "name": "audit_id",
+          "type": "int",
+          "location": "query",
+          "description": "Website audit ID."
+        }
+      ]
+    }
+  ]
+}

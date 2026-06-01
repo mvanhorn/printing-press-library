@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "seranking",
+  "run_id": "20260601-112500-seranking",
+  "source": "official SE Ranking API documentation",
+  "research_summary": "Agent-native SE Ranking API subset covering domain analysis, backlinks, keyword research, AI Search visibility, project/rank data, and site-audit workflows.",
+  "auth_model": "API key via SE_RANKING_API_KEY; generated SE_RANKING_API_KEY_QUERY retained as compatibility alias.",
+  "docs_url": "https://seranking.com/api.html",
+  "notes": [
+    "No live customer/workspace data included.",
+    "No API key was available during public-library publication prep."
+  ]
+}
