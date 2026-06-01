@@ -144,11 +144,16 @@ func newBalancesCmd(flags *rootFlags) *cobra.Command {
 				youID := loadCurrentUserID(db)
 				rows := groupBalances(groups, youID)
 				out := map[string]any{"by_group": rows}
-				if flags.asJSON || flags.agent || !isTerminal(cmd.OutOrStdout()) {
-					return flags.emitStructured(cmd, out)
-				}
+				// Emit the unsynced-current-user note before the structured-output
+				// early return so it reaches stderr in every mode. Without a current
+				// user id groupBalances yields no rows; an agent reading {"by_group":[]}
+				// would otherwise have no signal that the result is empty because the
+				// identity is unknown rather than because there are no balances.
 				if youID == 0 {
 					_, _ = fmt.Fprintln(cmd.ErrOrStderr(), "note: current user not synced; run sync to populate get-current-user")
+				}
+				if flags.asJSON || flags.agent || !isTerminal(cmd.OutOrStdout()) {
+					return flags.emitStructured(cmd, out)
 				}
 				tw := tabwriter.NewWriter(cmd.OutOrStdout(), 2, 4, 2, ' ', 0)
 				_, _ = fmt.Fprintln(tw, "GROUP\tCURRENCY\tAMOUNT")

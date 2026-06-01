@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/mvanhorn/printing-press-library/library/payments/splitwise/internal/store"
@@ -74,5 +75,45 @@ func TestBalancesByGroupCommand(t *testing.T) {
 	}
 	if row["amount"] != 25.0 {
 		t.Errorf("amount = %v, want 25", row["amount"])
+	}
+}
+
+// TestBalancesByGroupUnsyncedUserNoteInAgentMode guards the reachability of the
+// "current user not synced" stderr note: it must fire in the structured/agent
+// output path, not only the human-table path. Without a synced current user,
+// groupBalances yields no rows; an agent reading {"by_group":[]} needs the note
+// to distinguish "identity unknown" from "no balances".
+func TestBalancesByGroupUnsyncedUserNoteInAgentMode(t *testing.T) {
+	home := t.TempDir()
+	t.Setenv("HOME", home)
+
+	dbPath := defaultDBPath("splitwise-pp-cli")
+	if err := os.MkdirAll(filepath.Dir(dbPath), 0o755); err != nil {
+		t.Fatalf("mkdir db dir: %v", err)
+	}
+	s, err := store.Open(dbPath)
+	if err != nil {
+		t.Fatalf("open store: %v", err)
+	}
+	// Groups are synced, but get-current-user is NOT — so youID resolves to 0.
+	if err := s.Upsert("get-groups", "100", []byte(`{"id":100,"name":"Tahoe","members":[{"id":42,"balance":[{"currency_code":"USD","amount":"25.00"}]}]}`)); err != nil {
+		t.Fatalf("seed group: %v", err)
+	}
+	if err := s.Close(); err != nil {
+		t.Fatalf("close store: %v", err)
+	}
+
+	flags := &rootFlags{agent: true} // structured output path
+	cmd := newBalancesCmd(flags)
+	var out, errBuf bytes.Buffer
+	cmd.SetOut(&out)
+	cmd.SetErr(&errBuf)
+	cmd.SetArgs([]string{"--by-group"})
+
+	if err := cmd.Execute(); err != nil {
+		t.Fatalf("execute: %v (stderr: %s)", err, errBuf.String())
+	}
+	if !strings.Contains(errBuf.String(), "current user not synced") {
+		t.Errorf("expected unsynced-current-user note on stderr in agent mode, got: %q", errBuf.String())
 	}
 }
