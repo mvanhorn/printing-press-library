@@ -168,7 +168,9 @@ func newLedgerCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 
-			groupID, groupName, memberNames, err := resolveLedgerGroup(args[0], groups)
+			// Rejoin a multi-word group name the MCP command-mirror split into
+			// several positionals (see joinNameArgs in splitwise_settle.go).
+			groupID, groupName, memberNames, err := resolveLedgerGroup(joinNameArgs(args), groups)
 			if err != nil {
 				return usageErr(err)
 			}

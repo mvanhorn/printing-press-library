@@ -18,6 +18,8 @@ func TestNameCommandsAcceptMultiWordPositionals(t *testing.T) {
 	cmds := map[string]*cobra.Command{
 		"settle-up": newSettleUpCmd(flags),
 		"resolve":   newResolveCmd(flags),
+		"split":     newSplitCmd(flags),
+		"ledger":    newLedgerCmd(flags),
 	}
 	for name, cmd := range cmds {
 		if cmd.Args == nil {
@@ -58,5 +60,21 @@ func TestSettleResolvesMultiWordGroupName(t *testing.T) {
 	}
 	if !ok || g.ID != 1 {
 		t.Fatalf("expected unique EDCO 2021 (id 1), got ok=%v id=%d", ok, g.ID)
+	}
+}
+
+// TestLedgerResolvesMultiWordGroupName is the parallel regression for the ledger
+// and split commands, which resolve group names via resolveLedgerGroup /
+// resolveSettleGroup. The exact group name "EDCO 2021" arriving as split args must
+// resolve to the one EDCO 2021 group, not error as the ambiguous prefix "EDCO".
+func TestLedgerResolvesMultiWordGroupName(t *testing.T) {
+	groups := []Group{{ID: 1, Name: "EDCO 2021"}, {ID: 2, Name: "EDCO 2022"}}
+	input := joinNameArgs([]string{"EDCO", "2021"})
+	id, name, _, err := resolveLedgerGroup(input, groups)
+	if err != nil {
+		t.Fatalf("unexpected ambiguity error: %v", err)
+	}
+	if id != 1 || name != "EDCO 2021" {
+		t.Fatalf("expected unique EDCO 2021 (id 1), got id=%d name=%q", id, name)
 	}
 }
