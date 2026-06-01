@@ -1,4 +1,4 @@
-﻿---
+---
 name: pp-gravitus
 description: "The only CLI that syncs your Gravitus strength data into your training dashboard. Trigger phrases: `sync my Gravitus workouts`, `load my lifting data into the dashboard`, `find my plateau lifts`, `export my Gravitus data`, `check my personal records`, `use gravitus`, `run gravitus-pp-cli`."
 author: "mvanhorn"
