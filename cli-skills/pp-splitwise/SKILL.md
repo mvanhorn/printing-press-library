@@ -60,6 +60,12 @@ These capabilities aren't available in any other tool for this API.
   ```bash
   splitwise-pp-cli balances --agent
   ```
+
+  Add `--by-group` to break your net position out **per group** (one row per group per currency, biggest absolute balance first) instead of per friend — answers "what's my outstanding balance by group?" directly from the synced store:
+
+  ```bash
+  splitwise-pp-cli balances --by-group --agent
+  ```
 - **`debts`** — List who owes you (and whom you owe) sorted by how long the balance has gone unsettled.
 
   _Use when the task is 'who never pays me back' or chasing stale IOUs._

@@ -1,4 +1,5 @@
 import { BUNDLES, isBundle } from "../bundles.js";
+import { realpath } from "node:fs/promises";
 import { detectGo, goInstall, goInstallDir, type GoDetection, type GoInstallDir } from "../go.js";
 import { pathFixInstructions } from "../pathfix.js";
 import { commandOnPath, type RunResult } from "../process.js";
@@ -28,6 +29,7 @@ interface InstallDeps {
   goInstall: (modulePath: string, ref: string, env?: NodeJS.ProcessEnv) => Promise<RunResult>;
   goInstallDir: () => Promise<GoInstallDir>;
   commandOnPath: (binary: string) => Promise<string | null>;
+  realpath: (path: string) => Promise<string | null>;
   installSkill: (skillName: string, agents: string[]) => Promise<RunResult>;
   stdout: (message: string) => void;
   stderr: (message: string) => void;
@@ -54,6 +56,8 @@ interface InstallSummary {
   installedPath?: string;
   /** Set when an older binary earlier in PATH would shadow the freshly installed one. */
   shadowedBy?: string;
+  /** Set when the binary was installed but is not currently discoverable by name. */
+  pathWarning?: "not_on_path";
 }
 
 interface InstallOutcome {
@@ -71,6 +75,13 @@ export function createInstallCommand(overrides: Partial<InstallDeps> = {}) {
     goInstall: (modulePath, ref, env) => goInstall(modulePath, { ref, env }),
     goInstallDir: () => goInstallDir(),
     commandOnPath: (binary) => commandOnPath(binary),
+    realpath: async (path) => {
+      try {
+        return await realpath(path);
+      } catch {
+        return null;
+      }
+    },
     installSkill: (skillName, agents) => installSkill(skillName, { agents }),
     stdout: (message) => console.log(message),
     stderr: (message) => console.error(message),
@@ -161,9 +172,9 @@ async function installOne(
     if (!pathBinaryPath) {
       // `go install` succeeded, but `which`/`where` cannot find the binary —
       // PATH does not include the directory go install wrote to. Print the exact,
-      // copy-pasteable PATH fix for this platform and shell.
+      // copy-pasteable PATH fix for this platform and shell, but keep going so
+      // the matching focused skill is still installed.
       deps.stderr(notOnPathMessage(binary, installed, deps));
-      return { ok: false, name: entry.name, error: "binary not on PATH" };
     }
 
     summary.binary = binary;
@@ -171,9 +182,12 @@ async function installOne(
     if (installedPath) {
       summary.installedPath = installedPath;
     }
-    summary.binaryPath = pathBinaryPath;
+    summary.binaryPath = installedPath ?? pathBinaryPath ?? undefined;
+    if (!pathBinaryPath) {
+      summary.pathWarning = "not_on_path";
+    }
 
-    if (installedPath && !samePath(installedPath, pathBinaryPath, deps.platform)) {
+    if (installedPath && pathBinaryPath && !(await sameInstalledBinary(installedPath, pathBinaryPath, deps))) {
       // `which`/`where` resolved to a different binary than `go install` wrote.
       // The older binary earlier in PATH will shadow the freshly built one.
       summary.shadowedBy = pathBinaryPath;
@@ -205,6 +219,11 @@ async function installOne(
     }
     if (summary.shadowedBy) {
       deps.stdout(`  shadowed by: ${summary.shadowedBy} (earlier in PATH)`);
+    }
+    if (summary.pathWarning === "not_on_path") {
+      deps.stdout(
+        "  warning: binary is not on PATH; run it by full path or add the Go install directory to PATH (see stderr for platform-specific instructions)",
+      );
     }
     if (summary.skill) {
       deps.stdout(`  skill: ${summary.skill}`);
@@ -369,6 +388,14 @@ function samePath(a: string, b: string, platform: NodeJS.Platform): boolean {
     return platform === "win32" ? stripped.toLowerCase() : stripped;
   };
   return norm(a) === norm(b);
+}
+
+async function sameInstalledBinary(a: string, b: string, deps: InstallDeps): Promise<boolean> {
+  if (samePath(a, b, deps.platform)) {
+    return true;
+  }
+  const [realA, realB] = await Promise.all([deps.realpath(a), deps.realpath(b)]);
+  return !!realA && !!realB && samePath(realA, realB, deps.platform);
 }
 
 function shadowMessage(binary: string, installedPath: string, shadowedBy: string): string {

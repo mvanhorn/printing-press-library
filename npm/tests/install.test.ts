@@ -130,9 +130,10 @@ test("install command surfaces go install failure when @latest fails", async () 
   assert.match(stderr.join("\n"), /go install failed/);
 });
 
-test("install command stops when binary is not on PATH", async () => {
+test("install command warns but still installs skill when binary is not on PATH", async () => {
   const skillCalls: string[] = [];
   const stderr: string[] = [];
+  const stdout: string[] = [];
   const command = createInstallCommand({
     fetchRegistry: async () => registry,
     resolveModulePath: async () => null,
@@ -144,12 +145,14 @@ test("install command stops when binary is not on PATH", async () => {
       skillCalls.push("skill");
       return ok();
     },
+    stdout: (message) => stdout.push(message),
     stderr: (message) => stderr.push(message),
   });
 
-  assert.equal(await command(["espn"]), 1);
-  assert.deepEqual(skillCalls, []);
+  assert.equal(await command(["espn"]), 0);
+  assert.deepEqual(skillCalls, ["skill"]);
   assert.match(stderr.join("\n"), /not on PATH/);
+  assert.match(stdout.join("\n"), /warning: binary is not on PATH/);
 });
 
 test("not-on-PATH warning is zsh-flavored on macOS", async () => {
@@ -162,13 +165,14 @@ test("not-on-PATH warning is zsh-flavored on macOS", async () => {
     goInstallDir: async () => goBinDir("/Users/amosclaw/go/bin"),
     commandOnPath: async () => null,
     installSkill: async () => ok(),
+    stdout: () => {},
     stderr: (message) => stderr.push(message),
     platform: "darwin",
     shell: "/bin/zsh",
     home: "/Users/amosclaw",
   });
 
-  assert.equal(await command(["espn"]), 1);
+  assert.equal(await command(["espn"]), 0);
   const out = stderr.join("\n");
   assert.match(out, /installed espn-pp-cli at \/Users\/amosclaw\/go\/bin\/espn-pp-cli/);
   assert.match(out, /~\/\.zshrc/);
@@ -185,13 +189,14 @@ test("not-on-PATH warning is PowerShell-flavored on Windows", async () => {
     goInstallDir: async () => goBinDir("C:\\Users\\you\\go\\bin"),
     commandOnPath: async () => null,
     installSkill: async () => ok(),
+    stdout: () => {},
     stderr: (message) => stderr.push(message),
     platform: "win32",
     shell: undefined,
     home: "C:\\Users\\you",
   });
 
-  assert.equal(await command(["espn"]), 1);
+  assert.equal(await command(["espn"]), 0);
   const out = stderr.join("\n");
   assert.match(out, /SetEnvironmentVariable/);
   assert.doesNotMatch(out, /setx/);
@@ -491,6 +496,7 @@ test("install command warns loudly when a stale binary earlier in PATH shadows t
     goInstall: async () => ok(),
     goInstallDir: async () => goBinDir("/Users/ada/go/bin"),
     commandOnPath: async () => "/opt/homebrew/bin/espn-pp-cli",
+    realpath: async (path) => path,
     installSkill: async () => ok(),
     stdout: (message) => stdout.push(message),
     stderr: (message) => stderr.push(message),
@@ -535,6 +541,7 @@ test("install command includes shadow info in JSON output", async () => {
     goInstall: async () => ok(),
     goInstallDir: async () => goBinDir("/Users/ada/go/bin"),
     commandOnPath: async () => "/opt/homebrew/bin/espn-pp-cli",
+    realpath: async (path) => path,
     installSkill: async () => ok(),
     stdout: (message) => stdout.push(message),
     stderr: () => {},
@@ -546,6 +553,54 @@ test("install command includes shadow info in JSON output", async () => {
   assert.equal(json.binaryPath, "/Users/ada/go/bin/espn-pp-cli");
   assert.equal(json.installedPath, "/Users/ada/go/bin/espn-pp-cli");
   assert.equal(json.shadowedBy, "/opt/homebrew/bin/espn-pp-cli");
+});
+
+test("install command includes PATH warning in JSON output", async () => {
+  const stdout: string[] = [];
+  const command = createInstallCommand({
+    fetchRegistry: async () => registry,
+    resolveModulePath: async () => null,
+    detectGo: async () => ({ installed: true }),
+    goInstall: async () => ok(),
+    goInstallDir: async () => goBinDir("/Users/example/go/bin"),
+    commandOnPath: async () => null,
+    installSkill: async () => ok(),
+    stdout: (message) => stdout.push(message),
+    stderr: () => {},
+  });
+
+  assert.equal(await command(["espn", "--json"]), 0);
+  const json = JSON.parse(stdout[0]!);
+  assert.equal(json.ok, true);
+  assert.equal(json.binaryPath, "/Users/example/go/bin/espn-pp-cli");
+  assert.equal(json.installedPath, "/Users/example/go/bin/espn-pp-cli");
+  assert.equal(json.pathWarning, "not_on_path");
+  assert.equal(json.skill, "pp-espn");
+});
+
+test("install command does not warn when PATH hit is a symlink to the freshly installed binary", async () => {
+  const stdout: string[] = [];
+  const stderr: string[] = [];
+  const command = createInstallCommand({
+    fetchRegistry: async () => registry,
+    resolveModulePath: async () => null,
+    detectGo: async () => ({ installed: true }),
+    goInstall: async () => ok(),
+    goInstallDir: async () => goBinDir("/Users/example/go/bin"),
+    commandOnPath: async () => "/Users/example/.local/bin/espn-pp-cli",
+    realpath: async (path) =>
+      path === "/Users/example/.local/bin/espn-pp-cli"
+        ? "/Users/example/go/bin/espn-pp-cli"
+        : path,
+    installSkill: async () => ok(),
+    stdout: (message) => stdout.push(message),
+    stderr: (message) => stderr.push(message),
+  });
+
+  assert.equal(await command(["espn"]), 0);
+  assert.doesNotMatch(stderr.join("\n"), /shadow/);
+  assert.doesNotMatch(stdout.join("\n"), /shadowed by/);
+  assert.match(stdout.join("\n"), /binary: \/Users\/example\/go\/bin\/espn-pp-cli/);
 });
 
 test("install command falls back to PATH match when go env returns no install dir", async () => {
@@ -614,7 +669,7 @@ test("install command points at the install dir when nothing is on PATH", async 
     stderr: (message) => stderr.push(message),
   });
 
-  assert.equal(await command(["espn"]), 1);
+  assert.equal(await command(["espn"]), 0);
   // The error message names the specific path the user needs to add to PATH.
   assert.match(stderr.join("\n"), /\/Users\/example\/go\/bin\/espn-pp-cli/);
 });
