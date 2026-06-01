@@ -145,6 +145,11 @@ func newReportCmd(flags *rootFlags) *cobra.Command {
 			switch format {
 			case "csv":
 				_, _ = fmt.Fprint(cmd.OutOrStdout(), renderReportCSV(res))
+				if res.Truncated {
+					_, _ = fmt.Fprintf(cmd.ErrOrStderr(),
+						"note: CSV truncated to %d of %d expense row(s); use --limit 0 for all rows\n",
+						len(res.Expenses), res.ExpenseCount)
+				}
 				return nil
 			case "md":
 				_, _ = fmt.Fprint(cmd.OutOrStdout(), renderReportMarkdown(res))
