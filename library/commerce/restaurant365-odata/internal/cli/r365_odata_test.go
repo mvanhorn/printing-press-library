@@ -297,6 +297,23 @@ func TestBackfillPlanRejectsInvalidWatermark(t *testing.T) {
 	}
 }
 
+func TestDeletedRecordsRejectsInvalidSinceRowVersion(t *testing.T) {
+	var flags rootFlags
+	cmd := newRootCmd(&flags)
+	var stdout, stderr bytes.Buffer
+	cmd.SetOut(&stdout)
+	cmd.SetErr(&stderr)
+	cmd.SetArgs([]string{"deleted-records", "--since-row-version", "0 or 1 eq 1", "--agent"})
+
+	err := cmd.Execute()
+	if err == nil {
+		t.Fatalf("deleted-records accepted invalid since-row-version\nstdout=%s\nstderr=%s", stdout.String(), stderr.String())
+	}
+	if !strings.Contains(err.Error(), "--since-row-version must be a non-negative integer") {
+		t.Fatalf("error=%v, want since-row-version validation", err)
+	}
+}
+
 func TestR365CustomCommandHelpIncludesExamples(t *testing.T) {
 	commands := [][]string{
 		{"list-views"},

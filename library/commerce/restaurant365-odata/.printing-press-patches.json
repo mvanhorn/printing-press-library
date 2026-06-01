@@ -78,14 +78,14 @@
       "validated_outcome": "Focused Go regression tests covered Examples sections for each custom Restaurant365 command."
     },
     {
-      "id": "restaurant365-odata-rowversion-watermark-validation",
-      "summary": "Validate rowVersion watermarks before adding them to backfill-plan filters.",
-      "reason": "Watermark plans should reject non-numeric input instead of echoing an invalid OData expression.",
+      "id": "restaurant365-odata-rowversion-filter-validation",
+      "summary": "Validate rowVersion inputs before adding them to generated OData filters.",
+      "reason": "RowVersion filters should reject non-numeric input instead of echoing invalid OData expressions.",
       "files": [
         "internal/cli/r365_odata.go",
         "internal/cli/r365_odata_test.go"
       ],
-      "validated_outcome": "Focused Go regression tests covered rejection of invalid rowVersion watermark input."
+      "validated_outcome": "Focused Go regression tests covered rejection of invalid backfill watermark and deleted-records rowVersion input."
     }
   ]
 }

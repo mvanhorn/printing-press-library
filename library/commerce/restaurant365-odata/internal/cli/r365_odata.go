@@ -281,6 +281,9 @@ func newR365DeletedRecordsCmd(flags *rootFlags) *cobra.Command {
 			}
 			filterParts := []string{}
 			if sinceRowVersion != "" {
+				if _, err := strconv.ParseUint(sinceRowVersion, 10, 64); err != nil {
+					return usageErr(fmt.Errorf("--since-row-version must be a non-negative integer, got %q", sinceRowVersion))
+				}
 				filterParts = append(filterParts, "rowVersion gt "+sinceRowVersion)
 			}
 			if entity != "" {
