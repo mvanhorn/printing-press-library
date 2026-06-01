@@ -13,7 +13,10 @@
     "entry_point": "bin/offerup-pp-mcp",
     "mcp_config": {
       "command": "${__dirname}/bin/offerup-pp-mcp",
-      "args": []
+      "args": [],
+      "env": {
+        "OFFERUP_COOKIE": "${user_config.offerup_cookie}"
+      }
     }
   },
   "compatibility": {
@@ -23,5 +26,13 @@
       "linux",
       "win32"
     ]
+  },
+  "user_config": {
+    "offerup_cookie": {
+      "type": "string",
+      "title": "OFFERUP_COOKIE",
+      "description": "Optional. Sets OFFERUP_COOKIE for the Offerup MCP server.",
+      "sensitive": true
+    }
   }
 }

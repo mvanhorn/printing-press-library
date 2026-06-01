@@ -179,7 +179,7 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 					authConfigured = true
 					report["auth"] = "configured (browser session)"
 					report["auth_source"] = cfg.AuthSource
-					report["auth_domain"] = ".offerup.com"
+					report["auth_domain"] = "offerup.com"
 				}
 			}
 			// Check cookie tool availability

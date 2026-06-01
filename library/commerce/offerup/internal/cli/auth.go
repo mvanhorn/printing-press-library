@@ -54,7 +54,7 @@ func newAuthLoginCmd(flags *rootFlags) *cobra.Command {
 		Short: "Authenticate with the API",
 		Long: `Authenticate using your browser session.
 
-Use --chrome to read cookies from Chrome for .offerup.com.
+Use --chrome to read cookies from Chrome for offerup.com.
 Use --browser as an alias for --chrome.
 Requires a cookie extraction tool (pycookiecheat, cookies, or cookie-scoop-cli).
 
@@ -78,7 +78,7 @@ profile by name when the installed backend supports it.`,
 			}
 
 			w := cmd.OutOrStdout()
-			domain := ".offerup.com"
+			domain := "offerup.com"
 
 			// Step 0: Try press-auth, the dedicated cookie capture companion.
 			// press-auth spawns its own controlled Chrome window so users do
@@ -222,7 +222,7 @@ func newAuthStatusCmd(flags *rootFlags) *cobra.Command {
 
 			fmt.Fprintln(w, green("Authenticated"))
 			fmt.Fprintf(w, "  Source: %s\n", cfg.AuthSource)
-			fmt.Fprintf(w, "  Domain: .offerup.com\n")
+			fmt.Fprintf(w, "  Domain: offerup.com\n")
 			fmt.Fprintf(w, "  Config: %s\n", cfg.Path)
 			return nil
 		},
