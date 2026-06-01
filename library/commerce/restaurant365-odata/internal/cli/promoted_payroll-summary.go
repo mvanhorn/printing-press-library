@@ -87,8 +87,8 @@ func newPayrollSummaryPromotedCmd(flags *rootFlags) *cobra.Command {
 	}
 
 	// Wire sibling endpoints and sub-resources as subcommands
-	cmd.Flags().StringVar(&fromValue, "from", "", "Inclusive payrollStart date YYYY-MM-DD")
-	cmd.Flags().StringVar(&toValue, "to", "", "Inclusive payrollEnd date YYYY-MM-DD")
+	cmd.Flags().StringVar(&fromValue, "from", "", "Inclusive payroll overlap start date YYYY-MM-DD")
+	cmd.Flags().StringVar(&toValue, "to", "", "Inclusive payroll overlap end date YYYY-MM-DD")
 
 	return cmd
 }
@@ -97,7 +97,7 @@ func payrollSummaryDateFilter(fromValue, toValue string) (string, error) {
 	if fromValue == "" && toValue == "" {
 		to := time.Now().UTC()
 		from := to.AddDate(0, 0, -31)
-		return fmt.Sprintf("payrollStart ge %s and payrollEnd le %s", r365StartOfDay(from), r365EndOfDay(to)), nil
+		return payrollSummaryOverlapFilter(from, to), nil
 	}
 	if fromValue == "" || toValue == "" {
 		return "", fmt.Errorf("payroll-summary requires both --from and --to when either is set")
@@ -113,5 +113,9 @@ func payrollSummaryDateFilter(fromValue, toValue string) (string, error) {
 	if to.Before(from) {
 		return "", fmt.Errorf("--to must be on or after --from")
 	}
-	return fmt.Sprintf("payrollStart ge %s and payrollEnd le %s", r365StartOfDay(from), r365EndOfDay(to)), nil
+	return payrollSummaryOverlapFilter(from, to), nil
+}
+
+func payrollSummaryOverlapFilter(from, to time.Time) string {
+	return fmt.Sprintf("payrollStart le %s and payrollEnd ge %s", r365EndOfDay(to), r365StartOfDay(from))
 }

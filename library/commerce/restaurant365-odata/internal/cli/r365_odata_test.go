@@ -405,7 +405,7 @@ func TestPayrollSummaryPromotedCommandAddsExplicitDateRangeFilter(t *testing.T) 
 		"--to", "2026-05-31",
 		"--agent",
 	})
-	want := "payrollStart ge 2026-05-01T00:00:00Z and payrollEnd le 2026-05-31T23:59:59.999999999Z"
+	want := "payrollStart le 2026-05-31T23:59:59.999999999Z and payrollEnd ge 2026-05-01T00:00:00Z"
 	if filter != want {
 		t.Fatalf("$filter=%q, want %q", filter, want)
 	}
@@ -413,8 +413,8 @@ func TestPayrollSummaryPromotedCommandAddsExplicitDateRangeFilter(t *testing.T) 
 
 func TestPayrollSummaryPromotedCommandDefaultsToBoundedFilter(t *testing.T) {
 	filter := runPayrollSummaryCommand(t, []string{"payroll-summary", "--agent"})
-	if !strings.Contains(filter, "payrollStart ge ") || !strings.Contains(filter, " and payrollEnd le ") {
-		t.Fatalf("$filter=%q, want bounded payrollStart/payrollEnd filter", filter)
+	if !strings.Contains(filter, "payrollStart le ") || !strings.Contains(filter, " and payrollEnd ge ") {
+		t.Fatalf("$filter=%q, want bounded payroll overlap filter", filter)
 	}
 }
 

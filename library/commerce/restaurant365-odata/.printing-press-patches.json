@@ -59,13 +59,13 @@
     },
     {
       "id": "restaurant365-odata-payroll-summary-date-filter",
-      "summary": "Add bounded payrollStart/payrollEnd filters to PayrollSummary reads.",
-      "reason": "Restaurant365 rejects PayrollSummary reads without a valid payroll date range, so the promoted command needs explicit and default bounded filters.",
+      "summary": "Add bounded payroll-period overlap filters to PayrollSummary reads.",
+      "reason": "Restaurant365 rejects PayrollSummary reads without a valid payroll date range, so the promoted command needs explicit and default filters that include periods overlapping the requested window.",
       "files": [
         "internal/cli/promoted_payroll-summary.go",
         "internal/cli/r365_odata_test.go"
       ],
-      "validated_outcome": "Focused Go regression tests covered explicit date filters and the default bounded PayrollSummary live path."
+      "validated_outcome": "Focused Go regression tests covered explicit overlap filters and the default bounded PayrollSummary live path."
     },
     {
       "id": "restaurant365-odata-command-help-examples",
