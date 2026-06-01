@@ -111,6 +111,12 @@ func storeKeyFor(query string, loc *offerup.Location) string {
 		label = "geo:" + loc.Lat + "," + loc.Lon
 	case loc.City != "":
 		label = "city:" + strings.ToLower(strings.TrimSpace(loc.City))
+		// Same city name in different states (Portland OR vs Portland ME) must
+		// not share a store bucket, or price-drop/new-since/digest history for
+		// one corrupts the other.
+		if loc.State != "" {
+			label += "," + strings.ToLower(strings.TrimSpace(loc.State))
+		}
 	}
 	return query + "@" + label
 }
