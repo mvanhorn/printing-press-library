@@ -1,0 +1,52 @@
+{
+  "manifest_version": "0.3",
+  "name": "breezedoc-pp-mcp",
+  "display_name": "BreezeDoc",
+  "version": "4.19.0",
+  "description": "E-signature and invoicing API for documents, templates, recipients, teams, and invoice workflows.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/breezedoc-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/breezedoc-pp-mcp",
+      "args": [],
+      "env": {
+        "BREEZEDOC_API_TOKEN": "${user_config.breezedoc_api_token}",
+        "BREEZEDOC_BEARER_AUTH": "${user_config.breezedoc_bearer_auth}",
+        "BREEZEDOC_BEARER_TOKEN": "${user_config.breezedoc_bearer_token}"
+      }
+    }
+  },
+  "user_config": {
+    "breezedoc_api_token": {
+      "type": "string",
+      "title": "BREEZEDOC_API_TOKEN",
+      "description": "Optional. Sets BREEZEDOC_API_TOKEN for the BreezeDoc MCP server. Get a credential from https://breezedoc.com/integrations/api.",
+      "sensitive": true
+    },
+    "breezedoc_bearer_auth": {
+      "type": "string",
+      "title": "BREEZEDOC_BEARER_AUTH",
+      "description": "Optional. Sets BREEZEDOC_BEARER_AUTH for the BreezeDoc MCP server. Get a credential from https://breezedoc.com/integrations/api.",
+      "sensitive": true
+    },
+    "breezedoc_bearer_token": {
+      "type": "string",
+      "title": "BREEZEDOC_BEARER_TOKEN",
+      "description": "Optional. Sets BREEZEDOC_BEARER_TOKEN for the BreezeDoc MCP server. Get a credential from https://breezedoc.com/integrations/api.",
+      "sensitive": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

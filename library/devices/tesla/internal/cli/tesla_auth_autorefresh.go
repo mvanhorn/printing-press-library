@@ -93,9 +93,8 @@ func teslaShouldUseFleetForReads(cfg *config.Config) bool {
 		return false
 	}
 	// Never affects users who haven't set up Fleet (e.g. pre-2021 cars on the
-	// owner-api read path). TESLA_FLEET_TOKEN counts as Fleet being configured,
-	// matching AuthHeader() and the other Fleet surfaces.
-	if cfg.Fleet.AccessToken == "" && os.Getenv("TESLA_FLEET_TOKEN") == "" {
+	// owner-api read path).
+	if !teslaFleetConfigured(cfg) {
 		return false
 	}
 	switch os.Getenv("TESLA_PP_FORCE_FLEET_READS") {
@@ -110,16 +109,25 @@ func teslaShouldUseFleetForReads(cfg *config.Config) bool {
 	// leftover after moving a 2021+ car to Fleet, often persisted with a zero
 	// expiry — must not block Fleet reads.
 	//
-	// Known limitation: this is a per-install decision, not per-vehicle. A
-	// mixed account (a pre-2021 car still on owner-api plus a 2021+/non-NA car
-	// that only works via Fleet) with a *valid* owner token will route every
-	// read through owner-api, leaving the Fleet-only car unreadable. Resolving
-	// it properly needs per-vehicle year/region knowledge; until then
-	// TESLA_PP_FORCE_FLEET_READS=1 forces Fleet. Owner-api is broadly retired,
-	// so this is rare in practice.
+	// This is a per-install decision, not per-vehicle: a mixed account (a
+	// pre-2021 car on owner-api plus a 2021+/non-NA car that only works via
+	// Fleet) with a *valid* owner token routes every read through owner-api
+	// here. That case is recovered reactively — newClient arms a Fleet fallback
+	// (Client.FleetFallback) that retries through the Fleet API when an
+	// owner-api vehicle read 404s — so the Fleet-only car is still readable
+	// without TESLA_PP_FORCE_FLEET_READS=1. This heuristic still picks the
+	// fast path (no wasted owner-api round-trip) for the common single-profile
+	// install.
 	ownerUsable := cfg.AuthHeaderVal != "" || cfg.TeslaAuthToken != "" ||
 		(cfg.AccessToken != "" && cfg.TokenExpiry.After(time.Now()))
 	return !ownerUsable
+}
+
+// teslaFleetConfigured reports whether a Fleet user token is available, whether
+// from the [fleet] block or the TESLA_FLEET_TOKEN env override (matching
+// AuthHeader() and the other Fleet surfaces).
+func teslaFleetConfigured(cfg *config.Config) bool {
+	return cfg != nil && (cfg.Fleet.AccessToken != "" || os.Getenv("TESLA_FLEET_TOKEN") != "")
 }
 
 // makeTeslaFleetRefreshCallback mirrors makeTeslaAutoRefreshCallback but for the
