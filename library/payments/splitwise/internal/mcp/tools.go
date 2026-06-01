@@ -55,6 +55,22 @@ func bindingHasName(bindings []mcpParamBinding, name string) bool {
 	return false
 }
 
+// clientCursorNames returns the pagination cursor args (offset/limit) that the
+// client-side byte-budget pager consumes for a GET tool — i.e. the cursor names
+// the tool does NOT declare as a native query binding. These must both be read
+// for PaginateBody and be marked as consumed so the generic args-forwarding loop
+// does not also append them to the upstream query string (a leaked client cursor
+// makes the API return a partial slice, which then yields a wrong page total).
+func clientCursorNames(bindings []mcpParamBinding) []string {
+	var names []string
+	for _, name := range []string{"offset", "limit"} {
+		if !bindingHasName(bindings, name) {
+			names = append(names, name)
+		}
+	}
+	return names
+}
+
 // RegisterTools registers all API operations as MCP tools.
 func RegisterTools(s *server.MCPServer) {
 	s.AddTool(
@@ -462,6 +478,18 @@ func makeAPIHandler(method, pathTemplate string, readOnly bool, binaryResponse b
 				params[binding.WireName] = fmt.Sprintf("%v", v)
 			}
 		}
+		// Mark the client-side pagination cursor (offset/limit) as consumed so
+		// the generic args-forwarding loop below does not append it to the
+		// upstream query string. For endpoints that page server-side (e.g.
+		// get_expenses, get_comments) the native binding owns the arg, so
+		// clientCursorNames excludes it and it still reaches the API. Without
+		// this guard a client-cursor offset leaks upstream, the API returns a
+		// partial slice, and PaginateBody then reports a wrong total/next_offset.
+		if method == "GET" {
+			for _, name := range clientCursorNames(bindings) {
+				knownArgs[name] = true
+			}
+		}
 		for _, p := range positionalParams {
 			placeholder := "{" + p + "}"
 			if !strings.Contains(pathTemplate, placeholder) {
@@ -600,11 +628,13 @@ func makeAPIHandler(method, pathTemplate string, readOnly bool, binaryResponse b
 		// get_expenses) are not double-skipped.
 		if method == "GET" {
 			clientOffset, clientLimit := 0, 0
-			if !bindingHasName(bindings, "offset") {
-				clientOffset = mcpIntArg(args, "offset")
-			}
-			if !bindingHasName(bindings, "limit") {
-				clientLimit = mcpIntArg(args, "limit")
+			for _, name := range clientCursorNames(bindings) {
+				switch name {
+				case "offset":
+					clientOffset = mcpIntArg(args, "offset")
+				case "limit":
+					clientLimit = mcpIntArg(args, "limit")
+				}
 			}
 			if out, ok := cli.PaginateBody(data, clientOffset, clientLimit, mcpListMaxBytes(), ""); ok {
 				return mcplib.NewToolResultText(string(out)), nil
