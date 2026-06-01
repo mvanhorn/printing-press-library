@@ -510,9 +510,13 @@ func commandDispatchFleet(cmd *cobra.Command, flags *rootFlags, cfg *config.Conf
 		return usageErr(fmt.Errorf("Fleet API not configured; run `tesla auth fleet-login`"))
 	}
 
-	// Auto-refresh on expired token, best-effort. If refresh fails we still
-	// attempt the call; tesla-control surfaces a meaningful 401 error.
-	if !ft.TokenExpiry.IsZero() && time.Now().After(ft.TokenExpiry) {
+	// Proactive refresh, best-effort. Refresh when the stored token is expired,
+	// within the skew window of expiring, or has unknown expiry but a refresh
+	// token to use. The skew window matters on a sink: a freshly-synced token
+	// can be valid by local clock yet about to lapse, and refreshing before
+	// dispatch avoids racing the network. If refresh fails we still attempt the
+	// call; the reactive 401 path below is the safety net.
+	if fleetTokenNeedsProactiveRefresh(ft, fleetTokenRefreshSkew) {
 		if refreshed, rerr := tryRefreshFleetToken(cfg); rerr == nil && refreshed != "" {
 			token = refreshed
 		}
@@ -681,6 +685,28 @@ func resolveFleetKeyPath(cfg *config.Config) (string, error) {
 		}
 	}
 	return "", fmt.Errorf("no Fleet signing key configured; set TESLA_FLEET_KEY_FILE or run `tesla auth fleet-template --gen-key` and store the path with `tesla auth fleet-register`")
+}
+
+// fleetTokenRefreshSkew is how far ahead of the stored expiry the proactive
+// check re-mints the fleet token. A freshly-synced token can read "valid" by
+// the local clock yet be seconds from lapsing; refreshing inside this window
+// avoids dispatching a token that dies mid-flight.
+const fleetTokenRefreshSkew = 60 * time.Second
+
+// fleetTokenNeedsProactiveRefresh reports whether the stored [fleet] token
+// should be re-minted before dispatch. True when it is expired, expires within
+// skew, or has unknown expiry while a refresh token is on file. Returns false
+// when no refresh token is stored: there is nothing to refresh with, so a
+// network round trip would be pointless and the reactive 401 path handles the
+// rejection.
+func fleetTokenNeedsProactiveRefresh(ft config.FleetConfig, skew time.Duration) bool {
+	if ft.RefreshToken == "" {
+		return false
+	}
+	if ft.TokenExpiry.IsZero() {
+		return true
+	}
+	return time.Now().Add(skew).After(ft.TokenExpiry)
 }
 
 // teslaFleetRefreshGuard serializes reactive fleet-token refreshes across

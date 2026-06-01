@@ -840,6 +840,32 @@ func TestTryRefreshFleetToken_ConcurrentGuard(t *testing.T) {
 	}
 }
 
+// TestFleetTokenNeedsProactiveRefresh covers the skew-window proactive check
+// (plan U3): refresh when expired, near-expiry, or unknown-expiry-with-refresh;
+// skip when comfortably valid or when no refresh token exists.
+func TestFleetTokenNeedsProactiveRefresh(t *testing.T) {
+	skew := 60 * time.Second
+	cases := []struct {
+		name string
+		ft   config.FleetConfig
+		want bool
+	}{
+		{"expired with refresh token", config.FleetConfig{RefreshToken: "r", TokenExpiry: time.Now().Add(-time.Hour)}, true},
+		{"near-expiry within skew", config.FleetConfig{RefreshToken: "r", TokenExpiry: time.Now().Add(30 * time.Second)}, true},
+		{"comfortably valid beyond skew", config.FleetConfig{RefreshToken: "r", TokenExpiry: time.Now().Add(time.Hour)}, false},
+		{"zero expiry with refresh token", config.FleetConfig{RefreshToken: "r"}, true},
+		{"zero expiry without refresh token", config.FleetConfig{}, false},
+		{"expired but no refresh token", config.FleetConfig{TokenExpiry: time.Now().Add(-time.Hour)}, false},
+	}
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			if got := fleetTokenNeedsProactiveRefresh(c.ft, skew); got != c.want {
+				t.Errorf("fleetTokenNeedsProactiveRefresh = %v, want %v", got, c.want)
+			}
+		})
+	}
+}
+
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
