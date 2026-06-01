@@ -387,7 +387,7 @@ func computeFairness(youID int, friends []Friend, groups []Group, expenses []Exp
 			r := round2(p.Paid / p.Owed)
 			p.CarryRatio = &r
 		}
-		p.Role = classifyRole(p.HasHistory, p.CarryRatio)
+		p.Role = roleForContribution(p.HasHistory, p.Paid, p.Owed, p.CarryRatio)
 
 		ep := episodeMetrics(now, events, opts.minEpisodes)
 		p.DebtAgeDays = ep.debtAgeDays
@@ -593,6 +593,18 @@ func classifyRole(hasHistory bool, ratio *float64) string {
 		return "carrier"
 	}
 	return "even"
+}
+
+// roleForContribution wraps classifyRole to correct the one case classifyRole
+// cannot see: a member who paid into the group while owing nothing (excluded
+// from the split) has a nil CarryRatio, which classifyRole defaults to "rider".
+// That member is a pure carrier — an unbounded carry ratio — not a rider.
+func roleForContribution(hasHistory bool, paid, owed float64, ratio *float64) string {
+	role := classifyRole(hasHistory, ratio)
+	if role == "rider" && owed == 0 && paid > 0 {
+		return "carrier"
+	}
+	return role
 }
 
 func clampDays(v int) int {
