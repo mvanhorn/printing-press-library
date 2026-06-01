@@ -17,7 +17,7 @@
     {
       "id": "splitwise-sync-offset-pagination-past-first-page",
       "summary": "Make offset-paginated sync advance past the first page when the API returns no has_more/cursor signal.",
-      "reason": "Splitwise /get_expenses paginates by offset and returns a bare {\"expenses\":[...]} envelope with no has_more field, so extractPageItems returns hasMore=false. The sync loop's natural-end check (!hasMore) fired after the first 100 rows even under --full --max-pages 0, so the 43 oldest of 143 expenses never reached the local store — breaking debts --aged (age_days:null) and under-counting spend. Added an offset-paginator full-page fallback mirroring the existing page-int fallback: when cursorType==\"offset\", nextCursor is empty, and the page is full, synthesize hasMore and the next offset so the loop continues until a short/empty page.",
+      "reason": "Splitwise /get_expenses paginates by offset and returns a bare {\"expenses\":[...]} envelope with no has_more field, so extractPageItems returns hasMore=false. The sync loop's natural-end check (!hasMore) fired after the first 100 rows even under --full --max-pages 0, so the 43 oldest of 143 expenses never reached the local store \u2014 breaking debts --aged (age_days:null) and under-counting spend. Added an offset-paginator full-page fallback mirroring the existing page-int fallback: when cursorType==\"offset\", nextCursor is empty, and the page is full, synthesize hasMore and the next offset so the loop continues until a short/empty page.",
       "files": [
         "internal/cli/sync.go",
         "internal/cli/sync_offset_pagination_test.go"
@@ -51,7 +51,7 @@
     {
       "id": "name-resolver-ambiguity",
       "summary": "Group/friend name resolution prefers an exact match and errors on ambiguous names instead of silently picking the first substring match.",
-      "reason": "resolveLedgerGroup/resolveSettleGroup/resolveSettleFriend returned the first case-insensitive substring match, so a name matching multiple groups/friends silently resolved to one — dangerous for settle-up --record, which creates real payment expenses. Settle-up falls through to a unique friend when the group name is ambiguous.",
+      "reason": "resolveLedgerGroup/resolveSettleGroup/resolveSettleFriend returned the first case-insensitive substring match, so a name matching multiple groups/friends silently resolved to one \u2014 dangerous for settle-up --record, which creates real payment expenses. Settle-up falls through to a unique friend when the group name is ambiguous.",
       "files": [
         "internal/cli/splitwise_settle.go",
         "internal/cli/splitwise_spend.go",
@@ -97,6 +97,58 @@
         "internal/cli/which.go"
       ],
       "validated_outcome": "Live: `which \"who owes me money\"` now returns debts (score 3) at exit 0; `which \"venmo\"` returns settle-up."
+    },
+    {
+      "id": "mcp-sql-tool-schema-description",
+      "summary": "The sql MCP tool's query-param description now documents the real store schema (single resources table keyed by resource_type, JSON data, json_extract) instead of the false 'Tables match resource names'.",
+      "reason": "The local store keeps every synced record in ONE resources(resource_type, id, data, ...) table with the record JSON in `data` \u2014 there are no per-resource tables. The generated description claimed 'Tables match resource names', so MCP hosts tried FROM groups / FROM get_groups and got 'no such table', burning queries before stumbling onto the resources/json_extract pattern. Extracted the description to a sqlQueryParamDesc constant naming resources/resource_type/json_extract with a worked example.",
+      "files": [
+        "internal/mcp/tools.go",
+        "internal/mcp/sql_description_test.go"
+      ],
+      "validated_outcome": "TestSQLToolParamDescribesRealSchema pins resources/resource_type/json_extract present and 'Tables match resource names' absent; gofmt/build/vet/test, govulncheck, verify-skill pass.",
+      "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/issues/2516",
+      "deferred_to_upstream": [
+        {
+          "feature": "Generator fix: the sql tool template must describe the real resources/resource_type/json_extract schema, not 'Tables match resource names'.",
+          "reason": "Generator-shaped \u2014 tools.go is generated DO-NOT-EDIT; every store-backed printed CLI ships the same misleading sql-tool description that sends MCP hosts to non-existent per-resource tables. Filed as a cli-printing-press retro."
+        }
+      ]
+    },
+    {
+      "id": "mcp-tool-appname-discovery",
+      "summary": "Front-load the 'Splitwise' app name into the context/search/sql MCP tool descriptions so a deferred-tool host (Cowork) searching the tool surface by app name finds the connector.",
+      "reason": "No MCP tool name carries the app name (they are resource/verb-based: get-groups_list, search, sql, context), and the entry-point tools' descriptions didn't mention it. A host that discovers tools by app-name keyword (Cowork: query='splitwise') got no hit and wrongly concluded no connector was installed, pivoting to the public MCP install registry. Extracted contextToolDesc/searchToolDesc/sqlToolDesc constants leading with 'Splitwise'.",
+      "files": [
+        "internal/mcp/tools.go",
+        "internal/mcp/discoverability_test.go"
+      ],
+      "validated_outcome": "TestEntryPointToolsAreDiscoverableByAppName pins 'Splitwise' present in the context/search/sql tool descriptions; gofmt/build/vet/test, govulncheck, verify-skill pass. (Improves app-name discoverability; a host-side cold-start/lazy-index component may remain.)",
+      "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/issues/2553",
+      "deferred_to_upstream": [
+        {
+          "feature": "Generator fix: front-load the API/app name into generated MCP tool descriptions (at minimum the context/search/sql entry-point tools).",
+          "reason": "Generator-shaped \u2014 every printed CLI's MCP tool surface is resource/verb-based with the API name absent, so deferred-tool hosts that search by app name miss the connector. Filed as a cli-printing-press retro."
+        }
+      ]
+    },
+    {
+      "id": "mcp-version-startup-banner",
+      "summary": "The MCP server now reports the real build version (via cli.Version() instead of a hardcoded \"1.0.0\") and writes a startup banner to stderr on load, so a host's MCP log identifies which build is running.",
+      "reason": "cmd/splitwise-pp-mcp/main.go passed a literal \"1.0.0\" to NewMCPServer (ignoring the ldflags-injected internal/cli.version the CLI uses) and logged nothing on stdio startup, so there was no way to tell which build Claude Desktop loaded when dogfooding multiple builds. Added cli.Version() accessor, wired it into NewMCPServer, and added startupBanner(version, transport) printed to stderr. Because goreleaser already injects internal/cli.version into all binaries, published MCP builds now report their real release version for free.",
+      "files": [
+        "internal/cli/root.go",
+        "cmd/splitwise-pp-mcp/main.go",
+        "cmd/splitwise-pp-mcp/main_test.go"
+      ],
+      "validated_outcome": "TestStartupBannerIncludesVersionAndTransport passes; a plain build prints 'splitwise-pp-mcp 1.0.0 starting (transport=stdio)' to stderr, and an ldflags build (-X internal/cli.version=...) prints the injected version; gofmt/build/vet/test, govulncheck, verify-skill pass.",
+      "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/issues/2554",
+      "deferred_to_upstream": [
+        {
+          "feature": "Generator fix: the MCP main template must report the real build version (wire NewMCPServer to the ldflags-injected internal/cli.version) and write a startup banner to stderr.",
+          "reason": "Generator-shaped \u2014 every printed CLI's MCP main hardcodes \"1.0.0\" and is silent on stdio startup, so no host log identifies the running build. Filed as a cli-printing-press retro."
+        }
+      ]
     }
   ]
 }

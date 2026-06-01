@@ -19,6 +19,10 @@ import (
 
 var version = "1.0.0"
 
+// Version returns the build version (set via -ldflags at release; "1.0.0" in a
+// plain go build). Exposed so the MCP server can report the same version as the CLI.
+func Version() string { return version }
+
 type rootFlags struct {
 	asJSON     bool
 	compact    bool
