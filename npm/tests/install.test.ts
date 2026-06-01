@@ -540,6 +540,7 @@ test("install command includes shadow info in JSON output", async () => {
     goInstall: async () => ok(),
     goInstallDir: async () => goBinDir("/Users/ada/go/bin"),
     commandOnPath: async () => "/opt/homebrew/bin/espn-pp-cli",
+    realpath: async (path) => path,
     installSkill: async () => ok(),
     stdout: (message) => stdout.push(message),
     stderr: () => {},

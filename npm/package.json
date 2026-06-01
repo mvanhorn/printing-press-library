@@ -45,6 +45,7 @@
     "check-lock-version": "node scripts/check-lock-version.mjs",
     "clean": "rm -rf dist",
     "preversion": "npm run check-lock-version",
+    "version": "npm install --package-lock-only && npm run check-lock-version",
     "test": "npm run build && node --test \"dist/tests/**/*.test.js\"",
     "prepublishOnly": "npm test && npm run build"
   },
