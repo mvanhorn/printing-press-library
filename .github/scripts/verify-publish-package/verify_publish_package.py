@@ -40,6 +40,7 @@ PATCHES_DIR = ".printing-press-patches"
 def patches_present(cli_dir: Path) -> bool:
     return (cli_dir / PATCHES_LEGACY_FILE).is_file() or (cli_dir / PATCHES_DIR).is_dir()
 
+
 PRINTER_SENTINELS = {"", "USER", "user", "unknown", "UNKNOWN", "changeme", "CHANGE_ME"}
 
 
