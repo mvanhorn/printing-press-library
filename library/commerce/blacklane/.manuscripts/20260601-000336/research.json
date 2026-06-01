@@ -1,0 +1,154 @@
+{
+  "api_name": "blacklane",
+  "novelty_score": 8,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-06-01T04:02:45Z",
+  "novel_features": [
+    {
+      "name": "Fare watch",
+      "command": "watch",
+      "description": "Track a saved route's price over time and flag drops.",
+      "rationale": "Only possible with local price snapshots in SQLite.",
+      "example": "blacklane-pp-cli watch \"San Francisco Airport\" \"Union Square San Francisco\" --at 2026-06-25T15:00 --agent",
+      "why_it_matters": "Reach for this to catch chauffeur price drops before a trip.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Cheapest-window compare",
+      "command": "compare",
+      "description": "Quote one route across many departure times to find the cheapest.",
+      "rationale": "Requires fan-out quotes aggregated locally.",
+      "example": "blacklane-pp-cli compare \"JFK Airport\" \"Times Square New York\" --dates 2026-06-20T15:00,2026-06-21T15:00 --agent",
+      "why_it_matters": "Use when the pickup time is flexible and price matters.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Multi-leg trip total",
+      "command": "trip",
+      "description": "Quote a sequence of legs and total the fares.",
+      "rationale": "Requires sequencing and summing quotes locally.",
+      "example": "blacklane-pp-cli trip --leg \"JFK Airport\u003eTimes Square New York\" --at 2026-06-20T09:00 --agent",
+      "why_it_matters": "Use to budget a full day of ground transport.",
+      "group": "Trip planning"
+    },
+    {
+      "name": "Class fit advisor",
+      "command": "fit",
+      "description": "Recommend the cheapest vehicle class that fits the party.",
+      "rationale": "Requires joining catalog capacity with live price.",
+      "example": "blacklane-pp-cli fit \"JFK Airport\" \"Times Square New York\" --pax 3 --bags 4 --at 2026-06-20T15:00 --agent",
+      "why_it_matters": "Use to avoid overpaying for more car than you need.",
+      "group": "Trip planning"
+    },
+    {
+      "name": "Quote ledger + search",
+      "command": "log",
+      "description": "Every quote saved to SQLite, full-text searchable and SQL-queryable.",
+      "rationale": "Requires a local store of all quotes.",
+      "example": "blacklane-pp-cli search \"Times Square\" --agent",
+      "why_it_matters": "Use to recall and compare past quotes offline.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Fare watch",
+      "command": "watch",
+      "description": "Track a saved route's price over time and flag drops.",
+      "rationale": "Only possible with local price snapshots in SQLite.",
+      "example": "blacklane-pp-cli watch \"San Francisco Airport\" \"Union Square San Francisco\" --at 2026-06-25T15:00 --agent",
+      "why_it_matters": "Reach for this to catch chauffeur price drops before a trip.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Cheapest-window compare",
+      "command": "compare",
+      "description": "Quote one route across many departure times to find the cheapest.",
+      "rationale": "Requires fan-out quotes aggregated locally.",
+      "example": "blacklane-pp-cli compare \"JFK Airport\" \"Times Square New York\" --dates 2026-06-20T15:00,2026-06-21T15:00 --agent",
+      "why_it_matters": "Use when the pickup time is flexible and price matters.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Multi-leg trip total",
+      "command": "trip",
+      "description": "Quote a sequence of legs and total the fares.",
+      "rationale": "Requires sequencing and summing quotes locally.",
+      "example": "blacklane-pp-cli trip --leg \"JFK Airport\u003eTimes Square New York\" --at 2026-06-20T09:00 --agent",
+      "why_it_matters": "Use to budget a full day of ground transport.",
+      "group": "Trip planning"
+    },
+    {
+      "name": "Class fit advisor",
+      "command": "fit",
+      "description": "Recommend the cheapest vehicle class that fits the party.",
+      "rationale": "Requires joining catalog capacity with live price.",
+      "example": "blacklane-pp-cli fit \"JFK Airport\" \"Times Square New York\" --pax 3 --bags 4 --at 2026-06-20T15:00 --agent",
+      "why_it_matters": "Use to avoid overpaying for more car than you need.",
+      "group": "Trip planning"
+    },
+    {
+      "name": "Quote ledger + search",
+      "command": "log",
+      "description": "Every quote saved to SQLite, full-text searchable and SQL-queryable.",
+      "rationale": "Requires a local store of all quotes.",
+      "example": "blacklane-pp-cli search \"Times Square\" --agent",
+      "why_it_matters": "Use to recall and compare past quotes offline.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "narrative": {
+    "display_name": "Blacklane",
+    "headline": "Upfront chauffeur quotes from the terminal — transfer and hourly, with a local price history no other tool has.",
+    "value_prop": "Quote Blacklane's fixed all-inclusive chauffeur fares (airport transfers and by-the-hour) by address, compare vehicle classes, and keep a searchable local log of every quote. Addresses resolve via OpenStreetMap — no API key, no login, no booking.",
+    "quickstart": [
+      {
+        "command": "blacklane-pp-cli quote \"San Francisco Airport\" \"Union Square San Francisco\" --at 2026-06-25T15:00",
+        "comment": "Point-to-point transfer quote across vehicle classes."
+      },
+      {
+        "command": "blacklane-pp-cli quote \"Union Square San Francisco\" --hourly 3 --at 2026-06-25T15:00",
+        "comment": "By-the-hour chauffeur quote (3 hours)."
+      },
+      {
+        "command": "blacklane-pp-cli catalog business",
+        "comment": "Inspect a vehicle class's models, capacity, and features."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "Quote returns no vehicle classes",
+        "fix": "The route may be outside Blacklane's service area, or the date is in the past — try a major city/airport and a future time."
+      },
+      {
+        "symptom": "Address resolves to the wrong place",
+        "fix": "Pass more specific text or use --pickup-lat/--pickup-lng (and --dropoff-lat/lng) to set coordinates directly."
+      }
+    ],
+    "when_to_use": "Reach for this CLI to price a chauffeur ride (airport transfer or hourly) without opening the Blacklane site, to compare vehicle classes and departure windows, or to keep an offline, searchable record of quotes. It never books and needs no account.",
+    "recipes": [
+      {
+        "title": "Quote and keep only class + price",
+        "command": "blacklane-pp-cli quote \"JFK Airport\" \"Times Square New York\" --at 2026-06-20T15:00 --agent --select packages.title,packages.grossAmount,packages.currency",
+        "explanation": "Narrow a verbose quote to just the class and total."
+      },
+      {
+        "title": "Find the cheapest departure",
+        "command": "blacklane-pp-cli compare \"JFK Airport\" \"Times Square New York\" --dates 2026-06-20T15:00,2026-06-21T09:00,2026-06-22T09:00 --agent",
+        "explanation": "Fan out quotes across times and rank by price."
+      }
+    ],
+    "trigger_phrases": [
+      "blacklane quote",
+      "chauffeur from the airport",
+      "how much is a blacklane to",
+      "price a car service",
+      "quote a transfer",
+      "use blacklane",
+      "run blacklane"
+    ]
+  }
+}

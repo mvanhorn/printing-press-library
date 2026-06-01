@@ -1,0 +1,70 @@
+{
+  "api_name": "blacklane",
+  "base_url": "https://pricing-bff-api.blacklane.com",
+  "description": "Blacklane chauffeur quotes \u0026 service catalog — upfront fixed-price quotes (transfer \u0026 hourly) and vehicle-class catalog over Blacklane's public pricing BFF.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [
+    {
+      "name": "Origin",
+      "value": "https://www.blacklane.com"
+    }
+  ],
+  "tools": [
+    {
+      "name": "catalog_get",
+      "description": "Get a vehicle class by slug (business, first, van). Required: slug. Returns the Package.",
+      "method": "GET",
+      "path": "/packages/{slug}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "path",
+          "description": "Vehicle class slug: business, first, or van",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "prices_create",
+      "description": "Request prices for a journey (raw body; see 'quote' for a friendly interface). Required: serviceCategory (default: prebooked), serviceType, departAt. Optional: duration. Returns the new PriceResult.",
+      "method": "POST",
+      "path": "/prices",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "serviceCategory",
+          "type": "string",
+          "location": "body",
+          "description": "Service category (prebooked)",
+          "required": true
+        },
+        {
+          "name": "serviceType",
+          "type": "string",
+          "location": "body",
+          "description": "transfer or hourly",
+          "required": true
+        },
+        {
+          "name": "departAt",
+          "type": "string",
+          "location": "body",
+          "description": "Local pickup datetime, e.g. 2026-06-25T15:00:00",
+          "required": true
+        },
+        {
+          "name": "duration",
+          "type": "int",
+          "location": "body",
+          "description": "Hourly only: duration in seconds (hours*3600, min 7200)"
+        }
+      ]
+    }
+  ]
+}
