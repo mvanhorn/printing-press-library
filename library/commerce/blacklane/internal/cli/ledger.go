@@ -99,7 +99,7 @@ func newWatchCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			pickup, err := resolveLocation(args[0], 0, 0, flags.timeout)
+			pickup, err := resolveLocation(args[0], 0, 0, false, flags.timeout)
 			if err != nil {
 				return err
 			}
@@ -115,7 +115,7 @@ func newWatchCmd(flags *rootFlags) *cobra.Command {
 				if len(args) < 2 {
 					return fmt.Errorf("transfer watch needs a dropoff (or use --hourly <hours>)")
 				}
-				d, err := resolveLocation(args[1], 0, 0, flags.timeout)
+				d, err := resolveLocation(args[1], 0, 0, false, flags.timeout)
 				if err != nil {
 					return err
 				}
@@ -142,7 +142,7 @@ func newWatchCmd(flags *rootFlags) *cobra.Command {
 			var prev float64
 			var prevTS string
 			_ = db.QueryRow(
-				`SELECT gross, ts FROM quotes WHERE route_key=? ORDER BY id DESC LIMIT 1`, rk,
+				`SELECT gross, ts FROM quotes WHERE route_key=? ORDER BY ts DESC, gross ASC LIMIT 1`, rk,
 			).Scan(&prev, &prevTS)
 
 			if err := recordQuote(db, r); err != nil {

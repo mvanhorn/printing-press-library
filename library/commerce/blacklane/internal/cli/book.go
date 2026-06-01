@@ -57,7 +57,7 @@ func newBookCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			pickup, err := resolveLocation(args[0], 0, 0, flags.timeout)
+			pickup, err := resolveLocation(args[0], 0, 0, false, flags.timeout)
 			if err != nil {
 				return err
 			}
@@ -73,7 +73,7 @@ func newBookCmd(flags *rootFlags) *cobra.Command {
 				if len(args) < 2 {
 					return fmt.Errorf("transfer booking needs a dropoff (or use --hourly <hours>)")
 				}
-				d, err := resolveLocation(args[1], 0, 0, flags.timeout)
+				d, err := resolveLocation(args[1], 0, 0, false, flags.timeout)
 				if err != nil {
 					return err
 				}

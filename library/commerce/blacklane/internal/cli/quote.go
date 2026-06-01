@@ -70,13 +70,11 @@ func geocode(query string, timeout time.Duration) (geoPoint, error) {
 }
 
 // resolveLocation turns an address string (or explicit lat/lng) into a geoPoint.
-func resolveLocation(label string, lat, lng float64, timeout time.Duration) (geoPoint, error) {
-	if lat != 0 || lng != 0 {
-		// Both coordinates must be supplied together — a lone --pickup-lat would
-		// otherwise silently send longitude 0 (Gulf of Guinea) and misprice.
-		if lat == 0 || lng == 0 {
-			return geoPoint{}, fmt.Errorf("provide both latitude and longitude together (got lat=%g lng=%g)", lat, lng)
-		}
+// coordsProvided must be true only when BOTH coordinates were explicitly given
+// (the caller validates that), so lat=0 / lng=0 — the equator and prime meridian
+// — are honored rather than mistaken for "unset".
+func resolveLocation(label string, lat, lng float64, coordsProvided bool, timeout time.Duration) (geoPoint, error) {
+	if coordsProvided {
 		addr := label
 		if addr == "" {
 			addr = fmt.Sprintf("%.5f,%.5f", lat, lng)
@@ -266,7 +264,11 @@ func normalizeDepartAt(s string) (string, error) {
 
 func renderQuoteTable(cmd *cobra.Command, r *quoteResult) {
 	w := tabwriter.NewWriter(cmd.OutOrStdout(), 0, 0, 2, ' ', 0)
-	hdr := fmt.Sprintf("%s quote — %s", strings.Title(r.ServiceType), r.DepartAt)
+	svc := r.ServiceType
+	if svc != "" {
+		svc = strings.ToUpper(svc[:1]) + svc[1:]
+	}
+	hdr := fmt.Sprintf("%s quote — %s", svc, r.DepartAt)
 	if r.ServiceType == "hourly" {
 		hdr += fmt.Sprintf(" (%dh)", r.DurationSeconds/3600)
 	}
@@ -316,7 +318,17 @@ func newQuoteCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			pickup, err := resolveLocation(args[0], pLat, pLng, flags.timeout)
+			// Coordinate flags must be supplied in pairs (lat=0/lng=0 are valid
+			// real coordinates, so we key off whether the flags were set).
+			pickupCoords := cmd.Flags().Changed("pickup-lat") || cmd.Flags().Changed("pickup-lng")
+			if pickupCoords && !(cmd.Flags().Changed("pickup-lat") && cmd.Flags().Changed("pickup-lng")) {
+				return fmt.Errorf("provide both --pickup-lat and --pickup-lng together")
+			}
+			dropoffCoords := cmd.Flags().Changed("dropoff-lat") || cmd.Flags().Changed("dropoff-lng")
+			if dropoffCoords && !(cmd.Flags().Changed("dropoff-lat") && cmd.Flags().Changed("dropoff-lng")) {
+				return fmt.Errorf("provide both --dropoff-lat and --dropoff-lng together")
+			}
+			pickup, err := resolveLocation(args[0], pLat, pLng, pickupCoords, flags.timeout)
 			if err != nil {
 				return err
 			}
@@ -334,14 +346,14 @@ func newQuoteCmd(flags *rootFlags) *cobra.Command {
 				}
 				return emitQuote(cmd, flags, r)
 			}
-			if len(args) < 2 && (dLat == 0 && dLng == 0) {
+			if len(args) < 2 && !dropoffCoords {
 				return fmt.Errorf("transfer quotes need a dropoff: quote <pickup> <dropoff> --at <time> (or use --hourly <hours>)")
 			}
 			dropLabel := ""
 			if len(args) >= 2 {
 				dropLabel = args[1]
 			}
-			dropoff, err := resolveLocation(dropLabel, dLat, dLng, flags.timeout)
+			dropoff, err := resolveLocation(dropLabel, dLat, dLng, dropoffCoords, flags.timeout)
 			if err != nil {
 				return err
 			}
@@ -386,7 +398,7 @@ func newCompareCmd(flags *rootFlags) *cobra.Command {
 			if len(rawDates) == 0 {
 				return fmt.Errorf("--dates is required (comma-separated, e.g. --dates 2026-06-20T15:00,2026-06-21T15:00)")
 			}
-			pickup, err := resolveLocation(args[0], 0, 0, flags.timeout)
+			pickup, err := resolveLocation(args[0], 0, 0, false, flags.timeout)
 			if err != nil {
 				return err
 			}
@@ -399,7 +411,7 @@ func newCompareCmd(flags *rootFlags) *cobra.Command {
 				if len(args) < 2 {
 					return fmt.Errorf("transfer compare needs a dropoff (or use --hourly <hours>)")
 				}
-				d, err := resolveLocation(args[1], 0, 0, flags.timeout)
+				d, err := resolveLocation(args[1], 0, 0, false, flags.timeout)
 				if err != nil {
 					return err
 				}
@@ -483,7 +495,7 @@ func newFitCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			pickup, err := resolveLocation(args[0], 0, 0, flags.timeout)
+			pickup, err := resolveLocation(args[0], 0, 0, false, flags.timeout)
 			if err != nil {
 				return err
 			}
@@ -499,7 +511,7 @@ func newFitCmd(flags *rootFlags) *cobra.Command {
 				if len(args) < 2 {
 					return fmt.Errorf("transfer fit needs a dropoff (or use --hourly <hours>)")
 				}
-				d, err := resolveLocation(args[1], 0, 0, flags.timeout)
+				d, err := resolveLocation(args[1], 0, 0, false, flags.timeout)
 				if err != nil {
 					return err
 				}
@@ -577,20 +589,19 @@ func newTripCmd(flags *rootFlags) *cobra.Command {
 				Error       string `json:"error,omitempty"`
 			}
 			var rows []legRow
-			var total float64
-			currency := ""
+			totals := map[string]float64{} // per-currency; Blacklane prices each leg in local currency
 			for _, leg := range legs {
 				parts := strings.SplitN(leg, ">", 2)
 				if len(parts) != 2 {
 					rows = append(rows, legRow{Leg: leg, Error: "expected 'From>To'"})
 					continue
 				}
-				pu, err := resolveLocation(strings.TrimSpace(parts[0]), 0, 0, flags.timeout)
+				pu, err := resolveLocation(strings.TrimSpace(parts[0]), 0, 0, false, flags.timeout)
 				if err != nil {
 					rows = append(rows, legRow{Leg: leg, Error: err.Error()})
 					continue
 				}
-				du, err := resolveLocation(strings.TrimSpace(parts[1]), 0, 0, flags.timeout)
+				du, err := resolveLocation(strings.TrimSpace(parts[1]), 0, 0, false, flags.timeout)
 				if err != nil {
 					rows = append(rows, legRow{Leg: leg, Error: err.Error()})
 					continue
@@ -602,13 +613,19 @@ func newTripCmd(flags *rootFlags) *cobra.Command {
 				}
 				c := r.Packages[0]
 				rows = append(rows, legRow{Leg: leg, Cheapest: c.Title, GrossAmount: c.GrossAmount, Currency: c.Currency})
-				total += amountFloat(c.GrossAmount)
-				currency = c.Currency
+				totals[c.Currency] += amountFloat(c.GrossAmount)
+			}
+			type currencyTotal struct {
+				Currency string `json:"currency"`
+				Total    string `json:"total"`
+			}
+			var totalsList []currencyTotal
+			for cur, amt := range totals {
+				totalsList = append(totalsList, currencyTotal{Currency: cur, Total: fmt.Sprintf("%.2f", amt)})
 			}
 			out := map[string]any{
 				"legs":     rows,
-				"total":    fmt.Sprintf("%.2f", total),
-				"currency": currency,
+				"totals":   totalsList,
 				"departAt": departAt,
 			}
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
@@ -624,7 +641,12 @@ func newTripCmd(flags *rootFlags) *cobra.Command {
 				fmt.Fprintf(w, "%s\t%s\t%s %s\n", r.Leg, r.Cheapest, r.GrossAmount, r.Currency)
 			}
 			w.Flush()
-			fmt.Fprintf(cmd.OutOrStdout(), "TOTAL: %.2f %s\n", total, currency)
+			for cur, amt := range totals {
+				fmt.Fprintf(cmd.OutOrStdout(), "TOTAL (%s): %.2f\n", cur, amt)
+			}
+			if len(totals) > 1 {
+				fmt.Fprintln(cmd.OutOrStdout(), "(legs span multiple currencies — totalled per currency)")
+			}
 			return nil
 		},
 	}
