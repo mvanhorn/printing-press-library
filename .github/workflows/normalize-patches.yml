@@ -67,52 +67,69 @@ jobs:
           # Admin-scoped PAT so the post-commit push bypasses the main-branch
           # ruleset (default GITHUB_TOKEN cannot bypass).
           token: ${{ secrets.ADMIN_PUSH_PAT }}
-      - name: Resolve target directories
-        id: targets
+      - name: Normalize legacy patches files
         env:
           EVENT_NAME: ${{ github.event_name }}
           BEFORE: ${{ github.event.before }}
           DISPATCH_DIRS: ${{ github.event.inputs.dirs }}
         run: |
           set -euo pipefail
+
+          # Collect candidate target dirs. workflow_dispatch with an empty input
+          # means a full-library sweep; otherwise it is the operator-supplied list.
+          # On push, scope to CLI dirs whose legacy patches file changed.
+          raw=""
+          full_sweep=false
           if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
-            # Empty input → full sweep (--root library); otherwise the given dirs.
-            echo "args=${DISPATCH_DIRS}" >> "$GITHUB_OUTPUT"
-            echo "mode=dispatch" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-          # push: scope to CLI dirs whose legacy patches file changed in this push.
-          # PRs land on main as a single commit here, so HEAD~1 is the reliable
-          # base; github.event.before is preferred when its commit is present in
-          # the (shallow) checkout, else we fall back rather than crash. A missed
-          # conversion is not data loss — the next patches push for that CLI
-          # catches it, and a workflow_dispatch sweep is the backstop.
-          BASE="HEAD~1"
-          if [ -n "${BEFORE:-}" ] && [ "$BEFORE" != "0000000000000000000000000000000000000000" ] \
-             && git rev-parse --verify --quiet "${BEFORE}^{commit}" >/dev/null; then
-            BASE="$BEFORE"
-          fi
-          dirs="$(git diff --name-only "$BASE" HEAD -- 'library/**/.printing-press-patches.json' \
-                  | xargs -r -n1 dirname | sort -u | tr '\n' ' ')"
-          echo "args=${dirs}" >> "$GITHUB_OUTPUT"
-          echo "mode=push" >> "$GITHUB_OUTPUT"
-      - name: Normalize legacy patches files
-        env:
-          ARGS: ${{ steps.targets.outputs.args }}
-        run: |
-          set -euo pipefail
-          if [ -z "${ARGS// }" ]; then
-            if [ "${{ steps.targets.outputs.mode }}" = "dispatch" ]; then
-              echo "Full-library sweep."
-              python3 .github/scripts/normalize-patches/normalize.py --root library
+            if [ -z "${DISPATCH_DIRS// /}" ]; then
+              full_sweep=true
             else
-              echo "No changed patches files to normalize."
+              raw="$DISPATCH_DIRS"
             fi
           else
-            echo "Normalizing: $ARGS"
-            # shellcheck disable=SC2086
-            python3 .github/scripts/normalize-patches/normalize.py $ARGS
+            # PRs land on main as a single commit, so HEAD~1 is the reliable base;
+            # github.event.before is preferred when present in the (shallow)
+            # checkout, else fall back rather than crash. A missed conversion is
+            # not data loss — the next patches push for that CLI catches it, and a
+            # workflow_dispatch sweep is the backstop.
+            BASE="HEAD~1"
+            if [ -n "${BEFORE:-}" ] && [ "$BEFORE" != "0000000000000000000000000000000000000000" ] \
+               && git rev-parse --verify --quiet "${BEFORE}^{commit}" >/dev/null; then
+              BASE="$BEFORE"
+            fi
+            raw="$(git diff --name-only "$BASE" HEAD -- 'library/**/.printing-press-patches.json' \
+                   | xargs -r -n1 dirname | sort -u)"
           fi
+
+          if [ "$full_sweep" = true ]; then
+            echo "Full-library sweep."
+            python3 .github/scripts/normalize-patches/normalize.py --root library
+            exit 0
+          fi
+
+          # Validate every candidate before use. Each must be a library/<cat>/<slug>
+          # directory; this rejects shell metacharacters, globs, and out-of-scope
+          # paths a workflow_dispatch caller could otherwise inject. set -f disables
+          # globbing while we split the unquoted list; validated tokens are then
+          # passed to the script as a quoted array (no word-splitting downstream).
+          set -f
+          targets=()
+          for d in $raw; do
+            if ! printf '%s' "$d" | grep -Eq '^library/[A-Za-z0-9._-]+/[A-Za-z0-9._-]+$'; then
+              echo "::error::refusing unsafe or out-of-scope target: $d"
+              exit 1
+            fi
+            targets+=("$d")
+          done
+          set +f
+
+          if [ "${#targets[@]}" -eq 0 ]; then
+            echo "No changed patches files to normalize."
+            exit 0
+          fi
+          printf 'Normalizing %d dir(s):\n' "${#targets[@]}"
+          printf '  %s\n' "${targets[@]}"
+          python3 .github/scripts/normalize-patches/normalize.py "${targets[@]}"
       - name: Commit if changed
         run: |
           set -euo pipefail
