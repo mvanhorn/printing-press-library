@@ -1,0 +1,150 @@
+name: Normalize patches manifests
+
+# Converts any legacy single-array .printing-press-patches.json that lands on
+# main into the per-patch directory layout (.printing-press-patches/<id>.json),
+# committing the result back with [skip ci].
+#
+# Why post-merge instead of a PR check: the single-array file conflicts on every
+# concurrent same-CLI PR (mvanhorn/cli-printing-press#2496). The directory layout
+# fixes that structurally, but the Printing Press is distributed and versioned —
+# older binaries/skills keep emitting the single-array file indefinitely. Rather
+# than reject those PRs (which would force users to upgrade tooling they may not
+# control) or push fixups onto untrusted PR branches (pull_request_target / fork
+# write exposure this repo deliberately avoids), we accept the legacy file at PR
+# time and normalize it here, on main, after merge. Open old-format PRs therefore
+# self-heal with no author action.
+#
+# Why diff-scoped (not a full-library sweep on every run): converting a CLI
+# deletes its legacy file, which conflicts with any *other* open PR still editing
+# that legacy file. Scoping to the CLI(s) a merge actually touched keeps the blast
+# radius to exactly where a conversion was already due, and leaves dormant CLIs
+# (and their open PRs) untouched until they are next modified. A deliberate full
+# or targeted sweep is available via workflow_dispatch.
+#
+# This is the same post-merge generated-artifact pattern this repo already uses
+# for registry.json and cli-skills/.
+#
+# Source of truth for the conversion: .github/scripts/normalize-patches/normalize.py
+# (idempotent; the same script powers manual sweeps).
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'library/**/.printing-press-patches.json'
+      - '.github/scripts/normalize-patches/**'
+      - '.github/workflows/normalize-patches.yml'
+  workflow_dispatch:
+    inputs:
+      dirs:
+        description: 'Space-separated library/<cat>/<slug> dirs to normalize. Empty = full library sweep.'
+        required: false
+        default: ''
+
+permissions:
+  contents: write
+
+jobs:
+  normalize:
+    name: Normalize and commit
+    runs-on: ubuntu-latest
+    # Share one push lane with generate-registry.yml / generate-skills.yml. All
+    # three commit back to main after a library/** change; serializing avoids
+    # non-fast-forward push failures. The three touch disjoint paths
+    # (.printing-press-patches/ vs registry.json+README.md vs cli-skills/), so
+    # the rebase-before-push below is conflict-free in practice.
+    concurrency:
+      group: generated-artifact-push-main
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          # Write access on the same branch we push to. GITHUB_TOKEN's default
+          # ref is the merge commit; check out main explicitly so the final push
+          # targets it. fetch-depth 2 so the push diff can resolve the parent.
+          ref: main
+          fetch-depth: 2
+          # Admin-scoped PAT so the post-commit push bypasses the main-branch
+          # ruleset (default GITHUB_TOKEN cannot bypass).
+          token: ${{ secrets.ADMIN_PUSH_PAT }}
+      - name: Normalize legacy patches files
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BEFORE: ${{ github.event.before }}
+          DISPATCH_DIRS: ${{ github.event.inputs.dirs }}
+        run: |
+          set -euo pipefail
+
+          # Collect candidate target dirs. workflow_dispatch with an empty input
+          # means a full-library sweep; otherwise it is the operator-supplied list.
+          # On push, scope to CLI dirs whose legacy patches file changed.
+          raw=""
+          full_sweep=false
+          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            if [ -z "${DISPATCH_DIRS// /}" ]; then
+              full_sweep=true
+            else
+              raw="$DISPATCH_DIRS"
+            fi
+          else
+            # PRs land on main as a single commit, so HEAD~1 is the reliable base;
+            # github.event.before is preferred when present in the (shallow)
+            # checkout, else fall back rather than crash. A missed conversion is
+            # not data loss — the next patches push for that CLI catches it, and a
+            # workflow_dispatch sweep is the backstop.
+            BASE="HEAD~1"
+            if [ -n "${BEFORE:-}" ] && [ "$BEFORE" != "0000000000000000000000000000000000000000" ] \
+               && git rev-parse --verify --quiet "${BEFORE}^{commit}" >/dev/null; then
+              BASE="$BEFORE"
+            fi
+            raw="$(git diff --name-only "$BASE" HEAD -- 'library/**/.printing-press-patches.json' \
+                   | xargs -r -n1 dirname | sort -u)"
+          fi
+
+          if [ "$full_sweep" = true ]; then
+            echo "Full-library sweep."
+            python3 .github/scripts/normalize-patches/normalize.py --root library
+            exit 0
+          fi
+
+          # Validate every candidate before use. Each must be a library/<cat>/<slug>
+          # directory; this rejects shell metacharacters, globs, and out-of-scope
+          # paths a workflow_dispatch caller could otherwise inject. set -f disables
+          # globbing while we split the unquoted list; validated tokens are then
+          # passed to the script as a quoted array (no word-splitting downstream).
+          set -f
+          targets=()
+          for d in $raw; do
+            if ! printf '%s' "$d" | grep -Eq '^library/[A-Za-z0-9._-]+/[A-Za-z0-9._-]+$'; then
+              echo "::error::refusing unsafe or out-of-scope target: $d"
+              exit 1
+            fi
+            targets+=("$d")
+          done
+          set +f
+
+          if [ "${#targets[@]}" -eq 0 ]; then
+            echo "No changed patches files to normalize."
+            exit 0
+          fi
+          printf 'Normalizing %d dir(s):\n' "${#targets[@]}"
+          printf '  %s\n' "${targets[@]}"
+          python3 .github/scripts/normalize-patches/normalize.py "${targets[@]}"
+      - name: Commit if changed
+        run: |
+          set -euo pipefail
+          git add -A -- library
+          if git diff --cached --quiet; then
+            echo "No patches normalization changes; nothing to commit."
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          # [skip ci] suppresses a re-trigger of this workflow on its own commit.
+          git commit -m "chore(patches): normalize patches manifests to per-patch dirs [skip ci]"
+          # Defense-in-depth against the cross-workflow race with the sibling
+          # generated-artifact workflows — the concurrency group serializes most
+          # runs; the rebase handles a sibling landing between checkout and push.
+          # Paths are disjoint, so the rebase is conflict-free.
+          git pull --rebase origin main
+          git push

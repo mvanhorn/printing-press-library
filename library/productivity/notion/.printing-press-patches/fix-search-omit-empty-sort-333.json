@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "fix-search-omit-empty-sort-333",
+  "applied_at": "2026-05-14",
+  "base_run_id": "20260508-225745",
+  "base_printing_press_version": "4.0.6",
+  "summary": "Send only `query` in the POST /v1/search body; drop the empty sort/filter/page_size/start_cursor fields the API rejects.",
+  "reason": "Reported in #333. Notion's POST /v1/search rejects an empty `sort: {}` because the sort object, when present, must include both `direction` and `timestamp`. The same constraint applies to `filter` (needs `value` + `property`) and `start_cursor` (must be a valid cursor from a prior response). The generated handler unconditionally included all four as empty/nil values, so every `search` call returned HTTP 400 validation_error. Until this CLI surfaces flags for sort/filter/pagination, the cleanest fix is to send only the `query` field and let the API apply its own defaults.",
+  "files": [
+    "internal/cli/search.go"
+  ],
+  "validated_outcome": "notion-pp-cli search \"\" now returns 200 with the API's default ordering; previously returned HTTP 400 'body.sort.timestamp should be defined'."
+}

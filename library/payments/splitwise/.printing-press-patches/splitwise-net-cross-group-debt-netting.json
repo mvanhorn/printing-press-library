@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "splitwise-net-cross-group-debt-netting",
+  "applied_at": "2026-05-30",
+  "base_run_id": "20260528-002755",
+  "base_printing_press_version": "4.19.0",
+  "summary": "Add a net command that collapses per-group balances into the fewest per-counterparty transfers.",
+  "reason": "Splitwise tracks balances per-group, so per-group settle-ups can require multiple transfers with the same person. net reads the already-netted friend balances plus each friend's per-group groups[] array to produce one transfer per counterparty and report the savings vs per-group settle-ups. Plan-only in v1.",
+  "files": [
+    "internal/cli/splitwise_net.go",
+    "internal/cli/splitwise_net_test.go",
+    "internal/cli/splitwise_data.go",
+    "internal/cli/root.go"
+  ],
+  "validated_outcome": "go build/vet/test pass; computeNetPlan unit tests cover per-currency netting, savings count, and direction; verify-skill passes."
+}

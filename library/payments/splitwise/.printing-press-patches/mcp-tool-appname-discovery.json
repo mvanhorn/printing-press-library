@@ -1,0 +1,21 @@
+{
+  "schema_version": 2,
+  "id": "mcp-tool-appname-discovery",
+  "applied_at": "2026-05-30",
+  "base_run_id": "20260528-002755",
+  "base_printing_press_version": "4.19.0",
+  "summary": "Front-load the 'Splitwise' app name into the context/search/sql MCP tool descriptions so a deferred-tool host (Cowork) searching the tool surface by app name finds the connector.",
+  "reason": "No MCP tool name carries the app name (they are resource/verb-based: get-groups_list, search, sql, context), and the entry-point tools' descriptions didn't mention it. A host that discovers tools by app-name keyword (Cowork: query='splitwise') got no hit and wrongly concluded no connector was installed, pivoting to the public MCP install registry. Extracted contextToolDesc/searchToolDesc/sqlToolDesc constants leading with 'Splitwise'.",
+  "files": [
+    "internal/mcp/tools.go",
+    "internal/mcp/discoverability_test.go"
+  ],
+  "validated_outcome": "TestEntryPointToolsAreDiscoverableByAppName pins 'Splitwise' present in the context/search/sql tool descriptions; gofmt/build/vet/test, govulncheck, verify-skill pass. (Improves app-name discoverability; a host-side cold-start/lazy-index component may remain.)",
+  "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/issues/2553",
+  "deferred_to_upstream": [
+    {
+      "feature": "Generator fix: front-load the API/app name into generated MCP tool descriptions (at minimum the context/search/sql entry-point tools).",
+      "reason": "Generator-shaped — every printed CLI's MCP tool surface is resource/verb-based with the API name absent, so deferred-tool hosts that search by app name miss the connector. Filed as a cli-printing-press retro."
+    }
+  ]
+}
