@@ -1,9 +1,15 @@
 package cli
 
 import (
+	"bytes"
 	"encoding/csv"
+	"fmt"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/mvanhorn/printing-press-library/library/payments/splitwise/internal/store"
 )
 
 func TestComputeReport_TableDriven(t *testing.T) {
@@ -330,3 +336,61 @@ func TestComputeReport_UnresolvableGroupYieldsEmpty(t *testing.T) {
 }
 
 func ptr(s string) *string { return &s }
+
+// TestReportCSVTruncationWarnsOnStderr verifies that when --limit truncates
+// the expense list, the CSV output path emits a note on stderr (matching
+// json/md/summary) while stdout remains valid, parseable CSV.
+func TestReportCSVTruncationWarnsOnStderr(t *testing.T) {
+	home := t.TempDir()
+	t.Setenv("HOME", home)
+
+	dbPath := defaultDBPath("splitwise-pp-cli")
+	if err := os.MkdirAll(filepath.Dir(dbPath), 0o755); err != nil {
+		t.Fatalf("mkdir db dir: %v", err)
+	}
+	s, err := store.Open(dbPath)
+	if err != nil {
+		t.Fatalf("open store: %v", err)
+	}
+	// Seed 3 same-currency expenses so --limit 1 truncates (2 dropped).
+	for i := 1; i <= 3; i++ {
+		id := fmt.Sprintf("%d", i)
+		body := fmt.Sprintf(
+			`{"id":%d,"currency_code":"USD","cost":"10.00","date":"2025-01-0%d","description":"expense%d","users":[{"user_id":42,"owed_share":"10.00","paid_share":"10.00","user":{"id":42,"first_name":"You","last_name":"Person"}}]}`,
+			i, i, i,
+		)
+		if err := s.Upsert("get-expenses", id, []byte(body)); err != nil {
+			t.Fatalf("seed %d: %v", i, err)
+		}
+	}
+	if err := s.Close(); err != nil {
+		t.Fatalf("close store: %v", err)
+	}
+
+	cmd := newReportCmd(&rootFlags{})
+	var out, errBuf bytes.Buffer
+	cmd.SetOut(&out)
+	cmd.SetErr(&errBuf)
+	cmd.SetArgs([]string{"--format", "csv", "--limit", "1"})
+	if err := cmd.Execute(); err != nil {
+		t.Fatalf("execute: %v (stderr: %s)", err, errBuf.String())
+	}
+
+	// Assertion that will FAIL before the fix: stderr must contain "truncated".
+	if !strings.Contains(errBuf.String(), "truncated") {
+		t.Errorf("expected CSV truncation note on stderr, got: %q", errBuf.String())
+	}
+	// stdout must still be valid CSV with the expected header.
+	if !strings.Contains(out.String(), "id,date,description") {
+		t.Errorf("expected CSV header on stdout, got: %q", out.String())
+	}
+	// Confirm stdout is parseable CSV.
+	rows, parseErr := csv.NewReader(strings.NewReader(out.String())).ReadAll()
+	if parseErr != nil {
+		t.Errorf("stdout is not valid CSV: %v\nraw: %q", parseErr, out.String())
+	}
+	// header + 1 data row (limit=1)
+	if len(rows) != 2 {
+		t.Errorf("expected 2 CSV rows (header+1 data), got %d", len(rows))
+	}
+}
