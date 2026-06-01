@@ -1,0 +1,45 @@
+{
+  "manifest_version": "0.3",
+  "name": "google-cloud-run-pp-mcp",
+  "display_name": "Google Cloud Run",
+  "version": "4.19.0",
+  "description": "Every Cloud Run service, job, and revision -- plus a deployment gate, exposure audit, and config diff that gcloud never shipped.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/google-cloud-run-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/google-cloud-run-pp-mcp",
+      "args": [],
+      "env": {
+        "GOOGLE_CLOUD_RUN_OAUTH2C": "${user_config.google_cloud_run_oauth2c}",
+        "GOOGLE_CLOUD_RUN_TOKEN": "${user_config.google_cloud_run_token}"
+      }
+    }
+  },
+  "user_config": {
+    "google_cloud_run_oauth2c": {
+      "type": "string",
+      "title": "GOOGLE_CLOUD_RUN_OAUTH2C",
+      "description": "Optional. Sets GOOGLE_CLOUD_RUN_OAUTH2C for the Google Cloud Run MCP server.",
+      "sensitive": true
+    },
+    "google_cloud_run_token": {
+      "type": "string",
+      "title": "GOOGLE_CLOUD_RUN_TOKEN",
+      "description": "Optional. Sets GOOGLE_CLOUD_RUN_TOKEN for the Google Cloud Run MCP server.",
+      "sensitive": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

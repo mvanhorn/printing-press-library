@@ -1,0 +1,19 @@
+{
+  "timestamp": "2026-05-31T18:03:44.1979616Z",
+  "cli_dir": "\u003ccli-dir\u003e\\google-cloud-run-pp-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "version",
+      "file": "root.go",
+      "line": 319,
+      "evidence": "Print version",
+      "status": "accepted",
+      "note": "Standard 'version' command; 'Print version' is brief but precise — agents and users universally understand this without elaboration. Adding more words would inflate without informing."
+    }
+  ],
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-05-31T17:55:25.3259853Z"
+  }
+}

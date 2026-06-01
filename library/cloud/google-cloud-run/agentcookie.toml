@@ -1,0 +1,17 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "google-cloud-run-pp-cli"
+display_name = "Google Cloud Run"
+description = "Every Cloud Run service, job, and revision -- plus a deployment gate, exposure audit, and config diff that gcloud never shipped."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/google-cloud-run-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+GOOGLE_CLOUD_RUN_OAUTH2C = true
+GOOGLE_CLOUD_RUN_TOKEN = true

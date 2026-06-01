@@ -1,0 +1,1423 @@
+{
+  "api_name": "google-cloud-run",
+  "base_url": "https://run.googleapis.com",
+  "description": "Every Cloud Run service, job, and revision -- plus a deployment gate, exposure audit, and config diff that gcloud never shipped.",
+  "mcp_ready": "full",
+  "http_transport": "browser-chrome-h2",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "GOOGLE_CLOUD_RUN_OAUTH2C"
+    ],
+    "env_var_specs": [
+      {
+        "name": "GOOGLE_CLOUD_RUN_OAUTH2C",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "cloud-run-admin-jobs_create",
+      "description": "Create a Cloud Run Job in a GCP project. Required: parent (format: projects/{project}/locations/{region}). Key optional: jobId (name for the job), validateOnly (dry-run validation), annotations. Returns a long-running operation — use operations_wait to poll for completion. Use this before cloud-run-admin-jobs_run when the job doesn't exist yet.",
+      "method": "POST",
+      "path": "/v2/{parent}/jobs",
+      "params": [
+        {
+          "name": "parent",
+          "type": "string",
+          "location": "path",
+          "description": "Required. The location and project in which this Job should be created. Format: projects/{project}/locations/{location}, where {project} can be project id or number.",
+          "required": true
+        },
+        {
+          "name": "jobId",
+          "type": "string",
+          "location": "query",
+          "description": "Required. The unique identifier for the Job. The name of the job becomes {parent}/jobs/{job_id}."
+        },
+        {
+          "name": "validateOnly",
+          "type": "bool",
+          "location": "query",
+          "description": "Indicates that the request should be validated and default values populated, without persisting the request or creating any resources."
+        },
+        {
+          "name": "annotations",
+          "type": "object",
+          "location": "body",
+          "description": "KRM-style annotations for the resource. Unstructured key value map that may be set by external tools to store and arbitrary metadata. They are not queryable and should be preserved when modifying objects. Cloud Run API v2 does not support annotations with `run.googleapis.com`, `cloud.googleapis.com`, `serving.knative.dev`, or `autoscaling.knative.dev` namespaces, and they will be rejected on new resources. All system annotations in v1 now have a corresponding field in v2 Job. This field follows Kubernetes annotations' namespacing, limits, and rules."
+        },
+        {
+          "name": "binary-authorization-breakglass-justification",
+          "wire_name": "binaryAuthorization.breakglassJustification",
+          "type": "string",
+          "location": "body",
+          "description": "If present, indicates to use Breakglass using this justification. If use_default is False, then it must be empty. For more information on breakglass, see https://cloud.google.com/binary-authorization/docs/using-breakglass"
+        },
+        {
+          "name": "binary-authorization-use-default",
+          "wire_name": "binaryAuthorization.useDefault",
+          "type": "bool",
+          "location": "body",
+          "description": "If True, indicates to use the default project's binary authorization policy. If False, binary authorization will be disabled."
+        },
+        {
+          "name": "client",
+          "type": "string",
+          "location": "body",
+          "description": "Arbitrary identifier for the API client."
+        },
+        {
+          "name": "clientVersion",
+          "type": "string",
+          "location": "body",
+          "description": "Arbitrary version identifier for the API client."
+        },
+        {
+          "name": "conditions",
+          "type": "array",
+          "location": "body",
+          "description": "Output only. The Conditions of all other associated sub-resources. They contain additional diagnostics information in case the Job does not reach its desired state. See comments in `reconciling` for additional information on reconciliation process in Cloud Run."
+        },
+        {
+          "name": "createTime",
+          "type": "string",
+          "location": "body",
+          "description": "Output only. The creation time."
+        },
+        {
+          "name": "creator",
+          "type": "string",
+          "location": "body",
+          "description": "Output only. Email address of the authenticated creator."
+        },
+        {
+          "name": "deleteTime",
+          "type": "string",
+          "location": "body",
+          "description": "Output only. The deletion time."
+        },
+        {
+          "name": "etag",
+          "type": "string",
+          "location": "body",
+          "description": "Output only. A system-generated fingerprint for this version of the resource. May be used to..."
+        },
+        {
+          "name": "executionCount",
+          "type": "int",
+          "location": "body",
+          "description": "Output only. Number of executions created for this job."
+        },
+        {
+          "name": "expireTime",
+          "type": "string",
+          "location": "body",
+          "description": "Output only. For a deleted resource, the time after which it will be permamently deleted."
+        },
+        {
+          "name": "generation",
+          "type": "string",
+          "location": "body",
+          "description": "Output only. A number that monotonically increases every time the user modifies the desired state."
+        },
+        {
+          "name": "labels",
+          "type": "object",
+          "location": "body",
+          "description": "KRM-style labels for the resource. User-provided labels are shared with Google's billing system, so they can be used to filter, or break down billing charges by team, component, environment, state, etc. For more information, visit https://cloud.google.com/resource-manager/docs/creating-managing-labels or https://cloud.google.com/run/docs/configuring/labels Cloud Run API v2 does not support labels with `run.googleapis.com`, `cloud.googleapis.com`, `serving.knative.dev`, or `autoscaling.knative.dev` namespaces, and they will be rejected. All system labels in v1 now have a corresponding field in v2 Job."
+        },
+        {
+          "name": "lastModifier",
+          "type": "string",
+          "location": "body",
+          "description": "Output only. Email address of the last authenticated modifier."
+        },
+        {
+          "name": "latest-created-execution-completion-time",
+          "wire_name": "latestCreatedExecution.completionTime",
+          "type": "string",
+          "location": "body",
+          "description": "Creation timestamp of the execution."
+        },
+        {
+          "name": "latest-created-execution-create-time",
+          "wire_name": "latestCreatedExecution.createTime",
+          "type": "string",
+          "location": "body",
+          "description": "Creation timestamp of the execution."
+        },
+        {
+          "name": "latest-created-execution-name",
+          "wire_name": "latestCreatedExecution.name",
+          "type": "string",
+          "location": "body",
+          "description": "Name of the execution."
+        },
+        {
+          "name": "launchStage",
+          "type": "string",
+          "location": "body",
+          "description": "The launch stage as defined by [Google Cloud Platform Launch Stages](https://cloud."
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "The fully qualified name of this Job. Format: projects/{project}/locations/{location}/jobs/{job}"
+        },
+        {
+          "name": "observedGeneration",
+          "type": "string",
+          "location": "body",
+          "description": "Output only. The generation of this Job. See comments in `reconciling` for additional information on reconciliation process in Cloud Run."
+        },
+        {
+          "name": "reconciling",
+          "type": "bool",
+          "location": "body",
+          "description": "Output only. Returns true if the Job is currently being acted upon by the system to bring it into the desired state. When a new Job is created, or an existing one is updated, Cloud Run will asynchronously perform all necessary steps to bring the Job to the desired state. This process is called reconciliation. While reconciliation is in process, `observed_generation` and `latest_succeeded_execution`, will have transient values that might mismatch the intended state: Once reconciliation is over (and this field is false), there are two possible outcomes: reconciliation succeeded and the state matches the Job, or there was an error, and reconciliation failed. This state can be found in `terminal_condition.state`. If reconciliation succeeded, the following fields will match: `observed_generation` and `generation`, `latest_succeeded_execution` and `latest_created_execution`. If reconciliation failed, `observed_generation` and `latest_succeeded_execution` will have the state of the last succeeded execution or empty for newly created Job. Additional information on the failure can be found in `terminal_condition` and `conditions`."
+        },
+        {
+          "name": "satisfiesPzs",
+          "type": "bool",
+          "location": "body",
+          "description": "Output only. Reserved for future use."
+        },
+        {
+          "name": "template-annotations",
+          "wire_name": "template.annotations",
+          "type": "object",
+          "location": "body",
+          "description": "KRM-style annotations for the resource. Cloud Run API v2 does not support annotations with `run.googleapis.com`, `cloud.googleapis.com`, `serving.knative.dev`, or `autoscaling.knative.dev` namespaces, and they will be rejected. All system annotations in v1 now have a corresponding field in v2 ExecutionTemplate."
+        },
+        {
+          "name": "template-labels",
+          "wire_name": "template.labels",
+          "type": "object",
+          "location": "body",
+          "description": "KRM-style labels for the resource. Cloud Run API v2 does not support labels with `run.googleapis.com`, `cloud.googleapis.com`, `serving.knative.dev`, or `autoscaling.knative.dev` namespaces, and they will be rejected. All system labels in v1 now have a corresponding field in v2 ExecutionTemplate."
+        },
+        {
+          "name": "template-parallelism",
+          "wire_name": "template.parallelism",
+          "type": "int",
+          "location": "body",
+          "description": "Specifies the maximum desired number of tasks the execution should run at given time. Must be \u003c= task_count. When the job is run, if this field is 0 or unset, the maximum possible value will be used for that execution. The actual number of tasks running in steady state will be less than this number when there are fewer tasks waiting to be completed remaining, i.e. when the work left to do is less than max parallelism."
+        },
+        {
+          "name": "template-task-count",
+          "wire_name": "template.taskCount",
+          "type": "int",
+          "location": "body",
+          "description": "Specifies the desired number of tasks the execution should run. Setting to 1 means that parallelism is limited to 1 and the success of that task signals the success of the execution. Defaults to 1."
+        },
+        {
+          "name": "template-template-containers",
+          "wire_name": "template.template.containers",
+          "type": "array",
+          "location": "body",
+          "description": "Holds the single container that defines the unit of execution for this task."
+        },
+        {
+          "name": "template-template-encryption-key",
+          "wire_name": "template.template.encryptionKey",
+          "type": "string",
+          "location": "body",
+          "description": "A reference to a customer managed encryption key (CMEK) to use to encrypt this container image. For more information, go to https://cloud.google.com/run/docs/securing/using-cmek"
+        },
+        {
+          "name": "template-template-execution-environment",
+          "wire_name": "template.template.executionEnvironment",
+          "type": "string",
+          "location": "body",
+          "description": "The execution environment being used to host this Task."
+        },
+        {
+          "name": "template-template-max-retries",
+          "wire_name": "template.template.maxRetries",
+          "type": "int",
+          "location": "body",
+          "description": "Number of retries allowed per Task, before marking this Task failed. Defaults to 3."
+        },
+        {
+          "name": "template-template-service-account",
+          "wire_name": "template.template.serviceAccount",
+          "type": "string",
+          "location": "body",
+          "description": "Email address of the IAM service account associated with the Task of a Job. The service account represents the identity of the running task, and determines what permissions the task has. If not provided, the task will use the project's default service account."
+        },
+        {
+          "name": "template-template-timeout",
+          "wire_name": "template.template.timeout",
+          "type": "string",
+          "location": "body",
+          "description": "Max allowed time duration the Task may be active before the system will actively try to mark it failed and kill associated containers. This applies per attempt of a task, meaning each retry can run for the full timeout. Defaults to 600 seconds."
+        },
+        {
+          "name": "template-template-volumes",
+          "wire_name": "template.template.volumes",
+          "type": "array",
+          "location": "body",
+          "description": "A list of Volumes to make available to containers."
+        },
+        {
+          "name": "terminal-condition-execution-reason",
+          "wire_name": "terminalCondition.executionReason",
+          "type": "string",
+          "location": "body",
+          "description": "A reason for the execution condition."
+        },
+        {
+          "name": "terminal-condition-last-transition-time",
+          "wire_name": "terminalCondition.lastTransitionTime",
+          "type": "string",
+          "location": "body",
+          "description": "Last time the condition transitioned from one status to another."
+        },
+        {
+          "name": "terminal-condition-message",
+          "wire_name": "terminalCondition.message",
+          "type": "string",
+          "location": "body",
+          "description": "Human readable message indicating details about the current status."
+        },
+        {
+          "name": "terminal-condition-reason",
+          "wire_name": "terminalCondition.reason",
+          "type": "string",
+          "location": "body",
+          "description": "A common (service-level) reason for this condition."
+        },
+        {
+          "name": "terminal-condition-revision-reason",
+          "wire_name": "terminalCondition.revisionReason",
+          "type": "string",
+          "location": "body",
+          "description": "A reason for the revision condition."
+        },
+        {
+          "name": "terminal-condition-severity",
+          "wire_name": "terminalCondition.severity",
+          "type": "string",
+          "location": "body",
+          "description": "How to interpret failures of this condition, one of Error, Warning, Info"
+        },
+        {
+          "name": "terminal-condition-state",
+          "wire_name": "terminalCondition.state",
+          "type": "string",
+          "location": "body",
+          "description": "State of the condition."
+        },
+        {
+          "name": "terminal-condition-type",
+          "wire_name": "terminalCondition.type",
+          "type": "string",
+          "location": "body",
+          "description": "type is used to communicate the status of the reconciliation process. See also: https://github.com/knative/serving/blob/main/docs/spec/errors.md#error-conditions-and-reporting Types common to all resources include: * 'Ready': True when the Resource is ready."
+        },
+        {
+          "name": "uid",
+          "type": "string",
+          "location": "body",
+          "description": "Output only. Server assigned unique identifier for the Execution. The value is a UUID4 string and guaranteed to remain unchanged until the resource is deleted."
+        },
+        {
+          "name": "updateTime",
+          "type": "string",
+          "location": "body",
+          "description": "Output only. The last-modified time."
+        }
+      ]
+    },
+    {
+      "name": "cloud-run-admin-jobs_list",
+      "description": "List Cloud Run Jobs in a project and region. Required: parent (format: projects/{project}/locations/{region}). Optional: pageSize (max results), pageToken (pagination cursor), showDeleted (include soft-deleted jobs). Returns job names, statuses, and metadata. Use cloud-run-admin-jobs_run to trigger an execution from a job returned here.",
+      "method": "GET",
+      "path": "/v2/{parent}/jobs",
+      "params": [
+        {
+          "name": "parent",
+          "type": "string",
+          "location": "path",
+          "description": "Required. The location and project to list resources on. Format: projects/{project}/locations/{location}, where {project} can be project id or number.",
+          "required": true
+        },
+        {
+          "name": "pageSize",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of Jobs to return in this call."
+        },
+        {
+          "name": "pageToken",
+          "type": "string",
+          "location": "query",
+          "description": "A page token received from a previous call to ListJobs. All other parameters must match."
+        },
+        {
+          "name": "showDeleted",
+          "type": "bool",
+          "location": "query",
+          "description": "If true, returns deleted (but unexpired) resources along with active ones."
+        }
+      ]
+    },
+    {
+      "name": "cloud-run-admin-jobs_run",
+      "description": "Trigger a new Execution of an existing Cloud Run Job. Required: name (full job resource name, e.g. projects/{project}/locations/{region}/jobs/{job}). Optional: etag (optimistic concurrency check), validateOnly (dry-run). Returns a long-running operation — use operations_wait to block until the execution completes. Prefer this over cloud-run-admin-jobs_create when the job already exists.",
+      "method": "POST",
+      "path": "/v2/{name}:run",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "path",
+          "description": "Required. The full name of the Job. Format: projects/{project}/locations/{location}/jobs/{job}, where {project} can be project id or number.",
+          "required": true
+        },
+        {
+          "name": "etag",
+          "type": "string",
+          "location": "body",
+          "description": "A system-generated fingerprint for this version of the resource. May be used to detect modification conflict during updates."
+        },
+        {
+          "name": "validateOnly",
+          "type": "bool",
+          "location": "body",
+          "description": "Indicates that the request should be validated without actually deleting any resources."
+        }
+      ]
+    },
+    {
+      "name": "cloud-run-admin-jobs_executions_list",
+      "description": "List past Executions of a Cloud Run Job. Required: parent (full job resource name: projects/{project}/locations/{region}/jobs/{job}). Optional: pageSize, pageToken, showDeleted (include cancelled/deleted executions). Returns execution names, start times, completion status, and task counts. Use executions_tasks_list to drill into individual tasks from an execution returned here.",
+      "method": "GET",
+      "path": "/v2/{parent}/executions",
+      "params": [
+        {
+          "name": "parent",
+          "type": "string",
+          "location": "path",
+          "description": "Required. The Execution from which the Executions should be listed. To list all Executions across Jobs, use '-' instead of Job name. Format: projects/{project}/locations/{location}/jobs/{job}, where {project} can be project id or number.",
+          "required": true
+        },
+        {
+          "name": "pageSize",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of Executions to return in this call."
+        },
+        {
+          "name": "pageToken",
+          "type": "string",
+          "location": "query",
+          "description": "A page token received from a previous call to ListExecutions. All other parameters must match."
+        },
+        {
+          "name": "showDeleted",
+          "type": "bool",
+          "location": "query",
+          "description": "If true, returns deleted (but unexpired) resources along with active ones."
+        }
+      ]
+    },
+    {
+      "name": "executions_tasks_list",
+      "description": "List individual Tasks within a specific Job Execution. Required: parent (full execution resource name: projects/{project}/locations/{region}/jobs/{job}/executions/{execution}). Optional: pageSize, pageToken, showDeleted. Returns task indices, start/completion times, and exit codes. Use this to diagnose which tasks in an execution failed.",
+      "method": "GET",
+      "path": "/v2/{parent}/tasks",
+      "params": [
+        {
+          "name": "parent",
+          "type": "string",
+          "location": "path",
+          "description": "Required. The Execution from which the Tasks should be listed. To list all Tasks across Executions of a Job, use '-' instead of Execution name. To list all Tasks across Jobs, use '-' instead of Job name. Format: projects/{project}/locations/{location}/jobs/{job}/executions/{execution}",
+          "required": true
+        },
+        {
+          "name": "pageSize",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of Tasks to return in this call."
+        },
+        {
+          "name": "pageToken",
+          "type": "string",
+          "location": "query",
+          "description": "A page token received from a previous call to ListTasks. All other parameters must match."
+        },
+        {
+          "name": "showDeleted",
+          "type": "bool",
+          "location": "query",
+          "description": "If true, returns deleted (but unexpired) resources along with active ones."
+        }
+      ]
+    },
+    {
+      "name": "operations_list",
+      "description": "List long-running operations for a given Cloud Run resource or location. Required: name (project or location path, e.g. projects/{project}/locations/{region}). Optional: filter (AIP-160 expression, e.g. 'done=false' for pending ops), pageSize, pageToken. Returns operation names, status, and metadata. Use operations_wait to block on a specific operation from this list.",
+      "method": "GET",
+      "path": "/v2/{name}/operations",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "path",
+          "description": "Required. To query for all of the operations for a project.",
+          "required": true
+        },
+        {
+          "name": "filter",
+          "type": "string",
+          "location": "query",
+          "description": "Optional. A filter for matching the completed or in-progress operations. The supported formats of *filter* are: To query for only completed operations: done:true To query for only ongoing operations: done:false Must be empty to query for all of the latest operations for the given parent project."
+        },
+        {
+          "name": "pageSize",
+          "type": "int",
+          "location": "query",
+          "description": "The maximum number of records that should be returned. Requested page size cannot exceed 100. If not set or set to less than or equal to 0, the default page size is 100. ."
+        },
+        {
+          "name": "pageToken",
+          "type": "string",
+          "location": "query",
+          "description": "Token identifying which result to start with, which is returned by a previous list call."
+        }
+      ]
+    },
+    {
+      "name": "operations_wait",
+      "description": "Block until a Cloud Run long-running operation completes or a timeout elapses. Required: name (full operation resource name returned by create/update/delete commands). Optional: timeout (duration string, e.g. '30s'; defaults to HTTP timeout). Returns the operation's final state including any error. Call this after cloud-run-admin-jobs_create, services_create, services_patch, or services_revisions_delete to confirm the operation succeeded before proceeding.",
+      "method": "POST",
+      "path": "/v2/{name}:wait",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "path",
+          "description": "The name of the operation resource to wait on.",
+          "required": true
+        },
+        {
+          "name": "timeout",
+          "type": "string",
+          "location": "body",
+          "description": "The maximum duration to wait before timing out. If left blank, the wait will be at most the time permitted by the underlying HTTP/RPC protocol. If RPC context deadline is also specified, the shorter one will be used."
+        }
+      ]
+    },
+    {
+      "name": "services_create",
+      "description": "Create a new Cloud Run Service in a GCP project and region. Required: parent (format: projects/{project}/locations/{region}). Key optional: serviceId (service name), validateOnly (dry-run), ingress, scaling, container image settings. Returns a long-running operation — use operations_wait to confirm completion. Use services_patch to update an existing service instead.",
+      "method": "POST",
+      "path": "/v2/{parent}/services",
+      "params": [
+        {
+          "name": "parent",
+          "type": "string",
+          "location": "path",
+          "description": "Required. The location and project in which this service should be created. Format: projects/{project}/locations/{location}, where {project} can be project id or number. Only lowercase characters, digits, and hyphens.",
+          "required": true
+        },
+        {
+          "name": "serviceId",
+          "type": "string",
+          "location": "query",
+          "description": "Required. The unique identifier for the Service. It must begin with letter, and cannot end with hyphen; must contain fewer than 50 characters. The name of the service becomes {parent}/services/{service_id}."
+        },
+        {
+          "name": "validateOnly",
+          "type": "bool",
+          "location": "query",
+          "description": "Indicates that the request should be validated and default values populated, without persisting the request or creating any resources."
+        },
+        {
+          "name": "annotations",
+          "type": "object",
+          "location": "body",
+          "description": "Unstructured key value map that may be set by external tools to store and arbitrary metadata. They are not queryable and should be preserved when modifying objects. Cloud Run API v2 does not support annotations with `run.googleapis.com`, `cloud.googleapis.com`, `serving.knative.dev`, or `autoscaling.knative.dev` namespaces, and they will be rejected in new resources. All system annotations in v1 now have a corresponding field in v2 Service. This field follows Kubernetes annotations' namespacing, limits, and rules."
+        },
+        {
+          "name": "binary-authorization-breakglass-justification",
+          "wire_name": "binaryAuthorization.breakglassJustification",
+          "type": "string",
+          "location": "body",
+          "description": "If present, indicates to use Breakglass using this justification. If use_default is False, then it must be empty. For more information on breakglass, see https://cloud.google.com/binary-authorization/docs/using-breakglass"
+        },
+        {
+          "name": "binary-authorization-use-default",
+          "wire_name": "binaryAuthorization.useDefault",
+          "type": "bool",
+          "location": "body",
+          "description": "If True, indicates to use the default project's binary authorization policy. If False, binary authorization will be disabled."
+        },
+        {
+          "name": "client",
+          "type": "string",
+          "location": "body",
+          "description": "Arbitrary identifier for the API client."
+        },
+        {
+          "name": "clientVersion",
+          "type": "string",
+          "location": "body",
+          "description": "Arbitrary version identifier for the API client."
+        },
+        {
+          "name": "conditions",
+          "type": "array",
+          "location": "body",
+          "description": "Output only. The Conditions of all other associated sub-resources. They contain additional diagnostics information in case the Service does not reach its Serving state. See comments in `reconciling` for additional information on reconciliation process in Cloud Run."
+        },
+        {
+          "name": "createTime",
+          "type": "string",
+          "location": "body",
+          "description": "Output only. The creation time."
+        },
+        {
+          "name": "creator",
+          "type": "string",
+          "location": "body",
+          "description": "Output only. Email address of the authenticated creator."
+        },
+        {
+          "name": "deleteTime",
+          "type": "string",
+          "location": "body",
+          "description": "Output only. The deletion time."
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "User-provided description of the Service. This field currently has a 512-character limit."
+        },
+        {
+          "name": "etag",
+          "type": "string",
+          "location": "body",
+          "description": "Output only. A system-generated fingerprint for this version of the resource. May be used to..."
+        },
+        {
+          "name": "expireTime",
+          "type": "string",
+          "location": "body",
+          "description": "Output only. For a deleted resource, the time after which it will be permamently deleted."
+        },
+        {
+          "name": "generation",
+          "type": "string",
+          "location": "body",
+          "description": "Output only. A number that monotonically increases every time the user modifies the desired state. Please note that unlike v1, this is an int64 value. As with most Google APIs, its JSON representation will be a `string` instead of an `integer`."
+        },
+        {
+          "name": "ingress",
+          "type": "string",
+          "location": "body",
+          "description": "Provides the ingress settings for this Service. On output, returns the currently observed ingress settings, or INGRESS_TRAFFIC_UNSPECIFIED if no revision is active."
+        },
+        {
+          "name": "labels",
+          "type": "object",
+          "location": "body",
+          "description": "Map of string keys and values that can be used to organize and categorize objects. User-provided labels are shared with Google's billing system, so they can be used to filter, or break down billing charges by team, component, environment, state, etc. For more information, visit https://cloud.google.com/resource-manager/docs/creating-managing-labels or https://cloud.google.com/run/docs/configuring/labels Cloud Run API v2 does not support labels with `run.googleapis.com`, `cloud.googleapis.com`, `serving.knative.dev`, or `autoscaling.knative.dev` namespaces, and they will be rejected. All system labels in v1 now have a corresponding field in v2 Service."
+        },
+        {
+          "name": "lastModifier",
+          "type": "string",
+          "location": "body",
+          "description": "Output only. Email address of the last authenticated modifier."
+        },
+        {
+          "name": "latestCreatedRevision",
+          "type": "string",
+          "location": "body",
+          "description": "Output only. Name of the last created revision. See comments in `reconciling` for additional information on reconciliation process in Cloud Run."
+        },
+        {
+          "name": "latestReadyRevision",
+          "type": "string",
+          "location": "body",
+          "description": "Output only. Name of the latest revision that is serving traffic. See comments in `reconciling` for additional information on reconciliation process in Cloud Run."
+        },
+        {
+          "name": "launchStage",
+          "type": "string",
+          "location": "body",
+          "description": "The launch stage as defined by [Google Cloud Platform Launch Stages](https://cloud."
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "The fully qualified name of this Service."
+        },
+        {
+          "name": "observedGeneration",
+          "type": "string",
+          "location": "body",
+          "description": "Output only. The generation of this Service currently serving traffic. See comments in `reconciling` for additional information on reconciliation process in Cloud Run. Please note that unlike v1, this is an int64 value. As with most Google APIs, its JSON representation will be a `string` instead of an `integer`."
+        },
+        {
+          "name": "reconciling",
+          "type": "bool",
+          "location": "body",
+          "description": "Output only. Returns true if the Service is currently being acted upon by the system to bring it into the desired state. When a new Service is created, or an existing one is updated, Cloud Run will asynchronously perform all necessary steps to bring the Service to the desired serving state. This process is called reconciliation. While reconciliation is in process, `observed_generation`, `latest_ready_revison`, `traffic_statuses`, and `uri` will have transient values that might mismatch the intended state: Once reconciliation is over (and this field is false), there are two possible outcomes: reconciliation succeeded and the serving state matches the Service, or there was an error, and reconciliation failed. This state can be found in `terminal_condition.state`. If reconciliation succeeded, the following fields will match: `traffic` and `traffic_statuses`, `observed_generation` and `generation`, `latest_ready_revision` and `latest_created_revision`. If reconciliation failed, `traffic_statuses`, `observed_generation`, and `latest_ready_revision` will have the state of the last serving revision, or empty for newly created Services. Additional information on the failure can be found in `terminal_condition` and `conditions`."
+        },
+        {
+          "name": "satisfiesPzs",
+          "type": "bool",
+          "location": "body",
+          "description": "Output only. Reserved for future use."
+        },
+        {
+          "name": "template-annotations",
+          "wire_name": "template.annotations",
+          "type": "object",
+          "location": "body",
+          "description": "KRM-style annotations for the resource. Cloud Run API v2 does not support annotations with `run.googleapis.com`, `cloud.googleapis.com`, `serving.knative.dev`, or `autoscaling.knative.dev` namespaces, and they will be rejected. All system annotations in v1 now have a corresponding field in v2 RevisionTemplate."
+        },
+        {
+          "name": "template-containers",
+          "wire_name": "template.containers",
+          "type": "array",
+          "location": "body",
+          "description": "Holds the single container that defines the unit of execution for this Revision."
+        },
+        {
+          "name": "template-encryption-key",
+          "wire_name": "template.encryptionKey",
+          "type": "string",
+          "location": "body",
+          "description": "A reference to a customer managed encryption key (CMEK) to use to encrypt this container image. For more information, go to https://cloud.google.com/run/docs/securing/using-cmek"
+        },
+        {
+          "name": "template-execution-environment",
+          "wire_name": "template.executionEnvironment",
+          "type": "string",
+          "location": "body",
+          "description": "The sandbox environment to host this Revision."
+        },
+        {
+          "name": "template-labels",
+          "wire_name": "template.labels",
+          "type": "object",
+          "location": "body",
+          "description": "KRM-style labels for the resource. Cloud Run API v2 does not support labels with `run.googleapis.com`, `cloud.googleapis.com`, `serving.knative.dev`, or `autoscaling.knative.dev` namespaces, and they will be rejected. All system labels in v1 now have a corresponding field in v2 RevisionTemplate."
+        },
+        {
+          "name": "template-max-instance-request-concurrency",
+          "wire_name": "template.maxInstanceRequestConcurrency",
+          "type": "int",
+          "location": "body",
+          "description": "Sets the maximum number of requests that each serving instance can receive."
+        },
+        {
+          "name": "template-revision",
+          "wire_name": "template.revision",
+          "type": "string",
+          "location": "body",
+          "description": "The unique name for the revision. If this field is omitted, it will be automatically generated based on the Service name."
+        },
+        {
+          "name": "template-scaling-max-instance-count",
+          "wire_name": "template.scaling.maxInstanceCount",
+          "type": "int",
+          "location": "body",
+          "description": "Maximum number of serving instances that this resource should have."
+        },
+        {
+          "name": "template-scaling-min-instance-count",
+          "wire_name": "template.scaling.minInstanceCount",
+          "type": "int",
+          "location": "body",
+          "description": "Minimum number of serving instances that this resource should have."
+        },
+        {
+          "name": "template-service-account",
+          "wire_name": "template.serviceAccount",
+          "type": "string",
+          "location": "body",
+          "description": "Email address of the IAM service account associated with the revision of the service. The service account represents the identity of the running revision, and determines what permissions the revision has. If not provided, the revision will use the project's default service account."
+        },
+        {
+          "name": "template-timeout",
+          "wire_name": "template.timeout",
+          "type": "string",
+          "location": "body",
+          "description": "Max allowed time for an instance to respond to a request."
+        },
+        {
+          "name": "template-volumes",
+          "wire_name": "template.volumes",
+          "type": "array",
+          "location": "body",
+          "description": "A list of Volumes to make available to containers."
+        },
+        {
+          "name": "template-vpc-access-connector",
+          "wire_name": "template.vpcAccess.connector",
+          "type": "string",
+          "location": "body",
+          "description": "VPC Access connector name. Format: projects/{project}/locations/{location}/connectors/{connector}, where {project} can be project id or number."
+        },
+        {
+          "name": "template-vpc-access-egress",
+          "wire_name": "template.vpcAccess.egress",
+          "type": "string",
+          "location": "body",
+          "description": "Traffic VPC egress settings."
+        },
+        {
+          "name": "terminal-condition-execution-reason",
+          "wire_name": "terminalCondition.executionReason",
+          "type": "string",
+          "location": "body",
+          "description": "A reason for the execution condition."
+        },
+        {
+          "name": "terminal-condition-last-transition-time",
+          "wire_name": "terminalCondition.lastTransitionTime",
+          "type": "string",
+          "location": "body",
+          "description": "Last time the condition transitioned from one status to another."
+        },
+        {
+          "name": "terminal-condition-message",
+          "wire_name": "terminalCondition.message",
+          "type": "string",
+          "location": "body",
+          "description": "Human readable message indicating details about the current status."
+        },
+        {
+          "name": "terminal-condition-reason",
+          "wire_name": "terminalCondition.reason",
+          "type": "string",
+          "location": "body",
+          "description": "A common (service-level) reason for this condition."
+        },
+        {
+          "name": "terminal-condition-revision-reason",
+          "wire_name": "terminalCondition.revisionReason",
+          "type": "string",
+          "location": "body",
+          "description": "A reason for the revision condition."
+        },
+        {
+          "name": "terminal-condition-severity",
+          "wire_name": "terminalCondition.severity",
+          "type": "string",
+          "location": "body",
+          "description": "How to interpret failures of this condition, one of Error, Warning, Info"
+        },
+        {
+          "name": "terminal-condition-state",
+          "wire_name": "terminalCondition.state",
+          "type": "string",
+          "location": "body",
+          "description": "State of the condition."
+        },
+        {
+          "name": "terminal-condition-type",
+          "wire_name": "terminalCondition.type",
+          "type": "string",
+          "location": "body",
+          "description": "type is used to communicate the status of the reconciliation process. See also: https://github.com/knative/serving/blob/main/docs/spec/errors.md#error-conditions-and-reporting Types common to all resources include: * 'Ready': True when the Resource is ready."
+        },
+        {
+          "name": "traffic",
+          "type": "array",
+          "location": "body",
+          "description": "Specifies how to distribute traffic over a collection of Revisions belonging to the Service. If traffic is empty or not provided, defaults to 100% traffic to the latest `Ready` Revision."
+        },
+        {
+          "name": "trafficStatuses",
+          "type": "array",
+          "location": "body",
+          "description": "Output only. Detailed status information for corresponding traffic targets. See comments in `reconciling` for additional information on reconciliation process in Cloud Run."
+        },
+        {
+          "name": "uid",
+          "type": "string",
+          "location": "body",
+          "description": "Output only. Server assigned unique identifier for the trigger. The value is a UUID4 string and guaranteed to remain unchanged until the resource is deleted."
+        },
+        {
+          "name": "updateTime",
+          "type": "string",
+          "location": "body",
+          "description": "Output only. The last-modified time."
+        },
+        {
+          "name": "uri",
+          "type": "string",
+          "location": "body",
+          "description": "Output only. The main URI in which this Service is serving traffic."
+        }
+      ]
+    },
+    {
+      "name": "services_get-iam-policy",
+      "description": "Retrieve the current IAM policy for a Cloud Run Service (who has which roles). Required: resource (full service name: projects/{project}/locations/{region}/services/{service}). Optional: options.requestedPolicyVersion (policy schema version). Returns role-to-member bindings. Use services_set-iam-policy to update the policy, or services_test-iam-permissions to check specific permissions.",
+      "method": "GET",
+      "path": "/v2/{resource}:getIamPolicy",
+      "params": [
+        {
+          "name": "resource",
+          "type": "string",
+          "location": "path",
+          "description": "REQUIRED: The resource for which the policy is being requested. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
+          "required": true
+        },
+        {
+          "name": "options.requestedPolicyVersion",
+          "type": "int",
+          "location": "query",
+          "description": "Optional. The maximum policy version that will be used to format the policy. Valid values are 0, 1, and 3. Requests specifying an invalid value will be rejected. Requests for policies with any conditional role bindings must specify version 3. Policies with no conditional role bindings may specify any valid value or leave the field unset. The policy in the response might use the policy version that you specified, or it might use a lower policy version. For example, if you specify version 3, but the policy has no conditional role bindings, the response uses version 1. To learn which resources support conditions in their IAM policies, see the [IAM documentation](https://cloud.google.com/iam/help/conditions/resource-policies)."
+        }
+      ]
+    },
+    {
+      "name": "services_list",
+      "description": "List Cloud Run Services in a project and region. Required: parent (format: projects/{project}/locations/{region}). Optional: pageSize (max results), pageToken (pagination), showDeleted (include soft-deleted). Returns service names, URIs, latest revision, and traffic config. For multi-project fleet visibility, use the novel services list-all command instead.",
+      "method": "GET",
+      "path": "/v2/{parent}/services",
+      "params": [
+        {
+          "name": "parent",
+          "type": "string",
+          "location": "path",
+          "description": "Required. The location and project to list resources on. Location must be a valid Google Cloud region, and cannot be the '-' wildcard. Format: projects/{project}/locations/{location}, where {project} can be project id or number.",
+          "required": true
+        },
+        {
+          "name": "pageSize",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of Services to return in this call."
+        },
+        {
+          "name": "pageToken",
+          "type": "string",
+          "location": "query",
+          "description": "A page token received from a previous call to ListServices. All other parameters must match."
+        },
+        {
+          "name": "showDeleted",
+          "type": "bool",
+          "location": "query",
+          "description": "If true, returns deleted (but unexpired) resources along with active ones."
+        }
+      ]
+    },
+    {
+      "name": "services_patch",
+      "description": "Update an existing Cloud Run Service (image, scaling, env vars, ingress, etc.). Required: name (full service resource name: projects/{project}/locations/{region}/services/{service}). Key optional: allowMissing (upsert behavior), validateOnly, container image, CPU/memory limits, env vars, scaling. Returns a long-running operation — use operations_wait to confirm. Prefer this over services_create for updates to existing services.",
+      "method": "PATCH",
+      "path": "/v2/{name}",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "path",
+          "description": "The fully qualified name of this Service.",
+          "required": true
+        },
+        {
+          "name": "allowMissing",
+          "type": "bool",
+          "location": "query",
+          "description": "This field is currently not used by Cloud Run; setting it does not have any effect."
+        },
+        {
+          "name": "validateOnly",
+          "type": "bool",
+          "location": "query",
+          "description": "Indicates that the request should be validated and default values populated, without persisting the request or updating any resources."
+        },
+        {
+          "name": "annotations",
+          "type": "object",
+          "location": "body",
+          "description": "Unstructured key value map that may be set by external tools to store and arbitrary metadata. They are not queryable and should be preserved when modifying objects. Cloud Run API v2 does not support annotations with `run.googleapis.com`, `cloud.googleapis.com`, `serving.knative.dev`, or `autoscaling.knative.dev` namespaces, and they will be rejected in new resources. All system annotations in v1 now have a corresponding field in v2 Service. This field follows Kubernetes annotations' namespacing, limits, and rules."
+        },
+        {
+          "name": "binary-authorization-breakglass-justification",
+          "wire_name": "binaryAuthorization.breakglassJustification",
+          "type": "string",
+          "location": "body",
+          "description": "If present, indicates to use Breakglass using this justification. If use_default is False, then it must be empty. For more information on breakglass, see https://cloud.google.com/binary-authorization/docs/using-breakglass"
+        },
+        {
+          "name": "binary-authorization-use-default",
+          "wire_name": "binaryAuthorization.useDefault",
+          "type": "bool",
+          "location": "body",
+          "description": "If True, indicates to use the default project's binary authorization policy. If False, binary authorization will be disabled."
+        },
+        {
+          "name": "client",
+          "type": "string",
+          "location": "body",
+          "description": "Arbitrary identifier for the API client."
+        },
+        {
+          "name": "clientVersion",
+          "type": "string",
+          "location": "body",
+          "description": "Arbitrary version identifier for the API client."
+        },
+        {
+          "name": "conditions",
+          "type": "array",
+          "location": "body",
+          "description": "Output only. The Conditions of all other associated sub-resources. They contain additional diagnostics information in case the Service does not reach its Serving state. See comments in `reconciling` for additional information on reconciliation process in Cloud Run."
+        },
+        {
+          "name": "createTime",
+          "type": "string",
+          "location": "body",
+          "description": "Output only. The creation time."
+        },
+        {
+          "name": "creator",
+          "type": "string",
+          "location": "body",
+          "description": "Output only. Email address of the authenticated creator."
+        },
+        {
+          "name": "deleteTime",
+          "type": "string",
+          "location": "body",
+          "description": "Output only. The deletion time."
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "User-provided description of the Service. This field currently has a 512-character limit."
+        },
+        {
+          "name": "etag",
+          "type": "string",
+          "location": "body",
+          "description": "Output only. A system-generated fingerprint for this version of the resource. May be used to..."
+        },
+        {
+          "name": "expireTime",
+          "type": "string",
+          "location": "body",
+          "description": "Output only. For a deleted resource, the time after which it will be permamently deleted."
+        },
+        {
+          "name": "generation",
+          "type": "string",
+          "location": "body",
+          "description": "Output only. A number that monotonically increases every time the user modifies the desired state. Please note that unlike v1, this is an int64 value. As with most Google APIs, its JSON representation will be a `string` instead of an `integer`."
+        },
+        {
+          "name": "ingress",
+          "type": "string",
+          "location": "body",
+          "description": "Provides the ingress settings for this Service. On output, returns the currently observed ingress settings, or INGRESS_TRAFFIC_UNSPECIFIED if no revision is active."
+        },
+        {
+          "name": "labels",
+          "type": "object",
+          "location": "body",
+          "description": "Map of string keys and values that can be used to organize and categorize objects. User-provided labels are shared with Google's billing system, so they can be used to filter, or break down billing charges by team, component, environment, state, etc. For more information, visit https://cloud.google.com/resource-manager/docs/creating-managing-labels or https://cloud.google.com/run/docs/configuring/labels Cloud Run API v2 does not support labels with `run.googleapis.com`, `cloud.googleapis.com`, `serving.knative.dev`, or `autoscaling.knative.dev` namespaces, and they will be rejected. All system labels in v1 now have a corresponding field in v2 Service."
+        },
+        {
+          "name": "lastModifier",
+          "type": "string",
+          "location": "body",
+          "description": "Output only. Email address of the last authenticated modifier."
+        },
+        {
+          "name": "latestCreatedRevision",
+          "type": "string",
+          "location": "body",
+          "description": "Output only. Name of the last created revision. See comments in `reconciling` for additional information on reconciliation process in Cloud Run."
+        },
+        {
+          "name": "latestReadyRevision",
+          "type": "string",
+          "location": "body",
+          "description": "Output only. Name of the latest revision that is serving traffic. See comments in `reconciling` for additional information on reconciliation process in Cloud Run."
+        },
+        {
+          "name": "launchStage",
+          "type": "string",
+          "location": "body",
+          "description": "The launch stage as defined by [Google Cloud Platform Launch Stages](https://cloud."
+        },
+        {
+          "name": "name-2",
+          "wire_name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "The fully qualified name of this Service."
+        },
+        {
+          "name": "observedGeneration",
+          "type": "string",
+          "location": "body",
+          "description": "Output only. The generation of this Service currently serving traffic. See comments in `reconciling` for additional information on reconciliation process in Cloud Run. Please note that unlike v1, this is an int64 value. As with most Google APIs, its JSON representation will be a `string` instead of an `integer`."
+        },
+        {
+          "name": "reconciling",
+          "type": "bool",
+          "location": "body",
+          "description": "Output only. Returns true if the Service is currently being acted upon by the system to bring it into the desired state. When a new Service is created, or an existing one is updated, Cloud Run will asynchronously perform all necessary steps to bring the Service to the desired serving state. This process is called reconciliation. While reconciliation is in process, `observed_generation`, `latest_ready_revison`, `traffic_statuses`, and `uri` will have transient values that might mismatch the intended state: Once reconciliation is over (and this field is false), there are two possible outcomes: reconciliation succeeded and the serving state matches the Service, or there was an error, and reconciliation failed. This state can be found in `terminal_condition.state`. If reconciliation succeeded, the following fields will match: `traffic` and `traffic_statuses`, `observed_generation` and `generation`, `latest_ready_revision` and `latest_created_revision`. If reconciliation failed, `traffic_statuses`, `observed_generation`, and `latest_ready_revision` will have the state of the last serving revision, or empty for newly created Services. Additional information on the failure can be found in `terminal_condition` and `conditions`."
+        },
+        {
+          "name": "satisfiesPzs",
+          "type": "bool",
+          "location": "body",
+          "description": "Output only. Reserved for future use."
+        },
+        {
+          "name": "template-annotations",
+          "wire_name": "template.annotations",
+          "type": "object",
+          "location": "body",
+          "description": "KRM-style annotations for the resource. Cloud Run API v2 does not support annotations with `run.googleapis.com`, `cloud.googleapis.com`, `serving.knative.dev`, or `autoscaling.knative.dev` namespaces, and they will be rejected. All system annotations in v1 now have a corresponding field in v2 RevisionTemplate."
+        },
+        {
+          "name": "template-containers",
+          "wire_name": "template.containers",
+          "type": "array",
+          "location": "body",
+          "description": "Holds the single container that defines the unit of execution for this Revision."
+        },
+        {
+          "name": "template-encryption-key",
+          "wire_name": "template.encryptionKey",
+          "type": "string",
+          "location": "body",
+          "description": "A reference to a customer managed encryption key (CMEK) to use to encrypt this container image. For more information, go to https://cloud.google.com/run/docs/securing/using-cmek"
+        },
+        {
+          "name": "template-execution-environment",
+          "wire_name": "template.executionEnvironment",
+          "type": "string",
+          "location": "body",
+          "description": "The sandbox environment to host this Revision."
+        },
+        {
+          "name": "template-labels",
+          "wire_name": "template.labels",
+          "type": "object",
+          "location": "body",
+          "description": "KRM-style labels for the resource. Cloud Run API v2 does not support labels with `run.googleapis.com`, `cloud.googleapis.com`, `serving.knative.dev`, or `autoscaling.knative.dev` namespaces, and they will be rejected. All system labels in v1 now have a corresponding field in v2 RevisionTemplate."
+        },
+        {
+          "name": "template-max-instance-request-concurrency",
+          "wire_name": "template.maxInstanceRequestConcurrency",
+          "type": "int",
+          "location": "body",
+          "description": "Sets the maximum number of requests that each serving instance can receive."
+        },
+        {
+          "name": "template-revision",
+          "wire_name": "template.revision",
+          "type": "string",
+          "location": "body",
+          "description": "The unique name for the revision. If this field is omitted, it will be automatically generated based on the Service name."
+        },
+        {
+          "name": "template-scaling-max-instance-count",
+          "wire_name": "template.scaling.maxInstanceCount",
+          "type": "int",
+          "location": "body",
+          "description": "Maximum number of serving instances that this resource should have."
+        },
+        {
+          "name": "template-scaling-min-instance-count",
+          "wire_name": "template.scaling.minInstanceCount",
+          "type": "int",
+          "location": "body",
+          "description": "Minimum number of serving instances that this resource should have."
+        },
+        {
+          "name": "template-service-account",
+          "wire_name": "template.serviceAccount",
+          "type": "string",
+          "location": "body",
+          "description": "Email address of the IAM service account associated with the revision of the service. The service account represents the identity of the running revision, and determines what permissions the revision has. If not provided, the revision will use the project's default service account."
+        },
+        {
+          "name": "template-timeout",
+          "wire_name": "template.timeout",
+          "type": "string",
+          "location": "body",
+          "description": "Max allowed time for an instance to respond to a request."
+        },
+        {
+          "name": "template-volumes",
+          "wire_name": "template.volumes",
+          "type": "array",
+          "location": "body",
+          "description": "A list of Volumes to make available to containers."
+        },
+        {
+          "name": "template-vpc-access-connector",
+          "wire_name": "template.vpcAccess.connector",
+          "type": "string",
+          "location": "body",
+          "description": "VPC Access connector name. Format: projects/{project}/locations/{location}/connectors/{connector}, where {project} can be project id or number."
+        },
+        {
+          "name": "template-vpc-access-egress",
+          "wire_name": "template.vpcAccess.egress",
+          "type": "string",
+          "location": "body",
+          "description": "Traffic VPC egress settings."
+        },
+        {
+          "name": "terminal-condition-execution-reason",
+          "wire_name": "terminalCondition.executionReason",
+          "type": "string",
+          "location": "body",
+          "description": "A reason for the execution condition."
+        },
+        {
+          "name": "terminal-condition-last-transition-time",
+          "wire_name": "terminalCondition.lastTransitionTime",
+          "type": "string",
+          "location": "body",
+          "description": "Last time the condition transitioned from one status to another."
+        },
+        {
+          "name": "terminal-condition-message",
+          "wire_name": "terminalCondition.message",
+          "type": "string",
+          "location": "body",
+          "description": "Human readable message indicating details about the current status."
+        },
+        {
+          "name": "terminal-condition-reason",
+          "wire_name": "terminalCondition.reason",
+          "type": "string",
+          "location": "body",
+          "description": "A common (service-level) reason for this condition."
+        },
+        {
+          "name": "terminal-condition-revision-reason",
+          "wire_name": "terminalCondition.revisionReason",
+          "type": "string",
+          "location": "body",
+          "description": "A reason for the revision condition."
+        },
+        {
+          "name": "terminal-condition-severity",
+          "wire_name": "terminalCondition.severity",
+          "type": "string",
+          "location": "body",
+          "description": "How to interpret failures of this condition, one of Error, Warning, Info"
+        },
+        {
+          "name": "terminal-condition-state",
+          "wire_name": "terminalCondition.state",
+          "type": "string",
+          "location": "body",
+          "description": "State of the condition."
+        },
+        {
+          "name": "terminal-condition-type",
+          "wire_name": "terminalCondition.type",
+          "type": "string",
+          "location": "body",
+          "description": "type is used to communicate the status of the reconciliation process. See also: https://github.com/knative/serving/blob/main/docs/spec/errors.md#error-conditions-and-reporting Types common to all resources include: * 'Ready': True when the Resource is ready."
+        },
+        {
+          "name": "traffic",
+          "type": "array",
+          "location": "body",
+          "description": "Specifies how to distribute traffic over a collection of Revisions belonging to the Service. If traffic is empty or not provided, defaults to 100% traffic to the latest `Ready` Revision."
+        },
+        {
+          "name": "trafficStatuses",
+          "type": "array",
+          "location": "body",
+          "description": "Output only. Detailed status information for corresponding traffic targets. See comments in `reconciling` for additional information on reconciliation process in Cloud Run."
+        },
+        {
+          "name": "uid",
+          "type": "string",
+          "location": "body",
+          "description": "Output only. Server assigned unique identifier for the trigger. The value is a UUID4 string and guaranteed to remain unchanged until the resource is deleted."
+        },
+        {
+          "name": "updateTime",
+          "type": "string",
+          "location": "body",
+          "description": "Output only. The last-modified time."
+        },
+        {
+          "name": "uri",
+          "type": "string",
+          "location": "body",
+          "description": "Output only. The main URI in which this Service is serving traffic."
+        }
+      ]
+    },
+    {
+      "name": "services_set-iam-policy",
+      "description": "Replace the IAM policy on a Cloud Run Service. Required: resource (full service name: projects/{project}/locations/{region}/services/{service}). Key optional: policy-bindings (array of role/member pairs), policy-etag (optimistic lock), updateMask (limit which fields are overwritten). Returns the new policy. Warning: this overwrites all existing bindings — use services_get-iam-policy first to read the current policy before modifying.",
+      "method": "POST",
+      "path": "/v2/{resource}:setIamPolicy",
+      "params": [
+        {
+          "name": "resource",
+          "type": "string",
+          "location": "path",
+          "description": "REQUIRED: The resource for which the policy is being specified. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
+          "required": true
+        },
+        {
+          "name": "policy-audit-configs",
+          "wire_name": "policy.auditConfigs",
+          "type": "array",
+          "location": "body",
+          "description": "Specifies cloud audit logging configuration for this policy."
+        },
+        {
+          "name": "policy-bindings",
+          "wire_name": "policy.bindings",
+          "type": "array",
+          "location": "body",
+          "description": "Associates a list of `members`, or principals, with a `role`. Optionally, may specify a `condition` that determines how and when the `bindings` are applied. Each of the `bindings` must contain at least one principal. The `bindings` in a `Policy` can refer to up to 1,500 principals; up to 250 of these principals can be Google groups. Each occurrence of a principal counts towards these limits. For example, if the `bindings` grant 50 different roles to `user:alice@example.com`, and not to any other principal, then you can add another 1,450 principals to the `bindings` in the `Policy`."
+        },
+        {
+          "name": "policy-etag",
+          "wire_name": "policy.etag",
+          "type": "string",
+          "location": "body",
+          "description": "`etag` is used for optimistic concurrency control as a way to help prevent simultaneous updates of a policy from overwriting each other. It is strongly suggested that systems make use of the `etag` in the read-modify-write cycle to perform policy updates in order to avoid race conditions: An `etag` is returned in the response to `getIamPolicy`, and systems are expected to put that etag in the request to `setIamPolicy` to ensure that their change will be applied to the same version of the policy. **Important:** If you use IAM Conditions, you must include the `etag` field whenever you call `setIamPolicy`. If you omit this field, then IAM allows you to overwrite a version `3` policy with a version `1` policy, and all of the conditions in the version `3` policy are lost."
+        },
+        {
+          "name": "policy-version",
+          "wire_name": "policy.version",
+          "type": "int",
+          "location": "body",
+          "description": "Specifies the format of the policy. Valid values are `0`, `1`, and `3`. Requests that specify an invalid value are rejected. Any operation that affects conditional role bindings must specify version `3`. This requirement applies to the following operations: * Getting a policy that includes a conditional role binding * Adding a conditional role binding to a policy * Changing a conditional role binding in a policy * Removing any role binding, with or without a condition, from a policy that includes conditions **Important:** If you use IAM Conditions, you must include the `etag` field whenever you call `setIamPolicy`. If you omit this field, then IAM allows you to overwrite a version `3` policy with a version `1` policy, and all of the conditions in the version `3` policy are lost. If a policy does not include any conditions, operations on that policy may specify any valid version or leave the field unset. To learn which resources support conditions in their IAM policies, see the [IAM documentation](https://cloud.google.com/iam/help/conditions/resource-policies)."
+        },
+        {
+          "name": "updateMask",
+          "type": "string",
+          "location": "body",
+          "description": "OPTIONAL: A FieldMask specifying which fields of the policy to modify. Only the fields in the mask will be modified. If no mask is provided, the following default mask is used: `paths: 'bindings, etag'`"
+        }
+      ]
+    },
+    {
+      "name": "services_test-iam-permissions",
+      "description": "Check which IAM permissions the caller holds on a Cloud Run Service, without modifying any state. Required: resource (full service name: projects/{project}/locations/{region}/services/{service}). Optional: permissions (list of permission strings to test, e.g. ['run.services.get', 'run.services.update']). Returns only the subset of requested permissions that the caller actually has.",
+      "method": "POST",
+      "path": "/v2/{resource}:testIamPermissions",
+      "params": [
+        {
+          "name": "resource",
+          "type": "string",
+          "location": "path",
+          "description": "REQUIRED: The resource for which the policy detail is being requested. See [Resource names](https://cloud.google.com/apis/design/resource_names) for the appropriate value for this field.",
+          "required": true
+        },
+        {
+          "name": "permissions",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "The set of permissions to check for the `resource`. Permissions with wildcards (such as `*` or `storage.*`) are not allowed. For more information see [IAM Overview](https://cloud.google.com/iam/docs/overview#permissions)."
+        }
+      ]
+    },
+    {
+      "name": "services_revisions_delete",
+      "description": "Delete a specific Cloud Run Revision. Required: name (full revision name: projects/{project}/locations/{region}/services/{service}/revisions/{revision}). Optional: etag (optimistic concurrency), validateOnly (dry-run). Returns a long-running operation — use operations_wait to confirm. Revisions actively serving traffic cannot be deleted; use services_patch to shift traffic first. Destructive.",
+      "method": "DELETE",
+      "path": "/v2/{name}",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "path",
+          "description": "Required. The name of the Revision to delete. Format: projects/{project}/locations/{location}/services/{service}/revisions/{revision}",
+          "required": true
+        },
+        {
+          "name": "etag",
+          "type": "string",
+          "location": "query",
+          "description": "A system-generated fingerprint for this version of the resource. This may be used to detect modification conflict during updates."
+        },
+        {
+          "name": "validateOnly",
+          "type": "bool",
+          "location": "query",
+          "description": "Indicates that the request should be validated without actually deleting any resources."
+        }
+      ]
+    },
+    {
+      "name": "services_revisions_get",
+      "description": "Retrieve detailed configuration and status for a specific Cloud Run Revision. Required: name (full revision name: projects/{project}/locations/{region}/services/{service}/revisions/{revision}). Returns container image, resource limits, env vars, creation time, and serving status. Use services_revisions_list to find valid revision names first.",
+      "method": "GET",
+      "path": "/v2/{name}",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "path",
+          "description": "Required. The full name of the Revision. Format: projects/{project}/locations/{location}/services/{service}/revisions/{revision}",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "services_revisions_list",
+      "description": "List Revisions for a Cloud Run Service or location. Required: parent (service path: projects/{project}/locations/{region}/services/{service}, or location path for all revisions in a region). Optional: pageSize, pageToken, showDeleted. Returns revision names, images, creation times, and traffic allocation. Use services_revisions_get for full config on a specific revision.",
+      "method": "GET",
+      "path": "/v2/{parent}/revisions",
+      "params": [
+        {
+          "name": "parent",
+          "type": "string",
+          "location": "path",
+          "description": "Required. The Service from which the Revisions should be listed. To list all Revisions across Services, use '-' instead of Service name. Format: projects/{project}/locations/{location}/services/{service}",
+          "required": true
+        },
+        {
+          "name": "pageSize",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of revisions to return in this call."
+        },
+        {
+          "name": "pageToken",
+          "type": "string",
+          "location": "query",
+          "description": "A page token received from a previous call to ListRevisions. All other parameters must match."
+        },
+        {
+          "name": "showDeleted",
+          "type": "bool",
+          "location": "query",
+          "description": "If true, returns deleted (but unexpired) resources along with active ones."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,267 @@
+{
+  "api_name": "google-cloud-run",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "GoogleCloudPlatform/cloud-run-mcp",
+      "url": "https://github.com/GoogleCloudPlatform/cloud-run-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 5,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "JulienBreux/run-cli",
+      "url": "https://github.com/JulienBreux/run-cli",
+      "language": "Go",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 12,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-31T17:09:12Z",
+  "novel_features": [
+    {
+      "name": "Cross-project service inventory",
+      "command": "services list-all",
+      "description": "List Cloud Run services across multiple GCP projects in a single unified table.",
+      "rationale": "Requires looping List Services across projects and merging client-side -- no single API call spans projects.",
+      "example": "google-cloud-run-pp-cli services list-all --projects my-proj-1,my-proj-2 --agent",
+      "why_it_matters": "Use when an agent needs a fleet-wide view of services without multiple separate list calls per project.",
+      "group": "Fleet-wide visibility"
+    },
+    {
+      "name": "Zombie revision sweeper",
+      "command": "revisions prune",
+      "description": "Delete old revisions that are not serving any traffic, keeping only the N most recent.",
+      "rationale": "Requires filtering revisions by traffic-serving status and deleting in bulk -- no single gcloud command does this.",
+      "example": "google-cloud-run-pp-cli revisions prune --service my-service --keep-last 3 --dry-run --agent",
+      "why_it_matters": "Use to free up Cloud Run revision quota without manually identifying and deleting inactive revisions.",
+      "group": "Lifecycle management"
+    },
+    {
+      "name": "Traffic split inspector",
+      "command": "services traffic",
+      "description": "Show the current traffic split across revisions with image tag and deploy timestamp in one table.",
+      "rationale": "Requires joining Service traffic data with per-revision image info -- two API calls the Console scatters across separate panels.",
+      "example": "google-cloud-run-pp-cli services traffic --service my-service --agent",
+      "why_it_matters": "Use when an agent needs to verify which image version is serving what percentage of traffic after a canary deploy.",
+      "group": "Deploy visibility"
+    },
+    {
+      "name": "Execution outcome summary",
+      "command": "executions summary",
+      "description": "Show a per-execution summary of a Cloud Run Job with succeeded/failed task counts and duration.",
+      "rationale": "Requires List Executions + List Tasks per execution + client-side aggregation -- no single endpoint returns this view.",
+      "example": "google-cloud-run-pp-cli executions summary --job nightly-etl --last 7 --agent",
+      "why_it_matters": "Use as the git log for Cloud Run Jobs to quickly assess whether recent job executions succeeded.",
+      "group": "Job observability"
+    },
+    {
+      "name": "Public exposure audit",
+      "command": "iam audit",
+      "description": "List all services in a project that are publicly accessible via allUsers or allAuthenticatedUsers IAM bindings.",
+      "rationale": "Requires List Services + Get IAM Policy per service -- a cross-entity query assembled client-side.",
+      "example": "google-cloud-run-pp-cli iam audit --project my-project --show-public --agent",
+      "why_it_matters": "Use for security posture checks to surface any Cloud Run service unintentionally exposed to the public internet.",
+      "group": "Security posture"
+    },
+    {
+      "name": "Wait-for-traffic",
+      "command": "revisions wait-traffic",
+      "description": "Block until a specific revision reaches a target traffic percentage -- a CI/CD gate primitive.",
+      "rationale": "Cloud Run operations complete before traffic shifts; polling trafficStatuses requires a custom loop.",
+      "example": "google-cloud-run-pp-cli revisions wait-traffic --service my-service --revision my-service-00042-abc --target-pct 100 --timeout 300s",
+      "why_it_matters": "Use in CI/CD pipelines after deploying -- prevents running smoke tests before the revision is actually serving traffic.",
+      "group": "CI/CD primitives"
+    },
+    {
+      "name": "Revision config diff",
+      "command": "revisions diff",
+      "description": "Show a field-by-field diff between two revisions: image, CPU/memory, scaling config, and env var key names.",
+      "rationale": "Requires two Get Revision calls plus client-side diffing -- not available in Console or gcloud without manual comparison.",
+      "example": "google-cloud-run-pp-cli revisions diff --service my-service --from my-service-00041-abc --to my-service-00042-def --agent",
+      "why_it_matters": "Use during incident triage to see what configuration changed between the last good and first bad revision.",
+      "group": "Deploy visibility"
+    },
+    {
+      "name": "IAM policy diff",
+      "command": "iam diff",
+      "description": "Compare the current IAM policy of a service against a saved snapshot to detect added or removed bindings.",
+      "rationale": "Requires Get IAM Policy + reading a local snapshot file -- drift detection the API itself cannot provide.",
+      "example": "google-cloud-run-pp-cli iam diff --service my-service --snapshot ./iam-baseline.json --agent",
+      "why_it_matters": "Use for compliance audits to confirm no IAM bindings changed since the last approved baseline.",
+      "group": "Security posture"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Cross-project service inventory",
+      "command": "services list-all",
+      "description": "List Cloud Run services across multiple GCP projects in a single unified table.",
+      "rationale": "Requires looping List Services across projects and merging client-side -- no single API call spans projects.",
+      "example": "google-cloud-run-pp-cli services list-all --projects my-proj-1,my-proj-2 --agent",
+      "why_it_matters": "Use when an agent needs a fleet-wide view of services without multiple separate list calls per project.",
+      "group": "Fleet-wide visibility"
+    },
+    {
+      "name": "Zombie revision sweeper",
+      "command": "revisions prune",
+      "description": "Delete old revisions that are not serving any traffic, keeping only the N most recent.",
+      "rationale": "Requires filtering revisions by traffic-serving status and deleting in bulk -- no single gcloud command does this.",
+      "example": "google-cloud-run-pp-cli revisions prune --service my-service --keep-last 3 --dry-run --agent",
+      "why_it_matters": "Use to free up Cloud Run revision quota without manually identifying and deleting inactive revisions.",
+      "group": "Lifecycle management"
+    },
+    {
+      "name": "Traffic split inspector",
+      "command": "services traffic",
+      "description": "Show the current traffic split across revisions with image tag and deploy timestamp in one table.",
+      "rationale": "Requires joining Service traffic data with per-revision image info -- two API calls the Console scatters across separate panels.",
+      "example": "google-cloud-run-pp-cli services traffic --service my-service --agent",
+      "why_it_matters": "Use when an agent needs to verify which image version is serving what percentage of traffic after a canary deploy.",
+      "group": "Deploy visibility"
+    },
+    {
+      "name": "Execution outcome summary",
+      "command": "executions summary",
+      "description": "Show a per-execution summary of a Cloud Run Job with succeeded/failed task counts and duration.",
+      "rationale": "Requires List Executions + List Tasks per execution + client-side aggregation -- no single endpoint returns this view.",
+      "example": "google-cloud-run-pp-cli executions summary --job nightly-etl --last 7 --agent",
+      "why_it_matters": "Use as the git log for Cloud Run Jobs to quickly assess whether recent job executions succeeded.",
+      "group": "Job observability"
+    },
+    {
+      "name": "Public exposure audit",
+      "command": "iam audit",
+      "description": "List all services in a project that are publicly accessible via allUsers or allAuthenticatedUsers IAM bindings.",
+      "rationale": "Requires List Services + Get IAM Policy per service -- a cross-entity query assembled client-side.",
+      "example": "google-cloud-run-pp-cli iam audit --project my-project --show-public --agent",
+      "why_it_matters": "Use for security posture checks to surface any Cloud Run service unintentionally exposed to the public internet.",
+      "group": "Security posture"
+    },
+    {
+      "name": "Wait-for-traffic",
+      "command": "revisions wait-traffic",
+      "description": "Block until a specific revision reaches a target traffic percentage -- a CI/CD gate primitive.",
+      "rationale": "Cloud Run operations complete before traffic shifts; polling trafficStatuses requires a custom loop.",
+      "example": "google-cloud-run-pp-cli revisions wait-traffic --service my-service --revision my-service-00042-abc --target-pct 100 --timeout 300s",
+      "why_it_matters": "Use in CI/CD pipelines after deploying -- prevents running smoke tests before the revision is actually serving traffic.",
+      "group": "CI/CD primitives"
+    },
+    {
+      "name": "Revision config diff",
+      "command": "revisions diff",
+      "description": "Show a field-by-field diff between two revisions: image, CPU/memory, scaling config, and env var key names.",
+      "rationale": "Requires two Get Revision calls plus client-side diffing -- not available in Console or gcloud without manual comparison.",
+      "example": "google-cloud-run-pp-cli revisions diff --service my-service --from my-service-00041-abc --to my-service-00042-def --agent",
+      "why_it_matters": "Use during incident triage to see what configuration changed between the last good and first bad revision.",
+      "group": "Deploy visibility"
+    },
+    {
+      "name": "IAM policy diff",
+      "command": "iam diff",
+      "description": "Compare the current IAM policy of a service against a saved snapshot to detect added or removed bindings.",
+      "rationale": "Requires Get IAM Policy + reading a local snapshot file -- drift detection the API itself cannot provide.",
+      "example": "google-cloud-run-pp-cli iam diff --service my-service --snapshot ./iam-baseline.json --agent",
+      "why_it_matters": "Use for compliance audits to confirm no IAM bindings changed since the last approved baseline.",
+      "group": "Security posture"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "GOOGLE_CLOUD_RUN_TOKEN"
+  },
+  "narrative": {
+    "display_name": "Google Cloud Run",
+    "headline": "Every Cloud Run service, job, and revision -- plus a deployment gate, exposure audit, and config diff that gcloud never shipped.",
+    "value_prop": "Replaces multi-tab Console sessions and fragile gcloud scripts with a single agent-native CLI. Syncs your entire Cloud Run fleet to a local SQLite store for offline queries, cross-project inventory, and zero-lag CI/CD primitives. Ships the wait-for-traffic gate, public exposure audit, and revision diff workflows that power users have been scripting by hand for years.",
+    "auth_narrative": "Cloud Run uses OAuth2 with the cloud-platform scope. Set GOOGLE_CLOUD_RUN_TOKEN to a bearer token from gcloud auth print-access-token. Falls back to Application Default Credentials (ADC) -- run gcloud auth application-default login for automatic refresh.",
+    "quickstart": [
+      {
+        "command": "google-cloud-run-pp-cli doctor --dry-run",
+        "comment": "verify config and auth before making API calls"
+      },
+      {
+        "command": "google-cloud-run-pp-cli sync",
+        "comment": "sync your Cloud Run fleet to local SQLite"
+      },
+      {
+        "command": "google-cloud-run-pp-cli services list projects/my-project/locations/us-central1 --json",
+        "comment": "list services in a project and region"
+      },
+      {
+        "command": "google-cloud-run-pp-cli executions summary --job nightly-etl --last 7 --agent",
+        "comment": "check the last 7 executions of a job"
+      },
+      {
+        "command": "google-cloud-run-pp-cli iam audit --project my-project --show-public --agent",
+        "comment": "find publicly accessible services"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 Unauthorized on all API calls",
+        "fix": "Run gcloud auth print-access-token and set GOOGLE_CLOUD_RUN_TOKEN, or run gcloud auth application-default login."
+      },
+      {
+        "symptom": "404 Not Found on service or job operations",
+        "fix": "Check --project and --region flags match where the resource was created."
+      },
+      {
+        "symptom": "revisions wait-traffic times out",
+        "fix": "Increase --timeout; check Cloud Console for stuck traffic migration or a failing health check."
+      }
+    ],
+    "when_to_use": "Use this CLI when managing, deploying, or auditing Google Cloud Run services or jobs. Best for post-deploy verification, CI/CD gates, security posture checks, and cross-project workflows.",
+    "anti_triggers": [
+      "Viewing Cloud Run logs (use gcloud logging or Cloud Logging API directly)",
+      "Managing Cloud Run on Anthos or GKE-based environments",
+      "Deploying from source code (use gcloud run deploy --source)"
+    ],
+    "recipes": [
+      {
+        "title": "CI/CD post-deploy gate",
+        "command": "google-cloud-run-pp-cli revisions wait-traffic --service my-service --revision my-service-00042-abc --target-pct 100 --timeout 300s",
+        "explanation": "Block the pipeline until the new revision is fully serving traffic before running smoke tests."
+      },
+      {
+        "title": "Weekly revision cleanup",
+        "command": "google-cloud-run-pp-cli revisions prune --service my-service --keep-last 5 --dry-run",
+        "explanation": "Preview which old revisions will be deleted, then re-run without --dry-run to free up revision quota."
+      },
+      {
+        "title": "Security posture check",
+        "command": "google-cloud-run-pp-cli iam audit --project my-project --show-public --agent --select services.name,services.uri,services.offending_binding",
+        "explanation": "Compact agent-readable list of publicly exposed services."
+      },
+      {
+        "title": "Incident diff",
+        "command": "google-cloud-run-pp-cli revisions diff --service my-service --from my-service-00041-abc --to my-service-00042-def --agent",
+        "explanation": "Immediately see what config changed between the last good and first bad revision."
+      },
+      {
+        "title": "Multi-project fleet view",
+        "command": "google-cloud-run-pp-cli services list-all --projects prod-us,prod-eu,staging --agent --select services.name,services.region,services.uri,services.serving_revision",
+        "explanation": "Cross-project service inventory with fields an agent needs for deploy decisions."
+      }
+    ],
+    "trigger_phrases": [
+      "list Cloud Run services",
+      "deploy to Cloud Run",
+      "check my Cloud Run jobs",
+      "which services are publicly accessible",
+      "wait for my revision to get traffic",
+      "use google-cloud-run",
+      "run google-cloud-run-pp-cli"
+    ]
+  }
+}

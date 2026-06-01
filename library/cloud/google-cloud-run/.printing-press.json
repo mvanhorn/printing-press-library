@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-31T17:04:05.0831968Z",
+  "printing_press_version": "4.19.0",
+  "api_name": "google-cloud-run",
+  "display_name": "Google Cloud Run",
+  "cli_name": "google-cloud-run-pp-cli",
+  "creator": {
+    "name": "never-mind-3",
+    "handle": "never-mind-3"
+  },
+  "printer": "never-mind-3",
+  "printer_name": "never-mind-3",
+  "spec_url": "https://api.apis.guru/v2/specs/googleapis.com/run/v2/openapi.yaml",
+  "run_id": "20260531-170912",
+  "catalog_entry": "google-cloud-run",
+  "category": "cloud",
+  "description": "Every Cloud Run service, job, and revision -- plus a deployment gate, exposure audit, and config diff that gcloud never shipped.",
+  "mcp_binary": "google-cloud-run-pp-mcp",
+  "mcp_tool_count": 16,
+  "mcp_ready": "full",
+  "api_version": "v2",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "GOOGLE_CLOUD_RUN_OAUTH2C"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "GOOGLE_CLOUD_RUN_TOKEN",
+      "kind": "per_call",
+      "required": false,
+      "sensitive": true
+    },
+    {
+      "name": "GOOGLE_CLOUD_RUN_OAUTH2C",
+      "kind": "per_call",
+      "required": false,
+      "sensitive": true
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Cross-project service inventory",
+      "command": "services list-all",
+      "description": "List Cloud Run services across multiple GCP projects in a single unified table."
+    },
+    {
+      "name": "Zombie revision sweeper",
+      "command": "revisions prune",
+      "description": "Delete old revisions that are not serving any traffic, keeping only the N most recent."
+    },
+    {
+      "name": "Traffic split inspector",
+      "command": "services traffic",
+      "description": "Show the current traffic split across revisions with image tag and deploy timestamp in one table."
+    },
+    {
+      "name": "Execution outcome summary",
+      "command": "executions summary",
+      "description": "Show a per-execution summary of a Cloud Run Job with succeeded/failed task counts and duration."
+    },
+    {
+      "name": "Public exposure audit",
+      "command": "iam audit",
+      "description": "List all services in a project that are publicly accessible via allUsers or allAuthenticatedUsers IAM bindings."
+    },
+    {
+      "name": "Wait-for-traffic",
+      "command": "revisions wait-traffic",
+      "description": "Block until a specific revision reaches a target traffic percentage -- a CI/CD gate primitive."
+    },
+    {
+      "name": "Revision config diff",
+      "command": "revisions diff",
+      "description": "Show a field-by-field diff between two revisions: image, CPU/memory, scaling config, and env var key names."
+    },
+    {
+      "name": "IAM policy diff",
+      "command": "iam diff",
+      "description": "Compare the current IAM policy of a service against a saved snapshot to detect added or removed bindings."
+    }
+  ]
+}
