@@ -866,6 +866,81 @@ func TestFleetTokenNeedsProactiveRefresh(t *testing.T) {
 	}
 }
 
+// TestNewClient_ReadPathSelfHealsInBothModes guards that the read client always
+// wires a 401 auto-refresh callback (plan U4): owner-api reads heal via the
+// owner-api refresh closure, Fleet-routed reads heal via the Fleet closure.
+// A future refactor that drops OnTokenExpired would make a sink's reads stop
+// self-healing — this test fails loudly if that happens.
+func TestNewClient_ReadPathSelfHealsInBothModes(t *testing.T) {
+	t.Run("owner-api creds present routes owner-api and self-heals", func(t *testing.T) {
+		t.Setenv("TESLA_FLEET_TOKEN", "")
+		t.Setenv("TESLA_PP_NO_AUTOREFRESH", "")
+		flags := commandTestFlags(t)
+		cfg, err := config.Load(flags.configPath)
+		if err != nil {
+			t.Fatalf("Load: %v", err)
+		}
+		if err := cfg.SaveTokens("ownerapi", "", "owner-bearer", "owner-refresh", time.Now().Add(time.Hour)); err != nil {
+			t.Fatalf("SaveTokens: %v", err)
+		}
+		c, err := flags.newClient()
+		if err != nil {
+			t.Fatalf("newClient: %v", err)
+		}
+		if c.FleetMode {
+			t.Errorf("expected owner-api read routing (FleetMode=false) when a valid owner token exists")
+		}
+		if c.OnTokenExpired == nil {
+			t.Errorf("read client must wire a 401 self-heal callback (owner-api mode)")
+		}
+	})
+
+	t.Run("fleet-only creds route fleet and self-heal", func(t *testing.T) {
+		t.Setenv("TESLA_FLEET_TOKEN", "")
+		t.Setenv("TESLA_PP_NO_AUTOREFRESH", "")
+		flags := commandTestFlags(t)
+		cfg, err := config.Load(flags.configPath)
+		if err != nil {
+			t.Fatalf("Load: %v", err)
+		}
+		// Fleet token only, no usable owner-api credential: reads must route to
+		// the Fleet API and still self-heal via the Fleet refresh closure.
+		if err := cfg.SaveFleetTokens("cid", "csec", "fleet-bearer", "fleet-refresh", time.Now().Add(time.Hour), "keys.example.com", ""); err != nil {
+			t.Fatalf("SaveFleetTokens: %v", err)
+		}
+		c, err := flags.newClient()
+		if err != nil {
+			t.Fatalf("newClient: %v", err)
+		}
+		if !c.FleetMode {
+			t.Errorf("expected Fleet read routing (FleetMode=true) when only Fleet creds exist")
+		}
+		if c.OnTokenExpired == nil {
+			t.Errorf("read client must wire a 401 self-heal callback (Fleet mode)")
+		}
+	})
+
+	t.Run("opt-out disables the self-heal callback", func(t *testing.T) {
+		t.Setenv("TESLA_FLEET_TOKEN", "")
+		t.Setenv("TESLA_PP_NO_AUTOREFRESH", "1")
+		flags := commandTestFlags(t)
+		cfg, err := config.Load(flags.configPath)
+		if err != nil {
+			t.Fatalf("Load: %v", err)
+		}
+		if err := cfg.SaveTokens("ownerapi", "", "owner-bearer", "owner-refresh", time.Now().Add(time.Hour)); err != nil {
+			t.Fatalf("SaveTokens: %v", err)
+		}
+		c, err := flags.newClient()
+		if err != nil {
+			t.Fatalf("newClient: %v", err)
+		}
+		if c.OnTokenExpired != nil {
+			t.Errorf("TESLA_PP_NO_AUTOREFRESH=1 must leave OnTokenExpired unset for explicit 401 handling")
+		}
+	})
+}
+
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
