@@ -1,0 +1,108 @@
+name: offerup
+description: "Search local OfferUp listings, track prices, and surface deals from your terminal"
+version: "0.1.0"
+base_url: "https://offerup.com"
+spec_source: sniffed
+category: commerce
+
+auth:
+  type: none
+  header: ""
+  format: ""
+  env_vars: []
+
+config:
+  format: toml
+  path: "~/.config/offerup-pp-cli/config.toml"
+
+resources:
+  listings:
+    description: "Search and view OfferUp listings (public, no login)"
+    endpoints:
+      search:
+        method: GET
+        path: "/search"
+        description: "Search live OfferUp listings by keyword and location"
+        no_auth: true
+        response_format: html
+        html_extract:
+          mode: embedded-json
+          json_path: "props.pageProps.searchFeedResponse.looseTiles"
+        params:
+          - name: query
+            url_name: q
+            type: string
+            required: true
+            description: "Keyword to search for (e.g. \"dewalt drill\")"
+          - name: category
+            url_name: cid
+            type: string
+            description: "Category id to scope the search (e.g. 1 for electronics; hierarchical like 1.2)"
+        response:
+          type: array
+          item: Listing
+        pagination: null
+
+      get:
+        method: GET
+        path: "/item/detail/{listing_id}"
+        description: "Get the full detail for one listing"
+        no_auth: true
+        response_format: html
+        html_extract:
+          mode: embedded-json
+          json_path: "props.pageProps.initialApolloState"
+        params:
+          - name: listing_id
+            type: string
+            required: true
+            positional: true
+            description: "Listing id (UUID from a search result)"
+        response:
+          type: object
+          item: Listing
+        pagination: null
+
+types:
+  Listing:
+    fields:
+      - name: listingId
+        type: string
+      - name: title
+        type: string
+      - name: price
+        type: string
+      - name: locationName
+        type: string
+      - name: conditionText
+        type: string
+      - name: isFirmPrice
+        type: bool
+      - name: vehicleMiles
+        type: string
+      - name: description
+        type: string
+      - name: ownerId
+        type: string
+      - name: url
+        type: string
+      - name: imageUrl
+        type: string
+  Seller:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+      - name: dateJoined
+        type: string
+      - name: isBusinessAccount
+        type: bool
+      - name: isAutosDealer
+        type: bool
+      - name: isPremium
+        type: bool
+      - name: isTruyouVerified
+        type: bool
+      - name: primaryBadge
+        type: string

@@ -329,9 +329,19 @@ func (f *rootFlags) newClient() (*client.Client, error) {
 		// Permit drive_state to also fetch the location_data endpoint (GPS)
 		// only when the Fleet token actually carries the vehicle_location
 		// scope; requesting it without the scope 403s the whole call.
-		tok := firstNonEmpty(os.Getenv("TESLA_FLEET_TOKEN"), cfg.Fleet.AccessToken)
-		if _, scopes, derr := decodeJWTClaims(tok); derr == nil && strings.Contains(scopes, "vehicle_location") {
-			c.FleetLocation = true
+		c.FleetLocation = teslaFleetHasLocationScope(cfg)
+	} else if teslaFleetConfigured(cfg) {
+		// Owner-api read path chosen (a usable owner token exists), but Fleet is
+		// configured. Arm a reactive fallback: if an owner-api vehicle read 404s
+		// — a 2021+/non-NA car the owner-api can't serve — the client retries
+		// through the regional Fleet API. Covers the mixed-account case the
+		// per-install heuristic can't (see teslaShouldUseFleetForReads). The
+		// owner path is unchanged until a 404 actually fires.
+		c.FleetFallback = true
+		c.FleetBaseURL = strings.TrimRight(fleetAPIBase(cfg), "/")
+		c.FleetLocation = teslaFleetHasLocationScope(cfg)
+		if teslaAutoRefreshEnabled() {
+			c.FleetRefresh = makeTeslaFleetRefreshCallback(cfg)
 		}
 	}
 	// Tesla bearer auto-refresh on 401. Wired unless TESLA_PP_NO_AUTOREFRESH=1.
