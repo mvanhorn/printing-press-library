@@ -31,7 +31,7 @@ func newResolveCmd(flags *rootFlags) *cobra.Command {
 			if dryRunOK(flags) {
 				target := "name"
 				if len(args) > 0 {
-					target = strings.TrimSpace(args[0])
+					target = joinNameArgs(args)
 				}
 				_, _ = fmt.Fprintf(cmd.OutOrStdout(), "would resolve %s\n", target)
 				return nil
@@ -39,7 +39,7 @@ func newResolveCmd(flags *rootFlags) *cobra.Command {
 			if len(args) == 0 {
 				return usageErr(errors.New("name argument is required"))
 			}
-			name := strings.TrimSpace(args[0])
+			name := joinNameArgs(args)
 
 			db, err := openSplitwiseStore(cmd.Context())
 			if err != nil {

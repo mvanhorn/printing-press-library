@@ -46,7 +46,7 @@ func newSettleUpCmd(flags *rootFlags) *cobra.Command {
 			}
 			defer db.Close()
 
-			input := strings.TrimSpace(args[0])
+			input := joinNameArgs(args)
 			if input == "" {
 				return usageErr(errors.New("group name/id or friend name is required"))
 			}
@@ -69,7 +69,7 @@ func newSettleUpCmd(flags *rootFlags) *cobra.Command {
 			groupMatch, hasGroupMatch, groupAmbErr := resolveSettleGroup(input, groups)
 			if isAllDigits(input) || hasGroupMatch {
 				if !hasGroupMatch {
-					return usageErr(fmt.Errorf("no group or friend matches %q; run sync first", args[0]))
+					return usageErr(fmt.Errorf("no group or friend matches %q; run sync first", input))
 				}
 				targetType = "group"
 				targetName = strings.TrimSpace(groupMatch.Name)
@@ -118,7 +118,7 @@ func newSettleUpCmd(flags *rootFlags) *cobra.Command {
 					case friendAmbErr != nil:
 						return usageErr(friendAmbErr)
 					default:
-						return usageErr(fmt.Errorf("no group or friend matches %q; run sync first", args[0]))
+						return usageErr(fmt.Errorf("no group or friend matches %q; run sync first", input))
 					}
 				}
 				targetType = "friend"
@@ -264,6 +264,16 @@ func newSettleUpCmd(flags *rootFlags) *cobra.Command {
 
 	cmd.Flags().BoolVar(&record, "record", false, "Create payment expenses from the computed plan")
 	return cmd
+}
+
+// joinNameArgs derives a single group/friend name from positional args by joining
+// them with spaces, so a multi-word name survives whitespace-splitting (e.g. the
+// MCP command-mirror tokenizes `args:"EDCO 2021"` into ["EDCO","2021"]). Joining
+// reassembles "EDCO 2021" so the exact-match path resolves it to the one group,
+// instead of the bare prefix "EDCO" substring-matching several. Shared by the
+// name-positional commands (settle-up, resolve).
+func joinNameArgs(args []string) string {
+	return strings.TrimSpace(strings.Join(args, " "))
 }
 
 // matchGroupsByName returns groups matching input with exact-match preference:
