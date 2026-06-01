@@ -171,6 +171,60 @@ func TestR365ExportFiltersUsesEveryBackfillChunk(t *testing.T) {
 	}
 }
 
+func TestR365ExportPaginatesWithinEachChunk(t *testing.T) {
+	var skips []string
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/SalesDetail" {
+			t.Fatalf("path=%q, want /SalesDetail", r.URL.Path)
+		}
+		skip := r.URL.Query().Get("$skip")
+		skips = append(skips, skip)
+		switch skip {
+		case "":
+			fmt.Fprint(w, `{"@odata.nextLink":"https://example.test/SalesDetail?$skip=2","value":[{"salesDetailId":"row-1"},{"salesDetailId":"row-2"}]}`)
+		case "2":
+			fmt.Fprint(w, `{"value":[{"salesDetailId":"row-3"}]}`)
+		default:
+			t.Fatalf("unexpected $skip=%q", skip)
+		}
+	}))
+	defer server.Close()
+
+	t.Setenv("RESTAURANT365_ODATA_BASE_URL", server.URL)
+	t.Setenv("RESTAURANT365_ODATA_USERNAME", "tenant\\user")
+	t.Setenv("RESTAURANT365_ODATA_PASSWORD", "password")
+
+	output := filepath.Join(t.TempDir(), "sales.jsonl")
+	var flags rootFlags
+	cmd := newRootCmd(&flags)
+	var stdout, stderr bytes.Buffer
+	cmd.SetOut(&stdout)
+	cmd.SetErr(&stderr)
+	cmd.SetArgs([]string{
+		"export",
+		"--view", "SalesDetail",
+		"--filter", "date ge 2026-05-01T00:00:00Z",
+		"--output", output,
+		"--format", "jsonl",
+		"--limit", "2",
+		"--agent",
+	})
+
+	if err := cmd.Execute(); err != nil {
+		t.Fatalf("export returned error: %v\nstdout=%s\nstderr=%s", err, stdout.String(), stderr.String())
+	}
+	if !reflect.DeepEqual(skips, []string{"", "2"}) {
+		t.Fatalf("skips=%q, want initial page and $skip=2", skips)
+	}
+	body, err := os.ReadFile(output)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := strings.Count(string(body), "\n"); got != 3 {
+		t.Fatalf("exported lines=%d, want 3; body=%s", got, string(body))
+	}
+}
+
 func TestR365EndOfDayIncludesSubsecondCeiling(t *testing.T) {
 	got := r365EndOfDay(time.Date(2026, 5, 31, 12, 0, 0, 0, time.UTC))
 	if got != "2026-05-31T23:59:59.999999999Z" {
@@ -223,6 +277,23 @@ func TestDeletedRecordsDryRunDoesNotParseSyntheticBody(t *testing.T) {
 	}
 	if !containsString(stdout.String(), `"values_redacted": true`) {
 		t.Fatalf("stdout=%q, want redacted dry-run summary", stdout.String())
+	}
+}
+
+func TestBackfillPlanRejectsInvalidWatermark(t *testing.T) {
+	var flags rootFlags
+	cmd := newRootCmd(&flags)
+	var stdout, stderr bytes.Buffer
+	cmd.SetOut(&stdout)
+	cmd.SetErr(&stderr)
+	cmd.SetArgs([]string{"backfill-plan", "--view", "Transaction", "--watermark", "0 or 1 eq 1", "--agent"})
+
+	err := cmd.Execute()
+	if err == nil {
+		t.Fatalf("backfill-plan accepted invalid watermark\nstdout=%s\nstderr=%s", stdout.String(), stderr.String())
+	}
+	if !strings.Contains(err.Error(), "--watermark must be a non-negative integer") {
+		t.Fatalf("error=%v, want watermark validation", err)
 	}
 }
 
@@ -373,4 +444,8 @@ func (c *recordingSyncClient) Get(_ context.Context, _ string, params map[string
 
 func (c *recordingSyncClient) RateLimit() float64 {
 	return 0
+}
+
+func containsString(haystack, needle string) bool {
+	return strings.Contains(haystack, needle)
 }

@@ -7,6 +7,7 @@ import (
 	"encoding/xml"
 	"fmt"
 	"io"
+	"net/url"
 	"os"
 	"sort"
 	"strconv"
@@ -243,6 +244,9 @@ func newR365BackfillPlanCmd(flags *rootFlags) *cobra.Command {
 			if view.RowVersion && fromValue == "" && toValue == "" {
 				filter := "rowVersion gt 0"
 				if watermark != "" {
+					if _, err := strconv.ParseUint(watermark, 10, 64); err != nil {
+						return usageErr(fmt.Errorf("--watermark must be a non-negative integer, got %q", watermark))
+					}
 					filter = "rowVersion gt " + watermark
 				}
 				plan.Strategy = "rowVersion"
@@ -332,6 +336,9 @@ func newR365ExportCmd(flags *rootFlags) *cobra.Command {
 			if format != "jsonl" && format != "csv" {
 				return usageErr(fmt.Errorf("--format must be jsonl or csv"))
 			}
+			if limit < 1 {
+				return usageErr(fmt.Errorf("--limit must be at least 1"))
+			}
 			queryFilters := []string{filter}
 			plannedChunks := 0
 			if filter == "" && fromValue != "" && toValue != "" {
@@ -370,7 +377,7 @@ func newR365ExportCmd(flags *rootFlags) *cobra.Command {
 			}
 			rows := []map[string]any{}
 			for _, queryFilter := range queryFilters {
-				chunkRows, err := fetchR365Rows(cmd.Context(), flags, view.Name, limit, queryFilter, "")
+				chunkRows, err := fetchR365RowsAll(cmd.Context(), flags, view.Name, limit, queryFilter, "")
 				if err != nil {
 					return classifyAPIError(err, flags)
 				}
@@ -392,7 +399,7 @@ func newR365ExportCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&filter, "filter", "", "Explicit OData $filter expression")
 	cmd.Flags().StringVar(&format, "format", "jsonl", "Export format: jsonl or csv")
 	cmd.Flags().StringVar(&output, "output", "", "Output file path")
-	cmd.Flags().IntVar(&limit, "limit", 1000, "Maximum rows to fetch in this export call")
+	cmd.Flags().IntVar(&limit, "limit", 1000, "Rows to fetch per export page")
 	return cmd
 }
 
@@ -444,7 +451,36 @@ func fetchR365Rows(ctx context.Context, flags *rootFlags, viewName string, limit
 	if err != nil {
 		return nil, err
 	}
+	rows, _, err := fetchR365RowsPage(ctx, c, viewName, limit, filter, orderBy, 0)
+	return rows, err
+}
+
+func fetchR365RowsAll(ctx context.Context, flags *rootFlags, viewName string, limit int, filter, orderBy string) ([]map[string]any, error) {
+	c, err := flags.newClient()
+	if err != nil {
+		return nil, err
+	}
+	rows := []map[string]any{}
+	skip := 0
+	for {
+		pageRows, nextSkip, err := fetchR365RowsPage(ctx, c, viewName, limit, filter, orderBy, skip)
+		if err != nil {
+			return nil, err
+		}
+		rows = append(rows, pageRows...)
+		if nextSkip < 0 || len(pageRows) == 0 {
+			break
+		}
+		skip = nextSkip
+	}
+	return rows, nil
+}
+
+func fetchR365RowsPage(ctx context.Context, c *client.Client, viewName string, limit int, filter, orderBy string, skip int) ([]map[string]any, int, error) {
 	params := map[string]string{"$top": strconv.Itoa(limit)}
+	if skip > 0 {
+		params["$skip"] = strconv.Itoa(skip)
+	}
 	if filter != "" {
 		params["$filter"] = filter
 	}
@@ -453,26 +489,54 @@ func fetchR365Rows(ctx context.Context, flags *rootFlags, viewName string, limit
 	}
 	data, err := c.GetNoCache(ctx, "/"+viewName, params)
 	if err != nil {
-		return nil, err
+		return nil, -1, err
 	}
-	return extractODataRows(data)
+	rows, nextSkip, err := extractODataRowsPage(data, limit, skip)
+	return rows, nextSkip, err
 }
 
 func extractODataRows(data json.RawMessage) ([]map[string]any, error) {
+	rows, _, err := extractODataRowsPage(data, 0, 0)
+	return rows, err
+}
+
+func extractODataRowsPage(data json.RawMessage, limit int, skip int) ([]map[string]any, int, error) {
 	if isDryRunResponse(data) {
-		return nil, nil
+		return nil, -1, nil
 	}
 	var envelope struct {
-		Value []map[string]any `json:"value"`
+		Value    []map[string]any `json:"value"`
+		NextLink string           `json:"@odata.nextLink"`
 	}
 	if err := json.Unmarshal(data, &envelope); err == nil && envelope.Value != nil {
-		return envelope.Value, nil
+		nextSkip := nextR365Skip(envelope.NextLink, len(envelope.Value), limit, skip)
+		return envelope.Value, nextSkip, nil
 	}
 	var rows []map[string]any
 	if err := json.Unmarshal(data, &rows); err == nil {
-		return rows, nil
+		nextSkip := -1
+		if limit > 0 && len(rows) >= limit {
+			nextSkip = skip + len(rows)
+		}
+		return rows, nextSkip, nil
 	}
-	return nil, fmt.Errorf("response did not contain an OData value array")
+	return nil, -1, fmt.Errorf("response did not contain an OData value array")
+}
+
+func nextR365Skip(nextLink string, rowCount int, limit int, currentSkip int) int {
+	if nextLink != "" {
+		if parsed, err := url.Parse(nextLink); err == nil {
+			if raw := parsed.Query().Get("$skip"); raw != "" {
+				if next, err := strconv.Atoi(raw); err == nil && next > currentSkip {
+					return next
+				}
+			}
+		}
+	}
+	if limit > 0 && rowCount >= limit {
+		return currentSkip + rowCount
+	}
+	return -1
 }
 
 func newR365SampleSummary(view string, requested int, rows []map[string]any, includeValues bool) r365SampleSummary {
@@ -653,8 +717,4 @@ func r365StartOfDay(value time.Time) string {
 
 func r365EndOfDay(value time.Time) string {
 	return time.Date(value.Year(), value.Month(), value.Day(), 23, 59, 59, 999999999, time.UTC).Format(time.RFC3339Nano)
-}
-
-func containsString(haystack, needle string) bool {
-	return strings.Contains(haystack, needle)
 }
