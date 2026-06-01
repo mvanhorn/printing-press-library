@@ -496,6 +496,7 @@ test("install command warns loudly when a stale binary earlier in PATH shadows t
     goInstall: async () => ok(),
     goInstallDir: async () => goBinDir("/Users/ada/go/bin"),
     commandOnPath: async () => "/opt/homebrew/bin/espn-pp-cli",
+    realpath: async (path) => path,
     installSkill: async () => ok(),
     stdout: (message) => stdout.push(message),
     stderr: (message) => stderr.push(message),
