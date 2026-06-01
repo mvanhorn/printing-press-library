@@ -302,6 +302,57 @@ class PublishPackageVerifierTest(unittest.TestCase):
             msg="malformed JSON should still surface as a problem",
         )
 
+    def test_patches_directory_shape_passes(self) -> None:
+        """The per-patch directory layout (mvanhorn/cli-printing-press#2496) is
+        accepted alongside the legacy single-array file. A dir of well-formed
+        per-patch objects + .gitkeep, with no legacy file, validates clean.
+        """
+        cli_dir = self.tmp / "library" / "cloud" / "legacy"
+        self.write(
+            "library/cloud/legacy/.printing-press.json",
+            json.dumps({"schema_version": 1, "api_name": "legacy", "cli_name": "legacy-pp-cli"}),
+        )
+        self.write("library/cloud/legacy/.printing-press-patches/.gitkeep", "")
+        self.write(
+            "library/cloud/legacy/.printing-press-patches/alpha.json",
+            json.dumps({"schema_version": 2, "id": "alpha", "summary": "A", "reason": "ra"}),
+        )
+
+        problems = verifier.validate_patch_manifest(cli_dir, changed_files=None)
+        self.assertEqual([], problems, msg=f"got {[p.message for p in problems]}")
+
+    def test_patches_directory_with_non_object_file_fails(self) -> None:
+        """A per-patch file that isn't a JSON object would break dir readers,
+        so read_json surfaces it as a structural problem.
+        """
+        cli_dir = self.tmp / "library" / "cloud" / "legacy"
+        self.write(
+            "library/cloud/legacy/.printing-press.json",
+            json.dumps({"schema_version": 1, "api_name": "legacy", "cli_name": "legacy-pp-cli"}),
+        )
+        self.write("library/cloud/legacy/.printing-press-patches/.gitkeep", "")
+        self.write(
+            "library/cloud/legacy/.printing-press-patches/bad.json",
+            json.dumps(["not", "an", "object"]),
+        )
+
+        problems = verifier.validate_patch_manifest(cli_dir, changed_files=None)
+        self.assertNotEqual([], problems, msg="non-object patch file should surface a problem")
+
+    def test_new_cli_with_patches_dir_satisfies_presence(self) -> None:
+        """A new CLI shipping the directory shape (no legacy file) is not flagged
+        as missing its patches index by the required-artifacts check.
+        """
+        cli_dir = self.tmp / "library" / "cloud" / "bad"
+        self.write("library/cloud/bad/.printing-press.json", '{"api_name": "bad", "cli_name": "bad-pp-cli"}')
+        self.write("library/cloud/bad/.printing-press-patches/.gitkeep", "")
+
+        problems = verifier.validate_required_artifacts(cli_dir, manifest=None)
+        self.assertFalse(
+            any("patches index" in p.message for p in problems),
+            msg="dir-form patches index must satisfy the presence check",
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
