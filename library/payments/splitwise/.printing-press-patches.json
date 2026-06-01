@@ -113,6 +113,12 @@
       "validated_outcome": "TestGroupBalances_* (7 cases: single/zero-excluded/multi-currency/non-member-skip/abs-desc-sort/name-tiebreak/empty), TestBalancesByGroupCommand (end-to-end: by_group envelope + --by-group precedence over --by-currency against a seeded store), and TestBalancesByGroupUnsyncedUserNoteInAgentMode (the unsynced-current-user note reaches stderr in agent mode) pass; gofmt/build/vet/test, govulncheck, verify-skill pass."
     },
     {
+      "id": "fairness-carrier-role-paid-owes-nothing",
+      "summary": "fairness --by contribution classifies a member who paid but owes nothing as carrier, not rider.",
+      "reason": "classifyRole defaults a nil CarryRatio to rider; a payer excluded from the split has an unbounded carry ratio and is a pure carrier.",
+      "files": ["internal/cli/splitwise_fairness.go", "internal/cli/splitwise_fairness_test.go"]
+    },
+    {
       "id": "splitwise-fairness-command",
       "summary": "Add the `fairness` analytics command (risk / contribution / collectability lenses); render day-ages as readable durations (humanizeDays + shared ageCell) in the fairness and debts human tables while JSON keeps raw *_days for analytics tools.",
       "reason": "Hand-built offline-analytics command over the synced store, completing the net/audit/forecast set. Surfaces who carries the group, a 0-100 collection-risk score with nudge/chase/write-off action tiers, and contribution (carry-ratio) and collectability (debt age, settle latency) lenses. Empty-history members are surfaced separately and never scored as riders/risk. Outstanding-balance holders are never windowed away by --since. Reuses existing helpers (Friend.Balance sign, SimplifiedDebts, parseSplitwiseDate, round2, loaders); no generator change. The ageCell/humanizeDays display helpers are shared with the debts AGE column for consistent human rendering.",

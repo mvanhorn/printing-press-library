@@ -379,6 +379,31 @@ func assertAbsentPerson(t *testing.T, people []fairnessPerson, id int) {
 	}
 }
 
+func TestRoleForContributionCarrierWhenPaidButOwesNothing(t *testing.T) {
+	r110 := 1.10
+	r200 := 2.00
+	r050 := 0.50
+	cases := []struct {
+		name       string
+		hasHistory bool
+		paid, owed float64
+		ratio      *float64
+		want       string
+	}{
+		{"paid but owes nothing -> carrier", true, 50, 0, nil, "carrier"},
+		{"no history -> new even if paid>0 owed==0", false, 50, 0, nil, "new"},
+		{"owes nothing and paid nothing -> rider", true, 0, 0, nil, "rider"},
+		{"normal rider (low ratio)", true, 5, 50, &r050, "rider"},
+		{"even ratio", true, 55, 50, &r110, "even"},
+		{"carrier via high ratio", true, 100, 50, &r200, "carrier"},
+	}
+	for _, c := range cases {
+		if got := roleForContribution(c.hasHistory, c.paid, c.owed, c.ratio); got != c.want {
+			t.Errorf("%s: roleForContribution(%v,%v,%v,ratio)=%q want %q", c.name, c.hasHistory, c.paid, c.owed, got, c.want)
+		}
+	}
+}
+
 func ptrFloat(v float64) *float64 { return &v }
 
 func mustDate(t *testing.T, s string) time.Time {
