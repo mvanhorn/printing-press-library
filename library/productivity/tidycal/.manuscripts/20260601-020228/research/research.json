@@ -1,0 +1,107 @@
+{
+  "api_name": "tidycal",
+  "novelty_score": 8,
+  "alternatives": [],
+  "gaps": [
+    "generic endpoint wrappers do not provide contact-aware schedule briefing, triage, availability shortlisting, or confirmation-gated assisted booking workflows"
+  ],
+  "patterns": [
+    "scheduling CLIs typically expose list/get/create endpoint mirrors"
+  ],
+  "recommendation": "proceed",
+  "researched_at": "2026-06-01T02:21:43Z",
+  "novel_features": [
+    {
+      "name": "Schedule brief",
+      "command": "brief",
+      "description": "Produce a contact-aware schedule brief for a day or date range.",
+      "rationale": "Agents need one compact read-only view before preparing meeting context.",
+      "example": "tidycal-pp-cli brief --date today --format json",
+      "why_it_matters": "Use this before drafting prep notes or deciding whether a booking needs attention.",
+      "group": "Agentic scheduling"
+    },
+    {
+      "name": "Schedule triage",
+      "command": "triage",
+      "description": "Identify booking problems such as missing meeting URLs, duplicate contacts, off-hours bookings, cancelled bookings, and incomplete contact data.",
+      "rationale": "Agents need a read-only risk queue before taking scheduling actions.",
+      "example": "tidycal-pp-cli triage --from today --to +7d --format json",
+      "why_it_matters": "Use this to decide which bookings require operator review.",
+      "group": "Agentic scheduling"
+    },
+    {
+      "name": "Availability shortlist",
+      "command": "propose-times",
+      "description": "Fetch available TidyCal timeslots for a booking type and rank a paste-ready shortlist by date window, timezone, preference, and weekend policy.",
+      "rationale": "Agents should use the real availability endpoint rather than computing free/busy locally.",
+      "example": "tidycal-pp-cli propose-times 123 --from today --to +14d --count 3 --format json",
+      "why_it_matters": "Use this when proposing meeting options in chat or email.",
+      "group": "Agentic scheduling"
+    },
+    {
+      "name": "Follow-up queue",
+      "command": "followups",
+      "description": "Create an AI-ready follow-up queue from recent bookings without sending messages or notifications.",
+      "rationale": "Agents need structured follow-up tasks while keeping message sending explicit and separate.",
+      "example": "tidycal-pp-cli followups --from -7d --to today --format json",
+      "why_it_matters": "Use this to prepare follow-up tasks after recent meetings.",
+      "group": "Agentic scheduling"
+    },
+    {
+      "name": "Assisted booking",
+      "command": "assisted-book",
+      "description": "Book on behalf of a contact through an inspectable dry-run and explicit confirmation gate.",
+      "rationale": "Agents can prepare the exact booking payload but must not create bookings without confirmation.",
+      "example": "tidycal-pp-cli assisted-book 123 --name Ada --email ada@example.com --slot 2026-06-02T15:00:00Z --dry-run --format json",
+      "why_it_matters": "Use this only when the operator has approved the booking details.",
+      "group": "Agentic scheduling"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Schedule brief",
+      "command": "brief",
+      "description": "Produce a contact-aware schedule brief for a day or date range.",
+      "rationale": "Agents need one compact read-only view before preparing meeting context.",
+      "example": "tidycal-pp-cli brief --date today --format json",
+      "why_it_matters": "Use this before drafting prep notes or deciding whether a booking needs attention.",
+      "group": "Agentic scheduling"
+    },
+    {
+      "name": "Schedule triage",
+      "command": "triage",
+      "description": "Identify booking problems such as missing meeting URLs, duplicate contacts, off-hours bookings, cancelled bookings, and incomplete contact data.",
+      "rationale": "Agents need a read-only risk queue before taking scheduling actions.",
+      "example": "tidycal-pp-cli triage --from today --to +7d --format json",
+      "why_it_matters": "Use this to decide which bookings require operator review.",
+      "group": "Agentic scheduling"
+    },
+    {
+      "name": "Availability shortlist",
+      "command": "propose-times",
+      "description": "Fetch available TidyCal timeslots for a booking type and rank a paste-ready shortlist by date window, timezone, preference, and weekend policy.",
+      "rationale": "Agents should use the real availability endpoint rather than computing free/busy locally.",
+      "example": "tidycal-pp-cli propose-times 123 --from today --to +14d --count 3 --format json",
+      "why_it_matters": "Use this when proposing meeting options in chat or email.",
+      "group": "Agentic scheduling"
+    },
+    {
+      "name": "Follow-up queue",
+      "command": "followups",
+      "description": "Create an AI-ready follow-up queue from recent bookings without sending messages or notifications.",
+      "rationale": "Agents need structured follow-up tasks while keeping message sending explicit and separate.",
+      "example": "tidycal-pp-cli followups --from -7d --to today --format json",
+      "why_it_matters": "Use this to prepare follow-up tasks after recent meetings.",
+      "group": "Agentic scheduling"
+    },
+    {
+      "name": "Assisted booking",
+      "command": "assisted-book",
+      "description": "Book on behalf of a contact through an inspectable dry-run and explicit confirmation gate.",
+      "rationale": "Agents can prepare the exact booking payload but must not create bookings without confirmation.",
+      "example": "tidycal-pp-cli assisted-book 123 --name Ada --email ada@example.com --slot 2026-06-02T15:00:00Z --dry-run --format json",
+      "why_it_matters": "Use this only when the operator has approved the booking details.",
+      "group": "Agentic scheduling"
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "api_name": "offerup",
+  "base_url": "https://offerup.com",
+  "description": "Search local OfferUp listings from your terminal, keep them in a local database, and spot underpriced deals before anyone else — no login and no paid key for the things that matter most.",
+  "mcp_ready": "full",
+  "http_transport": "browser-chrome-h2",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "listings_get",
+      "description": "Get the full detail for one listing. Required: listing_id. Returns the Listing.",
+      "method": "GET",
+      "path": "/item/detail/{listing_id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "listing_id",
+          "type": "string",
+          "location": "path",
+          "description": "Listing id (UUID from a search result)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "listings_search",
+      "description": "Search live OfferUp listings by keyword and location. Required: query. Optional: category. Returns array of Listing.",
+      "method": "GET",
+      "path": "/search",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "query",
+          "wire_name": "q",
+          "type": "string",
+          "location": "query",
+          "description": "Keyword to search for (e.g. 'dewalt drill')",
+          "required": true
+        },
+        {
+          "name": "category",
+          "wire_name": "cid",
+          "type": "string",
+          "location": "query",
+          "description": "Category id to scope the search (e.g. 1 for electronics; hierarchical like 1.2)"
+        }
+      ]
+    }
+  ]
+}
