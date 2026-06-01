@@ -269,6 +269,94 @@ func (x *ScrapeExtras) Spend(ctx context.Context, since time.Time) (SpendSummary
 	return out, nil
 }
 
+// ReserveSpend atomically checks month-to-date spend against a ceiling and,
+// when the request fits, inserts a PENDING ledger debit of estCost. The leading
+// DELETE of stale reservations is a write, so it grabs SQLite's RESERVED lock
+// before the SELECT — concurrent reservers serialize and each sees the others'
+// pending debits, so N batch workers cannot over-grant the ceiling. Returns the
+// reservation row id, whether it was granted, and the pre-reservation total.
+// A crash between reserve and reconcile leaves an orphan that over-counts (the
+// safe ceiling direction) until the 5-minute stale-reap removes it.
+func (x *ScrapeExtras) ReserveSpend(ctx context.Context, monthStart time.Time, ceiling, estCost int, mode, agent, family string, now time.Time) (int64, bool, int, error) {
+	tx, err := x.db.BeginTx(ctx, nil)
+	if err != nil {
+		return 0, false, 0, err
+	}
+	defer func() { _ = tx.Rollback() }()
+
+	staleCutoff := now.Add(-5 * time.Minute).UTC().Format(time.RFC3339)
+	if _, err := tx.ExecContext(ctx, `DELETE FROM credit_ledger WHERE cost_source = 'reserve' AND created_at < ?`, staleCutoff); err != nil {
+		return 0, false, 0, err
+	}
+
+	var total int
+	if err := tx.QueryRowContext(ctx, `SELECT COALESCE(SUM(cost),0) FROM credit_ledger WHERE created_at >= ?`,
+		monthStart.UTC().Format(time.RFC3339)).Scan(&total); err != nil {
+		return 0, false, 0, err
+	}
+	if ceiling > 0 && total+estCost > ceiling {
+		if err := tx.Commit(); err != nil { // commit the stale-reap even when refusing
+			return 0, false, total, err
+		}
+		return 0, false, total, nil
+	}
+	res, err := tx.ExecContext(ctx, `INSERT INTO credit_ledger (mode, agent, family, cost, cost_source, created_at)
+        VALUES (?,?,?,?, 'reserve', ?)`, mode, nullStr(agent), nullStr(family), estCost, now.UTC().Format(time.RFC3339))
+	if err != nil {
+		return 0, false, total, err
+	}
+	id, _ := res.LastInsertId()
+	if err := tx.Commit(); err != nil {
+		return 0, false, total, err
+	}
+	return id, true, total, nil
+}
+
+// ReconcileReservation converts a pending reservation into its final state once
+// the call returns: a billed call (cost > 0) updates the reserved row to the
+// authoritative cost; an unbilled call (cost 0) deletes it. The scrape_jobs row
+// is written in the same transaction so the job log and ledger stay consistent.
+func (x *ScrapeExtras) ReconcileReservation(ctx context.Context, reservationID int64, r CallRecord) error {
+	tx, err := x.db.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer func() { _ = tx.Rollback() }()
+	if r.Cost > 0 {
+		if _, err := tx.ExecContext(ctx, `UPDATE credit_ledger SET cost = ?, cost_source = ?, agent = ?, family = ? WHERE id = ?`,
+			r.Cost, r.CostSource, nullStr(r.Agent), nullStr(r.Family), reservationID); err != nil {
+			return err
+		}
+	} else {
+		if _, err := tx.ExecContext(ctx, `DELETE FROM credit_ledger WHERE id = ?`, reservationID); err != nil {
+			return err
+		}
+	}
+	ts := r.At.UTC().Format(time.RFC3339)
+	var rem any
+	if r.RemainingCredits >= 0 {
+		rem = r.RemainingCredits
+	}
+	_, err = tx.ExecContext(ctx, `INSERT INTO scrape_jobs
+        (kind, target, mode, agent, http_status, cost, cost_source, remaining_credits, bytes, ok, error, created_at)
+        VALUES (?,?,?,?,?,?,?,?,?,?,?,?)`,
+		r.Kind, r.Target, r.Mode, nullStr(r.Agent), r.HTTPStatus, r.Cost, r.CostSource, rem, r.Bytes, boolInt(r.OK), nullStr(r.Err), ts)
+	if err != nil {
+		return err
+	}
+	return tx.Commit()
+}
+
+// CancelReservation removes a pending reservation that was never dispatched
+// (e.g. lease acquisition timed out), so an abandoned attempt doesn't leak budget.
+func (x *ScrapeExtras) CancelReservation(ctx context.Context, reservationID int64) error {
+	if reservationID == 0 {
+		return nil
+	}
+	_, err := x.db.ExecContext(ctx, `DELETE FROM credit_ledger WHERE id = ? AND cost_source = 'reserve'`, reservationID)
+	return err
+}
+
 // ---- Usage snapshots (/info) -------------------------------------------
 
 // UsageSnapshot mirrors the Scrape.do /info payload plus a capture timestamp.

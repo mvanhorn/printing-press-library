@@ -196,3 +196,74 @@ func TestBudgetSetGet(t *testing.T) {
 		t.Errorf("max_monthly_pct = %+v, want 80", b2.MaxMonthlyPct)
 	}
 }
+
+func TestReserveSpendCeiling(t *testing.T) {
+	// The reservation counts toward the next reserve's total, so concurrent
+	// workers cannot over-grant the ceiling: with ceiling=25 and est=10, the
+	// first two reserves fit (0→10, 10→20) and the third (20+10=30) is refused.
+	x := newTestExtras(t)
+	ctx := context.Background()
+	now := time.Now()
+	monthStart := time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, time.UTC)
+
+	id1, ok1, t1, err := x.ReserveSpend(ctx, monthStart, 25, 10, "google", "a", "f", now)
+	if err != nil || !ok1 || t1 != 0 {
+		t.Fatalf("reserve1: ok=%v total=%d err=%v (want ok,0)", ok1, t1, err)
+	}
+	_, ok2, t2, _ := x.ReserveSpend(ctx, monthStart, 25, 10, "google", "a", "f", now)
+	if !ok2 || t2 != 10 {
+		t.Fatalf("reserve2: ok=%v total=%d (want ok,10 — reservation 1 counted)", ok2, t2)
+	}
+	_, ok3, t3, _ := x.ReserveSpend(ctx, monthStart, 25, 10, "google", "a", "f", now)
+	if ok3 {
+		t.Fatalf("reserve3 must be refused (20+10=30 > 25); total=%d", t3)
+	}
+
+	// Reconcile reservation 1 to the authoritative cost; it becomes a real debit.
+	if err := x.ReconcileReservation(ctx, id1, CallRecord{Kind: "google:search", Mode: "google", Cost: 10, CostSource: "header", RemainingCredits: -1, OK: true, At: now}); err != nil {
+		t.Fatalf("reconcile: %v", err)
+	}
+	spend, _ := x.Spend(ctx, monthStart)
+	if spend.TotalCredits != 20 {
+		t.Errorf("spend total=%d, want 20 (10 reconciled + 10 still-pending reservation)", spend.TotalCredits)
+	}
+}
+
+func TestReconcileUnbilledDeletesReservation(t *testing.T) {
+	// An unbilled outcome (401/429/502/510 → cost 0) must delete the pending
+	// reservation so it does not permanently inflate spend.
+	x := newTestExtras(t)
+	ctx := context.Background()
+	now := time.Now()
+	monthStart := time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, time.UTC)
+
+	id, ok, _, _ := x.ReserveSpend(ctx, monthStart, 100, 10, "google", "a", "f", now)
+	if !ok {
+		t.Fatal("reserve should succeed under a 100 ceiling")
+	}
+	if err := x.ReconcileReservation(ctx, id, CallRecord{Kind: "google:search", Mode: "google", Cost: 0, CostSource: "unbilled", RemainingCredits: -1, OK: false, At: now}); err != nil {
+		t.Fatalf("reconcile: %v", err)
+	}
+	spend, _ := x.Spend(ctx, monthStart)
+	if spend.TotalCredits != 0 {
+		t.Errorf("spend total=%d, want 0 (unbilled reservation deleted)", spend.TotalCredits)
+	}
+}
+
+func TestCancelReservation(t *testing.T) {
+	x := newTestExtras(t)
+	ctx := context.Background()
+	now := time.Now()
+	monthStart := time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, time.UTC)
+	id, ok, _, _ := x.ReserveSpend(ctx, monthStart, 100, 10, "google", "a", "f", now)
+	if !ok {
+		t.Fatal("reserve should succeed")
+	}
+	if err := x.CancelReservation(ctx, id); err != nil {
+		t.Fatalf("cancel: %v", err)
+	}
+	spend, _ := x.Spend(ctx, monthStart)
+	if spend.TotalCredits != 0 {
+		t.Errorf("spend total=%d, want 0 after cancel", spend.TotalCredits)
+	}
+}

@@ -181,16 +181,20 @@ func (f *rootFlags) runGoverned(ctx context.Context, ext *store.ScrapeExtras, re
 
 	now := time.Now()
 
-	// Spend-ceiling guard: refuse to dispatch if the configured ceiling would
-	// be breached by this call's estimate.
-	if err := f.enforceSpendCeiling(ctx, ext, req, now); err != nil {
-		return nil, err
+	// Atomically reserve the estimated cost against the spend ceiling. The
+	// reservation is a pending ledger debit that concurrent batch workers
+	// serialize on, so the ceiling cannot be over-granted by N workers.
+	// reservationID == 0 means no ceiling is configured (no reservation needed).
+	reservationID, rerr := f.reserveSpend(ctx, ext, req, now)
+	if rerr != nil {
+		return nil, rerr
 	}
 
 	// Concurrency lease, capped at the plan's live ConcurrentRequest.
 	cap := f.concurrencyCap(ctx, ext, cfg)
 	leaseID, err := f.acquireLeaseBlocking(ctx, ext, req.agent, cap, now)
 	if err != nil {
+		_ = ext.CancelReservation(context.Background(), reservationID)
 		return nil, err
 	}
 	defer func() { _ = ext.ReleaseLease(context.Background(), leaseID) }()
@@ -220,9 +224,14 @@ func (f *rootFlags) runGoverned(ctx context.Context, ext *store.ScrapeExtras, re
 	if callErr != nil {
 		rec.Err = scrubToken(callErr.Error(), cfg.ScrapedoApiKey)
 	}
-	// Use a detached context so a billed call is still recorded even if the
-	// request context was cancelled (e.g. a batch interrupted mid-flight).
-	_ = ext.RecordCall(context.Background(), rec) // best-effort: never fail a scrape on ledger write
+	// Reconcile the reservation to the authoritative cost (or record fresh when
+	// no ceiling was configured). Detached context so a billed call is still
+	// recorded even if the request context was cancelled mid-flight.
+	if reservationID > 0 {
+		_ = ext.ReconcileReservation(context.Background(), reservationID, rec)
+	} else {
+		_ = ext.RecordCall(context.Background(), rec) // best-effort: never fail a scrape on ledger write
+	}
 
 	if callErr != nil {
 		return res, callErr
@@ -253,7 +262,9 @@ func (f *rootFlags) dispatch(ctx context.Context, cfg *config.Config, req scrape
 	for attempt := 1; attempt <= maxAttempts; attempt++ {
 		httpReq, err := http.NewRequestWithContext(ctx, http.MethodGet, full, nil)
 		if err != nil {
-			return nil, err
+			// A malformed base URL makes NewRequestWithContext fail with the
+			// full token-bearing URL in the message — scrub it too.
+			return nil, fmt.Errorf("%s", scrubToken(err.Error(), cfg.ScrapedoApiKey))
 		}
 		resp, err := client.Do(httpReq)
 		if err != nil {
@@ -352,28 +363,29 @@ func (f *rootFlags) acquireLeaseBlocking(ctx context.Context, ext *store.ScrapeE
 	}
 }
 
-// enforceSpendCeiling refuses a dispatch whose estimated cost would push spend
-// past a configured ceiling (per-call --max-credits or the saved budget).
-func (f *rootFlags) enforceSpendCeiling(ctx context.Context, ext *store.ScrapeExtras, req scrapeRequest, now time.Time) error {
+// reserveSpend resolves the effective ceiling (per-call --max-credits or the
+// saved budget) and atomically reserves the estimated cost. Returns the
+// reservation id (0 when no ceiling is configured) or a ceiling-reached error.
+// Fail-open on a ledger error: never block a scrape on a storage failure.
+func (f *rootFlags) reserveSpend(ctx context.Context, ext *store.ScrapeExtras, req scrapeRequest, now time.Time) (int64, error) {
 	ceiling := req.maxCredits
 	if ceiling <= 0 {
-		b, err := ext.GetBudget(ctx)
-		if err == nil && b.MaxCredits.Valid {
+		if b, err := ext.GetBudget(ctx); err == nil && b.MaxCredits.Valid {
 			ceiling = int(b.MaxCredits.Int64)
 		}
 	}
 	if ceiling <= 0 {
-		return nil
+		return 0, nil
 	}
 	monthStart := time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, time.UTC)
-	spend, err := ext.Spend(ctx, monthStart)
+	id, ok, total, err := ext.ReserveSpend(ctx, monthStart, ceiling, req.estCost, req.mode, req.agent, req.family, now)
 	if err != nil {
-		return nil // never block a scrape on a ledger read failure
+		return 0, nil
 	}
-	if spend.TotalCredits+req.estCost > ceiling {
-		return &cliError{code: 4, err: fmt.Errorf("spend ceiling reached: this call (~%d credits) would push month-to-date spend (%d) past the %d-credit ceiling", req.estCost, spend.TotalCredits, ceiling)}
+	if !ok {
+		return 0, &cliError{code: 4, err: fmt.Errorf("spend ceiling reached: this call (~%d credits) would push month-to-date spend (%d) past the %d-credit ceiling", req.estCost, total, ceiling)}
 	}
-	return nil
+	return id, nil
 }
 
 // fetchInfo calls the free /info endpoint and parses the account state.
@@ -385,7 +397,7 @@ func fetchInfo(ctx context.Context, cfg *config.Config, client *http.Client) (st
 	full := strings.TrimRight(cfg.BaseURL, "/") + "/info?token=" + url.QueryEscape(cfg.ScrapedoApiKey)
 	httpReq, err := http.NewRequestWithContext(ctx, http.MethodGet, full, nil)
 	if err != nil {
-		return u, err
+		return u, fmt.Errorf("%s", scrubToken(err.Error(), cfg.ScrapedoApiKey))
 	}
 	resp, err := client.Do(httpReq)
 	if err != nil {

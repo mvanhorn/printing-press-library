@@ -102,9 +102,6 @@ func (c *Config) AuthHeader() string {
 	if token == "" {
 		return ""
 	}
-	if c.ScrapedoApiKey == "" {
-		return ""
-	}
 	replacements := map[string]string{
 		"token":            token,
 		"api_key":          c.ScrapedoApiKey,
