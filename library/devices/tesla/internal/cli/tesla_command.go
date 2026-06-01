@@ -35,6 +35,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -533,24 +534,51 @@ func commandDispatchFleet(cmd *cobra.Command, flags *rootFlags, cfg *config.Conf
 		))
 	}
 
-	tokenFile, cleanup, terr := writeTokenFile(token)
-	if terr != nil {
-		return fmt.Errorf("write token file: %w", terr)
+	// dispatchOnce writes the bearer to a short-lived 0o600 token file, execs
+	// tesla-control, and removes the token file before returning. Factored so
+	// the reactive self-heal below can re-run with a freshly-minted token
+	// without leaking the first token file past its single use.
+	dispatchOnce := func(tok string) (string, string, error) {
+		tokenFile, cleanup, terr := writeTokenFile(tok)
+		if terr != nil {
+			return "", "", fmt.Errorf("write token file: %w", terr)
+		}
+		defer cleanup()
+
+		args := []string{
+			"-token-file", tokenFile,
+			"-key-file", keyPath,
+			"-vin", v.VIN,
+			name,
+		}
+		args = append(args, extra...)
+
+		ctx, cancel := context.WithTimeout(cmd.Context(), 60*time.Second)
+		defer cancel()
+		return runTeslaControlSubprocessFn(ctx, bin, args)
 	}
-	defer cleanup()
 
-	args := []string{
-		"-token-file", tokenFile,
-		"-key-file", keyPath,
-		"-vin", v.VIN,
-		name,
+	stdout, stderr, runErr := dispatchOnce(token)
+
+	// Reactive fleet-token self-heal: the proactive clock check above only
+	// fires when the stored token_expiry is already past. A sink reading a
+	// synced config can hold a token whose local expiry still reads "future"
+	// while Tesla rejects it (short token life + sync latency, clock skew, or
+	// an already-consumed token). When tesla-control surfaces an auth failure,
+	// re-mint the fleet token from the stored refresh token and retry exactly
+	// once. This mirrors the owner-API path's OnTokenExpired hook, adapted to
+	// the subprocess boundary the transport hook can't see. Bounded to one
+	// retry (no loop) and serialized so concurrent commands don't double-POST
+	// the token endpoint or tear config.toml.
+	if runErr != nil && isFleetAuthError(stdout, stderr, runErr) {
+		teslaFleetRefreshGuard.Lock()
+		newTok, rerr := tryRefreshFleetToken(cfg)
+		teslaFleetRefreshGuard.Unlock()
+		if rerr == nil && newTok != "" {
+			stdout, stderr, runErr = dispatchOnce(newTok)
+		}
 	}
-	args = append(args, extra...)
 
-	ctx, cancel := context.WithTimeout(cmd.Context(), 60*time.Second)
-	defer cancel()
-
-	stdout, stderr, runErr := runTeslaControlSubprocessFn(ctx, bin, args)
 	result := map[string]any{
 		"step":    "command",
 		"command": name,
@@ -653,6 +681,43 @@ func resolveFleetKeyPath(cfg *config.Config) (string, error) {
 		}
 	}
 	return "", fmt.Errorf("no Fleet signing key configured; set TESLA_FLEET_KEY_FILE or run `tesla auth fleet-template --gen-key` and store the path with `tesla auth fleet-register`")
+}
+
+// teslaFleetRefreshGuard serializes reactive fleet-token refreshes across
+// goroutines, mirroring teslaRefreshGuard for the owner-API path. Two commands
+// hitting a 401 at once would otherwise both POST /oauth2/v3/token and race the
+// config.toml write; tryRefreshFleetToken persists atomically, but serializing
+// avoids the duplicate grant entirely.
+var teslaFleetRefreshGuard sync.Mutex
+
+// isFleetAuthError reports whether a tesla-control result is an authentication
+// failure that a token refresh could plausibly fix. It is deliberately
+// conservative: a non-zero exit alone is not enough, and transport/vehicle-state
+// failures (timeout, sleeping car, offline) explicitly return false so a stale
+// token isn't blamed for a problem a fresh token won't solve.
+func isFleetAuthError(stdout, stderr string, err error) bool {
+	if err == nil {
+		return false
+	}
+	hay := strings.ToLower(stdout + "\n" + stderr + "\n" + err.Error())
+	for _, neg := range []string{
+		"deadline exceeded", "context canceled", "context cancelled",
+		"timeout", "timed out", "asleep", "offline", "unreachable",
+		"no route to host", "connection refused",
+	} {
+		if strings.Contains(hay, neg) {
+			return false
+		}
+	}
+	for _, pos := range []string{
+		"401", "unauthorized", "invalid_token", "invalid token",
+		"token expired", "expired token", "invalid bearer",
+	} {
+		if strings.Contains(hay, pos) {
+			return true
+		}
+	}
+	return false
 }
 
 // tryRefreshFleetToken attempts a silent refresh_token grant. Returns the new
