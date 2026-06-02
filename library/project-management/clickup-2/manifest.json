@@ -1,0 +1,47 @@
+{
+  "manifest_version": "0.3",
+  "name": "clickup-2-pp-mcp",
+  "display_name": "ClickUp",
+  "version": "4.20.0",
+  "description": "Every ClickUp endpoint, plus a local SQLite mirror with full-text search and cross-task analytics no other ClickUp CLI ships.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/clickup-2-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/clickup-2-pp-mcp",
+      "args": [],
+      "env": {
+        "CLICKUP_API_TOKEN": "${user_config.clickup_api_token}",
+        "CLICKUP_TOKEN": "${user_config.clickup_token}"
+      }
+    }
+  },
+  "user_config": {
+    "clickup_api_token": {
+      "type": "string",
+      "title": "CLICKUP_API_TOKEN",
+      "description": "Sets CLICKUP_API_TOKEN for the ClickUp MCP server. Get a credential from https://developer.clickup.com/docs/index.",
+      "sensitive": true,
+      "required": true
+    },
+    "clickup_token": {
+      "type": "string",
+      "title": "CLICKUP_TOKEN",
+      "description": "Sets CLICKUP_TOKEN for the ClickUp MCP server. Get a credential from https://developer.clickup.com/docs/index.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

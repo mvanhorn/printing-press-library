@@ -1,0 +1,274 @@
+{
+  "api_name": "clickup-2",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "blockful/clickup-cli",
+      "url": "https://github.com/blockful/clickup-cli",
+      "language": "Go",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 134,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "triptechtravel/clickup-cli",
+      "url": "https://github.com/triptechtravel/clickup-cli",
+      "language": "Go",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 40,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "taazkareem/clickup-mcp-server",
+      "url": "https://github.com/taazkareem/clickup-mcp-server",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 460,
+      "last_updated": "",
+      "command_count": 150,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "dang3r/clickupy",
+      "url": "https://github.com/dang3r/clickupy",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 20,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "hauptsacheNet/clickup-mcp",
+      "url": "https://github.com/hauptsacheNet/clickup-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 15,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-06-02T07:30:00Z",
+  "novel_features": [
+    {
+      "name": "Activity delta since last sync",
+      "command": "changed-since",
+      "description": "See exactly what moved on your tasks since the last sync: status changes, new or removed assignees, and due-date shifts, grouped by task.",
+      "rationale": "Requires diffing two synced task snapshots in the local store. No single ClickUp API call returns a cross-task change set.",
+      "example": "clickup-pp-cli changed-since last --agent",
+      "why_it_matters": "Reach for this at standup or after time off instead of scrolling each task's activity feed.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "My-day offline triage",
+      "command": "my-day",
+      "description": "Your open tasks across every list, sorted by due date with overdue and stuck flags, served entirely from the local store with no network.",
+      "rationale": "Spans all lists in one read against synced data; the API has no single 'everything assigned to me' endpoint and is online-only.",
+      "example": "clickup-pp-cli my-day --due 7d --agent",
+      "why_it_matters": "The first command of the morning; works on a plane.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Assignee workload balance",
+      "command": "workload",
+      "description": "Open-task count, summed time estimates, and active-timer status per team member across a space, so you can see who is overloaded before sprint planning.",
+      "rationale": "Local join of tasks, members, and time entries. ClickUp gates the equivalent workload view behind a paid Dashboard tier.",
+      "example": "clickup-pp-cli workload --space 90010 --agent",
+      "why_it_matters": "Answers 'who is overloaded' without a paid Dashboard or a manual CSV pivot.",
+      "group": "Analytics ClickUp charges for"
+    },
+    {
+      "name": "Time-in-status / cycle-time",
+      "command": "time-in-status",
+      "description": "How long tasks dwell in each status, per task or rolled up per list, computed from status-change history captured during sync.",
+      "rationale": "Needs a local status-change history table built at sync time; the live API exposes current status only.",
+      "example": "clickup-pp-cli time-in-status 90010 --rank --agent",
+      "why_it_matters": "Quantifies 'how long do tasks sit in review' that ClickUp only shows in paid Dashboards.",
+      "group": "Analytics ClickUp charges for"
+    },
+    {
+      "name": "Stale task detection",
+      "command": "stale",
+      "description": "Tasks with no update in N days, optionally filtered to a status like 'review', surfaced from the local store.",
+      "rationale": "Local time-window query over synced date_updated; no API filter returns a cross-list stale set.",
+      "example": "clickup-pp-cli stale --days 14 --status review --agent",
+      "why_it_matters": "Find forgotten work before it rots, in one command.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Dependency-aware ready set",
+      "command": "unblocked",
+      "description": "Tasks whose blockers are all closed (or, with 'blocked', the open blockers holding a task up), computed by joining tasks with their dependencies.",
+      "rationale": "Requires a local join across tasks, dependencies, and status that no single endpoint computes.",
+      "example": "clickup-pp-cli unblocked --list 90010 --agent",
+      "why_it_matters": "Tells an agent or a person exactly what is actually ready to work on right now.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Offline batch resolver",
+      "command": "resolve",
+      "description": "Turn fuzzy human input (status name, assignee 'me' or a name, natural-language due date) into hard ClickUp IDs as JSON, with zero API calls.",
+      "rationale": "Resolves against synced statuses and members plus a local date parser, so a 200-task triage does not become hundreds of lookup requests.",
+      "example": "clickup-pp-cli resolve --status review --assignee me --due 'tomorrow 5pm' --agent",
+      "why_it_matters": "Lets agents resolve names to IDs without burning rate-limit budget on every lookup.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Activity delta since last sync",
+      "command": "changed-since",
+      "description": "See exactly what moved on your tasks since the last sync: status changes, new or removed assignees, and due-date shifts, grouped by task.",
+      "rationale": "Requires diffing two synced task snapshots in the local store. No single ClickUp API call returns a cross-task change set.",
+      "example": "clickup-pp-cli changed-since last --agent",
+      "why_it_matters": "Reach for this at standup or after time off instead of scrolling each task's activity feed.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "My-day offline triage",
+      "command": "my-day",
+      "description": "Your open tasks across every list, sorted by due date with overdue and stuck flags, served entirely from the local store with no network.",
+      "rationale": "Spans all lists in one read against synced data; the API has no single 'everything assigned to me' endpoint and is online-only.",
+      "example": "clickup-pp-cli my-day --due 7d --agent",
+      "why_it_matters": "The first command of the morning; works on a plane.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Assignee workload balance",
+      "command": "workload",
+      "description": "Open-task count, summed time estimates, and active-timer status per team member across a space, so you can see who is overloaded before sprint planning.",
+      "rationale": "Local join of tasks, members, and time entries. ClickUp gates the equivalent workload view behind a paid Dashboard tier.",
+      "example": "clickup-pp-cli workload --space 90010 --agent",
+      "why_it_matters": "Answers 'who is overloaded' without a paid Dashboard or a manual CSV pivot.",
+      "group": "Analytics ClickUp charges for"
+    },
+    {
+      "name": "Time-in-status / cycle-time",
+      "command": "time-in-status",
+      "description": "How long tasks dwell in each status, per task or rolled up per list, computed from status-change history captured during sync.",
+      "rationale": "Needs a local status-change history table built at sync time; the live API exposes current status only.",
+      "example": "clickup-pp-cli time-in-status 90010 --rank --agent",
+      "why_it_matters": "Quantifies 'how long do tasks sit in review' that ClickUp only shows in paid Dashboards.",
+      "group": "Analytics ClickUp charges for"
+    },
+    {
+      "name": "Stale task detection",
+      "command": "stale",
+      "description": "Tasks with no update in N days, optionally filtered to a status like 'review', surfaced from the local store.",
+      "rationale": "Local time-window query over synced date_updated; no API filter returns a cross-list stale set.",
+      "example": "clickup-pp-cli stale --days 14 --status review --agent",
+      "why_it_matters": "Find forgotten work before it rots, in one command.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Dependency-aware ready set",
+      "command": "unblocked",
+      "description": "Tasks whose blockers are all closed (or, with 'blocked', the open blockers holding a task up), computed by joining tasks with their dependencies.",
+      "rationale": "Requires a local join across tasks, dependencies, and status that no single endpoint computes.",
+      "example": "clickup-pp-cli unblocked --list 90010 --agent",
+      "why_it_matters": "Tells an agent or a person exactly what is actually ready to work on right now.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Offline batch resolver",
+      "command": "resolve",
+      "description": "Turn fuzzy human input (status name, assignee 'me' or a name, natural-language due date) into hard ClickUp IDs as JSON, with zero API calls.",
+      "rationale": "Resolves against synced statuses and members plus a local date parser, so a 200-task triage does not become hundreds of lookup requests.",
+      "example": "clickup-pp-cli resolve --status review --assignee me --due 'tomorrow 5pm' --agent",
+      "why_it_matters": "Lets agents resolve names to IDs without burning rate-limit budget on every lookup.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "narrative": {
+    "display_name": "ClickUp",
+    "headline": "Every ClickUp endpoint plus a local SQLite mirror with offline full-text search and cross-task analytics no other ClickUp CLI ships.",
+    "value_prop": "clickup-pp-cli matches the full ClickUp v2 API surface (tasks, lists, time tracking, goals, custom fields, webhooks and more) and adds what every other ClickUp tool lacks: a local store you can search offline and query with SQL. That local layer powers commands the web app charges for or cannot do at all, like time-in-status cycle analytics, assignee workload, and a 'what changed since yesterday' activity delta.",
+    "auth_narrative": "Authenticate with a ClickUp personal API token (Settings > Apps > API Token, format pk_...). Set it once with `clickup-pp-cli auth set-token` or export CLICKUP_API_TOKEN. The token goes in the Authorization header with no Bearer prefix, matching ClickUp's scheme.",
+    "quickstart": [
+      {
+        "command": "clickup-pp-cli auth set-token pk_xxx",
+        "comment": "store your personal token so every command is authenticated"
+      },
+      {
+        "command": "clickup-pp-cli team",
+        "comment": "list your workspaces (teams) and note the id you want, the root of the hierarchy"
+      },
+      {
+        "command": "clickup-pp-cli sync",
+        "comment": "pull your workspaces and their tasks into the local SQLite store so offline and analytics commands work"
+      },
+      {
+        "command": "clickup-pp-cli my-day --due 7d",
+        "comment": "your open tasks across all lists, due in the next week, served offline"
+      },
+      {
+        "command": "clickup-pp-cli search \"migration rollback\"",
+        "comment": "full-text search across synced tasks and comments"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 / OAUTH_017 on every call",
+        "fix": "Run `clickup-pp-cli auth set-token pk_...` with a valid personal token, or check CLICKUP_API_TOKEN is exported. ClickUp personal tokens go in Authorization with no Bearer prefix."
+      },
+      {
+        "symptom": "Analytics commands (time-in-status, changed-since, workload) return empty",
+        "fix": "Run `clickup-pp-cli sync` first; these read the local store, not the live API."
+      },
+      {
+        "symptom": "429 rate limited",
+        "fix": "ClickUp allows 100 requests/minute per token. Sync backs off automatically; for ad-hoc loops add --limit or pause between calls."
+      }
+    ],
+    "when_to_use": "Use clickup-pp-cli when you manage ClickUp work from the terminal or from an agent and want more than a thin API mirror. It is the right choice when you need offline access to your tasks, full-text search across a synced workspace, or analytics like cycle time and workload that the ClickUp web app gates behind paid Dashboards. It is also the agent-friendly option: deterministic --json/--select output, --dry-run on mutations, and an offline resolver that turns fuzzy input into IDs without extra API calls.",
+    "recipes": [
+      {
+        "title": "Morning triage",
+        "command": "clickup-pp-cli my-day --due 3d --agent",
+        "explanation": "Everything assigned to you due in three days, JSON for piping, served from the local store."
+      },
+      {
+        "title": "Standup delta",
+        "command": "clickup-pp-cli changed-since last --agent",
+        "explanation": "What moved on your tasks since the last sync, grouped by changed field."
+      },
+      {
+        "title": "Find the stuck work",
+        "command": "clickup-pp-cli time-in-status 90010 --rank --agent",
+        "explanation": "Per-status dwell time for a list, ranked worst-first, to spot bottlenecks."
+      },
+      {
+        "title": "Narrow a verbose task payload",
+        "command": "clickup-pp-cli task get 86abc --agent --select name,status.status,assignees.username,due_date",
+        "explanation": "ClickUp task objects are tens of KB; dotted --select returns only the fields you need so agents do not burn context."
+      },
+      {
+        "title": "Resolve fuzzy input for an agent",
+        "command": "clickup-pp-cli resolve --status review --assignee me --due 'friday' --agent",
+        "explanation": "Turns names and natural-language dates into ClickUp IDs offline, zero API calls."
+      }
+    ],
+    "trigger_phrases": [
+      "what's assigned to me in clickup",
+      "what changed on my clickup tasks",
+      "how long are tasks stuck in review",
+      "search my clickup workspace",
+      "who's overloaded on the team",
+      "use clickup",
+      "run clickup"
+    ]
+  }
+}

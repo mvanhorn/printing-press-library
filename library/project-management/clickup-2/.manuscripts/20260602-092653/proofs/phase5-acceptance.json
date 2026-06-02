@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "clickup-2",
+  "run_id": "20260602-092653",
+  "status": "pass",
+  "level": "quick",
+  "matrix_size": 12,
+  "tests_passed": 12,
+  "tests_skipped": 15,
+  "auth_context": {
+    "type": "api_key"
+  }
+}

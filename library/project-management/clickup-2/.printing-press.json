@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-02T08:36:53.683716Z",
+  "printing_press_version": "4.20.0",
+  "api_name": "clickup-2",
+  "display_name": "ClickUp",
+  "cli_name": "clickup-2-pp-cli",
+  "creator": {
+    "handle": "riccardovandra",
+    "name": "riccardovandra"
+  },
+  "owner": "riccardovandra",
+  "printer": "riccardovandra",
+  "printer_name": "Riccardo Vandra",
+  "spec_path": "clickup-api-v2-reference.json",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:03e4c9bcfd3cc10f5ef155351ed9ba90a964db78ecee828e3176ed597df344c2",
+  "run_id": "20260602-092653",
+  "category": "project-management",
+  "description": "Every ClickUp endpoint, plus a local SQLite mirror with full-text search and cross-task analytics no other ClickUp CLI ships.",
+  "mcp_binary": "clickup-2-pp-mcp",
+  "mcp_tool_count": 137,
+  "mcp_public_tool_count": 1,
+  "mcp_ready": "full",
+  "api_version": "2.0",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "CLICKUP_API_TOKEN",
+    "CLICKUP_TOKEN"
+  ],
+  "auth_key_url": "https://developer.clickup.com/docs/index",
+  "novel_features": [
+    {
+      "name": "Activity delta since last sync",
+      "command": "changed-since",
+      "description": "See exactly what moved on your tasks since the last sync: status changes, new or removed assignees, and due-date shifts, grouped by task."
+    },
+    {
+      "name": "My-day offline triage",
+      "command": "my-day",
+      "description": "Your open tasks across every list, sorted by due date with overdue and stuck flags, served entirely from the local store with no network."
+    },
+    {
+      "name": "Assignee workload balance",
+      "command": "workload",
+      "description": "Open-task count, summed time estimates, and active-timer status per team member across a space, so you can see who is overloaded before sprint planning."
+    },
+    {
+      "name": "Time-in-status / cycle-time",
+      "command": "time-in-status",
+      "description": "How long tasks dwell in each status, per task or rolled up per list, computed from status-change history captured during sync."
+    },
+    {
+      "name": "Stale task detection",
+      "command": "stale",
+      "description": "Tasks with no update in N days, optionally filtered to a status like 'review', surfaced from the local store."
+    },
+    {
+      "name": "Dependency-aware ready set",
+      "command": "unblocked",
+      "description": "Tasks whose blockers are all closed (or, with 'blocked', the open blockers holding a task up), computed by joining tasks with their dependencies."
+    },
+    {
+      "name": "Offline batch resolver",
+      "command": "resolve",
+      "description": "Turn fuzzy human input (status name, assignee 'me' or a name, natural-language due date) into hard ClickUp IDs as JSON, with zero API calls."
+    }
+  ]
+}
