@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "novel-module",
+  "applied_at": "2026-06-02",
+  "base_run_id": "20260602-073610",
+  "base_printing_press_version": "4.20.1",
+  "summary": "Hand-authored `module` command (of/create-issue/sync) plus a withModuleEnrichment wrapper that auto-enriches issue module_ids at the tail of `sync`. Includes dogfood hardening: `module of` validates the issue UUID and ensures the junction table exists; `module sync` reports a zero-result no-op (exit 0) on an empty cache.",
+  "reason": "Plane's issue serializer never returns module membership and issueCreate has no module field, so a plain sync leaves module_ids null. The enrichment walks module-issues into a module_issues junction table and patches issues.data.module_ids; create-issue does create + add-to-module in one call. The UUID guard / table-ensure / empty-cache-no-op keep the stateful commands safe to invoke before any sync (and pass the Phase 5 live dogfood matrix).",
+  "files": ["internal/cli/modules_novel.go", "internal/cli/root.go"],
+  "validated_outcome": "Live dogfood matrix passes (251 pass / 0 fail). Module enrichment fires from the wrapped sync (PLANE_SLUG-sourced): module_membership_synced modules 17, links 384, issues_patched 383 against the baseline workspace; the junction table is created at runtime so no store.go schema patch is needed."
+}
