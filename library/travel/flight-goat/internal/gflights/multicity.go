@@ -98,9 +98,10 @@ func encodeTFSMultiCity(segments []Segment) []byte {
 
 func pbSegment(s Segment) []byte {
 	var b []byte
-	// field 2 (date): length-delim, exactly 10 chars
-	b = append(b, 0x12, byte(len(s.DepartureDate)))
-	b = append(b, []byte(s.DepartureDate)...)
+	// field 2 (date): length-delim string. Same shape as the other
+	// length-delimited fields in this file; using the helper rather than
+	// a raw 0x12 + byte-cast keeps the encoding style uniform.
+	b = append(b, pbLenDelimField(2, []byte(s.DepartureDate))...)
 	// field 13 (origin airport)
 	b = append(b, pbAirportBlock(13, strings.ToUpper(s.Origin))...)
 	// field 14 (destination airport)

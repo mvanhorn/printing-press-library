@@ -45,3 +45,16 @@ func TestParseMultiCitySegments_ShortCode(t *testing.T) {
 		t.Errorf("expected 3-letter error, got %v", err)
 	}
 }
+
+func TestParseMultiCitySegments_RejectsBadDateFormat(t *testing.T) {
+	// Regression: when --provider=kayak skips gflights.MultiCityBookingURL,
+	// the parser is the only date-format validator. A slash-separated date
+	// must produce a user-facing error rather than a misleading "Kayak
+	// changed shape" downstream failure.
+	for _, bad := range []string{"2026/08/15", "08-15-2026", "next-tuesday"} {
+		_, err := parseMultiCitySegments([]string{"SFO>NRT@" + bad})
+		if err == nil || !strings.Contains(err.Error(), "YYYY-MM-DD") {
+			t.Errorf("date %q: expected YYYY-MM-DD error, got %v", bad, err)
+		}
+	}
+}

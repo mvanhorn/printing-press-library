@@ -142,9 +142,10 @@ type SearchOptions struct {
 	LimitedResults bool                 // PATCH: when true, request the ~30 Google-curated set
 	// Segments triggers a multi-city search (Google Flights trip_type=3).
 	// Provide >= 2 entries; the existing Origin / Destination / DepartureDate
-	// / ReturnDate fields are bypassed when this is set. Multi-city queries
-	// require a session priming step (see flights_native.go) so the first
-	// multi-city search per process incurs an extra HTTP round trip.
+	// / ReturnDate fields are bypassed when this is set. For Google Flights
+	// the result is a URL-only deeplink (the shopping POST requires an
+	// authenticated session); see multicity.go and the CLI's --provider flag
+	// for the cross-provider dispatch.
 	Segments []Segment
 }
 

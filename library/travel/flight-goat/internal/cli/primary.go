@@ -395,6 +395,13 @@ func parseMultiCitySegments(in []string) ([]gflights.Segment, error) {
 		if len(origin) < 3 || len(destination) < 3 {
 			return nil, fmt.Errorf("--segment %d %q: origin and destination must be 3-letter IATA codes", i+1, raw)
 		}
+		// Validate date format here so the error message blames the user's
+		// input rather than a downstream Kayak/Google failure when the
+		// provider is Kayak-only (which skips gflights.MultiCityBookingURL,
+		// the other date validator).
+		if _, derr := time.Parse("2006-01-02", date); derr != nil {
+			return nil, fmt.Errorf("--segment %d %q: date must be YYYY-MM-DD (e.g. 2026-08-15), got %q", i+1, raw, date)
+		}
 		out = append(out, gflights.Segment{Origin: origin, Destination: destination, DepartureDate: date})
 	}
 	return out, nil

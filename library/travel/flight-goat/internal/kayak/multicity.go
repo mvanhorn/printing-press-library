@@ -341,7 +341,14 @@ func buildPollBody(opts MultiCityOptions, searchID string) []byte {
 			"searchTypes": []any{},
 		},
 	}
-	b, _ := json.Marshal(body)
+	b, err := json.Marshal(body)
+	if err != nil {
+		// Inputs are all basic types (string, int, map[string]any with the same).
+		// json.Marshal cannot fail on this shape; if it ever does, a future caller
+		// added an unserializable value — surface immediately rather than silently
+		// returning an empty body (which would land an opaque downstream HTTP error).
+		panic(fmt.Sprintf("buildPollBody: json.Marshal failed on basic-type payload: %v", err))
+	}
 	return b
 }
 
