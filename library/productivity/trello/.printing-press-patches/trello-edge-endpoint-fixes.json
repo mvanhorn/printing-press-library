@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "trello-edge-endpoint-fixes",
+  "applied_at": "2026-06-02",
+  "base_run_id": "20260602-124258",
+  "base_printing_press_version": "4.20.1",
+  "summary": "Add Trello dateLastActivity to stale field list; annotate batch/search happy-args; hide websocket-only sessions/socket route.",
+  "reason": "Framework stale ignored Trello's dateLastActivity; search required a spurious flag; sessions/socket is websocket-only and 404s over HTTP.",
+  "files": ["internal/cli/pm_stale.go", "internal/cli/search_resource_get-search.go", "internal/cli/search_resource_get-search-members.go", "internal/cli/sessions_get-socket.go"],
+  "validated_outcome": "stale finds 871 cards >365d; search works with just --query; sessions/socket hidden."
+}

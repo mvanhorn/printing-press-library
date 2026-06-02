@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "trello-sync-traversal",
+  "applied_at": "2026-06-02",
+  "base_run_id": "20260602-124258",
+  "base_printing_press_version": "4.20.1",
+  "summary": "Add trello-sync command that hydrates the local store via member->boards->cards/lists/members/actions/checklists.",
+  "reason": "Trello has no top-level bulk-list endpoint, so the generic sync pulled 0 records. The cross-board analytics need a populated store.",
+  "files": [
+    "internal/cli/trello_sync.go",
+    "internal/cli/root.go"
+  ],
+  "validated_outcome": "trello-sync mirrored all open boards, their cards, lists, members, and recent actions into local SQLite."
+}

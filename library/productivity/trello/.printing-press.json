@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-02T20:34:15.196415Z",
+  "printing_press_version": "4.20.1",
+  "api_name": "trello",
+  "display_name": "Trello",
+  "cli_name": "trello-pp-cli",
+  "creator": {
+    "handle": "techwithtam",
+    "name": "Tam Nguyen"
+  },
+  "owner": "techwithtam",
+  "printer": "techwithtam",
+  "printer_name": "Tam Nguyen",
+  "spec_path": "trello-swagger.yaml",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:39da49ac4d9eff8f4a6f989bb291c435c281bb3626f06c4af8770afba93ba732",
+  "run_id": "20260602-124258",
+  "category": "productivity",
+  "description": "Every Trello feature, plus a local SQLite mirror, offline search, and cross-board analytics no other Trello tool has.",
+  "mcp_binary": "trello-pp-mcp",
+  "mcp_tool_count": 324,
+  "mcp_ready": "full",
+  "api_version": "1.0",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "TRELLO_API_KEY"
+  ],
+  "novel_features": [
+    {
+      "name": "Overdue Sweep",
+      "command": "overdue",
+      "description": "Every past-due card across all your boards, ranked by lateness and owner."
+    },
+    {
+      "name": "Workload Balance",
+      "command": "workload",
+      "description": "Open and due-soon card load per member across every board."
+    },
+    {
+      "name": "Velocity",
+      "command": "velocity",
+      "description": "Cards completed per week over the last N weeks, per board or member, with trend."
+    },
+    {
+      "name": "Cycle Time",
+      "command": "cycletime",
+      "description": "How long cards take from started to done, with median and p90 per list or label."
+    },
+    {
+      "name": "Bottleneck",
+      "command": "bottleneck",
+      "description": "Which list is clogged now, by card count and how long cards have aged in place."
+    },
+    {
+      "name": "Checklist Completion",
+      "command": "checklist-progress",
+      "description": "Real card-level progress from checkitem completion across boards."
+    },
+    {
+      "name": "Blocked Scan",
+      "command": "blocked",
+      "description": "Cards flagged blocked by label, checkitem text, or comment, and how long they've sat."
+    },
+    {
+      "name": "Churn",
+      "command": "churn",
+      "description": "Cards that bounce backward between lists, revealing rework and unstable requirements."
+    }
+  ]
+}

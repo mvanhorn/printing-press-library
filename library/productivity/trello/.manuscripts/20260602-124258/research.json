@@ -1,0 +1,280 @@
+{
+  "api_name": "trello",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "EndlessHoper/trello-mcp",
+      "url": "https://github.com/EndlessHoper/trello-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 39,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "delorenj/mcp-server-trello",
+      "url": "https://github.com/delorenj/mcp-server-trello",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 25,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "mheap/trello-cli",
+      "url": "https://github.com/mheap/trello-cli",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 20,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "sarumont/py-trello",
+      "url": "https://github.com/sarumont/py-trello",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "kocakli/Trello-Desktop-MCP",
+      "url": "https://github.com/kocakli/trello-desktop-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 19,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-06-02T19:45:31Z",
+  "novel_features": [
+    {
+      "name": "Overdue Sweep",
+      "command": "overdue",
+      "description": "Every past-due card across all your boards, ranked by lateness and owner.",
+      "rationale": "Trello scopes due-date filters to one board; only a local join over cards gives a cross-board list.",
+      "example": "trello-pp-cli overdue --agent",
+      "why_it_matters": "Reach for this when you need the full blast radius of slipped work across everything, not one board's slice.",
+      "group": "Cross-board analytics"
+    },
+    {
+      "name": "Workload Balance",
+      "command": "workload",
+      "description": "Open and due-soon card load per member across every board.",
+      "rationale": "Requires aggregating per-assignee card counts across boards from the local store; no single call sums a member's org-wide load.",
+      "example": "trello-pp-cli workload --window 7d --agent",
+      "why_it_matters": "Reach for this before assigning new work, when 'who has capacity' can't come from one board.",
+      "group": "Cross-board analytics"
+    },
+    {
+      "name": "Velocity",
+      "command": "velocity",
+      "description": "Cards completed per week over the last N weeks, per board or member, with trend.",
+      "rationale": "Throughput is a time-bucketed count over the actions log joined to board/member; pure local time-series.",
+      "example": "trello-pp-cli velocity --weeks 8 --agent",
+      "why_it_matters": "Reach for this to sanity-check a deadline with real historical throughput.",
+      "group": "Cross-board analytics"
+    },
+    {
+      "name": "Cycle Time",
+      "command": "cycletime",
+      "description": "How long cards take from started to done, with median and p90 per list or label.",
+      "rationale": "Pairs each card's list-enter and list-exit actions and differences timestamps, then aggregates; no endpoint for it.",
+      "example": "trello-pp-cli cycletime --board Eng --agent",
+      "why_it_matters": "Reach for this to quantify where work stalls and set realistic SLAs.",
+      "group": "Flow diagnostics"
+    },
+    {
+      "name": "Bottleneck",
+      "command": "bottleneck",
+      "description": "Which list is clogged now, by card count and how long cards have aged in place.",
+      "rationale": "Joins current card-in-list state to the action that placed it; time-in-state is not a stored API field.",
+      "example": "trello-pp-cli bottleneck --board Eng --agent",
+      "why_it_matters": "Reach for this in standup to name the exact stage starving throughput.",
+      "group": "Flow diagnostics"
+    },
+    {
+      "name": "Checklist Completion",
+      "command": "checklist-progress",
+      "description": "Real card-level progress from checkitem completion across boards.",
+      "rationale": "Rolls up checkitems to checklists to cards across boards for true percent-complete the API never aggregates.",
+      "example": "trello-pp-cli checklist-progress --below 80 --agent",
+      "why_it_matters": "Reach for this to catch cards nearing a deadline with unchecked subtasks.",
+      "group": "Hidden-state analytics"
+    },
+    {
+      "name": "Blocked Scan",
+      "command": "blocked",
+      "description": "Cards flagged blocked by label, checkitem text, or comment, and how long they've sat.",
+      "rationale": "Cross-references labels, checkitem text, and comments against time-since-flagged; a multi-source join no endpoint exposes.",
+      "example": "trello-pp-cli blocked --over 3d --agent",
+      "why_it_matters": "Reach for this to assemble an unblock list scattered across labels, checklists, and comments.",
+      "group": "Hidden-state analytics"
+    },
+    {
+      "name": "Churn",
+      "command": "churn",
+      "description": "Cards that bounce backward between lists, revealing rework and unstable requirements.",
+      "rationale": "Detects non-forward list transitions by sequencing each card's move actions; impossible without full local action history.",
+      "example": "trello-pp-cli churn --weeks 4 --agent",
+      "why_it_matters": "Reach for this in a retro to find where work keeps getting kicked back.",
+      "group": "Flow diagnostics"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Overdue Sweep",
+      "command": "overdue",
+      "description": "Every past-due card across all your boards, ranked by lateness and owner.",
+      "rationale": "Trello scopes due-date filters to one board; only a local join over cards gives a cross-board list.",
+      "example": "trello-pp-cli overdue --agent",
+      "why_it_matters": "Reach for this when you need the full blast radius of slipped work across everything, not one board's slice.",
+      "group": "Cross-board analytics"
+    },
+    {
+      "name": "Workload Balance",
+      "command": "workload",
+      "description": "Open and due-soon card load per member across every board.",
+      "rationale": "Requires aggregating per-assignee card counts across boards from the local store; no single call sums a member's org-wide load.",
+      "example": "trello-pp-cli workload --window 7d --agent",
+      "why_it_matters": "Reach for this before assigning new work, when 'who has capacity' can't come from one board.",
+      "group": "Cross-board analytics"
+    },
+    {
+      "name": "Velocity",
+      "command": "velocity",
+      "description": "Cards completed per week over the last N weeks, per board or member, with trend.",
+      "rationale": "Throughput is a time-bucketed count over the actions log joined to board/member; pure local time-series.",
+      "example": "trello-pp-cli velocity --weeks 8 --agent",
+      "why_it_matters": "Reach for this to sanity-check a deadline with real historical throughput.",
+      "group": "Cross-board analytics"
+    },
+    {
+      "name": "Cycle Time",
+      "command": "cycletime",
+      "description": "How long cards take from started to done, with median and p90 per list or label.",
+      "rationale": "Pairs each card's list-enter and list-exit actions and differences timestamps, then aggregates; no endpoint for it.",
+      "example": "trello-pp-cli cycletime --board Eng --agent",
+      "why_it_matters": "Reach for this to quantify where work stalls and set realistic SLAs.",
+      "group": "Flow diagnostics"
+    },
+    {
+      "name": "Bottleneck",
+      "command": "bottleneck",
+      "description": "Which list is clogged now, by card count and how long cards have aged in place.",
+      "rationale": "Joins current card-in-list state to the action that placed it; time-in-state is not a stored API field.",
+      "example": "trello-pp-cli bottleneck --board Eng --agent",
+      "why_it_matters": "Reach for this in standup to name the exact stage starving throughput.",
+      "group": "Flow diagnostics"
+    },
+    {
+      "name": "Checklist Completion",
+      "command": "checklist-progress",
+      "description": "Real card-level progress from checkitem completion across boards.",
+      "rationale": "Rolls up checkitems to checklists to cards across boards for true percent-complete the API never aggregates.",
+      "example": "trello-pp-cli checklist-progress --below 80 --agent",
+      "why_it_matters": "Reach for this to catch cards nearing a deadline with unchecked subtasks.",
+      "group": "Hidden-state analytics"
+    },
+    {
+      "name": "Blocked Scan",
+      "command": "blocked",
+      "description": "Cards flagged blocked by label, checkitem text, or comment, and how long they've sat.",
+      "rationale": "Cross-references labels, checkitem text, and comments against time-since-flagged; a multi-source join no endpoint exposes.",
+      "example": "trello-pp-cli blocked --over 3d --agent",
+      "why_it_matters": "Reach for this to assemble an unblock list scattered across labels, checklists, and comments.",
+      "group": "Hidden-state analytics"
+    },
+    {
+      "name": "Churn",
+      "command": "churn",
+      "description": "Cards that bounce backward between lists, revealing rework and unstable requirements.",
+      "rationale": "Detects non-forward list transitions by sequencing each card's move actions; impossible without full local action history.",
+      "example": "trello-pp-cli churn --weeks 4 --agent",
+      "why_it_matters": "Reach for this in a retro to find where work keeps getting kicked back.",
+      "group": "Flow diagnostics"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "TRELLO_API_KEY"
+  },
+  "narrative": {
+    "display_name": "Trello",
+    "headline": "Every Trello feature, plus a local SQLite mirror, offline search, and cross-board analytics no other Trello tool has.",
+    "value_prop": "trello-pp-cli mirrors your boards, lists, cards, checklists, and activity into local SQLite, so you can grep, SQL-query, and run cross-board analytics offline. On top of full CRUD parity with every existing Trello CLI and MCP, it adds overdue sweeps, member workload balance, cycle time, bottleneck detection, and velocity trends that require a local join no single API call provides.",
+    "auth_narrative": "Trello auth is a key plus token pair passed as query params. Get both at https://trello.com/app-key. Set TRELLO_API_KEY and TRELLO_API_TOKEN, then run 'trello-pp-cli doctor' to verify.",
+    "quickstart": [
+      {
+        "command": "trello-pp-cli doctor --dry-run",
+        "comment": "verify the binary and config without needing auth"
+      },
+      {
+        "command": "trello-pp-cli sync",
+        "comment": "mirror your boards/lists/cards into local SQLite"
+      },
+      {
+        "command": "trello-pp-cli overdue --agent",
+        "comment": "see every overdue card across all boards at once"
+      },
+      {
+        "command": "trello-pp-cli search \"deploy\" --json",
+        "comment": "offline full-text search across all synced cards"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 invalid token",
+        "fix": "Regenerate your token at https://trello.com/app-key and re-export TRELLO_API_TOKEN."
+      },
+      {
+        "symptom": "empty results after sync",
+        "fix": "Run `trello-pp-cli sync --full` to force a full re-mirror."
+      }
+    ],
+    "when_to_use": "Use this CLI when an agent or user needs Trello data the UI can't surface in one query: overdue work across every board, who is overloaded, how long cards take, or offline search over the whole workspace. It is the right tool for status reports, sprint planning, and cleanup passes.",
+    "anti_triggers": [
+      "Do not use this CLI for real-time collaboration or notifications; use the Trello UI.",
+      "Do not use it to build in-board Power-Up widgets; that needs the Power-Up iframe API, not the REST CLI."
+    ],
+    "recipes": [
+      {
+        "title": "Morning triage",
+        "command": "trello-pp-cli overdue --agent --select cards.name,cards.due,cards.board",
+        "explanation": "Narrow the overdue sweep to just name, due date, and board for a quick agent-readable list."
+      },
+      {
+        "title": "Sprint capacity check",
+        "command": "trello-pp-cli workload --window 7d --agent",
+        "explanation": "See per-member load before assigning new cards."
+      },
+      {
+        "title": "Find the bottleneck",
+        "command": "trello-pp-cli bottleneck --board Eng --agent",
+        "explanation": "Name the clogged stage in one shot during standup."
+      }
+    ],
+    "trigger_phrases": [
+      "check my trello",
+      "what's overdue in trello",
+      "trello workload",
+      "sync my trello boards",
+      "use trello",
+      "run trello"
+    ]
+  }
+}

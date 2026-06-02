@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "trello-pp-cli"
+display_name = "Trello"
+description = "Every Trello feature, plus a local SQLite mirror, offline search, and cross-board analytics no other Trello tool has."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/trello-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+TRELLO_API_KEY = true

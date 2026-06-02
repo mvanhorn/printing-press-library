@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "trello-novel-analytics",
+  "applied_at": "2026-06-02",
+  "base_run_id": "20260602-124258",
+  "base_printing_press_version": "4.20.1",
+  "summary": "Hand-implement 8 novel cross-board analytics commands (overdue, workload, velocity, cycletime, bottleneck, blocked, churn, checklist-progress) plus shared helpers.",
+  "reason": "Generator scaffolds novel commands as TODO stubs; the analytics logic (SQLite joins, time-windowed aggregation over the activity log) is hand-written.",
+  "files": ["internal/cli/trello_analytics.go", "internal/cli/overdue.go", "internal/cli/workload.go", "internal/cli/velocity.go", "internal/cli/cycletime.go", "internal/cli/bottleneck.go", "internal/cli/blocked.go", "internal/cli/churn.go", "internal/cli/checklist_progress.go", "internal/cli/trello_analytics_test.go", "internal/cli/blocked_test.go"],
+  "validated_outcome": "All 8 commands verified against live account data (overdue 78, workload 3 members, etc.)."
+}
