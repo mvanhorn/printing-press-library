@@ -1,0 +1,19 @@
+{
+  "timestamp": "2026-06-02T08:17:51.854183Z",
+  "cli_dir": "\u003ccli-dir\u003e/email-bison-pp-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "version",
+      "file": "root.go",
+      "line": 329,
+      "evidence": "Print version",
+      "status": "accepted",
+      "note": "Standard 'version' command; 'Print version' is accurate and self-explanatory to agents without elaboration"
+    }
+  ],
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-06-02T08:13:29.665379Z"
+  }
+}

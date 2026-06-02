@@ -1,0 +1,3390 @@
+openapi: 3.1.0
+info:
+  title: Sybill API
+  version: 0.1.0-alpha
+  description: 'Programmatic access to your Sybill workspace — conversations, insights,
+    and AI-powered analysis.
+
+
+    **Alpha:** Endpoints, request/response schemas, rate limits, and behavior may
+    change at any time without prior notice.'
+  contact:
+    name: Sybill
+    url: https://www.sybill.ai
+paths:
+  /v1/health:
+    get:
+      summary: Health Check
+      operationId: health_check_v1_health_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+                title: Response Health Check V1 Health Get
+      security:
+      - HTTPBearer: []
+  /v1/conversations:
+    get:
+      summary: List Conversations
+      description: List conversations accessible to the API key's organization.
+      operationId: list_conversations_v1_conversations_get
+      security:
+      - HTTPBearer: []
+      parameters:
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 50
+          minimum: 1
+          description: Maximum number of results per page (1-50)
+          default: 20
+          title: Limit
+        description: Maximum number of results per page (1-50)
+      - name: startedAfter
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Lower bound for meeting start time (ISO 8601)
+          title: Startedafter
+        description: Lower bound for meeting start time (ISO 8601)
+      - name: startedBefore
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Upper bound for meeting start time (ISO 8601)
+          title: Startedbefore
+        description: Upper bound for meeting start time (ISO 8601)
+      - name: type
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter by meeting type (e.g. EXTERNAL, INTERNAL)
+          title: Type
+        description: Filter by meeting type (e.g. EXTERNAL, INTERNAL)
+      - name: title
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter by meeting title (case-insensitive partial match)
+          title: Title
+        description: Filter by meeting title (case-insensitive partial match)
+      - name: attendees
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: 'Filter by an attendee. Accepts three shapes: a participant
+            name fragment (e.g. `John`, case-insensitive partial match), a full participant
+            email (e.g. `alice@acme.com`, exact match), or a participant company domain
+            (e.g. `@acme.com` or `acme.com`, exact match against the email domain).'
+          title: Attendees
+        description: 'Filter by an attendee. Accepts three shapes: a participant name
+          fragment (e.g. `John`, case-insensitive partial match), a full participant
+          email (e.g. `alice@acme.com`, exact match), or a participant company domain
+          (e.g. `@acme.com` or `acme.com`, exact match against the email domain).'
+      - name: crmName
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter by associated CRM deal or account name (case-insensitive
+            exact-phrase match). Multi-word queries match the full phrase, not individual
+            tokens.
+          title: Crmname
+        description: Filter by associated CRM deal or account name (case-insensitive
+          exact-phrase match). Multi-word queries match the full phrase, not individual
+          tokens.
+      - name: sourceId
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter by conversation origin. Accepts a reserved native string
+            (e.g. `sybill`, `gong`, `chorus`, `fathom`, `grain`, `mindtickle`, `avoma`,
+            `fireflies`, `zoho_meetings`, `uploaded_call`, `uploaded_transcript`,
+            `sdk_upload`, `zoom_phone`, `outreach_dialer`), or a public-API ``IngestSource``
+            UUID to narrow to conversations ingested through that source. Omitted
+            means all origins.
+          title: Sourceid
+        description: Filter by conversation origin. Accepts a reserved native string
+          (e.g. `sybill`, `gong`, `chorus`, `fathom`, `grain`, `mindtickle`, `avoma`,
+          `fireflies`, `zoho_meetings`, `uploaded_call`, `uploaded_transcript`, `sdk_upload`,
+          `zoom_phone`, `outreach_dialer`), or a public-API ``IngestSource`` UUID
+          to narrow to conversations ingested through that source. Omitted means all
+          origins.
+      - name: cursor
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Opaque pagination cursor from a previous response
+          title: Cursor
+        description: Opaque pagination cursor from a previous response
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListConversationsResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      summary: Ingest Conversation
+      operationId: ingest_conversation_v1_conversations_post
+      security:
+      - HTTPBearer: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConversationRequest'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecordResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    delete:
+      summary: Delete Conversation Ingest
+      operationId: delete_conversation_ingest_v1_conversations_delete
+      security:
+      - HTTPBearer: []
+      parameters:
+      - name: remoteId
+        in: query
+        required: true
+        schema:
+          type: string
+          title: Remoteid
+      - name: sourceId
+        in: query
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Sourceid
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeletedRecordResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/conversations/{conversationId}:
+    get:
+      summary: Get Conversation
+      description: Get the detailed view for a single conversation.
+      operationId: get_conversation_v1_conversations__conversationId__get
+      security:
+      - HTTPBearer: []
+      parameters:
+      - name: conversationId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Conversationid
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConversationDetail'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/deals:
+    get:
+      summary: List Deals
+      description: List deals accessible to the API key's organization.
+      operationId: list_deals_v1_deals_get
+      security:
+      - HTTPBearer: []
+      parameters:
+      - name: name
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter deals by name (case-insensitive partial match)
+          title: Name
+        description: Filter deals by name (case-insensitive partial match)
+      - name: stage
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter by pipeline stage name (case-insensitive partial match)
+          title: Stage
+        description: Filter by pipeline stage name (case-insensitive partial match)
+      - name: closed
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: 'Filter by closed status: true for won/lost deals, false for
+            open'
+          title: Closed
+        description: 'Filter by closed status: true for won/lost deals, false for
+          open'
+      - name: owner
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter by deal owner name (case-insensitive partial match)
+          title: Owner
+        description: Filter by deal owner name (case-insensitive partial match)
+      - name: closeDateBefore
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Upper bound for close date (ISO 8601, e.g. 2025-06-30T00:00:00Z)
+          title: Closedatebefore
+        description: Upper bound for close date (ISO 8601, e.g. 2025-06-30T00:00:00Z)
+      - name: closeDateAfter
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Lower bound for close date (ISO 8601)
+          title: Closedateafter
+        description: Lower bound for close date (ISO 8601)
+      - name: amountMin
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Minimum deal amount
+          title: Amountmin
+        description: Minimum deal amount
+      - name: amountMax
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Maximum deal amount
+          title: Amountmax
+        description: Maximum deal amount
+      - name: lastActivityBefore
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Upper bound for last activity date (ISO 8601)
+          title: Lastactivitybefore
+        description: Upper bound for last activity date (ISO 8601)
+      - name: lastActivityAfter
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Lower bound for last activity date (ISO 8601)
+          title: Lastactivityafter
+        description: Lower bound for last activity date (ISO 8601)
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 50
+          minimum: 1
+          description: Maximum number of results per page (1-50)
+          default: 20
+          title: Limit
+        description: Maximum number of results per page (1-50)
+      - name: cursor
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Opaque pagination cursor from a previous response
+          title: Cursor
+        description: Opaque pagination cursor from a previous response
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListDealsResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/deals/{dealId}:
+    get:
+      summary: Get Deal
+      description: Get the detailed view for a single deal.
+      operationId: get_deal_v1_deals__dealId__get
+      security:
+      - HTTPBearer: []
+      parameters:
+      - name: dealId
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Dealid
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DealDetail'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/accounts:
+    get:
+      summary: List Accounts
+      description: List accounts accessible to the API key's organization.
+      operationId: list_accounts_v1_accounts_get
+      security:
+      - HTTPBearer: []
+      parameters:
+      - name: name
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter by account name (case-insensitive partial match)
+          title: Name
+        description: Filter by account name (case-insensitive partial match)
+      - name: website
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter by website URL (case-insensitive partial match)
+          title: Website
+        description: Filter by website URL (case-insensitive partial match)
+      - name: owner
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter by owner name or email (case-insensitive partial match)
+          title: Owner
+        description: Filter by owner name or email (case-insensitive partial match)
+      - name: createdBefore
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Upper bound for created date (ISO 8601, e.g. 2025-06-30T00:00:00Z)
+          title: Createdbefore
+        description: Upper bound for created date (ISO 8601, e.g. 2025-06-30T00:00:00Z)
+      - name: createdAfter
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Lower bound for created date (ISO 8601)
+          title: Createdafter
+        description: Lower bound for created date (ISO 8601)
+      - name: lastActivityBefore
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Upper bound for last activity date (ISO 8601)
+          title: Lastactivitybefore
+        description: Upper bound for last activity date (ISO 8601)
+      - name: lastActivityAfter
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Lower bound for last activity date (ISO 8601)
+          title: Lastactivityafter
+        description: Lower bound for last activity date (ISO 8601)
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 50
+          minimum: 1
+          description: Maximum number of results per page (1-50)
+          default: 20
+          title: Limit
+        description: Maximum number of results per page (1-50)
+      - name: cursor
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Opaque pagination cursor from a previous response
+          title: Cursor
+        description: Opaque pagination cursor from a previous response
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListAccountsResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/accounts/{accountId}:
+    get:
+      summary: Get Account
+      description: Get the detailed view for a single account.
+      operationId: get_account_v1_accounts__accountId__get
+      security:
+      - HTTPBearer: []
+      parameters:
+      - name: accountId
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Accountid
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountDetail'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/messages:
+    get:
+      summary: List Messages
+      operationId: list_messages_v1_messages_get
+      security:
+      - HTTPBearer: []
+      parameters:
+      - name: sourceId
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            maxLength: 255
+          - type: 'null'
+          title: Sourceid
+      - name: remoteId
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            maxLength: 512
+          - type: 'null'
+          title: Remoteid
+      - name: threadId
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            maxLength: 512
+          - type: 'null'
+          title: Threadid
+      - name: participantEmail
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            maxLength: 255
+          - type: 'null'
+          title: Participantemail
+      - name: createdAfter
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            maxLength: 64
+          - type: 'null'
+          title: Createdafter
+      - name: createdBefore
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            maxLength: 64
+          - type: 'null'
+          title: Createdbefore
+      - name: cursor
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            maxLength: 512
+          - type: 'null'
+          title: Cursor
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 50
+          minimum: 1
+          default: 50
+          title: Limit
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListMessagesResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      summary: Ingest Message
+      operationId: ingest_message_v1_messages_post
+      security:
+      - HTTPBearer: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MessageRequest'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecordResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    delete:
+      summary: Delete Message Ingest
+      operationId: delete_message_ingest_v1_messages_delete
+      security:
+      - HTTPBearer: []
+      parameters:
+      - name: remoteId
+        in: query
+        required: true
+        schema:
+          type: string
+          title: Remoteid
+      - name: sourceId
+        in: query
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Sourceid
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeletedRecordResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/messages/{messageId}:
+    get:
+      summary: Get Message
+      operationId: get_message_v1_messages__messageId__get
+      security:
+      - HTTPBearer: []
+      parameters:
+      - name: messageId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Messageid
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageDetail'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/rows:
+    post:
+      summary: Ingest Row
+      operationId: ingest_row_v1_rows_post
+      security:
+      - HTTPBearer: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RowRequest'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecordResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    patch:
+      summary: Update Row Ingest Route
+      operationId: update_row_ingest_route_v1_rows_patch
+      security:
+      - HTTPBearer: []
+      parameters:
+      - name: remoteId
+        in: query
+        required: true
+        schema:
+          type: string
+          title: Remoteid
+      - name: sourceId
+        in: query
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Sourceid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateRowRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecordResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    delete:
+      summary: Delete Row Ingest
+      operationId: delete_row_ingest_v1_rows_delete
+      security:
+      - HTTPBearer: []
+      parameters:
+      - name: remoteId
+        in: query
+        required: true
+        schema:
+          type: string
+          title: Remoteid
+      - name: sourceId
+        in: query
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Sourceid
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeletedRecordResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    get:
+      summary: List Rows
+      operationId: list_rows_v1_rows_get
+      security:
+      - HTTPBearer: []
+      parameters:
+      - name: sourceId
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Sourceid
+      - name: objectTypeId
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Objecttypeid
+      - name: remoteId
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Remoteid
+      - name: name
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            maxLength: 1000
+          - type: 'null'
+          title: Name
+      - name: createdAfter
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Createdafter
+      - name: createdBefore
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Createdbefore
+      - name: cursor
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            maxLength: 512
+          - type: 'null'
+          title: Cursor
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 50
+          minimum: 1
+          default: 50
+          title: Limit
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListRowsResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/rows/{rowId}:
+    get:
+      summary: Get Row
+      operationId: get_row_v1_rows__rowId__get
+      security:
+      - HTTPBearer: []
+      parameters:
+      - name: rowId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Rowid
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RowDetail'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/sources:
+    post:
+      summary: Create Source
+      operationId: create_source_v1_sources_post
+      security:
+      - HTTPBearer: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSourceRequest'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SourceResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    get:
+      summary: List Sources
+      operationId: list_sources_v1_sources_get
+      security:
+      - HTTPBearer: []
+      parameters:
+      - name: name
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            maxLength: 255
+          - type: 'null'
+          title: Name
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListSourcesResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/sources/{sourceId}:
+    get:
+      summary: Get Source
+      operationId: get_source_v1_sources__sourceId__get
+      security:
+      - HTTPBearer: []
+      parameters:
+      - name: sourceId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Sourceid
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SourceResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    patch:
+      summary: Update Source
+      operationId: update_source_v1_sources__sourceId__patch
+      security:
+      - HTTPBearer: []
+      parameters:
+      - name: sourceId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Sourceid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSourceRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SourceResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    delete:
+      summary: Delete Source
+      operationId: delete_source_v1_sources__sourceId__delete
+      security:
+      - HTTPBearer: []
+      parameters:
+      - name: sourceId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Sourceid
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeletedSourceResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/object-types:
+    post:
+      summary: Create Object Type
+      operationId: create_object_type_v1_object_types_post
+      security:
+      - HTTPBearer: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateObjectTypeRequest'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectTypeResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    get:
+      summary: List Object Types
+      operationId: list_object_types_v1_object_types_get
+      security:
+      - HTTPBearer: []
+      parameters:
+      - name: sourceId
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Sourceid
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListObjectTypesResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/object-types/{objectTypeId}:
+    get:
+      summary: Get Object Type
+      operationId: get_object_type_v1_object_types__objectTypeId__get
+      security:
+      - HTTPBearer: []
+      parameters:
+      - name: objectTypeId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Objecttypeid
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectTypeResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    patch:
+      summary: Update Object Type
+      operationId: update_object_type_v1_object_types__objectTypeId__patch
+      security:
+      - HTTPBearer: []
+      parameters:
+      - name: objectTypeId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Objecttypeid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateObjectTypeRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectTypeResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    delete:
+      summary: Delete Object Type
+      operationId: delete_object_type_v1_object_types__objectTypeId__delete
+      security:
+      - HTTPBearer: []
+      parameters:
+      - name: objectTypeId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Objecttypeid
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeletedObjectTypeResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/documents:
+    get:
+      summary: List Documents
+      operationId: list_documents_v1_documents_get
+      security:
+      - HTTPBearer: []
+      parameters:
+      - name: sourceId
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Sourceid
+      - name: name
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            maxLength: 255
+          - type: 'null'
+          title: Name
+      - name: cursor
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            maxLength: 512
+          - type: 'null'
+          title: Cursor
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 50
+          minimum: 1
+          default: 50
+          title: Limit
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListDocumentsResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      summary: Ingest Document
+      operationId: ingest_document_v1_documents_post
+      security:
+      - HTTPBearer: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DocumentRequest'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecordResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    patch:
+      summary: Update Document Ingest
+      operationId: update_document_ingest_v1_documents_patch
+      security:
+      - HTTPBearer: []
+      parameters:
+      - name: remoteId
+        in: query
+        required: true
+        schema:
+          type: string
+          title: Remoteid
+      - name: sourceId
+        in: query
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Sourceid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateDocumentRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecordResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    delete:
+      summary: Delete Document Ingest
+      operationId: delete_document_ingest_v1_documents_delete
+      security:
+      - HTTPBearer: []
+      parameters:
+      - name: remoteId
+        in: query
+        required: true
+        schema:
+          type: string
+          title: Remoteid
+      - name: sourceId
+        in: query
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Sourceid
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeletedRecordResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/documents/{documentId}:
+    get:
+      summary: Get Document
+      operationId: get_document_v1_documents__documentId__get
+      security:
+      - HTTPBearer: []
+      parameters:
+      - name: documentId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Documentid
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentDetail'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  schemas:
+    AccountContact:
+      properties:
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Email
+        title:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Title
+        phone:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Phone
+      type: object
+      title: AccountContact
+    AccountDetail:
+      properties:
+        accountId:
+          type: string
+          title: Accountid
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        website:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Website
+        owner:
+          anyOf:
+          - $ref: '#/components/schemas/AccountOwner'
+          - type: 'null'
+        createdDate:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Createddate
+        lastActivityDate:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Lastactivitydate
+        latestDeal:
+          anyOf:
+          - $ref: '#/components/schemas/LatestDeal'
+          - type: 'null'
+        contacts:
+          items:
+            $ref: '#/components/schemas/AccountContact'
+          type: array
+          title: Contacts
+        syncedCrmFields:
+          anyOf:
+          - additionalProperties:
+              anyOf:
+              - type: string
+              - type: integer
+              - type: number
+              - type: boolean
+              - items: {}
+                type: array
+              - additionalProperties: true
+                type: object
+              - type: 'null'
+            type: object
+          - type: 'null'
+          title: Syncedcrmfields
+      type: object
+      required:
+      - accountId
+      title: AccountDetail
+    AccountListItem:
+      properties:
+        accountId:
+          type: string
+          title: Accountid
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        website:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Website
+        owner:
+          anyOf:
+          - $ref: '#/components/schemas/AccountOwner'
+          - type: 'null'
+        createdDate:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Createddate
+        lastActivityDate:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Lastactivitydate
+        latestDeal:
+          anyOf:
+          - $ref: '#/components/schemas/LatestDeal'
+          - type: 'null'
+      type: object
+      required:
+      - accountId
+      title: AccountListItem
+    AccountOwner:
+      properties:
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Email
+      type: object
+      title: AccountOwner
+    Attachment:
+      properties:
+        version:
+          type: integer
+          title: Version
+          default: 1
+        name:
+          type: string
+          title: Name
+        url:
+          type: string
+          title: Url
+        mimeType:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Mimetype
+        sizeBytes:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Sizebytes
+      type: object
+      required:
+      - name
+      - url
+      title: Attachment
+    CRMInfo:
+      properties:
+        id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Id
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        type:
+          anyOf:
+          - $ref: '#/components/schemas/CRMObjectTypes'
+          - type: 'null'
+      type: object
+      title: CRMInfo
+    CRMObjectTypes:
+      type: string
+      enum:
+      - contact
+      - account
+      - opportunity
+      - lead
+      - owner
+      - activity
+      - task
+      title: CRMObjectTypes
+    ConversationDetail:
+      properties:
+        conversationId:
+          type: string
+          format: uuid
+          title: Conversationid
+        sourceId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Sourceid
+        title:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Title
+        startTime:
+          type: string
+          format: date-time
+          title: Starttime
+        endTime:
+          type: string
+          format: date-time
+          title: Endtime
+        type:
+          $ref: '#/components/schemas/MeetingTypes'
+        category:
+          anyOf:
+          - $ref: '#/components/schemas/ExternalCategory'
+          - $ref: '#/components/schemas/InternalCategory'
+          - type: 'null'
+          title: Category
+        participants:
+          items:
+            $ref: '#/components/schemas/Participant'
+          type: array
+          title: Participants
+        crm:
+          anyOf:
+          - $ref: '#/components/schemas/CRMInfo'
+          - type: 'null'
+        summary:
+          anyOf:
+          - additionalProperties:
+              anyOf:
+              - type: string
+              - type: integer
+              - type: number
+              - type: boolean
+              - items: {}
+                type: array
+              - additionalProperties: true
+                type: object
+            type: object
+          - type: 'null'
+          title: Summary
+        transcript:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/TranscriptEntry'
+            type: array
+          - type: 'null'
+          title: Transcript
+        recordings:
+          anyOf:
+          - $ref: '#/components/schemas/Recordings'
+          - type: 'null'
+      type: object
+      required:
+      - conversationId
+      - startTime
+      - endTime
+      - type
+      - participants
+      title: ConversationDetail
+    ConversationListItem:
+      properties:
+        conversationId:
+          type: string
+          format: uuid
+          title: Conversationid
+        sourceId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Sourceid
+        title:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Title
+        startTime:
+          type: string
+          format: date-time
+          title: Starttime
+        endTime:
+          type: string
+          format: date-time
+          title: Endtime
+        type:
+          $ref: '#/components/schemas/MeetingTypes'
+        participants:
+          items:
+            $ref: '#/components/schemas/Participant'
+          type: array
+          title: Participants
+        crm:
+          anyOf:
+          - $ref: '#/components/schemas/CRMInfo'
+          - type: 'null'
+      type: object
+      required:
+      - conversationId
+      - startTime
+      - endTime
+      - type
+      - participants
+      title: ConversationListItem
+    ConversationRequest:
+      properties:
+        version:
+          type: integer
+          title: Version
+          default: 1
+        id:
+          type: string
+          title: Id
+        sourceId:
+          type: string
+          format: uuid
+          title: Sourceid
+        displayName:
+          type: string
+          title: Displayname
+          default: ''
+        createdAt:
+          anyOf:
+          - type: string
+          - type: integer
+          - type: number
+          title: Createdat
+        updatedAt:
+          anyOf:
+          - type: string
+          - type: integer
+          - type: number
+          - type: 'null'
+          title: Updatedat
+        public:
+          type: boolean
+          title: Public
+          default: false
+        ownerEmails:
+          items:
+            type: string
+          type: array
+          title: Owneremails
+        transcript:
+          items:
+            $ref: '#/components/schemas/TranscriptSentence'
+          type: array
+          maxItems: 10000
+          title: Transcript
+        recordingUrl:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Recordingurl
+        recordingMimeType:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Recordingmimetype
+        startedAt:
+          anyOf:
+          - type: string
+          - type: integer
+          - type: number
+          title: Startedat
+        endedAt:
+          anyOf:
+          - type: string
+          - type: integer
+          - type: number
+          - type: 'null'
+          title: Endedat
+        participants:
+          items:
+            $ref: '#/components/schemas/Person'
+          type: array
+          maxItems: 1000
+          minItems: 1
+          title: Participants
+      type: object
+      required:
+      - id
+      - sourceId
+      - createdAt
+      - startedAt
+      - participants
+      title: ConversationRequest
+    CreateObjectTypeRequest:
+      properties:
+        version:
+          type: integer
+          title: Version
+          default: 1
+        sourceId:
+          type: string
+          format: uuid
+          title: Sourceid
+        name:
+          type: string
+          maxLength: 255
+          minLength: 1
+          title: Name
+        displayName:
+          type: string
+          maxLength: 255
+          minLength: 1
+          title: Displayname
+        fieldDefinitions:
+          items:
+            $ref: '#/components/schemas/FieldDefinitionRequest'
+          type: array
+          maxItems: 50
+          minItems: 1
+          title: Fielddefinitions
+      type: object
+      required:
+      - sourceId
+      - name
+      - displayName
+      - fieldDefinitions
+      title: CreateObjectTypeRequest
+    CreateSourceRequest:
+      properties:
+        version:
+          type: integer
+          title: Version
+          default: 1
+        name:
+          type: string
+          maxLength: 255
+          minLength: 1
+          title: Name
+        displayName:
+          type: string
+          maxLength: 255
+          minLength: 1
+          title: Displayname
+      type: object
+      required:
+      - name
+      - displayName
+      title: CreateSourceRequest
+    DealContact:
+      properties:
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Email
+        title:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Title
+        phone:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Phone
+      type: object
+      title: DealContact
+    DealDetail:
+      properties:
+        dealId:
+          type: string
+          title: Dealid
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        accountName:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Accountname
+        stage:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Stage
+        pipeline:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Pipeline
+        amount:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Amount
+        closeDate:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Closedate
+        closed:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Closed
+        createdDate:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Createddate
+        lastActivityDate:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Lastactivitydate
+        owner:
+          anyOf:
+          - $ref: '#/components/schemas/DealOwner'
+          - type: 'null'
+        summary:
+          anyOf:
+          - additionalProperties:
+              anyOf:
+              - type: string
+              - type: integer
+              - type: number
+              - type: boolean
+              - items: {}
+                type: array
+              - additionalProperties: true
+                type: object
+            type: object
+          - type: 'null'
+          title: Summary
+        crmAutofill:
+          anyOf:
+          - additionalProperties:
+              anyOf:
+              - type: string
+              - type: integer
+              - type: number
+              - type: boolean
+              - items: {}
+                type: array
+              - additionalProperties: true
+                type: object
+            type: object
+          - type: 'null'
+          title: Crmautofill
+        contacts:
+          items:
+            $ref: '#/components/schemas/DealContact'
+          type: array
+          title: Contacts
+      type: object
+      required:
+      - dealId
+      title: DealDetail
+    DealListItem:
+      properties:
+        dealId:
+          type: string
+          title: Dealid
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        accountName:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Accountname
+        stage:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Stage
+        pipeline:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Pipeline
+        amount:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Amount
+        closeDate:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Closedate
+        closed:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Closed
+        createdDate:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Createddate
+        lastActivityDate:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Lastactivitydate
+        owner:
+          anyOf:
+          - $ref: '#/components/schemas/DealOwner'
+          - type: 'null'
+      type: object
+      required:
+      - dealId
+      title: DealListItem
+    DealOwner:
+      properties:
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Email
+      type: object
+      title: DealOwner
+    DeletedObjectTypeResponse:
+      properties:
+        status:
+          type: string
+          title: Status
+        id:
+          type: string
+          title: Id
+      type: object
+      required:
+      - status
+      - id
+      title: DeletedObjectTypeResponse
+    DeletedRecordResponse:
+      properties:
+        status:
+          type: string
+          title: Status
+        recordId:
+          type: string
+          title: Recordid
+        id:
+          type: string
+          title: Id
+        sourceId:
+          type: string
+          title: Sourceid
+        deletedAt:
+          type: string
+          title: Deletedat
+      type: object
+      required:
+      - status
+      - recordId
+      - id
+      - sourceId
+      - deletedAt
+      title: DeletedRecordResponse
+    DeletedSourceResponse:
+      properties:
+        status:
+          type: string
+          title: Status
+        id:
+          type: string
+          title: Id
+      type: object
+      required:
+      - status
+      - id
+      title: DeletedSourceResponse
+    DocumentDetail:
+      properties:
+        id:
+          type: string
+          title: Id
+        displayName:
+          type: string
+          title: Displayname
+        sourceId:
+          type: string
+          title: Sourceid
+        remoteId:
+          type: string
+          title: Remoteid
+        url:
+          type: string
+          title: Url
+        contentType:
+          type: string
+          title: Contenttype
+        createdAt:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Createdat
+        updatedAt:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Updatedat
+        normalizedUrl:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Normalizedurl
+        normalizedContentType:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Normalizedcontenttype
+      type: object
+      required:
+      - id
+      - displayName
+      - sourceId
+      - remoteId
+      - url
+      - contentType
+      title: DocumentDetail
+      description: 'Full document view returned by ``GET /v1/documents/{documentId}``.
+
+
+        Inherits every ``DocumentListItem`` field and adds links to Sybill''s
+
+        processed text representation when available.'
+    DocumentListItem:
+      properties:
+        id:
+          type: string
+          title: Id
+        displayName:
+          type: string
+          title: Displayname
+        sourceId:
+          type: string
+          title: Sourceid
+        remoteId:
+          type: string
+          title: Remoteid
+        url:
+          type: string
+          title: Url
+        contentType:
+          type: string
+          title: Contenttype
+        createdAt:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Createdat
+        updatedAt:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Updatedat
+      type: object
+      required:
+      - id
+      - displayName
+      - sourceId
+      - remoteId
+      - url
+      - contentType
+      title: DocumentListItem
+      description: 'Trimmed document record returned by the list API.
+
+
+        ``source_id`` identifies where the document came from: either a source UUID
+
+        created through the public API, or a reserved Sybill origin string such as
+
+        ``"chat_upload"``. ``created_at`` and ``updated_at`` describe the source
+
+        record''s timestamps when available.'
+    DocumentRequest:
+      properties:
+        version:
+          type: integer
+          title: Version
+          default: 1
+        id:
+          type: string
+          title: Id
+        sourceId:
+          type: string
+          format: uuid
+          title: Sourceid
+        displayName:
+          type: string
+          title: Displayname
+          default: ''
+        createdAt:
+          anyOf:
+          - type: string
+          - type: integer
+          - type: number
+          - type: 'null'
+          title: Createdat
+        updatedAt:
+          anyOf:
+          - type: string
+          - type: integer
+          - type: number
+          - type: 'null'
+          title: Updatedat
+        public:
+          type: boolean
+          title: Public
+          default: false
+        ownerEmails:
+          items:
+            type: string
+          type: array
+          title: Owneremails
+        url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Url
+        content:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Content
+        filename:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Filename
+        contentType:
+          type: string
+          title: Contenttype
+          default: text/plain
+        author:
+          anyOf:
+          - $ref: '#/components/schemas/Person'
+          - type: 'null'
+      type: object
+      required:
+      - id
+      - sourceId
+      title: DocumentRequest
+    ExternalCategory:
+      type: string
+      enum:
+      - prospect_discovery
+      - prospect_demo
+      - prospect_trial
+      - prospect_negotiation
+      - closed_lost
+      - closed_won
+      - customer_onboarding
+      - customer_support
+      - customer_checkin
+      - customer_commercials
+      - interview
+      - user_research
+      - vendor_call
+      - investor_call
+      - advisor_call
+      - other
+      title: ExternalCategory
+    FieldDefinitionRequest:
+      properties:
+        version:
+          type: integer
+          title: Version
+          default: 1
+        name:
+          type: string
+          maxLength: 255
+          minLength: 1
+          title: Name
+        fieldType:
+          $ref: '#/components/schemas/FieldTypes'
+        label:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Label
+        required:
+          type: boolean
+          title: Required
+          default: false
+      type: object
+      required:
+      - name
+      - fieldType
+      title: FieldDefinitionRequest
+    FieldDefinitionResponse:
+      properties:
+        name:
+          type: string
+          title: Name
+        fieldType:
+          type: string
+          title: Fieldtype
+        label:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Label
+        required:
+          type: boolean
+          title: Required
+      type: object
+      required:
+      - name
+      - fieldType
+      - required
+      title: FieldDefinitionResponse
+    FieldTypes:
+      type: string
+      enum:
+      - textarea
+      - string
+      - boolean
+      - int
+      - double
+      - datetime
+      - date
+      - list
+      title: FieldTypes
+      description: Field value types accepted by row ingestion requests.
+    FieldValueResponse:
+      properties:
+        value:
+          title: Value
+        fieldType:
+          type: string
+          title: Fieldtype
+        label:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Label
+      type: object
+      required:
+      - value
+      - fieldType
+      title: FieldValueResponse
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    InternalCategory:
+      type: string
+      enum:
+      - one_on_one
+      - sales_team
+      - customer_team
+      - marketing_team
+      - product_team
+      - engineering_team
+      - hr_team
+      - operations_team
+      - finance_team
+      - investment_team
+      - company_wide
+      - other
+      title: InternalCategory
+    LatestDeal:
+      properties:
+        dealId:
+          type: string
+          title: Dealid
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        stage:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Stage
+        amount:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Amount
+        closeDate:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Closedate
+      type: object
+      required:
+      - dealId
+      title: LatestDeal
+    ListAccountsResponse:
+      properties:
+        accounts:
+          items:
+            $ref: '#/components/schemas/AccountListItem'
+          type: array
+          title: Accounts
+        pagination:
+          $ref: '#/components/schemas/PaginationInfo'
+      type: object
+      required:
+      - accounts
+      - pagination
+      title: ListAccountsResponse
+    ListConversationsResponse:
+      properties:
+        conversations:
+          items:
+            $ref: '#/components/schemas/ConversationListItem'
+          type: array
+          title: Conversations
+        pagination:
+          $ref: '#/components/schemas/PaginationInfo'
+      type: object
+      required:
+      - conversations
+      - pagination
+      title: ListConversationsResponse
+    ListDealsResponse:
+      properties:
+        deals:
+          items:
+            $ref: '#/components/schemas/DealListItem'
+          type: array
+          title: Deals
+        pagination:
+          $ref: '#/components/schemas/PaginationInfo'
+      type: object
+      required:
+      - deals
+      - pagination
+      title: ListDealsResponse
+    ListDocumentsResponse:
+      properties:
+        documents:
+          items:
+            $ref: '#/components/schemas/DocumentListItem'
+          type: array
+          title: Documents
+        pagination:
+          $ref: '#/components/schemas/PaginationInfo'
+      type: object
+      required:
+      - documents
+      - pagination
+      title: ListDocumentsResponse
+    ListMessagesResponse:
+      properties:
+        messages:
+          items:
+            $ref: '#/components/schemas/MessageListItem'
+          type: array
+          title: Messages
+        pagination:
+          $ref: '#/components/schemas/PaginationInfo'
+      type: object
+      required:
+      - messages
+      - pagination
+      title: ListMessagesResponse
+      description: Paginated list response. Cursor-based pagination.
+    ListObjectTypesResponse:
+      properties:
+        objectTypes:
+          items:
+            $ref: '#/components/schemas/ObjectTypeResponse'
+          type: array
+          title: Objecttypes
+      type: object
+      required:
+      - objectTypes
+      title: ListObjectTypesResponse
+    ListRowsResponse:
+      properties:
+        rows:
+          items:
+            $ref: '#/components/schemas/RowListItem'
+          type: array
+          title: Rows
+        pagination:
+          $ref: '#/components/schemas/PaginationInfo'
+      type: object
+      required:
+      - rows
+      - pagination
+      title: ListRowsResponse
+    ListSourcesResponse:
+      properties:
+        sources:
+          items:
+            $ref: '#/components/schemas/SourceResponse'
+          type: array
+          title: Sources
+      type: object
+      required:
+      - sources
+      title: ListSourcesResponse
+    MeetingTypes:
+      type: string
+      enum:
+      - INTERNAL
+      - EXTERNAL
+      title: MeetingTypes
+    MessageAttachmentInfo:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        filename:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Filename
+        contentType:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Contenttype
+        size:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Size
+      type: object
+      required:
+      - id
+      title: MessageAttachmentInfo
+      description: Trimmed attachment info exposed on the message detail endpoint.
+    MessageDetail:
+      properties:
+        messageId:
+          type: string
+          format: uuid
+          title: Messageid
+        sourceId:
+          type: string
+          title: Sourceid
+        remoteId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Remoteid
+        threadId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Threadid
+        subject:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Subject
+        sender:
+          anyOf:
+          - $ref: '#/components/schemas/MessageParty'
+          - type: 'null'
+        recipients:
+          items:
+            $ref: '#/components/schemas/MessageParty'
+          type: array
+          title: Recipients
+        bodyPreview:
+          type: string
+          title: Bodypreview
+        createdAt:
+          type: string
+          format: date-time
+          title: Createdat
+        body:
+          type: string
+          title: Body
+        attachments:
+          items:
+            $ref: '#/components/schemas/MessageAttachmentInfo'
+          type: array
+          title: Attachments
+      type: object
+      required:
+      - messageId
+      - sourceId
+      - remoteId
+      - threadId
+      - sender
+      - recipients
+      - bodyPreview
+      - createdAt
+      - body
+      title: MessageDetail
+      description: Full message returned by the per-id getter.
+    MessageListItem:
+      properties:
+        messageId:
+          type: string
+          format: uuid
+          title: Messageid
+        sourceId:
+          type: string
+          title: Sourceid
+        remoteId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Remoteid
+        threadId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Threadid
+        subject:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Subject
+        sender:
+          anyOf:
+          - $ref: '#/components/schemas/MessageParty'
+          - type: 'null'
+        recipients:
+          items:
+            $ref: '#/components/schemas/MessageParty'
+          type: array
+          title: Recipients
+        bodyPreview:
+          type: string
+          title: Bodypreview
+        createdAt:
+          type: string
+          format: date-time
+          title: Createdat
+      type: object
+      required:
+      - messageId
+      - sourceId
+      - remoteId
+      - threadId
+      - sender
+      - recipients
+      - bodyPreview
+      - createdAt
+      title: MessageListItem
+      description: 'Trimmed message returned by the list API.
+
+
+        ``source_id`` is polymorphic — either a UUID (for public-API ingested
+
+        messages) or a reserved native string (``gmail``, ``outlook``,
+
+        ``zoho_mail``, ``salesforce_crm``, ``hubspot_crm``, ``pipedrive_crm``,
+
+        ``dynamics_crm``, ``zoho_crm``).'
+    MessageParty:
+      properties:
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Email
+      type: object
+      title: MessageParty
+      description: A message participant — sender or one of the recipients.
+    MessageRequest:
+      properties:
+        version:
+          type: integer
+          title: Version
+          default: 1
+        id:
+          type: string
+          title: Id
+        sourceId:
+          type: string
+          format: uuid
+          title: Sourceid
+        displayName:
+          type: string
+          title: Displayname
+          default: ''
+        createdAt:
+          anyOf:
+          - type: string
+          - type: integer
+          - type: number
+          title: Createdat
+        updatedAt:
+          anyOf:
+          - type: string
+          - type: integer
+          - type: number
+          - type: 'null'
+          title: Updatedat
+        public:
+          type: boolean
+          title: Public
+          default: false
+        ownerEmails:
+          items:
+            type: string
+          type: array
+          title: Owneremails
+        body:
+          type: string
+          maxLength: 100000
+          title: Body
+        sender:
+          $ref: '#/components/schemas/Person'
+        recipients:
+          items:
+            $ref: '#/components/schemas/Person'
+          type: array
+          maxItems: 1000
+          minItems: 1
+          title: Recipients
+        attachments:
+          items:
+            $ref: '#/components/schemas/Attachment'
+          type: array
+          title: Attachments
+        threadId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Threadid
+      type: object
+      required:
+      - id
+      - sourceId
+      - createdAt
+      - body
+      - sender
+      - recipients
+      title: MessageRequest
+    ObjectTypeResponse:
+      properties:
+        id:
+          type: string
+          title: Id
+        sourceId:
+          type: string
+          title: Sourceid
+        name:
+          type: string
+          title: Name
+        displayName:
+          type: string
+          title: Displayname
+        fieldDefinitions:
+          items:
+            $ref: '#/components/schemas/FieldDefinitionResponse'
+          type: array
+          title: Fielddefinitions
+        createdAt:
+          type: string
+          title: Createdat
+        updatedAt:
+          type: string
+          title: Updatedat
+      type: object
+      required:
+      - id
+      - sourceId
+      - name
+      - displayName
+      - fieldDefinitions
+      - createdAt
+      - updatedAt
+      title: ObjectTypeResponse
+    PaginationInfo:
+      properties:
+        nextCursor:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Nextcursor
+        hasMore:
+          type: boolean
+          title: Hasmore
+          default: false
+      type: object
+      title: PaginationInfo
+      description: 'Cursor-based pagination metadata returned alongside list responses.
+
+
+        All public-API list endpoints emit the same shape: pass ``next_cursor``
+
+        back as the ``cursor`` query parameter to fetch the next page; check
+
+        ``has_more`` to know whether more pages exist.'
+    Participant:
+      properties:
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Email
+        attended:
+          type: boolean
+          title: Attended
+          default: true
+      type: object
+      title: Participant
+    Person:
+      properties:
+        version:
+          type: integer
+          title: Version
+          default: 1
+        id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Id
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Email
+      type: object
+      title: Person
+    RecordResponse:
+      properties:
+        status:
+          $ref: '#/components/schemas/RecordStatus'
+        recordId:
+          type: string
+          title: Recordid
+        id:
+          type: string
+          title: Id
+        sourceId:
+          type: string
+          title: Sourceid
+      type: object
+      required:
+      - status
+      - recordId
+      - id
+      - sourceId
+      title: RecordResponse
+    RecordStatus:
+      type: string
+      enum:
+      - created
+      - updated
+      title: RecordStatus
+    Recordings:
+      properties:
+        videoUrl:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Videourl
+        audioUrl:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Audiourl
+      type: object
+      title: Recordings
+    RowDetail:
+      properties:
+        rowId:
+          type: string
+          format: uuid
+          title: Rowid
+        sourceId:
+          type: string
+          title: Sourceid
+        objectTypeId:
+          type: string
+          format: uuid
+          title: Objecttypeid
+        objectTypeName:
+          type: string
+          title: Objecttypename
+        remoteId:
+          type: string
+          title: Remoteid
+        name:
+          type: string
+          title: Name
+        displayName:
+          type: string
+          title: Displayname
+        fields:
+          additionalProperties:
+            $ref: '#/components/schemas/FieldValueResponse'
+          type: object
+          title: Fields
+        createdAt:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Createdat
+        updatedAt:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Updatedat
+      type: object
+      required:
+      - rowId
+      - sourceId
+      - objectTypeId
+      - objectTypeName
+      - remoteId
+      - name
+      - displayName
+      title: RowDetail
+      description: Same shape as list - rows are simple enough that list ~= detail.
+    RowFieldValue:
+      properties:
+        version:
+          type: integer
+          title: Version
+          default: 1
+        value:
+          title: Value
+        fieldType:
+          $ref: '#/components/schemas/FieldTypes'
+        label:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Label
+      type: object
+      required:
+      - value
+      - fieldType
+      title: RowFieldValue
+    RowListItem:
+      properties:
+        rowId:
+          type: string
+          format: uuid
+          title: Rowid
+        sourceId:
+          type: string
+          title: Sourceid
+        objectTypeId:
+          type: string
+          format: uuid
+          title: Objecttypeid
+        objectTypeName:
+          type: string
+          title: Objecttypename
+        remoteId:
+          type: string
+          title: Remoteid
+        name:
+          type: string
+          title: Name
+        displayName:
+          type: string
+          title: Displayname
+        fields:
+          additionalProperties:
+            $ref: '#/components/schemas/FieldValueResponse'
+          type: object
+          title: Fields
+        createdAt:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Createdat
+        updatedAt:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Updatedat
+      type: object
+      required:
+      - rowId
+      - sourceId
+      - objectTypeId
+      - objectTypeName
+      - remoteId
+      - name
+      - displayName
+      title: RowListItem
+      description: 'Trimmed row record returned by the list API.
+
+
+        ``created_at`` / ``updated_at`` are the **caller-supplied** source-system
+
+        timestamps (the ``createdAt`` / ``updatedAt`` fields you set on
+
+        ``POST /v1/rows``). Sybill processing timestamps are not returned.'
+    RowRequest:
+      properties:
+        version:
+          type: integer
+          title: Version
+          default: 1
+        id:
+          type: string
+          title: Id
+        sourceId:
+          type: string
+          format: uuid
+          title: Sourceid
+        displayName:
+          type: string
+          title: Displayname
+          default: ''
+        createdAt:
+          anyOf:
+          - type: string
+          - type: integer
+          - type: number
+          - type: 'null'
+          title: Createdat
+        updatedAt:
+          anyOf:
+          - type: string
+          - type: integer
+          - type: number
+          - type: 'null'
+          title: Updatedat
+        public:
+          type: boolean
+          title: Public
+          default: false
+        ownerEmails:
+          items:
+            type: string
+          type: array
+          title: Owneremails
+        objectTypeId:
+          type: string
+          format: uuid
+          title: Objecttypeid
+        name:
+          type: string
+          maxLength: 1000
+          minLength: 1
+          title: Name
+        fields:
+          additionalProperties:
+            $ref: '#/components/schemas/RowFieldValue'
+          type: object
+          maxProperties: 50
+          minProperties: 1
+          title: Fields
+      type: object
+      required:
+      - id
+      - sourceId
+      - objectTypeId
+      - name
+      - fields
+      title: RowRequest
+    SourceResponse:
+      properties:
+        id:
+          type: string
+          title: Id
+        name:
+          type: string
+          title: Name
+        displayName:
+          type: string
+          title: Displayname
+        createdAt:
+          type: string
+          title: Createdat
+        updatedAt:
+          type: string
+          title: Updatedat
+      type: object
+      required:
+      - id
+      - name
+      - displayName
+      - createdAt
+      - updatedAt
+      title: SourceResponse
+    TranscriptEntry:
+      properties:
+        speaker:
+          type: string
+          title: Speaker
+        text:
+          type: string
+          title: Text
+        startTime:
+          type: number
+          title: Starttime
+        endTime:
+          type: number
+          title: Endtime
+      type: object
+      required:
+      - speaker
+      - text
+      - startTime
+      - endTime
+      title: TranscriptEntry
+    TranscriptSentence:
+      properties:
+        version:
+          type: integer
+          title: Version
+          default: 1
+        speakerId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Speakerid
+        speakerName:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Speakername
+        text:
+          type: string
+          title: Text
+        timestamp:
+          anyOf:
+          - type: string
+          - type: integer
+          - type: number
+          title: Timestamp
+      type: object
+      required:
+      - text
+      - timestamp
+      title: TranscriptSentence
+    UpdateDocumentRequest:
+      properties:
+        version:
+          type: integer
+          title: Version
+          default: 1
+        displayName:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Displayname
+        public:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Public
+        ownerEmails:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Owneremails
+        updatedAt:
+          anyOf:
+          - type: string
+          - type: integer
+          - type: number
+          - type: 'null'
+          title: Updatedat
+        url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Url
+        content:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Content
+        filename:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Filename
+        contentType:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Contenttype
+      type: object
+      title: UpdateDocumentRequest
+      description: 'Partial update for a document, identified by ``source_id`` and
+        ``remote_id``.
+
+
+        Source can be supplied as ``url`` OR ``content`` (base64), not both. A
+
+        PATCH with neither is a metadata-only update (display_name, owners, …).
+
+        A source change (different URL, or ``content`` supplied) creates a new
+
+        document version and reprocesses the document.
+
+
+        ``author`` is intentionally not updatable: it''s set at ingest time and
+
+        may be linked to a Sybill person. Callers that need to change the author
+
+        should delete and re-ingest.'
+    UpdateObjectTypeRequest:
+      properties:
+        version:
+          type: integer
+          title: Version
+          default: 1
+        displayName:
+          anyOf:
+          - type: string
+            maxLength: 255
+            minLength: 1
+          - type: 'null'
+          title: Displayname
+        fieldDefinitions:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/FieldDefinitionRequest'
+            type: array
+            maxItems: 50
+            minItems: 1
+          - type: 'null'
+          title: Fielddefinitions
+      type: object
+      title: UpdateObjectTypeRequest
+    UpdateRowRequest:
+      properties:
+        version:
+          type: integer
+          title: Version
+          default: 1
+        displayName:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Displayname
+        name:
+          anyOf:
+          - type: string
+            maxLength: 1000
+            minLength: 1
+          - type: 'null'
+          title: Name
+        public:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Public
+        ownerEmails:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Owneremails
+        updatedAt:
+          anyOf:
+          - type: string
+          - type: integer
+          - type: number
+          - type: 'null'
+          title: Updatedat
+        fields:
+          anyOf:
+          - additionalProperties:
+              anyOf:
+              - $ref: '#/components/schemas/RowFieldValue'
+              - type: 'null'
+            type: object
+          - type: 'null'
+          title: Fields
+      type: object
+      title: UpdateRowRequest
+      description: 'Partial update for a row, identified by ``source_id`` and ``remote_id``.
+
+
+        All top-level fields are optional; only fields set to a non-None value in
+
+        the request body are applied.
+
+
+        Top-level fields (``display_name``, ``name``, ``public``,
+
+        ``owner_emails``, ``updated_at``) are NOT nullable: an explicit JSON
+
+        ``null`` is treated as "field absent" and silently ignored by the
+
+        service. This matches the convention used by ``UpdateDocumentRequest``
+
+        and prevents callers from accidentally clearing values they meant to
+
+        leave unchanged. To unset a top-level field, callers should delete and
+
+        re-ingest the row.
+
+
+        The ``fields`` map (key-value row data) IS nullable per RFC 7396: keys
+
+        present in the request overwrite existing values, keys absent are
+
+        preserved, and an explicit ``None`` value deletes the key from the
+
+        row''s ``fields`` map. Unknown keys, type mismatches, and deleting a
+
+        required field are rejected.'
+    UpdateSourceRequest:
+      properties:
+        version:
+          type: integer
+          title: Version
+          default: 1
+        displayName:
+          type: string
+          maxLength: 255
+          minLength: 1
+          title: Displayname
+      type: object
+      required:
+      - displayName
+      title: UpdateSourceRequest
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+  securitySchemes:
+    HTTPBearer:
+      type: http
+      scheme: bearer
+      x-auth-env-vars:
+        - SYBILL_API_KEY
+servers:
+- url: https://api.sybill.ai
+  description: Production

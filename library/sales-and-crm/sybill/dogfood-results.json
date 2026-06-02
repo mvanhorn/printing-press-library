@@ -1,0 +1,128 @@
+{
+  "dir": "\u003ccli-dir\u003e/sybill-pp-cli",
+  "spec_path": "\u003ccli-dir\u003e/spec.yaml",
+  "spec_source": "bundled",
+  "verdict": "PASS",
+  "path_check": {
+    "tested": 2,
+    "valid": 2,
+    "valid_pct": 100
+  },
+  "auth_check": {
+    "spec_scheme": "bearer token format (expects \"Bearer \" prefix)",
+    "generated_format": "Bearer ",
+    "match": true,
+    "detail": "spec and generated client both use \"Bearer\""
+  },
+  "browser_session_check": {
+    "required": false,
+    "pass": true,
+    "detail": "browser-session auth not required"
+  },
+  "oauth_scope_coverage_check": {
+    "checked": 0,
+    "covered": 0,
+    "skipped": true,
+    "detail": "no OAuth-scoped endpoints in spec"
+  },
+  "dead_flags": {
+    "total": 21,
+    "dead": 0
+  },
+  "dead_functions": {
+    "total": 67,
+    "dead": 0
+  },
+  "pipeline_check": {
+    "sync_calls_domain": true,
+    "search_calls_domain": true,
+    "domain_tables": 1,
+    "sync_file_emitted": true,
+    "sync_resources_present": true,
+    "detail": "sync uses domain-specific Upsert methods; search uses domain-specific Search methods; 1 domain tables found"
+  },
+  "example_check": {
+    "tested": 10,
+    "with_examples": 10,
+    "valid_examples": 10,
+    "detail": "10/10 commands have examples"
+  },
+  "wiring_check": {
+    "command_tree": {
+      "defined": 75,
+      "registered": 75
+    },
+    "config_consistency": {
+      "consistent": true
+    },
+    "workflow_completeness": {
+      "skipped": true,
+      "total_steps": 0,
+      "mapped_steps": 0,
+      "detail": "no workflow_verify.yaml found"
+    }
+  },
+  "novel_features_check": {
+    "planned": 6,
+    "found": 6
+  },
+  "mcp_surface_parity": {
+    "state": "runtime_walking",
+    "pass": true,
+    "detail": "MCP surface mirrors the Cobra tree at runtime"
+  },
+  "reimplementation_check": {
+    "checked": 6,
+    "exempted_via_store": 6,
+    "missing_data_source_strategy": [
+      {
+        "command": "deals dark",
+        "file": "deals_dark.go",
+        "reason": "missing // pp:data-source \u003cauto|local|live\u003e annotation"
+      },
+      {
+        "command": "digest",
+        "file": "digest.go",
+        "reason": "missing // pp:data-source \u003cauto|local|live\u003e annotation"
+      },
+      {
+        "command": "crm-autofill",
+        "file": "crm_autofill.go",
+        "reason": "missing // pp:data-source \u003cauto|local|live\u003e annotation"
+      },
+      {
+        "command": "account rollup",
+        "file": "account_rollup.go",
+        "reason": "missing // pp:data-source \u003cauto|local|live\u003e annotation"
+      },
+      {
+        "command": "activity",
+        "file": "activity.go",
+        "reason": "missing // pp:data-source \u003cauto|local|live\u003e annotation"
+      },
+      {
+        "command": "patterns",
+        "file": "patterns.go",
+        "reason": "missing // pp:data-source \u003cauto|local|live\u003e annotation"
+      }
+    ]
+  },
+  "source_client_check": {
+    "checked": 0,
+    "skipped": true
+  },
+  "print_json_filtered_check": {
+    "checked": 67
+  },
+  "test_presence": {
+    "checked": 0
+  },
+  "naming_check": {
+    "checked": 67
+  },
+  "sync_param_drop_check": {
+    "checked": 0,
+    "skipped": true
+  },
+  "issues": null
+}

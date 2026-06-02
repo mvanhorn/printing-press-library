@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "email-bison-pp-cli"
+display_name = "Email Bison"
+description = "Every Email Bison campaign, lead, and reply on the command line, plus a local database and cross-entity analytics no other Email Bison tool has."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/email-bison-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+EMAIL_BISON_API_KEY = true

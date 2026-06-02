@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "email-bison-pp-mcp",
+  "display_name": "Email Bison",
+  "version": "4.20.0",
+  "description": "Every Email Bison campaign, lead, and reply on the command line, plus a local database and cross-entity analytics no other Email Bison tool has.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/email-bison-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/email-bison-pp-mcp",
+      "args": [],
+      "env": {
+        "EMAIL_BISON_API_KEY": "${user_config.email_bison_api_key}"
+      }
+    }
+  },
+  "user_config": {
+    "email_bison_api_key": {
+      "type": "string",
+      "title": "EMAIL_BISON_API_KEY",
+      "description": "Email Bison workspace api-user token from Settings -> Developer API.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

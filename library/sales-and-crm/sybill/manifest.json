@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "sybill-pp-mcp",
+  "display_name": "Sybill",
+  "version": "4.20.0",
+  "description": "The first CLI for Sybill: every conversation, deal, and account in your terminal, plus a local store that answers cross-entity questions the web UI can't.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/sybill-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/sybill-pp-mcp",
+      "args": [],
+      "env": {
+        "SYBILL_API_KEY": "${user_config.sybill_api_key}"
+      }
+    }
+  },
+  "user_config": {
+    "sybill_api_key": {
+      "type": "string",
+      "title": "SYBILL_API_KEY",
+      "description": "Sets SYBILL_API_KEY for the Sybill MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

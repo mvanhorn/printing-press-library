@@ -1,0 +1,51 @@
+version: 2
+project_name: sybill-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: sybill-pp-cli
+    main: ./cmd/sybill-pp-cli
+    binary: sybill-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/sales-and-crm/sybill/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: sybill-pp-mcp
+    main: ./cmd/sybill-pp-mcp
+    binary: sybill-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: sybill-pp-cli
+    repository:
+      owner: riccardovandra
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "The first CLI for Sybill: every conversation, deal, and account in your terminal"
+    install: |
+      bin.install "sybill-pp-cli"
+      bin.install "sybill-pp-mcp"

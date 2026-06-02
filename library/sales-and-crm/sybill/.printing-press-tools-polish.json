@@ -1,0 +1,19 @@
+{
+  "timestamp": "2026-06-02T08:06:50.377437Z",
+  "cli_dir": "\u003ccli-dir\u003e/sybill-pp-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "version",
+      "file": "root.go",
+      "line": 326,
+      "evidence": "Print version",
+      "status": "accepted",
+      "note": "Standard 'version' command printing name and version; agents understand this without elaboration and there are no parameters to document"
+    }
+  ],
+  "scorecard_before": {
+    "mcp_description_quality": 7,
+    "captured": "2026-06-02T08:01:58.249811Z"
+  }
+}

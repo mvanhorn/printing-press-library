@@ -1,0 +1,62 @@
+{
+  "api_name": "sybill",
+  "api_version": "0.1.0-alpha",
+  "auth_env_vars": [
+    "SYBILL_API_KEY"
+  ],
+  "auth_type": "bearer_token",
+  "category": "sales-and-crm",
+  "cli_name": "sybill-pp-cli",
+  "creator": {
+    "handle": "riccardovandra",
+    "name": "riccardovandra"
+  },
+  "description": "The first CLI for Sybill: every conversation, deal, and account in your terminal, plus a local store that answers cross-entity questions the web UI can't.",
+  "display_name": "Sybill",
+  "generated_at": "2026-06-02T08:07:46.829216Z",
+  "mcp_binary": "sybill-pp-mcp",
+  "mcp_ready": "full",
+  "mcp_tool_count": 33,
+  "novel_features": [
+    {
+      "name": "Deals gone dark",
+      "command": "deals dark",
+      "description": "List open deals with no call activity in the last N days, so nothing stalls silently."
+    },
+    {
+      "name": "Weekly call digest",
+      "command": "digest",
+      "description": "Pull every call in a window, grouped by deal, with next steps per deal (summaries appear when conversation detail is synced)."
+    },
+    {
+      "name": "CRM autofill pending diff",
+      "command": "crm-autofill",
+      "description": "Show the AI-suggested CRM field updates Sybill generated, as a reviewable field-by-field diff."
+    },
+    {
+      "name": "Account roll-up",
+      "command": "account rollup",
+      "description": "One offline view per account: call count, open deals by stage, contacts, and last activity."
+    },
+    {
+      "name": "Rep activity aggregation",
+      "command": "activity",
+      "description": "Per-rep breakdown: calls made, deals touched, and deals gone dark over a window."
+    },
+    {
+      "name": "Keyword / objection patterns",
+      "command": "patterns",
+      "description": "Count and locate transcript mentions of a term, grouped by deal and stage."
+    }
+  ],
+  "owner": "riccardovandra",
+  "printer": "riccardovandra",
+  "printer_name": "Riccardo Vandra",
+  "printing_press_version": "4.20.0",
+  "run_id": "20260602-092550",
+  "schema_version": 1,
+  "spec_checksum": "sha256:1ed49314d7c045481aeb8e1310ec6f2df59e0e35ac5c419de827dc61ad1747cb",
+  "spec_format": "openapi3",
+  "spec_path": "sybill-openapi.yaml",
+  "spec_url": "https://api.sybill.ai/docs/openapi.yaml"
+}

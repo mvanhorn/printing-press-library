@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "sybill-pp-cli"
+display_name = "Sybill"
+description = "The first CLI for Sybill: every conversation, deal, and account in your terminal, plus a local store that answers cross-entity questions the web UI can't."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/sybill-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+SYBILL_API_KEY = true

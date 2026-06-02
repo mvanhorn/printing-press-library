@@ -1,0 +1,7 @@
+{
+  "descriptions": {
+    "health_check": "Check whether the Sybill API is reachable and responding. Takes no parameters. Returns a status object. Use this as a connectivity probe before running other commands, or to diagnose auth and reachability issues.",
+    "rows_get": "Fetch a single CRM row (a synced record such as a deal, contact, or account) by its id. Required: rowId (path). Returns the RowDetail with rowId, sourceId, objectTypeId, objectTypeName, remoteId, name, displayName, the row's fields map, and createdAt/updatedAt timestamps. Use this when you already have a rowId; use a list/search command to discover row ids first.",
+    "sources_get": "Fetch a single data source (a connected integration that feeds rows into Sybill) by its id. Required: sourceId (path). Returns the SourceResponse with id, name, displayName, and createdAt/updatedAt timestamps. Use this to resolve a sourceId returned by rows_get into a human-readable source name."
+  }
+}

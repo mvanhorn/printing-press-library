@@ -1,0 +1,1203 @@
+{
+  "api_name": "email-bison",
+  "base_url": "https://dedi.emailbison.com",
+  "description": "Every Email Bison campaign, lead, and reply on the command line, plus a local database and cross-entity analytics no other Email Bison tool has.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "EMAIL_BISON_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "EMAIL_BISON_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "description": "Email Bison workspace api-user token from Settings -\u003e Developer API."
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "campaigns_create",
+      "description": "Create a campaign. Returns the new campaign ID. Required: name.",
+      "method": "POST",
+      "path": "/api/campaigns",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name of the campaign.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "campaigns_delete-sequence-step",
+      "description": "Delete a sequence step. Required: id. Destructive.",
+      "method": "DELETE",
+      "path": "/api/campaigns/sequence-steps/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Sequence step ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "campaigns_get",
+      "description": "Get a campaign and its settings. Required: id.",
+      "method": "GET",
+      "path": "/api/campaigns/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Campaign ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "campaigns_list",
+      "description": "List campaigns in the workspace. Optional: search, page (default: 1), pagination_type (default: page) (plus 1 more).",
+      "method": "GET",
+      "path": "/api/campaigns",
+      "params": [
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Free-text search filter."
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number for page-based pagination (capped at 1000 pages)."
+        },
+        {
+          "name": "pagination_type",
+          "type": "string",
+          "location": "query",
+          "description": "Use cursor for large datasets."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Opaque cursor from meta.next_cursor when pagination_type=cursor."
+        }
+      ]
+    },
+    {
+      "name": "campaigns_list-schedule-templates",
+      "description": "List saved schedule templates.",
+      "method": "GET",
+      "path": "/api/campaigns/schedule/templates",
+      "params": []
+    },
+    {
+      "name": "campaigns_send-test-sequence-step",
+      "description": "Send a test email for a sequence step. Required: id.",
+      "method": "POST",
+      "path": "/api/campaigns/sequence-steps/{id}/send-test",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Sequence step ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "campaigns_attach-sender-emails_attach_sender_emails",
+      "description": "Attach sender emails to a campaign. Required: id, sender_email_ids.",
+      "method": "POST",
+      "path": "/api/campaigns/{id}/attach-sender-emails",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Campaign ID.",
+          "required": true
+        },
+        {
+          "name": "sender_email_ids",
+          "type": "array",
+          "location": "body",
+          "description": "Sender email IDs to attach.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "campaigns_create-schedule-from-template_apply-schedule-template",
+      "description": "Apply a saved schedule template to a campaign. Required: id, schedule_id.",
+      "method": "POST",
+      "path": "/api/campaigns/{id}/create-schedule-from-template",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Campaign ID.",
+          "required": true
+        },
+        {
+          "name": "schedule_id",
+          "type": "int",
+          "location": "body",
+          "description": "ID of the schedule template to apply.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "campaigns_leads_attach",
+      "description": "Attach leads to a campaign by ID. Required: id, lead_ids.",
+      "method": "POST",
+      "path": "/api/campaigns/{id}/leads/attach-leads",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Campaign ID.",
+          "required": true
+        },
+        {
+          "name": "lead_ids",
+          "type": "array",
+          "location": "body",
+          "description": "Lead IDs to attach.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "campaigns_leads_attach-list",
+      "description": "Attach an existing lead list to a campaign. Required: id, lead_list_id.",
+      "method": "POST",
+      "path": "/api/campaigns/{id}/leads/attach-lead-list",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Campaign ID.",
+          "required": true
+        },
+        {
+          "name": "lead_list_id",
+          "type": "int",
+          "location": "body",
+          "description": "Lead list ID to attach.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "campaigns_pause_campaign",
+      "description": "Pause a campaign. Required: id. Partial update.",
+      "method": "PATCH",
+      "path": "/api/campaigns/{id}/pause",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Campaign ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "campaigns_remove-sender-emails_remove_sender_emails",
+      "description": "Remove sender emails from a campaign. Required: id, sender_email_ids.",
+      "method": "POST",
+      "path": "/api/campaigns/{id}/remove-sender-emails",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Campaign ID.",
+          "required": true
+        },
+        {
+          "name": "sender_email_ids",
+          "type": "array",
+          "location": "body",
+          "description": "Sender email IDs to remove.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "campaigns_resume_campaign",
+      "description": "Resume (launch) a campaign. Required: id. Partial update.",
+      "method": "PATCH",
+      "path": "/api/campaigns/{id}/resume",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Campaign ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "campaigns_schedule_create-campaign",
+      "description": "Create a sending schedule for a campaign. Required: id, end_time, friday, monday, saturday, save_as_template, start_time, sunday, thursday, timezone, tuesday, wednesday.",
+      "method": "POST",
+      "path": "/api/campaigns/{id}/schedule",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Campaign ID.",
+          "required": true
+        },
+        {
+          "name": "end_time",
+          "type": "string",
+          "location": "body",
+          "description": "End time HH:MM, e.g. 17:00.",
+          "required": true
+        },
+        {
+          "name": "friday",
+          "type": "bool",
+          "location": "body",
+          "description": "Friday",
+          "required": true
+        },
+        {
+          "name": "monday",
+          "type": "bool",
+          "location": "body",
+          "description": "Monday",
+          "required": true
+        },
+        {
+          "name": "saturday",
+          "type": "bool",
+          "location": "body",
+          "description": "Saturday",
+          "required": true
+        },
+        {
+          "name": "save_as_template",
+          "type": "bool",
+          "location": "body",
+          "description": "Save this schedule as a reusable template.",
+          "required": true
+        },
+        {
+          "name": "start_time",
+          "type": "string",
+          "location": "body",
+          "description": "Start time HH:MM, e.g. 09:00.",
+          "required": true
+        },
+        {
+          "name": "sunday",
+          "type": "bool",
+          "location": "body",
+          "description": "Sunday",
+          "required": true
+        },
+        {
+          "name": "thursday",
+          "type": "bool",
+          "location": "body",
+          "description": "Thursday",
+          "required": true
+        },
+        {
+          "name": "timezone",
+          "type": "string",
+          "location": "body",
+          "description": "IANA timezone, e.g. America/New_York.",
+          "required": true
+        },
+        {
+          "name": "tuesday",
+          "type": "bool",
+          "location": "body",
+          "description": "Tuesday",
+          "required": true
+        },
+        {
+          "name": "wednesday",
+          "type": "bool",
+          "location": "body",
+          "description": "Wednesday",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "campaigns_schedule_get-campaign",
+      "description": "Get a campaign's schedule. Required: id.",
+      "method": "GET",
+      "path": "/api/campaigns/{id}/schedule",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Campaign ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "campaigns_sequence-steps_create",
+      "description": "Create the email sequence for a campaign. Required: id, sequence_steps, title.",
+      "method": "POST",
+      "path": "/api/campaigns/{id}/sequence-steps",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Campaign ID.",
+          "required": true
+        },
+        {
+          "name": "sequence_steps",
+          "type": "array",
+          "location": "body",
+          "description": "Ordered email steps. Use {VARIABLE} merge tags that exist as custom variables.",
+          "required": true
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "Title of the sequence.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "campaigns_sequence-steps_list",
+      "description": "List a campaign's sequence steps. Required: id.",
+      "method": "GET",
+      "path": "/api/campaigns/{id}/sequence-steps",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Campaign ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "campaigns_update_campaign-settings",
+      "description": "Update a campaign's sending settings. Required: id. Optional: can_unsubscribe, max_emails_per_day, max_new_leads_per_day (plus 4 more). Partial update.",
+      "method": "PATCH",
+      "path": "/api/campaigns/{id}/update",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Campaign ID.",
+          "required": true
+        },
+        {
+          "name": "can_unsubscribe",
+          "type": "bool",
+          "location": "body",
+          "description": "Allow one-click unsubscribe."
+        },
+        {
+          "name": "max_emails_per_day",
+          "type": "int",
+          "location": "body",
+          "description": "Max emails sent per day."
+        },
+        {
+          "name": "max_new_leads_per_day",
+          "type": "int",
+          "location": "body",
+          "description": "Max new leads added per day."
+        },
+        {
+          "name": "open_tracking",
+          "type": "bool",
+          "location": "body",
+          "description": "Enable open tracking."
+        },
+        {
+          "name": "plain_text",
+          "type": "bool",
+          "location": "body",
+          "description": "Send plain-text email content."
+        },
+        {
+          "name": "reputation_building",
+          "type": "bool",
+          "location": "body",
+          "description": "Enable spam-protection reputation building."
+        },
+        {
+          "name": "unsubscribe_text",
+          "type": "string",
+          "location": "body",
+          "description": "Text shown in the unsubscribe link."
+        }
+      ]
+    },
+    {
+      "name": "custom-variables_create",
+      "description": "Create a custom variable. Required: name.",
+      "method": "POST",
+      "path": "/api/custom-variables",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "custom-variables_list",
+      "description": "List custom variables in the workspace.",
+      "method": "GET",
+      "path": "/api/custom-variables",
+      "params": []
+    },
+    {
+      "name": "leads_create",
+      "description": "Create a single lead. Required: email, first_name, last_name. Optional: company, custom_variables, notes (plus 1 more).",
+      "method": "POST",
+      "path": "/api/leads",
+      "params": [
+        {
+          "name": "company",
+          "type": "string",
+          "location": "body",
+          "description": "Company"
+        },
+        {
+          "name": "custom_variables",
+          "type": "array",
+          "location": "body",
+          "description": "Custom variables"
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body",
+          "description": "Email",
+          "required": true
+        },
+        {
+          "name": "first_name",
+          "type": "string",
+          "location": "body",
+          "description": "First name",
+          "required": true
+        },
+        {
+          "name": "last_name",
+          "type": "string",
+          "location": "body",
+          "description": "Last name",
+          "required": true
+        },
+        {
+          "name": "notes",
+          "type": "string",
+          "location": "body",
+          "description": "Notes"
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "Title"
+        }
+      ]
+    },
+    {
+      "name": "leads_list",
+      "description": "List leads (contacts) in the workspace. Optional: search, page (default: 1), pagination_type (default: page) (plus 1 more).",
+      "method": "GET",
+      "path": "/api/leads",
+      "params": [
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Free-text search filter."
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number for page-based pagination (capped at 1000 pages)."
+        },
+        {
+          "name": "pagination_type",
+          "type": "string",
+          "location": "query",
+          "description": "Use cursor for large datasets."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Opaque cursor from meta.next_cursor when pagination_type=cursor."
+        }
+      ]
+    },
+    {
+      "name": "leads_update",
+      "description": "Update a lead and its custom variables. Required: id. Optional: company, custom_variables, email (plus 4 more).",
+      "method": "PUT",
+      "path": "/api/leads/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Lead ID.",
+          "required": true
+        },
+        {
+          "name": "company",
+          "type": "string",
+          "location": "body",
+          "description": "Company"
+        },
+        {
+          "name": "custom_variables",
+          "type": "array",
+          "location": "body",
+          "description": "Custom variables"
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body",
+          "description": "Email"
+        },
+        {
+          "name": "first_name",
+          "type": "string",
+          "location": "body",
+          "description": "First name"
+        },
+        {
+          "name": "last_name",
+          "type": "string",
+          "location": "body",
+          "description": "Last name"
+        },
+        {
+          "name": "notes",
+          "type": "string",
+          "location": "body",
+          "description": "Notes"
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "Title"
+        }
+      ]
+    },
+    {
+      "name": "leads_replies_get-lead",
+      "description": "Get replies for a lead. Required: lead_id. Optional: search, status, folder (plus 3 more).",
+      "method": "GET",
+      "path": "/api/leads/{lead_id}/replies",
+      "params": [
+        {
+          "name": "lead_id",
+          "type": "string",
+          "location": "path",
+          "description": "Lead ID or email.",
+          "required": true
+        },
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Free-text search filter."
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "query",
+          "description": "Status"
+        },
+        {
+          "name": "folder",
+          "type": "string",
+          "location": "query",
+          "description": "Folder"
+        },
+        {
+          "name": "read",
+          "type": "bool",
+          "location": "query",
+          "description": "Read"
+        },
+        {
+          "name": "campaign_id",
+          "type": "int",
+          "location": "query",
+          "description": "Campaign id"
+        },
+        {
+          "name": "sender_email_id",
+          "type": "int",
+          "location": "query",
+          "description": "Sender email id"
+        }
+      ]
+    },
+    {
+      "name": "leads_sent-emails_get-lead",
+      "description": "Get campaign emails sent to a lead. Required: lead_id.",
+      "method": "GET",
+      "path": "/api/leads/{lead_id}/sent-emails",
+      "params": [
+        {
+          "name": "lead_id",
+          "type": "string",
+          "location": "path",
+          "description": "Lead ID or email.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "replies_list",
+      "description": "List replies in the master inbox. Optional: search, status, folder (plus 6 more).",
+      "method": "GET",
+      "path": "/api/replies",
+      "params": [
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Free-text search filter."
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "query",
+          "description": "Status"
+        },
+        {
+          "name": "folder",
+          "type": "string",
+          "location": "query",
+          "description": "Folder"
+        },
+        {
+          "name": "read",
+          "type": "bool",
+          "location": "query",
+          "description": "Read"
+        },
+        {
+          "name": "campaign_id",
+          "type": "int",
+          "location": "query",
+          "description": "Campaign id"
+        },
+        {
+          "name": "sender_email_id",
+          "type": "int",
+          "location": "query",
+          "description": "Sender email id"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number for page-based pagination (capped at 1000 pages)."
+        },
+        {
+          "name": "pagination_type",
+          "type": "string",
+          "location": "query",
+          "description": "Use cursor for large datasets."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Opaque cursor from meta.next_cursor when pagination_type=cursor."
+        }
+      ]
+    },
+    {
+      "name": "replies_attach-email-to-reply_attach_email_to_reply",
+      "description": "Attach a scheduled email to an untracked reply. Required: id, scheduled_email_id.",
+      "method": "POST",
+      "path": "/api/replies/{id}/attach-email-to-reply",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Reply ID.",
+          "required": true
+        },
+        {
+          "name": "scheduled_email_id",
+          "type": "int",
+          "location": "body",
+          "description": "Scheduled email ID to attach.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "replies_followup-campaign_push-reply-to-followup",
+      "description": "Push a reply's lead into a follow-up campaign. Required: id. Optional: campaign_id.",
+      "method": "POST",
+      "path": "/api/replies/{id}/followup-campaign/push",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Reply ID.",
+          "required": true
+        },
+        {
+          "name": "campaign_id",
+          "type": "int",
+          "location": "body",
+          "description": "Target follow-up campaign ID."
+        }
+      ]
+    },
+    {
+      "name": "replies_mark-as-interested_mark-reply-interested",
+      "description": "Mark a reply as interested. Required: id. Partial update.",
+      "method": "PATCH",
+      "path": "/api/replies/{id}/mark-as-interested",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Reply ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "replies_reply_to-message",
+      "description": "Reply to a message in-thread. Required: id, message, sender_email_id, to_emails. Optional: bcc_emails, cc_emails, content_type (plus 1 more).",
+      "method": "POST",
+      "path": "/api/replies/{id}/reply",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Parent reply ID.",
+          "required": true
+        },
+        {
+          "name": "bcc_emails",
+          "type": "array",
+          "location": "body",
+          "description": "Bcc emails"
+        },
+        {
+          "name": "cc_emails",
+          "type": "array",
+          "location": "body",
+          "description": "Cc emails"
+        },
+        {
+          "name": "content_type",
+          "type": "string",
+          "location": "body",
+          "description": "Content type"
+        },
+        {
+          "name": "inject_previous_email_body",
+          "type": "bool",
+          "location": "body",
+          "description": "Inject previous email body"
+        },
+        {
+          "name": "message",
+          "type": "string",
+          "location": "body",
+          "description": "Body of the reply.",
+          "required": true
+        },
+        {
+          "name": "sender_email_id",
+          "type": "int",
+          "location": "body",
+          "description": "Sender email to send from.",
+          "required": true
+        },
+        {
+          "name": "to_emails",
+          "type": "array",
+          "location": "body",
+          "description": "To emails",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "scheduled-emails_get",
+      "description": "Get scheduled emails for a lead. Required: lead_id_or_email.",
+      "method": "GET",
+      "path": "/api/scheduled-emails/{lead_id_or_email}",
+      "params": [
+        {
+          "name": "lead_id_or_email",
+          "type": "string",
+          "location": "path",
+          "description": "Lead ID or email.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sender-emails_list",
+      "description": "List connected sender email accounts. Optional: search, page (default: 1), pagination_type (default: page) (plus 1 more).",
+      "method": "GET",
+      "path": "/api/sender-emails",
+      "params": [
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Free-text search filter."
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number for page-based pagination (capped at 1000 pages)."
+        },
+        {
+          "name": "pagination_type",
+          "type": "string",
+          "location": "query",
+          "description": "Use cursor for large datasets."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Opaque cursor from meta.next_cursor when pagination_type=cursor."
+        }
+      ]
+    },
+    {
+      "name": "sender-emails_update",
+      "description": "Update a sender email account's settings. Required: id. Optional: daily_limit, signature. Partial update.",
+      "method": "PATCH",
+      "path": "/api/sender-emails/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Sender email ID.",
+          "required": true
+        },
+        {
+          "name": "daily_limit",
+          "type": "int",
+          "location": "body",
+          "description": "Max emails per day for this sender."
+        },
+        {
+          "name": "signature",
+          "type": "string",
+          "location": "body",
+          "description": "Signature"
+        }
+      ]
+    },
+    {
+      "name": "tags_attach-to-campaigns",
+      "description": "Attach tags to campaigns. Required: campaign_ids, tag_ids.",
+      "method": "POST",
+      "path": "/api/tags/attach-to-campaigns",
+      "params": [
+        {
+          "name": "campaign_ids",
+          "type": "array",
+          "location": "body",
+          "description": "Campaign ids",
+          "required": true
+        },
+        {
+          "name": "tag_ids",
+          "type": "array",
+          "location": "body",
+          "description": "Tag ids",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tags_attach-to-leads",
+      "description": "Attach tags to leads. Required: lead_ids, tag_ids.",
+      "method": "POST",
+      "path": "/api/tags/attach-to-leads",
+      "params": [
+        {
+          "name": "lead_ids",
+          "type": "array",
+          "location": "body",
+          "description": "Lead ids",
+          "required": true
+        },
+        {
+          "name": "tag_ids",
+          "type": "array",
+          "location": "body",
+          "description": "Tag ids",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tags_attach-to-sender-emails",
+      "description": "Attach tags to sender emails. Required: sender_email_ids, tag_ids.",
+      "method": "POST",
+      "path": "/api/tags/attach-to-sender-emails",
+      "params": [
+        {
+          "name": "sender_email_ids",
+          "type": "array",
+          "location": "body",
+          "description": "Sender email ids",
+          "required": true
+        },
+        {
+          "name": "tag_ids",
+          "type": "array",
+          "location": "body",
+          "description": "Tag ids",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tags_create",
+      "description": "Create a custom tag. Required: name. Optional: default.",
+      "method": "POST",
+      "path": "/api/tags",
+      "params": [
+        {
+          "name": "default",
+          "type": "bool",
+          "location": "body",
+          "description": "Deprecated. Whether this is a default tag."
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tags_delete",
+      "description": "Delete a custom tag. Required: id. Destructive.",
+      "method": "DELETE",
+      "path": "/api/tags/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Tag ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tags_list",
+      "description": "List custom tags.",
+      "method": "GET",
+      "path": "/api/tags",
+      "params": []
+    },
+    {
+      "name": "tags_remove-from-campaigns",
+      "description": "Remove tags from campaigns. Required: campaign_ids, tag_ids. Destructive.",
+      "method": "DELETE",
+      "path": "/api/tags/attach-to-campaigns",
+      "params": [
+        {
+          "name": "campaign_ids",
+          "type": "array",
+          "location": "body",
+          "description": "Campaign ids",
+          "required": true
+        },
+        {
+          "name": "tag_ids",
+          "type": "array",
+          "location": "body",
+          "description": "Tag ids",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tags_remove-from-leads",
+      "description": "Remove tags from leads. Required: lead_ids, tag_ids. Destructive.",
+      "method": "DELETE",
+      "path": "/api/tags/attach-to-leads",
+      "params": [
+        {
+          "name": "lead_ids",
+          "type": "array",
+          "location": "body",
+          "description": "Lead ids",
+          "required": true
+        },
+        {
+          "name": "tag_ids",
+          "type": "array",
+          "location": "body",
+          "description": "Tag ids",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tags_remove-from-sender-emails",
+      "description": "Remove tags from sender emails. Required: sender_email_ids, tag_ids. Destructive.",
+      "method": "DELETE",
+      "path": "/api/tags/attach-to-sender-emails",
+      "params": [
+        {
+          "name": "sender_email_ids",
+          "type": "array",
+          "location": "body",
+          "description": "Sender email ids",
+          "required": true
+        },
+        {
+          "name": "tag_ids",
+          "type": "array",
+          "location": "body",
+          "description": "Tag ids",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "users_list",
+      "description": "List users in the current workspace (also validates the token).",
+      "method": "GET",
+      "path": "/api/users",
+      "params": []
+    },
+    {
+      "name": "webhook-events_send-test",
+      "description": "Send a test webhook event. Optional: event.",
+      "method": "POST",
+      "path": "/api/webhook-events/test-event",
+      "params": [
+        {
+          "name": "event",
+          "type": "string",
+          "location": "body",
+          "description": "Event name to test."
+        }
+      ]
+    },
+    {
+      "name": "webhooks_create",
+      "description": "Create a webhook subscription. Required: url. Optional: events.",
+      "method": "POST",
+      "path": "/api/webhooks",
+      "params": [
+        {
+          "name": "events",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Event names to subscribe to."
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "body",
+          "description": "Destination URL for webhook events.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "workspaces_create-token",
+      "description": "Create an api-user token for a workspace (requires a super-admin token). Required: workspace_id, name.",
+      "method": "POST",
+      "path": "/api/workspaces/v1.1/{workspace_id}/api-tokens",
+      "params": [
+        {
+          "name": "workspace_id",
+          "type": "int",
+          "location": "path",
+          "description": "Workspace ID.",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name for the new API token.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "workspaces_list",
+      "description": "List workspaces (requires a super-admin token).",
+      "method": "GET",
+      "path": "/api/workspaces/v1.1/workspaces",
+      "params": []
+    }
+  ]
+}

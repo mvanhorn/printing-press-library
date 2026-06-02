@@ -1,0 +1,200 @@
+{
+  "api_name": "sybill",
+  "novelty_score": 0,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-06-02T09:30:00Z",
+  "novel_features": [
+    {
+      "name": "Deals gone dark",
+      "command": "deals dark",
+      "description": "List open deals with no call activity in the last N days, so nothing stalls silently.",
+      "rationale": "Requires joining deals to their most recent conversation in the local store; the entity-by-entity API exposes no such cross-entity query.",
+      "example": "sybill-pp-cli deals dark --days 14 --agent",
+      "why_it_matters": "Reach for this when an agent needs the re-engagement list: which open opportunities have gone quiet.",
+      "group": "Cross-entity pipeline intelligence"
+    },
+    {
+      "name": "Weekly call digest",
+      "command": "digest",
+      "description": "Pull every call in a window, grouped by deal, with next steps per deal (summaries appear when conversation detail is synced).",
+      "rationale": "Groups cached conversations by linked deal locally; the web UI is one call at a time and the API has no grouped view.",
+      "example": "sybill-pp-cli digest --since 7d --agent",
+      "why_it_matters": "Use this to generate a Monday pipeline review without clicking through every call.",
+      "group": "Cross-entity pipeline intelligence"
+    },
+    {
+      "name": "CRM autofill pending diff",
+      "command": "crm-autofill",
+      "description": "Show the AI-suggested CRM field updates Sybill generated, as a reviewable field-by-field diff.",
+      "rationale": "crmAutofill suggestions live inside deal-detail payloads; no tool surfaces them as a pending-changes list.",
+      "example": "sybill-pp-cli crm-autofill --deal deal_123 --agent",
+      "why_it_matters": "Reach for this before pushing CRM updates, to review what Sybill wants to change.",
+      "group": "Sybill-specific signal"
+    },
+    {
+      "name": "Account roll-up",
+      "command": "account rollup",
+      "description": "One offline view per account: call count, open deals by stage, contacts, and last activity.",
+      "rationale": "Joins accounts, conversations, deals, and contacts in the local store; no single API call returns this.",
+      "example": "sybill-pp-cli account rollup acc_456 --agent",
+      "why_it_matters": "Use this to prep a renewal or expansion conversation with full account context.",
+      "group": "Cross-entity pipeline intelligence"
+    },
+    {
+      "name": "Rep activity aggregation",
+      "command": "activity",
+      "description": "Per-rep breakdown: calls made, deals touched, and deals gone dark over a window.",
+      "rationale": "SQL group-by over cached conversations and deals by owner; the API exposes no rep-level analytics.",
+      "example": "sybill-pp-cli activity --by owner --since 7d --agent",
+      "why_it_matters": "Use this for manager-side coaching prep and pipeline-coverage checks.",
+      "group": "Cross-entity pipeline intelligence"
+    },
+    {
+      "name": "Keyword / objection patterns",
+      "command": "patterns",
+      "description": "Count and locate transcript mentions of a term, grouped by deal and stage.",
+      "rationale": "FTS5 aggregate over the cached transcript corpus; the API offers no cross-call search.",
+      "example": "sybill-pp-cli patterns --term pricing --agent",
+      "why_it_matters": "Reach for this to find where competitor mentions, pricing objections, or legal flags cluster.",
+      "group": "Sybill-specific signal"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Deals gone dark",
+      "command": "deals dark",
+      "description": "List open deals with no call activity in the last N days, so nothing stalls silently.",
+      "rationale": "Requires joining deals to their most recent conversation in the local store; the entity-by-entity API exposes no such cross-entity query.",
+      "example": "sybill-pp-cli deals dark --days 14 --agent",
+      "why_it_matters": "Reach for this when an agent needs the re-engagement list: which open opportunities have gone quiet.",
+      "group": "Cross-entity pipeline intelligence"
+    },
+    {
+      "name": "Weekly call digest",
+      "command": "digest",
+      "description": "Pull every call in a window, grouped by deal, with next steps per deal (summaries appear when conversation detail is synced).",
+      "rationale": "Groups cached conversations by linked deal locally; the web UI is one call at a time and the API has no grouped view.",
+      "example": "sybill-pp-cli digest --since 7d --agent",
+      "why_it_matters": "Use this to generate a Monday pipeline review without clicking through every call.",
+      "group": "Cross-entity pipeline intelligence"
+    },
+    {
+      "name": "CRM autofill pending diff",
+      "command": "crm-autofill",
+      "description": "Show the AI-suggested CRM field updates Sybill generated, as a reviewable field-by-field diff.",
+      "rationale": "crmAutofill suggestions live inside deal-detail payloads; no tool surfaces them as a pending-changes list.",
+      "example": "sybill-pp-cli crm-autofill --deal deal_123 --agent",
+      "why_it_matters": "Reach for this before pushing CRM updates, to review what Sybill wants to change.",
+      "group": "Sybill-specific signal"
+    },
+    {
+      "name": "Account roll-up",
+      "command": "account rollup",
+      "description": "One offline view per account: call count, open deals by stage, contacts, and last activity.",
+      "rationale": "Joins accounts, conversations, deals, and contacts in the local store; no single API call returns this.",
+      "example": "sybill-pp-cli account rollup acc_456 --agent",
+      "why_it_matters": "Use this to prep a renewal or expansion conversation with full account context.",
+      "group": "Cross-entity pipeline intelligence"
+    },
+    {
+      "name": "Rep activity aggregation",
+      "command": "activity",
+      "description": "Per-rep breakdown: calls made, deals touched, and deals gone dark over a window.",
+      "rationale": "SQL group-by over cached conversations and deals by owner; the API exposes no rep-level analytics.",
+      "example": "sybill-pp-cli activity --by owner --since 7d --agent",
+      "why_it_matters": "Use this for manager-side coaching prep and pipeline-coverage checks.",
+      "group": "Cross-entity pipeline intelligence"
+    },
+    {
+      "name": "Keyword / objection patterns",
+      "command": "patterns",
+      "description": "Count and locate transcript mentions of a term, grouped by deal and stage.",
+      "rationale": "FTS5 aggregate over the cached transcript corpus; the API offers no cross-call search.",
+      "example": "sybill-pp-cli patterns --term pricing --agent",
+      "why_it_matters": "Reach for this to find where competitor mentions, pricing objections, or legal flags cluster.",
+      "group": "Sybill-specific signal"
+    }
+  ],
+  "narrative": {
+    "display_name": "Sybill",
+    "headline": "The first CLI for Sybill: every conversation, deal, and account in your terminal, plus a local store that answers cross-entity questions the web UI can't.",
+    "value_prop": "Sybill records sales calls and generates AI summaries, deal briefs, and crmAutofill suggestions. This CLI pulls all of it into a local SQLite store you can query offline, then adds the joins the entity-by-entity API can't do: deals gone dark, a weekly call digest grouped by deal, pending crmAutofill diffs, and full-text transcript search.",
+    "auth_narrative": "Create an API key in the Sybill dashboard under Settings \u003e Integrations \u003e API Keys (it starts with sk_live_), then set SYBILL_API_KEY. Run doctor to confirm the key is valid and the API is reachable. Read commands need a key with the read scope; ingest commands need the ingest scope (both are set on the key in the dashboard).",
+    "quickstart": [
+      {
+        "command": "sybill-pp-cli doctor",
+        "comment": "Confirm the API key is valid and see which scopes it carries"
+      },
+      {
+        "command": "sybill-pp-cli sync",
+        "comment": "Pull conversations, deals, and accounts into the local store"
+      },
+      {
+        "command": "sybill-pp-cli deals dark --days 14",
+        "comment": "Find open deals that have gone quiet"
+      },
+      {
+        "command": "sybill-pp-cli digest --since 7d",
+        "comment": "Build this week's call digest grouped by deal"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "403 with {\"detail\":\"Not authenticated\"}",
+        "fix": "SYBILL_API_KEY is unset or empty; export your sk_live_ key and re-run."
+      },
+      {
+        "symptom": "403 after authenticating",
+        "fix": "Your key is valid but lacks a needed scope (read or ingest). Regenerate the key in the Sybill dashboard with the scope the command needs."
+      },
+      {
+        "symptom": "429 Rate limit exceeded",
+        "fix": "Sybill allows 60 req/min; the client backs off automatically, but lower --limit or sync in smaller windows for large pulls."
+      },
+      {
+        "symptom": "Recording URL returns 403/expired",
+        "fix": "Signed recording URLs expire after 24h; re-fetch the conversation detail to get fresh URLs."
+      }
+    ],
+    "when_to_use": "Use this CLI when an agent or script needs Sybill call intelligence without the web UI: pulling call summaries and transcripts, answering pipeline-coverage questions across deals and conversations, reviewing crmAutofill suggestions before a CRM push, or grepping transcripts for objection and competitor patterns. It is the right tool any time the question spans more than one entity or needs offline, pipeable output.",
+    "recipes": [
+      {
+        "title": "Monday pipeline review",
+        "command": "sybill-pp-cli digest --since 7d --agent",
+        "explanation": "Every external call from the week, grouped by deal with summary and next steps, as JSON an agent can format."
+      },
+      {
+        "title": "Find stalled deals",
+        "command": "sybill-pp-cli deals dark --days 21 --include-uncovered",
+        "explanation": "Open deals with no call in 21 days, including open deals that never had a call at all."
+      },
+      {
+        "title": "Review pending CRM changes",
+        "command": "sybill-pp-cli crm-autofill --agent --select dealName,field,suggested,current",
+        "explanation": "The crmAutofill suggestions Sybill generated, narrowed to just the diff columns."
+      },
+      {
+        "title": "Scan transcripts for objections",
+        "command": "sybill-pp-cli patterns --term \"pricing|discount|competitor\"",
+        "explanation": "Count and locate where pricing and competitor talk clusters across cached calls, grouped by deal and stage."
+      },
+      {
+        "title": "Narrow a verbose call payload",
+        "command": "sybill-pp-cli conversations get conv_789 --agent --select title,summary.keyTakeaways,summary.nextSteps",
+        "explanation": "Conversation detail can be tens of KB; dotted --select pulls only the fields the agent needs."
+      }
+    ],
+    "trigger_phrases": [
+      "what deals have gone dark",
+      "build my weekly call digest",
+      "show pending crm autofill suggestions",
+      "find pricing objections in my calls",
+      "roll up this account's activity",
+      "use sybill",
+      "run sybill"
+    ]
+  }
+}

@@ -1,0 +1,1295 @@
+{
+  "api_name": "sybill",
+  "base_url": "https://api.sybill.ai",
+  "description": "The first CLI for Sybill: every conversation, deal, and account in your terminal, plus a local store that answers cross-entity questions the web UI can't.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "SYBILL_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "SYBILL_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "accounts_get",
+      "description": "Get the detailed view for a single account. Required: accountId. Returns array of AccountContact.",
+      "method": "GET",
+      "path": "/v1/accounts/{accountId}",
+      "params": [
+        {
+          "name": "accountId",
+          "type": "string",
+          "location": "path",
+          "description": "Account id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "accounts_list",
+      "description": "List accounts accessible to the API key's organization. Optional: name, website, owner (plus 6 more). Returns array of AccountListItem.",
+      "method": "GET",
+      "path": "/v1/accounts",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by account name (case-insensitive partial match)"
+        },
+        {
+          "name": "website",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by website URL (case-insensitive partial match)"
+        },
+        {
+          "name": "owner",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by owner name or email (case-insensitive partial match)"
+        },
+        {
+          "name": "createdBefore",
+          "type": "string",
+          "location": "query",
+          "description": "Upper bound for created date (ISO 8601, e.g. 2025-06-30T00:00:00Z)"
+        },
+        {
+          "name": "createdAfter",
+          "type": "string",
+          "location": "query",
+          "description": "Lower bound for created date (ISO 8601)"
+        },
+        {
+          "name": "lastActivityBefore",
+          "type": "string",
+          "location": "query",
+          "description": "Upper bound for last activity date (ISO 8601)"
+        },
+        {
+          "name": "lastActivityAfter",
+          "type": "string",
+          "location": "query",
+          "description": "Lower bound for last activity date (ISO 8601)"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of results per page (1-50)"
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Opaque pagination cursor from a previous response"
+        }
+      ]
+    },
+    {
+      "name": "conversations_delete",
+      "description": "Delete Conversation Ingest. Required: remoteId, sourceId. Returns the DeletedRecordResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/conversations",
+      "params": [
+        {
+          "name": "remoteId",
+          "type": "string",
+          "location": "query",
+          "description": "Remote id",
+          "required": true
+        },
+        {
+          "name": "sourceId",
+          "type": "string",
+          "location": "query",
+          "description": "Source id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "conversations_get",
+      "description": "Get the detailed view for a single conversation. Required: conversationId. Returns array of Participant.",
+      "method": "GET",
+      "path": "/v1/conversations/{conversationId}",
+      "params": [
+        {
+          "name": "conversationId",
+          "type": "string",
+          "location": "path",
+          "description": "Conversation id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "conversations_ingest",
+      "description": "Ingest Conversation. Required: createdAt, id, participants, sourceId, startedAt. Optional: displayName, endedAt, ownerEmails (plus 6 more). Returns the new RecordResponse.",
+      "method": "POST",
+      "path": "/v1/conversations",
+      "params": [
+        {
+          "name": "createdAt",
+          "type": "string",
+          "location": "body",
+          "description": "Created at",
+          "required": true
+        },
+        {
+          "name": "displayName",
+          "type": "string",
+          "location": "body",
+          "description": "Display name"
+        },
+        {
+          "name": "endedAt",
+          "type": "string",
+          "location": "body",
+          "description": "Ended at"
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "ownerEmails",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Owner emails"
+        },
+        {
+          "name": "participants",
+          "type": "array",
+          "location": "body",
+          "description": "Participants",
+          "required": true
+        },
+        {
+          "name": "public",
+          "type": "bool",
+          "location": "body",
+          "description": "Public"
+        },
+        {
+          "name": "recordingMimeType",
+          "type": "string",
+          "location": "body",
+          "description": "Recording mime type"
+        },
+        {
+          "name": "recordingUrl",
+          "type": "string",
+          "location": "body",
+          "description": "Recording url"
+        },
+        {
+          "name": "sourceId",
+          "type": "string",
+          "location": "body",
+          "description": "Source id",
+          "required": true
+        },
+        {
+          "name": "startedAt",
+          "type": "string",
+          "location": "body",
+          "description": "Started at",
+          "required": true
+        },
+        {
+          "name": "transcript",
+          "type": "array",
+          "location": "body",
+          "description": "Transcript"
+        },
+        {
+          "name": "updatedAt",
+          "type": "string",
+          "location": "body",
+          "description": "Updated at"
+        },
+        {
+          "name": "version",
+          "type": "int",
+          "location": "body",
+          "description": "Version"
+        }
+      ]
+    },
+    {
+      "name": "conversations_list",
+      "description": "List conversations accessible to the API key's organization. Optional: limit (default: 20), startedAfter, startedBefore (plus 6 more). Returns array of ConversationListItem.",
+      "method": "GET",
+      "path": "/v1/conversations",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of results per page (1-50)"
+        },
+        {
+          "name": "startedAfter",
+          "type": "string",
+          "location": "query",
+          "description": "Lower bound for meeting start time (ISO 8601)"
+        },
+        {
+          "name": "startedBefore",
+          "type": "string",
+          "location": "query",
+          "description": "Upper bound for meeting start time (ISO 8601)"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by meeting type (e.g. EXTERNAL, INTERNAL)"
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by meeting title (case-insensitive partial match)"
+        },
+        {
+          "name": "attendees",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by an attendee. Accepts three shapes: a participant name fragment (e.g. `John`, case-insensitive partial match), a full participant email (e.g. `alice@acme.com`, exact match), or a participant company domain (e.g. `@acme.com` or `acme.com`, exact match against the email domain)."
+        },
+        {
+          "name": "crmName",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by associated CRM deal or account name (case-insensitive exact-phrase match). Multi-word queries match the full phrase, not individual tokens."
+        },
+        {
+          "name": "sourceId",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by conversation origin. Accepts a reserved native string (e.g. `sybill`, `gong`, `chorus`, `fathom`, `grain`, `mindtickle`, `avoma`, `fireflies`, `zoho_meetings`, `uploaded_call`, `uploaded_transcript`, `sdk_upload`, `zoom_phone`, `outreach_dialer`), or a public-API ``IngestSource`` UUID to narrow to conversations ingested through that source. Omitted means all origins."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Opaque pagination cursor from a previous response"
+        }
+      ]
+    },
+    {
+      "name": "deals_get",
+      "description": "Get the detailed view for a single deal. Required: dealId. Returns array of DealContact.",
+      "method": "GET",
+      "path": "/v1/deals/{dealId}",
+      "params": [
+        {
+          "name": "dealId",
+          "type": "string",
+          "location": "path",
+          "description": "Deal id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "deals_list",
+      "description": "List deals accessible to the API key's organization. Optional: name, stage, closed (plus 9 more). Returns array of DealListItem.",
+      "method": "GET",
+      "path": "/v1/deals",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "query",
+          "description": "Filter deals by name (case-insensitive partial match)"
+        },
+        {
+          "name": "stage",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by pipeline stage name (case-insensitive partial match)"
+        },
+        {
+          "name": "closed",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by closed status: true for won/lost deals, false for open"
+        },
+        {
+          "name": "owner",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by deal owner name (case-insensitive partial match)"
+        },
+        {
+          "name": "closeDateBefore",
+          "type": "string",
+          "location": "query",
+          "description": "Upper bound for close date (ISO 8601, e.g. 2025-06-30T00:00:00Z)"
+        },
+        {
+          "name": "closeDateAfter",
+          "type": "string",
+          "location": "query",
+          "description": "Lower bound for close date (ISO 8601)"
+        },
+        {
+          "name": "amountMin",
+          "type": "string",
+          "location": "query",
+          "description": "Minimum deal amount"
+        },
+        {
+          "name": "amountMax",
+          "type": "string",
+          "location": "query",
+          "description": "Maximum deal amount"
+        },
+        {
+          "name": "lastActivityBefore",
+          "type": "string",
+          "location": "query",
+          "description": "Upper bound for last activity date (ISO 8601)"
+        },
+        {
+          "name": "lastActivityAfter",
+          "type": "string",
+          "location": "query",
+          "description": "Lower bound for last activity date (ISO 8601)"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of results per page (1-50)"
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Opaque pagination cursor from a previous response"
+        }
+      ]
+    },
+    {
+      "name": "documents_delete",
+      "description": "Delete Document Ingest. Required: remoteId, sourceId. Returns the DeletedRecordResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/documents",
+      "params": [
+        {
+          "name": "remoteId",
+          "type": "string",
+          "location": "query",
+          "description": "Remote id",
+          "required": true
+        },
+        {
+          "name": "sourceId",
+          "type": "string",
+          "location": "query",
+          "description": "Source id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "documents_get",
+      "description": "Get Document. Required: documentId. Returns the DocumentDetail.",
+      "method": "GET",
+      "path": "/v1/documents/{documentId}",
+      "params": [
+        {
+          "name": "documentId",
+          "type": "string",
+          "location": "path",
+          "description": "Document id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "documents_ingest",
+      "description": "Ingest Document. Required: id, sourceId. Optional: author, content, contentType (default: text/plain) (plus 8 more). Returns the new RecordResponse.",
+      "method": "POST",
+      "path": "/v1/documents",
+      "params": [
+        {
+          "name": "author",
+          "type": "string",
+          "location": "body",
+          "description": "Author"
+        },
+        {
+          "name": "content",
+          "type": "string",
+          "location": "body",
+          "description": "Content"
+        },
+        {
+          "name": "contentType",
+          "type": "string",
+          "location": "body",
+          "description": "Content type"
+        },
+        {
+          "name": "createdAt",
+          "type": "string",
+          "location": "body",
+          "description": "Created at"
+        },
+        {
+          "name": "displayName",
+          "type": "string",
+          "location": "body",
+          "description": "Display name"
+        },
+        {
+          "name": "filename",
+          "type": "string",
+          "location": "body",
+          "description": "Filename"
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "ownerEmails",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Owner emails"
+        },
+        {
+          "name": "public",
+          "type": "bool",
+          "location": "body",
+          "description": "Public"
+        },
+        {
+          "name": "sourceId",
+          "type": "string",
+          "location": "body",
+          "description": "Source id",
+          "required": true
+        },
+        {
+          "name": "updatedAt",
+          "type": "string",
+          "location": "body",
+          "description": "Updated at"
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "body",
+          "description": "Url"
+        },
+        {
+          "name": "version",
+          "type": "int",
+          "location": "body",
+          "description": "Version"
+        }
+      ]
+    },
+    {
+      "name": "documents_list",
+      "description": "List Documents. Optional: sourceId, name, cursor (plus 1 more). Returns array of DocumentListItem.",
+      "method": "GET",
+      "path": "/v1/documents",
+      "params": [
+        {
+          "name": "sourceId",
+          "type": "string",
+          "location": "query",
+          "description": "Source id"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "query",
+          "description": "Name"
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Cursor"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        }
+      ]
+    },
+    {
+      "name": "documents_update",
+      "description": "Update Document Ingest. Required: remoteId, sourceId. Optional: content, contentType, displayName (plus 6 more). Returns the updated RecordResponse.",
+      "method": "PATCH",
+      "path": "/v1/documents",
+      "params": [
+        {
+          "name": "remoteId",
+          "type": "string",
+          "location": "query",
+          "description": "Remote id",
+          "required": true
+        },
+        {
+          "name": "sourceId",
+          "type": "string",
+          "location": "query",
+          "description": "Source id",
+          "required": true
+        },
+        {
+          "name": "content",
+          "type": "string",
+          "location": "body",
+          "description": "Content"
+        },
+        {
+          "name": "contentType",
+          "type": "string",
+          "location": "body",
+          "description": "Content type"
+        },
+        {
+          "name": "displayName",
+          "type": "string",
+          "location": "body",
+          "description": "Display name"
+        },
+        {
+          "name": "filename",
+          "type": "string",
+          "location": "body",
+          "description": "Filename"
+        },
+        {
+          "name": "ownerEmails",
+          "type": "string",
+          "location": "body",
+          "description": "Owner emails"
+        },
+        {
+          "name": "public",
+          "type": "string",
+          "location": "body",
+          "description": "Public"
+        },
+        {
+          "name": "updatedAt",
+          "type": "string",
+          "location": "body",
+          "description": "Updated at"
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "body",
+          "description": "Url"
+        },
+        {
+          "name": "version",
+          "type": "int",
+          "location": "body",
+          "description": "Version"
+        }
+      ]
+    },
+    {
+      "name": "health_check",
+      "description": "Health Check. Returns the ResponseHealthCheckV1HealthGet.",
+      "method": "GET",
+      "path": "/v1/health",
+      "params": []
+    },
+    {
+      "name": "messages_delete",
+      "description": "Delete Message Ingest. Required: remoteId, sourceId. Returns the DeletedRecordResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/messages",
+      "params": [
+        {
+          "name": "remoteId",
+          "type": "string",
+          "location": "query",
+          "description": "Remote id",
+          "required": true
+        },
+        {
+          "name": "sourceId",
+          "type": "string",
+          "location": "query",
+          "description": "Source id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "messages_get",
+      "description": "Get Message. Required: messageId. Returns the MessageDetail.",
+      "method": "GET",
+      "path": "/v1/messages/{messageId}",
+      "params": [
+        {
+          "name": "messageId",
+          "type": "string",
+          "location": "path",
+          "description": "Message id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "messages_ingest",
+      "description": "Ingest Message. Required: body, createdAt, id, recipients, sender, sourceId. Optional: attachments, displayName, ownerEmails (plus 4 more). Returns the new RecordResponse.",
+      "method": "POST",
+      "path": "/v1/messages",
+      "params": [
+        {
+          "name": "attachments",
+          "type": "array",
+          "location": "body",
+          "description": "Attachments"
+        },
+        {
+          "name": "body",
+          "type": "string",
+          "location": "body",
+          "description": "Body",
+          "required": true
+        },
+        {
+          "name": "createdAt",
+          "type": "string",
+          "location": "body",
+          "description": "Created at",
+          "required": true
+        },
+        {
+          "name": "displayName",
+          "type": "string",
+          "location": "body",
+          "description": "Display name"
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "ownerEmails",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Owner emails"
+        },
+        {
+          "name": "public",
+          "type": "bool",
+          "location": "body",
+          "description": "Public"
+        },
+        {
+          "name": "recipients",
+          "type": "array",
+          "location": "body",
+          "description": "Recipients",
+          "required": true
+        },
+        {
+          "name": "sender-email",
+          "wire_name": "sender.email",
+          "type": "string",
+          "location": "body",
+          "description": "Email"
+        },
+        {
+          "name": "sender-id",
+          "wire_name": "sender.id",
+          "type": "string",
+          "location": "body",
+          "description": "Id"
+        },
+        {
+          "name": "sender-name",
+          "wire_name": "sender.name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        },
+        {
+          "name": "sender-version",
+          "wire_name": "sender.version",
+          "type": "int",
+          "location": "body",
+          "description": "Version"
+        },
+        {
+          "name": "sourceId",
+          "type": "string",
+          "location": "body",
+          "description": "Source id",
+          "required": true
+        },
+        {
+          "name": "threadId",
+          "type": "string",
+          "location": "body",
+          "description": "Thread id"
+        },
+        {
+          "name": "updatedAt",
+          "type": "string",
+          "location": "body",
+          "description": "Updated at"
+        },
+        {
+          "name": "version",
+          "type": "int",
+          "location": "body",
+          "description": "Version"
+        }
+      ]
+    },
+    {
+      "name": "messages_list",
+      "description": "List Messages. Optional: sourceId, remoteId, threadId (plus 5 more). Returns array of MessageListItem.",
+      "method": "GET",
+      "path": "/v1/messages",
+      "params": [
+        {
+          "name": "sourceId",
+          "type": "string",
+          "location": "query",
+          "description": "Source id"
+        },
+        {
+          "name": "remoteId",
+          "type": "string",
+          "location": "query",
+          "description": "Remote id"
+        },
+        {
+          "name": "threadId",
+          "type": "string",
+          "location": "query",
+          "description": "Thread id"
+        },
+        {
+          "name": "participantEmail",
+          "type": "string",
+          "location": "query",
+          "description": "Participant email"
+        },
+        {
+          "name": "createdAfter",
+          "type": "string",
+          "location": "query",
+          "description": "Created after"
+        },
+        {
+          "name": "createdBefore",
+          "type": "string",
+          "location": "query",
+          "description": "Created before"
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Cursor"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        }
+      ]
+    },
+    {
+      "name": "object-types_create",
+      "description": "Create Object Type. Required: displayName, fieldDefinitions, name, sourceId. Optional: version (default: 1). Returns array of FieldDefinitionResponse.",
+      "method": "POST",
+      "path": "/v1/object-types",
+      "params": [
+        {
+          "name": "displayName",
+          "type": "string",
+          "location": "body",
+          "description": "Display name",
+          "required": true
+        },
+        {
+          "name": "fieldDefinitions",
+          "type": "array",
+          "location": "body",
+          "description": "Field definitions",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        },
+        {
+          "name": "sourceId",
+          "type": "string",
+          "location": "body",
+          "description": "Source id",
+          "required": true
+        },
+        {
+          "name": "version",
+          "type": "int",
+          "location": "body",
+          "description": "Version"
+        }
+      ]
+    },
+    {
+      "name": "object-types_delete",
+      "description": "Delete Object Type. Required: objectTypeId. Returns the DeletedObjectTypeResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/object-types/{objectTypeId}",
+      "params": [
+        {
+          "name": "objectTypeId",
+          "type": "string",
+          "location": "path",
+          "description": "Object type id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "object-types_get",
+      "description": "Get Object Type. Required: objectTypeId. Returns array of FieldDefinitionResponse.",
+      "method": "GET",
+      "path": "/v1/object-types/{objectTypeId}",
+      "params": [
+        {
+          "name": "objectTypeId",
+          "type": "string",
+          "location": "path",
+          "description": "Object type id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "object-types_list",
+      "description": "List Object Types. Optional: sourceId. Returns array of ObjectTypeResponse.",
+      "method": "GET",
+      "path": "/v1/object-types",
+      "params": [
+        {
+          "name": "sourceId",
+          "type": "string",
+          "location": "query",
+          "description": "Source id"
+        }
+      ]
+    },
+    {
+      "name": "object-types_update",
+      "description": "Update Object Type. Required: objectTypeId. Optional: displayName, fieldDefinitions, version (default: 1). Returns array of FieldDefinitionResponse.",
+      "method": "PATCH",
+      "path": "/v1/object-types/{objectTypeId}",
+      "params": [
+        {
+          "name": "objectTypeId",
+          "type": "string",
+          "location": "path",
+          "description": "Object type id",
+          "required": true
+        },
+        {
+          "name": "displayName",
+          "type": "string",
+          "location": "body",
+          "description": "Display name"
+        },
+        {
+          "name": "fieldDefinitions",
+          "type": "string",
+          "location": "body",
+          "description": "Field definitions"
+        },
+        {
+          "name": "version",
+          "type": "int",
+          "location": "body",
+          "description": "Version"
+        }
+      ]
+    },
+    {
+      "name": "rows_delete",
+      "description": "Delete Row Ingest. Required: remoteId, sourceId. Returns the DeletedRecordResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/rows",
+      "params": [
+        {
+          "name": "remoteId",
+          "type": "string",
+          "location": "query",
+          "description": "Remote id",
+          "required": true
+        },
+        {
+          "name": "sourceId",
+          "type": "string",
+          "location": "query",
+          "description": "Source id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "rows_get",
+      "description": "Get Row. Required: rowId. Returns the RowDetail.",
+      "method": "GET",
+      "path": "/v1/rows/{rowId}",
+      "params": [
+        {
+          "name": "rowId",
+          "type": "string",
+          "location": "path",
+          "description": "Row id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "rows_ingest",
+      "description": "Ingest Row. Required: fields, id, name, objectTypeId, sourceId. Optional: createdAt, displayName, ownerEmails (plus 3 more). Returns the new RecordResponse.",
+      "method": "POST",
+      "path": "/v1/rows",
+      "params": [
+        {
+          "name": "createdAt",
+          "type": "string",
+          "location": "body",
+          "description": "Created at"
+        },
+        {
+          "name": "displayName",
+          "type": "string",
+          "location": "body",
+          "description": "Display name"
+        },
+        {
+          "name": "fields",
+          "type": "object",
+          "location": "body",
+          "description": "Fields",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        },
+        {
+          "name": "objectTypeId",
+          "type": "string",
+          "location": "body",
+          "description": "Object type id",
+          "required": true
+        },
+        {
+          "name": "ownerEmails",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Owner emails"
+        },
+        {
+          "name": "public",
+          "type": "bool",
+          "location": "body",
+          "description": "Public"
+        },
+        {
+          "name": "sourceId",
+          "type": "string",
+          "location": "body",
+          "description": "Source id",
+          "required": true
+        },
+        {
+          "name": "updatedAt",
+          "type": "string",
+          "location": "body",
+          "description": "Updated at"
+        },
+        {
+          "name": "version",
+          "type": "int",
+          "location": "body",
+          "description": "Version"
+        }
+      ]
+    },
+    {
+      "name": "rows_list",
+      "description": "List Rows. Optional: sourceId, objectTypeId, remoteId (plus 5 more). Returns array of RowListItem.",
+      "method": "GET",
+      "path": "/v1/rows",
+      "params": [
+        {
+          "name": "sourceId",
+          "type": "string",
+          "location": "query",
+          "description": "Source id"
+        },
+        {
+          "name": "objectTypeId",
+          "type": "string",
+          "location": "query",
+          "description": "Object type id"
+        },
+        {
+          "name": "remoteId",
+          "type": "string",
+          "location": "query",
+          "description": "Remote id"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "query",
+          "description": "Name"
+        },
+        {
+          "name": "createdAfter",
+          "type": "string",
+          "location": "query",
+          "description": "Created after"
+        },
+        {
+          "name": "createdBefore",
+          "type": "string",
+          "location": "query",
+          "description": "Created before"
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Cursor"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        }
+      ]
+    },
+    {
+      "name": "rows_update",
+      "description": "Update Row Ingest Route. Required: remoteId, sourceId. Optional: displayName, fields, name (plus 4 more). Returns the updated RecordResponse.",
+      "method": "PATCH",
+      "path": "/v1/rows",
+      "params": [
+        {
+          "name": "remoteId",
+          "type": "string",
+          "location": "query",
+          "description": "Remote id",
+          "required": true
+        },
+        {
+          "name": "sourceId",
+          "type": "string",
+          "location": "query",
+          "description": "Source id",
+          "required": true
+        },
+        {
+          "name": "displayName",
+          "type": "string",
+          "location": "body",
+          "description": "Display name"
+        },
+        {
+          "name": "fields",
+          "type": "string",
+          "location": "body",
+          "description": "Fields"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        },
+        {
+          "name": "ownerEmails",
+          "type": "string",
+          "location": "body",
+          "description": "Owner emails"
+        },
+        {
+          "name": "public",
+          "type": "string",
+          "location": "body",
+          "description": "Public"
+        },
+        {
+          "name": "updatedAt",
+          "type": "string",
+          "location": "body",
+          "description": "Updated at"
+        },
+        {
+          "name": "version",
+          "type": "int",
+          "location": "body",
+          "description": "Version"
+        }
+      ]
+    },
+    {
+      "name": "sources_create",
+      "description": "Create Source. Required: displayName, name. Optional: version (default: 1). Returns the new SourceResponse.",
+      "method": "POST",
+      "path": "/v1/sources",
+      "params": [
+        {
+          "name": "displayName",
+          "type": "string",
+          "location": "body",
+          "description": "Display name",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        },
+        {
+          "name": "version",
+          "type": "int",
+          "location": "body",
+          "description": "Version"
+        }
+      ]
+    },
+    {
+      "name": "sources_delete",
+      "description": "Delete Source. Required: sourceId. Returns the DeletedSourceResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/sources/{sourceId}",
+      "params": [
+        {
+          "name": "sourceId",
+          "type": "string",
+          "location": "path",
+          "description": "Source id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sources_get",
+      "description": "Get Source. Required: sourceId. Returns the SourceResponse.",
+      "method": "GET",
+      "path": "/v1/sources/{sourceId}",
+      "params": [
+        {
+          "name": "sourceId",
+          "type": "string",
+          "location": "path",
+          "description": "Source id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sources_list",
+      "description": "List Sources. Optional: name. Returns array of SourceResponse.",
+      "method": "GET",
+      "path": "/v1/sources",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "query",
+          "description": "Name"
+        }
+      ]
+    },
+    {
+      "name": "sources_update",
+      "description": "Update Source. Required: sourceId, displayName. Optional: version (default: 1). Returns the updated SourceResponse.",
+      "method": "PATCH",
+      "path": "/v1/sources/{sourceId}",
+      "params": [
+        {
+          "name": "sourceId",
+          "type": "string",
+          "location": "path",
+          "description": "Source id",
+          "required": true
+        },
+        {
+          "name": "displayName",
+          "type": "string",
+          "location": "body",
+          "description": "Display name",
+          "required": true
+        },
+        {
+          "name": "version",
+          "type": "int",
+          "location": "body",
+          "description": "Version"
+        }
+      ]
+    }
+  ]
+}
