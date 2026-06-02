@@ -51,7 +51,7 @@ func captureFixture(t *testing.T, opts SearchOptions, outName string) {
 	depDate, _ := time.Parse("2006-01-02", opts.DepartureDate)
 	retDate, _ := time.Parse("2006-01-02", opts.ReturnDate)
 
-	payload, err := buildOffersPayload(opts, depDate, retDate, tripTypeRoundTrip)
+	payload, err := buildOffersPayload(opts, depDate, retDate, tripTypeRoundTrip, "")
 	if err != nil {
 		t.Fatalf("buildOffersPayload: %v", err)
 	}

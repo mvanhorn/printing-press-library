@@ -108,6 +108,16 @@ type DatesResult struct {
 	AirportRemapped *AirportRemapNote `json:"airport_remapped,omitempty"`
 }
 
+// Segment is one leg of a multi-city itinerary. Set SearchOptions.Segments
+// (length >= 2) to request a multi-city search via Google Flights' multi-city
+// flow (trip_type=3). When Segments is set, Origin / Destination /
+// DepartureDate / ReturnDate on SearchOptions are ignored.
+type Segment struct {
+	Origin        string
+	Destination   string
+	DepartureDate string // YYYY-MM-DD
+}
+
 // SearchOptions are the knobs users can pass to a flight search.
 //
 // PATCH(upstream cli-printing-press): added Bags, Emissions, Layover,
@@ -130,6 +140,12 @@ type SearchOptions struct {
 	Emissions      string               // PATCH: "ALL" (default) or "LESS" to filter low-emission itineraries
 	Layover        *LayoverRestrictions // PATCH: restrict connections to specific airports
 	LimitedResults bool                 // PATCH: when true, request the ~30 Google-curated set
+	// Segments triggers a multi-city search (Google Flights trip_type=3).
+	// Provide >= 2 entries; the existing Origin / Destination / DepartureDate
+	// / ReturnDate fields are bypassed when this is set. Multi-city queries
+	// require a session priming step (see flights_native.go) so the first
+	// multi-city search per process incurs an extra HTTP round trip.
+	Segments []Segment
 }
 
 // Search runs a flight search against Google Flights' GetShoppingResults.
@@ -147,6 +163,12 @@ func Search(ctx context.Context, opts SearchOptions) (*SearchResult, error) {
 		var cancel context.CancelFunc
 		ctx, cancel = context.WithTimeout(ctx, 90*time.Second)
 		defer cancel()
+	}
+	// PATCH(library): multi-city short-circuits to URL generation in
+	// searchNativeDirect — no air-pair POST happens, so skip the
+	// retired-IATA remap (each Segment carries its own pair).
+	if len(opts.Segments) >= 2 {
+		return searchNativeDirect(ctx, opts)
 	}
 	// PATCH(library): normalize retired IATA codes before talking to Google.
 	// Google's GetShoppingResults silently returns empty for decommissioned

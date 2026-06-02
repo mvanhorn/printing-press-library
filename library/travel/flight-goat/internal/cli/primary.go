@@ -49,6 +49,9 @@ func newGfFlightsCmd(flags *rootFlags) *cobra.Command {
 	var layoverAirports []string
 	var maxLayoverMinutes int
 	var limitedResults bool
+	// PATCH(library): multi-city — repeatable --segment "ORIG>DEST@YYYY-MM-DD"
+	// triggers Google Flights' trip_type=3 flow. See multicity.go.
+	var segmentStrs []string
 
 	cmd := &cobra.Command{
 		Use:         "flights <origin> <destination> <date>",
@@ -70,13 +73,40 @@ durations, airlines, and leg details. No API key. No auth. Just results.`,
   flight-goat-pp-cli flights MAN AGP 2026-05-10 --currency GBP --sort cheapest
 
   # Round trip with return date
-  flight-goat-pp-cli flights SEA HNL 2026-08-01 --return 2026-08-10`,
-		Args: cobra.ExactArgs(3),
+  flight-goat-pp-cli flights SEA HNL 2026-08-01 --return 2026-08-10
+
+  # Multi-city (repeat --segment, positional args become optional)
+  flight-goat-pp-cli flights --segment "SFO>NRT@2026-08-15" --segment "NRT>ICN@2026-08-28" --segment "ICN>SFO@2026-09-05"`,
+		Args: func(cmd *cobra.Command, args []string) error {
+			// PATCH(library): multi-city mode (>=2 --segment values) makes
+			// the positional <origin> <destination> <date> optional and
+			// ignored. Single-segment positional invocation remains required
+			// for one-way / round-trip.
+			if len(segmentStrs) >= 2 {
+				return nil
+			}
+			return cobra.ExactArgs(3)(cmd, args)
+		},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			var origin, destination, departureDate string
+			var segments []gflights.Segment
+			if len(segmentStrs) >= 2 {
+				parsed, perr := parseMultiCitySegments(segmentStrs)
+				if perr != nil {
+					return perr
+				}
+				segments = parsed
+			} else if len(segmentStrs) == 1 {
+				return fmt.Errorf("--segment requires >= 2 values for multi-city; got 1. Use the positional <origin> <destination> <date> form for a one-way search")
+			} else {
+				origin = strings.ToUpper(args[0])
+				destination = strings.ToUpper(args[1])
+				departureDate = args[2]
+			}
 			opts := gflights.SearchOptions{
-				Origin:         strings.ToUpper(args[0]),
-				Destination:    strings.ToUpper(args[1]),
-				DepartureDate:  args[2],
+				Origin:         origin,
+				Destination:    destination,
+				DepartureDate:  departureDate,
 				ReturnDate:     returnDate,
 				TimeWindow:     timeWindow,
 				Airlines:       airlines,
@@ -88,6 +118,7 @@ durations, airlines, and leg details. No API key. No auth. Just results.`,
 				Currency:       currencyCode,
 				Emissions:      emissions,
 				LimitedResults: limitedResults,
+				Segments:       segments,
 			}
 			if checkedBags > 0 || carryOn {
 				opts.Bags = &gflights.BagsFilter{CheckedBags: checkedBags, CarryOn: carryOn}
@@ -176,7 +207,35 @@ durations, airlines, and leg details. No API key. No auth. Just results.`,
 	cmd.Flags().StringSliceVarP(&layoverAirports, "layover", "l", nil, "Restrict layovers to specific airports (repeatable, e.g. -l ORD -l DFW)")
 	cmd.Flags().IntVar(&maxLayoverMinutes, "max-layover", 0, "Maximum layover duration in minutes (0 = no constraint)")
 	cmd.Flags().BoolVar(&limitedResults, "limited", false, "Return only the ~30 Google-curated results instead of the full set")
+	cmd.Flags().StringSliceVar(&segmentStrs, "segment", nil, "Multi-city: repeatable segment in 'ORIG>DEST@YYYY-MM-DD' form. Pass >=2 to trigger Google Flights' multi-city flow; positional args become optional and ignored.")
 	return cmd
+}
+
+// parseMultiCitySegments parses repeated --segment values of the form
+// "ORIG>DEST@YYYY-MM-DD" into gflights.Segment objects. Lenient on whitespace
+// and case but strict on the date format (YYYY-MM-DD) and the >/@ separators.
+func parseMultiCitySegments(in []string) ([]gflights.Segment, error) {
+	out := make([]gflights.Segment, 0, len(in))
+	for i, raw := range in {
+		s := strings.TrimSpace(raw)
+		atIdx := strings.LastIndex(s, "@")
+		if atIdx <= 0 {
+			return nil, fmt.Errorf("--segment %d %q: missing date suffix '@YYYY-MM-DD'", i+1, raw)
+		}
+		route := strings.TrimSpace(s[:atIdx])
+		date := strings.TrimSpace(s[atIdx+1:])
+		gtIdx := strings.Index(route, ">")
+		if gtIdx <= 0 || gtIdx >= len(route)-1 {
+			return nil, fmt.Errorf("--segment %d %q: route must look like ORIG>DEST", i+1, raw)
+		}
+		origin := strings.ToUpper(strings.TrimSpace(route[:gtIdx]))
+		destination := strings.ToUpper(strings.TrimSpace(route[gtIdx+1:]))
+		if len(origin) < 3 || len(destination) < 3 {
+			return nil, fmt.Errorf("--segment %d %q: origin and destination must be 3-letter IATA codes", i+1, raw)
+		}
+		out = append(out, gflights.Segment{Origin: origin, Destination: destination, DepartureDate: date})
+	}
+	return out, nil
 }
 
 // ----- dates: cheapest-dates discovery -----

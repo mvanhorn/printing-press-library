@@ -46,6 +46,10 @@ const (
 const (
 	tripTypeOneWay    = 2
 	tripTypeRoundTrip = 1
+	// PATCH(library): trip_type=3 is Google Flights' multi-city mode.
+	// Discovered by reverse-engineering the GetShoppingResults POST that
+	// the multi-city UI fires — see internal/gflights/multicity.go.
+	tripTypeMultiCity = 3
 
 	seatTypeEconomy        = 1
 	seatTypePremiumEconomy = 2

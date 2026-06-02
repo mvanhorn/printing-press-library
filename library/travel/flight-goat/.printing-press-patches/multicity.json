@@ -1,0 +1,21 @@
+{
+  "schema_version": 2,
+  "id": "multicity",
+  "applied_at": "2026-06-02",
+  "base_run_id": "",
+  "base_printing_press_version": "3.6.0",
+  "summary": "Add Google Flights multi-city support to the `flights` command via a repeatable --segment flag. Multi-city returns a Google Flights URL the user/agent opens in a browser; the underlying shopping POST is intentionally not attempted because it requires an authenticated Google session.",
+  "reason": "Reverse-engineering Google Flights' multi-city flow: (1) trip_type=3 is the multi-city marker in both the URL `tfs` protobuf and the f.req shopping POST body. (2) The URL `tfs` accepts repeated length-delimited segments with IATA codes; Google's UI renders the multi-city search page directly from the URL with no auth. (3) The shopping POST DOES require an authenticated session — anonymous POSTs return travel.frontend.flights.ErrorResponse regardless of session-token / f.sid / build-string tweaks, confirmed empirically. For v1 we generate the canonical multi-city URL (same UX as Google's own 'track price' deeplinks) and return it via the SearchResult.Flights[0].BookingURLs.Primary + GoogleURL fields. The existing tripType=1/2 one-way + round-trip POSTs are unchanged; future work could add cookie-jar support to enable programmatic multi-city POSTs. For programmatic multi-city flight prices today, Kayak's /i/api/search/dynamic/flights/poll endpoint works server-side without auth — see follow-up PR.",
+  "files": [
+    "internal/gflights/gflights.go",
+    "internal/gflights/dates_native.go",
+    "internal/gflights/flights_native.go",
+    "internal/gflights/multicity.go",
+    "internal/gflights/multicity_test.go",
+    "internal/gflights/capture_test.go",
+    "internal/cli/primary.go",
+    "internal/cli/multicity_segments_test.go"
+  ],
+  "validated_outcome": "go build ./... + go vet ./... + go test ./... all green. New tests: TestMultiCityBookingURL_{ShapeAndDecode,RejectsSingleSegment,RejectsBadDate}, TestBuildOffersPayload_OneWayUnchanged (regression guard), TestParseMultiCitySegments_{Valid,MissingDate,BadRoute,ShortCode}. Live smoke test confirmed: `flight-goat-pp-cli flights --segment SFO>NRT@... --segment NRT>ICN@... --segment ICN>SFO@... --agent` returns a Google Flights URL that loads the multi-city search page with correct prefilled dates and IATA codes when opened in a browser. govulncheck reports 0 reachable vulnerabilities.",
+  "upstream_issue": ""
+}
