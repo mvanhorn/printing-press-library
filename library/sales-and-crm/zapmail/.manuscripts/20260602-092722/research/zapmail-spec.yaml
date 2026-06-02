@@ -1,0 +1,680 @@
+name: zapmail
+display_name: "Zapmail"
+description: "Comprehensive Zapmail cold-email infrastructure CLI - workspaces, domains, mailboxes, DNS, exports, subscriptions, wallet, and Zapbox inbox, with offline SQLite store and agent-native output."
+cli_description: "Every Zapmail dashboard action, plus an offline SQLite mirror of your whole mailbox and domain fleet across workspaces, deliverability rollups, and renewal-cost forecasting no other Zapmail tool ships."
+version: "0.1.0"
+base_url: "https://api.zapmail.ai/api"
+http_transport: standard
+health_check_path: "/v2/users"
+
+auth:
+  type: api_key
+  header: x-auth-zapmail
+  format: "{token}"
+  in: header
+  env_vars:
+    - ZAPMAIL_API_KEY
+  title: "Zapmail API key"
+  description: |
+    Zapmail authenticates with a single API key sent in the x-auth-zapmail header
+    (raw token, not Bearer). Get it at Dashboard > Settings > Integrations > API.
+    Set it in the ZAPMAIL_API_KEY environment variable.
+  key_url: "https://app.zapmail.ai/"
+  verify_path: "/v2/users"
+
+config:
+  format: toml
+  path: "~/.config/zapmail-pp-cli/config.toml"
+
+mcp:
+  transport: [stdio, http]
+
+resources:
+  user:
+    description: "Authenticated account details"
+    endpoints:
+      get:
+        method: GET
+        path: "/v2/users"
+        description: "Retrieve the authenticated user: plan, mailbox counts, wallet balance"
+        response:
+          type: object
+          item: User
+        response_path: data
+
+  workspaces:
+    description: "Workspaces (isolated domain + mailbox containers)"
+    endpoints:
+      list:
+        method: GET
+        path: "/v2/workspaces"
+        description: "Retrieve all workspaces for the authenticated account"
+        response:
+          type: array
+          item: Workspace
+        response_path: data
+      create:
+        method: POST
+        path: "/v2/workspaces"
+        description: "Create a new workspace, optionally with billing details"
+        body:
+          - name: name
+            type: string
+            required: true
+            description: "Workspace name"
+          - name: billingDetails
+            type: object
+            required: false
+            description: "Optional billing details for the workspace"
+            fields:
+              - name: company
+                type: string
+                description: "Company name"
+              - name: firstName
+                type: string
+                description: "Billing contact first name"
+              - name: lastName
+                type: string
+                description: "Billing contact last name"
+              - name: addressLineOne
+                type: string
+                description: "Address line 1"
+              - name: city
+                type: string
+                description: "City"
+              - name: state
+                type: string
+                description: "State / province"
+              - name: country
+                type: string
+                description: "Country"
+              - name: postalCode
+                type: string
+                description: "Postal code"
+              - name: phoneCc
+                type: string
+                description: "Phone country code, e.g. +1"
+              - name: phone
+                type: string
+                description: "Phone number"
+              - name: languagePreference
+                type: string
+                description: "Language preference, e.g. en"
+        response:
+          type: object
+          item: Workspace
+        response_path: data
+
+  mailboxes:
+    description: "Mailboxes provisioned on Zapmail domains"
+    endpoints:
+      list:
+        method: GET
+        path: "/v2/mailboxes/list"
+        description: "Retrieve all mailboxes, grouped by domain, with counts and warmup status"
+        params:
+          - name: page
+            type: int
+            default: 1
+            description: "Page number (1-based)"
+          - name: limit
+            type: int
+            default: 50
+            description: "Mailboxes per page"
+          - name: contains
+            type: string
+            description: "Filter by substring (e.g. a domain or email fragment)"
+        response:
+          type: object
+          item: MailboxListPage
+        response_path: data
+      get:
+        method: GET
+        path: "/v2/mailboxes"
+        description: "Get details of a single mailbox by its ID"
+        params:
+          - name: id
+            type: string
+            required: true
+            description: "Mailbox ID (UUID)"
+        response:
+          type: object
+          item: Mailbox
+        response_path: data
+
+  domains:
+    description: "Domains connected to or purchased through Zapmail"
+    endpoints:
+      list:
+        method: GET
+        path: "/v2/domains"
+        description: "Retrieve all domains with status, DNS, forwarding, and assigned-mailbox counts"
+        params:
+          - name: page
+            type: int
+            default: 1
+            description: "Page number (1-based)"
+          - name: limit
+            type: int
+            default: 50
+            description: "Domains per page"
+          - name: contains
+            type: string
+            description: "Filter domains by substring"
+        response:
+          type: array
+          item: Domain
+        response_path: data.domains
+      assignable:
+        method: GET
+        path: "/v2/domains/assignable"
+        description: "List domains that have free capacity to assign new mailboxes"
+        params:
+          - name: page
+            type: int
+            default: 1
+            description: "Page number (1-based)"
+          - name: limit
+            type: int
+            default: 50
+            description: "Domains per page"
+          - name: contains
+            type: string
+            description: "Filter domains by substring"
+        response:
+          type: array
+          item: Domain
+        response_path: data.domains
+      health-score:
+        method: GET
+        path: "/v2/domains/health-score"
+        description: "Retrieve the deliverability health score and abuse flag for one domain"
+        params:
+          - name: domainId
+            type: string
+            required: true
+            description: "Domain ID (UUID)"
+        response:
+          type: object
+          item: DomainHealth
+        response_path: data
+      ai-finder:
+        method: POST
+        path: "/v2/domains/ai-finder"
+        description: "Generate available domain name suggestions from keywords using AI"
+        body:
+          - name: keywords
+            type: array
+            required: true
+            description: "Seed keywords for domain ideas"
+            fields: []
+          - name: tlds
+            type: array
+            required: true
+            description: "TLDs to consider, e.g. com io co"
+            fields: []
+          - name: desiredCount
+            type: int
+            required: true
+            default: 10
+            description: "How many suggestions to return"
+        response:
+          type: object
+          item: AiDomainSuggestions
+        response_path: data
+      available-bulk:
+        method: POST
+        path: "/v2/domains/available-bulk"
+        description: "Check registration availability for multiple domain names at once"
+        body:
+          - name: domainNames
+            type: array
+            required: true
+            description: "Domain names to check for availability"
+            fields: []
+        response:
+          type: object
+          item: DomainAvailability
+        response_path: data
+
+  dns:
+    description: "DNS records on assigned domains"
+    endpoints:
+      list:
+        method: GET
+        path: "/v2/dns"
+        description: "Get all DNS records for an assigned domain"
+        params:
+          - name: id
+            type: string
+            required: true
+            description: "Assigned domain ID (UUID)"
+        response:
+          type: object
+          item: DnsRecordList
+        response_path: data
+      add:
+        method: POST
+        path: "/v2/dns"
+        description: "Add one or more DNS records to an assigned domain"
+        body:
+          - name: assignedDomainId
+            type: string
+            required: true
+            description: "Assigned domain ID (UUID)"
+          - name: records
+            type: array
+            required: true
+            description: "DNS records to add"
+            fields:
+              - name: host
+                type: string
+                required: true
+                description: "Record host, e.g. @ or blog"
+              - name: value
+                type: string
+                required: true
+                description: "Record value, e.g. an IP or target host"
+              - name: recordType
+                type: string
+                required: true
+                description: "Record type: A, CNAME, TXT, MX, etc."
+        response:
+          type: object
+          item: DnsRecordList
+        response_path: data
+
+  subscriptions:
+    description: "Mailbox subscriptions and plans"
+    endpoints:
+      list:
+        method: GET
+        path: "/v2/subscriptions"
+        description: "Get all subscriptions with plan, price, mailbox quantity, and billing period"
+        params:
+          - name: status
+            type: string
+            description: "Filter by status: ACTIVE, CANCELLED, PAUSED, PAYMENT_PENDING"
+          - name: contains
+            type: string
+            description: "Search filter"
+        response:
+          type: array
+          item: Subscription
+        response_path: data
+
+  wallet:
+    description: "Account wallet balance and auto-recharge"
+    endpoints:
+      balance:
+        method: GET
+        path: "/v2/wallet/balance"
+        description: "Get current wallet balance (USD) and auto-recharge settings"
+        response:
+          type: object
+          item: WalletBalance
+
+  exports:
+    description: "Export mailboxes to third-party sequencers"
+    endpoints:
+      mailboxes:
+        method: POST
+        path: "/v2/exports/mailboxes"
+        description: "Export mailboxes to one or more sequencer apps (Smartlead, Instantly, ReachInbox, etc.)"
+        body:
+          - name: apps
+            type: array
+            required: true
+            description: "Target apps, e.g. SMARTLEAD INSTANTLY REACHINBOX REPLY_IO"
+            fields: []
+          - name: ids
+            type: array
+            required: false
+            description: "Specific mailbox IDs to export"
+            fields: []
+          - name: excludeIds
+            type: array
+            required: false
+            description: "Mailbox IDs to exclude"
+            fields: []
+          - name: tagIds
+            type: array
+            required: false
+            description: "Export mailboxes carrying these tag IDs"
+            fields: []
+          - name: status
+            type: string
+            required: false
+            description: "Filter mailboxes by status"
+          - name: contains
+            type: string
+            required: false
+            description: "Filter mailboxes by substring"
+          - name: thirdPartyAccountId
+            type: string
+            required: false
+            description: "Third-party account ID to export into"
+        response:
+          type: object
+          item: ExportResult
+        response_path: data
+      status:
+        method: GET
+        path: "/v2/exports/status"
+        description: "Check the status of a running or completed export"
+        params:
+          - name: exportId
+            type: int
+            required: true
+            description: "Export operation ID"
+        response:
+          type: object
+          item: ExportStatus
+        response_path: data
+      accounts:
+        method: GET
+        path: "/v2/exports/accounts/third-party"
+        description: "List connected third-party export accounts for an app"
+        params:
+          - name: app
+            type: string
+            required: true
+            description: "App name, e.g. INSTANTLY, SMARTLEAD"
+        response:
+          type: array
+          item: ThirdPartyAccount
+        response_path: data
+      add-account:
+        method: POST
+        path: "/v2/exports/accounts/third-party"
+        description: "Add third-party export account credentials"
+        body:
+          - name: email
+            type: string
+            required: true
+            description: "Account email / login"
+          - name: password
+            type: string
+            required: true
+            description: "Account password / API token"
+          - name: app
+            type: string
+            required: true
+            description: "App name, e.g. SMARTLEAD, INSTANTLY, REACHINBOX, REPLY_IO"
+        response:
+          type: object
+          item: ThirdPartyAccount
+        response_path: data
+
+  inbox:
+    description: "Zapbox - read and send email from connected mailboxes"
+    endpoints:
+      accounts:
+        method: GET
+        path: "/v2/onebox/connected-accounts"
+        description: "List inbox-connected accounts available in Zapbox"
+        response:
+          type: array
+          item: ConnectedAccount
+        response_path: data
+      emails:
+        method: GET
+        path: "/v2/onebox/top-emails"
+        description: "Fetch recent emails for a connected account"
+        params:
+          - name: account
+            type: string
+            description: "Connected email account"
+          - name: folder
+            type: string
+            description: "Folder/label to filter by"
+          - name: page
+            type: int
+            default: 1
+            description: "Page number"
+          - name: limit
+            type: int
+            default: 25
+            description: "Emails per page"
+          - name: includeWarmUp
+            flag_name: include-warmup
+            type: bool
+            default: false
+            description: "Include warm-up emails"
+        response:
+          type: object
+          item: EmailPage
+        response_path: data
+      search:
+        method: GET
+        path: "/v2/onebox/search-emails"
+        description: "Search emails across connected accounts"
+        params:
+          - name: account
+            type: string
+            description: "Connected email account to search"
+          - name: query
+            flag_name: query
+            type: string
+            description: "Search query string"
+          - name: page
+            type: int
+            default: 1
+            description: "Page number"
+        response:
+          type: object
+          item: EmailPage
+        response_path: data
+      send:
+        method: POST
+        path: "/v2/onebox/send-email"
+        description: "Send an email from a connected account (real outbound send)"
+        body:
+          - name: account
+            type: string
+            required: true
+            description: "Sending account email"
+          - name: to
+            type: string
+            required: true
+            description: "Recipient email"
+          - name: subject
+            type: string
+            required: true
+            description: "Email subject"
+          - name: body
+            type: string
+            required: true
+            description: "Email body"
+          - name: cc
+            type: array
+            required: false
+            description: "CC recipients"
+            fields: []
+          - name: bcc
+            type: array
+            required: false
+            description: "BCC recipients"
+            fields: []
+          - name: messageId
+            type: string
+            required: false
+            description: "Message ID when replying"
+          - name: threadId
+            type: string
+            required: false
+            description: "Thread ID when replying"
+        response:
+          type: object
+          item: SendResult
+        response_path: data
+
+types:
+  User:
+    fields:
+      - name: id
+        type: string
+      - name: email
+        type: string
+      - name: firstName
+        type: string
+      - name: lastName
+        type: string
+      - name: activePlan
+        type: string
+      - name: planEndsOn
+        type: string
+      - name: purchasedMailboxes
+        type: int
+      - name: assignedMailboxes
+        type: int
+      - name: walletBalance
+        type: float
+  Workspace:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+      - name: serviceProvider
+        type: string
+      - name: createdAt
+        type: string
+  MailboxListPage:
+    fields:
+      - name: totalSearchedCount
+        type: int
+      - name: currentPage
+        type: int
+      - name: totalPages
+        type: int
+      - name: purchasedMailboxes
+        type: int
+      - name: totalAssignedMailboxes
+        type: int
+      - name: totalActiveMailboxes
+        type: int
+      - name: availableMailboxes
+        type: int
+  Mailbox:
+    fields:
+      - name: id
+        type: string
+      - name: email
+        type: string
+      - name: status
+        type: string
+      - name: isWarmedUp
+        type: bool
+  Domain:
+    fields:
+      - name: id
+        type: string
+      - name: domain
+        type: string
+      - name: status
+        type: string
+      - name: createdAt
+        type: string
+      - name: forwardTo
+        type: string
+      - name: dmarcEmail
+        type: string
+      - name: catchAllEmail
+        type: string
+      - name: assignedMailboxesCount
+        type: string
+  DomainHealth:
+    fields:
+      - name: averageScore
+        type: int
+      - name: isAbused
+        type: bool
+  AiDomainSuggestions:
+    fields:
+      - name: status
+        type: string
+      - name: progress
+        type: int
+      - name: totalDomains
+        type: int
+  DomainAvailability:
+    fields:
+      - name: domain
+        type: string
+      - name: available
+        type: bool
+  DnsRecordList:
+    fields:
+      - name: host
+        type: string
+      - name: value
+        type: string
+      - name: recordType
+        type: string
+  Subscription:
+    fields:
+      - name: id
+        type: string
+      - name: subscriptionId
+        type: string
+      - name: subscriptionStatus
+        type: string
+      - name: plan
+        type: string
+      - name: price
+        type: float
+      - name: totalMailboxQuantity
+        type: int
+      - name: periodStart
+        type: string
+      - name: periodEnd
+        type: string
+  WalletBalance:
+    fields:
+      - name: walletBalance
+        type: int
+      - name: autoRechargeEnabled
+        type: bool
+  ExportResult:
+    fields:
+      - name: exportId
+        type: int
+      - name: status
+        type: string
+  ExportStatus:
+    fields:
+      - name: exportId
+        type: int
+      - name: status
+        type: string
+  ThirdPartyAccount:
+    fields:
+      - name: id
+        type: string
+      - name: email
+        type: string
+      - name: app
+        type: string
+  ConnectedAccount:
+    fields:
+      - name: id
+        type: string
+      - name: email_account
+        type: string
+      - name: provider
+        type: string
+      - name: status
+        type: string
+  EmailPage:
+    fields:
+      - name: currentPage
+        type: int
+      - name: totalPages
+        type: int
+  SendResult:
+    fields:
+      - name: messageId
+        type: string
+      - name: threadId
+        type: string

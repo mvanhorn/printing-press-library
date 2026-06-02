@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "zapmail-pp-cli"
+display_name = "Zapmail"
+description = "Every Zapmail dashboard action, plus an offline SQLite mirror of your whole mailbox and domain fleet across workspaces, with deliverability rollups and renewal forecasting no other Zapmail tool ships."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/zapmail-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+ZAPMAIL_API_KEY = true

@@ -1,0 +1,241 @@
+{
+  "api_name": "zapmail",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "zapmail-mcp",
+      "url": "https://github.com/dsouzaalan/zapmail-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 46,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "coldoutboundskills",
+      "url": "https://github.com/growthenginenowoslawski/coldoutboundskills",
+      "language": "Markdown",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-06-02T07:44:28Z",
+  "novel_features": [
+    {
+      "name": "Fleet health rollup",
+      "command": "analytics --type fleet-health --group-by workspace",
+      "description": "See every unhealthy or abused domain in your synced fleet in one table, instead of checking domains one at a time in the dashboard.",
+      "rationale": "Requires aggregating domain health scores and abused flags from a local mirror; the dashboard surfaces them one domain at a time.",
+      "example": "zapmail-pp-cli analytics --type fleet-health --group-by workspace --json",
+      "why_it_matters": "Reach for this first thing to triage deliverability across your whole fleet in one command.",
+      "group": "Fleet intelligence"
+    },
+    {
+      "name": "Warmed-but-unassigned finder",
+      "command": "mailboxes idle",
+      "description": "List warmed mailboxes ready to send and report how many paid mailboxes are not yet provisioned, so you recover capacity you are paying for.",
+      "rationale": "Requires flattening the domain-grouped mailbox list and combining it with the available-mailbox count, which no single response field gives you.",
+      "example": "zapmail-pp-cli mailboxes idle --json",
+      "why_it_matters": "Use this to recover billable send capacity you forgot to put to work before a client notices low volume.",
+      "group": "Fleet intelligence"
+    },
+    {
+      "name": "Failed-mailbox triage",
+      "command": "mailboxes failed",
+      "description": "Surface every mailbox that failed or stalled during creation, grouped by domain and workspace, ready to retry.",
+      "rationale": "Requires filtering mailbox creation status across the whole synced fleet, not one workspace at a time.",
+      "example": "zapmail-pp-cli mailboxes failed --json",
+      "why_it_matters": "Catch silently-failed provisioning before it shows up as missing send volume mid-campaign.",
+      "group": "Fleet intelligence"
+    },
+    {
+      "name": "Renewal cost forecast",
+      "command": "analytics --type renewals --group-by week",
+      "description": "Forecast which subscriptions and domains renew in the coming weeks and what each renewal will cost, so nothing lapses unexpectedly.",
+      "rationale": "Requires aggregating subscription period-end dates and prices from the local store into a forward-looking calendar no dashboard view provides.",
+      "example": "zapmail-pp-cli analytics --type renewals --group-by week --json",
+      "why_it_matters": "Use this on a Friday capacity review so a missed renewal never silently drops a sending domain.",
+      "group": "Cost and capacity"
+    },
+    {
+      "name": "Cost-per-active-mailbox",
+      "command": "analytics --type cost-efficiency --group-by workspace",
+      "description": "Divide active subscription spend by the number of assigned mailboxes to expose where money is being wasted.",
+      "rationale": "Requires joining subscription pricing against assigned mailbox counts in the local mirror; the dashboard never computes this ratio.",
+      "example": "zapmail-pp-cli analytics --type cost-efficiency --group-by workspace --json",
+      "why_it_matters": "Reach for this to answer 'what are we actually paying per working mailbox' before a budget review.",
+      "group": "Cost and capacity"
+    },
+    {
+      "name": "Export watch",
+      "command": "exports watch",
+      "description": "Poll one export to completion and exit non-zero if it fails, so you can gate a script on a sequencer export finishing.",
+      "rationale": "Zapmail has no list-exports endpoint; this turns the single status endpoint into a blocking watch with a typed exit code that automation can branch on.",
+      "example": "zapmail-pp-cli exports watch --export-id 12345",
+      "why_it_matters": "Use this in a script after starting an export so the next step only runs once the mailboxes actually land in the sequencer.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Capacity gap report",
+      "command": "analytics --type capacity --group-by workspace",
+      "description": "Show purchased vs assigned vs available mailbox counts so you see unused capacity at a glance.",
+      "rationale": "Requires combining the authenticated account's purchased and assigned counts from the local store into one view.",
+      "example": "zapmail-pp-cli analytics --type capacity --group-by workspace --json",
+      "why_it_matters": "Use this to decide whether to assign more mailboxes or stop paying for capacity you aren't using.",
+      "group": "Cost and capacity"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Fleet health rollup",
+      "command": "analytics --type fleet-health --group-by workspace",
+      "description": "See every unhealthy or abused domain in your synced fleet in one table, instead of checking domains one at a time in the dashboard.",
+      "rationale": "Requires aggregating domain health scores and abused flags from a local mirror; the dashboard surfaces them one domain at a time.",
+      "example": "zapmail-pp-cli analytics --type fleet-health --group-by workspace --json",
+      "why_it_matters": "Reach for this first thing to triage deliverability across your whole fleet in one command.",
+      "group": "Fleet intelligence"
+    },
+    {
+      "name": "Warmed-but-unassigned finder",
+      "command": "mailboxes idle",
+      "description": "List warmed mailboxes ready to send and report how many paid mailboxes are not yet provisioned, so you recover capacity you are paying for.",
+      "rationale": "Requires flattening the domain-grouped mailbox list and combining it with the available-mailbox count, which no single response field gives you.",
+      "example": "zapmail-pp-cli mailboxes idle --json",
+      "why_it_matters": "Use this to recover billable send capacity you forgot to put to work before a client notices low volume.",
+      "group": "Fleet intelligence"
+    },
+    {
+      "name": "Failed-mailbox triage",
+      "command": "mailboxes failed",
+      "description": "Surface every mailbox that failed or stalled during creation, grouped by domain and workspace, ready to retry.",
+      "rationale": "Requires filtering mailbox creation status across the whole synced fleet, not one workspace at a time.",
+      "example": "zapmail-pp-cli mailboxes failed --json",
+      "why_it_matters": "Catch silently-failed provisioning before it shows up as missing send volume mid-campaign.",
+      "group": "Fleet intelligence"
+    },
+    {
+      "name": "Renewal cost forecast",
+      "command": "analytics --type renewals --group-by week",
+      "description": "Forecast which subscriptions and domains renew in the coming weeks and what each renewal will cost, so nothing lapses unexpectedly.",
+      "rationale": "Requires aggregating subscription period-end dates and prices from the local store into a forward-looking calendar no dashboard view provides.",
+      "example": "zapmail-pp-cli analytics --type renewals --group-by week --json",
+      "why_it_matters": "Use this on a Friday capacity review so a missed renewal never silently drops a sending domain.",
+      "group": "Cost and capacity"
+    },
+    {
+      "name": "Cost-per-active-mailbox",
+      "command": "analytics --type cost-efficiency --group-by workspace",
+      "description": "Divide active subscription spend by the number of assigned mailboxes to expose where money is being wasted.",
+      "rationale": "Requires joining subscription pricing against assigned mailbox counts in the local mirror; the dashboard never computes this ratio.",
+      "example": "zapmail-pp-cli analytics --type cost-efficiency --group-by workspace --json",
+      "why_it_matters": "Reach for this to answer 'what are we actually paying per working mailbox' before a budget review.",
+      "group": "Cost and capacity"
+    },
+    {
+      "name": "Export watch",
+      "command": "exports watch",
+      "description": "Poll one export to completion and exit non-zero if it fails, so you can gate a script on a sequencer export finishing.",
+      "rationale": "Zapmail has no list-exports endpoint; this turns the single status endpoint into a blocking watch with a typed exit code that automation can branch on.",
+      "example": "zapmail-pp-cli exports watch --export-id 12345",
+      "why_it_matters": "Use this in a script after starting an export so the next step only runs once the mailboxes actually land in the sequencer.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Capacity gap report",
+      "command": "analytics --type capacity --group-by workspace",
+      "description": "Show purchased vs assigned vs available mailbox counts so you see unused capacity at a glance.",
+      "rationale": "Requires combining the authenticated account's purchased and assigned counts from the local store into one view.",
+      "example": "zapmail-pp-cli analytics --type capacity --group-by workspace --json",
+      "why_it_matters": "Use this to decide whether to assign more mailboxes or stop paying for capacity you aren't using.",
+      "group": "Cost and capacity"
+    }
+  ],
+  "narrative": {
+    "display_name": "Zapmail",
+    "headline": "Every Zapmail dashboard action, plus an offline SQLite mirror of your whole mailbox and domain fleet, with deliverability rollups and renewal forecasting no other Zapmail tool ships.",
+    "value_prop": "Drive Zapmail from the command line with agent-native output (--json, --select, typed exit codes) and a --dry-run guard on everything that spends money. Sync your domains, mailboxes, subscriptions, and exports into local SQLite, then run fleet queries the dashboard cannot: fleet health rollups, warmed mailbox finders, failed-mailbox triage, renewal forecasts, and cost-per-active-mailbox. (v1 operates in your primary workspace.)",
+    "auth_narrative": "Zapmail uses a single API key sent in the x-auth-zapmail header (raw token, not Bearer). Get it at Dashboard \u003e Settings \u003e Integrations \u003e API and set ZAPMAIL_API_KEY.",
+    "quickstart": [
+      {
+        "command": "zapmail-pp-cli doctor",
+        "comment": "Confirm the API key works and the API is reachable"
+      },
+      {
+        "command": "zapmail-pp-cli user get",
+        "comment": "See your plan, mailbox counts, and wallet balance"
+      },
+      {
+        "command": "zapmail-pp-cli sync",
+        "comment": "Mirror workspaces, domains, mailboxes, subscriptions, and exports into local SQLite"
+      },
+      {
+        "command": "zapmail-pp-cli mailboxes idle --json",
+        "comment": "List warmed mailboxes plus paid-but-unprovisioned capacity"
+      },
+      {
+        "command": "zapmail-pp-cli analytics --type fleet-health --group-by workspace",
+        "comment": "Roll up unhealthy and abused domains across your synced fleet"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 / 403 on every call",
+        "fix": "Set ZAPMAIL_API_KEY to the token from Dashboard \u003e Settings \u003e Integrations \u003e API, then run 'zapmail-pp-cli doctor'."
+      },
+      {
+        "symptom": "429 Too Many Requests",
+        "fix": "Zapmail limits general calls to 5/sec and 20/min; let sync back off, or reduce --limit on list commands."
+      },
+      {
+        "symptom": "Fleet analytics look empty or stale",
+        "fix": "Run 'zapmail-pp-cli sync' first; analytics read the local mirror, not the live API."
+      }
+    ],
+    "when_to_use": "Use this CLI when you manage Zapmail cold-email infrastructure and need to query your fleet, script provisioning and exports, or embed Zapmail management in an agent or automation. It is strongest for cost and capacity reviews the dashboard can't answer. v1 operates in your primary workspace.",
+    "recipes": [
+      {
+        "title": "Morning deliverability triage",
+        "command": "zapmail-pp-cli sync \u0026\u0026 zapmail-pp-cli analytics --type fleet-health --group-by workspace --agent --select workspace,unhealthyCount,abusedCount",
+        "explanation": "Sync the fleet, then narrow the rollup to just the at-risk counts for a fast scan."
+      },
+      {
+        "title": "Recover wasted send capacity",
+        "command": "zapmail-pp-cli mailboxes idle --json | jq '.[].email'",
+        "explanation": "List warmed-but-unassigned mailboxes so you can put paid-for inboxes back to work."
+      },
+      {
+        "title": "Clean export into a sequencer",
+        "command": "zapmail-pp-cli exports mailboxes --apps SMARTLEAD --contains client.com --dry-run",
+        "explanation": "Preview exactly which mailboxes would be exported before sending them, no real export performed."
+      },
+      {
+        "title": "Forecast next week's renewals",
+        "command": "zapmail-pp-cli analytics --type renewals --group-by week --csv",
+        "explanation": "Get a week-bucketed renewal cost forecast as CSV for a spreadsheet or budget review."
+      },
+      {
+        "title": "Send a one-off from a connected inbox",
+        "command": "zapmail-pp-cli inbox send --account you@example.com --to prospect@example.com --subject 'Quick q' --body 'Hi there' --dry-run",
+        "explanation": "Compose and preview an outbound send from a Zapbox-connected account before actually sending."
+      }
+    ],
+    "trigger_phrases": [
+      "check my zapmail fleet health",
+      "which mailboxes are warmed but unassigned",
+      "export mailboxes to smartlead",
+      "what zapmail subscriptions renew next week",
+      "find failed zapmail mailboxes",
+      "use zapmail",
+      "run zapmail"
+    ]
+  }
+}

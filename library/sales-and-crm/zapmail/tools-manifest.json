@@ -1,0 +1,593 @@
+{
+  "api_name": "zapmail",
+  "base_url": "https://api.zapmail.ai/api",
+  "description": "Every Zapmail dashboard action, plus an offline SQLite mirror of your whole mailbox and domain fleet across workspaces, with deliverability rollups and renewal forecasting no other Zapmail tool ships.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "api_key",
+    "header": "x-auth-zapmail",
+    "format": "{ZAPMAIL_API_KEY}",
+    "in": "header",
+    "env_vars": [
+      "ZAPMAIL_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "ZAPMAIL_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ],
+    "key_url": "https://app.zapmail.ai/"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "dns_add",
+      "description": "Add one or more DNS records to an assigned domain. Required: assignedDomainId, records. Returns the new DnsRecordList.",
+      "method": "POST",
+      "path": "/v2/dns",
+      "params": [
+        {
+          "name": "assignedDomainId",
+          "type": "string",
+          "location": "body",
+          "description": "Assigned domain ID (UUID)",
+          "required": true
+        },
+        {
+          "name": "records",
+          "type": "array",
+          "location": "body",
+          "description": "DNS records to add",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "dns_list",
+      "description": "Get all DNS records for an assigned domain. Required: id. Returns the DnsRecordList.",
+      "method": "GET",
+      "path": "/v2/dns",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "query",
+          "description": "Assigned domain ID (UUID)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "domains_ai-finder",
+      "description": "Generate available domain name suggestions from keywords using AI. Required: keywords, tlds, desiredCount (default: 10). Returns the new AiDomainSuggestions.",
+      "method": "POST",
+      "path": "/v2/domains/ai-finder",
+      "params": [
+        {
+          "name": "keywords",
+          "type": "array",
+          "location": "body",
+          "description": "Seed keywords for domain ideas",
+          "required": true
+        },
+        {
+          "name": "tlds",
+          "type": "array",
+          "location": "body",
+          "description": "TLDs to consider, e.g. com io co",
+          "required": true
+        },
+        {
+          "name": "desiredCount",
+          "type": "int",
+          "location": "body",
+          "description": "How many suggestions to return",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "domains_assignable",
+      "description": "List domains that have free capacity to assign new mailboxes. Optional: page (default: 1), limit (default: 50), contains. Returns array of Domain.",
+      "method": "GET",
+      "path": "/v2/domains/assignable",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number (1-based)"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Domains per page"
+        },
+        {
+          "name": "contains",
+          "type": "string",
+          "location": "query",
+          "description": "Filter domains by substring"
+        }
+      ]
+    },
+    {
+      "name": "domains_available-bulk",
+      "description": "Check registration availability for multiple domain names at once. Required: domainNames. Returns the new DomainAvailability.",
+      "method": "POST",
+      "path": "/v2/domains/available-bulk",
+      "params": [
+        {
+          "name": "domainNames",
+          "type": "array",
+          "location": "body",
+          "description": "Domain names to check for availability",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "domains_health-score",
+      "description": "Retrieve the deliverability health score and abuse flag for one domain. Required: domainId. Returns the DomainHealth.",
+      "method": "GET",
+      "path": "/v2/domains/health-score",
+      "params": [
+        {
+          "name": "domainId",
+          "type": "string",
+          "location": "query",
+          "description": "Domain ID (UUID)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "domains_list",
+      "description": "Retrieve all domains with status, DNS, forwarding, and assigned-mailbox counts. Optional: page (default: 1), limit (default: 50), contains. Returns array of Domain.",
+      "method": "GET",
+      "path": "/v2/domains",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number (1-based)"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Domains per page"
+        },
+        {
+          "name": "contains",
+          "type": "string",
+          "location": "query",
+          "description": "Filter domains by substring"
+        }
+      ]
+    },
+    {
+      "name": "exports_accounts",
+      "description": "List connected third-party export accounts for an app. Required: app. Returns array of ThirdPartyAccount.",
+      "method": "GET",
+      "path": "/v2/exports/accounts/third-party",
+      "params": [
+        {
+          "name": "app",
+          "type": "string",
+          "location": "query",
+          "description": "App name, e.g. INSTANTLY, SMARTLEAD",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "exports_add-account",
+      "description": "Add third-party export account credentials. Required: email, password, app. Returns the new ThirdPartyAccount.",
+      "method": "POST",
+      "path": "/v2/exports/accounts/third-party",
+      "params": [
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body",
+          "description": "Account email / login",
+          "required": true
+        },
+        {
+          "name": "password",
+          "type": "string",
+          "location": "body",
+          "description": "Account password / API token",
+          "required": true
+        },
+        {
+          "name": "app",
+          "type": "string",
+          "location": "body",
+          "description": "App name, e.g. SMARTLEAD, INSTANTLY, REACHINBOX, REPLY_IO",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "exports_mailboxes",
+      "description": "Export mailboxes to one or more sequencer apps (Smartlead, Instantly, ReachInbox, etc.). Required: apps. Optional: ids, excludeIds, tagIds (plus 3 more). Returns the new ExportResult.",
+      "method": "POST",
+      "path": "/v2/exports/mailboxes",
+      "params": [
+        {
+          "name": "apps",
+          "type": "array",
+          "location": "body",
+          "description": "Target apps, e.g. SMARTLEAD INSTANTLY REACHINBOX REPLY_IO",
+          "required": true
+        },
+        {
+          "name": "ids",
+          "type": "array",
+          "location": "body",
+          "description": "Specific mailbox IDs to export"
+        },
+        {
+          "name": "excludeIds",
+          "type": "array",
+          "location": "body",
+          "description": "Mailbox IDs to exclude"
+        },
+        {
+          "name": "tagIds",
+          "type": "array",
+          "location": "body",
+          "description": "Export mailboxes carrying these tag IDs"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "body",
+          "description": "Filter mailboxes by status"
+        },
+        {
+          "name": "contains",
+          "type": "string",
+          "location": "body",
+          "description": "Filter mailboxes by substring"
+        },
+        {
+          "name": "thirdPartyAccountId",
+          "type": "string",
+          "location": "body",
+          "description": "Third-party account ID to export into"
+        }
+      ]
+    },
+    {
+      "name": "exports_status",
+      "description": "Check the status of a running or completed export. Required: exportId. Returns the ExportStatus.",
+      "method": "GET",
+      "path": "/v2/exports/status",
+      "params": [
+        {
+          "name": "exportId",
+          "type": "int",
+          "location": "query",
+          "description": "Export operation ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "inbox_accounts",
+      "description": "List inbox-connected accounts available in Zapbox. Returns array of ConnectedAccount.",
+      "method": "GET",
+      "path": "/v2/onebox/connected-accounts",
+      "params": []
+    },
+    {
+      "name": "inbox_emails",
+      "description": "Fetch recent emails for a connected account. Optional: account, folder, page (default: 1) (plus 2 more). Returns the EmailPage.",
+      "method": "GET",
+      "path": "/v2/onebox/top-emails",
+      "params": [
+        {
+          "name": "account",
+          "type": "string",
+          "location": "query",
+          "description": "Connected email account"
+        },
+        {
+          "name": "folder",
+          "type": "string",
+          "location": "query",
+          "description": "Folder/label to filter by"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Emails per page"
+        },
+        {
+          "name": "include-warmup",
+          "wire_name": "includeWarmUp",
+          "type": "bool",
+          "location": "query",
+          "description": "Include warm-up emails"
+        }
+      ]
+    },
+    {
+      "name": "inbox_search",
+      "description": "Search emails across connected accounts. Optional: account, query, page (default: 1). Returns the EmailPage.",
+      "method": "GET",
+      "path": "/v2/onebox/search-emails",
+      "params": [
+        {
+          "name": "account",
+          "type": "string",
+          "location": "query",
+          "description": "Connected email account to search"
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Search query string"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number"
+        }
+      ]
+    },
+    {
+      "name": "inbox_send",
+      "description": "Send an email from a connected account (real outbound send). Required: account, to, subject, body. Optional: cc, bcc, messageId (plus 1 more). Returns the new SendResult.",
+      "method": "POST",
+      "path": "/v2/onebox/send-email",
+      "params": [
+        {
+          "name": "account",
+          "type": "string",
+          "location": "body",
+          "description": "Sending account email",
+          "required": true
+        },
+        {
+          "name": "to",
+          "type": "string",
+          "location": "body",
+          "description": "Recipient email",
+          "required": true
+        },
+        {
+          "name": "subject",
+          "type": "string",
+          "location": "body",
+          "description": "Email subject",
+          "required": true
+        },
+        {
+          "name": "body",
+          "type": "string",
+          "location": "body",
+          "description": "Email body",
+          "required": true
+        },
+        {
+          "name": "cc",
+          "type": "array",
+          "location": "body",
+          "description": "CC recipients"
+        },
+        {
+          "name": "bcc",
+          "type": "array",
+          "location": "body",
+          "description": "BCC recipients"
+        },
+        {
+          "name": "messageId",
+          "type": "string",
+          "location": "body",
+          "description": "Message ID when replying"
+        },
+        {
+          "name": "threadId",
+          "type": "string",
+          "location": "body",
+          "description": "Thread ID when replying"
+        }
+      ]
+    },
+    {
+      "name": "mailboxes_get",
+      "description": "Get details of a single mailbox by its ID. Required: id. Returns the Mailbox.",
+      "method": "GET",
+      "path": "/v2/mailboxes",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "query",
+          "description": "Mailbox ID (UUID)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "mailboxes_list",
+      "description": "Retrieve all mailboxes, grouped by domain, with counts and warmup status. Optional: page (default: 1), limit (default: 50), contains. Returns the MailboxListPage.",
+      "method": "GET",
+      "path": "/v2/mailboxes/list",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number (1-based)"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Mailboxes per page"
+        },
+        {
+          "name": "contains",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by substring (e.g. a domain or email fragment)"
+        }
+      ]
+    },
+    {
+      "name": "subscriptions_list",
+      "description": "Get all subscriptions with plan, price, mailbox quantity, and billing period. Optional: status, contains. Returns array of Subscription.",
+      "method": "GET",
+      "path": "/v2/subscriptions",
+      "params": [
+        {
+          "name": "status",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by status: ACTIVE, CANCELLED, PAUSED, PAYMENT_PENDING"
+        },
+        {
+          "name": "contains",
+          "type": "string",
+          "location": "query",
+          "description": "Search filter"
+        }
+      ]
+    },
+    {
+      "name": "user_get",
+      "description": "Retrieve the authenticated user: plan, mailbox counts, wallet balance. Returns the User.",
+      "method": "GET",
+      "path": "/v2/users",
+      "params": []
+    },
+    {
+      "name": "wallet_balance",
+      "description": "Get current wallet balance (USD) and auto-recharge settings. Returns the WalletBalance.",
+      "method": "GET",
+      "path": "/v2/wallet/balance",
+      "params": []
+    },
+    {
+      "name": "workspaces_create",
+      "description": "Create a new workspace, optionally with billing details. Required: name. Optional: billingDetails. Returns the new Workspace.",
+      "method": "POST",
+      "path": "/v2/workspaces",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Workspace name",
+          "required": true
+        },
+        {
+          "name": "billing-details-company",
+          "wire_name": "billingDetails.company",
+          "type": "string",
+          "location": "body",
+          "description": "Company name"
+        },
+        {
+          "name": "billing-details-first-name",
+          "wire_name": "billingDetails.firstName",
+          "type": "string",
+          "location": "body",
+          "description": "Billing contact first name"
+        },
+        {
+          "name": "billing-details-last-name",
+          "wire_name": "billingDetails.lastName",
+          "type": "string",
+          "location": "body",
+          "description": "Billing contact last name"
+        },
+        {
+          "name": "billing-details-address-line-one",
+          "wire_name": "billingDetails.addressLineOne",
+          "type": "string",
+          "location": "body",
+          "description": "Address line 1"
+        },
+        {
+          "name": "billing-details-city",
+          "wire_name": "billingDetails.city",
+          "type": "string",
+          "location": "body",
+          "description": "City"
+        },
+        {
+          "name": "billing-details-state",
+          "wire_name": "billingDetails.state",
+          "type": "string",
+          "location": "body",
+          "description": "State / province"
+        },
+        {
+          "name": "billing-details-country",
+          "wire_name": "billingDetails.country",
+          "type": "string",
+          "location": "body",
+          "description": "Country"
+        },
+        {
+          "name": "billing-details-postal-code",
+          "wire_name": "billingDetails.postalCode",
+          "type": "string",
+          "location": "body",
+          "description": "Postal code"
+        },
+        {
+          "name": "billing-details-phone-cc",
+          "wire_name": "billingDetails.phoneCc",
+          "type": "string",
+          "location": "body",
+          "description": "Phone country code, e.g. +1"
+        },
+        {
+          "name": "billing-details-phone",
+          "wire_name": "billingDetails.phone",
+          "type": "string",
+          "location": "body",
+          "description": "Phone number"
+        },
+        {
+          "name": "billing-details-language-preference",
+          "wire_name": "billingDetails.languagePreference",
+          "type": "string",
+          "location": "body",
+          "description": "Language preference, e.g. en"
+        }
+      ]
+    },
+    {
+      "name": "workspaces_list",
+      "description": "Retrieve all workspaces for the authenticated account. Returns array of Workspace.",
+      "method": "GET",
+      "path": "/v2/workspaces",
+      "params": []
+    }
+  ]
+}

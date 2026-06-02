@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "zapmail-pp-mcp",
+  "display_name": "Zapmail",
+  "version": "4.20.0",
+  "description": "Every Zapmail dashboard action, plus an offline SQLite mirror of your whole mailbox and domain fleet across workspaces, with deliverability rollups and renewal forecasting no other Zapmail tool ships.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/zapmail-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/zapmail-pp-mcp",
+      "args": [],
+      "env": {
+        "ZAPMAIL_API_KEY": "${user_config.zapmail_api_key}"
+      }
+    }
+  },
+  "user_config": {
+    "zapmail_api_key": {
+      "type": "string",
+      "title": "Zapmail API key",
+      "description": "Zapmail authenticates with a single API key sent in the x-auth-zapmail header\n(raw token, not Bearer). Get it at Dashboard > Settings > Integrations > API.\nSet it in the ZAPMAIL_API_KEY environment variable.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

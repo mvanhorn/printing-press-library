@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "api_name": "zapmail",
+  "run_id": "20260602-092722",
+  "status": "pass",
+  "level": "quick",
+  "matrix_size": 17,
+  "tests_passed": 17,
+  "tests_skipped": 9,
+  "auth_context": {
+    "type": "api_key",
+    "api_key_available": true
+  }
+}

@@ -1,0 +1,51 @@
+version: 2
+project_name: zapmail-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: zapmail-pp-cli
+    main: ./cmd/zapmail-pp-cli
+    binary: zapmail-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/sales-and-crm/zapmail/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: zapmail-pp-mcp
+    main: ./cmd/zapmail-pp-mcp
+    binary: zapmail-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: zapmail-pp-cli
+    repository:
+      owner: riccardovandra
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Every Zapmail dashboard action, plus an offline SQLite mirror of your whole mailbox and domain fleet across workspaces"
+    install: |
+      bin.install "zapmail-pp-cli"
+      bin.install "zapmail-pp-mcp"

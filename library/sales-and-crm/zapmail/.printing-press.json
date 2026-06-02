@@ -1,0 +1,68 @@
+{
+  "api_name": "zapmail",
+  "api_version": "0.1.0",
+  "auth_description": "Zapmail authenticates with a single API key sent in the x-auth-zapmail header\n(raw token, not Bearer). Get it at Dashboard \u003e Settings \u003e Integrations \u003e API.\nSet it in the ZAPMAIL_API_KEY environment variable.\n",
+  "auth_env_vars": [
+    "ZAPMAIL_API_KEY"
+  ],
+  "auth_key_url": "https://app.zapmail.ai/",
+  "auth_title": "Zapmail API key",
+  "auth_type": "api_key",
+  "category": "sales-and-crm",
+  "cli_name": "zapmail-pp-cli",
+  "creator": {
+    "handle": "riccardovandra",
+    "name": "riccardovandra"
+  },
+  "description": "Every Zapmail dashboard action, plus an offline SQLite mirror of your whole mailbox and domain fleet across workspaces, with deliverability rollups and renewal forecasting no other Zapmail tool ships.",
+  "display_name": "Zapmail",
+  "generated_at": "2026-06-02T08:27:43.415717Z",
+  "mcp_binary": "zapmail-pp-mcp",
+  "mcp_ready": "full",
+  "mcp_tool_count": 22,
+  "novel_features": [
+    {
+      "name": "Fleet health rollup",
+      "command": "analytics --type fleet-health --group-by workspace",
+      "description": "See every unhealthy or abused domain in your synced fleet in one table, instead of checking domains one at a time in the dashboard."
+    },
+    {
+      "name": "Warmed-but-unassigned finder",
+      "command": "mailboxes idle",
+      "description": "List warmed mailboxes ready to send and report how many paid mailboxes are not yet provisioned, so you recover capacity you are paying for."
+    },
+    {
+      "name": "Failed-mailbox triage",
+      "command": "mailboxes failed",
+      "description": "Surface every mailbox that failed or stalled during creation, grouped by domain and workspace, ready to retry."
+    },
+    {
+      "name": "Renewal cost forecast",
+      "command": "analytics --type renewals --group-by week",
+      "description": "Forecast which subscriptions and domains renew in the coming weeks and what each renewal will cost, so nothing lapses unexpectedly."
+    },
+    {
+      "name": "Cost-per-active-mailbox",
+      "command": "analytics --type cost-efficiency --group-by workspace",
+      "description": "Divide active subscription spend by the number of assigned mailboxes to expose where money is being wasted."
+    },
+    {
+      "name": "Export watch",
+      "command": "exports watch",
+      "description": "Poll one export to completion and exit non-zero if it fails, so you can gate a script on a sequencer export finishing."
+    },
+    {
+      "name": "Capacity gap report",
+      "command": "analytics --type capacity --group-by workspace",
+      "description": "Show purchased vs assigned vs available mailbox counts so you see unused capacity at a glance."
+    }
+  ],
+  "owner": "riccardovandra",
+  "printer": "riccardovandra",
+  "printer_name": "Riccardo Vandra",
+  "printing_press_version": "4.20.0",
+  "run_id": "20260602-092722",
+  "schema_version": 1,
+  "spec_checksum": "sha256:b89a3aa71f9735cf753bf0a22376c7173c90d2cb327c7389c9d6d56aadbc7819",
+  "spec_format": "internal"
+}

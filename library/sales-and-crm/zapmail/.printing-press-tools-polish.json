@@ -1,0 +1,19 @@
+{
+  "timestamp": "2026-06-02T08:23:32.667257Z",
+  "cli_dir": "\u003ccli-dir\u003e/zapmail-pp-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "version",
+      "file": "root.go",
+      "line": 319,
+      "evidence": "Print version",
+      "status": "accepted",
+      "note": "Standard 'version' command; agents understand this without elaboration"
+    }
+  ],
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-06-02T08:22:26.141986Z"
+  }
+}
