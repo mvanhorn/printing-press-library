@@ -41,7 +41,7 @@ func newNovelVelocityCmd(flags *rootFlags) *cobra.Command {
 			}
 			db, err := store.OpenWithContext(cmd.Context(), dbPath)
 			if err != nil {
-				return fmt.Errorf("opening local database: %w\nRun 'trello-pp-cli sync' first.", err)
+				return fmt.Errorf("opening local database: %w\nRun 'trello-pp-cli trello-sync' first.", err)
 			}
 			defer db.Close()
 
@@ -95,7 +95,7 @@ func newNovelVelocityCmd(flags *rootFlags) *cobra.Command {
 				return printJSONFiltered(cmd.OutOrStdout(), view, flags)
 			}
 			if len(weeksOut) == 0 {
-				fmt.Fprintln(cmd.OutOrStdout(), "No completion activity found. Sync actions with 'trello-pp-cli sync' first.")
+				fmt.Fprintln(cmd.OutOrStdout(), "No completion activity found. Sync actions with 'trello-pp-cli trello-sync' first.")
 				return nil
 			}
 			fmt.Fprintf(cmd.OutOrStdout(), "Velocity (last %d weeks, avg %.1f/week):\n\n", weeks, avg)

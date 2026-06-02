@@ -14,18 +14,18 @@ import (
 )
 
 type Config struct {
-	BaseURL       string            `toml:"base_url"`
-	AuthHeaderVal string            `toml:"auth_header"`
-	Headers       map[string]string `toml:"headers,omitempty"`
-	AuthSource    string            `toml:"-"`
-	AccessToken   string            `toml:"access_token"`
-	RefreshToken  string            `toml:"refresh_token"`
-	TokenExpiry   time.Time         `toml:"token_expiry"`
-	ClientID      string            `toml:"client_id"`
-	ClientSecret  string            `toml:"client_secret"`
-	Path          string            `toml:"-"`
-	TrelloApiKey  string            `toml:"api_key"`
-	TrelloApiToken string           `toml:"api_token"`
+	BaseURL        string            `toml:"base_url"`
+	AuthHeaderVal  string            `toml:"auth_header"`
+	Headers        map[string]string `toml:"headers,omitempty"`
+	AuthSource     string            `toml:"-"`
+	AccessToken    string            `toml:"access_token"`
+	RefreshToken   string            `toml:"refresh_token"`
+	TokenExpiry    time.Time         `toml:"token_expiry"`
+	ClientID       string            `toml:"client_id"`
+	ClientSecret   string            `toml:"client_secret"`
+	Path           string            `toml:"-"`
+	TrelloApiKey   string            `toml:"api_key"`
+	TrelloApiToken string            `toml:"api_token"`
 }
 
 func Load(configPath string) (*Config, error) {
@@ -149,6 +149,19 @@ func (c *Config) SaveCredential(token string) error {
 	return c.save()
 }
 
+func (c *Config) SaveTrelloAPIKey(key string) error {
+	c.AuthHeaderVal = ""
+	c.AccessToken = ""
+	c.TrelloApiKey = key
+	return c.save()
+}
+
+func (c *Config) SaveTrelloToken(token string) error {
+	c.TrelloApiToken = token
+	trelloTokenOverride = token
+	return c.save()
+}
+
 func (c *Config) ClearTokens() error {
 	// AuthHeader() falls back to the env-var-derived fields when AuthHeaderVal
 	// and AccessToken are empty, so dropping the working credential requires
@@ -163,6 +176,8 @@ func (c *Config) ClearTokens() error {
 	c.ClientID = ""
 	c.ClientSecret = ""
 	c.TrelloApiKey = ""
+	c.TrelloApiToken = ""
+	trelloTokenOverride = ""
 	return c.save()
 }
 

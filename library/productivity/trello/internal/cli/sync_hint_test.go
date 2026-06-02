@@ -39,7 +39,7 @@ func TestHintIfUnsynced_EmptySyncStateWritesHintToStderr(t *testing.T) {
 	if !hintIfUnsynced(cmd, db, "") {
 		t.Fatalf("hintIfUnsynced returned false for empty sync_state")
 	}
-	if got := stderr.String(); !strings.Contains(got, "Run 'trello-pp-cli sync'") {
+	if got := stderr.String(); !strings.Contains(got, "Run 'trello-pp-cli trello-sync'") {
 		t.Fatalf("stderr = %q, want sync hint", got)
 	}
 }
@@ -61,7 +61,7 @@ func TestHintIfStale_BackdatedSyncStateWritesHintToStderr(t *testing.T) {
 		t.Fatalf("hintIfStale returned false for stale sync_state")
 	}
 	got := stderr.String()
-	if !strings.Contains(got, "older than --max-age=30m0s") || !strings.Contains(got, "Run 'trello-pp-cli sync'") {
+	if !strings.Contains(got, "older than --max-age=30m0s") || !strings.Contains(got, "Run 'trello-pp-cli trello-sync'") {
 		t.Fatalf("stderr = %q, want stale sync hint", got)
 	}
 }

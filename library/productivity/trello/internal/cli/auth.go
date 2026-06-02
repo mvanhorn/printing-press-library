@@ -22,6 +22,7 @@ func newAuthCmd(flags *rootFlags) *cobra.Command {
 
 	cmd.AddCommand(newAuthSetupCmd(flags))
 	cmd.AddCommand(newAuthStatusCmd(flags))
+	cmd.AddCommand(newAuthSetKeyCmd(flags))
 	cmd.AddCommand(newAuthSetTokenCmd(flags))
 	cmd.AddCommand(newAuthLogoutCmd(flags))
 
@@ -42,8 +43,12 @@ func newAuthSetupCmd(_ *rootFlags) *cobra.Command {
 			fmt.Fprintln(w, "See API docs: https://trello.com/home")
 			fmt.Fprintln(w, "")
 			fmt.Fprintln(w, "Then set:")
-			fmt.Fprintln(w, "  export TRELLO_API_KEY=\"<your-token>\"")
-			fmt.Fprintln(w, "  trello-pp-cli auth set-token <token>")
+			fmt.Fprintln(w, "  export TRELLO_API_KEY=\"<your-api-key>\"")
+			fmt.Fprintln(w, "  export TRELLO_API_TOKEN=\"<your-user-token>\"")
+			fmt.Fprintln(w, "")
+			fmt.Fprintln(w, "Or save them to the config file:")
+			fmt.Fprintln(w, "  trello-pp-cli auth set-key <api-key>")
+			fmt.Fprintln(w, "  trello-pp-cli auth set-token <user-token>")
 			if !launch {
 				return nil
 			}
@@ -91,8 +96,16 @@ func newAuthStatusCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			w := cmd.OutOrStdout()
-			header := cfg.AuthHeader()
-			authed := header != ""
+			hasKey := cfg.AuthHeader() != ""
+			hasToken := cfg.TrelloToken() != ""
+			authed := hasKey && hasToken
+			missing := []string{}
+			if !hasKey {
+				missing = append(missing, "TRELLO_API_KEY")
+			}
+			if !hasToken {
+				missing = append(missing, "TRELLO_API_TOKEN")
+			}
 			// JSON envelope: {authenticated, verified, source, config}. When not
 			// authenticated, write the envelope first then return authErr
 			// so exit code carries the auth-failure signal.
@@ -102,22 +115,27 @@ func newAuthStatusCmd(flags *rootFlags) *cobra.Command {
 					"verified":      false,
 					"source":        cfg.AuthSource,
 					"config":        cfg.Path,
+					"missing":       missing,
 				}
 				if printErr := printJSONFiltered(w, out, flags); printErr != nil {
 					return printErr
 				}
 				if !authed {
-					return authErr(fmt.Errorf("no credentials configured"))
+					return authErr(fmt.Errorf("Trello API requires both key and token. Run trello-pp-cli auth setup."))
 				}
 				return nil
 			}
 			if !authed {
 				fmt.Fprintln(w, red("Not authenticated"))
 				fmt.Fprintln(w, "")
-				fmt.Fprintln(w, "Set your token:")
-				fmt.Fprintln(w, "  export TRELLO_API_KEY=\"your-token-here\"")
-				fmt.Fprintf(w, "  trello-pp-cli auth set-token <token>\n")
-				return authErr(fmt.Errorf("no credentials configured"))
+				fmt.Fprintln(w, "Trello API requires both key and token.")
+				fmt.Fprintln(w, "Set them with:")
+				fmt.Fprintln(w, "  export TRELLO_API_KEY=\"your-api-key\"")
+				fmt.Fprintln(w, "  export TRELLO_API_TOKEN=\"your-user-token\"")
+				fmt.Fprintln(w, "Or save them:")
+				fmt.Fprintln(w, "  trello-pp-cli auth set-key <api-key>")
+				fmt.Fprintf(w, "  trello-pp-cli auth set-token <user-token>\n")
+				return authErr(fmt.Errorf("Trello API requires both key and token. Run trello-pp-cli auth setup."))
 			}
 
 			fmt.Fprintln(w, green("Credentials present (not verified)"))
@@ -128,11 +146,38 @@ func newAuthStatusCmd(flags *rootFlags) *cobra.Command {
 	}
 }
 
+func newAuthSetKeyCmd(flags *rootFlags) *cobra.Command {
+	return &cobra.Command{
+		Use:     "set-key <api-key>",
+		Short:   "Save the Trello API key to the config file",
+		Example: "  trello-pp-cli auth set-key YOUR_API_KEY_HERE",
+		Args:    cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			cfg, err := config.Load(flags.configPath)
+			if err != nil {
+				return configErr(err)
+			}
+			if err := cfg.SaveTrelloAPIKey(args[0]); err != nil {
+				return configErr(fmt.Errorf("saving API key: %w", err))
+			}
+			if flags.asJSON {
+				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+					"saved":       true,
+					"field":       "api_key",
+					"config_path": cfg.Path,
+				}, flags)
+			}
+			fmt.Fprintf(cmd.OutOrStdout(), "API key saved to %s\n", cfg.Path)
+			return nil
+		},
+	}
+}
+
 func newAuthSetTokenCmd(flags *rootFlags) *cobra.Command {
 	return &cobra.Command{
 		Use:     "set-token <token>",
-		Short:   "Save an API token to the config file",
-		Example: "  trello-pp-cli auth set-token YOUR_TOKEN_HERE",
+		Short:   "Save the Trello user token to the config file",
+		Example: "  trello-pp-cli auth set-token YOUR_USER_TOKEN_HERE",
 		Args:    cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cfg, err := config.Load(flags.configPath)
@@ -140,18 +185,7 @@ func newAuthSetTokenCmd(flags *rootFlags) *cobra.Command {
 				return configErr(err)
 			}
 
-			// Clear any legacy auth_header so AuthHeader() falls through to
-			// the newly-saved credential. Without this, a pre-existing
-			// auth_header value (common after regenerate) shadows the saved
-			// token and set-token silently has no effect. Silent clear (no
-			// log line): a masked-tail variant could leak token bytes through
-			// scripted dogfood that captures stderr.
-			cfg.AuthHeaderVal = ""
-			// api_key auth: AuthHeader() reads the env-var-derived field, not
-			// AccessToken. Writing the token to AccessToken via SaveTokens
-			// would persist the bytes but leave doctor reporting "not
-			// configured" — the slot the header builder consults stays empty.
-			if err := cfg.SaveCredential(args[0]); err != nil {
+			if err := cfg.SaveTrelloToken(args[0]); err != nil {
 				return configErr(fmt.Errorf("saving token: %w", err))
 			}
 
@@ -159,6 +193,7 @@ func newAuthSetTokenCmd(flags *rootFlags) *cobra.Command {
 			if flags.asJSON {
 				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
 					"saved":       true,
+					"field":       "api_token",
 					"config_path": cfg.Path,
 				}, flags)
 			}
@@ -188,6 +223,12 @@ func newAuthLogoutCmd(flags *rootFlags) *cobra.Command {
 			envStillSet := ""
 			if envStillSet == "" && os.Getenv("TRELLO_API_KEY") != "" {
 				envStillSet = "TRELLO_API_KEY"
+			}
+			if os.Getenv("TRELLO_API_TOKEN") != "" {
+				if envStillSet != "" {
+					envStillSet += ", "
+				}
+				envStillSet += "TRELLO_API_TOKEN"
 			}
 
 			// JSON envelope: {cleared: true, note?: "<env_var> env var is still set"}.

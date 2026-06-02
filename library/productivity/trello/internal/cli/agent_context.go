@@ -109,7 +109,14 @@ func buildAgentContext(rootCmd *cobra.Command) agentContext {
 			Kind:        "per_call",
 			Required:    true,
 			Sensitive:   true,
-			Description: "Set to your API credential.",
+			Description: "Trello developer API key from https://trello.com/app-key.",
+		},
+		{
+			Name:        "TRELLO_API_TOKEN",
+			Kind:        "per_call",
+			Required:    true,
+			Sensitive:   true,
+			Description: "Trello user token authorized for the boards you want to access.",
 		},
 	}
 	authMode := "api_key"

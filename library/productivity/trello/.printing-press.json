@@ -24,7 +24,8 @@
   "api_version": "1.0",
   "auth_type": "api_key",
   "auth_env_vars": [
-    "TRELLO_API_KEY"
+    "TRELLO_API_KEY",
+    "TRELLO_API_TOKEN"
   ],
   "novel_features": [
     {

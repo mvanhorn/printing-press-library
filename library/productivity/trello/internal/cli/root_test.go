@@ -137,6 +137,71 @@ func TestFillTrelloAuthFlags_MissingAuthCleanError(t *testing.T) {
 	}
 }
 
+func TestAuthStatus_KeyOnlyIsNotAuthenticated(t *testing.T) {
+	t.Setenv("TRELLO_API_KEY", "key-only")
+	t.Setenv("TRELLO_API_TOKEN", "")
+
+	cmd := RootCmd()
+	var out, stderr bytes.Buffer
+	cmd.SetOut(&out)
+	cmd.SetErr(&stderr)
+	cmd.SetArgs([]string{"auth", "status", "--config", filepath.Join(t.TempDir(), "missing.toml"), "--json"})
+
+	err := cmd.Execute()
+	if err == nil {
+		t.Fatal("expected auth error for key-only Trello auth, got nil")
+	}
+	if got := ExitCode(err); got != 4 {
+		t.Fatalf("ExitCode(key-only auth status) = %d, want 4", got)
+	}
+	var payload map[string]any
+	if decodeErr := json.Unmarshal(out.Bytes(), &payload); decodeErr != nil {
+		t.Fatalf("auth status JSON decode: %v\nstdout: %s\nstderr: %s", decodeErr, out.String(), stderr.String())
+	}
+	if payload["authenticated"] != false {
+		t.Fatalf("authenticated = %v, want false", payload["authenticated"])
+	}
+	missing, ok := payload["missing"].([]any)
+	if !ok {
+		t.Fatalf("missing = %#v, want JSON array", payload["missing"])
+	}
+	foundToken := false
+	for _, item := range missing {
+		if item == "TRELLO_API_TOKEN" {
+			foundToken = true
+		}
+	}
+	if !foundToken {
+		t.Fatalf("missing = %#v, want TRELLO_API_TOKEN", missing)
+	}
+}
+
+func TestDoctor_KeyOnlyReportsMissingToken(t *testing.T) {
+	t.Setenv("TRELLO_API_KEY", "key-only")
+	t.Setenv("TRELLO_API_TOKEN", "")
+
+	cmd := RootCmd()
+	var out, stderr bytes.Buffer
+	cmd.SetOut(&out)
+	cmd.SetErr(&stderr)
+	cmd.SetArgs([]string{"doctor", "--config", filepath.Join(t.TempDir(), "missing.toml"), "--json", "--dry-run"})
+
+	if err := cmd.Execute(); err != nil {
+		t.Fatalf("doctor execute: %v\nstdout: %s\nstderr: %s", err, out.String(), stderr.String())
+	}
+	var payload map[string]any
+	if decodeErr := json.Unmarshal(out.Bytes(), &payload); decodeErr != nil {
+		t.Fatalf("doctor JSON decode: %v\nstdout: %s\nstderr: %s", decodeErr, out.String(), stderr.String())
+	}
+	if payload["auth"] != "not configured" {
+		t.Fatalf("auth = %v, want not configured", payload["auth"])
+	}
+	envVars, _ := payload["env_vars"].(string)
+	if !strings.Contains(envVars, "TRELLO_API_TOKEN") {
+		t.Fatalf("env_vars = %q, want missing TRELLO_API_TOKEN", envVars)
+	}
+}
+
 // TestFilterFields covers --select projection against the four payload
 // shapes printed CLIs see in practice: bare arrays, direct objects,
 // list envelopes (Stripe/GitHub/Notion-style wrapper + array), and

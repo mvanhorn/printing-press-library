@@ -495,19 +495,19 @@ func classifyAPIError(err error, flags *rootFlags) error {
 		return authErr(err)
 	case strings.Contains(msg, "HTTP 400") && cliutil.LooksLikeAuthError(msg):
 		return authErr(fmt.Errorf("%w\nhint: the API rejected the request — this usually means auth is missing or invalid."+
-			"\n      Set your API key: export TRELLO_API_KEY=<your-key>"+
+			"\n      Set your API key and token: export TRELLO_API_KEY=<your-api-key> TRELLO_API_TOKEN=<your-user-token>"+
 			"\n      See API docs: https://trello.com/home"+
 			"\n      Run 'trello-pp-cli doctor' to check auth status."+
 			"\n      Response: "+cliutil.SanitizeErrorBody(msg), err))
 	case strings.Contains(msg, "HTTP 401"):
-		return authErr(fmt.Errorf("%w\nhint: check your API key."+
-			" Set it with: export TRELLO_API_KEY=<your-key>"+
+		return authErr(fmt.Errorf("%w\nhint: check your Trello API key and user token."+
+			" Set them with: export TRELLO_API_KEY=<your-api-key> TRELLO_API_TOKEN=<your-user-token>"+
 			"\n      See API docs: https://trello.com/home"+
 			"\n      Run 'trello-pp-cli doctor' to check auth status.", err))
 	case strings.Contains(msg, "HTTP 403"):
 		return authErr(fmt.Errorf("%w\nhint: permission denied. Your credentials are valid but lack access to this resource."+
-			"\n      Check that your API key has the required permissions."+
-			"\n      Set it with: export TRELLO_API_KEY=<your-key>"+
+			"\n      Check that your Trello user token has access to this board/resource."+
+			"\n      Set credentials with: export TRELLO_API_KEY=<your-api-key> TRELLO_API_TOKEN=<your-user-token>"+
 			"\n      See API docs: https://trello.com/home"+
 			"\n      Run 'trello-pp-cli doctor' to check auth status.", err))
 	case strings.Contains(msg, "HTTP 404"):

@@ -51,7 +51,7 @@ func newNovelBottleneckCmd(flags *rootFlags) *cobra.Command {
 			}
 			db, err := store.OpenWithContext(cmd.Context(), dbPath)
 			if err != nil {
-				return fmt.Errorf("opening local database: %w\nRun 'trello-pp-cli sync' first.", err)
+				return fmt.Errorf("opening local database: %w\nRun 'trello-pp-cli trello-sync' first.", err)
 			}
 			defer db.Close()
 
@@ -150,7 +150,7 @@ func newNovelBottleneckCmd(flags *rootFlags) *cobra.Command {
 				return printJSONFiltered(cmd.OutOrStdout(), view, flags)
 			}
 			if len(entries) == 0 {
-				fmt.Fprintln(cmd.OutOrStdout(), "No open cards found. Run 'trello-pp-cli sync' first.")
+				fmt.Fprintln(cmd.OutOrStdout(), "No open cards found. Run 'trello-pp-cli trello-sync' first.")
 				return nil
 			}
 			fmt.Fprintf(cmd.OutOrStdout(), "Bottlenecks (threshold %s):\n\n", threshold)

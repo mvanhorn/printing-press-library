@@ -38,7 +38,7 @@ func newNovelOverdueCmd(flags *rootFlags) *cobra.Command {
 			}
 			db, err := store.OpenWithContext(cmd.Context(), dbPath)
 			if err != nil {
-				return fmt.Errorf("opening local database: %w\nRun 'trello-pp-cli sync' first.", err)
+				return fmt.Errorf("opening local database: %w\nRun 'trello-pp-cli trello-sync' first.", err)
 			}
 			defer db.Close()
 
@@ -88,7 +88,7 @@ func newNovelOverdueCmd(flags *rootFlags) *cobra.Command {
 				return printJSONFiltered(cmd.OutOrStdout(), view, flags)
 			}
 			if len(entries) == 0 {
-				fmt.Fprintln(cmd.OutOrStdout(), "No overdue cards. Run 'trello-pp-cli sync' if this looks wrong.")
+				fmt.Fprintln(cmd.OutOrStdout(), "No overdue cards. Run 'trello-pp-cli trello-sync' if this looks wrong.")
 				return nil
 			}
 			fmt.Fprintf(cmd.OutOrStdout(), "Overdue cards (%d):\n\n", len(entries))

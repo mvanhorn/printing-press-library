@@ -41,7 +41,7 @@ Data must be synced first with the sync command.`,
 
 			db, err := store.OpenWithContext(cmd.Context(), dbPath)
 			if err != nil {
-				return fmt.Errorf("opening local database: %w\nRun 'trello-pp-cli sync' first.", err)
+				return fmt.Errorf("opening local database: %w\nRun 'trello-pp-cli trello-sync' first.", err)
 			}
 			defer db.Close()
 

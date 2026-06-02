@@ -80,7 +80,7 @@ To install:
 
 1. Download the `.mcpb` for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/trello-current).
 2. Double-click the `.mcpb` file. Claude Desktop opens and walks you through the install.
-3. Fill in `TRELLO_API_KEY` when Claude Desktop prompts you.
+3. Fill in both `TRELLO_API_KEY` and `TRELLO_API_TOKEN` when Claude Desktop prompts you.
 
 Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple Silicon (`darwin-arm64`) and Windows (`amd64`, `arm64`); for other platforms, use the manual config below.
 
@@ -102,7 +102,8 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
     "trello": {
       "command": "trello-pp-mcp",
       "env": {
-        "TRELLO_API_KEY": "<your-key>"
+        "TRELLO_API_KEY": "<your-api-key>",
+        "TRELLO_API_TOKEN": "<your-user-token>"
       }
     }
   }
@@ -122,7 +123,7 @@ Trello auth is a key plus token pair passed as query params. Get both at https:/
 trello-pp-cli doctor --dry-run
 
 # mirror your boards/lists/cards into local SQLite
-trello-pp-cli sync
+trello-pp-cli trello-sync
 
 # see every overdue card across all boards at once
 trello-pp-cli overdue --agent
@@ -414,7 +415,8 @@ Environment variables:
 
 | Name | Kind | Required | Description |
 | --- | --- | --- | --- |
-| `TRELLO_API_KEY` | per_call | Yes | Set to your API credential. |
+| `TRELLO_API_KEY` | per_call | Yes | Trello developer API key from https://trello.com/app-key. |
+| `TRELLO_API_TOKEN` | per_call | Yes | Trello user token authorized for the boards you want to access. |
 
 ### agentcookie (optional)
 
@@ -423,14 +425,14 @@ If you use agentcookie to sync secrets across machines, this CLI auto-adopts age
 ## Troubleshooting
 **Authentication errors (exit code 4)**
 - Run `trello-pp-cli doctor` to check credentials
-- Verify the environment variable is set: `echo $TRELLO_API_KEY`
+- Verify both environment variables are set without printing them: `test -n "$TRELLO_API_KEY" && test -n "$TRELLO_API_TOKEN" && echo ok`
 **Not found errors (exit code 3)**
 - Check the resource ID is correct
 - Run the `list` command to see available items
 
 ### API-specific
 - **401 invalid token** — Regenerate your token at https://trello.com/app-key and re-export TRELLO_API_TOKEN.
-- **empty results after sync** — Run `trello-pp-cli sync --full` to force a full re-mirror.
+- **empty results after hydration** — Run `trello-pp-cli trello-sync` to mirror boards, lists, cards, members, checklists, and recent actions.
 
 ## Sources & Inspiration
 

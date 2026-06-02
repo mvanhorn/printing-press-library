@@ -721,7 +721,7 @@ func looksLikeCredentialPlaceholder(value string) bool {
 }
 
 func authPlaceholderCredentialError(cfg *config.Config) error {
-	return authPlaceholderCredentialErrorWithSetup(cfg, "export TRELLO_API_KEY=<your-token> or trello-pp-cli auth set-token <token>")
+	return authPlaceholderCredentialErrorWithSetup(cfg, "export TRELLO_API_KEY=<your-api-key> TRELLO_API_TOKEN=<your-user-token> or run trello-pp-cli auth set-key <api-key> && trello-pp-cli auth set-token <user-token>")
 }
 
 func authPlaceholderCredentialErrorWithSetup(cfg *config.Config, setup string) error {

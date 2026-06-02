@@ -170,10 +170,11 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 			// Check auth
 			authConfigured := false
 			if cfg != nil {
-				header := cfg.AuthHeader()
-				if header == "" {
+				hasKey := cfg.AuthHeader() != ""
+				hasToken := cfg.TrelloToken() != ""
+				if !hasKey || !hasToken {
 					report["auth"] = "not configured"
-					report["auth_hint"] = "export TRELLO_API_KEY=<your-key>"
+					report["auth_hint"] = "export TRELLO_API_KEY=<your-api-key> and TRELLO_API_TOKEN=<your-user-token>"
 					report["auth_docs_url"] = "https://trello.com/home"
 				} else {
 					authConfigured = true
@@ -189,16 +190,22 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 			authEnvOptionalNames := []string{}
 			// Validation rejects multi-OR-group specs upstream, so the single optional-satisfied state is sufficient at runtime.
 			authEnvOptionalSatisfied := false
-			if os.Getenv("TRELLO_API_KEY") != "" {
+			if os.Getenv("TRELLO_API_KEY") != "" || (cfg != nil && cfg.TrelloApiKey != "") {
 				authEnvSet = append(authEnvSet, "TRELLO_API_KEY")
-			} else if authConfigured {
+			} else {
+				authEnvRequiredMissing = append(authEnvRequiredMissing, "TRELLO_API_KEY")
+			}
+			if os.Getenv("TRELLO_API_TOKEN") != "" || (cfg != nil && cfg.TrelloToken() != "") {
+				authEnvSet = append(authEnvSet, "TRELLO_API_TOKEN")
+			} else {
+				authEnvRequiredMissing = append(authEnvRequiredMissing, "TRELLO_API_TOKEN")
+			}
+			if authConfigured && (os.Getenv("TRELLO_API_KEY") == "" || os.Getenv("TRELLO_API_TOKEN") == "") {
 				authSource, _ := report["auth_source"].(string)
 				if authSource == "" {
 					authSource = "config"
 				}
 				authEnvInfo = append(authEnvInfo, "credentials available from "+authSource)
-			} else {
-				authEnvRequiredMissing = append(authEnvRequiredMissing, "TRELLO_API_KEY")
 			}
 			switch {
 			case len(authEnvRequiredMissing) > 0:
@@ -210,7 +217,7 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 			case len(authEnvInfo) > 0:
 				report["env_vars"] = "INFO " + strings.Join(authEnvInfo, "; ")
 			default:
-				report["env_vars"] = fmt.Sprintf("OK %d/%d available", len(authEnvSet), 1)
+				report["env_vars"] = fmt.Sprintf("OK %d/%d available", len(authEnvSet), 2)
 			}
 
 			// Check API connectivity and validate credentials.
@@ -261,7 +268,7 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 
 					// Step 2: Validate credentials with an authenticated probe.
 					authHeader := cfg.AuthHeader()
-					if authHeader == "" {
+					if authHeader == "" || cfg.TrelloToken() == "" {
 						// No auth configured — skip credential validation
 					} else if reachErr != nil && !errors.As(reachErr, &reachAPIErr) {
 						report["credentials"] = "skipped (API unreachable)"
@@ -433,7 +440,7 @@ func collectCacheReport(ctx context.Context, staleAfterSpec string) map[string]a
 	if err != nil {
 		if os.IsNotExist(err) {
 			report["status"] = "unknown"
-			report["hint"] = "Database not created yet; run 'trello-pp-cli sync' to hydrate."
+			report["hint"] = "Database not created yet; run 'trello-pp-cli trello-sync' to hydrate."
 			return report
 		}
 		report["status"] = "error"
@@ -466,7 +473,7 @@ func collectCacheReport(ctx context.Context, staleAfterSpec string) map[string]a
 		// sync_state may not exist on a fresh DB that has migrated but not
 		// yet had any sync runs — treat as unknown rather than error.
 		report["status"] = "unknown"
-		report["hint"] = "No sync state recorded; run 'trello-pp-cli sync' to populate."
+		report["hint"] = "No sync state recorded; run 'trello-pp-cli trello-sync' to populate."
 		return report
 	}
 	defer rows.Close()
@@ -506,13 +513,13 @@ func collectCacheReport(ctx context.Context, staleAfterSpec string) map[string]a
 	switch {
 	case !haveAny && len(resources) == 0:
 		report["status"] = "unknown"
-		report["hint"] = "sync_state is empty; run 'trello-pp-cli sync' to hydrate."
+		report["hint"] = "sync_state is empty; run 'trello-pp-cli trello-sync' to hydrate."
 	case fresh:
 		report["status"] = "fresh"
 	default:
 		report["status"] = "stale"
 		report["oldest_age"] = oldest.Round(time.Minute).String()
-		report["hint"] = "Some resources are older than stale_after; run 'trello-pp-cli sync' to refresh."
+		report["hint"] = "Some resources are older than stale_after; run 'trello-pp-cli trello-sync' to refresh."
 	}
 	return report
 }

@@ -84,23 +84,12 @@ Resource scoping:
   parent. To run a dependent without re-syncing its parent, list only
   the dependent by name; the parent table must already be populated
   from a prior sync.`,
-		Example: `  # Sync all resources
-  trello-pp-cli sync
+		Example: `  # Trello account hydration (recommended)
+  trello-pp-cli trello-sync
 
-  # Sync specific resources only
-  trello-pp-cli sync --resources channels,messages
-
-  # Full resync (ignore previous checkpoint)
-  trello-pp-cli sync --full
-
-  # Incremental sync: only records from the last 7 days
-  trello-pp-cli sync --since 7d
-
-  # Parallel sync with 8 workers
-  trello-pp-cli sync --concurrency 8
-
-  # Latest-only: refresh head of each resource, no historical backfill
-  trello-pp-cli sync --latest-only`,
+  # Generic spec sync is a no-op for Trello because Trello has no top-level bulk-list endpoints
+  trello-pp-cli sync --json
+`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			userParams, err := parseSyncUserParams(paramFlags, resourceParamFlags, globalParamFlags)
 			if err != nil {
@@ -138,9 +127,9 @@ Resource scoping:
 			// fetch, …) that the spec's other resources define.
 			if len(resources) == 0 {
 				if humanFriendly {
-					fmt.Fprintln(os.Stderr, "trello-pp-cli sync: no bulk-list endpoints in spec; populate the store via single-fetch commands instead.")
+					fmt.Fprintln(os.Stderr, "trello-pp-cli sync: no bulk-list endpoints in spec; run 'trello-pp-cli trello-sync' to mirror boards, lists, cards, members, checklists, and actions.")
 				} else {
-					fmt.Fprintln(syncEventWriter, `{"event":"sync_warning","reason":"no_bulk_list_endpoints","detail":"no bulk-list endpoints in spec; populate the store via single-fetch commands"}`)
+					fmt.Fprintln(syncEventWriter, `{"event":"sync_warning","reason":"no_bulk_list_endpoints","detail":"no bulk-list endpoints in spec; run trello-pp-cli trello-sync for Trello account hydration"}`)
 				}
 			}
 

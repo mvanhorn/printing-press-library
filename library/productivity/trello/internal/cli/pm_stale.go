@@ -104,7 +104,7 @@ the specified number of days. Useful for identifying forgotten or blocked work.`
 
 			db, err := store.OpenWithContext(cmd.Context(), dbPath)
 			if err != nil {
-				return fmt.Errorf("opening local database: %w\nRun 'trello-pp-cli sync' first.", err)
+				return fmt.Errorf("opening local database: %w\nRun 'trello-pp-cli trello-sync' first.", err)
 			}
 			defer db.Close()
 

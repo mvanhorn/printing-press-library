@@ -15,7 +15,8 @@
       "command": "${__dirname}/bin/trello-pp-mcp",
       "args": [],
       "env": {
-        "TRELLO_API_KEY": "${user_config.trello_api_key}"
+        "TRELLO_API_KEY": "${user_config.trello_api_key}",
+        "TRELLO_API_TOKEN": "${user_config.trello_api_token}"
       }
     }
   },
@@ -24,6 +25,13 @@
       "type": "string",
       "title": "TRELLO_API_KEY",
       "description": "Sets TRELLO_API_KEY for the Trello MCP server.",
+      "sensitive": true,
+      "required": true
+    },
+    "trello_api_token": {
+      "type": "string",
+      "title": "TRELLO_API_TOKEN",
+      "description": "Sets TRELLO_API_TOKEN for the Trello MCP server.",
       "sensitive": true,
       "required": true
     }
