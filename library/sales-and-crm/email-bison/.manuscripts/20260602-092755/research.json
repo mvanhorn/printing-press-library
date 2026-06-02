@@ -1,0 +1,230 @@
+{
+  "api_name": "email-bison",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "email-bison-claude-mcp",
+      "url": "https://github.com/Sirkunle001/email-bison-claude-mcp",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 17,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-06-02T07:40:00Z",
+  "novel_features": [
+    {
+      "name": "Campaign cap headroom",
+      "command": "campaigns headroom",
+      "description": "See which launched campaigns are sending below their daily cap, at cap, or idle, in one table.",
+      "rationale": "Requires joining each campaign's daily-cap setting against per-day sent-email counts that only exist together in the local store; no single API call returns 'below cap'.",
+      "example": "email-bison-pp-cli campaigns headroom --agent",
+      "why_it_matters": "Reach for this when an agent needs to find under-delivering campaigns across an account without opening every campaign in the UI.",
+      "group": "Local joins that compound"
+    },
+    {
+      "name": "Sender health board",
+      "command": "sender-emails health",
+      "description": "One board joining sender state, attached campaigns, and recent bounces to spot dead or over-assigned inboxes.",
+      "rationale": "Sender state, campaign attachment, and bounce signal are separate API surfaces; only a local join shows 'disconnected AND still on 3 live campaigns'.",
+      "example": "email-bison-pp-cli sender-emails health --agent",
+      "why_it_matters": "Use before a deliverability audit to find senders that are degraded but still actively sending.",
+      "group": "Local joins that compound"
+    },
+    {
+      "name": "Interested-reply roll-up",
+      "command": "replies interested",
+      "description": "Every reply marked interested across all campaigns since a timestamp, joined to its lead, campaign, and sender.",
+      "rationale": "Aggregates interested replies across campaigns into one time-windowed view the per-campaign endpoints cannot return in a single call.",
+      "example": "email-bison-pp-cli replies interested --since 24h --agent",
+      "why_it_matters": "Reach for this for a daily 'what got interested since yesterday' triage across the whole account.",
+      "group": "Reply triage"
+    },
+    {
+      "name": "Stale-lead detector",
+      "command": "leads stale",
+      "description": "Find leads stuck mid-sequence: in a live campaign, already emailed, no reply, and no scheduled next send.",
+      "rationale": "Requires joining leads, scheduled_emails, sent_emails, and replies with date math that no single endpoint exposes.",
+      "example": "email-bison-pp-cli leads stale --days 7 --agent",
+      "why_it_matters": "Use weekly to surface leads silently rotting in a sequence so they can be re-engaged or cleaned out.",
+      "group": "Local joins that compound"
+    },
+    {
+      "name": "Sequence-variant win rates",
+      "command": "campaigns variants",
+      "description": "Per A/B sequence-step variant, the reply rate and interested rate computed from local data.",
+      "rationale": "Joins sequence_steps variants against sent_emails and replies in SQLite to produce per-variant rates no endpoint returns.",
+      "example": "email-bison-pp-cli campaigns variants 6 --agent",
+      "why_it_matters": "Reach for this when deciding which subject/body variant to keep in a multi-step campaign.",
+      "group": "Campaign optimization"
+    },
+    {
+      "name": "Launch readiness preflight",
+      "command": "campaigns preflight",
+      "description": "Before resuming, check locally that a campaign has a schedule, at least one step, a sender, leads, and that every merge tag exists as a custom variable.",
+      "rationale": "Validates the full launch chain by joining campaign, schedule, sequence, sender, and custom-variable state and set-checking merge tags against custom variables.",
+      "example": "email-bison-pp-cli campaigns preflight 6 --agent",
+      "why_it_matters": "Run this before launch to catch broken {VARIABLE} renders and missing senders that would silently kill a send.",
+      "group": "Campaign optimization"
+    },
+    {
+      "name": "Reply triage queue",
+      "command": "replies triage",
+      "description": "An oldest-first worklist of pending replies with lead and campaign context, ready to pipe into mark-interested or follow-up push.",
+      "rationale": "Filters and sorts the local reply store with joined context into an agent-shaped queue that drives the existing action commands.",
+      "example": "email-bison-pp-cli replies triage --agent",
+      "why_it_matters": "Use as the entry point for a morning master-inbox triage loop an agent can work top to bottom.",
+      "group": "Reply triage"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Campaign cap headroom",
+      "command": "campaigns headroom",
+      "description": "See which launched campaigns are sending below their daily cap, at cap, or idle, in one table.",
+      "rationale": "Requires joining each campaign's daily-cap setting against per-day sent-email counts that only exist together in the local store; no single API call returns 'below cap'.",
+      "example": "email-bison-pp-cli campaigns headroom --agent",
+      "why_it_matters": "Reach for this when an agent needs to find under-delivering campaigns across an account without opening every campaign in the UI.",
+      "group": "Local joins that compound"
+    },
+    {
+      "name": "Sender health board",
+      "command": "sender-emails health",
+      "description": "One board joining sender state, attached campaigns, and recent bounces to spot dead or over-assigned inboxes.",
+      "rationale": "Sender state, campaign attachment, and bounce signal are separate API surfaces; only a local join shows 'disconnected AND still on 3 live campaigns'.",
+      "example": "email-bison-pp-cli sender-emails health --agent",
+      "why_it_matters": "Use before a deliverability audit to find senders that are degraded but still actively sending.",
+      "group": "Local joins that compound"
+    },
+    {
+      "name": "Interested-reply roll-up",
+      "command": "replies interested",
+      "description": "Every reply marked interested across all campaigns since a timestamp, joined to its lead, campaign, and sender.",
+      "rationale": "Aggregates interested replies across campaigns into one time-windowed view the per-campaign endpoints cannot return in a single call.",
+      "example": "email-bison-pp-cli replies interested --since 24h --agent",
+      "why_it_matters": "Reach for this for a daily 'what got interested since yesterday' triage across the whole account.",
+      "group": "Reply triage"
+    },
+    {
+      "name": "Stale-lead detector",
+      "command": "leads stale",
+      "description": "Find leads stuck mid-sequence: in a live campaign, already emailed, no reply, and no scheduled next send.",
+      "rationale": "Requires joining leads, scheduled_emails, sent_emails, and replies with date math that no single endpoint exposes.",
+      "example": "email-bison-pp-cli leads stale --days 7 --agent",
+      "why_it_matters": "Use weekly to surface leads silently rotting in a sequence so they can be re-engaged or cleaned out.",
+      "group": "Local joins that compound"
+    },
+    {
+      "name": "Sequence-variant win rates",
+      "command": "campaigns variants",
+      "description": "Per A/B sequence-step variant, the reply rate and interested rate computed from local data.",
+      "rationale": "Joins sequence_steps variants against sent_emails and replies in SQLite to produce per-variant rates no endpoint returns.",
+      "example": "email-bison-pp-cli campaigns variants 6 --agent",
+      "why_it_matters": "Reach for this when deciding which subject/body variant to keep in a multi-step campaign.",
+      "group": "Campaign optimization"
+    },
+    {
+      "name": "Launch readiness preflight",
+      "command": "campaigns preflight",
+      "description": "Before resuming, check locally that a campaign has a schedule, at least one step, a sender, leads, and that every merge tag exists as a custom variable.",
+      "rationale": "Validates the full launch chain by joining campaign, schedule, sequence, sender, and custom-variable state and set-checking merge tags against custom variables.",
+      "example": "email-bison-pp-cli campaigns preflight 6 --agent",
+      "why_it_matters": "Run this before launch to catch broken {VARIABLE} renders and missing senders that would silently kill a send.",
+      "group": "Campaign optimization"
+    },
+    {
+      "name": "Reply triage queue",
+      "command": "replies triage",
+      "description": "An oldest-first worklist of pending replies with lead and campaign context, ready to pipe into mark-interested or follow-up push.",
+      "rationale": "Filters and sorts the local reply store with joined context into an agent-shaped queue that drives the existing action commands.",
+      "example": "email-bison-pp-cli replies triage --agent",
+      "why_it_matters": "Use as the entry point for a morning master-inbox triage loop an agent can work top to bottom.",
+      "group": "Reply triage"
+    }
+  ],
+  "narrative": {
+    "display_name": "Email Bison",
+    "headline": "Every Email Bison campaign, lead, and reply on the command line, plus a local database and cross-entity analytics no other Email Bison tool has.",
+    "value_prop": "A Go CLI for the Email Bison cold-email API with a local SQLite store, cursor-based sync, and offline FTS. Beyond mirroring every endpoint, it answers questions a single API call cannot: which campaigns are under their daily cap (campaigns headroom), which senders are degraded but still live (sender-emails health), which leads are stuck mid-sequence (leads stale), and which A/B variant is winning (campaigns variants).",
+    "auth_narrative": "Email Bison is self-hosted: each workspace has its own dedicated instance domain. Set EMAIL_BISON_BASE_URL to your instance (default https://dedi.emailbison.com) and EMAIL_BISON_API_KEY to a workspace api-user token from Settings -\u003e Developer API. Every token is scoped to one workspace.",
+    "quickstart": [
+      {
+        "command": "email-bison-pp-cli doctor",
+        "comment": "confirm the base URL and token resolve and the API is reachable"
+      },
+      {
+        "command": "email-bison-pp-cli sync",
+        "comment": "pull campaigns, leads, senders, and replies into the local store"
+      },
+      {
+        "command": "email-bison-pp-cli campaigns headroom --agent",
+        "comment": "see which campaigns are sending below their daily cap"
+      },
+      {
+        "command": "email-bison-pp-cli replies interested --since 24h --agent",
+        "comment": "roll up interested replies from the last day"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 Unauthorized on every command",
+        "fix": "Set EMAIL_BISON_API_KEY to a valid api-user token and confirm EMAIL_BISON_BASE_URL points at your dedicated instance, not dedi.emailbison.com."
+      },
+      {
+        "symptom": "Commands hit the wrong workspace",
+        "fix": "Each api-user token is scoped to one workspace; use the token minted inside the target workspace."
+      },
+      {
+        "symptom": "HTTP 429 during a large sync",
+        "fix": "The API allows about 10 requests/second; the client backs off on the retry_after header, so let the sync finish rather than re-running it."
+      },
+      {
+        "symptom": "Merge tags render empty in a campaign",
+        "fix": "Run campaigns preflight \u003cid\u003e; every {VARIABLE} in a sequence body must exist as a custom variable in the workspace."
+      }
+    ],
+    "when_to_use": "Use this CLI when an agent or operator needs to run or audit Email Bison outreach programmatically: launching and pausing campaigns, ingesting and tagging leads, triaging the master inbox, and answering cross-entity questions (cap headroom, sender health, stale leads, variant win rates) that the web UI and raw API cannot answer in one shot. It shines for agencies running many workspaces who want scriptable, offline-queryable campaign state.",
+    "recipes": [
+      {
+        "title": "Morning inbox triage",
+        "command": "email-bison-pp-cli replies triage --agent",
+        "explanation": "Pull an oldest-first queue of pending replies, then mark-interested or push the good ones into a follow-up campaign."
+      },
+      {
+        "title": "Pre-launch safety check",
+        "command": "email-bison-pp-cli campaigns preflight 6 --agent",
+        "explanation": "Confirm a campaign has a schedule, sequence, senders, leads, and valid merge tags before calling resume."
+      },
+      {
+        "title": "Deliverability sweep",
+        "command": "email-bison-pp-cli sender-emails health --agent --select email,state,live_campaigns,recent_bounces",
+        "explanation": "Surface degraded senders still attached to live campaigns, narrowing a verbose response to the fields that matter."
+      },
+      {
+        "title": "Find rotting leads",
+        "command": "email-bison-pp-cli leads stale --days 7 --agent",
+        "explanation": "List leads emailed a week ago with no reply and no next send so they can be re-engaged or removed."
+      },
+      {
+        "title": "Launch a campaign",
+        "command": "email-bison-pp-cli campaigns resume campaign 6 --dry-run",
+        "explanation": "Preview the launch call, then drop --dry-run to start sending once preflight is clean."
+      }
+    ],
+    "trigger_phrases": [
+      "list my email bison campaigns",
+      "which campaigns are below their daily cap",
+      "triage my email bison inbox",
+      "show interested replies since yesterday",
+      "which senders are disconnected",
+      "use email-bison",
+      "run email-bison"
+    ]
+  }
+}

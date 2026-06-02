@@ -1,0 +1,51 @@
+version: 2
+project_name: email-bison-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: email-bison-pp-cli
+    main: ./cmd/email-bison-pp-cli
+    binary: email-bison-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/sales-and-crm/email-bison/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: email-bison-pp-mcp
+    main: ./cmd/email-bison-pp-mcp
+    binary: email-bison-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: email-bison-pp-cli
+    repository:
+      owner: riccardovandra
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Every Email Bison campaign, lead, and reply on the command line"
+    install: |
+      bin.install "email-bison-pp-cli"
+      bin.install "email-bison-pp-mcp"

@@ -1,0 +1,75 @@
+{
+  "api_name": "email-bison",
+  "api_version": "1.0",
+  "auth_env_var_specs": [
+    {
+      "name": "EMAIL_BISON_API_KEY",
+      "kind": "per_call",
+      "required": true,
+      "sensitive": true,
+      "description": "Email Bison workspace api-user token from Settings -\u003e Developer API."
+    }
+  ],
+  "auth_env_vars": [
+    "EMAIL_BISON_API_KEY"
+  ],
+  "auth_type": "bearer_token",
+  "category": "sales-and-crm",
+  "cli_name": "email-bison-pp-cli",
+  "creator": {
+    "handle": "riccardovandra",
+    "name": "riccardovandra"
+  },
+  "description": "Every Email Bison campaign, lead, and reply on the command line, plus a local database and cross-entity analytics no other Email Bison tool has.",
+  "display_name": "Email Bison",
+  "generated_at": "2026-06-02T08:20:19.136367Z",
+  "mcp_binary": "email-bison-pp-mcp",
+  "mcp_ready": "full",
+  "mcp_tool_count": 47,
+  "novel_features": [
+    {
+      "name": "Campaign cap headroom",
+      "command": "campaigns headroom",
+      "description": "See which launched campaigns are sending below their daily cap, at cap, or idle, in one table."
+    },
+    {
+      "name": "Sender health board",
+      "command": "sender-emails health",
+      "description": "One board joining sender state, attached campaigns, and recent bounces to spot dead or over-assigned inboxes."
+    },
+    {
+      "name": "Interested-reply roll-up",
+      "command": "replies interested",
+      "description": "Every reply marked interested across all campaigns since a timestamp, joined to its lead, campaign, and sender."
+    },
+    {
+      "name": "Stale-lead detector",
+      "command": "leads stale",
+      "description": "Find leads stuck mid-sequence: in a live campaign, already emailed, no reply, and no scheduled next send."
+    },
+    {
+      "name": "Sequence-variant win rates",
+      "command": "campaigns variants",
+      "description": "Per A/B sequence-step variant, the reply rate and interested rate computed from local data."
+    },
+    {
+      "name": "Launch readiness preflight",
+      "command": "campaigns preflight",
+      "description": "Before resuming, check locally that a campaign has a schedule, at least one step, a sender, leads, and that every merge tag exists as a custom variable."
+    },
+    {
+      "name": "Reply triage queue",
+      "command": "replies triage",
+      "description": "An oldest-first worklist of pending replies with lead and campaign context, ready to pipe into mark-interested or follow-up push."
+    }
+  ],
+  "owner": "riccardovandra",
+  "printer": "riccardovandra",
+  "printer_name": "Riccardo Vandra",
+  "printing_press_version": "4.20.0",
+  "run_id": "20260602-092755",
+  "schema_version": 1,
+  "spec_checksum": "sha256:16b8ba6103d36d12df56e1ebaacb349b9abf2b3b6946d8d5b29c00a58d0d72e2",
+  "spec_format": "openapi3",
+  "spec_path": "email-bison-openapi.yaml"
+}

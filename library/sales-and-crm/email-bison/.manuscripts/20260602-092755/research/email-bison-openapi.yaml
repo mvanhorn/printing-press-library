@@ -1,0 +1,815 @@
+openapi: 3.1.0
+info:
+  title: Email Bison API
+  version: "1.0"
+  description: >
+    Every Email Bison campaign, lead, and reply on the command line, plus a local
+    database and cross-entity analytics no other Email Bison tool has. Email Bison
+    is a self-hosted cold-email sequencing platform; each workspace lives on a
+    dedicated instance domain. Set EMAIL_BISON_BASE_URL to your instance and
+    EMAIL_BISON_API_KEY to a workspace api-user token (Settings -> Developer API).
+    Every token is scoped to exactly one workspace. Rate limited to ~10 req/s;
+    HTTP 429 carries a retry_after header. Index routes paginate 15 per page and
+    support cursor pagination via pagination_type=cursor.
+servers:
+  - url: https://dedi.emailbison.com
+    description: Default dedicated instance. Override with EMAIL_BISON_BASE_URL for your own host.
+security:
+  - bearerAuth: []
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: "Workspace api-user token. Header is Authorization: Bearer <token>."
+      x-auth-vars:
+        - name: EMAIL_BISON_API_KEY
+          kind: per_call
+          required: true
+          sensitive: true
+          description: Email Bison workspace api-user token from Settings -> Developer API.
+  parameters:
+    Page:
+      name: page
+      in: query
+      required: false
+      schema: { type: integer, default: 1 }
+      description: Page number for page-based pagination (capped at 1000 pages).
+    PaginationType:
+      name: pagination_type
+      in: query
+      required: false
+      schema: { type: string, enum: [page, cursor], default: page }
+      description: Use cursor for large datasets.
+    Cursor:
+      name: cursor
+      in: query
+      required: false
+      schema: { type: string }
+      description: Opaque cursor from meta.next_cursor when pagination_type=cursor.
+    Search:
+      name: search
+      in: query
+      required: false
+      schema: { type: string }
+      description: Free-text search filter.
+paths:
+  /api/users:
+    get:
+      tags: [users]
+      operationId: listUsers
+      summary: List users in the current workspace (also validates the token).
+      responses:
+        "200": { description: OK }
+
+  /api/campaigns:
+    get:
+      tags: [campaigns]
+      operationId: listCampaigns
+      summary: List campaigns in the workspace.
+      parameters:
+        - $ref: "#/components/parameters/Search"
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/PaginationType"
+        - $ref: "#/components/parameters/Cursor"
+      responses:
+        "200": { description: Paginated campaigns }
+    post:
+      tags: [campaigns]
+      operationId: createCampaign
+      summary: Create a campaign. Returns the new campaign ID.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name: { type: string, description: Name of the campaign. }
+      responses:
+        "200": { description: Created }
+
+  /api/campaigns/{id}:
+    get:
+      tags: [campaigns]
+      operationId: getCampaign
+      summary: Get a campaign and its settings.
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer }, description: Campaign ID. }
+      responses:
+        "200": { description: OK }
+
+  /api/campaigns/{id}/update:
+    patch:
+      tags: [campaigns]
+      operationId: updateCampaignSettings
+      summary: Update a campaign's sending settings.
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer }, description: Campaign ID. }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                max_emails_per_day: { type: integer, description: Max emails sent per day. }
+                max_new_leads_per_day: { type: integer, description: Max new leads added per day. }
+                plain_text: { type: boolean, description: Send plain-text email content. }
+                open_tracking: { type: boolean, description: Enable open tracking. }
+                reputation_building: { type: boolean, description: Enable spam-protection reputation building. }
+                can_unsubscribe: { type: boolean, description: Allow one-click unsubscribe. }
+                unsubscribe_text: { type: string, description: Text shown in the unsubscribe link. }
+      responses:
+        "200": { description: Updated }
+
+  /api/campaigns/{id}/pause:
+    patch:
+      tags: [campaigns]
+      operationId: pauseCampaign
+      summary: Pause a campaign.
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer }, description: Campaign ID. }
+      responses:
+        "200": { description: Paused }
+
+  /api/campaigns/{id}/resume:
+    patch:
+      tags: [campaigns]
+      operationId: resumeCampaign
+      summary: Resume (launch) a campaign.
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer }, description: Campaign ID. }
+      responses:
+        "200": { description: Resumed }
+
+  /api/campaigns/{id}/schedule:
+    get:
+      tags: [campaigns]
+      operationId: getCampaignSchedule
+      summary: Get a campaign's schedule.
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer }, description: Campaign ID. }
+      responses:
+        "200": { description: OK }
+    post:
+      tags: [campaigns]
+      operationId: createCampaignSchedule
+      summary: Create a sending schedule for a campaign.
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer }, description: Campaign ID. }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [monday, tuesday, wednesday, thursday, friday, saturday, sunday, start_time, end_time, timezone, save_as_template]
+              properties:
+                monday: { type: boolean }
+                tuesday: { type: boolean }
+                wednesday: { type: boolean }
+                thursday: { type: boolean }
+                friday: { type: boolean }
+                saturday: { type: boolean }
+                sunday: { type: boolean }
+                start_time: { type: string, description: "Start time HH:MM, e.g. 09:00." }
+                end_time: { type: string, description: "End time HH:MM, e.g. 17:00." }
+                timezone: { type: string, description: "IANA timezone, e.g. America/New_York." }
+                save_as_template: { type: boolean, description: Save this schedule as a reusable template. }
+      responses:
+        "200": { description: Created }
+
+  /api/campaigns/schedule/templates:
+    get:
+      tags: [campaigns]
+      operationId: listScheduleTemplates
+      summary: List saved schedule templates.
+      responses:
+        "200": { description: OK }
+
+  /api/campaigns/{id}/create-schedule-from-template:
+    post:
+      tags: [campaigns]
+      operationId: applyScheduleTemplate
+      summary: Apply a saved schedule template to a campaign.
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer }, description: Campaign ID. }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [schedule_id]
+              properties:
+                schedule_id: { type: integer, description: ID of the schedule template to apply. }
+      responses:
+        "200": { description: Applied }
+
+  /api/campaigns/{id}/sequence-steps:
+    get:
+      tags: [campaigns]
+      operationId: listSequenceSteps
+      summary: List a campaign's sequence steps.
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer }, description: Campaign ID. }
+      responses:
+        "200": { description: OK }
+    post:
+      tags: [campaigns]
+      operationId: createSequenceSteps
+      summary: Create the email sequence for a campaign.
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer }, description: Campaign ID. }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [title, sequence_steps]
+              properties:
+                title: { type: string, description: Title of the sequence. }
+                sequence_steps:
+                  type: array
+                  description: Ordered email steps. Use {VARIABLE} merge tags that exist as custom variables.
+                  items:
+                    type: object
+                    required: [email_subject, email_body, wait_in_days, thread_reply]
+                    properties:
+                      email_subject: { type: string }
+                      email_body: { type: string }
+                      order: { type: integer }
+                      wait_in_days: { type: integer, description: Days to wait before this step. }
+                      variant: { type: boolean, description: Whether this step is an A/B variant. }
+                      variant_from_step: { type: integer, description: Step ID this is a variant of (required if variant is true). }
+                      thread_reply: { type: boolean, description: Whether this step replies in the previous step's thread. }
+      responses:
+        "200": { description: Created }
+
+  /api/campaigns/sequence-steps/{id}/send-test:
+    post:
+      tags: [campaigns]
+      operationId: sendTestSequenceStep
+      summary: Send a test email for a sequence step.
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer }, description: Sequence step ID. }
+      responses:
+        "200": { description: Sent }
+
+  /api/campaigns/sequence-steps/{id}:
+    delete:
+      tags: [campaigns]
+      operationId: deleteSequenceStep
+      summary: Delete a sequence step.
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer }, description: Sequence step ID. }
+      responses:
+        "200": { description: Deleted }
+
+  /api/campaigns/{id}/attach-sender-emails:
+    post:
+      tags: [campaigns]
+      operationId: attachSenderEmails
+      summary: Attach sender emails to a campaign.
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer }, description: Campaign ID. }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [sender_email_ids]
+              properties:
+                sender_email_ids: { type: array, items: { type: integer }, description: Sender email IDs to attach. }
+      responses:
+        "200": { description: Attached }
+
+  /api/campaigns/{id}/remove-sender-emails:
+    post:
+      tags: [campaigns]
+      operationId: removeSenderEmails
+      summary: Remove sender emails from a campaign.
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer }, description: Campaign ID. }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [sender_email_ids]
+              properties:
+                sender_email_ids: { type: array, items: { type: integer }, description: Sender email IDs to remove. }
+      responses:
+        "200": { description: Removed }
+
+  /api/campaigns/{id}/leads/attach-leads:
+    post:
+      tags: [campaigns]
+      operationId: attachLeads
+      summary: Attach leads to a campaign by ID.
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer }, description: Campaign ID. }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [lead_ids]
+              properties:
+                lead_ids: { type: array, items: { type: integer }, description: Lead IDs to attach. }
+      responses:
+        "200": { description: Attached }
+
+  /api/campaigns/{id}/leads/attach-lead-list:
+    post:
+      tags: [campaigns]
+      operationId: attachLeadList
+      summary: Attach an existing lead list to a campaign.
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer }, description: Campaign ID. }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [lead_list_id]
+              properties:
+                lead_list_id: { type: integer, description: Lead list ID to attach. }
+      responses:
+        "200": { description: Attached }
+
+  /api/leads:
+    get:
+      tags: [leads]
+      operationId: listLeads
+      summary: List leads (contacts) in the workspace.
+      parameters:
+        - $ref: "#/components/parameters/Search"
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/PaginationType"
+        - $ref: "#/components/parameters/Cursor"
+      responses:
+        "200": { description: Paginated leads }
+    post:
+      tags: [leads]
+      operationId: createLead
+      summary: Create a single lead.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [first_name, last_name, email]
+              properties:
+                first_name: { type: string }
+                last_name: { type: string }
+                email: { type: string }
+                title: { type: string }
+                company: { type: string }
+                notes: { type: string }
+                custom_variables:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      name: { type: string }
+                      value: { type: string }
+      responses:
+        "200": { description: Created }
+
+  /api/leads/{id}:
+    put:
+      tags: [leads]
+      operationId: updateLead
+      summary: Update a lead and its custom variables.
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer }, description: Lead ID. }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                first_name: { type: string }
+                last_name: { type: string }
+                email: { type: string }
+                title: { type: string }
+                company: { type: string }
+                notes: { type: string }
+                custom_variables:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      name: { type: string }
+                      value: { type: string }
+      responses:
+        "200": { description: Updated }
+
+  /api/leads/{lead_id}/replies:
+    get:
+      tags: [leads]
+      operationId: getLeadReplies
+      summary: Get replies for a lead.
+      parameters:
+        - { name: lead_id, in: path, required: true, schema: { type: string }, description: Lead ID or email. }
+        - $ref: "#/components/parameters/Search"
+        - { name: status, in: query, required: false, schema: { type: string, enum: [interested, automated_reply, not_automated_reply] } }
+        - { name: folder, in: query, required: false, schema: { type: string, enum: [inbox, sent, spam, bounced, all] } }
+        - { name: read, in: query, required: false, schema: { type: boolean } }
+        - { name: campaign_id, in: query, required: false, schema: { type: integer } }
+        - { name: sender_email_id, in: query, required: false, schema: { type: integer } }
+      responses:
+        "200": { description: OK }
+
+  /api/leads/{lead_id}/sent-emails:
+    get:
+      tags: [leads]
+      operationId: getLeadSentEmails
+      summary: Get campaign emails sent to a lead.
+      parameters:
+        - { name: lead_id, in: path, required: true, schema: { type: string }, description: Lead ID or email. }
+      responses:
+        "200": { description: OK }
+
+  /api/replies:
+    get:
+      tags: [replies]
+      operationId: listReplies
+      summary: List replies in the master inbox.
+      parameters:
+        - $ref: "#/components/parameters/Search"
+        - { name: status, in: query, required: false, schema: { type: string, enum: [interested, automated_reply, not_automated_reply] } }
+        - { name: folder, in: query, required: false, schema: { type: string, enum: [inbox, sent, spam, bounced, all] } }
+        - { name: read, in: query, required: false, schema: { type: boolean } }
+        - { name: campaign_id, in: query, required: false, schema: { type: integer } }
+        - { name: sender_email_id, in: query, required: false, schema: { type: integer } }
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/PaginationType"
+        - $ref: "#/components/parameters/Cursor"
+      responses:
+        "200": { description: Paginated replies }
+
+  /api/replies/{id}/mark-as-interested:
+    patch:
+      tags: [replies]
+      operationId: markReplyInterested
+      summary: Mark a reply as interested.
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer }, description: Reply ID. }
+      responses:
+        "200": { description: Marked }
+
+  /api/replies/{id}/reply:
+    post:
+      tags: [replies]
+      operationId: replyToMessage
+      summary: Reply to a message in-thread.
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer }, description: Parent reply ID. }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [message, sender_email_id, to_emails]
+              properties:
+                message: { type: string, description: Body of the reply. }
+                sender_email_id: { type: integer, description: Sender email to send from. }
+                to_emails:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      name: { type: string }
+                      email_address: { type: string }
+                inject_previous_email_body: { type: boolean }
+                content_type: { type: string, enum: [html, text] }
+                cc_emails:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      name: { type: string }
+                      email_address: { type: string }
+                bcc_emails:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      name: { type: string }
+                      email_address: { type: string }
+      responses:
+        "200": { description: Sent }
+
+  /api/replies/{id}/followup-campaign/push:
+    post:
+      tags: [replies]
+      operationId: pushReplyToFollowup
+      summary: Push a reply's lead into a follow-up campaign.
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer }, description: Reply ID. }
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                campaign_id: { type: integer, description: Target follow-up campaign ID. }
+      responses:
+        "200": { description: Pushed }
+
+  /api/replies/{id}/attach-email-to-reply:
+    post:
+      tags: [replies]
+      operationId: attachEmailToReply
+      summary: Attach a scheduled email to an untracked reply.
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer }, description: Reply ID. }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [scheduled_email_id]
+              properties:
+                scheduled_email_id: { type: integer, description: Scheduled email ID to attach. }
+      responses:
+        "200": { description: Attached }
+
+  /api/scheduled-emails/{lead_id_or_email}:
+    get:
+      tags: [scheduled-emails]
+      operationId: getScheduledEmails
+      summary: Get scheduled emails for a lead.
+      parameters:
+        - { name: lead_id_or_email, in: path, required: true, schema: { type: string }, description: Lead ID or email. }
+      responses:
+        "200": { description: OK }
+
+  /api/sender-emails:
+    get:
+      tags: [sender-emails]
+      operationId: listSenderEmails
+      summary: List connected sender email accounts.
+      parameters:
+        - $ref: "#/components/parameters/Search"
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/PaginationType"
+        - $ref: "#/components/parameters/Cursor"
+      responses:
+        "200": { description: Paginated sender emails }
+
+  /api/sender-emails/{id}:
+    patch:
+      tags: [sender-emails]
+      operationId: updateSenderEmail
+      summary: Update a sender email account's settings.
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer }, description: Sender email ID. }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                daily_limit: { type: integer, description: Max emails per day for this sender. }
+                signature: { type: string }
+      responses:
+        "200": { description: Updated }
+
+  /api/tags:
+    get:
+      tags: [tags]
+      operationId: listTags
+      summary: List custom tags.
+      responses:
+        "200": { description: OK }
+    post:
+      tags: [tags]
+      operationId: createTag
+      summary: Create a custom tag.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name: { type: string }
+                default: { type: boolean, description: Deprecated. Whether this is a default tag. }
+      responses:
+        "200": { description: Created }
+
+  /api/tags/{id}:
+    delete:
+      tags: [tags]
+      operationId: deleteTag
+      summary: Delete a custom tag.
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer }, description: Tag ID. }
+      responses:
+        "200": { description: Deleted }
+
+  /api/tags/attach-to-leads:
+    post:
+      tags: [tags]
+      operationId: attachTagsToLeads
+      summary: Attach tags to leads.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [tag_ids, lead_ids]
+              properties:
+                tag_ids: { type: array, items: { type: integer } }
+                lead_ids: { type: array, items: { type: integer } }
+      responses:
+        "200": { description: Attached }
+    delete:
+      tags: [tags]
+      operationId: removeTagsFromLeads
+      summary: Remove tags from leads.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [tag_ids, lead_ids]
+              properties:
+                tag_ids: { type: array, items: { type: integer } }
+                lead_ids: { type: array, items: { type: integer } }
+      responses:
+        "200": { description: Removed }
+
+  /api/tags/attach-to-campaigns:
+    post:
+      tags: [tags]
+      operationId: attachTagsToCampaigns
+      summary: Attach tags to campaigns.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [tag_ids, campaign_ids]
+              properties:
+                tag_ids: { type: array, items: { type: integer } }
+                campaign_ids: { type: array, items: { type: integer } }
+      responses:
+        "200": { description: Attached }
+    delete:
+      tags: [tags]
+      operationId: removeTagsFromCampaigns
+      summary: Remove tags from campaigns.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [tag_ids, campaign_ids]
+              properties:
+                tag_ids: { type: array, items: { type: integer } }
+                campaign_ids: { type: array, items: { type: integer } }
+      responses:
+        "200": { description: Removed }
+
+  /api/tags/attach-to-sender-emails:
+    post:
+      tags: [tags]
+      operationId: attachTagsToSenderEmails
+      summary: Attach tags to sender emails.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [tag_ids, sender_email_ids]
+              properties:
+                tag_ids: { type: array, items: { type: integer } }
+                sender_email_ids: { type: array, items: { type: integer } }
+      responses:
+        "200": { description: Attached }
+    delete:
+      tags: [tags]
+      operationId: removeTagsFromSenderEmails
+      summary: Remove tags from sender emails.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [tag_ids, sender_email_ids]
+              properties:
+                tag_ids: { type: array, items: { type: integer } }
+                sender_email_ids: { type: array, items: { type: integer } }
+      responses:
+        "200": { description: Removed }
+
+  /api/custom-variables:
+    get:
+      tags: [custom-variables]
+      operationId: listCustomVariables
+      summary: List custom variables in the workspace.
+      responses:
+        "200": { description: OK }
+    post:
+      tags: [custom-variables]
+      operationId: createCustomVariable
+      summary: Create a custom variable.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name: { type: string }
+      responses:
+        "200": { description: Created }
+
+  /api/webhooks:
+    post:
+      tags: [webhooks]
+      operationId: createWebhook
+      summary: Create a webhook subscription.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [url]
+              properties:
+                url: { type: string, description: Destination URL for webhook events. }
+                events:
+                  type: array
+                  items: { type: string }
+                  description: Event names to subscribe to.
+      responses:
+        "200": { description: Created }
+
+  /api/webhook-events/test-event:
+    post:
+      tags: [webhooks]
+      operationId: sendTestWebhookEvent
+      summary: Send a test webhook event.
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                event: { type: string, description: Event name to test. }
+      responses:
+        "200": { description: Sent }
+
+  /api/workspaces/v1.1/workspaces:
+    get:
+      tags: [workspaces]
+      operationId: listWorkspaces
+      summary: List workspaces (requires a super-admin token).
+      responses:
+        "200": { description: OK }
+
+  /api/workspaces/v1.1/{workspace_id}/api-tokens:
+    post:
+      tags: [workspaces]
+      operationId: createWorkspaceToken
+      summary: Create an api-user token for a workspace (requires a super-admin token).
+      parameters:
+        - { name: workspace_id, in: path, required: true, schema: { type: integer }, description: Workspace ID. }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name: { type: string, description: Name for the new API token. }
+      responses:
+        "200": { description: Created }
