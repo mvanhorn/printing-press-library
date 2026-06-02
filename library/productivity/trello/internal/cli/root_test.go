@@ -4,9 +4,13 @@
 package cli
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"os"
+	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -75,6 +79,61 @@ func TestExitCode_UsageError_WrappedAsCode2(t *testing.T) {
 	wrapped := usageErr(errors.New("unknown flag: --foob"))
 	if got := ExitCode(wrapped); got != 2 {
 		t.Errorf("ExitCode(usageErr(...)) = %d, want 2 (POSIX usage convention)", got)
+	}
+}
+
+func TestFillTrelloAuthFlags_UsesConfigForGeneratedCommand(t *testing.T) {
+	t.Setenv("TRELLO_API_KEY", "")
+	t.Setenv("TRELLO_API_TOKEN", "")
+
+	configPath := filepath.Join(t.TempDir(), "config.toml")
+	if err := os.WriteFile(configPath, []byte("api_key = \"saved-key\"\napi_token = \"saved-token\"\n"), 0o600); err != nil {
+		t.Fatalf("write config: %v", err)
+	}
+
+	flags := &rootFlags{configPath: configPath}
+	cmd := newBoardsListsGetBoardsByIdBoardCmd(flags)
+	var out, stderr bytes.Buffer
+	cmd.SetOut(&out)
+	cmd.SetErr(&stderr)
+	if err := fillTrelloAuthFlags(cmd, flags, []string{"board-123"}); err != nil {
+		t.Fatalf("fill auth flags: %v", err)
+	}
+
+	if got := cmd.Flags().Lookup("key").Value.String(); got != "saved-key" {
+		t.Fatalf("key flag = %q, want saved-key", got)
+	}
+	if got := cmd.Flags().Lookup("token").Value.String(); got != "saved-token" {
+		t.Fatalf("token flag = %q, want saved-token", got)
+	}
+	if strings.Contains(out.String(), "saved-key") || strings.Contains(out.String(), "saved-token") || strings.Contains(stderr.String(), "saved-key") || strings.Contains(stderr.String(), "saved-token") {
+		t.Fatalf("command output leaked credential material\nstdout: %s\nstderr: %s", out.String(), stderr.String())
+	}
+}
+
+func TestFillTrelloAuthFlags_MissingAuthCleanError(t *testing.T) {
+	t.Setenv("TRELLO_API_KEY", "")
+	t.Setenv("TRELLO_API_TOKEN", "")
+
+	cmd := RootCmd()
+	var out, stderr bytes.Buffer
+	cmd.SetOut(&out)
+	cmd.SetErr(&stderr)
+	cmd.SetArgs([]string{"boards", "lists", "get", "board-123", "--config", filepath.Join(t.TempDir(), "missing.toml"), "--json", "--no-cache"})
+
+	err := cmd.Execute()
+	if err == nil {
+		t.Fatal("expected auth error, got nil")
+	}
+	msg := err.Error()
+	if !strings.Contains(msg, "Trello API requires both key and token. Run trello-pp-cli auth setup.") {
+		t.Fatalf("error = %q, want clean Trello auth guidance", msg)
+	}
+	if strings.Contains(msg, `required flag "key"`) || strings.Contains(msg, `required flag "token"`) {
+		t.Fatalf("error should not expose generated required-flag wording: %q", msg)
+	}
+	if got := ExitCode(err); got != 4 {
+		t.Fatalf("ExitCode(auth error) = %d, want 4", got)
 	}
 }
 

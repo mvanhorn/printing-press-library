@@ -235,6 +235,9 @@ See README.md or the bundled SKILL.md for recipes.`,
 				noColor = true
 			}
 		}
+		if err := fillTrelloAuthFlags(cmd, flags, args); err != nil {
+			return err
+		}
 		switch flags.dataSource {
 		case "auto", "live", "local":
 			// valid
@@ -287,6 +290,44 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.AddCommand(newVersionCliCmd())
 
 	return rootCmd
+}
+
+func fillTrelloAuthFlags(cmd *cobra.Command, flags *rootFlags, args []string) error {
+	keyFlag := cmd.Flags().Lookup("key")
+	tokenFlag := cmd.Flags().Lookup("token")
+	if keyFlag == nil && tokenFlag == nil {
+		return nil
+	}
+	if flags == nil || flags.dryRun {
+		return nil
+	}
+	if strings.Contains(cmd.Use, "<") && len(args) == 0 {
+		return nil
+	}
+
+	cfg, err := config.Load(flags.configPath)
+	if err != nil {
+		return configErr(err)
+	}
+	if keyFlag != nil && !keyFlag.Changed && keyFlag.Value.String() == "" && cfg.TrelloApiKey != "" {
+		if err := cmd.Flags().Set("key", cfg.TrelloApiKey); err != nil {
+			return err
+		}
+	}
+	if tokenFlag != nil && !tokenFlag.Changed && tokenFlag.Value.String() == "" {
+		if token := cfg.TrelloToken(); token != "" {
+			if err := cmd.Flags().Set("token", token); err != nil {
+				return err
+			}
+		}
+	}
+
+	keyMissing := keyFlag != nil && keyFlag.Value.String() == ""
+	tokenMissing := tokenFlag != nil && tokenFlag.Value.String() == ""
+	if keyMissing || tokenMissing {
+		return authErr(fmt.Errorf("Trello API requires both key and token. Run trello-pp-cli auth setup."))
+	}
+	return nil
 }
 
 func ExitCode(err error) int {
