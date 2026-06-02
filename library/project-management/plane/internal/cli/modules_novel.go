@@ -168,20 +168,6 @@ func enrichModuleMembership(ctx context.Context, get moduleGetter, db *store.Sto
 	}
 	res.Modules = len(modules)
 
-	// Reset module_ids to [] on all in-scope issues so stale membership is
-	// cleared; issues with real membership get overwritten below.
-	// PATCH(issues-table-name): the reprinted sync stores issues in the
-	// `projects_issues` table (FK `projects_id`), not the old `issues`/`project_id`.
-	resetSQL := `UPDATE projects_issues SET data = json_set(data, '$.module_ids', json('[]'))`
-	var resetArgs []any
-	if projectFilter != "" {
-		resetSQL += ` WHERE projects_id = ?`
-		resetArgs = append(resetArgs, projectFilter)
-	}
-	if _, err := db.DB().Exec(resetSQL, resetArgs...); err != nil {
-		return res, fmt.Errorf("resetting module_ids: %w", err)
-	}
-
 	pg := determinePaginationDefaults()
 	issueToModules := map[string][]string{}
 
@@ -195,6 +181,22 @@ func enrichModuleMembership(ctx context.Context, get moduleGetter, db *store.Sto
 			_ = tx.Rollback()
 		}
 	}()
+
+	// Reset module_ids to [] on all in-scope issues so stale membership is
+	// cleared; issues with real membership get overwritten below. Done inside
+	// the transaction so a mid-walk failure rolls the reset back instead of
+	// leaving every issue's module_ids wiped.
+	// PATCH(issues-table-name): the reprinted sync stores issues in the
+	// `projects_issues` table (FK `projects_id`), not the old `issues`/`project_id`.
+	resetSQL := `UPDATE projects_issues SET data = json_set(data, '$.module_ids', json('[]'))`
+	var resetArgs []any
+	if projectFilter != "" {
+		resetSQL += ` WHERE projects_id = ?`
+		resetArgs = append(resetArgs, projectFilter)
+	}
+	if _, err := tx.Exec(resetSQL, resetArgs...); err != nil {
+		return res, fmt.Errorf("resetting module_ids: %w", err)
+	}
 
 	for _, m := range modules {
 		if _, err := tx.Exec(`DELETE FROM module_issues WHERE module_id = ?`, m.id); err != nil {
@@ -289,7 +291,13 @@ func withModuleEnrichment(syncCmd *cobra.Command, flags *rootFlags) *cobra.Comma
 			return nil
 		}
 		applyClientSlug(c, slug)
-		db, err := store.OpenWithContext(cmd.Context(), defaultDBPath("plane-pp-cli"))
+		// Honor the --db flag the wrapped sync used, so enrichment writes
+		// module_ids into the same store sync just populated (not the default).
+		syncDBPath, _ := cmd.Flags().GetString("db")
+		if syncDBPath == "" {
+			syncDBPath = defaultDBPath("plane-pp-cli")
+		}
+		db, err := store.OpenWithContext(cmd.Context(), syncDBPath)
 		if err != nil {
 			return nil
 		}

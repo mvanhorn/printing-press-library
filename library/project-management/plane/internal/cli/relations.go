@@ -213,6 +213,14 @@ deployment you can reach (Plane Cloud has no container shell).`,
 			if related == "" {
 				return usageErr(fmt.Errorf("--related is required"))
 			}
+			// Validate UUIDs up front: they are interpolated into a Python script
+			// run inside the API container, so reject anything that isn't a
+			// canonical UUID rather than relying on the script's quote guard.
+			for label, v := range map[string]string{"issue_uuid": args[0], "--related": related, "--project": projectID} {
+				if !issueUUIDPattern.MatchString(v) {
+					return usageErr(fmt.Errorf("%s must be a UUID, got %q", label, v))
+				}
+			}
 			if shellCmd == "" {
 				shellCmd = os.Getenv(envRelationShellCmd)
 			}
