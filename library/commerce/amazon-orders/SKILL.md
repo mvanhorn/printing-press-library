@@ -260,7 +260,33 @@ op read "op://Agent/amazon-orders-session/file" \
   | amazon-orders-pp-cli auth import --stdin
 ```
 
-Either form lands the cookie material in `~/.config/amazon-orders-pp-cli/config.toml` and you're authenticated. Validate with `amazon-orders-pp-cli auth status`.
+Either form lands the cookie material in `~/.config/amazon-orders-pp-cli/config.toml` and you're authenticated. Validate with both:
+
+```bash
+amazon-orders-pp-cli auth status
+amazon-orders-pp-cli doctor --agent
+```
+
+`auth status` only confirms that cookie material is configured. It can say `Authenticated` while `doctor` still reports `browser_session_proof` as missing/stale; in that state live commands can return empty or `null` results instead of orders. Treat `doctor` as the end-to-end validation step for headless 1Password imports.
+
+If `doctor` reports a stale or missing browser-session proof, refresh from a currently logged-in Chrome profile and re-run `doctor`:
+
+```bash
+python3 -m pip install --user pycookiecheat  # if doctor says cookie_tool not found
+export PATH="$PATH:$HOME/go/bin:$HOME/Library/Python/3.9/bin"
+amazon-orders-pp-cli auth login --chrome --no-input --yes
+amazon-orders-pp-cli doctor --agent
+```
+
+If new cookies were captured from Chrome and you want other headless agents to use them, update the 1Password document without printing cookie contents:
+
+```bash
+TMP=$(mktemp -t amazon-orders-session.XXXXXX.json)
+chmod 600 "$TMP"
+amazon-orders-pp-cli auth export --output "$TMP" --note "captured $(date -u +%FT%TZ) from $(hostname)"
+op document edit 'amazon-orders-session' --vault Agent "$TMP"
+shred -u "$TMP" 2>/dev/null || rm -f "$TMP"
+```
 
 **Refresh when Amazon rotates `session-id`** (typically every few weeks; signaled by 401s from `orders list`):
 
