@@ -41,14 +41,14 @@ func TestRefreshAccessToken_RotatesRefresh(t *testing.T) {
 	if resp.RefreshToken != "new-refresh" {
 		t.Errorf("expected new-refresh, got %q", resp.RefreshToken)
 	}
-	if gotBody["grant_type"] != "refresh_token" {
-		t.Errorf("expected grant_type=refresh_token, got %q", gotBody["grant_type"])
-	}
 	if gotBody["refresh_token"] != "old-refresh" {
 		t.Errorf("expected refresh_token=old-refresh, got %q", gotBody["refresh_token"])
 	}
-	if gotBody["client_id"] != WorkOSClientID {
-		t.Errorf("expected client_id=%q, got %q", WorkOSClientID, gotBody["client_id"])
+	if _, ok := gotBody["client_id"]; ok {
+		t.Errorf("did not expect legacy WorkOS client_id in Granola refresh body")
+	}
+	if _, ok := gotBody["grant_type"]; ok {
+		t.Errorf("did not expect legacy WorkOS grant_type in Granola refresh body")
 	}
 
 	// Verify cache holds the new pair.
