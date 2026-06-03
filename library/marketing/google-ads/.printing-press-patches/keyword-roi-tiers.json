@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "keyword-roi-tiers",
+  "applied_at": "2026-06-03",
+  "base_run_id": "20260506-162403",
+  "base_printing_press_version": "3.10.0",
+  "summary": "Add a top-level keyword-roi-tiers command that buckets keywords into scale/hold/cut by ROAS.",
+  "reason": "This read-only workflow composes one googleAds:search GAQL read over keyword_view, computes ROAS (conversions_value / cost) and CPA locally, and tiers each keyword. No new HTTP code; reuses the shared fetchGAQLRows helper and existing output plumbing.",
+  "files": [
+    "internal/cli/keyword_roi_tiers.go",
+    "internal/cli/composite_helpers.go",
+    "internal/cli/composite_commands_test.go",
+    "internal/cli/root.go",
+    ".printing-press.json",
+    "SKILL.md",
+    "README.md"
+  ]
+}

@@ -507,6 +507,24 @@ google-ads-pp-cli wasted-spend --customer-id 1234567890 --days 30 --min-cost 5 -
 
 Flags: `--customer-id` (required), `--days` (look-back window, default 7), `--min-cost` (minimum wasted spend to include, default 1), `--limit` (max ranked rows, default 50).
 
+- `google-ads-pp-cli keyword-roi-tiers --customer-id <id>` — Run one `keyword_view` GAQL read and bucket each keyword into `scale` / `hold` / `cut` by ROAS (revenue ÷ cost), turning the weekly bid review into one screen.
+
+```bash
+# Scale above 4x ROAS, cut at or below 1x, last 30 days
+google-ads-pp-cli keyword-roi-tiers --customer-id 1234567890 --days 30 --scale-roas 4 --cut-roas 1 --json
+```
+
+Flags: `--customer-id` (required), `--days` (default 7), `--min-cost` (ignore keywords below this spend, default 1), `--scale-roas` (default 4), `--cut-roas` (default 1), `--limit` (default 50).
+
+- `google-ads-pp-cli paid-organic-overlap --customer-id <id> --gsc-file <export.json>` — Join live paid search terms against a Google Search Console query export and surface terms you pay for that you already rank for organically — candidates to stop paying for. No GSC call is made; the export is read from `--gsc-file`.
+
+```bash
+# Export GSC queries first (from the google-search-console CLI), then:
+google-ads-pp-cli paid-organic-overlap --customer-id 1234567890 --gsc-file gsc.json --max-position 5 --json
+```
+
+Flags: `--customer-id` (required), `--gsc-file` (required; JSON array, `{"rows":[...]}`, or `{"data":[...]}`), `--days` (paid look-back, default 7), `--max-position` (only count organic queries ranking at or above this position, default 10), `--limit` (default 50).
+
 ### Finding the right command
 
 When you know what you want to do but not which command does it, ask the CLI directly:

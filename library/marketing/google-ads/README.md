@@ -815,6 +815,18 @@ Read-only commands that compose existing reads into a higher-value workflow.
 google-ads-pp-cli wasted-spend --customer-id 1234567890 --days 30 --min-cost 5 --limit 25 --json
 ```
 
+- **`google-ads-pp-cli keyword-roi-tiers --customer-id <id>`** - Runs one `keyword_view` GAQL read and buckets each keyword into `scale` / `hold` / `cut` by ROAS (revenue ÷ cost). Flags: `--customer-id` (required), `--days` (default 7), `--min-cost` (default 1), `--scale-roas` (default 4), `--cut-roas` (default 1), `--limit` (default 50).
+
+```bash
+google-ads-pp-cli keyword-roi-tiers --customer-id 1234567890 --days 30 --scale-roas 4 --cut-roas 1 --json
+```
+
+- **`google-ads-pp-cli paid-organic-overlap --customer-id <id> --gsc-file <export.json>`** - Joins live paid search terms against a Google Search Console query export and surfaces terms you pay for that already rank organically. The export is read from `--gsc-file` (JSON array, `{"rows":[...]}`, or `{"data":[...]}`); no GSC call is made. Flags: `--customer-id` (required), `--gsc-file` (required), `--days` (default 7), `--max-position` (default 10), `--limit` (default 50).
+
+```bash
+google-ads-pp-cli paid-organic-overlap --customer-id 1234567890 --gsc-file gsc.json --max-position 5 --json
+```
+
 ## Output Formats
 
 ```bash

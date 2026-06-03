@@ -8,6 +8,7 @@
   "reason": "This read-only workflow composes one googleAds:search GAQL read over search_term_view, then filters to zero-conversion terms above a cost threshold and ranks them by spend locally. No new HTTP code; reuses the existing client POST and output plumbing.",
   "files": [
     "internal/cli/wasted_spend.go",
+    "internal/cli/composite_helpers.go",
     "internal/cli/composite_commands_test.go",
     "internal/cli/root.go",
     ".printing-press.json",
