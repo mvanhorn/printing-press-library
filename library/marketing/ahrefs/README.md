@@ -163,7 +163,7 @@ ahrefs-pp-cli link-intersect --target bestself.co --competitor intelligentchange
 ahrefs-pp-cli snapshot --target bestself.co --country us --date 2026-06-03 --agent
 ```
 
-`snapshot --compact` returns `domain_rating`, `org_traffic`, and `live_refdomains`. If one snapshot section fails, the command returns null for that section and includes a `warnings` entry instead of failing the full report.
+`keyword-gap --target-limit` controls how many of your own ranking rows are fetched for gap detection; higher values improve accuracy and spend more row credits. `snapshot --compact` returns `domain_rating`, `org_traffic`, and `live_refdomains`. If one snapshot section fails, the command returns null for that section and includes a `warnings` entry instead of failing the full report.
 
 ### keywords-explorer
 
@@ -284,7 +284,7 @@ Environment variables:
 
 - Run `ahrefs-pp-cli doctor` to check credentials
 - Verify the environment variable is set: `echo $AHREFS_API_KEY`
-  **Not found errors (exit code 3)**
+**Not found errors (exit code 3)**
 - Check the resource ID is correct
 - Run the `list` command to see available items
 
