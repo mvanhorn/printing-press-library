@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "keyword-gap",
+  "applied_at": "2026-06-03",
+  "base_run_id": "",
+  "base_printing_press_version": "3.4.0",
+  "summary": "Add a top-level keyword-gap command that compares organic keyword rankings across a target and competitors.",
+  "reason": "This read-only SEO workflow composes existing /site-explorer/organic-keywords calls and locally diffs rows by keyword so users can find competitor rankings they do not have or rank worse for without adding new HTTP client code.",
+  "files": [
+    "internal/cli/composite_helpers.go",
+    "internal/cli/composite_commands_test.go",
+    "internal/cli/keyword_gap.go",
+    "internal/cli/root.go",
+    ".printing-press.json",
+    "SKILL.md",
+    "README.md"
+  ]
+}

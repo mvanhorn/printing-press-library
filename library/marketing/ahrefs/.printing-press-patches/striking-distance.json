@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "striking-distance",
+  "applied_at": "2026-06-03",
+  "base_run_id": "",
+  "base_printing_press_version": "3.4.0",
+  "summary": "Add a top-level striking-distance command for volume-weighted near-page-one organic keyword opportunities.",
+  "reason": "This read-only workflow composes one /site-explorer/organic-keywords call with a server-side best_position and volume filter, then ranks results locally by opportunity score.",
+  "files": [
+    "internal/cli/composite_helpers.go",
+    "internal/cli/composite_commands_test.go",
+    "internal/cli/striking_distance.go",
+    "internal/cli/root.go",
+    ".printing-press.json",
+    "SKILL.md",
+    "README.md"
+  ]
+}

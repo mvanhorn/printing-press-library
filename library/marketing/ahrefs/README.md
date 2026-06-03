@@ -144,6 +144,26 @@ Run `ahrefs-pp-cli --help` for the full command reference and flag list.
 
 ## Commands
 
+### Composite SEO commands
+
+Top-level Site Explorer workflows that compose multiple read-only endpoint calls.
+
+- **`ahrefs-pp-cli keyword-gap`** - Find competitor keywords you do not rank for, or rank worse for
+- **`ahrefs-pp-cli striking-distance`** - Find keywords ranking just off page-one wins
+- **`ahrefs-pp-cli link-intersect`** - Find referring domains linking competitors but not you
+- **`ahrefs-pp-cli snapshot`** - Build a Site Explorer report card for one target
+
+These commands spend Ahrefs row credits for the underlying Site Explorer calls. `keyword-gap` and `link-intersect` call once for your target plus once per `--competitor`; `striking-distance` calls once; `snapshot` calls three point-in-time endpoints. Use `--dry-run` to preview requests before spending credits.
+
+```bash
+ahrefs-pp-cli keyword-gap --target bestself.co --competitor intelligentchange.com --competitor papier.com --country us --min-volume 100 --max-difficulty 40 --competitor-max-position 10 --your-min-position 11 --limit 1000 --mode subdomains --agent
+ahrefs-pp-cli striking-distance --target bestself.co --country us --min-position 4 --max-position 15 --min-volume 200 --max-difficulty 40 --limit 1000 --agent
+ahrefs-pp-cli link-intersect --target bestself.co --competitor intelligentchange.com --competitor papier.com --min-competitors 2 --min-dr 30 --limit 1000 --mode subdomains --agent
+ahrefs-pp-cli snapshot --target bestself.co --country us --date 2026-06-03 --agent
+```
+
+`snapshot --compact` returns `domain_rating`, `org_traffic`, and `live_refdomains`. If one snapshot section fails, the command returns null for that section and includes a `warnings` entry instead of failing the full report.
+
 ### keywords-explorer
 
 Keywords Explorer endpoints.

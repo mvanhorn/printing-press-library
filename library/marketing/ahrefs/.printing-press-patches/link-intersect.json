@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "link-intersect",
+  "applied_at": "2026-06-03",
+  "base_run_id": "",
+  "base_printing_press_version": "3.4.0",
+  "summary": "Add a top-level link-intersect command that finds referring hosts linking competitors but not the target.",
+  "reason": "Ahrefs all-backlinks rows do not expose a first-class refdomain column, so this read-only workflow derives the referring host from url_from after calling /site-explorer/all-backlinks with aggregation=1_per_domain for each target.",
+  "files": [
+    "internal/cli/composite_helpers.go",
+    "internal/cli/composite_commands_test.go",
+    "internal/cli/link_intersect.go",
+    "internal/cli/root.go",
+    ".printing-press.json",
+    "SKILL.md",
+    "README.md"
+  ]
+}
