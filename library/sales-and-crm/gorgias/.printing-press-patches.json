@@ -28,6 +28,26 @@
       "file": "README.md, MCP.md, SECURITY.md, CHANGELOG.md, manifest.json, tools-manifest.json",
       "rationale": "Public-release hygiene and packaging polish: remove private credential-manager wording, remove tenant-specific breadcrumbs, restore MCP package metadata, and keep release notes generic.",
       "evidence": "Public-release audit and independent adversarial review before the Printing Press Library PR."
+    },
+    {
+      "file": "internal/mcp/tools.go",
+      "rationale": "PR review fix: MCP `sql` handler now surfaces rows.Scan and rows.Err errors and propagates the request context via db.DB().QueryContext, matching the CLI `sql` read path so the two surfaces no longer diverge on error handling or cancellation.",
+      "evidence": "Greptile P2: scan error silently swallowed; query did not honor request context. Likely generator-template shape shared across MCP-enabled CLIs."
+    },
+    {
+      "file": "internal/cli/sql.go",
+      "rationale": "PR review fix: check rows.Err() after the scan loop so a context timeout mid-iteration surfaces as an error instead of returning a partial result set with a misleading row_count in the envelope.",
+      "evidence": "Greptile summary: canonical read path could exit 0 with a silently-truncated result on mid-iteration timeout. Likely generator-template shape."
+    },
+    {
+      "file": "internal/client/client.go",
+      "rationale": "PR review fix: honor XDG_CACHE_HOME for the HTTP response cache prefix (was hardcoded to ~/.cache, diverging from config/mcp/root which already respect XDG); add DeleteWithQuery so DELETE endpoints can forward query parameters.",
+      "evidence": "Greptile P2: cache path ignored XDG_CACHE_HOME in container/CI environments. Likely generator-template shape."
+    },
+    {
+      "file": "internal/mcp/code_orch.go",
+      "rationale": "PR review fix: code-orchestration DELETE now forwards the assembled query map via client.DeleteWithQuery instead of dropping it, so agent-supplied query parameters on DELETE endpoints are sent.",
+      "evidence": "Greptile summary: handleCodeOrchExecute built a query map for DELETE but called c.Delete(path) without it. Likely generator-template shape."
     }
   ]
 }

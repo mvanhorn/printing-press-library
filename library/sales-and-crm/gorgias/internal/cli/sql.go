@@ -101,6 +101,9 @@ func newSQLCmd(flags *rootFlags) *cobra.Command {
 				}
 				results = append(results, row)
 			}
+			if err := rows.Err(); err != nil {
+				return fmt.Errorf("reading rows: %w", err)
+			}
 
 			envelope := map[string]any{
 				"meta": map[string]any{

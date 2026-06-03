@@ -206,7 +206,10 @@ func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToo
 	}
 	defer db.Close()
 
-	rows, err := db.Query(query)
+	// Use QueryContext via the same *sql.DB accessor the CLI `sql` command uses
+	// so request cancellation/timeout propagates to SQLite — keeping the MCP and
+	// CLI read paths identical rather than divergent.
+	rows, err := db.DB().QueryContext(ctx, query)
 	if err != nil {
 		return mcplib.NewToolResultError(fmt.Sprintf("query failed: %v", err)), nil
 	}
@@ -220,12 +223,17 @@ func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToo
 		for i := range values {
 			ptrs[i] = &values[i]
 		}
-		rows.Scan(ptrs...)
+		if scanErr := rows.Scan(ptrs...); scanErr != nil {
+			return mcplib.NewToolResultError(fmt.Sprintf("scan row: %v", scanErr)), nil
+		}
 		row := make(map[string]any)
 		for i, col := range cols {
 			row[col] = values[i]
 		}
 		results = append(results, row)
+	}
+	if err := rows.Err(); err != nil {
+		return mcplib.NewToolResultError(fmt.Sprintf("reading rows: %v", err)), nil
 	}
 
 	data, _ := json.MarshalIndent(results, "", "  ")

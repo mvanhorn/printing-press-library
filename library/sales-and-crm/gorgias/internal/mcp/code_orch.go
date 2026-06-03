@@ -1072,7 +1072,7 @@ func handleCodeOrchExecute(ctx context.Context, req mcplib.CallToolRequest) (*mc
 	case "GET":
 		data, err = c.Get(path, query)
 	case "DELETE":
-		data, _, err = c.Delete(path)
+		data, _, err = c.DeleteWithQuery(path, query)
 	default:
 		body, mErr := json.Marshal(params)
 		if mErr != nil {

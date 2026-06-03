@@ -54,8 +54,12 @@ func newHTTPClient(timeout time.Duration, jar http.CookieJar) *http.Client {
 }
 
 func New(cfg *config.Config, timeout time.Duration, rateLimit float64) *Client {
-	homeDir, _ := os.UserHomeDir()
-	cacheDir := filepath.Join(homeDir, ".cache", "gorgias-pp-cli", "http")
+	cacheBase := os.Getenv("XDG_CACHE_HOME")
+	if cacheBase == "" {
+		homeDir, _ := os.UserHomeDir()
+		cacheBase = filepath.Join(homeDir, ".cache")
+	}
+	cacheDir := filepath.Join(cacheBase, "gorgias-pp-cli", "http")
 	httpClient := newHTTPClient(timeout, nil)
 	return &Client{
 		BaseURL:    strings.TrimRight(cfg.BaseURL, "/"),
@@ -160,6 +164,10 @@ func (c *Client) PostWithHeaders(path string, body any, headers map[string]strin
 
 func (c *Client) Delete(path string) (json.RawMessage, int, error) {
 	return c.do("DELETE", path, nil, nil, nil)
+}
+
+func (c *Client) DeleteWithQuery(path string, params map[string]string) (json.RawMessage, int, error) {
+	return c.do("DELETE", path, params, nil, nil)
 }
 
 func (c *Client) DeleteWithHeaders(path string, headers map[string]string) (json.RawMessage, int, error) {
