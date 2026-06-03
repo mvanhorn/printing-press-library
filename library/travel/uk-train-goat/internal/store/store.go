@@ -1254,6 +1254,10 @@ func (s *Store) ResolveByName(resourceType string, input string, matchFields ...
 				}
 			}
 		}
+		if err := rows.Err(); err != nil {
+			rows.Close()
+			return "", fmt.Errorf("resolving %s %q: %w", resourceType, input, err)
+		}
 		rows.Close()
 	}
 

@@ -125,5 +125,8 @@ func searchStations(s *store.Store, query string, limit int) ([]map[string]strin
 		}
 		out = append(out, row)
 	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
 	return out, nil
 }

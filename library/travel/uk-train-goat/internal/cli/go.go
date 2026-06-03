@@ -7,7 +7,9 @@
 package cli
 
 import (
+	"database/sql"
 	"encoding/json"
+	"errors"
 	"fmt"
 
 	"github.com/mvanhorn/printing-press-library/library/travel/uk-train-goat/internal/config"
@@ -47,7 +49,10 @@ func newGoCmd(flags *rootFlags) *cobra.Command {
 
 			raw, err := s.Get("saved_route", args[0])
 			if err != nil {
-				return notFoundErr(fmt.Errorf("no saved route named %q (use `saved add` first)", args[0]))
+				if errors.Is(err, sql.ErrNoRows) {
+					return notFoundErr(fmt.Errorf("no saved route named %q (use `saved add` first)", args[0]))
+				}
+				return fmt.Errorf("reading saved route %q: %w", args[0], err)
 			}
 			var route savedRoute
 			if err := json.Unmarshal(raw, &route); err != nil {
