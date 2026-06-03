@@ -48,6 +48,7 @@ This installs the CLI only — no skill.
 Download a pre-built binary for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/x-twitter-current). On macOS, clear the Gatekeeper quarantine: `xattr -d com.apple.quarantine <binary>`. On Unix, mark it executable: `chmod +x <binary>`.
 
 <!-- pp-hermes-install-anchor -->
+
 ## Install for Hermes
 
 From the Hermes CLI:
@@ -86,7 +87,6 @@ Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple S
 <summary>Manual JSON config (advanced)</summary>
 
 If you can't use the MCPB bundle (older Claude Desktop, unsupported platform), install the MCP binary and configure it manually.
-
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/social-and-messaging/x-twitter/cmd/x-twitter-pp-mcp@latest
@@ -194,7 +194,7 @@ Manage chat
 - **`x-twitter-pp-cli chat get-conversation`** - Retrieves messages and key change events for a specific Chat conversation with pagination support. For 1:1 conversations, provide the recipient's user ID; the server constructs the canonical conversation ID from the authenticated user and recipient.
 - **`x-twitter-pp-cli chat get-conversations`** - Retrieves a list of Chat conversations for the authenticated user's inbox.
 - **`x-twitter-pp-cli chat initialize-conversation-keys`** - Initializes encryption keys for a Chat conversation. This is the first step
-before sending messages in a new 1:1 conversation.
+  before sending messages in a new 1:1 conversation.
 
 For 1:1 conversations, provide the recipient's user ID as the conversation_id.
 The server constructs the canonical conversation ID from the authenticated user
@@ -204,12 +204,14 @@ The request body must contain the conversation key version and participant keys
 (the conversation key encrypted for each participant using their public key).
 
 **Workflow (1:1 conversation):**
+
 1. Generate a conversation key using the SDK
 2. Encrypt the key for both participants using their public keys
 3. Call this endpoint to register the keys
 4. Send messages using `POST /chat/conversations/{id}/messages`
 
 **Authentication:**
+
 - Requires OAuth 1.0a User Context or OAuth 2.0 User Context
 - Required scopes: `tweet.read`, `users.read`, `dm.write`
 - **`x-twitter-pp-cli chat initialize-group`** - Initializes a new XChat group conversation and returns a unique conversation ID.
@@ -219,10 +221,12 @@ should be used in subsequent calls to POST /chat/conversations/group to fully cr
 configure the group with members, admins, encryption keys, and other settings.
 
 **Workflow:**
+
 1. Call this endpoint to get a `conversation_id`
 2. Use that `conversation_id` when calling `POST /chat/conversations/group` to create the group
 
 **Authentication:**
+
 - Requires OAuth 1.0a User Context or OAuth 2.0 User Context
 - Required scope: `dm.write`
 - **`x-twitter-pp-cli chat mark-conversation-read`** - Marks a specific Chat conversation as read on behalf of the authenticated user. For 1:1 conversations, provide the recipient's user ID; the server constructs the canonical conversation ID from the authenticated user and recipient.
@@ -412,6 +416,19 @@ Manage webhooks
 - **`x-twitter-pp-cli webhooks get`** - Get a list of webhook configs associated with a client app.
 - **`x-twitter-pp-cli webhooks validate`** - Triggers a CRC check for a given webhook.
 
+### Composite workflows
+
+Read-only commands that compose existing reads into a higher-value answer — no new HTTP surface, no writes.
+
+- **`x-twitter-pp-cli top-posts`** - Rank your recent posts into a leaderboard by engagement (likes + reposts + replies + quotes) or a single `--metric`. Resolves the authenticated user, pages the timeline up to `--max-fetch`, and ranks client-side. Degrades gracefully when `impression_count` is unavailable below Basic tier.
+
+```bash
+x-twitter-pp-cli top-posts                              # top 10 by engagement
+x-twitter-pp-cli top-posts --metric likes --limit 5     # top 5 by likes
+x-twitter-pp-cli top-posts --exclude replies,retweets   # original posts only
+x-twitter-pp-cli top-posts --user-id 2244994945 --json  # rank another user
+```
+
 ## Output Formats
 
 ```bash
@@ -461,15 +478,19 @@ Config file: `~/.config/x-twitter-pp-cli/config.toml`
 
 Environment variables:
 
-| Name | Kind | Required | Description |
-| --- | --- | --- | --- |
-| `X_OAUTH2_USER_TOKEN` | per_call | Yes | Set to your API credential. |
+| Name                  | Kind     | Required | Description                 |
+| --------------------- | -------- | -------- | --------------------------- |
+| `X_OAUTH2_USER_TOKEN` | per_call | Yes      | Set to your API credential. |
 
 ## Troubleshooting
+
 **Authentication errors (exit code 4)**
+
 - Run `x-twitter-pp-cli doctor` to check credentials
 - Verify the environment variable is set: `echo $X_OAUTH2_USER_TOKEN`
+
 **Not found errors (exit code 3)**
+
 - Check the resource ID is correct
 - Run the `list` command to see available items
 

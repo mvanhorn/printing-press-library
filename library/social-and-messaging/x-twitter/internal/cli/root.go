@@ -209,6 +209,7 @@ Run 'x-twitter-pp-cli doctor' to verify auth and connectivity.`,
 	// Hand-written compound commands (not generated from spec).
 	rootCmd.AddCommand(newThreadCmd(flags))
 	rootCmd.AddCommand(newArticlesPublishMdCmd(flags))
+	rootCmd.AddCommand(newTopPostsCmd(flags))
 
 	return rootCmd
 }

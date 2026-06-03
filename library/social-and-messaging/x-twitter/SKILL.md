@@ -228,7 +228,6 @@ This CLI uses Chrome-compatible HTTP transport for browser-facing endpoints. It 
 - `x-twitter-pp-cli webhooks get` — Get a list of webhook configs associated with a client app.
 - `x-twitter-pp-cli webhooks validate` — Triggers a CRC check for a given webhook.
 
-
 ### Finding the right command
 
 When you know what you want to do but not which command does it, ask the CLI directly:
@@ -261,6 +260,7 @@ Add `--agent` to any command. Expands to: `--json --compact --no-input --no-colo
   ```bash
   x-twitter-pp-cli articles list --agent --select id,name,status
   ```
+
 - **Previewable** — `--dry-run` shows the request without sending
 - **Offline-friendly** — sync/search commands can use the local SQLite store when available
 - **Non-interactive** — never prompts, every input is a flag
@@ -291,16 +291,16 @@ x-twitter-pp-cli feedback list --json --limit 10
 
 Entries are stored locally at `~/.x-twitter-pp-cli/feedback.jsonl`. They are never POSTed unless `X_FEEDBACK_ENDPOINT` is set AND either `--send` is passed or `X_FEEDBACK_AUTO_SEND=true`. Default behavior is local-only.
 
-Write what *surprised* you, not a bug report. Short, specific, one line: that is the part that compounds.
+Write what _surprised_ you, not a bug report. Short, specific, one line: that is the part that compounds.
 
 ## Output Delivery
 
 Every command accepts `--deliver <sink>`. The output goes to the named sink in addition to (or instead of) stdout, so agents can route command results without hand-piping. Three sinks are supported:
 
-| Sink | Effect |
-|------|--------|
-| `stdout` | Default; write to stdout only |
-| `file:<path>` | Atomically write output to `<path>` (tmp + rename) |
+| Sink            | Effect                                                                                          |
+| --------------- | ----------------------------------------------------------------------------------------------- |
+| `stdout`        | Default; write to stdout only                                                                   |
+| `file:<path>`   | Atomically write output to `<path>` (tmp + rename)                                              |
 | `webhook:<url>` | POST the output body to the URL (`application/json` or `application/x-ndjson` when `--compact`) |
 
 Unknown schemes are refused with a structured error naming the supported set. Webhook failures return non-zero and log the URL + HTTP status on stderr.
@@ -323,25 +323,25 @@ Explicit flags always win over profile values; profile values win over defaults.
 
 For endpoints that submit long-running work, the generator detects the submit-then-poll pattern (a `job_id`/`task_id`/`operation_id` field in the response plus a sibling status endpoint) and wires up three extra flags on the submitting command:
 
-| Flag | Purpose |
-|------|---------|
-| `--wait` | Block until the job reaches a terminal status instead of returning the job ID immediately |
-| `--wait-timeout` | Maximum wait duration (default 10m, 0 means no timeout) |
-| `--wait-interval` | Initial poll interval (default 2s; grows with exponential backoff up to 30s) |
+| Flag              | Purpose                                                                                   |
+| ----------------- | ----------------------------------------------------------------------------------------- |
+| `--wait`          | Block until the job reaches a terminal status instead of returning the job ID immediately |
+| `--wait-timeout`  | Maximum wait duration (default 10m, 0 means no timeout)                                   |
+| `--wait-interval` | Initial poll interval (default 2s; grows with exponential backoff up to 30s)              |
 
 Use async submission without `--wait` when you want to fire-and-forget; use `--wait` when you want one command to return the finished artifact.
 
 ## Exit Codes
 
-| Code | Meaning |
-|------|---------|
-| 0 | Success |
-| 2 | Usage error (wrong arguments) |
-| 3 | Resource not found |
-| 4 | Authentication required |
-| 5 | API error (upstream issue) |
-| 7 | Rate limited (wait and retry) |
-| 10 | Config error |
+| Code | Meaning                       |
+| ---- | ----------------------------- |
+| 0    | Success                       |
+| 2    | Usage error (wrong arguments) |
+| 3    | Resource not found            |
+| 4    | Authentication required       |
+| 5    | API error (upstream issue)    |
+| 7    | Rate limited (wait and retry) |
+| 10   | Config error                  |
 
 ## Argument Parsing
 
@@ -400,11 +400,12 @@ x-twitter-pp-cli doctor            # verifies
    ```json
    {
      "auth_token": "<paste>",
-     "ct0":        "<paste>",
+     "ct0": "<paste>",
      "web_bearer": "<paste, without the 'Bearer ' prefix>",
      "captured_at": "2026-05-08T22:00:00Z"
    }
    ```
+
 5. `chmod 600 ~/.config/x-twitter-pp-cli/cookies.json`.
 
 When X invalidates the session (logout, security events, ~weeks of inactivity), `articles *` commands return 401 — repeat the capture.
@@ -472,14 +473,10 @@ A paragraph with **bold** text.
 
 - bullet one
 - bullet two
-
-```bash
-x-twitter-pp-cli articles-publish-md draft.md --post
-```
 EOF
 
-x-twitter-pp-cli articles-publish-md draft.md   # dry-run; prints constructed content_state JSON
-x-twitter-pp-cli articles-publish-md draft.md --post  # create, update, set cover, and publish the article
+x-twitter-pp-cli articles-publish-md draft.md        # dry-run; prints constructed content_state JSON
+x-twitter-pp-cli articles-publish-md draft.md --post # create, update, set cover, and publish the article
 ```
 
 With `--post`, the command creates a draft, updates the title, uploads body images and binds them into the Draft.js `entity_map`, updates the content, uploads and assigns a cover image when `cover` is set, and publishes it as a public X Article using Source B cookie auth and the article-ops.json hash config. The wrapper requires a frontmatter `title`.
@@ -487,6 +484,23 @@ With `--post`, the command creates a draft, updates the title, uploads body imag
 **`x-twitter-pp-cli articles set-cover <article-id> <image-file>`**
 
 Uploads a local image through X's browser media-upload flow and assigns the returned media ID as the Article cover.
+
+### Composite workflows
+
+Read-only commands that compose existing reads into a higher-value answer. No new HTTP surface, no writes.
+
+**`x-twitter-pp-cli top-posts`**
+
+Ranks your recent posts into a leaderboard. Resolves the authenticated user via `GET /2/users/me`, pages the user timeline (`GET /2/users/{id}/tweets`, requesting `public_metrics`), and ranks client-side by total engagement (likes + reposts + replies + quotes) or a single metric via `--metric`. When `impression_count` is unavailable (free tier), `--metric impressions` prints a note and falls back to engagement instead of showing misleading zeroes.
+
+```bash
+x-twitter-pp-cli top-posts                              # top 10 of your recent posts by engagement
+x-twitter-pp-cli top-posts --metric likes --limit 5     # top 5 by likes
+x-twitter-pp-cli top-posts --exclude replies,retweets   # original posts only
+x-twitter-pp-cli top-posts --user-id 2244994945 --max-fetch 200 --json
+```
+
+Flags: `--metric` (engagement, likes, retweets, replies, quotes, bookmarks, impressions), `--limit` (rows returned, default 10), `--max-fetch` (posts pulled before ranking, paginated 100/page, default 100), `--exclude` (timeline entities to skip), `--user-id` (rank another user instead of yourself). Accepts all global flags (`--json`, `--agent`, `--compact`, `--dry-run`, etc.).
 
 ### Known limitations of v1
 
