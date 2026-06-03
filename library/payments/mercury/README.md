@@ -48,6 +48,7 @@ This installs the CLI only — no skill.
 Download a pre-built binary for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/mercury-current). On macOS, clear the Gatekeeper quarantine: `xattr -d com.apple.quarantine <binary>`. On Unix, mark it executable: `chmod +x <binary>`.
 
 <!-- pp-hermes-install-anchor -->
+
 ## Install for Hermes
 
 From the Hermes CLI:
@@ -153,6 +154,7 @@ These capabilities aren't available in any other tool for this API.
   ```bash
   mercury-pp-cli workflow payment-plan --kind transfer --source-account-id acct_src --destination-account-id acct_dst --amount 25 --agent
   ```
+
 - **`workflow archive`** — Syncs supported Mercury resources into a local SQLite store for offline search and analytics.
 
   _Reduces API calls and gives agents repeatable context._
@@ -160,6 +162,7 @@ These capabilities aren't available in any other tool for this API.
   ```bash
   mercury-pp-cli workflow archive --agent
   ```
+
 - **`agent-context`** — Emits machine-readable command metadata for agents and MCP hosts.
 
   _Improves autonomous command selection and reduces context waste._
@@ -331,6 +334,22 @@ Manage webhooks
 - **`mercury-pp-cli webhooks get-webhookendpointid`** - Retrieve details of a specific webhook endpoint by ID
 - **`mercury-pp-cli webhooks update`** - Update the configuration of an existing webhook endpoint. A webhook that has been disabled due to consecutive delivery failures can be reactivated by setting its status to 'active'.
 
+### Composite Workflows
+
+Read-only commands that compose existing reads into a higher-value workflow. All accounts by default; narrow with `--account-id`.
+
+- **`mercury-pp-cli cash-runway`** - Sums account balances and recent transactions into average weekly net burn and projected weeks of runway. Flags: `--weeks` (default 8), `--account-id`.
+
+```bash
+mercury-pp-cli cash-runway --weeks 12 --json
+```
+
+- **`mercury-pp-cli spend-by-category`** - Rolls up outflow by Mercury category over a period with a week-over-week delta, from one windowed transaction read. Uncategorized outflows fall into an `uncategorized` bucket. Flags: `--days` (default 7), `--account-id`.
+
+```bash
+mercury-pp-cli spend-by-category --days 7 --json
+```
+
 ## Output Formats
 
 ```bash
@@ -380,15 +399,17 @@ Config file: `~/.config/mercury-pp-cli/config.toml`
 
 Environment variables:
 
-| Name | Kind | Required | Description |
-| --- | --- | --- | --- |
-| `MERCURY_BEARER_AUTH` | per_call | Yes | Set to your API credential. |
+| Name                  | Kind     | Required | Description                 |
+| --------------------- | -------- | -------- | --------------------------- |
+| `MERCURY_BEARER_AUTH` | per_call | Yes      | Set to your API credential. |
 
 ## Troubleshooting
+
 **Authentication errors (exit code 4)**
+
 - Run `mercury-pp-cli doctor` to check credentials
 - Verify the environment variable is set: `echo $MERCURY_BEARER_AUTH`
-**Not found errors (exit code 3)**
+  **Not found errors (exit code 3)**
 - Check the resource ID is correct
 - Run the `list` command to see available items
 
