@@ -13,8 +13,8 @@ import (
 	"strings"
 	"time"
 
-	"intervals-icu-pp-cli/internal/cliutil"
-	"intervals-icu-pp-cli/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/other/intervals-icu/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/other/intervals-icu/internal/config"
 )
 
 // jsonStr extracts a string field from a decoded JSON object, tolerating
