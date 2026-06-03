@@ -6,7 +6,9 @@
   "base_printing_press_version": "4.9.0",
   "summary": "Reduce the projects sync page size from 50 to 25 so the ProjectsQuery stays under Linear's GraphQL query-complexity cap.",
   "reason": "ProjectsQuery nests projectMilestones(first: 50) inside projects(first: N); Linear multiplies nested connection sizes when scoring complexity, so first: 50 scored ~12305 against the 10000 cap and every `sync` failed projects with HTTP 400 \"Query too complex\". Page size 25 scores ~6152; pagination still fetches every project.",
-  "files": ["internal/cli/sync.go"],
+  "files": [
+    "internal/cli/sync.go"
+  ],
   "validated_outcome": "After the change `linear-pp-cli sync` reports `Syncing projects... 105` instead of the complexity error, and `milestones at-risk` / `initiatives health --data-source local` return data from the local store.",
   "upstream_issue": "https://github.com/mvanhorn/printing-press-library/issues/946"
 }
