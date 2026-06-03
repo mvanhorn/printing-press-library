@@ -154,6 +154,12 @@ const (
 	// D6: refresh refused on this source to avoid signing the user out
 	// of Granola desktop.
 	TokenSourceEncryptedSupabase
+	// TokenSourcePlaintextSupabaseDesktopFallback: supabase.json.enc was
+	// present but unavailable because Keychain access failed, so the token
+	// was read from plaintext supabase.json. Treat this as desktop-owned
+	// for D6 because the plaintext and encrypted files may share the same
+	// single-use refresh token.
+	TokenSourcePlaintextSupabaseDesktopFallback
 	// TokenSourceStoredAccounts: stored-accounts.json fallback. Refresh
 	// allowed - this surface is rarely populated on modern installs and
 	// is not the canonical token store the desktop tracks.
@@ -259,8 +265,8 @@ func loadFromSupabaseJSON() (workosTokens, TokenSource, error) {
 		if errors.Is(encErr, safestorage.ErrKeyUnavailable) {
 			plainPath := supabaseJSONPath()
 			if _, statErr := os.Stat(plainPath); statErr == nil {
-				if tok, src, plainErr := loadFromSupabasePlain(plainPath); plainErr == nil {
-					return tok, src, nil
+				if tok, _, plainErr := loadFromSupabasePlain(plainPath); plainErr == nil {
+					return tok, TokenSourcePlaintextSupabaseDesktopFallback, nil
 				} else {
 					return workosTokens{}, TokenSourceUnknown, fmt.Errorf("supabase.json.enc: Keychain unavailable; supabase.json fallback also failed: %w", plainErr)
 				}
@@ -390,9 +396,10 @@ var workosLimiter = cliutil.NewAdaptiveLimiter(2.0)
 // write back to Granola's files).
 //
 // PATCH(encrypted-cache): refuses to refresh when the in-memory token
-// came from supabase.json.enc (D6). Refreshing would mint a new
-// refresh_token and invalidate the one Granola desktop still has on
-// disk, signing the user out next time the desktop tries to refresh.
+// came from supabase.json.enc, or from plaintext supabase.json as a fallback
+// because the encrypted store was Keychain-blocked (D6). Refreshing would
+// mint a new refresh_token and invalidate the one Granola desktop still has
+// on disk, signing the user out next time the desktop tries to refresh.
 // The env override path (GRANOLA_WORKOS_TOKEN) is opt-in: power users
 // who set it accept the desktop-sign-out trade-off. The plaintext
 // supabase.json and stored-accounts.json paths still allow refresh
@@ -403,7 +410,7 @@ func RefreshAccessToken(refreshToken string) (RefreshAccessTokenResponse, error)
 	// the network call. Single-CLI-invocation processes don't see this race
 	// in practice; long-running agents that call sync concurrently would.
 	tokenMu.Lock()
-	if cachedSource == TokenSourceEncryptedSupabase {
+	if cachedSource == TokenSourceEncryptedSupabase || cachedSource == TokenSourcePlaintextSupabaseDesktopFallback {
 		tokenMu.Unlock()
 		return RefreshAccessTokenResponse{}, ErrRefreshRefused
 	}

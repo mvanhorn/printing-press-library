@@ -132,10 +132,10 @@ func fetchKeychainEntry() (string, error) {
 	var stderr bytes.Buffer
 	cmd.Stderr = &stderr
 	out, err := cmd.Output()
-	if ctx.Err() == context.DeadlineExceeded {
-		return "", fmt.Errorf("%w: Keychain access timed out after 15s; approve the Granola Safe Storage prompt or use a token override for headless/agent runs", ErrKeyUnavailable)
-	}
 	if err != nil {
+		if ctx.Err() == context.DeadlineExceeded {
+			return "", fmt.Errorf("%w: Keychain access timed out after 15s; approve the Granola Safe Storage prompt or use a token override for headless/agent runs", ErrKeyUnavailable)
+		}
 		msg := strings.TrimSpace(stderr.String())
 		if strings.Contains(msg, "could not be found") || strings.Contains(msg, "errSecItemNotFound") {
 			return "", fmt.Errorf("%w: Keychain entry %q / %q not found (sign in to Granola desktop first)", ErrKeyUnavailable, keychainSvc, keychainAcct)

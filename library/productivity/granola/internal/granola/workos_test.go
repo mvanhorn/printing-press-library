@@ -113,6 +113,28 @@ func TestRefreshAccessToken_RefusesEncryptedSource(t *testing.T) {
 	}
 }
 
+func TestRefreshAccessToken_RefusesPlaintextDesktopFallbackSource(t *testing.T) {
+	ResetTokenCache()
+	defer ResetTokenCache()
+
+	// Simulate a plaintext supabase.json fallback after supabase.json.enc was
+	// present but Keychain-unavailable. The refresh token is still desktop-owned
+	// and may be the same single-use token Granola desktop has encrypted on disk.
+	tokenMu.Lock()
+	cachedAccess = "old-access"
+	cachedRefresh = "old-refresh"
+	cachedSource = TokenSourcePlaintextSupabaseDesktopFallback
+	tokenMu.Unlock()
+
+	_, err := RefreshAccessToken("old-refresh")
+	if err == nil {
+		t.Fatal("expected ErrRefreshRefused, got nil")
+	}
+	if err != ErrRefreshRefused {
+		t.Errorf("expected ErrRefreshRefused, got %v", err)
+	}
+}
+
 func TestRefreshAccessToken_AllowsEnvOverrideSource(t *testing.T) {
 	ResetTokenCache()
 	defer ResetTokenCache()
