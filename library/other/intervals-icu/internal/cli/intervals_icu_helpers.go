@@ -13,8 +13,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/mvanhorn/printing-press-library/library/other/intervals-icu/internal/cliutil"
-	"github.com/mvanhorn/printing-press-library/library/other/intervals-icu/internal/config"
+	"intervals-icu-pp-cli/internal/cliutil"
+	"intervals-icu-pp-cli/internal/config"
 )
 
 // jsonStr extracts a string field from a decoded JSON object, tolerating
@@ -93,7 +93,9 @@ func onlyDigits(s string) bool {
 }
 
 // localDate returns a YYYY-MM-DD string for an offset (negative = past) of days
-// from now, in UTC. intervals.icu's oldest/newest params accept ISO local days.
+// from now, in the machine's local time zone. intervals.icu's oldest/newest
+// params are athlete-local ISO days, so anchoring on local (not UTC) avoids an
+// off-by-one near midnight for users west of UTC.
 func localDate(daysFromNow int) string {
-	return time.Now().UTC().AddDate(0, 0, daysFromNow).Format("2006-01-02")
+	return time.Now().AddDate(0, 0, daysFromNow).Format("2006-01-02")
 }

@@ -13,7 +13,7 @@ import (
 	"math"
 	"sort"
 
-	"github.com/mvanhorn/printing-press-library/library/other/intervals-icu/internal/cliutil"
+	"intervals-icu-pp-cli/internal/cliutil"
 
 	"github.com/spf13/cobra"
 )
@@ -86,7 +86,9 @@ func newNovelWellnessTrendsCmd(flags *rootFlags) *cobra.Command {
 				return classifyAPIError(err, flags)
 			}
 			var acts []map[string]json.RawMessage
-			_ = json.Unmarshal(aData, &acts)
+			if err := json.Unmarshal(aData, &acts); err != nil {
+				return fmt.Errorf("parsing activities: %w", err)
+			}
 			loadByDay := map[string]float64{}
 			for _, a := range acts {
 				d := dayOf(jsonStr(a, "start_date_local"))

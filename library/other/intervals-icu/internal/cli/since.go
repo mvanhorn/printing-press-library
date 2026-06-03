@@ -76,7 +76,9 @@ func newNovelSinceCmd(flags *rootFlags) *cobra.Command {
 				return classifyAPIError(err, flags)
 			}
 			var events []map[string]json.RawMessage
-			_ = json.Unmarshal(evData, &events)
+			if err := json.Unmarshal(evData, &events); err != nil {
+				return fmt.Errorf("parsing events: %w", err)
+			}
 
 			// Activities: past window .. now (completed sessions).
 			actPath := replacePathParam("/api/v1/athlete/{id}/activities", "id", id)
@@ -88,7 +90,9 @@ func newNovelSinceCmd(flags *rootFlags) *cobra.Command {
 				return classifyAPIError(err, flags)
 			}
 			var acts []map[string]json.RawMessage
-			_ = json.Unmarshal(actData, &acts)
+			if err := json.Unmarshal(actData, &acts); err != nil {
+				return fmt.Errorf("parsing activities: %w", err)
+			}
 
 			// Index activity local-dates so missed-planned detection is O(1).
 			activityDates := map[string]bool{}

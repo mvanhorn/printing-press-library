@@ -12,7 +12,7 @@ import (
 	"fmt"
 	"sort"
 
-	"github.com/mvanhorn/printing-press-library/library/other/intervals-icu/internal/cliutil"
+	"intervals-icu-pp-cli/internal/cliutil"
 
 	"github.com/spf13/cobra"
 )
@@ -78,8 +78,11 @@ func newNovelFormCmd(flags *rootFlags) *cobra.Command {
 			for _, a := range acts {
 				ctl, okC := cliutil.ExtractNumber(a, "icu_ctl")
 				atl, okA := cliutil.ExtractNumber(a, "icu_atl")
-				if !okC && !okA {
-					continue // activity without computed load (e.g. Strava stub)
+				if !okC || !okA {
+					// Need both CTL and ATL for a valid form (TSB) point;
+					// otherwise TSB is computed against a phantom zero. Skips
+					// Strava stubs and not-yet-analyzed activities.
+					continue
 				}
 				load, _ := cliutil.ExtractNumber(a, "icu_training_load")
 				p := formPoint{

@@ -80,18 +80,27 @@ func newNovelCurveCompareCmd(flags *rootFlags) *cobra.Command {
 			if actType == "" {
 				actType = "Ride"
 			}
-			fetch := func(days int) (json.RawMessage, error) {
+			// The comparison window ends where the recent window begins, so the
+			// two ranges do not overlap — otherwise "vs" (which would contain
+			// "this") just reports the deeper history's bests and every delta
+			// reads as <= 0. Require vs to reach further back than this.
+			if vsDays <= thisDays {
+				_ = cmd.Usage()
+				return usageErr(fmt.Errorf("--vs window (%dd) must be longer than --this (%dd) so the comparison period is earlier and non-overlapping", vsDays, thisDays))
+			}
+			fetch := func(oldestOff, newestOff int) (json.RawMessage, error) {
 				return c.Get(cmd.Context(), path, map[string]string{
-					"oldest": localDate(-days),
-					"newest": localDate(0),
+					"oldest": localDate(oldestOff),
+					"newest": localDate(newestOff),
 					"type":   actType, // intervals.icu curve endpoints require an ActivityType
 				})
 			}
-			thisData, err := fetch(thisDays)
+			thisData, err := fetch(-thisDays, 0)
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
-			vsData, err := fetch(vsDays)
+			// Earlier, non-overlapping window: [now-vsDays, now-thisDays].
+			vsData, err := fetch(-vsDays, -thisDays)
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
@@ -99,7 +108,7 @@ func newNovelCurveCompareCmd(flags *rootFlags) *cobra.Command {
 				Metric:    metric,
 				AthleteID: id,
 				This:      curveRange{Oldest: localDate(-thisDays), Newest: localDate(0)},
-				Vs:        curveRange{Oldest: localDate(-vsDays), Newest: localDate(0)},
+				Vs:        curveRange{Oldest: localDate(-vsDays), Newest: localDate(-thisDays)},
 			}
 			thisSecs, thisVals := extractCurve(thisData)
 			vsSecs, vsVals := extractCurve(vsData)
@@ -118,7 +127,7 @@ func newNovelCurveCompareCmd(flags *rootFlags) *cobra.Command {
 				return flags.printJSON(cmd, view)
 			}
 			out := cmd.OutOrStdout()
-			fmt.Fprintf(out, "Best %s: last %dd vs last %dd\n\n", metric, thisDays, vsDays)
+			fmt.Fprintf(out, "Best %s: last %dd vs the prior %dd (ending %dd ago)\n\n", metric, thisDays, vsDays-thisDays, thisDays)
 			if len(view.Peaks) == 0 {
 				fmt.Fprintln(out, view.Note)
 				return nil
@@ -132,7 +141,7 @@ func newNovelCurveCompareCmd(flags *rootFlags) *cobra.Command {
 	}
 	cmd.Flags().StringVar(&flagMetric, "metric", "", "Curve metric: power, pace, or hr (default power)")
 	cmd.Flags().StringVar(&flagThis, "this", "", "Recent window, e.g. 90d (default 90)")
-	cmd.Flags().StringVar(&flagVs, "vs", "", "Comparison window, e.g. 365d (default 365)")
+	cmd.Flags().StringVar(&flagVs, "vs", "", "Total lookback for the earlier comparison window; must exceed --this. The comparison period is [now-vs, now-this] (default 365)")
 	cmd.Flags().StringVar(&flagType, "type", "", "Activity type for the curve, e.g. Ride, Run, Swim (default Ride)")
 	return cmd
 }
