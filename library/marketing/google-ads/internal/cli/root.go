@@ -196,6 +196,7 @@ Run 'google-ads-pp-cli doctor' to verify auth and connectivity.`,
 	rootCmd.AddCommand(newJobsCmd(flags))
 	rootCmd.AddCommand(newImportCmd(flags))
 	rootCmd.AddCommand(newSearchCmd(flags))
+	rootCmd.AddCommand(newWastedSpendCmd(flags))
 	rootCmd.AddCommand(newSyncCmd(flags))
 	rootCmd.AddCommand(newWorkflowCmd(flags))
 	rootCmd.AddCommand(newAPICmd(flags))

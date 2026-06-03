@@ -65,6 +65,11 @@
       "name": "Google Ads field catalog lookup",
       "command": "google-ads-fields search",
       "description": "Search Google Ads field metadata so agents can construct valid GAQL queries."
+    },
+    {
+      "name": "Wasted ad spend finder",
+      "command": "wasted-spend",
+      "description": "Compose one search_term_view GAQL read and rank search terms with spend but zero conversions, so negative keywords are obvious in one command."
     }
   ]
 }
