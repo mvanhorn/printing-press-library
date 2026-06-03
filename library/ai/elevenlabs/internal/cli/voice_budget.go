@@ -173,6 +173,9 @@ func summarizeVoiceBudget(sub subscriptionInfo, voicesUsed int, now time.Time) v
 		resetTime := time.Unix(reset, 0).UTC()
 		budget.NextResetUTC = resetTime.Format(time.RFC3339)
 		days := resetTime.Sub(now).Hours() / 24
+		if days < 0 {
+			days = 0
+		}
 		budget.DaysUntilReset = &days
 	}
 

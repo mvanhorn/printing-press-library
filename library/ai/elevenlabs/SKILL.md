@@ -444,7 +444,7 @@ Higher-value commands that compose existing reads. Read-only.
 elevenlabs-pp-cli voice-budget --json
 ```
 
-No flags; reads `GET /v1/user/subscription` and `GET /v2/voices`.
+Accepts all global flags (`--json`, `--agent`, `--compact`, `--dry-run`, `--deliver`, etc.); reads `GET /v1/user/subscription` and `GET /v2/voices`.
 
 ### Finding the right command
 

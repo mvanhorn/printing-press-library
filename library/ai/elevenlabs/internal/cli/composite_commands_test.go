@@ -117,6 +117,26 @@ func TestSummarizeVoiceBudgetEdges(t *testing.T) {
 	}
 }
 
+func TestSummarizeVoiceBudgetStaleReset(t *testing.T) {
+	// A reset timestamp in the past (subscription not yet refreshed) should
+	// clamp days-until-reset to 0 rather than render a negative value.
+	now := time.Date(2026, 6, 3, 0, 0, 0, 0, time.UTC)
+	reset := now.AddDate(0, 0, -2).Unix() // 2 days in the past
+	sub := subscriptionInfo{
+		CharacterCount:              flexInt64(10000),
+		CharacterLimit:              flexInt64(100000),
+		VoiceLimit:                  flexInt64(10),
+		NextCharacterCountResetUnix: flexInt64(reset),
+	}
+	b := summarizeVoiceBudget(sub, 1, now)
+	if b.DaysUntilReset == nil {
+		t.Fatal("stale reset should still set days-until-reset")
+	}
+	if *b.DaysUntilReset != 0 {
+		t.Fatalf("stale reset days = %v, want 0 (clamped)", *b.DaysUntilReset)
+	}
+}
+
 // Dry-run contract: returns before any network call and emits nothing.
 func TestVoiceBudgetDryRunEmitsNothing(t *testing.T) {
 	flags := &rootFlags{dryRun: true}

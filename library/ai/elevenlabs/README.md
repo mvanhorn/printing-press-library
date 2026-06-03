@@ -663,7 +663,9 @@ Environment variables:
 
 - Run `elevenlabs-pp-cli doctor` to check credentials
 - Verify the environment variable is set: `echo $ELEVENLABS_API_KEY`
-  **Not found errors (exit code 3)**
+
+**Not found errors (exit code 3)**
+
 - Check the resource ID is correct
 - Run the `list` command to see available items
 
