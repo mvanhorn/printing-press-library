@@ -171,6 +171,30 @@ Look up one subscriber with profile fields, tags, and engagement stats:
 kit-pp-cli workflow subscriber-lookup --email <subscriber-email> --agent
 ```
 
+Build a complete welcome sequence from YAML:
+
+```bash
+kit-pp-cli sequences build --file welcome.yaml --agent
+```
+
+Onboard a subscriber into tags and sequences:
+
+```bash
+kit-pp-cli subscribers onboard --email-address reader@example.com --tag welcome --sequence 123 --agent
+```
+
+Compose a Markdown broadcast as a draft:
+
+```bash
+kit-pp-cli broadcasts compose --file update.md --agent
+```
+
+Export paginated resources to JSONL:
+
+```bash
+kit-pp-cli export --out ./kit-export --agent
+```
+
 List subscribers and keep only the fields an agent usually needs:
 
 ```bash
@@ -225,6 +249,45 @@ These capabilities aren't available in any other tool for this API.
   kit-pp-cli workflow content-inventory --agent
   ```
 
+### Content creation
+- **`sequences build`** — Creates a sequence shell and ordered sequence emails from a YAML or JSON file. It validates before any network call that only the first email uses `delay_value: 0`.
+
+  ```bash
+  kit-pp-cli sequences build --file welcome.yaml --agent
+  ```
+
+- **`broadcasts compose`** — Creates a draft or scheduled broadcast from Markdown front matter. The body renders to HTML; `send_at: null` is the draft control and `subscriber_filter: []` targets all subscribers.
+
+  ```bash
+  kit-pp-cli broadcasts compose --file update.md --agent
+  ```
+
+- **`email-templates apply`** — Applies a template to a sequence after validating the template id across full pagination. Broadcasts set templates at creation time with `--email-template-id`.
+
+  ```bash
+  kit-pp-cli email-templates apply --template 1234 --sequence 5678 --agent
+  ```
+
+### Subscriber and purchase operations
+- **`subscribers onboard`** — Upserts a subscriber, resolves tag names across full tag pagination, adds tags, and enrolls sequences. `--state` is create-only and is ignored for existing subscribers.
+
+  ```bash
+  kit-pp-cli subscribers onboard --email-address reader@example.com --tag welcome --sequence 123 --agent
+  ```
+
+- **`purchases log`** — Builds the required purchase body from product flags and prints computed money values before sending. Product line items use `unit_price`.
+
+  ```bash
+  kit-pp-cli purchases log --email-address reader@example.com --transaction-id order-100 --product "Course:course-1:1:199.00" --agent
+  ```
+
+### Export
+- **`export`** — Drains Kit cursor pagination and writes JSONL files for subscribers, tags, sequences, forms, custom fields, and broadcasts.
+
+  ```bash
+  kit-pp-cli export --out ./kit-export --agent
+  ```
+
 ### Trends and ranking
 - **`growth-trends`** — Correlates `/v4/account/growth_stats` with recent `/v4/broadcasts/stats` to report subscriber growth alongside broadcast send/open/click rates over a date range. Optional `--cache-stats` warms the local store via the typed `UpsertBroadcastsStats` write path.
 
@@ -243,12 +306,18 @@ These capabilities aren't available in any other tool for this API.
 
 ### MCP intent tools
 
-Four first-class MCP intent tools wrap the workflow commands with typed input schemas and read-only annotations. Each tool delegates in-process to the matching Cobra command so orchestration logic stays in one place. Endpoint mirror tools (75 typed endpoint tools) remain fully exposed alongside the intent tools.
+MCP intent tools wrap compound commands with typed input schemas and safety annotations. Each tool delegates in-process to the matching Cobra command so orchestration logic stays in one place. Endpoint mirror tools remain fully exposed alongside the intent tools.
 
 - `intent_workflow_creator_snapshot`
 - `intent_workflow_audience_health`
 - `intent_workflow_content_inventory`
 - `intent_workflow_subscriber_lookup`
+- `intent_sequences_build`
+- `intent_subscribers_onboard`
+- `intent_purchases_log`
+- `intent_broadcasts_compose`
+- `intent_email_templates_apply`
+- `intent_export`
 
 The MCP server (`kit-pp-mcp`) ships both stdio and streamable HTTP transports. Defaults to stdio; set `PP_MCP_TRANSPORT=http` or pass `--transport http` with `--addr :7777` to bind a remote-capable server.
 
@@ -273,6 +342,7 @@ Manage account
 
 Manage broadcasts
 
+- **`kit-pp-cli broadcasts compose`** - Create a draft or scheduled broadcast from Markdown front matter
 - **`kit-pp-cli broadcasts create`** - Draft or schedule to send a broadcast to all or a subset of your subscribers.<br/><br/>To save a draft, set `send_at` to `null`.<br/><br/>To publish to the web, set `public` to `true`.<br/><br/>To schedule the broadcast for sending, provide a `send_at` timestamp. Scheduled broadcasts should contain a subject and your content, at a minimum.<br/><br/>We currently support targeting your subscribers based on segment or tag ids.<aside class='notice'>Starting point templates are not currently supported.</aside>
 - **`kit-pp-cli broadcasts delete`** - Delete a broadcast
 - **`kit-pp-cli broadcasts get`** - Get a broadcast
@@ -306,6 +376,13 @@ Manage custom fields
 Manage email templates
 
 - **`kit-pp-cli email-templates`** - List email templates
+- **`kit-pp-cli email-templates apply`** - Apply an email template to a sequence
+
+### export
+
+Export paginated Kit resources to JSONL files
+
+- **`kit-pp-cli export`** - Export subscribers, tags, sequences, forms, custom fields, and broadcasts
 
 ### forms
 
@@ -324,6 +401,7 @@ Manage posts
 
 Manage purchases
 
+- **`kit-pp-cli purchases log`** - Create a purchase from friendly product and money flags
 - **`kit-pp-cli purchases create`** - Create a purchase
 - **`kit-pp-cli purchases get`** - Get a purchase
 - **`kit-pp-cli purchases list`** - List purchases
@@ -338,6 +416,7 @@ Manage segments
 
 Manage sequences
 
+- **`kit-pp-cli sequences build`** - Create a sequence shell and its emails from a file
 - **`kit-pp-cli sequences create`** - Creates an empty sequence — the container that holds sequence emails. After creating the shell, use [Create a sequence email](/api-reference/sequence-emails/create-a-sequence-email) to populate it.
 
 Only `name` is required. Every other field has a sensible default: Kit fills in the account's default sending address, a daily send schedule, and the account time zone — and any of these can be tuned later via [Update a sequence](/api-reference/sequences/update-a-sequence).
@@ -407,6 +486,7 @@ See [Create a snippet](/api-reference/snippets/create-a-snippet) for the full sn
 
 Manage subscribers
 
+- **`kit-pp-cli subscribers onboard`** - Upsert a subscriber, add tags, and enroll in sequences
 - **`kit-pp-cli subscribers create`** - Behaves as an upsert. If a subscriber with the provided email address does not exist, it creates one with the specified first name and state. If a subscriber with the provided email address already exists, it updates the first name.<br/><br/>If you include a custom field key that does not exist on your account, the request returns an error. Use [List custom fields](/api-reference/custom-fields/list-custom-fields) to retrieve existing keys, or [Create a custom field](/api-reference/custom-fields/create-a-custom-field) to add new fields before setting them for subscribers.<br/><br/><strong>NOTE:</strong> Updating the subscriber state with this endpoint is not supported at this time.<br/><strong>NOTE:</strong> We support creating/updating a maximum of 140 custom fields at a time.
 - **`kit-pp-cli subscribers create-filter`** - Filter subscribers based on engagement
 - **`kit-pp-cli subscribers get`** - Get a subscriber
