@@ -1,0 +1,15 @@
+{
+  "timestamp": "2026-06-02T19:49:19.496941Z",
+  "cli_dir": "\u003ccli-dir\u003e/intervals-icu",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "version",
+      "file": "root.go",
+      "line": 325,
+      "evidence": "Print version",
+      "status": "accepted",
+      "note": "Standard 'version' command; agents understand this without elaboration. Generated file (root.go); padding the Short would game the audit without improving the CLI."
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "intervals-icu-constant-basic-username",
+  "applied_at": "2026-06-03",
+  "base_run_id": "20260602-pp-intervals",
+  "base_printing_press_version": "4.20.1",
+  "summary": "AuthHeader builds base64(\"API_KEY:<key>\") — a constant Basic username.",
+  "reason": "intervals.icu HTTP Basic uses the literal username \"API_KEY\" with the personal key as the password. The generator's single-token Basic path emitted base64(\"<key>:\") (key as username), which fails auth. The generator has no spec field for a constant Basic username.",
+  "files": ["internal/config/config.go"],
+  "validated_outcome": "doctor + live reads succeed; 282/282 live dogfood pass.",
+  "upstream_issue": ""
+}

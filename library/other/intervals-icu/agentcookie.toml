@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "intervals-icu-pp-cli"
+display_name = "Intervals.icu"
+description = "The first intervals.icu CLI with a local training database — offline search, SQL, and fitness/form analytics no other tool has."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/intervals-icu-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+INTERVALS_ICU_API_KEY = false

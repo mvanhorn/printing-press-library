@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "intervals-icu",
+  "run_id": "20260602-pp-intervals",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 282,
+  "tests_passed": 282,
+  "tests_skipped": 456,
+  "auth_context": {
+    "type": "api_key"
+  }
+}
