@@ -90,6 +90,9 @@ func newKeywordGapCmd(flags *rootFlags) *cobra.Command {
 					if row.Keyword == "" || row.BestPosition == nil || *row.BestPosition > flagCompetitorMaxPosition {
 						continue
 					}
+					if row.Volume < flagMinVolume || exceedsDifficulty(row.KeywordDifficulty, flagMaxDifficulty) {
+						continue
+					}
 					if yourPos := yourPositions[row.Keyword]; yourPos != nil && *yourPos <= flagYourMinPosition {
 						continue
 					}
@@ -164,6 +167,10 @@ func difficultyWhere(maxDifficulty int) string {
 		return ""
 	}
 	return fmt.Sprintf("keyword_difficulty <= %d", maxDifficulty)
+}
+
+func exceedsDifficulty(keywordDifficulty int, maxDifficulty int) bool {
+	return maxDifficulty > 0 && keywordDifficulty > maxDifficulty
 }
 
 func compactKeywordGapResults(rows []keywordGapResult) []map[string]any {
