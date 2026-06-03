@@ -24,9 +24,7 @@
   "mcp_ready": "full",
   "api_version": "2.162",
   "auth_type": "bearer_token",
-  "auth_env_vars": [
-    "X_OAUTH2_USER_TOKEN"
-  ],
+  "auth_env_vars": ["X_OAUTH2_USER_TOKEN"],
   "novel_features": [
     {
       "name": "Markdown to tweet thread",
@@ -37,6 +35,11 @@
       "name": "Markdown to X Article",
       "command": "articles-publish-md",
       "description": "Parse a markdown file with YAML frontmatter (title, cover, tags) and convert the body to Draft.js content_state JSON — the format X's Articles editor accepts server-side via ArticleEntityUpdateContent. Supports cover images, body images, paragraphs, H1/H2, ordered/unordered lists, blockquote, fenced code blocks, bold, and italic."
+    },
+    {
+      "name": "Top posts ranking",
+      "command": "top-posts",
+      "description": "Compose /2/users/me with the user-timeline read into one ranked leaderboard of your recent posts by engagement (likes + reposts + replies + quotes), or by a single metric via --metric. Paginates the timeline up to --max-fetch, ranks client-side, and degrades gracefully when impression_count is unavailable below Basic tier. Read-only."
     }
   ]
 }
