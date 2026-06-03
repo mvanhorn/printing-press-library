@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-06-02",
+  "base_run_id": "20260512-201610",
+  "base_printing_press_version": "4.5.1",
+  "patches": [
+    {
+      "file": "internal/cli/sync.go",
+      "rationale": "Post-generation dogfood fix: ticket sync now honors --since by using Gorgias's documented updated_datetime descending sort plus a local cutoff, without inventing unsupported API filters.",
+      "evidence": "Dogfood report: sync --resources tickets --since 7d previously pulled to the max-pages cap across a wider window."
+    },
+    {
+      "file": "internal/cli/search.go",
+      "rationale": "Post-generation dogfood fix: local FTS search now searches the generic resources table paths correctly when --type is omitted.",
+      "evidence": "Dogfood report: gorgias-pp-cli search cancel --data-source local returned zero results while equivalent read-only SQL matched rows."
+    },
+    {
+      "file": "internal/cli/analytics.go",
+      "rationale": "Post-generation dogfood fix: analytics reads from the generic resources table partitioned by resource_type instead of assuming typed tables such as tickets.",
+      "evidence": "Dogfood report: analytics --type tickets errored with no such table: tickets."
+    },
+    {
+      "file": "internal/cli/doctor.go",
+      "rationale": "Release-readiness polish: doctor now reports the same resolved BuildInfo-aware version as the version command for source and go-install builds.",
+      "evidence": "Adversarial release review found version --json reported the pseudo-version while doctor --json reported 0.0.0-dev."
+    },
+    {
+      "file": "README.md, MCP.md, SECURITY.md, CHANGELOG.md, manifest.json, tools-manifest.json",
+      "rationale": "Public-release hygiene and packaging polish: remove private credential-manager wording, remove tenant-specific breadcrumbs, restore MCP package metadata, and keep release notes generic.",
+      "evidence": "Public-release audit and independent adversarial review before the Printing Press Library PR."
+    }
+  ]
+}
