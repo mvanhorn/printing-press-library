@@ -47,9 +47,9 @@ func newStrikingDistanceCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			where := compositeWhere(
-				fmt.Sprintf("best_position >= %d", flagMinPosition),
-				fmt.Sprintf("best_position <= %d", flagMaxPosition),
-				fmt.Sprintf("volume >= %d", flagMinVolume),
+				compositeNumberWhere("best_position", "gte", flagMinPosition),
+				compositeNumberWhere("best_position", "lte", flagMaxPosition),
+				compositeNumberWhere("volume", "gte", flagMinVolume),
 				difficultyWhere(flagMaxDifficulty),
 			)
 			params := organicKeywordsCompositeParams(flagTarget, flagCountry, "subdomains", flagLimit, where)

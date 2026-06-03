@@ -55,7 +55,7 @@ func newKeywordGapCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			targetWhere := compositeWhere(
-				fmt.Sprintf("volume >= %d", flagMinVolume),
+				compositeNumberWhere("volume", "gte", flagMinVolume),
 				difficultyWhere(flagMaxDifficulty),
 			)
 			targetParams := organicKeywordsCompositeParams(flagTarget, flagCountry, flagMode, flagLimit, targetWhere)
@@ -75,8 +75,8 @@ func newKeywordGapCmd(flags *rootFlags) *cobra.Command {
 			bestByKeyword := map[string]keywordGapResult{}
 			provs := []DataProvenance{targetProv}
 			competitorWhere := compositeWhere(
-				fmt.Sprintf("best_position <= %d", flagCompetitorMaxPosition),
-				fmt.Sprintf("volume >= %d", flagMinVolume),
+				compositeNumberWhere("best_position", "lte", flagCompetitorMaxPosition),
+				compositeNumberWhere("volume", "gte", flagMinVolume),
 				difficultyWhere(flagMaxDifficulty),
 			)
 			for _, competitor := range flagCompetitors {
@@ -166,7 +166,7 @@ func difficultyWhere(maxDifficulty int) string {
 	if maxDifficulty <= 0 {
 		return ""
 	}
-	return fmt.Sprintf("keyword_difficulty <= %d", maxDifficulty)
+	return compositeNumberWhere("keyword_difficulty", "lte", maxDifficulty)
 }
 
 func exceedsDifficulty(keywordDifficulty int, maxDifficulty int) bool {

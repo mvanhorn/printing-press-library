@@ -73,17 +73,17 @@ func TestKeywordGapCommandComposesOrganicKeywordRows(t *testing.T) {
 		}
 		switch r.URL.Query().Get("target") {
 		case "ours.example":
-			fmt.Fprint(w, `[
+			fmt.Fprint(w, `{"keywords":[
 				{"keyword":"owned","volume":900,"keyword_difficulty":20,"best_position":5,"sum_traffic":80},
 				{"keyword":"weak","volume":500,"keyword_difficulty":30,"best_position":15,"sum_traffic":20}
-			]`)
+			]}`)
 		case "comp.example":
-			fmt.Fprint(w, `[
+			fmt.Fprint(w, `{"keywords":[
 				{"keyword":"owned","volume":900,"keyword_difficulty":20,"best_position":3,"best_position_url":"https://comp.example/owned","sum_traffic":200,"cpc":4},
 				{"keyword":"weak","volume":500,"keyword_difficulty":30,"best_position":4,"best_position_url":"https://comp.example/weak","sum_traffic":90,"cpc":7},
 				{"keyword":"new","volume":700,"keyword_difficulty":35,"best_position":2,"best_position_url":"https://comp.example/new","sum_traffic":130,"cpc":9},
 				{"keyword":"too-low","volume":10,"keyword_difficulty":5,"best_position":1,"sum_traffic":1}
-			]`)
+			]}`)
 		default:
 			t.Fatalf("unexpected target: %s", r.URL.Query().Get("target"))
 		}
@@ -115,17 +115,17 @@ func TestStrikingDistanceCommandSortsOpportunity(t *testing.T) {
 			t.Fatalf("unexpected path: %s", r.URL.Path)
 		}
 		where := r.URL.Query().Get("where")
-		for _, want := range []string{"best_position >= 4", "best_position <= 15", "volume >= 100"} {
+		for _, want := range []string{`"field":"best_position"`, `"gte",4`, `"lte",15`, `"field":"volume"`, `"gte",100`} {
 			if !strings.Contains(where, want) {
 				t.Fatalf("where %q missing %q", where, want)
 			}
 		}
-		fmt.Fprint(w, `[
+		fmt.Fprint(w, `{"keywords":[
 			{"keyword":"pos4","volume":100,"keyword_difficulty":10,"best_position":4,"sum_traffic":20},
 			{"keyword":"pos10","volume":1000,"keyword_difficulty":15,"best_position":10,"sum_traffic":50},
 			{"keyword":"pos16","volume":5000,"keyword_difficulty":5,"best_position":16,"sum_traffic":1},
 			{"keyword":"low-volume","volume":10,"keyword_difficulty":5,"best_position":5,"sum_traffic":1}
-		]`)
+		]}`)
 	}))
 	defer srv.Close()
 
@@ -155,17 +155,17 @@ func TestLinkIntersectCommandDerivesRefdomains(t *testing.T) {
 		}
 		switch r.URL.Query().Get("target") {
 		case "ours.example":
-			fmt.Fprint(w, `[{"url_from":"https://already-links.example/post","domain_rating_source":70}]`)
+			fmt.Fprint(w, `{"backlinks":[{"url_from":"https://already-links.example/post","domain_rating_source":70}]}`)
 		case "comp-a.example":
-			fmt.Fprint(w, `[
+			fmt.Fprint(w, `{"backlinks":[
 				{"url_from":"https://www.gap-source.example/a","domain_rating_source":40,"first_seen":"2026-01-01","traffic_domain":100},
 				{"url_from":"https://already-links.example/competitor","domain_rating_source":80}
-			]`)
+			]}`)
 		case "comp-b.example":
-			fmt.Fprint(w, `[
+			fmt.Fprint(w, `{"backlinks":[
 				{"url_from":"http://gap-source.example/b","domain_rating_source":55,"first_seen":"2026-02-01","traffic_domain":200},
 				{"url_from":"https://one-off.example/page","domain_rating_source":90}
-			]`)
+			]}`)
 		default:
 			t.Fatalf("unexpected target: %s", r.URL.Query().Get("target"))
 		}
@@ -193,11 +193,11 @@ func TestSnapshotCommandReturnsWarningsOnPartialFailure(t *testing.T) {
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case "/site-explorer/domain-rating":
-			fmt.Fprint(w, `{"domain_rating":76.5,"ahrefs_rank":12345}`)
+			fmt.Fprint(w, `{"domain_rating":{"domain_rating":76.5,"ahrefs_rank":12345}}`)
 		case "/site-explorer/backlinks-stats":
 			http.Error(w, `{"error":"bad date"}`, http.StatusBadRequest)
 		case "/site-explorer/metrics":
-			fmt.Fprint(w, `{"org_keywords":1000,"org_traffic":20000,"org_cost":3000,"paid_keywords":40,"paid_traffic":500}`)
+			fmt.Fprint(w, `{"metrics":{"org_keywords":1000,"org_traffic":20000,"org_cost":3000,"paid_keywords":40,"paid_traffic":500}}`)
 		default:
 			t.Fatalf("unexpected path: %s", r.URL.Path)
 		}

@@ -49,13 +49,34 @@ func validateCompositeMode(cmd *cobra.Command, mode string) {
 }
 
 func compositeWhere(parts ...string) string {
-	kept := make([]string, 0, len(parts))
+	kept := make([]json.RawMessage, 0, len(parts))
 	for _, part := range parts {
 		if strings.TrimSpace(part) != "" {
-			kept = append(kept, part)
+			kept = append(kept, json.RawMessage(part))
 		}
 	}
-	return strings.Join(kept, " AND ")
+	if len(kept) == 0 {
+		return ""
+	}
+	if len(kept) == 1 {
+		return string(kept[0])
+	}
+	out, err := json.Marshal(map[string][]json.RawMessage{"and": kept})
+	if err != nil {
+		return ""
+	}
+	return string(out)
+}
+
+func compositeNumberWhere(field string, op string, value int) string {
+	out, err := json.Marshal(map[string]any{
+		"field": field,
+		"is":    []any{op, value},
+	})
+	if err != nil {
+		return ""
+	}
+	return string(out)
 }
 
 func fetchCompositeRows[T any](cmd *cobra.Command, c *client.Client, flags *rootFlags, path string, params map[string]string) ([]T, DataProvenance, error) {
@@ -87,6 +108,18 @@ func fetchCompositeObject(cmd *cobra.Command, c *client.Client, flags *rootFlags
 	if err := json.Unmarshal(data, &obj); err != nil {
 		return nil, prov, fmt.Errorf("decoding %s response: %w", path, err)
 	}
+	if len(obj) == 1 {
+		for _, value := range obj {
+			nestedData, err := json.Marshal(value)
+			if err != nil {
+				continue
+			}
+			var nested map[string]any
+			if err := json.Unmarshal(nestedData, &nested); err == nil {
+				return nested, prov, nil
+			}
+		}
+	}
 	return obj, prov, nil
 }
 
@@ -100,7 +133,7 @@ func extractCompositeArray(data json.RawMessage) json.RawMessage {
 	if err := json.Unmarshal(data, &envelope); err != nil {
 		return data
 	}
-	for _, key := range []string{"results", "data", "items"} {
+	for _, key := range []string{"results", "data", "items", "keywords", "backlinks"} {
 		if raw, ok := envelope[key]; ok {
 			var nested []json.RawMessage
 			if err := json.Unmarshal(raw, &nested); err == nil {
