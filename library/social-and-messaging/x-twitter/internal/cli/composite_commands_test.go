@@ -105,6 +105,36 @@ func TestRankTopPostsTieBreakByEngagementThenRecency(t *testing.T) {
 	}
 }
 
+func TestIDNewerNumeric(t *testing.T) {
+	// Cross-length: numerically 10000 > 9999, but lexicographically "9999" > "10000".
+	if !idNewer("10000", "9999") {
+		t.Fatal("expected 10000 to be newer than 9999 (numeric, not lexicographic)")
+	}
+	if idNewer("9999", "10000") {
+		t.Fatal("expected 9999 to be older than 10000")
+	}
+	// Same-length Snowflake-shaped ids compare numerically.
+	if !idNewer("1790000000000000002", "1790000000000000001") {
+		t.Fatal("expected the higher snowflake id to be newer")
+	}
+	// Non-numeric fallback stays deterministic and does not panic.
+	if idNewer("abc", "abc") {
+		t.Fatal("equal non-numeric ids should not report newer")
+	}
+}
+
+func TestRankTopPostsRecencyTieBreakIsNumeric(t *testing.T) {
+	// All metrics equal → tie-break by newer id, compared numerically.
+	items := []tweetItem{
+		{ID: "9999", PublicMetrics: publicMetrics{LikeCount: 5}},
+		{ID: "10000", PublicMetrics: publicMetrics{LikeCount: 5}},
+	}
+	posts := rankTopPosts(items, "", "likes", 2)
+	if posts[0].ID != "10000" {
+		t.Fatalf("numeric recency tie-break failed: leader = %s, want 10000", posts[0].ID)
+	}
+}
+
 func TestPostURLFallback(t *testing.T) {
 	if got := postURL("", "999"); got != "https://x.com/i/web/status/999" {
 		t.Fatalf("fallback url = %q", got)

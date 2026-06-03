@@ -131,8 +131,18 @@ func newTopPostsCmd(flags *rootFlags) *cobra.Command {
 
 			posts := rankTopPosts(items, username, effectiveMetric, flagLimit)
 
+			// Surface a shortfall so a caller doesn't read fewer rows than asked
+			// for as if it were the full leaderboard.
+			if len(posts) < flagLimit {
+				fmt.Fprintf(cmd.ErrOrStderr(),
+					"note: returned %d posts (fewer than --limit %d); only %d posts were available within --max-fetch %d.\n",
+					len(posts), flagLimit, len(items), flagMaxFetch)
+			}
+
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
-				headers := []string{"#", "LIKES", "RTS", "REPLIES", "QUOTES", "IMPRESSIONS", "TEXT", "URL"}
+				// The SCORE column makes the ranking metric visible, so ordering is
+				// explained in table mode even for metrics without their own column.
+				headers := []string{"#", "SCORE(" + effectiveMetric + ")", "LIKES", "RTS", "REPLIES", "QUOTES", "BOOKMARKS", "IMPRESSIONS", "TEXT", "URL"}
 				rows := make([][]string, 0, len(posts))
 				for _, p := range posts {
 					impr := "n/a"
@@ -141,10 +151,12 @@ func newTopPostsCmd(flags *rootFlags) *cobra.Command {
 					}
 					rows = append(rows, []string{
 						strconv.Itoa(p.Rank),
+						strconv.Itoa(p.Score),
 						strconv.Itoa(p.Likes),
 						strconv.Itoa(p.Retweets),
 						strconv.Itoa(p.Replies),
 						strconv.Itoa(p.Quotes),
+						strconv.Itoa(p.Bookmarks),
 						impr,
 						flattenText(p.Text, 60),
 						p.URL,
@@ -230,7 +242,7 @@ func rankTopPosts(items []tweetItem, username, metric string, limit int) []ranke
 		if ei != ej {
 			return ei > ej
 		}
-		return ordered[i].ID > ordered[j].ID
+		return idNewer(ordered[i].ID, ordered[j].ID)
 	})
 	if limit > 0 && len(ordered) > limit {
 		ordered = ordered[:limit]
@@ -256,6 +268,22 @@ func rankTopPosts(items []tweetItem, username, metric string, limit int) []ranke
 		})
 	}
 	return posts
+}
+
+// idNewer reports whether post id a is newer than b. X Snowflake IDs are
+// monotonically increasing integers, so it compares them numerically; for any
+// id that doesn't parse as int64 (overflow, non-numeric) it falls back to
+// longer-is-larger then lexicographic so the ordering stays deterministic.
+func idNewer(a, b string) bool {
+	ai, aerr := strconv.ParseInt(a, 10, 64)
+	bi, berr := strconv.ParseInt(b, 10, 64)
+	if aerr == nil && berr == nil {
+		return ai > bi
+	}
+	if len(a) != len(b) {
+		return len(a) > len(b)
+	}
+	return a > b
 }
 
 // postURL builds a canonical post URL, falling back to the id-only form when the
