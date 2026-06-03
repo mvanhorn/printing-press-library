@@ -20,9 +20,9 @@ import (
 
 // WorkOSClientID is the Granola desktop client's WorkOS application client
 // id. It is hardcoded across the community ecosystem (getprobo, granola.py,
-// granola-mcp) because Granola does not document a per-user OAuth app for
-// the internal API; this value is the only client_id WorkOS will accept on
-// the refresh-token endpoint for Granola's tokens.
+// granola-mcp) and kept here for reference / ecosystem compatibility.
+// The active refresh flow now uses GranolaRefreshEndpoint directly and no
+// longer sends this client_id in the request body.
 const WorkOSClientID = "client_01HJK46TGGY2DFQ2NX9P9XYJZN"
 
 // GranolaRefreshEndpoint is Granola desktop's refresh endpoint. Modern
@@ -261,6 +261,8 @@ func loadFromSupabaseJSON() (workosTokens, TokenSource, error) {
 			if _, statErr := os.Stat(plainPath); statErr == nil {
 				if tok, src, plainErr := loadFromSupabasePlain(plainPath); plainErr == nil {
 					return tok, src, nil
+				} else {
+					return workosTokens{}, TokenSourceUnknown, fmt.Errorf("supabase.json.enc: Keychain unavailable; supabase.json fallback also failed: %w", plainErr)
 				}
 			}
 		}
@@ -418,12 +420,6 @@ func RefreshAccessToken(refreshToken string) (RefreshAccessTokenResponse, error)
 	req.Header.Set("User-Agent", granolaUserAgent)
 	req.Header.Set("X-Client-Version", granolaClientVersion)
 	req.Header.Set("X-Granola-Platform", granolaPlatform)
-	tokenMu.Lock()
-	access := cachedAccess
-	tokenMu.Unlock()
-	if access != "" {
-		req.Header.Set("Authorization", "Bearer "+access)
-	}
 	workosLimiter.Wait()
 	resp, err := refreshClient.Do(req)
 	if err != nil {
