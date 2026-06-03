@@ -48,6 +48,7 @@ This installs the CLI only — no skill.
 Download a pre-built binary for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/google-ads-current). On macOS, clear the Gatekeeper quarantine: `xattr -d com.apple.quarantine <binary>`. On Unix, mark it executable: `chmod +x <binary>`.
 
 <!-- pp-hermes-install-anchor -->
+
 ## Install for Hermes
 
 From the Hermes CLI:
@@ -420,7 +421,7 @@ Google Ads customers campaign drafts operations
 
 - **`google-ads-pp-cli customers_campaign_drafts list_async_errors`** - Returns all errors that occurred during CampaignDraft promote. Throws an error if called before campaign draft is promoted. Supports standard list paging.
 - **`google-ads-pp-cli customers_campaign_drafts mutate`** - Creates, updates, or removes campaign drafts. Operation statuses are returned.
-- **`google-ads-pp-cli customers_campaign_drafts promote`** - Promotes the changes in a draft back to the base campaign. This method returns a Long Running Operation (LRO) indicating if the Promote is done. Use google.longrunning.Operations.GetOperation to poll the LRO until it is done. Only a done status is returned in the response. See the status in the Campaign Draft resource 
+- **`google-ads-pp-cli customers_campaign_drafts promote`** - Promotes the changes in a draft back to the base campaign. This method returns a Long Running Operation (LRO) indicating if the Promote is done. Use google.longrunning.Operations.GetOperation to poll the LRO until it is done. Only a done status is returned in the response. See the status in the Campaign Draft resource
 
 ### customers_campaign_goal_configs
 
@@ -804,6 +805,28 @@ Google Ads keyword theme constants operations
 
 - **`google-ads-pp-cli keyword_theme_constants suggest`** - Returns KeywordThemeConstant suggestions by keyword themes.
 
+### Composite Workflows
+
+Read-only commands that compose existing reads into a higher-value workflow.
+
+- **`google-ads-pp-cli wasted-spend --customer-id <id>`** - Runs one `search_term_view` GAQL read and ranks the search terms that spent money with zero conversions, surfacing negative-keyword candidates in a single command. Flags: `--customer-id` (required), `--days` (look-back, default 7), `--min-cost` (default 1), `--limit` (default 50).
+
+```bash
+google-ads-pp-cli wasted-spend --customer-id 1234567890 --days 30 --min-cost 5 --limit 25 --json
+```
+
+- **`google-ads-pp-cli keyword-roi-tiers --customer-id <id>`** - Runs one `keyword_view` GAQL read and buckets each keyword into `scale` / `hold` / `cut` by ROAS (revenue ÷ cost). Flags: `--customer-id` (required), `--days` (default 7), `--min-cost` (default 1), `--scale-roas` (default 4), `--cut-roas` (default 1), `--limit` (default 50).
+
+```bash
+google-ads-pp-cli keyword-roi-tiers --customer-id 1234567890 --days 30 --scale-roas 4 --cut-roas 1 --json
+```
+
+- **`google-ads-pp-cli paid-organic-overlap --customer-id <id> --gsc-file <export.json>`** - Joins live paid search terms against a Google Search Console query export and surfaces terms you pay for that already rank organically. The export is read from `--gsc-file` (JSON array, `{"rows":[...]}`, or `{"data":[...]}`); no GSC call is made. Flags: `--customer-id` (required), `--gsc-file` (required), `--days` (default 7), `--max-position` (default 10), `--limit` (default 50).
+
+```bash
+google-ads-pp-cli paid-organic-overlap --customer-id 1234567890 --gsc-file gsc.json --max-position 5 --json
+```
+
 ## Output Formats
 
 ```bash
@@ -853,17 +876,19 @@ Config file: `~/.config/google-ads-pp-cli/config.toml`
 
 Environment variables:
 
-| Name | Kind | Required | Description |
-| --- | --- | --- | --- |
-| `GOOGLE_ADS_ACCESS_TOKEN` | per_call | Yes | Set to your API credential. |
-| `GOOGLE_ADS_DEVELOPER_TOKEN` | per_call | Yes | Set to your API credential. |
-| `GOOGLE_ADS_LOGIN_CUSTOMER_ID` | per_call | No | Optional manager account ID sent as the login-customer-id header. |
+| Name                           | Kind     | Required | Description                                                       |
+| ------------------------------ | -------- | -------- | ----------------------------------------------------------------- |
+| `GOOGLE_ADS_ACCESS_TOKEN`      | per_call | Yes      | Set to your API credential.                                       |
+| `GOOGLE_ADS_DEVELOPER_TOKEN`   | per_call | Yes      | Set to your API credential.                                       |
+| `GOOGLE_ADS_LOGIN_CUSTOMER_ID` | per_call | No       | Optional manager account ID sent as the login-customer-id header. |
 
 ## Troubleshooting
+
 **Authentication errors (exit code 4)**
+
 - Run `google-ads-pp-cli doctor` to check credentials
 - Verify the environment variables are set: `echo $GOOGLE_ADS_ACCESS_TOKEN` and `echo $GOOGLE_ADS_DEVELOPER_TOKEN`
-**Not found errors (exit code 3)**
+  **Not found errors (exit code 3)**
 - Check the resource ID is correct
 - Run the `list` command to see available items
 
