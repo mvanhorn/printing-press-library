@@ -109,12 +109,16 @@ func selectedExportResources(includeRaw string) ([]exportResource, error) {
 	return out, nil
 }
 
-func writeJSONL(path string, items []map[string]any) error {
+func writeJSONL(path string, items []map[string]any) (err error) {
 	f, err := os.Create(path)
 	if err != nil {
 		return err
 	}
-	defer f.Close()
+	defer func() {
+		if closeErr := f.Close(); err == nil && closeErr != nil {
+			err = closeErr
+		}
+	}()
 	enc := json.NewEncoder(f)
 	for _, item := range items {
 		if err := enc.Encode(item); err != nil {

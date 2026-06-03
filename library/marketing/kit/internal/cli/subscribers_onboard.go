@@ -55,7 +55,10 @@ func newSubscribersOnboardCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 			c.NoCache = true
-			existing, existingID, _ := existingSubscriberByEmail(c, email)
+			existing, existingID, err := existingSubscriberByEmail(c, email)
+			if err != nil {
+				return classifyAPIError(err, flags)
+			}
 			raw, _, err := c.PostWithParams("/v4/subscribers", nil, body)
 			if err != nil {
 				return classifyAPIError(err, flags)
