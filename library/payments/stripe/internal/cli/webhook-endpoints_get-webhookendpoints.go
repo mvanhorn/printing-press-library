@@ -29,10 +29,12 @@ func newWebhookEndpointsGetWebhookendpointsCmd(flags *rootFlags) *cobra.Command 
 			}
 
 			path := "/v1/webhook_endpoints/{webhook_endpoint}"
-			if len(args) < 2 {
+
+			// PATCH: Bind path placeholders from Cobra positional args in Use order.
+			if len(args) < 1 {
 				return usageErr(fmt.Errorf("webhook_endpoint is required\nUsage: %s <%s>", cmd.CommandPath(), "webhook_endpoint"))
 			}
-			path = replacePathParam(path, "webhook_endpoint", args[1])
+			path = replacePathParam(path, "webhook_endpoint", args[0])
 			params := map[string]string{}
 			if flagExpand != "" {
 				params["expand"] = fmt.Sprintf("%v", flagExpand)

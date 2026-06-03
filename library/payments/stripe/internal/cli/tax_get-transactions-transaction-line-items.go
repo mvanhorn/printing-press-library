@@ -33,10 +33,12 @@ func newTaxGetTransactionsTransactionLineItemsCmd(flags *rootFlags) *cobra.Comma
 			}
 
 			path := "/v1/tax/transactions/{transaction}/line_items"
-			if len(args) < 5 {
+
+			// PATCH: Bind path placeholders from Cobra positional args in Use order.
+			if len(args) < 1 {
 				return usageErr(fmt.Errorf("transaction is required\nUsage: %s <%s>", cmd.CommandPath(), "transaction"))
 			}
-			path = replacePathParam(path, "transaction", args[4])
+			path = replacePathParam(path, "transaction", args[0])
 			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "tax", path, map[string]string{
 				"ending_before":  fmt.Sprintf("%v", flagEndingBefore),
 				"expand":         fmt.Sprintf("%v", flagExpand),

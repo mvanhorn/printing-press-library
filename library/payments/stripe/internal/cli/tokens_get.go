@@ -29,10 +29,12 @@ func newTokensGetCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			path := "/v1/tokens/{token}"
-			if len(args) < 2 {
+
+			// PATCH: Bind path placeholders from Cobra positional args in Use order.
+			if len(args) < 1 {
 				return usageErr(fmt.Errorf("token is required\nUsage: %s <%s>", cmd.CommandPath(), "token"))
 			}
-			path = replacePathParam(path, "token", args[1])
+			path = replacePathParam(path, "token", args[0])
 			params := map[string]string{}
 			if flagExpand != "" {
 				params["expand"] = fmt.Sprintf("%v", flagExpand)

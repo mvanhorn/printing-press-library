@@ -9,6 +9,12 @@
     "handle": "crodorg",
     "name": "Chris Rodriguez"
   },
+  "contributors": [
+    {
+      "handle": "cathrynlavery",
+      "name": "Cathryn Lavery"
+    }
+  ],
   "owner": "chris-rodriguez",
   "printer_name": "Chris Rodriguez",
   "spec_format": "openapi3",

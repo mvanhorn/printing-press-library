@@ -7,6 +7,7 @@ stripe-pp-cli matches the official stripe-cli verb-for-verb and adds what it del
 Learn more at [Stripe](https://stripe.com).
 
 Created by [@crodorg](https://github.com/crodorg) (Chris Rodriguez).
+Contributors: [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
 
 ## Install
 
