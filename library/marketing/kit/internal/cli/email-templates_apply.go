@@ -29,6 +29,7 @@ func newEmailTemplatesApplyCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return usageErr(fmt.Errorf("--template must be an integer id"))
 			}
+			templateID = strconv.Itoa(templateInt)
 			sequenceInt, err := strconv.Atoi(sequenceID)
 			if err != nil {
 				return usageErr(fmt.Errorf("--sequence must be an integer id"))
