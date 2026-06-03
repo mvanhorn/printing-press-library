@@ -126,7 +126,11 @@ build_one() { # arg: binary name -> echoes "OK name" / "SKIP ..." / "FAIL ..."
   fi
 
   if ( cd "$dir" && go build -o "$GOBIN_DIR/$name" "./cmd/$name" ) 2>"$build_err"; then
-    ln -sfn "$GOBIN_DIR/$name" "$BINDIR/$name"
+    if ! ln -sfn "$GOBIN_DIR/$name" "$BINDIR/$name" 2>>"$build_err"; then
+      echo "FAIL  $name: symlink into $BINDIR failed: $(tail -1 "$build_err" 2>/dev/null)"
+      rm -f "$build_err"
+      return 1
+    fi
     rm -f "$build_err"
     sync_skill "$name"
     echo "OK    $name"
@@ -220,8 +224,11 @@ cmd_import() {
   local imported=()
   for slug in "$@"; do
     # locate the slug under upstream/main's library/<cat>/<slug>
-    local path
-    path="$(slug_dirs upstream/main | grep -E "/$slug$" | head -1 || true)"
+    local path candidate
+    path=""
+    while IFS= read -r candidate; do
+      [[ "${candidate##*/}" == "$slug" ]] && { path="$candidate"; break; }
+    done < <(slug_dirs upstream/main)
     [[ -n "$path" ]] || { log "import: '$slug' not found in upstream/main — skipping"; continue; }
     git_repo checkout upstream/main -- "$path" || { log "import: checkout failed for $path"; continue; }
     [[ -d "$REPO/cli-skills/pp-$slug" ]] || \
@@ -288,7 +295,7 @@ cmd_update() {
     die "refusing to sync: tracked local changes exist in $REPO"
   fi
 
-  git_repo fetch origin --prune --tags >/dev/null 2>&1
+  git_repo fetch origin --prune --tags >/dev/null 2>&1 || die "could not fetch private origin"
   git_repo fetch upstream --prune       >/dev/null 2>&1 || true
   git_repo checkout main >/dev/null 2>&1
   local before after
