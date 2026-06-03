@@ -33,6 +33,7 @@ BINDIR="${PP_BINDIR:-$HOME/.local/bin}"
 SKILLS_DST="${PP_SKILLS_DST:-$HOME/.claude/skills}"
 STATE_DIR="${PP_STATE_DIR:-$HOME/.hermes/state}"
 PRIVATE_OWNER="${PP_PRIVATE_OWNER:-cathrynlavery}"
+SMOKE_TIMEOUT_SECONDS="${PP_SMOKE_TIMEOUT_SECONDS:-20}"
 REPORT="$STATE_DIR/pp-sync-report.md"
 BACKLOG="$STATE_DIR/pp-cli-backlog.md"
 
@@ -44,6 +45,23 @@ die()  { printf 'pp-sync: %s\n' "$*" >&2; exit 1; }
 have() { command -v "$1" >/dev/null 2>&1; }
 
 git_repo() { git -C "$REPO" "$@"; }
+
+run_with_timeout() { # args: seconds command...
+  local seconds="$1" cmd_pid timer_pid rc
+  shift
+  "$@" &
+  cmd_pid=$!
+  (
+    sleep "$seconds"
+    kill "$cmd_pid" 2>/dev/null || true
+  ) &
+  timer_pid=$!
+  rc=0
+  wait "$cmd_pid" || rc=$?
+  kill "$timer_pid" 2>/dev/null || true
+  wait "$timer_pid" 2>/dev/null || true
+  return "$rc"
+}
 
 # Refuse to operate / push unless origin clearly points at our private fork.
 assert_private_origin() {
@@ -65,10 +83,10 @@ assert_private_origin() {
 # Map an installed binary name (e.g. clarity-pp-cli) to its private library dir.
 slug_of()      { echo "${1%-pp-cli}"; }
 find_cli_dir() { # arg: binary name -> prints library/<cat>/<slug> abs path or empty
-  local name="$1" slug; slug="$(slug_of "$name")"
-  find "$REPO/library" -maxdepth 2 -type d -name "$slug" 2>/dev/null | while read -r d; do
-    [[ -d "$d/cmd/$name" ]] && { echo "$d"; break; }
-  done | head -1
+  local name="$1" slug d; slug="$(slug_of "$name")"
+  while IFS= read -r d; do
+    [[ -d "$d/cmd/$name" ]] && { echo "$d"; return 0; }
+  done < <(find "$REPO/library" -maxdepth 2 -type d -name "$slug" 2>/dev/null)
 }
 
 installed_clis() { # basenames of *-pp-cli in BINDIR
@@ -85,36 +103,43 @@ sync_skill() { # arg: binary name -> copy private cli-skills/pp-<slug> into SKIL
   [[ -d "$src" ]] || return 0
   dst="$SKILLS_DST/pp-$slug"
   mkdir -p "$dst"
-  if have rsync; then rsync -a --delete "$src"/ "$dst"/ ; else cp -f "$src"/* "$dst"/ 2>/dev/null || true; fi
+  if have rsync; then rsync -a --delete "$src"/ "$dst"/ 2>/dev/null || true; else cp -f "$src"/* "$dst"/ 2>/dev/null || true; fi
 }
 
 # Build one CLI from the private checkout into GOBIN_DIR, refresh its symlink + skill.
 build_one() { # arg: binary name -> echoes "OK name" / "SKIP ..." / "FAIL ..."
-  local name="$1" dir; dir="$(find_cli_dir "$name")"
+  local name="$1" dir build_err; dir="$(find_cli_dir "$name")"
   if [[ -z "$dir" ]]; then echo "SKIP  $name (not in private repo — legacy/unpublished)"; return 0; fi
+  build_err="$(mktemp)"
 
   # google-ads keeps a local OAuth-refresh wrapper at $GOBIN/google-ads-pp-cli; build the
   # real binary it execs instead of clobbering the wrapper.
   if [[ "$name" == "google-ads-pp-cli" && -f "$GOBIN_DIR/google-ads-pp-cli" ]] \
      && file "$GOBIN_DIR/google-ads-pp-cli" | grep -qi 'shell script'; then
-    if ( cd "$dir" && go build -o "$GOBIN_DIR/google-ads-pp-cli-real" "./cmd/$name" ) 2>/tmp/pp-sync-build.err; then
+    if ( cd "$dir" && go build -o "$GOBIN_DIR/google-ads-pp-cli-real" "./cmd/$name" ) 2>"$build_err"; then
+      rm -f "$build_err"
       sync_skill "$name"; echo "OK    $name (wrapper preserved, -real rebuilt)"; return 0
     fi
-    echo "FAIL  $name: $(tail -1 /tmp/pp-sync-build.err 2>/dev/null)"; return 1
+    echo "FAIL  $name: $(tail -1 "$build_err" 2>/dev/null)"
+    rm -f "$build_err"
+    return 1
   fi
 
-  if ( cd "$dir" && go build -o "$GOBIN_DIR/$name" "./cmd/$name" ) 2>/tmp/pp-sync-build.err; then
+  if ( cd "$dir" && go build -o "$GOBIN_DIR/$name" "./cmd/$name" ) 2>"$build_err"; then
     ln -sfn "$GOBIN_DIR/$name" "$BINDIR/$name"
+    rm -f "$build_err"
     sync_skill "$name"
     echo "OK    $name"
   else
-    echo "FAIL  $name: $(tail -1 /tmp/pp-sync-build.err 2>/dev/null)"; return 1
+    echo "FAIL  $name: $(tail -1 "$build_err" 2>/dev/null)"
+    rm -f "$build_err"
+    return 1
   fi
 }
 
 # List private (origin/main) and upstream (upstream/main) library slug dirs.
 slug_dirs() { # arg: ref -> lines like library/<cat>/<slug>
-  git_repo ls-tree -dr --name-only "$1" 2>/dev/null | grep -E '^library/[^/]+/[^/]+$' | sort
+  git_repo ls-tree -dr --name-only "$1" 2>/dev/null | awk '/^library\/[^/]+\/[^/]+$/ { print }' | sort
 }
 
 # ---- subcommands ------------------------------------------------------------
@@ -190,7 +215,7 @@ cmd_import() {
   [[ -z "$(git_repo status --porcelain --untracked-files=no)" ]] \
     || die "tracked local changes exist in $REPO — commit/stash before import"
   git_repo checkout main >/dev/null 2>&1
-  git_repo pull --ff-only origin main >/dev/null 2>&1 || true
+  git_repo pull --ff-only origin main >/dev/null 2>&1 || die "ff-only pull from private origin/main failed"
 
   local imported=()
   for slug in "$@"; do
@@ -214,10 +239,17 @@ cmd_import() {
 
 cmd_build() {
   assert_private_origin
-  local names
-  if [[ $# -ge 1 ]]; then names="$*"; else names="$(installed_clis)"; fi
+  local -a names=()
+  local name
+  if [[ $# -ge 1 ]]; then
+    names=("$@")
+  else
+    while IFS= read -r name; do
+      [[ -n "$name" ]] && names+=("$name")
+    done < <(installed_clis)
+  fi
   local n=0 ok=0 fail=0 skip=0 line
-  for name in $names; do
+  for name in "${names[@]}"; do
     line="$(build_one "$name")" || true
     echo "$line"
     n=$((n+1))
@@ -271,13 +303,22 @@ cmd_update() {
   local smoke_fail=""
   while read -r name; do
     [[ -z "$name" ]] && continue
-    if ! ( command -v "$name" >/dev/null && "$name" --help >/dev/null 2>&1 ); then
+    if ! ( command -v "$name" >/dev/null && run_with_timeout "$SMOKE_TIMEOUT_SECONDS" "$name" --help >/dev/null 2>&1 ); then
       smoke_fail+="  ! $name failed --help"$'\n'
     fi
   done < <(installed_clis)
 
-  local upstream_out; upstream_out="$(cmd_upstream || true)"
-  local backlog_out;  backlog_out="$([[ -f "$BACKLOG" ]] && grep -c '^- \[ \]' "$BACKLOG" 2>/dev/null || echo 0)"
+  local upstream_out
+  if ! upstream_out="$(cmd_upstream 2>&1)"; then
+    upstream_out="### Upstream check failed"$'\n\n```'$'\n'"$upstream_out"$'\n```'
+  fi
+  local backlog_out
+  if [[ -f "$BACKLOG" ]]; then
+    backlog_out="$(grep -c '^- \[ \]' "$BACKLOG" 2>/dev/null || true)"
+    backlog_out="${backlog_out:-0}"
+  else
+    backlog_out="0"
+  fi
 
   {
     echo "# Printing Press daily sync"
