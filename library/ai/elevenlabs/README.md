@@ -48,6 +48,7 @@ This installs the CLI only — no skill.
 Download a pre-built binary for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/elevenlabs-current). On macOS, clear the Gatekeeper quarantine: `xattr -d com.apple.quarantine <binary>`. On Unix, mark it executable: `chmod +x <binary>`.
 
 <!-- pp-hermes-install-anchor -->
+
 ## Install for Hermes
 
 From the Hermes CLI:
@@ -86,7 +87,6 @@ Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple S
 <summary>Manual JSON config (advanced)</summary>
 
 If you can't use the MCPB bundle (older Claude Desktop, unsupported platform), install the MCP binary and configure it manually.
-
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/ai/elevenlabs/cmd/elevenlabs-pp-mcp@latest
@@ -144,6 +144,7 @@ elevenlabs-pp-cli models
 These capabilities aren't available in any other tool for this API.
 
 ### Agent audio planning
+
 - **`voice discover`** — Search owned and shared ElevenLabs voices through one compact, JSON-first command.
 
   _Agents can pick a voice before generation without paging through incompatible raw endpoints._
@@ -151,6 +152,7 @@ These capabilities aren't available in any other tool for this API.
   ```bash
   elevenlabs-pp-cli voice discover --source all --limit 5 --agent
   ```
+
 - **`tts resolve`** — Resolve a voice, model, output format, default settings, and subscription context before rendering.
 
   _Agents can validate generation choices cheaply before spending quota on audio._
@@ -160,6 +162,7 @@ These capabilities aren't available in any other tool for this API.
   ```
 
 ### Audio artifact workflows
+
 - **`tts render`** — Render text to an audio file and print a structured manifest with file path, byte count, model, and voice.
 
   _Agents get a durable audio artifact plus machine-readable metadata in one step._
@@ -167,6 +170,7 @@ These capabilities aren't available in any other tool for this API.
   ```bash
   elevenlabs-pp-cli tts render --voice JBFqnCBsd6RMkjVDRZzb --text 'Hello from ElevenLabs.' --out hello.mp3 --agent
   ```
+
 - **`dialogue cast`** — Render speaker-labelled dialogue lines by resolving speaker-to-voice assignments and saving audio.
 
   _Agents can generate multi-speaker dialogue from scripts without manually constructing JSON voice-id payloads._
@@ -588,6 +592,16 @@ Access to workspace related endpoints.
 - **`elevenlabs-pp-cli workspace update-member`** - Updates attributes of a workspace member. Apart from the email identifier, all parameters will remain unchanged unless specified. This endpoint may only be called by workspace administrators.
 - **`elevenlabs-pp-cli workspace usage-by-product-over-time`** - Returns credit usage broken down by product type over time. The response is a tabular structure with columns, column_types, column_units, and rows.
 
+### Composite Workflows
+
+Read-only commands that compose existing reads into a higher-value workflow.
+
+- **`elevenlabs-pp-cli voice-budget`** - Composes `GET /v1/user/subscription` and `GET /v2/voices` into one readout: remaining character credits, percent used, tier, days until reset, and voice slots used vs the limit. Run before a large TTS or dialogue batch to avoid blowing the quota mid-render.
+
+```bash
+elevenlabs-pp-cli voice-budget --json
+```
+
 ## Output Formats
 
 ```bash
@@ -639,15 +653,17 @@ Static request headers can be configured under `headers`; per-command header ove
 
 Environment variables:
 
-| Name | Kind | Required | Description |
-| --- | --- | --- | --- |
-| `ELEVENLABS_API_KEY` | per_call | Yes | Set to your API credential. |
+| Name                 | Kind     | Required | Description                 |
+| -------------------- | -------- | -------- | --------------------------- |
+| `ELEVENLABS_API_KEY` | per_call | Yes      | Set to your API credential. |
 
 ## Troubleshooting
+
 **Authentication errors (exit code 4)**
+
 - Run `elevenlabs-pp-cli doctor` to check credentials
 - Verify the environment variable is set: `echo $ELEVENLABS_API_KEY`
-**Not found errors (exit code 3)**
+  **Not found errors (exit code 3)**
 - Check the resource ID is correct
 - Run the `list` command to see available items
 

@@ -42,6 +42,7 @@ If `--version` reports "command not found" after install, the install step did n
 These capabilities aren't available in any other tool for this API.
 
 ### Agent audio planning
+
 - **`voice discover`** — Search owned and shared ElevenLabs voices through one compact, JSON-first command.
 
   _Agents can pick a voice before generation without paging through incompatible raw endpoints._
@@ -49,6 +50,7 @@ These capabilities aren't available in any other tool for this API.
   ```bash
   elevenlabs-pp-cli voice discover --source all --limit 5 --agent
   ```
+
 - **`tts resolve`** — Resolve a voice, model, output format, default settings, and subscription context before rendering.
 
   _Agents can validate generation choices cheaply before spending quota on audio._
@@ -58,6 +60,7 @@ These capabilities aren't available in any other tool for this API.
   ```
 
 ### Audio artifact workflows
+
 - **`tts render`** — Render text to an audio file and print a structured manifest with file path, byte count, model, and voice.
 
   _Agents get a durable audio artifact plus machine-readable metadata in one step._
@@ -65,6 +68,7 @@ These capabilities aren't available in any other tool for this API.
   ```bash
   elevenlabs-pp-cli tts render --voice JBFqnCBsd6RMkjVDRZzb --text 'Hello from ElevenLabs.' --out hello.mp3 --agent
   ```
+
 - **`dialogue cast`** — Render speaker-labelled dialogue lines by resolving speaker-to-voice assignments and saving audio.
 
   _Agents can generate multi-speaker dialogue from scripts without manually constructing JSON voice-id payloads._
@@ -430,6 +434,17 @@ These capabilities aren't available in any other tool for this API.
 - `elevenlabs-pp-cli workspace update-member` — Updates attributes of a workspace member. Apart from the email identifier, all parameters will remain unchanged...
 - `elevenlabs-pp-cli workspace usage-by-product-over-time` — Returns credit usage broken down by product type over time. The response is a tabular structure with columns,...
 
+### Composite workflows
+
+Higher-value commands that compose existing reads. Read-only.
+
+- `elevenlabs-pp-cli voice-budget` — Compose the subscription and voices reads into one readout: remaining character credits, percent used, tier, days until the quota resets, and voice slots used vs the limit. Run it before a big TTS or dialogue batch so you don't blow the quota mid-render.
+
+```bash
+elevenlabs-pp-cli voice-budget --json
+```
+
+No flags; reads `GET /v1/user/subscription` and `GET /v2/voices`.
 
 ### Finding the right command
 
@@ -442,6 +457,7 @@ elevenlabs-pp-cli which "<capability in your own words>"
 `which` resolves a natural-language capability query to the best matching command from this CLI's curated feature index. Exit code `0` means at least one match; exit code `2` means no confident match — fall back to `--help` or use a narrower query.
 
 ## Auth Setup
+
 Run `elevenlabs-pp-cli auth setup` to print the URL and steps for getting a key (add `--launch` to open the URL). Then set:
 
 ```bash
@@ -462,6 +478,7 @@ Add `--agent` to any command. Expands to: `--json --compact --no-input --no-colo
   ```bash
   elevenlabs-pp-cli models --agent --select id,name,status
   ```
+
 - **Previewable** — `--dry-run` shows the request without sending
 - **Offline-friendly** — sync/search commands can use the local SQLite store when available
 - **Non-interactive** — never prompts, every input is a flag
@@ -492,16 +509,16 @@ elevenlabs-pp-cli feedback list --json --limit 10
 
 Entries are stored locally at `~/.elevenlabs-pp-cli/feedback.jsonl`. They are never POSTed unless `ELEVENLABS_FEEDBACK_ENDPOINT` is set AND either `--send` is passed or `ELEVENLABS_FEEDBACK_AUTO_SEND=true`. Default behavior is local-only.
 
-Write what *surprised* you, not a bug report. Short, specific, one line: that is the part that compounds.
+Write what _surprised_ you, not a bug report. Short, specific, one line: that is the part that compounds.
 
 ## Output Delivery
 
 Every command accepts `--deliver <sink>`. The output goes to the named sink in addition to (or instead of) stdout, so agents can route command results without hand-piping. Three sinks are supported:
 
-| Sink | Effect |
-|------|--------|
-| `stdout` | Default; write to stdout only |
-| `file:<path>` | Atomically write output to `<path>` (tmp + rename) |
+| Sink            | Effect                                                                                          |
+| --------------- | ----------------------------------------------------------------------------------------------- |
+| `stdout`        | Default; write to stdout only                                                                   |
+| `file:<path>`   | Atomically write output to `<path>` (tmp + rename)                                              |
 | `webhook:<url>` | POST the output body to the URL (`application/json` or `application/x-ndjson` when `--compact`) |
 
 Unknown schemes are refused with a structured error naming the supported set. Webhook failures return non-zero and log the URL + HTTP status on stderr.
@@ -522,15 +539,15 @@ Explicit flags always win over profile values; profile values win over defaults.
 
 ## Exit Codes
 
-| Code | Meaning |
-|------|---------|
-| 0 | Success |
-| 2 | Usage error (wrong arguments) |
-| 3 | Resource not found |
-| 4 | Authentication required |
-| 5 | API error (upstream issue) |
-| 7 | Rate limited (wait and retry) |
-| 10 | Config error |
+| Code | Meaning                       |
+| ---- | ----------------------------- |
+| 0    | Success                       |
+| 2    | Usage error (wrong arguments) |
+| 3    | Resource not found            |
+| 4    | Authentication required       |
+| 5    | API error (upstream issue)    |
+| 7    | Rate limited (wait and retry) |
+| 10   | Config error                  |
 
 ## Argument Parsing
 
