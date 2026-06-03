@@ -48,6 +48,7 @@ This installs the CLI only — no skill.
 Download a pre-built binary for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/ahrefs-current). On macOS, clear the Gatekeeper quarantine: `xattr -d com.apple.quarantine <binary>`. On Unix, mark it executable: `chmod +x <binary>`.
 
 <!-- pp-hermes-install-anchor -->
+
 ## Install for Hermes
 
 From the Hermes CLI:
@@ -156,8 +157,8 @@ Top-level Site Explorer workflows that compose multiple read-only endpoint calls
 These commands spend Ahrefs row credits for the underlying Site Explorer calls. `keyword-gap` and `link-intersect` call once for your target plus once per `--competitor`; `striking-distance` calls once; `snapshot` calls three point-in-time endpoints. Use `--dry-run` to preview requests before spending credits.
 
 ```bash
-ahrefs-pp-cli keyword-gap --target bestself.co --competitor intelligentchange.com --competitor papier.com --country us --min-volume 100 --max-difficulty 40 --competitor-max-position 10 --your-min-position 11 --limit 1000 --mode subdomains --agent
-ahrefs-pp-cli striking-distance --target bestself.co --country us --min-position 4 --max-position 15 --min-volume 200 --max-difficulty 40 --limit 1000 --agent
+ahrefs-pp-cli keyword-gap --target bestself.co --competitor intelligentchange.com --competitor papier.com --country us --min-volume 100 --max-difficulty 40 --competitor-max-position 10 --your-min-position 11 --limit 1000 --target-limit 10000 --mode subdomains --agent
+ahrefs-pp-cli striking-distance --target bestself.co --country us --min-position 4 --max-position 15 --min-volume 200 --max-difficulty 40 --limit 1000 --mode subdomains --agent
 ahrefs-pp-cli link-intersect --target bestself.co --competitor intelligentchange.com --competitor papier.com --min-competitors 2 --min-dr 30 --limit 1000 --mode subdomains --agent
 ahrefs-pp-cli snapshot --target bestself.co --country us --date 2026-06-03 --agent
 ```
@@ -274,13 +275,16 @@ Verifies configuration, credentials, and connectivity to the API.
 Config file: `~/.config/ahrefs-pp-cli/config.toml`
 
 Environment variables:
+
 - `AHREFS_API_KEY`
 
 ## Troubleshooting
+
 **Authentication errors (exit code 4)**
+
 - Run `ahrefs-pp-cli doctor` to check credentials
 - Verify the environment variable is set: `echo $AHREFS_API_KEY`
-**Not found errors (exit code 3)**
+  **Not found errors (exit code 3)**
 - Check the resource ID is correct
 - Run the `list` command to see available items
 

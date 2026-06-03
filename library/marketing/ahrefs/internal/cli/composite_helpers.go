@@ -35,17 +35,17 @@ func todayUTCDate() string {
 	return time.Now().UTC().Format("2006-01-02")
 }
 
-func validateCompositeMode(cmd *cobra.Command, mode string) {
+func validateCompositeMode(cmd *cobra.Command, mode string) error {
 	if !cmd.Flags().Changed("mode") {
-		return
+		return nil
 	}
 	allowed := []string{"exact", "prefix", "domain", "subdomains"}
 	for _, v := range allowed {
 		if mode == v {
-			return
+			return nil
 		}
 	}
-	fmt.Fprintf(os.Stderr, "warning: --%s %q not in allowed set %v\n", "mode", mode, allowed)
+	return fmt.Errorf("invalid --mode %q: must be one of %s", mode, strings.Join(allowed, ", "))
 }
 
 func compositeWhere(parts ...string) string {

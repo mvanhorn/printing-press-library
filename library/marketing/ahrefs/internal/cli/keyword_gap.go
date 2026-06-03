@@ -32,6 +32,7 @@ func newKeywordGapCmd(flags *rootFlags) *cobra.Command {
 	var flagCompetitorMaxPosition int
 	var flagYourMinPosition int
 	var flagLimit int
+	var flagTargetLimit int
 	var flagMode string
 
 	cmd := &cobra.Command{
@@ -47,7 +48,9 @@ func newKeywordGapCmd(flags *rootFlags) *cobra.Command {
 			if len(flagCompetitors) == 0 && !flags.dryRun {
 				return fmt.Errorf("required flag %q not set", "competitor")
 			}
-			validateCompositeMode(cmd, flagMode)
+			if err := validateCompositeMode(cmd, flagMode); err != nil {
+				return err
+			}
 
 			c, err := flags.newClient()
 			if err != nil {
@@ -58,7 +61,11 @@ func newKeywordGapCmd(flags *rootFlags) *cobra.Command {
 				compositeNumberWhere("volume", "gte", flagMinVolume),
 				difficultyWhere(flagMaxDifficulty),
 			)
-			targetParams := organicKeywordsCompositeParams(flagTarget, flagCountry, flagMode, flagLimit, targetWhere)
+			// Build "your rankings" from a separate, larger lookup so a
+			// keyword you rank for that falls outside the first --limit
+			// rows is not mistaken for a gap. --target-limit controls this
+			// independently of the competitor fetch and output cap.
+			targetParams := organicKeywordsCompositeParams(flagTarget, flagCountry, flagMode, flagTargetLimit, targetWhere)
 			yourRows, targetProv, err := fetchCompositeRows[organicKeywordCompositeRow](cmd, c, flags, "/site-explorer/organic-keywords", targetParams)
 			if err != nil {
 				return classifyAPIError(err)
@@ -137,7 +144,8 @@ func newKeywordGapCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().IntVar(&flagMaxDifficulty, "max-difficulty", 0, "Maximum keyword difficulty; 0 disables this filter.")
 	cmd.Flags().IntVar(&flagCompetitorMaxPosition, "competitor-max-position", 10, "Maximum competitor ranking position to count as a gap.")
 	cmd.Flags().IntVar(&flagYourMinPosition, "your-min-position", 11, "Your position must be absent or worse than this value.")
-	cmd.Flags().IntVar(&flagLimit, "limit", 1000, "Maximum rows to request per target and return after sorting.")
+	cmd.Flags().IntVar(&flagLimit, "limit", 1000, "Maximum rows to request per competitor and return after sorting.")
+	cmd.Flags().IntVar(&flagTargetLimit, "target-limit", 10000, "Rows to fetch for your own rankings when detecting gaps; higher improves accuracy but costs more credits. 0 fetches the API maximum.")
 	cmd.Flags().StringVar(&flagMode, "mode", "subdomains", "The scope of the search based on the target you entered. (one of: exact, prefix, domain, subdomains)")
 	return cmd
 }

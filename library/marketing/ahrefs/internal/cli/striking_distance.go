@@ -27,6 +27,7 @@ func newStrikingDistanceCmd(flags *rootFlags) *cobra.Command {
 	var flagMinVolume int
 	var flagMaxDifficulty int
 	var flagLimit int
+	var flagMode string
 
 	cmd := &cobra.Command{
 		Use:         "striking-distance",
@@ -41,6 +42,9 @@ func newStrikingDistanceCmd(flags *rootFlags) *cobra.Command {
 			if flagMaxPosition < flagMinPosition {
 				return fmt.Errorf("--max-position must be greater than or equal to --min-position")
 			}
+			if err := validateCompositeMode(cmd, flagMode); err != nil {
+				return err
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
@@ -52,7 +56,7 @@ func newStrikingDistanceCmd(flags *rootFlags) *cobra.Command {
 				compositeNumberWhere("volume", "gte", flagMinVolume),
 				difficultyWhere(flagMaxDifficulty),
 			)
-			params := organicKeywordsCompositeParams(flagTarget, flagCountry, "subdomains", flagLimit, where)
+			params := organicKeywordsCompositeParams(flagTarget, flagCountry, flagMode, flagLimit, where)
 			rows, prov, err := fetchCompositeRows[organicKeywordCompositeRow](cmd, c, flags, "/site-explorer/organic-keywords", params)
 			if err != nil {
 				return classifyAPIError(err)
@@ -101,6 +105,7 @@ func newStrikingDistanceCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().IntVar(&flagMinVolume, "min-volume", 100, "Minimum keyword search volume.")
 	cmd.Flags().IntVar(&flagMaxDifficulty, "max-difficulty", 0, "Maximum keyword difficulty; 0 disables this filter.")
 	cmd.Flags().IntVar(&flagLimit, "limit", 1000, "Maximum rows to request and return after sorting.")
+	cmd.Flags().StringVar(&flagMode, "mode", "subdomains", "The scope of the search based on the target you entered. (one of: exact, prefix, domain, subdomains)")
 	return cmd
 }
 

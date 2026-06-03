@@ -223,6 +223,26 @@ func TestSnapshotCommandReturnsWarningsOnPartialFailure(t *testing.T) {
 	}
 }
 
+func TestCompositeInvalidModeRejected(t *testing.T) {
+	t.Setenv("AHREFS_API_KEY", "test-key")
+	t.Setenv("AHREFS_CONFIG", t.TempDir()+"/missing.toml")
+	cases := [][]string{
+		{"striking-distance", "--target", "ours.example", "--mode", "bogus"},
+		{"keyword-gap", "--target", "ours.example", "--competitor", "comp.example", "--mode", "bogus"},
+		{"link-intersect", "--target", "ours.example", "--competitor", "comp.example", "--mode", "bogus"},
+	}
+	for _, args := range cases {
+		root := RootCmd()
+		root.SetOut(&bytes.Buffer{})
+		root.SetErr(&bytes.Buffer{})
+		root.SetArgs(args)
+		err := root.Execute()
+		if err == nil || !strings.Contains(err.Error(), "invalid --mode") {
+			t.Fatalf("args %v: expected invalid --mode error, got %v", args, err)
+		}
+	}
+}
+
 func runCompositeCommand(t *testing.T, baseURL string, args ...string) []byte {
 	t.Helper()
 	t.Setenv("AHREFS_BASE_URL", baseURL)

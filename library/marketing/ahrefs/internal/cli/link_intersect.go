@@ -56,7 +56,9 @@ func newLinkIntersectCmd(flags *rootFlags) *cobra.Command {
 			if flagMinCompetitors < 1 {
 				return fmt.Errorf("--min-competitors must be at least 1")
 			}
-			validateCompositeMode(cmd, flagMode)
+			if err := validateCompositeMode(cmd, flagMode); err != nil {
+				return err
+			}
 
 			c, err := flags.newClient()
 			if err != nil {
