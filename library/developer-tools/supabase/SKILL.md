@@ -25,13 +25,11 @@ This skill drives the `supabase-pp-cli` binary. **You must verify the CLI is ins
 2. Verify: `supabase-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
 
-If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.3 or newer):
-
-```bash
-go install github.com/mvanhorn/printing-press-library/library/developer-tools/supabase/cmd/supabase-pp-cli@latest
-```
+If the `npx` install fails before this CLI has a public-library category, install Node or use the category-specific Go fallback after publish.
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
+
+The official supabase CLI is local-dev tooling (Docker, migrations, types). This CLI is the runtime API surface it omits, with `--json --select --dry-run` consistency across every command. The local store enables cross-project queries (`secrets where-name STRIPE_KEY`, `branches drift --older-than 7d`, `functions inventory --org acme`) that no single live API call answers.
 
 ## When to Use This CLI
 
@@ -86,7 +84,7 @@ These capabilities aren't available in any other tool for this API.
   _Use during support-ticket triage to see the user plus their domain row in one envelope instead of three dashboard clicks._
 
   ```bash
-  supabase-pp-cli auth-admin lookup user@example.com --context-table profiles --context-key user_id --json
+  supabase-pp-cli auth-admin lookup <your-user-email> --context-table profiles --context-key user_id --json
   ```
 - **`pgrst schema`** — Fetch the per-project PostgREST OpenAPI from the Management API and list tables, columns, types, and detected indexes for typed query planning.
 
@@ -155,7 +153,6 @@ supabase-pp-cli which "<capability in your own words>"
 
 ## Recipes
 
-
 ### Cross-project secret audit
 
 ```bash
@@ -167,10 +164,10 @@ Sync the local store, then list every project across every org holding a secret 
 ### Support ticket triage
 
 ```bash
-supabase-pp-cli auth-admin lookup user@example.com --context-table profiles --context-key user_id --agent --select user.id,user.email,user.last_sign_in_at,context.tier
+supabase-pp-cli auth-admin lookup <your-user-email> --json --select user.id,user.email,user.last_sign_in_at
 ```
 
-Look up the user in Auth Admin and join their profiles row in one envelope; --select narrows the payload to just the fields the support workflow cares about.
+Look up an Auth user by email; --select narrows the payload to identity fields. Add --context-table <table> --context-key <col> to join a domain row.
 
 ### Stale preview branches
 

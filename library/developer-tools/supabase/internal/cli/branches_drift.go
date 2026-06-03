@@ -6,8 +6,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/mvanhorn/printing-press-library/library/developer-tools/supabase/internal/store"
 	"github.com/spf13/cobra"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/supabase/internal/store"
 )
 
 func newBranchesDriftCmd(flags *rootFlags) *cobra.Command {

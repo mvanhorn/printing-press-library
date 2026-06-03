@@ -12,9 +12,9 @@ import (
 	"text/tabwriter"
 	"time"
 
+	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/supabase/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/supabase/internal/config"
-	"github.com/spf13/cobra"
 )
 
 var version = "1.0.0"
@@ -310,7 +310,7 @@ func (f *rootFlags) printTable(w *cobra.Command, headers []string, rows [][]stri
 func newVersionCliCmd() *cobra.Command {
 	return &cobra.Command{
 		Use:   "version",
-		Short: "Print version",
+		Short: "Print the supabase-pp-cli version string",
 		Run: func(cmd *cobra.Command, args []string) {
 			fmt.Printf("supabase-pp-cli %s\n", version)
 		},

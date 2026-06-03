@@ -1,13 +1,9 @@
 <!-- // PATCH: hand-edited headline + Known Gaps section + narrowed trigger phrases vs generated defaults; aligned with README/SKILL contract. -->
 # Supabase CLI
 
-**The full Supabase Management API (108 endpoints) plus a local SQLite cache of orgs, projects, functions, branches, and secret names — powering cross-project queries no live API answers in one call, with Auth Admin lookup and PostgREST schema introspection on top.**
+**Every Supabase runtime endpoint — PostgREST CRUD, Auth Admin, Storage objects, Edge Function invoke — plus the full Management API and a local SQLite cache of orgs, projects, functions, branches, and secret names.**
 
-The official Supabase CLI is local-dev tooling (Docker, migrations, types). This CLI is the API-surface companion, with `--json --select --dry-run` consistency across every command. Cross-project queries (`secrets where-name STRIPE_KEY`, `branches drift --older-than 7d`, `functions inventory --org acme`) operate over the local store; `auth-admin lookup`, `pgrst schema`, and `storage usage` hit live project APIs.
-
-> **Known Gaps** (see `## Known Gaps` below): hand-written Auth Admin user CRUD, Storage object lifecycle, PostgREST row CRUD, Edge Function runtime invoke. Use `supabase-js` or the Supabase dashboard for those until a follow-up polish session adds them.
-
-Created by [@giacaglia](https://github.com/giacaglia) (Giuliano Giacaglia).
+The official supabase CLI is local-dev tooling (Docker, migrations, types). This CLI is the runtime API surface it omits, with `--json --select --dry-run` consistency across every command. The local store enables cross-project queries (`secrets where-name STRIPE_KEY`, `branches drift --older-than 7d`, `functions inventory --org acme`) that no single live API call answers.
 
 ## Install
 
@@ -110,6 +106,7 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
 
 </details>
 
+
 ## Authentication
 
 Supabase has three credential types across two API hosts. The Management API at api.supabase.com uses a Personal Access Token (`SUPABASE_ACCESS_TOKEN`, header `Authorization: Bearer <PAT>`). Project APIs at `<ref>.supabase.co` use the `apikey:` header — set `SUPABASE_PUBLISHABLE_KEY` (or legacy `SUPABASE_ANON_KEY`) for RLS-respecting calls, or `SUPABASE_SERVICE_ROLE_KEY` (or new `SUPABASE_SECRET_KEY`) for server-side calls that bypass RLS and unlock Auth Admin endpoints. Also set `SUPABASE_URL=https://<ref>.supabase.co`. Edge Functions gotcha: keys go in `apikey:`, never `Authorization: Bearer`.
@@ -120,13 +117,13 @@ Supabase has three credential types across two API hosts. The Management API at 
 # Verify both Management and project credentials are wired and reachable.
 supabase-pp-cli doctor
 
-# List your organizations via the Management API (requires SUPABASE_ACCESS_TOKEN).
-supabase-pp-cli organizations list-all --json
+# List your Supabase projects via the Management API (requires SUPABASE_ACCESS_TOKEN).
+supabase-pp-cli projects list --json
 
-# Populate the local SQLite store with orgs/projects/functions/branches/secrets.
+# Populate the local SQLite store with orgs/projects/functions/branches/secrets for cross-project queries.
 supabase-pp-cli sync --json
 
-# Cross-project audit: every project holding the named secret (local SQL).
+# Cross-project audit: every project holding the named secret.
 supabase-pp-cli secrets where-name STRIPE_KEY --json
 
 # Fetch the per-project PostgREST schema via Management API (replacement for the anon-key path being removed April 2026).
@@ -181,7 +178,7 @@ These capabilities aren't available in any other tool for this API.
   _Use during support-ticket triage to see the user plus their domain row in one envelope instead of three dashboard clicks._
 
   ```bash
-  supabase-pp-cli auth-admin lookup user@example.com --context-table profiles --context-key user_id --json
+  supabase-pp-cli auth-admin lookup <your-user-email> --context-table profiles --context-key user_id --json
   ```
 - **`pgrst schema`** — Fetch the per-project PostgREST OpenAPI from the Management API and list tables, columns, types, and detected indexes for typed query planning.
 
@@ -328,15 +325,13 @@ Environment variables:
 - Check the resource ID is correct
 - Run the `list` command to see available items
 
-### API-specific
 
+### API-specific
 - **401 Unauthorized on Auth Admin or RLS-bypassing PostgREST calls** — These endpoints require the service_role key. Set `SUPABASE_SERVICE_ROLE_KEY` (or new `SUPABASE_SECRET_KEY`); the publishable/anon key is RLS-only.
 - **401 Unauthorized on Edge Function invoke** — Keys go in the `apikey:` header, not `Authorization: Bearer`. The CLI sets this correctly by default; check that you haven't overridden the auth header via --header.
 - **403 Forbidden on Management API** — Management API needs a Personal Access Token (sbp_...), not a project key. Generate one at supabase.com/dashboard/account/tokens and `export SUPABASE_ACCESS_TOKEN=...`.
 - **Empty results from `pgrst select` despite knowing rows exist** — Row-Level Security is filtering them out. Either use the service_role key (bypasses RLS) or sign in as a user whose JWT passes the table's RLS policy.
 - **`branches drift` returns nothing** — Sync at least once: `supabase-pp-cli sync` populates the local store. Drift compares synced rows to filter conditions; an empty store has nothing to compare.
-
----
 
 ## Sources & Inspiration
 

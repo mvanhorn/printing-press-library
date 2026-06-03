@@ -1,7 +1,8 @@
 {
-  "dir": "\u003ccli-dir\u003e/supabase-pp-cli",
-  "spec_path": "\u003ccli-dir\u003e/spec.json",
-  "verdict": "PASS",
+  "dir": "\u003ccli-dir\u003e\\supabase",
+  "spec_path": "\u003ccli-dir\u003e\\spec.json",
+  "spec_source": "bundled",
+  "verdict": "FAIL",
   "path_check": {
     "tested": 3,
     "valid": 3,
@@ -18,6 +19,1995 @@
     "pass": true,
     "detail": "browser-session auth not required"
   },
+  "oauth_scope_coverage_check": {
+    "checked": 160,
+    "covered": 0,
+    "violations": [
+      {
+        "endpoint": "DELETE /v1/branches/{branch_id_or_ref}",
+        "operation_id": "v1-delete-a-branch",
+        "required_scopes": [
+          "branching_development_delete",
+          "branching_production_delete"
+        ],
+        "required_scope_alternatives": [
+          [
+            "branching_production_delete"
+          ],
+          [
+            "branching_development_delete"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v1/branches/{branch_id_or_ref}",
+        "operation_id": "v1-get-a-branch-config",
+        "required_scopes": [
+          "branching_development_read",
+          "branching_production_read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "branching_production_read"
+          ],
+          [
+            "branching_development_read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "PATCH /v1/branches/{branch_id_or_ref}",
+        "operation_id": "v1-update-a-branch-config",
+        "required_scopes": [
+          "branching_development_write",
+          "branching_production_write"
+        ],
+        "required_scope_alternatives": [
+          [
+            "branching_production_write"
+          ],
+          [
+            "branching_development_write"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v1/branches/{branch_id_or_ref}/diff",
+        "operation_id": "v1-diff-a-branch",
+        "required_scopes": [
+          "branching_development_write",
+          "branching_production_write"
+        ],
+        "required_scope_alternatives": [
+          [
+            "branching_production_write"
+          ],
+          [
+            "branching_development_write"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v1/branches/{branch_id_or_ref}/merge",
+        "operation_id": "v1-merge-a-branch",
+        "required_scopes": [
+          "branching_development_write",
+          "branching_production_write"
+        ],
+        "required_scope_alternatives": [
+          [
+            "branching_production_write"
+          ],
+          [
+            "branching_development_write"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v1/branches/{branch_id_or_ref}/push",
+        "operation_id": "v1-push-a-branch",
+        "required_scopes": [
+          "branching_development_write",
+          "branching_production_write"
+        ],
+        "required_scope_alternatives": [
+          [
+            "branching_production_write"
+          ],
+          [
+            "branching_development_write"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v1/branches/{branch_id_or_ref}/reset",
+        "operation_id": "v1-reset-a-branch",
+        "required_scopes": [
+          "branching_development_write",
+          "branching_production_write"
+        ],
+        "required_scope_alternatives": [
+          [
+            "branching_production_write"
+          ],
+          [
+            "branching_development_write"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v1/branches/{branch_id_or_ref}/restore",
+        "operation_id": "v1-restore-a-branch",
+        "required_scopes": [
+          "branching_development_write",
+          "branching_production_write"
+        ],
+        "required_scope_alternatives": [
+          [
+            "branching_production_write"
+          ],
+          [
+            "branching_development_write"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v1/oauth/authorize",
+        "operation_id": "v1-authorize-user",
+        "required_scopes": [
+          "read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v1/oauth/authorize/project-claim",
+        "operation_id": "v1-oauth-authorize-project-claim",
+        "required_scopes": [
+          "organization_admin_write",
+          "project_admin_write"
+        ],
+        "required_scope_alternatives": [
+          [
+            "organization_admin_write",
+            "project_admin_write"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v1/oauth/revoke",
+        "operation_id": "v1-revoke-token",
+        "required_scopes": [
+          "write"
+        ],
+        "required_scope_alternatives": [
+          [
+            "write"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v1/oauth/token",
+        "operation_id": "v1-exchange-oauth-token",
+        "required_scopes": [
+          "write"
+        ],
+        "required_scope_alternatives": [
+          [
+            "write"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v1/organizations",
+        "operation_id": "v1-list-all-organizations",
+        "required_scopes": [
+          "organizations_read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "organizations_read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v1/organizations",
+        "operation_id": "v1-create-an-organization",
+        "required_scopes": [
+          "organizations_create"
+        ],
+        "required_scope_alternatives": [
+          [
+            "organizations_create"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v1/organizations/{slug}",
+        "operation_id": "v1-get-an-organization",
+        "required_scopes": [
+          "organization_admin_read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "organization_admin_read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v1/organizations/{slug}/entitlements",
+        "operation_id": "v1-get-organization-entitlements",
+        "required_scopes": [
+          "organization_admin_read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "organization_admin_read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v1/organizations/{slug}/members",
+        "operation_id": "v1-list-organization-members",
+        "required_scopes": [
+          "members_read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "members_read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v1/organizations/{slug}/project-claim/{token}",
+        "operation_id": "v1-get-organization-project-claim",
+        "required_scopes": [
+          "organization_admin_write"
+        ],
+        "required_scope_alternatives": [
+          [
+            "organization_admin_write"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v1/organizations/{slug}/project-claim/{token}",
+        "operation_id": "v1-claim-project-for-organization",
+        "required_scopes": [
+          "organization_admin_write"
+        ],
+        "required_scope_alternatives": [
+          [
+            "organization_admin_write"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v1/organizations/{slug}/projects",
+        "operation_id": "v1-get-all-projects-for-organization",
+        "required_scopes": [
+          "organization_projects_read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "organization_projects_read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v1/projects",
+        "operation_id": "v1-list-all-projects",
+        "required_scopes": [
+          "projects_read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "projects_read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v1/projects",
+        "operation_id": "v1-create-a-project",
+        "required_scopes": [
+          "organization_projects_create"
+        ],
+        "required_scope_alternatives": [
+          [
+            "organization_projects_create"
+          ]
+        ]
+      },
+      {
+        "endpoint": "DELETE /v1/projects/{ref}",
+        "operation_id": "v1-delete-a-project",
+        "required_scopes": [
+          "project_admin_write"
+        ],
+        "required_scope_alternatives": [
+          [
+            "project_admin_write"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v1/projects/{ref}",
+        "operation_id": "v1-get-project",
+        "required_scopes": [
+          "project_admin_read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "project_admin_read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "PATCH /v1/projects/{ref}",
+        "operation_id": "v1-update-a-project",
+        "required_scopes": [
+          "project_admin_write"
+        ],
+        "required_scope_alternatives": [
+          [
+            "project_admin_write"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v1/projects/{ref}/actions",
+        "operation_id": "v1-list-action-runs",
+        "required_scopes": [
+          "action_runs_read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "action_runs_read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "HEAD /v1/projects/{ref}/actions",
+        "operation_id": "v1-count-action-runs",
+        "required_scopes": [
+          "action_runs_read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "action_runs_read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v1/projects/{ref}/actions/{run_id}",
+        "operation_id": "v1-get-action-run",
+        "required_scopes": [
+          "action_runs_read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "action_runs_read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v1/projects/{ref}/actions/{run_id}/logs",
+        "operation_id": "v1-get-action-run-logs",
+        "required_scopes": [
+          "action_runs_read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "action_runs_read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "PATCH /v1/projects/{ref}/actions/{run_id}/status",
+        "operation_id": "v1-update-action-run-status",
+        "required_scopes": [
+          "action_runs_write"
+        ],
+        "required_scope_alternatives": [
+          [
+            "action_runs_write"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v1/projects/{ref}/advisors/performance",
+        "operation_id": "v1-get-performance-advisors",
+        "required_scopes": [
+          "advisors_read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "advisors_read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v1/projects/{ref}/advisors/security",
+        "operation_id": "v1-get-security-advisors",
+        "required_scopes": [
+          "advisors_read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "advisors_read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v1/projects/{ref}/analytics/endpoints/functions.combined-stats",
+        "operation_id": "v1-get-project-function-combined-stats",
+        "required_scopes": [
+          "analytics_usage_read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "analytics_usage_read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v1/projects/{ref}/analytics/endpoints/logs.all",
+        "operation_id": "v1-get-project-logs",
+        "required_scopes": [
+          "analytics_logs_read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "analytics_logs_read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v1/projects/{ref}/analytics/endpoints/usage.api-counts",
+        "operation_id": "v1-get-project-usage-api-count",
+        "required_scopes": [
+          "analytics_usage_read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "analytics_usage_read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v1/projects/{ref}/analytics/endpoints/usage.api-requests-count",
+        "operation_id": "v1-get-project-usage-request-count",
+        "required_scopes": [
+          "analytics_usage_read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "analytics_usage_read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v1/projects/{ref}/api-keys",
+        "operation_id": "v1-get-project-api-keys",
+        "required_scopes": [
+          "api_gateway_keys_read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "api_gateway_keys_read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v1/projects/{ref}/api-keys",
+        "operation_id": "v1-create-project-api-key",
+        "required_scopes": [
+          "api_gateway_keys_write"
+        ],
+        "required_scope_alternatives": [
+          [
+            "api_gateway_keys_write"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v1/projects/{ref}/api-keys/legacy",
+        "operation_id": "v1-get-project-legacy-api-keys",
+        "required_scopes": [
+          "api_gateway_keys_read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "api_gateway_keys_read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "PUT /v1/projects/{ref}/api-keys/legacy",
+        "operation_id": "v1-update-project-legacy-api-keys",
+        "required_scopes": [
+          "api_gateway_keys_write"
+        ],
+        "required_scope_alternatives": [
+          [
+            "api_gateway_keys_write"
+          ]
+        ]
+      },
+      {
+        "endpoint": "DELETE /v1/projects/{ref}/api-keys/{id}",
+        "operation_id": "v1-delete-project-api-key",
+        "required_scopes": [
+          "api_gateway_keys_write"
+        ],
+        "required_scope_alternatives": [
+          [
+            "api_gateway_keys_write"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v1/projects/{ref}/api-keys/{id}",
+        "operation_id": "v1-get-project-api-key",
+        "required_scopes": [
+          "api_gateway_keys_read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "api_gateway_keys_read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "PATCH /v1/projects/{ref}/api-keys/{id}",
+        "operation_id": "v1-update-project-api-key",
+        "required_scopes": [
+          "api_gateway_keys_write"
+        ],
+        "required_scope_alternatives": [
+          [
+            "api_gateway_keys_write"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v1/projects/{ref}/billing/addons",
+        "operation_id": "v1-list-project-addons",
+        "required_scopes": [
+          "infra_add_ons_read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "infra_add_ons_read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "PATCH /v1/projects/{ref}/billing/addons",
+        "operation_id": "v1-apply-project-addon",
+        "required_scopes": [
+          "infra_add_ons_write"
+        ],
+        "required_scope_alternatives": [
+          [
+            "infra_add_ons_write"
+          ]
+        ]
+      },
+      {
+        "endpoint": "DELETE /v1/projects/{ref}/billing/addons/{addon_variant}",
+        "operation_id": "v1-remove-project-addon",
+        "required_scopes": [
+          "infra_add_ons_write"
+        ],
+        "required_scope_alternatives": [
+          [
+            "infra_add_ons_write"
+          ]
+        ]
+      },
+      {
+        "endpoint": "DELETE /v1/projects/{ref}/branches",
+        "operation_id": "v1-disable-preview-branching",
+        "required_scopes": [
+          "branching_production_delete"
+        ],
+        "required_scope_alternatives": [
+          [
+            "branching_production_delete"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v1/projects/{ref}/branches",
+        "operation_id": "v1-list-all-branches",
+        "required_scopes": [
+          "branching_development_read",
+          "branching_production_read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "branching_production_read"
+          ],
+          [
+            "branching_development_read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v1/projects/{ref}/branches",
+        "operation_id": "v1-create-a-branch",
+        "required_scopes": [
+          "branching_development_create",
+          "branching_production_create"
+        ],
+        "required_scope_alternatives": [
+          [
+            "branching_production_create"
+          ],
+          [
+            "branching_development_create"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v1/projects/{ref}/branches/{name}",
+        "operation_id": "v1-get-a-branch",
+        "required_scopes": [
+          "branching_development_read",
+          "branching_production_read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "branching_production_read"
+          ],
+          [
+            "branching_development_read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "DELETE /v1/projects/{ref}/claim-token",
+        "operation_id": "v1-delete-project-claim-token",
+        "required_scopes": [
+          "organization_admin_write",
+          "project_admin_write"
+        ],
+        "required_scope_alternatives": [
+          [
+            "organization_admin_write",
+            "project_admin_write"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v1/projects/{ref}/claim-token",
+        "operation_id": "v1-get-project-claim-token",
+        "required_scopes": [
+          "project_admin_read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "project_admin_read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v1/projects/{ref}/claim-token",
+        "operation_id": "v1-create-project-claim-token",
+        "required_scopes": [
+          "organization_admin_write",
+          "project_admin_write"
+        ],
+        "required_scope_alternatives": [
+          [
+            "organization_admin_write",
+            "project_admin_write"
+          ]
+        ]
+      },
+      {
+        "endpoint": "DELETE /v1/projects/{ref}/cli/login-role",
+        "operation_id": "v1-delete-login-roles",
+        "required_scopes": [
+          "database_write"
+        ],
+        "required_scope_alternatives": [
+          [
+            "database_write"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v1/projects/{ref}/cli/login-role",
+        "operation_id": "v1-create-login-role",
+        "required_scopes": [
+          "database_write"
+        ],
+        "required_scope_alternatives": [
+          [
+            "database_write"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v1/projects/{ref}/config/auth",
+        "operation_id": "v1-get-auth-service-config",
+        "required_scopes": [
+          "auth_config_read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "auth_config_read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "PATCH /v1/projects/{ref}/config/auth",
+        "operation_id": "v1-update-auth-service-config",
+        "required_scopes": [
+          "auth_config_write",
+          "project_admin_write"
+        ],
+        "required_scope_alternatives": [
+          [
+            "auth_config_write",
+            "project_admin_write"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v1/projects/{ref}/config/auth/signing-keys",
+        "operation_id": "v1-get-project-signing-keys",
+        "required_scopes": [
+          "auth_signing_keys_read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "auth_signing_keys_read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v1/projects/{ref}/config/auth/signing-keys",
+        "operation_id": "v1-create-project-signing-key",
+        "required_scopes": [
+          "auth_signing_keys_write"
+        ],
+        "required_scope_alternatives": [
+          [
+            "auth_signing_keys_write"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v1/projects/{ref}/config/auth/signing-keys/legacy",
+        "operation_id": "v1-get-legacy-signing-key",
+        "required_scopes": [
+          "auth_signing_keys_read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "auth_signing_keys_read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v1/projects/{ref}/config/auth/signing-keys/legacy",
+        "operation_id": "v1-create-legacy-signing-key",
+        "required_scopes": [
+          "auth_signing_keys_write"
+        ],
+        "required_scope_alternatives": [
+          [
+            "auth_signing_keys_write"
+          ]
+        ]
+      },
+      {
+        "endpoint": "DELETE /v1/projects/{ref}/config/auth/signing-keys/{id}",
+        "operation_id": "v1-remove-project-signing-key",
+        "required_scopes": [
+          "auth_signing_keys_write"
+        ],
+        "required_scope_alternatives": [
+          [
+            "auth_signing_keys_write"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v1/projects/{ref}/config/auth/signing-keys/{id}",
+        "operation_id": "v1-get-project-signing-key",
+        "required_scopes": [
+          "auth_signing_keys_read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "auth_signing_keys_read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "PATCH /v1/projects/{ref}/config/auth/signing-keys/{id}",
+        "operation_id": "v1-update-project-signing-key",
+        "required_scopes": [
+          "auth_signing_keys_write"
+        ],
+        "required_scope_alternatives": [
+          [
+            "auth_signing_keys_write"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v1/projects/{ref}/config/auth/sso/providers",
+        "operation_id": "v1-list-all-sso-provider",
+        "required_scopes": [
+          "auth_config_read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "auth_config_read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v1/projects/{ref}/config/auth/sso/providers",
+        "operation_id": "v1-create-a-sso-provider",
+        "required_scopes": [
+          "auth_config_write"
+        ],
+        "required_scope_alternatives": [
+          [
+            "auth_config_write"
+          ]
+        ]
+      },
+      {
+        "endpoint": "DELETE /v1/projects/{ref}/config/auth/sso/providers/{provider_id}",
+        "operation_id": "v1-delete-a-sso-provider",
+        "required_scopes": [
+          "auth_config_write"
+        ],
+        "required_scope_alternatives": [
+          [
+            "auth_config_write"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v1/projects/{ref}/config/auth/sso/providers/{provider_id}",
+        "operation_id": "v1-get-a-sso-provider",
+        "required_scopes": [
+          "auth_config_read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "auth_config_read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "PUT /v1/projects/{ref}/config/auth/sso/providers/{provider_id}",
+        "operation_id": "v1-update-a-sso-provider",
+        "required_scopes": [
+          "auth_config_write"
+        ],
+        "required_scope_alternatives": [
+          [
+            "auth_config_write"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v1/projects/{ref}/config/auth/third-party-auth",
+        "operation_id": "v1-list-project-tpa-integrations",
+        "required_scopes": [
+          "auth_config_read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "auth_config_read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v1/projects/{ref}/config/auth/third-party-auth",
+        "operation_id": "v1-create-project-tpa-integration",
+        "required_scopes": [
+          "auth_config_write"
+        ],
+        "required_scope_alternatives": [
+          [
+            "auth_config_write"
+          ]
+        ]
+      },
+      {
+        "endpoint": "DELETE /v1/projects/{ref}/config/auth/third-party-auth/{tpa_id}",
+        "operation_id": "v1-delete-project-tpa-integration",
+        "required_scopes": [
+          "auth_config_write"
+        ],
+        "required_scope_alternatives": [
+          [
+            "auth_config_write"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v1/projects/{ref}/config/auth/third-party-auth/{tpa_id}",
+        "operation_id": "v1-get-project-tpa-integration",
+        "required_scopes": [
+          "auth_config_read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "auth_config_read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v1/projects/{ref}/config/database/pgbouncer",
+        "operation_id": "v1-get-project-pgbouncer-config",
+        "required_scopes": [
+          "database_read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "database_read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v1/projects/{ref}/config/database/pooler",
+        "operation_id": "v1-get-pooler-config",
+        "required_scopes": [
+          "database_pooling_config_read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "database_pooling_config_read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "PATCH /v1/projects/{ref}/config/database/pooler",
+        "operation_id": "v1-update-pooler-config",
+        "required_scopes": [
+          "database_pooling_config_write"
+        ],
+        "required_scope_alternatives": [
+          [
+            "database_pooling_config_write"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v1/projects/{ref}/config/database/postgres",
+        "operation_id": "v1-get-postgres-config",
+        "required_scopes": [
+          "database_config_read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "database_config_read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "PUT /v1/projects/{ref}/config/database/postgres",
+        "operation_id": "v1-update-postgres-config",
+        "required_scopes": [
+          "database_config_write"
+        ],
+        "required_scope_alternatives": [
+          [
+            "database_config_write"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v1/projects/{ref}/config/disk",
+        "operation_id": "v1-get-database-disk",
+        "required_scopes": [
+          "infra_disk_config_read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "infra_disk_config_read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v1/projects/{ref}/config/disk",
+        "operation_id": "v1-modify-database-disk",
+        "required_scopes": [
+          "infra_disk_config_write"
+        ],
+        "required_scope_alternatives": [
+          [
+            "infra_disk_config_write"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v1/projects/{ref}/config/disk/autoscale",
+        "operation_id": "v1-get-project-disk-autoscale-config",
+        "required_scopes": [
+          "infra_disk_config_read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "infra_disk_config_read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v1/projects/{ref}/config/disk/util",
+        "operation_id": "v1-get-disk-utilization",
+        "required_scopes": [
+          "infra_disk_config_read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "infra_disk_config_read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v1/projects/{ref}/config/realtime",
+        "operation_id": "v1-get-realtime-config",
+        "required_scopes": [
+          "realtime_config_read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "realtime_config_read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "PATCH /v1/projects/{ref}/config/realtime",
+        "operation_id": "v1-update-realtime-config",
+        "required_scopes": [
+          "realtime_config_write"
+        ],
+        "required_scope_alternatives": [
+          [
+            "realtime_config_write"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v1/projects/{ref}/config/realtime/shutdown",
+        "operation_id": "v1-shutdown-realtime",
+        "required_scopes": [
+          "realtime_config_write"
+        ],
+        "required_scope_alternatives": [
+          [
+            "realtime_config_write"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v1/projects/{ref}/config/storage",
+        "operation_id": "v1-get-storage-config",
+        "required_scopes": [
+          "storage_config_read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "storage_config_read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "PATCH /v1/projects/{ref}/config/storage",
+        "operation_id": "v1-update-storage-config",
+        "required_scopes": [
+          "storage_config_write"
+        ],
+        "required_scope_alternatives": [
+          [
+            "storage_config_write"
+          ]
+        ]
+      },
+      {
+        "endpoint": "DELETE /v1/projects/{ref}/custom-hostname",
+        "operation_id": "v1-Delete hostname config",
+        "required_scopes": [
+          "custom_domain_write"
+        ],
+        "required_scope_alternatives": [
+          [
+            "custom_domain_write"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v1/projects/{ref}/custom-hostname",
+        "operation_id": "v1-get-hostname-config",
+        "required_scopes": [
+          "custom_domain_read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "custom_domain_read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v1/projects/{ref}/custom-hostname/activate",
+        "operation_id": "v1-activate-custom-hostname",
+        "required_scopes": [
+          "custom_domain_write"
+        ],
+        "required_scope_alternatives": [
+          [
+            "custom_domain_write"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v1/projects/{ref}/custom-hostname/initialize",
+        "operation_id": "v1-update-hostname-config",
+        "required_scopes": [
+          "custom_domain_write"
+        ],
+        "required_scope_alternatives": [
+          [
+            "custom_domain_write"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v1/projects/{ref}/custom-hostname/reverify",
+        "operation_id": "v1-verify-dns-config",
+        "required_scopes": [
+          "custom_domain_write"
+        ],
+        "required_scope_alternatives": [
+          [
+            "custom_domain_write"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v1/projects/{ref}/database/backups",
+        "operation_id": "v1-list-all-backups",
+        "required_scopes": [
+          "backups_read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "backups_read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v1/projects/{ref}/database/backups/restore",
+        "operation_id": "v1-restore-physical-backup",
+        "required_scopes": [
+          "backups_write"
+        ],
+        "required_scope_alternatives": [
+          [
+            "backups_write"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v1/projects/{ref}/database/backups/restore-pitr",
+        "operation_id": "v1-restore-pitr-backup",
+        "required_scopes": [
+          "backups_write"
+        ],
+        "required_scope_alternatives": [
+          [
+            "backups_write"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v1/projects/{ref}/database/backups/restore-point",
+        "operation_id": "v1-get-restore-point",
+        "required_scopes": [
+          "backups_read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "backups_read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v1/projects/{ref}/database/backups/restore-point",
+        "operation_id": "v1-create-restore-point",
+        "required_scopes": [
+          "backups_write"
+        ],
+        "required_scope_alternatives": [
+          [
+            "backups_write"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v1/projects/{ref}/database/backups/undo",
+        "operation_id": "v1-undo",
+        "required_scopes": [
+          "backups_write"
+        ],
+        "required_scope_alternatives": [
+          [
+            "backups_write"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v1/projects/{ref}/database/context",
+        "operation_id": "v1-get-database-metadata",
+        "required_scopes": [
+          "database_read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "database_read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v1/projects/{ref}/database/jit",
+        "operation_id": "v1-get-jit-access",
+        "required_scopes": [
+          "database_jit_read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "database_jit_read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v1/projects/{ref}/database/jit",
+        "operation_id": "v1-authorize-jit-access",
+        "required_scopes": [
+          "database_jit_read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "database_jit_read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "PUT /v1/projects/{ref}/database/jit",
+        "operation_id": "v1-update-jit-access",
+        "required_scopes": [
+          "database_jit_write"
+        ],
+        "required_scope_alternatives": [
+          [
+            "database_jit_write"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v1/projects/{ref}/database/jit/list",
+        "operation_id": "v1-list-jit-access",
+        "required_scopes": [
+          "database_jit_read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "database_jit_read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "DELETE /v1/projects/{ref}/database/jit/{user_id}",
+        "operation_id": "v1-delete-jit-access",
+        "required_scopes": [
+          "database_jit_write"
+        ],
+        "required_scope_alternatives": [
+          [
+            "database_jit_write"
+          ]
+        ]
+      },
+      {
+        "endpoint": "DELETE /v1/projects/{ref}/database/migrations",
+        "operation_id": "v1-rollback-migrations",
+        "required_scopes": [
+          "database_migrations_write"
+        ],
+        "required_scope_alternatives": [
+          [
+            "database_migrations_write"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v1/projects/{ref}/database/migrations",
+        "operation_id": "v1-list-migration-history",
+        "required_scopes": [
+          "database_migrations_read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "database_migrations_read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v1/projects/{ref}/database/migrations",
+        "operation_id": "v1-apply-a-migration",
+        "required_scopes": [
+          "database_migrations_write"
+        ],
+        "required_scope_alternatives": [
+          [
+            "database_migrations_write"
+          ]
+        ]
+      },
+      {
+        "endpoint": "PUT /v1/projects/{ref}/database/migrations",
+        "operation_id": "v1-upsert-a-migration",
+        "required_scopes": [
+          "database_migrations_write"
+        ],
+        "required_scope_alternatives": [
+          [
+            "database_migrations_write"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v1/projects/{ref}/database/migrations/{version}",
+        "operation_id": "v1-get-a-migration",
+        "required_scopes": [
+          "database_migrations_read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "database_migrations_read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "PATCH /v1/projects/{ref}/database/migrations/{version}",
+        "operation_id": "v1-patch-a-migration",
+        "required_scopes": [
+          "database_migrations_write"
+        ],
+        "required_scope_alternatives": [
+          [
+            "database_migrations_write"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v1/projects/{ref}/database/openapi",
+        "operation_id": "v1-get-database-openapi",
+        "required_scopes": [
+          "database_read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "database_read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "PATCH /v1/projects/{ref}/database/password",
+        "operation_id": "v1-update-database-password",
+        "required_scopes": [
+          "database_config_write"
+        ],
+        "required_scope_alternatives": [
+          [
+            "database_config_write"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v1/projects/{ref}/database/query",
+        "operation_id": "v1-run-a-query",
+        "required_scopes": [
+          "database_read",
+          "database_write"
+        ],
+        "required_scope_alternatives": [
+          [
+            "database_write"
+          ],
+          [
+            "database_read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v1/projects/{ref}/database/query/read-only",
+        "operation_id": "v1-read-only-query",
+        "required_scopes": [
+          "database_read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "database_read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v1/projects/{ref}/database/webhooks/enable",
+        "operation_id": "v1-enable-database-webhook",
+        "required_scopes": [
+          "database_webhooks_config_write"
+        ],
+        "required_scope_alternatives": [
+          [
+            "database_webhooks_config_write"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v1/projects/{ref}/functions",
+        "operation_id": "v1-list-all-functions",
+        "required_scopes": [
+          "edge_functions_read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "edge_functions_read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v1/projects/{ref}/functions",
+        "operation_id": "v1-create-a-function",
+        "required_scopes": [
+          "edge_functions_write"
+        ],
+        "required_scope_alternatives": [
+          [
+            "edge_functions_write"
+          ]
+        ]
+      },
+      {
+        "endpoint": "PUT /v1/projects/{ref}/functions",
+        "operation_id": "v1-bulk-update-functions",
+        "required_scopes": [
+          "edge_functions_write"
+        ],
+        "required_scope_alternatives": [
+          [
+            "edge_functions_write"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v1/projects/{ref}/functions/deploy",
+        "operation_id": "v1-deploy-a-function",
+        "required_scopes": [
+          "edge_functions_write"
+        ],
+        "required_scope_alternatives": [
+          [
+            "edge_functions_write"
+          ]
+        ]
+      },
+      {
+        "endpoint": "DELETE /v1/projects/{ref}/functions/{function_slug}",
+        "operation_id": "v1-delete-a-function",
+        "required_scopes": [
+          "edge_functions_write"
+        ],
+        "required_scope_alternatives": [
+          [
+            "edge_functions_write"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v1/projects/{ref}/functions/{function_slug}",
+        "operation_id": "v1-get-a-function",
+        "required_scopes": [
+          "edge_functions_read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "edge_functions_read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "PATCH /v1/projects/{ref}/functions/{function_slug}",
+        "operation_id": "v1-update-a-function",
+        "required_scopes": [
+          "edge_functions_write"
+        ],
+        "required_scope_alternatives": [
+          [
+            "edge_functions_write"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v1/projects/{ref}/functions/{function_slug}/body",
+        "operation_id": "v1-get-a-function-body",
+        "required_scopes": [
+          "edge_functions_read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "edge_functions_read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v1/projects/{ref}/health",
+        "operation_id": "v1-get-services-health",
+        "required_scopes": [
+          "project_admin_read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "project_admin_read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v1/projects/{ref}/jit-access",
+        "operation_id": "v1-get-jit-access-config",
+        "required_scopes": [
+          "project_admin_read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "project_admin_read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "PUT /v1/projects/{ref}/jit-access",
+        "operation_id": "v1-update-jit-access-config",
+        "required_scopes": [
+          "project_admin_write"
+        ],
+        "required_scope_alternatives": [
+          [
+            "project_admin_write"
+          ]
+        ]
+      },
+      {
+        "endpoint": "DELETE /v1/projects/{ref}/network-bans",
+        "operation_id": "v1-delete-network-bans",
+        "required_scopes": [
+          "database_network_bans_write"
+        ],
+        "required_scope_alternatives": [
+          [
+            "database_network_bans_write"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v1/projects/{ref}/network-bans/retrieve",
+        "operation_id": "v1-list-all-network-bans",
+        "required_scopes": [
+          "database_network_bans_read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "database_network_bans_read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v1/projects/{ref}/network-bans/retrieve/enriched",
+        "operation_id": "v1-list-all-network-bans-enriched",
+        "required_scopes": [
+          "database_network_bans_read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "database_network_bans_read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v1/projects/{ref}/network-restrictions",
+        "operation_id": "v1-get-network-restrictions",
+        "required_scopes": [
+          "database_network_restrictions_read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "database_network_restrictions_read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "PATCH /v1/projects/{ref}/network-restrictions",
+        "operation_id": "v1-patch-network-restrictions",
+        "required_scopes": [
+          "database_network_restrictions_write"
+        ],
+        "required_scope_alternatives": [
+          [
+            "database_network_restrictions_write"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v1/projects/{ref}/network-restrictions/apply",
+        "operation_id": "v1-update-network-restrictions",
+        "required_scopes": [
+          "database_network_restrictions_write"
+        ],
+        "required_scope_alternatives": [
+          [
+            "database_network_restrictions_write"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v1/projects/{ref}/pause",
+        "operation_id": "v1-pause-a-project",
+        "required_scopes": [
+          "project_admin_write"
+        ],
+        "required_scope_alternatives": [
+          [
+            "project_admin_write"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v1/projects/{ref}/pgsodium",
+        "operation_id": "v1-get-pgsodium-config",
+        "required_scopes": [
+          "project_admin_write"
+        ],
+        "required_scope_alternatives": [
+          [
+            "project_admin_write"
+          ]
+        ]
+      },
+      {
+        "endpoint": "PUT /v1/projects/{ref}/pgsodium",
+        "operation_id": "v1-update-pgsodium-config",
+        "required_scopes": [
+          "project_admin_write"
+        ],
+        "required_scope_alternatives": [
+          [
+            "project_admin_write"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v1/projects/{ref}/postgrest",
+        "operation_id": "v1-get-postgrest-service-config",
+        "required_scopes": [
+          "data_api_config_read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "data_api_config_read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "PATCH /v1/projects/{ref}/postgrest",
+        "operation_id": "v1-update-postgrest-service-config",
+        "required_scopes": [
+          "data_api_config_write"
+        ],
+        "required_scope_alternatives": [
+          [
+            "data_api_config_write"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v1/projects/{ref}/read-replicas/remove",
+        "operation_id": "v1-remove-a-read-replica",
+        "required_scopes": [
+          "infra_read_replicas_write"
+        ],
+        "required_scope_alternatives": [
+          [
+            "infra_read_replicas_write"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v1/projects/{ref}/read-replicas/setup",
+        "operation_id": "v1-setup-a-read-replica",
+        "required_scopes": [
+          "infra_read_replicas_write"
+        ],
+        "required_scope_alternatives": [
+          [
+            "infra_read_replicas_write"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v1/projects/{ref}/readonly",
+        "operation_id": "v1-get-readonly-mode-status",
+        "required_scopes": [
+          "database_readonly_config_read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "database_readonly_config_read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v1/projects/{ref}/readonly/temporary-disable",
+        "operation_id": "v1-disable-readonly-mode-temporarily",
+        "required_scopes": [
+          "database_readonly_config_write"
+        ],
+        "required_scope_alternatives": [
+          [
+            "database_readonly_config_write"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v1/projects/{ref}/restore",
+        "operation_id": "v1-list-available-restore-versions",
+        "required_scopes": [
+          "project_admin_read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "project_admin_read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v1/projects/{ref}/restore",
+        "operation_id": "v1-restore-a-project",
+        "required_scopes": [
+          "project_admin_write"
+        ],
+        "required_scope_alternatives": [
+          [
+            "project_admin_write"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v1/projects/{ref}/restore/cancel",
+        "operation_id": "v1-cancel-a-project-restoration",
+        "required_scopes": [
+          "project_admin_write"
+        ],
+        "required_scope_alternatives": [
+          [
+            "project_admin_write"
+          ]
+        ]
+      },
+      {
+        "endpoint": "DELETE /v1/projects/{ref}/secrets",
+        "operation_id": "v1-bulk-delete-secrets",
+        "required_scopes": [
+          "edge_functions_secrets_write"
+        ],
+        "required_scope_alternatives": [
+          [
+            "edge_functions_secrets_write"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v1/projects/{ref}/secrets",
+        "operation_id": "v1-list-all-secrets",
+        "required_scopes": [
+          "edge_functions_secrets_read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "edge_functions_secrets_read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v1/projects/{ref}/secrets",
+        "operation_id": "v1-bulk-create-secrets",
+        "required_scopes": [
+          "edge_functions_secrets_write"
+        ],
+        "required_scope_alternatives": [
+          [
+            "edge_functions_secrets_write"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v1/projects/{ref}/ssl-enforcement",
+        "operation_id": "v1-get-ssl-enforcement-config",
+        "required_scopes": [
+          "database_ssl_config_read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "database_ssl_config_read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "PUT /v1/projects/{ref}/ssl-enforcement",
+        "operation_id": "v1-update-ssl-enforcement-config",
+        "required_scopes": [
+          "database_ssl_config_write"
+        ],
+        "required_scope_alternatives": [
+          [
+            "database_ssl_config_write"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v1/projects/{ref}/storage/buckets",
+        "operation_id": "v1-list-all-buckets",
+        "required_scopes": [
+          "storage_read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "storage_read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v1/projects/{ref}/types/typescript",
+        "operation_id": "v1-generate-typescript-types",
+        "required_scopes": [
+          "database_read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "database_read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v1/projects/{ref}/upgrade",
+        "operation_id": "v1-upgrade-postgres-version",
+        "required_scopes": [
+          "database_write",
+          "project_admin_write"
+        ],
+        "required_scope_alternatives": [
+          [
+            "database_write",
+            "project_admin_write"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v1/projects/{ref}/upgrade/eligibility",
+        "operation_id": "v1-get-postgres-upgrade-eligibility",
+        "required_scopes": [
+          "database_read",
+          "project_admin_read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "database_read",
+            "project_admin_read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v1/projects/{ref}/upgrade/status",
+        "operation_id": "v1-get-postgres-upgrade-status",
+        "required_scopes": [
+          "database_read",
+          "project_admin_read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "database_read",
+            "project_admin_read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "DELETE /v1/projects/{ref}/vanity-subdomain",
+        "operation_id": "v1-deactivate-vanity-subdomain-config",
+        "required_scopes": [
+          "vanity_subdomain_write"
+        ],
+        "required_scope_alternatives": [
+          [
+            "vanity_subdomain_write"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v1/projects/{ref}/vanity-subdomain",
+        "operation_id": "v1-get-vanity-subdomain-config",
+        "required_scopes": [
+          "vanity_subdomain_read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "vanity_subdomain_read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v1/projects/{ref}/vanity-subdomain/activate",
+        "operation_id": "v1-activate-vanity-subdomain-config",
+        "required_scopes": [
+          "vanity_subdomain_write"
+        ],
+        "required_scope_alternatives": [
+          [
+            "vanity_subdomain_write"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /v1/projects/{ref}/vanity-subdomain/check-availability",
+        "operation_id": "v1-check-vanity-subdomain-availability",
+        "required_scopes": [
+          "vanity_subdomain_write"
+        ],
+        "required_scope_alternatives": [
+          [
+            "vanity_subdomain_write"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v1/snippets",
+        "operation_id": "v1-list-all-snippets",
+        "required_scopes": [
+          "snippets_read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "snippets_read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /v1/snippets/{id}",
+        "operation_id": "v1-get-a-snippet",
+        "required_scopes": [
+          "snippets_read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "snippets_read"
+          ]
+        ]
+      }
+    ],
+    "detail": "generated auth.go declares no OAuth scopes"
+  },
   "dead_flags": {
     "total": 19,
     "dead": 0
@@ -30,6 +2020,8 @@
     "sync_calls_domain": true,
     "search_calls_domain": true,
     "domain_tables": 1,
+    "sync_file_emitted": true,
+    "sync_resources_present": true,
     "detail": "sync uses domain-specific Upsert methods; search uses domain-specific Search methods; 1 domain tables found"
   },
   "example_check": {
@@ -65,7 +2057,49 @@
   "reimplementation_check": {
     "checked": 8,
     "exempted_via_store": 6,
-    "exempted_via_client_directive": 2
+    "exempted_via_client_directive": 2,
+    "missing_data_source_strategy": [
+      {
+        "command": "secrets where-name",
+        "file": "secrets_top.go",
+        "reason": "missing // pp:data-source \u003cauto|local|live\u003e annotation"
+      },
+      {
+        "command": "functions inventory",
+        "file": "functions_top.go",
+        "reason": "missing // pp:data-source \u003cauto|local|live\u003e annotation"
+      },
+      {
+        "command": "branches drift",
+        "file": "branches_drift.go",
+        "reason": "missing // pp:data-source \u003cauto|local|live\u003e annotation"
+      },
+      {
+        "command": "auth-admin lookup",
+        "file": "auth_admin.go",
+        "reason": "missing // pp:data-source \u003cauto|local|live\u003e annotation"
+      },
+      {
+        "command": "pgrst schema",
+        "file": "pgrst_top.go",
+        "reason": "missing // pp:data-source \u003cauto|local|live\u003e annotation"
+      },
+      {
+        "command": "projects estate",
+        "file": "projects_estate.go",
+        "reason": "missing // pp:data-source \u003cauto|local|live\u003e annotation"
+      },
+      {
+        "command": "storage usage",
+        "file": "storage_top.go",
+        "reason": "missing // pp:data-source \u003cauto|local|live\u003e annotation"
+      },
+      {
+        "command": "auth-admin recent",
+        "file": "auth_admin.go",
+        "reason": "missing // pp:data-source \u003cauto|local|live\u003e annotation"
+      }
+    ]
   },
   "source_client_check": {
     "checked": 0,
@@ -80,5 +2114,11 @@
   "naming_check": {
     "checked": 232
   },
-  "issues": null
+  "sync_param_drop_check": {
+    "checked": 0,
+    "skipped": true
+  },
+  "issues": [
+    "OAuth scope coverage missing for 160 endpoint(s)"
+  ]
 }

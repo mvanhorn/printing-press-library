@@ -4,6 +4,10 @@
   "description": "Supabase API generated from the OpenAPI specification.\u003cbr\u003eVisit [https://supabase.com/docs](https://supabase.com/docs) for a complete documentation.",
   "mcp_ready": "full",
   "http_transport": "standard",
+  "mcp": {
+    "endpoint_tools": "hidden",
+    "orchestration": "code"
+  },
   "auth": {
     "type": "bearer_token",
     "header": "Authorization",
@@ -1475,7 +1479,7 @@
     },
     {
       "name": "projects_claim-token_delete-project",
-      "description": "Revokes project claim token. Required: ref. Destructive.",
+      "description": "Revoke the active project claim token for a Supabase project so pending claim links can no longer transfer ownership. Required: ref (project reference, path param). No request body. Destructive: any unclaimed transfer link backed by the token stops working immediately. Returns 204 No Content on success. Pair with the claim-token create endpoint when you need to rotate the token.",
       "method": "DELETE",
       "path": "/v1/projects/{ref}/claim-token",
       "params": [
@@ -1554,14 +1558,16 @@
           "required": true
         },
         {
-          "name": "attribute_mapping",
+          "name": "attribute-mapping-keys",
+          "wire_name": "attribute_mapping.keys",
           "type": "object",
           "location": "body",
-          "description": "Attribute mapping"
+          "description": "Keys",
+          "required": true
         },
         {
           "name": "domains",
-          "type": "array",
+          "type": "string_csv_array",
           "location": "body",
           "description": "Domains"
         },
@@ -1981,7 +1987,7 @@
     },
     {
       "name": "projects_config_modify-database-disk",
-      "description": "Modify database disk. Required: ref, attributes.",
+      "description": "Resize or reconfigure the database disk for a Supabase project (size, type, IOPS, throughput). Required: ref (path) and attributes (request body object — the new disk configuration). Returns 201 with the accepted change record. Use this for upsizing storage or moving between gp3/io2 tiers; the operation can take several minutes to complete and may briefly impact connections.",
       "method": "POST",
       "path": "/v1/projects/{ref}/config/disk",
       "params": [
@@ -2059,14 +2065,16 @@
           "required": true
         },
         {
-          "name": "attribute_mapping",
+          "name": "attribute-mapping-keys",
+          "wire_name": "attribute_mapping.keys",
           "type": "object",
           "location": "body",
-          "description": "Attribute mapping"
+          "description": "Keys",
+          "required": true
         },
         {
           "name": "domains",
-          "type": "array",
+          "type": "string_csv_array",
           "location": "body",
           "description": "Domains"
         },
@@ -3831,16 +3839,84 @@
           "required": true
         },
         {
-          "name": "external",
-          "type": "object",
+          "name": "external-upstream-target",
+          "wire_name": "external.upstreamTarget",
+          "type": "string",
           "location": "body",
-          "description": "External"
+          "description": "Upstream target",
+          "required": true
         },
         {
-          "name": "features",
-          "type": "object",
+          "name": "features-iceberg-catalog-enabled",
+          "wire_name": "features.icebergCatalog.enabled",
+          "type": "bool",
           "location": "body",
-          "description": "Features"
+          "description": "Enabled",
+          "required": true
+        },
+        {
+          "name": "features-iceberg-catalog-max-catalogs",
+          "wire_name": "features.icebergCatalog.maxCatalogs",
+          "type": "int",
+          "location": "body",
+          "description": "Max catalogs",
+          "required": true
+        },
+        {
+          "name": "features-iceberg-catalog-max-namespaces",
+          "wire_name": "features.icebergCatalog.maxNamespaces",
+          "type": "int",
+          "location": "body",
+          "description": "Max namespaces",
+          "required": true
+        },
+        {
+          "name": "features-iceberg-catalog-max-tables",
+          "wire_name": "features.icebergCatalog.maxTables",
+          "type": "int",
+          "location": "body",
+          "description": "Max tables",
+          "required": true
+        },
+        {
+          "name": "features-image-transformation-enabled",
+          "wire_name": "features.imageTransformation.enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Enabled",
+          "required": true
+        },
+        {
+          "name": "features-s3-protocol-enabled",
+          "wire_name": "features.s3Protocol.enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Enabled",
+          "required": true
+        },
+        {
+          "name": "features-vector-buckets-enabled",
+          "wire_name": "features.vectorBuckets.enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Enabled",
+          "required": true
+        },
+        {
+          "name": "features-vector-buckets-max-buckets",
+          "wire_name": "features.vectorBuckets.maxBuckets",
+          "type": "int",
+          "location": "body",
+          "description": "Max buckets",
+          "required": true
+        },
+        {
+          "name": "features-vector-buckets-max-indexes",
+          "wire_name": "features.vectorBuckets.maxIndexes",
+          "type": "int",
+          "location": "body",
+          "description": "Max indexes",
+          "required": true
         },
         {
           "name": "fileSizeLimit",
@@ -4479,7 +4555,7 @@
     },
     {
       "name": "projects_functions_create-a",
-      "description": "This endpoint is deprecated - use the deploy endpoint. Creates a function and adds it to the specified project. Required: ref, body. Optional: slug, name, verify_jwt (plus 4 more). Returns the new FunctionResponse.",
+      "description": "This endpoint is deprecated - use the deploy endpoint. Creates a function and adds it to the specified project. Required: ref, body, name-2, slug-2. Optional: slug, name, verify_jwt (plus 5 more). Returns the new FunctionResponse.",
       "method": "POST",
       "path": "/v1/projects/{ref}/functions",
       "params": [
@@ -4538,6 +4614,29 @@
           "location": "body",
           "description": "Body",
           "required": true
+        },
+        {
+          "name": "name-2",
+          "wire_name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        },
+        {
+          "name": "slug-2",
+          "wire_name": "slug",
+          "type": "string",
+          "location": "body",
+          "description": "Slug",
+          "required": true
+        },
+        {
+          "name": "verify-jwt-2",
+          "wire_name": "verify_jwt",
+          "type": "bool",
+          "location": "body",
+          "description": "Verify jwt"
         }
       ]
     },
@@ -4664,7 +4763,7 @@
     },
     {
       "name": "projects_functions_update-a",
-      "description": "Updates a function with the specified slug and project. Required: ref, function_slug. Optional: slug, name, verify_jwt (plus 5 more). Returns the updated FunctionResponse.",
+      "description": "Updates a function with the specified slug and project. Required: ref, function_slug. Optional: slug, name, verify_jwt (plus 7 more). Returns the updated FunctionResponse.",
       "method": "PATCH",
       "path": "/v1/projects/{ref}/functions/{function_slug}",
       "params": [
@@ -4729,6 +4828,20 @@
           "type": "string",
           "location": "body",
           "description": "Body"
+        },
+        {
+          "name": "name-2",
+          "wire_name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        },
+        {
+          "name": "verify-jwt-2",
+          "wire_name": "verify_jwt",
+          "type": "bool",
+          "location": "body",
+          "description": "Verify jwt"
         }
       ]
     },
@@ -4818,7 +4931,7 @@
         },
         {
           "name": "ipv4_addresses",
-          "type": "array",
+          "type": "string_csv_array",
           "location": "body",
           "description": "List of IP addresses to unban.",
           "required": true
@@ -4890,16 +5003,32 @@
           "required": true
         },
         {
-          "name": "add",
-          "type": "object",
+          "name": "add-db-allowed-cidrs",
+          "wire_name": "add.dbAllowedCidrs",
+          "type": "string_csv_array",
           "location": "body",
-          "description": "Add"
+          "description": "Db allowed cidrs"
         },
         {
-          "name": "remove",
-          "type": "object",
+          "name": "add-db-allowed-cidrs-v6",
+          "wire_name": "add.dbAllowedCidrsV6",
+          "type": "string_csv_array",
           "location": "body",
-          "description": "Remove"
+          "description": "Db allowed cidrs v6"
+        },
+        {
+          "name": "remove-db-allowed-cidrs",
+          "wire_name": "remove.dbAllowedCidrs",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Db allowed cidrs"
+        },
+        {
+          "name": "remove-db-allowed-cidrs-v6",
+          "wire_name": "remove.dbAllowedCidrsV6",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Db allowed cidrs v6"
         }
       ]
     },
@@ -4918,13 +5047,13 @@
         },
         {
           "name": "dbAllowedCidrs",
-          "type": "array",
+          "type": "string_csv_array",
           "location": "body",
           "description": "Db allowed cidrs"
         },
         {
           "name": "dbAllowedCidrsV6",
-          "type": "array",
+          "type": "string_csv_array",
           "location": "body",
           "description": "Db allowed cidrs v6"
         }
@@ -4932,7 +5061,7 @@
     },
     {
       "name": "projects_pause_a-project",
-      "description": "Pauses the given project. Required: ref.",
+      "description": "Pause the given Supabase project so its database, edge functions, and storage stop billing compute. Required: ref (project reference, path param). No request body. Returns 200 once the pause is accepted. Use projects_restore_a-project to bring the project back online; long-paused projects on free tier are eligible for automatic teardown.",
       "method": "POST",
       "path": "/v1/projects/{ref}/pause",
       "params": [
@@ -5097,7 +5226,7 @@
     },
     {
       "name": "projects_readonly_get-mode-status",
-      "description": "Returns project's readonly mode status. Required: ref.",
+      "description": "Read the current read-only mode state for a Supabase project's database. Required: ref (path). Returns the ReadOnlyStatusResponse with enabled (auto-engaged when storage is full), override_enabled (operator manual override), and override_active_until (expiry timestamp for the override). Use this before issuing writes to detect storage-full lockouts; pair with the override endpoint when you need a temporary writable window for cleanup.",
       "method": "GET",
       "path": "/v1/projects/{ref}/readonly",
       "params": [
@@ -5112,7 +5241,7 @@
     },
     {
       "name": "projects_restore_a-project",
-      "description": "Restores the given project. Required: ref.",
+      "description": "Resume a paused Supabase project, restoring compute for database, functions, and storage. Required: ref (path). No request body. Returns 200 when the restore is accepted; the database may take several minutes to become reachable. Mirror of projects_pause_a-project. Use projects_restore_cancel-a-project-restoration only while a restore is still in progress.",
       "method": "POST",
       "path": "/v1/projects/{ref}/restore",
       "params": [
@@ -5127,7 +5256,7 @@
     },
     {
       "name": "projects_restore_cancel-a-project-restoration",
-      "description": "Cancels the given project restoration. Required: ref.",
+      "description": "Cancel an in-flight restore for a paused Supabase project, reverting it to the paused state. Required: ref (path). No request body. Returns 200 when the cancellation is accepted; has no effect once the restore has already completed. Use only when you triggered projects_restore_a-project in error.",
       "method": "POST",
       "path": "/v1/projects/{ref}/restore/cancel",
       "params": [
@@ -5229,10 +5358,11 @@
           "required": true
         },
         {
-          "name": "requestedConfig",
-          "type": "object",
+          "name": "requested-config-database",
+          "wire_name": "requestedConfig.database",
+          "type": "bool",
           "location": "body",
-          "description": "Requested config",
+          "description": "Database",
           "required": true
         }
       ]
@@ -5466,7 +5596,7 @@
     },
     {
       "name": "supabase-profile_get",
-      "description": "Gets the user's profile. Returns the V1ProfileResponse.",
+      "description": "Return the authenticated Supabase user's profile (the operator behind the personal access token). Returns V1ProfileResponse with gotrue_id (Supabase auth user id), primary_email, and username. Useful for confirming which account a token belongs to before running destructive cross-project commands.",
       "method": "GET",
       "path": "/v1/profile",
       "params": []

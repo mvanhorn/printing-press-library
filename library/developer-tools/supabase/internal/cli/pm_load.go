@@ -8,8 +8,8 @@ import (
 	"fmt"
 	"sort"
 
-	"github.com/mvanhorn/printing-press-library/library/developer-tools/supabase/internal/store"
 	"github.com/spf13/cobra"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/supabase/internal/store"
 )
 
 func newLoadCmd(flags *rootFlags) *cobra.Command {

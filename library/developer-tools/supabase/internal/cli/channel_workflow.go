@@ -6,10 +6,11 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
+	"os"
 	"time"
 
-	"github.com/mvanhorn/printing-press-library/library/developer-tools/supabase/internal/store"
 	"github.com/spf13/cobra"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/supabase/internal/store"
 )
 
 func newWorkflowCmd(flags *rootFlags) *cobra.Command {
@@ -65,6 +66,14 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
 				}
 			}
 
+			// syncResource writes NDJSON event lines directly to os.Stdout.
+			// In --json mode the caller expects a single JSON object on stdout,
+			// so redirect os.Stdout to os.Stderr for the duration of the sync loop.
+			origStdout := os.Stdout
+			if flags.asJSON {
+				os.Stdout = os.Stderr
+			}
+
 			for _, resource := range resources {
 				res := syncResource(c, s, resource, "", full, 100, false, nil)
 				if res.Err != nil {
@@ -80,6 +89,7 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
 			}
 
 			if flags.asJSON {
+				os.Stdout = origStdout
 				enc := json.NewEncoder(cmd.OutOrStdout())
 				enc.SetIndent("", "  ")
 				return enc.Encode(map[string]any{

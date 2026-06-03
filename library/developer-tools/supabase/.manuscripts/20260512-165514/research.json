@@ -132,7 +132,7 @@
       "command": "auth-admin lookup",
       "description": "Look up an Auth user by email and optionally join their row from a user-named PostgREST context table on user_id.",
       "rationale": "Pairs Auth Admin /admin/users?email= with optional PostgREST select on a user table; neither surface exists in the official CLI or in supabase-community MCP.",
-      "example": "supabase-pp-cli auth-admin lookup <your-user-email> --context-table profiles --context-key user_id --json",
+      "example": "supabase-pp-cli auth-admin lookup \u003cyour-user-email\u003e --context-table profiles --context-key user_id --json",
       "why_it_matters": "Use during support-ticket triage to see the user plus their domain row in one envelope instead of three dashboard clicks.",
       "group": "Service-specific patterns"
     },
@@ -206,7 +206,7 @@
       "command": "auth-admin lookup",
       "description": "Look up an Auth user by email and optionally join their row from a user-named PostgREST context table on user_id.",
       "rationale": "Pairs Auth Admin /admin/users?email= with optional PostgREST select on a user table; neither surface exists in the official CLI or in supabase-community MCP.",
-      "example": "supabase-pp-cli auth-admin lookup <your-user-email> --context-table profiles --context-key user_id --json",
+      "example": "supabase-pp-cli auth-admin lookup \u003cyour-user-email\u003e --context-table profiles --context-key user_id --json",
       "why_it_matters": "Use during support-ticket triage to see the user plus their domain row in one envelope instead of three dashboard clicks.",
       "group": "Service-specific patterns"
     },
@@ -305,7 +305,7 @@
       },
       {
         "title": "Support ticket triage",
-        "command": "supabase-pp-cli auth-admin lookup <your-user-email> --json --select user.id,user.email,user.last_sign_in_at",
+        "command": "supabase-pp-cli auth-admin lookup \u003cyour-user-email\u003e --json --select user.id,user.email,user.last_sign_in_at",
         "explanation": "Look up an Auth user by email; --select narrows the payload to identity fields. Add --context-table \u003ctable\u003e --context-key \u003ccol\u003e to join a domain row."
       },
       {

@@ -1,10 +1,9 @@
-// PATCH: novel pgrst-schema introspection wrapping /v1/projects/{ref}/api/rest for typed query planning.
+// PATCH: novel pgrst-schema introspection via direct project REST endpoint for typed query planning.
 package cli
 
 import (
 	"encoding/json"
 	"fmt"
-	"os"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -29,18 +28,17 @@ or curl against /rest/v1/<table> for now.`,
 }
 
 func newPgrstSchemaCmd(flags *rootFlags) *cobra.Command {
-	var projectRef string
 	var tableFilter string
 
 	cmd := &cobra.Command{
 		Use:   "schema",
-		Short: "Fetch per-project PostgREST schema (tables, columns, types) via Management API",
-		Long: `Calls Management API GET /v1/projects/{ref}/api/rest, parses the returned
-OpenAPI document, and lists tables with their columns and types. Use --table
-to drill into a single table. Requires SUPABASE_ACCESS_TOKEN (Management PAT).
+		Short: "Fetch per-project PostgREST schema (tables, columns, types)",
+		Long: `Calls GET /rest/v1/ on the project's PostgREST endpoint and parses the
+returned OpenAPI document, listing tables with their columns and types. Use
+--table to drill into a single table.
 
-This is the documented replacement for the legacy anon-key /rest/v1/ OpenAPI
-fetch being removed April 2026.`,
+Requires SUPABASE_URL and SUPABASE_PUBLISHABLE_KEY (or SUPABASE_ANON_KEY).
+SUPABASE_SERVICE_ROLE_KEY unlocks all tables (bypasses RLS column filtering).`,
 		Example: strings.Trim(`
   # List all tables and column counts for the current project
   supabase-pp-cli pgrst schema --json
@@ -53,27 +51,21 @@ fetch being removed April 2026.`,
 			if dryRunOK(flags) {
 				return nil
 			}
-			// Resolve project ref: --project-ref flag wins, else parse SUPABASE_URL.
-			if projectRef == "" {
-				if envURL := os.Getenv("SUPABASE_URL"); envURL != "" {
-					projectRef = parseProjectRef(envURL)
-				}
-			}
-			if projectRef == "" {
-				return configErr(fmt.Errorf("project ref required; pass --project-ref <ref> or set SUPABASE_URL=https://<ref>.supabase.co"))
-			}
 
-			c, err := flags.newClient()
+			ps, err := newProjectSurface(false)
 			if err != nil {
 				return err
 			}
 
-			// pp:client-call — real Management API GET (request timeout enforced
-			// via the http.Client built from --timeout in flags.newClient).
-			path := fmt.Sprintf("/v1/projects/%s/api/rest", projectRef)
-			raw, err := c.Get(path, nil)
+			// Fetch PostgREST OpenAPI spec from the project's REST endpoint.
+			// Use service role key when available to see all tables unfiltered by RLS.
+			useSecret := ps.SecretKey != ""
+			raw, status, err := ps.do(cmd.Context(), "GET", "/rest/v1/", nil, useSecret)
 			if err != nil {
-				return apiErr(fmt.Errorf("fetching PostgREST schema for project %s: %w", projectRef, err))
+				return apiErr(fmt.Errorf("fetching PostgREST schema for project %s: %w", ps.ProjectRef, err))
+			}
+			if status != 200 {
+				return apiErr(fmt.Errorf("fetching PostgREST schema for project %s: HTTP %d: %s", ps.ProjectRef, status, raw))
 			}
 
 			// Parse the OpenAPI doc.
@@ -158,16 +150,16 @@ fetch being removed April 2026.`,
 			out := cmd.OutOrStdout()
 			if flags.asJSON {
 				return printJSONFiltered(out, map[string]any{
-					"project_ref": projectRef,
+					"project_ref": ps.ProjectRef,
 					"table_count": len(tables),
 					"tables":      tables,
 				}, flags)
 			}
 			if len(tables) == 0 {
 				if tableFilter != "" {
-					fmt.Fprintf(out, "Table %q not found in project %s schema.\n", tableFilter, projectRef)
+					fmt.Fprintf(out, "Table %q not found in project %s schema.\n", tableFilter, ps.ProjectRef)
 				} else {
-					fmt.Fprintf(out, "No tables found in project %s schema.\n", projectRef)
+					fmt.Fprintf(out, "No tables found in project %s schema.\n", ps.ProjectRef)
 				}
 				return nil
 			}
@@ -180,7 +172,7 @@ fetch being removed April 2026.`,
 					fmt.Fprintf(out, "%-30s %-15s %t\n", truncate(c.Name, 28), truncate(c.Type, 13), c.Nullable)
 				}
 			} else {
-				fmt.Fprintf(out, "Project %s schema: %d table(s)\n\n", projectRef, len(tables))
+				fmt.Fprintf(out, "Project %s schema: %d table(s)\n\n", ps.ProjectRef, len(tables))
 				fmt.Fprintf(out, "%-40s %s\n", "TABLE", "COLUMNS")
 				fmt.Fprintf(out, "%-40s %s\n", "-----", "-------")
 				for _, t := range tables {
@@ -191,7 +183,6 @@ fetch being removed April 2026.`,
 		},
 	}
 
-	cmd.Flags().StringVar(&projectRef, "project-ref", "", "Project ref (default: parsed from SUPABASE_URL)")
 	cmd.Flags().StringVar(&tableFilter, "table", "", "Drill into one table (show its columns)")
 	return cmd
 }

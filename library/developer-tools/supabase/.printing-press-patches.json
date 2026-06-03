@@ -40,6 +40,20 @@
       "summary": "Hand-edited README and SKILL with calibrated headline, explicit Known Gaps section, and trigger phrases narrowed to built capabilities.",
       "reason": "Generated README/SKILL inherited the overclaim from the default headline and included triggers (`supabase start`, `supabase db push`) that this CLI cannot satisfy (those are local-dev/migration tooling owned by the official Supabase CLI). Narrowing triggers prevents misrouting from agents that load this skill.",
       "files": ["README.md", "SKILL.md"]
+    },
+    {
+      "id": "supabase-workflow-archive-json-fix",
+      "summary": "Redirect os.Stdout to os.Stderr during syncResource loop in workflow archive --json so only the summary JSON lands on stdout.",
+      "reason": "syncResource writes NDJSON event lines directly to os.Stdout; when --json was set, these mixed with the final JSON summary, producing invalid JSON and failing the json_fidelity dogfood check.",
+      "files": ["internal/cli/channel_workflow.go"],
+      "validated_outcome": "workflow archive --json outputs a single valid JSON object; dogfood json_fidelity check passes."
+    },
+    {
+      "id": "supabase-pgrst-schema-endpoint-fix",
+      "summary": "Changed pgrst schema from non-existent Management API endpoint to direct project REST endpoint /rest/v1/ via projectSurface helper.",
+      "reason": "The Management API endpoint /v1/projects/{ref}/api/rest returns HTTP 404; Supabase exposes PostgREST OpenAPI at the project's own REST URL. Switched to projectSurface.do() using SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY credentials.",
+      "files": ["internal/cli/pgrst_top.go"],
+      "validated_outcome": "pgrst schema returns 45 tables from live project; dogfood http_4xx failure resolved."
     }
   ]
 }
