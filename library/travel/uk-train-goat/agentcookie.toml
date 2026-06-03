@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "uk-train-goat-pp-cli"
+display_name = "UK Train Goat"
+description = "The only Go-native, agent-native, MCP-exposed UK rail CLI; live boards, journey planning, and a local SQLite store that remembers your commute."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/uk-train-goat-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+LDBWS_API_TOKEN = true

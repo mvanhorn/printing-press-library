@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "api_name": "uk-train-goat",
+  "run_id": "20260603-220423",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 64,
+  "tests_passed": 64,
+  "tests_skipped": 46,
+  "auth_context": {
+    "type": "api_key"
+  },
+  "tests_failed": 0
+}

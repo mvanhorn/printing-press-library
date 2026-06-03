@@ -1,0 +1,284 @@
+{
+  "api_name": "uk-train-goat",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "caminad/ldb-cli",
+      "url": "https://github.com/caminad/ldb-cli",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 11,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "lucygoodchild/mcp-national-rail",
+      "url": "https://github.com/lucygoodchild/mcp-national-rail",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 4,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "mattsalt/national-rail-darwin",
+      "url": "https://github.com/mattsalt/national-rail-darwin",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "ChrisThoung/national-rail",
+      "url": "https://github.com/ChrisThoung/national-rail",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-10T18:43:30Z",
+  "novel_features": [
+    {
+      "name": "Saved-commute one-shot",
+      "command": "go",
+      "description": "Run a saved commute in one keystroke; resolves origin, destination, and time-window from the local store.",
+      "rationale": "Joins the local saved_routes row with a live OpenLDBWS departure board call, including a destination filter and a time-window narrowing. No competing UK rail tool remembers your route.",
+      "example": "uk-train-goat-pp-cli go morning --json --select services.std,services.platform,services.etd",
+      "why_it_matters": "Pick this when an agent needs the user's named recurring route resolved from local state, not a fresh A->B planning call.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Offline station search",
+      "command": "stations",
+      "description": "FTS5 search over the local UK CRS code table; resolves Paddington -> PAD with no network call.",
+      "rationale": "Pure SQLite FTS5 over the shipped station list. No competing tool exposes an offline CRS resolver; agents currently hallucinate codes.",
+      "example": "uk-train-goat-pp-cli stations --search kings --json --select results.crs,results.name",
+      "why_it_matters": "Pick this whenever the user names a station in prose; resolve to CRS once, then call any other uk-train-goat command.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Saved-routes morning status",
+      "command": "saved status",
+      "description": "Fans out across every saved route and prints a single ranked status table for all your commutes.",
+      "rationale": "Cross-entity local query: parallel calls to GetDepartureBoard for each saved row, merged into one view. No single OpenLDBWS endpoint returns this.",
+      "example": "uk-train-goat-pp-cli saved status --json --select routes.name,routes.next.std,routes.next.etd",
+      "why_it_matters": "Pick this on disruption mornings when a user has multiple saved commutes and wants one answer, not N separate board calls.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Service delay-reason briefing",
+      "command": "why",
+      "description": "Combines GetServiceDetails delay/cancel reasons with adjacent operator alerts into one screen explaining what is going wrong with one service.",
+      "rationale": "Composes the service-detail payload with the surrounding NRCC operator-alert messages that the National Rail website buries behind clicks. Service-specific content pattern.",
+      "example": "uk-train-goat-pp-cli why L8rW0bMonHt3K4IengVPQw== --json",
+      "why_it_matters": "Pick this when the user wants to understand a delay, not just see it.",
+      "group": "Service-specific content"
+    },
+    {
+      "name": "Disruption-aware journey ranking",
+      "command": "journey",
+      "description": "Ranks A->B options by combined scheduled-time, current delay, and platform-known signal so on-time-but-later beats earlier-but-late.",
+      "rationale": "Chains journey + per-result GetServiceDetails so the ranking reflects current disruption, not the static timetable a thin wrapper would surface.",
+      "example": "uk-train-goat-pp-cli journey RDG PAD --rank --json --select journeys.std,journeys.delay,journeys.platform",
+      "why_it_matters": "Pick this for trip planning during disruption; choosing the earliest scheduled departure is often wrong when delays exist.",
+      "group": "Service-specific content"
+    },
+    {
+      "name": "Recent-journey replay",
+      "command": "recent",
+      "description": "Re-runs your recent A->B searches with fresh live data, side-by-side, so iterative trip planning is one keystroke per refresh.",
+      "rationale": "Reads search_history rows and reissues each as a live journey query. Cross-entity local x live join; no API exposes this.",
+      "example": "uk-train-goat-pp-cli recent --json --select queries.from,queries.to,queries.next.std",
+      "why_it_matters": "Pick this when the user is iterating dates or origins for one trip; every previous query stays one keystroke away.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Multi-origin board fan-out",
+      "command": "board",
+      "description": "Accept a comma-separated list of CRS codes and merge departures across all of them into one ranked time-ordered list.",
+      "rationale": "Parallel GetDepartureBoard calls per CRS, deduplicated by service ID, ranked by absolute departure time. Cross-source merge no single OpenLDBWS call provides.",
+      "example": "uk-train-goat-pp-cli board PAD,KGX,EUS --in 30m --json --select services.origin,services.std,services.destination",
+      "why_it_matters": "Pick this when an agent needs the next London-bound (or other regional cluster) departure across multiple terminals at once.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Eval-grader 9th quality gate",
+      "command": "eval",
+      "description": "Programmatic eval grader that scores an LLM agent against a fixture suite of natural-language UK-rail prompts; 80% pass-rate threshold blocks ship.",
+      "rationale": "Pins MCP tool descriptions to behavioral assertions; failed evals surface tool-description ambiguity before users hit it. Agent-shaped output is the product.",
+      "example": "EVAL_AGENT_MODEL=claude-sonnet-4-6 uk-train-goat-pp-cli eval --json",
+      "why_it_matters": "Run this in CI on changes to internal/cli or internal/mcp; failing evals mean an agent will pick the wrong tool or wrong args.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Saved-commute one-shot",
+      "command": "go",
+      "description": "Run a saved commute in one keystroke; resolves origin, destination, and time-window from the local store.",
+      "rationale": "Joins the local saved_routes row with a live OpenLDBWS departure board call, including a destination filter and a time-window narrowing. No competing UK rail tool remembers your route.",
+      "example": "uk-train-goat-pp-cli go morning --json --select services.std,services.platform,services.etd",
+      "why_it_matters": "Pick this when an agent needs the user's named recurring route resolved from local state, not a fresh A->B planning call.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Offline station search",
+      "command": "stations",
+      "description": "FTS5 search over the local UK CRS code table; resolves Paddington -> PAD with no network call.",
+      "rationale": "Pure SQLite FTS5 over the shipped station list. No competing tool exposes an offline CRS resolver; agents currently hallucinate codes.",
+      "example": "uk-train-goat-pp-cli stations --search kings --json --select results.crs,results.name",
+      "why_it_matters": "Pick this whenever the user names a station in prose; resolve to CRS once, then call any other uk-train-goat command.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Saved-routes morning status",
+      "command": "saved status",
+      "description": "Fans out across every saved route and prints a single ranked status table for all your commutes.",
+      "rationale": "Cross-entity local query: parallel calls to GetDepartureBoard for each saved row, merged into one view. No single OpenLDBWS endpoint returns this.",
+      "example": "uk-train-goat-pp-cli saved status --json --select routes.name,routes.next.std,routes.next.etd",
+      "why_it_matters": "Pick this on disruption mornings when a user has multiple saved commutes and wants one answer, not N separate board calls.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Service delay-reason briefing",
+      "command": "why",
+      "description": "Combines GetServiceDetails delay/cancel reasons with adjacent operator alerts into one screen explaining what is going wrong with one service.",
+      "rationale": "Composes the service-detail payload with the surrounding NRCC operator-alert messages that the National Rail website buries behind clicks. Service-specific content pattern.",
+      "example": "uk-train-goat-pp-cli why L8rW0bMonHt3K4IengVPQw== --json",
+      "why_it_matters": "Pick this when the user wants to understand a delay, not just see it.",
+      "group": "Service-specific content"
+    },
+    {
+      "name": "Disruption-aware journey ranking",
+      "command": "journey",
+      "description": "Ranks A->B options by combined scheduled-time, current delay, and platform-known signal so on-time-but-later beats earlier-but-late.",
+      "rationale": "Chains journey + per-result GetServiceDetails so the ranking reflects current disruption, not the static timetable a thin wrapper would surface.",
+      "example": "uk-train-goat-pp-cli journey RDG PAD --rank --json --select journeys.std,journeys.delay,journeys.platform",
+      "why_it_matters": "Pick this for trip planning during disruption; choosing the earliest scheduled departure is often wrong when delays exist.",
+      "group": "Service-specific content"
+    },
+    {
+      "name": "Recent-journey replay",
+      "command": "recent",
+      "description": "Re-runs your recent A->B searches with fresh live data, side-by-side, so iterative trip planning is one keystroke per refresh.",
+      "rationale": "Reads search_history rows and reissues each as a live journey query. Cross-entity local x live join; no API exposes this.",
+      "example": "uk-train-goat-pp-cli recent --json --select queries.from,queries.to,queries.next.std",
+      "why_it_matters": "Pick this when the user is iterating dates or origins for one trip; every previous query stays one keystroke away.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Multi-origin board fan-out",
+      "command": "board",
+      "description": "Accept a comma-separated list of CRS codes and merge departures across all of them into one ranked time-ordered list.",
+      "rationale": "Parallel GetDepartureBoard calls per CRS, deduplicated by service ID, ranked by absolute departure time. Cross-source merge no single OpenLDBWS call provides.",
+      "example": "uk-train-goat-pp-cli board PAD,KGX,EUS --in 30m --json --select services.origin,services.std,services.destination",
+      "why_it_matters": "Pick this when an agent needs the next London-bound (or other regional cluster) departure across multiple terminals at once.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Eval-grader 9th quality gate",
+      "command": "eval",
+      "description": "Programmatic eval grader that scores an LLM agent against a fixture suite of natural-language UK-rail prompts; 80% pass-rate threshold blocks ship.",
+      "rationale": "Pins MCP tool descriptions to behavioral assertions; failed evals surface tool-description ambiguity before users hit it. Agent-shaped output is the product.",
+      "example": "EVAL_AGENT_MODEL=claude-sonnet-4-6 uk-train-goat-pp-cli eval --json",
+      "why_it_matters": "Run this in CI on changes to internal/cli or internal/mcp; failing evals mean an agent will pick the wrong tool or wrong args.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "narrative": {
+    "display_name": "UK Train Goat",
+    "headline": "The only Go-native, agent-native, MCP-exposed UK rail CLI; live boards, journey planning, and a local SQLite store that remembers your commute.",
+    "value_prop": "uk-train-goat wraps the free National Rail OpenLDBWS API with a Cobra command tree, an MCP server, and an offline station database. Live departures, arrivals, journey planning A->B, and service status all run from one terminal command and ship with a programmatic eval grader that pins tool descriptions for LLM agents.",
+    "quickstart": [
+      {
+        "command": "uk-train-goat-pp-cli auth login",
+        "comment": "Set your free OpenLDBWS access token; obtain one at realtime.nationalrail.co.uk/OpenLDBWSRegistration"
+      },
+      {
+        "command": "uk-train-goat-pp-cli sync",
+        "comment": "Populate the local SQLite station list once; powers offline CRS lookup"
+      },
+      {
+        "command": "uk-train-goat-pp-cli stations --search paddington",
+        "comment": "Resolve a station name to its CRS code with no network call"
+      },
+      {
+        "command": "uk-train-goat-pp-cli board PAD --num 5",
+        "comment": "Show the next 5 departures from Paddington"
+      },
+      {
+        "command": "uk-train-goat-pp-cli journey RDG PAD --json",
+        "comment": "Plan a journey A->B and pipe to jq or an agent"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 Unauthorized when calling board / journey",
+        "fix": "Re-run `uk-train-goat-pp-cli auth login` with a token from realtime.nationalrail.co.uk/OpenLDBWSRegistration. The CLI uses LDBWS_API_TOKEN, not the wrapper's NR_ACCESS_TOKEN."
+      },
+      {
+        "symptom": "stations --search returns nothing",
+        "fix": "Run `uk-train-goat-pp-cli sync` to populate the local station table; first install ships an empty store."
+      },
+      {
+        "symptom": "fare command returns experimental warning",
+        "fix": "fare scrapes nationalrail.co.uk and is marked experimental; if the upstream layout drifted, file an issue. Do not depend on fare data for booking."
+      },
+      {
+        "symptom": "doctor reports OpenLDBWS unreachable",
+        "fix": "Check connectivity to lite.realtime.nationalrail.co.uk; the API runs there over HTTPS."
+      }
+    ],
+    "when_to_use": "Use uk-train-goat for any UK National Rail question an agent or terminal user has: live departures, live arrivals, journey planning between two stations on today or a future date, and service-status / delay-reason lookups. The local SQLite store gives every command offline CRS resolution and supports saved-commute features (`go`, `saved status`, `recent`) that a thin API wrapper cannot. Do not use uk-train-goat for booking, fare comparisons against Trainline, EU/Eurostar trains, or real-time push notifications; those are explicit non-goals for v0.1.",
+    "recipes": [
+      {
+        "title": "Daily morning commute check",
+        "command": "uk-train-goat-pp-cli go morning --json",
+        "explanation": "Resolves the saved commute named 'morning' and returns the next departures filtered to your destination."
+      },
+      {
+        "title": "Compact multi-station agent query",
+        "command": "uk-train-goat-pp-cli board PAD,KGX,EUS --in 30m --agent --select services.origin,services.std,services.destination,services.etd",
+        "explanation": "Multi-origin fan-out + dotted-path field selection; tight payload for an LLM context window. --in / --within accept human-readable durations (30m, 1h)."
+      },
+      {
+        "title": "Why is my train late",
+        "command": "uk-train-goat-pp-cli why $SERVICE_ID --json",
+        "explanation": "Composes service detail with NRCC operator alerts so the user sees the reason, not just the delay."
+      },
+      {
+        "title": "Iterative trip planning",
+        "command": "uk-train-goat-pp-cli recent --json",
+        "explanation": "Re-runs your recent journey queries with fresh live data; one keystroke per refresh."
+      },
+      {
+        "title": "CI eval gate",
+        "command": "uk-train-goat-pp-cli eval --json",
+        "explanation": "Runs the agent eval suite (set EVAL_AGENT_MODEL=claude-sonnet-4-6 in your environment first; exits non-zero if pass rate drops below 80%)."
+      }
+    ],
+    "trigger_phrases": [
+      "next train from <station>",
+      "departures from <station>",
+      "trains london to <destination>",
+      "is the X.YY to <station> on time",
+      "which platform is the <service> on",
+      "use uk-train-goat",
+      "run uk-train-goat-pp-cli"
+    ]
+  }
+}
