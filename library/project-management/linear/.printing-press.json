@@ -9,6 +9,12 @@
     "handle": "mvanhorn",
     "name": "Matt Van Horn"
   },
+  "contributors": [
+    {
+      "handle": "pabloglzg",
+      "name": "Pablo González"
+    }
+  ],
   "owner": null,
   "printer": "mvanhorn",
   "printer_name": "Matt Van Horn",

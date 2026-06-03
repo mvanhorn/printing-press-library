@@ -173,7 +173,12 @@ func syncLabels(c *client.Client, db *store.Store, maxPages int) (int, error) {
 }
 
 func syncProjects(c *client.Client, db *store.Store, maxPages int) (int, error) {
-	nodes, err := c.PaginatedQueryMax(client.ProjectsQuery, nil, "projects", 50, maxPages)
+	// Page size 25 (not 50): the ProjectsQuery nests projectMilestones(first: 50),
+	// and Linear's query-complexity cost multiplies the outer connection size by the
+	// nested one. At first: 50 the request scores ~12305, over Linear's 10000 cap, so
+	// every sync failed with "Query too complex". 25 scores ~6152; pagination still
+	// fetches all projects, just in smaller pages. See mvanhorn/printing-press-library#946.
+	nodes, err := c.PaginatedQueryMax(client.ProjectsQuery, nil, "projects", 25, maxPages)
 	if err != nil {
 		return 0, err
 	}
