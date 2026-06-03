@@ -1,7 +1,6 @@
 package cli
 
 import (
-	"context"
 	"fmt"
 
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/foxnews/internal/foxnews"
@@ -30,7 +29,7 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 				return nil
 			}
 			sec, _ := foxnews.ResolveSection("latest")
-			feed, err := foxnews.Fetch(context.Background(), sec, "", flags.timeout)
+			feed, err := foxnews.Fetch(cmd.Context(), sec, "", flags.timeout)
 			if err != nil {
 				report["status"] = "error"
 				report["error"] = err.Error()

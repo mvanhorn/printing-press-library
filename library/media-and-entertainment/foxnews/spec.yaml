@@ -48,5 +48,5 @@ commands:
     description: Verify connectivity to the latest feed
 
 env:
-  - FOX_NEWS_FEED_BASE
+  - name: FOX_NEWS_FEED_BASE
     description: Optional override for RSS base URL (default https://moxie.foxnews.com/google-publisher)

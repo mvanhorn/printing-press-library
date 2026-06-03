@@ -100,8 +100,18 @@ func camelToKebab(s string) string {
 	var b strings.Builder
 	runes := []rune(s)
 	for i, r := range runes {
-		if i > 0 && unicode.IsUpper(r) && unicode.IsLower(runes[i-1]) {
-			b.WriteByte('-')
+		if i > 0 && unicode.IsUpper(r) {
+			if unicode.IsLower(runes[i-1]) {
+				b.WriteByte('-')
+			} else if i+1 < len(runes) && unicode.IsLower(runes[i+1]) {
+				end := i
+				for end+1 < len(runes) && unicode.IsUpper(runes[end+1]) {
+					end++
+				}
+				if i == end {
+					b.WriteByte('-')
+				}
+			}
 		}
 		b.WriteRune(unicode.ToLower(r))
 	}

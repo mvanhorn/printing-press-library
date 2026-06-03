@@ -10,6 +10,7 @@ import (
 	"os"
 	"regexp"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -62,6 +63,24 @@ type rawItem struct {
 var tagRE = regexp.MustCompile(`(?is)<[^>]+>`)
 var spaceRE = regexp.MustCompile(`\s+`)
 
+var (
+	sharedHTTPClient     *http.Client
+	sharedHTTPClientOnce sync.Once
+)
+
+func rssHTTPClient() *http.Client {
+	sharedHTTPClientOnce.Do(func() {
+		sharedHTTPClient = &http.Client{
+			Transport: &http.Transport{
+				Proxy:           http.ProxyFromEnvironment,
+				MaxIdleConns:    10,
+				IdleConnTimeout: 90 * time.Second,
+			},
+		}
+	})
+	return sharedHTTPClient
+}
+
 // Fetch loads and parses the RSS feed for section at baseURL (empty uses DefaultFeedBase).
 func Fetch(ctx context.Context, section Section, baseURL string, timeout time.Duration) (Feed, error) {
 	if verifyMode() {
@@ -73,15 +92,20 @@ func Fetch(ctx context.Context, section Section, baseURL string, timeout time.Du
 	}
 	feedURL := FeedURL(section, baseURL)
 
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, feedURL, nil)
+	if timeout <= 0 {
+		timeout = 30 * time.Second
+	}
+	reqCtx, cancel := context.WithTimeout(ctx, timeout)
+	defer cancel()
+
+	req, err := http.NewRequestWithContext(reqCtx, http.MethodGet, feedURL, nil)
 	if err != nil {
 		return Feed{}, err
 	}
 	req.Header.Set("Accept", "application/rss+xml, application/xml;q=0.9, */*;q=0.8")
 	req.Header.Set("User-Agent", userAgent)
 
-	client := &http.Client{Timeout: timeout}
-	resp, err := client.Do(req)
+	resp, err := rssHTTPClient().Do(req)
 	if err != nil {
 		return Feed{}, fmt.Errorf("fetch %s: %w", feedURL, err)
 	}
