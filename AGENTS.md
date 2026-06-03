@@ -216,8 +216,8 @@ Each `<id>.json` is a single self-contained patch object:
   "applied_at": "YYYY-MM-DD",
   "base_run_id": "<copy from .printing-press.json>",
   "base_printing_press_version": "<copy from .printing-press.json>",
-  "summary": "What changed (one sentence).",
-  "reason": "Why this customization was needed (one or two sentences).",
+  "summary": "The durable behavior a regen must preserve — the lesson, not the diff (one sentence).",
+  "reason": "Why this API/runtime needs it and the failure mode it prevents (one or two sentences).",
   "files": ["internal/cli/foo.go"],
   "validated_outcome": "Optional: non-obvious test result that confirms the fix.",
   "upstream_issue": "Optional: https://github.com/mvanhorn/cli-printing-press/issues/<n>"
@@ -228,7 +228,11 @@ The filename is `slugify(id).json`. **One PR = one new file**, so two concurrent
 
 **Why this is not the legacy single-array file.** This used to be a single `.printing-press-patches.json` with a `patches: [...]` array that every PR appended to — a guaranteed merge conflict between any two same-CLI PRs. That shape is now **converted automatically**: the post-merge `normalize-patches.yml` workflow (source: `.github/scripts/normalize-patches/normalize.py`) explodes any legacy single-array file that lands on `main` into this directory. Older Printing Press versions still emit the single file, and CI tolerates it on PRs — you don't have to convert it yourself, the normalizer does it after merge. New work should write the directory form directly.
 
-Each `<id>.json` is an **index entry**, not a second copy of the diff. Diffs live in `git`; the entry tells the next agent (or regeneration tooling) what was customized and why. Keep `summary` and `reason` short — tables of field renames or SQL transformations belong in the commit message, not here. A fresh print from the generator overwrites this tree, and these entries are what survive that overwrite.
+Each `<id>.json` is an **index entry**, not a second copy of the diff — and the bar is *altitude*, not just brevity. A fresh print overwrites this whole tree; these entries are what survive to steer the next regen away from re-making the mistake, so write each one as a **reprint-guard**: capture the durable behavioral contract or API/runtime reality the customization encodes, not the line-level changes (git already has those). Litmus test — the entry should still read true after a full regen.
+
+- **Flag moving targets instead of enshrining them.** *"The client version is whatever the live desktop currently sends; a regen must re-discover it"* — not *"set User-Agent to 7.299.0"*.
+- **Let the `id` read as the lesson.** `d6-read-only-applies-to-all-desktop-token-sources`, not `add-tokensource-enum`.
+- **Keep `summary`/`reason` short.** A table of field renames or SQL transformations means you've dropped to changelog altitude; that belongs in the commit message, not here.
 
 **Inline `// PATCH:` source comments are optional, not required.** Earlier guidance asked agents to mark each changed site in source alongside the manifest entry; `verify_publish_package.py` enforced a bidirectional pairing that doubled the commit count on every in-session customization without surfacing a class of bug git history and the manifest didn't already cover. The pairing requirement is gone; if you find a marker helpful as a navigation aid for yourself, fine, but the CI no longer cares whether you add one.
 
