@@ -54,6 +54,36 @@
       "name": "Subscriber Lookup",
       "command": "workflow subscriber-lookup",
       "description": "Read-only subscriber dossier by email or id with profile, custom fields, tags, attribution, and email stats."
+    },
+    {
+      "name": "Sequences Build",
+      "command": "sequences build",
+      "description": "Create a sequence shell and ordered sequence emails from a YAML or JSON file."
+    },
+    {
+      "name": "Subscribers Onboard",
+      "command": "subscribers onboard",
+      "description": "Upsert a subscriber, set custom fields, add tags, and enroll in sequences in one flow."
+    },
+    {
+      "name": "Purchases Log",
+      "command": "purchases log",
+      "description": "Create a purchase from friendly product flags while computing required money fields explicitly."
+    },
+    {
+      "name": "Broadcasts Compose",
+      "command": "broadcasts compose",
+      "description": "Create a draft or scheduled broadcast from Markdown plus YAML front matter."
+    },
+    {
+      "name": "Email Templates Apply",
+      "command": "email-templates apply",
+      "description": "Validate an email template id and apply it to a sequence with a partial sequence update."
+    },
+    {
+      "name": "Export",
+      "command": "export",
+      "description": "Drain paginated Kit collections and write JSONL export files."
     }
   ]
 }

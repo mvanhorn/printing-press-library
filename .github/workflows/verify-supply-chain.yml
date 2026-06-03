@@ -59,15 +59,15 @@ jobs:
       - name: Run supply-chain scan
         if: github.event_name == 'pull_request'
         env:
-          HEAD_REPO: ${{ github.event.pull_request.head.repo.full_name }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          HEAD_REPO_URL: https://x-access-token:${{ github.token }}@github.com/${{ github.event.pull_request.head.repo.full_name }}.git
         run: |
           set -euo pipefail
 
           # Fetch the PR head SHA into the local repo as a detached ref. We
           # never check it out — scan.py reads file contents via `git show
           # <head_sha>:<path>`, which doesn't require working-tree checkout.
-          git remote add pr "https://github.com/${HEAD_REPO}.git" 2>/dev/null || git remote set-url pr "https://github.com/${HEAD_REPO}.git"
+          git remote add pr "${HEAD_REPO_URL}" 2>/dev/null || git remote set-url pr "${HEAD_REPO_URL}"
           git fetch --no-tags --depth=200 pr "${HEAD_SHA}"
 
           # Deletion guard: refuse to bootstrap-or-run if the PR deletes

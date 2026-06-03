@@ -14,6 +14,7 @@ func newSubscribersCmd(flags *rootFlags) *cobra.Command {
 		RunE:  parentNoSubcommandRunE(flags),
 	}
 
+	cmd.AddCommand(newSubscribersOnboardCmd(flags))
 	cmd.AddCommand(newSubscribersCreateCmd(flags))
 	cmd.AddCommand(newSubscribersCreateFilterCmd(flags))
 	cmd.AddCommand(newSubscribersGetCmd(flags))

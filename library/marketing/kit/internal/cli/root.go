@@ -259,6 +259,7 @@ Run 'kit-pp-cli doctor' to verify auth and connectivity.`,
 	rootCmd.AddCommand(newTailCmd(flags))
 	rootCmd.AddCommand(newAnalyticsCmd(flags))
 	rootCmd.AddCommand(newWorkflowCmd(flags))
+	rootCmd.AddCommand(newExportCmd(flags))
 	rootCmd.AddCommand(newGrowthTrendsCmd(flags))
 	rootCmd.AddCommand(newTagPerformanceCmd(flags))
 	rootCmd.AddCommand(newAPICmd(flags))
