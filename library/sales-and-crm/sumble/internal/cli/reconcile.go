@@ -4,6 +4,7 @@ import (
 	"encoding/csv"
 	"encoding/json"
 	"fmt"
+	"io"
 	"os"
 	"strings"
 
@@ -145,10 +146,18 @@ func readReconcileCSV(path, nameCol, urlCol, locCol string) ([]map[string]any, e
 	}
 
 	var out []map[string]any
-	for {
+	// PATCH(csv-distinguish-eof-from-parse-error): csv.Reader returns
+	// io.EOF when the input is exhausted, but malformed input (e.g. an
+	// unterminated quoted field) returns *csv.ParseError. The original
+	// loop treated both the same, so a parse error on row N silently
+	// discarded rows N+1..M with no signal to the caller.
+	for row := 0; ; row++ {
 		rec, rerr := r.Read()
-		if rerr != nil {
+		if rerr == io.EOF {
 			break
+		}
+		if rerr != nil {
+			return nil, fmt.Errorf("CSV parse error at row %d: %w", row+2, rerr)
 		}
 		org := map[string]any{}
 		if hasName && ni < len(rec) && strings.TrimSpace(rec[ni]) != "" {

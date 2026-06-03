@@ -5,9 +5,9 @@ package cli
 
 import (
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/sales-and-crm/sumble/internal/config"
 	"github.com/spf13/cobra"
 	"os"
-	"github.com/mvanhorn/printing-press-library/library/sales-and-crm/sumble/internal/config"
 )
 
 func newAuthCmd(flags *rootFlags) *cobra.Command {

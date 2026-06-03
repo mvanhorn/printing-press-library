@@ -22,6 +22,33 @@
         "internal/mcp/tools.go"
       ],
       "validated_outcome": "go vet ./... && go build ./..."
+    },
+    {
+      "id": "csv-distinguish-eof-from-parse-error",
+      "summary": "reconcile.go CSV loop distinguishes io.EOF from parse errors; surfaces row-numbered errors instead of silently dropping rows.",
+      "reason": "csv.Reader returns *csv.ParseError for malformed input but the original loop broke on any non-nil error like EOF, silently discarding all rows after a malformed quote.",
+      "files": [
+        "internal/cli/reconcile.go"
+      ],
+      "validated_outcome": "go build ./..."
+    },
+    {
+      "id": "spend-since-date-validation",
+      "summary": "spend --since rejects non-ISO-8601 input with a clear usage error.",
+      "reason": "SQLite's date() returns NULL for non-ISO-8601 input, so --since 2026/05/01 used to silently return zero rows.",
+      "files": [
+        "internal/cli/spend.go"
+      ],
+      "validated_outcome": "go build ./..."
+    },
+    {
+      "id": "stale-type-validation",
+      "summary": "stale --type validates against the known set; unknown values fail loud with the valid list.",
+      "reason": "An unknown --type (e.g. organization vs organizations) used to silently match no entries and return an empty list with no error.",
+      "files": [
+        "internal/cli/stale.go"
+      ],
+      "validated_outcome": "go build ./..."
     }
   ]
 }

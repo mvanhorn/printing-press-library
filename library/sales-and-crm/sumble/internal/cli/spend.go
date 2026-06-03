@@ -3,10 +3,17 @@ package cli
 import (
 	"database/sql"
 	"fmt"
+	"regexp"
 	"strings"
 
 	"github.com/spf13/cobra"
 )
+
+// PATCH(spend-since-date-validation): SQLite's date() returns NULL for any
+// non-ISO-8601 input, so a malformed --since (e.g. "2026/05/01") would silently
+// return zero rows. Validate the format at the CLI boundary so users see a
+// clear usage error instead of an empty report.
+var isoDatePattern = regexp.MustCompile(`^\d{4}-\d{2}-\d{2}$`)
 
 type spendRow struct {
 	Group       string `json:"group"`
@@ -53,9 +60,12 @@ reconcile) are recorded; raw endpoint commands are not yet ledger-tracked.
 			query := fmt.Sprintf(
 				`SELECT %s AS grp, COUNT(*), COALESCE(SUM(credits_used),0) FROM credit_ledger`, groupExpr)
 			var queryArgs []any
-			if strings.TrimSpace(since) != "" {
+			if s := strings.TrimSpace(since); s != "" {
+				if !isoDatePattern.MatchString(s) {
+					return usageErr(fmt.Errorf("--since must be ISO-8601 YYYY-MM-DD (got %q)", s))
+				}
 				query += ` WHERE date(ts) >= date(?)`
-				queryArgs = append(queryArgs, since)
+				queryArgs = append(queryArgs, s)
 			}
 			query += fmt.Sprintf(` GROUP BY %s ORDER BY 3 DESC, 1`, groupExpr)
 

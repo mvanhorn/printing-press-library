@@ -13,11 +13,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/sales-and-crm/sumble/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/sales-and-crm/sumble/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/sales-and-crm/sumble/internal/config"
 	"github.com/mvanhorn/printing-press-library/library/sales-and-crm/sumble/internal/store"
+	"github.com/spf13/cobra"
 )
 
 // looksLikeDoctorInterstitial reports whether the response body matches a known

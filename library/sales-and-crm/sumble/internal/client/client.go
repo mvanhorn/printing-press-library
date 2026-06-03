@@ -12,6 +12,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/sales-and-crm/sumble/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/sales-and-crm/sumble/internal/config"
 	"io"
 	"math"
 	"net/http"
@@ -19,8 +21,6 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
-	"github.com/mvanhorn/printing-press-library/library/sales-and-crm/sumble/internal/cliutil"
-	"github.com/mvanhorn/printing-press-library/library/sales-and-crm/sumble/internal/config"
 	"time"
 )
 

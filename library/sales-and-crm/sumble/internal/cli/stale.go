@@ -55,6 +55,23 @@ the whole cache.
 			if err != nil {
 				return usageErr(err)
 			}
+			// PATCH(stale-type-validation): an unknown --type value (e.g.
+			// "organization" singular, typo) used to silently match nothing
+			// and return an empty list. Fail loud with the valid set so the
+			// user sees what's allowed.
+			if typ != "" {
+				known := make([]string, 0, len(staleTables))
+				ok := false
+				for _, t := range staleTables {
+					known = append(known, t.typ)
+					if typ == t.typ {
+						ok = true
+					}
+				}
+				if !ok {
+					return usageErr(fmt.Errorf("unknown --type %q (valid: %s)", typ, strings.Join(known, ", ")))
+				}
+			}
 			db, derr := openCreditStore()
 			if derr != nil {
 				return configErr(derr)
