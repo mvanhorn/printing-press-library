@@ -234,8 +234,6 @@ Each `<id>.json` is an **index entry**, not a second copy of the diff — and th
 - **Let the `id` read as the lesson.** `d6-read-only-applies-to-all-desktop-token-sources`, not `add-tokensource-enum`.
 - **Keep `summary`/`reason` short.** A table of field renames or SQL transformations means you've dropped to changelog altitude; that belongs in the commit message, not here.
 
-**Inline `// PATCH:` source comments are optional, not required.** Earlier guidance asked agents to mark each changed site in source alongside the manifest entry; `verify_publish_package.py` enforced a bidirectional pairing that doubled the commit count on every in-session customization without surfacing a class of bug git history and the manifest didn't already cover. The pairing requirement is gone; if you find a marker helpful as a navigation aid for yourself, fine, but the CI no longer cares whether you add one.
-
 **Delete stale workaround entries.** A `reason` field that describes a verifier or pipeline bug (e.g. *"the package verifier currently treats X as Y; this entry exists to silence the false positive"*) is a placeholder, not a real customization. When the underlying bug is fixed, delete the file — leaving it behind makes future contributors think there's a hand-edit to preserve when there isn't.
 
 A worked example lives at `library/payments/kalshi/.printing-press-patches/`.
