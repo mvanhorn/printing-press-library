@@ -43,6 +43,13 @@ Do not activate this CLI for requests that require creating, updating, deleting,
 
 ## Command Reference
 
+**composite SEO commands** — Top-level Site Explorer workflows that compose multiple read-only endpoint calls.
+
+- `ahrefs-pp-cli keyword-gap` — Find competitor keywords you do not rank for, or rank worse for
+- `ahrefs-pp-cli striking-distance` — Find keywords ranking just off page-one wins
+- `ahrefs-pp-cli link-intersect` — Find referring domains linking competitors but not you
+- `ahrefs-pp-cli snapshot` — Build a Site Explorer report card for one target
+
 **keywords-explorer** — Keywords Explorer endpoints.
 
 - `ahrefs-pp-cli keywords-explorer matching-terms` — Matching terms
@@ -93,6 +100,33 @@ Do not activate this CLI for requests that require creating, updating, deleting,
 
 - `ahrefs-pp-cli subscription-info` — Limits and usage
 
+### Composite SEO Commands
+
+These commands spend Ahrefs row credits for the underlying Site Explorer calls. `keyword-gap` and `link-intersect` call once for your target plus once per `--competitor`; `striking-distance` calls once; `snapshot` calls three point-in-time endpoints. Use `--dry-run` to preview requests before spending credits.
+
+```bash
+ahrefs-pp-cli keyword-gap --target bestself.co --competitor intelligentchange.com --competitor papier.com --country us --min-volume 100 --max-difficulty 40 --competitor-max-position 10 --your-min-position 11 --limit 1000 --target-limit 10000 --mode subdomains --agent
+```
+
+`keyword-gap` calls `/site-explorer/organic-keywords` for your target and each competitor with the preset fields `keyword,volume,keyword_difficulty,best_position,best_position_url,sum_traffic,cpc`. It returns competitor keywords where the competitor ranks at or above `--competitor-max-position` and your target is absent or worse than `--your-min-position`. `--target-limit` bounds the lookup of your own rankings independently of `--limit`; raise it so keywords you rank for outside the first `--limit` rows are not reported as false gaps.
+
+```bash
+ahrefs-pp-cli striking-distance --target bestself.co --country us --min-position 4 --max-position 15 --min-volume 200 --max-difficulty 40 --limit 1000 --mode subdomains --agent
+```
+
+`striking-distance` calls `/site-explorer/organic-keywords` once with a server-side `best_position` and `volume` filter, then sorts rows by `opportunity`, a volume-weighted score for rankings closest to `--min-position`.
+
+```bash
+ahrefs-pp-cli link-intersect --target bestself.co --competitor intelligentchange.com --competitor papier.com --min-competitors 2 --min-dr 30 --limit 1000 --mode subdomains --agent
+```
+
+`link-intersect` calls `/site-explorer/all-backlinks` with `aggregation=1_per_domain` for your target and each competitor. Because Ahrefs does not expose a first-class referring-domain column on this endpoint, it derives `refdomain` from `url_from`.
+
+```bash
+ahrefs-pp-cli snapshot --target bestself.co --country us --date 2026-06-03 --agent
+```
+
+`snapshot` combines `/site-explorer/domain-rating`, `/site-explorer/backlinks-stats`, and `/site-explorer/metrics`. If one section fails, the command returns null for that section and includes a `warnings` entry instead of failing the full report. With `--compact`, it returns `domain_rating`, `org_traffic`, and `live_refdomains`.
 
 ### Finding the right command
 
@@ -126,6 +160,7 @@ Add `--agent` to any command. Expands to: `--json --compact --no-input --no-colo
   ```bash
   ahrefs-pp-cli keywords-explorer matching-terms --agent --select id,name,status
   ```
+
 - **Previewable** — `--dry-run` shows the request without sending
 - **Offline-friendly** — sync/search commands can use the local SQLite store when available
 - **Non-interactive** — never prompts, every input is a flag
@@ -156,16 +191,16 @@ ahrefs-pp-cli feedback list --json --limit 10
 
 Entries are stored locally at `~/.ahrefs-pp-cli/feedback.jsonl`. They are never POSTed unless `AHREFS_FEEDBACK_ENDPOINT` is set AND either `--send` is passed or `AHREFS_FEEDBACK_AUTO_SEND=true`. Default behavior is local-only.
 
-Write what *surprised* you, not a bug report. Short, specific, one line: that is the part that compounds.
+Write what _surprised_ you, not a bug report. Short, specific, one line: that is the part that compounds.
 
 ## Output Delivery
 
 Every command accepts `--deliver <sink>`. The output goes to the named sink in addition to (or instead of) stdout, so agents can route command results without hand-piping. Three sinks are supported:
 
-| Sink | Effect |
-|------|--------|
-| `stdout` | Default; write to stdout only |
-| `file:<path>` | Atomically write output to `<path>` (tmp + rename) |
+| Sink            | Effect                                                                                          |
+| --------------- | ----------------------------------------------------------------------------------------------- |
+| `stdout`        | Default; write to stdout only                                                                   |
+| `file:<path>`   | Atomically write output to `<path>` (tmp + rename)                                              |
 | `webhook:<url>` | POST the output body to the URL (`application/json` or `application/x-ndjson` when `--compact`) |
 
 Unknown schemes are refused with a structured error naming the supported set. Webhook failures return non-zero and log the URL + HTTP status on stderr.
@@ -186,15 +221,15 @@ Explicit flags always win over profile values; profile values win over defaults.
 
 ## Exit Codes
 
-| Code | Meaning |
-|------|---------|
-| 0 | Success |
-| 2 | Usage error (wrong arguments) |
-| 3 | Resource not found |
-| 4 | Authentication required |
-| 5 | API error (upstream issue) |
-| 7 | Rate limited (wait and retry) |
-| 10 | Config error |
+| Code | Meaning                       |
+| ---- | ----------------------------- |
+| 0    | Success                       |
+| 2    | Usage error (wrong arguments) |
+| 3    | Resource not found            |
+| 4    | Authentication required       |
+| 5    | API error (upstream issue)    |
+| 7    | Rate limited (wait and retry) |
+| 10   | Config error                  |
 
 ## Argument Parsing
 
@@ -203,6 +238,7 @@ Parse `$ARGUMENTS`:
 1. **Empty, `help`, or `--help`** → show `ahrefs-pp-cli --help` output
 2. **Starts with `install`** → ends with `mcp` → MCP installation; otherwise → see Prerequisites above
 3. **Anything else** → Direct Use (execute as CLI command with `--agent`)
+
 ## MCP Server Installation
 
 1. Install the MCP server:
