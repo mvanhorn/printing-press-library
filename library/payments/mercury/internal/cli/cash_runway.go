@@ -125,12 +125,11 @@ func summarizeRunway(balance float64, txns []mercuryTxn, weeks int) runwaySummar
 	}
 	weeklyNet := net / float64(weeks)
 	if weeklyNet < 0 {
+		// burn is -weeklyNet, so it is strictly positive in this branch.
 		burn := -weeklyNet
 		summary.AvgWeeklyBurn = burn
-		if burn > 0 {
-			runway := balance / burn
-			summary.RunwayWeeks = &runway
-		}
+		runway := balance / burn
+		summary.RunwayWeeks = &runway
 	} else {
 		summary.CashFlowPositive = true
 	}

@@ -5,10 +5,141 @@ package cli
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"math"
 	"testing"
 	"time"
 )
+
+// TestDecodeMercuryPageShapes covers the three response shapes the composites
+// must read: the live accounts envelope (array + page cursor), the live
+// transactions envelope (no cursor), and the bare array the local store returns.
+func TestDecodeMercuryPageShapes(t *testing.T) {
+	// Accounts envelope with a next-page cursor.
+	accts, cursor, err := decodeMercuryPage[mercuryAccount](
+		json.RawMessage(`{"accounts":[{"id":"a1"},{"id":"a2"}],"page":{"nextPage":"a2"}}`), "accounts")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(accts) != 2 || accts[0].ID != "a1" {
+		t.Fatalf("accounts decode wrong: %+v", accts)
+	}
+	if cursor != "a2" {
+		t.Fatalf("cursor = %q, want a2", cursor)
+	}
+
+	// Transactions envelope, no cursor.
+	txns, cursor, err := decodeMercuryPage[mercuryTxn](
+		json.RawMessage(`{"total":1,"transactions":[{"id":"t1","amount":-5}]}`), "transactions")
+	if err != nil || len(txns) != 1 || cursor != "" {
+		t.Fatalf("txn decode wrong: txns=%+v cursor=%q err=%v", txns, cursor, err)
+	}
+
+	// Bare array (local store).
+	bare, cursor, err := decodeMercuryPage[mercuryAccount](json.RawMessage(`[{"id":"a9"}]`), "accounts")
+	if err != nil || len(bare) != 1 || bare[0].ID != "a9" || cursor != "" {
+		t.Fatalf("bare decode wrong: %+v cursor=%q err=%v", bare, cursor, err)
+	}
+}
+
+// TestPageMercuryListCursor verifies cursor-style pagination threads the cursor
+// query param and stops when the page cursor clears.
+func TestPageMercuryListCursor(t *testing.T) {
+	pages := []string{
+		`{"accounts":[{"id":"a1"},{"id":"a2"}],"page":{"nextPage":"a2"}}`,
+		`{"accounts":[{"id":"a3"}],"page":{"nextPage":null}}`,
+	}
+	call := 0
+	var sawCursor string
+	get := func(p map[string]string) (json.RawMessage, error) {
+		if call == 1 {
+			sawCursor = p["start_after"] // second call must carry the cursor
+		}
+		out := pages[call]
+		call++
+		return json.RawMessage(out), nil
+	}
+	got, err := pageMercuryList[mercuryAccount]("accounts", "start_after", 2, map[string]string{}, false, get)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(got) != 3 {
+		t.Fatalf("collected %d accounts across pages, want 3", len(got))
+	}
+	if sawCursor != "a2" {
+		t.Fatalf("second page request cursor = %q, want a2", sawCursor)
+	}
+}
+
+// TestPageMercuryListOffset verifies offset-style pagination advances offset and
+// stops on a short page.
+func TestPageMercuryListOffset(t *testing.T) {
+	// pageSize 2: first page full (2), second page short (1) → stop.
+	pages := []string{
+		`{"transactions":[{"id":"t1"},{"id":"t2"}]}`,
+		`{"transactions":[{"id":"t3"}]}`,
+	}
+	call := 0
+	var sawOffset string
+	get := func(p map[string]string) (json.RawMessage, error) {
+		if call == 1 {
+			sawOffset = p["offset"]
+		}
+		out := pages[call]
+		call++
+		return json.RawMessage(out), nil
+	}
+	got, err := pageMercuryList[mercuryTxn]("transactions", "offset", 2, map[string]string{}, false, get)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(got) != 3 {
+		t.Fatalf("collected %d txns, want 3", len(got))
+	}
+	if sawOffset != "2" {
+		t.Fatalf("second page offset = %q, want 2", sawOffset)
+	}
+}
+
+// TestPageMercuryListSinglePage confirms local-store mode reads exactly one page.
+func TestPageMercuryListSinglePage(t *testing.T) {
+	call := 0
+	get := func(p map[string]string) (json.RawMessage, error) {
+		call++
+		return json.RawMessage(`[{"id":"a1"},{"id":"a2"}]`), nil
+	}
+	got, err := pageMercuryList[mercuryAccount]("accounts", "start_after", 2, map[string]string{}, true, get)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(got) != 2 || call != 1 {
+		t.Fatalf("single-page: got %d items in %d calls, want 2 in 1", len(got), call)
+	}
+}
+
+// TestPageMercuryListCursorLoopGuard ensures a non-advancing cursor cannot loop
+// forever.
+func TestPageMercuryListCursorLoopGuard(t *testing.T) {
+	call := 0
+	get := func(p map[string]string) (json.RawMessage, error) {
+		call++
+		if call > 10 {
+			return nil, fmt.Errorf("cursor failed to terminate after %d calls", call)
+		}
+		return json.RawMessage(`{"accounts":[{"id":"a1"},{"id":"a2"}],"page":{"nextPage":"same"}}`), nil
+	}
+	got, err := pageMercuryList[mercuryAccount]("accounts", "start_after", 2, map[string]string{}, false, get)
+	if err != nil {
+		t.Fatal(err)
+	}
+	// Two pages: first advances to "same", second sees the same cursor → stop.
+	if call != 2 {
+		t.Fatalf("loop guard: made %d calls, want 2", call)
+	}
+	if len(got) != 4 {
+		t.Fatalf("loop guard: collected %d, want 4", len(got))
+	}
+}
 
 func TestFlexFloatUnmarshal(t *testing.T) {
 	cases := []struct {

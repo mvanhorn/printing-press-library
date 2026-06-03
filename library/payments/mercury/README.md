@@ -409,7 +409,9 @@ Environment variables:
 
 - Run `mercury-pp-cli doctor` to check credentials
 - Verify the environment variable is set: `echo $MERCURY_BEARER_AUTH`
-  **Not found errors (exit code 3)**
+
+**Not found errors (exit code 3)**
+
 - Check the resource ID is correct
 - Run the `list` command to see available items
 

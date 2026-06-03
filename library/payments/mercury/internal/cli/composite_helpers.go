@@ -56,27 +56,109 @@ type mercuryTxn struct {
 	Note             string    `json:"note"`
 }
 
-// fetchMercuryList runs a paginated read through the CLI's existing read
-// plumbing and decodes the unwrapped array into T. Read-only; adds no new HTTP.
-func fetchMercuryList[T any](ctx context.Context, c *client.Client, flags *rootFlags, resource, path string, params map[string]string, cursorParam string) ([]T, error) {
-	data, _, err := resolvePaginatedRead(ctx, c, flags, resource, path, params, nil, true, cursorParam, "", "")
-	if err != nil {
-		return nil, err
+// mercuryPageSize is the per-page limit the composites request. Mercury caps a
+// single accounts/transactions page at 500, so a larger limit is truncated
+// server-side — paginate instead.
+const mercuryPageSize = 500
+
+// decodeMercuryPage decodes one page of a Mercury list response into T. It
+// accepts the live envelope (`{"<field>":[...], "page":{"nextPage":...}}`) and
+// the bare-array shape the local store returns, so the composites work under any
+// --data-source. nextCursor is the page.nextPage value (empty when the response
+// carries no further page).
+func decodeMercuryPage[T any](data json.RawMessage, field string) (items []T, nextCursor string, err error) {
+	// Bare array (local store, or a top-level-array endpoint).
+	var bare []T
+	if json.Unmarshal(data, &bare) == nil {
+		return bare, "", nil
 	}
-	data = extractResponseData(data)
-	var items []T
-	if err := json.Unmarshal(data, &items); err != nil {
-		return nil, fmt.Errorf("decoding %s: %w", resource, err)
+	var env map[string]json.RawMessage
+	if err := json.Unmarshal(data, &env); err != nil {
+		return nil, "", fmt.Errorf("decoding %s page: %w", field, err)
 	}
-	return items, nil
+	if raw, ok := env[field]; ok && len(raw) > 0 && string(raw) != "null" {
+		if err := json.Unmarshal(raw, &items); err != nil {
+			return nil, "", fmt.Errorf("decoding %s: %w", field, err)
+		}
+	}
+	if pageRaw, ok := env["page"]; ok {
+		var p struct {
+			NextPage string `json:"nextPage"`
+		}
+		_ = json.Unmarshal(pageRaw, &p)
+		nextCursor = p.NextPage
+	}
+	return items, nextCursor, nil
 }
 
-// fetchAccounts lists accounts, optionally narrowed to a single account ID.
+// pageMercuryList drives the pagination loop against an injected page getter so
+// the control flow is unit-testable without a live client. Mercury exposes two
+// pagination styles: a `page.nextPage` cursor (accounts, threaded through
+// cursorParam="start_after") and offset/limit (transactions, cursorParam=
+// "offset"). When the response carries a cursor it is followed; otherwise the
+// reader advances by offset until a short page signals the end. singlePage stops
+// after the first page (the local store returns everything at once).
+func pageMercuryList[T any](field, cursorParam string, pageSize int, params map[string]string, singlePage bool, get func(map[string]string) (json.RawMessage, error)) ([]T, error) {
+	page := map[string]string{}
+	for k, v := range params {
+		page[k] = v
+	}
+	if _, ok := page["limit"]; !ok {
+		page["limit"] = strconv.Itoa(pageSize)
+	}
+
+	var out []T
+	offset := 0
+	lastCursor := ""
+	for {
+		data, err := get(page)
+		if err != nil {
+			return nil, err
+		}
+		items, nextCursor, derr := decodeMercuryPage[T](data, field)
+		if derr != nil {
+			return nil, derr
+		}
+		out = append(out, items...)
+
+		if singlePage || len(items) == 0 {
+			return out, nil
+		}
+		switch {
+		case nextCursor != "" && cursorParam != "":
+			if nextCursor == lastCursor {
+				return out, nil // cursor not advancing — stop rather than loop forever
+			}
+			lastCursor = nextCursor
+			page[cursorParam] = nextCursor
+		case cursorParam == "offset":
+			if len(items) < pageSize {
+				return out, nil // short page — last one
+			}
+			offset += pageSize
+			page["offset"] = strconv.Itoa(offset)
+		default:
+			return out, nil // no cursor available — single page only
+		}
+	}
+}
+
+// fetchMercuryList pages every item from a Mercury list endpoint whose array is
+// nested under `field`, routing each page through resolveRead so --data-source
+// still applies. Read-only; adds no new HTTP surface.
+func fetchMercuryList[T any](ctx context.Context, c *client.Client, flags *rootFlags, resource, path, field string, params map[string]string, cursorParam string) ([]T, error) {
+	get := func(p map[string]string) (json.RawMessage, error) {
+		data, _, err := resolveRead(ctx, c, flags, resource, true, path, p, nil)
+		return data, err
+	}
+	return pageMercuryList[T](field, cursorParam, mercuryPageSize, params, flags.dataSource == "local", get)
+}
+
+// fetchAccounts lists every account, optionally narrowed to a single account ID.
 func fetchAccounts(ctx context.Context, c *client.Client, flags *rootFlags, accountID string) ([]mercuryAccount, error) {
-	accounts, err := fetchMercuryList[mercuryAccount](ctx, c, flags, "accounts", "/accounts", map[string]string{
-		"limit": "500",
+	accounts, err := fetchMercuryList[mercuryAccount](ctx, c, flags, "accounts", "/accounts", "accounts", map[string]string{
 		"order": "asc",
-	}, "")
+	}, "start_after")
 	if err != nil {
 		return nil, err
 	}
@@ -96,7 +178,6 @@ func fetchAccounts(ctx context.Context, c *client.Client, flags *rootFlags, acco
 func fetchAccountTxns(ctx context.Context, c *client.Client, flags *rootFlags, accountID, start, end string) ([]mercuryTxn, error) {
 	path := replacePathParam("/account/{accountId}/transactions", "accountId", accountID)
 	params := map[string]string{
-		"limit": "500",
 		"order": "desc",
 	}
 	if start != "" {
@@ -105,7 +186,7 @@ func fetchAccountTxns(ctx context.Context, c *client.Client, flags *rootFlags, a
 	if end != "" {
 		params["end"] = end
 	}
-	return fetchMercuryList[mercuryTxn](ctx, c, flags, "transactions", path, params, "offset")
+	return fetchMercuryList[mercuryTxn](ctx, c, flags, "transactions", path, "transactions", params, "offset")
 }
 
 // parseTxnTime parses a transaction timestamp, preferring postedAt and falling

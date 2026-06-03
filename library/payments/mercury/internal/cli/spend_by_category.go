@@ -66,6 +66,13 @@ func newSpendByCategoryCmd(flags *rootFlags) *cobra.Command {
 			results, dropped := summarizeByCategory(txns, splitTime)
 
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
+				// Surface dropped rows so a table reader doesn't mistake an
+				// incomplete breakdown for the full picture (JSON exposes it as
+				// undated_dropped).
+				if dropped > 0 {
+					fmt.Fprintf(cmd.ErrOrStderr(),
+						"note: %d transaction(s) omitted — their timestamps could not be parsed.\n", dropped)
+				}
 				headers := []string{"CATEGORY", "THIS", "PRIOR", "DELTA"}
 				rows := make([][]string, 0, len(results))
 				for _, r := range results {
@@ -80,11 +87,11 @@ func newSpendByCategoryCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			payload := map[string]any{
-				"accounts":      len(accounts),
-				"period_days":   flagDays,
+				"accounts":        len(accounts),
+				"period_days":     flagDays,
 				"undated_dropped": dropped,
-				"count":         len(results),
-				"results":       results,
+				"count":           len(results),
+				"results":         results,
 			}
 			return flags.printJSON(cmd, payload)
 		},
