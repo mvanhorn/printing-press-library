@@ -86,6 +86,37 @@
       ],
       "summary": "Auto-refresh the local store as the first action of every command. PersistentPreRunE invokes runAutoRefresh after agent-mode expansion; the dispatcher detects which auth surfaces are present (encrypted desktop cache and/or GRANOLA_API_KEY) and runs the corresponding sync routine for each. Both fire when both are configured. Refresh is best-effort: failures print a one-line stderr warning and the user's command proceeds. Opt-outs: --no-refresh flag, GRANOLA_NO_AUTO_REFRESH env, and per-profile no-refresh value (precedence: flag > env). Skip list: sync, sync-api, auth, doctor, help, version, completion, agent-context, profile, feedback, which. Provenance line suppressed under --json / --compact / --quiet / --agent / non-TTY stderr. agent-context exposes the auto_refresh contract for introspecting agents. SKILL.md and README.md document the contract; the stale 'Run sync first' advisory in the troubleshooting section is replaced with auto-refresh-aware guidance.",
       "reason": "User-visible problem: `granola-pp-cli meetings list` returned stale data because the CLI's SQLite store had not been synced. The old contract required agents and humans to remember `sync` before every read. Agents are the dominant caller and the worst kind of caller to depend on for ceremonial pre-steps. Auto-refresh closes the gap by treating freshness as a CLI-level invariant. Plan: docs/plans/2026-05-14-001-feat-cli-auto-refresh-every-invocation-plan.md."
+    },
+    {
+      "id": "granola-current-client-identity",
+      "applied_at": "2026-06-03",
+      "files": [
+        "internal/granola/internalapi.go",
+        "internal/granola/workos.go",
+        "internal/granola/workos_test.go"
+      ],
+      "summary": "Granola's internal API and token refresh only work when the CLI impersonates a CURRENT Granola desktop build: it must send the desktop's current client-version / platform / User-Agent headers, and it must refresh through Granola's own refresh endpoint rather than the legacy direct-WorkOS authenticate flow. The client version is a moving target - a reprint must re-discover the value a live desktop sends, not trust any generated or previously-pinned default.",
+      "reason": "Spec/generator defaults (a fixed client version and the documented WorkOS flow) are silently rejected by current Granola sessions - WorkOS returns invalid_client - which breaks live transcript access from headless/agent runs. A reprint that regenerates those defaults reintroduces the breakage.",
+      "validated_outcome": "With current desktop headers + native refresh, `transcript get` against a document that previously returned no segments returned a full live transcript."
+    },
+    {
+      "id": "keychain-access-must-be-bounded",
+      "applied_at": "2026-06-03",
+      "files": [
+        "internal/granola/safestorage/safestorage_darwin.go"
+      ],
+      "summary": "Every macOS Keychain access the CLI makes (to read Granola's Safe Storage key) must be time-bounded. In headless/agent environments there is no human to approve the Keychain GUI prompt, so an unbounded call hangs indefinitely; the bounded call must instead fail with an actionable 'approve the prompt or use a token override' error.",
+      "reason": "A fresh print that reads the encrypted store without a timeout reintroduces an indefinite hang on any machine without an interactive desktop session. This is the headless-safety half of the encrypted-storage handling already flagged for the generator template under deferred_to_upstream."
+    },
+    {
+      "id": "d6-read-only-applies-to-all-desktop-token-sources",
+      "applied_at": "2026-06-03",
+      "files": [
+        "internal/granola/workos.go",
+        "internal/granola/workos_test.go"
+      ],
+      "summary": "Two coupled invariants for the desktop token store. (1) When the encrypted store is unreadable SPECIFICALLY because the Keychain is blocked (not for other errors), fall back to the plaintext token so headless runs don't report a false 'no token / transcript unavailable'. (2) Treat that fallback token as desktop-owned and never refresh/rotate it. This extends the D6 read-only rule from the existing workos-encrypted-supabase-and-d6 patch to the plaintext-fallback source - a reprint must apply D6 to EVERY desktop-owned token source, not just the encrypted one.",
+      "reason": "Without the fallback, Keychain-blocked headless runs look unauthenticated even when a usable token exists. But the fallback must stay read-only: Granola refresh tokens are single-use, so rotating one the desktop still holds signs the user out of the desktop next time it refreshes."
     }
   ],
   "deferred_to_upstream": [
