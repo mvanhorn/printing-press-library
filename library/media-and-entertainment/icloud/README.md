@@ -8,7 +8,7 @@ directly — no Photos.app launch, no API token, no network calls.
 ---
 
 Created by [@matysanchez](https://github.com/matysanchez) (Matias Sanchez Moises).
-Contributors: [@mvanhorn](https://github.com/mvanhorn) (Matt Van Horn).
+Contributors: [@mvanhorn](https://github.com/mvanhorn) (Matt Van Horn), [@tmchow](https://github.com/tmchow) (Trevin Chow).
 
 ## Install
 
