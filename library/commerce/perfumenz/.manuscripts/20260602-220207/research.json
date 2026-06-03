@@ -1,0 +1,83 @@
+{
+  "api_name": "perfumenz",
+  "novelty_score": 0,
+  "alternatives": [],
+  "auth": {
+    "canonical_env_var": null
+  },
+  "novel_features": [
+    {
+      "name": "Note profile search & overlap",
+      "command": "search --notes",
+      "description": "Find perfumes matching specific Top/Heart/Base notes (with exclude).",
+      "rationale": "Requires local parsed note sets + set operations across the whole catalog that only our SQLite store provides after sync.",
+      "example": "perfumenz search --notes \"vanilla,oud\" --exclude \"patchouli\" --max-price 120 --json",
+      "why_it_matters": "Website faceted search is weak on note combinations; this is the main reason power users will install the CLI.",
+      "group": "Note intelligence"
+    },
+    {
+      "name": "Similarity to another perfume",
+      "command": "similar",
+      "description": "List perfumes with overlapping note profiles to a given one.",
+      "rationale": "Local Jaccard/overlap on the three parsed note lists is only possible with the full structured catalog in SQLite.",
+      "example": "perfumenz similar \"wolf-by-rayhaan-100ml-edp\" --limit 8 --json",
+      "why_it_matters": "Agents and users want 'more like this but cheaper or fresher' — the site has no equivalent.",
+      "group": "Note intelligence"
+    },
+    {
+      "name": "Value / price-per-ml ranking",
+      "command": "value",
+      "description": "Rank current stock by price per ml (or per 100ml) with filters.",
+      "rationale": "Needs price + size normalized across variants + live sync; website never surfaces this computation for arbitrary note/brand slices.",
+      "example": "perfumenz value --notes \"citrus,woody\" --gender unisex --sort ppm --json",
+      "why_it_matters": "Real NZ buyers care about value; this turns the catalog into a shopping optimizer.",
+      "group": "Value & stock intelligence"
+    },
+    {
+      "name": "Trending notes in current stock",
+      "command": "stats notes",
+      "description": "Show the most common notes across in-stock items (overall or filtered).",
+      "rationale": "Aggregate over the parsed note fields from the synced catalog — data that only exists together locally.",
+      "example": "perfumenz stats notes --gender mens --limit 15 --json",
+      "why_it_matters": "See what accords are actually available right now from an authentic NZ source.",
+      "group": "Catalog intelligence"
+    },
+    {
+      "name": "Discovery set / recommendation",
+      "command": "recommend",
+      "description": "Build a small set of perfumes that together cover requested notes under a budget.",
+      "rationale": "Coverage + knapsack over the local store with price and note vectors — impossible on the web UI.",
+      "example": "perfumenz recommend --notes \"vanilla,cedar,ginger\" --budget 350 --count 5 --json",
+      "why_it_matters": "The killer workflow: 'give me a 5-perfume discovery box that hits these notes without breaking the bank'.",
+      "group": "Agent & shopping workflows"
+    }
+  ],
+  "narrative": {
+    "display_name": "Perfume NZ",
+    "headline": "The full authentic Perfume NZ catalog, with powerful note-based search and offline intelligence no website offers.",
+    "value_prop": "Perfume NZ (perfumenz.co.nz) is New Zealand's largest wholesale distributor of genuine designer and niche fragrances. This CLI syncs their public catalog into a local SQLite store with parsed Top/Heart/Base notes, then gives you filters, FTS, and novel features (note overlap, similarity, price-per-ml, discovery sets) that the Shopify frontend simply cannot provide.",
+    "auth_narrative": null,
+    "quickstart": [
+      {"command": "perfumenz doctor --dry-run", "comment": "Verify the public catalog JSON is reachable (no key needed)."},
+      {"command": "perfumenz sync", "comment": "Pull the current ~250 authentic items (brands, prices, explicit notes) into the local store."},
+      {"command": "perfumenz search --notes \"citrus,woody\" --max-price 100 --json --select title,price,vendor", "comment": "Find matching perfumes with structured note filters + machine output."},
+      {"command": "perfumenz similar \"nocturno-elixir-by-rayhaan-100ml-edp\" --limit 5", "comment": "Discover similar profiles using local note overlap (the feature the website is missing)."}
+    ],
+    "troubleshoots": [
+      {"symptom": "sync returns very few items", "fix": "The public /products.json may be paginated or the 'all' collection limited; raise --limit or hit the products endpoint directly in a future sync."},
+      {"symptom": "notes look empty after sync", "fix": "The Fragrance Notes section lives in body_html as 'Top Notes: ... Heart Notes: ... Base Notes: ...'. The parser may need a tweak for this store's exact HTML; check a raw product in the store."}
+    ],
+    "when_to_use": "Use this CLI when you want to treat the Perfume NZ catalog as a queryable database: complex note combinations, value comparisons, similarity, building discovery sets, or scripting/agents that need structured fragrance data offline.",
+    "anti_triggers": ["buying testers or grey-market bottles", "real-time cart/checkout (the CLI is read + local cache only)", "looking for official brand APIs or wholesale portals (this is the public retail face)"],
+    "recipes": [
+      {"title": "Fresh summer unisex under $100 with citrus top", "command": "perfumenz search --notes \"lemon,grapefruit,mint\" --gender unisex --max-price 100 --json", "explanation": "Combines note filters + gender + price in one structured query that the website search does not support at this precision."},
+      {"title": "Best value woody scents right now", "command": "perfumenz value --notes \"sandalwood,cedar,woody\" --sort ppm --limit 10", "explanation": "Computes price-per-ml on the synced catalog and ranks — pure website cannot do this dynamically."},
+      {"title": "Agent building a discovery box", "command": "perfumenz recommend --notes \"vanilla,oud,spicy\" --budget 400 --count 5 --json", "explanation": "The coverage + budget recommendation the enthusiast has always wanted; uses the local parsed notes + prices."}
+    ],
+    "trigger_phrases": ["use perfumenz", "search perfumes by notes", "perfume nz catalog", "find fragrances with vanilla and oud", "best value perfume nz", "similar to rayhaan wolf"]
+  },
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-06-02T22:03:36Z"
+}

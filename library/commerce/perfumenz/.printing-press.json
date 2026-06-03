@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "api_name": "perfumenz",
+  "cli_name": "perfumenz-pp-cli",
+  "run_id": "20260602-220207",
+  "printing_press_version": "4.20.1",
+  "category": "commerce",
+  "auth_type": "none",
+  "printer": "AhjinGuild12",
+  "printer_name": "Jan M",
+  "creator": {"handle": "AhjinGuild12", "name": "Jan M"},
+  "novel_features": [
+    {"name": "Note profile search & overlap", "command": "search --notes", "description": "Find perfumes matching specific Top/Heart/Base notes (with exclude)."},
+    {"name": "Similarity to another perfume", "command": "similar", "description": "List perfumes with overlapping note profiles to a given one."},
+    {"name": "Value / price-per-ml ranking", "command": "value", "description": "Rank current stock by price per ml (or per 100ml) with filters."},
+    {"name": "Trending notes in current stock", "command": "stats notes", "description": "Show the most common notes across in-stock items (overall or filtered)."},
+    {"name": "Discovery set / recommendation", "command": "recommend", "description": "Build a small set of perfumes that together cover requested notes under a budget."}
+  ],
+  "description": "The full authentic Perfume NZ catalog, with powerful note-based search and offline intelligence no website offers."
+}

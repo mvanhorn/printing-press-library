@@ -1,0 +1,45 @@
+{
+  "api_name": "perfumenz",
+  "base_url": "https://www.perfumenz.co.nz",
+  "description": "Public unauthenticated Shopify JSON surfaces for Perfumenz NZ authentic perfumes. Primary /products.json feed with ~250 items; notes in body_html.",
+  "mcp_ready": "full",
+  "http_transport": "browser-chrome-h2",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "collections_list",
+      "description": "List collections. Returns array of Collection.",
+      "method": "GET",
+      "path": "/collections/all.json",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "products_get",
+      "description": "Get single product by handle. Required: handle. Returns the Product.",
+      "method": "GET",
+      "path": "/products/{handle}.json",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "handle",
+          "type": "string",
+          "location": "path",
+          "description": "Handle",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "products-json_list-products",
+      "description": "List all perfumes from public feed. Returns array of Product.",
+      "method": "GET",
+      "path": "/products.json",
+      "no_auth": true,
+      "params": []
+    }
+  ]
+}
