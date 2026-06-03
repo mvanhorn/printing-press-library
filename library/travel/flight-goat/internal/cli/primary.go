@@ -224,9 +224,10 @@ durations, airlines, and leg details. No API key. No auth. Just results.`,
 // server-side without auth) and/or the Google Flights URL builder.
 //
 // provider:
-//   auto   — Kayak prices + Google URL appended (default)
-//   kayak  — Kayak only
-//   google — Google URL only (no prices; user opens in browser)
+//
+//	auto   — Kayak prices + Google URL appended (default)
+//	kayak  — Kayak only
+//	google — Google URL only (no prices; user opens in browser)
 func runMultiCity(cmd *cobra.Command, flags *rootFlags, segments []gflights.Segment, provider string, passengers int, cabin string, nonstop bool, currencyCode string) error {
 	if flags.dryRun {
 		fmt.Fprintf(cmd.OutOrStdout(), "multi-city: %d segments provider=%s\n", len(segments), provider)
@@ -253,6 +254,7 @@ func runMultiCity(cmd *cobra.Command, flags *rootFlags, segments []gflights.Segm
 	if provider == "google" {
 		return emitMultiCityResult(cmd, flags, multiCityEnvelope{
 			Success:    true,
+			Complete:   true, // URL builder always produces the full deeplink
 			Source:     "google_flights",
 			SearchType: "flights_multicity",
 			Query:      multiCityQueryEcho(segments, passengers, cabin, nonstop, currencyCode),
@@ -285,6 +287,7 @@ func runMultiCity(cmd *cobra.Command, flags *rootFlags, segments []gflights.Segm
 		// auto mode: degrade gracefully to URL-only with the kayak error attached
 		return emitMultiCityResult(cmd, flags, multiCityEnvelope{
 			Success:    true,
+			Complete:   true, // the Google deeplink is fully formed even when Kayak fails
 			Source:     "google_flights",
 			SearchType: "flights_multicity",
 			Query:      multiCityQueryEcho(segments, passengers, cabin, nonstop, currencyCode),
@@ -295,6 +298,7 @@ func runMultiCity(cmd *cobra.Command, flags *rootFlags, segments []gflights.Segm
 
 	env := multiCityEnvelope{
 		Success:     true,
+		Complete:    kres.Complete,
 		Source:      "kayak",
 		SearchType:  "flights_multicity",
 		Query:       multiCityQueryEcho(segments, passengers, cabin, nonstop, currencyCode),
@@ -304,6 +308,12 @@ func runMultiCity(cmd *cobra.Command, flags *rootFlags, segments []gflights.Segm
 		KayakURL:    kres.SearchURL,
 		GoogleURL:   googleURL, // populated only when provider==auto
 	}
+	if !kres.Complete {
+		// Kayak's incremental search ran out of poll attempts before
+		// converging — surface that the itineraries are partial so an
+		// agent/user doesn't read Count as the full result set.
+		env.Note = fmt.Sprintf("kayak search did not finish before the poll limit; showing %d of %d itineraries (partial — re-run for more)", kres.Count, kres.TotalCount)
+	}
 	return emitMultiCityResult(cmd, flags, env)
 }
 
@@ -311,16 +321,19 @@ func runMultiCity(cmd *cobra.Command, flags *rootFlags, segments []gflights.Segm
 // Distinct from SearchResult because the leg shape differs materially: each
 // itinerary covers all N requested segments rather than a single pair.
 type multiCityEnvelope struct {
-	Success     bool                     `json:"success"`
-	Source      string                   `json:"source"`
-	SearchType  string                   `json:"search_type"`
-	Query       multiCityQuery           `json:"query"`
-	TotalCount  int                      `json:"total_count,omitempty"`
-	Count       int                      `json:"count"`
-	Itineraries []kayak.MultiCityFlight  `json:"itineraries,omitempty"`
-	KayakURL    string                   `json:"kayak_url,omitempty"`
-	GoogleURL   string                   `json:"google_url,omitempty"`
-	Note        string                   `json:"note,omitempty"`
+	Success bool `json:"success"`
+	// Complete is false when a Kayak search exhausted its poll budget before
+	// finishing; Itineraries is then a partial set and Note carries a warning.
+	Complete    bool                    `json:"complete"`
+	Source      string                  `json:"source"`
+	SearchType  string                  `json:"search_type"`
+	Query       multiCityQuery          `json:"query"`
+	TotalCount  int                     `json:"total_count,omitempty"`
+	Count       int                     `json:"count"`
+	Itineraries []kayak.MultiCityFlight `json:"itineraries,omitempty"`
+	KayakURL    string                  `json:"kayak_url,omitempty"`
+	GoogleURL   string                  `json:"google_url,omitempty"`
+	Note        string                  `json:"note,omitempty"`
 }
 
 type multiCityQuery struct {

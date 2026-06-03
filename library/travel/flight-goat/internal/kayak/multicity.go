@@ -40,8 +40,11 @@ const (
 	multiCitySearchBase = "https://www.kayak.com/flights"
 	pollEndpoint        = "https://www.kayak.com/i/api/search/dynamic/flights/poll"
 	maxPolls            = 6
-	pollSpacing         = 1500 * time.Millisecond
 )
+
+// pollSpacing is the delay between poll attempts. A var (not a const) so tests
+// can drive the exhausted-without-completion path without real-time sleeps.
+var pollSpacing = 1500 * time.Millisecond
 
 // Segment is one leg of a multi-city query.
 type Segment struct {
@@ -61,15 +64,21 @@ type MultiCityOptions struct {
 
 // MultiCityResult is the user-facing summary of a multi-city poll response.
 type MultiCityResult struct {
-	Success     bool                `json:"success"`
-	Source      string              `json:"source"`       // "kayak"
-	DataSource  string              `json:"data_source"`  // "kayak_web"
-	SearchType  string              `json:"search_type"`  // "flights_multicity"
-	Query       MultiCityQuery      `json:"query"`
-	Count       int                 `json:"count"`
-	TotalCount  int                 `json:"total_count,omitempty"`
-	Itineraries []MultiCityFlight   `json:"itineraries"`
-	SearchURL   string              `json:"search_url,omitempty"`
+	Success    bool   `json:"success"`
+	Source     string `json:"source"`      // "kayak"
+	DataSource string `json:"data_source"` // "kayak_web"
+	SearchType string `json:"search_type"` // "flights_multicity"
+	// Complete reports whether Kayak's incremental search finished (status
+	// reached "complete") before maxPolls was exhausted. When false, the
+	// Itineraries below are whatever partial set the last poll returned —
+	// often far fewer than TotalCount — and the caller should warn rather
+	// than present them as the full result set.
+	Complete    bool              `json:"complete"`
+	Query       MultiCityQuery    `json:"query"`
+	Count       int               `json:"count"`
+	TotalCount  int               `json:"total_count,omitempty"`
+	Itineraries []MultiCityFlight `json:"itineraries"`
+	SearchURL   string            `json:"search_url,omitempty"`
 }
 
 // MultiCityQuery echoes the user's request back so the JSON consumer can
@@ -169,6 +178,7 @@ func (c *MultiCityClient) SearchMultiCity(ctx context.Context, opts MultiCityOpt
 	body := buildPollBody(opts, "")
 	var pollResp pollResponse
 	var searchID string
+	complete := false
 	for attempt := 1; attempt <= maxPolls; attempt++ {
 		respBody := body
 		if searchID != "" {
@@ -186,6 +196,7 @@ func (c *MultiCityClient) SearchMultiCity(ctx context.Context, opts MultiCityOpt
 			searchID = pollResp.SearchID
 		}
 		if pollResp.Status == "complete" || pollResp.Status == "completed" {
+			complete = true
 			break
 		}
 		if attempt < maxPolls {
@@ -202,6 +213,9 @@ func (c *MultiCityClient) SearchMultiCity(ctx context.Context, opts MultiCityOpt
 		Source:     "kayak",
 		DataSource: "kayak_web",
 		SearchType: "flights_multicity",
+		// Complete=false means the loop ran out of poll attempts before Kayak
+		// reported the search finished; Itineraries below are a partial set.
+		Complete: complete,
 		Query: MultiCityQuery{
 			Segments: opts.Segments, Passengers: opts.Passengers,
 			Cabin: opts.Cabin, Nonstop: opts.Nonstop, Currency: opts.Currency,
@@ -358,12 +372,12 @@ func buildPollBody(opts MultiCityOptions, searchID string) []byte {
 // keyed by ID; result entries reference IDs and we cross-look them up to
 // hydrate timing/carrier detail.
 type pollResponse struct {
-	Status     string                  `json:"status"`
-	SearchID   string                  `json:"searchId"`
-	TotalCount int                     `json:"totalCount"`
-	Results    []json.RawMessage       `json:"results"`
-	Legs       map[string]pollLegRef   `json:"legs"`
-	Segments   map[string]pollSegment  `json:"segments"`
+	Status     string                 `json:"status"`
+	SearchID   string                 `json:"searchId"`
+	TotalCount int                    `json:"totalCount"`
+	Results    []json.RawMessage      `json:"results"`
+	Legs       map[string]pollLegRef  `json:"legs"`
+	Segments   map[string]pollSegment `json:"segments"`
 }
 
 type pollLegRef struct {
@@ -376,14 +390,14 @@ type pollLegRef struct {
 }
 
 type pollSegment struct {
-	Airline       string `json:"airline"`
-	Arrival       string `json:"arrival"`
-	Departure     string `json:"departure"`
-	Origin        string `json:"origin"`
-	Destination   string `json:"destination"`
-	Duration      int    `json:"duration"`
-	FlightNumber  string `json:"flightNumber"`
-	Equipment     string `json:"equipmentTypeName"`
+	Airline            string `json:"airline"`
+	Arrival            string `json:"arrival"`
+	Departure          string `json:"departure"`
+	Origin             string `json:"origin"`
+	Destination        string `json:"destination"`
+	Duration           int    `json:"duration"`
+	FlightNumber       string `json:"flightNumber"`
+	Equipment          string `json:"equipmentTypeName"`
 	OperationalDisplay string `json:"operationalDisplay"`
 }
 

@@ -23,7 +23,10 @@ package gflights
 // multi-city query, fields decoded by inspection):
 //
 //   field 1, varint = 28          (some "include-all-stops" flag)
-//   field 2, varint = 2           (page state = search)
+//   field 2, varint = 1           (page state; value 1 is what encodeTFSMultiCity
+//                                  emits and what the live smoke test confirmed
+//                                  renders the prefilled multi-city UI — do not
+//                                  "correct" to 2 without a fresh browser capture)
 //   field 3, len-delim segments   (repeated, one per leg)
 //     within each segment:
 //       field 2, len-delim "YYYY-MM-DD"

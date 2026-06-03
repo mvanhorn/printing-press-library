@@ -3,10 +3,124 @@
 package kayak
 
 import (
+	"context"
 	"encoding/json"
+	"io"
+	"net/http"
+	"net/http/httptest"
+	"net/url"
 	"strings"
+	"sync/atomic"
 	"testing"
 )
+
+// hostRewrite redirects kayak.com requests to a local test server without
+// mutating the caller's request (RoundTrippers must not modify the original).
+type hostRewrite struct {
+	host string
+	base http.RoundTripper
+}
+
+func (h hostRewrite) RoundTrip(req *http.Request) (*http.Response, error) {
+	r2 := req.Clone(req.Context())
+	r2.URL.Scheme = "http"
+	r2.URL.Host = h.host
+	return h.base.RoundTrip(r2)
+}
+
+const oneItineraryPoll = `{
+	"searchId": "S1",
+	"totalCount": 1567,
+	"results": [{
+		"legs": [{"id":"LEG1"}],
+		"bookingOptions": [{
+			"displayPrice": {"price":1161,"currency":"USD","localizedPrice":"$1,161"},
+			"bookingUrl": {"url":"/book/x","urlType":"relative"}
+		}],
+		"totalDuration": 600
+	}],
+	"legs": {"LEG1":{"arrival":"2026-08-15T22:00:00","departure":"2026-08-15T08:00:00","duration":600,"segments":[{"id":"SEG1"}]}},
+	"segments": {"SEG1":{"airline":"UA","origin":"SFO","destination":"NRT","departure":"2026-08-15T08:00:00","arrival":"2026-08-15T22:00:00","duration":600,"flightNumber":"UA837","equipmentTypeName":"Boeing 787"}}
+}`
+
+// newKayakStub returns a test server that serves the shell HTML (with a
+// formToken) on GET and a poll body whose status is set by statusFor(pollNum)
+// on POST, plus the client wired to reach it. pollSpacing is zeroed for the
+// duration of the test so the exhausted-polls path runs without real sleeps.
+func newKayakStub(t *testing.T, statusFor func(poll int64) string) (*MultiCityClient, *httptest.Server, *int64) {
+	t.Helper()
+	old := pollSpacing
+	pollSpacing = 0
+	t.Cleanup(func() { pollSpacing = old })
+
+	var polls int64
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodGet {
+			io.WriteString(w, `<html><script>var x = 1; formToken = 'TESTTOKEN'; var y = 2;</script></html>`)
+			return
+		}
+		n := atomic.AddInt64(&polls, 1)
+		var body map[string]any
+		if err := json.Unmarshal([]byte(oneItineraryPoll), &body); err != nil {
+			t.Errorf("stub: bad fixture: %v", err)
+		}
+		body["status"] = statusFor(n)
+		w.Header().Set("Content-Type", "application/json")
+		_ = json.NewEncoder(w).Encode(body)
+	}))
+	t.Cleanup(srv.Close)
+
+	c, err := NewMultiCityClient()
+	if err != nil {
+		t.Fatalf("new client: %v", err)
+	}
+	u, _ := url.Parse(srv.URL)
+	c.HTTPClient.Transport = hostRewrite{host: u.Host, base: http.DefaultTransport}
+	return c, srv, &polls
+}
+
+var multiCityStubOpts = MultiCityOptions{
+	Segments: []Segment{
+		{Origin: "SFO", Destination: "NRT", DepartureDate: "2026-08-15"},
+		{Origin: "NRT", Destination: "ICN", DepartureDate: "2026-08-28"},
+		{Origin: "ICN", Destination: "SFO", DepartureDate: "2026-09-05"},
+	},
+	Passengers: 1,
+}
+
+func TestSearchMultiCity_IncompleteFlagsPartialResults(t *testing.T) {
+	// Poll never reports "complete" → loop exhausts maxPolls and the result
+	// must be flagged incomplete so the caller can warn (the P1 fix).
+	c, _, polls := newKayakStub(t, func(int64) string { return "searching" })
+	res, err := c.SearchMultiCity(context.Background(), multiCityStubOpts)
+	if err != nil {
+		t.Fatalf("SearchMultiCity: %v", err)
+	}
+	if res.Complete {
+		t.Error("Complete = true, want false when status never reaches \"complete\"")
+	}
+	if *polls != maxPolls {
+		t.Errorf("polls = %d, want %d (should exhaust the budget)", *polls, maxPolls)
+	}
+	if res.TotalCount != 1567 || res.Count != 1 {
+		t.Errorf("count = %d of %d, want 1 of 1567 (partial set preserved)", res.Count, res.TotalCount)
+	}
+}
+
+func TestSearchMultiCity_CompleteStopsEarly(t *testing.T) {
+	// First poll reports "complete" → loop breaks immediately, Complete=true.
+	c, _, polls := newKayakStub(t, func(int64) string { return "complete" })
+	res, err := c.SearchMultiCity(context.Background(), multiCityStubOpts)
+	if err != nil {
+		t.Fatalf("SearchMultiCity: %v", err)
+	}
+	if !res.Complete {
+		t.Error("Complete = false, want true when status reaches \"complete\"")
+	}
+	if *polls != 1 {
+		t.Errorf("polls = %d, want 1 (should stop on first complete)", *polls)
+	}
+}
 
 func TestBuildShellURL_Shape(t *testing.T) {
 	segs := []Segment{
