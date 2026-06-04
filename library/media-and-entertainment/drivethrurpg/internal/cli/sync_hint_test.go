@@ -27,7 +27,7 @@ func newSyncHintTestStore(t *testing.T) *store.Store {
 
 func newSyncHintTestCmd() (*cobra.Command, *bytes.Buffer) {
 	var stderr bytes.Buffer
-	cmd := &cobra.Command{Use: "drivethrurpg-pp-cli"}
+	cmd := &cobra.Command{Use: "github.com/mvanhorn/printing-press-library/library/media-and-entertainment/drivethrurpg"}
 	cmd.SetErr(&stderr)
 	return cmd, &stderr
 }

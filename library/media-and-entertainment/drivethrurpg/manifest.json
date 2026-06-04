@@ -3,7 +3,7 @@
   "name": "drivethrurpg-pp-mcp",
   "display_name": "Drivethrurpg",
   "version": "4.20.1",
-  "description": "Search the DriveThruRPG catalog and download purchased library files as MCP tools.",
+  "description": "Curated seed spec for public DriveThruRPG catalog search and authenticated library downloads.",
   "author": {
     "name": "CLI Printing Press"
   },
