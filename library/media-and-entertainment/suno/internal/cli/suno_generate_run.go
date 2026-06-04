@@ -17,6 +17,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/suno/internal/auth"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/suno/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/suno/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/suno/internal/config"
@@ -347,6 +348,16 @@ func runGenerationFlow(cmd *cobra.Command, flags *rootFlags, body sunoGenerateBo
 		}
 	}
 	resp, err := retryOnGate(ctx, cfg, func() (*sunoGenerateResponse, error) {
+		// Re-mint the short-lived Clerk JWT before each attempt. A
+		// --wait-for-gate wait can outlive the session JWT (minutes), and the
+		// client reads c.Config.AuthHeader() live, so without this a long wait
+		// dies with a 401 instead of riding out the cooldown. EnsureFreshJWT
+		// no-ops when the JWT is still fresh and re-mints from the long-lived
+		// __client cookie when it has expired. Best-effort: a refresh failure
+		// falls through to the stored token and surfaces as the real error.
+		if !flags.dryRun && !cliutil.IsVerifyEnv() && c.Config != nil {
+			_ = auth.EnsureFreshJWT(ctx, c.Config)
+		}
 		return submitGeneration(ctx, c, flags.configPath, body)
 	})
 	if err != nil {
