@@ -14,8 +14,9 @@ func newStatusCmd() *cobra.Command {
 				"provider":           "xero",
 				"mode":               "fixture-only",
 				"live_oauth":         false,
-				"live_api":           false,
+				"live_api":           true,
 				"mutations":          false,
+				"live_mode":          "explicit access-token-file and tenant-id only; no refresh/fallback",
 				"credential_storage": false,
 				"read_only":          true,
 			})
