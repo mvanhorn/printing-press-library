@@ -20,6 +20,10 @@ func newInstallCmd() *cobra.Command {
 		Short: "Show or run the official AgentPool install and upgrade flow",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !run {
+				if upgrade {
+					fmt.Println("Upgrade preview requested; run with --run --upgrade to execute it.")
+					fmt.Println("")
+				}
 				fmt.Println("AgentPool is distributed as the Python package `agentpool-cli`.")
 				fmt.Println("")
 				fmt.Println("Install:")

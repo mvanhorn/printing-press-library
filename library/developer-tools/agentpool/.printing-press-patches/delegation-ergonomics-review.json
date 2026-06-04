@@ -1,0 +1,20 @@
+{
+  "schema_version": 2,
+  "id": "delegation-ergonomics-review",
+  "applied_at": "2026-06-04",
+  "base_run_id": "20260604T192521Z-agentpool-wrapper",
+  "base_printing_press_version": "4.20.1",
+  "summary": "Wrapper defaults should stay transparent: pure MCP config delegation, visible dry-run upgrade intent, value-form flag detection, and printed root errors.",
+  "reason": "The companion must remain predictable for agents: it should not inject undocumented MCP arguments, silently ignore install preview flags, duplicate passthrough flags supplied as --flag=value, or hide Cobra/root errors.",
+  "files": [
+    "cmd/agentpool-pp-cli/main.go",
+    "internal/cli/root.go",
+    "internal/cli/root_test.go",
+    "internal/cli/helpers.go",
+    "internal/cli/helpers_test.go",
+    "internal/cli/install.go",
+    "internal/cli/mcp-config.go",
+    ".goreleaser.yaml"
+  ],
+  "validated_outcome": "`go test ./...` verifies flag detection, MCP argument construction, and root error-print filtering."
+}

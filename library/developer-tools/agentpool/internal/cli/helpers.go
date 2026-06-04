@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"strings"
 )
 
 type commandExitError struct {
@@ -71,7 +72,7 @@ func runProgram(program string, args ...string) error {
 
 func hasArg(args []string, needle string) bool {
 	for _, arg := range args {
-		if arg == needle {
+		if arg == needle || strings.HasPrefix(arg, needle+"=") {
 			return true
 		}
 	}

@@ -11,13 +11,11 @@ func newMcpConfigCmd() *cobra.Command {
 		Short:              "Delegate host configuration generation to `agentpool mcp-config`.",
 		DisableFlagParsing: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			delegated := []string{"mcp-config"}
-			if len(args) == 0 {
-				delegated = append(delegated, "--client", "generic")
-			} else {
-				delegated = append(delegated, args...)
-			}
-			return runAgentPool(delegated...)
+			return runAgentPool(mcpConfigArgs(args)...)
 		},
 	}
+}
+
+func mcpConfigArgs(args []string) []string {
+	return append([]string{"mcp-config"}, args...)
 }

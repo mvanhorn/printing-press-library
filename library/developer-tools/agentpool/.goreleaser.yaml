@@ -30,7 +30,7 @@ brews:
     repository:
       owner: sidduHERE
       name: homebrew-tap
-    homepage: "https://github.com/sidduHERE/agentpool"
-    description: "Printing Press companion for the official AgentPool CLI. Checks setup, teaches workflows, and delegates to the real agentpool binary."
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "AgentPool control-plane companion with setup checks, capacity guidance, and official CLI delegation."
     install: |
       bin.install "agentpool-pp-cli"

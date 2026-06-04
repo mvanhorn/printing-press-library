@@ -40,6 +40,13 @@ func ExitCode(err error) int {
 	return 1
 }
 
+// ShouldPrintError returns false for delegated subprocess exits that already
+// wrote their own stderr.
+func ShouldPrintError(err error) bool {
+	_, ok := err.(commandExitError)
+	return !ok
+}
+
 func newVersionCliCmd() *cobra.Command {
 	return &cobra.Command{
 		Use:   "version",

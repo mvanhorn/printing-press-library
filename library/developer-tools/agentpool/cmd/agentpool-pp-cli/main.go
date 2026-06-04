@@ -4,6 +4,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/agentpool/internal/cli"
@@ -11,6 +12,9 @@ import (
 
 func main() {
 	if err := cli.Execute(); err != nil {
+		if cli.ShouldPrintError(err) {
+			fmt.Fprintln(os.Stderr, err)
+		}
 		os.Exit(cli.ExitCode(err))
 	}
 }
