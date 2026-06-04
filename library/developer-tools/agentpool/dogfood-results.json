@@ -1,0 +1,48 @@
+{
+  "dir": "/tmp/agentpool-printing-press-wrapper/agentpool",
+  "spec_path": "/tmp/agentpool-printing-press-wrapper/agentpool/agentpool-wrapper-plan.md",
+  "verdict": "PASS",
+  "path_check": {
+    "tested": 7,
+    "valid": 7,
+    "valid_pct": 100
+  },
+  "auth_check": {
+    "spec_scheme": "",
+    "generated_format": "none",
+    "match": true,
+    "detail": "No API authentication is handled by the wrapper; official AgentPool CLI owns provider auth behavior."
+  },
+  "browser_session_check": {
+    "required": false,
+    "pass": true,
+    "detail": "Browser session auth is not required."
+  },
+  "example_check": {
+    "tested": 7,
+    "with_examples": 7,
+    "valid_examples": 7,
+    "detail": "Wrapper help, install, exec preferences pass-through, doctor, usage, skill, and mcp-config flows were exercised."
+  },
+  "wiring_check": {
+    "command_tree": {
+      "defined": 7,
+      "registered": 7
+    },
+    "config_consistency": {
+      "consistent": true
+    }
+  },
+  "novel_features_check": {
+    "planned": 3,
+    "found": 3,
+    "skipped": false
+  },
+  "reimplementation_check": {
+    "checked": 1,
+    "exempted_via_store": 0,
+    "skipped": false,
+    "detail": "Source scan found only subprocess delegation to official agentpool and no provider/session/SQLite/MCP implementation."
+  },
+  "issues": []
+}
