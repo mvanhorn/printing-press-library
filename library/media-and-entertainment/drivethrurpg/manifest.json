@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "drivethrurpg-pp-mcp",
+  "display_name": "Drivethrurpg",
+  "version": "4.20.1",
+  "description": "Search the DriveThruRPG catalog and download purchased library files as MCP tools.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/drivethrurpg-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/drivethrurpg-pp-mcp",
+      "args": [],
+      "env": {
+        "DRIVETHRURPG_DTRPG_TOKEN": "${user_config.drivethrurpg_dtrpg_token}"
+      }
+    }
+  },
+  "user_config": {
+    "drivethrurpg_dtrpg_token": {
+      "type": "string",
+      "title": "DRIVETHRURPG_DTRPG_TOKEN",
+      "description": "Sets DRIVETHRURPG_DTRPG_TOKEN for the Drivethrurpg MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-04T10:51:39.309386Z",
+  "printing_press_version": "4.20.1",
+  "api_name": "drivethrurpg",
+  "display_name": "Drivethrurpg",
+  "cli_name": "drivethrurpg-pp-cli",
+  "creator": {
+    "handle": "kingdomseed",
+    "name": "Jason Holt"
+  },
+  "owner": "kingdomseed",
+  "printer": "kingdomseed",
+  "printer_name": "Jason Holt",
+  "spec_path": "drivethrurpg-openapi.yaml",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:280e3e06a046a400c6eb545dad7f4640071044791e76e0049ca6fd872ab8366f",
+  "run_id": "20260509-201515",
+  "category": "media-and-entertainment",
+  "description": "Search the public DriveThruRPG catalog and download purchased files from an authenticated library.",
+  "mcp_binary": "drivethrurpg-pp-mcp",
+  "mcp_tool_count": 14,
+  "mcp_public_tool_count": 10,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "DRIVETHRURPG_DTRPG_TOKEN"
+  ],
+  "auth_optional": true,
+  "novel_features": [
+    {
+      "name": "Public catalog search without credentials",
+      "command": "search",
+      "description": "Search DriveThruRPG's public product catalog by keyword while keeping JSON output agent-friendly."
+    },
+    {
+      "name": "Authenticated library inventory",
+      "command": "order-products",
+      "description": "List owned DriveThruRPG order products and file indexes using the Library App Application Key flow."
+    },
+    {
+      "name": "Owned file downloader",
+      "command": "download",
+      "description": "Prepare, poll, and save a purchased DriveThruRPG file from a single command."
+    }
+  ]
+}

@@ -1,0 +1,87 @@
+{
+  "dir": "/Users/jholt/printing-press/library/drivethrurpg-pp-cli",
+  "spec_path": "/Users/jholt/printing-press/library/drivethrurpg-pp-cli/spec.yaml",
+  "verdict": "PASS",
+  "path_check": {
+    "tested": 2,
+    "valid": 2,
+    "valid_pct": 100
+  },
+  "auth_check": {
+    "spec_scheme": "",
+    "generated_format": "unknown",
+    "match": true,
+    "detail": "spec not provided or no bot/bearer scheme detected"
+  },
+  "browser_session_check": {
+    "required": false,
+    "pass": true,
+    "detail": "browser-session auth not required"
+  },
+  "dead_flags": {
+    "total": 18,
+    "dead": 0
+  },
+  "dead_functions": {
+    "total": 53,
+    "dead": 0
+  },
+  "pipeline_check": {
+    "sync_calls_domain": true,
+    "search_calls_domain": false,
+    "domain_tables": 1,
+    "detail": "sync uses domain-specific Upsert methods; search uses generic Search only; 1 domain tables found"
+  },
+  "example_check": {
+    "tested": 10,
+    "with_examples": 10,
+    "valid_examples": 10,
+    "detail": "10/10 commands have examples"
+  },
+  "wiring_check": {
+    "command_tree": {
+      "defined": 46,
+      "registered": 46
+    },
+    "config_consistency": {
+      "read_fields": [
+        " \u0026\u0026 c.Config.ApplicationKey != ",
+        " \u0026\u0026 cfg.ApplicationKey != "
+      ],
+      "consistent": true
+    },
+    "workflow_completeness": {
+      "skipped": true,
+      "total_steps": 0,
+      "mapped_steps": 0,
+      "detail": "no workflow_verify.yaml found"
+    }
+  },
+  "novel_features_check": {
+    "planned": 3,
+    "found": 3
+  },
+  "mcp_surface_parity": {
+    "state": "runtime_walking",
+    "pass": true,
+    "detail": "MCP surface mirrors the Cobra tree at runtime"
+  },
+  "reimplementation_check": {
+    "checked": 3,
+    "exempted_via_store": 1
+  },
+  "source_client_check": {
+    "checked": 0,
+    "skipped": true
+  },
+  "print_json_filtered_check": {
+    "checked": 37
+  },
+  "test_presence": {
+    "checked": 0
+  },
+  "naming_check": {
+    "checked": 37
+  },
+  "issues": null
+}

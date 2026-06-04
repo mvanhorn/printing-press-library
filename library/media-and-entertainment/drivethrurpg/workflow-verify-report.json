@@ -1,0 +1,8 @@
+{
+  "dir": "/Users/jholt/printing-press/library/drivethrurpg-pp-cli",
+  "workflows": null,
+  "verdict": "workflow-pass",
+  "issues": [
+    "no workflow manifest found, skipping"
+  ]
+}

@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "drivethrurpg-pp-cli"
+display_name = "Drivethrurpg"
+description = "Curated seed spec for public DriveThruRPG catalog search and authenticated library downloads."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/drivethrurpg-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+DRIVETHRURPG_DTRPG_TOKEN = true
