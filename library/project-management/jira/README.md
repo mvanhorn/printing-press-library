@@ -4,6 +4,8 @@ Jira Cloud Platform REST API documentation
 
 Learn more at [Jira Cloud Platform](http://www.atlassian.com).
 
+Created by [@neektza](https://github.com/neektza) (Nikica Jokic).
+
 ## Install
 
 The recommended path installs both the `jira-pp-cli` binary and the `pp-jira` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

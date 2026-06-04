@@ -1,0 +1,440 @@
+{
+  "endpoint": "GET /keyword_research/default_keyword_suggestion",
+  "method": "GET",
+  "raw_url": "https://api.everbee.com/keyword_research/default_keyword_suggestion?type_of_search=keywords_suggestion&order_by=new_volume&order_direction=desc&page=1",
+  "status": 200,
+  "request_headers": {
+    ":authority": "api.everbee.com",
+    ":method": "GET",
+    ":path": "/keyword_research/default_keyword_suggestion?type_of_search=keywords_suggestion&order_by=new_volume&order_direction=desc&page=1",
+    ":scheme": "https",
+    "accept": "application/json",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9",
+    "cache-control": "no-cache",
+    "origin": "https://app.everbee.io",
+    "pragma": "no-cache",
+    "priority": "u=1, i",
+    "referer": "https://app.everbee.io/",
+    "sec-ch-ua": "\"Chromium\";v=\"148\", \"Google Chrome\";v=\"148\", \"Not/A)Brand\";v=\"99\"",
+    "sec-ch-ua-mobile": "?0",
+    "sec-ch-ua-platform": "\"macOS\"",
+    "sec-fetch-dest": "empty",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-site": "cross-site",
+    "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36",
+    "x-access-token": "<redacted>"
+  },
+  "request_body": null,
+  "response_headers": {
+    "access-control-allow-methods": "GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD",
+    "access-control-allow-origin": "*",
+    "access-control-expose-headers": "",
+    "access-control-max-age": "7200",
+    "cache-control": "max-age=0, private, must-revalidate",
+    "content-encoding": "gzip",
+    "content-length": "1438",
+    "content-type": "application/json; charset=utf-8",
+    "date": "Fri, 22 May 2026 19:41:03 GMT",
+    "etag": "W/\"bcf2a7e75feef339518b4bdcef495b81\"",
+    "referrer-policy": "strict-origin-when-cross-origin",
+    "vary": "Accept, Accept-Encoding, Origin",
+    "x-content-type-options": "nosniff",
+    "x-download-options": "noopen",
+    "x-frame-options": "SAMEORIGIN",
+    "x-permitted-cross-domain-policies": "none",
+    "x-request-id": "afaf4aa5-875a-45b8-903a-<REDACTED:phone-like-number>",
+    "x-runtime": "0.104009",
+    "x-xss-protection": "1; mode=block"
+  },
+  "response_body": {
+    "results": [
+      {
+        "_id": "806dad19-6a20-4d72-93aa-ea0757f41537",
+        "_index": "keyword_analytics_production_20251103050327187",
+        "_score": null,
+        "competition": 110,
+        "cpc": null,
+        "created_at": "2025-04-01T17:47:30.293Z",
+        "id": "806dad19-6a20-4d72-93aa-ea0757f41537",
+        "is_fav": false,
+        "is_favorited": false,
+        "keyword": "gifte fully",
+        "new_volume": 26511,
+        "score": 0,
+        "sort": [
+          26511
+        ],
+        "trend": null,
+        "vol": 26511
+      },
+      {
+        "_id": "d8936c1e-65e3-4105-85e5-84096d95ed32",
+        "_index": "keyword_analytics_production_20251103050327187",
+        "_score": null,
+        "competition": 21640,
+        "cpc": null,
+        "created_at": "2025-03-30T00:25:17.094Z",
+        "id": "d8936c1e-65e3-4105-85e5-84096d95ed32",
+        "is_fav": false,
+        "is_favorited": false,
+        "keyword": "gift gifte gifting",
+        "new_volume": 26508,
+        "score": 0,
+        "sort": [
+          26508
+        ],
+        "trend": null,
+        "vol": 26508
+      },
+      {
+        "_id": "c69b9f35-8bfd-45d1-9900-8c45f0ab0f43",
+        "_index": "keyword_analytics_production_20251103050327187",
+        "_score": null,
+        "competition": 83458,
+        "cpc": null,
+        "created_at": "2025-03-29T19:36:47.348Z",
+        "id": "c69b9f35-8bfd-45d1-9900-8c45f0ab0f43",
+        "is_fav": false,
+        "is_favorited": false,
+        "keyword": "gifts gift gifted",
+        "new_volume": 26508,
+        "score": 0,
+        "sort": [
+          26508
+        ],
+        "trend": null,
+        "vol": 26508
+      },
+      {
+        "_id": "7ee7e302-464c-4bf3-b961-8a77406cc55e",
+        "_index": "keyword_analytics_production_20251103050327187",
+        "_score": null,
+        "competition": 45426668,
+        "cpc": null,
+        "created_at": "2025-01-02T09:41:13.729Z",
+        "id": "7ee7e302-464c-4bf3-b961-8a77406cc55e",
+        "is_fav": false,
+        "is_favorited": false,
+        "keyword": "gifttings",
+        "new_volume": 26492,
+        "score": 0,
+        "sort": [
+          26492
+        ],
+        "trend": null,
+        "vol": 26492
+      },
+      {
+        "_id": "7ee14f8c-e2ef-42ca-9647-7a2302263807",
+        "_index": "keyword_analytics_production_20251103050327187",
+        "_score": null,
+        "competition": 212,
+        "cpc": null,
+        "created_at": "2024-11-20T15:41:43.425Z",
+        "id": "7ee14f8c-e2ef-42ca-9647-7a2302263807",
+        "is_fav": false,
+        "is_favorited": false,
+        "keyword": "gif te",
+        "new_volume": 26492,
+        "score": 124960,
+        "sort": [
+          26492
+        ],
+        "trend": null,
+        "vol": 26492
+      },
+      {
+        "_id": "7f0c508d-68d0-48b0-8780-29a809b25686",
+        "_index": "keyword_analytics_production_20251103050327187",
+        "_score": null,
+        "competition": 100513,
+        "cpc": null,
+        "created_at": "2024-11-27T18:09:23.102Z",
+        "id": "7f0c508d-68d0-48b0-8780-29a809b25686",
+        "is_fav": false,
+        "is_favorited": false,
+        "keyword": "giftedly",
+        "new_volume": 26491,
+        "score": 260,
+        "sort": [
+          26491
+        ],
+        "trend": null,
+        "vol": 26491
+      },
+      {
+        "_id": "7f522615-3f02-4d75-930f-8cc3483f2b7f",
+        "_index": "keyword_analytics_production_20251103050327187",
+        "_score": null,
+        "competition": 0,
+        "cpc": null,
+        "created_at": "2024-11-27T00:30:55.573Z",
+        "id": "7f522615-3f02-4d75-930f-8cc3483f2b7f",
+        "is_fav": false,
+        "is_favorited": false,
+        "keyword": "-gifted",
+        "new_volume": 26485,
+        "score": 0,
+        "sort": [
+          26485
+        ],
+        "trend": null,
+        "vol": 26485
+      },
+      {
+        "_id": "823d4142-a229-4816-a08e-6109d3f55112",
+        "_index": "keyword_analytics_production_20251103050327187",
+        "_score": null,
+        "competition": 45419996,
+        "cpc": null,
+        "created_at": "2025-01-29T21:06:39.667Z",
+        "id": "823d4142-a229-4816-a08e-6109d3f55112",
+        "is_fav": false,
+        "is_favorited": false,
+        "keyword": "gift,",
+        "new_volume": 26483,
+        "score": 0,
+        "sort": [
+          26483
+        ],
+        "trend": null,
+        "vol": 26483
+      },
+      {
+        "_id": "6b805c39-cfea-44a8-9bac-9c48b3cd282e",
+        "_index": "keyword_analytics_production_20251103050327187",
+        "_score": null,
+        "competition": 0,
+        "cpc": null,
+        "created_at": "2024-08-01T16:30:54.250Z",
+        "id": "6b805c39-cfea-44a8-9bac-9c48b3cd282e",
+        "is_fav": false,
+        "is_favorited": false,
+        "keyword": "????gift",
+        "new_volume": 26468,
+        "score": 0,
+        "sort": [
+          26468
+        ],
+        "trend": null,
+        "vol": 26468
+      },
+      {
+        "_id": "6965e053-cd98-44e5-8643-f29bc12afc2a",
+        "_index": "keyword_analytics_production_20251103050327187",
+        "_score": null,
+        "competition": 0,
+        "cpc": null,
+        "created_at": "2025-02-05T16:24:09.329Z",
+        "id": "6965e053-cd98-44e5-8643-f29bc12afc2a",
+        "is_fav": false,
+        "is_favorited": false,
+        "keyword": "giftfulnes s",
+        "new_volume": 26468,
+        "score": 0,
+        "sort": [
+          26468
+        ],
+        "trend": null,
+        "vol": 26468
+      },
+      {
+        "_id": "69ed6dec-b43d-417c-ab1d-25788089a90f",
+        "_index": "keyword_analytics_production_20251103050327187",
+        "_score": null,
+        "competition": 0,
+        "cpc": null,
+        "created_at": "2024-04-21T20:17:27.114Z",
+        "id": "69ed6dec-b43d-417c-ab1d-25788089a90f",
+        "is_fav": false,
+        "is_favorited": false,
+        "keyword": "? ???????? ??????? ??????????g ift",
+        "new_volume": 26468,
+        "score": 0,
+        "sort": [
+          26468
+        ],
+        "trend": null,
+        "vol": 26468
+      },
+      {
+        "_id": "6bd30eff-1f30-4368-ba77-0c0da216188d",
+        "_index": "keyword_analytics_production_20251103050327187",
+        "_score": null,
+        "competition": 20350,
+        "cpc": null,
+        "created_at": "2024-11-08T15:04:17.078Z",
+        "id": "6bd30eff-1f30-4368-ba77-0c0da216188d",
+        "is_fav": false,
+        "is_favorited": false,
+        "keyword": "gifted giftful",
+        "new_volume": 26468,
+        "score": 1300,
+        "sort": [
+          26468
+        ],
+        "trend": null,
+        "vol": 26468
+      },
+      {
+        "_id": "66d94d4d-6bff-4f4c-ab42-45ef46f29f07",
+        "_index": "keyword_analytics_production_20251103050327187",
+        "_score": null,
+        "competition": 0,
+        "cpc": null,
+        "created_at": "2024-02-05T15:44:59.437Z",
+        "id": "66d94d4d-6bff-4f4c-ab42-45ef46f29f07",
+        "is_fav": false,
+        "is_favorited": false,
+        "keyword": "-gift-gifts-gifts",
+        "new_volume": 26468,
+        "score": 0,
+        "sort": [
+          26468
+        ],
+        "trend": null,
+        "vol": 26468
+      },
+      {
+        "_id": "67491f57-b82b-4a5e-a61f-ab4f7f1279fa",
+        "_index": "keyword_analytics_production_20251103050327187",
+        "_score": null,
+        "competition": 323,
+        "cpc": null,
+        "created_at": "2024-11-11T11:17:24.294Z",
+        "id": "67491f57-b82b-4a5e-a61f-ab4f7f1279fa",
+        "is_fav": false,
+        "is_favorited": false,
+        "keyword": "giftin g",
+        "new_volume": 26468,
+        "score": 81950,
+        "sort": [
+          26468
+        ],
+        "trend": null,
+        "vol": 26468
+      },
+      {
+        "_id": "6d807255-b7e3-4189-b003-f73f4d0c1dd1",
+        "_index": "keyword_analytics_production_20251103050327187",
+        "_score": null,
+        "competition": 45440648,
+        "cpc": null,
+        "created_at": "2024-12-02T11:30:31.608Z",
+        "id": "6d807255-b7e3-4189-b003-f73f4d0c1dd1",
+        "is_fav": false,
+        "is_favorited": false,
+        "keyword": "giftted",
+        "new_volume": 26462,
+        "score": 0,
+        "sort": [
+          26462
+        ],
+        "trend": null,
+        "vol": 26462
+      },
+      {
+        "_id": "71105b84-ca9d-4905-9e40-2bd652d73b72",
+        "_index": "keyword_analytics_production_20251103050327187",
+        "_score": null,
+        "competition": 20338,
+        "cpc": null,
+        "created_at": "2024-11-27T00:18:47.031Z",
+        "id": "71105b84-ca9d-4905-9e40-2bd652d73b72",
+        "is_fav": false,
+        "is_favorited": false,
+        "keyword": "giftfully gifted",
+        "new_volume": 26461,
+        "score": 1300,
+        "sort": [
+          26461
+        ],
+        "trend": null,
+        "vol": 26461
+      },
+      {
+        "_id": "7886d718-1850-4546-962e-cea9ab84e766",
+        "_index": "keyword_analytics_production_20251103050327187",
+        "_score": null,
+        "competition": 79974,
+        "cpc": null,
+        "created_at": "2024-11-29T12:20:33.108Z",
+        "id": "7886d718-1850-4546-962e-cea9ab84e766",
+        "is_fav": false,
+        "is_favorited": false,
+        "keyword": "gift gifts gifted",
+        "new_volume": 26461,
+        "score": 330,
+        "sort": [
+          26461
+        ],
+        "trend": null,
+        "vol": 26461
+      },
+      {
+        "_id": "6e49c3f7-c9bc-4949-b40e-b5ddfbc85d9e",
+        "_index": "keyword_analytics_production_20251103050327187",
+        "_score": null,
+        "competition": 275,
+        "cpc": null,
+        "created_at": "2025-01-14T23:35:16.558Z",
+        "id": "6e49c3f7-c9bc-4949-b40e-b5ddfbc85d9e",
+        "is_fav": false,
+        "is_favorited": false,
+        "keyword": "giftfu l",
+        "new_volume": 26461,
+        "score": 96220,
+        "sort": [
+          26461
+        ],
+        "trend": null,
+        "vol": 26461
+      },
+      {
+        "_id": "7ac44141-441c-4e81-9dff-cced5729da8d",
+        "_index": "keyword_analytics_production_20251103050327187",
+        "_score": null,
+        "competition": 784,
+        "cpc": null,
+        "created_at": "2024-11-27T16:40:10.975Z",
+        "id": "7ac44141-441c-4e81-9dff-cced5729da8d",
+        "is_fav": false,
+        "is_favorited": false,
+        "keyword": "gifte gifteful",
+        "new_volume": 26461,
+        "score": 33750,
+        "sort": [
+          26461
+        ],
+        "trend": null,
+        "vol": 26461
+      },
+      {
+        "_id": "7309dd28-36bd-4427-ba36-1f73003dd59e",
+        "_index": "keyword_analytics_production_20251103050327187",
+        "_score": null,
+        "competition": 38,
+        "cpc": null,
+        "created_at": "2025-01-09T20:00:00.081Z",
+        "id": "7309dd28-36bd-4427-ba36-1f73003dd59e",
+        "is_fav": false,
+        "is_favorited": false,
+        "keyword": "gif tings",
+        "new_volume": 26461,
+        "score": 696350,
+        "sort": [
+          26461
+        ],
+        "trend": null,
+        "vol": 26461
+      }
+    ],
+    "total_count": 66497773,
+    "total_pages": 3324889
+  },
+  "response_body_known": true,
+  "redactions": [
+    "request_headers.x-access-token"
+  ]
+}

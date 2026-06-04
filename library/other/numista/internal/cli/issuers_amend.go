@@ -1,4 +1,4 @@
-// Copyright 2026 vinny-pasceri. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Vinny Pasceri and contributors. Licensed under Apache-2.0. See LICENSE.
 
 package cli
 
@@ -125,16 +125,16 @@ func normalizeIssuerQuery(q string) string {
 // keep this list hand-tuned rather than auto-discovered so a user typing
 // "usa" gets a deterministic top hit instead of fuzzy-match drift.
 var issuerSynonyms = map[string]string{
-	"usa": "united-states",
-	"us":  "united-states",
-	"uk":  "united-kingdom",
-	"gb":  "united-kingdom",
-	"uae": "united-arab-emirates",
-	"rsa": "south-africa",
-	"prc": "china",
-	"roc": "taiwan",
+	"usa":  "united-states",
+	"us":   "united-states",
+	"uk":   "united-kingdom",
+	"gb":   "united-kingdom",
+	"uae":  "united-arab-emirates",
+	"rsa":  "south-africa",
+	"prc":  "china",
+	"roc":  "taiwan",
 	"ussr": "soviet-union",
-	"ddr": "germany-democratic-republic",
+	"ddr":  "germany-democratic-republic",
 }
 
 // scoreIssuer ranks a record against the normalized query. Higher is better.

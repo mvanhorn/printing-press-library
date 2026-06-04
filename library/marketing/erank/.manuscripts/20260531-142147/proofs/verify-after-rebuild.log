@@ -1,0 +1,70 @@
+
+Verification verdict FAIL (pass rate 97%, threshold 80%). Running fix loop (max 3 iterations)...
+
+2026/05/31 14:37:12 fix loop: execution failure for listing requires manual fix
+2026/05/31 14:37:12 fix loop: skip exec_fail for listing: manual execution fix required
+2026/05/31 14:37:12 fix loop: execution failure for lists requires manual fix
+2026/05/31 14:37:12 fix loop: skip exec_fail for lists: manual execution fix required
+2026/05/31 14:37:12 fix loop: execution failure for profile requires manual fix
+2026/05/31 14:37:12 fix loop: skip exec_fail for profile: manual execution fix required
+2026/05/31 14:37:12 fix loop: execution failure for tags requires manual fix
+2026/05/31 14:37:12 fix loop: skip exec_fail for tags: manual execution fix required
+2026/05/31 14:37:12 fix loop: execution failure for watch requires manual fix
+2026/05/31 14:37:12 fix loop: skip exec_fail for watch: manual execution fix required
+2026/05/31 14:37:12 fix loop: execution failure for workflow requires manual fix
+2026/05/31 14:37:12 fix loop: skip exec_fail for workflow: manual execution fix required
+2026/05/31 14:37:12 fix loop: execution failure for browser-session-proof requires manual fix
+2026/05/31 14:37:12 fix loop: skip exec_fail for browser-session-proof: manual execution fix required
+Runtime Verification: /Users/smacdonald/printing-press/.runstate/erank-cli-7b28418c/runs/20260531-142147/working/erank-pp-cli/erank-pp-cli
+Mode: mock
+
+COMMAND                        KIND         HELP   DRY-RUN  EXEC     SCORE
+agent-context                  read         PASS   PASS     PASS     3/3
+analytics                      data-layer   PASS   PASS     PASS     3/3
+angles                         read         PASS   PASS     PASS     3/3
+api                            local        PASS   PASS     PASS     3/3
+auth                           local        PASS   PASS     PASS     3/3
+browser-session-proof          read         PASS   PASS     PASS     3/3
+build                          read         PASS   PASS     PASS     3/3
+check-paddle-restriction       read         PASS   PASS     PASS     3/3
+doctor                         local        PASS   PASS     PASS     3/3
+feedback                       read         PASS   PASS     PASS     3/3
+import                         data-layer   PASS   PASS     PASS     3/3
+intercom                       read         PASS   PASS     PASS     3/3
+listing                        read         PASS   PASS     FAIL     2/3
+lists                          read         PASS   PASS     FAIL     2/3
+member-shops                   read         PASS   PASS     PASS     3/3
+motd-v3                        read         PASS   PASS     PASS     3/3
+oauth                          read         PASS   PASS     PASS     3/3
+opportunity                    read         PASS   PASS     PASS     3/3
+profile                        read         PASS   PASS     FAIL     2/3
+quota                          read         PASS   PASS     PASS     3/3
+refresh-data                   read         PASS   PASS     PASS     3/3
+saturation                     read         PASS   PASS     PASS     3/3
+search                         data-layer   PASS   PASS     PASS     3/3
+sync                           data-layer   PASS   PASS     PASS     3/3
+tags                           read         PASS   PASS     FAIL     2/3
+tail                           data-layer   PASS   PASS     PASS     3/3
+watch                          read         PASS   PASS     FAIL     2/3
+which                          read         PASS   PASS     PASS     3/3
+workflow                       read         PASS   PASS     FAIL     2/3
+browser-session-proof          auth         PASS   PASS     FAIL     0/3
+
+Path-Param Probes (nested commands with <positional> args):
+  PASS auth set-token
+  PASS listing gaps
+  PASS lists optimize
+  PASS profile delete
+  PASS profile save
+  PASS profile show
+  PASS profile use
+  PASS tags consensus
+  PASS watch drift
+
+Data Pipeline: PASS: sync completed (sql unavailable, table validation skipped)
+Browser Session Proof: missing-or-invalid (run auth login --chrome to create a browser-session proof)
+Pass Rate: 97% (38/39 passed, 1 critical)
+Verdict: FAIL
+
+Fix Loop: 1 iterations, improved: false
+  Iteration 1: 97% -> 97% (+0%), 7 fixes applied

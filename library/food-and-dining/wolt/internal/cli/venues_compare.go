@@ -1,4 +1,4 @@
-// Copyright 2026 amit. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Amit and contributors. Licensed under Apache-2.0. See LICENSE.
 
 package cli
 
@@ -9,8 +9,8 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/wolt/internal/cliutil"
+	"github.com/spf13/cobra"
 )
 
 type venueCompareRow struct {

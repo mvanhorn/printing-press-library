@@ -1,4 +1,4 @@
-// Copyright 2026 quoxientzero. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Zain Haseeb and contributors. Licensed under Apache-2.0. See LICENSE.
 // Hand-written novel feature; not generated.
 
 package cli
@@ -30,9 +30,9 @@ func newDigestSinceCmd(flags *rootFlags) *cobra.Command {
 	var flagLimit int
 
 	cmd := &cobra.Command{
-		Use:   "since <duration>",
-		Short: "Aggregate new posts and active members in a community since a duration ago",
-		Example: "  skool-pp-cli digest since 24h --community bewarethedefault --json",
+		Use:         "since <duration>",
+		Short:       "Aggregate new posts and active members in a community since a duration ago",
+		Example:     "  skool-pp-cli digest since 24h --community bewarethedefault --json",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {
@@ -74,12 +74,12 @@ func newDigestSinceCmd(flags *rootFlags) *cobra.Command {
 							UpdatedAt string `json:"updatedAt"`
 							UserID    string `json:"userId"`
 							Metadata  struct {
-								Comments int `json:"comments"`
-								Upvotes  int `json:"upvotes"`
+								Comments int    `json:"comments"`
+								Upvotes  int    `json:"upvotes"`
 								Content  string `json:"content"`
 							} `json:"metadata"`
 							User struct {
-								Name     string `json:"name"`
+								Name      string `json:"name"`
 								FirstName string `json:"firstName"`
 							} `json:"user"`
 						} `json:"post"`
@@ -102,13 +102,13 @@ func newDigestSinceCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			type postRow struct {
-				ID         string `json:"id"`
-				Name       string `json:"name"`
-				CreatedAt  string `json:"created_at"`
-				By         string `json:"by"`
-				Comments   int    `json:"comments"`
-				Upvotes    int    `json:"upvotes"`
-				Snippet    string `json:"snippet,omitempty"`
+				ID        string `json:"id"`
+				Name      string `json:"name"`
+				CreatedAt string `json:"created_at"`
+				By        string `json:"by"`
+				Comments  int    `json:"comments"`
+				Upvotes   int    `json:"upvotes"`
+				Snippet   string `json:"snippet,omitempty"`
 			}
 			newPosts := make([]postRow, 0, 16)
 			for _, pt := range envelope.PageProps.PostTrees {
@@ -145,12 +145,12 @@ func newDigestSinceCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			out := map[string]any{
-				"since":            cutoff.UTC().Format(time.RFC3339),
-				"community":        community,
-				"new_posts":        newPosts,
-				"new_post_count":   len(newPosts),
-				"active_members":   activeMembers,
-				"community_total":  envelope.PageProps.Total,
+				"since":           cutoff.UTC().Format(time.RFC3339),
+				"community":       community,
+				"new_posts":       newPosts,
+				"new_post_count":  len(newPosts),
+				"active_members":  activeMembers,
+				"community_total": envelope.PageProps.Total,
 			}
 			return printJSONFiltered(cmd.OutOrStdout(), out, flags)
 		},

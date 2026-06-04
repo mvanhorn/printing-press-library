@@ -1,4 +1,4 @@
-// Copyright 2026 trevin-chow. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Trevin Chow and contributors. Licensed under Apache-2.0. See LICENSE.
 
 package cli
 
@@ -39,8 +39,8 @@ send, use 'mailchimp-pp-cli campaigns actions post-campaigns-id-send'.`,
 		Example: `  mailchimp-pp-cli send-checked 7f8a9b0c1d
   mailchimp-pp-cli send-checked 7f8a9b0c1d --dry-run     # show checklist without sending`,
 		Annotations: map[string]string{
-			"mcp:read-only":         "false",
-			"pp:typed-exit-codes":   "0,2",
+			"mcp:read-only":       "false",
+			"pp:typed-exit-codes": "0,2",
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -49,7 +49,7 @@ send, use 'mailchimp-pp-cli campaigns actions post-campaigns-id-send'.`,
 			cid := args[0]
 			if dryRunOK(flags) {
 				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
-					"would_check": fmt.Sprintf("/campaigns/%s/send-checklist", cid),
+					"would_check":          fmt.Sprintf("/campaigns/%s/send-checklist", cid),
 					"would_send_if_passed": fmt.Sprintf("/campaigns/%s/actions/send", cid),
 				}, flags)
 			}
@@ -84,11 +84,11 @@ send, use 'mailchimp-pp-cli campaigns actions post-campaigns-id-send'.`,
 
 			if !checklist.IsReady || len(errors) > 0 {
 				result := map[string]any{
-					"campaign_id":  cid,
-					"gate":         "failed",
-					"is_ready":     checklist.IsReady,
-					"errors":       errors,
-					"all_items":    checklist.Items,
+					"campaign_id": cid,
+					"gate":        "failed",
+					"is_ready":    checklist.IsReady,
+					"errors":      errors,
+					"all_items":   checklist.Items,
 				}
 				// Print structured failure to stdout; the typed exit code carries
 				// the gate-fail signal for CI.

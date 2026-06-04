@@ -1,4 +1,4 @@
-// Copyright 2026 justinwfu. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Justin and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // PATCH: feat-comments-and-handle-resolution — novel command. commentThreads.list returns by relevance or time, never by likeCount. Local sort surfaces audience-validated comments that the API ordering buries. Threads cmd.Context() through Client.WithContext so Ctrl+C cancels in-flight pages.
 
@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"html"
 	"sort"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
@@ -38,15 +39,18 @@ func newYoutubeVideosCommentsCmd(flags *rootFlags) *cobra.Command {
 	var order string
 
 	cmd := &cobra.Command{
-		Use:         "videos-comments <videoId>",
+		Use:         "videos-comments <videoId|url>",
 		Short:       "Fetch top comments on a video, ranked by likeCount (uses commentThreads.list, public read-only)",
-		Example:     "  youtube-pp-cli youtube videos-comments dQw4w9WgXcQ --top 10",
+		Example:     "  youtube-pp-cli youtube videos-comments dQw4w9WgXcQ --top 10\n  youtube-pp-cli youtube videos-comments 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' --top 10",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
 			}
-			videoID := args[0]
+			videoID := parseVideoID(strings.TrimSpace(args[0]))
+			if videoID == "" {
+				return usageErr(fmt.Errorf("could not extract a video ID from %q", args[0]))
+			}
 
 			if top <= 0 {
 				return usageErr(fmt.Errorf("--top must be > 0"))

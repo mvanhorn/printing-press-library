@@ -4,9 +4,9 @@ import (
 	"errors"
 	"strings"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/productivity/safari-history/internal/output"
 	"github.com/mvanhorn/printing-press-library/library/productivity/safari-history/internal/store"
+	"github.com/spf13/cobra"
 )
 
 func newDevicesCmd(opts *RootOptions) *cobra.Command {

@@ -1,4 +1,4 @@
-// Copyright 2026 justinwfu. Licensed under Apache-2.0.
+// Copyright 2026 justinwfu and contributors. Licensed under Apache-2.0.
 
 // Package aic implements the art-goat Source for the Art Institute of
 // Chicago's public API (api.artic.edu). Anonymous; no key required.

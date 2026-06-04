@@ -708,9 +708,9 @@ func newReadCmd(flags *rootFlags) *cobra.Command {
 	var copyText bool
 
 	cmd := &cobra.Command{
-		Use:   "read <url>",
+		Use:         "read <url>",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short: "Find or create an archive of a paywalled URL (the hero command)",
+		Short:       "Find or create an archive of a paywalled URL (the hero command)",
 		Long: "Find an existing archive.today snapshot for the URL, or create one if none exists.\n\n" +
 			"Tries timegate lookup first (fast — usually under 500ms). Only submits a fresh capture\n" +
 			"if no recent snapshot is found, which saves 30-120 seconds per hit and avoids rate limits.\n\n" +
@@ -821,9 +821,9 @@ func newGetCmd(flags *rootFlags) *cobra.Command {
 	var rawHTML bool
 
 	cmd := &cobra.Command{
-		Use:   "get <url>",
+		Use:         "get <url>",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short: "Fetch the full archived article text as clean markdown",
+		Short:       "Fetch the full archived article text as clean markdown",
 		Long: "Find or create an archive for the URL, then fetch the memento HTML and extract\n" +
 			"clean readable text. Perfect for piping into LLMs, notes, or terminal reading.\n\n" +
 			"Use --raw to get the untouched HTML instead of extracted markdown.",
@@ -917,11 +917,11 @@ func newGetCmd(flags *rootFlags) *cobra.Command {
 // newHistoryCmd lists all known snapshots of a URL via /timemap/.
 func newHistoryCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "history <url>",
+		Use:         "history <url>",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short:   "List all known archive snapshots for a URL, oldest to newest",
-		Long:    "Queries the Memento timemap endpoint and returns every snapshot ever taken of the URL, with timestamps.",
-		Example: "  archive-is-pp-cli history https://www.nytimes.com/\n  archive-is-pp-cli history https://example.com --json",
+		Short:       "List all known archive snapshots for a URL, oldest to newest",
+		Long:        "Queries the Memento timemap endpoint and returns every snapshot ever taken of the URL, with timestamps.",
+		Example:     "  archive-is-pp-cli history https://www.nytimes.com/\n  archive-is-pp-cli history https://example.com --json",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -1029,9 +1029,9 @@ func newBulkCmd(flags *rootFlags) *cobra.Command {
 	var delay time.Duration
 	var backend string
 	cmd := &cobra.Command{
-		Use:   "bulk [file]",
+		Use:         "bulk [file]",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short: "Archive a list of URLs with built-in rate limiting",
+		Short:       "Archive a list of URLs with built-in rate limiting",
 		Long: "Reads one URL per line from a file (or stdin if no file given) and runs\n" +
 			"'read' on each with a delay between requests to avoid rate limits.\n" +
 			"Lines starting with # are treated as comments.",
@@ -1309,10 +1309,10 @@ func newRequestCmd(flags *rootFlags) *cobra.Command {
 	// `request <url>` call's goroutine completed with success, failure, or is
 	// still running.
 	checkCmd := &cobra.Command{
-		Use:   "check <url>",
+		Use:         "check <url>",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short: "Check whether an archive request has completed",
-		Long:  "Consults the local request state file first; if the URL has a known terminal\nstate (ready or failed), reports it immediately. Otherwise falls back to a\ntimegate lookup.\n\nUse after 'request <url>' without --wait to check if the capture finished.",
+		Short:       "Check whether an archive request has completed",
+		Long:        "Consults the local request state file first; if the URL has a known terminal\nstate (ready or failed), reports it immediately. Otherwise falls back to a\ntimegate lookup.\n\nUse after 'request <url>' without --wait to check if the capture finished.",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()

@@ -1,9 +1,21 @@
-# Google Hotels CLI
+# Hotel Goat — multi-source cash hotel CLI
 
-**Free Google Hotels CLI — per-hotel data with deep booking links, agent-native JSON, and local SQLite wishlist. No API key needed.**
+**Free hotel CLI — cash prices from Google Hotels + Trivago, deep booking links, agent-native JSON, and local SQLite wishlist. No API key needed.**
 
-hotel-goat scrapes Google Hotels' server-rendered data (the same data the Google Hotels web UI shows) without an API key. v1 ships:
-- `hotels <location> <ci> <co>` — search with rich filters (brand, hotel-class, max-price, min-rating, amenities, currency)
+hotel-goat fans out across two cash-price sources by default:
+- **Google Hotels** — scraped from the server-rendered page (same data the web UI shows)
+- **Trivago** — called via Trivago's public MCP server (`https://mcp.trivago.com/mcp`), which exposes OTA-aggregated rates from Booking.com, Expedia, Agoda, Hotels.com, Priceline, etc.
+
+Pick a single source with `--source google` or `--source trivago`; the default is `--source both`. When both sources see the same property (matched on lat/lng + name overlap), the OTA prices are merged into one `prices[]` array. Trivago-only properties are appended as standalone rows so the agent gets a wider candidate set.
+
+Trivago is geolocated server-side and returns EUR regardless of client hints. When the headline currency differs (typically Google's USD vs Trivago's EUR), each Trivago price is converted via the Frankfurter ECB FX endpoint (free, no key, 24h on-disk cache) so the agent compares apples-to-apples. The source label records what happened:
+
+- **`trivago/<OTA> [EUR 802 -> USD]`** — FX conversion succeeded. The numeric `price` and headline `price_per_night` are the converted (USD) values; the native EUR amount is preserved in the label so the agent can see both.
+- **`trivago/<OTA> [EUR]`** — FX lookup failed (offline, Frankfurter outage). The numeric `price` is the native EUR value; the headline `price_per_night` is NOT overridden, so cross-source comparisons remain meaningful.
+- **`trivago/<OTA>`** (no bracket suffix) — currencies already matched, no conversion needed.
+
+v1 ships:
+- `hotels <location> <ci> <co>` — multi-source search with rich filters (brand, hotel-class, max-price, min-rating, amenities, currency)
 - `dates <location> --from --to --nights N` — sweep a date window for the cheapest pair per stay
 - `near "<address>" --radius Nmi` — geo-radius search around any address (auto-geocoded via OpenStreetMap)
 - `hotel show <token>` / `hotel reviews <token>` — single-property detail + review breakdown
@@ -27,7 +39,7 @@ This is a focused v1. The following features were scoped in the design but defer
 
 Learn more at [Google Hotels](https://www.google.com).
 
-Printed by [@kothari-nikunj](https://github.com/kothari-nikunj) (kothari-nikunj).
+Created by [@kothari-nikunj](https://github.com/kothari-nikunj) (kothari-nikunj).
 
 ## Install
 

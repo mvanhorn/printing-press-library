@@ -1,4 +1,4 @@
-// Copyright 2026 riteshtiwari. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 riteshtiwari and contributors. Licensed under Apache-2.0. See LICENSE.
 
 package cli
 
@@ -37,7 +37,7 @@ func newEventsPropertyDriftCmd(flags *rootFlags) *cobra.Command {
 		Use:         "property-drift <event-name>",
 		Short:       "Catch properties that silently disappeared from an event between two time windows",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Long: `Compare event property schemas between a baseline window and the current window. Returns dropped and new properties. Use after deploys to catch silent tracking regressions.`,
+		Long:        `Compare event property schemas between a baseline window and the current window. Returns dropped and new properties. Use after deploys to catch silent tracking regressions.`,
 		Example: `  posthog-pp-cli events property-drift pageview --project 12345
   posthog-pp-cli events property-drift purchase --project 12345 --baseline 14d --current 1d
   posthog-pp-cli events property-drift checkout --project 12345 --json`,
@@ -59,14 +59,18 @@ func newEventsPropertyDriftCmd(flags *rootFlags) *cobra.Command {
 				orgData, err2 := c.Get("/api/organizations/", nil)
 				if err2 == nil {
 					var orgs struct {
-						Results []struct{ ID string `json:"id"` } `json:"results"`
+						Results []struct {
+							ID string `json:"id"`
+						} `json:"results"`
 					}
 					if json.Unmarshal(orgData, &orgs) == nil && len(orgs.Results) > 0 {
 						orgID := orgs.Results[0].ID
 						projData, err3 := c.Get(fmt.Sprintf("/api/organizations/%s/projects/", orgID), nil)
 						if err3 == nil {
 							var projs struct {
-								Results []struct{ ID int `json:"id"` } `json:"results"`
+								Results []struct {
+									ID int `json:"id"`
+								} `json:"results"`
 							}
 							if json.Unmarshal(projData, &projs) == nil && len(projs.Results) > 0 {
 								projectID = strconv.Itoa(projs.Results[0].ID)
@@ -205,16 +209,16 @@ func newEventsPropertyDriftCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			type result struct {
-				ProjectID        string     `json:"project_id"`
-				EventName        string     `json:"event_name"`
-				BaselineSamples  int        `json:"baseline_samples"`
-				CurrentSamples   int        `json:"current_samples"`
-				BaselineProps    int        `json:"baseline_property_count"`
-				CurrentProps     int        `json:"current_property_count"`
-				DroppedCount     int        `json:"dropped_count"`
-				NewCount         int        `json:"new_count"`
-				Diffs            []propDiff `json:"diffs"`
-				GeneratedAt      string     `json:"generated_at"`
+				ProjectID       string     `json:"project_id"`
+				EventName       string     `json:"event_name"`
+				BaselineSamples int        `json:"baseline_samples"`
+				CurrentSamples  int        `json:"current_samples"`
+				BaselineProps   int        `json:"baseline_property_count"`
+				CurrentProps    int        `json:"current_property_count"`
+				DroppedCount    int        `json:"dropped_count"`
+				NewCount        int        `json:"new_count"`
+				Diffs           []propDiff `json:"diffs"`
+				GeneratedAt     string     `json:"generated_at"`
 			}
 			out := result{
 				ProjectID:       projectID,

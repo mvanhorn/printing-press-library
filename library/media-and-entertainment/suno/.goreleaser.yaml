@@ -42,10 +42,10 @@ checksum:
 brews:
   - name: suno-pp-cli
     repository:
-      owner: mvanhorn
+      owner: horknfbr
       name: homebrew-tap
     homepage: "https://github.com/mvanhorn/printing-press-library"
-    description: "Every Suno feature, plus a local SQLite library, offline FTS5 search, MCP-native agent surface, and a single-binary..."
+    description: "The correct, offline-first Suno CLI — every feature the abandoned clients have, plus a local SQLite library"
     install: |
       bin.install "suno-pp-cli"
       bin.install "suno-pp-mcp"

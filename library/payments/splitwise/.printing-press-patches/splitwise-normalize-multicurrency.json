@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "splitwise-normalize-multicurrency",
+  "applied_at": "2026-05-30",
+  "base_run_id": "20260528-002755",
+  "base_printing_press_version": "4.19.0",
+  "summary": "Add a normalize command that converts multi-currency net position and spend into a single base currency.",
+  "reason": "Provide deterministic offline multi-currency normalization with user-supplied FX rates from --rate and --rates-file; historical or automatic FX lookup is intentionally out of scope.",
+  "files": [
+    "internal/cli/splitwise_normalize.go",
+    "internal/cli/splitwise_normalize_test.go",
+    "internal/cli/root.go",
+    "SKILL.md",
+    "README.md"
+  ],
+  "validated_outcome": "splitwise_normalize tests pass and required offline gates (gofmt, go build, go vet, go test ./internal/cli/...) pass."
+}

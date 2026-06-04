@@ -4,6 +4,16 @@
   "printing_press_version": "1.2.1",
   "api_name": "instacart",
   "cli_name": "instacart-pp-cli",
+  "creator": {
+    "handle": "mvanhorn",
+    "name": "Matt Van Horn"
+  },
+  "contributors": [
+    {
+      "handle": "omarshahine",
+      "name": "Omar Shahine"
+    }
+  ],
   "printer": "mvanhorn",
   "printer_name": "Matt Van Horn",
   "description": "Natural-language Instacart CLI that talks directly to the web GraphQL API. Add items to your cart, search products, and manage carts across retailers without browser automation.",

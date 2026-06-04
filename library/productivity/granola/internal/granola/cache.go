@@ -1,4 +1,4 @@
-// Copyright 2026 dstevens. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Damien Stevens and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // Package granola provides typed readers for Granola.ai's local cache file
 // and clients for Granola's internal API. The cache lives at

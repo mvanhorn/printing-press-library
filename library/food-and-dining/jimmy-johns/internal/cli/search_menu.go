@@ -10,15 +10,15 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/jimmy-johns/internal/store"
+	"github.com/spf13/cobra"
 )
 
 type searchHit struct {
-	Type string                 `json:"type"`
-	ID   string                 `json:"id"`
-	Name string                 `json:"name,omitempty"`
-	Data map[string]any         `json:"data,omitempty"`
+	Type string         `json:"type"`
+	ID   string         `json:"id"`
+	Name string         `json:"name,omitempty"`
+	Data map[string]any `json:"data,omitempty"`
 }
 
 type searchResult struct {

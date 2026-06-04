@@ -3,8 +3,12 @@
   "generated_at": "2026-05-08T16:22:19.253591Z",
   "printing_press_version": "4.0.1",
   "api_name": "clarity",
-  "display_name": "PP Clarity",
+  "display_name": "Microsoft Clarity",
   "cli_name": "clarity-pp-cli",
+  "creator": {
+    "handle": "cathrynlavery",
+    "name": "Cathryn Lavery"
+  },
   "owner": "user",
   "printer": "cathrynlavery",
   "printer_name": "Cathryn Lavery",

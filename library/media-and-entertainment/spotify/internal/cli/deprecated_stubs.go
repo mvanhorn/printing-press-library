@@ -1,4 +1,4 @@
-// Copyright 2026 rob-coco. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Rob Zehner and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // Helpers used by the 7 deprecated-endpoint stubs (audio-features, audio-
 // analysis, recommendations, artists/related-artists, browse/featured-playlists,

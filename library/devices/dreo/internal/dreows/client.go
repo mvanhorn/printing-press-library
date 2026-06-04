@@ -1,4 +1,4 @@
-// Copyright 2026 trevin-chow. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Trevin Chow and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // Package dreows wraps a gorilla/websocket connection to the Dreo
 // control-plane WS endpoint. Reads are parsed into StateUpdate values

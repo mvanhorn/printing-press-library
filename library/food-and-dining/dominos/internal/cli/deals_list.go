@@ -1,4 +1,4 @@
-// Copyright 2026 trevin-chow. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Matt Van Horn and contributors. Licensed under Apache-2.0. See LICENSE.
 
 package cli
 
@@ -21,10 +21,10 @@ type dealsListEntry struct {
 }
 
 type dealsListResult struct {
-	Coupons     []dealsListEntry `json:"coupons"`
-	StoreID     string           `json:"store_id"`
-	Total       int              `json:"total"`
-	LocalOnly   bool             `json:"local_only,omitempty"`
+	Coupons   []dealsListEntry `json:"coupons"`
+	StoreID   string           `json:"store_id"`
+	Total     int              `json:"total"`
+	LocalOnly bool             `json:"local_only,omitempty"`
 }
 
 func newDealsListCmd(flags *rootFlags) *cobra.Command {
@@ -42,7 +42,7 @@ specific; Local=false means it's a national promotion).
 
 For cart-aware coupon application, see 'deals eligible' (which only
 returns coupons that auto-apply to your active cart).`,
-		Example: "  dominos-pp-cli deals list --store-id 7144\n  dominos-pp-cli deals list --store-id 7144 --local-only --json",
+		Example:     "  dominos-pp-cli deals list --store-id 7144\n  dominos-pp-cli deals list --store-id 7144 --local-only --json",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if storeID == "" && !flags.dryRun {

@@ -6,7 +6,7 @@ Built from the official twilio/sendgrid-oai spec, sendgrid-pp-cli mirrors the fu
 
 Learn more at [Twilio SendGrid](https://support.sendgrid.com/hc/en-us).
 
-Printed by [@natekettles](https://github.com/natekettles) (Nathan Kettles).
+Created by [@natekettles](https://github.com/natekettles) (Nathan Kettles).
 
 ## Install
 

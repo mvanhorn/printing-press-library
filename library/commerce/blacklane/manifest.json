@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "blacklane-pp-mcp",
+  "display_name": "Blacklane",
+  "version": "4.19.1",
+  "description": "Upfront chauffeur quotes from the terminal — transfer and hourly, with a local price history no other tool has.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/blacklane-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/blacklane-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

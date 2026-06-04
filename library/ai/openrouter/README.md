@@ -6,6 +6,8 @@ Other OpenRouter CLIs are chat REPLs. This one is built for the cron job and the
 
 Learn more at [OpenRouter](https://openrouter.ai/docs).
 
+Created by [@rvdlaar](https://github.com/rvdlaar) (Rick van de Laar).
+
 ## Install
 
 The recommended path installs both the `openrouter-pp-cli` binary and the `pp-openrouter` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

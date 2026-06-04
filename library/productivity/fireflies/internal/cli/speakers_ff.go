@@ -1,4 +1,4 @@
-// Copyright 2026 nikica-jokic. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Nikica Jokic and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // PATCH novel-commands: hand-built speakers analytics (local SQLite, no upstream endpoint).
 package cli
@@ -15,16 +15,16 @@ import (
 )
 
 type analyticsSpeaker struct {
-	SpeakerID       int     `json:"speaker_id"`
-	Name            string  `json:"name"`
-	Duration        float64 `json:"duration"`
-	WordCount       int     `json:"word_count"`
-	LongestMono     float64 `json:"longest_monologue"`
-	MonologueCount  int     `json:"monologues_count"`
-	FillerWords     int     `json:"filler_words"`
-	Questions       int     `json:"questions"`
-	DurationPct     float64 `json:"duration_pct"`
-	WordsPerMinute  float64 `json:"words_per_minute"`
+	SpeakerID      int     `json:"speaker_id"`
+	Name           string  `json:"name"`
+	Duration       float64 `json:"duration"`
+	WordCount      int     `json:"word_count"`
+	LongestMono    float64 `json:"longest_monologue"`
+	MonologueCount int     `json:"monologues_count"`
+	FillerWords    int     `json:"filler_words"`
+	Questions      int     `json:"questions"`
+	DurationPct    float64 `json:"duration_pct"`
+	WordsPerMinute float64 `json:"words_per_minute"`
 }
 
 type meetingAnalytics struct {

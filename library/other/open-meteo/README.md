@@ -4,6 +4,8 @@
 
 Comprehensive coverage of Open-Meteo's free, no-API-key tier across all 11 endpoint families. City-name input via integrated geocoding, WMO code humanization, and a local SQLite cache that powers commands no upstream tool can: forecast diff, climate-vs-now compare, activity verdicts, climate normals.
 
+Created by [@tmchow](https://github.com/tmchow) (Trevin Chow).
+
 ## Install
 
 The recommended path installs both the `open-meteo-pp-cli` binary and the `pp-open-meteo` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

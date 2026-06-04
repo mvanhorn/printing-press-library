@@ -1,4 +1,4 @@
-// Copyright 2026 jmbernabotto. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 jmbernabotto and contributors. Licensed under Apache-2.0. See LICENSE.
 
 package cli
 
@@ -88,13 +88,13 @@ Useful for travellers with reduced mobility or those travelling with luggage.`,
 			transferStops := extractTransferStopPoints(journey)
 
 			type legAccessibility struct {
-				StopID       string `json:"stop_id"`
-				StopName     string `json:"stop_name"`
-				Elevators    []string `json:"elevators"`
-				Escalators   []string `json:"escalators"`
-				ElevatorOK   bool   `json:"elevator_ok"`
-				EscalatorOK  bool   `json:"escalator_ok"`
-				NoEquipData  bool   `json:"no_equip_data"`
+				StopID      string   `json:"stop_id"`
+				StopName    string   `json:"stop_name"`
+				Elevators   []string `json:"elevators"`
+				Escalators  []string `json:"escalators"`
+				ElevatorOK  bool     `json:"elevator_ok"`
+				EscalatorOK bool     `json:"escalator_ok"`
+				NoEquipData bool     `json:"no_equip_data"`
 			}
 
 			var legs []legAccessibility
@@ -120,9 +120,9 @@ Useful for travellers with reduced mobility or those travelling with luggage.`,
 				enc := json.NewEncoder(os.Stdout)
 				enc.SetIndent("", "  ")
 				return enc.Encode(map[string]any{
-					"from":     from,
-					"to":       to,
-					"coverage": coverage,
+					"from":      from,
+					"to":        to,
+					"coverage":  coverage,
 					"transfers": legs,
 				})
 			}

@@ -6,7 +6,7 @@ Search Booking.com, scrape hotel detail and reviews, watch prices over time, and
 
 Learn more at [Booking.com](https://www.booking.com).
 
-Printed by [@mvanhorn](https://github.com/mvanhorn) (Matt Van Horn).
+Created by [@mvanhorn](https://github.com/mvanhorn) (Matt Van Horn).
 
 ## Install
 

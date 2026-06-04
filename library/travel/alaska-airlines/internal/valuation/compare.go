@@ -1,4 +1,4 @@
-// Copyright 2026 matt-van-horn. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Matt Van Horn and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // PATCH(amend-2026-05-20: value-compare) — Pure comparison math.
 // Separated for unit-testability. No I/O, no time, no globals.
@@ -8,14 +8,14 @@ package valuation
 // Comparison is the structured cash-vs-points outcome the CLI surfaces
 // in its results envelope.
 type Comparison struct {
-	CashUSD          float64 `json:"cash_usd"`
-	Miles            int     `json:"miles"`
-	TaxesUSD         float64 `json:"taxes_usd"`
-	BaselineCPPCents float64 `json:"baseline_cpp_cents"`
-	CashSavedUSD     float64 `json:"cash_saved_usd"`
+	CashUSD           float64 `json:"cash_usd"`
+	Miles             int     `json:"miles"`
+	TaxesUSD          float64 `json:"taxes_usd"`
+	BaselineCPPCents  float64 `json:"baseline_cpp_cents"`
+	CashSavedUSD      float64 `json:"cash_saved_usd"`
 	EffectiveCPPCents float64 `json:"effective_cpp_cents"`
-	Multiple         float64 `json:"multiple"`
-	TPGValuedUSD     float64 `json:"tpg_valued_usd"`
+	Multiple          float64 `json:"multiple"`
+	TPGValuedUSD      float64 `json:"tpg_valued_usd"`
 }
 
 // EffectiveCPP returns the cents-per-point you get from a redemption.
@@ -63,4 +63,3 @@ func Compare(cashUSD float64, miles int, taxesUSD, baselineCPP float64) Comparis
 		TPGValuedUSD:      TPGValuedUSD(miles, baselineCPP, taxesUSD),
 	}
 }
-

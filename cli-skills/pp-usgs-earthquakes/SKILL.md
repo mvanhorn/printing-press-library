@@ -19,7 +19,7 @@ metadata:
      This file is a verbatim mirror of library/other/usgs-earthquakes/SKILL.md,
      regenerated post-merge by tools/generate-skills/. Hand-edits here are
      silently overwritten on the next regen. Edit the library/ source instead.
-     See AGENTS.md "Generated artifacts: registry.json, cli-skills/". -->
+     See the repository agent guide, section "Generated artifacts: registry.json, cli-skills/". -->
 
 # USGS Earthquakes — Printing Press CLI
 

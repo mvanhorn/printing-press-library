@@ -1,6 +1,6 @@
 ---
 name: icloud-pp-cli
-description: "Query your iCloud data from the command line — Photos library storage analysis, iMessage history search and export, largest-file finder, and delete via AppleScript. macOS only. No network calls or iCloud API token required."
+description: "Query your Apple iCloud data from the command line — Photos library storage analysis, iMessage history search and export, largest-file finder, and delete via AppleScript. macOS only. No network calls or iCloud API token required."
 author: "Matias Sanchez Moises"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install"
@@ -19,9 +19,9 @@ metadata:
      This file is a verbatim mirror of library/media-and-entertainment/icloud/SKILL.md,
      regenerated post-merge by tools/generate-skills/. Hand-edits here are
      silently overwritten on the next regen. Edit the library/ source instead.
-     See AGENTS.md "Generated artifacts: registry.json, cli-skills/". -->
+     See the repository agent guide, section "Generated artifacts: registry.json, cli-skills/". -->
 
-# iCloud — CLI Skill
+# Apple iCloud — CLI Skill
 
 ## Prerequisites: Install the CLI
 

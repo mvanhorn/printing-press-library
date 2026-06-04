@@ -1,4 +1,4 @@
-// Copyright 2026 nathan-kettles. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Nathan Kettles and contributors. Licensed under Apache-2.0. See LICENSE.
 
 package cli
 
@@ -9,8 +9,8 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/productivity/nylas/internal/store"
+	"github.com/spf13/cobra"
 )
 
 var sqlReadOnlyRE = regexp.MustCompile(`(?i)^\s*(select|with|explain|pragma\s+(table_info|table_list|index_list|index_info|database_list))\b`)
@@ -125,7 +125,7 @@ and webhooks that no single Nylas API call returns.`,
 // keywords being executable: single-quoted string literals, double-
 // quoted identifiers, line comments (`-- …` to end-of-line), and
 // block comments (`/* … */`). Handles SQL's doubled-quote escape for
-// both `''` inside strings and `""` inside identifiers.
+// both `”` inside strings and `""` inside identifiers.
 //
 // This is a conservative approximation, not a real SQL parser — the
 // driver-level mode=ro flag in OpenReadOnly is what actually prevents

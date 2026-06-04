@@ -1,4 +1,4 @@
-// Copyright 2026 matt-van-horn. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Matt Van Horn and contributors. Licensed under Apache-2.0. See LICENSE.
 
 package client
 
@@ -236,18 +236,18 @@ func (p Person) Tier(currentUserUUID string) RelationshipTier {
 // createSearchRequest is the POST /api/search body. Field names are
 // camelCase; the server rejects snake_case silently with 500.
 type createSearchRequest struct {
-	RequestText        string        `json:"requestText"`
-	RequestContent     []slateBlock  `json:"requestContent"`
-	RequestGroups      []string      `json:"requestGroups"`
-	ParentRequestID    *string       `json:"parentRequestId"`
-	ExcludePersonUUIDs []string      `json:"excludePersonUUIDs"`
-	SearchEveryone     bool          `json:"searchEveryone"`
-	CreditID           *string       `json:"creditId"`
+	RequestText        string       `json:"requestText"`
+	RequestContent     []slateBlock `json:"requestContent"`
+	RequestGroups      []string     `json:"requestGroups"`
+	ParentRequestID    *string      `json:"parentRequestId"`
+	ExcludePersonUUIDs []string     `json:"excludePersonUUIDs"`
+	SearchEveryone     bool         `json:"searchEveryone"`
+	CreditID           *string      `json:"creditId"`
 }
 
 type slateBlock struct {
-	Type     string         `json:"type"`
-	Children []slateInline  `json:"children"`
+	Type     string        `json:"type"`
+	Children []slateInline `json:"children"`
 }
 
 type slateInline struct {
@@ -263,12 +263,12 @@ type createSearchResponse struct {
 // /api/dynamo?requestId= endpoint returns an array with exactly one
 // element in practice.
 type dynamoEntry struct {
-	RequestID    string          `json:"request_id"`
-	RequestText  string          `json:"request_text"`
-	RequestStatus string         `json:"request_status"`
-	Completed    bool            `json:"completed"`
-	Logs         []SearchLog     `json:"logs"`
-	Results      []Person        `json:"results"`
+	RequestID     string      `json:"request_id"`
+	RequestText   string      `json:"request_text"`
+	RequestStatus string      `json:"request_status"`
+	Completed     bool        `json:"completed"`
+	Logs          []SearchLog `json:"logs"`
+	Results       []Person    `json:"results"`
 }
 
 // SearchPeopleByQuery runs a Happenstance natural-language people-search

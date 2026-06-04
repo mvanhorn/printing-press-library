@@ -1,8 +1,12 @@
 #!/usr/bin/env python3
 """verify_skill.py — validate that SKILL.md matches the shipped CLI source.
 
-Four checks run in sequence:
+Five checks run in sequence:
 
+  0. skill-guard-literals — SKILL.md references no agent-config filename
+     literal (AGENTS.md, CLAUDE.md, .cursorrules, .clinerules). Hermes'
+     skills guard flags those as CRITICAL persistence, hard-blocking install
+     of the generated cli-skills/pp-*/SKILL.md mirror.
   1. flag-names — every `--flag` used on a `<cli_binary> ...` invocation in
      SKILL.md is declared as a cobra flag somewhere in internal/cli/*.go.
      Flags on lines that invoke other tools (npx installers, gh, go,
@@ -33,6 +37,7 @@ USAGE
     python3 verify_skill.py --dir <cli-dir> --json
     python3 verify_skill.py --dir <cli-dir> --only flag-names
     python3 verify_skill.py --dir <cli-dir> --only unknown-command
+    python3 verify_skill.py --dir <cli-dir> --only skill-guard-literals
     python3 verify_skill.py --dir <cli-dir> --strict  # treat known-FPs as failures
 
 Exit codes:
@@ -951,6 +956,42 @@ def derive_cli_binary(cli_dir: Path) -> str:
     return cli_dir.name + "-pp-cli"
 
 
+# Agent-config filename literals that Hermes' skills guard (and similar
+# scanners) flag as CRITICAL "persistence" (agent_config_mod) findings. A
+# single match yields a DANGEROUS verdict that hard-blocks install of the
+# mirrored cli-skills/pp-*/SKILL.md (--force cannot override). The library
+# SKILL.md is the source of truth for the mirror body, so guarding it here —
+# PR-time, per CLI — keeps these literals off the install surface. The
+# generator header is guarded separately by a unit test in
+# tools/generate-skills/main_test.go. See
+# docs/plans/2026-06-01-001-fix-hermes-skills-guard-false-positive-plan.md.
+AGENT_CONFIG_LITERALS = ("AGENTS.md", "CLAUDE.md", ".cursorrules", ".clinerules")
+
+
+def check_skill_guard_literals(
+    cli_dir: Path, skill: Path, cli_binary: str, report: Report
+) -> None:
+    text = skill.read_text(encoding="utf-8", errors="replace")
+    for lineno, line in enumerate(text.splitlines(), start=1):
+        lower = line.lower()
+        for literal in AGENT_CONFIG_LITERALS:
+            if literal.lower() in lower:
+                report.findings.append(
+                    Finding(
+                        check="skill-guard-literals",
+                        severity="error",
+                        command=cli_binary,
+                        detail=(
+                            f"SKILL.md references the agent-config literal {literal!r}, "
+                            "which Hermes' skills guard flags as CRITICAL persistence and "
+                            "hard-blocks install of the generated mirror. Name the doc/section "
+                            "without the filename."
+                        ),
+                        evidence=f"SKILL.md:{lineno}: {line.strip()}",
+                    )
+                )
+
+
 def run_checks(cli_dir: Path, only: set[str] | None) -> Report:
     skill = cli_dir / "SKILL.md"
     if not skill.exists():
@@ -963,7 +1004,16 @@ def run_checks(cli_dir: Path, only: set[str] | None) -> Report:
     cli_binary = derive_cli_binary(cli_dir)
     report = Report(cli_dir=str(cli_dir), skill_path=str(skill))
 
-    checks = only or {"flag-names", "flag-commands", "positional-args", "unknown-command"}
+    checks = only or {
+        "flag-names",
+        "flag-commands",
+        "positional-args",
+        "unknown-command",
+        "skill-guard-literals",
+    }
+    if "skill-guard-literals" in checks:
+        report.checks_run.append("skill-guard-literals")
+        check_skill_guard_literals(cli_dir, skill, cli_binary, report)
     if "flag-names" in checks:
         report.checks_run.append("flag-names")
         check_flag_names(cli_dir, skill, cli_binary, report)
@@ -1040,7 +1090,13 @@ def main():
     p.add_argument("--dir", required=True, help="CLI directory (contains SKILL.md + internal/cli/)")
     p.add_argument(
         "--only",
-        choices=["flag-names", "flag-commands", "positional-args", "unknown-command"],
+        choices=[
+            "flag-names",
+            "flag-commands",
+            "positional-args",
+            "unknown-command",
+            "skill-guard-literals",
+        ],
         action="append",
         help="Run only the named check(s). Pass multiple times to include multiple.",
     )

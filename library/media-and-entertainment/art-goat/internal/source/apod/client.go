@@ -1,4 +1,4 @@
-// Copyright 2026 justinwfu. Licensed under Apache-2.0.
+// Copyright 2026 justinwfu and contributors. Licensed under Apache-2.0.
 
 // Package apod implements the art-goat Source for NASA's Astronomy
 // Picture of the Day. Uses DEMO_KEY by default (rate-limited ~30/hr);

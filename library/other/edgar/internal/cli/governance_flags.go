@@ -1,4 +1,4 @@
-// Copyright 2026 magoo242. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 magoo242 and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // `edgar-pp-cli governance-flags <TICKER>` — three independent signals:
 // auditor changes (8-K 4.01), restatements (8-K 4.02), late filings (NT 10-K/Q).

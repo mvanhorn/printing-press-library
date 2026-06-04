@@ -6,6 +6,8 @@ This printed CLI wraps Klaviyo's JSON:API surface for profiles, events, campaign
 
 Learn more at [Klaviyo](https://developers.klaviyo.com).
 
+Created by [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
+
 ## Install
 
 The recommended path installs both the `klaviyo-pp-cli` binary and the `pp-klaviyo` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

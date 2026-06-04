@@ -21,6 +21,8 @@ See [Known Limitations](#known-limitations) for what doesn't work today.
 
 ![ebay-pp-cli discovery flow](docs/discovery-demo.gif)
 
+Created by [@mvanhorn](https://github.com/mvanhorn) (Matt Van Horn).
+
 ## Install
 
 The recommended path installs both the `ebay-pp-cli` binary and the `pp-ebay` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

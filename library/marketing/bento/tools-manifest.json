@@ -1,0 +1,463 @@
+{
+  "api_name": "bento",
+  "base_url": "https://app.bentonow.com",
+  "description": "Every Bento feature, plus the ones their own CLI does not have, plus a local SQLite store that turns 'who are my top spenders by tag' into a one-liner.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "api_key",
+    "header": "Authorization",
+    "format": "Basic {BENTO_PUBLISHABLE_KEY}:{BENTO_SECRET_KEY}",
+    "env_vars": [
+      "BENTO_PUBLISHABLE_KEY",
+      "BENTO_SECRET_KEY",
+      "BENTO_SITE_UUID"
+    ],
+    "env_var_specs": [
+      {
+        "name": "BENTO_PUBLISHABLE_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": false,
+        "description": "Basic auth username. Starts with pk_. Available in your Bento dashboard under Settings -\u003e API Keys."
+      },
+      {
+        "name": "BENTO_SECRET_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "description": "Basic auth password. Starts with sk_. Available in your Bento dashboard under Settings -\u003e API Keys. Never expose client-side."
+      },
+      {
+        "name": "BENTO_SITE_UUID",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": false,
+        "description": "Bento site identifier. Attached to every request as ?site_uuid= on GETs and in the JSON body on POSTs. Available in your Bento dashboard under Account -\u003e Site Settings."
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "batch_create",
+      "description": "This endpoint allows you to create multiple email broadcasts efficiently. It's ideal for setting up a series of campaigns or A/B tests. Key features: - Supports creating up to 100 broadcasts per request - Allows for detailed customization of each broadcast - Useful for scheduling a series of emails or creating variations for testing. Required: site_uuid. Optional: broadcasts. Returns the new BatchCreateResponse.",
+      "method": "POST",
+      "path": "/api/v1/batch/broadcasts",
+      "params": [
+        {
+          "name": "site_uuid",
+          "type": "string",
+          "location": "query",
+          "description": "Your site's unique identifier.",
+          "required": true
+        },
+        {
+          "name": "broadcasts",
+          "type": "array",
+          "location": "body",
+          "description": "An array of 1 to 100 broadcast objects."
+        }
+      ]
+    },
+    {
+      "name": "batch_create-emails",
+      "description": "This endpoint allows you to create and send multiple emails efficiently. It's designed for high-priority email sending with quick processing times. Key features: - Supports sending up to 60 emails per request - Requests are processed in a priority queue - Most requests are processed within 30 seconds - Ideal for time-sensitive communications like password resets or important notifications. Required: site_uuid. Optional: emails. Returns the new BatchCreateEmailsResponse.",
+      "method": "POST",
+      "path": "/api/v1/batch/emails",
+      "params": [
+        {
+          "name": "site_uuid",
+          "type": "string",
+          "location": "query",
+          "description": "Your site's unique identifier.",
+          "required": true
+        },
+        {
+          "name": "emails",
+          "type": "array",
+          "location": "body",
+          "description": "An array of 1 to 60 email objects to be sent."
+        }
+      ]
+    },
+    {
+      "name": "batch_create-events",
+      "description": "This endpoint allows you to send multiple events to your site. It's a powerful tool for tracking user interactions and behaviors. Key features: - Can create new users if they don't exist in your account - Supports sending up to 1,000 events per request - Ideal for tracking various user actions like page views, purchases, or custom events. Required: site_uuid. Optional: events. Returns the new BatchCreateEventsResponse.",
+      "method": "POST",
+      "path": "/api/v1/batch/events",
+      "params": [
+        {
+          "name": "site_uuid",
+          "type": "string",
+          "location": "query",
+          "description": "Your site's unique identifier.",
+          "required": true
+        },
+        {
+          "name": "events",
+          "type": "array",
+          "location": "body",
+          "description": "An array of 1 to 1,000 event objects."
+        }
+      ]
+    },
+    {
+      "name": "batch_create-subscribers",
+      "description": "This endpoint allows for efficient bulk creation and updating of subscribers. It mimics our import background jobs and is the recommended method for managing your subscriber base at scale. Key features: - Supports both creation and updating of subscribers - Processes data via import queues for optimal performance - Changes are typically instant but may take up to 5 minutes in high-load situations - Ideal for bulk updates, imports, and one-off subscriber modifications - Does not trigger Flows or automations, ensuring minimal side effects. Required: site_uuid. Optional: subscribers. Returns the new BatchCreateSubscribersResponse.",
+      "method": "POST",
+      "path": "/api/v1/batch/subscribers",
+      "params": [
+        {
+          "name": "site_uuid",
+          "type": "string",
+          "location": "query",
+          "description": "Your site's unique identifier.",
+          "required": true
+        },
+        {
+          "name": "subscribers",
+          "type": "array",
+          "location": "body",
+          "description": "An array containing between 1 and 1000 subscriber objects."
+        }
+      ]
+    },
+    {
+      "name": "experimental_create",
+      "description": "This endpoint will return an opinionated moderation score based on the content provided. This is optimised for small amounts of text content, where you never want a link/XSS/etc inside it. Required: content. Returns the new ExperimentalCreateResponse.",
+      "method": "POST",
+      "path": "/api/v1/experimental/content_moderation",
+      "params": [
+        {
+          "name": "content",
+          "type": "string",
+          "location": "query",
+          "description": "The content you wish to moderate.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "experimental_create-gender",
+      "description": "This endpoint allows you to guess the gender of a subscriber based on their first name and last name. Works best with US users as we use US Census Data to make our guesses. Required: name. Returns the new ExperimentalCreateGenderResponse.",
+      "method": "POST",
+      "path": "/api/v1/experimental/gender",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "query",
+          "description": "This can be the full name of a subscriber or last name.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "experimental_create-validation",
+      "description": "This experimental endpoint provides basic validation for email addresses and associated user information. It uses various heuristics to determine the likelihood of the provided information being valid. Required: email. Optional: name, user_agent, ip. Returns the new ExperimentalCreateValidationResponse.",
+      "method": "POST",
+      "path": "/api/v1/experimental/validation",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "query",
+          "description": "The full name of the contact. Note that this validation is biased towards US Census data and may produce false positives."
+        },
+        {
+          "name": "user_agent",
+          "type": "string",
+          "location": "query",
+          "description": "The user agent string from the browser or client application."
+        },
+        {
+          "name": "ip",
+          "type": "string",
+          "location": "query",
+          "description": "The users IP address. Returns false for all countries outside of Tier 1."
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "location": "query",
+          "description": "Validates the domains MX records.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "experimental_list",
+      "description": "This experimental endpoint allows you to check if a domain or IP address is present on various blacklists. You can provide either a domain or an IP address, but not both in the same request. Optional: domain, ip. Returns the ExperimentalListResponse.",
+      "method": "GET",
+      "path": "/api/v1/experimental/blacklist.json",
+      "params": [
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "query",
+          "description": "The domain to check (e.g., 'example.com'). Do not include the protocol (http:// or https://)."
+        },
+        {
+          "name": "ip",
+          "type": "string",
+          "location": "query",
+          "description": "The IP address to check."
+        }
+      ]
+    },
+    {
+      "name": "experimental_list-geolocation",
+      "description": "This endpoint allows you to geolocate an IP address. Required: ip. Returns the ExperimentalListGeolocationResponse.",
+      "method": "GET",
+      "path": "/api/v1/experimental/geolocation",
+      "params": [
+        {
+          "name": "ip",
+          "type": "string",
+          "location": "query",
+          "description": "The IP address you wish to ping.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "fetch_create",
+      "description": "This endpoint allows you to execute various commands to modify subscriber data. It's a powerful tool for managing your subscriber base programmatically. Available commands: - add_tag: Add a tag to a subscriber - add_tag_via_event: Add a tag to a subscriber and record it as an event - remove_tag: Remove a tag from a subscriber - add_field: Add or update a custom field for a subscriber - remove_field: Remove a custom field from a subscriber - subscribe: Mark a subscriber as subscribed - unsubscribe: Mark a subscriber as unsubscribed - change_email: Change a subscriber's email address. Required: site_uuid. Optional: command. Returns the new Command.",
+      "method": "POST",
+      "path": "/api/v1/fetch/commands",
+      "params": [
+        {
+          "name": "site_uuid",
+          "type": "string",
+          "location": "query",
+          "description": "Your site's unique identifier.",
+          "required": true
+        },
+        {
+          "name": "command",
+          "type": "array",
+          "location": "body",
+          "description": "Command"
+        }
+      ]
+    },
+    {
+      "name": "fetch_create-fields",
+      "description": "Creates a new custom field in your account. Custom fields allow you to store additional data about your subscribers. Required: site_uuid. Optional: field. Returns array of FetchCreateFieldsItem.",
+      "method": "POST",
+      "path": "/api/v1/fetch/fields",
+      "params": [
+        {
+          "name": "site_uuid",
+          "type": "string",
+          "location": "query",
+          "description": "Your site's unique identifier.",
+          "required": true
+        },
+        {
+          "name": "field",
+          "type": "object",
+          "location": "body",
+          "description": "Field"
+        }
+      ]
+    },
+    {
+      "name": "fetch_create-subscribers",
+      "description": "Creates a new subscriber in your account and queues them for indexing. Required: site_uuid. Optional: subscriber. Returns the new Subscriber.",
+      "method": "POST",
+      "path": "/api/v1/fetch/subscribers",
+      "params": [
+        {
+          "name": "site_uuid",
+          "type": "string",
+          "location": "query",
+          "description": "Your site's unique identifier.",
+          "required": true
+        },
+        {
+          "name": "subscriber",
+          "type": "object",
+          "location": "body",
+          "description": "Subscriber"
+        }
+      ]
+    },
+    {
+      "name": "fetch_create-tags",
+      "description": "Creates a new tag in your account for subscriber segmentation. Required: site_uuid. Optional: tag. Returns array of FetchCreateTagsItem.",
+      "method": "POST",
+      "path": "/api/v1/fetch/tags",
+      "params": [
+        {
+          "name": "site_uuid",
+          "type": "string",
+          "location": "query",
+          "description": "Your site's unique identifier.",
+          "required": true
+        },
+        {
+          "name": "tag",
+          "type": "object",
+          "location": "body",
+          "description": "Tag"
+        }
+      ]
+    },
+    {
+      "name": "fetch_list",
+      "description": "Fetches a list of all broadcasts in your account, providing an overview of your email campaigns. Required: site_uuid. Returns array of Broadcast.",
+      "method": "GET",
+      "path": "/api/v1/fetch/broadcasts",
+      "params": [
+        {
+          "name": "site_uuid",
+          "type": "string",
+          "location": "query",
+          "description": "Your site's unique identifier.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "fetch_list-fields",
+      "description": "Fetches a list of all custom fields defined in your account. These fields can be used for subscriber data and segmentation. Required: site_uuid. Returns array of Field.",
+      "method": "GET",
+      "path": "/api/v1/fetch/fields",
+      "params": [
+        {
+          "name": "site_uuid",
+          "type": "string",
+          "location": "query",
+          "description": "Your site's unique identifier.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "fetch_list-search",
+      "description": "This endpoint allows for advanced searching of your subscriber base. It's designed for Bento Enterprise customers and requires special access. Key features: - Returns up to 100 subscribers per page - Supports various search criteria including creation date, update date, and custom fields - Ideal for complex segmentation and data analysis tasks Note: This is an Enterprise-only feature. Please contact Bento support for access and further details. Required: site_uuid. Optional: created_at, last_event_at, page (plus 2 more).",
+      "method": "GET",
+      "path": "/api/v1/fetch/search",
+      "params": [
+        {
+          "name": "site_uuid",
+          "type": "string",
+          "location": "query",
+          "description": "Your site's unique identifier.",
+          "required": true
+        },
+        {
+          "name": "created_at",
+          "type": "object",
+          "location": "body",
+          "description": "Filter by subscriber creation date."
+        },
+        {
+          "name": "last_event_at",
+          "type": "object",
+          "location": "body",
+          "description": "Filter by the date of the subscriber's last recorded event."
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "body",
+          "description": "The page number of the search results to retrieve."
+        },
+        {
+          "name": "unsubscribed_at",
+          "type": "object",
+          "location": "body",
+          "description": "Filter by unsubscribe date."
+        },
+        {
+          "name": "updated_at",
+          "type": "object",
+          "location": "body",
+          "description": "Filter by subscriber last update date."
+        }
+      ]
+    },
+    {
+      "name": "fetch_list-subscribers",
+      "description": "Fetch detailed information about one or multiple subscribers in your account. Required: site_uuid. Optional: email, uuid. Returns the Subscriber.",
+      "method": "GET",
+      "path": "/api/v1/fetch/subscribers",
+      "params": [
+        {
+          "name": "site_uuid",
+          "type": "string",
+          "location": "query",
+          "description": "Your site's unique identifier.",
+          "required": true
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "location": "query",
+          "description": "The email address of the subscriber to retrieve."
+        },
+        {
+          "name": "uuid",
+          "type": "string",
+          "location": "query",
+          "description": "The unique identifier of the subscriber. Use this for precise lookups."
+        }
+      ]
+    },
+    {
+      "name": "fetch_list-tags",
+      "description": "Fetches a list of all tags in your account. Tags are useful for segmenting your subscriber base. Required: site_uuid. Returns array of Tag.",
+      "method": "GET",
+      "path": "/api/v1/fetch/tags",
+      "params": [
+        {
+          "name": "site_uuid",
+          "type": "string",
+          "location": "query",
+          "description": "Your site's unique identifier.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "stats_list",
+      "description": "Fetches statistics for a specific segment in your account. This includes counts of users, subscribers, and unsubscribers within the segment. IMPORTANT: This endpoint should never be used in client-side code to ensure the privacy and security of your account data. Required: site_uuid, segment_id. Returns the StatsListResponse.",
+      "method": "GET",
+      "path": "/api/v1/stats/segment",
+      "params": [
+        {
+          "name": "site_uuid",
+          "type": "string",
+          "location": "query",
+          "description": "Your site's unique identifier.",
+          "required": true
+        },
+        {
+          "name": "segment_id",
+          "type": "string",
+          "location": "query",
+          "description": "The unique identifier of the segment you want to analyze.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "stats_list-site",
+      "description": "Fetches overall statistics for your site. This includes counts of users, subscribers, and unsubscribers. IMPORTANT: This endpoint should never be used in client-side code to ensure the privacy and security of your account data. Required: site_uuid. Returns the StatsListSiteResponse.",
+      "method": "GET",
+      "path": "/api/v1/stats/site",
+      "params": [
+        {
+          "name": "site_uuid",
+          "type": "string",
+          "location": "query",
+          "description": "Your site's unique identifier.",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

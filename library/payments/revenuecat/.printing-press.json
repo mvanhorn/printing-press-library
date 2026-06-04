@@ -1,0 +1,86 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-29T23:16:47.355023Z",
+  "printing_press_version": "4.19.0",
+  "api_name": "revenuecat",
+  "display_name": "RevenueCat",
+  "cli_name": "revenuecat-pp-cli",
+  "creator": {
+    "handle": "jcastillo725",
+    "name": "Joseph Alvin Castillo"
+  },
+  "owner": "jcastillo725",
+  "printer": "jcastillo725",
+  "printer_name": "Joseph Alvin Castillo",
+  "spec_path": "revenuecat-v2-spec.yaml",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:3cca4c44018920911173a47af45a90d813eb5fa7d132f385e9a18f7608d3a019",
+  "run_id": "20260530-071644",
+  "category": "payments",
+  "description": "Every RevenueCat v2 endpoint, plus a local database, offline search, and revenue/churn/refund intelligence the dashboard charts can't compose.",
+  "mcp_binary": "revenuecat-pp-mcp",
+  "mcp_tool_count": 100,
+  "mcp_ready": "full",
+  "api_version": "2.0.0",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "REVENUECAT_API_KEY",
+    "DEVELOPER_BEARER_AUTH"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "REVENUECAT_API_KEY",
+      "kind": "per_call",
+      "required": false,
+      "sensitive": true
+    },
+    {
+      "name": "DEVELOPER_BEARER_AUTH",
+      "kind": "per_call",
+      "required": false,
+      "sensitive": true
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Revenue snapshot",
+      "command": "revenue-snapshot",
+      "description": "Point-in-time MRR, ARR, active subscriptions, trials, and revenue in your chosen currency, with deltas against your last snapshot."
+    },
+    {
+      "name": "MRR trend",
+      "command": "mrr-trend",
+      "description": "MRR over time with new / expansion / contraction / churn movement decomposition and week-over-week deltas."
+    },
+    {
+      "name": "Churn watch",
+      "command": "churn-watch",
+      "description": "Which subscriptions flipped to billing-issue, grace, expired, or cancelled in a window, with per-subscription dollar exposure."
+    },
+    {
+      "name": "Dunning alert",
+      "command": "dunning-alert",
+      "description": "Subscriptions still in grace or billing-issue state joined with their unpaid invoices, ranked by recoverable amount."
+    },
+    {
+      "name": "Entitlement rollup",
+      "command": "entitlement-rollup",
+      "description": "Per-entitlement active-customer counts and product attachments, flagging customers whose entitlement state disagrees with their subscription state."
+    },
+    {
+      "name": "Refund cascade",
+      "command": "refund-cascade",
+      "description": "Traces a subscription or purchase through its transactions, refund history, and resulting entitlement loss; --apply issues the refund."
+    },
+    {
+      "name": "Trial funnel",
+      "command": "trial-funnel",
+      "description": "New trials to conversion-to-paying funnel with stage-to-stage drop-off."
+    },
+    {
+      "name": "Webhook audit",
+      "command": "webhook-audit",
+      "description": "Lists configured webhook integrations grouped by destination host, flagging duplicate or stale destinations."
+    }
+  ]
+}

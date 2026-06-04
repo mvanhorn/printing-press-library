@@ -1,4 +1,4 @@
-// Copyright 2026 matt-van-horn. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Matt Van Horn and contributors. Licensed under Apache-2.0. See LICENSE.
 
 package cli
 
@@ -25,9 +25,9 @@ import (
 
 func newHPCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "hp",
+		Use:         "hp",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short: "Happenstance graph commands (1st / 2nd / 3rd degree people-search)",
+		Short:       "Happenstance graph commands (1st / 2nd / 3rd degree people-search)",
 		Long: `hp groups the Happenstance graph-search commands that wrap the web app's
 natural-language search. Unlike the narrow friends/list-backed coverage
 command, these hit the full graph (your synced LinkedIn contacts, your
@@ -49,9 +49,9 @@ func newHPPeopleCmd(flags *rootFlags) *cobra.Command {
 	)
 
 	cmd := &cobra.Command{
-		Use:   "people <query>",
+		Use:         "people <query>",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short: "Natural-language people-search across your Happenstance graph",
+		Short:       "Natural-language people-search across your Happenstance graph",
 		Long: `Runs a Happenstance people-search with the same endpoint the web app
 uses. Supports 1st-degree (your synced connections), 2nd-degree (your
 friends' networks), and 3rd-degree (public / search-everyone) tiers.
@@ -181,34 +181,34 @@ connected. The RELATIONSHIP column shows 1st_degree / 2nd_degree /
 // an explicit `relationship` tier so consumers don't have to rederive
 // it from the referrer chain.
 type hpPeopleRow struct {
-	Name           string                `json:"name"`
-	PersonUUID     string                `json:"person_uuid"`
-	CurrentTitle   string                `json:"current_title"`
-	CurrentCompany string                `json:"current_company"`
-	LinkedInURL    string                `json:"linkedin_url"`
+	Name           string                  `json:"name"`
+	PersonUUID     string                  `json:"person_uuid"`
+	CurrentTitle   string                  `json:"current_title"`
+	CurrentCompany string                  `json:"current_company"`
+	LinkedInURL    string                  `json:"linkedin_url"`
 	Relationship   client.RelationshipTier `json:"relationship"`
-	Referrers      []hpReferrerRow       `json:"referrers,omitempty"`
-	Bridges        []bridgeRef           `json:"bridges,omitempty"`
-	Rationale      string                `json:"rationale,omitempty"`
-	Score          float64               `json:"score"`
-	Summary        string                `json:"summary,omitempty"`
+	Referrers      []hpReferrerRow         `json:"referrers,omitempty"`
+	Bridges        []bridgeRef             `json:"bridges,omitempty"`
+	Rationale      string                  `json:"rationale,omitempty"`
+	Score          float64                 `json:"score"`
+	Summary        string                  `json:"summary,omitempty"`
 }
 
 type hpReferrerRow struct {
-	Name          string  `json:"name"`
-	ID            string  `json:"id"`
+	Name          string   `json:"name"`
+	ID            string   `json:"id"`
 	Source        []string `json:"source,omitempty"`
-	AffinityLevel string  `json:"affinity_level,omitempty"`
+	AffinityLevel string   `json:"affinity_level,omitempty"`
 }
 
 type hpPeopleEnvelope struct {
-	Query        string          `json:"query"`
-	RequestID    string          `json:"request_id"`
-	Status       string          `json:"status"`
-	Completed    bool            `json:"completed"`
-	Count        int             `json:"count"`
-	CurrentUser  string          `json:"current_user_uuid,omitempty"`
-	Results      []hpPeopleRow   `json:"results"`
+	Query       string        `json:"query"`
+	RequestID   string        `json:"request_id"`
+	Status      string        `json:"status"`
+	Completed   bool          `json:"completed"`
+	Count       int           `json:"count"`
+	CurrentUser string        `json:"current_user_uuid,omitempty"`
+	Results     []hpPeopleRow `json:"results"`
 }
 
 func buildHPPeopleJSON(res *client.PeopleSearchResult, currentUserUUID string) hpPeopleEnvelope {
@@ -288,9 +288,10 @@ func printHPPeopleTable(cmd *cobra.Command, res *client.PeopleSearchResult, curr
 // form should use --json instead.
 //
 // Columns (stable):
-//   name | current_title | current_company | linkedin_url | score |
-//   relationship_tier | bridge_count | bridge_names | bridge_kinds |
-//   top_bridge_affinity | rationale
+//
+//	name | current_title | current_company | linkedin_url | score |
+//	relationship_tier | bridge_count | bridge_names | bridge_kinds |
+//	top_bridge_affinity | rationale
 //
 // relationship_tier derives from the strongest bridge's kind:
 // self_graph -> 1st_degree, friend -> 2nd_degree, no bridge -> the

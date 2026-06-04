@@ -1,4 +1,4 @@
-// Copyright 2026 azaaron. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 azaaron and contributors. Licensed under Apache-2.0. See LICENSE.
 
 package cli
 
@@ -10,9 +10,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/productivity/strava/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/productivity/strava/internal/store"
+	"github.com/spf13/cobra"
 )
 
 type trainingLoadRow struct {
@@ -184,4 +184,3 @@ AND COALESCE(json_extract(data, '$.start_date'), '') >= ?`
 	cmd.Flags().StringVar(&dbPath, "db", "", "Database path")
 	return cmd
 }
-

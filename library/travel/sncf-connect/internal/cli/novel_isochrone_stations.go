@@ -1,4 +1,4 @@
-// Copyright 2026 jmbernabotto. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 jmbernabotto and contributors. Licensed under Apache-2.0. See LICENSE.
 
 package cli
 
@@ -9,8 +9,8 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/travel/sncf-connect/internal/store"
+	"github.com/spf13/cobra"
 )
 
 func newIsochroneCmd(flags *rootFlags) *cobra.Command {

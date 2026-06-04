@@ -1,11 +1,11 @@
-// Copyright 2026 user. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Stephan Stoeber and contributors. Licensed under Apache-2.0. See LICENSE.
 
 package cli
 
 import (
 	"fmt"
-	"strings"
 	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/twilio/internal/store"
+	"strings"
 
 	"github.com/spf13/cobra"
 )

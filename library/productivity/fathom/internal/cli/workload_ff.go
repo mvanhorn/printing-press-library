@@ -86,12 +86,12 @@ Run 'sync --full' first to populate the local store.`,
 				HoursTotal   float64 `json:"hours"`
 			}
 			type personLoad struct {
-				Name         string     `json:"name"`
-				Email        string     `json:"email"`
-				TotalHours   float64    `json:"total_hours"`
-				WeeklyAvg    float64    `json:"weekly_avg_hours"`
-				Overloaded   bool       `json:"overloaded"`
-				Weeks        []weekLoad `json:"weeks"`
+				Name       string     `json:"name"`
+				Email      string     `json:"email"`
+				TotalHours float64    `json:"total_hours"`
+				WeeklyAvg  float64    `json:"weekly_avg_hours"`
+				Overloaded bool       `json:"overloaded"`
+				Weeks      []weekLoad `json:"weeks"`
 			}
 
 			var results []personLoad
@@ -150,4 +150,3 @@ Run 'sync --full' first to populate the local store.`,
 	cmd.Flags().StringVar(&dbPath, "db", "", "Database path")
 	return cmd
 }
-

@@ -5,8 +5,8 @@ import (
 	"testing"
 	"time"
 
-	_ "modernc.org/sqlite"
 	"github.com/mvanhorn/printing-press-library/library/productivity/safari-history/internal/source"
+	_ "modernc.org/sqlite"
 )
 
 func TestSanitizeFTSAndSearch(t *testing.T) {

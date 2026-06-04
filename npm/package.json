@@ -1,6 +1,6 @@
 {
   "name": "@mvanhorn/printing-press-library",
-  "version": "0.1.9",
+  "version": "0.1.15",
   "description": "Installer and catalog CLI for Printing Press-generated CLIs.",
   "type": "module",
   "license": "MIT",
@@ -42,7 +42,10 @@
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",
+    "check-lock-version": "node scripts/check-lock-version.mjs",
     "clean": "rm -rf dist",
+    "preversion": "npm run check-lock-version",
+    "version": "npm install --package-lock-only && npm run check-lock-version",
     "test": "npm run build && node --test \"dist/tests/**/*.test.js\"",
     "prepublishOnly": "npm test && npm run build"
   },
@@ -51,7 +54,11 @@
     "provenance": true
   },
   "devDependencies": {
+    "@types/cross-spawn": "^6.0.6",
     "@types/node": "^20.19.39",
     "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "cross-spawn": "^7.0.6"
   }
 }

@@ -1,4 +1,4 @@
-// Copyright 2026 dstevens. Licensed under Apache-2.0.
+// Copyright 2026 Damien Stevens and contributors. Licensed under Apache-2.0.
 
 package cli
 
@@ -28,15 +28,15 @@ import (
 //
 // Each entry is justified:
 //
-//   sync, sync-api: would recurse (auto-refresh calls them)
-//   auth          : refresh requires auth — chicken/egg
-//   doctor        : doctor reports current state; auto-refresh would
-//                   side-effect that state (write SyncState) before
-//                   doctor reads it
-//   help, version, completion, agent-context, which:
-//                 : no data dependency
-//   profile       : profile management is local-only
-//   feedback      : feedback is local-only (or remote-but-not-data)
+//	sync, sync-api: would recurse (auto-refresh calls them)
+//	auth          : refresh requires auth — chicken/egg
+//	doctor        : doctor reports current state; auto-refresh would
+//	                side-effect that state (write SyncState) before
+//	                doctor reads it
+//	help, version, completion, agent-context, which:
+//	              : no data dependency
+//	profile       : profile management is local-only
+//	feedback      : feedback is local-only (or remote-but-not-data)
 //
 // Names match cobra Use:; aliases (e.g. "sync-api") are matched as-is.
 var noRefreshCommands = map[string]struct{}{
@@ -285,7 +285,7 @@ var stderrIsTerminal = func() bool {
 // emitProvenanceLine writes the one-line summary to the provided
 // writer. Format:
 //
-//   auto-refresh: cache=ok (1.2s, 47 docs)  api=ok (820ms, 12 docs)
+//	auto-refresh: cache=ok (1.2s, 47 docs)  api=ok (820ms, 12 docs)
 //
 // Failures render as cache=failed: <short reason>. Surfaces not in
 // the plan are omitted entirely (no "api=skipped" noise for users

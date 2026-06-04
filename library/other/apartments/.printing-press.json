@@ -5,6 +5,10 @@
   "api_name": "apartments",
   "display_name": "Apartments",
   "cli_name": "apartments-pp-cli",
+  "creator": {
+    "handle": "rderwin",
+    "name": "rderwin"
+  },
   "printer": "rderwin",
   "printer_name": "rderwin",
   "spec_format": "internal",

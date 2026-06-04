@@ -1,4 +1,4 @@
-// Copyright 2026 matt-van-horn. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Matt Van Horn and contributors. Licensed under Apache-2.0. See LICENSE.
 // Primary flight-goat commands: Google Flights search, cheapest-dates, and
 // Kayak-style nonstop explore. These are the headline features and do NOT
 // require any API key. FlightAware commands live elsewhere and are optional.
@@ -51,9 +51,9 @@ func newGfFlightsCmd(flags *rootFlags) *cobra.Command {
 	var limitedResults bool
 
 	cmd := &cobra.Command{
-		Use:   "flights <origin> <destination> <date>",
+		Use:         "flights <origin> <destination> <date>",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short: "Search Google Flights for a specific date (free, no API key required)",
+		Short:       "Search Google Flights for a specific date (free, no API key required)",
 		Long: `flights is flight-goat's headline command. It queries Google Flights via
 flight-goat's native Go backend (no Python dependency) and returns real prices,
 durations, airlines, and leg details. No API key. No auth. Just results.`,
@@ -191,9 +191,9 @@ func newGfDatesCmd(flags *rootFlags) *cobra.Command {
 	var limit int
 
 	cmd := &cobra.Command{
-		Use:   "dates <origin> <destination>",
+		Use:         "dates <origin> <destination>",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short: "Find the cheapest dates to fly between two airports (free, no API key required)",
+		Short:       "Find the cheapest dates to fly between two airports (free, no API key required)",
 		Long: `dates scans Google Flights for the cheapest days to travel a route over
 a range of dates. No API key required. Uses flight-goat's native Go backend
 (no Python dependency).`,
@@ -315,9 +315,9 @@ func newKayakExploreCmd(flags *rootFlags) *cobra.Command {
 	var limit int
 
 	cmd := &cobra.Command{
-		Use:   "explore <airport>",
+		Use:         "explore <airport>",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short: "Every nonstop destination from an airport (free, via Kayak /direct)",
+		Short:       "Every nonstop destination from an airport (free, via Kayak /direct)",
 		Long: `explore fetches Kayak's /direct/<airport> page and parses the nonstop
 destinations table that Kayak server-renders into the HTML. Same data you see
 on www.kayak.com/direct/SEA, but in your terminal as structured output.
@@ -379,10 +379,10 @@ duration, number of daily flights, and operating airlines.`,
 
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				bts, _ := json.MarshalIndent(struct {
-					Origin  string        `json:"origin"`
-					Source  string        `json:"source"`
-					Count   int           `json:"count"`
-					Routes  []kayak.Route `json:"routes"`
+					Origin string        `json:"origin"`
+					Source string        `json:"source"`
+					Count  int           `json:"count"`
+					Routes []kayak.Route `json:"routes"`
 				}{airport, "kayak-direct", len(filtered), filtered}, "", "  ")
 				fmt.Fprintln(cmd.OutOrStdout(), string(bts))
 				return nil
@@ -417,9 +417,9 @@ func newKayakLonghaulCmd(flags *rootFlags) *cobra.Command {
 	var limit int
 
 	cmd := &cobra.Command{
-		Use:   "longhaul <airport>",
+		Use:         "longhaul <airport>",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short: "Nonstop destinations from an airport filtered by minimum flight duration (free, via Kayak)",
+		Short:       "Nonstop destinations from an airport filtered by minimum flight duration (free, via Kayak)",
 		Long: `longhaul is the headline flight-goat command. It answers the classic
 travel-hacker question: "show me every nonstop flight from my airport that's
 at least N hours long, so I know where I can actually use a long-haul redemption."

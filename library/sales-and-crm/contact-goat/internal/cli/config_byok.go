@@ -1,4 +1,4 @@
-// Copyright 2026 matt-van-horn. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Matt Van Horn and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // config byok: store BYOK provider -> env-var-name mappings for use by the
 // waterfall command. We store the env var NAME, never the key value — the
@@ -43,9 +43,9 @@ type byokFile struct {
 
 func newConfigCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "config",
+		Use:         "config",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short: "Configure contact-goat-pp-cli (BYOK providers, defaults, etc.)",
+		Short:       "Configure contact-goat-pp-cli (BYOK providers, defaults, etc.)",
 	}
 	cmd.AddCommand(newConfigBYOKCmd(flags))
 	return cmd
@@ -143,10 +143,10 @@ func newConfigBYOKUnsetCmd(flags *rootFlags) *cobra.Command {
 
 func newConfigBYOKListCmd(flags *rootFlags) *cobra.Command {
 	return &cobra.Command{
-		Use:     "list",
+		Use:         "list",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short:   "Show configured BYOK providers (env var names only, never values)",
-		Example: "  contact-goat-pp-cli config byok list",
+		Short:       "Show configured BYOK providers (env var names only, never values)",
+		Example:     "  contact-goat-pp-cli config byok list",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			byok := readBYOKConfig()
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {

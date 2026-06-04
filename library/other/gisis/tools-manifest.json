@@ -1,0 +1,22 @@
+{
+  "api_name": "gisis",
+  "base_url": "https://gisis.imo.org/Public",
+  "description": "Authoritative IMO ship particulars on the command line, plus a local cache that turns one-shot lookups into a compounding vessel index.",
+  "mcp_ready": "partial",
+  "http_transport": "browser-chrome-h2",
+  "auth": {
+    "type": "cookie",
+    "cookie_domain": "gisis.imo.org",
+    "cookies": [
+      "ASP.NET_SessionId",
+      ".ASPXAUTH"
+    ]
+  },
+  "required_headers": [
+    {
+      "name": "User-Agent",
+      "value": "gisis-pp-cli/0.1 (+https://github.com/openclaw/vessel-mcp)"
+    }
+  ],
+  "tools": []
+}

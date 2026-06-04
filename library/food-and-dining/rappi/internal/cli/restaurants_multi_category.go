@@ -1,4 +1,4 @@
-// Copyright 2026 bobeglz. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 bobe and contributors. Licensed under Apache-2.0. See LICENSE.
 // pp:client-call — real HTTP via fetchRestaurantListPage -> rappi.Client.FetchHTML.
 package cli
 

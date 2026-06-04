@@ -1,4 +1,4 @@
-// Copyright 2026 twidtwid. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Todd Dailey and contributors. Licensed under Apache-2.0. See LICENSE.
 
 package store
 

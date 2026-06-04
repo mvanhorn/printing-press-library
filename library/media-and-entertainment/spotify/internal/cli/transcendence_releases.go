@@ -1,4 +1,4 @@
-// Copyright 2026 rob-coco. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Rob Zehner and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // Root `releases` subtree owning `releases since` (T5). Distinct from the
 // generator-emitted `browse new-releases` endpoint mirror — `releases since`

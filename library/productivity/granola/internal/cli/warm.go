@@ -1,4 +1,4 @@
-// Copyright 2026 dstevens. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Damien Stevens and contributors. Licensed under Apache-2.0. See LICENSE.
 
 package cli
 
@@ -7,8 +7,8 @@ import (
 	"os/exec"
 	"runtime"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/productivity/granola/internal/cliutil"
+	"github.com/spf13/cobra"
 )
 
 // newWarmCmd activates the Granola desktop app and types a search query

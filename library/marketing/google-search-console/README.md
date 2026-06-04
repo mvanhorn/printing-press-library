@@ -4,6 +4,8 @@
 
 A single binary covering search analytics, URL inspection, sitemaps, and site management -- with the agent-native JSON and CSV outputs, --dry-run, exit codes, and offline search every other GSC tool half-implements. The transcendence layer (compare, quick-wins, cannibalization, historical, decaying, outliers, cliff, roll-up, coverage-drift, sitemap-watch, new-queries) runs entirely from the local SQLite store, so the workflows the API can't answer in one call are answered in one command.
 
+Created by [@bossriceshark](https://github.com/bossriceshark) (Matt).
+
 ## Install
 
 The recommended path installs both the `google-search-console-pp-cli` binary and the `pp-google-search-console` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

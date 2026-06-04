@@ -1,0 +1,1170 @@
+{
+  "dir": "/Users/dhilipsubramanian/Documents/Printingpress/workspace/library/stackadapt",
+  "binary": "/Users/dhilipsubramanian/Documents/Printingpress/workspace/library/stackadapt/stackadapt-pp-cli",
+  "level": "full",
+  "verdict": "PASS",
+  "matrix_size": 77,
+  "passed": 77,
+  "failed": 0,
+  "skipped": 36,
+  "commands": [
+    "account",
+    "ads list",
+    "advertisers get",
+    "advertisers list",
+    "api",
+    "bottleneck",
+    "campaign-groups get",
+    "campaign-groups list",
+    "campaigns get",
+    "campaigns list",
+    "delivery-drift",
+    "doctor",
+    "feedback list",
+    "graphql",
+    "import",
+    "pacing",
+    "profile delete",
+    "profile list",
+    "profile save",
+    "profile show",
+    "profile use",
+    "report campaign-delivery",
+    "search",
+    "segments list",
+    "sql",
+    "stale-campaigns",
+    "sync",
+    "which"
+  ],
+  "tests": [
+    {
+      "command": "account",
+      "kind": "help",
+      "args": [
+        "account",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live client response omitted from public manuscript]"
+    },
+    {
+      "command": "account",
+      "kind": "happy_path",
+      "args": [
+        "account",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live client response omitted from public manuscript]"
+    },
+    {
+      "command": "account",
+      "kind": "json_fidelity",
+      "args": [
+        "account",
+        "--agent",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live client response omitted from public manuscript]"
+    },
+    {
+      "command": "account",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "ads list",
+      "kind": "help",
+      "args": [
+        "ads",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live client response omitted from public manuscript]"
+    },
+    {
+      "command": "ads list",
+      "kind": "happy_path",
+      "args": [
+        "ads",
+        "list",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live client response omitted from public manuscript]"
+    },
+    {
+      "command": "ads list",
+      "kind": "json_fidelity",
+      "args": [
+        "ads",
+        "list",
+        "--agent",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live client response omitted from public manuscript]"
+    },
+    {
+      "command": "ads list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "advertisers get",
+      "kind": "help",
+      "args": [
+        "advertisers",
+        "get",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live client response omitted from public manuscript]"
+    },
+    {
+      "command": "advertisers get",
+      "kind": "happy_path",
+      "args": [
+        "advertisers",
+        "get",
+        "39370",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live client response omitted from public manuscript]"
+    },
+    {
+      "command": "advertisers get",
+      "kind": "json_fidelity",
+      "args": [
+        "advertisers",
+        "get",
+        "39370",
+        "--agent",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live client response omitted from public manuscript]"
+    },
+    {
+      "command": "advertisers get",
+      "kind": "error_path",
+      "args": [
+        "advertisers",
+        "get",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "[redacted: live client response omitted from public manuscript]"
+    },
+    {
+      "command": "advertisers list",
+      "kind": "help",
+      "args": [
+        "advertisers",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live client response omitted from public manuscript]"
+    },
+    {
+      "command": "advertisers list",
+      "kind": "happy_path",
+      "args": [
+        "advertisers",
+        "list",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live client response omitted from public manuscript]"
+    },
+    {
+      "command": "advertisers list",
+      "kind": "json_fidelity",
+      "args": [
+        "advertisers",
+        "list",
+        "--agent",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live client response omitted from public manuscript]"
+    },
+    {
+      "command": "advertisers list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "api",
+      "kind": "help",
+      "args": [
+        "api",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live client response omitted from public manuscript]"
+    },
+    {
+      "command": "api",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "api",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "api",
+      "kind": "error_path",
+      "args": [
+        "api",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "[redacted: live client response omitted from public manuscript]"
+    },
+    {
+      "command": "bottleneck",
+      "kind": "help",
+      "args": [
+        "bottleneck",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live client response omitted from public manuscript]"
+    },
+    {
+      "command": "bottleneck",
+      "kind": "happy_path",
+      "args": [
+        "bottleneck",
+        "--advertiser",
+        "123",
+        "--days",
+        "30",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live client response omitted from public manuscript]"
+    },
+    {
+      "command": "bottleneck",
+      "kind": "json_fidelity",
+      "args": [
+        "bottleneck",
+        "--advertiser",
+        "123",
+        "--days",
+        "30",
+        "--agent",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live client response omitted from public manuscript]"
+    },
+    {
+      "command": "bottleneck",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "campaign-groups get",
+      "kind": "help",
+      "args": [
+        "campaign-groups",
+        "get",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live client response omitted from public manuscript]"
+    },
+    {
+      "command": "campaign-groups get",
+      "kind": "happy_path",
+      "args": [
+        "campaign-groups",
+        "get",
+        "89155",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live client response omitted from public manuscript]"
+    },
+    {
+      "command": "campaign-groups get",
+      "kind": "json_fidelity",
+      "args": [
+        "campaign-groups",
+        "get",
+        "89155",
+        "--agent",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live client response omitted from public manuscript]"
+    },
+    {
+      "command": "campaign-groups get",
+      "kind": "error_path",
+      "args": [
+        "campaign-groups",
+        "get",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "[redacted: live client response omitted from public manuscript]"
+    },
+    {
+      "command": "campaign-groups list",
+      "kind": "help",
+      "args": [
+        "campaign-groups",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live client response omitted from public manuscript]"
+    },
+    {
+      "command": "campaign-groups list",
+      "kind": "happy_path",
+      "args": [
+        "campaign-groups",
+        "list",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live client response omitted from public manuscript]"
+    },
+    {
+      "command": "campaign-groups list",
+      "kind": "json_fidelity",
+      "args": [
+        "campaign-groups",
+        "list",
+        "--agent",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live client response omitted from public manuscript]"
+    },
+    {
+      "command": "campaign-groups list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "campaigns get",
+      "kind": "help",
+      "args": [
+        "campaigns",
+        "get",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live client response omitted from public manuscript]"
+    },
+    {
+      "command": "campaigns get",
+      "kind": "happy_path",
+      "args": [
+        "campaigns",
+        "get",
+        "261269",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live client response omitted from public manuscript]"
+    },
+    {
+      "command": "campaigns get",
+      "kind": "json_fidelity",
+      "args": [
+        "campaigns",
+        "get",
+        "261269",
+        "--agent",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live client response omitted from public manuscript]"
+    },
+    {
+      "command": "campaigns get",
+      "kind": "error_path",
+      "args": [
+        "campaigns",
+        "get",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "[redacted: live client response omitted from public manuscript]"
+    },
+    {
+      "command": "campaigns list",
+      "kind": "help",
+      "args": [
+        "campaigns",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live client response omitted from public manuscript]"
+    },
+    {
+      "command": "campaigns list",
+      "kind": "happy_path",
+      "args": [
+        "campaigns",
+        "list",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live client response omitted from public manuscript]"
+    },
+    {
+      "command": "campaigns list",
+      "kind": "json_fidelity",
+      "args": [
+        "campaigns",
+        "list",
+        "--agent",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live client response omitted from public manuscript]"
+    },
+    {
+      "command": "campaigns list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "delivery-drift",
+      "kind": "help",
+      "args": [
+        "delivery-drift",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live client response omitted from public manuscript]"
+    },
+    {
+      "command": "delivery-drift",
+      "kind": "happy_path",
+      "args": [
+        "delivery-drift",
+        "--advertiser",
+        "123",
+        "--days",
+        "7",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live client response omitted from public manuscript]"
+    },
+    {
+      "command": "delivery-drift",
+      "kind": "json_fidelity",
+      "args": [
+        "delivery-drift",
+        "--advertiser",
+        "123",
+        "--days",
+        "7",
+        "--agent",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live client response omitted from public manuscript]"
+    },
+    {
+      "command": "delivery-drift",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "doctor",
+      "kind": "help",
+      "args": [
+        "doctor",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live client response omitted from public manuscript]"
+    },
+    {
+      "command": "doctor",
+      "kind": "happy_path",
+      "args": [
+        "doctor"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live client response omitted from public manuscript]"
+    },
+    {
+      "command": "doctor",
+      "kind": "json_fidelity",
+      "args": [
+        "doctor",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live client response omitted from public manuscript]"
+    },
+    {
+      "command": "doctor",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "feedback list",
+      "kind": "help",
+      "args": [
+        "feedback",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live client response omitted from public manuscript]"
+    },
+    {
+      "command": "feedback list",
+      "kind": "happy_path",
+      "args": [
+        "feedback",
+        "list"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "feedback list",
+      "kind": "json_fidelity",
+      "args": [
+        "feedback",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live client response omitted from public manuscript]"
+    },
+    {
+      "command": "feedback list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "graphql",
+      "kind": "help",
+      "args": [
+        "graphql",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live client response omitted from public manuscript]"
+    },
+    {
+      "command": "graphql",
+      "kind": "happy_path",
+      "args": [
+        "graphql",
+        "--query",
+        "example-value"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live client response omitted from public manuscript]"
+    },
+    {
+      "command": "graphql",
+      "kind": "json_fidelity",
+      "args": [
+        "graphql",
+        "--query",
+        "example-value",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live client response omitted from public manuscript]"
+    },
+    {
+      "command": "graphql",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "import",
+      "kind": "help",
+      "args": [
+        "import",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live client response omitted from public manuscript]"
+    },
+    {
+      "command": "import",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [import] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "import",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [import] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "import",
+      "kind": "error_path",
+      "args": [
+        "import",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "[redacted: live client response omitted from public manuscript]"
+    },
+    {
+      "command": "pacing",
+      "kind": "help",
+      "args": [
+        "pacing",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live client response omitted from public manuscript]"
+    },
+    {
+      "command": "pacing",
+      "kind": "happy_path",
+      "args": [
+        "pacing",
+        "--advertiser",
+        "123",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live client response omitted from public manuscript]"
+    },
+    {
+      "command": "pacing",
+      "kind": "json_fidelity",
+      "args": [
+        "pacing",
+        "--advertiser",
+        "123",
+        "--agent",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live client response omitted from public manuscript]"
+    },
+    {
+      "command": "pacing",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "profile delete",
+      "kind": "help",
+      "args": [
+        "profile",
+        "delete",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live client response omitted from public manuscript]"
+    },
+    {
+      "command": "profile delete",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile list",
+      "kind": "help",
+      "args": [
+        "profile",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live client response omitted from public manuscript]"
+    },
+    {
+      "command": "profile list",
+      "kind": "happy_path",
+      "args": [
+        "profile",
+        "list"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live client response omitted from public manuscript]"
+    },
+    {
+      "command": "profile list",
+      "kind": "json_fidelity",
+      "args": [
+        "profile",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live client response omitted from public manuscript]"
+    },
+    {
+      "command": "profile list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "profile save",
+      "kind": "help",
+      "args": [
+        "profile",
+        "save",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live client response omitted from public manuscript]"
+    },
+    {
+      "command": "profile save",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "save",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "[redacted: live client response omitted from public manuscript]"
+    },
+    {
+      "command": "profile show",
+      "kind": "help",
+      "args": [
+        "profile",
+        "show",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live client response omitted from public manuscript]"
+    },
+    {
+      "command": "profile show",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "show",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "[redacted: live client response omitted from public manuscript]"
+    },
+    {
+      "command": "profile use",
+      "kind": "help",
+      "args": [
+        "profile",
+        "use",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live client response omitted from public manuscript]"
+    },
+    {
+      "command": "profile use",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "use",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "[redacted: live client response omitted from public manuscript]"
+    },
+    {
+      "command": "report campaign-delivery",
+      "kind": "help",
+      "args": [
+        "report",
+        "campaign-delivery",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live client response omitted from public manuscript]"
+    },
+    {
+      "command": "report campaign-delivery",
+      "kind": "happy_path",
+      "args": [
+        "report",
+        "campaign-delivery",
+        "--days",
+        "30",
+        "--agent",
+        "--select",
+        "records.campaign_name,records.metrics.cost"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live client response omitted from public manuscript]"
+    },
+    {
+      "command": "report campaign-delivery",
+      "kind": "json_fidelity",
+      "args": [
+        "report",
+        "campaign-delivery",
+        "--days",
+        "30",
+        "--agent",
+        "--select",
+        "records.campaign_name,records.metrics.cost",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live client response omitted from public manuscript]"
+    },
+    {
+      "command": "report campaign-delivery",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "search",
+      "kind": "help",
+      "args": [
+        "search",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live client response omitted from public manuscript]"
+    },
+    {
+      "command": "search",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [search] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "search",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [search] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "search",
+      "kind": "error_path",
+      "args": [
+        "search",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "[redacted: live client response omitted from public manuscript]"
+    },
+    {
+      "command": "segments list",
+      "kind": "help",
+      "args": [
+        "segments",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live client response omitted from public manuscript]"
+    },
+    {
+      "command": "segments list",
+      "kind": "happy_path",
+      "args": [
+        "segments",
+        "list",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live client response omitted from public manuscript]"
+    },
+    {
+      "command": "segments list",
+      "kind": "json_fidelity",
+      "args": [
+        "segments",
+        "list",
+        "--agent",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live client response omitted from public manuscript]"
+    },
+    {
+      "command": "segments list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "sql",
+      "kind": "help",
+      "args": [
+        "sql",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live client response omitted from public manuscript]"
+    },
+    {
+      "command": "sql",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [sql] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "sql",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [sql] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "sql",
+      "kind": "error_path",
+      "args": [
+        "sql",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "[redacted: live client response omitted from public manuscript]"
+    },
+    {
+      "command": "stale-campaigns",
+      "kind": "help",
+      "args": [
+        "stale-campaigns",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live client response omitted from public manuscript]"
+    },
+    {
+      "command": "stale-campaigns",
+      "kind": "happy_path",
+      "args": [
+        "stale-campaigns",
+        "--days",
+        "14",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live client response omitted from public manuscript]"
+    },
+    {
+      "command": "stale-campaigns",
+      "kind": "json_fidelity",
+      "args": [
+        "stale-campaigns",
+        "--days",
+        "14",
+        "--agent",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live client response omitted from public manuscript]"
+    },
+    {
+      "command": "stale-campaigns",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "sync",
+      "kind": "help",
+      "args": [
+        "sync",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live client response omitted from public manuscript]"
+    },
+    {
+      "command": "sync",
+      "kind": "happy_path",
+      "args": [
+        "sync"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live client response omitted from public manuscript]"
+    },
+    {
+      "command": "sync",
+      "kind": "json_fidelity",
+      "args": [
+        "sync",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live client response omitted from public manuscript]"
+    },
+    {
+      "command": "sync",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "which",
+      "kind": "help",
+      "args": [
+        "which",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live client response omitted from public manuscript]"
+    },
+    {
+      "command": "which",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [which] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "which",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [which] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "which",
+      "kind": "error_path",
+      "args": [
+        "which",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live client response omitted from public manuscript]"
+    }
+  ],
+  "ran_at": "2026-05-30T10:47:39.884235Z"
+}

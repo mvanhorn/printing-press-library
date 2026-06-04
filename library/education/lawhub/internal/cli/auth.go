@@ -169,7 +169,7 @@ func discoverUserIDFromPage(p *rod.Page) string {
 	return ""
 }
 
-func loginCmd() *cobra.Command {
+func newLoginCmd() *cobra.Command {
 	return loginCobra("login")
 }
 
@@ -253,9 +253,13 @@ func resolveCDPWebSocket(cdpURL string) (string, error) {
 	return v.WebSocketDebuggerURL, nil
 }
 
-func authCmd() *cobra.Command {
+func newAuthCmd() *cobra.Command {
 	cmd := &cobra.Command{Use: "auth", Short: "Manage LawHub session"}
-	cmd.AddCommand(loginCobra("login"), authImportFileCmd(), authStatusCmd(), authPathCmd(), authLogoutCmd())
+	cmd.AddCommand(loginCobra("login"))
+	cmd.AddCommand(newAuthImportFileCmd())
+	cmd.AddCommand(newAuthStatusCmd())
+	cmd.AddCommand(newAuthPathCmd())
+	cmd.AddCommand(newAuthLogoutCmd())
 	return cmd
 }
 
@@ -309,7 +313,7 @@ func authPing() map[string]any {
 	return out
 }
 
-func authImportFileCmd() *cobra.Command {
+func newAuthImportFileCmd() *cobra.Command {
 	return &cobra.Command{Use: "import-file <storage-state.json>", Short: "Import Playwright/browser-use storage state", Args: cobra.ExactArgs(1), RunE: func(cmd *cobra.Command, args []string) error {
 		in := args[0]
 		f, err := os.Open(in)
@@ -342,7 +346,7 @@ func authImportFileCmd() *cobra.Command {
 	}}
 }
 
-func authStatusCmd() *cobra.Command {
+func newAuthStatusCmd() *cobra.Command {
 	var live bool
 	c := &cobra.Command{Use: "status", Short: "Show saved session status", RunE: func(cmd *cobra.Command, args []string) error {
 		st := readAccount()
@@ -358,13 +362,13 @@ func authStatusCmd() *cobra.Command {
 	return c
 }
 
-func authPathCmd() *cobra.Command {
+func newAuthPathCmd() *cobra.Command {
 	return &cobra.Command{Use: "path", Short: "Print auth/session paths", RunE: func(cmd *cobra.Command, args []string) error {
 		return emit(map[string]any{"secure_dir": cfg.SecureDir, "session_file": sessionPath(), "account_file": accountPath()})
 	}}
 }
 
-func authLogoutCmd() *cobra.Command {
+func newAuthLogoutCmd() *cobra.Command {
 	return &cobra.Command{Use: "logout", Short: "Delete saved LawHub session", RunE: func(cmd *cobra.Command, args []string) error {
 		removed := []string{}
 		for _, p := range []string{sessionPath(), accountPath()} {

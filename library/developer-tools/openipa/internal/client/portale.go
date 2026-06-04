@@ -1,4 +1,4 @@
-// Copyright 2026 aborruso. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 aborruso and contributors. Licensed under Apache-2.0. See LICENSE.
 // Hand-written addition: PortaleServices client — preserve on regeneration.
 
 package client
@@ -6,10 +6,10 @@ package client
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/openipa/internal/cliutil"
 	"io"
 	"math"
 	"net/http"
-	"github.com/mvanhorn/printing-press-library/library/developer-tools/openipa/internal/cliutil"
 	"os"
 	"strings"
 	"time"

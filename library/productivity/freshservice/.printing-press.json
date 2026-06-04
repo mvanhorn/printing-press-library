@@ -5,6 +5,10 @@
   "api_name": "freshservice",
   "display_name": "Freshservice",
   "cli_name": "freshservice-pp-cli",
+  "creator": {
+    "handle": "mark-van-de-ven",
+    "name": "Mark van de Ven"
+  },
   "owner": "mark-van-de-ven",
   "printer": "mark-van-de-ven",
   "printer_name": "Mark van de Ven",

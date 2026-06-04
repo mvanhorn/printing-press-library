@@ -115,7 +115,7 @@ Outputs a structured diff (create / update / delete) without applying.
 Examples:
   apify-pp-cli schedules diff ./schedules.yaml --json
 `, "\n"),
-		Args: cobra.MaximumNArgs(1),
+		Args:        cobra.MaximumNArgs(1),
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

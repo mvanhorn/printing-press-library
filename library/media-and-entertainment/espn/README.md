@@ -2,6 +2,8 @@
 
 Live scores, standings, news, and game history across 17 sports from ESPN
 
+Created by [@mvanhorn](https://github.com/mvanhorn) (Matt Van Horn).
+
 ## Install
 
 The recommended path installs both the `espn-pp-cli` binary and the `pp-espn` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

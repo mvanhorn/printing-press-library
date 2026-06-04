@@ -1,4 +1,4 @@
-// Copyright 2026 salmonumbrella. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 salmonumbrella and contributors. Licensed under Apache-2.0. See LICENSE.
 // PATCH(retro #marianatek-bearer-prefix): regression test for AuthHeader()
 // auto-prefixing "Bearer " when the source is `oauth_authorization`.
 
@@ -8,10 +8,10 @@ import "testing"
 
 func TestAuthHeaderBearerPrefix(t *testing.T) {
 	cases := []struct {
-		name        string
-		authHeader  string
-		oauthRaw    string
-		wantHeader  string
+		name       string
+		authHeader string
+		oauthRaw   string
+		wantHeader string
 	}{
 		{"auth_header verbatim", "Bearer abc", "ignored", "Bearer abc"},
 		{"auth_header verbatim non-bearer", "Token xyz", "ignored", "Token xyz"},

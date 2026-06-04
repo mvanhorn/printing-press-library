@@ -1,4 +1,4 @@
-// Copyright 2026 conduyt. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Conduyt and contributors. Licensed under Apache-2.0. See LICENSE.
 
 package cli
 
@@ -122,14 +122,14 @@ func newInsightsDealVelocityCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			result := map[string]any{
-				"total_deals":      totalDeals,
-				"won":              wonDeals,
-				"lost":             lostDeals,
-				"win_rate":         fmt.Sprintf("%.1f%%", winRate),
-				"total_value":      totalValue,
-				"won_value":        wonValue,
-				"avg_cycle_days":   fmt.Sprintf("%.1f", avgCycle),
-				"stages":           metrics,
+				"total_deals":    totalDeals,
+				"won":            wonDeals,
+				"lost":           lostDeals,
+				"win_rate":       fmt.Sprintf("%.1f%%", winRate),
+				"total_value":    totalValue,
+				"won_value":      wonValue,
+				"avg_cycle_days": fmt.Sprintf("%.1f", avgCycle),
+				"stages":         metrics,
 			}
 
 			if flags.asJSON {

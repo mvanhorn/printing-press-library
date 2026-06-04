@@ -1,0 +1,115 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-26T20:20:42.333555482Z",
+  "printing_press_version": "4.11.0",
+  "api_name": "bento",
+  "display_name": "Bento",
+  "cli_name": "bento-pp-cli",
+  "creator": {
+    "handle": "bossriceshark",
+    "name": "bossriceshark"
+  },
+  "owner": "bossriceshark",
+  "printer": "bossriceshark",
+  "printer_name": "bossriceshark",
+  "spec_path": "/home/mattr/printing-press/.runstate/mattr-cbe4858d/runs/20260526-094831/research/bento-openapi.yaml",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:87a4b00018e4ae1b37d9a77f8081385c5f374cfe582c62f621850679c1de5646",
+  "run_id": "20260526-094831",
+  "description": "Every Bento feature, plus the ones their own CLI does not have, plus a local SQLite store that turns 'who are my top spenders by tag' into a one-liner.",
+  "mcp_binary": "bento-pp-mcp",
+  "mcp_tool_count": 20,
+  "mcp_ready": "full",
+  "api_version": "1.0",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "BENTO_PUBLISHABLE_KEY",
+    "BENTO_SECRET_KEY",
+    "BENTO_SITE_UUID"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "BENTO_PUBLISHABLE_KEY",
+      "kind": "per_call",
+      "required": true,
+      "sensitive": false,
+      "description": "Basic auth username. Starts with pk_. Available in your Bento dashboard under Settings -\u003e API Keys."
+    },
+    {
+      "name": "BENTO_SECRET_KEY",
+      "kind": "per_call",
+      "required": true,
+      "sensitive": true,
+      "description": "Basic auth password. Starts with sk_. Available in your Bento dashboard under Settings -\u003e API Keys. Never expose client-side."
+    },
+    {
+      "name": "BENTO_SITE_UUID",
+      "kind": "per_call",
+      "required": true,
+      "sensitive": false,
+      "description": "Bento site identifier. Attached to every request as ?site_uuid= on GETs and in the JSON body on POSTs. Available in your Bento dashboard under Account -\u003e Site Settings."
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Snapshot Diff",
+      "command": "sync diff",
+      "description": "Show exactly which subscribers, tags, fields, or templates changed between two local snapshots since Bento has no since filter."
+    },
+    {
+      "name": "Hygiene Pipeline",
+      "command": "hygiene scrub",
+      "description": "Run validation + jesses_ruleset + blacklist + content_moderation in one pass and emit a clean CSV plus a rejected CSV with reasons."
+    },
+    {
+      "name": "Purchase Replay",
+      "command": "events purchase-replay",
+      "description": "Dry-run a Vendure order export against the Bento $purchase mapping and show the exact batch payload before sending."
+    },
+    {
+      "name": "Trigger Path Lint",
+      "command": "events lint",
+      "description": "Warn when a payload uses /fetch/commands subscribe but the intent (welcome flow, tag-triggered automation) requires /batch/events to fire automations."
+    },
+    {
+      "name": "Churn Risk Score",
+      "command": "subscribers churn-risk",
+      "description": "Rank subscribers by days-since-last-open/click against your cohort baseline before the next broadcast goes out."
+    },
+    {
+      "name": "Win-Back Cohort",
+      "command": "subscribers winback",
+      "description": "Build a CSV of customers who bought once, lapsed 180+ days, and never opened the last 3 broadcasts."
+    },
+    {
+      "name": "Review Trigger Coexist",
+      "command": "events review-window",
+      "description": "Emit a dated Bento event stream for orders shipped 10 days ago, skipping any order Stamped already triggered."
+    },
+    {
+      "name": "Pre-Delete Audit",
+      "command": "subscribers pre-delete",
+      "description": "Show tags, events, revenue, and active automations a subscriber set carries before you file a GDPR data_deletion_request."
+    },
+    {
+      "name": "Broadcast What-If",
+      "command": "broadcasts whatif",
+      "description": "Estimate audience size, predicted opens, and hygiene-risk count for a draft broadcast before you queue it in the dashboard."
+    },
+    {
+      "name": "Tag Drift Report",
+      "command": "tags drift",
+      "description": "Surface tags whose subscriber counts swung more than N% week-over-week, catching misfiring workflows."
+    },
+    {
+      "name": "Field Schema Lint",
+      "command": "fields lint",
+      "description": "Diff local custom fields against a Vendure customer-schema file and flag missing, renamed, or type-mismatched fields."
+    },
+    {
+      "name": "Cohort FTS",
+      "command": "subscribers find",
+      "description": "Full-text search subscriber notes/fields plus structured filters in one query, exportable as CSV."
+    }
+  ]
+}

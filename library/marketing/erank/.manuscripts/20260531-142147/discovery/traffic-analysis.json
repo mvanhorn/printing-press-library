@@ -1,0 +1,4045 @@
+{
+  "version": "1",
+  "summary": {
+    "target_url": "https://members.erank.com/keyword-tool/top-listings?keyword=dad%20mug\u0026source=etsy\u0026country=USA",
+    "entry_count": 233,
+    "api_entry_count": 61,
+    "noise_entry_count": 172,
+    "host_distribution": {
+      "accounts.google.com": 1,
+      "analytics.google.com": 5,
+      "api-js.mixpanel.com": 5,
+      "apis.google.com": 1,
+      "assets.erank.com": 114,
+      "c.bing.com": 1,
+      "c.clarity.ms": 2,
+      "cdn.firstpromoter.com": 1,
+      "cdn.paddle.com": 2,
+      "googleads.g.doubleclick.net": 2,
+      "i.etsystatic.com": 1,
+      "lime.erank.com": 7,
+      "members.erank.com": 69,
+      "public.profitwell.com": 1,
+      "scripts.clarity.ms": 1,
+      "widget.intercom.io": 1,
+      "www.clarity.ms": 1,
+      "www.dwin1.com": 1,
+      "www.google.com": 7,
+      "www.googletagmanager.com": 2,
+      "www.gstatic.com": 1,
+      "www2.profitwell.com": 2,
+      "y.clarity.ms": 5
+    },
+    "http_version_distribution": {
+      "h2": 219,
+      "h3": 6,
+      "http/1.1": 8
+    },
+    "time_start": "2026-05-22T17:24:36.306793984Z",
+    "time_end": "2026-05-22T17:24:43.386617856Z"
+  },
+  "secondary_hosts": [
+    {
+      "host": "api-js.mixpanel.com",
+      "count": 5,
+      "reason": "telemetry host"
+    },
+    {
+      "host": "widget.intercom.io",
+      "count": 1,
+      "reason": "telemetry host"
+    },
+    {
+      "host": "www2.profitwell.com",
+      "count": 1,
+      "reason": "non-primary host"
+    }
+  ],
+  "reachability": {
+    "mode": "browser_http",
+    "confidence": 0.78,
+    "reasons": [
+      "bot-protection signals observed; use browser-like HTTP transport"
+    ],
+    "evidence": [
+      {
+        "entry_index": 130,
+        "method": "GET",
+        "host": "cdn.paddle.com",
+        "path": "/paddle/v2/paddle.js",
+        "status": 200,
+        "content_type": "text/javascript",
+        "reason": "Cloudflare header or challenge marker"
+      },
+      {
+        "entry_index": 154,
+        "method": "GET",
+        "host": "cdn.paddle.com",
+        "path": "/paddle/v2/assets/css/paddle.css",
+        "status": 200,
+        "content_type": "text/css",
+        "reason": "Cloudflare header or challenge marker"
+      },
+      {
+        "entry_index": 156,
+        "method": "GET",
+        "host": "www2.profitwell.com",
+        "path": "/dotjs/v1/quests/customer/",
+        "status": 204,
+        "content_type": "application/octet-stream",
+        "reason": "Cloudflare header or challenge marker"
+      },
+      {
+        "entry_index": 157,
+        "method": "OPTIONS",
+        "host": "www2.profitwell.com",
+        "path": "/dotjs/v1/quests/customer/",
+        "status": 200,
+        "content_type": "text/html",
+        "reason": "Cloudflare header or challenge marker"
+      }
+    ]
+  },
+  "protocols": [
+    {
+      "label": "rest_json",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 31,
+          "method": "POST",
+          "host": "api-js.mixpanel.com",
+          "path": "/engage/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 32,
+          "method": "POST",
+          "host": "api-js.mixpanel.com",
+          "path": "/engage/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 33,
+          "method": "POST",
+          "host": "api-js.mixpanel.com",
+          "path": "/track/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 35,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/account/user-preferences/sideBarCollapse",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 36,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/account/member-preferences",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 129,
+          "method": "POST",
+          "host": "api-js.mixpanel.com",
+          "path": "/track/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 131,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/build/version.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 134,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/logs",
+          "status": 202,
+          "content_type": "text/html",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 139,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/intercom",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 140,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/member-shops",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 141,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/refresh-data/listings/last-refresh",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 142,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/account/user-preferences/searchCountry",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 143,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/motd-v3/keyword-tool",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 144,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/check-paddle-restriction",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 145,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/oauth/check-token-validity",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 146,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/account/user-preferences/top_listings",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 147,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/account/user-preferences/kt_keyword_ideas",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 148,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/account/user-preferences/keyword-tool.near-matches.table.config.columns",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 149,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/stats",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 150,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/keywordlist/names",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 151,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/keywordlist/terms",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 152,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/keywordlist/terms",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 153,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/keywordlist/names",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 171,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/intercom",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 172,
+          "method": "POST",
+          "host": "api-js.mixpanel.com",
+          "path": "/track/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 173,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/related-searches",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 174,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/near-matches",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 175,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/top-listings",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 176,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/quota/daily",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 177,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/keywordlist/names",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 178,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/keywordlist/terms",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 196,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/save-history",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 197,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/etsy-tags",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 198,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/account/user-preferences/searchCountry",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 199,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/competition",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 200,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/competition",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 201,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/competition",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 202,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/competition",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 203,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/competition",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 204,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/competition",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 205,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/competition",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 206,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/competition",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 207,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/google-data",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 208,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/google-data",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 209,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/google-data",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 210,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/google-data",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 211,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/google-data",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 212,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/google-data",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 213,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/google-data",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 214,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/google-data",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 215,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/keyword-difficulty",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 216,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/keyword-difficulty",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 217,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/keyword-difficulty",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 218,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/keyword-difficulty",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 219,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/keyword-difficulty",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 220,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/keyword-difficulty",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 221,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/keyword-difficulty",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 222,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/keyword-difficulty",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 223,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/keyword-difficulty",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 224,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/keyword-difficulty",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 225,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/keyword-difficulty",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 226,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/keyword-difficulty",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 227,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/keyword-difficulty",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 228,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/keyword-difficulty",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 229,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/keyword-difficulty",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 231,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/account/user-preferences/searchCountry",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        }
+      ]
+    }
+  ],
+  "auth": {
+    "candidates": [
+      {
+        "type": "api_key",
+        "confidence": 0.7,
+        "query_names": [
+          "keyword"
+        ],
+        "evidence": [
+          {
+            "entry_index": 149,
+            "method": "GET",
+            "host": "members.erank.com",
+            "path": "/api/keyword-tool/stats",
+            "status": 200,
+            "content_type": "application/json",
+            "reason": "auth-like query parameter"
+          },
+          {
+            "entry_index": 173,
+            "method": "GET",
+            "host": "members.erank.com",
+            "path": "/api/keyword-tool/related-searches",
+            "status": 200,
+            "content_type": "application/json",
+            "reason": "auth-like query parameter"
+          },
+          {
+            "entry_index": 174,
+            "method": "GET",
+            "host": "members.erank.com",
+            "path": "/api/keyword-tool/near-matches",
+            "status": 200,
+            "content_type": "application/json",
+            "reason": "auth-like query parameter"
+          },
+          {
+            "entry_index": 175,
+            "method": "GET",
+            "host": "members.erank.com",
+            "path": "/api/keyword-tool/top-listings",
+            "status": 200,
+            "content_type": "application/json",
+            "reason": "auth-like query parameter"
+          },
+          {
+            "entry_index": 197,
+            "method": "GET",
+            "host": "members.erank.com",
+            "path": "/api/keyword-tool/etsy-tags",
+            "status": 200,
+            "content_type": "application/json",
+            "reason": "auth-like query parameter"
+          }
+        ]
+      }
+    ]
+  },
+  "protections": [
+    {
+      "label": "cloudflare",
+      "confidence": 0.9,
+      "evidence": [
+        {
+          "entry_index": 130,
+          "method": "GET",
+          "host": "cdn.paddle.com",
+          "path": "/paddle/v2/paddle.js",
+          "status": 200,
+          "content_type": "text/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 154,
+          "method": "GET",
+          "host": "cdn.paddle.com",
+          "path": "/paddle/v2/assets/css/paddle.css",
+          "status": 200,
+          "content_type": "text/css",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 156,
+          "method": "GET",
+          "host": "www2.profitwell.com",
+          "path": "/dotjs/v1/quests/customer/",
+          "status": 204,
+          "content_type": "application/octet-stream",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 157,
+          "method": "OPTIONS",
+          "host": "www2.profitwell.com",
+          "path": "/dotjs/v1/quests/customer/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "Cloudflare header or challenge marker"
+        }
+      ]
+    }
+  ],
+  "endpoint_clusters": [
+    {
+      "host": "members.erank.com",
+      "method": "GET",
+      "path": "/api/account/member-preferences",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "empty",
+      "request_shape": {},
+      "response_shape": {},
+      "observed_auth": [
+        "x-xsrf-token"
+      ],
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 36,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/account/member-preferences",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "members.erank.com",
+      "method": "GET",
+      "path": "/api/account/user-preferences/keyword-tool.near-matches.table.config.columns",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "empty",
+      "request_shape": {},
+      "response_shape": {},
+      "observed_auth": [
+        "x-xsrf-token"
+      ],
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 148,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/account/user-preferences/keyword-tool.near-matches.table.config.columns",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "members.erank.com",
+      "method": "GET",
+      "path": "/api/account/user-preferences/kt_keyword_ideas",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "empty",
+      "request_shape": {},
+      "response_shape": {},
+      "observed_auth": [
+        "x-xsrf-token"
+      ],
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 147,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/account/user-preferences/kt_keyword_ideas",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "members.erank.com",
+      "method": "GET",
+      "path": "/api/account/user-preferences/searchCountry",
+      "count": 3,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "empty",
+      "request_shape": {},
+      "response_shape": {},
+      "observed_auth": [
+        "x-xsrf-token"
+      ],
+      "normalization_flags": [
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 142,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/account/user-preferences/searchCountry",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 198,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/account/user-preferences/searchCountry",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 231,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/account/user-preferences/searchCountry",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "members.erank.com",
+      "method": "GET",
+      "path": "/api/account/user-preferences/sideBarCollapse",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "empty",
+      "request_shape": {},
+      "response_shape": {},
+      "observed_auth": [
+        "x-xsrf-token"
+      ],
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 35,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/account/user-preferences/sideBarCollapse",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "members.erank.com",
+      "method": "GET",
+      "path": "/api/account/user-preferences/{user_preference_id}",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "empty",
+      "request_shape": {},
+      "response_shape": {},
+      "observed_auth": [
+        "x-xsrf-token"
+      ],
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 146,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/account/user-preferences/top_listings",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "members.erank.com",
+      "method": "GET",
+      "path": "/api/check-paddle-restriction",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "empty",
+      "request_shape": {},
+      "response_shape": {},
+      "observed_auth": [
+        "x-xsrf-token"
+      ],
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 144,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/check-paddle-restriction",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "members.erank.com",
+      "method": "GET",
+      "path": "/api/intercom",
+      "count": 2,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "empty",
+      "request_shape": {},
+      "response_shape": {},
+      "observed_auth": [
+        "x-xsrf-token"
+      ],
+      "normalization_flags": [
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 139,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/intercom",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 171,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/intercom",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "members.erank.com",
+      "method": "POST",
+      "path": "/api/keyword-tool/competition",
+      "count": 8,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "empty",
+      "request_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "country",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "keyword",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "keywords",
+            "type": "array",
+            "required": true
+          },
+          {
+            "name": "marketplace",
+            "type": "string",
+            "required": true
+          }
+        ]
+      },
+      "response_shape": {},
+      "observed_auth": [
+        "x-xsrf-token"
+      ],
+      "normalization_flags": [
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 199,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/competition",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 200,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/competition",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 201,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/competition",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 202,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/competition",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 203,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/competition",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 204,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/competition",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 205,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/competition",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 206,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/competition",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "members.erank.com",
+      "method": "GET",
+      "path": "/api/keyword-tool/etsy-tags",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "empty",
+      "request_shape": {},
+      "response_shape": {},
+      "observed_auth": [
+        "x-xsrf-token"
+      ],
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 197,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/etsy-tags",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "members.erank.com",
+      "method": "POST",
+      "path": "/api/keyword-tool/google-data",
+      "count": 8,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "empty",
+      "request_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "country",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "keyword",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "keywords",
+            "type": "array",
+            "required": true
+          },
+          {
+            "name": "marketplace",
+            "type": "string",
+            "required": true
+          }
+        ]
+      },
+      "response_shape": {},
+      "observed_auth": [
+        "x-xsrf-token"
+      ],
+      "normalization_flags": [
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 207,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/google-data",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 208,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/google-data",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 209,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/google-data",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 210,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/google-data",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 211,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/google-data",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 212,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/google-data",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 213,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/google-data",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 214,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/google-data",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "members.erank.com",
+      "method": "POST",
+      "path": "/api/keyword-tool/keyword-difficulty",
+      "count": 15,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "empty",
+      "request_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "avg_searches",
+            "type": "object",
+            "required": true
+          },
+          {
+            "name": "competition",
+            "type": "object",
+            "required": true
+          },
+          {
+            "name": "country",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "keyword",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "marketplace",
+            "type": "string",
+            "required": true
+          }
+        ]
+      },
+      "response_shape": {},
+      "observed_auth": [
+        "x-xsrf-token"
+      ],
+      "normalization_flags": [
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 215,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/keyword-difficulty",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 216,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/keyword-difficulty",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 217,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/keyword-difficulty",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 218,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/keyword-difficulty",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 219,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/keyword-difficulty",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 220,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/keyword-difficulty",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 221,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/keyword-difficulty",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 222,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/keyword-difficulty",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 223,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/keyword-difficulty",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 224,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/keyword-difficulty",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 225,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/keyword-difficulty",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 226,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/keyword-difficulty",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 227,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/keyword-difficulty",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 228,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/keyword-difficulty",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 229,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/keyword-difficulty",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "members.erank.com",
+      "method": "GET",
+      "path": "/api/keyword-tool/near-matches",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "empty",
+      "request_shape": {},
+      "response_shape": {},
+      "observed_auth": [
+        "x-xsrf-token"
+      ],
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 174,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/near-matches",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "members.erank.com",
+      "method": "GET",
+      "path": "/api/keyword-tool/related-searches",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "empty",
+      "request_shape": {},
+      "response_shape": {},
+      "observed_auth": [
+        "x-xsrf-token"
+      ],
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 173,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/related-searches",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "members.erank.com",
+      "method": "POST",
+      "path": "/api/keyword-tool/save-history",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "empty",
+      "request_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "country",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "keyword",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "marketplace",
+            "type": "string",
+            "required": true
+          }
+        ]
+      },
+      "response_shape": {},
+      "observed_auth": [
+        "x-xsrf-token"
+      ],
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 196,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/save-history",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "members.erank.com",
+      "method": "GET",
+      "path": "/api/keyword-tool/stats",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "empty",
+      "request_shape": {},
+      "response_shape": {},
+      "observed_auth": [
+        "x-xsrf-token"
+      ],
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 149,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/stats",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "members.erank.com",
+      "method": "GET",
+      "path": "/api/keyword-tool/top-listings",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "empty",
+      "request_shape": {},
+      "response_shape": {},
+      "observed_auth": [
+        "x-xsrf-token"
+      ],
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 175,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/top-listings",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "members.erank.com",
+      "method": "GET",
+      "path": "/api/keywordlist/names",
+      "count": 3,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "empty",
+      "request_shape": {},
+      "response_shape": {},
+      "observed_auth": [
+        "x-xsrf-token"
+      ],
+      "normalization_flags": [
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 150,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/keywordlist/names",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 153,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/keywordlist/names",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 177,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/keywordlist/names",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "members.erank.com",
+      "method": "GET",
+      "path": "/api/keywordlist/terms",
+      "count": 3,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "empty",
+      "request_shape": {},
+      "response_shape": {},
+      "observed_auth": [
+        "x-xsrf-token"
+      ],
+      "normalization_flags": [
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 151,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/keywordlist/terms",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 152,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/keywordlist/terms",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 178,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/keywordlist/terms",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "members.erank.com",
+      "method": "GET",
+      "path": "/api/member-shops",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "empty",
+      "request_shape": {},
+      "response_shape": {},
+      "observed_auth": [
+        "x-xsrf-token"
+      ],
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 140,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/member-shops",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "members.erank.com",
+      "method": "GET",
+      "path": "/api/motd-v3/keyword-tool",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "empty",
+      "request_shape": {},
+      "response_shape": {},
+      "observed_auth": [
+        "x-xsrf-token"
+      ],
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 143,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/motd-v3/keyword-tool",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "members.erank.com",
+      "method": "GET",
+      "path": "/api/oauth/check-token-validity",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "empty",
+      "request_shape": {},
+      "response_shape": {},
+      "observed_auth": [
+        "x-xsrf-token"
+      ],
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 145,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/oauth/check-token-validity",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "members.erank.com",
+      "method": "GET",
+      "path": "/api/quota/daily",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "empty",
+      "request_shape": {},
+      "response_shape": {},
+      "observed_auth": [
+        "x-xsrf-token"
+      ],
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 176,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/quota/daily",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "members.erank.com",
+      "method": "GET",
+      "path": "/api/refresh-data/listings/last-refresh",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "empty",
+      "request_shape": {},
+      "response_shape": {},
+      "observed_auth": [
+        "x-xsrf-token"
+      ],
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 141,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/refresh-data/listings/last-refresh",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "members.erank.com",
+      "method": "GET",
+      "path": "/build/version.json",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "empty",
+      "request_shape": {},
+      "response_shape": {},
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 131,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/build/version.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "www2.profitwell.com",
+      "method": "GET",
+      "path": "/dotjs/v1/quests/customer/",
+      "count": 1,
+      "statuses": [
+        204
+      ],
+      "content_types": [
+        "application/octet-stream"
+      ],
+      "size_class": "empty",
+      "request_shape": {},
+      "response_shape": {},
+      "observed_auth": [
+        "authorization"
+      ],
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 156,
+          "method": "GET",
+          "host": "www2.profitwell.com",
+          "path": "/dotjs/v1/quests/customer/",
+          "status": 204,
+          "content_type": "application/octet-stream",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    }
+  ],
+  "request_sequences": [
+    {
+      "label": "observed_api_flow",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 35,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/account/user-preferences/sideBarCollapse",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 36,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/account/member-preferences",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 131,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/build/version.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 139,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/intercom",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 140,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/member-shops",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 141,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/refresh-data/listings/last-refresh",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 142,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/account/user-preferences/searchCountry",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 143,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/motd-v3/keyword-tool",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "observed API request order"
+        }
+      ],
+      "notes": [
+        "HAR timing available for at least one request."
+      ]
+    }
+  ],
+  "candidate_commands": [
+    {
+      "name": "create_competition",
+      "resource": "competition",
+      "confidence": 0.55,
+      "rationale": "Derived from observed POST /api/keyword-tool/competition traffic.",
+      "evidence": [
+        {
+          "entry_index": 199,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/competition",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 200,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/competition",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 201,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/competition",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 202,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/competition",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 203,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/competition",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 204,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/competition",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 205,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/competition",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 206,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/competition",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "create_google_data",
+      "resource": "google_data",
+      "confidence": 0.55,
+      "rationale": "Derived from observed POST /api/keyword-tool/google-data traffic.",
+      "evidence": [
+        {
+          "entry_index": 207,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/google-data",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 208,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/google-data",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 209,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/google-data",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 210,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/google-data",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 211,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/google-data",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 212,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/google-data",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 213,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/google-data",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 214,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/google-data",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "create_keyword_difficulty",
+      "resource": "keyword_difficulty",
+      "confidence": 0.55,
+      "rationale": "Derived from observed POST /api/keyword-tool/keyword-difficulty traffic.",
+      "evidence": [
+        {
+          "entry_index": 215,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/keyword-difficulty",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 216,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/keyword-difficulty",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 217,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/keyword-difficulty",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 218,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/keyword-difficulty",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 219,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/keyword-difficulty",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 220,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/keyword-difficulty",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 221,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/keyword-difficulty",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 222,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/keyword-difficulty",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 223,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/keyword-difficulty",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 224,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/keyword-difficulty",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 225,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/keyword-difficulty",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 226,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/keyword-difficulty",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 227,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/keyword-difficulty",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 228,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/keyword-difficulty",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 229,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/keyword-difficulty",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "create_save_history",
+      "resource": "save_history",
+      "confidence": 0.55,
+      "rationale": "Derived from observed POST /api/keyword-tool/save-history traffic.",
+      "evidence": [
+        {
+          "entry_index": 196,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/save-history",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "get_user_preferences",
+      "resource": "user_preferences",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /api/account/user-preferences/{user_preference_id} traffic.",
+      "evidence": [
+        {
+          "entry_index": 146,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/account/user-preferences/top_listings",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_check_paddle_restriction",
+      "resource": "check_paddle_restriction",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /api/check-paddle-restriction traffic.",
+      "evidence": [
+        {
+          "entry_index": 144,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/check-paddle-restriction",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_check_token_validity",
+      "resource": "check_token_validity",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /api/oauth/check-token-validity traffic.",
+      "evidence": [
+        {
+          "entry_index": 145,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/oauth/check-token-validity",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_customer",
+      "resource": "customer",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /dotjs/v1/quests/customer/ traffic.",
+      "evidence": [
+        {
+          "entry_index": 156,
+          "method": "GET",
+          "host": "www2.profitwell.com",
+          "path": "/dotjs/v1/quests/customer/",
+          "status": 204,
+          "content_type": "application/octet-stream",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_daily",
+      "resource": "daily",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /api/quota/daily traffic.",
+      "evidence": [
+        {
+          "entry_index": 176,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/quota/daily",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_etsy_tags",
+      "resource": "etsy_tags",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /api/keyword-tool/etsy-tags traffic.",
+      "evidence": [
+        {
+          "entry_index": 197,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/etsy-tags",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_intercom",
+      "resource": "intercom",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /api/intercom traffic.",
+      "evidence": [
+        {
+          "entry_index": 139,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/intercom",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 171,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/intercom",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_keyword_tool",
+      "resource": "keyword_tool",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /api/motd-v3/keyword-tool traffic.",
+      "evidence": [
+        {
+          "entry_index": 143,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/motd-v3/keyword-tool",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_keyword_tool.near_matches.table.config.columns",
+      "resource": "keyword_tool.near_matches.table.config.columns",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /api/account/user-preferences/keyword-tool.near-matches.table.config.columns traffic.",
+      "evidence": [
+        {
+          "entry_index": 148,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/account/user-preferences/keyword-tool.near-matches.table.config.columns",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_kt_keyword_ideas",
+      "resource": "kt_keyword_ideas",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /api/account/user-preferences/kt_keyword_ideas traffic.",
+      "evidence": [
+        {
+          "entry_index": 147,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/account/user-preferences/kt_keyword_ideas",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_last_refresh",
+      "resource": "last_refresh",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /api/refresh-data/listings/last-refresh traffic.",
+      "evidence": [
+        {
+          "entry_index": 141,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/refresh-data/listings/last-refresh",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_member_preferences",
+      "resource": "member_preferences",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /api/account/member-preferences traffic.",
+      "evidence": [
+        {
+          "entry_index": 36,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/account/member-preferences",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_member_shops",
+      "resource": "member_shops",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /api/member-shops traffic.",
+      "evidence": [
+        {
+          "entry_index": 140,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/member-shops",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_names",
+      "resource": "names",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /api/keywordlist/names traffic.",
+      "evidence": [
+        {
+          "entry_index": 150,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/keywordlist/names",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 153,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/keywordlist/names",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 177,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/keywordlist/names",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_near_matches",
+      "resource": "near_matches",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /api/keyword-tool/near-matches traffic.",
+      "evidence": [
+        {
+          "entry_index": 174,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/near-matches",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_related_searches",
+      "resource": "related_searches",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /api/keyword-tool/related-searches traffic.",
+      "evidence": [
+        {
+          "entry_index": 173,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/related-searches",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_searchCountry",
+      "resource": "searchCountry",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /api/account/user-preferences/searchCountry traffic.",
+      "evidence": [
+        {
+          "entry_index": 142,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/account/user-preferences/searchCountry",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 198,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/account/user-preferences/searchCountry",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 231,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/account/user-preferences/searchCountry",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_sideBarCollapse",
+      "resource": "sideBarCollapse",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /api/account/user-preferences/sideBarCollapse traffic.",
+      "evidence": [
+        {
+          "entry_index": 35,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/account/user-preferences/sideBarCollapse",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_stats",
+      "resource": "stats",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /api/keyword-tool/stats traffic.",
+      "evidence": [
+        {
+          "entry_index": 149,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/stats",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_terms",
+      "resource": "terms",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /api/keywordlist/terms traffic.",
+      "evidence": [
+        {
+          "entry_index": 151,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/keywordlist/terms",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 152,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/keywordlist/terms",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 178,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/keywordlist/terms",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_top_listings",
+      "resource": "top_listings",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /api/keyword-tool/top-listings traffic.",
+      "evidence": [
+        {
+          "entry_index": 175,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/top-listings",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_version.json",
+      "resource": "version.json",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /build/version.json traffic.",
+      "evidence": [
+        {
+          "entry_index": 131,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/build/version.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    }
+  ],
+  "generation_hints": [
+    "browser_http_transport",
+    "requires_protected_client",
+    "weak_schema_confidence"
+  ],
+  "warnings": [
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 130,
+          "method": "GET",
+          "host": "cdn.paddle.com",
+          "path": "/paddle/v2/paddle.js",
+          "status": 200,
+          "content_type": "text/javascript",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 134,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/logs",
+          "status": 202,
+          "content_type": "text/html",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 139,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/intercom",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 140,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/member-shops",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 141,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/refresh-data/listings/last-refresh",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 142,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/account/user-preferences/searchCountry",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 143,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/motd-v3/keyword-tool",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 144,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/check-paddle-restriction",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 145,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/oauth/check-token-validity",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 146,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/account/user-preferences/top_listings",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 147,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/account/user-preferences/kt_keyword_ideas",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 148,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/account/user-preferences/keyword-tool.near-matches.table.config.columns",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 149,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/stats",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 150,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/keywordlist/names",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 151,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/keywordlist/terms",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 152,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/keywordlist/terms",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 153,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/keywordlist/names",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 154,
+          "method": "GET",
+          "host": "cdn.paddle.com",
+          "path": "/paddle/v2/assets/css/paddle.css",
+          "status": 200,
+          "content_type": "text/css",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 156,
+          "method": "GET",
+          "host": "www2.profitwell.com",
+          "path": "/dotjs/v1/quests/customer/",
+          "status": 204,
+          "content_type": "application/octet-stream",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 157,
+          "method": "OPTIONS",
+          "host": "www2.profitwell.com",
+          "path": "/dotjs/v1/quests/customer/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 171,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/intercom",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 173,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/related-searches",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 174,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/near-matches",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 175,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/top-listings",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 176,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/quota/daily",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 177,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/keywordlist/names",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 178,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/keywordlist/terms",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 193,
+          "method": "GET",
+          "host": "lime.erank.com",
+          "path": "/_/service_worker/65d0/sw_iframe.html",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 196,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/save-history",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 197,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/etsy-tags",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 198,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/account/user-preferences/searchCountry",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 199,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/competition",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 200,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/competition",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 201,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/competition",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 202,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/competition",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 203,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/competition",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 204,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/competition",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 205,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/competition",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 206,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/competition",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 207,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/google-data",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 208,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/google-data",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 209,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/google-data",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 210,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/google-data",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 211,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/google-data",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 212,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/google-data",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 213,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/google-data",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 214,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/google-data",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 215,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/keyword-difficulty",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 216,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/keyword-difficulty",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 217,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/keyword-difficulty",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 218,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/keyword-difficulty",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 219,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/keyword-difficulty",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 220,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/keyword-difficulty",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 221,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/keyword-difficulty",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 222,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/keyword-difficulty",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 223,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/keyword-difficulty",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 224,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/keyword-difficulty",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 225,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/keyword-difficulty",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 226,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/keyword-difficulty",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 227,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/keyword-difficulty",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 228,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/keyword-difficulty",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 229,
+          "method": "POST",
+          "host": "members.erank.com",
+          "path": "/api/keyword-tool/keyword-difficulty",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 231,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/account/user-preferences/searchCountry",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 35,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/account/user-preferences/sideBarCollapse",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 36,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/api/account/member-preferences",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 156,
+          "method": "GET",
+          "host": "www2.profitwell.com",
+          "path": "/dotjs/v1/quests/customer/",
+          "status": 204,
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 158,
+          "method": "GET",
+          "host": "c.clarity.ms",
+          "path": "/c.gif",
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 181,
+          "method": "GET",
+          "host": "c.bing.com",
+          "path": "/c.gif",
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 26,
+          "method": "GET",
+          "host": "members.erank.com",
+          "path": "/favicons/site.webmanifest",
+          "status": 200,
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    }
+  ]
+}

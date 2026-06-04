@@ -1,0 +1,145 @@
+{
+  "api_name": "dice-fm",
+  "base_url": "https://partners-endpoint.dice.fm",
+  "description": "Every ticket, fan, and pound of revenue from your DICE events — queryable, exportable, and joinable across shows.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "in": "header",
+    "env_vars": [
+      "DICE_FM_TOKEN"
+    ],
+    "env_var_specs": [
+      {
+        "name": "DICE_FM_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "events_get",
+      "description": "Get a single event by ID. Required: id. Returns the new Event.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Event ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "events_list",
+      "description": "List your events. Optional: state. Returns array of Event.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "state",
+          "type": "string",
+          "location": "body",
+          "description": "Filter by event state: APPROVED, ARCHIVED, CANCELLED, DECLINED, DRAFT, REVIEW, SUBMITTED"
+        }
+      ]
+    },
+    {
+      "name": "extras_list",
+      "description": "List extras (filter by event). Optional: event, separate-barcode. Returns array of Extra.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "event",
+          "type": "string",
+          "location": "body",
+          "description": "Filter by event ID"
+        },
+        {
+          "name": "separate-barcode",
+          "type": "boolean",
+          "location": "body",
+          "description": "Filter to extras that have a separate access barcode"
+        }
+      ]
+    },
+    {
+      "name": "genres_list",
+      "description": "List the DICE genre types available for classifying events (e.g. Electronic, Rock, Hip-Hop). No parameters. Returns an array of genre types, each with an id, name, and its child genres (id and name). Use this to resolve genre names to IDs or to populate a genre filter before querying events.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": []
+    },
+    {
+      "name": "orders_list",
+      "description": "List orders (filter by event). Optional: event. Returns array of Order.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "event",
+          "type": "string",
+          "location": "body",
+          "description": "Filter by event ID"
+        }
+      ]
+    },
+    {
+      "name": "returns_list",
+      "description": "List ticket returns and refunds across your DICE events. Optional: event (a DICE event ID) to scope the results to one show. Returns an array of returns, each with id, ticketId, returnedAt, reason, and the linked ticket, order, and event. Use this to investigate refund activity; pair with returns anomalies to flag events with unusually high return rates.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "event",
+          "type": "string",
+          "location": "body",
+          "description": "Filter by event ID"
+        }
+      ]
+    },
+    {
+      "name": "tickets_list",
+      "description": "List sold tickets (filter by event). Optional: event, fan-phone. Returns array of Ticket.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "event",
+          "type": "string",
+          "location": "body",
+          "description": "Filter by event ID"
+        },
+        {
+          "name": "fan-phone",
+          "type": "string",
+          "location": "body",
+          "description": "Filter by fan phone number"
+        }
+      ]
+    },
+    {
+      "name": "transfers_list",
+      "description": "List ticket transfers (filter by event). Optional: event. Returns array of TicketTransfer.",
+      "method": "POST",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "event",
+          "type": "string",
+          "location": "body",
+          "description": "Filter by event ID"
+        }
+      ]
+    }
+  ]
+}

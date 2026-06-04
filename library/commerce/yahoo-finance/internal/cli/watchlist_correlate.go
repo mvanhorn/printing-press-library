@@ -1,4 +1,4 @@
-// Copyright 2026 charles-garrison. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Trevin Chow and contributors. Licensed under Apache-2.0. See LICENSE.
 // Novel feature: watchlist correlate. Pairwise Pearson correlation across
 // the symbols in a named watchlist over a given range.
 
@@ -12,9 +12,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/commerce/yahoo-finance/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/commerce/yahoo-finance/internal/portstats"
+	"github.com/spf13/cobra"
 )
 
 type correlationTriple struct {

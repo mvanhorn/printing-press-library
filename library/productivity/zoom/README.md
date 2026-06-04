@@ -6,7 +6,7 @@ Start and join meetings via the desktop URL scheme (no browser interstitial), se
 
 Learn more at [Zoom](https://developer.zoom.us/).
 
-Printed by [@Holajack](https://github.com/Holajack) (Jacken).
+Created by [@Holajack](https://github.com/Holajack) (Jacken).
 
 ## Install
 

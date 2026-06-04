@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "nynj-world-cup-concierge",
+  "run_id": "nynj-world-cup-concierge-20260531",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 4,
+  "tests_passed": 4,
+  "tests_skipped": 4,
+  "auth_context": {
+    "type": "none"
+  }
+}

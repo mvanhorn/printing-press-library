@@ -207,7 +207,7 @@ func runShopifyqlFunnel(cmd *cobra.Command, flags *rootFlags, days int) error {
 	}
 
 	// 2 + 3. Local-store counts in window
-	db, err := openReportDB(cmd.Context(), flags)
+	db, err := openReportDB(flags)
 	if err != nil {
 		return err
 	}

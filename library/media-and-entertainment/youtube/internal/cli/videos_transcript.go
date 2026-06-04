@@ -1,4 +1,4 @@
-// Copyright 2026 justinwfu. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Justin and contributors. Licensed under Apache-2.0. See LICENSE.
 
 package cli
 
@@ -107,15 +107,18 @@ func newYoutubeVideosTranscriptCmd(flags *rootFlags) *cobra.Command {
 	var noCache bool
 
 	cmd := &cobra.Command{
-		Use:         "videos-transcript <videoId>",
+		Use:         "videos-transcript <videoId|url>",
 		Short:       "Fetch video transcript via InnerTube (no OAuth needed)",
-		Example:     "  youtube-pp-cli youtube videos-transcript dQw4w9WgXcQ --lang en",
+		Example:     "  youtube-pp-cli youtube videos-transcript dQw4w9WgXcQ --lang en\n  youtube-pp-cli youtube videos-transcript 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
 			}
-			videoID := args[0]
+			videoID := parseVideoID(strings.TrimSpace(args[0]))
+			if videoID == "" {
+				return usageErr(fmt.Errorf("could not extract a video ID from %q", args[0]))
+			}
 
 			if dryRunOK(flags) {
 				fmt.Fprintf(cmd.ErrOrStderr(), "POST https://www.youtube.com/youtubei/v1/player (videoId=%s)\n", videoID)

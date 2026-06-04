@@ -5,6 +5,16 @@
   "api_name": "lawhub",
   "display_name": "LawHub",
   "cli_name": "lawhub-pp-cli",
+  "creator": {
+    "handle": "nolan",
+    "name": "Nolan McCafferty"
+  },
+  "contributors": [
+    {
+      "handle": "tmchow",
+      "name": "Trevin Chow"
+    }
+  ],
   "description": "Local-first LSAT practice analytics from authenticated LawHub score metadata, with SQLite, weakness reports, question notes, and safe review links back to LawHub.",
   "category": "education",
   "spec_format": "internal",

@@ -5,6 +5,10 @@
   "api_name": "google-ads",
   "display_name": "Google Ads",
   "cli_name": "google-ads-pp-cli",
+  "creator": {
+    "handle": "cathrynlavery",
+    "name": "Cathryn Lavery"
+  },
   "owner": "user",
   "printer": "cathrynlavery",
   "printer_name": "Cathryn Lavery",

@@ -1,4 +1,4 @@
-// Copyright 2026 jmbernabotto. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 jmbernabotto and contributors. Licensed under Apache-2.0. See LICENSE.
 
 package cli
 
@@ -102,8 +102,8 @@ By default shows only active disruptions; use --all to include future and past.`
 				enc := json.NewEncoder(os.Stdout)
 				enc.SetIndent("", "  ")
 				return enc.Encode(map[string]any{
-					"coverage":   coverage,
-					"total":      len(entries),
+					"coverage":    coverage,
+					"total":       len(entries),
 					"disruptions": entries,
 				})
 			}

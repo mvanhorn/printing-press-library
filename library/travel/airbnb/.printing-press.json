@@ -5,6 +5,10 @@
   "api_name": "airbnb",
   "display_name": "Airbnb Vrbo",
   "cli_name": "airbnb-pp-cli",
+  "creator": {
+    "handle": "mvanhorn",
+    "name": "Matt Van Horn"
+  },
   "owner": "matt-van-horn",
   "printer": "mvanhorn",
   "printer_name": "Matt Van Horn",

@@ -6,6 +6,8 @@ FedEx retires its SOAP APIs on June 1, 2026 and every existing wrapper goes dark
 
 Learn more at [FedEx](https://developer.fedex.com).
 
+Created by [@tmchow](https://github.com/tmchow) (Trevin Chow).
+
 ## Install
 
 The recommended path installs both the `fedex-pp-cli` binary and the `pp-fedex` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

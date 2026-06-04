@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "provider": "ollama-cloud",
+  "models": [
+    {"id_patterns":["qwen3-coder*"],"family":"qwen","ctx_window":262144,"latency_p50_ms":4200,"supports_tools":true,"strengths":["coding","long-context","agentic","tools"]},
+    {"id_patterns":["qwen3-vl*"],"family":"qwen","ctx_window":131072,"latency_p50_ms":3800,"supports_tools":false,"supports_vision":true,"strengths":["vision","multimodal","instruction-following"]},
+    {"id_patterns":["qwen3.5*","qwen3:*","qwen3-next*"],"family":"qwen","ctx_window":131072,"latency_p50_ms":3200,"supports_tools":true,"strengths":["reasoning","tools","general"]},
+    {"id_patterns":["gpt-oss:120b*"],"family":"gpt-oss","ctx_window":131072,"latency_p50_ms":2800,"supports_tools":true,"strengths":["reasoning","tools","general","cheap-meta-llm-tiebreak"]},
+    {"id_patterns":["gpt-oss:20b*"],"family":"gpt-oss","ctx_window":131072,"latency_p50_ms":1200,"supports_tools":true,"strengths":["cheap","fast","general"]},
+    {"id_patterns":["deepseek-v3*","deepseek-v3.1*"],"family":"deepseek","ctx_window":131072,"latency_p50_ms":5200,"supports_tools":true,"strengths":["reasoning","coding","general"]},
+    {"id_patterns":["deepseek-v4*"],"family":"deepseek","ctx_window":131072,"latency_p50_ms":4800,"supports_tools":true,"strengths":["reasoning","coding","general"]},
+    {"id_patterns":["kimi-k2*"],"family":"kimi","ctx_window":200000,"latency_p50_ms":5800,"supports_tools":true,"strengths":["long-context","reasoning","multilingual"]},
+    {"id_patterns":["glm-*"],"family":"glm","ctx_window":131072,"latency_p50_ms":3400,"supports_tools":true,"strengths":["reasoning","tools","general","multilingual"]},
+    {"id_patterns":["gemma4*","gemma3*","gemma-*"],"family":"gemma","ctx_window":8192,"latency_p50_ms":900,"strengths":["cheap","fast"]},
+    {"id_patterns":["llama3*","llama-3*","llama-4*"],"family":"llama","ctx_window":131072,"latency_p50_ms":3000,"supports_tools":true,"strengths":["general","instruction-following"]},
+    {"id_patterns":["embeddinggemma*","mxbai*","nomic*"],"family":"embedding","ctx_window":2048,"latency_p50_ms":200,"strengths":["embedding-only"]},
+    {"id_patterns":["minimax*","rnj*"],"family":"other","ctx_window":32768,"latency_p50_ms":4000,"strengths":["general"]},
+    {"id_patterns":["devstral*","devstral-2*"],"family":"mistral","ctx_window":131072,"latency_p50_ms":3600,"supports_tools":true,"strengths":["coding","agentic"]},
+    {"id_patterns":["mistral-large-3*","ministral-3*"],"family":"mistral","ctx_window":131072,"latency_p50_ms":3400,"supports_tools":true,"strengths":["general","tools","multilingual"]},
+    {"id_patterns":["nemotron-3*"],"family":"nemotron","ctx_window":131072,"latency_p50_ms":3200,"supports_tools":true,"strengths":["reasoning","tools"]},
+    {"id_patterns":["cogito-2*"],"family":"cogito","ctx_window":131072,"latency_p50_ms":5200,"supports_tools":true,"strengths":["reasoning"]},
+    {"id_patterns":["gemini-3*"],"family":"gemini","ctx_window":131072,"latency_p50_ms":2400,"supports_tools":true,"supports_vision":true,"strengths":["general","vision","fast"]}
+  ],
+  "default": {"ctx_window":32768,"latency_p50_ms":4000,"strengths":["general"]}
+}

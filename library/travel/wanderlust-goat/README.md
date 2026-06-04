@@ -4,6 +4,8 @@
 
 Two-stage funnel: seed candidates from Google Places, then deep-research each against locale-aware sources (Tabelog/Naver/Le Fooding for the country you're in), trust-weight by source authority, kill-gate anything that's permanently closed, and return the 3-5 amazing things — not the comprehensive 40-row dump.
 
+Created by [@jheitzeb](https://github.com/jheitzeb) (Joe Heitzeberg).
+
 ## Install
 
 The recommended path installs both the `wanderlust-goat-pp-cli` binary and the `pp-wanderlust-goat` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

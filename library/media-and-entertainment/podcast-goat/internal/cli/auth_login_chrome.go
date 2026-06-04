@@ -1,4 +1,4 @@
-// Copyright 2026 mvanhorn. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Matt Van Horn and contributors. Licensed under Apache-2.0. See LICENSE.
 // PATCH: v0.1 `auth login --chrome --service <name>` + `auth services`.
 
 package cli
@@ -144,8 +144,8 @@ func newAuthServicesCmd(flags *rootFlags) *cobra.Command {
 				raw, err := os.ReadFile(source.CookieFile(svc))
 				if err == nil {
 					var env struct {
-						CapturedAt string                 `json:"captured_at"`
-						Cookies    []source.CookieRecord  `json:"cookies"`
+						CapturedAt string                `json:"captured_at"`
+						Cookies    []source.CookieRecord `json:"cookies"`
 					}
 					_ = json.Unmarshal(raw, &env)
 					r.CapturedAt = env.CapturedAt

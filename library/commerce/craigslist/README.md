@@ -6,6 +6,8 @@ craigslist-pp-cli wraps Craigslist's own undocumented JSON endpoints (sapi, rapi
 
 Learn more at [Craigslist](https://www.craigslist.org).
 
+Created by [@tmchow](https://github.com/tmchow) (Trevin Chow).
+
 ## Install
 
 The recommended path installs both the `craigslist-pp-cli` binary and the `pp-craigslist` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

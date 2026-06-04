@@ -37,6 +37,48 @@ func TestRenderCatalogTable_Golden(t *testing.T) {
 	}
 }
 
+func TestRenderCatalogTable_PrinterDisplayNameLinksToHandle(t *testing.T) {
+	entries := []RegistryEntry{
+		{
+			Name:        "squarespace",
+			Category:    "commerce",
+			API:         "Squarespace",
+			Description: "Manage Squarespace commerce and account workflows.",
+			Path:        "library/commerce/squarespace",
+			Printer:     "zaydiscold",
+			PrinterName: "Zayd",
+		},
+	}
+
+	got := renderCatalogTable(entries)
+
+	if !strings.Contains(got, "Printed by [Zayd](https://github.com/zaydiscold)") {
+		t.Fatalf("catalog should render printer_name as link text and printer as URL handle, got:\n%s", got)
+	}
+	if strings.Contains(got, "Printed by [@zaydiscold]") {
+		t.Fatalf("catalog should not use handle as link text when printer_name is present, got:\n%s", got)
+	}
+}
+
+func TestRenderCatalogTable_PrinterHandleFallback(t *testing.T) {
+	entries := []RegistryEntry{
+		{
+			Name:        "example",
+			Category:    "tools",
+			API:         "Example",
+			Description: "Example workflows.",
+			Path:        "library/tools/example",
+			Printer:     "octocat",
+		},
+	}
+
+	got := renderCatalogTable(entries)
+
+	if !strings.Contains(got, "Printed by [@octocat](https://github.com/octocat)") {
+		t.Fatalf("catalog should fall back to @handle link text when printer_name is absent, got:\n%s", got)
+	}
+}
+
 // TestFormatDescription covers the normalization rules: trim, collapse
 // newlines (a description must fit one table cell), and ensure
 // terminal punctuation. The "?" / "!" branch matters because some
@@ -224,6 +266,20 @@ func TestAPIDisplayName(t *testing.T) {
 			prior: RegistryEntry{API: "Pricebook"},
 			slug:  "servicetitan-pricebook",
 			want:  "ServiceTitan Pricebook",
+		},
+		{
+			name:  "PP-prefixed artifact yields to corrected display name",
+			pp:    printingPressManifest{APIName: "clarity", DisplayName: "Microsoft Clarity"},
+			prior: RegistryEntry{API: "PP Clarity"},
+			slug:  "clarity",
+			want:  "Microsoft Clarity",
+		},
+		{
+			name:  "PP-prefixed brand without shared tail is preserved",
+			pp:    printingPressManifest{APIName: "pp-labs", DisplayName: "Acme Widgets"},
+			prior: RegistryEntry{API: "PP Labs"},
+			slug:  "pp-labs",
+			want:  "PP Labs",
 		},
 	}
 	for _, tc := range cases {

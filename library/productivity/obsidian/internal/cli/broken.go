@@ -1,4 +1,4 @@
-// Copyright 2026 drdriftwood. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Angelo Pullen and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // `obsidian-pp-cli broken` — list unresolved wikilinks with their source
 // note context. Builds on the live `obsidian unresolved` subcommand by
@@ -11,8 +11,8 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/productivity/obsidian/internal/store"
+	"github.com/spf13/cobra"
 )
 
 func newBrokenCmd(flags *rootFlags) *cobra.Command {

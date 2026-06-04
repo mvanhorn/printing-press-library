@@ -5,6 +5,10 @@
   "api_name": "amazon-orders",
   "display_name": "Amazon Orders",
   "cli_name": "amazon-orders-pp-cli",
+  "creator": {
+    "handle": "bwishan",
+    "name": "Brian Wishan"
+  },
   "owner": "brian-wishan",
   "printer": "bwishan",
   "printer_name": "Brian Wishan",

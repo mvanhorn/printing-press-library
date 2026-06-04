@@ -1,4 +1,4 @@
-// Copyright 2026 chris-drit. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Chris Drit and contributors. Licensed under Apache-2.0. See LICENSE.
 // Hand-authored absorbed features: companies lookup/search, filings
 // list/get/exhibits, feed latest, search (EFTS), status, sic show,
 // facts statement. Each command matches a feature in the absorb manifest.

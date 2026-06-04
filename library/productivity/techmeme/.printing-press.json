@@ -5,6 +5,10 @@
   "api_name": "techmeme",
   "display_name": "Techmeme",
   "cli_name": "techmeme-pp-cli",
+  "creator": {
+    "handle": "davemorin",
+    "name": "Dave Morin"
+  },
   "printer": "davemorin",
   "printer_name": "Dave Morin",
   "spec_format": "openapi3",

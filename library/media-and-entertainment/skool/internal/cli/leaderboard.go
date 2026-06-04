@@ -1,4 +1,4 @@
-// Copyright 2026 quoxientzero. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Zain Haseeb and contributors. Licensed under Apache-2.0. See LICENSE.
 // Hand-written novel feature; not generated.
 
 package cli
@@ -20,9 +20,9 @@ func newLeaderboardCmd(flags *rootFlags) *cobra.Command {
 	var flagTop int
 
 	cmd := &cobra.Command{
-		Use:   "leaderboard",
-		Short: "Current leaderboard for a Skool community (top members by points)",
-		Example: "  skool-pp-cli leaderboard --community bewarethedefault --type 30d --top 25 --json",
+		Use:         "leaderboard",
+		Short:       "Current leaderboard for a Skool community (top members by points)",
+		Example:     "  skool-pp-cli leaderboard --community bewarethedefault --type 30d --top 25 --json",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {
@@ -55,8 +55,8 @@ func newLeaderboardCmd(flags *rootFlags) *cobra.Command {
 			var envelope struct {
 				PageProps struct {
 					LeaderboardsData struct {
-						Type      string  `json:"type"`
-						UpdatedAt string  `json:"updatedAt"`
+						Type      string `json:"type"`
+						UpdatedAt string `json:"updatedAt"`
 						Users     []struct {
 							UserID string `json:"userId"`
 							Rank   int    `json:"rank"`
@@ -86,14 +86,14 @@ func newLeaderboardCmd(flags *rootFlags) *cobra.Command {
 				rows = rows[:flagTop]
 			}
 			type out struct {
-				Rank        int    `json:"rank"`
-				Points      int    `json:"points"`
-				UserID      string `json:"user_id"`
-				Name        string `json:"name"`
-				FullName    string `json:"full_name,omitempty"`
-				Level       int    `json:"level,omitempty"`
-				Bio         string `json:"bio,omitempty"`
-				Location    string `json:"location,omitempty"`
+				Rank         int    `json:"rank"`
+				Points       int    `json:"points"`
+				UserID       string `json:"user_id"`
+				Name         string `json:"name"`
+				FullName     string `json:"full_name,omitempty"`
+				Level        int    `json:"level,omitempty"`
+				Bio          string `json:"bio,omitempty"`
+				Location     string `json:"location,omitempty"`
 				LinkLinkedin string `json:"link_linkedin,omitempty"`
 			}
 			results := make([]out, 0, len(rows))
@@ -108,14 +108,14 @@ func newLeaderboardCmd(flags *rootFlags) *cobra.Command {
 				}
 				full := strings.TrimSpace(r.User.FirstName + " " + r.User.LastName)
 				results = append(results, out{
-					Rank:        r.Rank,
-					Points:      r.Points,
-					UserID:      r.UserID,
-					Name:        r.User.Name,
-					FullName:    full,
-					Level:       lvl,
-					Bio:         r.User.Metadata.Bio,
-					Location:    r.User.Metadata.Location,
+					Rank:         r.Rank,
+					Points:       r.Points,
+					UserID:       r.UserID,
+					Name:         r.User.Name,
+					FullName:     full,
+					Level:        lvl,
+					Bio:          r.User.Metadata.Bio,
+					Location:     r.User.Metadata.Location,
 					LinkLinkedin: r.User.Metadata.LinkLinkedin,
 				})
 			}

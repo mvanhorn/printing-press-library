@@ -1,4 +1,4 @@
-// Copyright 2026 justinwfu. Licensed under Apache-2.0.
+// Copyright 2026 justinwfu and contributors. Licensed under Apache-2.0.
 
 // Package smithsonian implements the art-goat Source for the Smithsonian
 // Open Access API (api.si.edu). Restricts to CC0 images. Uses DEMO_KEY by

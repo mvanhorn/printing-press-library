@@ -1,4 +1,4 @@
-// Copyright 2026 dstevens. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Damien Stevens and contributors. Licensed under Apache-2.0. See LICENSE.
 
 package granola
 
@@ -25,7 +25,9 @@ const InternalBaseURL = "https://api.granola.ai"
 // granolaUserAgent identifies the CLI to the internal API. Granola returns
 // "Unsupported client" without a recognizable User-Agent; the form
 // "Granola/<ver> (<os>; <client-name>)" passes the gate as of 2026-05.
-const granolaUserAgent = "Granola/6.0.0 (macOS; granola-pp-cli)"
+const granolaClientVersion = "7.299.0"
+const granolaPlatform = "darwin"
+const granolaUserAgent = "Granola/7.299.0 (macOS; granola-pp-cli)"
 
 // InternalClient is the typed wrapper for Granola's internal API. It is
 // auto-discovering: NewInternalClient reads the token from the Granola
@@ -91,6 +93,8 @@ func (c *InternalClient) postAttempt(path string, body any, isRetry bool) ([]byt
 	req.Header.Set("Accept", "application/json")
 	req.Header.Set("Accept-Encoding", "gzip, deflate")
 	req.Header.Set("User-Agent", granolaUserAgent)
+	req.Header.Set("X-Client-Version", granolaClientVersion)
+	req.Header.Set("X-Granola-Platform", granolaPlatform)
 
 	// Pace requests via the AdaptiveLimiter. Granola's internal API has no
 	// published rate limit; the limiter starts at defaultInternalAPIRateLimit

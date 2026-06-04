@@ -19,7 +19,7 @@ require (
 	github.com/spf13/pflag v1.0.10
 	golang.org/x/sync v0.20.0
 	golang.org/x/term v0.43.0
-	golang.org/x/text v0.35.0
+	golang.org/x/text v0.37.0
 )
 
 require (
@@ -56,10 +56,10 @@ require (
 	github.com/wzshiming/socks5 v0.7.0 // indirect
 	github.com/yosida95/uritemplate/v3 v3.0.2 // indirect
 	github.com/zalando/go-keyring v0.2.7 // indirect
-	golang.org/x/crypto v0.48.0 // indirect
+	golang.org/x/crypto v0.51.0 // indirect
 	golang.org/x/exp v0.0.0-20250305212735-054e65f0b394 // indirect
-	golang.org/x/net v0.50.0 // indirect
-	golang.org/x/sys v0.44.0 // indirect
+	golang.org/x/net v0.55.0 // indirect
+	golang.org/x/sys v0.45.0 // indirect
 	modernc.org/libc v1.62.1 // indirect
 	modernc.org/mathutil v1.7.1 // indirect
 	modernc.org/memory v1.9.1 // indirect

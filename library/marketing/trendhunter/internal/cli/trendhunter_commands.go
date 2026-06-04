@@ -15,11 +15,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/marketing/trendhunter/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/marketing/trendhunter/internal/store"
 	"github.com/mvanhorn/printing-press-library/library/marketing/trendhunter/internal/thparse"
 	"github.com/mvanhorn/printing-press-library/library/marketing/trendhunter/internal/thstore"
+	"github.com/spf13/cobra"
 )
 
 // registerTrendhunterCommands mirrors the Digg hand-edit model used by

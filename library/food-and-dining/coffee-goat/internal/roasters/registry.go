@@ -1,4 +1,4 @@
-// Copyright 2026 justinwfu. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Justin Fu and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // Package roasters is the curated 24-roaster static registry that
 // drives every multi-source command (sync, search, twin, watch,

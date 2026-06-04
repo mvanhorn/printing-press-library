@@ -1,6 +1,6 @@
 ---
 name: icloud-pp-cli
-description: "Query your iCloud data from the command line — Photos library storage analysis, iMessage history search and export, largest-file finder, and delete via AppleScript. macOS only. No network calls or iCloud API token required."
+description: "Query your Apple iCloud data from the command line — Photos library storage analysis, iMessage history search and export, largest-file finder, and delete via AppleScript. macOS only. No network calls or iCloud API token required."
 author: "Matias Sanchez Moises"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install"
@@ -16,7 +16,7 @@ metadata:
         module: github.com/matysanchez/icloudcli/cmd/icloud-pp-cli
 ---
 
-# iCloud — CLI Skill
+# Apple iCloud — CLI Skill
 
 ## Prerequisites: Install the CLI
 

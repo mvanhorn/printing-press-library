@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-24",
+  "base_run_id": "20260520-224501",
+  "base_printing_press_version": "4.9.0",
+  "patches": [
+    {
+      "id": "billable-pending-range-filter-order",
+      "summary": "billable pending: apply range/workspace filters before counting locked entries so lockedSkipped reflects only the requested range.",
+      "reason": "Greptile pass-2 P1 (logic). The lockedSkipped counter incremented inside the billable/locked continue branch, which ran before the date-range and workspace filters, so 'last-month' and per-workspace runs reported the locked-entry count from the entire local store.",
+      "files": ["internal/cli/billable.go"]
+    },
+    {
+      "id": "recap-tag-share-denominator",
+      "summary": "recap --by tag: use sum of bucket totals as the share_pct denominator so percentages do not exceed 100% when entries carry multiple tags.",
+      "reason": "Greptile pass-2 P2 (logic). grand counted each entry once, but the tag branch added the full entry duration to every tag bucket, so multi-tagged entries produced per-tag shares that summed to more than 100% (visible in both the table and the JSON share_pct field). project and client modes are unaffected; grand still drives total_hours and the header line.",
+      "files": ["internal/cli/recap.go"]
+    },
+    {
+      "id": "team-approval-start-week-guard",
+      "summary": "team timesheets: skip approvals whose DateRange.Start is empty or unparseable instead of crediting them to every week queried, so a single bad Start no longer ghost-inflates 'submitted' counts.",
+      "reason": "Greptile pass-3 and pass-4 (logic). The week-range filter only ran when Start was non-empty and only acted when the RFC3339 parse succeeded; on either empty Start or parse failure, execution fell through and stateByUser[uid] was set for whichever week the loop was on, so a single approval with a missing or malformed Start appeared 'submitted' across every week the loop visited. Fix: continue on Start == \"\" before the parse, continue on parse error after — both treated as 'exclude this approval from this week'.",
+      "files": ["internal/cli/team.go"]
+    }
+  ]
+}

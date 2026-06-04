@@ -1,4 +1,4 @@
-// Copyright 2026 aborruso. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 aborruso and contributors. Licensed under Apache-2.0. See LICENSE.
 // PATCH(WS-endpoint-migration): new command group for IPA PEC web services (WS20/WS21/WS22).
 
 package cli

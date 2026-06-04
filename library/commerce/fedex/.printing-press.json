@@ -5,6 +5,10 @@
   "api_name": "fedex",
   "display_name": "FedEx",
   "cli_name": "fedex-pp-cli",
+  "creator": {
+    "handle": "tmchow",
+    "name": "Trevin Chow"
+  },
   "printer": "tmchow",
   "printer_name": "Trevin Chow",
   "spec_format": "internal",

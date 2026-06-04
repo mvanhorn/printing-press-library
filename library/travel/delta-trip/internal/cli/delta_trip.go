@@ -410,9 +410,9 @@ func newLayoverRiskCmd(flags *rootFlags) *cobra.Command {
 }
 
 type layoverRiskReport struct {
-	Confirmation string        `json:"confirmation"`
-	Connections  []connRisk    `json:"connections"`
-	OverallRisk  string        `json:"overallRisk"`
+	Confirmation string     `json:"confirmation"`
+	Connections  []connRisk `json:"connections"`
+	OverallRisk  string     `json:"overallRisk"`
 }
 
 type connRisk struct {

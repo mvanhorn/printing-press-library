@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "u3-hermes-relay-management",
+  "applied_at": "2026-05-21",
+  "base_run_id": "20260519-225351",
+  "base_printing_press_version": "4.9.0",
+  "summary": "`tesla relay {start,stop,status,doctor}` subcommand tree managing the external lotharbach tesla-http-proxy as a detached subprocess (POSIX Setsid). Generates one-off TLS cert at ~/.config/tesla-pp-cli/relay-cert.pem on first start. PID/log/state files under ~/.config/tesla-pp-cli/. Windows graceful-degrade: prints unsupported-platform JSON and exits zero. Doctor runs synthetic vehicle_data round-trip and surfaces the known VCSEC-unsupported limitation.",
+  "reason": "Hermes is the free path for infotainment commands (charge/climate/honk). The subprocess lifecycle (PID file, log redirect, port allocation, TLS cert) is non-trivial enough that having the CLI manage it is materially better than a 10-step README.",
+  "files": [
+    "internal/cli/tesla_relay.go",
+    "internal/cli/tesla_relay_unix.go",
+    "internal/cli/tesla_relay_windows.go",
+    "internal/cli/tesla_relay_test.go",
+    "internal/cli/root.go"
+  ],
+  "validated_outcome": "25 relay tests + 8 helper unit tests pass; cross-builds clean on linux/darwin/windows; full SIGTERM-then-SIGKILL escalation path tested with 5s grace; idempotent start/stop; install-recipe-on-missing-binary; port-in-use --port hint; subprocess early-exit cleanup; doctor VCSEC warning; verify-mode short-circuit across all 4 subs."
+}

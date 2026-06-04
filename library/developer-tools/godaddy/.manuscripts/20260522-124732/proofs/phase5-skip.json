@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "api_name": "godaddy",
+  "run_id": "20260522-124732",
+  "status": "skip",
+  "skip_reason": "auth_required_no_credential",
+  "auth_context": {
+    "type": "sso-key",
+    "api_key_available": false,
+    "browser_session_available": false
+  }
+}

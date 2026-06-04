@@ -1,4 +1,4 @@
-// Copyright 2026 david. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 David He and contributors. Licensed under Apache-2.0. See LICENSE.
 // Hand-written for slickdeals-pp-cli v0.3.
 //
 // v0.3 rewrite: replaced v0.2's client-side keyword-filter kludge with the
@@ -33,25 +33,25 @@ import (
 // Slickdeals' RSS will return whatever the forum publishes (or an empty feed
 // for an unknown ID). The map is for friendly-name resolution only.
 var CategoryMap = map[string]int{
-	"freebies":   4,
-	"freebie":    4,
-	"free":       4,
-	"hot":        9,
-	"hot-deals":  9,
-	"hotdeals":   9,
-	"deals":      9,
-	"coupons":    10,
-	"coupon":     10,
-	"codes":      10,
-	"contests":   25,
-	"contest":    25,
+	"freebies":    4,
+	"freebie":     4,
+	"free":        4,
+	"hot":         9,
+	"hot-deals":   9,
+	"hotdeals":    9,
+	"deals":       9,
+	"coupons":     10,
+	"coupon":      10,
+	"codes":       10,
+	"contests":    25,
+	"contest":     25,
 	"sweepstakes": 25,
-	"giveaways":  25,
-	"giveaway":   25,
-	"grocery":    38,
-	"drugstore":  38,
-	"food":       38,
-	"bm":         38,
+	"giveaways":   25,
+	"giveaway":    25,
+	"grocery":     38,
+	"drugstore":   38,
+	"food":        38,
+	"bm":          38,
 }
 
 // ResolveCategory accepts a numeric ID string OR a friendly name and returns

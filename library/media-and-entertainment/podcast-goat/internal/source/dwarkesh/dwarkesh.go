@@ -1,4 +1,4 @@
-// Copyright 2026 mvanhorn. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Matt Van Horn and contributors. Licensed under Apache-2.0. See LICENSE.
 // PATCH: v0.1 dwarkesh.com Substack /p/<slug> HTML scraper.
 
 package dwarkesh
@@ -31,8 +31,8 @@ func New() *Adapter {
 	return &Adapter{Client: &http.Client{Timeout: 30 * time.Second}}
 }
 
-func (a *Adapter) Name() string             { return adapterName }
-func (a *Adapter) Tier() transcript.Tier    { return transcript.TierFree }
+func (a *Adapter) Name() string          { return adapterName }
+func (a *Adapter) Tier() transcript.Tier { return transcript.TierFree }
 
 var hostRE = regexp.MustCompile(`^https?://(www\.)?dwarkesh(patel)?\.com/p/`)
 

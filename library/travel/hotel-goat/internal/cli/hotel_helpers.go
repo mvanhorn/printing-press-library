@@ -1,4 +1,4 @@
-// Copyright 2026 kothari-nikunj. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 kothari-nikunj and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // Hand-written helpers shared by all hotel-goat commands. NEW FILE — does
 // not exist in the generator's emit set, so subsequent regenerations
@@ -13,9 +13,11 @@ import (
 	"github.com/mvanhorn/printing-press-library/library/travel/hotel-goat/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/travel/hotel-goat/internal/parser"
 	"github.com/mvanhorn/printing-press-library/library/travel/hotel-goat/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/travel/hotel-goat/internal/trivago"
 	"math"
 	"net/http"
 	"net/url"
+	"os"
 	"regexp"
 	"sort"
 	"strings"
@@ -49,6 +51,12 @@ type hotelSearchOpts struct {
 	Limit            int
 	Page             int
 	Locale           string
+	// Source selects which cash-price backends to consult. Empty or
+	// "google" preserves the pre-multi-source behavior. "trivago" calls
+	// only the Trivago MCP. "both" fans out and merges (matched hotels
+	// get a `prices` entry per source; Trivago-only properties are
+	// appended as standalone records).
+	Source string
 }
 
 // buildHotelsURLParams converts the typed opts to the query-string
@@ -233,16 +241,63 @@ func fetchAndParseHotels(ctx context.Context, location, checkin, checkout string
 	if cliutil.IsDogfoodEnv() && (opts.Limit == 0 || opts.Limit > 5) {
 		opts.Limit = 5
 	}
-	client := &http.Client{Timeout: 45 * time.Second}
-	html, err := parser.FetchHotelsHTML(ctx, client, location, checkin, checkout, extras)
-	if err != nil {
-		return nil, wouldURL, err
+	source := strings.ToLower(strings.TrimSpace(opts.Source))
+	var hotels []parser.Hotel
+	if source != "trivago" {
+		client := &http.Client{Timeout: 45 * time.Second}
+		html, err := parser.FetchHotelsHTML(ctx, client, location, checkin, checkout, extras)
+		if err != nil {
+			return nil, wouldURL, err
+		}
+		hotels, err = parser.ParseSearchPage(html)
+		if err != nil {
+			return nil, wouldURL, fmt.Errorf("parse: %w", err)
+		}
 	}
-	hotels, err := parser.ParseSearchPage(html)
-	if err != nil {
-		return nil, wouldURL, fmt.Errorf("parse: %w", err)
+	if source == "trivago" || source == "both" {
+		triv, err := fetchTrivagoFor(ctx, location, checkin, checkout, opts)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "warning: trivago lookup failed: %v\n", err)
+		} else {
+			target := strings.ToUpper(strings.TrimSpace(opts.Currency))
+			if target == "" {
+				for _, h := range hotels {
+					if h.Currency != "" {
+						target = h.Currency
+						break
+					}
+				}
+			}
+			if target == "" {
+				target = "USD"
+			}
+			hotels = trivago.Merge(ctx, hotels, triv, target)
+		}
 	}
 	return filterHotels(hotels, opts), wouldURL, nil
+}
+
+// fetchTrivagoFor resolves `location` to a Trivago area id/ns via the
+// suggestions tool and runs an area search. Two-call cost amortizes
+// because Trivago returns up to ~50 results per area, which is plenty
+// for the merge to find Google overlaps.
+func fetchTrivagoFor(ctx context.Context, location, checkin, checkout string, opts hotelSearchOpts) ([]trivago.Accommodation, error) {
+	c := trivago.NewClient()
+	sug, err := c.Suggestions(ctx, location)
+	if err != nil {
+		return nil, err
+	}
+	for _, s := range sug {
+		if s.ID == 0 || s.NS == 0 {
+			continue
+		}
+		return c.AreaSearch(ctx, trivago.AreaOpts{
+			ID: s.ID, NS: s.NS,
+			Arrival: checkin, Departure: checkout,
+			Adults: opts.Adults, Rooms: opts.Rooms,
+		})
+	}
+	return nil, nil
 }
 
 func buildHotelsRequestURL(location, checkin, checkout string, extras map[string]string) string {

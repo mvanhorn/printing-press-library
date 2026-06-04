@@ -5,6 +5,10 @@
   "api_name": "roam",
   "display_name": "Roam HQ",
   "cli_name": "roam-pp-cli",
+  "creator": {
+    "handle": "gregvanhorn",
+    "name": "Greg Van Horn"
+  },
   "owner": "wonder-inventions",
   "printer": "gregvanhorn",
   "printer_name": "Greg Van Horn",
@@ -13,7 +17,10 @@
   "run_id": "20260508-223718",
   "category": "productivity",
   "description": "Local-first CLI for the Roam HQ API (chat, On-Air events, transcripts, SCIM, webhooks) with offline FTS search and agent-friendly JSON output.",
-  "mcp_binary": "roam-pp-cli",
+  "mcp_binary": "roam-pp-mcp",
+  "mcp_tool_count": 85,
+  "mcp_public_tool_count": 85,
+  "mcp_ready": "full",
   "api_version": "1.0.0",
   "auth_type": "bearer",
   "auth_env_vars": [

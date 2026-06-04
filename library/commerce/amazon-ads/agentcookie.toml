@@ -1,0 +1,18 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "amazon-ads-pp-cli"
+display_name = "Amazon Ads"
+description = "Combined CLI for multiple API services"
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/amazon-ads-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+AMAZON_ADS_CLIENT_ID = true
+AMAZON_ADS_CLIENT_SECRET = true
+AMAZON_ADS_REFRESH_TOKEN = true

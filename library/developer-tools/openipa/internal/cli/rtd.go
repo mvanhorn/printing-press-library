@@ -1,4 +1,4 @@
-// Copyright 2026 aborruso. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 aborruso and contributors. Licensed under Apache-2.0. See LICENSE.
 // Hand-written addition: rtd command — preserve on regeneration.
 
 package cli
@@ -48,10 +48,10 @@ func newRtdCercaCmd(flags *rootFlags) *cobra.Command {
 
 			body := map[string]any{
 				"nominativoResponsabile": nilIfEmpty(nominativo),
-				"area":                  nilIfEmpty(area),
-				"denominazioneEnte":     nilIfEmpty(ente),
-				"codEnte":               nilIfEmpty(codiceEnte),
-				"categoria":             nilIfEmpty(categoria),
+				"area":                   nilIfEmpty(area),
+				"denominazioneEnte":      nilIfEmpty(ente),
+				"codEnte":                nilIfEmpty(codiceEnte),
+				"categoria":              nilIfEmpty(categoria),
 			}
 
 			var items json.RawMessage
@@ -118,10 +118,10 @@ func newRtdEmailCmd(flags *rootFlags) *cobra.Command {
 			portale := newPortaleClient(flags)
 			body := map[string]any{
 				"nominativoResponsabile": nilIfEmpty(nominativo),
-				"area":                  nilIfEmpty(area),
-				"denominazioneEnte":     nilIfEmpty(ente),
-				"codEnte":               nilIfEmpty(codiceEnte),
-				"categoria":             nilIfEmpty(categoria),
+				"area":                   nilIfEmpty(area),
+				"denominazioneEnte":      nilIfEmpty(ente),
+				"codEnte":                nilIfEmpty(codiceEnte),
+				"categoria":              nilIfEmpty(categoria),
 			}
 
 			var rtdItems json.RawMessage
@@ -160,12 +160,12 @@ func newRtdEmailCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			type rtdEmail struct {
-				Nominativo   string `json:"nominativo"`
-				Ente         string `json:"ente"`
-				Ufficio      string `json:"ufficio"`
-				Email        string `json:"email"`
-				PEC          string `json:"pec"`
-				CodUniOu     string `json:"cod_uni_ou"`
+				Nominativo string `json:"nominativo"`
+				Ente       string `json:"ente"`
+				Ufficio    string `json:"ufficio"`
+				Email      string `json:"email"`
+				PEC        string `json:"pec"`
+				CodUniOu   string `json:"cod_uni_ou"`
 			}
 
 			results := make([]rtdEmail, 0, len(rtdList))

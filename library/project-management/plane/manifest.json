@@ -1,0 +1,46 @@
+{
+  "manifest_version": "0.3",
+  "name": "plane-pp-mcp",
+  "display_name": "Plane",
+  "version": "4.20.1",
+  "description": "Open-source project management — issues, cycles, modules, sub-issues, and workspaces. A self-hostable Jira/Linear/ClickUp alternative.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/plane-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/plane-pp-mcp",
+      "args": [],
+      "env": {
+        "PLANE_API_KEY_AUTHENTICATION": "${user_config.plane_api_key_authentication}",
+        "PLANE_SLUG": "${user_config.plane_slug}"
+      }
+    }
+  },
+  "user_config": {
+    "plane_api_key_authentication": {
+      "type": "string",
+      "title": "PLANE_API_KEY_AUTHENTICATION",
+      "description": "Sets PLANE_API_KEY_AUTHENTICATION for the Plane MCP server. Get a credential from https://app.plane.so/profile/api-tokens.",
+      "sensitive": true,
+      "required": true
+    },
+    "plane_slug": {
+      "type": "string",
+      "title": "PLANE_SLUG",
+      "description": "Sets PLANE_SLUG for the endpoint template variable {slug}.",
+      "default": "my-workspace"
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

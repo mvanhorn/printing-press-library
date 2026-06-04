@@ -8,6 +8,8 @@ Search Airbnb from the terminal, run cheapest on a listing to extract the host's
 
 > **Renamed from `airbnb-vrbo-pp-cli` to `airbnb-pp-cli`.** Existing users get an automatic one-time state migration on first run (the `~/.airbnb-vrbo-pp-cli` directory is renamed in place to `~/.airbnb-pp-cli`; the same applies to the SQLite cache under `~/.local/share`). `AIRBNB_VRBO_*` env vars are still read but emit a deprecation warning; switch to `AIRBNB_PP_*`. The legacy paths will be dropped in a future release.
 
+Created by [@mvanhorn](https://github.com/mvanhorn) (Matt Van Horn).
+
 ## Install
 
 The recommended path installs both the `airbnb-pp-cli` binary and the `pp-airbnb` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

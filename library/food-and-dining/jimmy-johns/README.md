@@ -6,6 +6,8 @@ Browse stores and menus, build carts, view rewards, and one-shot reorders from t
 
 Learn more at [Jimmy John's](https://www.jimmyjohns.com).
 
+Created by [@omarshahine](https://github.com/omarshahine) (Omar Shahine).
+
 ## Install
 
 The recommended path installs both the `jimmy-johns-pp-cli` binary and the `pp-jimmy-johns` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

@@ -1,11 +1,14 @@
 # icloud-pp-cli
 
-Query your iCloud data from the command line. Reads your Mac's local databases
+Query your Apple iCloud data from the command line. Reads your Mac's local databases
 directly — no Photos.app launch, no API token, no network calls.
 
 **[icloudcli.com](https://icloudcli.com)** · macOS · Apache-2.0
 
 ---
+
+Created by [@matysanchez](https://github.com/matysanchez) (Matias Sanchez Moises).
+Contributors: [@mvanhorn](https://github.com/mvanhorn) (Matt Van Horn), [@tmchow](https://github.com/tmchow) (Trevin Chow).
 
 ## Install
 

@@ -30,9 +30,9 @@ func newLaunchesCmd(flags *rootFlags) *cobra.Command {
 	var minPoints int
 
 	cmd := &cobra.Command{
-		Use:   "launches [co]",
+		Use:         "launches [co]",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short: "Show HN posts mentioning the company, sorted by points. Includes year hints to spot dead vs. active launches.",
+		Short:       "Show HN posts mentioning the company, sorted by points. Includes year hints to spot dead vs. active launches.",
 		Long: `launches searches the Hacker News Algolia index for "Show HN" posts where the title or content mentions the resolved company. Results are sorted by points descending.
 
 Use this to gauge launch story strength, find the canonical Show HN post for a product, or spot when a startup pivoted/relaunched.`,
@@ -128,9 +128,9 @@ func newMentionsCmd(flags *rootFlags) *cobra.Command {
 	var topStories int
 
 	cmd := &cobra.Command{
-		Use:   "mentions [co]",
+		Use:         "mentions [co]",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short: "Hacker News mention timeline plus the top N stories by points, via Algolia full-text search.",
+		Short:       "Hacker News mention timeline plus the top N stories by points, via Algolia full-text search.",
 		Long: `mentions searches HN's full-text Algolia index for any story containing the resolved company name. Returns two views in one call: a year-month histogram for a quick "is this still talked about?" view, and the top N stories sorted by points so an agent can dive into the most-discussed mentions without a second query.
 
 The Show HN flavor lives under the launches command; mentions covers all stories — third-party reviews, debate threads, Ask HNs, polls.`,

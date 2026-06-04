@@ -5,6 +5,10 @@
   "api_name": "airframe",
   "display_name": "Airframe",
   "cli_name": "airframe-pp-cli",
+  "creator": {
+    "handle": "ChrisDrit",
+    "name": "Chris Drit"
+  },
   "owner": "chris-drit",
   "printer": "ChrisDrit",
   "printer_name": "Chris Drit",

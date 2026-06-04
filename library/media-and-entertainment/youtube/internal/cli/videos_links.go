@@ -1,4 +1,4 @@
-// Copyright 2026 justinwfu. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Justin and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // PATCH(amend-20260523: novel command) — extracts HTTP(S) links from a video
 // description (real videos.list call), expands known short-link redirects, and
@@ -271,6 +271,18 @@ func fetchVideoSnippet(ctx context.Context, flags *rootFlags, videoID string) (t
 func parseVideoID(in string) string {
 	if in == "" {
 		return ""
+	}
+	// Scheme-less URLs (youtu.be/<id>, www.youtube.com/watch?v=<id>) are common
+	// copy-paste shapes; url.Parse treats them as bare paths and the query/host
+	// extraction below misses the ID. Normalize them to an absolute URL so they
+	// route through the same host/path/query logic as scheme-ful inputs. A bare
+	// 11-char ID never contains "/" or "?", so this never rewrites a valid ID.
+	if !strings.Contains(in, "://") &&
+		(strings.HasPrefix(in, "youtu.be/") ||
+			strings.HasPrefix(in, "youtube.com/") ||
+			strings.HasPrefix(in, "www.youtube.com/") ||
+			strings.HasPrefix(in, "m.youtube.com/")) {
+		in = "https://" + in
 	}
 	if strings.Contains(in, "://") {
 		u, err := url.Parse(in)

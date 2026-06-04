@@ -1,4 +1,4 @@
-// Copyright 2026 matt-van-horn. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Matt Van Horn and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // Custom HTTP/2 client with TLS handshake fingerprinting via utls. Used by
 // the calendar endpoint (dates_native.go) to defend against Google flipping

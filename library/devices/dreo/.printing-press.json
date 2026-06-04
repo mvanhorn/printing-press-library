@@ -5,6 +5,10 @@
   "api_name": "dreo",
   "display_name": "Dreo",
   "cli_name": "dreo-pp-cli",
+  "creator": {
+    "handle": "tmchow",
+    "name": "Trevin Chow"
+  },
   "owner": "trevin-chow",
   "printer": "tmchow",
   "printer_name": "Trevin Chow",

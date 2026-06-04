@@ -5,6 +5,10 @@
   "api_name": "safari-history",
   "display_name": "Safari History",
   "cli_name": "safari-history-pp-cli",
+  "creator": {
+    "handle": "vinnyp",
+    "name": "Vinny Pasceri"
+  },
   "owner": "vinnypasceri",
   "printer": "vinnyp",
   "printer_name": "Vinny Pasceri",

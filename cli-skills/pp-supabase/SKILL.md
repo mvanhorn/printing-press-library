@@ -1,9 +1,3 @@
-<!-- GENERATED FILE — DO NOT EDIT.
-     This file is a verbatim mirror of library/developer-tools/supabase/SKILL.md,
-     regenerated post-merge by tools/generate-skills/. Hand-edits here are
-     silently overwritten on the next regen. Edit the library/ source instead.
-     See AGENTS.md "Generated artifacts: registry.json, cli-skills/". -->
-<!-- // PATCH: hand-edited headline + Known Gaps section + narrowed trigger phrases vs generated defaults; aligned with README/SKILL contract. -->
 ---
 name: pp-supabase
 description: "The full Supabase Management API (108 endpoints) plus a local SQLite cache of orgs, projects, functions, branches, and secret names — powering cross-project queries no live API answers in one call, with Auth Admin lookup, PostgREST schema introspection, and Storage usage rollup on top. Trigger phrases: `supabase auth admin lookup`, `supabase secret name audit`, `supabase branches drift`, `supabase project estate rollup`, `supabase storage usage`, `supabase pgrst schema`, `use supabase`, `run supabase`. Anti-triggers: `supabase start` (use the official supabase CLI), `supabase db push` (official CLI), `supabase gen types` (official CLI), supabase realtime subscribe (WebSocket — out of scope)."
@@ -17,6 +11,11 @@ metadata:
       bins:
         - supabase-pp-cli
 ---
+<!-- GENERATED FILE — DO NOT EDIT.
+     This file is a verbatim mirror of library/developer-tools/supabase/SKILL.md,
+     regenerated post-merge by tools/generate-skills/. Hand-edits here are
+     silently overwritten on the next regen. Edit the library/ source instead.
+     See the repository agent guide, section "Generated artifacts: registry.json, cli-skills/". -->
 
 # Supabase — Printing Press CLI
 

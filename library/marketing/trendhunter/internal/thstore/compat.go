@@ -9,8 +9,8 @@ import (
 	"strings"
 	"time"
 
-	_ "modernc.org/sqlite"
 	"github.com/mvanhorn/printing-press-library/library/marketing/trendhunter/internal/thparse"
+	_ "modernc.org/sqlite"
 )
 
 type Store struct {

@@ -1,4 +1,4 @@
-// Copyright 2026 mvanhorn. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Matias Sanchez Moises and contributors. Licensed under Apache-2.0. See LICENSE.
 
 package cli
 
@@ -115,13 +115,13 @@ type exportedMessage struct {
 }
 
 type exportedChat struct {
-	GUID           string             `json:"guid"`
-	ChatIdentifier string             `json:"chat_identifier"`
-	DisplayName    string             `json:"display_name,omitempty"`
-	Participants   int                `json:"participants"`
-	IsGroup        bool               `json:"is_group"`
-	MessageCount   int                `json:"message_count"`
-	Messages       []exportedMessage  `json:"messages"`
+	GUID           string            `json:"guid"`
+	ChatIdentifier string            `json:"chat_identifier"`
+	DisplayName    string            `json:"display_name,omitempty"`
+	Participants   int               `json:"participants"`
+	IsGroup        bool              `json:"is_group"`
+	MessageCount   int               `json:"message_count"`
+	Messages       []exportedMessage `json:"messages"`
 }
 
 type exportDoc struct {

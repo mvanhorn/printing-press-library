@@ -1,4 +1,4 @@
-// Copyright 2026 Granola Printing Press contributors. Licensed under Apache-2.0.
+// Copyright 2026 Damien Stevens and contributors. Licensed under Apache-2.0.
 
 package granola
 
@@ -20,12 +20,12 @@ import (
 // ~/.local/share/granola-pp-cli/sync_state.json on macOS by default).
 // Path is overridable via GRANOLA_SYNC_STATE_PATH for tests.
 type SyncState struct {
-	LastSyncAt           time.Time `json:"last_sync_at"`
-	LastDecryptStatus    string    `json:"last_decrypt_status"` // "ok" | "failed" | "skipped"
-	LastDecryptErrorClass string   `json:"last_decrypt_error_class,omitempty"`
-	LastDecryptErrorMsg  string    `json:"last_decrypt_error_msg,omitempty"`
-	LastTokenSource      string    `json:"last_token_source,omitempty"`
-	LastDocumentsFetched int       `json:"last_documents_fetched,omitempty"`
+	LastSyncAt            time.Time `json:"last_sync_at"`
+	LastDecryptStatus     string    `json:"last_decrypt_status"` // "ok" | "failed" | "skipped"
+	LastDecryptErrorClass string    `json:"last_decrypt_error_class,omitempty"`
+	LastDecryptErrorMsg   string    `json:"last_decrypt_error_msg,omitempty"`
+	LastTokenSource       string    `json:"last_token_source,omitempty"`
+	LastDocumentsFetched  int       `json:"last_documents_fetched,omitempty"`
 	// LastHydrateErrorMsg carries an error from the /v2/get-documents API
 	// hydration step, distinct from decrypt failures. The two have different
 	// remediation paths (auth/network vs. Keychain) and should not be

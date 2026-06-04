@@ -6,6 +6,8 @@ MyFitnessPal closed their API, gates per-food export behind premium, and ships p
 
 Learn more at [MyFitnessPal](https://www.myfitnesspal.com).
 
+Created by [@nickscarabosio](https://github.com/nickscarabosio) (Nick Scarabosio).
+
 ## Install
 
 The recommended path installs both the `myfitnesspal-pp-cli` binary and the `pp-myfitnesspal` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

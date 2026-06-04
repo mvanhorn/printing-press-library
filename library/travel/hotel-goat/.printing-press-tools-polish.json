@@ -1,9 +1,9 @@
 {
-  "timestamp": "2026-05-25T15:51:25.16852Z",
+  "timestamp": "2026-05-26T19:15:58.784229Z",
   "cli_dir": "\u003ccli-dir\u003e/hotel-goat",
   "findings": null,
   "scorecard_before": {
     "mcp_description_quality": 10,
-    "captured": "2026-05-25T15:47:34.570817Z"
+    "captured": "2026-05-26T19:07:56.596354Z"
   }
 }

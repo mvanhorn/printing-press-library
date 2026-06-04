@@ -1,4 +1,4 @@
-// Copyright 2026 trevin-chow. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Trevin Chow and contributors. Licensed under Apache-2.0. See LICENSE.
 
 package cli
 
@@ -9,8 +9,8 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/pagliacci/internal/store"
+	"github.com/spf13/cobra"
 )
 
 // SummaryByStore is the per-store rollup row in the orders summary output.

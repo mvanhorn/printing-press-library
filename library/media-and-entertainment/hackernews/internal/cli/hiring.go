@@ -6,8 +6,8 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/hackernews/internal/algolia"
+	"github.com/spf13/cobra"
 )
 
 // `hiring` and `freelance` find the latest "Ask HN: Who is hiring"

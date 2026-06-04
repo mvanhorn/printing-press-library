@@ -5,6 +5,10 @@
   "api_name": "customer-io",
   "display_name": "Customer.io",
   "cli_name": "customer-io-pp-cli",
+  "creator": {
+    "handle": "tmchow",
+    "name": "Trevin Chow"
+  },
   "printer": "tmchow",
   "printer_name": "Trevin Chow",
   "spec_path": "/Users/tmchow/printing-press/.runstate/piped-strolling-bird-5ebb1b07/runs/20260507-031036/research/customer-io-spec.yaml",

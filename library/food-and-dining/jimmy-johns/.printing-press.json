@@ -6,6 +6,10 @@
   "category": "food-and-dining",
   "display_name": "Jimmy John's",
   "cli_name": "jimmy-johns-pp-cli",
+  "creator": {
+    "handle": "omarshahine",
+    "name": "Omar Shahine"
+  },
   "owner": "omar-shahine",
   "printer": "omarshahine",
   "printer_name": "Omar Shahine",

@@ -1,4 +1,4 @@
-// Copyright 2026 matt-van-horn. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Matt Van Horn and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // Flagship helpers: shared utilities for the 5 flagship compound-query
 // commands (warm-intro, coverage, prospect, dossier, budget). These helpers
@@ -31,21 +31,21 @@ import (
 // struct with typed fields — downstream output is --json by default, and the
 // set of fields varies by feature.
 type flagshipPerson struct {
-	Name             string         `json:"name"`
-	LinkedInURL      string         `json:"linkedin_url,omitempty"`
-	HappenstanceUUID string         `json:"happenstance_uuid,omitempty"`
-	Title            string         `json:"title,omitempty"`
-	Company          string         `json:"company,omitempty"`
-	Location         string         `json:"location,omitempty"`
-	ImageURL         string         `json:"image_url,omitempty"`
-	ConnectionCount  int            `json:"connection_count,omitempty"`
-	Sources          []string       `json:"sources,omitempty"`
-	Rationale        string         `json:"rationale,omitempty"`
-	Relationship     string         `json:"relationship,omitempty"`
-	MutualCount      int            `json:"mutual_count,omitempty"`
-	Bridges          []bridgeRef    `json:"bridges,omitempty"`
-	Score            float64        `json:"score,omitempty"`
-	Raw              any            `json:"raw,omitempty"`
+	Name             string      `json:"name"`
+	LinkedInURL      string      `json:"linkedin_url,omitempty"`
+	HappenstanceUUID string      `json:"happenstance_uuid,omitempty"`
+	Title            string      `json:"title,omitempty"`
+	Company          string      `json:"company,omitempty"`
+	Location         string      `json:"location,omitempty"`
+	ImageURL         string      `json:"image_url,omitempty"`
+	ConnectionCount  int         `json:"connection_count,omitempty"`
+	Sources          []string    `json:"sources,omitempty"`
+	Rationale        string      `json:"rationale,omitempty"`
+	Relationship     string      `json:"relationship,omitempty"`
+	MutualCount      int         `json:"mutual_count,omitempty"`
+	Bridges          []bridgeRef `json:"bridges,omitempty"`
+	Score            float64     `json:"score,omitempty"`
+	Raw              any         `json:"raw,omitempty"`
 }
 
 // bridgeRef is flagshipPerson's render-time projection of a client.Bridge.

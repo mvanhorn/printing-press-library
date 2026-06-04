@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-21T04:26:11.9357777Z",
+  "printing_press_version": "4.14.0",
+  "api_name": "clockify",
+  "display_name": "Clockify",
+  "cli_name": "clockify-pp-cli",
+  "creator": {
+    "handle": "melanson633",
+    "name": "melanson633"
+  },
+  "owner": "melanson633",
+  "printer": "melanson633",
+  "printer_name": "melanson633",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:aa9867d263072192db908b2de1cfaa516867cddac3b1687b3f17697e6ec25197",
+  "run_id": "20260520-224501",
+  "mcp_binary": "clockify-pp-mcp",
+  "mcp_tool_count": 155,
+  "mcp_ready": "full",
+  "api_version": "v1",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "CLOCKIFY_API_KEY"
+  ],
+  "auth_key_url": "https://marketplace.cake.com",
+  "novel_features": [
+    {
+      "name": "Timesheet week reconstruct",
+      "command": "timesheet week",
+      "description": "Rebuild your whole weekly timesheet grid offline — every project and task across each weekday, with per-day, per-project, and weekly totals."
+    },
+    {
+      "name": "Timesheet gap finder",
+      "command": "timesheet gaps",
+      "description": "Find the days you are short — compares each day's tracked hours against your workday target and reports the missing time before you submit."
+    },
+    {
+      "name": "Billable leakage audit",
+      "command": "audit billable",
+      "description": "Catch the misfiled entries that silently drop off invoices — billable time with no project, billable tasks marked non-billable, and untagged billable entries."
+    },
+    {
+      "name": "Team submission tracker",
+      "command": "team timesheets",
+      "description": "See who has not submitted — diffs the full workspace user list against the week's approval requests so the people who forgot are visible, not invisible."
+    },
+    {
+      "name": "Where-did-my-week-go recap",
+      "command": "recap",
+      "description": "A ranked breakdown of where your tracked time went — by project, client, and tag, with the billable vs non-billable split and percentage of the total."
+    },
+    {
+      "name": "Unbilled billable balance",
+      "command": "billable pending",
+      "description": "The invoice-ready number — sums billable time not yet covered by any synced invoice, grouped by client."
+    },
+    {
+      "name": "Project budget burn",
+      "command": "projects burn",
+      "description": "Estimate vs actual per project — hours logged against the project's budget or time estimate, with percent consumed."
+    },
+    {
+      "name": "Full-text entry search",
+      "command": "search",
+      "description": "Full-text search across every synced time-entry description and project, task, client, and tag name."
+    },
+    {
+      "name": "Draft entries from logs and files",
+      "command": "backfill",
+      "description": "Reconstruct the time you forgot to track — turn a CSV export, your shell history, or a CLI session log into draft time entries, review them, then commit them to Clockify."
+    }
+  ]
+}

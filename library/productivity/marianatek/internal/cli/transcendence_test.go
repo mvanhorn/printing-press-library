@@ -1,4 +1,4 @@
-// Copyright 2026 salmonumbrella. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 salmonumbrella and contributors. Licensed under Apache-2.0. See LICENSE.
 
 package cli
 
@@ -32,9 +32,9 @@ func TestExtractSpotsLeft(t *testing.T) {
 
 func TestParseHHMM(t *testing.T) {
 	cases := []struct {
-		in           string
+		in             string
 		wantHH, wantMM int
-		wantOK       bool
+		wantOK         bool
 	}{
 		{"07:00", 7, 0, true},
 		{"23:59", 23, 59, true},
@@ -169,8 +169,8 @@ func TestRankRegularsBasic(t *testing.T) {
 
 func TestParseWeekday(t *testing.T) {
 	cases := []struct {
-		in    string
-		want  time.Weekday
+		in     string
+		want   time.Weekday
 		wantOK bool
 	}{
 		{"mon", time.Monday, true},

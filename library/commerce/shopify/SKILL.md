@@ -124,6 +124,16 @@ shopify-pp-cli which "<capability in your own words>"
 These commands are declared by the spec author and require separate hand-written wiring; the generator does not emit Cobra registration for them. They are listed here for discoverability and are intentionally outside `## Command Reference` so the verify-skill unknown-command check does not treat them as generator-owned paths.
 
 - `shopify-pp-cli bulk-operations` — Run, poll, and inspect Shopify Admin GraphQL bulk operations.
+- `shopify-pp-cli store daily-brief` — Executive daily brief with revenue, top products, risk checks, and suggested actions from the local store.
+- `shopify-pp-cli store audit` — Health score from refunds, fulfillment risk, shipping anomalies, and dead stock.
+- `shopify-pp-cli growth campaign-brief` — Data-backed campaign brief from top products, VIPs, and winback opportunities.
+- `shopify-pp-cli growth winback-candidates` — Rank idle customers by lifetime value and suggested winback angle.
+- `shopify-pp-cli growth vip-segments` — Segment high-value customers by spend, frequency, and recency.
+- `shopify-pp-cli ops fulfillment-risk` — Find open fulfillment orders older than a threshold.
+- `shopify-pp-cli ops shipping-anomalies` — Find free/missing/high shipping charges from synced shipping lines.
+- `shopify-pp-cli merchandising bundle-opportunities` — Suggest bundles from co-purchase lift and confidence.
+- `shopify-pp-cli merchandising dead-stock-actions` — Turn stock with no recent sales into markdown/bundle actions.
+- `shopify-pp-cli merchandising launch-brief` — Build a launch/relaunch brief for a product from local evidence.
 
 ## Auth Setup
 Run `shopify-pp-cli auth setup` to print the URL and steps for getting a key (add `--launch` to open the URL). Then set:

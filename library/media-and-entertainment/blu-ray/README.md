@@ -6,7 +6,7 @@ Sync the public Blu-ray.com sitemap into a local SQLite + FTS5 index and search 
 
 Learn more at [Blu-ray.com](https://www.blu-ray.com).
 
-Printed by [@vinnyp](https://github.com/vinnyp) (Vinny Pasceri).
+Created by [@vinnyp](https://github.com/vinnyp) (Vinny Pasceri).
 
 ## Install
 

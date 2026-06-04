@@ -6,6 +6,8 @@ render-pp-cli is the only Render CLI that lets you reason about your full Render
 
 Learn more at [Render](https://community.render.com).
 
+Created by [@giacaglia](https://github.com/giacaglia) (Giuliano Giacaglia).
+
 ## Install
 
 The recommended path installs both the `render-pp-cli` binary and the `pp-render` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

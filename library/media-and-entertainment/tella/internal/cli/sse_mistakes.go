@@ -1,4 +1,4 @@
-// Copyright 2026 gregce. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Greg Ceccarelli and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // PATCH(library): SSE parser for prod-stream.tella.tv/ai-mistakes/analyze-scene.
 // The unofficial AI service streams mistakes as Server-Sent Events; each

@@ -1,4 +1,4 @@
-// Copyright 2026 azaaron. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 azaaron and contributors. Licensed under Apache-2.0. See LICENSE.
 
 package cli
 
@@ -8,19 +8,19 @@ import (
 	"math"
 	"strings"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/productivity/strava/internal/cliutil"
+	"github.com/spf13/cobra"
 )
 
 type segmentProgressRow struct {
-	EffortID    string  `json:"effort_id"`
-	StartDate   string  `json:"start_date"`
-	ElapsedSec  int     `json:"elapsed_seconds"`
-	Elapsed     string  `json:"elapsed"`
-	DeltaPRSec  int     `json:"delta_pr_seconds"`
-	AvgWatts    float64 `json:"avg_watts,omitempty"`
-	AvgHR       float64 `json:"avg_hr,omitempty"`
-	IsPR        bool    `json:"is_pr"`
+	EffortID   string  `json:"effort_id"`
+	StartDate  string  `json:"start_date"`
+	ElapsedSec int     `json:"elapsed_seconds"`
+	Elapsed    string  `json:"elapsed"`
+	DeltaPRSec int     `json:"delta_pr_seconds"`
+	AvgWatts   float64 `json:"avg_watts,omitempty"`
+	AvgHR      float64 `json:"avg_hr,omitempty"`
+	IsPR       bool    `json:"is_pr"`
 }
 
 func newSegmentsProgressCmd(flags *rootFlags) *cobra.Command {
@@ -146,4 +146,3 @@ Requires activity:read_all scope for private efforts.`,
 	cmd.Flags().IntVar(&limit, "limit", 0, "Maximum number of efforts to return (0 = all)")
 	return cmd
 }
-

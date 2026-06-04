@@ -5,6 +5,10 @@
   "api_name": "pushover",
   "display_name": "Pushover",
   "cli_name": "pushover-pp-cli",
+  "creator": {
+    "handle": "twidtwid",
+    "name": "Todd Dailey"
+  },
   "owner": "twidtwid",
   "printer": "twidtwid",
   "printer_name": "Todd Dailey",

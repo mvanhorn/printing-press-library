@@ -1,4 +1,4 @@
-// Copyright 2026 markvandeven. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 markvandeven and contributors. Licensed under Apache-2.0. See LICENSE.
 
 package cli
 
@@ -12,8 +12,8 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/pdok-location/internal/cliutil"
+	"github.com/spf13/cobra"
 )
 
 func isRateLimitErrString(s string) bool {

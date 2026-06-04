@@ -1,4 +1,4 @@
-// Copyright 2026 salmonumbrella. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 salmonumbrella and contributors. Licensed under Apache-2.0. See LICENSE.
 // PATCH(retro #marianatek-browser-auth): adds `auth from-browser` to extract the
 // bearer token from the Mariana Tek iframe cookie value the user pastes from
 // DevTools. The Customer API's only consumer-facing OAuth flow is via the

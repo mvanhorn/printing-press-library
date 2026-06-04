@@ -5,6 +5,10 @@
   "api_name": "rappi",
   "display_name": "Rappi",
   "cli_name": "rappi-pp-cli",
+  "creator": {
+    "handle": "bobeglz",
+    "name": "bobe"
+  },
   "owner": "bobeglz",
   "printer": "bobeglz",
   "printer_name": "bobe",

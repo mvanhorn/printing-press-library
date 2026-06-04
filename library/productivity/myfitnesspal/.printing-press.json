@@ -5,6 +5,10 @@
   "api_name": "myfitnesspal",
   "display_name": "MyFitnessPal",
   "cli_name": "myfitnesspal-pp-cli",
+  "creator": {
+    "handle": "nickscarabosio",
+    "name": "Nick Scarabosio"
+  },
   "owner": "user",
   "printer": "nickscarabosio",
   "printer_name": "Nick Scarabosio",

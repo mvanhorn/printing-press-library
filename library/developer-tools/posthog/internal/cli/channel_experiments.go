@@ -1,4 +1,4 @@
-// Copyright 2026 riteshtiwari. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 riteshtiwari and contributors. Licensed under Apache-2.0. See LICENSE.
 
 package cli
 
@@ -36,7 +36,7 @@ func newExperimentsPreCheckCmd(flags *rootFlags) *cobra.Command {
 		Use:         "pre-check [experiment-id]",
 		Short:       "Know today whether an experiment will reach significance this sprint",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Long: `Project experiment enrollment velocity to estimate whether significance will be reached within the sprint. Returns verdict per experiment: on_track, needs_traffic, already_significant, or not_running.`,
+		Long:        `Project experiment enrollment velocity to estimate whether significance will be reached within the sprint. Returns verdict per experiment: on_track, needs_traffic, already_significant, or not_running.`,
 		Example: `  posthog-pp-cli experiments pre-check --project 12345
   posthog-pp-cli experiments pre-check 789 --project 12345
   posthog-pp-cli experiments pre-check --project 12345 --sprint-days 14 --json`,
@@ -50,14 +50,18 @@ func newExperimentsPreCheckCmd(flags *rootFlags) *cobra.Command {
 				orgData, err2 := c.Get("/api/organizations/", nil)
 				if err2 == nil {
 					var orgs struct {
-						Results []struct{ ID string `json:"id"` } `json:"results"`
+						Results []struct {
+							ID string `json:"id"`
+						} `json:"results"`
 					}
 					if json.Unmarshal(orgData, &orgs) == nil && len(orgs.Results) > 0 {
 						orgID := orgs.Results[0].ID
 						projData, err3 := c.Get(fmt.Sprintf("/api/organizations/%s/projects/", orgID), nil)
 						if err3 == nil {
 							var projs struct {
-								Results []struct{ ID int `json:"id"` } `json:"results"`
+								Results []struct {
+									ID int `json:"id"`
+								} `json:"results"`
 							}
 							if json.Unmarshal(projData, &projs) == nil && len(projs.Results) > 0 {
 								projectID = strconv.Itoa(projs.Results[0].ID)
@@ -116,19 +120,19 @@ func newExperimentsPreCheckCmd(flags *rootFlags) *cobra.Command {
 
 func renderExperimentsPreCheck(cmd *cobra.Command, flags *rootFlags, projectID string, sprintDays int, rawItems []json.RawMessage) error {
 	type expCheck struct {
-		ID                 int     `json:"id"`
-		Name               string  `json:"name"`
-		Status             string  `json:"status"`
-		StartDate          string  `json:"start_date,omitempty"`
-		EndDate            string  `json:"end_date,omitempty"`
-		DaysRunning        int     `json:"days_running"`
-		DaysRemaining      int     `json:"days_remaining_in_sprint"`
-		Participants       int     `json:"participants"`
-		DailyRate          float64 `json:"daily_enrollment_rate"`
-		SignificanceTarget float64 `json:"significance_target"`
+		ID                  int     `json:"id"`
+		Name                string  `json:"name"`
+		Status              string  `json:"status"`
+		StartDate           string  `json:"start_date,omitempty"`
+		EndDate             string  `json:"end_date,omitempty"`
+		DaysRunning         int     `json:"days_running"`
+		DaysRemaining       int     `json:"days_remaining_in_sprint"`
+		Participants        int     `json:"participants"`
+		DailyRate           float64 `json:"daily_enrollment_rate"`
+		SignificanceTarget  float64 `json:"significance_target"`
 		CurrentSignificance float64 `json:"current_significance,omitempty"`
-		Verdict            string  `json:"verdict"` // on_track | needs_traffic | already_significant | not_running
-		Recommendation     string  `json:"recommendation"`
+		Verdict             string  `json:"verdict"` // on_track | needs_traffic | already_significant | not_running
+		Recommendation      string  `json:"recommendation"`
 	}
 
 	var checks []expCheck
@@ -136,13 +140,13 @@ func renderExperimentsPreCheck(cmd *cobra.Command, flags *rootFlags, projectID s
 
 	for _, raw := range rawItems {
 		var exp struct {
-			ID             int     `json:"id"`
-			Name           string  `json:"name"`
-			Status         string  `json:"status"`
-			StartDate      string  `json:"start_date"`
-			EndDate        string  `json:"end_date"`
-			Significance   float64 `json:"significance"`
-			Variants []struct{} `json:"variants"`
+			ID           int        `json:"id"`
+			Name         string     `json:"name"`
+			Status       string     `json:"status"`
+			StartDate    string     `json:"start_date"`
+			EndDate      string     `json:"end_date"`
+			Significance float64    `json:"significance"`
+			Variants     []struct{} `json:"variants"`
 		}
 		if json.Unmarshal(raw, &exp) != nil {
 			continue
@@ -245,11 +249,11 @@ func renderExperimentsPreCheck(cmd *cobra.Command, flags *rootFlags, projectID s
 	})
 
 	type result struct {
-		ProjectID   string     `json:"project_id"`
-		SprintDays  int        `json:"sprint_days"`
-		TotalChecked int       `json:"total_experiments_checked"`
-		Experiments []expCheck `json:"experiments"`
-		GeneratedAt string     `json:"generated_at"`
+		ProjectID    string     `json:"project_id"`
+		SprintDays   int        `json:"sprint_days"`
+		TotalChecked int        `json:"total_experiments_checked"`
+		Experiments  []expCheck `json:"experiments"`
+		GeneratedAt  string     `json:"generated_at"`
 	}
 	out := result{
 		ProjectID:    projectID,

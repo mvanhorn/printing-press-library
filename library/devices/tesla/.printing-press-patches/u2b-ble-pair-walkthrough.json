@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "u2b-ble-pair-walkthrough",
+  "applied_at": "2026-05-21",
+  "base_run_id": "20260519-225351",
+  "base_printing_press_version": "4.9.0",
+  "summary": "`tesla auth ble-pair --vin <vin>` subcommand that detects tesla-control + tesla-keygen on PATH, runs add-key-request via BLE, prompts for the NFC tap, and polls session-info for the resulting key handle. Idempotent: if the key is already enrolled at start, reports the existing handle and exits zero without prompting.",
+  "reason": "BLE pairing is the second-biggest UX cliff after public-key hosting. The CLI wrapping the tesla-control subprocess turns a 5-step recipe into a single command.",
+  "files": [
+    "internal/cli/tesla_ble_pair.go",
+    "internal/cli/tesla_ble_pair_test.go",
+    "internal/cli/root.go"
+  ],
+  "validated_outcome": "10 ble-pair tests pass (8 scenarios + 2 helper unit tests): happy path, tesla-control missing prints install recipe with exit 2, BLE handshake failure, NFC tap timeout, already-enrolled idempotency, invalid --role, verify-mode short-circuit, missing private key with hint."
+}

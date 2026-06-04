@@ -1482,7 +1482,7 @@ func newHistoryCmd(flags *rootFlags) *cobra.Command {
 
 func newAuthorsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:         "authors",
+		Use: "authors",
 		// PATCH(digg-rename-and-github-feeds): drop Digg AI 1000 branding.
 		Short:       "Inspect the accounts Digg tracks — the curated leaderboard of AI-news influencers on X",
 		Annotations: map[string]string{"mcp:read-only": "true"},

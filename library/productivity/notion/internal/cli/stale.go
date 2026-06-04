@@ -1,4 +1,4 @@
-// Copyright 2026 nikica-jokic. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Nikica Jokic and contributors. Licensed under Apache-2.0. See LICENSE.
 
 package cli
 
@@ -8,17 +8,17 @@ import (
 	"strings"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/productivity/notion/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/productivity/notion/internal/store"
+	"github.com/spf13/cobra"
 )
 
 type stalePage struct {
-	ID            string    `json:"id"`
-	Title         string    `json:"title"`
+	ID             string    `json:"id"`
+	Title          string    `json:"title"`
 	LastEditedTime time.Time `json:"last_edited_time"`
 	DaysSinceEdit  int       `json:"days_since_edit"`
-	URL           string    `json:"url,omitempty"`
+	URL            string    `json:"url,omitempty"`
 }
 
 func newStaleCmd(flags *rootFlags) *cobra.Command {
@@ -95,11 +95,11 @@ func newStaleCmd(flags *rootFlags) *cobra.Command {
 
 				url, _ := data["url"].(string)
 				results = append(results, stalePage{
-					ID:            id,
-					Title:         title,
+					ID:             id,
+					Title:          title,
 					LastEditedTime: lastEdited,
 					DaysSinceEdit:  daysSince,
-					URL:           url,
+					URL:            url,
 				})
 			}
 			if err := rows.Err(); err != nil {
@@ -170,4 +170,3 @@ func extractPageTitle(data map[string]any) string {
 	}
 	return "(untitled)"
 }
-

@@ -1,0 +1,56 @@
+{
+  "passed": true,
+  "exit_code": 0,
+  "started_at": "2026-05-27T19:59:08Z",
+  "elapsed_ms": 8969,
+  "legs": [
+    {
+      "name": "verify",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-05-27T19:59:08Z",
+      "elapsed_ms": 5867,
+      "command": "printing-press verify --dir library/developer-tools/godaddy --spec library/developer-tools/godaddy/spec.json"
+    },
+    {
+      "name": "validate-narrative",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-05-27T19:59:14Z",
+      "elapsed_ms": 12,
+      "command": "printing-press validate-narrative --strict --full-examples --research library/developer-tools/godaddy/research.json --binary library/developer-tools/godaddy/godaddy-pp-cli"
+    },
+    {
+      "name": "dogfood",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-05-27T19:59:14Z",
+      "elapsed_ms": 1713,
+      "command": "printing-press dogfood --dir library/developer-tools/godaddy --spec library/developer-tools/godaddy/spec.json"
+    },
+    {
+      "name": "workflow-verify",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-05-27T19:59:16Z",
+      "elapsed_ms": 13,
+      "command": "printing-press workflow-verify --dir library/developer-tools/godaddy"
+    },
+    {
+      "name": "verify-skill",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-05-27T19:59:16Z",
+      "elapsed_ms": 690,
+      "command": "printing-press verify-skill --dir library/developer-tools/godaddy"
+    },
+    {
+      "name": "scorecard",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-05-27T19:59:17Z",
+      "elapsed_ms": 672,
+      "command": "printing-press scorecard --dir library/developer-tools/godaddy --spec library/developer-tools/godaddy/spec.json"
+    }
+  ]
+}

@@ -79,9 +79,9 @@ Examples:
 			}
 
 			return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
-				"query":  query,
-				"count":  len(items),
-				"items":  items,
+				"query": query,
+				"count": len(items),
+				"items": items,
 			}, flags)
 		},
 	}

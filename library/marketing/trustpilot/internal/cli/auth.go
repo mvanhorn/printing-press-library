@@ -65,7 +65,7 @@ func newAuthLoginCmd(flags *rootFlags) *cobra.Command {
 					"searchBuildId":  s.SearchBuildID,
 					"harvestedAt":    s.HarvestedAt,
 					// PATCH(greptile P1 PR#588): 15 * 60 evaluated as time.Duration is 900ns, not 15 minutes; use 15 * time.Minute.
-					"freshUntil":     s.HarvestedAt.Add(15 * time.Minute),
+					"freshUntil": s.HarvestedAt.Add(15 * time.Minute),
 				})
 			}
 			fmt.Fprintf(cmd.OutOrStdout(), "Harvested cookie ok (token=%s..., reviewsBuild=%s, searchBuild=%s)\n",

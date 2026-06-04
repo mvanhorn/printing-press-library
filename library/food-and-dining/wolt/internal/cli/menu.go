@@ -1,4 +1,4 @@
-// Copyright 2026 amit. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Amit and contributors. Licensed under Apache-2.0. See LICENSE.
 
 package cli
 
@@ -51,9 +51,9 @@ func newMenuCmd(flags *rootFlags) *cobra.Command {
 func newMenuShowCmd(flags *rootFlags) *cobra.Command {
 	var lang string
 	cmd := &cobra.Command{
-		Use:   "show <slug>",
-		Short: "Show a venue's full menu (categories + items in one payload)",
-		Example: "  wolt-pp-cli menu show noodle-story-kamppi --json",
+		Use:         "show <slug>",
+		Short:       "Show a venue's full menu (categories + items in one payload)",
+		Example:     "  wolt-pp-cli menu show noodle-story-kamppi --json",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -77,9 +77,9 @@ func newMenuItemsCmd(flags *rootFlags) *cobra.Command {
 	var lang, categorySlug string
 	var limit int
 	cmd := &cobra.Command{
-		Use:   "items <slug>",
-		Short: "List menu items for a venue (id, name, price, category, availability)",
-		Example: "  wolt-pp-cli menu items noodle-story-kamppi --json --select count,items.name,items.price",
+		Use:         "items <slug>",
+		Short:       "List menu items for a venue (id, name, price, category, availability)",
+		Example:     "  wolt-pp-cli menu items noodle-story-kamppi --json --select count,items.name,items.price",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -129,9 +129,9 @@ func newMenuItemsCmd(flags *rootFlags) *cobra.Command {
 func newMenuCategoriesCmd(flags *rootFlags) *cobra.Command {
 	var lang string
 	cmd := &cobra.Command{
-		Use:   "categories <slug>",
-		Short: "List menu categories for a venue",
-		Example: "  wolt-pp-cli menu categories noodle-story-kamppi --json",
+		Use:         "categories <slug>",
+		Short:       "List menu categories for a venue",
+		Example:     "  wolt-pp-cli menu categories noodle-story-kamppi --json",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -161,9 +161,9 @@ func newMenuSearchCmd(flags *rootFlags) *cobra.Command {
 	var lang, query string
 	var maxPrice int
 	cmd := &cobra.Command{
-		Use:   "search <slug>",
-		Short: "Search within a venue's menu (substring match on name and description)",
-		Example: "  wolt-pp-cli menu search noodle-story-kamppi --q noodle --json",
+		Use:         "search <slug>",
+		Short:       "Search within a venue's menu (substring match on name and description)",
+		Example:     "  wolt-pp-cli menu search noodle-story-kamppi --q noodle --json",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

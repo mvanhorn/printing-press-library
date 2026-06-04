@@ -1,0 +1,171 @@
+{
+  "api_name": "restaurant365-odata",
+  "novelty_score": 7,
+  "alternatives": [
+    {
+      "name": "Restaurant365 OData connector",
+      "summary": "Exposes the raw reporting views for BI and warehouse tools."
+    },
+    {
+      "name": "General OData clients",
+      "summary": "Can fetch rows but do not encode Restaurant365-specific refresh, redaction, and tombstone workflows."
+    }
+  ],
+  "gaps": [
+    "Restaurant365 OData is useful for warehouses, but raw OData clients do not explain which views should be rowVersion incremental, date-window refreshed, or full refreshed.",
+    "Private restaurant tenants need validation commands that prove access without printing row values.",
+    "Delete handling requires EntityDeleted tombstones, which are easy to miss in a generic view list."
+  ],
+  "patterns": [
+    "Use metadata first: list views and field names before fetching rows.",
+    "Keep tenant validation redacted by default.",
+    "Use DateTimeOffset boundaries for Restaurant365 date filters.",
+    "Prefer rowVersion watermarks where Restaurant365 exposes them."
+  ],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-31T00:00:00Z",
+  "novel_features": [
+    {
+      "name": "Redacted tenant sampler",
+      "command": "sample",
+      "description": "Samples one Restaurant365 OData view while returning only columns and row counts by default.",
+      "rationale": "Engineers often need to prove a tenant is reachable without exposing restaurant names, IDs, amounts, or employee data.",
+      "example": "restaurant365-odata-pp-cli sample --view Location --limit 5 --agent",
+      "why_it_matters": "Use this for safe access validation in private Restaurant365 tenants.",
+      "group": "Validation"
+    },
+    {
+      "name": "Refresh planner",
+      "command": "backfill-plan",
+      "description": "Builds Restaurant365-safe date-window and rowVersion request plans without fetching rows.",
+      "rationale": "Warehouse jobs need bounded daily or monthly slices for sales, labor, and payroll views, plus rowVersion continuation for transaction views.",
+      "example": "restaurant365-odata-pp-cli backfill-plan --view SalesDetail --from 2026-05-01 --to 2026-06-15 --agent",
+      "why_it_matters": "Use this before export or sync so large refreshes become explicit, reviewable request chunks.",
+      "group": "Warehouse refresh"
+    },
+    {
+      "name": "Delete tombstone counter",
+      "command": "deleted-records",
+      "description": "Reads EntityDeleted with optional entity and rowVersion filters, returning counts by default.",
+      "rationale": "Incremental pipelines need delete handling, but tombstone rows can contain private identifiers.",
+      "example": "restaurant365-odata-pp-cli deleted-records --entity TransactionDetail --since-row-version 0 --limit 5 --agent",
+      "why_it_matters": "Use this when checking whether an incremental load must process deletes.",
+      "group": "Incremental load"
+    },
+    {
+      "name": "Metadata-first discovery",
+      "command": "list-views / describe-view",
+      "description": "Uses $metadata to report supported views, field counts, field types, date fields, rowVersion support, and refresh pattern.",
+      "rationale": "Restaurant365 deployments vary by tenant and product modules, so engineers need schema checks before pulls.",
+      "example": "restaurant365-odata-pp-cli describe-view Location --agent",
+      "why_it_matters": "Use this before mapping fields into a warehouse model.",
+      "group": "Schema discovery"
+    },
+    {
+      "name": "Bounded export guard",
+      "command": "export",
+      "description": "Exports a view to JSONL or CSV and requires date filters for known date-window views.",
+      "rationale": "Date-backed Restaurant365 views can be large; accidental broad pulls are slow and risky.",
+      "example": "restaurant365-odata-pp-cli export --view SalesDetail --from 2026-05-01 --to 2026-05-01 --format jsonl --output sales-detail.jsonl",
+      "why_it_matters": "Use this for explicit slices that fit daily refresh and backfill jobs.",
+      "group": "Warehouse refresh"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Redacted tenant sampler",
+      "command": "sample",
+      "description": "Samples one Restaurant365 OData view while returning only columns and row counts by default.",
+      "rationale": "Engineers often need to prove a tenant is reachable without exposing restaurant names, IDs, amounts, or employee data.",
+      "example": "restaurant365-odata-pp-cli sample --view Location --limit 5 --agent",
+      "why_it_matters": "Use this for safe access validation in private Restaurant365 tenants.",
+      "group": "Validation"
+    },
+    {
+      "name": "Refresh planner",
+      "command": "backfill-plan",
+      "description": "Builds Restaurant365-safe date-window and rowVersion request plans without fetching rows.",
+      "rationale": "Warehouse jobs need bounded daily or monthly slices for sales, labor, and payroll views, plus rowVersion continuation for transaction views.",
+      "example": "restaurant365-odata-pp-cli backfill-plan --view SalesDetail --from 2026-05-01 --to 2026-06-15 --agent",
+      "why_it_matters": "Use this before export or sync so large refreshes become explicit, reviewable request chunks.",
+      "group": "Warehouse refresh"
+    },
+    {
+      "name": "Delete tombstone counter",
+      "command": "deleted-records",
+      "description": "Reads EntityDeleted with optional entity and rowVersion filters, returning counts by default.",
+      "rationale": "Incremental pipelines need delete handling, but tombstone rows can contain private identifiers.",
+      "example": "restaurant365-odata-pp-cli deleted-records --entity TransactionDetail --since-row-version 0 --limit 5 --agent",
+      "why_it_matters": "Use this when checking whether an incremental load must process deletes.",
+      "group": "Incremental load"
+    },
+    {
+      "name": "Metadata-first discovery",
+      "command": "list-views / describe-view",
+      "description": "Uses $metadata to report supported views, field counts, field types, date fields, rowVersion support, and refresh pattern.",
+      "rationale": "Restaurant365 deployments vary by tenant and product modules, so engineers need schema checks before pulls.",
+      "example": "restaurant365-odata-pp-cli describe-view Location --agent",
+      "why_it_matters": "Use this before mapping fields into a warehouse model.",
+      "group": "Schema discovery"
+    },
+    {
+      "name": "Bounded export guard",
+      "command": "export",
+      "description": "Exports a view to JSONL or CSV and requires date filters for known date-window views.",
+      "rationale": "Date-backed Restaurant365 views can be large; accidental broad pulls are slow and risky.",
+      "example": "restaurant365-odata-pp-cli export --view SalesDetail --from 2026-05-01 --to 2026-05-01 --format jsonl --output sales-detail.jsonl",
+      "why_it_matters": "Use this for explicit slices that fit daily refresh and backfill jobs.",
+      "group": "Warehouse refresh"
+    }
+  ],
+  "narrative": {
+    "display_name": "Restaurant365 OData",
+    "headline": "A read-only Restaurant365 OData CLI for warehouse refresh planning and safe tenant validation.",
+    "value_prop": "Restaurant365 OData exposes useful reporting views, but data engineers still need schema discovery, redacted validation, bounded backfills, rowVersion planning, and delete-tombstone checks before loading a warehouse.",
+    "auth_narrative": "Set RESTAURANT365_ODATA_USERNAME and RESTAURANT365_ODATA_PASSWORD for HTTP Basic authentication. The short R365_ODATA_* aliases are also supported.",
+    "quickstart": [
+      {
+        "command": "restaurant365-odata-pp-cli doctor",
+        "comment": "Verify credentials and $metadata reachability."
+      },
+      {
+        "command": "restaurant365-odata-pp-cli list-views --agent",
+        "comment": "Inspect views and refresh patterns without fetching row values."
+      },
+      {
+        "command": "restaurant365-odata-pp-cli sample --view Location --limit 5 --agent",
+        "comment": "Validate a tenant with redacted output."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "A date filter returns a type coercion error.",
+        "fix": "Use DateTimeOffset boundaries such as 2026-05-01T00:00:00Z instead of bare dates."
+      },
+      {
+        "symptom": "A schema field count is missing.",
+        "fix": "Run describe-view and check the tenant's $metadata; view names can differ in casing."
+      }
+    ],
+    "when_to_use": "Use this CLI for read-only Restaurant365 OData discovery, validation, refresh planning, export, sync, and delete-tombstone checks. Do not use it for custom customer APIs or tenant-specific private endpoints.",
+    "recipes": [
+      {
+        "title": "Plan a sales backfill",
+        "command": "restaurant365-odata-pp-cli backfill-plan --view SalesDetail --from 2026-05-01 --to 2026-06-15 --agent",
+        "explanation": "Returns bounded DateTimeOffset filter chunks without fetching rows."
+      },
+      {
+        "title": "Continue a transaction incremental load",
+        "command": "restaurant365-odata-pp-cli backfill-plan --view Transaction --watermark 0 --agent",
+        "explanation": "Returns a rowVersion filter for the next incremental pull."
+      }
+    ],
+    "trigger_phrases": [
+      "validate Restaurant365 OData",
+      "plan R365 backfill",
+      "check R365 deleted records",
+      "sample Restaurant365 view",
+      "export Restaurant365 OData"
+    ]
+  }
+}

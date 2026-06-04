@@ -1,0 +1,1100 @@
+{
+  "api_name": "printify",
+  "base_url": "https://api.printify.com",
+  "description": "Create and audit Printify products with manifest-driven image uploads, personalization checks, and local proofing.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "PRINTIFY_BEARER_AUTH"
+    ],
+    "env_var_specs": [
+      {
+        "name": "PRINTIFY_BEARER_AUTH",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "catalog_retrieve-alist-of-all-print-providers-that-fulfill-orders-for-aspecific-blueprint",
+      "description": "Retrieve a list of all print providers that fulfill orders for a specific blueprint. Required: blueprint_id. Returns array of PrintProviderSimple.",
+      "method": "GET",
+      "path": "/v1/catalog/blueprints/{blueprint_id}/print_providers.json",
+      "params": [
+        {
+          "name": "blueprint_id",
+          "type": "string",
+          "location": "path",
+          "description": "Blueprint id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "catalog_retrieve-alist-of-available-print-providers",
+      "description": "Retrieves the list of blueprints in the catalog to explore from. Returns array of PrintProvider.",
+      "method": "GET",
+      "path": "/v1/catalog/print_providers.json",
+      "params": []
+    },
+    {
+      "name": "catalog_retrieve-alist-of-variants-of-ablueprint-from-aspecific-print-provider",
+      "description": "Retrieves the list of of variants options for the Print Provider and Blueprint. Those form the set of options available for customization Product (Blueprint) on particular manufacturer (Print Provider). Required: blueprint_id, print_provider_id. Optional: show-out-of-stock . Returns the VariantsResponse.",
+      "method": "GET",
+      "path": "/v1/catalog/blueprints/{blueprint_id}/print_providers/{print_provider_id}/variants.json",
+      "params": [
+        {
+          "name": "blueprint_id",
+          "type": "string",
+          "location": "path",
+          "description": "Blueprint id",
+          "required": true
+        },
+        {
+          "name": "print_provider_id",
+          "type": "string",
+          "location": "path",
+          "description": "Print provider id",
+          "required": true
+        },
+        {
+          "name": "show-out-of-stock ",
+          "type": "string",
+          "location": "query",
+          "description": "Depending on the value, it shows all variants or only those not out of stock. Without passing this query param, the list will contain only those variants in stock. 0 - show only variants that are in stock. 1 - also show variants out of stock (all variants)."
+        }
+      ]
+    },
+    {
+      "name": "catalog_retrieve-aspecific-blueprint",
+      "description": "Retrieves the list of blueprints in the catalog to explore from. Required: blueprint_id. Returns the Blueprint.",
+      "method": "GET",
+      "path": "/v1/catalog/blueprints/{blueprint_id}.json",
+      "params": [
+        {
+          "name": "blueprint_id",
+          "type": "string",
+          "location": "path",
+          "description": "Blueprint id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "catalog_retrieve-aspecific-print-provider",
+      "description": "Retrieves the list of blueprints in the catalog to explore from. Required: print_provider_id. Returns the PrintProvider.",
+      "method": "GET",
+      "path": "/v1/catalog/print_providers/{print_provider_id}.json",
+      "params": [
+        {
+          "name": "print_provider_id",
+          "type": "string",
+          "location": "path",
+          "description": "Print provider id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "catalog_retrieve-available-shipping-list-information",
+      "description": "Retrieves the list of print providers avilable for the Blueprint. Required: blueprint_id, print_provider_id. Returns array of ShippingMethodItem.",
+      "method": "GET",
+      "path": "/v2/catalog/blueprints/{blueprint_id}/print_providers/{print_provider_id}/shipping.json",
+      "params": [
+        {
+          "name": "blueprint_id",
+          "type": "string",
+          "location": "path",
+          "description": "Blueprint id",
+          "required": true
+        },
+        {
+          "name": "print_provider_id",
+          "type": "string",
+          "location": "path",
+          "description": "Print provider id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "catalog_retrieve-economy-shipping-method-information",
+      "description": "Retrieves the list of print providers available for the Blueprint. Required: blueprint_id.",
+      "method": "GET",
+      "path": "/v1/catalog/blueprints/{blueprint_id}/print_providers/shipping/economy.json",
+      "params": [
+        {
+          "name": "blueprint_id",
+          "type": "string",
+          "location": "path",
+          "description": "Blueprint id",
+          "required": true
+        }
+      ],
+      "header_overrides": [
+        {
+          "name": "Accept",
+          "value": "application/octet-stream"
+        }
+      ]
+    },
+    {
+      "name": "catalog_retrieve-express-shipping-method-information",
+      "description": "Retrieves the list of print providers available for the Blueprint. Required: blueprint_id.",
+      "method": "GET",
+      "path": "/v1/catalog/blueprints/{blueprint_id}/print_providers/shipping/express.json",
+      "params": [
+        {
+          "name": "blueprint_id",
+          "type": "string",
+          "location": "path",
+          "description": "Blueprint id",
+          "required": true
+        }
+      ],
+      "header_overrides": [
+        {
+          "name": "Accept",
+          "value": "application/octet-stream"
+        }
+      ]
+    },
+    {
+      "name": "catalog_retrieve-priority-shipping-method-information",
+      "description": "Retrieves the list of print providers available for the Blueprint. Required: blueprint_id.",
+      "method": "GET",
+      "path": "/v1/catalog/blueprints/{blueprint_id}/print_providers/shipping/priority.json",
+      "params": [
+        {
+          "name": "blueprint_id",
+          "type": "string",
+          "location": "path",
+          "description": "Blueprint id",
+          "required": true
+        }
+      ],
+      "header_overrides": [
+        {
+          "name": "Accept",
+          "value": "application/octet-stream"
+        }
+      ]
+    },
+    {
+      "name": "catalog_retrieve-shipping-information",
+      "description": "Retrieves the list of print providers avilable for the Blueprint. Required: blueprint_id. Returns the ShippingResponse.",
+      "method": "GET",
+      "path": "/v1/catalog/blueprints/{blueprint_id}/print_providers/shipping.json",
+      "params": [
+        {
+          "name": "blueprint_id",
+          "type": "string",
+          "location": "path",
+          "description": "Blueprint id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "catalog_retrieve-specific-shipping-method-information",
+      "description": "Retrieves the list of print providers avilable for the Blueprint. Required: blueprint_id. Returns array of VariantShippingItem.",
+      "method": "GET",
+      "path": "/v1/catalog/blueprints/{blueprint_id}/print_providers/shipping/standard.json",
+      "params": [
+        {
+          "name": "blueprint_id",
+          "type": "string",
+          "location": "path",
+          "description": "Blueprint id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "catalog_retrieves-list-of-blueprints-in-the",
+      "description": "Retrieves the list of blueprints in the catalog to explore from. Returns array of Blueprint.",
+      "method": "GET",
+      "path": "/v1/catalog/blueprints.json",
+      "params": []
+    },
+    {
+      "name": "shops_connection-json_disconnect-ashop",
+      "description": "Disconnect a shop. Required: shop_id. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/shops/{shop_id}/connection.json",
+      "params": [
+        {
+          "name": "shop_id",
+          "type": "string",
+          "location": "path",
+          "description": "Shop id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "shops_orders_calculate-the-shipping-cost-of-an",
+      "description": "Calculate the shipping cost of an order. Required: shop_id, address_to, line_items. Returns the new ShippingCosts.",
+      "method": "POST",
+      "path": "/v1/shops/{shop_id}/orders/shipping.json",
+      "params": [
+        {
+          "name": "shop_id",
+          "type": "string",
+          "location": "path",
+          "description": "Shop id",
+          "required": true
+        },
+        {
+          "name": "address_to",
+          "type": "object",
+          "location": "body",
+          "description": "Address to",
+          "required": true
+        },
+        {
+          "name": "line_items",
+          "type": "array",
+          "location": "body",
+          "description": "Line items",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "shops_orders_cancel-an",
+      "description": "Cancel an order. Required: shop_id, order_id. Returns the new Order.",
+      "method": "POST",
+      "path": "/v1/shops/{shop_id}/orders/{order_id}/cancel.json",
+      "params": [
+        {
+          "name": "shop_id",
+          "type": "string",
+          "location": "path",
+          "description": "Shop id",
+          "required": true
+        },
+        {
+          "name": "order_id",
+          "type": "string",
+          "location": "path",
+          "description": "Order id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "shops_orders_get-details-by-id",
+      "description": "Get order details by ID. Required: shop_id, order_id. Returns the Order.",
+      "method": "GET",
+      "path": "/v1/shops/{shop_id}/orders/{order_id}.json",
+      "params": [
+        {
+          "name": "shop_id",
+          "type": "string",
+          "location": "path",
+          "description": "Shop id",
+          "required": true
+        },
+        {
+          "name": "order_id",
+          "type": "string",
+          "location": "path",
+          "description": "Order id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "shops_orders_send-an-existing-to-production",
+      "description": "Send an existing order to production. Required: shop_id, order_id. Returns the new OrderCreated.",
+      "method": "POST",
+      "path": "/v1/shops/{shop_id}/orders/{order_id}/send_to_production.json",
+      "params": [
+        {
+          "name": "shop_id",
+          "type": "string",
+          "location": "path",
+          "description": "Shop id",
+          "required": true
+        },
+        {
+          "name": "order_id",
+          "type": "string",
+          "location": "path",
+          "description": "Order id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "shops_orders_submit-aprintify-express",
+      "description": "Submit a Printify Express order. Required: shop_id, address_to, line_items. Optional: external_id, label, send_shipping_notification (plus 1 more). Returns array of ExpressOrderItem.",
+      "method": "POST",
+      "path": "/v1/shops/{shop_id}/orders/express.json",
+      "params": [
+        {
+          "name": "shop_id",
+          "type": "string",
+          "location": "path",
+          "description": "Shop id",
+          "required": true
+        },
+        {
+          "name": "address_to",
+          "type": "object",
+          "location": "body",
+          "description": "Address to",
+          "required": true
+        },
+        {
+          "name": "external_id",
+          "type": "string",
+          "location": "body",
+          "description": "External id"
+        },
+        {
+          "name": "label",
+          "type": "string",
+          "location": "body",
+          "description": "Label"
+        },
+        {
+          "name": "line_items",
+          "type": "array",
+          "location": "body",
+          "description": "Line items",
+          "required": true
+        },
+        {
+          "name": "send_shipping_notification",
+          "type": "bool",
+          "location": "body",
+          "description": "Send shipping notification"
+        },
+        {
+          "name": "shipping_method",
+          "type": "int",
+          "location": "body",
+          "description": "Shipping method"
+        }
+      ]
+    },
+    {
+      "name": "shops_orders-json_retrieve-alist-of-orders",
+      "description": "Retrieve a list of orders. Required: shop_id. Optional: limit, page, status (plus 1 more). Returns the OrdersJsonRetrieveAlistOfOrdersResponse.",
+      "method": "GET",
+      "path": "/v1/shops/{shop_id}/orders.json",
+      "params": [
+        {
+          "name": "shop_id",
+          "type": "string",
+          "location": "path",
+          "description": "Shop id",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "string",
+          "location": "query",
+          "description": "Results per page (default: 10, maximum: 10)"
+        },
+        {
+          "name": "page",
+          "type": "string",
+          "location": "query",
+          "description": "Paginate through list of results"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "query",
+          "description": "Filter results by order status"
+        },
+        {
+          "name": "sku",
+          "type": "string",
+          "location": "query",
+          "description": "Filter results by product SKU - response will contain only those orders that have at least one product with passed SKU"
+        }
+      ]
+    },
+    {
+      "name": "shops_orders-json_submit-an-order",
+      "description": "Submit an order. Required: shop_id, address_to, line_items. Optional: external_id, is_economy_shipping, is_printify_express (plus 3 more). Returns the new OrderCreated.",
+      "method": "POST",
+      "path": "/v1/shops/{shop_id}/orders.json",
+      "params": [
+        {
+          "name": "shop_id",
+          "type": "string",
+          "location": "path",
+          "description": "Shop id",
+          "required": true
+        },
+        {
+          "name": "address_to",
+          "type": "object",
+          "location": "body",
+          "description": "Address to",
+          "required": true
+        },
+        {
+          "name": "external_id",
+          "type": "string",
+          "location": "body",
+          "description": "External id"
+        },
+        {
+          "name": "is_economy_shipping",
+          "type": "bool",
+          "location": "body",
+          "description": "Is economy shipping"
+        },
+        {
+          "name": "is_printify_express",
+          "type": "bool",
+          "location": "body",
+          "description": "Is printify express"
+        },
+        {
+          "name": "label",
+          "type": "string",
+          "location": "body",
+          "description": "Label"
+        },
+        {
+          "name": "line_items",
+          "type": "array",
+          "location": "body",
+          "description": "Line items",
+          "required": true
+        },
+        {
+          "name": "send_shipping_notification",
+          "type": "bool",
+          "location": "body",
+          "description": "Send shipping notification"
+        },
+        {
+          "name": "shipping_method",
+          "type": "int",
+          "location": "body",
+          "description": "Shipping method"
+        }
+      ]
+    },
+    {
+      "name": "shops_products_delete-aproduct",
+      "description": "Delete a product. Required: shop_id, product_id. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/shops/{shop_id}/products/{product_id}.json",
+      "params": [
+        {
+          "name": "shop_id",
+          "type": "string",
+          "location": "path",
+          "description": "Shop id",
+          "required": true
+        },
+        {
+          "name": "product_id",
+          "type": "string",
+          "location": "path",
+          "description": "Product id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "shops_products_notify-that-aproduct-has-been-unpublished",
+      "description": "Notify that a product has been unpublished. Required: shop_id, product_id. Optional: limit, page.",
+      "method": "POST",
+      "path": "/v1/shops/{shop_id}/products/{product_id}/unpublish.json",
+      "params": [
+        {
+          "name": "shop_id",
+          "type": "string",
+          "location": "path",
+          "description": "Shop id",
+          "required": true
+        },
+        {
+          "name": "product_id",
+          "type": "string",
+          "location": "path",
+          "description": "Product id",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "string",
+          "location": "query",
+          "description": "Results per page (default: 10, maximum: 50)"
+        },
+        {
+          "name": "page",
+          "type": "string",
+          "location": "query",
+          "description": "Paginate through list of results"
+        }
+      ]
+    },
+    {
+      "name": "shops_products_publish-aproduct",
+      "description": "Publish a product. Required: shop_id, product_id. Optional: limit, page, description (plus 6 more).",
+      "method": "POST",
+      "path": "/v1/shops/{shop_id}/products/{product_id}/publish.json",
+      "params": [
+        {
+          "name": "shop_id",
+          "type": "string",
+          "location": "path",
+          "description": "Shop id",
+          "required": true
+        },
+        {
+          "name": "product_id",
+          "type": "string",
+          "location": "path",
+          "description": "Product id",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "string",
+          "location": "query",
+          "description": "Results per page (default: 10, maximum: 50)"
+        },
+        {
+          "name": "page",
+          "type": "string",
+          "location": "query",
+          "description": "Paginate through list of results"
+        },
+        {
+          "name": "description",
+          "type": "bool",
+          "location": "body",
+          "description": "Description"
+        },
+        {
+          "name": "images",
+          "type": "bool",
+          "location": "body",
+          "description": "Images"
+        },
+        {
+          "name": "keyFeatures",
+          "type": "bool",
+          "location": "body",
+          "description": "Key features"
+        },
+        {
+          "name": "shipping_template",
+          "type": "bool",
+          "location": "body",
+          "description": "Shipping template"
+        },
+        {
+          "name": "tags",
+          "type": "bool",
+          "location": "body",
+          "description": "Tags"
+        },
+        {
+          "name": "title",
+          "type": "bool",
+          "location": "body",
+          "description": "Title"
+        },
+        {
+          "name": "variants",
+          "type": "bool",
+          "location": "body",
+          "description": "Variants"
+        }
+      ]
+    },
+    {
+      "name": "shops_products_retrieve-aproduct",
+      "description": "Retrieve a product. Required: shop_id, product_id. Returns the Product.",
+      "method": "GET",
+      "path": "/v1/shops/{shop_id}/products/{product_id}.json",
+      "params": [
+        {
+          "name": "shop_id",
+          "type": "string",
+          "location": "path",
+          "description": "Shop id",
+          "required": true
+        },
+        {
+          "name": "product_id",
+          "type": "string",
+          "location": "path",
+          "description": "Product id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "shops_products_retrieve-gpsr-information",
+      "description": "Retrieve product GPSR information. Required: shop_id, product_id. Returns array of GpsrInfo.",
+      "method": "GET",
+      "path": "/v1/shops/{shop_id}/products/{product_id}/gpsr.json",
+      "params": [
+        {
+          "name": "shop_id",
+          "type": "string",
+          "location": "path",
+          "description": "Shop id",
+          "required": true
+        },
+        {
+          "name": "product_id",
+          "type": "string",
+          "location": "path",
+          "description": "Product id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "shops_products_set-publish-status-to-failed",
+      "description": "Set product publish status to failed. Required: shop_id, product_id. Optional: limit, page, reason.",
+      "method": "POST",
+      "path": "/v1/shops/{shop_id}/products/{product_id}/publishing_failed.json",
+      "params": [
+        {
+          "name": "shop_id",
+          "type": "string",
+          "location": "path",
+          "description": "Shop id",
+          "required": true
+        },
+        {
+          "name": "product_id",
+          "type": "string",
+          "location": "path",
+          "description": "Product id",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "string",
+          "location": "query",
+          "description": "Results per page (default: 10, maximum: 50)"
+        },
+        {
+          "name": "page",
+          "type": "string",
+          "location": "query",
+          "description": "Paginate through list of results"
+        },
+        {
+          "name": "reason",
+          "type": "string",
+          "location": "body",
+          "description": "Reason"
+        }
+      ]
+    },
+    {
+      "name": "shops_products_set-publish-status-to-succeeded",
+      "description": "Set product publish status to succeeded. Required: shop_id, product_id. Optional: limit, page, external.",
+      "method": "POST",
+      "path": "/v1/shops/{shop_id}/products/{product_id}/publishing_succeeded.json",
+      "params": [
+        {
+          "name": "shop_id",
+          "type": "string",
+          "location": "path",
+          "description": "Shop id",
+          "required": true
+        },
+        {
+          "name": "product_id",
+          "type": "string",
+          "location": "path",
+          "description": "Product id",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "string",
+          "location": "query",
+          "description": "Results per page (default: 10, maximum: 50)"
+        },
+        {
+          "name": "page",
+          "type": "string",
+          "location": "query",
+          "description": "Paginate through list of results"
+        },
+        {
+          "name": "external",
+          "type": "object",
+          "location": "body",
+          "description": "External"
+        }
+      ]
+    },
+    {
+      "name": "shops_products_update-aproduct",
+      "description": "Update a product. Required: shop_id, product_id. Optional: blueprint_id, description, print_areas (plus 4 more). Returns the updated Product.",
+      "method": "PUT",
+      "path": "/v1/shops/{shop_id}/products/{product_id}.json",
+      "params": [
+        {
+          "name": "shop_id",
+          "type": "string",
+          "location": "path",
+          "description": "Shop id",
+          "required": true
+        },
+        {
+          "name": "product_id",
+          "type": "string",
+          "location": "path",
+          "description": "Product id",
+          "required": true
+        },
+        {
+          "name": "blueprint_id",
+          "type": "int",
+          "location": "body",
+          "description": "Blueprint id"
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description"
+        },
+        {
+          "name": "print_areas",
+          "type": "array",
+          "location": "body",
+          "description": "Print areas"
+        },
+        {
+          "name": "print_provider_id",
+          "type": "int",
+          "location": "body",
+          "description": "Print provider id"
+        },
+        {
+          "name": "safety_information",
+          "type": "string",
+          "location": "body",
+          "description": "Safety information"
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "Title"
+        },
+        {
+          "name": "variants",
+          "type": "array",
+          "location": "body",
+          "description": "Variants"
+        }
+      ]
+    },
+    {
+      "name": "shops_products-json_create-anew-product",
+      "description": "Create a new product. Required: shop_id, blueprint_id, print_areas, print_provider_id, title, variants. Optional: description, safety_information. Returns the new Product.",
+      "method": "POST",
+      "path": "/v1/shops/{shop_id}/products.json",
+      "params": [
+        {
+          "name": "shop_id",
+          "type": "string",
+          "location": "path",
+          "description": "Shop id",
+          "required": true
+        },
+        {
+          "name": "blueprint_id",
+          "type": "int",
+          "location": "body",
+          "description": "Blueprint id",
+          "required": true
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description"
+        },
+        {
+          "name": "print_areas",
+          "type": "array",
+          "location": "body",
+          "description": "Print areas",
+          "required": true
+        },
+        {
+          "name": "print_provider_id",
+          "type": "int",
+          "location": "body",
+          "description": "Print provider id",
+          "required": true
+        },
+        {
+          "name": "safety_information",
+          "type": "string",
+          "location": "body",
+          "description": "Safety information"
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "Title",
+          "required": true
+        },
+        {
+          "name": "variants",
+          "type": "array",
+          "location": "body",
+          "description": "Variants",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "shops_products-json_retrieve-alist-of-products",
+      "description": "Retrieve a list of products. Required: shop_id. Optional: limit, page. Returns the ProductsJsonRetrieveAlistOfProductsResponse.",
+      "method": "GET",
+      "path": "/v1/shops/{shop_id}/products.json",
+      "params": [
+        {
+          "name": "shop_id",
+          "type": "string",
+          "location": "path",
+          "description": "Shop id",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "string",
+          "location": "query",
+          "description": "Results per page (default: 10, maximum: 50)"
+        },
+        {
+          "name": "page",
+          "type": "string",
+          "location": "query",
+          "description": "Paginate through list of results"
+        }
+      ]
+    },
+    {
+      "name": "shops_webhooks_delete-awebhook",
+      "description": "Delete a webhook. Required: shop_id, webhook_id. Optional: host. Returns the WebhookDeleted. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/shops/{shop_id}/webhooks/{webhook_id}.json",
+      "params": [
+        {
+          "name": "shop_id",
+          "type": "string",
+          "location": "path",
+          "description": "Shop id",
+          "required": true
+        },
+        {
+          "name": "webhook_id",
+          "type": "string",
+          "location": "path",
+          "description": "Webhook id",
+          "required": true
+        },
+        {
+          "name": "host",
+          "type": "string",
+          "location": "query",
+          "description": "Host works as a safeguard: the deletion will only be performed if the host matches the webhook's host"
+        }
+      ]
+    },
+    {
+      "name": "shops_webhooks_modify-awebhook",
+      "description": "Modify a webhook. Required: shop_id, webhook_id. Optional: url. Returns the updated Webhook.",
+      "method": "PUT",
+      "path": "/v1/shops/{shop_id}/webhooks/{webhook_id}.json",
+      "params": [
+        {
+          "name": "shop_id",
+          "type": "string",
+          "location": "path",
+          "description": "Shop id",
+          "required": true
+        },
+        {
+          "name": "webhook_id",
+          "type": "string",
+          "location": "path",
+          "description": "Webhook id",
+          "required": true
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "body",
+          "description": "Url"
+        }
+      ]
+    },
+    {
+      "name": "shops_webhooks_simulate",
+      "description": "Simulate a webhook. Required: shop_id, webhook_id.",
+      "method": "POST",
+      "path": "/v1/shops/{shop_id}/webhooks/{webhook_id}/simulate",
+      "params": [
+        {
+          "name": "shop_id",
+          "type": "string",
+          "location": "path",
+          "description": "shop_id",
+          "required": true
+        },
+        {
+          "name": "webhook_id",
+          "type": "string",
+          "location": "path",
+          "description": "webhook_id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "shops_webhooks-json_create-anew-webhook",
+      "description": "Create a new webhook. Required: shop_id. Optional: topic, url. Returns the new Webhook.",
+      "method": "POST",
+      "path": "/v1/shops/{shop_id}/webhooks.json",
+      "params": [
+        {
+          "name": "shop_id",
+          "type": "string",
+          "location": "path",
+          "description": "Shop id",
+          "required": true
+        },
+        {
+          "name": "topic",
+          "type": "string",
+          "location": "body",
+          "description": "Topic"
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "body",
+          "description": "Url"
+        }
+      ]
+    },
+    {
+      "name": "shops_webhooks-json_retrieve-alist-of-webhooks",
+      "description": "Retrieve a list of webhooks. Required: shop_id. Optional: limit, page. Returns array of Webhook.",
+      "method": "GET",
+      "path": "/v1/shops/{shop_id}/webhooks.json",
+      "params": [
+        {
+          "name": "shop_id",
+          "type": "string",
+          "location": "path",
+          "description": "Shop id",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "string",
+          "location": "query",
+          "description": "Results per page (default: 10, maximum: 100)"
+        },
+        {
+          "name": "page",
+          "type": "string",
+          "location": "query",
+          "description": "Paginate through list of results"
+        }
+      ]
+    },
+    {
+      "name": "shops-json_retrieve-list-of-shops-in-aprintify-account",
+      "description": "This will return the list of available merchant shops (IDs and titles). Returns array of Shop.",
+      "method": "GET",
+      "path": "/v1/shops.json",
+      "params": []
+    },
+    {
+      "name": "uploads_an-image",
+      "description": "Upload an image. Returns the new Upload.",
+      "method": "POST",
+      "path": "/v1/uploads/images.json",
+      "params": []
+    },
+    {
+      "name": "uploads_retrieve-an-uploaded-image-by-id",
+      "description": "Retrieve an uploaded image by id. Required: image_id. Returns the Upload.",
+      "method": "GET",
+      "path": "/v1/uploads/{image_id}.json",
+      "params": [
+        {
+          "name": "image_id",
+          "type": "string",
+          "location": "path",
+          "description": "Image id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "uploads_archive-json_archive-an-uploaded-image",
+      "description": "Archive an uploaded image. Required: image_id.",
+      "method": "POST",
+      "path": "/v1/uploads/{image_id}/archive.json",
+      "params": [
+        {
+          "name": "image_id",
+          "type": "string",
+          "location": "path",
+          "description": "Image id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "uploads-json_retrieve-alist-of-uploaded-images",
+      "description": "Retrieve a list of uploaded images. Optional: limit, page. Returns the UploadsJsonRetrieveAlistOfUploadedImagesResponse.",
+      "method": "GET",
+      "path": "/v1/uploads.json",
+      "params": [
+        {
+          "name": "limit",
+          "type": "string",
+          "location": "query",
+          "description": "Results per page (default: 10, maximum: 100)"
+        },
+        {
+          "name": "page",
+          "type": "string",
+          "location": "query",
+          "description": "Paginate through list of results"
+        }
+      ]
+    }
+  ]
+}

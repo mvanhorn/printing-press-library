@@ -6,6 +6,8 @@ OrderToGo.com is a multi-tenant pickup ordering platform that powers small chain
 
 Learn more at [OrderToGo](https://www.ordertogo.com).
 
+Created by [@mvanhorn](https://github.com/mvanhorn) (Matt Van Horn).
+
 ## Install
 
 The recommended path installs both the `ordertogo-pp-cli` binary and the `pp-ordertogo` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

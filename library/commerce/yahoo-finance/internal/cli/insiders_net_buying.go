@@ -1,4 +1,4 @@
-// Copyright 2026 charles-garrison. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Trevin Chow and contributors. Licensed under Apache-2.0. See LICENSE.
 // Novel feature: insiders net-buying. Surfaces symbols where insiders are
 // net buyers in a recent window, drawing from locally synced insider rows.
 
@@ -12,8 +12,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/commerce/yahoo-finance/internal/cliutil"
+	"github.com/spf13/cobra"
 )
 
 // newInsidersExtCmd is a parent command holding the `net-buying` subcommand.

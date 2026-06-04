@@ -6,6 +6,8 @@ Mirrors all 169 documented Steam Web API endpoints (and the undocumented store e
 
 Learn more at [Steam Web](https://store.steampowered.com).
 
+Created by [@tmchow](https://github.com/tmchow) (Trevin Chow).
+
 ## Install
 
 The recommended path installs both the `steam-web-pp-cli` binary and the `pp-steam-web` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

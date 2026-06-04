@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "godaddy-pp-mcp",
+  "display_name": "Godaddy",
+  "version": "4.11.0",
+  "description": "Combined CLI for multiple API services",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/godaddy-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/godaddy-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

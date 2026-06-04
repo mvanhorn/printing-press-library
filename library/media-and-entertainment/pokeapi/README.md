@@ -6,6 +6,8 @@ Most PokéAPI clients cache one request at a time. This CLI syncs the entire dat
 
 Learn more at [PokéAPI](https://pokeapi.co/docs/v2).
 
+Created by [@hnshah](https://github.com/hnshah) (Hiten Shah).
+
 ## Install
 
 The recommended path installs both the `pokeapi-pp-cli` binary and the `pp-pokeapi` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

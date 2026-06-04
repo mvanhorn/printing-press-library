@@ -1,10 +1,12 @@
 ---
 name: pp-tenderned
-description: "Every Dutch public tender, with the sub-threshold long tail that EU TED never sees, in a local-first CLI you can pipe. Trigger phrases: `find dutch tenders`, `nederlandse aanbestedingen`, `search tenderned`, `dutch procurement`, `sub-threshold tenders nederland`, `use tenderned`, `run tenderned`."
+description: "Dutch public-tender CLI with offline search, document corpus, and the sub-threshold long tail TED never sees."
 author: "markvandeven"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"
 allowed-tools: "Read Bash"
+regions: ["NL"]
+api_language: "nl"
 metadata:
   openclaw:
     requires:
@@ -12,7 +14,7 @@ metadata:
         - tenderned-pp-cli
 ---
 
-# TenderNed — Printing Press CLI
+# Tenderned — Printing Press CLI
 
 ## Prerequisites: Install the CLI
 
@@ -25,119 +27,19 @@ This skill drives the `tenderned-pp-cli` binary. **You must verify the CLI is in
 2. Verify: `tenderned-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
 
-If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.3 or newer):
-
-```bash
-go install github.com/mvanhorn/printing-press-library/library/sales-and-crm/tenderned/cmd/tenderned-pp-cli@latest
-```
+If the `npx` install fails before this CLI has a public-library category, install Node or use the category-specific Go fallback after publish.
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
 
-## When to Use This CLI
+Every Dutch public tender, with the sub-threshold long tail that EU TED never sees, in a local-first CLI you can pipe.
 
-Pick this CLI when the user is working in the Dutch procurement market and needs sub-threshold coverage, document-corpus search, per-buyer analytics, or anything that requires holding more than one publication in working memory at once. For above-threshold EU-wide queries (TED publication numbers, cross-country buyer dossiers), pair it with the eu-tenders CLI.
+TenderNed is the Dutch national public procurement platform run by PIANOo / Ministerie van EZK. Every Dutch contracting authority must publish above- and below-threshold tender notices here. Above-threshold notices are forwarded to EU TED; the sub-threshold long tail (€40k–€220k) is TenderNed-only.
+
+This CLI covers the unauthenticated TNS publication webservice (search/list/filter publications, document download, contracting-authority directory, RSS feed) and the Basic-auth eForms XML endpoint. Data is CC-0 public domain.
 
 ## When Not to Use This CLI
 
 Do not activate this CLI for requests that require creating, updating, deleting, publishing, commenting, upvoting, inviting, ordering, sending messages, booking, purchasing, or changing remote state. This printed CLI exposes read-only commands for inspection, export, sync, and analysis.
-
-## Unique Capabilities
-
-These capabilities aren't available in any other tool for this API.
-
-### Local aggregations that beat the API
-- **`buyer dossier`** — Full profile for one contracting authority: spending cadence, top CPVs, top procedures, active vs awarded vs cancelled counts over a window.
-
-  _Reach for this when a user wants the full procurement picture of one buyer in one call instead of paginating through their notice list._
-
-  ```bash
-  tenderned-pp-cli buyer dossier Rotterdam --since 2025-01-01 --agent
-  ```
-- **`leads`** — Filter notices to national-only AND below an estimated-value cap AND inside CPV stripes — the long-tail tenders that EU TED never sees.
-
-  _Reach for this when serving a Dutch SME or municipality-focused supplier whose target contracts are below EU thresholds._
-
-  ```bash
-  tenderned-pp-cli leads --national --max-value 200000 --cpv 45000000-7,71000000-8 --since 2026-04-01 --agent
-  ```
-- **`deadline`** — Lists notices closing within N days, grouped by day, with countdown plus buyer plus procedure filters.
-
-  _Reach for this when triaging which open tenders need a response this week. Mirrors eu-tenders deadline._
-
-  ```bash
-  tenderned-pp-cli deadline --within 14 --cpv 45000000-7 --agent
-  ```
-- **`buyers top`** — Top contracting authorities by tender count for a CPV plus NUTS plus date slice.
-
-  _Reach for this when the user asks 'which buyers are most active in this slice?'_
-
-  ```bash
-  tenderned-pp-cli buyers top --cpv 72000000-5 --nuts NL33 --since 2025-01-01 --agent
-  ```
-- **`concentration`** — Herfindahl-Hirschman index of award concentration for a CPV plus NUTS slice; tells you whether a market is dominated by one buyer or fragmented.
-
-  _Reach for this when assessing whether to bid in a market dominated by a few incumbents. Mirrors eu-tenders concentration._
-
-  ```bash
-  tenderned-pp-cli concentration --cpv 72000000-5 --nuts NL --since 2024-01-01 --agent
-  ```
-- **`deadline-heat`** — Ranked calendar of expiring notices weighted by urgency times estimated value; daily prioritized view of what needs attention.
-
-  _Reach for this when sequencing bid effort across many open deadlines. Mirrors eu-tenders deadline-heat._
-
-  ```bash
-  tenderned-pp-cli deadline-heat --days 14 --cpv 45000000-7 --agent
-  ```
-
-### Workflow primitives
-- **`watch`** — Persist a filter set; watch run returns only NEW notices since the cursor's last advance.
-
-  _Reach for this when a user wants a recurring filter without an external alerting system._
-
-  ```bash
-  tenderned-pp-cli watch run civils-watch --agent
-  ```
-
-### Time-series intelligence
-- **`cpv-drift`** — Year-by-year top-CPV table for one buyer or NUTS region; shows whether a buyer's purchasing mix is shifting.
-
-  _Reach for this when answering 'is this buyer's spending mix changing?' for a market-trend analysis. Mirrors eu-tenders cpv-drift._
-
-  ```bash
-  tenderned-pp-cli cpv-drift --buyer Amsterdam --years 3 --agent
-  ```
-- **`velocity`** — Weekly publication-count trend over the local snapshot; spot heating or cooling markets per CPV or buyer.
-
-  _Reach for this when sizing market momentum for one CPV or buyer. Mirrors eu-tenders velocity._
-
-  ```bash
-  tenderned-pp-cli velocity --cpv 72000000-5 --weeks 12 --agent
-  ```
-
-### Cross-system bridges
-- **`ted-link`** — Extracts the canonical TED publication number from the eForms XML, prints it plus the TED URL.
-
-  _Reach for this when the user wants to pivot from a TenderNed notice to the EU-wide TED record (e.g., for use with the sibling eu-tenders CLI)._
-
-  ```bash
-  tenderned-pp-cli ted-link 425283 --agent
-  ```
-- **`thread reconcile`** — Walks PIN to CN to CAN to Modification chains for one buyer; flags orphan PINs, orphan CNs, and unresolved modifications.
-
-  _Reach for this when a compliance officer is auditing whether announced tenders were actually awarded or cancelled._
-
-  ```bash
-  tenderned-pp-cli thread reconcile --buyer Eindhoven --since 2024-01-01 --agent
-  ```
-
-### Document corpus tools
-- **`docs grep`** — Streams documents from matching notices, runs a regex against PDF and Word text, prints pub_id, doc_id, line hits.
-
-  _Reach for this when the user wants to find every notice mentioning a clause, vendor, or technical requirement across many bestek documents._
-
-  ```bash
-  tenderned-pp-cli docs grep "clausule.*aansprakelijkheid" --cpv 45000000-7 --limit 50 --agent
-  ```
 
 ## Command Reference
 
@@ -167,49 +69,6 @@ tenderned-pp-cli which "<capability in your own words>"
 ```
 
 `which` resolves a natural-language capability query to the best matching command from this CLI's curated feature index. Exit code `0` means at least one match; exit code `2` means no confident match — fall back to `--help` or use a narrower query.
-
-## Recipes
-
-
-### Daily new-opportunity sweep
-
-```bash
-tenderned-pp-cli notices list --agent --select content.publicatieId,content.aanbestedingNaam,content.opdrachtgeverNaam,content.sluitingsDatum
-```
-
-Narrow the fat publication payload to just the fields a triage agent needs.
-
-### Cross-reference a notice to EU TED
-
-```bash
-tenderned-pp-cli ted-link 425283 --agent
-```
-
-Extract the canonical TED publication number so you can pivot to the eu-tenders CLI for EU-wide analysis.
-
-### Find every bestek mentioning a clause
-
-```bash
-tenderned-pp-cli docs grep aansprakelijkheidsclausule --limit 25 --agent
-```
-
-Bulk regex across attached tender documents; unique to a local CLI.
-
-### Watch a saved query for new hits
-
-```bash
-tenderned-pp-cli watch add civils '{"cpv":["45000000-7"],"nationaal":true,"max_value":200000}' && tenderned-pp-cli watch run civils --agent
-```
-
-Save a filter, then return only NEW publications since the last run. The cursor lives in SQLite.
-
-### Buyer purchasing-mix drift
-
-```bash
-tenderned-pp-cli cpv-drift --buyer Amsterdam --years 3 --agent
-```
-
-Year-bucket CPV-2-digit distribution for one buyer — answers 'is their spending mix shifting?'
 
 ## Auth Setup
 
@@ -255,7 +114,7 @@ tenderned-pp-cli feedback --stdin < notes.txt
 tenderned-pp-cli feedback list --json --limit 10
 ```
 
-Entries are stored locally at `~/.tenderned-pp-cli/feedback.jsonl`. They are never POSTed unless `TENDERNED_FEEDBACK_ENDPOINT` is set AND either `--send` is passed or `TENDERNED_FEEDBACK_AUTO_SEND=true`. Default behavior is local-only.
+Entries are stored locally at `~/.local/share/tenderned-pp-cli/feedback.jsonl`. They are never POSTed unless `TENDERNED_FEEDBACK_ENDPOINT` is set AND either `--send` is passed or `TENDERNED_FEEDBACK_AUTO_SEND=true`. Default behavior is local-only.
 
 Write what *surprised* you, not a bug report. Short, specific, one line: that is the part that compounds.
 

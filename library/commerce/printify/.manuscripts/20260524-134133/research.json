@@ -1,0 +1,247 @@
+{
+  "api_name": "printify",
+  "novelty_score": 82,
+  "alternatives": [
+    {
+      "name": "TSavo/printify-mcp",
+      "url": "https://github.com/TSavo/printify-mcp",
+      "language": "JavaScript/TypeScript",
+      "install_method": "",
+      "stars": 27,
+      "last_updated": "",
+      "command_count": 8,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "lawrencemq/printipy",
+      "url": "https://github.com/lawrencemq/printipy",
+      "language": "Python",
+      "install_method": "",
+      "stars": 17,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [
+    "Browser-sniff was declined, so the CLI must not claim support for enabling Printify's UI personalization checkbox.",
+    "Crowd-sniff returned third-party `/admin/printify/...` proxy routes; they are not accepted into generation."
+  ],
+  "patterns": [
+    "Use manifest files for product creation and deterministic proofing.",
+    "Use `--agent` and `--select` for nested Printify payloads.",
+    "Separate documented placeholder personalization fields from unsupported browser-only controls."
+  ],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-24T18:05:00Z",
+  "novel_features": [
+    {
+      "name": "Personalization Coverage Audit",
+      "command": "personalization-audit",
+      "description": "Audit a product for documented personalization placeholder fields, missing text/image setup, and unsupported browser-only gaps.",
+      "rationale": "Requires correlating Printify product print areas, placeholder images, and text metadata in one local view instead of reading raw nested payloads.",
+      "example": "printify-pp-cli personalization-audit --product-file ./examples/sample-product.json --agent",
+      "why_it_matters": "Use this before publishing a personalized product or before handing a manifest to another agent.",
+      "group": "Product proofing"
+    },
+    {
+      "name": "Placement Matrix",
+      "command": "placement-matrix",
+      "description": "Show variant, print-area, placeholder, uploaded image, x/y/scale/angle, and missing-placement rows for a product.",
+      "rationale": "Requires joining products, variants, print areas, placeholder image IDs, and uploads that the API returns through separate structures.",
+      "example": "printify-pp-cli placement-matrix --product-file ./examples/sample-product.json --uploads-file ./examples/sample-uploads.json --agent",
+      "why_it_matters": "Use this when an agent must prove artwork placement is consistent across variants.",
+      "group": "Product proofing"
+    },
+    {
+      "name": "Catalog Margin Matrix",
+      "command": "catalog-margin-matrix",
+      "description": "Join catalog variants and shipping data to estimate per-variant cost and margin at a target retail price.",
+      "rationale": "Requires combining blueprint, provider, variant, and shipping tables that are expensive for an agent to reconcile manually.",
+      "example": "printify-pp-cli catalog-margin-matrix --variants-file ./examples/sample-variants.json --shipping-file ./examples/sample-shipping.json --target-price 24.99 --agent",
+      "why_it_matters": "Use this before creating a batch when product economics matter more than raw catalog browsing.",
+      "group": "Catalog decisions"
+    },
+    {
+      "name": "Product Manifest Drift",
+      "command": "product-drift",
+      "description": "Compare an intended product manifest against the current Printify product payload after create or update.",
+      "rationale": "Requires deterministic field-level comparison across manifests, product variants, and print areas rather than a single API call.",
+      "example": "printify-pp-cli product-drift --product-file ./examples/current-product.json --manifest ./examples/sample-product.json --agent",
+      "why_it_matters": "Use this after automation creates a product and before trusting the resulting listing.",
+      "group": "Product proofing"
+    },
+    {
+      "name": "Personalized Batch Manifest Compiler",
+      "command": "personalization-batch",
+      "description": "Expand a reusable product manifest and CSV rows into per-product manifests using documented image and text placeholder fields.",
+      "rationale": "Requires a Printify-aware manifest transform that preserves placeholder image/text semantics without guessing undocumented UI settings.",
+      "example": "printify-pp-cli personalization-batch --template ./examples/template-product.json --csv ./examples/personalization.csv --out ./examples/generated-manifests --agent",
+      "why_it_matters": "Use this when an agent needs repeatable personalized product drafts before making API writes.",
+      "group": "Batch automation"
+    },
+    {
+      "name": "Asset Reuse Map",
+      "command": "asset-reuse",
+      "description": "List uploaded images, where each is used, unused uploads, and products sharing the same artwork.",
+      "rationale": "Requires a local join from upload inventory to product print-area image IDs across the account.",
+      "example": "printify-pp-cli asset-reuse --products-file ./examples/sample-products.json --uploads-file ./examples/sample-uploads.json --agent",
+      "why_it_matters": "Use this to clean upload libraries or verify that a product batch reuses the expected artwork.",
+      "group": "Operational audits"
+    },
+    {
+      "name": "Fulfillment Risk Scan",
+      "command": "fulfillment-risk",
+      "description": "Flag open orders tied to risky product, variant, publish, or shipment states.",
+      "rationale": "Requires joining orders, line items, products, product variants, publish status, and shipments into one operational check.",
+      "example": "printify-pp-cli fulfillment-risk --orders-file ./examples/sample-orders.json --products-file ./examples/sample-products.json --agent",
+      "why_it_matters": "Use this when an agent needs to find fulfillment problems before customer-service work starts.",
+      "group": "Operational audits"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Personalization Coverage Audit",
+      "command": "personalization-audit",
+      "description": "Audit a product for documented personalization placeholder fields, missing text/image setup, and unsupported browser-only gaps.",
+      "rationale": "Requires correlating Printify product print areas, placeholder images, and text metadata in one local view instead of reading raw nested payloads.",
+      "example": "printify-pp-cli personalization-audit --product-file ./examples/sample-product.json --agent",
+      "why_it_matters": "Use this before publishing a personalized product or before handing a manifest to another agent.",
+      "group": "Product proofing"
+    },
+    {
+      "name": "Placement Matrix",
+      "command": "placement-matrix",
+      "description": "Show variant, print-area, placeholder, uploaded image, x/y/scale/angle, and missing-placement rows for a product.",
+      "rationale": "Requires joining products, variants, print areas, placeholder image IDs, and uploads that the API returns through separate structures.",
+      "example": "printify-pp-cli placement-matrix --product-file ./examples/sample-product.json --uploads-file ./examples/sample-uploads.json --agent",
+      "why_it_matters": "Use this when an agent must prove artwork placement is consistent across variants.",
+      "group": "Product proofing"
+    },
+    {
+      "name": "Catalog Margin Matrix",
+      "command": "catalog-margin-matrix",
+      "description": "Join catalog variants and shipping data to estimate per-variant cost and margin at a target retail price.",
+      "rationale": "Requires combining blueprint, provider, variant, and shipping tables that are expensive for an agent to reconcile manually.",
+      "example": "printify-pp-cli catalog-margin-matrix --variants-file ./examples/sample-variants.json --shipping-file ./examples/sample-shipping.json --target-price 24.99 --agent",
+      "why_it_matters": "Use this before creating a batch when product economics matter more than raw catalog browsing.",
+      "group": "Catalog decisions"
+    },
+    {
+      "name": "Product Manifest Drift",
+      "command": "product-drift",
+      "description": "Compare an intended product manifest against the current Printify product payload after create or update.",
+      "rationale": "Requires deterministic field-level comparison across manifests, product variants, and print areas rather than a single API call.",
+      "example": "printify-pp-cli product-drift --product-file ./examples/current-product.json --manifest ./examples/sample-product.json --agent",
+      "why_it_matters": "Use this after automation creates a product and before trusting the resulting listing.",
+      "group": "Product proofing"
+    },
+    {
+      "name": "Personalized Batch Manifest Compiler",
+      "command": "personalization-batch",
+      "description": "Expand a reusable product manifest and CSV rows into per-product manifests using documented image and text placeholder fields.",
+      "rationale": "Requires a Printify-aware manifest transform that preserves placeholder image/text semantics without guessing undocumented UI settings.",
+      "example": "printify-pp-cli personalization-batch --template ./examples/template-product.json --csv ./examples/personalization.csv --out ./examples/generated-manifests --agent",
+      "why_it_matters": "Use this when an agent needs repeatable personalized product drafts before making API writes.",
+      "group": "Batch automation"
+    },
+    {
+      "name": "Asset Reuse Map",
+      "command": "asset-reuse",
+      "description": "List uploaded images, where each is used, unused uploads, and products sharing the same artwork.",
+      "rationale": "Requires a local join from upload inventory to product print-area image IDs across the account.",
+      "example": "printify-pp-cli asset-reuse --products-file ./examples/sample-products.json --uploads-file ./examples/sample-uploads.json --agent",
+      "why_it_matters": "Use this to clean upload libraries or verify that a product batch reuses the expected artwork.",
+      "group": "Operational audits"
+    },
+    {
+      "name": "Fulfillment Risk Scan",
+      "command": "fulfillment-risk",
+      "description": "Flag open orders tied to risky product, variant, publish, or shipment states.",
+      "rationale": "Requires joining orders, line items, products, product variants, publish status, and shipments into one operational check.",
+      "example": "printify-pp-cli fulfillment-risk --orders-file ./examples/sample-orders.json --products-file ./examples/sample-products.json --agent",
+      "why_it_matters": "Use this when an agent needs to find fulfillment problems before customer-service work starts.",
+      "group": "Operational audits"
+    }
+  ],
+  "narrative": {
+    "display_name": "Printify",
+    "headline": "Create and audit Printify products with manifest-driven image uploads, personalization checks, and local proofing.",
+    "value_prop": "This CLI covers Printify's official product, upload, catalog, order, shop, and webhook API surface, then adds workflow commands for product creation confidence. Agents can compile personalized manifests, upload images, validate placement, compare drift, and inspect fulfillment risk without parsing raw nested API payloads.",
+    "auth_narrative": "Printify uses a personal access token as a bearer token. Set `PRINTIFY_API_TOKEN` in your environment or `.env`; do not pass the token as a command argument.",
+    "quickstart": [
+      {
+        "command": "printify-pp-cli shops-json --agent --select id,title",
+        "comment": "Find the shop ID to use for product and order work while keeping the response small."
+      },
+      {
+        "command": "printify-pp-cli catalog retrieves-list-of-blueprints-in-the --agent --select id,title",
+        "comment": "Choose a blueprint before selecting a print provider or variants."
+      },
+      {
+        "command": "printify-pp-cli uploads an-image --body-json '{\"file_name\":\"front.png\",\"contents\":\"data:image/png;base64,iVBORw0KGgo=\"}' --agent",
+        "comment": "Upload product artwork before composing the product manifest."
+      },
+      {
+        "command": "printify-pp-cli shops products-json create-anew-product 123456 --title Sample --blueprint-id 384 --print-provider-id 1 --variants '[]' --print-areas '[]' --agent",
+        "comment": "Create a draft product from a prepared manifest."
+      },
+      {
+        "command": "printify-pp-cli product-drift --product-file ./examples/current-product.json --manifest ./examples/sample-product.json --agent",
+        "comment": "Compare the intended manifest with the product that now exists in Printify."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 or unauthorized responses",
+        "fix": "Confirm `PRINTIFY_API_TOKEN` is set from `.env` or your shell, then rerun `printify-pp-cli health --agent`."
+      },
+      {
+        "symptom": "Product creation fails with missing variants or print areas",
+        "fix": "Run catalog blueprint/provider commands first, then regenerate the manifest with valid `blueprint_id`, `print_provider_id`, `variants`, and `print_areas`."
+      },
+      {
+        "symptom": "Personalization looks incomplete",
+        "fix": "Run `printify-pp-cli personalization-audit --product-file ./examples/sample-product.json --agent`; the CLI reports documented fields separately from unsupported browser-only controls."
+      }
+    ],
+    "when_to_use": "Use this CLI for Printify product automation that needs more than raw endpoint calls: image uploads, manifest-driven drafts, personalization field checks, placement proofing, and operational audits. It is especially useful for agents building or verifying POD product batches from local artwork and CSV inputs.",
+    "recipes": [
+      {
+        "title": "Find a shop with narrow output",
+        "command": "printify-pp-cli shops-json --agent --select id,title",
+        "explanation": "Use this first so follow-up product and order commands target the right shop without dumping the full shop payload."
+      },
+      {
+        "title": "Compile personalized product manifests",
+        "command": "printify-pp-cli personalization-batch --template ./examples/template-product.json --csv ./examples/personalization.csv --out ./examples/generated-manifests --agent",
+        "explanation": "Turn a reusable template and row data into deterministic product manifests before any API writes."
+      },
+      {
+        "title": "Proof artwork placement",
+        "command": "printify-pp-cli placement-matrix --product-file ./examples/sample-product.json --uploads-file ./examples/sample-uploads.json --agent --select variant_id,print_area,image_id,x,y,scale,angle",
+        "explanation": "Inspect only the placement columns an agent needs before publishing."
+      },
+      {
+        "title": "Check product drift after create",
+        "command": "printify-pp-cli product-drift --product-file ./examples/current-product.json --manifest ./examples/sample-product.json --agent",
+        "explanation": "Confirm the remote product still matches the manifest the automation intended."
+      },
+      {
+        "title": "Scan fulfillment risk",
+        "command": "printify-pp-cli fulfillment-risk --orders-file ./examples/sample-orders.json --products-file ./examples/sample-products.json --agent",
+        "explanation": "Join orders, variants, product state, and shipment state into a single operational risk view."
+      }
+    ],
+    "trigger_phrases": [
+      "create Printify products",
+      "upload Printify artwork",
+      "audit Printify personalization",
+      "check Printify product drift",
+      "run Printify",
+      "use Printify"
+    ]
+  }
+}

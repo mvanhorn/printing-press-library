@@ -4,6 +4,8 @@
 
 Roam HQ ships a remote MCP but no CLI. roam-pp-cli unifies all five Roam HQ APIs (HQ, On-Air, Chat, SCIM, Webhooks) into a single binary with a local SQLite cache and FTS5 search across messages and transcripts. Cron-friendly chat relay, decision extraction, attendance drift, and SCIM roster diff are built-in.
 
+Created by [@gregvanhorn](https://github.com/gregvanhorn) (Greg Van Horn).
+
 ## Install
 
 The recommended path installs both the `roam-pp-cli` binary and the `pp-roam` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

@@ -1,0 +1,309 @@
+{
+  "api_name": "apple-docs",
+  "novelty_score": 8,
+  "alternatives": [
+    {
+      "name": "apple-docs-mcp",
+      "url": "https://github.com/kimsungwhee/apple-docs-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 1300,
+      "last_updated": "",
+      "command_count": 18,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "appledeepdoc-mcp",
+      "url": "https://github.com/Ahrentlov/appledeepdoc-mcp",
+      "language": "Python",
+      "install_method": "",
+      "stars": 14,
+      "last_updated": "",
+      "command_count": 15,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "sosumi-mcp",
+      "url": "https://github.com/nshipster/sosumi-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 50,
+      "last_updated": "",
+      "command_count": 4,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "apple-developer-toolkit",
+      "url": "https://github.com/Abdullah4AI/apple-developer-toolkit",
+      "language": "Go",
+      "install_method": "",
+      "stars": 8,
+      "last_updated": "",
+      "command_count": 8,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "swift-docc",
+      "url": "https://github.com/swiftlang/swift-docc",
+      "language": "Swift",
+      "install_method": "",
+      "stars": 1100,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "swift-docc-render",
+      "url": "https://github.com/swiftlang/swift-docc-render",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 350,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-28T17:15:00Z",
+  "novel_features": [
+    {
+      "name": "Token-lean doc projection",
+      "command": "doc get",
+      "description": "Project a 50KB+ DocC JSON page down to just the fields an agent actually needs — abstract, signature, platforms, or all three — saving context tokens on every lookup.",
+      "rationale": "Requires a local parsed cache and shape-aware renderer; competitors return full payloads. Only possible with our offline SQLite store.",
+      "example": "apple-docs-pp-cli doc get 'swiftui/view/onappear(perform:)' --shape min --agent",
+      "why_it_matters": "Use this when an agent is grounding code generation against an Apple symbol and only needs the abstract + signature + platform floor, not the full discussion + see-also tree.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Cross-platform replacement finder",
+      "command": "port-to",
+      "description": "For a symbol unavailable on a target platform, walk the See-Also / Replacement-Of graph until landing on an alternative that IS available there and is not itself deprecated.",
+      "rationale": "Walks the local reference graph; no Apple endpoint answers 'what replaces this symbol on visionOS' directly.",
+      "example": "apple-docs-pp-cli port-to visionOS uikit/uitableview --agent",
+      "why_it_matters": "Use when porting code between Apple platforms (iPad → visionOS, AppKit → SwiftUI, deprecated → current) and you need the migration target, not just a similar-named API.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Framework snapshot diff",
+      "command": "snapshot diff",
+      "description": "Diff two stored framework index snapshots and classify each delta as added, removed, deprecated, or likely-renamed (path-stem similarity).",
+      "rationale": "Requires two local snapshots; no Apple endpoint returns a structured diff.",
+      "example": "apple-docs-pp-cli snapshot diff swiftui --from 2025-06-09 --to 2026-05-28 --agent",
+      "why_it_matters": "Use after every WWDC or dot-release to surface added/removed/deprecated symbols at the framework level.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Deprecation cliff report",
+      "command": "deprecation-cliff",
+      "description": "List every Apple API deprecated in a given platform version, grouped by framework and symbol kind, with the replacement-hint column joined from references.",
+      "rationale": "SQL aggregation over Apple's uniquely structured `metadata.platforms[].deprecatedAt` field; not possible from any single Apple endpoint.",
+      "example": "apple-docs-pp-cli deprecation-cliff --os iOS --version 18 --framework swiftui --agent",
+      "why_it_matters": "Use when planning a migration sprint or writing a 'what's deprecated this year' guide; the only way to get the full list in one shot.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Conformance graph",
+      "command": "conformance",
+      "description": "Walk a framework's `relationshipsSections` to enumerate concrete conformers of a protocol and the protocol's ancestors.",
+      "rationale": "Exploits DocC's structured `relationshipsSections` rows; competitors return untyped See-Also lists and miss conformance edges entirely.",
+      "example": "apple-docs-pp-cli conformance View --framework swiftui --agent",
+      "why_it_matters": "Use when writing protocol-driven code (custom View, ObservableObject, Layout) and you need every concrete type that conforms.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Cross-framework symbol grep",
+      "command": "grep",
+      "description": "Regex over every synced framework's symbols with filters on kind, target platform, and deprecation status.",
+      "rationale": "Cross-framework regex requires unified local FTS; Dash/Zeal only grep within one docset and online competitors offer keyword-only search.",
+      "example": "apple-docs-pp-cli grep onAppear --framework swiftui --json",
+      "why_it_matters": "Use when you remember the shape of a symbol name but not where it lives, or when auditing API patterns across the whole Apple SDK.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "WWDC reverse index",
+      "command": "wwdc symbols",
+      "description": "For a WWDC session ID, list every symbol whose doc page cites that session.",
+      "rationale": "Joins `references` rows where `kind=video` back to symbol pages; competitors index videos but not the reverse video → symbols edge.",
+      "example": "apple-docs-pp-cli wwdc symbols wwdc2024-10169 --agent",
+      "why_it_matters": "Use after watching a WWDC session to enumerate every API it touched, or to find which session officially introduced an API you're working with.",
+      "group": "Service-specific patterns"
+    },
+    {
+      "name": "Agent-shape doc bundle",
+      "command": "bundle",
+      "description": "Bundle a symbol's Markdown plus its depth-1 See-Also pages into a single token-budgeted blob, ready to paste into an agent prompt.",
+      "rationale": "Joins the symbol with its reference graph and applies a token budget; sosumi.ai proves Markdown demand but ships single-page renders only.",
+      "example": "apple-docs-pp-cli bundle 'swiftui/view/onappear(perform:)' --depth 1 --max-tokens 4000",
+      "why_it_matters": "Use when an agent needs a self-contained context blob about a symbol plus its closest relatives, without doing N round-trips and N JSON parses.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Token-lean doc projection",
+      "command": "doc get",
+      "description": "Project a 50KB+ DocC JSON page down to just the fields an agent actually needs — abstract, signature, platforms, or all three — saving context tokens on every lookup.",
+      "rationale": "Requires a local parsed cache and shape-aware renderer; competitors return full payloads. Only possible with our offline SQLite store.",
+      "example": "apple-docs-pp-cli doc get 'swiftui/view/onappear(perform:)' --shape min --agent",
+      "why_it_matters": "Use this when an agent is grounding code generation against an Apple symbol and only needs the abstract + signature + platform floor, not the full discussion + see-also tree.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Cross-platform replacement finder",
+      "command": "port-to",
+      "description": "For a symbol unavailable on a target platform, walk the See-Also / Replacement-Of graph until landing on an alternative that IS available there and is not itself deprecated.",
+      "rationale": "Walks the local reference graph; no Apple endpoint answers 'what replaces this symbol on visionOS' directly.",
+      "example": "apple-docs-pp-cli port-to visionOS uikit/uitableview --agent",
+      "why_it_matters": "Use when porting code between Apple platforms (iPad → visionOS, AppKit → SwiftUI, deprecated → current) and you need the migration target, not just a similar-named API.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Framework snapshot diff",
+      "command": "snapshot diff",
+      "description": "Diff two stored framework index snapshots and classify each delta as added, removed, deprecated, or likely-renamed (path-stem similarity).",
+      "rationale": "Requires two local snapshots; no Apple endpoint returns a structured diff.",
+      "example": "apple-docs-pp-cli snapshot diff swiftui --from 2025-06-09 --to 2026-05-28 --agent",
+      "why_it_matters": "Use after every WWDC or dot-release to surface added/removed/deprecated symbols at the framework level.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Deprecation cliff report",
+      "command": "deprecation-cliff",
+      "description": "List every Apple API deprecated in a given platform version, grouped by framework and symbol kind, with the replacement-hint column joined from references.",
+      "rationale": "SQL aggregation over Apple's uniquely structured `metadata.platforms[].deprecatedAt` field; not possible from any single Apple endpoint.",
+      "example": "apple-docs-pp-cli deprecation-cliff --os iOS --version 18 --framework swiftui --agent",
+      "why_it_matters": "Use when planning a migration sprint or writing a 'what's deprecated this year' guide; the only way to get the full list in one shot.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Conformance graph",
+      "command": "conformance",
+      "description": "Walk a framework's `relationshipsSections` to enumerate concrete conformers of a protocol and the protocol's ancestors.",
+      "rationale": "Exploits DocC's structured `relationshipsSections` rows; competitors return untyped See-Also lists and miss conformance edges entirely.",
+      "example": "apple-docs-pp-cli conformance View --framework swiftui --agent",
+      "why_it_matters": "Use when writing protocol-driven code (custom View, ObservableObject, Layout) and you need every concrete type that conforms.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Cross-framework symbol grep",
+      "command": "grep",
+      "description": "Regex over every synced framework's symbols with filters on kind, target platform, and deprecation status.",
+      "rationale": "Cross-framework regex requires unified local FTS; Dash/Zeal only grep within one docset and online competitors offer keyword-only search.",
+      "example": "apple-docs-pp-cli grep onAppear --framework swiftui --json",
+      "why_it_matters": "Use when you remember the shape of a symbol name but not where it lives, or when auditing API patterns across the whole Apple SDK.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "WWDC reverse index",
+      "command": "wwdc symbols",
+      "description": "For a WWDC session ID, list every symbol whose doc page cites that session.",
+      "rationale": "Joins `references` rows where `kind=video` back to symbol pages; competitors index videos but not the reverse video → symbols edge.",
+      "example": "apple-docs-pp-cli wwdc symbols wwdc2024-10169 --agent",
+      "why_it_matters": "Use after watching a WWDC session to enumerate every API it touched, or to find which session officially introduced an API you're working with.",
+      "group": "Service-specific patterns"
+    },
+    {
+      "name": "Agent-shape doc bundle",
+      "command": "bundle",
+      "description": "Bundle a symbol's Markdown plus its depth-1 See-Also pages into a single token-budgeted blob, ready to paste into an agent prompt.",
+      "rationale": "Joins the symbol with its reference graph and applies a token budget; sosumi.ai proves Markdown demand but ships single-page renders only.",
+      "example": "apple-docs-pp-cli bundle 'swiftui/view/onappear(perform:)' --depth 1 --max-tokens 4000",
+      "why_it_matters": "Use when an agent needs a self-contained context blob about a symbol plus its closest relatives, without doing N round-trips and N JSON parses.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "auth": {},
+  "narrative": {
+    "display_name": "Apple Developer Documentation",
+    "headline": "Every Apple framework, indexed locally, with deprecation analysis and an MCP server no other Apple-docs tool has.",
+    "value_prop": "apple-docs-pp-cli mirrors developer.apple.com's DocC JSON into a local SQLite store you can grep across every framework, diff between releases, and project down to just the fields an agent needs. Ships with offline FTS, a cross-platform 'port-to' walker, a deprecation-cliff report, and an MCP server you can plug into Claude Desktop.",
+    "auth_narrative": "No auth required. The DocC JSON endpoints under https://developer.apple.com/tutorials/data/ are public and served by Apple's CDN.",
+    "quickstart": [
+      {
+        "command": "apple-docs-pp-cli doctor --dry-run",
+        "comment": "Health check — verify network reachability without writing local state."
+      },
+      {
+        "command": "apple-docs-pp-cli sync --resources technologies --full",
+        "comment": "Cache the master list of every Apple framework locally."
+      },
+      {
+        "command": "apple-docs-pp-cli grep onAppear --framework swiftui --json",
+        "comment": "Regex over a framework's index — finds every symbol whose title or path matches."
+      },
+      {
+        "command": "apple-docs-pp-cli doc get 'swiftui/view/onappear(perform:)' --shape signature --agent",
+        "comment": "Token-lean projection: just the declaration fragments, not the full 50KB page."
+      },
+      {
+        "command": "apple-docs-pp-cli deprecation-cliff --os iOS --version 18 --framework swiftui --agent",
+        "comment": "Every SwiftUI API Apple deprecated in iOS 18."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "404 from developer.apple.com for a framework slug",
+        "fix": "Slugs are case-sensitive lowercase with no separators. 'photokit' works; 'photoskit' returns 404. Try 'apple-docs-pp-cli technologies list' to list valid slugs."
+      },
+      {
+        "symptom": "Cross-framework grep returns no results",
+        "fix": "Pass --framework \u003cslug\u003e to focus the scan, or raise --max-scan-frameworks; grep fetches one index per framework."
+      },
+      {
+        "symptom": "Index sync is slow for SwiftUI/Foundation",
+        "fix": "Framework indices are 500KB–2MB; pass '--resources index --max-pages 1' on first sync, then add frameworks one at a time."
+      }
+    ],
+    "when_to_use": "Reach for this CLI when you need to read Apple's docs from a terminal, when an agent is grounding Swift code generation against current Apple APIs, when planning a platform migration (iPad → visionOS, AppKit → SwiftUI), or when authoring a 'what's deprecated in iOS N' guide. The local SQLite store unlocks queries — cross-framework grep, snapshot diff, deprecation cliff — that no online docs viewer offers.",
+    "anti_triggers": [
+      "Do not use this CLI to author Apple ID or App Store Connect API calls — use a separate App Store Connect CLI for those.",
+      "Do not use this CLI as a Swift package manager — it reads docs, not source.",
+      "Do not use this CLI to fetch full WWDC video transcripts — it indexes WWDC references from doc pages but does not host video content."
+    ],
+    "recipes": [
+      {
+        "title": "Find a symbol's iOS introduction version",
+        "command": "apple-docs-pp-cli doc get 'swiftui/view/onappear(perform:)' --shape platforms --agent --select platforms[].introducedAt",
+        "explanation": "Returns just the platform-availability map — under 500 bytes vs 9KB for the full page."
+      },
+      {
+        "title": "List every concrete SwiftUI type that conforms to View",
+        "command": "apple-docs-pp-cli conformance View --framework swiftui --json --select symbol,kind",
+        "explanation": "Walks the local relationshipsSections graph; impossible from any single Apple endpoint."
+      },
+      {
+        "title": "What changed in SwiftUI at this year's WWDC?",
+        "command": "apple-docs-pp-cli snapshot diff swiftui --from 2025-06-09 --to 2026-05-28 --classify --json",
+        "explanation": "Classifies every delta as added / removed / deprecated / likely-renamed in one call."
+      },
+      {
+        "title": "Find the visionOS replacement for a UIKit symbol",
+        "command": "apple-docs-pp-cli port-to visionOS uikit/uitableview --agent",
+        "explanation": "Walks See-Also and Replacement-Of edges until landing on a symbol available on visionOS."
+      },
+      {
+        "title": "Bundle a symbol's docs as agent context",
+        "command": "apple-docs-pp-cli bundle 'swiftui/view/onappear(perform:)' --depth 1 --max-tokens 4000",
+        "explanation": "Markdown render of the symbol + every depth-1 See-Also page, truncated to a token budget."
+      }
+    ],
+    "trigger_phrases": [
+      "look up an Apple API",
+      "what's deprecated in iOS",
+      "find a SwiftUI symbol",
+      "port this from UIKit to SwiftUI",
+      "what changed at WWDC",
+      "use apple-docs",
+      "run apple-docs-pp-cli"
+    ]
+  }
+}

@@ -60,9 +60,9 @@ func loadDashboardFavorites(path string) (map[string][]string, string, error) {
 // newDashboardCmd renders favorited teams' status grouped by league.
 func newDashboardCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "dashboard",
+		Use:         "dashboard",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short: "Your favorite teams' status at a glance (reads [favorites] in config.toml)",
+		Short:       "Your favorite teams' status at a glance (reads [favorites] in config.toml)",
 		Example: `  espn-pp-cli dashboard
   espn-pp-cli dashboard --agent
   espn-pp-cli dashboard --json`,

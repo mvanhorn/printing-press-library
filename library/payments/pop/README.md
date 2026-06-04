@@ -24,7 +24,7 @@ synced into this print when the documented public surface evolves.
 
 Learn more at [Pop](https://popapi.io/en/).
 
-Printed by [@mircobabini](https://github.com/mircobabini) (Mirco Babini).
+Created by [@mircobabini](https://github.com/mircobabini) (Mirco Babini).
 
 ## Install
 

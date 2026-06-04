@@ -1,4 +1,4 @@
-// Copyright 2026 kothari-nikunj. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 kothari-nikunj and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // Package parser extracts structured hotel records from Google Hotels' SSR
 // HTML. Google embeds two AF_initDataCallback(key:'ds:N', ...) blobs per

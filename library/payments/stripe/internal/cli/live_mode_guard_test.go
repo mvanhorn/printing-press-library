@@ -1,4 +1,4 @@
-// Copyright 2026 chris-rodriguez. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Chris Rodriguez and contributors. Licensed under Apache-2.0. See LICENSE.
 
 package cli
 
@@ -163,16 +163,16 @@ func TestCheckLiveModeGuard_PersistedConfig_TestKeyPasses(t *testing.T) {
 
 func TestHasLivePrefix(t *testing.T) {
 	cases := map[string]bool{
-		"":                      false,
-		"sk_test_xyz":           false,
-		"sk_live_xyz":           true,
-		"rk_live_xyz":           true,
-		"pk_live_xyz":           false, // publishable, not a write credential
-		"Bearer sk_live_xyz":    true,
-		"Bearer sk_test_xyz":    false,
-		"Basic sk_live_xyz":     true,
-		"  sk_live_xyz  ":       true, // whitespace tolerance
-		"sk_live":               false, // no underscore-suffix
+		"":                   false,
+		"sk_test_xyz":        false,
+		"sk_live_xyz":        true,
+		"rk_live_xyz":        true,
+		"pk_live_xyz":        false, // publishable, not a write credential
+		"Bearer sk_live_xyz": true,
+		"Bearer sk_test_xyz": false,
+		"Basic sk_live_xyz":  true,
+		"  sk_live_xyz  ":    true,  // whitespace tolerance
+		"sk_live":            false, // no underscore-suffix
 	}
 	for input, want := range cases {
 		got := hasLivePrefix(input)

@@ -169,11 +169,11 @@ func directCandidates(ctx context.Context, host *hostextract.HostInfo, listingTi
 		searchLimit = 10
 	}
 	var (
-		results          []searchbackend.Result
-		activeBackend    string
-		attemptedNames   []string
-		backendErrors    []string
-		usedFallback     bool
+		results        []searchbackend.Result
+		activeBackend  string
+		attemptedNames []string
+		backendErrors  []string
+		usedFallback   bool
 	)
 	for i, backend := range chain {
 		attemptedNames = append(attemptedNames, backend.Name())

@@ -4,7 +4,7 @@
 
 172 endpoints across the v2 reference (Tasks, Spaces, Folders, Lists, Goals, Time Tracking, Webhooks, Comments, Custom Fields, Members, Templates, Views) and the v3 public API (Chat, Docs, Audit Logs, ACLs). Hierarchical sync walks the full workspace tree into local SQLite for offline search and analytics. Top-level `docs` and `chat` commands give you idiomatic verbs without remembering the workspaces/<verb>-public spec path.
 
-Printed by [@kjmagnan1s](https://github.com/kjmagnan1s) (Kevin Magnan).
+Created by [@kjmagnan1s](https://github.com/kjmagnan1s) (Kevin Magnan).
 
 ## Install
 

@@ -5,6 +5,10 @@
   "api_name": "booking-com",
   "display_name": "Booking.com",
   "cli_name": "booking-com-pp-cli",
+  "creator": {
+    "handle": "mvanhorn",
+    "name": "Matt Van Horn"
+  },
   "owner": "mvanhorn",
   "printer": "mvanhorn",
   "printer_name": "Matt Van Horn",

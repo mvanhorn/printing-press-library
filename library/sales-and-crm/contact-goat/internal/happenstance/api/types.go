@@ -1,4 +1,4 @@
-// Copyright 2026 matt-van-horn. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Matt Van Horn and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // Package api provides a bearer-auth Go client for the Happenstance public
 // REST API at https://api.happenstance.ai/v1. It is a peer to (not a
@@ -69,14 +69,14 @@ func (e *RateLimitError) Error() string {
 // responses when the request sets include_friends_connections or
 // include_my_connections. Empty for cookie-surface responses.
 type SearchEnvelope struct {
-	Id       string          `json:"id"`
-	URL      string          `json:"url,omitempty"`
-	Status   string          `json:"status,omitempty"`
-	Text     string          `json:"text,omitempty"`
-	Mutuals  []SearchMutual  `json:"mutuals,omitempty"`
-	Results  []SearchResult  `json:"results,omitempty"`
-	HasMore  bool            `json:"has_more,omitempty"`
-	NextPage string          `json:"next_page,omitempty"`
+	Id       string         `json:"id"`
+	URL      string         `json:"url,omitempty"`
+	Status   string         `json:"status,omitempty"`
+	Text     string         `json:"text,omitempty"`
+	Mutuals  []SearchMutual `json:"mutuals,omitempty"`
+	Results  []SearchResult `json:"results,omitempty"`
+	HasMore  bool           `json:"has_more,omitempty"`
+	NextPage string         `json:"next_page,omitempty"`
 }
 
 // SearchMutual is one row of SearchEnvelope.Mutuals. Each entry names a

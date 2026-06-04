@@ -5,6 +5,10 @@
   "api_name": "lunch-money",
   "display_name": "Lunch Money",
   "cli_name": "lunch-money-pp-cli",
+  "creator": {
+    "handle": "salmonumbrella",
+    "name": "salmonumbrella"
+  },
   "owner": "salmonumbrella",
   "printer_name": "salmonumbrella",
   "spec_format": "openapi3",

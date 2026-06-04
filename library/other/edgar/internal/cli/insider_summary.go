@@ -1,4 +1,4 @@
-// Copyright 2026 magoo242. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 magoo242 and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // `edgar-pp-cli insider-summary <TICKER>` — Form 4 aggregation with
 // senior-officer flagging and code-S (discretionary sale) vs code-F (RSU tax

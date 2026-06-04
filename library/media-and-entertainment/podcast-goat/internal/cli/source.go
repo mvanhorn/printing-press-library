@@ -1,4 +1,4 @@
-// Copyright 2026 mvanhorn. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Matt Van Horn and contributors. Licensed under Apache-2.0. See LICENSE.
 // PATCH: v0.1 `source compare` — fan out to every matching adapter, print diff.
 
 package cli
@@ -68,15 +68,15 @@ func newSourceCompareCmd(flags *rootFlags) *cobra.Command {
 			}
 			url := args[0]
 			type row struct {
-				Adapter    string                        `json:"adapter"`
-				Tier       string                        `json:"tier"`
-				Status     string                        `json:"status"`
-				Reason     string                        `json:"reason,omitempty"`
-				Segments   int                           `json:"segment_count"`
-				Tokens     int                           `json:"token_estimate"`
-				Speakers   []string                      `json:"speakers,omitempty"`
-				CostCredit float64                       `json:"cost_credits,omitempty"`
-				Transcript *transcript.Transcript        `json:"-"`
+				Adapter    string                 `json:"adapter"`
+				Tier       string                 `json:"tier"`
+				Status     string                 `json:"status"`
+				Reason     string                 `json:"reason,omitempty"`
+				Segments   int                    `json:"segment_count"`
+				Tokens     int                    `json:"token_estimate"`
+				Speakers   []string               `json:"speakers,omitempty"`
+				CostCredit float64                `json:"cost_credits,omitempty"`
+				Transcript *transcript.Transcript `json:"-"`
 			}
 			var rows []row
 			for _, a := range dispatch.Registered() {

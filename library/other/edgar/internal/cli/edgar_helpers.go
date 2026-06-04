@@ -1,4 +1,4 @@
-// Copyright 2026 magoo242. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 magoo242 and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // Hand-built EDGAR utilities: CIK/accession normalization, ticker→CIK
 // resolution against company_tickers.json with 24h cache, primary-doc body

@@ -84,8 +84,24 @@ type RegistryEntry struct {
 	// Sourced from .printing-press.json's `printer_name` field. Empty
 	// values are valid; the per-CLI README byline renders without a
 	// parenthetical and the catalog row renders only the @handle.
-	PrinterName string    `json:"printer_name,omitempty"`
-	MCP         *MCPBlock `json:"mcp,omitempty"`
+	PrinterName string `json:"printer_name,omitempty"`
+	// Creator is the permanent original author (handle + display name),
+	// sourced from .printing-press.json's `creator` object. It supersedes
+	// the legacy printer/printer_name fields, which are still emitted during
+	// the dual-write transition window so older consumers keep working.
+	Creator *Person `json:"creator,omitempty"`
+	// Contributors accrue as others improve a CLI (reprinter first), sourced
+	// from .printing-press.json's `contributors` array.
+	Contributors []Person  `json:"contributors,omitempty"`
+	MCP          *MCPBlock `json:"mcp,omitempty"`
+}
+
+// Person is one credited human (creator or contributor): a slug-safe GitHub
+// @handle plus a prose display name. Mirrors the generator's spec.Person and
+// the .printing-press.json shape.
+type Person struct {
+	Handle string `json:"handle,omitempty"`
+	Name   string `json:"name,omitempty"`
 }
 
 // MCPBlock matches the on-disk shape of registry.json's mcp object.
@@ -119,6 +135,8 @@ type printingPressManifest struct {
 	APIName            string   `json:"api_name"`
 	DisplayName        string   `json:"display_name"`
 	Description        string   `json:"description"`
+	Creator            *Person  `json:"creator"`
+	Contributors       []Person `json:"contributors"`
 	Printer            string   `json:"printer"`
 	PrinterName        string   `json:"printer_name"`
 	CLIName            string   `json:"cli_name"`
@@ -371,6 +389,11 @@ func buildEntry(dir, category, slug string, existing map[string]RegistryEntry) (
 		// emit registry entries with omitempty (no printer key).
 		Printer:     pp.Printer,
 		PrinterName: pp.PrinterName,
+		// Creator + contributors: same manifest-is-source-of-truth rule.
+		// Emitted alongside the legacy printer fields during the dual-write
+		// transition; both come straight from .printing-press.json.
+		Creator:      pp.Creator,
+		Contributors: pp.Contributors,
 	}
 
 	// Description preference: existing registry value (curated) > goreleaser
@@ -722,6 +745,16 @@ func isStaleAPIValue(prior, displayName, slug string) bool {
 	if prior == titleCaseSlug(slug) {
 		return true
 	}
+	// A "PP "-prefixed prior is a printing-press infix artifact when the
+	// prior is exactly "PP " + the tail of the corrected display_name
+	// (e.g. prior="PP Clarity", display="Microsoft Clarity", tail="Clarity").
+	// Scoping to that structural match supersedes the leaked prefix while
+	// leaving a legitimately curated brand that merely starts with "PP "
+	// (e.g. "PP Labs") untouched when the display_name doesn't share its tail.
+	if strings.HasPrefix(prior, "PP ") && !strings.HasPrefix(displayName, "PP ") &&
+		strings.HasSuffix(displayName, strings.TrimPrefix(prior, "PP ")) {
+		return true
+	}
 	if strings.HasSuffix(displayName, " "+prior) && !strings.Contains(prior, " ") {
 		return true
 	}
@@ -955,17 +988,22 @@ func renderCatalogTable(entries []RegistryEntry) string {
 }
 
 // printerSuffix returns the markdown suffix that visibly credits the
-// printer in the catalog row's description cell. Renders as
-// `<br><sub>Printed by @handle</sub>` when a Printer is set; empty
-// otherwise. Folded into the description cell rather than added as a
-// new column to avoid widening the existing 4-column table (every
-// entry has a description; not every entry has a printer until the
-// backfill follow-up issue ships).
+// printer in the catalog row's description cell. Renders the prose
+// display name when one is set and links it to the GitHub handle stored
+// in Printer; falls back to `@handle` when no display name is present.
+// Folded into the description cell rather than added as a new column to
+// avoid widening the existing 4-column table (every entry has a
+// description; not every entry has a printer until the backfill
+// follow-up issue ships).
 func printerSuffix(e RegistryEntry) string {
 	if e.Printer == "" {
 		return ""
 	}
-	return fmt.Sprintf("<br><sub>Printed by [@%s](https://github.com/%s)</sub>", e.Printer, e.Printer)
+	label := strings.TrimSpace(e.PrinterName)
+	if label == "" {
+		label = "@" + e.Printer
+	}
+	return fmt.Sprintf("<br><sub>Printed by [%s](https://github.com/%s)</sub>", label, e.Printer)
 }
 
 // renderCatalogCounts returns the "N CLIs across M categories." line

@@ -4,7 +4,7 @@
 
 A read-only CLI for the company directory and jobs board at americanreindustrialization.com. Sync once, then run cross-entity queries (jobs at robotics companies in TX, sector × state heatmaps, funding × sector crosstabs, week-over-week diffs) entirely offline, with agent-native JSON and a local SQLite surface no view on the website exposes.
 
-Printed by [@tmchow](https://github.com/tmchow) (Trevin Chow).
+Created by [@tmchow](https://github.com/tmchow) (Trevin Chow).
 
 ## Install
 

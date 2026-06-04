@@ -1,4 +1,4 @@
-// Copyright 2026 ChrisDrit. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Chris Drit and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // Package flightgoat is a thin subprocess wrapper around flight-goat-pp-cli.
 // airframe uses it to resolve a commercial flight ident (e.g., "UA1234") to

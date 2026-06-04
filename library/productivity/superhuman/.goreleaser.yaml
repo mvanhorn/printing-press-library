@@ -1,0 +1,51 @@
+version: 2
+project_name: superhuman-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: superhuman-pp-cli
+    main: ./cmd/superhuman-pp-cli
+    binary: superhuman-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/productivity/superhuman/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: superhuman-pp-mcp
+    main: ./cmd/superhuman-pp-mcp
+    binary: superhuman-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: superhuman-pp-cli
+    repository:
+      owner: mvanhorn
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "The Superhuman CLI that doesn't log you out, with a local inbox, agent-native I/O, and triage rules the web app..."
+    install: |
+      bin.install "superhuman-pp-cli"
+      bin.install "superhuman-pp-mcp"

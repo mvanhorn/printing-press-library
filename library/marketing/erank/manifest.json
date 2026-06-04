@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "erank-pp-mcp",
+  "display_name": "eRank",
+  "version": "4.19.0",
+  "description": "Keyword Tool data from eRank, plus local scoring, drift, and listing-gap analysis for Etsy sellers.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/erank-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/erank-pp-mcp",
+      "args": [],
+      "env": {
+        "ERANK_XSRF_TOKEN": "${user_config.erank_xsrf_token}"
+      }
+    }
+  },
+  "user_config": {
+    "erank_xsrf_token": {
+      "type": "string",
+      "title": "ERANK_XSRF_TOKEN",
+      "description": "XSRF token captured from a logged-in eRank browser session.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

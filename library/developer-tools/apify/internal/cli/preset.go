@@ -103,11 +103,11 @@ Examples:
 				return apiErr(fmt.Errorf("saving preset: %w", err))
 			}
 			return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
-				"name":      name,
-				"actor":     actor,
-				"bytes":     len(data),
-				"from_run":  fromRun,
-				"saved_at":  time.Now().UTC().Format(time.RFC3339),
+				"name":     name,
+				"actor":    actor,
+				"bytes":    len(data),
+				"from_run": fromRun,
+				"saved_at": time.Now().UTC().Format(time.RFC3339),
 			}, flags)
 		},
 	}
@@ -182,9 +182,9 @@ func newPresetListCmd(flags *rootFlags) *cobra.Command {
 func newPresetShowCmd(flags *rootFlags) *cobra.Command {
 	var actor string
 	cmd := &cobra.Command{
-		Use:   "show <name>",
-		Short: "Print one preset's input JSON",
-		Args:  cobra.MaximumNArgs(1),
+		Use:         "show <name>",
+		Short:       "Print one preset's input JSON",
+		Args:        cobra.MaximumNArgs(1),
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

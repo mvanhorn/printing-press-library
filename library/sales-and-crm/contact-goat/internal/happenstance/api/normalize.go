@@ -1,4 +1,4 @@
-// Copyright 2026 matt-van-horn. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Matt Van Horn and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // This file is the single seam where the Happenstance public-API response
 // shape becomes the canonical client.Person consumed by every renderer in
@@ -119,17 +119,17 @@ func ToClientPersonWithBridges(r SearchResult, envelopeMutuals []SearchMutual, c
 // than ToClientPerson does:
 //
 //   - Name          <- displayName (the public-API research response
-//                     does NOT echo back the subject's name; the caller
-//                     knows it because the caller submitted the prose
-//                     description that named the subject in the first
-//                     place. Passing it in here keeps the normalizer
-//                     pure — it never invents a name from prose).
+//     does NOT echo back the subject's name; the caller
+//     knows it because the caller submitted the prose
+//     description that named the subject in the first
+//     place. Passing it in here keeps the normalizer
+//     pure — it never invents a name from prose).
 //   - CurrentTitle  <- ResearchProfile.Employment[0].Title
 //   - CurrentCompany<- ResearchProfile.Employment[0].Company
 //   - Quotes        <- ResearchProfile.Summary (the canonical Person's
-//                     Quotes field is freeform prose on the cookie
-//                     surface; the research endpoint's Summary is the
-//                     closest analog).
+//     Quotes field is freeform prose on the cookie
+//     surface; the research endpoint's Summary is the
+//     closest analog).
 //
 // Empty Employment is safe: the function leaves CurrentTitle and
 // CurrentCompany at "" rather than panicking on a zero-length-slice

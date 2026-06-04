@@ -1,4 +1,4 @@
-// Copyright 2026 matt-van-horn. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Matt Van Horn and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // api_hpn_search.go: `api hpn search` and its sub-subcommands
 // (find-more, get). Each spends Happenstance credits, so the cost-preview
@@ -84,9 +84,9 @@ func newAPIHpnSearchCmd(flags *rootFlags) *cobra.Command {
 	)
 
 	cmd := &cobra.Command{
-		Use:   "search <text>",
+		Use:         "search <text>",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short: "Run a Happenstance search via the public API (costs 2 credits)",
+		Short:       "Run a Happenstance search via the public API (costs 2 credits)",
 		Long: `Run a search against the Happenstance public API.
 
 Costs 2 credits per call. The cost preview prints before the call goes
@@ -213,9 +213,9 @@ for the rationale and observed ranges.`,
 func newAPIHpnSearchFindMoreCmd(flags *rootFlags) *cobra.Command {
 	var budget int
 	cmd := &cobra.Command{
-		Use:   "find-more <search_id>",
+		Use:         "find-more <search_id>",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short: "Fetch the next page of an existing search (costs 2 credits)",
+		Short:       "Fetch the next page of an existing search (costs 2 credits)",
 		Long: `Calls POST /v1/search/{id}/find-more on a parent search. Returns the
 new page id; use it on a follow-up ` + "`api hpn search get <id> --page-id <page_id>`" + `
 to fetch the additional results.
@@ -278,9 +278,9 @@ as ` + "`api hpn search`" + `.`,
 func newAPIHpnSearchGetCmd(flags *rootFlags) *cobra.Command {
 	var pageID string
 	cmd := &cobra.Command{
-		Use:   "get <search_id>",
+		Use:         "get <search_id>",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short: "Re-fetch an existing search by id (free)",
+		Short:       "Re-fetch an existing search by id (free)",
 		Long: `Calls GET /v1/search/{id} and renders the envelope in the same shape
 as ` + "`api hpn search`" + `. Free probe — no credits spent. Pass --page-id when
 re-fetching after a find-more call to surface the additional results.`,

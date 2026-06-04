@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "applied_at": "2026-05-08",
+  "applied_at": "2026-05-28",
   "base_run_id": "2026-05-06T17:12:38.566433Z",
   "base_printing_press_version": "3.10.0",
   "patches": [
@@ -13,6 +13,48 @@
       ],
       "validated_outcome": "go test ./internal/cli -run TestPaginatedGetFollowsNestedNextTokenAndCollectsResourceArray -count=1",
       "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/pull/731"
+    },
+    {
+      "id": "amazon-seller-novel-computed-commands",
+      "summary": "Add Amazon Seller novel computed report commands for profitability, inventory, sales, brand analytics, listing, and account health insights.",
+      "reason": "The published Amazon Seller CLI needs curated multi-report computations that go beyond one-to-one SP-API endpoint wrappers while preserving the existing output and local SQLite conventions.",
+      "files": [
+        "internal/cli/root.go",
+        "internal/cli/novel_report_helpers.go",
+        "internal/cli/novel_store.go",
+        "internal/cli/novel_profitability.go",
+        "internal/cli/novel_inventory.go",
+        "internal/cli/novel_sales.go",
+        "internal/cli/novel_search_terms.go",
+        "internal/cli/novel_listings.go",
+        "internal/cli/novel_account.go",
+        "internal/cli/novel_amazon_seller_test.go",
+        "SKILL.md"
+      ],
+      "validated_outcome": "go test ./..."
+    },
+    {
+      "id": "amazon-seller-inbound-plans-workflow",
+      "summary": "Add Fulfillment Inbound v2024-03-20 inbound plan creation, polling, inspection, cancellation, and option workflow commands.",
+      "reason": "Amazon Seller users need a safe terminal workflow for FBA inbound plans, including CSV-to-request conversion, raw JSON passthrough, async operation polling, and guarded confirmation operations.",
+      "files": [
+        "internal/cli/root.go",
+        "internal/cli/inbound_plans.go",
+        "internal/cli/inbound_plans_test.go",
+        "internal/cli/which.go",
+        "SKILL.md"
+      ],
+      "validated_outcome": "go test ./...; go vet ./...; verify-skill; Amazon static sandbox smoke passed for create/status/list/get/cancel, packing, placement, transportation list, and transportation confirm. Static sandbox rejected generateTransportationOptions with InvalidInput even with the official model fixture body."
+    },
+    {
+      "id": "amazon-seller-novel-review-followup",
+      "summary": "Address review findings in Amazon Seller novel profitability and account-health computations.",
+      "reason": "Storage fee rollups must not let nullable fee components undercount SKU P&L, and account health must not silently report zero active listings when the listings query fails.",
+      "files": [
+        "internal/cli/novel_profitability.go",
+        "internal/cli/novel_account.go"
+      ],
+      "validated_outcome": "go test ./..."
     }
   ]
 }

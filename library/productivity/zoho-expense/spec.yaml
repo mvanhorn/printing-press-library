@@ -1,0 +1,1308 @@
+name: zoho-expense
+display_name: Zoho Expense
+description: "Zoho Expense REST API CLI — receipt ingestion, expense tagging, monthly reports, and offline query"
+cli_description: "Upload receipts, tag expenses, and bundle monthly reports on Zoho Expense from the terminal"
+version: "0.1.0"
+base_url: "https://www.zohoapis.in/expense/v1"
+spec_source: official
+category: productivity
+website_url: "https://www.zoho.com/in/expense/"
+
+auth:
+  type: oauth2
+  oauth2_grant: authorization_code
+  header: "Authorization"
+  format: "Zoho-oauthtoken {token}"
+  authorization_url: "https://accounts.zoho.in/oauth/v2/auth"
+  token_url: "https://accounts.zoho.in/oauth/v2/token"
+  scopes:
+    - "ZohoExpense.fullaccess.ALL"
+  env_vars:
+    - ZOHO_EXPENSE_CLIENT_ID
+    - ZOHO_EXPENSE_CLIENT_SECRET
+    - ZOHO_EXPENSE_REFRESH_TOKEN
+  env_var_specs:
+    - name: ZOHO_EXPENSE_CLIENT_ID
+      kind: auth_flow_input
+      required: true
+      sensitive: false
+      description: "OAuth client ID from api-console.zoho.in self-client"
+    - name: ZOHO_EXPENSE_CLIENT_SECRET
+      kind: auth_flow_input
+      required: true
+      sensitive: true
+      description: "OAuth client secret from api-console.zoho.in self-client"
+    - name: ZOHO_EXPENSE_REFRESH_TOKEN
+      kind: harvested
+      required: true
+      sensitive: true
+      description: "Long-lived refresh token issued after exchanging a 10-min authorization code"
+    - name: ZOHO_EXPENSE_ORGANIZATION_ID
+      kind: per_call
+      required: true
+      sensitive: false
+      description: "Zoho Expense organization ID (sent as X-com-zoho-expense-organizationid header on every request)"
+  verify_path: "/organizations"
+  key_url: "https://api-console.zoho.in/"
+  instructions: |
+    1. Visit https://api-console.zoho.in/ and create a Self-Client
+    2. Set scope to ZohoExpense.fullaccess.ALL and click Create
+    3. Copy the 10-min authorization code
+    4. Run: zoho-expense-pp-cli auth login --client-id=... --client-secret=... --code=...
+    5. The CLI exchanges the code for a refresh token and stores it locally.
+
+config:
+  format: toml
+  path: "~/.config/zoho-expense-pp-cli/config.toml"
+
+mcp:
+  transport: [stdio, http]
+
+resources:
+  organizations:
+    description: "Zoho Expense organizations you have access to"
+    endpoints:
+      list:
+        method: GET
+        path: "/organizations"
+        description: "List organizations accessible to the authenticated user"
+        response:
+          type: array
+          item: Organization
+      get:
+        method: GET
+        path: "/organizations/{organization_id}"
+        description: "Get organization details"
+        params:
+          - name: organization_id
+            type: string
+            positional: true
+            required: true
+            description: "Organization ID"
+        response:
+          type: object
+          item: Organization
+
+  users:
+    description: "Manage users in the organization"
+    endpoints:
+      list:
+        method: GET
+        path: "/users"
+        description: "List users"
+        params:
+          - name: page
+            type: int
+            description: "Page number (default 1)"
+          - name: per_page
+            type: int
+            description: "Results per page (default 200, max 200)"
+        response:
+          type: array
+          item: User
+      get:
+        method: GET
+        path: "/users/{user_id}"
+        description: "Get a user"
+        params:
+          - name: user_id
+            type: string
+            positional: true
+            required: true
+            description: "User ID"
+        response:
+          type: object
+          item: User
+      me:
+        method: GET
+        path: "/users/me"
+        description: "Get the authenticated user's profile"
+        response:
+          type: object
+          item: User
+      invite:
+        method: POST
+        path: "/users"
+        description: "Invite a user into the org"
+        body:
+          - name: email_id
+            type: string
+            required: true
+            description: "User email address"
+          - name: name
+            type: string
+            description: "User display name"
+          - name: role_id
+            type: string
+            description: "Role ID to assign"
+        response:
+          type: object
+          item: User
+      update:
+        method: PUT
+        path: "/users/{user_id}"
+        description: "Update a user"
+        params:
+          - name: user_id
+            type: string
+            positional: true
+            required: true
+        body:
+          - name: name
+            type: string
+          - name: role_id
+            type: string
+        response:
+          type: object
+          item: User
+      delete:
+        method: DELETE
+        path: "/users/{user_id}"
+        description: "Delete a user"
+        params:
+          - name: user_id
+            type: string
+            positional: true
+            required: true
+      activate:
+        method: POST
+        path: "/users/{user_id}/active"
+        description: "Mark a user as active"
+        params:
+          - name: user_id
+            type: string
+            positional: true
+            required: true
+      deactivate:
+        method: POST
+        path: "/users/{user_id}/inactive"
+        description: "Mark a user as inactive"
+        params:
+          - name: user_id
+            type: string
+            positional: true
+            required: true
+
+  expenses:
+    description: "Expenses — the primary entity for an expense management CLI"
+    endpoints:
+      list:
+        method: GET
+        path: "/reports/expensedetails"
+        description: "List expenses with rich filters (date range, status, user, category, project)"
+        params:
+          - name: page
+            type: int
+            description: "Page number"
+          - name: per_page
+            type: int
+            description: "Results per page (default 200, max 200)"
+          - name: filter_by
+            type: string
+            description: "Status filter e.g. Status.All, Status.Unreported, Status.Reported"
+          - name: date_start
+            type: string
+            format: date
+            description: "Earliest expense date (YYYY-MM-DD)"
+          - name: date_end
+            type: string
+            format: date
+            description: "Latest expense date (YYYY-MM-DD)"
+          - name: user_id
+            type: string
+            description: "Filter by user ID"
+          - name: category_id
+            type: string
+            description: "Filter by expense category"
+          - name: customer_id
+            type: string
+            description: "Filter by customer/contact"
+          - name: project_id
+            type: string
+            description: "Filter by project"
+          - name: merchant_id
+            type: string
+            description: "Filter by merchant"
+        response:
+          type: array
+          item: Expense
+      get:
+        method: GET
+        path: "/expenses/{expense_id}"
+        description: "Get a single expense"
+        params:
+          - name: expense_id
+            type: string
+            positional: true
+            required: true
+            description: "Expense ID"
+        response:
+          type: object
+          item: Expense
+      create:
+        method: POST
+        path: "/expenses"
+        description: "Create an expense (JSON body — for receipt upload use 'receipt upload')"
+        body:
+          - name: amount
+            type: number
+            required: true
+            description: "Expense amount in the expense currency"
+          - name: expense_date
+            type: string
+            required: true
+            format: date
+            description: "Expense date (YYYY-MM-DD)"
+          - name: currency_id
+            type: string
+            description: "Currency ID; omit to use org default"
+          - name: exchange_rate
+            type: number
+            description: "Exchange rate to base currency"
+          - name: category_id
+            type: string
+            description: "Expense category ID"
+          - name: merchant_id
+            type: string
+            description: "Merchant ID"
+          - name: merchant_name
+            type: string
+            description: "Merchant name (creates merchant on the fly)"
+          - name: paid_through_account_id
+            type: string
+            description: "Account the expense was paid through"
+          - name: customer_id
+            type: string
+            description: "Customer this expense is for"
+          - name: project_id
+            type: string
+            description: "Project this expense belongs to"
+          - name: is_billable
+            type: bool
+            description: "Mark as billable to customer"
+          - name: is_reimbursable
+            type: bool
+            description: "Mark as reimbursable to user"
+          - name: is_inclusive_tax
+            type: bool
+            description: "Whether amount is tax-inclusive"
+          - name: tax_id
+            type: string
+            description: "Tax ID for this expense"
+          - name: reference_number
+            type: string
+            description: "Reference number / receipt number"
+          - name: description
+            type: string
+            description: "Free-form description / notes"
+        response:
+          type: object
+          item: Expense
+      update:
+        method: PUT
+        path: "/expenses/{expense_id}"
+        description: "Update an expense — used to add category/project/tags after autoscan"
+        params:
+          - name: expense_id
+            type: string
+            positional: true
+            required: true
+        body:
+          - name: amount
+            type: number
+            description: "Expense amount"
+          - name: expense_date
+            type: string
+            format: date
+          - name: currency_id
+            type: string
+          - name: category_id
+            type: string
+          - name: merchant_id
+            type: string
+          - name: merchant_name
+            type: string
+          - name: customer_id
+            type: string
+          - name: project_id
+            type: string
+          - name: is_billable
+            type: bool
+          - name: is_reimbursable
+            type: bool
+          - name: is_inclusive_tax
+            type: bool
+          - name: tax_id
+            type: string
+          - name: reference_number
+            type: string
+          - name: description
+            type: string
+        response:
+          type: object
+          item: Expense
+      merge:
+        method: POST
+        path: "/expenses/{expense_id}/merge"
+        description: "Merge multiple expenses (used to dedupe a scanned-receipt expense with a manual one)"
+        params:
+          - name: expense_id
+            type: string
+            positional: true
+            required: true
+            description: "Primary expense ID — others merge into this one"
+        body:
+          - name: expense_ids
+            type: array
+            description: "Other expense IDs to merge into the primary"
+
+  receipts:
+    description: "Upload receipts for autoscan"
+    endpoints:
+      upload:
+        method: POST
+        path: "/expenses"
+        description: "Upload a receipt file (multipart). Server queues for autoscan; poll `expenses get` for status."
+        body:
+          - name: receipt
+            type: file
+            required: true
+            description: "Receipt file (JPG, PNG, PDF; up to 5 MB)"
+
+  expense_categories:
+    description: "Expense categories used to classify expenses"
+    endpoints:
+      list:
+        method: GET
+        path: "/expensecategories"
+        description: "List expense categories"
+        params:
+          - name: page
+            type: int
+          - name: per_page
+            type: int
+        response:
+          type: array
+          item: ExpenseCategory
+      get:
+        method: GET
+        path: "/expensecategories/{category_id}"
+        description: "Get an expense category"
+        params:
+          - name: category_id
+            type: string
+            positional: true
+            required: true
+        response:
+          type: object
+          item: ExpenseCategory
+      create:
+        method: POST
+        path: "/expensecategories"
+        description: "Create an expense category"
+        body:
+          - name: name
+            type: string
+            required: true
+          - name: description
+            type: string
+          - name: account_id
+            type: string
+            description: "Linked accounting account"
+        response:
+          type: object
+          item: ExpenseCategory
+      update:
+        method: PUT
+        path: "/expensecategories/{category_id}"
+        description: "Update an expense category"
+        params:
+          - name: category_id
+            type: string
+            positional: true
+            required: true
+        body:
+          - name: name
+            type: string
+          - name: description
+            type: string
+        response:
+          type: object
+          item: ExpenseCategory
+      delete:
+        method: DELETE
+        path: "/expensecategories/{category_id}"
+        description: "Delete an expense category"
+        params:
+          - name: category_id
+            type: string
+            positional: true
+            required: true
+      enable:
+        method: POST
+        path: "/expensecategories/{category_id}/show"
+        description: "Enable a category"
+        params:
+          - name: category_id
+            type: string
+            positional: true
+            required: true
+      disable:
+        method: POST
+        path: "/expensecategories/{category_id}/hide"
+        description: "Disable a category"
+        params:
+          - name: category_id
+            type: string
+            positional: true
+            required: true
+
+  reporting_tags:
+    description: "Reporting tags (custom tagging schema for expenses, e.g. cost center, billable, GST treatment)"
+    endpoints:
+      list:
+        method: GET
+        path: "/reportingtags"
+        description: "List reporting tags"
+        response:
+          type: array
+          item: ReportingTag
+      get:
+        method: GET
+        path: "/reportingtags/{tag_id}"
+        description: "Get a reporting tag"
+        params:
+          - name: tag_id
+            type: string
+            positional: true
+            required: true
+        response:
+          type: object
+          item: ReportingTag
+      create:
+        method: POST
+        path: "/reportingtags"
+        description: "Create a reporting tag"
+        body:
+          - name: tag_name
+            type: string
+            required: true
+            description: "Tag name (e.g. 'Cost Center')"
+        response:
+          type: object
+          item: ReportingTag
+      update:
+        method: PUT
+        path: "/reportingtags/{tag_id}"
+        description: "Update a reporting tag"
+        params:
+          - name: tag_id
+            type: string
+            positional: true
+            required: true
+        body:
+          - name: tag_name
+            type: string
+      delete:
+        method: DELETE
+        path: "/reportingtags/{tag_id}"
+        description: "Delete a reporting tag"
+        params:
+          - name: tag_id
+            type: string
+            positional: true
+            required: true
+      activate:
+        method: POST
+        path: "/reportingtags/{tag_id}/active"
+        description: "Activate a reporting tag"
+        params:
+          - name: tag_id
+            type: string
+            positional: true
+            required: true
+      deactivate:
+        method: POST
+        path: "/reportingtags/{tag_id}/inactive"
+        description: "Deactivate a reporting tag"
+        params:
+          - name: tag_id
+            type: string
+            positional: true
+            required: true
+      list_options:
+        method: GET
+        path: "/reportingtags/{tag_id}/options/all"
+        description: "List all options for a reporting tag"
+        params:
+          - name: tag_id
+            type: string
+            positional: true
+            required: true
+
+  projects:
+    description: "Projects expenses can be associated with"
+    endpoints:
+      list:
+        method: GET
+        path: "/projects"
+        description: "List projects"
+        params:
+          - name: page
+            type: int
+          - name: per_page
+            type: int
+        response:
+          type: array
+          item: Project
+      get:
+        method: GET
+        path: "/projects/{project_id}"
+        description: "Get a project"
+        params:
+          - name: project_id
+            type: string
+            positional: true
+            required: true
+        response:
+          type: object
+          item: Project
+      create:
+        method: POST
+        path: "/projects"
+        description: "Create a project"
+        body:
+          - name: project_name
+            type: string
+            required: true
+          - name: customer_id
+            type: string
+            description: "Linked customer"
+          - name: description
+            type: string
+        response:
+          type: object
+          item: Project
+      update:
+        method: PUT
+        path: "/projects/{project_id}"
+        description: "Update a project"
+        params:
+          - name: project_id
+            type: string
+            positional: true
+            required: true
+        body:
+          - name: project_name
+            type: string
+          - name: customer_id
+            type: string
+          - name: description
+            type: string
+      delete:
+        method: DELETE
+        path: "/projects/{project_id}"
+        description: "Delete a project"
+        params:
+          - name: project_id
+            type: string
+            positional: true
+            required: true
+      activate:
+        method: POST
+        path: "/projects/{project_id}/active"
+        description: "Mark a project active"
+        params:
+          - name: project_id
+            type: string
+            positional: true
+            required: true
+      deactivate:
+        method: POST
+        path: "/projects/{project_id}/inactive"
+        description: "Mark a project inactive"
+        params:
+          - name: project_id
+            type: string
+            positional: true
+            required: true
+
+  customers:
+    description: "Customers (contacts) expenses can be billed to"
+    endpoints:
+      list:
+        method: GET
+        path: "/contacts"
+        description: "List customers"
+        params:
+          - name: page
+            type: int
+          - name: per_page
+            type: int
+        response:
+          type: array
+          item: Customer
+      get:
+        method: GET
+        path: "/contacts/{customer_id}"
+        description: "Get a customer"
+        params:
+          - name: customer_id
+            type: string
+            positional: true
+            required: true
+        response:
+          type: object
+          item: Customer
+      create:
+        method: POST
+        path: "/contacts"
+        description: "Create a customer"
+        body:
+          - name: contact_name
+            type: string
+            required: true
+          - name: company_name
+            type: string
+          - name: email
+            type: string
+          - name: phone
+            type: string
+        response:
+          type: object
+          item: Customer
+      update:
+        method: PUT
+        path: "/contacts/{customer_id}"
+        description: "Update a customer"
+        params:
+          - name: customer_id
+            type: string
+            positional: true
+            required: true
+        body:
+          - name: contact_name
+            type: string
+          - name: company_name
+            type: string
+          - name: email
+            type: string
+          - name: phone
+            type: string
+      delete:
+        method: DELETE
+        path: "/contacts/{customer_id}"
+        description: "Delete a customer"
+        params:
+          - name: customer_id
+            type: string
+            positional: true
+            required: true
+
+  expense_reports:
+    description: "Expense reports — bundles of expenses submitted for approval and reimbursement"
+    endpoints:
+      list:
+        method: GET
+        path: "/expensereports"
+        description: "List expense reports"
+        params:
+          - name: page
+            type: int
+          - name: per_page
+            type: int
+          - name: filter_by
+            type: string
+            description: "Status filter (e.g. Status.All, Status.Draft, Status.Submitted, Status.Approved)"
+        response:
+          type: array
+          item: ExpenseReport
+      get:
+        method: GET
+        path: "/expensereports/{report_id}"
+        description: "Get an expense report (includes attached expenses)"
+        params:
+          - name: report_id
+            type: string
+            positional: true
+            required: true
+        response:
+          type: object
+          item: ExpenseReport
+      create:
+        method: POST
+        path: "/expensereports"
+        description: "Create an expense report"
+        body:
+          - name: report_name
+            type: string
+            required: true
+          - name: report_date
+            type: string
+            format: date
+          - name: business_purpose
+            type: string
+            description: "Why the report exists (e.g. 'October 2026 expenses')"
+          - name: expense_ids
+            type: array
+            description: "Expense IDs to attach"
+        response:
+          type: object
+          item: ExpenseReport
+      update:
+        method: PUT
+        path: "/expensereports/{report_id}"
+        description: "Update an expense report — used to attach more expenses"
+        params:
+          - name: report_id
+            type: string
+            positional: true
+            required: true
+        body:
+          - name: report_name
+            type: string
+          - name: business_purpose
+            type: string
+          - name: expense_ids
+            type: array
+            description: "Replacement list of attached expense IDs"
+        response:
+          type: object
+          item: ExpenseReport
+      approve:
+        method: POST
+        path: "/expensereports/{report_id}/approve"
+        description: "Approve an expense report"
+        params:
+          - name: report_id
+            type: string
+            positional: true
+            required: true
+      reject:
+        method: POST
+        path: "/expensereports/{report_id}/reject"
+        description: "Reject an expense report"
+        params:
+          - name: report_id
+            type: string
+            positional: true
+            required: true
+        body:
+          - name: comments
+            type: string
+            description: "Rejection reason"
+      reimburse:
+        method: POST
+        path: "/expensereports/{report_id}/reimburse"
+        description: "Mark an expense report as reimbursed"
+        params:
+          - name: report_id
+            type: string
+            positional: true
+            required: true
+      approval_history:
+        method: GET
+        path: "/expensereports/{report_id}/approvalhistory"
+        description: "View the approval history of a report"
+        params:
+          - name: report_id
+            type: string
+            positional: true
+            required: true
+
+  trips:
+    description: "Business trips that group related expenses"
+    endpoints:
+      list:
+        method: GET
+        path: "/trips"
+        description: "List trips"
+        params:
+          - name: page
+            type: int
+          - name: per_page
+            type: int
+        response:
+          type: array
+          item: Trip
+      get:
+        method: GET
+        path: "/trips/{trip_id}"
+        description: "Get a trip"
+        params:
+          - name: trip_id
+            type: string
+            positional: true
+            required: true
+        response:
+          type: object
+          item: Trip
+      create:
+        method: POST
+        path: "/trips"
+        description: "Create a trip"
+        body:
+          - name: trip_name
+            type: string
+            required: true
+          - name: from_date
+            type: string
+            format: date
+          - name: to_date
+            type: string
+            format: date
+          - name: destination
+            type: string
+          - name: purpose
+            type: string
+        response:
+          type: object
+          item: Trip
+      update:
+        method: PUT
+        path: "/trips/{trip_id}"
+        description: "Update a trip"
+        params:
+          - name: trip_id
+            type: string
+            positional: true
+            required: true
+        body:
+          - name: trip_name
+            type: string
+          - name: from_date
+            type: string
+          - name: to_date
+            type: string
+          - name: destination
+            type: string
+          - name: purpose
+            type: string
+      delete:
+        method: DELETE
+        path: "/trips/{trip_id}"
+        description: "Delete a trip"
+        params:
+          - name: trip_id
+            type: string
+            positional: true
+            required: true
+      approve:
+        method: POST
+        path: "/trips/{trip_id}/approve"
+        description: "Approve a trip"
+        params:
+          - name: trip_id
+            type: string
+            positional: true
+            required: true
+      reject:
+        method: POST
+        path: "/trips/{trip_id}/reject"
+        description: "Reject a trip"
+        params:
+          - name: trip_id
+            type: string
+            positional: true
+            required: true
+      cancel:
+        method: POST
+        path: "/trips/{trip_id}/cancel"
+        description: "Cancel a trip"
+        params:
+          - name: trip_id
+            type: string
+            positional: true
+            required: true
+      close:
+        method: POST
+        path: "/trips/{trip_id}/close"
+        description: "Close a trip (no further expenses can be added)"
+        params:
+          - name: trip_id
+            type: string
+            positional: true
+            required: true
+
+  currencies:
+    description: "Currencies and exchange rates"
+    endpoints:
+      list:
+        method: GET
+        path: "/settings/currencies"
+        description: "List currencies configured in the org"
+        response:
+          type: array
+          item: Currency
+      get:
+        method: GET
+        path: "/settings/currencies/{currency_id}"
+        description: "Get a currency"
+        params:
+          - name: currency_id
+            type: string
+            positional: true
+            required: true
+        response:
+          type: object
+          item: Currency
+      create:
+        method: POST
+        path: "/settings/currencies"
+        description: "Add a currency to the org"
+        body:
+          - name: currency_code
+            type: string
+            required: true
+            description: "ISO currency code (e.g. USD, INR)"
+          - name: exchange_rate
+            type: number
+            description: "Initial exchange rate to base currency"
+        response:
+          type: object
+          item: Currency
+      update:
+        method: PUT
+        path: "/settings/currencies/{currency_id}"
+        description: "Update a currency"
+        params:
+          - name: currency_id
+            type: string
+            positional: true
+            required: true
+        body:
+          - name: exchange_rate
+            type: number
+      delete:
+        method: DELETE
+        path: "/settings/currencies/{currency_id}"
+        description: "Delete a currency"
+        params:
+          - name: currency_id
+            type: string
+            positional: true
+            required: true
+
+  taxes:
+    description: "Taxes (GST in India) applied to expenses"
+    endpoints:
+      list:
+        method: GET
+        path: "/settings/taxes"
+        description: "List taxes"
+        response:
+          type: array
+          item: Tax
+      get:
+        method: GET
+        path: "/settings/taxes/{tax_id}"
+        description: "Get a tax"
+        params:
+          - name: tax_id
+            type: string
+            positional: true
+            required: true
+        response:
+          type: object
+          item: Tax
+      create:
+        method: POST
+        path: "/settings/taxes"
+        description: "Create a tax"
+        body:
+          - name: tax_name
+            type: string
+            required: true
+          - name: tax_percentage
+            type: number
+            required: true
+          - name: tax_type
+            type: string
+            description: "tax | tax_group"
+        response:
+          type: object
+          item: Tax
+      update:
+        method: PUT
+        path: "/settings/taxes/{tax_id}"
+        description: "Update a tax"
+        params:
+          - name: tax_id
+            type: string
+            positional: true
+            required: true
+        body:
+          - name: tax_name
+            type: string
+          - name: tax_percentage
+            type: number
+      delete:
+        method: DELETE
+        path: "/settings/taxes/{tax_id}"
+        description: "Delete a tax"
+        params:
+          - name: tax_id
+            type: string
+            positional: true
+            required: true
+
+extra_commands:
+  - name: "auth login"
+    description: "Exchange a 10-min self-client authorization code for a refresh token (India region)"
+  - name: "auth refresh"
+    description: "Force-refresh the access token using the stored refresh token"
+  - name: "auth status"
+    description: "Show token validity, organization, and connected account"
+  - name: "org use"
+    args: "<organization_id>"
+    description: "Set the active organization for subsequent commands"
+  - name: "receipt upload"
+    args: "<file>"
+    description: "Upload a receipt file, poll until autoscan completes, return the populated expense (the Hermes hot path)"
+  - name: "invoice ingest"
+    args: "<dir-or-file>"
+    description: "Batch upload invoices from a directory with hash dedup, parallel autoscan polling, and auto-tag from local merchant→category memory"
+  - name: "expense tag"
+    args: "<expense_id>"
+    description: "Tag an expense with category, project, customer, billable flag, reporting tags via flags (--category, --project, --tag name=option)"
+  - name: "expense untagged"
+    description: "List expenses missing a category (typically scanned receipts awaiting tagging)"
+  - name: "close"
+    description: "Close out a month: bundle unreported expenses for the month, alert on still-processing autoscans and untagged items, create/submit the report"
+  - name: "merchant list"
+    description: "List merchants synthesized from local expense history with learned category mapping"
+  - name: "merchant map"
+    args: "<merchant>"
+    description: "Train the local merchant→category/project mapping for future auto-tag"
+  - name: "gst-split"
+    args: "<expense_id>"
+    description: "India-specific: parse tax_id and line items, compute CGST/SGST/IGST split, emit the breakdown"
+  - name: "sync"
+    description: "Sync expenses, categories, reporting tags, projects, customers into the local SQLite store"
+  - name: "search"
+    args: "<query>"
+    description: "Full-text search across synced expenses (merchant, description, line items, reference numbers)"
+  - name: "stale"
+    description: "Show what local data is older than configured staleness thresholds and would benefit from a sync"
+  - name: "doctor"
+    description: "Check auth, region, organization, and API reachability"
+
+types:
+  Organization:
+    fields:
+      - name: organization_id
+        type: string
+      - name: name
+        type: string
+      - name: country_code
+        type: string
+      - name: base_currency_code
+        type: string
+      - name: time_zone
+        type: string
+      - name: plan_name
+        type: string
+      - name: is_default_org
+        type: bool
+
+  User:
+    fields:
+      - name: user_id
+        type: string
+      - name: email_id
+        type: string
+      - name: name
+        type: string
+      - name: status
+        type: string
+      - name: role_id
+        type: string
+      - name: role_name
+        type: string
+      - name: department
+        type: string
+
+  Expense:
+    fields:
+      - name: expense_id
+        type: string
+      - name: reference_number
+        type: string
+      - name: amount
+        type: number
+      - name: total
+        type: number
+      - name: bcy_total
+        type: number
+      - name: currency_id
+        type: string
+      - name: currency_code
+        type: string
+      - name: exchange_rate
+        type: number
+      - name: expense_date
+        type: string
+      - name: category_id
+        type: string
+      - name: category_name
+        type: string
+      - name: merchant_id
+        type: string
+      - name: merchant_name
+        type: string
+      - name: customer_id
+        type: string
+      - name: customer_name
+        type: string
+      - name: project_id
+        type: string
+      - name: project_name
+        type: string
+      - name: is_billable
+        type: bool
+      - name: is_reimbursable
+        type: bool
+      - name: is_inclusive_tax
+        type: bool
+      - name: tax_id
+        type: string
+      - name: tax_name
+        type: string
+      - name: tax_percentage
+        type: number
+      - name: description
+        type: string
+      - name: status
+        type: string
+      - name: autoscan_status
+        type: string
+      - name: user_id
+        type: string
+      - name: report_id
+        type: string
+      - name: report_name
+        type: string
+      - name: created_time
+        type: string
+      - name: last_modified_time
+        type: string
+
+  ExpenseCategory:
+    fields:
+      - name: category_id
+        type: string
+      - name: name
+        type: string
+      - name: description
+        type: string
+      - name: account_id
+        type: string
+      - name: account_name
+        type: string
+      - name: is_active
+        type: bool
+
+  ReportingTag:
+    fields:
+      - name: tag_id
+        type: string
+      - name: tag_name
+        type: string
+      - name: is_active
+        type: bool
+
+  Project:
+    fields:
+      - name: project_id
+        type: string
+      - name: project_name
+        type: string
+      - name: customer_id
+        type: string
+      - name: customer_name
+        type: string
+      - name: description
+        type: string
+      - name: status
+        type: string
+
+  Customer:
+    fields:
+      - name: customer_id
+        type: string
+      - name: contact_name
+        type: string
+      - name: company_name
+        type: string
+      - name: email
+        type: string
+      - name: phone
+        type: string
+
+  ExpenseReport:
+    fields:
+      - name: report_id
+        type: string
+      - name: report_name
+        type: string
+      - name: report_date
+        type: string
+      - name: business_purpose
+        type: string
+      - name: report_number
+        type: string
+      - name: status
+        type: string
+      - name: total
+        type: number
+      - name: currency_code
+        type: string
+      - name: user_id
+        type: string
+      - name: created_time
+        type: string
+
+  Trip:
+    fields:
+      - name: trip_id
+        type: string
+      - name: trip_name
+        type: string
+      - name: from_date
+        type: string
+      - name: to_date
+        type: string
+      - name: destination
+        type: string
+      - name: purpose
+        type: string
+      - name: status
+        type: string
+
+  Currency:
+    fields:
+      - name: currency_id
+        type: string
+      - name: currency_code
+        type: string
+      - name: currency_name
+        type: string
+      - name: exchange_rate
+        type: number
+      - name: is_base_currency
+        type: bool
+
+  Tax:
+    fields:
+      - name: tax_id
+        type: string
+      - name: tax_name
+        type: string
+      - name: tax_percentage
+        type: number
+      - name: tax_type
+        type: string
+
+cache:
+  enabled: true
+  stale_after: 168h

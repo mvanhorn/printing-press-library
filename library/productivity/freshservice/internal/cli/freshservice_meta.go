@@ -1,4 +1,4 @@
-// Copyright 2026 mark-van-de-ven. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Mark van de Ven and contributors. Licensed under Apache-2.0. See LICENSE.
 //
 // PATCH(freshservice-novel-commands): tenant-specific code→label resolver
 // (Status/Priority/Type/Source/Urgency/Impact) backed by the synced
@@ -21,13 +21,13 @@ import (
 // impact) with friendly labels when the user has run sync, and fall back to
 // the bare integer string when they haven't.
 type TenantMeta struct {
-	Status    map[int]string
-	Priority  map[int]string
-	Type      map[int]string
-	Source    map[int]string
-	Urgency   map[int]string
-	Impact    map[int]string
-	Loaded    bool
+	Status   map[int]string
+	Priority map[int]string
+	Type     map[int]string
+	Source   map[int]string
+	Urgency  map[int]string
+	Impact   map[int]string
+	Loaded   bool
 }
 
 // LoadTenantMeta reads ticket-form-fields out of the local store and
@@ -54,8 +54,8 @@ func LoadTenantMeta(db *store.Store) (*TenantMeta, error) {
 			continue
 		}
 		var field struct {
-			Name    string            `json:"name"`
-			Choices json.RawMessage   `json:"choices"`
+			Name    string          `json:"name"`
+			Choices json.RawMessage `json:"choices"`
 		}
 		if err := json.Unmarshal(raw, &field); err != nil {
 			continue

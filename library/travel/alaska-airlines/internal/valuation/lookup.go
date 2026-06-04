@@ -1,4 +1,4 @@
-// Copyright 2026 matt-van-horn. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Matt Van Horn and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // PATCH(amend-2026-05-20: value-compare) — Lookup composes the program
 // registry, the TPG fetcher, and the cache into a soft-fallback chain:
@@ -20,11 +20,11 @@ import (
 // Source values surfaced in Result.Source. These match the strings the
 // CLI emits in the comparator envelope's meta.cpp_baseline_source field.
 const (
-	SourceOverride        = "override"
-	SourceTPGLive         = "tpg-live"
-	SourceTPGCached       = "tpg-cached"
-	SourceFallbackStale   = "fallback-stale"
-	SourceFallbackConst   = "fallback-constant"
+	SourceOverride      = "override"
+	SourceTPGLive       = "tpg-live"
+	SourceTPGCached     = "tpg-cached"
+	SourceFallbackStale = "fallback-stale"
+	SourceFallbackConst = "fallback-constant"
 )
 
 // LookupOptions controls the fallback chain. Zero-value is the normal

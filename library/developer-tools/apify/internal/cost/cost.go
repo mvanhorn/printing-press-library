@@ -20,10 +20,10 @@ import (
 // Pricing defaults — accurate as of 2026 published Apify pricing.
 // Users on enterprise plans can override via APIFY_UNIT_PRICE_* env vars.
 const (
-	DefaultCUPriceUSD              = 0.25  // per compute unit (free tier overage)
-	DefaultMemoryGBHourPriceUSD    = 0.30  // per RAM-GB-hour
-	DefaultDatasetGBMonthPriceUSD  = 1.00  // per dataset-GB-month
-	DefaultExternalEgressPriceUSD  = 0.20  // per GB transferred out
+	DefaultCUPriceUSD             = 0.25 // per compute unit (free tier overage)
+	DefaultMemoryGBHourPriceUSD   = 0.30 // per RAM-GB-hour
+	DefaultDatasetGBMonthPriceUSD = 1.00 // per dataset-GB-month
+	DefaultExternalEgressPriceUSD = 0.20 // per GB transferred out
 )
 
 // RunStats holds the cost-relevant numbers from one historical run.
@@ -127,11 +127,11 @@ func ExceedsBudget(p Projection, maxCost float64) bool {
 
 // LedgerRow is one line of the cost report.
 type LedgerRow struct {
-	GroupKey       string  `json:"group_key"`
-	RunCount       int     `json:"run_count"`
-	TotalUSD       float64 `json:"total_usd"`
-	AvgPerRunUSD   float64 `json:"avg_per_run_usd"`
-	TotalCU        float64 `json:"total_cu"`
+	GroupKey     string  `json:"group_key"`
+	RunCount     int     `json:"run_count"`
+	TotalUSD     float64 `json:"total_usd"`
+	AvgPerRunUSD float64 `json:"avg_per_run_usd"`
+	TotalCU      float64 `json:"total_cu"`
 }
 
 // Rollup groups historical runs by `groupBy` ("actor", "schedule", "day")

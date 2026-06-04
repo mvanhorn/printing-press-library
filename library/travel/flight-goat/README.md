@@ -45,6 +45,8 @@ and a React frontend.
 Our AeroAPI push notification [testing interface](/commercial/aeroapi/send.rvt)
 provides a quick and easy way to test the delivery of customized alerts via AeroAPI push.
 
+Created by [@mvanhorn](https://github.com/mvanhorn) (Matt Van Horn).
+
 ## Install
 
 The recommended path installs both the `flight-goat-pp-cli` binary and the `pp-flight-goat` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

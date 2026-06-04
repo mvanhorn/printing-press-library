@@ -1,4 +1,4 @@
-// Copyright 2026 justinwfu. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 justinwfu and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // Package cliutil exports the EnsureFresh helper that printed CLIs call
 // from their root PersistentPreRunE to gate work on a freshness

@@ -55,7 +55,7 @@ Produces a comprehensive view of a manufacturer's FDA footprint.`,
 			type categoryResult struct {
 				Category    string                   `json:"category"`
 				Count       int                      `json:"count"`
-				RecentItems []map[string]interface{}  `json:"recent_items,omitempty"`
+				RecentItems []map[string]interface{} `json:"recent_items,omitempty"`
 			}
 
 			var categories []categoryResult
@@ -126,7 +126,7 @@ Produces a comprehensive view of a manufacturer's FDA footprint.`,
 			}
 
 			result := map[string]interface{}{
-				"firm":       firmName,
+				"firm":        firmName,
 				"total_items": totalItems,
 				"categories":  categories,
 			}

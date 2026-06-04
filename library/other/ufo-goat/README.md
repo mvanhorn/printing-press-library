@@ -4,6 +4,8 @@
 
 The first CLI for the War.gov/UFO declassified files portal. Search across all four agencies (DoD, FBI, NASA, State), download files with resume support, track new release tranches, and discover video-PDF pairings — all from a single binary with offline SQLite storage.
 
+Created by [@davemorin](https://github.com/davemorin) (Dave Morin).
+
 ## Install
 
 The recommended path installs both the `ufo-goat-pp-cli` binary and the `pp-ufo-goat` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

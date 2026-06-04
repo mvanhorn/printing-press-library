@@ -5,6 +5,10 @@
   "api_name": "ticketmaster",
   "display_name": "Ticketmaster",
   "cli_name": "ticketmaster-pp-cli",
+  "creator": {
+    "handle": "omarshahine",
+    "name": "Omar Shahine"
+  },
   "owner": "omarshahine",
   "printer": "omarshahine",
   "printer_name": "Omar Shahine",

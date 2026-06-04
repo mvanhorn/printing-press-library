@@ -1,4 +1,4 @@
-// Copyright 2026 conduyt. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Conduyt and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // PATCH: imports changed from cliutil.Policy/FreshnessMeta to local cli package types
 package cli
@@ -14,24 +14,24 @@ import (
 )
 
 var readCommandResources = map[string][]string{
-	"conduyt-crm-pp-cli contacts":        {"contacts"},
-	"conduyt-crm-pp-cli contacts list":   {"contacts"},
-	"conduyt-crm-pp-cli contacts get":    {"contacts"},
-	"conduyt-crm-pp-cli contacts search": {"contacts"},
-	"conduyt-crm-pp-cli deals":           {"deals"},
-	"conduyt-crm-pp-cli deals list":      {"deals"},
-	"conduyt-crm-pp-cli deals get":       {"deals"},
-	"conduyt-crm-pp-cli deals search":    {"deals"},
-	"conduyt-crm-pp-cli companies":       {"companies"},
-	"conduyt-crm-pp-cli companies list":  {"companies"},
-	"conduyt-crm-pp-cli companies get":   {"companies"},
-	"conduyt-crm-pp-cli tasks":           {"tasks"},
-	"conduyt-crm-pp-cli tasks list":      {"tasks"},
-	"conduyt-crm-pp-cli tasks get":       {"tasks"},
-	"conduyt-crm-pp-cli activities":        {"activities"},
-	"conduyt-crm-pp-cli activities list":   {"activities"},
-	"conduyt-crm-pp-cli automations":       {"automations"},
-	"conduyt-crm-pp-cli automations list":  {"automations"},
+	"conduyt-crm-pp-cli contacts":         {"contacts"},
+	"conduyt-crm-pp-cli contacts list":    {"contacts"},
+	"conduyt-crm-pp-cli contacts get":     {"contacts"},
+	"conduyt-crm-pp-cli contacts search":  {"contacts"},
+	"conduyt-crm-pp-cli deals":            {"deals"},
+	"conduyt-crm-pp-cli deals list":       {"deals"},
+	"conduyt-crm-pp-cli deals get":        {"deals"},
+	"conduyt-crm-pp-cli deals search":     {"deals"},
+	"conduyt-crm-pp-cli companies":        {"companies"},
+	"conduyt-crm-pp-cli companies list":   {"companies"},
+	"conduyt-crm-pp-cli companies get":    {"companies"},
+	"conduyt-crm-pp-cli tasks":            {"tasks"},
+	"conduyt-crm-pp-cli tasks list":       {"tasks"},
+	"conduyt-crm-pp-cli tasks get":        {"tasks"},
+	"conduyt-crm-pp-cli activities":       {"activities"},
+	"conduyt-crm-pp-cli activities list":  {"activities"},
+	"conduyt-crm-pp-cli automations":      {"automations"},
+	"conduyt-crm-pp-cli automations list": {"automations"},
 }
 
 func cachePolicy() Policy {

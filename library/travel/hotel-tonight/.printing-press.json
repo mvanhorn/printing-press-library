@@ -5,6 +5,10 @@
   "api_name": "hotel-tonight",
   "display_name": "HotelTonight",
   "cli_name": "hotel-tonight-pp-cli",
+  "creator": {
+    "handle": "tmchow",
+    "name": "Trevin Chow"
+  },
   "owner": "trevin-chow",
   "printer": "tmchow",
   "printer_name": "Trevin Chow",

@@ -2,6 +2,8 @@
 
 The FDA safety data terminal. Every drug adverse event, device recall, food contamination, and product label the FDA publishes — synced locally, searchable offline, with trend analysis no other tool offers.
 
+Created by [@H179922](https://github.com/H179922) (H179922).
+
 ## Install
 
 The recommended path installs both the `openfda-pp-cli` binary and the `pp-openfda` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

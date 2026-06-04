@@ -5,6 +5,16 @@
   "api_name": "granola",
   "display_name": "Granola",
   "cli_name": "granola-pp-cli",
+  "creator": {
+    "handle": "dstevens",
+    "name": "Damien Stevens"
+  },
+  "contributors": [
+    {
+      "handle": "jeffreydebolt",
+      "name": "Jeff DeBolt"
+    }
+  ],
   "owner": "dstevens",
   "printer": "dstevens",
   "printer_name": "Damien Stevens",

@@ -1,4 +1,4 @@
-// Copyright 2026 trevin-chow. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Trevin Chow and contributors. Licensed under Apache-2.0. See LICENSE.
 
 package cli
 
@@ -17,34 +17,34 @@ import (
 // digest renders. Composed from /campaigns/{id} + /reports/{id} +
 // /reports/{id}/email-activity (top entries) + /reports/{id}/ecommerce-product-activity.
 type campaignDigest struct {
-	CampaignID    string             `json:"campaign_id"`
-	Subject       string             `json:"subject_line,omitempty"`
-	SendTime      string             `json:"send_time,omitempty"`
-	EmailsSent    int                `json:"emails_sent"`
-	OpenRate      float64            `json:"open_rate"`
-	ClickRate     float64            `json:"click_rate"`
-	UniqueOpens   int                `json:"unique_opens"`
-	UniqueClicks  int                `json:"unique_clicks"`
-	HardBounces   int                `json:"hard_bounces"`
-	SoftBounces   int                `json:"soft_bounces"`
-	Unsubscribed  int                `json:"unsubscribed"`
-	Revenue       float64            `json:"total_revenue,omitempty"`
-	TopLinks      []digestLink       `json:"top_links,omitempty"`
-	TopProducts   []digestProduct    `json:"top_products,omitempty"`
+	CampaignID   string          `json:"campaign_id"`
+	Subject      string          `json:"subject_line,omitempty"`
+	SendTime     string          `json:"send_time,omitempty"`
+	EmailsSent   int             `json:"emails_sent"`
+	OpenRate     float64         `json:"open_rate"`
+	ClickRate    float64         `json:"click_rate"`
+	UniqueOpens  int             `json:"unique_opens"`
+	UniqueClicks int             `json:"unique_clicks"`
+	HardBounces  int             `json:"hard_bounces"`
+	SoftBounces  int             `json:"soft_bounces"`
+	Unsubscribed int             `json:"unsubscribed"`
+	Revenue      float64         `json:"total_revenue,omitempty"`
+	TopLinks     []digestLink    `json:"top_links,omitempty"`
+	TopProducts  []digestProduct `json:"top_products,omitempty"`
 }
 
 type digestLink struct {
-	URL         string  `json:"url"`
-	UniqueClicks int    `json:"unique_clicks"`
-	ClickRate   float64 `json:"click_rate"`
+	URL          string  `json:"url"`
+	UniqueClicks int     `json:"unique_clicks"`
+	ClickRate    float64 `json:"click_rate"`
 }
 
 type digestProduct struct {
-	Title       string  `json:"title"`
-	SKU         string  `json:"sku,omitempty"`
-	Currency    string  `json:"currency,omitempty"`
+	Title        string  `json:"title"`
+	SKU          string  `json:"sku,omitempty"`
+	Currency     string  `json:"currency,omitempty"`
 	TotalRevenue float64 `json:"total_revenue"`
-	TotalOrders  int    `json:"total_orders"`
+	TotalOrders  int     `json:"total_orders"`
 }
 
 // fetchCampaignDigest pulls a single campaign's joined report. Uses parallel
@@ -266,8 +266,8 @@ type digestRollup struct {
 }
 
 type digestRollupTotals struct {
-	EmailsSent  int     `json:"emails_sent"`
-	AvgOpenRate float64 `json:"avg_open_rate"`
+	EmailsSent   int     `json:"emails_sent"`
+	AvgOpenRate  float64 `json:"avg_open_rate"`
 	AvgClickRate float64 `json:"avg_click_rate"`
 	TotalRevenue float64 `json:"total_revenue,omitempty"`
 	Unsubscribed int     `json:"unsubscribed"`
@@ -361,8 +361,8 @@ the rollup is what a founder pastes into a Monday "what shipped last week" doc.
 				last = 7
 			}
 			campaignsRaw, err := c.Get("/campaigns", map[string]string{
-				"count":  fmt.Sprintf("%d", last),
-				"status": "sent",
+				"count":      fmt.Sprintf("%d", last),
+				"status":     "sent",
 				"sort_field": "send_time",
 				"sort_dir":   "DESC",
 			})
@@ -380,9 +380,9 @@ the rollup is what a founder pastes into a Monday "what shipped last week" doc.
 			// the upper bound — for last>10 we still parallelize but the HTTP client
 			// will queue.
 			type rollupResult struct {
-				idx int
+				idx   int
 				entry digestRollupEntry
-				err error
+				err   error
 			}
 			results := make(chan rollupResult, len(campaigns))
 			var wg sync.WaitGroup

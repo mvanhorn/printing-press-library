@@ -1,4 +1,4 @@
-// Copyright 2026 trevin-chow. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Trevin Chow and contributors. Licensed under Apache-2.0. See LICENSE.
 
 package cli
 
@@ -103,12 +103,12 @@ archive when the batch finishes, and prints per-row outcomes.`,
 				if _, statErr := os.Stat(csvPath); statErr != nil {
 					return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
 						"would_post_batch": map[string]any{
-							"POST":        "/batches",
-							"csv_path":    csvPath,
-							"csv_status":  "not found (dry-run still proceeds with the documented shape)",
-							"list_id":     listID,
-							"tags":        tagStr,
-							"status":      statusStr,
+							"POST":       "/batches",
+							"csv_path":   csvPath,
+							"csv_status": "not found (dry-run still proceeds with the documented shape)",
+							"list_id":    listID,
+							"tags":       tagStr,
+							"status":     statusStr,
 						},
 					}, flags)
 				}
@@ -211,8 +211,8 @@ archive when the batch finishes, and prints per-row outcomes.`,
 			if dryRunOK(flags) {
 				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
 					"would_post_batch": map[string]any{
-						"POST":       "/batches",
-						"operations": len(ops),
+						"POST":        "/batches",
+						"operations":  len(ops),
 						"first_email": rowMeta[ops[0].OperationID],
 					},
 				}, flags)

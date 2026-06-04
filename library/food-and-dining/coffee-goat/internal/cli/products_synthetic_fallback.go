@@ -1,4 +1,4 @@
-// Copyright 2026 justinwfu. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Justin Fu and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // Synthetic-anchor fallback for the spec-emitted `products` command.
 // coffee-goat is a synthetic CLI (no live API at base_url); the typed

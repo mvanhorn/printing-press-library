@@ -1,0 +1,46 @@
+name: drudgereport
+display_name: Drudge Report
+description: "Drudge Report from your terminal — with the editorial signal (splash, red, slot, tenure) the live page broadcasts but no other scraper preserves."
+version: "0.1.0"
+base_url: "https://drudgereport.com"
+cli_description: "Drudge Report in your terminal, with the editorial signal (splash, red, slot, tenure) the live page broadcasts but no other scraper preserves."
+
+auth:
+  type: none
+
+config:
+  format: toml
+  path: "~/.config/drudgereport-pp-cli/config.toml"
+
+resources:
+  page:
+    description: "Drudge Report's curated home page. Most users should run `sync` then `splash`/`headlines`/`breaking`; the raw fetch is exposed for debugging."
+    endpoints:
+      home:
+        method: GET
+        path: "/"
+        description: "Fetch the raw drudgereport.com HTML page. The CLI's parser turns this into ranked headlines with slot, is_red, image_url, and outbound_domain fields. Most users do not need to call this directly."
+        params: []
+        response:
+          type: object
+          item: RawHTML
+
+  feed:
+    description: "Unofficial community RSS feed mirror of Drudge Report (feedpress.me). Used as a cross-check source for pubDate and pre-grouped Related stories."
+    endpoints:
+      rss:
+        method: GET
+        path: "https://feedpress.me/drudgereportfeed"
+        description: "Fetch the unofficial RSS feed mirror. Items embed position labels (Main headline / First column / Second column) in CDATA and use the real outbound URL as the GUID. Pre-parsed by the CLI; most users will not call this directly."
+        params: []
+        response:
+          type: object
+          item: RawHTML
+
+types:
+  RawHTML:
+    description: "Raw HTML or RSS body. The CLI's parser converts this into typed Story rows."
+    fields:
+      - name: body
+        type: string
+        description: "Raw response body"

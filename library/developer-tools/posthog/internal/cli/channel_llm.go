@@ -1,4 +1,4 @@
-// Copyright 2026 riteshtiwari. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 riteshtiwari and contributors. Licensed under Apache-2.0. See LICENSE.
 
 package cli
 
@@ -35,7 +35,7 @@ func newLLMCostAttributionCmd(flags *rootFlags) *cobra.Command {
 		Use:         "cost-attribution",
 		Short:       "Break down LLM spend by feature flag variant",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Long: `Group LLM trace cost and token usage by feature flag variant. Requires PostHog LLM Observability to be instrumented.`,
+		Long:        `Group LLM trace cost and token usage by feature flag variant. Requires PostHog LLM Observability to be instrumented.`,
 		Example: `  posthog-pp-cli llm cost-attribution --project 12345
   posthog-pp-cli llm cost-attribution --project 12345 --flag my-model-flag
   posthog-pp-cli llm cost-attribution --project 12345 --since 7d --json`,
@@ -49,14 +49,18 @@ func newLLMCostAttributionCmd(flags *rootFlags) *cobra.Command {
 				orgData, err2 := c.Get("/api/organizations/", nil)
 				if err2 == nil {
 					var orgs struct {
-						Results []struct{ ID string `json:"id"` } `json:"results"`
+						Results []struct {
+							ID string `json:"id"`
+						} `json:"results"`
 					}
 					if json.Unmarshal(orgData, &orgs) == nil && len(orgs.Results) > 0 {
 						orgID := orgs.Results[0].ID
 						projData, err3 := c.Get(fmt.Sprintf("/api/organizations/%s/projects/", orgID), nil)
 						if err3 == nil {
 							var projs struct {
-								Results []struct{ ID int `json:"id"` } `json:"results"`
+								Results []struct {
+									ID int `json:"id"`
+								} `json:"results"`
 							}
 							if json.Unmarshal(projData, &projs) == nil && len(projs.Results) > 0 {
 								projectID = strconv.Itoa(projs.Results[0].ID)
@@ -172,12 +176,12 @@ func newLLMCostAttributionCmd(flags *rootFlags) *cobra.Command {
 			})
 
 			type result struct {
-				ProjectID     string    `json:"project_id"`
-				FlagKey       string    `json:"flag_key,omitempty"`
-				Since         string    `json:"since,omitempty"`
-				TracesAnalyzed int      `json:"traces_analyzed"`
-				Variants      []variant `json:"variants"`
-				GeneratedAt   string    `json:"generated_at"`
+				ProjectID      string    `json:"project_id"`
+				FlagKey        string    `json:"flag_key,omitempty"`
+				Since          string    `json:"since,omitempty"`
+				TracesAnalyzed int       `json:"traces_analyzed"`
+				Variants       []variant `json:"variants"`
+				GeneratedAt    string    `json:"generated_at"`
 			}
 			out := result{
 				ProjectID:      projectID,

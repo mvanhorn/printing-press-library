@@ -4,6 +4,9 @@
   "description": "Every Dutch public tender, with the sub-threshold long tail that EU TED never sees, in a local-first CLI you can pipe.\n\nTenderNed is the Dutch national public procurement platform run by PIANOo / Ministerie van EZK. Every Dutch contracting authority must publish above- and below-threshold tender notices here. Above-threshold notices are forwarded to EU TED; the sub-threshold long tail (€40k–€220k) is TenderNed-only.\n\nThis CLI covers the unauthenticated TNS publication webservice (search/list/filter publications, document download, contracting-authority directory, RSS feed) and the Basic-auth eForms XML endpoint. Data is CC-0 public domain.",
   "mcp_ready": "full",
   "http_transport": "standard",
+  "mcp": {
+    "orchestration": "endpoint-mirror"
+  },
   "auth": {
     "type": "none"
   },

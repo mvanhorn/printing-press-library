@@ -11,9 +11,9 @@ import (
 )
 
 var doctorCmd = &cobra.Command{
-	Use:   "doctor",
-		Annotations: map[string]string{"mcp:read-only": "true"},
-	Short: "Check permissions and environment for common issues",
+	Use:         "doctor",
+	Annotations: map[string]string{"mcp:read-only": "true"},
+	Short:       "Check permissions and environment for common issues",
 	Long: `Run diagnostic checks and provide fix instructions.
 Checks Screen Recording permission, ffmpeg availability, macOS version, and disk space.`,
 	Example: `  agent-capture doctor

@@ -1,4 +1,4 @@
-// Copyright 2026 quoxientzero. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Zain Haseeb and contributors. Licensed under Apache-2.0. See LICENSE.
 // Hand-written novel feature; not generated.
 
 package cli
@@ -20,9 +20,9 @@ func newClassroomExportCmd(flags *rootFlags) *cobra.Command {
 	var flagOut string
 
 	cmd := &cobra.Command{
-		Use:   "export <course-slug>",
-		Short: "Export a course to a folder of markdown files (one per lesson)",
-		Example: "  skool-pp-cli classroom export ai-foundations --community bewarethedefault --out ./course/",
+		Use:         "export <course-slug>",
+		Short:       "Export a course to a folder of markdown files (one per lesson)",
+		Example:     "  skool-pp-cli classroom export ai-foundations --community bewarethedefault --out ./course/",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {
@@ -64,8 +64,8 @@ func newClassroomExportCmd(flags *rootFlags) *cobra.Command {
 			var env struct {
 				PageProps struct {
 					Course struct {
-						ID       string `json:"id"`
-						Name     string `json:"name"`
+						ID      string `json:"id"`
+						Name    string `json:"name"`
 						Modules []struct {
 							ID      string `json:"id"`
 							Name    string `json:"name"`

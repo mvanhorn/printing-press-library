@@ -1,4 +1,4 @@
-// Copyright 2026 trevin-chow. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Trevin Chow and contributors. Licensed under Apache-2.0. See LICENSE.
 
 package cli
 
@@ -11,20 +11,20 @@ import (
 )
 
 type segmentAuditEntry struct {
-	ID          int    `json:"id"`
-	Name        string `json:"name"`
-	MemberCount int    `json:"member_count"`
-	Type        string `json:"type"`
-	UpdatedAt   string `json:"updated_at,omitempty"`
+	ID          int      `json:"id"`
+	Name        string   `json:"name"`
+	MemberCount int      `json:"member_count"`
+	Type        string   `json:"type"`
+	UpdatedAt   string   `json:"updated_at,omitempty"`
 	Issues      []string `json:"issues"`
 }
 
 type segmentAuditReport struct {
-	ListID     string              `json:"list_id"`
-	Total      int                 `json:"total_segments"`
-	Healthy    int                 `json:"healthy"`
-	Flagged    int                 `json:"flagged"`
-	Segments   []segmentAuditEntry `json:"segments"`
+	ListID   string              `json:"list_id"`
+	Total    int                 `json:"total_segments"`
+	Healthy  int                 `json:"healthy"`
+	Flagged  int                 `json:"flagged"`
+	Segments []segmentAuditEntry `json:"segments"`
 }
 
 func newSegmentsAuditCmd(flags *rootFlags) *cobra.Command {
@@ -54,7 +54,7 @@ counts. Use to clean up segment debt that accumulates as audiences age.`,
 			if dryRunOK(flags) {
 				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
 					"would_audit": map[string]any{
-						"GET":  fmt.Sprintf("/lists/%s/segments?count=1000", listID),
+						"GET":               fmt.Sprintf("/lists/%s/segments?count=1000", listID),
 						"flag_zero_members": true,
 						"flag_stale_days":   staleDays,
 					},

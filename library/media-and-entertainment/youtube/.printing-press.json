@@ -5,6 +5,10 @@
   "api_name": "youtube",
   "display_name": "Youtube Data",
   "cli_name": "youtube-pp-cli",
+  "creator": {
+    "handle": "justinwfu",
+    "name": "Justin"
+  },
   "owner": "justinwfu",
   "printer": "justinwfu",
   "printer_name": "Justin",

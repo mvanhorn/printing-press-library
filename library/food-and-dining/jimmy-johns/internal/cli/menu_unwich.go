@@ -19,11 +19,11 @@ import (
 // unwichModifier is the shape we emit — a normalized modifier delta the user
 // (or an agent composing a cart-add request) can splice into /api/order/batchItems.
 type unwichModifier struct {
-	ProductID    string   `json:"product_id"`
-	BreadGroup   string   `json:"bread_modifier_group"`
-	OriginalBread string  `json:"original_bread"`
-	UnwichOption string   `json:"unwich_option"`
-	Diff         []string `json:"diff"`
+	ProductID     string   `json:"product_id"`
+	BreadGroup    string   `json:"bread_modifier_group"`
+	OriginalBread string   `json:"original_bread"`
+	UnwichOption  string   `json:"unwich_option"`
+	Diff          []string `json:"diff"`
 }
 
 // modifierGroupShape is a permissive shape over the /api/products/{id}/modifiers

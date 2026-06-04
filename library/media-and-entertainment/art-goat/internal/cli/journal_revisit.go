@@ -1,4 +1,4 @@
-// Copyright 2026 justinwfu. Licensed under Apache-2.0.
+// Copyright 2026 justinwfu and contributors. Licensed under Apache-2.0.
 
 // journal revisit and journal compare — longitudinal journal commands.
 // Both read from the local store; neither writes.

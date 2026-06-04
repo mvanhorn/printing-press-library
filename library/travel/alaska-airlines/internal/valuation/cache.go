@@ -1,4 +1,4 @@
-// Copyright 2026 matt-van-horn. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Matt Van Horn and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // PATCH(amend-2026-05-20: value-compare) — Thin wrapper over the shared
 // internal/cache template. The wrapper adds mod-time-aware reads so the
@@ -22,10 +22,10 @@ const CacheTTL = 30 * 24 * time.Hour
 
 // ValuationRecord is what gets persisted to disk for each program.
 type ValuationRecord struct {
-	Program    Program   `json:"program"`
-	CPPCents   float64   `json:"cpp_cents"`
-	SourceURL  string    `json:"source_url"`
-	FetchedAt  time.Time `json:"fetched_at"`
+	Program   Program   `json:"program"`
+	CPPCents  float64   `json:"cpp_cents"`
+	SourceURL string    `json:"source_url"`
+	FetchedAt time.Time `json:"fetched_at"`
 }
 
 // Cache is a per-program file-backed store. Unlike the shared cache

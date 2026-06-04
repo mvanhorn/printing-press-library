@@ -1,4 +1,4 @@
-// Copyright 2026 vinny-pasceri. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Vinny Pasceri and contributors. Licensed under Apache-2.0. See LICENSE.
 
 package cli
 
@@ -16,7 +16,7 @@ import (
 var testCatalogues = []catalogueRecord{
 	// Exact-code test target: 'find KM' must lock to id=3.
 	{ID: 3, Code: "KM", Title: "Standard Catalog of World Coins",
-		Author: "Chester Lee Krause, Clifford Mishler, Colin R. Bruce",
+		Author:    "Chester Lee Krause, Clifford Mishler, Colin R. Bruce",
 		Publisher: "Krause Publications"},
 	// Code-prefix tiebreaker decoys: same publisher, different code shapes.
 	{ID: 3144, Code: "Curto", Title: "Military Tokens of the United States",
@@ -27,19 +27,19 @@ var testCatalogues = []catalogueRecord{
 	// to id=9 (author match on a canonical reference) before id=925
 	// (Yeoman as a co-author on a longer-titled work).
 	{ID: 9, Code: "Y", Title: "R. S. Yeoman's Modern & Current World Coins",
-		Author: "Richard Sperry Yeoman, Neil Shafer, Holland Wallace",
+		Author:    "Richard Sperry Yeoman, Neil Shafer, Holland Wallace",
 		Publisher: "Whitman Publishing"},
 	{ID: 925, Code: "Raymond", Title: "The Silver Dollars of North and South America",
-		Author: "Wayte Raymond, Imre Molnar, Richard Sperry Yeoman",
+		Author:    "Wayte Raymond, Imre Molnar, Richard Sperry Yeoman",
 		Publisher: "Whitman Publishing"},
 	{ID: 1556, Code: "Y US", Title: "A Guide Book of United States Coins",
-		Author: "Richard Sperry Yeoman, Kenneth Edward Bressett",
+		Author:    "Richard Sperry Yeoman, Kenneth Edward Bressett",
 		Publisher: "Whitman Publishing"},
 	// Diacritic-bearing target: 'find Schön' (or 'find schon' after
 	// normalization) must lock to id=24. Title is in German; the author
 	// surname carries the diacritic and the query is the canonical lookup.
 	{ID: 24, Code: "Schön", Title: "Weltmünzkatalog",
-		Author: "Gerhard Schön, Sebastian Krämer",
+		Author:    "Gerhard Schön, Sebastian Krämer",
 		Publisher: "Battenberg Gietl Verlag"},
 	// Exact-code target for 'find pcgs' — the cross-walk anchor that
 	// closes pp-numista/AGENTS.md Priority 4.

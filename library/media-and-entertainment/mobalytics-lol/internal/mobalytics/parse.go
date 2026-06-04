@@ -1,4 +1,4 @@
-// Copyright 2026 quantumglitch. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 QuantumGlitch and contributors. Licensed under Apache-2.0. See LICENSE.
 
 package mobalytics
 
@@ -340,15 +340,15 @@ func ParseSynergies(html string, ownSlug string) []SynergyRow {
 type comboEntry struct {
 	Typename string `json:"__typename"`
 	FlatData struct {
-		Slug             string `json:"slug"`
-		ChampionSlug     string `json:"championSlug"`
-		ShortDescription string `json:"shortDescription"`
-		ExecutionText    string `json:"executionText"`
-		Notes            string `json:"notes"`
-		VideoURL         string `json:"videoUrl"`
-		ThumbnailID      string `json:"thumbnailId"`
+		Slug             string   `json:"slug"`
+		ChampionSlug     string   `json:"championSlug"`
+		ShortDescription string   `json:"shortDescription"`
+		ExecutionText    string   `json:"executionText"`
+		Notes            string   `json:"notes"`
+		VideoURL         string   `json:"videoUrl"`
+		ThumbnailID      string   `json:"thumbnailId"`
 		Tags             []string `json:"tags"`
-		Sequence []struct {
+		Sequence         []struct {
 			Items []string `json:"items"`
 		} `json:"sequence"`
 		Difficulty []struct {

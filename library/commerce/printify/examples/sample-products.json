@@ -1,0 +1,26 @@
+[
+  {
+    "id": "prod_sample",
+    "title": "Sample Personalized Mug",
+    "print_areas": [
+      {
+        "variant_ids": [101, 102],
+        "placeholders": [
+          {"position": "front", "images": [{"id": "img_1", "name": "front art", "x": 0.5, "y": 0.48, "scale": 1.1}]}
+        ]
+      }
+    ]
+  },
+  {
+    "id": "prod_second",
+    "title": "Second Personalized Mug",
+    "print_areas": [
+      {
+        "variant_ids": [201],
+        "placeholders": [
+          {"position": "front", "images": [{"id": "img_1", "name": "front art", "x": 0.5, "y": 0.5, "scale": 1.0}]}
+        ]
+      }
+    ]
+  }
+]

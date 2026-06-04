@@ -5,6 +5,10 @@
   "api_name": "loopnet",
   "display_name": "Loopnet",
   "cli_name": "loopnet-pp-cli",
+  "creator": {
+    "handle": "melanson633",
+    "name": "melanson633"
+  },
   "owner": "user",
   "printer": "melanson633",
   "printer_name": "melanson633",

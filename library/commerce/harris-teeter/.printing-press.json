@@ -5,6 +5,10 @@
   "api_name": "harris-teeter",
   "display_name": "Harris Teeter",
   "cli_name": "harris-teeter-pp-cli",
+  "creator": {
+    "handle": "jwmoss",
+    "name": "Jonathan Moss"
+  },
   "owner": "jonathan-moss",
   "printer": "jwmoss",
   "printer_name": "Jonathan Moss",

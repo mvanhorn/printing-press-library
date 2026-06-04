@@ -22,18 +22,18 @@ import (
 
 // AuthStatus is the JSON payload `auth status` emits.
 type AuthStatus struct {
-	OK              bool          `json:"ok"`
-	Checks          []AuthCheck   `json:"checks"`
-	TokenAgeHours   float64       `json:"token_age_hours,omitempty"`
-	StaleThresholdH float64       `json:"stale_threshold_hours"`
-	RefresherHint   string        `json:"refresher_hint,omitempty"`
+	OK              bool        `json:"ok"`
+	Checks          []AuthCheck `json:"checks"`
+	TokenAgeHours   float64     `json:"token_age_hours,omitempty"`
+	StaleThresholdH float64     `json:"stale_threshold_hours"`
+	RefresherHint   string      `json:"refresher_hint,omitempty"`
 }
 
 // AuthCheck is one row in the status report.
 type AuthCheck struct {
-	Name    string `json:"name"`
-	Status  string `json:"status"` // "ok" | "warn" | "fail" | "info"
-	Detail  string `json:"detail"`
+	Name   string `json:"name"`
+	Status string `json:"status"` // "ok" | "warn" | "fail" | "info"
+	Detail string `json:"detail"`
 }
 
 func newAuthAuditCmd(flags *rootFlags) *cobra.Command {

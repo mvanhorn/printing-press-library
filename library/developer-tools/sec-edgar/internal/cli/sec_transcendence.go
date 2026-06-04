@@ -1,4 +1,4 @@
-// Copyright 2026 chris-drit. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Chris Drit and contributors. Licensed under Apache-2.0. See LICENSE.
 // Hand-authored transcendence commands. Each maps 1:1 to a row in the
 // Phase 1.5 absorb manifest's Transcendence table.
 

@@ -5,6 +5,10 @@
   "api_name": "american-reindustrialization",
   "display_name": "American Reindustrialization",
   "cli_name": "american-reindustrialization-pp-cli",
+  "creator": {
+    "handle": "tmchow",
+    "name": "Trevin Chow"
+  },
   "owner": "trevin-chow",
   "printer": "tmchow",
   "printer_name": "Trevin Chow",

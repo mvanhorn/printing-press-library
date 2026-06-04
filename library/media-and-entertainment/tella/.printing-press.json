@@ -5,6 +5,16 @@
   "api_name": "tella",
   "display_name": "Tella Public",
   "cli_name": "tella-pp-cli",
+  "creator": {
+    "handle": "gregce",
+    "name": "Greg Ceccarelli"
+  },
+  "contributors": [
+    {
+      "handle": "cathrynlavery",
+      "name": "Cathryn Lavery"
+    }
+  ],
   "owner": "",
   "printer": "gregce",
   "printer_name": "Greg Ceccarelli",

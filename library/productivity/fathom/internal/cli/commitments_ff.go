@@ -52,15 +52,15 @@ email. Run 'sync' first to populate the local store.`,
 			}
 
 			type commitment struct {
-				MeetingTitle string  `json:"meeting_title"`
-				MeetingDate  string  `json:"meeting_date"`
-				MeetingURL   string  `json:"meeting_url"`
-				Description  string  `json:"description"`
-				AssigneeName string  `json:"assignee_name"`
+				MeetingTitle  string `json:"meeting_title"`
+				MeetingDate   string `json:"meeting_date"`
+				MeetingURL    string `json:"meeting_url"`
+				Description   string `json:"description"`
+				AssigneeName  string `json:"assignee_name"`
 				AssigneeEmail string `json:"assignee_email"`
-				Completed    bool    `json:"completed"`
-				Timestamp    string  `json:"timestamp"`
-				PlaybackURL  string  `json:"playback_url"`
+				Completed     bool   `json:"completed"`
+				Timestamp     string `json:"timestamp"`
+				PlaybackURL   string `json:"playback_url"`
 			}
 
 			results := make([]commitment, 0)

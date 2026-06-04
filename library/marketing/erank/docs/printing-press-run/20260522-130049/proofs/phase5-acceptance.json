@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "erank",
+  "run_id": "20260522-130049",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 129,
+  "tests_passed": 129,
+  "tests_skipped": 72,
+  "auth_context": {
+    "type": "composed"
+  }
+}

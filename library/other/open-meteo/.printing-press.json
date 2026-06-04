@@ -5,6 +5,10 @@
   "api_name": "open-meteo",
   "display_name": "Open-Meteo",
   "cli_name": "open-meteo-pp-cli",
+  "creator": {
+    "handle": "tmchow",
+    "name": "Trevin Chow"
+  },
   "printer": "tmchow",
   "printer_name": "Trevin Chow",
   "spec_path": "/Users/tmchow/printing-press/.runstate/nifty-nibbling-toucan-ab654d77/runs/20260502-155141/research/open-meteo-spec.yaml",

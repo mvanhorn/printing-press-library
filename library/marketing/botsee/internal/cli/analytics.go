@@ -1,4 +1,4 @@
-// Copyright 2026 grahac. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 grahac and contributors. Licensed under Apache-2.0. See LICENSE.
 // Generator-emitted; hand-edited post-publish to route output through
 // cmd.OutOrStdout() so --deliver and test capture work correctly.
 // Retro candidate: the generator template should emit cmd.OutOrStdout() in

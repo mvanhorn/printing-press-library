@@ -1,0 +1,96 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-23T16:52:02.845411Z",
+  "printing_press_version": "4.12.0",
+  "api_name": "dice-fm",
+  "display_name": "DICE",
+  "cli_name": "dice-fm-pp-cli",
+  "creator": {
+    "handle": "vinnyp",
+    "name": "Vinny Pasceri"
+  },
+  "owner": "vinny-pasceri",
+  "printer": "vinnyp",
+  "printer_name": "Vinny Pasceri",
+  "spec_path": "/Users/vinnypasceri/printing-press/.runstate/cli-printing-press-8fb6bd18/runs/20260511-193451/research/dice-fm-spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:53f75d04ea3b31b9fbc23566fc20671341d9b037f9f25cc4f3b22e137832a383",
+  "run_id": "20260511-193451",
+  "category": "media-and-entertainment",
+  "description": "Every ticket, fan, and pound of revenue from your DICE events — queryable, exportable, and joinable across shows.",
+  "mcp_binary": "dice-fm-pp-mcp",
+  "mcp_tool_count": 8,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "DICE_FM_TOKEN"
+  ],
+  "novel_features": [
+    {
+      "name": "Door List with Transfer Resolution",
+      "command": "door list",
+      "description": "Generate a valid-ticket-holder list for any event, with transferred tickets showing the new holder's name — ready for door access management."
+    },
+    {
+      "name": "Revenue Summary",
+      "command": "revenue summary",
+      "description": "Aggregate gross revenue, Dice fees, and net earnings per event or across a date range — ready for CFO reports."
+    },
+    {
+      "name": "Ticket Velocity",
+      "command": "velocity show",
+      "description": "Show cumulative ticket sales by day or hour relative to the on-sale date — see whether an event is tracking fast or slow."
+    },
+    {
+      "name": "Cross-Event Repeat Buyer Report",
+      "command": "fans repeat",
+      "description": "Find fans who bought tickets to two or more of your events — your most loyal audience, ready for VIP outreach."
+    },
+    {
+      "name": "Opt-In Fan List with Geography Filter",
+      "command": "fans optin",
+      "description": "Export opted-in fan contacts filtered by city or country — CSV ready for Mailchimp, no dashboard exports needed."
+    },
+    {
+      "name": "Return Rate Anomaly Report",
+      "command": "returns anomalies",
+      "description": "Flag events with unusually high refund rates — a pricing or marketing signal that deserves immediate attention."
+    },
+    {
+      "name": "Top Spenders",
+      "command": "fans top",
+      "description": "Rank ticket buyers by total spend for an event or across all events — your VIP list for comps, upgrades, and sponsor decks."
+    },
+    {
+      "name": "Cross-Event Capacity Headroom",
+      "command": "capacity",
+      "description": "Roll up sold-vs-capacity headroom across every event from the local store — see which shows have room and which are nearly sold out."
+    },
+    {
+      "name": "Per-Pool Allocation Breakdown",
+      "command": "capacity pools",
+      "description": "Break down each event's ticket-pool allocations (pool-sum vs event total) from the local store — spot mis-allocated or over-subscribed pools."
+    },
+    {
+      "name": "Price-Tier Performance",
+      "command": "tier-performance",
+      "description": "Rank price tiers by redemptions and each tier's share of total sales from the local store — see which tiers actually move."
+    },
+    {
+      "name": "Entity Normalization",
+      "command": "normalize",
+      "description": "Canonicalize free-text ticket-type and venue names into structured axes in a parallel, re-runnable local store — raw data untouched, mappings stay on your machine."
+    },
+    {
+      "name": "Normalized Entity Stats",
+      "command": "normalize stats",
+      "description": "Show normalized entity counts per axis from the local attribute tables — verify coverage before grouping reports by axis."
+    },
+    {
+      "name": "Normalization Recommender",
+      "command": "normalize recommend",
+      "description": "Profile the local store and emit a starter normalization config — a ready-to-edit recommendation of which entities and shapes to wire."
+    }
+  ]
+}

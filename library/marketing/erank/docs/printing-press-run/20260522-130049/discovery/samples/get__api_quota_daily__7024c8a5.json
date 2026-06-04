@@ -1,0 +1,41 @@
+{
+  "endpoint": "GET /api/quota/daily",
+  "method": "GET",
+  "raw_url": "https://members.erank.com/api/quota/daily",
+  "status": 200,
+  "request_headers": {
+    "Accept": "application/json",
+    "Referer": "https://members.erank.com/keyword-tool/top-listings?keyword=dad+mug&source=etsy&country=USA",
+    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/148.0.0.0 Safari/537.36",
+    "X-Requested-With": "XMLHttpRequest",
+    "X-User-Agent": "erank-app/3.0",
+    "X-XSRF-TOKEN": "<redacted>",
+    "sec-ch-ua": "\"Chromium\";v=\"148\", \"Google Chrome\";v=\"148\", \"Not/A)Brand\";v=\"99\"",
+    "sec-ch-ua-mobile": "?0",
+    "sec-ch-ua-platform": "\"macOS\""
+  },
+  "request_body": null,
+  "response_headers": {
+    "cache-control": "no-cache, private",
+    "content-type": "application/json",
+    "date": "Fri, 22 May 2026 17:24:38 GMT",
+    "referrer-policy": "strict-origin-when-cross-origin",
+    "server": "nginx",
+    "strict-transport-security": "max-age=31536000",
+    "vary": "Origin",
+    "via": "1.1 2d6460135a39e6ca82c7d39b6b2befc2.cloudfront.net (CloudFront)",
+    "x-amz-cf-id": "xRLhRIubrJNpGBBaOjnNebtKvmmf0JThAJLk2-Ko8bvC0SRY3q7aqA==",
+    "x-amz-cf-pop": "BOS50-P3",
+    "x-cache": "Miss from cloudfront",
+    "x-content-type-options": "nosniff",
+    "x-frame-options": "SAMEORIGIN",
+    "x-ratelimit-limit": "300",
+    "x-ratelimit-remaining": "279",
+    "x-xss-protection": "1; mode=block"
+  },
+  "response_body": null,
+  "response_body_known": false,
+  "redactions": [
+    "request_headers.x-xsrf-token"
+  ]
+}

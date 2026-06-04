@@ -5,6 +5,10 @@
   "api_name": "numista",
   "display_name": "Numista Documentation",
   "cli_name": "numista-pp-cli",
+  "creator": {
+    "handle": "vinnyp",
+    "name": "Vinny Pasceri"
+  },
   "owner": "vinny-pasceri",
   "printer": "vinnyp",
   "printer_name": "Vinny Pasceri",

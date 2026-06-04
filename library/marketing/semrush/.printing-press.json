@@ -5,6 +5,10 @@
   "api_name": "semrush",
   "display_name": "Semrush",
   "cli_name": "semrush-pp-cli",
+  "creator": {
+    "handle": "Charles-Garrison",
+    "name": "Charles Garrison"
+  },
   "owner": "charles-garrison",
   "printer": "Charles-Garrison",
   "printer_name": "Charles Garrison",

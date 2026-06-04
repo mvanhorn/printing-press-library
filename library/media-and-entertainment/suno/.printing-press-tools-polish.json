@@ -1,5 +1,17 @@
 {
-  "timestamp": "2026-05-15T03:00:55.169213Z",
-  "cli_dir": "\u003ccli-dir\u003e/suno-pp-cli",
-  "findings": null
+  "timestamp": "2026-05-30T15:31:08.168731Z",
+  "cli_dir": "\u003ccli-dir\u003e",
+  "findings": [
+    {
+      "kind": "missing-read-only",
+      "command": "describe",
+      "file": "suno_describe.go",
+      "line": 33,
+      "evidence": "name matches read heuristic; no mcp:read-only annotation"
+    }
+  ],
+  "scorecard_before": {
+    "mcp_description_quality": 5,
+    "captured": "2026-05-30T14:32:39.923374Z"
+  }
 }

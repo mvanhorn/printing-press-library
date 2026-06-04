@@ -1,0 +1,50 @@
+Runtime Verification: /Users/smacdonald/printing-press/.runstate/erank-cli-7b28418c/runs/20260531-142147/working/erank-pp-cli/erank-pp-cli
+Mode: mock
+
+COMMAND                        KIND         HELP   DRY-RUN  EXEC     SCORE
+agent-context                  read         PASS   PASS     PASS     3/3
+analytics                      data-layer   PASS   PASS     PASS     3/3
+angles                         read         PASS   PASS     PASS     3/3
+api                            local        PASS   PASS     PASS     3/3
+auth                           local        PASS   PASS     PASS     3/3
+browser-session-proof          read         PASS   PASS     PASS     3/3
+build                          read         PASS   PASS     PASS     3/3
+check-paddle-restriction       read         PASS   PASS     PASS     3/3
+doctor                         local        PASS   PASS     PASS     3/3
+feedback                       read         PASS   PASS     PASS     3/3
+import                         data-layer   PASS   PASS     PASS     3/3
+intercom                       read         PASS   PASS     PASS     3/3
+listing                        read         PASS   PASS     FAIL     2/3
+lists                          read         PASS   PASS     FAIL     2/3
+member-shops                   read         PASS   PASS     PASS     3/3
+motd-v3                        read         PASS   PASS     PASS     3/3
+oauth                          read         PASS   PASS     PASS     3/3
+opportunity                    read         PASS   PASS     PASS     3/3
+profile                        read         PASS   PASS     FAIL     2/3
+quota                          read         PASS   PASS     PASS     3/3
+refresh-data                   read         PASS   PASS     PASS     3/3
+saturation                     read         PASS   PASS     PASS     3/3
+search                         data-layer   PASS   PASS     PASS     3/3
+sync                           data-layer   PASS   PASS     PASS     3/3
+tags                           read         PASS   PASS     FAIL     2/3
+tail                           data-layer   PASS   PASS     PASS     3/3
+watch                          read         PASS   PASS     FAIL     2/3
+which                          read         PASS   PASS     PASS     3/3
+workflow                       read         PASS   PASS     FAIL     2/3
+browser-session-proof          auth         PASS   PASS     PASS     3/3
+
+Path-Param Probes (nested commands with <positional> args):
+  PASS auth set-token
+  PASS listing gaps
+  PASS lists optimize
+  PASS profile delete
+  PASS profile save
+  PASS profile show
+  PASS profile use
+  PASS tags consensus
+  PASS watch drift
+
+Data Pipeline: PASS: sync completed (sql unavailable, table validation skipped)
+Browser Session Proof: valid
+Pass Rate: 100% (39/39 passed, 0 critical)
+Verdict: PASS

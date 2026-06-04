@@ -1,4 +1,4 @@
-// Copyright 2026 mvanhorn. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Matias Sanchez Moises and contributors. Licensed under Apache-2.0. See LICENSE.
 //
 // PATCH(messages-readonly-chatdb): opens ~/Library/Messages/chat.db read-only
 // via the file: URI prefix on modernc.org/sqlite. Without that prefix the
@@ -65,19 +65,19 @@ type ChatRow struct {
 // MessageRow is one row from the message table with text decoded from
 // attributedBody when message.text is NULL.
 type MessageRow struct {
-	ROWID            int64      `json:"rowid"`
-	GUID             string     `json:"guid"`
-	ChatGUID         string     `json:"chat_guid,omitempty"`
-	ChatDisplayName  string     `json:"chat_display_name,omitempty"`
-	HandleID         *int64     `json:"handle_id,omitempty"`
-	HandleAddress    string     `json:"handle,omitempty"`
-	IsFromMe         bool       `json:"is_from_me"`
-	Date             time.Time  `json:"date"`
-	DateEdited       *time.Time `json:"date_edited,omitempty"`
-	Text             string     `json:"text"`
-	TextSource       string     `json:"text_source"`
-	HasAttachments   bool       `json:"has_attachments"`
-	AssociatedType   *int       `json:"associated_type,omitempty"`
+	ROWID           int64      `json:"rowid"`
+	GUID            string     `json:"guid"`
+	ChatGUID        string     `json:"chat_guid,omitempty"`
+	ChatDisplayName string     `json:"chat_display_name,omitempty"`
+	HandleID        *int64     `json:"handle_id,omitempty"`
+	HandleAddress   string     `json:"handle,omitempty"`
+	IsFromMe        bool       `json:"is_from_me"`
+	Date            time.Time  `json:"date"`
+	DateEdited      *time.Time `json:"date_edited,omitempty"`
+	Text            string     `json:"text"`
+	TextSource      string     `json:"text_source"`
+	HasAttachments  bool       `json:"has_attachments"`
+	AssociatedType  *int       `json:"associated_type,omitempty"`
 }
 
 // HandleRow is one row from the handle table.

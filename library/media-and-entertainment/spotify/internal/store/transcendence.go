@@ -1,4 +1,4 @@
-// Copyright 2026 rob-coco. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Rob Zehner and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // Transcendence-feature schema. These tables back the 12 novel features that
 // distinguish spotify-pp-cli from the field (snapshot diff, top-tracks drift,

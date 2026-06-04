@@ -1,7 +1,7 @@
 ---
 name: pp-squarespace
 description: "Squarespace Commerce plus browser-backed account domains, DNS, email forwarding, and billing reads."
-author: "zayd"
+author: "Zayd"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"
 allowed-tools: "Read Bash"
@@ -15,7 +15,7 @@ metadata:
      This file is a verbatim mirror of library/commerce/squarespace/SKILL.md,
      regenerated post-merge by tools/generate-skills/. Hand-edits here are
      silently overwritten on the next regen. Edit the library/ source instead.
-     See AGENTS.md "Generated artifacts: registry.json, cli-skills/". -->
+     See the repository agent guide, section "Generated artifacts: registry.json, cli-skills/". -->
 
 # Squarespace — Printing Press CLI
 

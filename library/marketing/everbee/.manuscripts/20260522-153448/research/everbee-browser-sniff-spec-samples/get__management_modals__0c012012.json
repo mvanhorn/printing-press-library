@@ -1,0 +1,60 @@
+{
+  "endpoint": "GET /management_modals",
+  "method": "GET",
+  "raw_url": "https://api.everbee.com/management_modals",
+  "status": 200,
+  "request_headers": {
+    ":authority": "api.everbee.com",
+    ":method": "GET",
+    ":path": "/management_modals",
+    ":scheme": "https",
+    "accept": "application/json",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9",
+    "cache-control": "no-cache",
+    "origin": "https://app.everbee.io",
+    "pragma": "no-cache",
+    "priority": "u=1, i",
+    "referer": "https://app.everbee.io/",
+    "sec-ch-ua": "\"Chromium\";v=\"148\", \"Google Chrome\";v=\"148\", \"Not/A)Brand\";v=\"99\"",
+    "sec-ch-ua-mobile": "?0",
+    "sec-ch-ua-platform": "\"macOS\"",
+    "sec-fetch-dest": "empty",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-site": "cross-site",
+    "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36",
+    "x-access-token": "<redacted>"
+  },
+  "request_body": null,
+  "response_headers": {
+    "access-control-allow-methods": "GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD",
+    "access-control-allow-origin": "*",
+    "access-control-expose-headers": "",
+    "access-control-max-age": "7200",
+    "cache-control": "max-age=0, private, must-revalidate",
+    "content-encoding": "gzip",
+    "content-length": "114",
+    "content-type": "application/json; charset=utf-8",
+    "date": "Fri, 22 May 2026 19:41:03 GMT",
+    "etag": "W/\"590aad5cdeb301ff728638d0527e961c\"",
+    "referrer-policy": "strict-origin-when-cross-origin",
+    "vary": "Accept, Accept-Encoding, Origin",
+    "x-content-type-options": "nosniff",
+    "x-download-options": "noopen",
+    "x-frame-options": "SAMEORIGIN",
+    "x-permitted-cross-domain-policies": "none",
+    "x-request-id": "e58a9f64-f029-4f90-8496-8e1db6894cc9",
+    "x-runtime": "0.158253",
+    "x-xss-protection": "1; mode=block"
+  },
+  "response_body": {
+    "last_reset_at": "2026-05-22T11:57:40Z",
+    "show_manage_keyword_modal": true,
+    "show_manage_listing_modal": true,
+    "show_manage_shop_modal": true
+  },
+  "response_body_known": true,
+  "redactions": [
+    "request_headers.x-access-token"
+  ]
+}

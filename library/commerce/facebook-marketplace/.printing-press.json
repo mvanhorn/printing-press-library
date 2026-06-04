@@ -5,6 +5,10 @@
   "api_name": "facebook-marketplace",
   "display_name": "Facebook Marketplace",
   "cli_name": "facebook-marketplace-pp-cli",
+  "creator": {
+    "handle": "cathrynlavery",
+    "name": "Cathryn Lavery"
+  },
   "owner": "user",
   "printer": "cathrynlavery",
   "printer_name": "Cathryn Lavery",

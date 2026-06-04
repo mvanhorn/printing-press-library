@@ -1,4 +1,4 @@
-// Copyright 2026 quantumglitch. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 QuantumGlitch and contributors. Licensed under Apache-2.0. See LICENSE.
 
 package cli
 
@@ -7,8 +7,8 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/spf13/cobra"
 	moba "github.com/mvanhorn/printing-press-library/library/media-and-entertainment/mobalytics-lol/internal/mobalytics"
+	"github.com/spf13/cobra"
 )
 
 // newPowerSpikeCmd ranks champions by early/mid/late spike strength.
@@ -54,11 +54,11 @@ does not expose a flat power-spike field on its HTML pages.`,
 				candidates = candidates[:30]
 			}
 			type entry struct {
-				Slug       string `json:"slug"`
-				Tier       string `json:"tier"`
-				Role       string `json:"role"`
+				Slug        string `json:"slug"`
+				Tier        string `json:"tier"`
+				Role        string `json:"role"`
 				CoreTimeSec int    `json:"coreTimeToTargetSec"`
-				Phase      string `json:"phase"`
+				Phase       string `json:"phase"`
 			}
 			out := []entry{}
 			seen := map[string]bool{}

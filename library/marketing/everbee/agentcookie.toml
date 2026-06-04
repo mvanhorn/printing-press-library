@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "everbee-pp-cli"
+display_name = "EverBee"
+description = "Research Etsy products, shops, and keywords from EverBee in a repeatable agent-ready workflow."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/everbee-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+EVERBEE_ACCESS_TOKEN = true

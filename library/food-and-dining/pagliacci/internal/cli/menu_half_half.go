@@ -1,4 +1,4 @@
-// Copyright 2026 trevin-chow. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Trevin Chow and contributors. Licensed under Apache-2.0. See LICENSE.
 
 package cli
 
@@ -8,8 +8,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/pagliacci/internal/client"
+	"github.com/spf13/cobra"
 )
 
 // HalfHalfResult is the structured output of `menu half-half`.

@@ -1,0 +1,1182 @@
+{
+  "dir": "/Users/smacdonald/homegit/everbee-cli",
+  "binary": "/Users/smacdonald/homegit/everbee-cli/everbee-pp-cli-dogfood",
+  "level": "full",
+  "verdict": "PASS",
+  "matrix_size": 65,
+  "passed": 65,
+  "failed": 0,
+  "skipped": 52,
+  "commands": [
+    "api",
+    "competitors watch",
+    "doctor",
+    "export",
+    "feedback list",
+    "folders",
+    "import",
+    "keyword-research",
+    "keywords cluster",
+    "listing audit",
+    "management-modals",
+    "niche score",
+    "opportunity shortlist",
+    "product-analytics",
+    "profile delete",
+    "profile list",
+    "profile save",
+    "profile show",
+    "profile use",
+    "search",
+    "shop gaps",
+    "shops",
+    "skill install",
+    "sync",
+    "tags gap",
+    "trends diff",
+    "which",
+    "workflow archive",
+    "workflow status"
+  ],
+  "tests": [
+    {
+      "command": "api",
+      "kind": "help",
+      "args": [
+        "api",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Browse and call any API endpoint using the raw interface names.\n\nThe friendly top-level commands cover the most common operations.\nThis command provides access to ALL endpoints for power users and\nagents that need full API coverage.\n\nRun 'api' with no arguments to list all interfaces.\nRun 'api \u003cinterface\u003e' to see that interface's methods.\n\nUsage:\n  everbee-pp-cli api [interface] [flags]\n\nExamples:\n  # List all available interfaces\n  everbee-pp-cli api\n\n  # Show methods for a specific interface\n  everbee-pp-cli api \u003cinterface-name\u003e\n\nFlags:\n  -h, --help   help for api\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'everbee-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "api",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "api",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "api",
+      "kind": "error_path",
+      "args": [
+        "api",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: interface \"__printing_press_invalid__\" not found. Run 'everbee-pp-cli api' to list all interfaces\n"
+    },
+    {
+      "command": "competitors watch",
+      "kind": "help",
+      "args": [
+        "competitors",
+        "watch",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Summarize changed competitor shop signals\n\nUsage:\n  everbee-pp-cli competitors watch [flags]\n\nExamples:\n  everbee-pp-cli competitors watch --shop competitor-shop --json\n\nFlags:\n  -h, --help               help for watch\n      --max-age duration   Maximum age for local EverBee research data (default 6h0m0s)\n      --no-refresh         Use local EverBee research data only\n      --refresh            Force a targeted EverBee refresh before analysis\n      --shop string        Competitor shop name or handle\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'everbee-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "competitors watch",
+      "kind": "happy_path",
+      "args": [
+        "competitors",
+        "watch",
+        "--shop",
+        "competitor-shop",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"scope\": {\n    \"kind\": \"shop\",\n    \"value\": \"competitor-shop\"\n  },\n  \"data_source\": \"none\",\n  \"freshness\": {\n    \"fetched_at\": \"0001-01-01T00:00:00Z\",\n    \"age_seconds\": 0,\n    \"max_age_seconds\": 0,\n    \"fresh\": false\n  },\n  \"summary\": \"No competitor evidence found for \\\"competitor-shop\\\".\",\n  \"records\": [],\n  \"evidence\": [],\n  \"confidence\": 0,\n  \"coverage\": {\n    \"raw_record_count\": 0,\n    \"evidence_record_count\": 0\n  },\n  \"warnings\": [\n    \"fetch shops failed: GET /shops returned HTTP 401: {\\\"message\\\":\\\"Could not authenticate with the provided credentials.\\\"}\",\n    \"fetch product_analytics failed: GET /product_analytics/default_product_analytics returned HTTP 401: {\\\"message\\\":\\\"Could not authenticate with the provided credentials.\\\"}\",\n    \"targeted EverBee refresh failed: targeted EverBee refresh returned no usable evidence\"\n  ],\n  \"next_actions\": [\n    \"Run a targeted competitor refresh for this shop.\"\n  ]\n}\n"
+    },
+    {
+      "command": "competitors watch",
+      "kind": "json_fidelity",
+      "args": [
+        "competitors",
+        "watch",
+        "--shop",
+        "competitor-shop",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"scope\": {\n    \"kind\": \"shop\",\n    \"value\": \"competitor-shop\"\n  },\n  \"data_source\": \"none\",\n  \"freshness\": {\n    \"fetched_at\": \"0001-01-01T00:00:00Z\",\n    \"age_seconds\": 0,\n    \"max_age_seconds\": 0,\n    \"fresh\": false\n  },\n  \"summary\": \"No competitor evidence found for \\\"competitor-shop\\\".\",\n  \"records\": [],\n  \"evidence\": [],\n  \"confidence\": 0,\n  \"coverage\": {\n    \"raw_record_count\": 0,\n    \"evidence_record_count\": 0\n  },\n  \"warnings\": [\n    \"fetch shops failed: GET /shops returned HTTP 401: {\\\"message\\\":\\\"Could not authenticate with the provided credentials.\\\"}\",\n    \"fetch product_analytics failed: GET /product_analytics/default_product_analytics returned HTTP 401: {\\\"message\\\":\\\"Could not authenticate with the provided credentials.\\\"}\",\n    \"targeted EverBee refresh failed: targeted EverBee refresh returned no usable evidence\"\n  ],\n  \"next_actions\": [\n    \"Run a targeted competitor refresh for this shop.\"\n  ]\n}\n"
+    },
+    {
+      "command": "competitors watch",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "doctor",
+      "kind": "help",
+      "args": [
+        "doctor",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Check CLI health\n\nUsage:\n  everbee-pp-cli doctor [flags]\n\nExamples:\n  everbee-pp-cli doctor\n  everbee-pp-cli doctor --json\n  everbee-pp-cli doctor --fail-on warn\n\nFlags:\n      --fail-on string   Exit non-zero when a health level is reached: stale, error. Default is never.\n  -h, --help             help for doctor\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'everbee-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "happy_path",
+      "args": [
+        "doctor"
+      ],
+      "status": "pass",
+      "output_sample": "  OK Config: ok\n  FAIL Auth: not configured\n  FAIL Env Vars: ERROR missing required: EVERBEE_ACCESS_TOKEN\n  OK Verify Mode: normal operation\n  OK API: reachable\n  config_path: /var/folders/zt/jx7yw5d566gf4y2xd31446lh0000gn/T/printing-press-subprocess-278918619/.config/everbee-pp-cli/config.toml\n  base_url: https://api.everbee.com\n  version: 1.0.0\n  hint: export EVERBEE_ACCESS_TOKEN=\u003cyour-key\u003e\n  INFO Cache: unknown\n    db_path: /var/folders/zt/jx7yw5d566gf4y2xd31446lh0000gn/T/printing-press-subprocess-278918619/.local/share/everbee-pp-cli/data.db\n    schema_version: 2\n    db_bytes: 57344\n    stale_after: 6h0m0s\n    hint: sync_state is empty; run 'everbee-pp-cli sync' to hydrate.\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "json_fidelity",
+      "args": [
+        "doctor",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"api\": \"reachable\",\n  \"auth\": \"not configured\",\n  \"auth_hint\": \"export EVERBEE_ACCESS_TOKEN=\\u003cyour-key\\u003e\",\n  \"base_url\": \"https://api.everbee.com\",\n  \"cache\": {\n    \"db_bytes\": 57344,\n    \"db_path\": \"/var/folders/zt/jx7yw5d566gf4y2xd31446lh0000gn/T/printing-press-subprocess-278918619/.local/share/everbee-pp-cli/data.db\",\n    \"hint\": \"sync_state is empty; run 'everbee-pp-cli sync' to hydrate.\",\n    \"resources\": null,\n    \"schema_version\": 2,\n    \"stale_after\": \"6h0m0s\",\n    \"status\": \"unknown\"\n  },\n  \"config\": \"ok\",\n  \"config_path\": \"/var/folders/zt/jx7yw5d566gf4y2xd31446lh0000gn/T/printing-press-subprocess-278918619/.config/everbee-pp-cli/config.toml\",\n  \"env_vars\": \"ERROR missing required: EVERBEE_ACCESS_TOKEN\",\n  \"verify_mode\": \"normal operation\",\n  \"version\": \"1.0.0\"\n}\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "export",
+      "kind": "help",
+      "args": [
+        "export",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Export paginated API data to a local file. Supports JSONL (one JSON object\nper line, streaming-friendly) and JSON (array). JSONL is recommended for\nlarge datasets as it has no memory pressure.\n\nUsage:\n  everbee-pp-cli export \u003cresource\u003e [id] [flags]\n\nExamples:\n  # Export all items as JSONL (streaming, recommended for large datasets)\n  everbee-pp-cli export \u003cresource\u003e --format jsonl --output data.jsonl\n\n  # Export with limit\n  everbee-pp-cli export \u003cresource\u003e --format jsonl --limit 1000\n\n  # Pipe to another tool\n  everbee-pp-cli export \u003cresource\u003e --format jsonl | jq '.id'\n\nFlags:\n      --format string   Output format: jsonl or json (default \"jsonl\")\n  -h, --help            help for export\n      --limit int       Maximum records to export (0 = unlimited)\n      --no-cache        Bypass response cache for fresh data\n  -o, --output string   Output file path (default: stdout)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'everbee-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "export",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [export] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "export",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [export] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "export",
+      "kind": "error_path",
+      "args": [
+        "export",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: unknown resource \"__printing_press_invalid__\"; valid: folders, management_modals, shops\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "help",
+      "args": [
+        "feedback",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List recent feedback entries\n\nUsage:\n  everbee-pp-cli feedback list [flags]\n\nExamples:\n  everbee-pp-cli feedback list\n  everbee-pp-cli feedback list --limit 5\n  everbee-pp-cli feedback list --json\n\nFlags:\n  -h, --help        help for list\n      --limit int   Maximum number of recent entries to return (default 20)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'everbee-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "happy_path",
+      "args": [
+        "feedback",
+        "list"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "feedback list",
+      "kind": "json_fidelity",
+      "args": [
+        "feedback",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "folders",
+      "kind": "help",
+      "args": [
+        "folders",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Shortcut for 'folders list_folders'. GET /folders\n\nUsage:\n  everbee-pp-cli folders [flags]\n\nExamples:\n  everbee-pp-cli folders\n\nFlags:\n  -h, --help          help for folders\n      --type string   Folder type observed in EverBee traffic: listing, keyword_analytic, or shop (default \"listing\")\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'everbee-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "folders",
+      "kind": "happy_path",
+      "args": [
+        "folders"
+      ],
+      "status": "skip",
+      "exit_code": 4,
+      "reason": "unavailable for runner credentials",
+      "output_sample": "Error: GET /folders returned HTTP 401: {\"message\":\"Could not authenticate with the provided credentials.\"}\nhint: check your API key. Set it with: export EVERBEE_ACCESS_TOKEN=\u003cyour-key\u003e\n      See API docs: https://api.everbee.com\n      Run 'everbee-pp-cli doctor' to check auth status.\n"
+    },
+    {
+      "command": "folders",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "unavailable for runner credentials"
+    },
+    {
+      "command": "folders",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "import",
+      "kind": "help",
+      "args": [
+        "import",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Import data from a JSONL file by issuing POST requests for each record.\nEach line must be a valid JSON object. Failed records are logged to stderr\nbut do not stop the import.\n\nUsage:\n  everbee-pp-cli import \u003cresource\u003e [flags]\n\nExamples:\n  # Import from a JSONL file\n  everbee-pp-cli import \u003cresource\u003e --input data.jsonl\n\n  # Dry-run to preview without sending\n  everbee-pp-cli import \u003cresource\u003e --input data.jsonl --dry-run\n\n  # Import from stdin\n  cat data.jsonl | everbee-pp-cli import \u003cresource\u003e --input -\n\nFlags:\n      --batch-size int   Records per batch (future: batch API support) (default 1)\n      --dry-run          Preview import without sending requests\n  -h, --help             help for import\n  -i, --input string     Input JSONL file path (use - for stdin)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'everbee-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "import",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [import] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "import",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [import] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "import",
+      "kind": "error_path",
+      "args": [
+        "import",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: required flag(s) \"input\" not set\n"
+    },
+    {
+      "command": "keyword-research",
+      "kind": "help",
+      "args": [
+        "keyword-research",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Shortcut for 'keyword_research list_default_keyword_suggestion'. GET /keyword_research/default_keyword_suggestion\n\nUsage:\n  everbee-pp-cli keyword-research [flags]\n\nExamples:\n  everbee-pp-cli keyword-research\n\nFlags:\n  -h, --help                     help for keyword-research\n      --order-by string          Sort field observed in EverBee traffic (default \"new_volume\")\n      --order-direction string   Sort direction (default \"desc\")\n      --page string              Result page (default \"1\")\n      --type-of-search string    EverBee keyword search mode (default \"keywords_suggestion\")\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'everbee-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "keyword-research",
+      "kind": "happy_path",
+      "args": [
+        "keyword-research"
+      ],
+      "status": "skip",
+      "exit_code": 4,
+      "reason": "unavailable for runner credentials",
+      "output_sample": "Error: GET /keyword_research/default_keyword_suggestion returned HTTP 401: {\"message\":\"Could not authenticate with the provided credentials.\"}\nhint: check your API key. Set it with: export EVERBEE_ACCESS_TOKEN=\u003cyour-key\u003e\n      See API docs: https://api.everbee.com\n      Run 'everbee-pp-cli doctor' to check auth status.\n"
+    },
+    {
+      "command": "keyword-research",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "unavailable for runner credentials"
+    },
+    {
+      "command": "keyword-research",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "keywords cluster",
+      "kind": "help",
+      "args": [
+        "keywords",
+        "cluster",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Group keyword suggestions by shared terms\n\nUsage:\n  everbee-pp-cli keywords cluster [flags]\n\nExamples:\n  everbee-pp-cli keywords cluster --seed \"wedding sign\" --json\n\nFlags:\n  -h, --help               help for cluster\n      --max-age duration   Maximum age for local EverBee research data (default 6h0m0s)\n      --no-refresh         Use local EverBee research data only\n      --refresh            Force a targeted EverBee refresh before analysis\n      --seed string        Seed keyword for clustering\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'everbee-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "keywords cluster",
+      "kind": "happy_path",
+      "args": [
+        "keywords",
+        "cluster",
+        "--seed",
+        "wedding sign",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"scope\": {\n    \"kind\": \"keyword\",\n    \"value\": \"wedding sign\"\n  },\n  \"data_source\": \"none\",\n  \"freshness\": {\n    \"fetched_at\": \"0001-01-01T00:00:00Z\",\n    \"age_seconds\": 0,\n    \"max_age_seconds\": 0,\n    \"fresh\": false\n  },\n  \"summary\": \"Clustered 0 keyword groups for \\\"wedding sign\\\".\",\n  \"records\": [],\n  \"evidence\": [],\n  \"confidence\": 0,\n  \"coverage\": {\n    \"raw_record_count\": 0,\n    \"evidence_record_count\": 0\n  },\n  \"warnings\": [\n    \"fetch product_analytics failed: GET /product_analytics/default_product_analytics returned HTTP 401: {\\\"message\\\":\\\"Could not authenticate with the provided credentials.\\\"}\",\n    \"fetch keyword_research failed: GET /keyword_research/default_keyword_suggestion returned HTTP 401: {\\\"message\\\":\\\"Could not authenticate with the provided credentials.\\\"}\",\n    \"targeted EverBee refresh failed: targeted EverBee refresh returned no usable evidence\"\n  ],\n  \"next_actions\": [\n    \"Use clusters to group listing tags and product variants.\",\n    \"Refresh keyword research when cluster coverage is thin.\"\n  ]\n}\n"
+    },
+    {
+      "command": "keywords cluster",
+      "kind": "json_fidelity",
+      "args": [
+        "keywords",
+        "cluster",
+        "--seed",
+        "wedding sign",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"scope\": {\n    \"kind\": \"keyword\",\n    \"value\": \"wedding sign\"\n  },\n  \"data_source\": \"none\",\n  \"freshness\": {\n    \"fetched_at\": \"0001-01-01T00:00:00Z\",\n    \"age_seconds\": 0,\n    \"max_age_seconds\": 0,\n    \"fresh\": false\n  },\n  \"summary\": \"Clustered 0 keyword groups for \\\"wedding sign\\\".\",\n  \"records\": [],\n  \"evidence\": [],\n  \"confidence\": 0,\n  \"coverage\": {\n    \"raw_record_count\": 0,\n    \"evidence_record_count\": 0\n  },\n  \"warnings\": [\n    \"fetch product_analytics failed: GET /product_analytics/default_product_analytics returned HTTP 401: {\\\"message\\\":\\\"Could not authenticate with the provided credentials.\\\"}\",\n    \"fetch keyword_research failed: GET /keyword_research/default_keyword_suggestion returned HTTP 401: {\\\"message\\\":\\\"Could not authenticate with the provided credentials.\\\"}\",\n    \"targeted EverBee refresh failed: targeted EverBee refresh returned no usable evidence\"\n  ],\n  \"next_actions\": [\n    \"Use clusters to group listing tags and product variants.\",\n    \"Refresh keyword research when cluster coverage is thin.\"\n  ]\n}\n"
+    },
+    {
+      "command": "keywords cluster",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "listing audit",
+      "kind": "help",
+      "args": [
+        "listing",
+        "audit",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Audit listing keyword and tag fit\n\nUsage:\n  everbee-pp-cli listing audit [flags]\n\nExamples:\n  everbee-pp-cli listing audit --listing-id 123456789 --json\n\nFlags:\n  -h, --help                help for audit\n      --listing-id string   Etsy listing ID\n      --max-age duration    Maximum age for local EverBee research data (default 6h0m0s)\n      --no-refresh          Use local EverBee research data only\n      --refresh             Force a targeted EverBee refresh before analysis\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'everbee-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "listing audit",
+      "kind": "happy_path",
+      "args": [
+        "listing",
+        "audit",
+        "--listing-id",
+        "123456789",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"scope\": {\n    \"kind\": \"listing_id\",\n    \"value\": \"123456789\"\n  },\n  \"data_source\": \"none\",\n  \"freshness\": {\n    \"fetched_at\": \"0001-01-01T00:00:00Z\",\n    \"age_seconds\": 0,\n    \"max_age_seconds\": 0,\n    \"fresh\": false\n  },\n  \"summary\": \"Audited listing \\\"123456789\\\" with 0 matching evidence records.\",\n  \"records\": [],\n  \"evidence\": [],\n  \"confidence\": 0,\n  \"coverage\": {\n    \"raw_record_count\": 0,\n    \"evidence_record_count\": 0\n  },\n  \"warnings\": [\n    \"fetch product_analytics failed: GET /product_analytics/default_product_analytics returned HTTP 401: {\\\"message\\\":\\\"Could not authenticate with the provided credentials.\\\"}\",\n    \"fetch keyword_research failed: GET /keyword_research/default_keyword_suggestion returned HTTP 401: {\\\"message\\\":\\\"Could not authenticate with the provided credentials.\\\"}\",\n    \"targeted EverBee refresh failed: targeted EverBee refresh returned no usable evidence\"\n  ],\n  \"next_actions\": [\n    \"Compare listing tags against keyword evidence.\",\n    \"Refresh listing-scoped research before editing production listings.\"\n  ]\n}\n"
+    },
+    {
+      "command": "listing audit",
+      "kind": "json_fidelity",
+      "args": [
+        "listing",
+        "audit",
+        "--listing-id",
+        "123456789",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"scope\": {\n    \"kind\": \"listing_id\",\n    \"value\": \"123456789\"\n  },\n  \"data_source\": \"none\",\n  \"freshness\": {\n    \"fetched_at\": \"0001-01-01T00:00:00Z\",\n    \"age_seconds\": 0,\n    \"max_age_seconds\": 0,\n    \"fresh\": false\n  },\n  \"summary\": \"Audited listing \\\"123456789\\\" with 0 matching evidence records.\",\n  \"records\": [],\n  \"evidence\": [],\n  \"confidence\": 0,\n  \"coverage\": {\n    \"raw_record_count\": 0,\n    \"evidence_record_count\": 0\n  },\n  \"warnings\": [\n    \"fetch product_analytics failed: GET /product_analytics/default_product_analytics returned HTTP 401: {\\\"message\\\":\\\"Could not authenticate with the provided credentials.\\\"}\",\n    \"fetch keyword_research failed: GET /keyword_research/default_keyword_suggestion returned HTTP 401: {\\\"message\\\":\\\"Could not authenticate with the provided credentials.\\\"}\",\n    \"targeted EverBee refresh failed: targeted EverBee refresh returned no usable evidence\"\n  ],\n  \"next_actions\": [\n    \"Compare listing tags against keyword evidence.\",\n    \"Refresh listing-scoped research before editing production listings.\"\n  ]\n}\n"
+    },
+    {
+      "command": "listing audit",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "management-modals",
+      "kind": "help",
+      "args": [
+        "management-modals",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Shortcut for 'management_modals list_management_modals'. GET /management_modals\n\nUsage:\n  everbee-pp-cli management-modals [flags]\n\nExamples:\n  everbee-pp-cli management-modals --last-reset-at 2026-01-15T09:00:00Z --show-manage-keyword-modal your-token-here --show-manage-listing-modal true --show-manage-shop-modal true\n\nFlags:\n  -h, --help                        help for management-modals\n      --last-reset-at string        \n      --show-manage-keyword-modal   \n      --show-manage-listing-modal   \n      --show-manage-shop-modal\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'everbee-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "management-modals",
+      "kind": "happy_path",
+      "args": [
+        "management-modals",
+        "--last-reset-at",
+        "2026-01-15T09:00:00Z",
+        "--show-manage-keyword-modal",
+        "your-token-here",
+        "--show-manage-listing-modal",
+        "true",
+        "--show-manage-shop-modal",
+        "true"
+      ],
+      "status": "skip",
+      "exit_code": 4,
+      "reason": "unavailable for runner credentials",
+      "output_sample": "Error: GET /management_modals returned HTTP 401: {\"message\":\"Could not authenticate with the provided credentials.\"}\nhint: check your API key. Set it with: export EVERBEE_ACCESS_TOKEN=\u003cyour-key\u003e\n      See API docs: https://api.everbee.com\n      Run 'everbee-pp-cli doctor' to check auth status.\n"
+    },
+    {
+      "command": "management-modals",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "unavailable for runner credentials"
+    },
+    {
+      "command": "management-modals",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "niche score",
+      "kind": "help",
+      "args": [
+        "niche",
+        "score",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Score a niche using product and keyword history\n\nUsage:\n  everbee-pp-cli niche score [flags]\n\nExamples:\n  everbee-pp-cli niche score --keyword \"mother's day mug\" --json\n\nFlags:\n  -h, --help               help for score\n      --keyword string     Keyword or niche phrase to score\n      --max-age duration   Maximum age for local EverBee research data (default 6h0m0s)\n      --no-refresh         Use local EverBee research data only\n      --refresh            Force a targeted EverBee refresh before analysis\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'everbee-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "niche score",
+      "kind": "happy_path",
+      "args": [
+        "niche",
+        "score",
+        "--keyword",
+        "mother's day mug",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"scope\": {\n    \"kind\": \"keyword\",\n    \"value\": \"mother's day mug\"\n  },\n  \"data_source\": \"none\",\n  \"freshness\": {\n    \"fetched_at\": \"0001-01-01T00:00:00Z\",\n    \"age_seconds\": 0,\n    \"max_age_seconds\": 0,\n    \"fresh\": false\n  },\n  \"summary\": \"Scored niche \\\"mother's day mug\\\" with 0 matching signals.\",\n  \"records\": [],\n  \"evidence\": [],\n  \"confidence\": 0,\n  \"coverage\": {\n    \"raw_record_count\": 0,\n    \"evidence_record_count\": 0\n  },\n  \"warnings\": [\n    \"fetch product_analytics failed: GET /product_analytics/default_product_analytics returned HTTP 401: {\\\"message\\\":\\\"Could not authenticate with the provided credentials.\\\"}\",\n    \"fetch keyword_research failed: GET /keyword_research/default_keyword_suggestion returned HTTP 401: {\\\"message\\\":\\\"Could not authenticate with the provided credentials.\\\"}\",\n    \"targeted EverBee refresh failed: targeted EverBee refresh returned no usable evidence\"\n  ],\n  \"next_actions\": [\n    \"Compare top signals against current listing inventory.\",\n    \"Refresh targeted EverBee research before final product decisions.\"\n  ]\n}\n"
+    },
+    {
+      "command": "niche score",
+      "kind": "json_fidelity",
+      "args": [
+        "niche",
+        "score",
+        "--keyword",
+        "mother's day mug",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"scope\": {\n    \"kind\": \"keyword\",\n    \"value\": \"mother's day mug\"\n  },\n  \"data_source\": \"none\",\n  \"freshness\": {\n    \"fetched_at\": \"0001-01-01T00:00:00Z\",\n    \"age_seconds\": 0,\n    \"max_age_seconds\": 0,\n    \"fresh\": false\n  },\n  \"summary\": \"Scored niche \\\"mother's day mug\\\" with 0 matching signals.\",\n  \"records\": [],\n  \"evidence\": [],\n  \"confidence\": 0,\n  \"coverage\": {\n    \"raw_record_count\": 0,\n    \"evidence_record_count\": 0\n  },\n  \"warnings\": [\n    \"fetch product_analytics failed: GET /product_analytics/default_product_analytics returned HTTP 401: {\\\"message\\\":\\\"Could not authenticate with the provided credentials.\\\"}\",\n    \"fetch keyword_research failed: GET /keyword_research/default_keyword_suggestion returned HTTP 401: {\\\"message\\\":\\\"Could not authenticate with the provided credentials.\\\"}\",\n    \"targeted EverBee refresh failed: targeted EverBee refresh returned no usable evidence\"\n  ],\n  \"next_actions\": [\n    \"Compare top signals against current listing inventory.\",\n    \"Refresh targeted EverBee research before final product decisions.\"\n  ]\n}\n"
+    },
+    {
+      "command": "niche score",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "opportunity shortlist",
+      "kind": "help",
+      "args": [
+        "opportunity",
+        "shortlist",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Rank product opportunities from local EverBee snapshots\n\nUsage:\n  everbee-pp-cli opportunity shortlist [flags]\n\nExamples:\n  everbee-pp-cli opportunity shortlist --query \"teacher gift\" --limit 25 --json\n\nFlags:\n  -h, --help               help for shortlist\n      --limit int          Maximum records to return (default 25)\n      --max-age duration   Maximum age for local EverBee research data (default 6h0m0s)\n      --no-refresh         Use local EverBee research data only\n      --query string       Product or keyword phrase to rank\n      --refresh            Force a targeted EverBee refresh before analysis\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'everbee-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "opportunity shortlist",
+      "kind": "happy_path",
+      "args": [
+        "opportunity",
+        "shortlist",
+        "--query",
+        "teacher gift",
+        "--limit",
+        "25",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"scope\": {\n    \"kind\": \"query\",\n    \"value\": \"teacher gift\"\n  },\n  \"data_source\": \"none\",\n  \"freshness\": {\n    \"fetched_at\": \"0001-01-01T00:00:00Z\",\n    \"age_seconds\": 0,\n    \"max_age_seconds\": 0,\n    \"fresh\": false\n  },\n  \"summary\": \"No matching opportunity evidence found for \\\"teacher gift\\\".\",\n  \"records\": [],\n  \"evidence\": [],\n  \"confidence\": 0,\n  \"coverage\": {\n    \"raw_record_count\": 0,\n    \"evidence_record_count\": 0\n  },\n  \"warnings\": [\n    \"fetch product_analytics failed: GET /product_analytics/default_product_analytics returned HTTP 401: {\\\"message\\\":\\\"Could not authenticate with the provided credentials.\\\"}\",\n    \"fetch keyword_research failed: GET /keyword_research/default_keyword_suggestion returned HTTP 401: {\\\"message\\\":\\\"Could not authenticate with the provided credentials.\\\"}\",\n    \"targeted EverBee refresh failed: targeted EverBee refresh returned no usable evidence\"\n  ],\n  \"next_actions\": [\n    \"Run niche score for the top matched query.\",\n    \"Audit tags for the strongest matching listings.\",\n    \"Refresh targeted EverBee data before making listing decisions if freshness is stale.\"\n  ]\n}\n"
+    },
+    {
+      "command": "opportunity shortlist",
+      "kind": "json_fidelity",
+      "args": [
+        "opportunity",
+        "shortlist",
+        "--query",
+        "teacher gift",
+        "--limit",
+        "25",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"scope\": {\n    \"kind\": \"query\",\n    \"value\": \"teacher gift\"\n  },\n  \"data_source\": \"none\",\n  \"freshness\": {\n    \"fetched_at\": \"0001-01-01T00:00:00Z\",\n    \"age_seconds\": 0,\n    \"max_age_seconds\": 0,\n    \"fresh\": false\n  },\n  \"summary\": \"No matching opportunity evidence found for \\\"teacher gift\\\".\",\n  \"records\": [],\n  \"evidence\": [],\n  \"confidence\": 0,\n  \"coverage\": {\n    \"raw_record_count\": 0,\n    \"evidence_record_count\": 0\n  },\n  \"warnings\": [\n    \"fetch product_analytics failed: GET /product_analytics/default_product_analytics returned HTTP 401: {\\\"message\\\":\\\"Could not authenticate with the provided credentials.\\\"}\",\n    \"fetch keyword_research failed: GET /keyword_research/default_keyword_suggestion returned HTTP 401: {\\\"message\\\":\\\"Could not authenticate with the provided credentials.\\\"}\",\n    \"targeted EverBee refresh failed: targeted EverBee refresh returned no usable evidence\"\n  ],\n  \"next_actions\": [\n    \"Run niche score for the top matched query.\",\n    \"Audit tags for the strongest matching listings.\",\n    \"Refresh targeted EverBee data before making listing decisions if freshness is stale.\"\n  ]\n}\n"
+    },
+    {
+      "command": "opportunity shortlist",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "product-analytics",
+      "kind": "help",
+      "args": [
+        "product-analytics",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Shortcut for 'product_analytics list_default_product_analytics'. GET /product_analytics/default_product_analytics\n\nUsage:\n  everbee-pp-cli product-analytics [flags]\n\nExamples:\n  everbee-pp-cli product-analytics\n\nFlags:\n  -h, --help                     help for product-analytics\n      --order-by string          Sort field observed in EverBee traffic (default \"est_mo_revenue\")\n      --order-direction string   Sort direction (default \"desc\")\n      --page string              Result page (default \"1\")\n      --per-page int             Results per page (default 20)\n      --time-range string        EverBee time range (default \"last_1_month\")\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'everbee-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "product-analytics",
+      "kind": "happy_path",
+      "args": [
+        "product-analytics"
+      ],
+      "status": "skip",
+      "exit_code": 4,
+      "reason": "unavailable for runner credentials",
+      "output_sample": "Error: GET /product_analytics/default_product_analytics returned HTTP 401: {\"message\":\"Could not authenticate with the provided credentials.\"}\nhint: check your API key. Set it with: export EVERBEE_ACCESS_TOKEN=\u003cyour-key\u003e\n      See API docs: https://api.everbee.com\n      Run 'everbee-pp-cli doctor' to check auth status.\n"
+    },
+    {
+      "command": "product-analytics",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "unavailable for runner credentials"
+    },
+    {
+      "command": "product-analytics",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "profile delete",
+      "kind": "help",
+      "args": [
+        "profile",
+        "delete",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Remove a profile\n\nUsage:\n  everbee-pp-cli profile delete \u003cname\u003e [flags]\n\nExamples:\n  everbee-pp-cli profile delete my-defaults --yes\n  everbee-pp-cli profile delete old-profile --yes --json\n\nFlags:\n  -h, --help   help for delete\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'everbee-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile delete",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile list",
+      "kind": "help",
+      "args": [
+        "profile",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List saved profiles\n\nUsage:\n  everbee-pp-cli profile list [flags]\n\nExamples:\n  everbee-pp-cli profile list\n  everbee-pp-cli profile list --json\n\nFlags:\n  -h, --help   help for list\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'everbee-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "happy_path",
+      "args": [
+        "profile",
+        "list"
+      ],
+      "status": "pass",
+      "output_sample": "NAME  FIELDS  DESCRIPTION\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "json_fidelity",
+      "args": [
+        "profile",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "profile save",
+      "kind": "help",
+      "args": [
+        "profile",
+        "save",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Captures every flag explicitly set on the invocation and stores\nthem under \u003cname\u003e. To update an existing profile, run save again; the\nentry is replaced.\n\nTo avoid creating empty profiles, at least one non-default flag must be\npresent (other than --profile and --config).\n\nUsage:\n  everbee-pp-cli profile save \u003cname\u003e [--\u003cflag\u003e \u003cvalue\u003e ...] [flags]\n\nExamples:\n  everbee-pp-cli profile save my-defaults --json --compact\n  everbee-pp-cli profile save tonight-defaults --region US\n\nFlags:\n      --description string   Short description shown in 'profile list'\n  -h, --help                 help for save\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'everbee-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile save",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "save",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: no non-default flags set - pass at least one flag to save into \"__printing_press_invalid__\"\n"
+    },
+    {
+      "command": "profile show",
+      "kind": "help",
+      "args": [
+        "profile",
+        "show",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show a profile's values as JSON\n\nUsage:\n  everbee-pp-cli profile show \u003cname\u003e [flags]\n\nExamples:\n  everbee-pp-cli profile show my-defaults\n  everbee-pp-cli profile show tonight-defaults --json\n\nFlags:\n  -h, --help   help for show\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'everbee-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile show",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "show",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: profile \"__printing_press_invalid__\" not found\n"
+    },
+    {
+      "command": "profile use",
+      "kind": "help",
+      "args": [
+        "profile",
+        "use",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Print the flag values a profile will apply (does not execute anything)\n\nUsage:\n  everbee-pp-cli profile use \u003cname\u003e [flags]\n\nExamples:\n  everbee-pp-cli profile use my-defaults\n  everbee-pp-cli profile use tonight-defaults --json\n\nFlags:\n  -h, --help   help for use\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'everbee-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile use",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "use",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: profile \"__printing_press_invalid__\" not found\n"
+    },
+    {
+      "command": "search",
+      "kind": "help",
+      "args": [
+        "search",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Search data using FTS5 full-text search on locally synced data,\nor hit the API's search endpoint when available.\n\nIn auto mode (default): uses the API search endpoint if the API has one,\notherwise searches local data. Falls back to local on network failure.\nIn live mode: uses the API search endpoint only.\nIn local mode: searches locally synced data only.\n\nUsage:\n  everbee-pp-cli search \u003cquery\u003e [flags]\n\nExamples:\n  # Search (uses API endpoint if available, local FTS otherwise)\n  everbee-pp-cli search \"error timeout\"\n\n  # Force local search only\n  everbee-pp-cli search \"payment failed\" --data-source local\n\n  # Search a specific resource type locally\n  everbee-pp-cli search \"critical\" --type transactions --data-source local\n\n  # JSON output for piping\n  everbee-pp-cli search \"critical\" --json --limit 20\n\nFlags:\n      --db string     Database path (default: ~/.local/share/everbee-pp-cli/data.db)\n  -h, --help          help for search\n      --limit int     Maximum results to return (default 50)\n      --type string   Filter by resource type\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'everbee-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "search",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [search] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "search",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [search] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "search",
+      "kind": "error_path",
+      "args": [
+        "search",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "exit_code": 4,
+      "output_sample": "Error: GET /keyword_research/default_keyword_suggestion returned HTTP 401: {\"message\":\"Could not authenticate with the provided credentials.\"}\nhint: check your API key. Set it with: export EVERBEE_ACCESS_TOKEN=\u003cyour-key\u003e\n      See API docs: https://api.everbee.com\n      Run 'everbee-pp-cli doctor' to check auth status.\n"
+    },
+    {
+      "command": "shop gaps",
+      "kind": "help",
+      "args": [
+        "shop",
+        "gaps",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Find product, pricing, and keyword gaps for a shop\n\nUsage:\n  everbee-pp-cli shop gaps [flags]\n\nExamples:\n  everbee-pp-cli shop gaps --shop competitor-shop --json\n\nFlags:\n  -h, --help               help for gaps\n      --max-age duration   Maximum age for local EverBee research data (default 6h0m0s)\n      --no-refresh         Use local EverBee research data only\n      --refresh            Force a targeted EverBee refresh before analysis\n      --shop string        Competitor shop name or handle\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'everbee-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "shop gaps",
+      "kind": "happy_path",
+      "args": [
+        "shop",
+        "gaps",
+        "--shop",
+        "competitor-shop",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"scope\": {\n    \"kind\": \"shop\",\n    \"value\": \"competitor-shop\"\n  },\n  \"data_source\": \"none\",\n  \"freshness\": {\n    \"fetched_at\": \"0001-01-01T00:00:00Z\",\n    \"age_seconds\": 0,\n    \"max_age_seconds\": 0,\n    \"fresh\": false\n  },\n  \"summary\": \"Found 0 shop gap signals for \\\"competitor-shop\\\".\",\n  \"records\": [],\n  \"evidence\": [],\n  \"confidence\": 0,\n  \"coverage\": {\n    \"raw_record_count\": 0,\n    \"evidence_record_count\": 0\n  },\n  \"warnings\": [\n    \"fetch shops failed: GET /shops returned HTTP 401: {\\\"message\\\":\\\"Could not authenticate with the provided credentials.\\\"}\",\n    \"fetch product_analytics failed: GET /product_analytics/default_product_analytics returned HTTP 401: {\\\"message\\\":\\\"Could not authenticate with the provided credentials.\\\"}\",\n    \"fetch keyword_research failed: GET /keyword_research/default_keyword_suggestion returned HTTP 401: {\\\"message\\\":\\\"Could not authenticate with the provided credentials.\\\"}\",\n    \"targeted EverBee refresh failed: targeted EverBee refresh returned no usable evidence\"\n  ],\n  \"next_actions\": [\n    \"Compare matching shop signals against your current assortment.\",\n    \"Refresh shop and product research before changing catalog priorities.\"\n  ]\n}\n"
+    },
+    {
+      "command": "shop gaps",
+      "kind": "json_fidelity",
+      "args": [
+        "shop",
+        "gaps",
+        "--shop",
+        "competitor-shop",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"scope\": {\n    \"kind\": \"shop\",\n    \"value\": \"competitor-shop\"\n  },\n  \"data_source\": \"none\",\n  \"freshness\": {\n    \"fetched_at\": \"0001-01-01T00:00:00Z\",\n    \"age_seconds\": 0,\n    \"max_age_seconds\": 0,\n    \"fresh\": false\n  },\n  \"summary\": \"Found 0 shop gap signals for \\\"competitor-shop\\\".\",\n  \"records\": [],\n  \"evidence\": [],\n  \"confidence\": 0,\n  \"coverage\": {\n    \"raw_record_count\": 0,\n    \"evidence_record_count\": 0\n  },\n  \"warnings\": [\n    \"fetch shops failed: GET /shops returned HTTP 401: {\\\"message\\\":\\\"Could not authenticate with the provided credentials.\\\"}\",\n    \"fetch product_analytics failed: GET /product_analytics/default_product_analytics returned HTTP 401: {\\\"message\\\":\\\"Could not authenticate with the provided credentials.\\\"}\",\n    \"fetch keyword_research failed: GET /keyword_research/default_keyword_suggestion returned HTTP 401: {\\\"message\\\":\\\"Could not authenticate with the provided credentials.\\\"}\",\n    \"targeted EverBee refresh failed: targeted EverBee refresh returned no usable evidence\"\n  ],\n  \"next_actions\": [\n    \"Compare matching shop signals against your current assortment.\",\n    \"Refresh shop and product research before changing catalog priorities.\"\n  ]\n}\n"
+    },
+    {
+      "command": "shop gaps",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "shops",
+      "kind": "help",
+      "args": [
+        "shops",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Shortcut for 'shops list_shops'. GET /shops\n\nUsage:\n  everbee-pp-cli shops [flags]\n\nExamples:\n  everbee-pp-cli shops\n\nFlags:\n  -h, --help                     help for shops\n      --order-by string          Sort field observed in EverBee traffic (default \"revenue\")\n      --order-direction string   Sort direction (default \"desc\")\n      --page string              Result page (default \"1\")\n      --per-page int             Results per page (default 20)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'everbee-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "shops",
+      "kind": "happy_path",
+      "args": [
+        "shops"
+      ],
+      "status": "skip",
+      "exit_code": 4,
+      "reason": "unavailable for runner credentials",
+      "output_sample": "Error: GET /shops returned HTTP 401: {\"message\":\"Could not authenticate with the provided credentials.\"}\nhint: check your API key. Set it with: export EVERBEE_ACCESS_TOKEN=\u003cyour-key\u003e\n      See API docs: https://api.everbee.com\n      Run 'everbee-pp-cli doctor' to check auth status.\n"
+    },
+    {
+      "command": "shops",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "unavailable for runner credentials"
+    },
+    {
+      "command": "shops",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "skill install",
+      "kind": "help",
+      "args": [
+        "skill",
+        "install",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Install the EverBee skill for Claude and Codex\n\nUsage:\n  everbee-pp-cli skill install [flags]\n\nExamples:\n  everbee-pp-cli skill install\n  everbee-pp-cli skill install --target claude --target codex\n  everbee-pp-cli skill install --source ./SKILL.md --force=false\n\nFlags:\n      --force            Overwrite existing installed SKILL.md (default true)\n  -h, --help             help for install\n      --name string      Skill directory name (default \"pp-everbee\")\n      --source string    Optional SKILL.md source path; defaults to bundled skill\n      --target strings   Skill target: all, claude, codex (repeatable) (default [all])\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'everbee-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "skill install",
+      "kind": "happy_path",
+      "args": [
+        "skill",
+        "install"
+      ],
+      "status": "pass",
+      "output_sample": "claude: installed /var/folders/zt/jx7yw5d566gf4y2xd31446lh0000gn/T/printing-press-subprocess-278918619/.claude/skills/pp-everbee/SKILL.md\ncodex: installed /var/folders/zt/jx7yw5d566gf4y2xd31446lh0000gn/T/printing-press-subprocess-278918619/.codex/skills/pp-everbee/SKILL.md\nRestart Claude/Codex or start a new session to load newly installed skills.\n"
+    },
+    {
+      "command": "skill install",
+      "kind": "json_fidelity",
+      "args": [
+        "skill",
+        "install",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"installed\": [\n    {\n      \"target\": \"claude\",\n      \"path\": \"/var/folders/zt/jx7yw5d566gf4y2xd31446lh0000gn/T/printing-press-subprocess-278918619/.claude/skills/pp-everbee/SKILL.md\",\n      \"status\": \"installed\"\n    },\n    {\n      \"target\": \"codex\",\n      \"path\": \"/var/folders/zt/jx7yw5d566gf4y2xd31446lh0000gn/T/printing-press-subprocess-278918619/.codex/skills/pp-everbee/SKILL.md\",\n      \"status\": \"installed\"\n    }\n  ],\n  \"restart\": \"Restart Claude/Codex or start a new session to load newly installed skills.\"\n}\n"
+    },
+    {
+      "command": "skill install",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "sync",
+      "kind": "help",
+      "args": [
+        "sync",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Sync data from the API into a local SQLite database. Supports resumable\nincremental sync (only fetches new data since last sync) and full resync.\nOnce synced, use the 'search' command for instant full-text search.\n\nExit codes \u0026 warnings:\n  Resources the API denies access to (HTTP 403, or HTTP 400 with an\n  access-policy body) are reported as warnings rather than failing the\n  run. In --json mode each is emitted as a {\"event\":\"sync_warning\",...}\n  line carrying status, reason, and message fields, and a final\n  {\"event\":\"sync_summary\",...} aggregates the run.\n\n  Exit 0 when at least one resource synced and no resource flagged in\n  the spec as critical (x-critical: true) failed; non-critical failures\n  emit {\"event\":\"sync_warning\",\"reason\":\"exit_policy_default_changed\",\n  ...} so callers can detect that a partial failure was tolerated. Pass\n  --strict to exit non-zero on any per-resource failure. Exit is always\n  non-zero when every selected resource failed, regardless of --strict.\n\nResource scoping:\n  --resources runs the named top-level resources, plus any parent-keyed\n  dependent whose own name is listed OR whose parent table is listed.\n  Naming a parent therefore cascades to its dependents (so \"sync this\n  parent and its children\" works without listing every nested resource\n  by hand). There is no flag today to suppress the cascade for a named\n  parent. To run a dependent without re-syncing its parent, list only\n  the dependent by name; the parent table must already be populated\n  from a prior sync.\n\nUsage:\n  everbee-pp-cli sync [flags]\n\nExamples:\n  # Sync all resources\n  everbee-pp-cli sync\n\n  # Sync specific resources only\n  everbee-pp-cli sync --resources channels,messages\n\n  # Full resync (ignore previous checkpoint)\n  everbee-pp-cli sync --full\n\n  # Incremental sync: only records from the last 7 days\n  everbee-pp-cli sync --since 7d\n\n  # Parallel sync with 8 workers\n  everbee-pp-cli sync --concurrency 8\n\n  # Latest-only: refresh head of each resource, no historical backfill\n  everbee-pp-cli sync --latest-only\n\nFlags:\n      --concurrency int              Number of parallel sync workers (default 4)\n      --db string                    Database path (default: ~/.local/share/everbee-pp-cli/data.db)\n      --full                         Full resync (ignore previous checkpoint)\n      --global-param stringArray     Extra query param to inject into every sync request including dependent path-scoped calls (repeatable, key=value). Use when an API requires a scope on every call regardless of path nesting.\n  -h, --help                         help for sync\n      --latest-only                  Refresh head of each resource only; clears resume cursor and caps pages at 1. Mutually exclusive with --since (--since wins).\n      --max-pages int                Maximum pages to fetch per resource (0 = unlimited; cap-hit emits a sync_warning event) (default 100)\n      --param stringArray            Extra query param to inject into flat-list sync requests (repeatable, key=value). Skipped on path-scoped dependent requests so a top-level scope like workspace=\u003cid\u003e does not double up on /parents/\u003cid\u003e/children calls. Use --global-param to inject everywhere. Avoid pagination keys (limit/since/cursor) — overriding them corrupts resume state.\n      --resource-param stringArray   Per-resource extra query param (repeatable, resource:key=value). Wins over --param and --global-param when keys conflict.\n      --resources strings            Comma-separated resource types to sync. Naming a parent also runs its parent-keyed dependents (see Long help for scoping).\n      --since string                 Incremental sync duration (e.g. 7d, 24h, 1w, 30m)\n      --strict                       Exit non-zero on any per-resource failure (default: only critical failures or all-resource failure exit non-zero).\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        …[truncated]"
+    },
+    {
+      "command": "sync",
+      "kind": "happy_path",
+      "args": [
+        "sync"
+      ],
+      "status": "skip",
+      "exit_code": 1,
+      "reason": "unavailable for runner credentials",
+      "output_sample": "{\"event\":\"sync_start\",\"resource\":\"keyword_research\"}\n{\"event\":\"sync_start\",\"resource\":\"product_analytics\"}\n{\"event\":\"sync_start\",\"resource\":\"shops\"}\n{\"event\":\"sync_error\",\"resource\":\"keyword_research\",\"status\":401,\"method\":\"GET\",\"path\":\"/keyword_research/default_keyword_suggestion\",\"body\":\"{\\\"message\\\":\\\"Could not authenticate with the provided credentials.\\\"}\",\"error\":\"GET /keyword_research/default_keyword_suggestion returned HTTP 401: {\\\"message\\\":\\\"Could not authenticate with the provided credentials.\\\"}\"}\n{\"event\":\"sync_error\",\"resource\":\"shops\",\"status\":401,\"method\":\"GET\",\"path\":\"/shops\",\"body\":\"{\\\"message\\\":\\\"Could not authenticate with the provided credentials.\\\"}\",\"error\":\"GET /shops returned HTTP 401: {\\\"message\\\":\\\"Could not authenticate with the provided credentials.\\\"}\"}\n{\"event\":\"sync_error\",\"resource\":\"product_analytics\",\"status\":401,\"method\":\"GET\",\"path\":\"/product_analytics/default_product_analytics\",\"body\":\"{\\\"message\\\":\\\"Could not authenticate with the provided credentials.\\\"}\",\"error\":\"GET /product_analytics/default_product_analytics returned HTTP 401: {\\\"message\\\":\\\"Could not authenticate with the provided credentials.\\\"}\"}\n{\"event\":\"sync_summary\",\"total_records\":0,\"resources\":3,\"success\":0,\"warned\":0,\"errored\":3,\"duration_ms\":1088}\nError: 3 resource(s) failed to sync\n"
+    },
+    {
+      "command": "sync",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "unavailable for runner credentials"
+    },
+    {
+      "command": "sync",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "tags gap",
+      "kind": "help",
+      "args": [
+        "tags",
+        "gap",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Compare winning tags against a target shop or query\n\nUsage:\n  everbee-pp-cli tags gap [flags]\n\nExamples:\n  everbee-pp-cli tags gap --query candle --shop my-shop --json\n\nFlags:\n  -h, --help               help for gap\n      --max-age duration   Maximum age for local EverBee research data (default 6h0m0s)\n      --no-refresh         Use local EverBee research data only\n      --query string       Niche or product phrase\n      --refresh            Force a targeted EverBee refresh before analysis\n      --shop string        Target shop name\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'everbee-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "tags gap",
+      "kind": "happy_path",
+      "args": [
+        "tags",
+        "gap",
+        "--query",
+        "candle",
+        "--shop",
+        "my-shop",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"scope\": {\n    \"kind\": \"query\",\n    \"value\": \"candle my-shop\"\n  },\n  \"data_source\": \"none\",\n  \"freshness\": {\n    \"fetched_at\": \"0001-01-01T00:00:00Z\",\n    \"age_seconds\": 0,\n    \"max_age_seconds\": 0,\n    \"fresh\": false\n  },\n  \"summary\": \"Found 0 tag gap candidates for \\\"candle my-shop\\\".\",\n  \"records\": [],\n  \"evidence\": [],\n  \"confidence\": 0,\n  \"coverage\": {\n    \"raw_record_count\": 0,\n    \"evidence_record_count\": 0\n  },\n  \"warnings\": [\n    \"fetch product_analytics failed: GET /product_analytics/default_product_analytics returned HTTP 401: {\\\"message\\\":\\\"Could not authenticate with the provided credentials.\\\"}\",\n    \"fetch keyword_research failed: GET /keyword_research/default_keyword_suggestion returned HTTP 401: {\\\"message\\\":\\\"Could not authenticate with the provided credentials.\\\"}\",\n    \"fetch shops failed: GET /shops returned HTTP 401: {\\\"message\\\":\\\"Could not authenticate with the provided credentials.\\\"}\",\n    \"targeted EverBee refresh failed: targeted EverBee refresh returned no usable evidence\"\n  ],\n  \"next_actions\": [\n    \"Compare suggested tags against the target listing tags.\",\n    \"Prioritize tags supported by multiple product or shop records.\"\n  ]\n}\n"
+    },
+    {
+      "command": "tags gap",
+      "kind": "json_fidelity",
+      "args": [
+        "tags",
+        "gap",
+        "--query",
+        "candle",
+        "--shop",
+        "my-shop",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"scope\": {\n    \"kind\": \"query\",\n    \"value\": \"candle my-shop\"\n  },\n  \"data_source\": \"none\",\n  \"freshness\": {\n    \"fetched_at\": \"0001-01-01T00:00:00Z\",\n    \"age_seconds\": 0,\n    \"max_age_seconds\": 0,\n    \"fresh\": false\n  },\n  \"summary\": \"Found 0 tag gap candidates for \\\"candle my-shop\\\".\",\n  \"records\": [],\n  \"evidence\": [],\n  \"confidence\": 0,\n  \"coverage\": {\n    \"raw_record_count\": 0,\n    \"evidence_record_count\": 0\n  },\n  \"warnings\": [\n    \"fetch product_analytics failed: GET /product_analytics/default_product_analytics returned HTTP 401: {\\\"message\\\":\\\"Could not authenticate with the provided credentials.\\\"}\",\n    \"fetch keyword_research failed: GET /keyword_research/default_keyword_suggestion returned HTTP 401: {\\\"message\\\":\\\"Could not authenticate with the provided credentials.\\\"}\",\n    \"fetch shops failed: GET /shops returned HTTP 401: {\\\"message\\\":\\\"Could not authenticate with the provided credentials.\\\"}\",\n    \"targeted EverBee refresh failed: targeted EverBee refresh returned no usable evidence\"\n  ],\n  \"next_actions\": [\n    \"Compare suggested tags against the target listing tags.\",\n    \"Prioritize tags supported by multiple product or shop records.\"\n  ]\n}\n"
+    },
+    {
+      "command": "tags gap",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "trends diff",
+      "kind": "help",
+      "args": [
+        "trends",
+        "diff",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show movement across saved research snapshots\n\nUsage:\n  everbee-pp-cli trends diff [flags]\n\nExamples:\n  everbee-pp-cli trends diff --query \"teacher gift\" --days 30 --json\n\nFlags:\n      --days int           Snapshot lookback window in days (default 30)\n  -h, --help               help for diff\n      --max-age duration   Maximum age for local EverBee research data (default 6h0m0s)\n      --no-refresh         Use local EverBee research data only\n      --query string       Research phrase to diff\n      --refresh            Force a targeted EverBee refresh before analysis\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'everbee-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "trends diff",
+      "kind": "happy_path",
+      "args": [
+        "trends",
+        "diff",
+        "--query",
+        "teacher gift",
+        "--days",
+        "30",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"scope\": {\n    \"kind\": \"query\",\n    \"value\": \"teacher gift\"\n  },\n  \"data_source\": \"none\",\n  \"freshness\": {\n    \"fetched_at\": \"0001-01-01T00:00:00Z\",\n    \"age_seconds\": 0,\n    \"max_age_seconds\": 0,\n    \"fresh\": false\n  },\n  \"summary\": \"No trend snapshots found for \\\"teacher gift\\\".\",\n  \"records\": [],\n  \"evidence\": [],\n  \"confidence\": 0,\n  \"coverage\": {\n    \"raw_record_count\": 0,\n    \"evidence_record_count\": 0\n  },\n  \"warnings\": [\n    \"fetch product_analytics failed: GET /product_analytics/default_product_analytics returned HTTP 401: {\\\"message\\\":\\\"Could not authenticate with the provided credentials.\\\"}\",\n    \"fetch keyword_research failed: GET /keyword_research/default_keyword_suggestion returned HTTP 401: {\\\"message\\\":\\\"Could not authenticate with the provided credentials.\\\"}\",\n    \"fetch shops failed: GET /shops returned HTTP 401: {\\\"message\\\":\\\"Could not authenticate with the provided credentials.\\\"}\",\n    \"targeted EverBee refresh failed: targeted EverBee refresh returned no usable evidence\"\n  ],\n  \"next_actions\": [\n    \"Run a targeted refresh now and repeat later to build trend history.\"\n  ]\n}\n"
+    },
+    {
+      "command": "trends diff",
+      "kind": "json_fidelity",
+      "args": [
+        "trends",
+        "diff",
+        "--query",
+        "teacher gift",
+        "--days",
+        "30",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"scope\": {\n    \"kind\": \"query\",\n    \"value\": \"teacher gift\"\n  },\n  \"data_source\": \"none\",\n  \"freshness\": {\n    \"fetched_at\": \"0001-01-01T00:00:00Z\",\n    \"age_seconds\": 0,\n    \"max_age_seconds\": 0,\n    \"fresh\": false\n  },\n  \"summary\": \"No trend snapshots found for \\\"teacher gift\\\".\",\n  \"records\": [],\n  \"evidence\": [],\n  \"confidence\": 0,\n  \"coverage\": {\n    \"raw_record_count\": 0,\n    \"evidence_record_count\": 0\n  },\n  \"warnings\": [\n    \"fetch product_analytics failed: GET /product_analytics/default_product_analytics returned HTTP 401: {\\\"message\\\":\\\"Could not authenticate with the provided credentials.\\\"}\",\n    \"fetch keyword_research failed: GET /keyword_research/default_keyword_suggestion returned HTTP 401: {\\\"message\\\":\\\"Could not authenticate with the provided credentials.\\\"}\",\n    \"fetch shops failed: GET /shops returned HTTP 401: {\\\"message\\\":\\\"Could not authenticate with the provided credentials.\\\"}\",\n    \"targeted EverBee refresh failed: targeted EverBee refresh returned no usable evidence\"\n  ],\n  \"next_actions\": [\n    \"Run a targeted refresh now and repeat later to build trend history.\"\n  ]\n}\n"
+    },
+    {
+      "command": "trends diff",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "which",
+      "kind": "help",
+      "args": [
+        "which",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "which resolves a natural-language capability query (for example, \"search messages\" or \"stale tickets\") to the best matching command from this CLI's curated feature index.\n\nExit codes:\n  0  at least one match found\n  2  no confident match - the query did not score against any indexed capability; fall back to '--help' or 'search' if this CLI has one\n\nUsage:\n  everbee-pp-cli which [query] [flags]\n\nExamples:\n  everbee-pp-cli which \"stale tickets\"\n  everbee-pp-cli which \"bottleneck\"\n  everbee-pp-cli which --limit 1 \"send message\"\n  everbee-pp-cli which                                # list the full capability index\n\nFlags:\n  -h, --help        help for which\n      --limit int   Maximum number of matches to return (default 3)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'everbee-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "which",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [which] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "which",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [which] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "which",
+      "kind": "error_path",
+      "args": [
+        "which",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"matches\": []\n}\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "help",
+      "args": [
+        "workflow",
+        "archive",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Archive fetches all syncable resources from the API and stores them in a\nlocal SQLite database. Supports incremental sync (only new data since last run)\nand full resync. After archiving, use 'search' for instant full-text search.\n\nUsage:\n  everbee-pp-cli workflow archive [flags]\n\nExamples:\n  # Archive all resources\n  everbee-pp-cli workflow archive\n\n  # Full re-archive (ignore previous sync state)\n  everbee-pp-cli workflow archive --full\n\nFlags:\n      --db string   Database path (default: ~/.local/share/everbee-pp-cli/data.db)\n      --full        Full re-archive (ignore previous sync state)\n  -h, --help        help for archive\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'everbee-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "happy_path",
+      "args": [
+        "workflow",
+        "archive"
+      ],
+      "status": "pass",
+      "output_sample": "{\"event\":\"sync_start\",\"resource\":\"keyword_research\"}\n{\"event\":\"sync_error\",\"resource\":\"keyword_research\",\"status\":401,\"method\":\"GET\",\"path\":\"/keyword_research/default_keyword_suggestion\",\"body\":\"{\\\"message\\\":\\\"Could not authenticate with the provided credentials.\\\"}\",\"error\":\"GET /keyword_research/default_keyword_suggestion returned HTTP 401: {\\\"message\\\":\\\"Could not authenticate with the provided credentials.\\\"}\"}\n{\"event\":\"sync_start\",\"resource\":\"product_analytics\"}\n{\"event\":\"sync_error\",\"resource\":\"product_analytics\",\"status\":401,\"method\":\"GET\",\"path\":\"/product_analytics/default_product_analytics\",\"body\":\"{\\\"message\\\":\\\"Could not authenticate with the provided credentials.\\\"}\",\"error\":\"GET /product_analytics/default_product_analytics returned HTTP 401: {\\\"message\\\":\\\"Could not authenticate with the provided credentials.\\\"}\"}\n{\"event\":\"sync_start\",\"resource\":\"shops\"}\n{\"event\":\"sync_error\",\"resource\":\"shops\",\"status\":401,\"method\":\"GET\",\"path\":\"/shops\",\"body\":\"{\\\"message\\\":\\\"Could not authenticate with the provided credentials.\\\"}\",\"error\":\"GET /shops returned HTTP 401: {\\\"message\\\":\\\"Could not authenticate with the provided credentials.\\\"}\"}\nArchived 0 items across 3 resources to /var/folders/zt/jx7yw5d566gf4y2xd31446lh0000gn/T/printing-press-subprocess-278918619/.local/share/everbee-pp-cli/data.db\n  keyword_research: error: fetching keyword_research: GET /keyword_research/default_keyword_suggestion returned HTTP 401: {\"message\":\"Could not authenticate with the provided credentials.\"}\n  product_analytics: error: fetching product_analytics: GET /product_analytics/default_product_analytics returned HTTP 401: {\"message\":\"Could not authenticate with the provided credentials.\"}\n  shops: error: fetching shops: GET /shops returned HTTP 401: {\"message\":\"Could not authenticate with the provided credentials.\"}\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "json_fidelity",
+      "args": [
+        "workflow",
+        "archive",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"resources_synced\": 3,\n  \"store_path\": \"/var/folders/zt/jx7yw5d566gf4y2xd31446lh0000gn/T/printing-press-subprocess-278918619/.local/share/everbee-pp-cli/data.db\",\n  \"timestamp\": \"2026-06-01T23:48:24Z\",\n  \"total_items\": 0\n}\n  keyword_research: error: fetching keyword_research: GET /keyword_research/default_keyword_suggestion returned HTTP 401: {\"message\":\"Could not authenticate with the provided credentials.\"}\n  product_analytics: error: fetching product_analytics: GET /product_analytics/default_product_analytics returned HTTP 401: {\"message\":\"Could not authenticate with the provided credentials.\"}\n  shops: error: fetching shops: GET /shops returned HTTP 401: {\"message\":\"Could not authenticate with the provided credentials.\"}\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "workflow status",
+      "kind": "help",
+      "args": [
+        "workflow",
+        "status",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show local archive status and sync state for all resources\n\nUsage:\n  everbee-pp-cli workflow status [flags]\n\nExamples:\n  # Show archive status\n  everbee-pp-cli workflow status\n\n  # Show status as JSON\n  everbee-pp-cli workflow status --json\n\nFlags:\n      --db string   Database path\n  -h, --help        help for status\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'everbee-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "happy_path",
+      "args": [
+        "workflow",
+        "status"
+      ],
+      "status": "pass",
+      "output_sample": "No archived data. Run 'workflow archive' to sync.\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "json_fidelity",
+      "args": [
+        "workflow",
+        "status",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{}\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    }
+  ],
+  "ran_at": "2026-06-01T23:47:54.751069Z"
+}

@@ -1,0 +1,1235 @@
+openapi: 3.1.0
+info:
+  title: Goodreads Web Undocumented API Map
+  version: 0.1.0
+  summary: Route map derived from authenticated Goodreads web traffic and DOM inspection.
+  description: |
+    This is an evidence-backed starting map for a future Goodreads CLI. Goodreads has no current
+    public developer API, so these routes are reverse-engineered from the logged-in web app.
+
+    Evidence was captured on 2026-05-22 with browser-harness-js. Raw artifacts live under
+    goodreads/proofs/ and are mode 0600 because they contain account-visible metadata.
+
+    This spec intentionally does not include cookies, CSRF tokens, request headers, response bodies,
+    or raw Kindle highlight text.
+servers:
+  - url: https://www.goodreads.com
+security:
+  - goodreadsCookieSession: []
+tags:
+  - name: profile
+  - name: shelves
+  - name: books
+  - name: notes
+  - name: social
+  - name: discovery
+  - name: analytics
+components:
+  securitySchemes:
+    goodreadsCookieSession:
+      type: apiKey
+      in: cookie
+      name: _session_id2
+      description: Authenticated Goodreads browser cookie. Amazon SSO cookies may also be required after redirect/login.
+  parameters:
+    Shelf:
+      name: shelf
+      in: query
+      required: false
+      schema:
+        type: string
+        examples:
+          - read
+          - currently-reading
+          - to-read
+          - did-not-finish
+          - for-the-aesthetic
+          - want-to-read-again
+    Ref:
+      name: ref
+      in: query
+      required: false
+      schema:
+        type: string
+  responses:
+    HtmlPage:
+      description: HTML page rendered by Goodreads.
+      content:
+        text/html:
+          schema:
+            type: string
+    XhrHtmlOrJson:
+      description: XHR response. Observed routes can return HTML fragments, JavaScript, or JSON-like payloads depending on route.
+      content:
+        text/html:
+          schema:
+            type: string
+        application/json:
+          schema:
+            type: object
+            additionalProperties: true
+        application/javascript:
+          schema:
+            type: string
+    Empty:
+      description: Empty or tracking response.
+    XmlFeed:
+      description: XML feed or descriptor.
+      content:
+        application/xml:
+          schema:
+            type: string
+paths:
+  /:
+    get:
+      tags: [profile]
+      summary: Recent updates home/feed page.
+      x-observed:
+        artifact: goodreads/proofs/network-seed-2026-05-22.json
+        status: 200
+      responses:
+        "200":
+          $ref: "#/components/responses/HtmlPage"
+
+  /user/show/{user_slug}:
+    get:
+      tags: [profile]
+      summary: User profile page.
+      parameters:
+        - name: user_slug
+          in: path
+          required: true
+          schema:
+            type: string
+          example: 100000000-example-user
+      x-observed:
+        artifacts:
+          - goodreads/proofs/user-pages-map-2026-05-22.json
+          - goodreads/proofs/user-pages-map-batch2-2026-05-22.json
+        status: 200
+      responses:
+        "200":
+          $ref: "#/components/responses/HtmlPage"
+
+  /user/delayable_user_show/{user_id}:
+    get:
+      tags: [profile]
+      summary: Profile delay-loaded sections.
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: integer
+          example: 100000000
+        - name: skip_cache
+          in: query
+          required: false
+          schema:
+            type: boolean
+        - name: csm_scope
+          in: query
+          required: false
+          schema:
+            type: string
+      x-observed:
+        artifacts:
+          - goodreads/proofs/user-pages-map-2026-05-22.json
+          - goodreads/proofs/user-pages-map-batch2-2026-05-22.json
+        status: 200
+        resourceType: XHR
+      responses:
+        "200":
+          $ref: "#/components/responses/XhrHtmlOrJson"
+
+  /review/list/{user}:
+    get:
+      tags: [shelves]
+      summary: Bookshelf list for a user, optionally filtered by shelf.
+      parameters:
+        - name: user
+          in: path
+          required: true
+          schema:
+            type: string
+          examples:
+            numeric:
+              value: "100000000"
+            slugged:
+              value: "100000000-example-user"
+        - $ref: "#/components/parameters/Shelf"
+        - name: print
+          in: query
+          required: false
+          schema:
+            type: boolean
+      x-observed:
+        artifacts:
+          - goodreads/proofs/user-pages-map-2026-05-22.json
+          - goodreads/proofs/user-pages-map-batch2-2026-05-22.json
+          - goodreads/proofs/nav-bookshelves-links-2026-05-22-v3.json
+        status: 200
+      responses:
+        "200":
+          $ref: "#/components/responses/HtmlPage"
+
+  /review/list_rss/{user}:
+    get:
+      tags: [shelves]
+      summary: Public shelf RSS feed for a user's books.
+      description: |
+        This public XML route is the cleanest current read API for shelf exports. Authenticated shelf pages
+        can expose a private keyed RSS URL; do not log or commit that key.
+      parameters:
+        - name: user
+          in: path
+          required: true
+          schema:
+            type: string
+          example: "100000000"
+        - $ref: "#/components/parameters/Shelf"
+        - name: key
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Optional private feed key from a logged-in page. Redact if present.
+      x-observed:
+        artifact: goodreads/research/current-api-sweep-2026-05-22.md
+        status: 200
+        contentType: application/xml
+        auth_required: false
+        observed_item_counts:
+          read: 40
+          to-read: 100
+      x-safety:
+        may_contain_private_key: true
+        prefer_public_numeric_url: true
+        not_full_export_for_large_shelves: true
+      responses:
+        "200":
+          $ref: "#/components/responses/XmlFeed"
+
+  /tooltips:
+    get:
+      tags: [books]
+      summary: Batch tooltip metadata for book ids shown in shelf/list pages.
+      parameters:
+        - name: resources[Book.{id}][id]
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Goodreads emits one pair per book id.
+        - name: resources[Book.{id}][type]
+          in: query
+          required: false
+          schema:
+            type: string
+            const: Book
+        - name: use_wtr_tooltip
+          in: query
+          required: false
+          schema:
+            type: boolean
+      x-observed:
+        artifacts:
+          - goodreads/proofs/network-seed-2026-05-22.json
+          - goodreads/proofs/user-pages-map-2026-05-22.json
+          - goodreads/proofs/user-pages-map-batch2-2026-05-22.json
+        status: 200
+        resourceType: XHR
+      responses:
+        "200":
+          $ref: "#/components/responses/XhrHtmlOrJson"
+
+  /book/show/{book_slug}:
+    get:
+      tags: [books]
+      summary: Book detail page. Current page is Next.js-backed.
+      parameters:
+        - name: book_slug
+          in: path
+          required: true
+          schema:
+            type: string
+          example: 57905101-the-gate-of-the-feral-gods
+      x-observed:
+        artifact: goodreads/proofs/user-pages-map-batch2-2026-05-22.json
+        status: 200
+      responses:
+        "200":
+          $ref: "#/components/responses/HtmlPage"
+
+  /opensearch.xml:
+    get:
+      tags: [discovery]
+      summary: OpenSearch descriptor for Goodreads book search.
+      x-observed:
+        artifact: goodreads/research/current-api-sweep-2026-05-22.md
+        status: 200
+        contentType: application/xml
+      responses:
+        "200":
+          $ref: "#/components/responses/XmlFeed"
+
+  /search/search:
+    get:
+      tags: [discovery]
+      summary: Canonical book search route from OpenSearch descriptor.
+      parameters:
+        - name: search_type
+          in: query
+          required: false
+          schema:
+            type: string
+            default: books
+        - name: search[query]
+          in: query
+          required: true
+          schema:
+            type: string
+      x-observed:
+        artifact: goodreads/research/current-api-sweep-2026-05-22.md
+        source: opensearch.xml
+      responses:
+        "200":
+          $ref: "#/components/responses/HtmlPage"
+
+  /quotes/list:
+    get:
+      tags: [profile]
+      summary: Current user's quotes list.
+      x-observed:
+        artifact: goodreads/proofs/user-pages-map-2026-05-22.json
+        status: 200
+      responses:
+        "200":
+          $ref: "#/components/responses/HtmlPage"
+
+  /quotes/widget/{user_slug}:
+    get:
+      tags: [profile]
+      summary: User quotes widget script.
+      parameters:
+        - name: user_slug
+          in: path
+          required: true
+          schema:
+            type: string
+          example: 100000000-example-user
+      x-observed:
+        artifact: goodreads/proofs/user-pages-map-2026-05-22.json
+        status: 200
+        resourceType: Script
+      responses:
+        "200":
+          $ref: "#/components/responses/XhrHtmlOrJson"
+
+  /comment/list/{user_slug}:
+    get:
+      tags: [social]
+      summary: User comments/recent posts page.
+      parameters:
+        - name: user_slug
+          in: path
+          required: true
+          schema:
+            type: string
+          example: 100000000-example-user
+        - $ref: "#/components/parameters/Ref"
+      x-observed:
+        artifact: goodreads/proofs/user-pages-map-2026-05-22.json
+        status: 200
+      responses:
+        "200":
+          $ref: "#/components/responses/HtmlPage"
+
+  /notes/{user_slug}:
+    get:
+      tags: [notes]
+      summary: User Kindle Notes & Highlights index.
+      parameters:
+        - name: user_slug
+          in: path
+          required: true
+          schema:
+            type: string
+          example: 100000000-example-user
+        - $ref: "#/components/parameters/Ref"
+      x-observed:
+        artifacts:
+          - goodreads/proofs/user-pages-map-2026-05-22.json
+          - goodreads/proofs/user-pages-map-batch2-2026-05-22.json
+        status: 200
+      responses:
+        "200":
+          $ref: "#/components/responses/HtmlPage"
+
+  /notes/{user_id}/load_more:
+    get:
+      tags: [notes]
+      summary: Paginated notes/highlights index loader.
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: integer
+          example: 100000000
+      x-observed:
+        artifacts:
+          - goodreads/proofs/user-pages-map-2026-05-22.json
+          - goodreads/proofs/user-pages-map-batch2-2026-05-22.json
+        status: 200
+        resourceType: XHR
+      responses:
+        "200":
+          $ref: "#/components/responses/XhrHtmlOrJson"
+
+  /notes/{book_slug}/{user_slug}:
+    get:
+      tags: [notes]
+      summary: Notes/highlights detail page for one book and user.
+      parameters:
+        - name: book_slug
+          in: path
+          required: true
+          schema:
+            type: string
+          examples:
+            inevitable:
+              value: 220329192-this-inevitable-ruin
+            mrWhisper:
+              value: 218134959-mr-whisper
+        - name: user_slug
+          in: path
+          required: true
+          schema:
+            type: string
+          example: 100000000-example-user
+        - $ref: "#/components/parameters/Ref"
+      x-observed:
+        artifacts:
+          - goodreads/proofs/user-pages-map-batch2-2026-05-22.json
+          - goodreads/proofs/notes-interaction-mr-whisper-2026-05-22.json
+          - goodreads/proofs/notes-publicize-verify-2026-05-22.json
+        status: 200
+      responses:
+        "200":
+          $ref: "#/components/responses/HtmlPage"
+
+  /notes/{book_id}/share:
+    put:
+      tags: [notes]
+      summary: Bulk publicize notes/highlights for a book.
+      description: |
+        Observed through the "Make all N visible" button. This is a real account mutation.
+        Use dry-run by default and verify on reload by counting `.js-readingNote[data-visible=true]`.
+      parameters:
+        - name: book_id
+          in: path
+          required: true
+          schema:
+            type: integer
+          examples:
+            mrWhisper:
+              value: 218134959
+            girlBeneathTheSea:
+              value: 48526390
+      x-observed:
+        artifact: goodreads/proofs/notes-publicize-writes-2026-05-22.json
+        status: 200
+        approved_write_scope: pasted notes pages only
+      x-safety:
+        default: dry-run
+        requires_explicit_execute: true
+        verify_after_write: reload
+      responses:
+        "200":
+          $ref: "#/components/responses/XhrHtmlOrJson"
+
+  /notes/{book_id}/{annotation_pair_id}/note:
+    post:
+      tags: [notes]
+      summary: Likely per-note "add your thoughts" persistence endpoint.
+      description: |
+        Discovered from `.js-readingNote[data-note-persist-endpoint]` DOM attributes. Not submitted in this run.
+        Method and payload need a dedicated approved write capture before CLI execution support.
+      parameters:
+        - name: book_id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: annotation_pair_id
+          in: path
+          required: true
+          schema:
+            type: string
+      x-observed:
+        artifact: goodreads/proofs/notes-dom-mr-whisper-2026-05-22.json
+        source: DOM attribute
+        submitted: false
+      x-confidence: low-unsubmitted
+      x-safety:
+        default: disabled
+        requires_approved_write_capture: true
+      responses:
+        "200":
+          $ref: "#/components/responses/XhrHtmlOrJson"
+
+  /notifications:
+    get:
+      tags: [social]
+      summary: User notifications page.
+      parameters:
+        - $ref: "#/components/parameters/Ref"
+      x-observed:
+        artifact: goodreads/proofs/user-pages-map-2026-05-22.json
+        status: 200
+      responses:
+        "200":
+          $ref: "#/components/responses/HtmlPage"
+
+  /notifications/track:
+    post:
+      tags: [analytics]
+      summary: Notification tracking call emitted by the UI.
+      x-observed:
+        artifact: goodreads/proofs/user-pages-map-2026-05-22.json
+        status: 200
+      x-safety:
+        cli_support: omit
+      responses:
+        "200":
+          $ref: "#/components/responses/Empty"
+
+  /friend/requests:
+    get:
+      tags: [social]
+      summary: Friend requests page.
+      parameters:
+        - $ref: "#/components/parameters/Ref"
+      x-observed:
+        artifact: goodreads/proofs/user-pages-map-2026-05-22.json
+        status: 200
+      responses:
+        "200":
+          $ref: "#/components/responses/HtmlPage"
+
+  /friend:
+    get:
+      tags: [social]
+      summary: Friends index page.
+      x-observed:
+        artifact: goodreads/proofs/user-pages-map-batch2-2026-05-22.json
+        status: 200
+      responses:
+        "200":
+          $ref: "#/components/responses/HtmlPage"
+
+  /topic:
+    get:
+      tags: [social]
+      summary: Discussions page, optionally filtered to groups.
+      parameters:
+        - name: discussion_filter
+          in: query
+          required: false
+          schema:
+            type: string
+            examples: [groups]
+        - $ref: "#/components/parameters/Ref"
+      x-observed:
+        artifact: goodreads/proofs/user-pages-map-2026-05-22.json
+        status: 200
+      responses:
+        "200":
+          $ref: "#/components/responses/HtmlPage"
+
+  /message/inbox:
+    get:
+      tags: [social]
+      summary: User message inbox.
+      parameters:
+        - $ref: "#/components/parameters/Ref"
+      x-observed:
+        artifact: goodreads/proofs/user-pages-map-batch2-2026-05-22.json
+        status: 200
+      responses:
+        "200":
+          $ref: "#/components/responses/HtmlPage"
+
+  /message/{folder}:
+    get:
+      tags: [social]
+      summary: User message folder page.
+      parameters:
+        - name: folder
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [inbox, saved, sent, trash]
+      x-observed:
+        artifact: goodreads/proofs/discovery-pages-map-2026-05-22.json
+        status: 200
+      responses:
+        "200":
+          $ref: "#/components/responses/HtmlPage"
+
+  /message/show/{message_id}:
+    get:
+      tags: [social]
+      summary: Message detail page.
+      parameters:
+        - name: message_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      x-observed:
+        artifact: goodreads/proofs/discovery-pages-map-2026-05-22.json
+        source: inbox link
+      responses:
+        "200":
+          $ref: "#/components/responses/HtmlPage"
+
+  /message/move_batch:
+    post:
+      tags: [social]
+      summary: Batch message folder/read action.
+      parameters:
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                authenticity_token:
+                  type: string
+                folder:
+                  type: string
+                "move[folder]":
+                  type: string
+                  enum: [saved, trash, read]
+                "messages[{message_id}]":
+                  type: string
+      x-observed:
+        artifact: goodreads/proofs/discovery-pages-map-2026-05-22.json
+        source: form action
+        submitted: false
+      x-safety:
+        default: dry-run
+        requires_approved_write_capture: true
+      responses:
+        "200":
+          $ref: "#/components/responses/HtmlPage"
+
+  /message/mark_all_as_read:
+    get:
+      tags: [social]
+      summary: Mark all visible inbox messages read.
+      x-observed:
+        artifact: goodreads/proofs/discovery-pages-map-2026-05-22.json
+        source: inbox link
+        clicked: false
+      x-safety:
+        default: dry-run
+        requires_explicit_execute: true
+      responses:
+        "200":
+          $ref: "#/components/responses/HtmlPage"
+
+  /user/year_in_books/{year}/{user_id}:
+    get:
+      tags: [profile]
+      summary: Year in Books page.
+      parameters:
+        - name: year
+          in: path
+          required: true
+          schema:
+            type: integer
+          example: 2025
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: integer
+          example: 100000000
+      x-observed:
+        artifact: goodreads/proofs/user-pages-map-batch2-2026-05-22.json
+        status: 200
+      responses:
+        "200":
+          $ref: "#/components/responses/HtmlPage"
+
+  /list/show/{list_id}:
+    get:
+      tags: [discovery]
+      summary: Public Listopia list page.
+      parameters:
+        - name: list_id
+          in: path
+          required: true
+          schema:
+            type: integer
+          example: 1
+      x-observed:
+        artifact: goodreads/proofs/user-pages-map-batch2-2026-05-22.json
+        status: 200
+      responses:
+        "200":
+          $ref: "#/components/responses/HtmlPage"
+
+  /recommendations:
+    get:
+      tags: [discovery]
+      summary: Personalized recommendations page.
+      parameters:
+        - $ref: "#/components/parameters/Ref"
+      x-observed:
+        artifacts:
+          - goodreads/proofs/user-pages-map-2026-05-22.json
+          - goodreads/proofs/nav-bookshelves-links-2026-05-22-v3.json
+        status: 200
+      responses:
+        "200":
+          $ref: "#/components/responses/HtmlPage"
+
+  /recommendations/to_me:
+    get:
+      tags: [discovery]
+      summary: Friends' recommendations page.
+      parameters:
+        - $ref: "#/components/parameters/Ref"
+      x-observed:
+        artifact: goodreads/proofs/nav-bookshelves-links-2026-05-22-v3.json
+        source: navigation link
+      responses:
+        "200":
+          $ref: "#/components/responses/HtmlPage"
+
+  /amazon_purchases:
+    get:
+      tags: [discovery]
+      summary: Amazon purchases import/inspection page.
+      parameters:
+        - name: source
+          in: query
+          required: false
+          schema:
+            type: string
+      x-observed:
+        artifact: goodreads/proofs/discovery-pages-map-2026-05-22.json
+        status: 200
+      responses:
+        "200":
+          $ref: "#/components/responses/HtmlPage"
+
+  /shelf:
+    get:
+      tags: [discovery]
+      summary: Top public shelves index.
+      x-observed:
+        artifact: goodreads/proofs/discovery-pages-map-2026-05-22.json
+        status: 200
+      responses:
+        "200":
+          $ref: "#/components/responses/HtmlPage"
+
+  /shelf/show/{shelf_slug}:
+    get:
+      tags: [discovery]
+      summary: Public shelf landing page.
+      parameters:
+        - name: shelf_slug
+          in: path
+          required: true
+          schema:
+            type: string
+          examples:
+            toRead:
+              value: to-read
+            currentlyReading:
+              value: currently-reading
+      x-observed:
+        artifact: goodreads/proofs/discovery-pages-map-2026-05-22.json
+        status: 200
+      responses:
+        "200":
+          $ref: "#/components/responses/HtmlPage"
+
+  /genres:
+    get:
+      tags: [discovery]
+      summary: Genre index page.
+      parameters:
+        - $ref: "#/components/parameters/Ref"
+      x-observed:
+        artifact: goodreads/proofs/genres-page-links-2026-05-22.json
+        status: 200
+      responses:
+        "200":
+          $ref: "#/components/responses/HtmlPage"
+
+  /genres/list:
+    get:
+      tags: [discovery]
+      summary: Alphabetical genre shelves index.
+      parameters:
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: filter
+          in: query
+          required: false
+          schema:
+            type: string
+      x-observed:
+        artifact: goodreads/proofs/discovery-pages-map-2026-05-22.json
+        status: 200
+      responses:
+        "200":
+          $ref: "#/components/responses/HtmlPage"
+
+  /genres/search:
+    get:
+      tags: [discovery]
+      summary: Genre finder route.
+      parameters:
+        - name: shelf
+          in: query
+          required: false
+          schema:
+            type: string
+      x-observed:
+        artifact: goodreads/proofs/discovery-pages-map-2026-05-22.json
+        source: form action
+      responses:
+        "200":
+          $ref: "#/components/responses/HtmlPage"
+
+  /genres/{genre_slug}:
+    get:
+      tags: [discovery]
+      summary: Genre landing page.
+      parameters:
+        - name: genre_slug
+          in: path
+          required: true
+          schema:
+            type: string
+          examples:
+            art:
+              value: art
+            historicalFiction:
+              value: historical-fiction
+      x-observed:
+        artifact: goodreads/proofs/genres-page-links-2026-05-22.json
+        source: navigation link
+      responses:
+        "200":
+          $ref: "#/components/responses/HtmlPage"
+
+  /user/top_readers:
+    get:
+      tags: [discovery]
+      summary: People discovery page for top readers.
+      x-observed:
+        artifact: goodreads/proofs/discovery-pages-map-2026-05-22.json
+        status: 200
+      responses:
+        "200":
+          $ref: "#/components/responses/HtmlPage"
+
+  /user/top_reviewers:
+    get:
+      tags: [discovery]
+      summary: People discovery page for top reviewers.
+      x-observed:
+        artifact: goodreads/proofs/discovery-pages-map-2026-05-22.json
+        status: 200
+      responses:
+        "200":
+          $ref: "#/components/responses/HtmlPage"
+
+  /user/best_reviewers:
+    get:
+      tags: [discovery]
+      summary: People discovery page for most popular reviewers.
+      x-observed:
+        artifact: goodreads/proofs/discovery-pages-map-2026-05-22.json
+        status: 200
+      responses:
+        "200":
+          $ref: "#/components/responses/HtmlPage"
+
+  /user_following/most_followed:
+    get:
+      tags: [discovery]
+      summary: People discovery page for most-followed users.
+      x-observed:
+        artifact: goodreads/proofs/discovery-pages-map-2026-05-22.json
+        status: 200
+      responses:
+        "200":
+          $ref: "#/components/responses/HtmlPage"
+
+  /review/stats/{user}:
+    get:
+      tags: [shelves]
+      summary: Reading stats page.
+      parameters:
+        - name: user
+          in: path
+          required: true
+          schema:
+            type: string
+          examples:
+            numeric:
+              value: "100000000"
+            slugged:
+              value: "100000000-example-user"
+      x-observed:
+        artifact: goodreads/proofs/nav-bookshelves-links-2026-05-22-v3.json
+        source: navigation link
+      responses:
+        "200":
+          $ref: "#/components/responses/HtmlPage"
+
+  /review/drafts:
+    get:
+      tags: [shelves]
+      summary: Review drafts page.
+      x-observed:
+        artifact: goodreads/proofs/nav-bookshelves-links-2026-05-22-v3.json
+        source: navigation link
+      responses:
+        "200":
+          $ref: "#/components/responses/HtmlPage"
+
+  /review/duplicates:
+    get:
+      tags: [shelves]
+      summary: Duplicate books tool.
+      x-observed:
+        artifact: goodreads/proofs/nav-bookshelves-links-2026-05-22-v3.json
+        source: navigation link
+      responses:
+        "200":
+          $ref: "#/components/responses/HtmlPage"
+
+  /review/import:
+    get:
+      tags: [shelves]
+      summary: Import/export page.
+      x-observed:
+        artifact: goodreads/proofs/nav-bookshelves-links-2026-05-22-v3.json
+        source: navigation link
+      responses:
+        "200":
+          $ref: "#/components/responses/HtmlPage"
+
+  /user_shelves:
+    post:
+      tags: [shelves]
+      summary: Create a custom user shelf.
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                authenticity_token:
+                  type: string
+                "user_shelf[name]":
+                  type: string
+                commit:
+                  type: string
+      x-observed:
+        artifact: goodreads/proofs/bookshelf-edit-popover-map-2026-05-22-v2.json
+        source: form action
+        submitted: false
+      x-safety:
+        default: dry-run
+        requires_approved_write_capture: true
+      responses:
+        "200":
+          $ref: "#/components/responses/HtmlPage"
+
+  /shelf/update/{shelf_id}:
+    post:
+      tags: [shelves]
+      summary: Update shelf display/settings.
+      parameters:
+        - name: shelf_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                _method:
+                  type: string
+                  example: patch
+                authenticity_token:
+                  type: string
+                "user_shelf[sort]":
+                  type: string
+                "user_shelf[order]":
+                  type: string
+                "user_shelf[per_page]":
+                  type: integer
+      x-observed:
+        artifact: goodreads/proofs/bookshelf-edit-popover-map-2026-05-22-v2.json
+        source: form action
+        submitted: false
+      x-safety:
+        default: dry-run
+        requires_approved_write_capture: true
+      responses:
+        "200":
+          $ref: "#/components/responses/HtmlPage"
+
+  /review/update_list/{user_id}:
+    post:
+      tags: [shelves]
+      summary: Batch update selected reviews/books on a user's shelf table.
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                authenticity_token:
+                  type: string
+                view:
+                  type: string
+                  example: table
+                "edit[shelf]":
+                  type: string
+                "reviews[{review_id}]":
+                  type: string
+      x-observed:
+        artifacts:
+          - goodreads/proofs/bookshelf-edit-popover-map-2026-05-22-v2.json
+          - goodreads/proofs/bookshelf-script-routes-2026-05-22.json
+        source: form and script mining
+        submitted: false
+      x-safety:
+        default: dry-run
+        requires_approved_write_capture: true
+        verify_after_write: reload target shelf
+      responses:
+        "200":
+          $ref: "#/components/responses/HtmlPage"
+
+  /shelf/add_to_shelf:
+    post:
+      tags: [shelves]
+      summary: Add or remove one book from a shelf through the shelf chooser helper.
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                authenticity_token:
+                  type: string
+                book_id:
+                  type: integer
+                name:
+                  type: string
+                a:
+                  type: string
+                  description: Empty/add by default; `remove` removes the shelf.
+      x-observed:
+        artifact: goodreads/proofs/bookshelf-script-routes-2026-05-22.json
+        source: static JS mining
+        submitted: false
+      x-safety:
+        default: dry-run
+        requires_approved_write_capture: true
+      responses:
+        "200":
+          $ref: "#/components/responses/XhrHtmlOrJson"
+
+  /shelf/remove_book:
+    post:
+      tags: [shelves]
+      summary: Remove one book from a shelf from the button helper.
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                authenticity_token:
+                  type: string
+                book_id:
+                  type: integer
+                name:
+                  type: string
+      x-observed:
+        artifact: goodreads/proofs/bookshelf-script-routes-2026-05-22.json
+        source: static JS mining
+        submitted: false
+      x-safety:
+        default: dry-run
+        requires_approved_write_capture: true
+      responses:
+        "200":
+          $ref: "#/components/responses/XhrHtmlOrJson"
+
+  /shelf/move_batch:
+    post:
+      tags: [shelves]
+      summary: Reorder books/shelves in batch.
+      requestBody:
+        required: false
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              additionalProperties: true
+      x-observed:
+        artifact: goodreads/proofs/bookshelf-script-routes-2026-05-22.json
+        source: static JS mining
+        submitted: false
+      x-safety:
+        default: dry-run
+        requires_approved_write_capture: true
+      responses:
+        "200":
+          $ref: "#/components/responses/XhrHtmlOrJson"
+
+  /shelf/move_batch/{user_id}:
+    post:
+      tags: [shelves]
+      summary: Persist shelf-table position changes for a user.
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: false
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              additionalProperties: true
+      x-observed:
+        artifact: goodreads/proofs/bookshelf-script-routes-2026-05-22.json
+        source: static JS mining
+        submitted: false
+      x-safety:
+        default: dry-run
+        requires_approved_write_capture: true
+      responses:
+        "200":
+          $ref: "#/components/responses/XhrHtmlOrJson"
+
+  /shelf/move_to_position:
+    post:
+      tags: [shelves]
+      summary: Move one shelf/book row to a specific position.
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                authenticity_token:
+                  type: string
+                id:
+                  type: integer
+                position:
+                  type: integer
+      x-observed:
+        artifact: goodreads/proofs/bookshelf-script-routes-2026-05-22.json
+        source: static JS mining
+        submitted: false
+      x-safety:
+        default: dry-run
+        requires_approved_write_capture: true
+      responses:
+        "200":
+          $ref: "#/components/responses/XhrHtmlOrJson"
+
+  /review/update/{book_id}:
+    post:
+      tags: [shelves]
+      summary: Inline review/date/notes field update for one book.
+      parameters:
+        - name: book_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: false
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              additionalProperties: true
+      x-observed:
+        artifact: goodreads/proofs/bookshelf-script-routes-2026-05-22.json
+        source: static JS mining
+        submitted: false
+      x-safety:
+        default: dry-run
+        requires_approved_write_capture: true
+      responses:
+        "200":
+          $ref: "#/components/responses/XhrHtmlOrJson"
+
+  /review/update_session_shelf_settings:
+    post:
+      tags: [shelves]
+      summary: Update transient shelf-table UI settings in the session.
+      requestBody:
+        required: false
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              additionalProperties: true
+      x-observed:
+        artifact: goodreads/proofs/bookshelf-script-routes-2026-05-22.json
+        source: static JS mining
+        submitted: false
+      x-safety:
+        default: omit
+      responses:
+        "200":
+          $ref: "#/components/responses/XhrHtmlOrJson"

@@ -1,0 +1,68 @@
+{
+  "manifest_version": "0.3",
+  "name": "amazon-ads-pp-mcp",
+  "display_name": "Amazon Ads",
+  "version": "4.18.1",
+  "description": "Amazon Ads MCP server for reports, analytics, keyword optimization, and guarded automation.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/amazon-ads-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/amazon-ads-pp-mcp",
+      "args": [],
+      "env": {
+        "AMAZON_ADS_API_CLIENT_ID": "${user_config.amazon_ads_api_client_id}",
+        "AMAZON_ADS_CLIENT_ID": "${user_config.amazon_ads_client_id}",
+        "AMAZON_ADS_CLIENT_SECRET": "${user_config.amazon_ads_client_secret}",
+        "AMAZON_ADS_PROFILE_ID": "${user_config.amazon_ads_profile_id}",
+        "AMAZON_ADS_REFRESH_TOKEN": "${user_config.amazon_ads_refresh_token}"
+      }
+    }
+  },
+  "user_config": {
+    "amazon_ads_api_client_id": {
+      "type": "string",
+      "title": "AMAZON_ADS_API_CLIENT_ID",
+      "description": "Amazon Ads API client ID sent on every API request. Defaults to the same value as AMAZON_ADS_CLIENT_ID in the printed CLI.",
+      "sensitive": true
+    },
+    "amazon_ads_client_id": {
+      "type": "string",
+      "title": "AMAZON_ADS_CLIENT_ID",
+      "description": "Login with Amazon client ID for the Amazon Ads application. Used by amazon-ads-pp-cli auth login --port 8085.",
+      "sensitive": true,
+      "required": true
+    },
+    "amazon_ads_client_secret": {
+      "type": "string",
+      "title": "AMAZON_ADS_CLIENT_SECRET",
+      "description": "Login with Amazon client secret for the Amazon Ads application. Used by amazon-ads-pp-cli auth login --port 8085.",
+      "sensitive": true,
+      "required": true
+    },
+    "amazon_ads_profile_id": {
+      "type": "string",
+      "title": "AMAZON_ADS_PROFILE_ID",
+      "description": "Optional. Amazon Ads profile ID used as the request scope."
+    },
+    "amazon_ads_refresh_token": {
+      "type": "string",
+      "title": "AMAZON_ADS_REFRESH_TOKEN",
+      "description": "Refresh token saved by amazon-ads-pp-cli auth login --port 8085 after registering http://localhost:8085/callback as the Amazon redirect URL.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

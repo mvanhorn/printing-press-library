@@ -4,6 +4,8 @@ Monarch Money CLI generated with CLI Printing Press.
 
 This CLI wraps Monarch's browser API/GraphQL interface for practical terminal and agent workflows: checking connectivity, listing accounts and tags, reviewing transactions, summarizing cashflow, creating and editing manual transactions, and running guarded read-only GraphQL queries.
 
+Created by [@count](https://github.com/count) (Count).
+
 ## Install
 
 The recommended path installs both the `monarch-money-pp-cli` binary and the `pp-monarch-money` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

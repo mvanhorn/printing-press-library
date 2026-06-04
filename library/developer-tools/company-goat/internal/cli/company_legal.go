@@ -46,9 +46,9 @@ func newLegalCmd(flags *rootFlags) *cobra.Command {
 	var region string
 
 	cmd := &cobra.Command{
-		Use:   "legal [co]",
+		Use:         "legal [co]",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short: "Legal entity lookup. UK via Companies House (optional COMPANIES_HOUSE_API_KEY); US via SEC EDGAR Form D issuer fields.",
+		Short:       "Legal entity lookup. UK via Companies House (optional COMPANIES_HOUSE_API_KEY); US via SEC EDGAR Form D issuer fields.",
 		Long: `legal returns the structured legal-entity record for a company.
 
 Region routing:

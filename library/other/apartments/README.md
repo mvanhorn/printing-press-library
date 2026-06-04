@@ -6,6 +6,8 @@ Search every Apartments.com listing path-slug from the terminal, sync results to
 
 Learn more at [Apartments.com](https://www.apartments.com).
 
+Created by [@rderwin](https://github.com/rderwin) (rderwin).
+
 ## Install
 
 The recommended path installs both the `apartments-pp-cli` binary and the `pp-apartments` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

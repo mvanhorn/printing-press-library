@@ -5,6 +5,10 @@
   "api_name": "marginalrevolution",
   "display_name": "Marginal Revolution",
   "cli_name": "marginalrevolution-pp-cli",
+  "creator": {
+    "handle": "hinuri",
+    "name": "Nuri Chang"
+  },
   "owner": "",
   "printer": "hinuri",
   "printer_name": "Nuri Chang",

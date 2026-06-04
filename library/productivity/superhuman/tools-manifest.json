@@ -1,0 +1,295 @@
+{
+  "api_name": "superhuman",
+  "base_url": "https://mail.superhuman.com/~backend",
+  "description": "Read, draft, send, schedule, and respond to Superhuman email from a terminal or agent. Durable Chrome-session auth, Gmail history refresh, local SQLite store, and agent-native I/O.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "format": "Bearer {SUPERHUMAN_JWT}",
+    "in": "header",
+    "env_vars": [
+      "SUPERHUMAN_JWT"
+    ],
+    "env_var_specs": [
+      {
+        "name": "SUPERHUMAN_JWT",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [
+    {
+      "name": "Content-Type",
+      "value": "text/plain;charset=UTF-8"
+    }
+  ],
+  "tools": [
+    {
+      "name": "ai_ask",
+      "description": "Ask AI semantic search (SSE stream).",
+      "method": "POST",
+      "path": "/v3/ai.askAIProxy",
+      "params": [
+        {"name": "query", "type": "string", "location": "body", "required": true}
+      ]
+    },
+    {
+      "name": "attachments_upload",
+      "description": "Upload an attachment for a draft.",
+      "method": "POST",
+      "path": "/v3/attachments.upload",
+      "params": [
+        {"name": "draft_message_id", "type": "string", "location": "body", "required": true},
+        {"name": "thread_id", "type": "string", "location": "body", "required": true},
+        {"name": "content_type", "type": "string", "location": "body", "required": true},
+        {"name": "content", "type": "string", "location": "body", "required": true}
+      ]
+    },
+    {
+      "name": "awaiting_reply",
+      "description": "List local threads where the latest message awaits your reply.",
+      "method": "LOCAL",
+      "path": "awaiting-reply",
+      "params": [
+        {"name": "since", "type": "string", "location": "flag"},
+        {"name": "min_age", "type": "duration", "location": "flag"},
+        {"name": "external_only", "type": "bool", "location": "flag"}
+      ]
+    },
+    {
+      "name": "bootstrap",
+      "description": "Bootstrap recent Gmail messages into local SQLite.",
+      "method": "LOCAL",
+      "path": "bootstrap",
+      "params": [
+        {"name": "folders", "type": "string", "location": "flag"},
+        {"name": "per_folder", "type": "int", "location": "flag"},
+        {"name": "full", "type": "bool", "location": "flag"}
+      ]
+    },
+    {
+      "name": "drafts_list",
+      "description": "List drafts.",
+      "method": "POST",
+      "path": "/v3/userdata.getThreads",
+      "params": [
+        {"name": "limit", "type": "int", "location": "body"}
+      ]
+    },
+    {
+      "name": "drafts_new",
+      "description": "Create a fresh outbound draft with generated IDs.",
+      "method": "POST",
+      "path": "/v3/userdata.writeMessage",
+      "params": [
+        {"name": "to", "type": "stringSlice", "location": "flag", "required": true},
+        {"name": "subject", "type": "string", "location": "flag"},
+        {"name": "body", "type": "string", "location": "flag"}
+      ]
+    },
+    {
+      "name": "drafts_write",
+      "description": "Create or update a draft.",
+      "method": "POST",
+      "path": "/v3/userdata.writeMessage",
+      "params": [
+        {"name": "thread_id", "type": "string", "location": "body", "required": true},
+        {"name": "draft_id", "type": "string", "location": "body", "required": true}
+      ]
+    },
+    {
+      "name": "messages_get",
+      "description": "Fetch one Gmail message by id.",
+      "method": "GET",
+      "path": "/users/me/messages/{id}",
+      "params": [
+        {"name": "message_id", "type": "string", "location": "path", "required": true},
+        {"name": "format", "type": "string", "location": "query"}
+      ]
+    },
+    {
+      "name": "messages_get_by_rfc822",
+      "description": "Lookup a message by RFC822 Message-ID.",
+      "method": "LOCAL",
+      "path": "messages get-by-rfc822",
+      "params": [
+        {"name": "message_id", "type": "string", "location": "argument", "required": true}
+      ]
+    },
+    {
+      "name": "messages_list",
+      "description": "List messages with Gmail search syntax.",
+      "method": "GET",
+      "path": "/users/me/messages",
+      "params": [
+        {"name": "query", "type": "string", "location": "query"},
+        {"name": "limit", "type": "int", "location": "query"},
+        {"name": "full", "type": "bool", "location": "flag"}
+      ]
+    },
+    {
+      "name": "messages_query",
+      "description": "Semantic email search through Ask AI.",
+      "method": "POST",
+      "path": "/v3/ai.askAIProxy",
+      "params": [
+        {"name": "text", "type": "string", "location": "argument", "required": true}
+      ]
+    },
+    {
+      "name": "participants_list",
+      "description": "List email participants from the local store.",
+      "method": "LOCAL",
+      "path": "participants list",
+      "params": [
+        {"name": "since", "type": "string", "location": "flag"},
+        {"name": "direction", "type": "string", "location": "flag"},
+        {"name": "sort", "type": "string", "location": "flag"}
+      ]
+    },
+    {
+      "name": "participants_show",
+      "description": "Show details for one participant from the local store.",
+      "method": "LOCAL",
+      "path": "participants show",
+      "params": [
+        {"name": "email", "type": "string", "location": "argument", "required": true}
+      ]
+    },
+    {
+      "name": "reminders_cancel",
+      "description": "Cancel a snooze reminder.",
+      "method": "POST",
+      "path": "/reminders/cancel",
+      "params": [
+        {"name": "reminder_id", "type": "string", "location": "body", "required": true},
+        {"name": "thread_id", "type": "string", "location": "body", "required": true}
+      ]
+    },
+    {
+      "name": "reminders_create",
+      "description": "Create a snooze reminder for a thread.",
+      "method": "POST",
+      "path": "/reminders/create",
+      "params": [
+        {"name": "thread_id", "type": "string", "location": "body", "required": true},
+        {"name": "trigger_at", "type": "string", "location": "body", "required": true}
+      ]
+    },
+    {
+      "name": "send",
+      "description": "Send, schedule, or cancel a scheduled send through Superhuman.",
+      "method": "POST",
+      "path": "/v3/userdata.writeMessage + /v3/userdata.read + /v3/messages.send",
+      "params": [
+        {"name": "to", "type": "stringSlice", "location": "flag"},
+        {"name": "subject", "type": "string", "location": "flag"},
+        {"name": "body", "type": "string", "location": "flag"},
+        {"name": "remind_in", "type": "string", "location": "flag"},
+        {"name": "remind_on", "type": "string", "location": "flag"},
+        {"name": "if_no_reply", "type": "bool", "location": "flag"},
+        {"name": "schedule_at", "type": "string", "location": "flag"},
+        {"name": "cancel_schedule", "type": "string", "location": "flag"}
+      ]
+    },
+    {
+      "name": "snippets_create",
+      "description": "Create a local reusable email snippet.",
+      "method": "LOCAL",
+      "path": "snippets create",
+      "params": [
+        {"name": "name", "type": "string", "location": "argument", "required": true},
+        {"name": "subject", "type": "string", "location": "flag"},
+        {"name": "body", "type": "string", "location": "flag"}
+      ]
+    },
+    {
+      "name": "snippets_delete",
+      "description": "Delete a local snippet.",
+      "method": "LOCAL",
+      "path": "snippets delete",
+      "params": [
+        {"name": "name", "type": "string", "location": "argument", "required": true}
+      ]
+    },
+    {
+      "name": "snippets_get",
+      "description": "Show a local snippet.",
+      "method": "LOCAL",
+      "path": "snippets get",
+      "params": [
+        {"name": "name", "type": "string", "location": "argument", "required": true}
+      ]
+    },
+    {
+      "name": "snippets_list",
+      "description": "List local snippets.",
+      "method": "LOCAL",
+      "path": "snippets list",
+      "params": []
+    },
+    {
+      "name": "snippets_update",
+      "description": "Update a local snippet.",
+      "method": "LOCAL",
+      "path": "snippets update",
+      "params": [
+        {"name": "name", "type": "string", "location": "argument", "required": true},
+        {"name": "subject", "type": "string", "location": "flag"},
+        {"name": "body", "type": "string", "location": "flag"}
+      ]
+    },
+    {
+      "name": "teams_suggest",
+      "description": "List teams the user belongs to.",
+      "method": "GET",
+      "path": "/v3/teams.suggest?includeSingletons=true",
+      "params": []
+    },
+    {
+      "name": "threads_get",
+      "description": "Get a thread by ID.",
+      "method": "POST",
+      "path": "/v3/userdata.read",
+      "params": [
+        {"name": "thread_id", "type": "string", "location": "argument", "required": true}
+      ]
+    },
+    {
+      "name": "threads_list",
+      "description": "List recent threads by folder, label, participant set, or stdin intersection.",
+      "method": "POST",
+      "path": "/v3/userdata.getThreads",
+      "params": [
+        {"name": "type", "type": "string", "location": "flag"},
+        {"name": "label", "type": "string", "location": "flag"},
+        {"name": "participants_file", "type": "string", "location": "flag"},
+        {"name": "intersect_with_stdin", "type": "bool", "location": "flag"},
+        {"name": "limit", "type": "int", "location": "body"}
+      ]
+    },
+    {
+      "name": "users_achievements",
+      "description": "User achievements / gamification state.",
+      "method": "GET",
+      "path": "/v3/users.achievements",
+      "params": []
+    },
+    {
+      "name": "watch",
+      "description": "Emit Gmail history deltas as newline-delimited JSON.",
+      "method": "LOCAL",
+      "path": "watch",
+      "params": [
+        {"name": "once", "type": "bool", "location": "flag"},
+        {"name": "interval", "type": "duration", "location": "flag"},
+        {"name": "filter", "type": "string", "location": "flag"}
+      ]
+    }
+  ]
+}

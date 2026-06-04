@@ -5,6 +5,16 @@
   "api_name": "shopify",
   "display_name": "Shopify",
   "cli_name": "shopify-pp-cli",
+  "creator": {
+    "handle": "cathrynlavery",
+    "name": "Cathryn Lavery"
+  },
+  "contributors": [
+    {
+      "handle": "benjaminn8",
+      "name": "Benjamin"
+    }
+  ],
   "owner": "benjamin-huang",
   "printer": "cathrynlavery",
   "printer_name": "Cathryn Lavery",
@@ -96,6 +106,56 @@
       "command": "auth audit",
       "name": "Auth Audit",
       "description": "Audit OAuth client_credentials setup and access-token freshness."
+    },
+    {
+      "command": "store daily-brief",
+      "name": "Store Daily Brief",
+      "description": "Executive store brief with revenue, top products, risk checks, and suggested next actions from the local mirror."
+    },
+    {
+      "command": "store audit",
+      "name": "Store Health Audit",
+      "description": "Score store health from refunds, fulfillment risk, shipping anomalies, and dead stock."
+    },
+    {
+      "command": "growth campaign-brief",
+      "name": "Growth Campaign Brief",
+      "description": "Generate a data-backed campaign brief from top products, VIPs, and winback opportunities."
+    },
+    {
+      "command": "growth winback-candidates",
+      "name": "Winback Candidates",
+      "description": "Rank idle customers by lifetime value and suggest winback angles."
+    },
+    {
+      "command": "growth vip-segments",
+      "name": "VIP Segments",
+      "description": "Segment high-value customers by spend, frequency, recency, and recommended action."
+    },
+    {
+      "command": "ops fulfillment-risk",
+      "name": "Fulfillment Risk Queue",
+      "description": "Find open fulfillment orders older than a threshold and classify risk."
+    },
+    {
+      "command": "ops shipping-anomalies",
+      "name": "Shipping Anomalies",
+      "description": "Find orders with free, missing, or unusually high shipping charges using synced shippingLines."
+    },
+    {
+      "command": "merchandising bundle-opportunities",
+      "name": "Bundle Opportunities",
+      "description": "Suggest bundles from co-purchase confidence and lift."
+    },
+    {
+      "command": "merchandising dead-stock-actions",
+      "name": "Dead Stock Actions",
+      "description": "Turn inventory with no recent sales into markdown or bundle actions."
+    },
+    {
+      "command": "merchandising launch-brief",
+      "name": "Product Launch Brief",
+      "description": "Build a launch/relaunch brief from product sales, inventory, and merchandising evidence."
     }
   ]
 }

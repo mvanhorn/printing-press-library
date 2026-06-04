@@ -5,6 +5,10 @@
   "api_name": "openrouter",
   "display_name": "OpenRouter",
   "cli_name": "openrouter-pp-cli",
+  "creator": {
+    "handle": "rvdlaar",
+    "name": "Rick van de Laar"
+  },
   "run_id": "20260509-165428",
   "novel_features": [
     {

@@ -1,0 +1,1392 @@
+name: erank
+description: Discovered API spec for members-erank
+version: 0.1.0
+category: marketing
+base_url: https://members.erank.com
+spec_source: sniffed
+http_transport: browser-chrome-h2
+auth:
+    type: composed
+    header: X-XSRF-TOKEN
+    format: "{XSRF-TOKEN}"
+    env_vars:
+        - ERANK_XSRF_TOKEN
+    env_var_specs:
+        - name: ERANK_XSRF_TOKEN
+          kind: harvested
+          required: true
+          sensitive: true
+          description: XSRF token captured from a logged-in eRank browser session.
+    in: header
+    cookie_domain: members.erank.com
+    cookies:
+        - er_sess_x
+        - sid_er
+        - XSRF-TOKEN
+    requires_browser_session: true
+    browser_session_reason: eRank member Keyword Tool endpoints require logged-in browser cookies and an XSRF header.
+    browser_session_validation_path: /api/keyword-tool/stats?keyword=dad+mug&country=USA&marketplace=etsy
+    browser_session_validation_method: GET
+    login_url: https://members.erank.com/login
+    login_complete_selector: a[href*="/settings"], a[href*="/dashboard"], [class*="user"], [class*="account"]
+config:
+    format: toml
+    path: ~/.config/erank-pp-cli/config.toml
+mcp:
+    transport: [stdio, http]
+    orchestration: code
+    endpoint_tools: hidden
+cache:
+    enabled: true
+    stale_after: 6h
+    refresh_timeout: 30s
+    env_opt_out: ERANK_NO_AUTO_REFRESH
+    resources:
+        keyword-tool: 30m
+        keywordlist: 30m
+        account: 1h
+resources:
+    account:
+        description: Operations on sideBarCollapse
+        endpoints:
+            get_user_preferences:
+                method: GET
+                path: /api/account/user-preferences/{user_preference_id}
+                description: GET /api/account/user-preferences/{user_preference_id}
+                params:
+                    - name: user_preference_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The user_preference_id path segment
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: user_preferences
+                pagination: null
+                observed_auth:
+                    - x-xsrf-token
+            list_keyword_tool.near_matches.table.config.columns:
+                method: GET
+                path: /api/account/user-preferences/keyword-tool.near-matches.table.config.columns
+                description: GET /api/account/user-preferences/keyword-tool.near-matches.table.config.columns
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: keyword_tool.near_matches.table.config.columns
+                pagination: null
+                observed_auth:
+                    - x-xsrf-token
+            list_kt_keyword_ideas:
+                method: GET
+                path: /api/account/user-preferences/kt_keyword_ideas
+                description: GET /api/account/user-preferences/kt_keyword_ideas
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: kt_keyword_ideas
+                pagination: null
+                observed_auth:
+                    - x-xsrf-token
+            list_member_preferences:
+                method: GET
+                path: /api/account/member-preferences
+                description: GET /api/account/member-preferences
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: member_preferences
+                pagination: null
+                observed_auth:
+                    - x-xsrf-token
+            list_searchCountry:
+                method: GET
+                path: /api/account/user-preferences/searchCountry
+                description: GET /api/account/user-preferences/searchCountry
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: searchCountry
+                pagination: null
+                observed_auth:
+                    - x-xsrf-token
+            list_sideBarCollapse:
+                method: GET
+                path: /api/account/user-preferences/sideBarCollapse
+                description: GET /api/account/user-preferences/sideBarCollapse
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: sideBarCollapse
+                pagination: null
+                observed_auth:
+                    - x-xsrf-token
+    build:
+        description: Operations on version.json
+        endpoints:
+            list_version.json:
+                method: GET
+                path: /build/version.json
+                description: GET /build/version.json
+                params:
+                    - name: t
+                      flag_name: cache-buster
+                      aliases:
+                        - t
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: Cache-busting timestamp used by the eRank web app.
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: version.json
+                pagination: null
+    check-paddle-restriction:
+        description: Operations on check-paddle-restriction
+        endpoints:
+            list_check_paddle_restriction:
+                method: GET
+                path: /api/check-paddle-restriction
+                description: GET /api/check-paddle-restriction
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: check_paddle_restriction
+                pagination: null
+                observed_auth:
+                    - x-xsrf-token
+    intercom:
+        description: Operations on intercom
+        endpoints:
+            list_intercom:
+                method: GET
+                path: /api/intercom
+                description: GET /api/intercom
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: intercom
+                pagination: null
+                observed_auth:
+                    - x-xsrf-token
+    keyword-tool:
+        description: Operations on stats
+        endpoints:
+            create_competition:
+                method: POST
+                path: /api/keyword-tool/competition
+                description: POST /api/keyword-tool/competition
+                params: []
+                body:
+                    - name: country
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: keyword
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: keywords
+                      type: array
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: marketplace
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                response:
+                    type: object
+                    item: competition
+                pagination: null
+                observed_auth:
+                    - x-xsrf-token
+            create_google_data:
+                method: POST
+                path: /api/keyword-tool/google-data
+                description: POST /api/keyword-tool/google-data
+                params: []
+                body:
+                    - name: country
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: keyword
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: keywords
+                      type: array
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: marketplace
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                response:
+                    type: object
+                    item: google_data
+                pagination: null
+                observed_auth:
+                    - x-xsrf-token
+            create_keyword_difficulty:
+                method: POST
+                path: /api/keyword-tool/keyword-difficulty
+                description: POST /api/keyword-tool/keyword-difficulty
+                params: []
+                body:
+                    - name: avg_searches
+                      type: object
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields:
+                        - name: anime dad mug
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: awesome dad mug
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: best dad mug
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: birthday dad mug
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: bonus dad mug
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: cat dad mug
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: ceramic dad mug
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: christmas dad mug
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: cool dad mug
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: custom dad mug
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: customized dad mug
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: dad
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: dad appreciation mug
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: dad birthday mug
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: dad coffee mug
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: dad gift mug
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: dad life mug
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: dad mug
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: dad mug ceramic
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: dad mug designs
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: dad mug funny
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: dad mug gift
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: dad mug png
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: dad mug wrap
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: dad photo mug
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: dad quote mug
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: dear dad mug
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: dog dad mug
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: fishing dad mug
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: funny dad mug
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: girl dad mug
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: golf dad mug
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: hunting dad mug
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: legendary dad mug
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: mom and dad mug
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: mom and dad mug 2026
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: mug
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: mug for dad
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: new dad mug
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: novelty dad mug
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: otaku dad mug
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: personalized dad mug
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: promoted to dad mug
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: snake dad mug
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: soccer dad mug
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: sports dad mug
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: step dad mug
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: super dad mug
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: ugly dad mug
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: whippet dad mug
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                    - name: competition
+                      type: object
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields:
+                        - name: anime dad mug
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: awesome dad mug
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: best dad mug
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: birthday dad mug
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: bonus dad mug
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: cat dad mug
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: ceramic dad mug
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: christmas dad mug
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: cool dad mug
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: custom dad mug
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: customized dad mug
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: dad
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: dad appreciation mug
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: dad birthday mug
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: dad coffee mug
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: dad gift mug
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: dad life mug
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: dad mug
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: dad mug ceramic
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: dad mug designs
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: dad mug funny
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: dad mug gift
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: dad mug png
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: dad mug wrap
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: dad photo mug
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: dad quote mug
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: dear dad mug
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: dog dad mug
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: fishing dad mug
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: funny dad mug
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: girl dad mug
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: golf dad mug
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: hunting dad mug
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: legendary dad mug
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: mom and dad mug
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: mom and dad mug 2026
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: mug
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: mug for dad
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: new dad mug
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: novelty dad mug
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: otaku dad mug
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: personalized dad mug
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: promoted to dad mug
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: snake dad mug
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: soccer dad mug
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: sports dad mug
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: step dad mug
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: super dad mug
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: ugly dad mug
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: whippet dad mug
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                    - name: country
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: keyword
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: marketplace
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                response:
+                    type: object
+                    item: keyword_difficulty
+                pagination: null
+                observed_auth:
+                    - x-xsrf-token
+            create_save_history:
+                method: POST
+                path: /api/keyword-tool/save-history
+                description: POST /api/keyword-tool/save-history
+                params: []
+                body:
+                    - name: country
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: keyword
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: marketplace
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                response:
+                    type: object
+                    item: save_history
+                pagination: null
+                observed_auth:
+                    - x-xsrf-token
+            list_etsy_tags:
+                method: GET
+                path: /api/keyword-tool/etsy-tags
+                description: GET /api/keyword-tool/etsy-tags
+                params:
+                    - name: keyword
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: Keyword phrase to research.
+                      fields: []
+                    - name: country
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: marketplace
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: opensearch_filters[broad_match]
+                      flag_name: broad-match
+                      type: boolean
+                      required: false
+                      positional: false
+                      default: null
+                      description: Include broad-match keyword results.
+                      fields: []
+                    - name: opensearch_filters[default_match]
+                      flag_name: default-match
+                      type: boolean
+                      required: false
+                      positional: false
+                      default: null
+                      description: Include eRank default-match keyword results.
+                      fields: []
+                    - name: opensearch_filters[exact_match]
+                      flag_name: exact-match
+                      type: boolean
+                      required: false
+                      positional: false
+                      default: null
+                      description: Include exact-match keyword results.
+                      fields: []
+                    - name: opensearch_filters[phrase_match]
+                      flag_name: phrase-match
+                      type: boolean
+                      required: false
+                      positional: false
+                      default: null
+                      description: Include phrase-match keyword results.
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: etsy_tags
+                pagination: null
+                observed_auth:
+                    - x-xsrf-token
+            list_near_matches:
+                method: GET
+                path: /api/keyword-tool/near-matches
+                description: GET /api/keyword-tool/near-matches
+                params:
+                    - name: keyword
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: Keyword phrase to research.
+                      fields: []
+                    - name: country
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: marketplace
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: near_matches
+                pagination: null
+                observed_auth:
+                    - x-xsrf-token
+            list_related_searches:
+                method: GET
+                path: /api/keyword-tool/related-searches
+                description: GET /api/keyword-tool/related-searches
+                params:
+                    - name: keyword
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: Keyword phrase to research.
+                      fields: []
+                    - name: country
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: marketplace
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: opensearch_filters[broad_match]
+                      flag_name: broad-match
+                      type: boolean
+                      required: false
+                      positional: false
+                      default: null
+                      description: Include broad-match keyword results.
+                      fields: []
+                    - name: opensearch_filters[default_match]
+                      flag_name: default-match
+                      type: boolean
+                      required: false
+                      positional: false
+                      default: null
+                      description: Include eRank default-match keyword results.
+                      fields: []
+                    - name: opensearch_filters[exact_match]
+                      flag_name: exact-match
+                      type: boolean
+                      required: false
+                      positional: false
+                      default: null
+                      description: Include exact-match keyword results.
+                      fields: []
+                    - name: opensearch_filters[phrase_match]
+                      flag_name: phrase-match
+                      type: boolean
+                      required: false
+                      positional: false
+                      default: null
+                      description: Include phrase-match keyword results.
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: related_searches
+                pagination: null
+                observed_auth:
+                    - x-xsrf-token
+            list_stats:
+                method: GET
+                path: /api/keyword-tool/stats
+                description: GET /api/keyword-tool/stats
+                params:
+                    - name: keyword
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: Keyword phrase to research.
+                      fields: []
+                    - name: country
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: marketplace
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: stats
+                pagination: null
+                observed_auth:
+                    - x-xsrf-token
+            list_top_listings:
+                method: GET
+                path: /api/keyword-tool/top-listings
+                description: GET /api/keyword-tool/top-listings
+                params:
+                    - name: keyword
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: Keyword phrase to research.
+                      fields: []
+                    - name: country
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: marketplace
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: top_listings
+                pagination: null
+                observed_auth:
+                    - x-xsrf-token
+    keywordlist:
+        description: Operations on names
+        endpoints:
+            list_names:
+                method: GET
+                path: /api/keywordlist/names
+                description: GET /api/keywordlist/names
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: names
+                pagination: null
+                observed_auth:
+                    - x-xsrf-token
+            list_terms:
+                method: GET
+                path: /api/keywordlist/terms
+                description: GET /api/keywordlist/terms
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: terms
+                pagination: null
+                observed_auth:
+                    - x-xsrf-token
+    member-shops:
+        description: Operations on member-shops
+        endpoints:
+            list_member_shops:
+                method: GET
+                path: /api/member-shops
+                description: GET /api/member-shops
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: member_shops
+                pagination: null
+                observed_auth:
+                    - x-xsrf-token
+    motd-v3:
+        description: Operations on keyword-tool
+        endpoints:
+            list_keyword_tool:
+                method: GET
+                path: /api/motd-v3/keyword-tool
+                description: GET /api/motd-v3/keyword-tool
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: keyword_tool
+                pagination: null
+                observed_auth:
+                    - x-xsrf-token
+    oauth:
+        description: Operations on check-token-validity
+        endpoints:
+            list_check_token_validity:
+                method: GET
+                path: /api/oauth/check-token-validity
+                description: GET /api/oauth/check-token-validity
+                params:
+                    - name: member_id
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: shop_id
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: check_token_validity
+                pagination: null
+                observed_auth:
+                    - x-xsrf-token
+    quota:
+        description: Operations on daily
+        endpoints:
+            list_daily:
+                method: GET
+                path: /api/quota/daily
+                description: GET /api/quota/daily
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: daily
+                pagination: null
+                observed_auth:
+                    - x-xsrf-token
+    refresh-data:
+        description: Operations on last-refresh
+        endpoints:
+            list_last_refresh:
+                method: GET
+                path: /api/refresh-data/listings/last-refresh
+                description: GET /api/refresh-data/listings/last-refresh
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: last_refresh
+                pagination: null
+                observed_auth:
+                    - x-xsrf-token
+types: {}

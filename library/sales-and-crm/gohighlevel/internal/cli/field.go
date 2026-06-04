@@ -1,4 +1,4 @@
-// Copyright 2026 user. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Jen Williams and contributors. Licensed under Apache-2.0. See LICENSE.
 //
 // `field` command tree — custom field name <-> ID resolver. Reads the
 // local SQLite cache's `custom_fields` table populated by sync.

@@ -53,10 +53,10 @@ Run 'sync --full' first to populate the store.`,
 			}
 
 			type staleEntry struct {
-				RecordingID  int64  `json:"recording_id"`
-				Title        string `json:"title"`
-				Date         string `json:"date"`
-				URL          string `json:"url"`
+				RecordingID  int64    `json:"recording_id"`
+				Title        string   `json:"title"`
+				Date         string   `json:"date"`
+				URL          string   `json:"url"`
 				MissingItems []string `json:"missing"`
 			}
 
@@ -92,9 +92,14 @@ Run 'sync --full' first to populate the store.`,
 
 				if len(missing) > 0 {
 					results = append(results, staleEntry{
-						RecordingID:  m.RecordingID,
-						Title:        m.meetingTitle(),
-						Date:         func() string { if len(m.CreatedAt) >= 10 { return m.CreatedAt[:10] }; return m.CreatedAt }(), // PATCH(created-at-guard): guard against empty/short CreatedAt
+						RecordingID: m.RecordingID,
+						Title:       m.meetingTitle(),
+						Date: func() string {
+							if len(m.CreatedAt) >= 10 {
+								return m.CreatedAt[:10]
+							}
+							return m.CreatedAt
+						}(), // PATCH(created-at-guard): guard against empty/short CreatedAt
 						URL:          m.ShareURL,
 						MissingItems: missing,
 					})

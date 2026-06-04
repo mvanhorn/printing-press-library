@@ -1,4 +1,4 @@
-// Copyright 2026 riteshtiwari. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 riteshtiwari and contributors. Licensed under Apache-2.0. See LICENSE.
 
 package mcp
 
@@ -216,14 +216,14 @@ func handleFlagsRolloutHealth(ctx context.Context, req mcplib.CallToolRequest) (
 	}
 
 	result := map[string]any{
-		"flag_key":              flagKey,
-		"flag_id":               flagID,
-		"flag_active":           flagActive,
-		"project_id":            projectID,
-		"recent_error_count":    errorCount,
-		"verdict":               verdict,
-		"verdict_reason":        reason,
-		"checked_at":            time.Now().UTC().Format(time.RFC3339),
+		"flag_key":           flagKey,
+		"flag_id":            flagID,
+		"flag_active":        flagActive,
+		"project_id":         projectID,
+		"recent_error_count": errorCount,
+		"verdict":            verdict,
+		"verdict_reason":     reason,
+		"checked_at":         time.Now().UTC().Format(time.RFC3339),
 	}
 	b, _ := json.MarshalIndent(result, "", "  ")
 	return mcplib.NewToolResultText(string(b)), nil
@@ -267,7 +267,9 @@ func handleFlagsStale(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.
 		return mcplib.NewToolResultError("fetching flags: " + err.Error()), nil
 	}
 
-	var resp struct{ Results []json.RawMessage `json:"results"` }
+	var resp struct {
+		Results []json.RawMessage `json:"results"`
+	}
 	var rawItems []json.RawMessage
 	if json.Unmarshal(data, &resp) == nil {
 		rawItems = resp.Results
@@ -314,11 +316,11 @@ func handleFlagsStale(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.
 		stale = []staleFlag{}
 	}
 	result := map[string]any{
-		"project_id":           projectID,
-		"days_threshold":       days,
-		"total_flags_checked":  len(rawItems),
-		"stale_count":          len(stale),
-		"stale_flags":          stale,
+		"project_id":          projectID,
+		"days_threshold":      days,
+		"total_flags_checked": len(rawItems),
+		"stale_count":         len(stale),
+		"stale_flags":         stale,
 	}
 	b, _ := json.MarshalIndent(result, "", "  ")
 	return mcplib.NewToolResultText(string(b)), nil
@@ -362,7 +364,9 @@ func handleDashboardHealth(ctx context.Context, req mcplib.CallToolRequest) (*mc
 		return mcplib.NewToolResultError("fetching dashboards: " + err.Error()), nil
 	}
 
-	var resp struct{ Results []json.RawMessage `json:"results"` }
+	var resp struct {
+		Results []json.RawMessage `json:"results"`
+	}
 	var rawItems []json.RawMessage
 	if json.Unmarshal(data, &resp) == nil {
 		rawItems = resp.Results
@@ -377,9 +381,9 @@ func handleDashboardHealth(ctx context.Context, req mcplib.CallToolRequest) (*mc
 		Detail string `json:"detail"`
 	}
 	type dashHealth struct {
-		ID    int     `json:"id"`
-		Name  string  `json:"name"`
-		Score string  `json:"health_score"`
+		ID     int     `json:"id"`
+		Name   string  `json:"name"`
+		Score  string  `json:"health_score"`
 		Issues []issue `json:"issues"`
 	}
 
@@ -509,7 +513,9 @@ func handleExperimentsPreCheck(ctx context.Context, req mcplib.CallToolRequest) 
 		return mcplib.NewToolResultError("fetching experiments: " + err.Error()), nil
 	}
 
-	var resp struct{ Results []json.RawMessage `json:"results"` }
+	var resp struct {
+		Results []json.RawMessage `json:"results"`
+	}
 	var rawItems []json.RawMessage
 	if json.Unmarshal(data, &resp) == nil {
 		rawItems = resp.Results
@@ -518,13 +524,13 @@ func handleExperimentsPreCheck(ctx context.Context, req mcplib.CallToolRequest) 
 	}
 
 	type expCheck struct {
-		ID             int     `json:"id"`
-		Name           string  `json:"name"`
-		Status         string  `json:"status"`
-		DaysRunning    int     `json:"days_running"`
-		Participants   int     `json:"participants"`
-		Verdict        string  `json:"verdict"`
-		Recommendation string  `json:"recommendation"`
+		ID             int    `json:"id"`
+		Name           string `json:"name"`
+		Status         string `json:"status"`
+		DaysRunning    int    `json:"days_running"`
+		Participants   int    `json:"participants"`
+		Verdict        string `json:"verdict"`
+		Recommendation string `json:"recommendation"`
 	}
 
 	var checks []expCheck
@@ -646,7 +652,9 @@ func handlePersonsAtRisk(ctx context.Context, req mcplib.CallToolRequest) (*mcpl
 		return mcplib.NewToolResultError("fetching persons: " + err.Error()), nil
 	}
 
-	var resp struct{ Results []json.RawMessage `json:"results"` }
+	var resp struct {
+		Results []json.RawMessage `json:"results"`
+	}
 	var rawPersons []json.RawMessage
 	if json.Unmarshal(data, &resp) == nil {
 		rawPersons = resp.Results
@@ -836,14 +844,14 @@ func handleEventsPropertyDrift(ctx context.Context, req mcplib.CallToolRequest) 
 	}
 
 	result := map[string]any{
-		"project_id":             projectID,
-		"event_name":             eventName,
+		"project_id":              projectID,
+		"event_name":              eventName,
 		"baseline_property_count": len(baselineProps),
-		"current_property_count": len(currentProps),
-		"dropped_count":          dropped,
-		"new_count":              newCount,
-		"diffs":                  diffs,
-		"generated_at":           now.UTC().Format(time.RFC3339),
+		"current_property_count":  len(currentProps),
+		"dropped_count":           dropped,
+		"new_count":               newCount,
+		"diffs":                   diffs,
+		"generated_at":            now.UTC().Format(time.RFC3339),
 	}
 	b, _ := json.MarshalIndent(result, "", "  ")
 	return mcplib.NewToolResultText(string(b)), nil
@@ -888,7 +896,9 @@ func handleLLMCostAttribution(ctx context.Context, req mcplib.CallToolRequest) (
 
 	var traces []map[string]any
 	if json.Unmarshal(data, &traces) != nil {
-		var envelope struct{ Results []map[string]any `json:"results"` }
+		var envelope struct {
+			Results []map[string]any `json:"results"`
+		}
 		if json.Unmarshal(data, &envelope) == nil {
 			traces = envelope.Results
 		}

@@ -35,6 +35,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -509,10 +510,17 @@ func commandDispatchFleet(cmd *cobra.Command, flags *rootFlags, cfg *config.Conf
 		return usageErr(fmt.Errorf("Fleet API not configured; run `tesla auth fleet-login`"))
 	}
 
-	// Auto-refresh on expired token, best-effort. If refresh fails we still
-	// attempt the call; tesla-control surfaces a meaningful 401 error.
-	if !ft.TokenExpiry.IsZero() && time.Now().After(ft.TokenExpiry) {
-		if refreshed, rerr := tryRefreshFleetToken(cfg); rerr == nil && refreshed != "" {
+	// Proactive refresh, best-effort. Refresh when the stored token is expired,
+	// within the skew window of expiring, or has unknown expiry but a refresh
+	// token to use. The skew window matters on a sink: a freshly-synced token
+	// can be valid by local clock yet about to lapse, and refreshing before
+	// dispatch avoids racing the network. If refresh fails we still attempt the
+	// call; the reactive 401 path below is the safety net.
+	if fleetTokenNeedsProactiveRefresh(ft, fleetTokenRefreshSkew) {
+		// Use the minted token whenever it is non-empty, even if persistence
+		// failed (tryRefreshFleetToken returns token+err in that case): a fresh
+		// token is usable for this dispatch regardless of the disk write.
+		if refreshed, _ := refreshFleetTokenGuarded(cfg); refreshed != "" {
 			token = refreshed
 		}
 	}
@@ -533,24 +541,48 @@ func commandDispatchFleet(cmd *cobra.Command, flags *rootFlags, cfg *config.Conf
 		))
 	}
 
-	tokenFile, cleanup, terr := writeTokenFile(token)
-	if terr != nil {
-		return fmt.Errorf("write token file: %w", terr)
+	// dispatchOnce writes the bearer to a short-lived 0o600 token file, execs
+	// tesla-control, and removes the token file before returning. Factored so
+	// the reactive self-heal below can re-run with a freshly-minted token
+	// without leaking the first token file past its single use.
+	dispatchOnce := func(tok string) (string, string, error) {
+		tokenFile, cleanup, terr := writeTokenFile(tok)
+		if terr != nil {
+			return "", "", fmt.Errorf("write token file: %w", terr)
+		}
+		defer cleanup()
+
+		args := []string{
+			"-token-file", tokenFile,
+			"-key-file", keyPath,
+			"-vin", v.VIN,
+			name,
+		}
+		args = append(args, extra...)
+
+		ctx, cancel := context.WithTimeout(cmd.Context(), 60*time.Second)
+		defer cancel()
+		return runTeslaControlSubprocessFn(ctx, bin, args)
 	}
-	defer cleanup()
 
-	args := []string{
-		"-token-file", tokenFile,
-		"-key-file", keyPath,
-		"-vin", v.VIN,
-		name,
+	stdout, stderr, runErr := dispatchOnce(token)
+
+	// Reactive fleet-token self-heal: the proactive clock check above only
+	// fires when the stored token_expiry is already past. A sink reading a
+	// synced config can hold a token whose local expiry still reads "future"
+	// while Tesla rejects it (short token life + sync latency, clock skew, or
+	// an already-consumed token). When tesla-control surfaces an auth failure,
+	// re-mint the fleet token from the stored refresh token and retry exactly
+	// once. This mirrors the owner-API path's OnTokenExpired hook, adapted to
+	// the subprocess boundary the transport hook can't see. Bounded to one
+	// retry (no loop) and serialized so concurrent commands don't double-POST
+	// the token endpoint or tear config.toml.
+	if runErr != nil && isFleetAuthError(stdout, stderr, runErr) {
+		if newTok, _ := refreshFleetTokenGuarded(cfg); newTok != "" {
+			stdout, stderr, runErr = dispatchOnce(newTok)
+		}
 	}
-	args = append(args, extra...)
 
-	ctx, cancel := context.WithTimeout(cmd.Context(), 60*time.Second)
-	defer cancel()
-
-	stdout, stderr, runErr := runTeslaControlSubprocessFn(ctx, bin, args)
 	result := map[string]any{
 		"step":    "command",
 		"command": name,
@@ -655,10 +687,83 @@ func resolveFleetKeyPath(cfg *config.Config) (string, error) {
 	return "", fmt.Errorf("no Fleet signing key configured; set TESLA_FLEET_KEY_FILE or run `tesla auth fleet-template --gen-key` and store the path with `tesla auth fleet-register`")
 }
 
-// tryRefreshFleetToken attempts a silent refresh_token grant. Returns the new
-// access token on success, "" on any failure. Errors are swallowed so the
-// caller can fall through to dispatch with the stale token and let
-// tesla-control surface a clear 401.
+// fleetTokenRefreshSkew is how far ahead of the stored expiry the proactive
+// check re-mints the fleet token. A freshly-synced token can read "valid" by
+// the local clock yet be seconds from lapsing; refreshing inside this window
+// avoids dispatching a token that dies mid-flight.
+const fleetTokenRefreshSkew = 60 * time.Second
+
+// fleetTokenNeedsProactiveRefresh reports whether the stored [fleet] token
+// should be re-minted before dispatch. True when it is expired, expires within
+// skew, or has unknown expiry while a refresh token is on file. Returns false
+// when no refresh token is stored: there is nothing to refresh with, so a
+// network round trip would be pointless and the reactive 401 path handles the
+// rejection.
+func fleetTokenNeedsProactiveRefresh(ft config.FleetConfig, skew time.Duration) bool {
+	if ft.RefreshToken == "" {
+		return false
+	}
+	if ft.TokenExpiry.IsZero() {
+		return true
+	}
+	return time.Now().Add(skew).After(ft.TokenExpiry)
+}
+
+// teslaFleetRefreshGuard serializes fleet-token refreshes across goroutines,
+// mirroring teslaRefreshGuard for the owner-API path. Two commands refreshing
+// at once (whether proactively or on a 401) would otherwise both POST
+// /oauth2/v3/token and race the config.toml write; tryRefreshFleetToken
+// persists atomically, but serializing avoids the duplicate grant entirely.
+var teslaFleetRefreshGuard sync.Mutex
+
+// refreshFleetTokenGuarded runs tryRefreshFleetToken under teslaFleetRefreshGuard
+// so the proactive and reactive refresh paths can never race a duplicate grant
+// or config.toml write against each other. Both paths must go through here, not
+// call tryRefreshFleetToken directly.
+func refreshFleetTokenGuarded(cfg *config.Config) (string, error) {
+	teslaFleetRefreshGuard.Lock()
+	defer teslaFleetRefreshGuard.Unlock()
+	return tryRefreshFleetToken(cfg)
+}
+
+// isFleetAuthError reports whether a tesla-control result is an authentication
+// failure that a token refresh could plausibly fix. It is deliberately
+// conservative: a non-zero exit alone is not enough, and transport/vehicle-state
+// failures (timeout, sleeping car, offline) explicitly return false so a stale
+// token isn't blamed for a problem a fresh token won't solve.
+func isFleetAuthError(stdout, stderr string, err error) bool {
+	if err == nil {
+		return false
+	}
+	hay := strings.ToLower(stdout + "\n" + stderr + "\n" + err.Error())
+	for _, neg := range []string{
+		"deadline exceeded", "context canceled", "context cancelled",
+		"timeout", "timed out", "asleep", "offline", "unreachable",
+		"no route to host", "connection refused",
+	} {
+		if strings.Contains(hay, neg) {
+			return false
+		}
+	}
+	for _, pos := range []string{
+		"401", "unauthorized", "invalid_token", "invalid token",
+		"token expired", "expired token", "invalid bearer",
+	} {
+		if strings.Contains(hay, pos) {
+			return true
+		}
+	}
+	return false
+}
+
+// tryRefreshFleetToken attempts a silent refresh_token grant. Return contract:
+//   - grant failure (no creds, network, invalid_grant): returns ("", err)
+//   - grant success, persistence success: returns (newAccessToken, nil)
+//   - grant success, persistence FAILURE: returns (newAccessToken, saveErr) —
+//     the token is freshly minted and usable for the current request even
+//     though it did not reach disk, so callers should prefer a non-empty token
+//     over the error. Callers that want serialization must use
+//     refreshFleetTokenGuarded rather than calling this directly.
 func tryRefreshFleetToken(cfg *config.Config) (string, error) {
 	if cfg == nil {
 		return "", fmt.Errorf("nil cfg")
@@ -675,7 +780,8 @@ func tryRefreshFleetToken(cfg *config.Config) (string, error) {
 	if base := os.Getenv("TESLA_FLEET_AUTH_URL"); base != "" {
 		tokenURL = base + "/oauth2/v3/token"
 	}
-	tok, err := fleetRefreshGrant(tokenURL, clientID, ft.RefreshToken)
+	_, curScope, _ := decodeJWTClaims(ft.AccessToken)
+	tok, err := fleetRefreshGrant(tokenURL, clientID, ft.RefreshToken, curScope)
 	if err != nil {
 		return "", err
 	}

@@ -1,0 +1,74 @@
+{
+  "api_name": "blacklane",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "category": "commerce",
+  "cli_name": "blacklane-pp-cli",
+  "creator": {
+    "handle": "omarshahine",
+    "name": "Omar Shahine"
+  },
+  "description": "Upfront chauffeur quotes from the terminal — transfer and hourly, with a local price history no other tool has.",
+  "display_name": "Blacklane",
+  "generated_at": "2026-06-01T05:55:14.210853Z",
+  "mcp_binary": "blacklane-pp-mcp",
+  "mcp_public_tool_count": 2,
+  "mcp_ready": "full",
+  "mcp_tool_count": 2,
+  "novel_features": [
+    {
+      "name": "Fare watch",
+      "command": "watch",
+      "description": "Track a saved route's price over time and flag drops."
+    },
+    {
+      "name": "Cheapest-window compare",
+      "command": "compare",
+      "description": "Quote one route across many departure times to find the cheapest."
+    },
+    {
+      "name": "Multi-leg trip total",
+      "command": "trip",
+      "description": "Quote a sequence of legs and total the fares."
+    },
+    {
+      "name": "Class fit advisor",
+      "command": "fit",
+      "description": "Recommend the cheapest vehicle class that fits the party."
+    },
+    {
+      "name": "Quote ledger + search",
+      "command": "log",
+      "description": "Every quote saved to SQLite, full-text searchable and SQL-queryable."
+    },
+    {
+      "name": "Account bookings",
+      "command": "bookings",
+      "description": "List your upcoming and past Blacklane rides (requires auth login)."
+    },
+    {
+      "name": "Account profile",
+      "command": "me",
+      "description": "Show your Blacklane profile (requires auth login)."
+    },
+    {
+      "name": "Wallet",
+      "command": "wallet",
+      "description": "Show wallet credits and vouchers (requires auth login)."
+    },
+    {
+      "name": "Booking handoff",
+      "command": "book",
+      "description": "Quote and assemble a booking, then open browser checkout for payment under --confirm. Never charges."
+    }
+  ],
+  "owner": "omarshahine",
+  "printer": "omarshahine",
+  "printer_name": "Omar Shahine",
+  "printing_press_version": "4.19.1",
+  "run_id": "20260601-000336",
+  "schema_version": 1,
+  "spec_checksum": "sha256:91215334041f2adf80b7b193ef012f2d228707d92225c125f46e5cc4a667f7cb",
+  "spec_format": "internal",
+  "spec_path": "blacklane-spec.yaml"
+}

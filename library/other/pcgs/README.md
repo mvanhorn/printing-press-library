@@ -4,7 +4,7 @@
 
 PCGS gives you 1,000 API calls per day per token. This CLI tracks every call locally, forecasts batch cost before you spend a single one, syncs only mutable market fields on refresh, and ingests CSV / JSON / JSONL / plain-text cert lists straight into a local SQLite cache. No community wrapper exists. This is the only PCGS CLI.
 
-Printed by [@vinnyp](https://github.com/vinnyp) (Vinny Pasceri).
+Created by [@vinnyp](https://github.com/vinnyp) (Vinny Pasceri).
 
 ## Install
 

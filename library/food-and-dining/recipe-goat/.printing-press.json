@@ -6,6 +6,10 @@
   "display_name": "Recipe GOAT",
   "description": "Search trusted recipe sites, rank results, save a local cookbook, and enrich nutrition data with USDA FoodData Central.",
   "cli_name": "recipe-goat-pp-cli",
+  "creator": {
+    "handle": "tmchow",
+    "name": "Trevin Chow"
+  },
   "owner": "trevin-chow",
   "printer": "tmchow",
   "printer_name": "Trevin Chow",

@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "lemonsqueezy-pp-cli"
+display_name = "Lemon Squeezy"
+description = "Every Lemon Squeezy resource, plus a local SQLite mirror that surfaces MRR, churn, license seats, and discount-campaign pace no other LS tool ships."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/lemonsqueezy-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+LEMONSQUEEZY_API_KEY = true

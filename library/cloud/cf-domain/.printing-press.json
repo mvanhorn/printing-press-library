@@ -5,6 +5,10 @@
   "api_name": "cf-domain",
   "display_name": "Cloudflare Registrar Domains",
   "cli_name": "cf-domain-pp-cli",
+  "creator": {
+    "handle": "danny-shmueli",
+    "name": "Danny Shmueli"
+  },
   "owner": "danny-shmueli",
   "printer_name": "Danny Shmueli",
   "spec_path": "/Users/danny/dev/cloudflare-registrar-pp/openapi.yaml",

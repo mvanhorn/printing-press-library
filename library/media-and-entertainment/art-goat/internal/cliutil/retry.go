@@ -1,4 +1,4 @@
-// Copyright 2026 justinwfu. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 justinwfu and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // Package cliutil — shared HTTP retry helpers used by source clients.
 package cliutil

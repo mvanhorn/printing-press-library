@@ -1,4 +1,4 @@
-// Copyright 2026 mvanhorn. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Matt Van Horn and contributors. Licensed under Apache-2.0. See LICENSE.
 //
 // `tesla auth import` — reverses `tesla auth export`. See plan 2026-05-22-001 U2c.
 //

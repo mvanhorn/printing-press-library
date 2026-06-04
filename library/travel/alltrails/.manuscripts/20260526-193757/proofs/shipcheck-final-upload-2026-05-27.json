@@ -1,0 +1,56 @@
+{
+  "passed": true,
+  "exit_code": 0,
+  "started_at": "2026-05-27T19:59:08Z",
+  "elapsed_ms": 3202,
+  "legs": [
+    {
+      "name": "verify",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-05-27T19:59:08Z",
+      "elapsed_ms": 1327,
+      "command": "printing-press verify --dir library/travel/alltrails --spec library/travel/alltrails/spec.json"
+    },
+    {
+      "name": "validate-narrative",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-05-27T19:59:10Z",
+      "elapsed_ms": 13,
+      "command": "printing-press validate-narrative --strict --full-examples --research library/travel/alltrails/research.json --binary library/travel/alltrails/alltrails-pp-cli"
+    },
+    {
+      "name": "dogfood",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-05-27T19:59:10Z",
+      "elapsed_ms": 1209,
+      "command": "printing-press dogfood --dir library/travel/alltrails --spec library/travel/alltrails/spec.json"
+    },
+    {
+      "name": "workflow-verify",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-05-27T19:59:11Z",
+      "elapsed_ms": 13,
+      "command": "printing-press workflow-verify --dir library/travel/alltrails"
+    },
+    {
+      "name": "verify-skill",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-05-27T19:59:11Z",
+      "elapsed_ms": 287,
+      "command": "printing-press verify-skill --dir library/travel/alltrails"
+    },
+    {
+      "name": "scorecard",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-05-27T19:59:11Z",
+      "elapsed_ms": 350,
+      "command": "printing-press scorecard --dir library/travel/alltrails --spec library/travel/alltrails/spec.json"
+    }
+  ]
+}

@@ -6,6 +6,8 @@ Gravitus has no API and no data export. gravitus-pp-cli handles the session auth
 
 Learn more at [Gravitus](https://gravitus.com).
 
+Created by [@azaaron](https://github.com/azaaron) (mvanhorn).
+
 ## Install
 
 The recommended path installs both the `gravitus-pp-cli` binary and the `pp-gravitus` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

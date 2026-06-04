@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "tesla-auth-via-tesla-auth-subprocess",
+  "applied_at": "2026-05-21",
+  "base_run_id": "20260519-225351",
+  "base_printing_press_version": "4.9.0",
+  "summary": "Opt-in fallback: subprocess into adriankumpf/tesla_auth (if installed) and parse stdout for the refresh+access tokens.",
+  "reason": "Some users prefer the native-window GUI flow tesla_auth ships. Detection via exec.LookPath is non-intrusive; only the explicit --via tesla-auth flag actually subprocesses. Surfaces a one-line stderr hint when tesla_auth is detected so users know the alternate path exists.",
+  "files": [
+    "internal/cli/tesla_auth_via_subprocess.go",
+    "internal/cli/tesla_auth_via_subprocess_test.go"
+  ],
+  "validated_outcome": "8 subprocess tests pass; canonical tesla_auth Display output parses correctly, malformed output rejected loudly, --debug log noise interleaving tolerated."
+}

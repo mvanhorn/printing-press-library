@@ -1,4 +1,4 @@
-// Copyright 2026 azaaron. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 azaaron and contributors. Licensed under Apache-2.0. See LICENSE.
 
 package cli
 
@@ -11,21 +11,21 @@ import (
 	"strings"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/productivity/strava/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/productivity/strava/internal/store"
+	"github.com/spf13/cobra"
 )
 
 type komGapRow struct {
-	SegmentID   string  `json:"segment_id"`
-	Name        string  `json:"name"`
-	Distance    float64 `json:"distance_km"`
-	MyBestSec   int     `json:"my_best_seconds"`
-	MyBest      string  `json:"my_best"`
-	KOMSec      int     `json:"kom_seconds"`
-	KOM         string  `json:"kom"`
-	GapSec      int     `json:"gap_seconds"`
-	GapPct      float64 `json:"gap_pct"`
+	SegmentID string  `json:"segment_id"`
+	Name      string  `json:"name"`
+	Distance  float64 `json:"distance_km"`
+	MyBestSec int     `json:"my_best_seconds"`
+	MyBest    string  `json:"my_best"`
+	KOMSec    int     `json:"kom_seconds"`
+	KOM       string  `json:"kom"`
+	GapSec    int     `json:"gap_seconds"`
+	GapPct    float64 `json:"gap_pct"`
 }
 
 func newSegmentsKomGapCmd(flags *rootFlags) *cobra.Command {

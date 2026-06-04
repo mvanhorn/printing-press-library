@@ -1,4 +1,4 @@
-// Copyright 2026 azaaron. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 azaaron and contributors. Licensed under Apache-2.0. See LICENSE.
 
 package cli
 
@@ -10,23 +10,23 @@ import (
 	"strings"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/productivity/strava/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/productivity/strava/internal/store"
+	"github.com/spf13/cobra"
 )
 
 type gearStatusRow struct {
-	GearID              string  `json:"gear_id"`
-	Name                string  `json:"name"`
-	Brand               string  `json:"brand,omitempty"`
-	Model               string  `json:"model,omitempty"`
-	TotalDistanceMi     float64 `json:"total_distance_mi"`
-	TotalDistanceKm     float64 `json:"total_distance_km"`
-	TotalHours          float64 `json:"total_hours"`
-	ThresholdMi         float64 `json:"threshold_mi,omitempty"`
-	PctThreshold        float64 `json:"pct_threshold,omitempty"`
-	EstRetirementDate   string  `json:"est_retirement_date,omitempty"`
-	Status              string  `json:"status"`
+	GearID            string  `json:"gear_id"`
+	Name              string  `json:"name"`
+	Brand             string  `json:"brand,omitempty"`
+	Model             string  `json:"model,omitempty"`
+	TotalDistanceMi   float64 `json:"total_distance_mi"`
+	TotalDistanceKm   float64 `json:"total_distance_km"`
+	TotalHours        float64 `json:"total_hours"`
+	ThresholdMi       float64 `json:"threshold_mi,omitempty"`
+	PctThreshold      float64 `json:"pct_threshold,omitempty"`
+	EstRetirementDate string  `json:"est_retirement_date,omitempty"`
+	Status            string  `json:"status"`
 }
 
 func newGearStatusCmd(flags *rootFlags) *cobra.Command {
@@ -227,4 +227,3 @@ GROUP BY gear_id`
 	cmd.Flags().StringVar(&dbPath, "db", "", "Database path")
 	return cmd
 }
-

@@ -221,6 +221,30 @@
         "SKILL.md"
       ],
       "validated_outcome": "go build ./... && go vet ./...; live smoke: `coin facts-cert 50483263 --agent | jq '.data.Name'` returns \"1881-S $1\"; `coin batch --file pcgs-coin-list.csv --agent | head -1 | jq '.data.Name'` returns a coin name (no regression)"
+    },
+    {
+      "id": "images-field-strip",
+      "summary": "applyCoinResponseTransforms now deletes the stub Images: [{}, {}] key from every CoinFactsModel response. Wired into coin facts-cert (already calling the transform), coin facts-grade (already calling), coin facts-barcode (gap from PR #683 — transform call added here), and coin batch (live + cached). HasObverseImage / HasReverseImage / HasTrueViewImage / ImageReady booleans are preserved; image URLs continue to be fetched via `coin images <cert>`.",
+      "reason": "PCGS returns a 2-element stub array with no URL fields on every CoinFactsModel response when an image exists. The empty objects read as 'the image fetch failed' to a first-time consumer; the AGENTS.md P6 locked-in fix is option 2 (omit entirely) because option 1 doubles quota per call (violates VISION.md's 1,000/day budget) and option 3 (null) leaves the same confusion in a different shape. Safe: the envelope classifier (classifyPCGSEnvelope) already consumes the Images=[] + Has*Image=false heuristic earlier in resolveRead, so stripping at the response-transform layer cannot affect bogus-cert detection on the GetImagesByCertNo endpoint.",
+      "files": [
+        "internal/cli/coin_response_transform.go",
+        "internal/cli/coin_facts-cert.go",
+        "internal/cli/coin_facts-grade.go",
+        "internal/cli/coin_facts-barcode.go",
+        "SKILL.md"
+      ],
+      "validated_outcome": "go build ./... && go vet ./... && go test ./...; live smoke: `coin facts-cert 50483263 --agent | jq '.data | has(\"Images\")'` returns false; `jq '.data.HasTrueViewImage'` returns true; `coin images 50483263 --agent | jq type` returns \"object\""
+    },
+    {
+      "id": "batch-csv-export",
+      "summary": "coin batch now supports --csv (flatten the JSONL stream into a single CSV with a header row) paired with --columns (comma-separated dotted paths, e.g. cert_no,data.Name,_keep.box). Missing fields emit empty cells, not the literal string \"null\". When --columns is omitted under --csv, the header is auto-discovered from the first row's cert_no + top-level _keep.* + data.* keys. New helper file coin_batch_csv.go isolates dotted-path lookup and value→cell shaping.",
+      "reason": "AGENTS.md P7 — a one-shot pipeline from cert list to enriched flat CSV currently needs 30+ lines of Python post-processing on the batch JSONL. With the unified flat shape from PR #683, the dotted-path projector is small (<200 LOC) and reuses the existing global --csv flag. Pairs naturally with the AGENTS.md 2026-05-18 inventory workflow (parse Google Sheet → batch with _keep round-trip → CSV upload).",
+      "files": [
+        "internal/cli/coin_batch.go",
+        "internal/cli/coin_batch_csv.go",
+        "SKILL.md"
+      ],
+      "validated_outcome": "go build ./... && go vet ./... && go test ./...; live smoke: `coin batch --file pcgs-coin-list.csv --csv --columns \"_keep.box,_keep.slot,cert_no,data.Name,data.Year,data.Grade,data.PriceGuideValue\"` writes a valid CSV with one header row + one row per cert; David Hall null PriceGuideValue renders as an empty cell; `Images` column is absent from auto-headers (confirms P6 strip is also live)"
     }
   ]
 }

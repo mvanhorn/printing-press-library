@@ -5,6 +5,10 @@
   "api_name": "seats-aero",
   "display_name": "Seats Aero Partner",
   "cli_name": "seats-aero-pp-cli",
+  "creator": {
+    "handle": "cathrynlavery",
+    "name": "Cathryn Lavery"
+  },
   "owner": "cathryn-lavery",
   "printer": "cathrynlavery",
   "printer_name": "Cathryn Lavery",

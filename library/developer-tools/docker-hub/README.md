@@ -4,6 +4,8 @@ Docker Hub public API. Search container images, browse tags, check sizes,
 inspect Dockerfiles, and explore the world's largest container registry.
 No authentication required for public repositories (rate limited to ~18 req/min).
 
+Created by [@hnshah](https://github.com/hnshah) (Hiten Shah).
+
 ## Install
 
 The recommended path installs both the `docker-hub-pp-cli` binary and the `pp-docker-hub` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

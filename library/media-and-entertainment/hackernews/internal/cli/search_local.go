@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/hackernews/internal/store"
+	"github.com/spf13/cobra"
 )
 
 // newLocalSearchCmd performs an FTS5 search across the local SQLite

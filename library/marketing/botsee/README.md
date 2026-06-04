@@ -4,7 +4,7 @@
 
 BotSee is the API-first GEO platform; this CLI is the API-first front door. The flagship `ai-visibility-audit <url>` mirrors the proven Python create-site+analyze flow as a single idempotent Go command. The other 64 commands cover the entire BotSee surface (CRUD on sites/customer-types/personas/questions, the full analysis lifecycle, recommendations, blog content, billing, signup including USDC/x402, webhooks, api-key rotation, usage) plus framework commands (sync/search/sql/doctor) over a local SQLite cache.
 
-Printed by [@grahac](https://github.com/grahac) (grahac).
+Created by [@grahac](https://github.com/grahac) (grahac).
 
 ## Install
 

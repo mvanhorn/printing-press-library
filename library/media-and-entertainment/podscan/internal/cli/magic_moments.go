@@ -1,4 +1,4 @@
-// Copyright 2026 gregvanhorn. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Greg Van Horn and contributors. Licensed under Apache-2.0. See LICENSE.
 
 package cli
 
@@ -34,7 +34,6 @@ type psEpisode struct {
 	PostedAt          string    `json:"posted_at"`
 	Podcast           psPodcast `json:"podcast"`
 }
-
 
 type psSearchResp struct {
 	Episodes []psEpisode `json:"episodes"`
@@ -178,13 +177,13 @@ ranked by reach, with a one-line snippet of the surrounding transcript.
 			sort.SliceStable(eps, func(i, j int) bool { return eps[i].PostedAt > eps[j].PostedAt })
 		}
 		type row struct {
-			Rank        int    `json:"rank"`
-			Podcast     string `json:"podcast"`
-			Reach       int64  `json:"reach"`
-			Episode     string `json:"episode"`
-			EpisodeID   string `json:"episode_id"`
-			Date        string `json:"date"`
-			Snippet     string `json:"snippet"`
+			Rank      int    `json:"rank"`
+			Podcast   string `json:"podcast"`
+			Reach     int64  `json:"reach"`
+			Episode   string `json:"episode"`
+			EpisodeID string `json:"episode_id"`
+			Date      string `json:"date"`
+			Snippet   string `json:"snippet"`
 		}
 		seenPod := map[string]bool{}
 		out := []row{}
@@ -196,7 +195,7 @@ ranked by reach, with a one-line snippet of the surrounding transcript.
 			out = append(out, row{
 				Rank:      len(out) + 1,
 				Podcast:   e.Podcast.PodcastName,
-				Reach:     int64(e.Podcast.PodcastReachScore*1000),
+				Reach:     int64(e.Podcast.PodcastReachScore * 1000),
 				Episode:   e.EpisodeTitle,
 				EpisodeID: e.EpisodeID,
 				Date:      strings.SplitN(strings.ReplaceAll(e.PostedAt, "T", " "), " ", 2)[0],
@@ -204,11 +203,11 @@ ranked by reach, with a one-line snippet of the surrounding transcript.
 			})
 		}
 		summary := map[string]any{
-			"term":               term,
-			"since":              since,
-			"matching_episodes":  len(eps),
-			"unique_podcasts":    len(out),
-			"results":            out,
+			"term":              term,
+			"since":             since,
+			"matching_episodes": len(eps),
+			"unique_podcasts":   len(out),
+			"results":           out,
 		}
 		if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 			b, _ := json.MarshalIndent(summary, "", "  ")
@@ -524,8 +523,8 @@ report shows where both appeared. Useful for competitive media planning.
 			targetShows[e.Podcast.PodcastID] = e.Podcast.PodcastName
 		}
 		type compRow struct {
-			Brand       string `json:"brand"`
-			SharedShows int    `json:"shared_shows"`
+			Brand       string   `json:"brand"`
+			SharedShows int      `json:"shared_shows"`
 			Examples    []string `json:"examples,omitempty"`
 		}
 		out := []compRow{}

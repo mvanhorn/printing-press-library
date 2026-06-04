@@ -121,11 +121,24 @@ def unquote_scalar(raw: str) -> str:
 FRONTMATTER_RE = re.compile(r"\A---\n(?P<body>.*?)(?:\n---\n|\n---\Z)", re.DOTALL)
 AUTHOR_LINE_RE = re.compile(r"(?m)^author:\s*(?P<value>.+?)\s*$")
 
+# A SKILL.md whose first bytes are a UTF-8 BOM or a leading HTML comment defeats
+# the strict `\A---` frontmatter match. That is itself a real defect (such files
+# fail to install via `skills add`), but here it would also make this guard read
+# the author as None and report a phantom attribution change the moment the
+# leading bytes are removed -- even though the author value never changed. Skip
+# that leading noise before parsing the author so before/after compare on the
+# real value.
+LEADING_NOISE_RE = re.compile(r"\A\ufeff?(?:\s*<!--.*?-->)*\s*", re.DOTALL)
+
+
+def strip_leading_noise(text: str) -> str:
+    return text[LEADING_NOISE_RE.match(text).end() :]
+
 
 def skill_author(text: str | None) -> str | None:
     if text is None:
         return None
-    fm = FRONTMATTER_RE.match(text)
+    fm = FRONTMATTER_RE.match(strip_leading_noise(text))
     if not fm:
         return None
     author = AUTHOR_LINE_RE.search(fm.group("body"))
@@ -137,6 +150,10 @@ def skill_author(text: str | None) -> str | None:
 def normalize_skill_author(text: str | None) -> str | None:
     if text is None:
         return None
+    # Strip the same leading noise as skill_author so that adding/removing a BOM
+    # or leading comment is not itself read as a surface change, and so an
+    # attribution-only correction on such a file doesn't trip the surface gate.
+    text = strip_leading_noise(text)
     fm = FRONTMATTER_RE.match(text)
     if not fm:
         return text
@@ -327,6 +344,15 @@ def run(base: str, head: str) -> int:
     for change in sorted(changes_by_api.values(), key=lambda item: item.api_name):
         if not change.existing:
             failures.extend(validate_new_cli(head, change))
+            continue
+
+        # A wholly-retired CLI (its .printing-press.json deleted at head) is not
+        # an attribution flip. Deleting SKILL.md drops its author to None, which
+        # the change detector records as an attribution change, and the rest of
+        # the deleted tree counts as a surface change -- so without this exemption
+        # every CLI retirement trips the attribution-vs-surface gate. Retirement
+        # is a legitimate operation; skip the gate when the manifest is gone.
+        if not path_exists(head, f"{change.root}/.printing-press.json"):
             continue
 
         if change.attribution_changes and change.surface_changes:

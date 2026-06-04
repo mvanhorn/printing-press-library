@@ -4,6 +4,8 @@
 
 First and only CLI for the Pagliacci API. Browse menus and slice availability across all Seattle stores, build half-and-half pizzas, plan a small-party order, manage rewards and stored coupons, and replay past orders — all with offline search, agent-native output, and Chrome-cookie login (no manual token paste).
 
+Created by [@tmchow](https://github.com/tmchow) (Trevin Chow).
+
 ## Install
 
 The recommended path installs both the `pagliacci-pp-cli` binary and the `pp-pagliacci` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

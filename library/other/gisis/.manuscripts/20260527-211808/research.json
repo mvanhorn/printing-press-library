@@ -1,0 +1,256 @@
+{
+  "api_name": "gisis",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "equasis-cli",
+      "url": "https://github.com/rhinonix/equasis-cli",
+      "language": "Python",
+      "install_method": "",
+      "stars": 17,
+      "last_updated": "",
+      "command_count": 4,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "vesselapi-mcp",
+      "url": "https://github.com/vessel-api/vesselapi-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 23,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-27T21:50:00Z",
+  "novel_features": [
+    {
+      "name": "Batch IMO lookup with throttled persistence",
+      "command": "ship batch",
+      "description": "Resolve a list of IMOs in one invocation, honoring the 1 req/2-3s throttle and persisting each to the local cache.",
+      "rationale": "GISIS has no bulk-fetch endpoint; only this CLI orchestrates per-IMO calls under throttle and persists to SQLite for the orchestrator's nightly batch tests.",
+      "example": "gisis-pp-cli ship batch --imos 9966233,9123456 --json",
+      "why_it_matters": "When an agent needs particulars for many vessels, this is the polite + persistent path. Single IMO? Use 'ship get'.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Local cache browse with FTS",
+      "command": "ship list",
+      "description": "Browse vessels you have already fetched, with filters on flag/owner/type and full-text search on name/owner.",
+      "rationale": "GISIS has no 'my recent lookups' view; the local cache becomes a personal vessel index.",
+      "example": "gisis-pp-cli ship list --owner \"ACME\" --type Tanker --json",
+      "why_it_matters": "When you want to find a vessel you saw before, this beats re-fetching from GISIS.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Watchlist with selective refresh",
+      "command": "ship pin",
+      "description": "Pin vessels for an active deal or story, then refresh only the pinned ones at a chosen cadence.",
+      "rationale": "GISIS has no per-user watchlist; pinning + scoped re-fetch replaces sync semantics for a lookup-only API.",
+      "example": "gisis-pp-cli ship pin 9966233 --label deal-2026-Q2 \u0026\u0026 gisis-pp-cli ship refresh --pinned --older-than 30d",
+      "why_it_matters": "Use this to keep a working set of vessels current without re-fetching the whole cache.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Cross-snapshot ship history (flag-hop detector)",
+      "command": "ship history",
+      "description": "Show how a vessel's particulars have changed across snapshots — flag, name, owner, operator, classification society, status.",
+      "rationale": "GISIS shows current state only; we accumulate immutable snapshots on every fetch and surface per-field diffs with dates.",
+      "example": "gisis-pp-cli ship history 9966233 --json",
+      "why_it_matters": "Flag-hopping and ownership changes are the textbook sanctions-bypass tells in maritime DD. Use this when you need temporal context, not a snapshot.",
+      "group": "Maritime due-diligence signals"
+    },
+    {
+      "name": "Stale-cache report",
+      "command": "ship stale",
+      "description": "List cached vessels whose particulars haven't been refreshed in N days.",
+      "rationale": "Makes lookup-only API's staleness visible and suggests the next refresh batch.",
+      "example": "gisis-pp-cli ship stale --older-than 30d --pinned --json",
+      "why_it_matters": "Compliance recency: when you need to know which dossier vessels need re-checking.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Owner-fleet listing from accumulated cache",
+      "command": "owner fleet",
+      "description": "List every cached vessel for a given owner string (the Companies module isn't in v1).",
+      "rationale": "Companies module is deferred; this synthesizes 'ships by owner' from accumulated ship get results.",
+      "example": "gisis-pp-cli owner fleet \"ACME SHIPPING LTD\" --like --json",
+      "why_it_matters": "Counterparty exposure and related-vessel discovery without hitting the deferred Companies module.",
+      "group": "Maritime due-diligence signals"
+    },
+    {
+      "name": "Session liveness ping",
+      "command": "auth ping",
+      "description": "Single fast GET to /Public/SHIPS/Default.aspx; exits 0 if session is live, non-zero if re-login needed.",
+      "rationale": "ASP.NET session expiry is the brief's defining auth pain; this is the idempotent check users wire into cron/launchd.",
+      "example": "gisis-pp-cli auth ping",
+      "why_it_matters": "Long batch jobs and unattended cron tasks need a cheap way to know if the session is still alive.",
+      "group": "Reachability mitigation"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Batch IMO lookup with throttled persistence",
+      "command": "ship batch",
+      "description": "Resolve a list of IMOs in one invocation, honoring the 1 req/2-3s throttle and persisting each to the local cache.",
+      "rationale": "GISIS has no bulk-fetch endpoint; only this CLI orchestrates per-IMO calls under throttle and persists to SQLite for the orchestrator's nightly batch tests.",
+      "example": "gisis-pp-cli ship batch --imos 9966233,9123456 --json",
+      "why_it_matters": "When an agent needs particulars for many vessels, this is the polite + persistent path. Single IMO? Use 'ship get'.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Local cache browse with FTS",
+      "command": "ship list",
+      "description": "Browse vessels you have already fetched, with filters on flag/owner/type and full-text search on name/owner.",
+      "rationale": "GISIS has no 'my recent lookups' view; the local cache becomes a personal vessel index.",
+      "example": "gisis-pp-cli ship list --owner \"ACME\" --type Tanker --json",
+      "why_it_matters": "When you want to find a vessel you saw before, this beats re-fetching from GISIS.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Watchlist with selective refresh",
+      "command": "ship pin",
+      "description": "Pin vessels for an active deal or story, then refresh only the pinned ones at a chosen cadence.",
+      "rationale": "GISIS has no per-user watchlist; pinning + scoped re-fetch replaces sync semantics for a lookup-only API.",
+      "example": "gisis-pp-cli ship pin 9966233 --label deal-2026-Q2 \u0026\u0026 gisis-pp-cli ship refresh --pinned --older-than 30d",
+      "why_it_matters": "Use this to keep a working set of vessels current without re-fetching the whole cache.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Cross-snapshot ship history (flag-hop detector)",
+      "command": "ship history",
+      "description": "Show how a vessel's particulars have changed across snapshots — flag, name, owner, operator, classification society, status.",
+      "rationale": "GISIS shows current state only; we accumulate immutable snapshots on every fetch and surface per-field diffs with dates.",
+      "example": "gisis-pp-cli ship history 9966233 --json",
+      "why_it_matters": "Flag-hopping and ownership changes are the textbook sanctions-bypass tells in maritime DD. Use this when you need temporal context, not a snapshot.",
+      "group": "Maritime due-diligence signals"
+    },
+    {
+      "name": "Stale-cache report",
+      "command": "ship stale",
+      "description": "List cached vessels whose particulars haven't been refreshed in N days.",
+      "rationale": "Makes lookup-only API's staleness visible and suggests the next refresh batch.",
+      "example": "gisis-pp-cli ship stale --older-than 30d --pinned --json",
+      "why_it_matters": "Compliance recency: when you need to know which dossier vessels need re-checking.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Owner-fleet listing from accumulated cache",
+      "command": "owner fleet",
+      "description": "List every cached vessel for a given owner string (the Companies module isn't in v1).",
+      "rationale": "Companies module is deferred; this synthesizes 'ships by owner' from accumulated ship get results.",
+      "example": "gisis-pp-cli owner fleet \"ACME SHIPPING LTD\" --like --json",
+      "why_it_matters": "Counterparty exposure and related-vessel discovery without hitting the deferred Companies module.",
+      "group": "Maritime due-diligence signals"
+    },
+    {
+      "name": "Session liveness ping",
+      "command": "auth ping",
+      "description": "Single fast GET to /Public/SHIPS/Default.aspx; exits 0 if session is live, non-zero if re-login needed.",
+      "rationale": "ASP.NET session expiry is the brief's defining auth pain; this is the idempotent check users wire into cron/launchd.",
+      "example": "gisis-pp-cli auth ping",
+      "why_it_matters": "Long batch jobs and unattended cron tasks need a cheap way to know if the session is still alive.",
+      "group": "Reachability mitigation"
+    }
+  ],
+  "auth": {},
+  "narrative": {
+    "display_name": "GISIS",
+    "headline": "Authoritative IMO ship particulars on the command line, plus a local cache that turns one-shot lookups into a compounding vessel index.",
+    "value_prop": "GISIS is the IMO's canonical ship registry, gated by a login + Cloudflare Turnstile and only readable from a server-rendered web app. This CLI scrapes it politely (1 req/2-3s), caches every result to local SQLite, exposes 'ship get' as an MCP tool, and adds maritime-DD-specific commands like 'ship history' for flag-hop detection and 'owner fleet' for counterparty exposure that the GISIS web app itself can't answer.",
+    "auth_narrative": "GISIS requires a free IMO Web Accounts login (https://webaccounts.imo.org/Register.aspx?App=GISISPublic) with a Cloudflare Turnstile challenge. Programmatic login is blocked, so this CLI uses the press-auth companion: install it once, run 'press-auth login gisis.imo.org', a controlled Chrome window opens for you to sign in, and your cookies are captured into the macOS keychain. The CLI then reads cookies on demand. Sessions die after ~30 min of inactivity; run 'gisis-pp-cli auth ping' from cron to keep them warm, or re-run 'press-auth login' when the session expires.",
+    "quickstart": [
+      {
+        "command": "gisis-pp-cli doctor --dry-run",
+        "comment": "Health check first — confirms binary works without making network calls."
+      },
+      {
+        "command": "go install github.com/mvanhorn/cli-printing-press/v4/cmd/press-auth@latest",
+        "comment": "Install the cookie companion (one-time)."
+      },
+      {
+        "command": "press-auth login gisis.imo.org --login-url https://webaccounts.imo.org/Login.aspx?App=GISISPublic --jwt-carrier-cookie ASP.NET_SessionId",
+        "comment": "Capture your GISIS session cookies via a controlled Chrome window."
+      },
+      {
+        "command": "gisis-pp-cli doctor --json",
+        "comment": "Verify auth — should report cookies present and session live."
+      },
+      {
+        "command": "gisis-pp-cli ship get 9966233 --json",
+        "comment": "Fetch authoritative ship particulars by IMO number."
+      },
+      {
+        "command": "gisis-pp-cli ship list --json",
+        "comment": "Browse your accumulating local cache."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "doctor reports 'session expired' or 'login wall detected'",
+        "fix": "Re-run 'press-auth login gisis.imo.org' to capture fresh cookies."
+      },
+      {
+        "symptom": "ship get returns 'WebLogin redirect' error",
+        "fix": "Same as above — session died. Re-run 'press-auth login gisis.imo.org'."
+      },
+      {
+        "symptom": "press-auth login window times out without capturing",
+        "fix": "Add --complete-selector a[href*=Logoff] so press-auth knows when login is done."
+      },
+      {
+        "symptom": "throttle warnings on batch lookups",
+        "fix": "Default throttle is 1 req/2-3s per the API's polite-use convention. Increase --delay if GISIS starts rate-limiting."
+      }
+    ],
+    "when_to_use": "Use this CLI when you need authoritative IMO ship particulars — name, flag, type, gross tonnage, registered owner, operator, classification society. The local cache makes it a personal vessel index that compounds over time, and 'ship history' surfaces flag/owner changes that matter for sanctions and due diligence. Pair with GFW (vessel events) and AIS Stream (real-time position) via the Vessel MCP orchestrator for a full DD picture.",
+    "anti_triggers": [
+      "Do not use this CLI for real-time vessel position — use AIS Stream instead.",
+      "Do not use this CLI for fishing-activity or port-visit events — use Global Fishing Watch (GFW).",
+      "Do not use this CLI for OFAC sanctions screening — use the OpenSanctions or OFAC SDN adapter in the Vessel MCP orchestrator.",
+      "Do not use this CLI for ship name search in v1 — defer to v0.2; in the meantime, look up the IMO another way."
+    ],
+    "recipes": [
+      {
+        "title": "Look up an IMO with structured output",
+        "command": "gisis-pp-cli ship get 9966233 --json --select name,flag,type,gross_tonnage,registered_owner",
+        "explanation": "Returns the four high-gravity fields needed for a KYC entry."
+      },
+      {
+        "title": "Run a nightly batch over a watchlist",
+        "command": "gisis-pp-cli ship batch --file ~/watchlist.txt --json | jq -c '.'",
+        "explanation": "Resolves every IMO in the file under the throttle and streams JSON-lines."
+      },
+      {
+        "title": "Spot a flag change on a pinned vessel",
+        "command": "gisis-pp-cli ship refresh --pinned --older-than 7d \u0026\u0026 gisis-pp-cli ship history 9966233 --json",
+        "explanation": "Refresh stale pinned ships, then check the diff on one of them."
+      },
+      {
+        "title": "Find all cached ships under one owner",
+        "command": "gisis-pp-cli owner fleet \"COSCO SHIPPING\" --like --json",
+        "explanation": "Synthesizes counterparty exposure from accumulated lookups."
+      },
+      {
+        "title": "Keep the session alive from cron",
+        "command": "*/20 * * * * /usr/local/bin/gisis-pp-cli auth ping \u003e/dev/null 2\u003e\u00261",
+        "explanation": "ASP.NET sessions time out at ~30 min idle; ping every 20 to stay warm."
+      }
+    ],
+    "trigger_phrases": [
+      "look up IMO",
+      "GISIS particulars",
+      "ship particulars by IMO",
+      "vessel registry lookup",
+      "flag-hop history for vessel",
+      "use gisis",
+      "run gisis"
+    ]
+  }
+}

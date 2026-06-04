@@ -1,4 +1,4 @@
-// Copyright 2026 user. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Jen Williams and contributors. Licensed under Apache-2.0. See LICENSE.
 //
 // `config` command tree — named GHL location profiles. Persists to
 // ~/.config/gohighlevel-pp-cli/locations.toml. Activated profile is
@@ -13,9 +13,9 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/mvanhorn/printing-press-library/library/sales-and-crm/gohighlevel/internal/cliutil"
 	"github.com/pelletier/go-toml/v2"
 	"github.com/spf13/cobra"
-	"github.com/mvanhorn/printing-press-library/library/sales-and-crm/gohighlevel/internal/cliutil"
 )
 
 // locationOverride is set by the global --location flag (registered in

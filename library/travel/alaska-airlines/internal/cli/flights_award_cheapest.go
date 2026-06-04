@@ -1,4 +1,4 @@
-// Copyright 2026 matt-van-horn. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Matt Van Horn and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // PATCH(amend-2026-05-19: award-cheapest planner) — KILLER command added by
 // /printing-press-amend. Solves "find me a flight to Japan using points,
@@ -99,11 +99,11 @@ fan-out polite. For a typical 1-month round-trip search you should expect
 
 			// Cross-product against destinations.
 			type job struct {
-				dest    string
-				depart  string
-				ret     string
-				nights  int
-				oneWay  bool
+				dest   string
+				depart string
+				ret    string
+				nights int
+				oneWay bool
 			}
 			jobs := make([]job, 0, len(destinations)*len(pairs))
 			for _, d := range destinations {
@@ -235,9 +235,9 @@ fan-out polite. For a typical 1-month round-trip search you should expect
 
 			if flagSavePath != "" {
 				fullEnvelope := map[string]any{
-					"meta":         envelope["meta"],
-					"all_results":  results,
-					"top_results":  top,
+					"meta":        envelope["meta"],
+					"all_results": results,
+					"top_results": top,
 				}
 				if err := writeJSONFile(flagSavePath, fullEnvelope); err != nil {
 					fmt.Fprintf(os.Stderr, "warning: failed to save full results to %s: %v\n", flagSavePath, err)

@@ -1,4 +1,4 @@
-// Copyright 2026 justinwfu. Licensed under Apache-2.0.
+// Copyright 2026 justinwfu and contributors. Licensed under Apache-2.0.
 
 package cli
 
@@ -49,10 +49,10 @@ func TestBuildThemeFTSQuery_AllShortTokens(t *testing.T) {
 func TestDiversityOrderedWalk_PrefersDiversity(t *testing.T) {
 	pool := []store.Work{
 		{ID: "aic:1", Source: "aic", CultureRegion: "Japan", Medium: "woodblock"},
-		{ID: "aic:2", Source: "aic", CultureRegion: "Japan", Medium: "woodblock"},         // poor (same as 1)
-		{ID: "met:3", Source: "met", CultureRegion: "France", Medium: "oil"},              // great (3 axes)
+		{ID: "aic:2", Source: "aic", CultureRegion: "Japan", Medium: "woodblock"},             // poor (same as 1)
+		{ID: "met:3", Source: "met", CultureRegion: "France", Medium: "oil"},                  // great (3 axes)
 		{ID: "harvard:4", Source: "harvard", CultureRegion: "Netherlands", Medium: "etching"}, // great
-		{ID: "cleve:5", Source: "cleveland", CultureRegion: "USA", Medium: "photo"},       // great
+		{ID: "cleve:5", Source: "cleveland", CultureRegion: "USA", Medium: "photo"},           // great
 	}
 	walk := diversityOrderedWalk(pool, 4)
 	require.Len(t, walk, 4)

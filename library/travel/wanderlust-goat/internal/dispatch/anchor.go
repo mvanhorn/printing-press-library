@@ -57,12 +57,12 @@ func ResolveAnchor(ctx context.Context, anchor string) (AnchorResolution, error)
 		Lon         string `json:"lon"`
 		DisplayName string `json:"display_name"`
 		Address     struct {
-			CountryCode string `json:"country_code"`
-			City        string `json:"city"`
-			Town        string `json:"town"`
-			Village     string `json:"village"`
+			CountryCode  string `json:"country_code"`
+			City         string `json:"city"`
+			Town         string `json:"town"`
+			Village      string `json:"village"`
 			Municipality string `json:"municipality"`
-			Suburb      string `json:"suburb"`
+			Suburb       string `json:"suburb"`
 			CityDistrict string `json:"city_district"`
 		} `json:"address"`
 	}

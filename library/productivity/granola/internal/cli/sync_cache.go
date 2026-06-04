@@ -1,4 +1,4 @@
-// Copyright 2026 dstevens. Licensed under Apache-2.0.
+// Copyright 2026 Damien Stevens and contributors. Licensed under Apache-2.0.
 
 package cli
 
@@ -9,9 +9,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/productivity/granola/internal/granola"
 	"github.com/mvanhorn/printing-press-library/library/productivity/granola/internal/granola/safestorage"
+	"github.com/spf13/cobra"
 )
 
 // CacheSyncResult captures everything a cache sync produces, in a form that
@@ -185,8 +185,8 @@ func runCacheSync(ctx context.Context) (CacheSyncResult, error) {
 // rather than the generic "load failed".
 func recordSyncDecryptStatus(err error) {
 	state := granola.SyncState{
-		LastSyncAt:        time.Now().UTC(),
-		LastDecryptStatus: granola.DecryptStatusFailed,
+		LastSyncAt:          time.Now().UTC(),
+		LastDecryptStatus:   granola.DecryptStatusFailed,
 		LastDecryptErrorMsg: err.Error(),
 	}
 	switch {

@@ -1,4 +1,4 @@
-// Copyright 2026 nikica-jokic. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Nikica Jokic and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // PATCH novel-commands: hand-built action-items aggregation (local SQLite, no upstream endpoint).
 package cli

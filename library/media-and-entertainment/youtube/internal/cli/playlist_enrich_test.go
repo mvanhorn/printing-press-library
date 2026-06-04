@@ -1,4 +1,4 @@
-// Copyright 2026 justinwfu. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Justin and contributors. Licensed under Apache-2.0. See LICENSE.
 
 package cli
 
@@ -40,6 +40,17 @@ func TestParseVideoID(t *testing.T) {
 		{"shorts url", "https://www.youtube.com/shorts/dQw4w9WgXcQ", "dQw4w9WgXcQ"},
 		{"live url", "https://www.youtube.com/live/dQw4w9WgXcQ", "dQw4w9WgXcQ"},
 		{"bare id", "dQw4w9WgXcQ", "dQw4w9WgXcQ"},
+		// Scheme-less URLs are common copy-paste shapes and must parse too
+		// (library issue #875): without a "://" they used to fall through to
+		// the bare-ID check and fail the 11-char regex.
+		{"scheme-less youtu.be", "youtu.be/dQw4w9WgXcQ", "dQw4w9WgXcQ"},
+		{"scheme-less youtu.be with si param", "youtu.be/dQw4w9WgXcQ?si=yZha3HjrYqLmc5et", "dQw4w9WgXcQ"},
+		{"scheme-less www.youtube.com watch", "www.youtube.com/watch?v=dQw4w9WgXcQ", "dQw4w9WgXcQ"},
+		{"scheme-less youtube.com watch", "youtube.com/watch?v=dQw4w9WgXcQ", "dQw4w9WgXcQ"},
+		{"scheme-less embed", "www.youtube.com/embed/dQw4w9WgXcQ", "dQw4w9WgXcQ"},
+		{"scheme-less watch with t param", "www.youtube.com/watch?v=dQw4w9WgXcQ&t=10s", "dQw4w9WgXcQ"},
+		{"scheme-less m.youtube.com watch", "m.youtube.com/watch?v=dQw4w9WgXcQ", "dQw4w9WgXcQ"},
+		{"m.youtube.com watch", "https://m.youtube.com/watch?v=dQw4w9WgXcQ", "dQw4w9WgXcQ"},
 		{"junk with spaces", "not a video", ""},
 		{"empty", "", ""},
 		// Non-video URLs must return "" so the caller errors clearly rather

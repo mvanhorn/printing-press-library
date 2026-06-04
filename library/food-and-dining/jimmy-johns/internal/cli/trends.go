@@ -10,16 +10,16 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/jimmy-johns/internal/store"
+	"github.com/spf13/cobra"
 )
 
 type trendsResult struct {
-	WindowDays      int              `json:"window_days"`
-	OrdersFound     int              `json:"orders_found"`
-	OrdersPerWeek   float64          `json:"avg_orders_per_week"`
-	WeeklyBreakdown map[string]int   `json:"weekly_breakdown,omitempty"`
-	Notes           []string         `json:"notes,omitempty"`
+	WindowDays      int            `json:"window_days"`
+	OrdersFound     int            `json:"orders_found"`
+	OrdersPerWeek   float64        `json:"avg_orders_per_week"`
+	WeeklyBreakdown map[string]int `json:"weekly_breakdown,omitempty"`
+	Notes           []string       `json:"notes,omitempty"`
 }
 
 func newTrendsCmd(flags *rootFlags) *cobra.Command {

@@ -4,7 +4,7 @@
 
 Every existing Dreo client is bundled inside Home Assistant or Homebridge; this is the first general-purpose CLI. It speaks the same WebSocket control protocol the reverse-engineered clients use, plus it keeps a local SQLite cache so bulk fan-out, cross-device sensor snapshots, sensor history, scenes, and alerts work even when the cloud is slow.
 
-Printed by [@tmchow](https://github.com/tmchow) (Trevin Chow).
+Created by [@tmchow](https://github.com/tmchow) (Trevin Chow).
 
 ## Install
 

@@ -5,6 +5,10 @@
   "api_name": "eventbrite",
   "display_name": "Eventbrite",
   "cli_name": "eventbrite-pp-cli",
+  "creator": {
+    "handle": "vinnyp",
+    "name": "Vinny Pasceri"
+  },
   "owner": "vinny-pasceri",
   "printer": "vinnyp",
   "printer_name": "Vinny Pasceri",

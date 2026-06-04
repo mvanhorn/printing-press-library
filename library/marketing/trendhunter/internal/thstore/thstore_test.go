@@ -5,8 +5,8 @@ import (
 	"database/sql"
 	"testing"
 
-	_ "modernc.org/sqlite"
 	"github.com/mvanhorn/printing-press-library/library/marketing/trendhunter/internal/thparse"
+	_ "modernc.org/sqlite"
 )
 
 func TestEnsureSchemaUpsertSearch(t *testing.T) {

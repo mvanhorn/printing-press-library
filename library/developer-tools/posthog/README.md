@@ -4,6 +4,8 @@
 
 posthog-pp-cli syncs your flags, insights, experiments, persons, errors, and LLM traces to a local SQLite store. Query anything offline, run compound analytics across resources the UI keeps separate, and pipe results directly to agents or scripts.
 
+Created by [@riteshtiwari](https://github.com/riteshtiwari) (riteshtiwari).
+
 ## Install
 
 The recommended path installs both the `posthog-pp-cli` binary and the `pp-posthog` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

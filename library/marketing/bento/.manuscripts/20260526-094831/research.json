@@ -1,0 +1,399 @@
+{
+  "api_name": "bento",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "bento-cli",
+      "url": "https://github.com/bentonow/bento-cli",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 22,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "bento-mcp",
+      "url": "https://github.com/bentonow/bento-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 14,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "bento-node-sdk",
+      "url": "https://github.com/bentonow/bento-node-sdk",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "bento-ruby-sdk",
+      "url": "https://github.com/bentonow/bento-ruby-sdk",
+      "language": "Ruby",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "bento-python-sdk",
+      "url": "https://github.com/bentonow/bento-python-sdk",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "bento-php-sdk",
+      "url": "https://github.com/bentonow/bento-php-sdk",
+      "language": "PHP",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "n8n-nodes-bento",
+      "url": "https://www.npmjs.com/package/n8n-nodes-bento",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-26T16:58:58Z",
+  "novel_features": [
+    {
+      "name": "Snapshot Diff",
+      "command": "sync diff",
+      "description": "Show exactly which subscribers, tags, fields, or templates changed between two local snapshots since Bento has no since filter.",
+      "rationale": "Only possible because we keep timestamped local mirrors; REST gives full-page reads only.",
+      "example": "bento sync diff --since 2026-05-19 --resource subscribers --json",
+      "why_it_matters": "Use this when you need to detect drift between Bento and your local source of truth, or audit what changed since the last sync.",
+      "group": "Sync Integrity"
+    },
+    {
+      "name": "Hygiene Pipeline",
+      "command": "hygiene scrub",
+      "description": "Run validation + jesses_ruleset + blacklist + content_moderation in one pass and emit a clean CSV plus a rejected CSV with reasons.",
+      "rationale": "Compositional shell chains four experimental endpoints no official SDK exposes together; critical before any cold send.",
+      "example": "bento hygiene scrub --in leads.csv --out-clean clean.csv --out-rejected rejected.csv",
+      "why_it_matters": "Reach for this before importing any list you didn't generate yourself. Bad list = ISP penalty.",
+      "group": "List Hygiene"
+    },
+    {
+      "name": "Purchase Replay",
+      "command": "events purchase-replay",
+      "description": "Dry-run a Vendure order export against the Bento $purchase mapping and show the exact batch payload before sending.",
+      "rationale": "Local validator + cents-conversion + unique.key dedupe check; no official Vendure bridge exists.",
+      "example": "bento events purchase-replay --from vendure-orders.json --dry-run --json",
+      "why_it_matters": "Use before any Vendure -\u003e Bento purchase sync to catch shape mismatches without polluting subscriber history.",
+      "group": "Vendure Bridge"
+    },
+    {
+      "name": "Trigger Path Lint",
+      "command": "events lint",
+      "description": "Warn when a payload uses /fetch/commands subscribe but the intent (welcome flow, tag-triggered automation) requires /batch/events to fire automations.",
+      "rationale": "Encodes the two-path footgun in a local rule engine; no Bento tool surfaces this distinction.",
+      "example": "bento events lint --file events.jsonl --json",
+      "why_it_matters": "Run this on any payload bound for /fetch/commands or /batch/events to catch silent automation misfires.",
+      "group": "Safety Rails"
+    },
+    {
+      "name": "Churn Risk Score",
+      "command": "subscribers churn-risk",
+      "description": "Rank subscribers by days-since-last-open/click against your cohort baseline before the next broadcast goes out.",
+      "rationale": "Requires local events x subscribers JOIN over time windows; Bento has no engagement-recency endpoint.",
+      "example": "bento subscribers churn-risk --threshold high --limit 100 --json",
+      "why_it_matters": "Use before queuing a broadcast to identify the cohort most likely to mark as spam.",
+      "group": "Retention"
+    },
+    {
+      "name": "Win-Back Cohort",
+      "command": "subscribers winback",
+      "description": "Build a CSV of customers who bought once, lapsed 180+ days, and never opened the last 3 broadcasts.",
+      "rationale": "Three-way local JOIN (events x broadcasts x subscribers); no Bento segment builder supports the negative-broadcast clause.",
+      "example": "bento subscribers winback --lapsed 180d --last-purchased 90d --csv",
+      "why_it_matters": "Reach for this when scoping a reactivation campaign with a custom decay window.",
+      "group": "Retention"
+    },
+    {
+      "name": "Review Trigger Coexist",
+      "command": "events review-window",
+      "description": "Emit a dated Bento event stream for orders shipped 10 days ago, skipping any order Stamped already triggered.",
+      "rationale": "Local dedupe table prevents double-fire against an existing Stamped plugin; no Bento native scheduler.",
+      "example": "bento events review-window --shipped-csv orders.csv --delay 10d --skip-stamped --dry-run",
+      "why_it_matters": "Use when running a Bento-side review trigger alongside a third-party review platform without double-mailing.",
+      "group": "Vendure Bridge"
+    },
+    {
+      "name": "Pre-Delete Audit",
+      "command": "subscribers pre-delete",
+      "description": "Show tags, events, revenue, and active automations a subscriber set carries before you file a GDPR data_deletion_request.",
+      "rationale": "Local JOINs make the blast radius visible; Bento delete is async form-encoded with no preview.",
+      "example": "bento subscribers pre-delete --emails-from gdpr-batch.txt --json",
+      "why_it_matters": "Always run before any GDPR/CCPA batch deletion to confirm the right cohort and surface revenue impact.",
+      "group": "Safety Rails"
+    },
+    {
+      "name": "Broadcast What-If",
+      "command": "broadcasts whatif",
+      "description": "Estimate audience size, predicted opens, and hygiene-risk count for a draft broadcast before you queue it in the dashboard.",
+      "rationale": "Joins local segment definition x engagement history x hygiene flags; broadcasts API is read-only for send.",
+      "example": "bento broadcasts whatif --segment seg_abc --json",
+      "why_it_matters": "Use before any broadcast send to sanity-check audience size and deliverability risk.",
+      "group": "Campaign Planning"
+    },
+    {
+      "name": "Tag Drift Report",
+      "command": "tags drift",
+      "description": "Surface tags whose subscriber counts swung more than N% week-over-week, catching misfiring workflows.",
+      "rationale": "Needs historical snapshots Bento itself doesn't retain.",
+      "example": "bento tags drift --window 30d --threshold 25 --json",
+      "why_it_matters": "Run weekly to catch silently-broken automations adding or removing tags unexpectedly.",
+      "group": "Sync Integrity"
+    },
+    {
+      "name": "Field Schema Lint",
+      "command": "fields lint",
+      "description": "Diff local custom fields against a Vendure customer-schema file and flag missing, renamed, or type-mismatched fields.",
+      "rationale": "Cross-system schema diff impossible without the local mirror.",
+      "example": "bento fields lint --against vendure-schema.json --json",
+      "why_it_matters": "Use after any Vendure schema change to verify Bento custom fields still align.",
+      "group": "Vendure Bridge"
+    },
+    {
+      "name": "Cohort FTS",
+      "command": "subscribers find",
+      "description": "Full-text search subscriber notes/fields plus structured filters in one query, exportable as CSV.",
+      "rationale": "FTS5 over the local mirror; Bento server-side search is exact-match on email/UUID only.",
+      "example": "bento subscribers find \"first order\" --tagged customer --purchased-after 365d --csv",
+      "why_it_matters": "Reach for this when building any ad-hoc cohort that isn't worth a segment in the dashboard.",
+      "group": "Discovery"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Snapshot Diff",
+      "command": "sync diff",
+      "description": "Show exactly which subscribers, tags, fields, or templates changed between two local snapshots since Bento has no since filter.",
+      "rationale": "Only possible because we keep timestamped local mirrors; REST gives full-page reads only.",
+      "example": "bento sync diff --since 2026-05-19 --resource subscribers --json",
+      "why_it_matters": "Use this when you need to detect drift between Bento and your local source of truth, or audit what changed since the last sync.",
+      "group": "Sync Integrity"
+    },
+    {
+      "name": "Hygiene Pipeline",
+      "command": "hygiene scrub",
+      "description": "Run validation + jesses_ruleset + blacklist + content_moderation in one pass and emit a clean CSV plus a rejected CSV with reasons.",
+      "rationale": "Compositional shell chains four experimental endpoints no official SDK exposes together; critical before any cold send.",
+      "example": "bento hygiene scrub --in leads.csv --out-clean clean.csv --out-rejected rejected.csv",
+      "why_it_matters": "Reach for this before importing any list you didn't generate yourself. Bad list = ISP penalty.",
+      "group": "List Hygiene"
+    },
+    {
+      "name": "Purchase Replay",
+      "command": "events purchase-replay",
+      "description": "Dry-run a Vendure order export against the Bento $purchase mapping and show the exact batch payload before sending.",
+      "rationale": "Local validator + cents-conversion + unique.key dedupe check; no official Vendure bridge exists.",
+      "example": "bento events purchase-replay --from vendure-orders.json --dry-run --json",
+      "why_it_matters": "Use before any Vendure -\u003e Bento purchase sync to catch shape mismatches without polluting subscriber history.",
+      "group": "Vendure Bridge"
+    },
+    {
+      "name": "Trigger Path Lint",
+      "command": "events lint",
+      "description": "Warn when a payload uses /fetch/commands subscribe but the intent (welcome flow, tag-triggered automation) requires /batch/events to fire automations.",
+      "rationale": "Encodes the two-path footgun in a local rule engine; no Bento tool surfaces this distinction.",
+      "example": "bento events lint --file events.jsonl --json",
+      "why_it_matters": "Run this on any payload bound for /fetch/commands or /batch/events to catch silent automation misfires.",
+      "group": "Safety Rails"
+    },
+    {
+      "name": "Churn Risk Score",
+      "command": "subscribers churn-risk",
+      "description": "Rank subscribers by days-since-last-open/click against your cohort baseline before the next broadcast goes out.",
+      "rationale": "Requires local events x subscribers JOIN over time windows; Bento has no engagement-recency endpoint.",
+      "example": "bento subscribers churn-risk --threshold high --limit 100 --json",
+      "why_it_matters": "Use before queuing a broadcast to identify the cohort most likely to mark as spam.",
+      "group": "Retention"
+    },
+    {
+      "name": "Win-Back Cohort",
+      "command": "subscribers winback",
+      "description": "Build a CSV of customers who bought once, lapsed 180+ days, and never opened the last 3 broadcasts.",
+      "rationale": "Three-way local JOIN (events x broadcasts x subscribers); no Bento segment builder supports the negative-broadcast clause.",
+      "example": "bento subscribers winback --lapsed 180d --last-purchased 90d --csv",
+      "why_it_matters": "Reach for this when scoping a reactivation campaign with a custom decay window.",
+      "group": "Retention"
+    },
+    {
+      "name": "Review Trigger Coexist",
+      "command": "events review-window",
+      "description": "Emit a dated Bento event stream for orders shipped 10 days ago, skipping any order Stamped already triggered.",
+      "rationale": "Local dedupe table prevents double-fire against an existing Stamped plugin; no Bento native scheduler.",
+      "example": "bento events review-window --shipped-csv orders.csv --delay 10d --skip-stamped --dry-run",
+      "why_it_matters": "Use when running a Bento-side review trigger alongside a third-party review platform without double-mailing.",
+      "group": "Vendure Bridge"
+    },
+    {
+      "name": "Pre-Delete Audit",
+      "command": "subscribers pre-delete",
+      "description": "Show tags, events, revenue, and active automations a subscriber set carries before you file a GDPR data_deletion_request.",
+      "rationale": "Local JOINs make the blast radius visible; Bento delete is async form-encoded with no preview.",
+      "example": "bento subscribers pre-delete --emails-from gdpr-batch.txt --json",
+      "why_it_matters": "Always run before any GDPR/CCPA batch deletion to confirm the right cohort and surface revenue impact.",
+      "group": "Safety Rails"
+    },
+    {
+      "name": "Broadcast What-If",
+      "command": "broadcasts whatif",
+      "description": "Estimate audience size, predicted opens, and hygiene-risk count for a draft broadcast before you queue it in the dashboard.",
+      "rationale": "Joins local segment definition x engagement history x hygiene flags; broadcasts API is read-only for send.",
+      "example": "bento broadcasts whatif --segment seg_abc --json",
+      "why_it_matters": "Use before any broadcast send to sanity-check audience size and deliverability risk.",
+      "group": "Campaign Planning"
+    },
+    {
+      "name": "Tag Drift Report",
+      "command": "tags drift",
+      "description": "Surface tags whose subscriber counts swung more than N% week-over-week, catching misfiring workflows.",
+      "rationale": "Needs historical snapshots Bento itself doesn't retain.",
+      "example": "bento tags drift --window 30d --threshold 25 --json",
+      "why_it_matters": "Run weekly to catch silently-broken automations adding or removing tags unexpectedly.",
+      "group": "Sync Integrity"
+    },
+    {
+      "name": "Field Schema Lint",
+      "command": "fields lint",
+      "description": "Diff local custom fields against a Vendure customer-schema file and flag missing, renamed, or type-mismatched fields.",
+      "rationale": "Cross-system schema diff impossible without the local mirror.",
+      "example": "bento fields lint --against vendure-schema.json --json",
+      "why_it_matters": "Use after any Vendure schema change to verify Bento custom fields still align.",
+      "group": "Vendure Bridge"
+    },
+    {
+      "name": "Cohort FTS",
+      "command": "subscribers find",
+      "description": "Full-text search subscriber notes/fields plus structured filters in one query, exportable as CSV.",
+      "rationale": "FTS5 over the local mirror; Bento server-side search is exact-match on email/UUID only.",
+      "example": "bento subscribers find \"first order\" --tagged customer --purchased-after 365d --csv",
+      "why_it_matters": "Reach for this when building any ad-hoc cohort that isn't worth a segment in the dashboard.",
+      "group": "Discovery"
+    }
+  ],
+  "narrative": {
+    "display_name": "Bento",
+    "headline": "Every Bento feature, plus the ones their own CLI does not have, plus a local SQLite store that turns 'who are my top spenders by tag' into a one-liner.",
+    "value_prop": "A Go binary CLI for Bento email marketing that covers all 39 features from Bento's official CLI and MCP, brings in transactional send + spam validation + segments that are SDK-only or docs-only today, and layers 12 novel commands on top -- snapshot diff, hygiene pipeline, Vendure purchase replay, churn-risk scoring, broadcast what-if. Offline FTS over your subscribers via SQLite, --json on every command, MCP tools auto-derived from the Cobra tree.",
+    "auth_narrative": "Bento uses HTTP Basic with publishable_key:secret_key, plus a site_uuid attached as ?site_uuid= on GETs and as a body field on POSTs. Set BENTO_PUBLISHABLE_KEY, BENTO_SECRET_KEY, and BENTO_SITE_UUID, or run `bento auth set` to store them in ~/.config/bento. The CLI sets a descriptive User-Agent automatically -- generic UAs are 403'd by Cloudflare.",
+    "quickstart": [
+      {
+        "command": "bento-pp-cli auth status",
+        "comment": "Check whether BENTO_PUBLISHABLE_KEY / BENTO_SECRET_KEY / BENTO_SITE_UUID are detected. Get them from your Bento dashboard under Settings -\u003e API Keys."
+      },
+      {
+        "command": "bento-pp-cli doctor",
+        "comment": "Verify auth, base URL, User-Agent, and live API reachability."
+      },
+      {
+        "command": "bento-pp-cli sync --resources subscribers,tags,fields,broadcasts",
+        "comment": "Snapshot Bento into the local SQLite store. Required before any novel command."
+      },
+      {
+        "command": "bento-pp-cli subscribers find \"vip\" --tagged customer --json --select email,tags",
+        "comment": "Local FTS5 search across notes/fields with structured filters."
+      },
+      {
+        "command": "bento-pp-cli hygiene scrub --in leads.csv --out-clean clean.csv --out-rejected rejected.csv",
+        "comment": "Run the full validation pipeline before any cold import."
+      },
+      {
+        "command": "bento-pp-cli events purchase-replay --from vendure-orders.json --dry-run",
+        "comment": "Map a Vendure order export to Bento $purchase events; preview before sending."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "403 with Cloudflare HTML body",
+        "fix": "User-Agent header is missing or generic. `bento doctor` verifies UA is set correctly; the CLI hard-sets it automatically."
+      },
+      {
+        "symptom": "400 'site_uuid required'",
+        "fix": "Run `bento auth status` to confirm BENTO_SITE_UUID is set. The CLI attaches site_uuid to every request automatically; this error means auth is misconfigured."
+      },
+      {
+        "symptom": "401 'Author not authorized'",
+        "fix": "The from-email on `bento emails send` or `bento broadcasts create` is not a pre-authorized Author. Add the address in the Bento dashboard under Account -\u003e Authors."
+      },
+      {
+        "symptom": "429 rate-limited",
+        "fix": "Bento has no Retry-After header. The CLI implements client-side exponential backoff automatically. For batch ops, lower --batch-size or add --pace 60/min."
+      },
+      {
+        "symptom": "subscriber import returns null then is missing",
+        "fix": "Imports are async (1-5 min). Use `bento subscribers get \u003cemail\u003e --wait 5m` to poll, or `bento sync --resources subscribers` and re-search locally."
+      }
+    ],
+    "when_to_use": "Reach for bento-pp-cli when you need a fast offline view over your Bento account (FTS, JOINs, cohort builds), when you're scripting CI/CD imports, when you need transactional send from a Go process without dragging in Node, or when you're bridging Vendure / non-native ecom platforms to Bento via webhook + $purchase events. Pair with Claude Desktop / Cursor via MCP for natural-language access to every command.",
+    "recipes": [
+      {
+        "title": "Pre-import list hygiene before any cold outreach",
+        "command": "bento-pp-cli hygiene scrub --in cold-leads.csv --out-clean clean.csv --out-rejected rejected.csv --json",
+        "explanation": "Chains validation + jesses_ruleset + blacklist on every email so a dirty list never tanks deliverability."
+      },
+      {
+        "title": "Vendure -\u003e Bento purchase event with dedupe preview",
+        "command": "bento-pp-cli events purchase-replay --from vendure-orders.json --json --select 'events[].email,events[].details.unique.key'",
+        "explanation": "Maps Vendure order JSON to Bento $purchase shape with dedupe-key validation. --select narrows the deeply nested response to the fields agents need."
+      },
+      {
+        "title": "Find lapsed VIPs for a win-back broadcast",
+        "command": "bento-pp-cli subscribers winback --lapsed 180d --last-purchased 90d --tagged vip --csv \u003e winback.csv",
+        "explanation": "Three-way local JOIN that no Bento segment builder supports."
+      },
+      {
+        "title": "Audit before a GDPR batch deletion",
+        "command": "bento-pp-cli subscribers pre-delete --emails-from gdpr-batch.txt --json",
+        "explanation": "Shows revenue, active automations, and tag exposure for each email before you queue irreversible anonymization."
+      },
+      {
+        "title": "Catch silently-broken workflows via tag drift",
+        "command": "bento-pp-cli tags drift --window 7d --threshold 30 --json",
+        "explanation": "Surfaces tags whose subscriber counts shifted more than 30% week-over-week. Run weekly."
+      }
+    ],
+    "trigger_phrases": [
+      "import this list to Bento",
+      "scrub these emails before sending",
+      "show my Bento subscribers",
+      "build a win-back cohort",
+      "preview this Bento broadcast",
+      "sync Bento",
+      "use bento",
+      "run bento"
+    ]
+  }
+}

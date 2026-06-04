@@ -29,8 +29,8 @@ type Resolver struct {
 	CachePath  string // file path; empty = disable disk cache
 	TTL        time.Duration
 
-	mu     sync.Mutex
-	cached string
+	mu       sync.Mutex
+	cached   string
 	cachedAt time.Time
 }
 

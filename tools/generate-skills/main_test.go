@@ -395,6 +395,22 @@ func TestInjectGeneratedHeader_WithFrontmatter(t *testing.T) {
 	}
 }
 
+// TestInjectGeneratedHeader_NoAgentConfigLiteral guards against reintroducing a
+// literal agent-config filename into the generated header. Hermes' skills guard
+// (and similar scanners) flag the substrings AGENTS.md, CLAUDE.md, .cursorrules,
+// and .clinerules as CRITICAL "persistence" findings, which hard-block install of
+// every mirrored cli-skills/pp-*/SKILL.md. The header must point at the docs
+// without naming the file. See docs/plans/2026-06-01-001-fix-hermes-skills-guard-false-positive-plan.md.
+func TestInjectGeneratedHeader_NoAgentConfigLiteral(t *testing.T) {
+	src := []byte("---\nname: pp-thing\ndescription: \"hi\"\n---\n\n# Body\n")
+	got := string(injectGeneratedHeader(src, "library/productivity/thing/SKILL.md"))
+	for _, literal := range []string{"AGENTS.md", "CLAUDE.md", ".cursorrules", ".clinerules"} {
+		if strings.Contains(got, literal) {
+			t.Errorf("generated header must not contain the scanner-tripping literal %q (flags every mirror DANGEROUS in Hermes), got:\n%s", literal, got)
+		}
+	}
+}
+
 func TestInjectGeneratedHeader_NoFrontmatter(t *testing.T) {
 	src := []byte("# Plain skill\n\nNo frontmatter at all.\n")
 	got := injectGeneratedHeader(src, "library/productivity/plain/SKILL.md")

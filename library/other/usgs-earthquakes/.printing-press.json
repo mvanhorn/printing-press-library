@@ -5,6 +5,10 @@
   "api_name": "usgs-earthquakes",
   "display_name": "USGS Earthquakes",
   "cli_name": "usgs-earthquakes-pp-cli",
+  "creator": {
+    "handle": "tmchow",
+    "name": "Trevin Chow"
+  },
   "owner": "trevin-chow",
   "printer": "tmchow",
   "printer_name": "Trevin Chow",

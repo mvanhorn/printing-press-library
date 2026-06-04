@@ -1,0 +1,91 @@
+{
+  "api_name": "ankiweb",
+  "base_url": "https://ankiweb.net",
+  "description": "AnkiWeb CLI — search/download community shared decks and read your cloud-synced decks from the terminal",
+  "mcp_ready": "partial",
+  "http_transport": "standard",
+  "auth": {
+    "type": "cookie",
+    "in": "cookie",
+    "env_vars": [
+      "ANKIWEB_COOKIES"
+    ],
+    "env_var_specs": [
+      {
+        "name": "ANKIWEB_COOKIES",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ],
+    "cookie_domain": "ankiweb.net"
+  },
+  "required_headers": [
+    {
+      "name": "User-Agent",
+      "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
+    }
+  ],
+  "tools": [
+    {
+      "name": "shared_download",
+      "description": "Return the direct .apkg download URL for a shared deck. NOTE: AnkiWeb requires a signed client-side token (op=sdd JWT); without the t= parameter the endpoint returns 400 or 503. Required: id (numeric shared deck ID). Optional: t (signed download token). Use this to get the URL — actual download requires a valid session token minted by AnkiWeb's client JavaScript.",
+      "method": "GET",
+      "path": "/svc/shared/download-deck/{sharedId}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "wire_name": "sharedId",
+          "type": "string",
+          "location": "path",
+          "description": "Shared deck id",
+          "required": true
+        },
+        {
+          "name": "t",
+          "type": "string",
+          "location": "query",
+          "description": "Signed download token (op=sdd JWT). Unresolved: minted by AnkiWeb's client JS."
+        }
+      ]
+    },
+    {
+      "name": "shared_info",
+      "description": "Fetch full detail for one shared deck by its numeric ID, including title, description, upvotes, downvotes, note count, and last-modified timestamp. Required: id (numeric shared deck ID from shared_search results). Returns SharedDeckInfo object. Use this after shared_search to get the full deck description and stats for a specific deck.",
+      "method": "GET",
+      "path": "/svc/shared/item-info",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "wire_name": "sharedId",
+          "type": "string",
+          "location": "path",
+          "description": "Shared deck id (from search results)",
+          "required": true,
+          "aliases": [
+            "shared-id"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "shared_search",
+      "description": "Search the AnkiWeb shared-deck catalog by keyword and return matching decks with upvotes, downvotes, note count, audio count, image count, and last-modified date. Required: search (keyword string, e.g. 'spanish', 'anatomy'). Optional: has-audio (bool), has-images (bool), min-notes (int), limit (default 20). Returns array of SharedDeck. Use this before shared_info when you need to discover deck IDs by topic.",
+      "method": "GET",
+      "path": "/svc/shared/list-decks",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Search term (e.g. spanish, anatomy, MCAT). Empty returns nothing.",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

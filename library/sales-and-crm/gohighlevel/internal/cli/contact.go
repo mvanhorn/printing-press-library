@@ -1,4 +1,4 @@
-// Copyright 2026 user. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Jen Williams and contributors. Licensed under Apache-2.0. See LICENSE.
 //
 // `contact` command tree — bulk-tag, dedup, and decay.
 // Reads the local SQLite cache; bulk-tag also mutates via the GHL API.
@@ -14,8 +14,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/sales-and-crm/gohighlevel/internal/cliutil"
+	"github.com/spf13/cobra"
 )
 
 func newContactCmd(flags *rootFlags) *cobra.Command {

@@ -1,4 +1,4 @@
-// Copyright 2026 justinwfu. Licensed under Apache-2.0.
+// Copyright 2026 justinwfu and contributors. Licensed under Apache-2.0.
 
 // Package cleveland implements the art-goat Source for the Cleveland
 // Museum of Art's Open Access API (openaccess-api.clevelandart.org).

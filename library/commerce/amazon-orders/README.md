@@ -6,6 +6,8 @@ Sync once and ask cross-cutting questions forever. Where is my stuff right now, 
 
 Learn more at [Amazon Orders](https://www.amazon.com).
 
+Created by [@bwishan](https://github.com/bwishan) (Brian Wishan).
+
 ## Install
 
 The recommended path installs both the `amazon-orders-pp-cli` binary and the `pp-amazon-orders` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

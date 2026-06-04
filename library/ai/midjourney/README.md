@@ -31,6 +31,8 @@ Creation/export commands added after traffic capture:
 
 The mutating commands call Midjourney. Use `--dry-run` first when testing payloads.
 
+Created by [@dave-agent-cerebro](https://github.com/dave-agent-cerebro) (Dave Fano).
+
 ## Install
 
 From the Printing Press public library, once this CLI is published:

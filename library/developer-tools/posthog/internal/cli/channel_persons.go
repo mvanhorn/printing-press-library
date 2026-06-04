@@ -1,4 +1,4 @@
-// Copyright 2026 riteshtiwari. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 riteshtiwari and contributors. Licensed under Apache-2.0. See LICENSE.
 
 package cli
 
@@ -36,7 +36,7 @@ func newPersonsAtRiskCmd(flags *rootFlags) *cobra.Command {
 		Use:         "at-risk",
 		Short:       "Surface persons going quiet who recently hit errors — before they churn",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Long: `Find persons silent for N+ days, sorted by risk score. Use in weekly retention reviews to prioritize outreach before churn.`,
+		Long:        `Find persons silent for N+ days, sorted by risk score. Use in weekly retention reviews to prioritize outreach before churn.`,
 		Example: `  posthog-pp-cli persons at-risk --project 12345
   posthog-pp-cli persons at-risk --project 12345 --cohort 456 --silent-days 14
   posthog-pp-cli persons at-risk --project 12345 --json`,
@@ -50,14 +50,18 @@ func newPersonsAtRiskCmd(flags *rootFlags) *cobra.Command {
 				orgData, err2 := c.Get("/api/organizations/", nil)
 				if err2 == nil {
 					var orgs struct {
-						Results []struct{ ID string `json:"id"` } `json:"results"`
+						Results []struct {
+							ID string `json:"id"`
+						} `json:"results"`
 					}
 					if json.Unmarshal(orgData, &orgs) == nil && len(orgs.Results) > 0 {
 						orgID := orgs.Results[0].ID
 						projData, err3 := c.Get(fmt.Sprintf("/api/organizations/%s/projects/", orgID), nil)
 						if err3 == nil {
 							var projs struct {
-								Results []struct{ ID int `json:"id"` } `json:"results"`
+								Results []struct {
+									ID int `json:"id"`
+								} `json:"results"`
 							}
 							if json.Unmarshal(projData, &projs) == nil && len(projs.Results) > 0 {
 								projectID = strconv.Itoa(projs.Results[0].ID)
@@ -139,10 +143,10 @@ func newPersonsAtRiskCmd(flags *rootFlags) *cobra.Command {
 			var atRisk []atRiskPerson
 			for _, raw := range rawPersons {
 				var p struct {
-					ID         any            `json:"id"`
-					DistinctIDs []string      `json:"distinct_ids"`
+					ID          any            `json:"id"`
+					DistinctIDs []string       `json:"distinct_ids"`
 					Properties  map[string]any `json:"properties"`
-					CreatedAt   string        `json:"created_at"`
+					CreatedAt   string         `json:"created_at"`
 				}
 				if json.Unmarshal(raw, &p) != nil {
 					continue
@@ -209,7 +213,7 @@ func newPersonsAtRiskCmd(flags *rootFlags) *cobra.Command {
 				}
 
 				atRisk = append(atRisk, atRiskPerson{
-					ID:         p.ID,
+					ID: p.ID,
 					DistinctID: func() string {
 						if len(p.DistinctIDs) > 0 {
 							return p.DistinctIDs[0]
@@ -230,13 +234,13 @@ func newPersonsAtRiskCmd(flags *rootFlags) *cobra.Command {
 			})
 
 			type result struct {
-				ProjectID    string        `json:"project_id"`
-				CohortID     string        `json:"cohort_id,omitempty"`
-				SilentDays   int           `json:"silent_days_threshold"`
-				TotalChecked int           `json:"total_persons_checked"`
-				AtRiskCount  int           `json:"at_risk_count"`
+				ProjectID    string         `json:"project_id"`
+				CohortID     string         `json:"cohort_id,omitempty"`
+				SilentDays   int            `json:"silent_days_threshold"`
+				TotalChecked int            `json:"total_persons_checked"`
+				AtRiskCount  int            `json:"at_risk_count"`
 				AtRisk       []atRiskPerson `json:"at_risk_persons"`
-				GeneratedAt  string        `json:"generated_at"`
+				GeneratedAt  string         `json:"generated_at"`
 			}
 			out := result{
 				ProjectID:    projectID,

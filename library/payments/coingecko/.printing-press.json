@@ -6,6 +6,10 @@
   "display_name": "CoinGecko",
   "description": "Fetch CoinGecko cryptocurrency prices, market data, coins, exchanges, and trend endpoints from the public API.",
   "cli_name": "coingecko-pp-cli",
+  "creator": {
+    "handle": "hnshah",
+    "name": "Hiten Shah"
+  },
   "printer": "hnshah",
   "printer_name": "Hiten Shah",
   "spec_path": "/tmp/coingecko-spec.yaml",

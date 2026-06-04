@@ -1,0 +1,275 @@
+{
+  "api_name": "zoho-expense",
+  "novelty_score": 9,
+  "alternatives": [
+    {
+      "name": "ramp-cli",
+      "url": "https://github.com/ramp-public/ramp-cli",
+      "language": "Python",
+      "install_method": "",
+      "stars": 28,
+      "last_updated": "",
+      "command_count": 30,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "schmorrison/Zoho",
+      "url": "https://github.com/schmorrison/Zoho",
+      "language": "Go",
+      "install_method": "",
+      "stars": 39,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "tdesposito/pyZohoAPI",
+      "url": "https://github.com/tdesposito/pyZohoAPI",
+      "language": "Python",
+      "install_method": "",
+      "stars": 8,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "airbyte source-zoho-expense",
+      "url": "https://github.com/airbytehq/airbyte/pull/47406",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-23T11:10:14Z",
+  "novel_features": [
+    {
+      "name": "Invoice batch ingest",
+      "command": "invoice ingest",
+      "description": "Batch upload a folder of invoices to Zoho Expense, SHA256-dedup against the local store, poll autoscan in parallel, and auto-tag from learned merchant memory — the headline workflow for AI agents that ingest invoices from email.",
+      "rationale": "Wraps the upload-poll-tag-dedup loop that no competitor does because no competitor has a local store + learned merchant memory.",
+      "example": "zoho-expense-pp-cli invoice ingest ~/Downloads/october-invoices --auto-tag --agent",
+      "why_it_matters": "Agents that ingest invoices on a cadence need one command that handles dedup, autoscan, and tagging — not three.",
+      "group": "Hermes-first ingestion"
+    },
+    {
+      "name": "Merchant memory",
+      "command": "merchant list",
+      "description": "Build a local merchant→category/project/tag mapping from sync history; pre-fill tags on first sight of a new merchant.",
+      "rationale": "Zoho only auto-categorizes a merchant after the org has seen + categorized it once. We bypass this by training locally and pre-populating tags via PUT /expenses/{id}.",
+      "example": "zoho-expense-pp-cli merchant list --agent --select merchant_name,category_name,seen_count",
+      "why_it_matters": "Solves Zoho's 'first-time merchant is always uncategorized' limitation with zero API calls.",
+      "group": "Local intelligence"
+    },
+    {
+      "name": "Merchant mapping training",
+      "command": "merchant map",
+      "description": "Train the local merchant→category mapping for future auto-tag (one merchant at a time, or bulk from a CSV).",
+      "rationale": "The schema that powers `invoice ingest --auto-tag` lives in SQLite, not Zoho.",
+      "example": "zoho-expense-pp-cli merchant map 'AWS' --category=Software --project=Engineering",
+      "why_it_matters": "Lets the user (or agent) explicitly seed the auto-tag map without waiting for sync history to learn it.",
+      "group": "Local intelligence"
+    },
+    {
+      "name": "Receipt hash gate",
+      "command": "receipt upload",
+      "description": "SHA256-hash incoming receipts at upload, refuse duplicates (use --force to override).",
+      "rationale": "Zoho has weak server-side dedup; uploading the same PDF twice creates two expenses. Our hash gate is the only way to prevent that without polling /expenses after every upload.",
+      "example": "zoho-expense-pp-cli receipt upload ~/Downloads/uber-receipt.pdf --auto-tag",
+      "why_it_matters": "Idempotent receipt upload — safe to re-run on a folder agents have already processed.",
+      "group": "Hermes-first ingestion"
+    },
+    {
+      "name": "Monthly close",
+      "command": "close",
+      "description": "Bundle a month's unreported expenses into an expense report in one shot — flags still-processing autoscans, flags untagged items, creates the report, attaches, optionally submits.",
+      "rationale": "Zoho's web UI takes 8 clicks to do this. Our local query plus generated endpoint calls collapses it into a single command, scriptable on cron.",
+      "example": "zoho-expense-pp-cli close --month=2026-10 --auto-submit --agent",
+      "why_it_matters": "The natural end of every monthly agent workflow — turn raw expenses into a submitted report without leaving the terminal.",
+      "group": "Monthly automation"
+    },
+    {
+      "name": "GST CGST/SGST split",
+      "command": "gst-split",
+      "description": "India-specific: parse an expense's tax_id and line items, compute CGST/SGST (intra-state) or IGST (inter-state) shares, emit the breakdown or update the expense.",
+      "rationale": "Zoho stores total tax but doesn't expose the GST component split. India tax filings need this breakdown — only possible with local enrichment from tax + line item data.",
+      "example": "zoho-expense-pp-cli gst-split exp_1234567890 --emit-csv",
+      "why_it_matters": "Turns a monthly export into something a CA can directly file, without the user re-doing the math by hand.",
+      "group": "India tax workflow"
+    },
+    {
+      "name": "Untagged expense audit",
+      "command": "expense-untagged",
+      "description": "List expenses missing category_id or project_id; `--auto-fix` applies the merchant→tag memory map and PUTs back to Zoho.",
+      "rationale": "Closes the loop after autoscan — autoscanned expenses arrive with merchant_name set but typically without category/project. Our local merchant memory fills the gap in bulk.",
+      "example": "zoho-expense-pp-cli expense-untagged --auto-fix --agent",
+      "why_it_matters": "One command turns 30 untagged scanned receipts into 30 tagged ones, using the user's own historical mapping.",
+      "group": "Hermes-first ingestion"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Invoice batch ingest",
+      "command": "invoice ingest",
+      "description": "Batch upload a folder of invoices to Zoho Expense, SHA256-dedup against the local store, poll autoscan in parallel, and auto-tag from learned merchant memory — the headline workflow for AI agents that ingest invoices from email.",
+      "rationale": "Wraps the upload-poll-tag-dedup loop that no competitor does because no competitor has a local store + learned merchant memory.",
+      "example": "zoho-expense-pp-cli invoice ingest ~/Downloads/october-invoices --auto-tag --agent",
+      "why_it_matters": "Agents that ingest invoices on a cadence need one command that handles dedup, autoscan, and tagging — not three.",
+      "group": "Hermes-first ingestion"
+    },
+    {
+      "name": "Merchant memory",
+      "command": "merchant list",
+      "description": "Build a local merchant→category/project/tag mapping from sync history; pre-fill tags on first sight of a new merchant.",
+      "rationale": "Zoho only auto-categorizes a merchant after the org has seen + categorized it once. We bypass this by training locally and pre-populating tags via PUT /expenses/{id}.",
+      "example": "zoho-expense-pp-cli merchant list --agent --select merchant_name,category_name,seen_count",
+      "why_it_matters": "Solves Zoho's 'first-time merchant is always uncategorized' limitation with zero API calls.",
+      "group": "Local intelligence"
+    },
+    {
+      "name": "Merchant mapping training",
+      "command": "merchant map",
+      "description": "Train the local merchant→category mapping for future auto-tag (one merchant at a time, or bulk from a CSV).",
+      "rationale": "The schema that powers `invoice ingest --auto-tag` lives in SQLite, not Zoho.",
+      "example": "zoho-expense-pp-cli merchant map 'AWS' --category=Software --project=Engineering",
+      "why_it_matters": "Lets the user (or agent) explicitly seed the auto-tag map without waiting for sync history to learn it.",
+      "group": "Local intelligence"
+    },
+    {
+      "name": "Receipt hash gate",
+      "command": "receipt upload",
+      "description": "SHA256-hash incoming receipts at upload, refuse duplicates (use --force to override).",
+      "rationale": "Zoho has weak server-side dedup; uploading the same PDF twice creates two expenses. Our hash gate is the only way to prevent that without polling /expenses after every upload.",
+      "example": "zoho-expense-pp-cli receipt upload ~/Downloads/uber-receipt.pdf --auto-tag",
+      "why_it_matters": "Idempotent receipt upload — safe to re-run on a folder agents have already processed.",
+      "group": "Hermes-first ingestion"
+    },
+    {
+      "name": "Monthly close",
+      "command": "close",
+      "description": "Bundle a month's unreported expenses into an expense report in one shot — flags still-processing autoscans, flags untagged items, creates the report, attaches, optionally submits.",
+      "rationale": "Zoho's web UI takes 8 clicks to do this. Our local query plus generated endpoint calls collapses it into a single command, scriptable on cron.",
+      "example": "zoho-expense-pp-cli close --month=2026-10 --auto-submit --agent",
+      "why_it_matters": "The natural end of every monthly agent workflow — turn raw expenses into a submitted report without leaving the terminal.",
+      "group": "Monthly automation"
+    },
+    {
+      "name": "GST CGST/SGST split",
+      "command": "gst-split",
+      "description": "India-specific: parse an expense's tax_id and line items, compute CGST/SGST (intra-state) or IGST (inter-state) shares, emit the breakdown or update the expense.",
+      "rationale": "Zoho stores total tax but doesn't expose the GST component split. India tax filings need this breakdown — only possible with local enrichment from tax + line item data.",
+      "example": "zoho-expense-pp-cli gst-split exp_1234567890 --emit-csv",
+      "why_it_matters": "Turns a monthly export into something a CA can directly file, without the user re-doing the math by hand.",
+      "group": "India tax workflow"
+    },
+    {
+      "name": "Untagged expense audit",
+      "command": "expense-untagged",
+      "description": "List expenses missing category_id or project_id; `--auto-fix` applies the merchant→tag memory map and PUTs back to Zoho.",
+      "rationale": "Closes the loop after autoscan — autoscanned expenses arrive with merchant_name set but typically without category/project. Our local merchant memory fills the gap in bulk.",
+      "example": "zoho-expense-pp-cli expense-untagged --auto-fix --agent",
+      "why_it_matters": "One command turns 30 untagged scanned receipts into 30 tagged ones, using the user's own historical mapping.",
+      "group": "Hermes-first ingestion"
+    }
+  ],
+  "narrative": {
+    "display_name": "Zoho Expense",
+    "headline": "Upload receipts, auto-tag expenses from learned merchant memory, and close out the month in one command — the agent-friendly Zoho Expense CLI nobody else has built.",
+    "value_prop": "Zoho ships autoscan; this CLI ships everything that comes after — receipt dedup, learned merchant→category mapping, India GST splitting, and monthly report bundling. Built for AI agents that ingest invoices from an inbox on a cadence and need an idempotent, structured-output upload path. India-region by default; works against any Zoho datacenter by overriding the base URL.",
+    "auth_narrative": "Zoho Expense uses OAuth 2.0 with a self-client authorization-code flow. Create a self-client at https://api-console.zoho.in/, generate a 10-minute authorization code, then run `zoho-expense-pp-cli auth login --client-id=... --client-secret=... --code=...`. The CLI exchanges the code for a long-lived refresh token (stored at `~/.config/zoho-expense-pp-cli/config.toml`) and refreshes access tokens transparently. Tokens use the literal `Zoho-oauthtoken` Authorization prefix (not `Bearer`).",
+    "quickstart": [
+      {
+        "command": "zoho-expense-pp-cli doctor",
+        "comment": "Verify auth, region, and API reachability before doing anything else"
+      },
+      {
+        "command": "zoho-expense-pp-cli org use $(zoho-expense-pp-cli organizations list --json | jq -r '.[0].organization_id')",
+        "comment": "Set the active organization (first one in the list)"
+      },
+      {
+        "command": "zoho-expense-pp-cli sync",
+        "comment": "Sync categories, reporting tags, projects, customers, expenses into the local store"
+      },
+      {
+        "command": "zoho-expense-pp-cli receipt upload ~/Downloads/uber-receipt.pdf --auto-tag",
+        "comment": "Upload one receipt with hash-dedup and auto-tag"
+      },
+      {
+        "command": "zoho-expense-pp-cli invoice ingest ~/Downloads/october-invoices --auto-tag --agent",
+        "comment": "Batch ingest a folder for AI consumption"
+      },
+      {
+        "command": "zoho-expense-pp-cli close --month=2026-10 --auto-submit",
+        "comment": "Bundle the month into a report and submit"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "HTTP 401 'authentication value invalid'",
+        "fix": "Run `zoho-expense-pp-cli auth refresh` — the access token expired (1h lifetime). If that fails, the refresh token may have rotated out (max 20 per user); re-run `auth login` with a fresh authorization code."
+      },
+      {
+        "symptom": "HTTP 404 / endpoint not found from a .com token",
+        "fix": "Region mismatch. Your token was issued by accounts.zoho.com but you're targeting www.zohoapis.in. Override `base_url` in the config file or set ZOHO_EXPENSE_REGION accordingly."
+      },
+      {
+        "symptom": "Receipt upload returns 'autoscan_status: Failed'",
+        "fix": "File format or size issue — max 5MB; JPG/PNG/PDF only. Multi-page PDFs scan but slower. Try re-saving the PDF as image-only and retry."
+      },
+      {
+        "symptom": "First expense for a new merchant has no category",
+        "fix": "Expected — Zoho only auto-categorizes after the merchant has been seen + categorized once. Use `merchant map '\u003cname\u003e' --category=...` to seed the local mapping, then `expense untagged --auto-fix`."
+      },
+      {
+        "symptom": "HTTP 429 rate-limited",
+        "fix": "Zoho caps at 100 req/min per org. The CLI's adaptive limiter handles this automatically; if you see this surface, you're running parallel batches — drop concurrency."
+      }
+    ],
+    "when_to_use": "Reach for this CLI when an AI agent needs to ingest invoices from email (or any source) and post them to Zoho Expense on a recurring cadence. It's also the right tool for monthly close automation — bundling expenses into a report and submitting in one command — and for India-specific GST splitting that the Zoho web UI doesn't expose. Not the right tool for occasional one-off expense editing through the UI (Zoho's web app is fine for that).",
+    "recipes": [
+      {
+        "title": "Monthly Hermes flow",
+        "command": "zoho-expense-pp-cli invoice ingest ~/Inbox/expenses --auto-tag --agent | tee /tmp/this-month.json \u0026\u0026 zoho-expense-pp-cli close --month=2026-05 --auto-submit",
+        "explanation": "Ingest every saved invoice with hash dedup + auto-tagging, then bundle the month and submit. The pattern Hermes runs end-of-month. Use the current YYYY-MM in your own scripts."
+      },
+      {
+        "title": "Audit untagged expenses",
+        "command": "zoho-expense-pp-cli expense-untagged --agent --select expense_id,merchant_name,amount,expense_date | jq '.[] | select(.amount \u003e 1000)'",
+        "explanation": "Find untagged expenses over ₹1000 — the ones most worth manually tagging when auto-fix can't help."
+      },
+      {
+        "title": "Train the merchant memory",
+        "command": "zoho-expense-pp-cli merchant list --agent --select merchant_name,category_name,seen_count | jq '.[] | select(.category_name == null)' | head -5",
+        "explanation": "Find the top 5 merchants the local memory hasn't classified yet — feed them into `merchant map` to bootstrap the auto-tag map."
+      },
+      {
+        "title": "Search synced expenses",
+        "command": "zoho-expense-pp-cli search 'AWS' --agent --select expense_date,amount,merchant_name,description",
+        "explanation": "Full-text search across synced expenses — instant local query, no API call."
+      },
+      {
+        "title": "GST report for the CA",
+        "command": "zoho-expense-pp-cli gst-split exp_ABC123 --emit-csv",
+        "explanation": "Compute a CGST/SGST/IGST breakdown for a single expense and emit a CSV row ready to hand to a chartered accountant. Loop over expense_ids in a shell pipeline to bulk-export a month."
+      }
+    ],
+    "trigger_phrases": [
+      "ingest invoices into zoho",
+      "upload my expenses to zoho",
+      "tag this zoho expense",
+      "close my zoho expenses for the month",
+      "submit my zoho expense report",
+      "use zoho-expense-pp-cli",
+      "run zoho expense"
+    ]
+  }
+}

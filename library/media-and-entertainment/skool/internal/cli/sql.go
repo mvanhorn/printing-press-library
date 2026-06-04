@@ -1,4 +1,4 @@
-// Copyright 2026 quoxientzero. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Zain Haseeb and contributors. Licensed under Apache-2.0. See LICENSE.
 // Hand-written novel feature; not generated.
 
 package cli
@@ -23,9 +23,9 @@ func newSQLCmd(flags *rootFlags) *cobra.Command {
 	var flagLimit int
 
 	cmd := &cobra.Command{
-		Use:   "sql [query...]",
-		Short: "Run a read-only SELECT query against the local Skool store",
-		Example: `  skool-pp-cli sql "SELECT id, name FROM posts ORDER BY created_at DESC LIMIT 10"`,
+		Use:         "sql [query...]",
+		Short:       "Run a read-only SELECT query against the local Skool store",
+		Example:     `  skool-pp-cli sql "SELECT id, name FROM posts ORDER BY created_at DESC LIMIT 10"`,
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {

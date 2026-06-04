@@ -93,7 +93,10 @@ Run 'sync --full' first to populate the local store.`,
 			}
 
 			// Top 10 topics by frequency
-			type kv struct{ K string; V int }
+			type kv struct {
+				K string
+				V int
+			}
 			var topicList []kv
 			for k, v := range topicCounts {
 				topicList = append(topicList, kv{k, v})
@@ -104,10 +107,10 @@ Run 'sync --full' first to populate the local store.`,
 			}
 
 			type meetingSummary struct {
-				Title   string `json:"title"`
-				Date    string `json:"date"`
-				URL     string `json:"url"`
-				OpenAI  int    `json:"open_action_items"`
+				Title  string `json:"title"`
+				Date   string `json:"date"`
+				URL    string `json:"url"`
+				OpenAI int    `json:"open_action_items"`
 			}
 
 			var meetList []meetingSummary
@@ -119,8 +122,13 @@ Run 'sync --full' first to populate the local store.`,
 					}
 				}
 				meetList = append(meetList, meetingSummary{
-					Title:  m.meetingTitle(),
-					Date:   func() string { if len(m.CreatedAt) >= 10 { return m.CreatedAt[:10] }; return m.CreatedAt }(), // PATCH(created-at-guard): guard against empty/short CreatedAt
+					Title: m.meetingTitle(),
+					Date: func() string {
+						if len(m.CreatedAt) >= 10 {
+							return m.CreatedAt[:10]
+						}
+						return m.CreatedAt
+					}(), // PATCH(created-at-guard): guard against empty/short CreatedAt
 					URL:    m.ShareURL,
 					OpenAI: open,
 				})
@@ -138,12 +146,12 @@ Run 'sync --full' first to populate the local store.`,
 			}
 
 			type accountResult struct {
-				Domain        string         `json:"domain"`
-				TotalMeetings int            `json:"total_meetings"`
-				Contacts      []string       `json:"contacts"`
-				TopTopics     []string       `json:"top_topics"`
-				OpenActions   []string       `json:"open_action_items"`
-				ClosedActions []string       `json:"closed_action_items"`
+				Domain        string           `json:"domain"`
+				TotalMeetings int              `json:"total_meetings"`
+				Contacts      []string         `json:"contacts"`
+				TopTopics     []string         `json:"top_topics"`
+				OpenActions   []string         `json:"open_action_items"`
+				ClosedActions []string         `json:"closed_action_items"`
 				Meetings      []meetingSummary `json:"meetings"`
 			}
 

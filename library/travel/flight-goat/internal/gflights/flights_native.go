@@ -1,4 +1,4 @@
-// Copyright 2026 matt-van-horn. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Matt Van Horn and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // Native Go implementation of Google Flights' GetShoppingResults endpoint —
 // the per-day flight-search call (origin/destination/date + filters).
@@ -204,20 +204,20 @@ func buildOffersPayload(opts SearchOptions, depDate, retDate time.Time, tripType
 	}
 
 	main := []any{
-		nil, nil,                   // [0..1]
+		nil, nil, // [0..1]
 		tripType,                   // [2]
 		nil,                        // [3]
 		[]any{},                    // [4]
 		seat,                       // [5]
 		[]any{passengers, 0, 0, 0}, // [6] [adults, children, infants_lap, infants_seat]
 		nil, nil, nil,              // [7..9]
-		bagsField,                  // [10] [checked_bags, carry_on]
-		nil, nil,                   // [11..12]
-		segments,                   // [13]
-		nil, nil, nil,              // [14..16]
-		1,                          // [17] hardcoded
+		bagsField, // [10] [checked_bags, carry_on]
+		nil, nil,  // [11..12]
+		segments,      // [13]
+		nil, nil, nil, // [14..16]
+		1,                                                // [17] hardcoded
 		nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, // [18..27]
-		excludeBasic,               // [28]
+		excludeBasic, // [28]
 	}
 
 	showAll := 1
@@ -300,19 +300,19 @@ func buildOneSegment(opts SearchOptions, date time.Time, origin, dest string, st
 	return []any{
 		[]any{[]any{[]any{strings.ToUpper(origin), 0}}}, // [0] departure airport
 		[]any{[]any{[]any{strings.ToUpper(dest), 0}}},   // [1] arrival airport
-		timeField,                                       // [2] time restrictions
-		stops,                                           // [3] stops
-		airlinesField,                                   // [4] airlines
-		nil,                                             // [5]
-		date.Format("2006-01-02"),                       // [6] travel date
-		nil,                                             // [7] max duration
-		nil,                                             // [8] selected_flight
-		layoverAirports,                                 // [9] layover airports
-		nil,                                             // [10]
-		nil,                                             // [11]
-		layoverDuration,                                 // [12]
-		emissionsField,                                  // [13]
-		3,                                               // [14] no observable effect
+		timeField,                 // [2] time restrictions
+		stops,                     // [3] stops
+		airlinesField,             // [4] airlines
+		nil,                       // [5]
+		date.Format("2006-01-02"), // [6] travel date
+		nil,                       // [7] max duration
+		nil,                       // [8] selected_flight
+		layoverAirports,           // [9] layover airports
+		nil,                       // [10]
+		nil,                       // [11]
+		layoverDuration,           // [12]
+		emissionsField,            // [13]
+		3,                         // [14] no observable effect
 	}, nil
 }
 
@@ -505,7 +505,6 @@ func parseOfferLeg(legRaw any) (Leg, bool) {
 		Amenities:        amenities,
 	}, true
 }
-
 
 // PATCH: new helper functions for aircraft/seat/amenity extraction
 // parseSeatType maps Google Flights' leg[13] seat-type code to a human-readable

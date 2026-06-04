@@ -1,4 +1,4 @@
-// Copyright 2026 Granola Printing Press contributors. Licensed under Apache-2.0.
+// Copyright 2026 Damien Stevens and contributors. Licensed under Apache-2.0.
 
 // PATCH(safestorage-package): new package providing two-tier decryption of
 // Granola's encrypted local storage (cache-v6.json.enc, supabase.json.enc,

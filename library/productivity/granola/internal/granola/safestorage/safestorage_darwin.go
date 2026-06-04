@@ -1,4 +1,4 @@
-// Copyright 2026 Granola Printing Press contributors. Licensed under Apache-2.0.
+// Copyright 2026 Damien Stevens and contributors. Licensed under Apache-2.0.
 
 //go:build darwin
 
@@ -6,6 +6,7 @@ package safestorage
 
 import (
 	"bytes"
+	"context"
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/pbkdf2"
@@ -17,6 +18,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"time"
 )
 
 // Layer-1 constants match Electron's safeStorage v10 envelope (Chromium OSCrypt).
@@ -121,7 +123,9 @@ func loadDEK() ([]byte, error) {
 // the plan); the alternative is a CGO Security.framework call where the
 // ACL grant attaches to granola-pp-cli specifically.
 func fetchKeychainEntry() (string, error) {
-	cmd := exec.Command("/usr/bin/security", "find-generic-password",
+	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+	defer cancel()
+	cmd := exec.CommandContext(ctx, "/usr/bin/security", "find-generic-password",
 		"-s", keychainSvc,
 		"-a", keychainAcct,
 		"-w")
@@ -129,6 +133,9 @@ func fetchKeychainEntry() (string, error) {
 	cmd.Stderr = &stderr
 	out, err := cmd.Output()
 	if err != nil {
+		if ctx.Err() == context.DeadlineExceeded {
+			return "", fmt.Errorf("%w: Keychain access timed out after 15s; approve the Granola Safe Storage prompt or use a token override for headless/agent runs", ErrKeyUnavailable)
+		}
 		msg := strings.TrimSpace(stderr.String())
 		if strings.Contains(msg, "could not be found") || strings.Contains(msg, "errSecItemNotFound") {
 			return "", fmt.Errorf("%w: Keychain entry %q / %q not found (sign in to Granola desktop first)", ErrKeyUnavailable, keychainSvc, keychainAcct)

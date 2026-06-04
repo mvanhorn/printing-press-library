@@ -151,8 +151,8 @@ func newWatchlistListCmd(flags *rootFlags) *cobra.Command {
 	var dbPath string
 
 	cmd := &cobra.Command{
-		Use:   "list",
-		Short: "List all watched items",
+		Use:         "list",
+		Short:       "List all watched items",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {
@@ -226,9 +226,9 @@ func newWatchlistCheckCmd(flags *rootFlags) *cobra.Command {
 	var dbPath string
 
 	cmd := &cobra.Command{
-		Use:   "check",
-		Short: "Check for new activity on watched items",
-		Long:  `Query each watched item for records newer than the last check time, then update the timestamp.`,
+		Use:         "check",
+		Short:       "Check for new activity on watched items",
+		Long:        `Query each watched item for records newer than the last check time, then update the timestamp.`,
 		Annotations: map[string]string{"mcp:read-only": "false"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {

@@ -1,0 +1,51 @@
+version: 2
+project_name: defillama-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: defillama-pp-cli
+    main: ./cmd/defillama-pp-cli
+    binary: defillama-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/other/defillama/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: defillama-pp-mcp
+    main: ./cmd/defillama-pp-mcp
+    binary: defillama-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: defillama-pp-cli
+    repository:
+      owner: kierandotai
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "DefiLlama offers two ways to use our data with AI:"
+    install: |
+      bin.install "defillama-pp-cli"
+      bin.install "defillama-pp-mcp"

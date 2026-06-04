@@ -2,8 +2,8 @@
   "manifest_version": "0.3",
   "name": "substack-pp-mcp",
   "display_name": "Substack",
-  "version": "4.2.0",
-  "description": "Run your Substack growth loop from the terminal — publish, schedule, engage, and measure with cross-table joins no single Substack API call can.",
+  "version": "4.19.0",
+  "description": "Run your Substack growth loop from the command line — publish, schedule, engage, and measure with cross-table joins no single Substack API call can.",
   "author": {
     "name": "CLI Printing Press"
   },

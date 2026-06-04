@@ -1,4 +1,4 @@
-// Copyright 2026 rob-coco. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Rob Zehner and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // Per-feature behavioral acceptance tests for the 12 transcendence
 // commands. Each test seeds an in-memory SQLite store with the exact data
@@ -17,8 +17,8 @@ import (
 	"testing"
 	"time"
 
-	_ "modernc.org/sqlite"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/spotify/internal/store"
+	_ "modernc.org/sqlite"
 )
 
 // newTestStore creates a fresh in-memory SQLite store with the

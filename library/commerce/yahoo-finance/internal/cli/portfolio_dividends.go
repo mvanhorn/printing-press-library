@@ -1,4 +1,4 @@
-// Copyright 2026 charles-garrison. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Trevin Chow and contributors. Licensed under Apache-2.0. See LICENSE.
 // Novel feature: portfolio dividends. Computes dividend income and
 // yield-on-cost from local portfolio lots + synced dividend rows.
 

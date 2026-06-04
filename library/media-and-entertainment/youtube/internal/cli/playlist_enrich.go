@@ -1,4 +1,4 @@
-// Copyright 2026 justinwfu. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Justin and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // PATCH(amend-20260523: novel command) — collapses the playlistItems.list ->
 // videos.list -> per-video transcript workflow into one call with bounded

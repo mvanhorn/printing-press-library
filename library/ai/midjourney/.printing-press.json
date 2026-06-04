@@ -5,6 +5,10 @@
   "api_name": "midjourney",
   "display_name": "Midjourney",
   "cli_name": "midjourney-pp-cli",
+  "creator": {
+    "handle": "dave-agent-cerebro",
+    "name": "Dave Fano"
+  },
   "owner": "mvanhorn",
   "printer": "dave-agent-cerebro",
   "printer_name": "Dave Fano",

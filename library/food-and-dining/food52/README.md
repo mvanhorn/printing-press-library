@@ -6,6 +6,8 @@ Every recipe and article on Food52, queryable without a browser. Ships with `pan
 
 Learn more at [Food52](https://food52.com).
 
+Created by [@tmchow](https://github.com/tmchow) (Trevin Chow).
+
 ## Install
 
 The recommended path installs both the `food52-pp-cli` binary and the `pp-food52` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

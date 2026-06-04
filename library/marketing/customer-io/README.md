@@ -4,6 +4,8 @@
 
 The official customerio/cli exposes the API as raw passthrough. This CLI gives you typed commands for every meaningful workflow, plus eight commands no other tool has — journey funnels cross-cut by segment, multi-segment overlap, customer 360 timelines, broadcast pre-flight, suppression audit trails, Reverse-ETL health, bulk suppress with provenance, and incident-ready delivery triage bundles. It is also the only Customer.io tool that ships an MCP server.
 
+Created by [@tmchow](https://github.com/tmchow) (Trevin Chow).
+
 ## Install
 
 The recommended path installs both the `customer-io-pp-cli` binary and the `pp-customer-io` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

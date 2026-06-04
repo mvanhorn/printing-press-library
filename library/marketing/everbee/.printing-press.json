@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-31T18:22:17.573434Z",
+  "printing_press_version": "4.19.0",
+  "api_name": "everbee",
+  "display_name": "EverBee",
+  "cli_name": "everbee-pp-cli",
+  "creator": {
+    "handle": "horknfbr",
+    "name": "horknfbr"
+  },
+  "owner": "horknfbr",
+  "printer": "horknfbr",
+  "printer_name": "horknfbr",
+  "spec_path": "everbee-browser-sniff-spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:fa99c6a38da9caac55c8ace0b18a55229d8fe44eb57294a40a047aecd39dfdd4",
+  "run_id": "20260522-153448",
+  "category": "marketing",
+  "description": "Research Etsy products, shops, and keywords from EverBee in a repeatable agent-ready workflow.",
+  "mcp_binary": "everbee-pp-mcp",
+  "mcp_tool_count": 5,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "EVERBEE_ACCESS_TOKEN"
+  ],
+  "novel_features": [
+    {
+      "name": "Opportunity Shortlist",
+      "command": "opportunity shortlist",
+      "description": "Rank Etsy product opportunities by combining product analytics, keyword demand, competition, and local trend history."
+    },
+    {
+      "name": "Niche Score",
+      "command": "niche score",
+      "description": "Score a niche by weighing search demand, competition, product saturation, pricing, and trend movement."
+    },
+    {
+      "name": "Shop Gaps",
+      "command": "shop gaps",
+      "description": "Find competitor shop openings from product mix, pricing bands, tags, and keyword coverage."
+    },
+    {
+      "name": "Tag Gap",
+      "command": "tags gap",
+      "description": "Compare winning listing tags against a target shop or keyword set to reveal missing SEO coverage."
+    },
+    {
+      "name": "Keyword Clusters",
+      "command": "keywords cluster",
+      "description": "Group related keyword suggestions by term overlap, demand, competition, and opportunity score."
+    },
+    {
+      "name": "Trend Diff",
+      "command": "trends diff",
+      "description": "Compare saved research snapshots to show which products, shops, or keywords moved over time."
+    },
+    {
+      "name": "Competitor Watch",
+      "command": "competitors watch",
+      "description": "Detect competitor changes in top products, price bands, and tags across saved shop snapshots."
+    },
+    {
+      "name": "Listing Audit",
+      "command": "listing audit",
+      "description": "Audit a listing's keyword and tag fit using EverBee-derived product and keyword context."
+    }
+  ]
+}

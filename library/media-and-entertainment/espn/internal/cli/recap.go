@@ -12,9 +12,9 @@ func newRecapCmd(flags *rootFlags) *cobra.Command {
 	var eventID string
 
 	cmd := &cobra.Command{
-		Use:   "recap <sport> <league>",
+		Use:         "recap <sport> <league>",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short: "Game recap with box score and leaders",
+		Short:       "Game recap with box score and leaders",
 		Example: `  espn-pp-cli recap football nfl --event 401547417
   espn-pp-cli recap basketball nba --event 401584793 --json`,
 		RunE: func(cmd *cobra.Command, args []string) error {

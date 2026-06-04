@@ -1,4 +1,4 @@
-// Copyright 2026 nathan-kettles. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Nathan Kettles and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // Package cliutil provides shared helpers used across generated CLI commands.
 package cliutil

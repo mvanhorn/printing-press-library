@@ -1,7 +1,8 @@
 {
   "dir": "\u003ccli-dir\u003e/tenderned",
   "spec_path": "\u003ccli-dir\u003e/spec.yaml",
-  "verdict": "PASS",
+  "spec_source": "bundled",
+  "verdict": "FAIL",
   "path_check": {
     "tested": 0,
     "valid": 0,
@@ -13,37 +14,61 @@
     "spec_scheme": "",
     "generated_format": "unknown",
     "match": true,
-    "detail": "spec not provided or no bot/bearer/basic scheme detected"
+    "detail": "no bot/bearer/basic scheme detected"
   },
   "browser_session_check": {
     "required": false,
     "pass": true,
     "detail": "browser-session auth not required"
   },
+  "oauth_scope_coverage_check": {
+    "checked": 0,
+    "covered": 0,
+    "skipped": true,
+    "detail": "no OAuth-scoped endpoints in spec"
+  },
   "dead_flags": {
-    "total": 18,
+    "total": 19,
     "dead": 0
   },
   "dead_functions": {
-    "total": 57,
+    "total": 63,
     "dead": 0
   },
   "pipeline_check": {
     "sync_calls_domain": true,
     "search_calls_domain": false,
     "domain_tables": 1,
+    "sync_file_emitted": true,
+    "sync_resources_present": true,
     "detail": "sync uses domain-specific Upsert methods; search uses generic Search only; 1 domain tables found"
   },
   "example_check": {
-    "tested": 10,
-    "with_examples": 10,
-    "valid_examples": 10,
-    "detail": "10/10 commands have examples"
+    "tested": 8,
+    "with_examples": 8,
+    "valid_examples": 8,
+    "detail": "8/8 commands have examples"
   },
   "wiring_check": {
     "command_tree": {
       "defined": 50,
-      "registered": 50
+      "registered": 36,
+      "unregistered": [
+        "awards",
+        "buyer",
+        "concentration",
+        "cpv-drift",
+        "deadline",
+        "deadline-heat",
+        "grep",
+        "leads",
+        "ted-link",
+        "thread",
+        "top",
+        "velocity",
+        "watch",
+        "xml"
+      ]
     },
     "config_consistency": {
       "consistent": true
@@ -56,8 +81,9 @@
     }
   },
   "novel_features_check": {
-    "planned": 12,
-    "found": 12
+    "planned": 0,
+    "found": 0,
+    "skipped": true
   },
   "mcp_surface_parity": {
     "state": "runtime_walking",
@@ -65,21 +91,28 @@
     "detail": "MCP surface mirrors the Cobra tree at runtime"
   },
   "reimplementation_check": {
-    "checked": 12,
-    "exempted_via_store": 12
+    "checked": 0,
+    "exempted_via_store": 0,
+    "skipped": true
   },
   "source_client_check": {
     "checked": 0,
     "skipped": true
   },
   "print_json_filtered_check": {
-    "checked": 39
+    "checked": 40
   },
   "test_presence": {
     "checked": 0
   },
   "naming_check": {
-    "checked": 39
+    "checked": 40
   },
-  "issues": null
+  "sync_param_drop_check": {
+    "checked": 0,
+    "skipped": true
+  },
+  "issues": [
+    "14 unregistered commands: awards, buyer, concentration, cpv-drift, deadline, deadline-heat, grep, leads, ted-link, thread, top, velocity, watch, xml"
+  ]
 }

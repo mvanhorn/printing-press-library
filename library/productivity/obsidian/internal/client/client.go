@@ -1,4 +1,4 @@
-// Copyright 2026 drdriftwood. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Angelo Pullen and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // Package client wraps the local Obsidian CLI (`obsidian`, v1.12+) as a
 // virtual REST client. V1 is read-only: every Get* call dispatches to

@@ -1,0 +1,9 @@
+{
+  "timestamp": "2026-05-13T01:04:51.116729Z",
+  "cli_dir": "\u003ccli-dir\u003e/superhuman-pp-cli",
+  "findings": null,
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-05-13T01:04:51.11673Z"
+  }
+}

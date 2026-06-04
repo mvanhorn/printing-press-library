@@ -1,4 +1,4 @@
-// Copyright 2026 stanrails. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 stanrails and contributors. Licensed under Apache-2.0. See LICENSE.
 
 package cli
 
@@ -11,9 +11,9 @@ import (
 	"text/tabwriter"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/travel/visit-detroit-blog/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/travel/visit-detroit-blog/internal/store"
+	"github.com/spf13/cobra"
 )
 
 const blogResource = "blogs"

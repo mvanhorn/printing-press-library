@@ -5,6 +5,10 @@
   "api_name": "stripe",
   "display_name": "Stripe",
   "cli_name": "stripe-pp-cli",
+  "creator": {
+    "handle": "crodorg",
+    "name": "Chris Rodriguez"
+  },
   "owner": "chris-rodriguez",
   "printer_name": "Chris Rodriguez",
   "spec_format": "openapi3",

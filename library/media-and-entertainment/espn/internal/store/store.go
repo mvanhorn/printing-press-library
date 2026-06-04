@@ -4,6 +4,7 @@
 package store
 
 import (
+	"context"
 	"database/sql"
 	"encoding/json"
 	"fmt"
@@ -11,6 +12,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
+	"sync"
 	"time"
 
 	_ "modernc.org/sqlite"
@@ -23,25 +25,45 @@ func IsUUID(s string) bool {
 	return uuidPattern.MatchString(s)
 }
 
+// StoreSchemaVersion is the on-disk schema version this binary understands.
+// It is stamped into SQLite's PRAGMA user_version on fresh databases and
+// checked on every open. Learn-enabled CLIs advance to v6 for the
+// canonical learn-loop tables ported from prediction-goat.
+const StoreSchemaVersion = 6
+
 type Store struct {
-	db   *sql.DB
-	path string
+	db *sql.DB
+	// writeMu serializes all DB writes. Read paths bypass the lock and run
+	// concurrently against WAL.
+	writeMu sync.Mutex
+	path    string
 }
 
+// Open opens or creates the SQLite store at dbPath using the background
+// context. Prefer OpenWithContext from a Cobra command so SIGINT during
+// a slow migration interrupts the open instead of stranding the caller.
 func Open(dbPath string) (*Store, error) {
+	return OpenWithContext(context.Background(), dbPath)
+}
+
+// OpenWithContext opens or creates the SQLite store at dbPath. The
+// context is honored by the migration path.
+func OpenWithContext(ctx context.Context, dbPath string) (*Store, error) {
 	if err := os.MkdirAll(filepath.Dir(dbPath), 0o755); err != nil {
 		return nil, fmt.Errorf("creating db directory: %w", err)
 	}
 
-	db, err := sql.Open("sqlite", dbPath+"?_journal_mode=WAL&_synchronous=NORMAL&_busy_timeout=5000&_foreign_keys=ON&_temp_store=MEMORY&_mmap_size=268435456")
+	db, err := sql.Open("sqlite", dbPath+"?_pragma=journal_mode(WAL)&_pragma=synchronous(NORMAL)&_pragma=busy_timeout(5000)&_pragma=foreign_keys(ON)&_pragma=temp_store(MEMORY)&_pragma=mmap_size(268435456)")
 	if err != nil {
 		return nil, fmt.Errorf("opening database: %w", err)
 	}
 
-	db.SetMaxOpenConns(1)
+	// WAL mode + 2 connections allows one read cursor open while a second
+	// query executes. Writes are still serialized by SQLite's WAL lock.
+	db.SetMaxOpenConns(2)
 
 	s := &Store{db: db, path: dbPath}
-	if err := s.migrate(); err != nil {
+	if err := s.migrate(ctx); err != nil {
 		db.Close()
 		return nil, fmt.Errorf("running migrations: %w", err)
 	}
@@ -53,7 +75,29 @@ func (s *Store) Close() error {
 	return s.db.Close()
 }
 
-func (s *Store) migrate() error {
+// Path returns the on-disk path of the backing SQLite file.
+func (s *Store) Path() string {
+	return s.path
+}
+
+// DB exposes the underlying *sql.DB for callers that need to run ad-hoc
+// queries (e.g., learn-loop helpers). Callers must not call Close on the
+// returned handle.
+func (s *Store) DB() *sql.DB {
+	return s.db
+}
+
+// SchemaVersion reads PRAGMA user_version, which is stamped by migrate().
+// A zero value means the database predates the schema-version gate.
+func (s *Store) SchemaVersion() (int, error) {
+	var v int
+	if err := s.db.QueryRow(`PRAGMA user_version`).Scan(&v); err != nil {
+		return 0, fmt.Errorf("read user_version: %w", err)
+	}
+	return v, nil
+}
+
+func (s *Store) migrate(ctx context.Context) error {
 	migrations := []string{
 		// Generic resources table (kept for backward compat)
 		`CREATE TABLE IF NOT EXISTS resources (
@@ -222,14 +266,283 @@ func (s *Store) migrate() error {
 			data JSON NOT NULL,
 			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
 		)`,
+
+		// CLI Printing Press: learn migrations
+		//
+		// search_learnings: LLM-driven per-query reranking. Populated by
+		// the `teach` command (silent, backgrounded by the LLM after a
+		// successful response) and read by the rerank layer to
+		// boost/hide/alias hits on subsequent queries. See learnings.go
+		// for the full semantics. Per-user table; stays small.
+		//
+		// query_entities: JSON array of case-preserving entity tokens
+		// extracted from query_pattern at teach time. Used by the recall
+		// match validator to reject cross-entity matches that would
+		// otherwise score high on non-entity Jaccard.
+		`CREATE TABLE IF NOT EXISTS search_learnings (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			query_pattern TEXT NOT NULL,
+			query_entities TEXT,
+			venue TEXT,
+			resource_type TEXT,
+			resource_id TEXT NOT NULL,
+			action TEXT NOT NULL,
+			alias_target TEXT,
+			source TEXT NOT NULL,
+			confidence INTEGER DEFAULT 1,
+			created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+			last_observed_at DATETIME,
+			notes TEXT
+		)`,
+		`CREATE INDEX IF NOT EXISTS idx_learn_query ON search_learnings(query_pattern)`,
+		`CREATE UNIQUE INDEX IF NOT EXISTS idx_learn_unique ON search_learnings(query_pattern, resource_id, action)`,
+		// entity_lookups: canonical-to-value reference data for the
+		// pattern substitution engine in internal/learn/patterns. Seeded
+		// at migration time by the consumer (e.g., a CLI may register
+		// country codes, sports team abbreviations, etc.); per-user
+		// additions land via the `teach-lookup` CLI command with
+		// source='taught'. PK is the (kind, canonical, value) triple so
+		// multiple aliases under the same kind coexist without
+		// collision.
+		`CREATE TABLE IF NOT EXISTS entity_lookups (
+			kind TEXT NOT NULL,
+			canonical TEXT NOT NULL,
+			value TEXT NOT NULL,
+			source TEXT NOT NULL DEFAULT 'seeded',
+			created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+			PRIMARY KEY (kind, canonical, value)
+		)`,
+		`CREATE INDEX IF NOT EXISTS idx_entity_lookup_canonical ON entity_lookups(canonical)`,
+		`CREATE INDEX IF NOT EXISTS idx_entity_lookup_kind ON entity_lookups(kind)`,
+		// search_patterns: inferred and taught templates for the
+		// generalization layer in internal/learn/patterns. Each row
+		// encodes a query_template with one {entity[:kind]} slot and a
+		// resource_template that names how the entity substitutes into
+		// the resource ID. Extract() writes "inferred" rows whenever
+		// two or more search_learnings rows share a structural shape;
+		// the teach-pattern CLI command writes "taught" rows directly
+		// for explicit template authorship.
+		//
+		// Idempotency leans on idx_patterns_unique: a re-Extract pass
+		// over the same source learnings re-asserts the same
+		// (query_template, resource_template, strategy) triple, which
+		// bumps confidence and refreshes last_observed_at on the
+		// existing row rather than spawning a duplicate.
+		`CREATE TABLE IF NOT EXISTS search_patterns (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			query_template TEXT NOT NULL,
+			resource_template TEXT NOT NULL,
+			resource_type TEXT NOT NULL,
+			venue TEXT,
+			strategy TEXT NOT NULL,
+			entity_kind TEXT NOT NULL,
+			confidence INTEGER NOT NULL DEFAULT 2,
+			source TEXT NOT NULL,
+			created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+			last_observed_at DATETIME,
+			example_query TEXT,
+			example_resource TEXT
+		)`,
+		`CREATE INDEX IF NOT EXISTS idx_patterns_query_template ON search_patterns(query_template)`,
+		`CREATE UNIQUE INDEX IF NOT EXISTS idx_patterns_unique ON search_patterns(query_template, resource_template, strategy)`,
+		// learning_playbooks: keyed on the structural query family (all
+		// entities stripped, see learn.queryFamily). One row per family
+		// holds the optional structured playbook (ordered CLI command
+		// sequence with entity slots) and the optional free-text notes
+		// (gotchas, workarounds the CLI surface doesn't expose). Either
+		// field may be empty; non-empty in both is the strongest signal.
+		//
+		// Read at recall time by query_family; surfaces to the agent
+		// alongside the existing per-resource hits so a future inquiry
+		// of the same shape can skip rediscovery of the choreography.
+		`CREATE TABLE IF NOT EXISTS learning_playbooks (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			query_family TEXT NOT NULL,
+			playbook_json TEXT,
+			notes_text TEXT,
+			source TEXT NOT NULL DEFAULT 'taught',
+			confidence INTEGER NOT NULL DEFAULT 2,
+			created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+			last_observed_at DATETIME
+		)`,
+		`CREATE UNIQUE INDEX IF NOT EXISTS idx_playbooks_family ON learning_playbooks(query_family)`,
 	}
 
-	for _, m := range migrations {
-		if _, err := s.db.Exec(m); err != nil {
+	// Two-pass migration. Pass 1: CREATE TABLE IF NOT EXISTS statements
+	// only — these are idempotent (no-op on existing tables, create
+	// fresh on first install). Pass 2 (interleaved): reconcile each
+	// existing table's columns against canonical via ALTER TABLE ADD
+	// COLUMN, so subsequent index creation against newer columns
+	// doesn't fail on stale user DBs. Pass 3: remaining migrations
+	// (indexes, virtual tables) — now safe to run.
+	createTables, others := partitionCreateTableStatements(migrations)
+	for _, m := range createTables {
+		if _, err := s.db.ExecContext(ctx, m); err != nil {
 			return fmt.Errorf("migration failed: %w", err)
 		}
 	}
+	if err := s.reconcileSchema(ctx, createTables); err != nil {
+		return fmt.Errorf("reconcile schema: %w", err)
+	}
+	for _, m := range others {
+		if _, err := s.db.ExecContext(ctx, m); err != nil {
+			return fmt.Errorf("migration failed: %w", err)
+		}
+	}
+	// Stamp the schema version. On a fresh DB this writes the current
+	// StoreSchemaVersion; on an already-stamped DB this is a no-op
+	// write of the same value.
+	if _, err := s.db.ExecContext(ctx, fmt.Sprintf(`PRAGMA user_version = %d`, StoreSchemaVersion)); err != nil {
+		return fmt.Errorf("stamp user_version: %w", err)
+	}
 	return nil
+}
+
+// partitionCreateTableStatements splits a flat migrations slice into
+// CREATE TABLE statements (which establish column shape and can no-op
+// on existing tables) and everything else (CREATE INDEX, CREATE VIRTUAL
+// TABLE, etc.). Order within each partition is preserved; CREATE
+// VIRTUAL TABLE goes into the "others" bucket because it doesn't
+// participate in column-shape reconciliation.
+func partitionCreateTableStatements(migrations []string) (createTables, others []string) {
+	for _, m := range migrations {
+		stripped := strings.TrimLeftFunc(m, func(r rune) bool {
+			return r == ' ' || r == '\t' || r == '\n'
+		})
+		upper := strings.ToUpper(stripped)
+		if strings.HasPrefix(upper, "CREATE TABLE ") || strings.HasPrefix(upper, "CREATE TABLE\n") || strings.HasPrefix(upper, "CREATE TABLE\t") {
+			createTables = append(createTables, m)
+		} else {
+			others = append(others, m)
+		}
+	}
+	return createTables, others
+}
+
+// reconcileSchema heals stale-schema user DBs by adding canonical
+// columns that are missing. The canonical column shape is derived
+// from the SAME migration list passed in (running the CREATE TABLE
+// statements against an in-memory SQLite DB) — so any future column
+// addition to a CREATE TABLE statement automatically flows into
+// reconciliation without a separate declaration to keep in sync.
+//
+// SQLite limitations honored:
+//   - PRIMARY KEY columns cannot be added via ALTER. If a canonical
+//     PK column is missing on disk, return an error explaining the
+//     user can recover by removing the DB file.
+//   - NOT NULL columns without defaults will fail at ALTER time if
+//     the table has rows. The error message is propagated as-is.
+//
+// Forward-compatible: columns present on disk but not in canonical
+// are left alone (no DROP COLUMN). Type-mismatched columns aren't
+// auto-repaired — destructive repair belongs to the operator, not
+// the migration.
+func (s *Store) reconcileSchema(ctx context.Context, createTables []string) error {
+	canon, err := sql.Open("sqlite", ":memory:")
+	if err != nil {
+		return fmt.Errorf("open canonical reference: %w", err)
+	}
+	defer canon.Close()
+	for _, m := range createTables {
+		if _, err := canon.ExecContext(ctx, m); err != nil {
+			return fmt.Errorf("canonical reference build: %w", err)
+		}
+	}
+	canonRows, err := canon.QueryContext(ctx, `SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'`)
+	if err != nil {
+		return fmt.Errorf("list canonical tables: %w", err)
+	}
+	var canonicalTables []string
+	for canonRows.Next() {
+		var name string
+		if err := canonRows.Scan(&name); err != nil {
+			canonRows.Close()
+			return fmt.Errorf("scan canonical table: %w", err)
+		}
+		canonicalTables = append(canonicalTables, name)
+	}
+	if err := canonRows.Err(); err != nil {
+		canonRows.Close()
+		return fmt.Errorf("iterate canonical tables: %w", err)
+	}
+	canonRows.Close()
+	for _, table := range canonicalTables {
+		var userTableName string
+		err := s.db.QueryRowContext(ctx, `SELECT name FROM sqlite_master WHERE type='table' AND name=?`, table).Scan(&userTableName)
+		if err == sql.ErrNoRows {
+			continue
+		}
+		if err != nil {
+			return fmt.Errorf("check user table %s: %w", table, err)
+		}
+		canonCols, err := pragmaColumns(ctx, canon, table)
+		if err != nil {
+			return fmt.Errorf("canonical columns for %s: %w", table, err)
+		}
+		userCols, err := pragmaColumns(ctx, s.db, table)
+		if err != nil {
+			return fmt.Errorf("user columns for %s: %w", table, err)
+		}
+		for _, col := range canonCols {
+			if _, present := userCols[col.name]; present {
+				continue
+			}
+			if col.pk {
+				return fmt.Errorf("table %s on disk is missing canonical primary-key column %s; SQLite cannot add a primary key via ALTER TABLE. Remove %s to start with a fresh DB", table, col.name, s.path)
+			}
+			alter := fmt.Sprintf(`ALTER TABLE %s ADD COLUMN %s %s`, table, col.name, col.spec)
+			if _, err := s.db.ExecContext(ctx, alter); err != nil {
+				return fmt.Errorf("reconcile %s.%s: %w (consider removing %s if recovery is acceptable)", table, col.name, err, s.path)
+			}
+		}
+	}
+	return nil
+}
+
+// colInfo captures the shape of a column as PRAGMA table_info reports
+// it. spec is the ALTER-suitable type + nullability + default fragment
+// (e.g., "INTEGER NOT NULL DEFAULT 0" or "TEXT"); pk is true when the
+// column is part of the table's primary key.
+type colInfo struct {
+	name string
+	spec string
+	pk   bool
+}
+
+// pragmaColumns returns a name->colInfo map for the given table using
+// PRAGMA table_info. The map is suitable for diffing two schemas:
+// missing keys in one direction are columns to add (with ALTER), missing
+// keys in the other direction are columns the operator added and we
+// should leave alone (forward-compat).
+func pragmaColumns(ctx context.Context, db *sql.DB, table string) (map[string]colInfo, error) {
+	rows, err := db.QueryContext(ctx, `PRAGMA table_info(`+table+`)`)
+	if err != nil {
+		return nil, fmt.Errorf("pragma table_info(%s): %w", table, err)
+	}
+	defer rows.Close()
+	out := make(map[string]colInfo)
+	for rows.Next() {
+		var cid int
+		var name, typ string
+		var notnull int
+		var dflt sql.NullString
+		var pk int
+		if err := rows.Scan(&cid, &name, &typ, &notnull, &dflt, &pk); err != nil {
+			return nil, fmt.Errorf("scan pragma row: %w", err)
+		}
+		spec := typ
+		if notnull == 1 {
+			spec += " NOT NULL"
+		}
+		if dflt.Valid {
+			spec += " DEFAULT " + dflt.String
+		}
+		out[name] = colInfo{name: name, spec: spec, pk: pk > 0}
+	}
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("iterate pragma table_info(%s): %w", table, err)
+	}
+	return out, nil
 }
 
 // ── Domain Upsert Methods ──

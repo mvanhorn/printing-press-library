@@ -1,4 +1,4 @@
-// Copyright 2026 matt-van-horn. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Matt Van Horn and contributors. Licensed under Apache-2.0. See LICENSE.
 
 package cli
 
@@ -18,9 +18,9 @@ import (
 // stub message so the user can ignore the command without noise.
 func newGroupsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "groups",
+		Use:         "groups",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short: "List your Happenstance groups (hpn-CLI parity, not in sniffed spec)",
+		Short:       "List your Happenstance groups (hpn-CLI parity, not in sniffed spec)",
 		Long: `List your Happenstance groups.
 
 Note: this endpoint is not in the sniffed OpenAPI spec — it is a best-effort
@@ -44,9 +44,9 @@ command will report that the endpoint is still a stub.`,
 
 func newGroupsGetCmd(flags *rootFlags) *cobra.Command {
 	return &cobra.Command{
-		Use:   "get <id>",
+		Use:         "get <id>",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short: "Get details for a single Happenstance group by id",
+		Short:       "Get details for a single Happenstance group by id",
 		Example: `  contact-goat-pp-cli groups get grp_abc123
   contact-goat-pp-cli groups get grp_abc123 --json`,
 		Args: cobra.ExactArgs(1),

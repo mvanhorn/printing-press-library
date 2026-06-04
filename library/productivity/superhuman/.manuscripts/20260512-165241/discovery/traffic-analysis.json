@@ -1,0 +1,24 @@
+{
+  "api_name": "superhuman",
+  "reachability": {
+    "mode": "standard_http",
+    "evidence": "Authenticated GET/POST to https://mail.superhuman.com/~backend/v3/* returns 200 with Bearer JWT. No Cloudflare/WAF challenge observed. Probe returned cleanly with logged-in session."
+  },
+  "client_pattern": "dot-rpc",
+  "transport": "https",
+  "base_url": "https://mail.superhuman.com/~backend",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "scheme": "Bearer",
+    "token_source": "firebase_id_token",
+    "refresh_path": "via_cdp_or_securetoken_googleapis_com"
+  },
+  "quirks": [
+    "Content-Type is text/plain;charset=UTF-8 for /v3/userdata.* and /v3/ai.* (NOT JSON despite JSON body)",
+    "Content-Type is application/json for /v3/attachments.upload and /messages/send",
+    "/v3/userdata.getThreads rejects listId filter (Split-Inbox category filtering requires CDP)",
+    "AI question_event_id has a specific format: event_11V<rand4><userPrefix4><rand7> base62",
+    "draftId must be draft00 + exactly 14 hex chars"
+  ]
+}

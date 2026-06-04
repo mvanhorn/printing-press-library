@@ -2,7 +2,7 @@
 
 Public Atom API for searching and fetching arXiv e-print metadata.
 
-Printed by [@hiten-shah](https://github.com/hiten-shah) (Hiten Shah).
+Created by [@hnshah](https://github.com/hnshah) (Hiten Shah).
 
 ## Install
 

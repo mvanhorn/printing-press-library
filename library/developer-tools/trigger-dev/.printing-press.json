@@ -5,6 +5,10 @@
   "api_name": "trigger-dev",
   "display_name": "Trigger.dev",
   "cli_name": "trigger-dev-pp-cli",
+  "creator": {
+    "handle": "mvanhorn",
+    "name": "Matt Van Horn"
+  },
   "printer": "mvanhorn",
   "printer_name": "Matt Van Horn",
   "spec_format": "openapi3",

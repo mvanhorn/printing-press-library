@@ -65,6 +65,63 @@ If `--version` reports "command not found" after install, the install step did n
 - `amazon-seller-pp-cli reports get` — Get one report by report ID. This is the manual polling endpoint for report processing status.
 - `amazon-seller-pp-cli reports list` — List reports. If nextToken is set, Amazon requires it to be the only query parameter; pass no other filters with...
 
+**inbound-plans** — Create and manage Fulfillment Inbound v2024-03-20 inbound plans.
+
+- `amazon-seller-pp-cli inbound-plans create --marketplace-id ATVPDKIKX0DER --source-address address.json --items items.csv --name "June FBA"` — Preview a createInboundPlan body from CSV/JSON input. **Write command:** pass `--yes` to send, `--dry-run` to render the HTTP request, and `--wait` to poll the returned operation.
+- `amazon-seller-pp-cli inbound-plans create --stdin` — Read Amazon's exact createInboundPlan JSON request body from stdin. **Write command:** pass `--yes` to send.
+- `amazon-seller-pp-cli inbound-plans status --operation-id <operationId> --wait` — Poll getInboundOperationStatus for asynchronous Fulfillment Inbound POST/PUT operations.
+- `amazon-seller-pp-cli inbound-plans get <inboundPlanId>` — Get one inbound plan.
+- `amazon-seller-pp-cli inbound-plans list --status ACTIVE --page-size 10` — List inbound plans.
+- `amazon-seller-pp-cli inbound-plans cancel <inboundPlanId> --yes` — Cancel an inbound plan. **Write command:** requires `--yes` unless `--dry-run` is set.
+- `amazon-seller-pp-cli inbound-plans packing generate --inbound-plan-id <id>` — Generate packing options. **Write command:** use `--dry-run` for request preview.
+- `amazon-seller-pp-cli inbound-plans packing list --inbound-plan-id <id>` — List packing options.
+- `amazon-seller-pp-cli inbound-plans packing confirm --inbound-plan-id <id> --option-id <packingOptionId> --yes` — Confirm a packing option. **Write command:** requires `--yes` unless `--dry-run` is set.
+- `amazon-seller-pp-cli inbound-plans packing set --inbound-plan-id <id> --body cartons.json --yes` — Set carton-level packing information. **Write command:** requires `--yes` unless `--dry-run` is set.
+- `amazon-seller-pp-cli inbound-plans placement generate --inbound-plan-id <id> --body placement.json` — Generate placement options, optionally with customPlacement JSON. **Write command:** pass `--yes` when providing a body to send instead of previewing.
+- `amazon-seller-pp-cli inbound-plans placement list --inbound-plan-id <id>` — List placement options.
+- `amazon-seller-pp-cli inbound-plans placement confirm --inbound-plan-id <id> --option-id <placementOptionId> --yes` — Confirm a placement option. **Write command:** requires `--yes` unless `--dry-run` is set.
+- `amazon-seller-pp-cli inbound-plans transportation generate --inbound-plan-id <id> --body transportation.json` — Generate transportation options from placement/shipment JSON. **Write command:** pass `--yes` when providing a body to send instead of previewing.
+- `amazon-seller-pp-cli inbound-plans transportation list --inbound-plan-id <id> --placement-option-id <placementOptionId>` — List transportation options.
+- `amazon-seller-pp-cli inbound-plans transportation confirm --inbound-plan-id <id> --body selections.json --yes` — Confirm transportation selections. **Write command:** requires `--yes` unless `--dry-run` is set.
+
+For CSV item input, use columns `msku,quantity,prepOwner,labelOwner,expiration,manufacturingLotCode`. For the US marketplace `ATVPDKIKX0DER`, the CLI warns when `prepOwner=AMAZON` or `labelOwner=AMAZON`, because Amazon says US FBA prep and item label services are no longer available starting January 1, 2026.
+
+**profitability** — Compute estimated SKU profitability from Amazon reports.
+
+- `amazon-seller-pp-cli profitability sku-pnl --marketplace-id ATVPDKIKX0DER --days 30` — Estimate per-SKU revenue, fees, storage cost, margin, and profit.
+- `amazon-seller-pp-cli profitability fee-breakdown --marketplace-id ATVPDKIKX0DER` — Show itemized estimated referral, FBA, closing, and total fee percentages.
+- `amazon-seller-pp-cli profitability settlement-reconciliation --marketplace-id ATVPDKIKX0DER --days 90` — Compare order revenue to completed settlement rows and flag discrepancies.
+- `amazon-seller-pp-cli profitability reimbursements --marketplace-id ATVPDKIKX0DER --days 90` — Aggregate reimbursements by SKU and reason.
+
+**inventory-intel** — Compute FBA inventory health, restock, aging, and fulfillment recommendations.
+
+- `amazon-seller-pp-cli inventory-intel health-score --marketplace-id ATVPDKIKX0DER` — Score inventory health per SKU.
+- `amazon-seller-pp-cli inventory-intel restock --marketplace-id ATVPDKIKX0DER --lead-time-days 14` — Estimate stockout timing and reorder quantities.
+- `amazon-seller-pp-cli inventory-intel stranded --marketplace-id ATVPDKIKX0DER` — Surface stranded inventory rows and recommended actions.
+- `amazon-seller-pp-cli inventory-intel aging --marketplace-id ATVPDKIKX0DER --warn-days 150` — Forecast long-term storage fee risk.
+- `amazon-seller-pp-cli inventory-intel fba-vs-fbm --marketplace-id ATVPDKIKX0DER --estimated-shipping-cost 5` — Compare estimated FBA vs FBM per-unit profit.
+
+**sales-intel** — Compute sales, traffic, conversion, velocity, and returns analytics.
+
+- `amazon-seller-pp-cli sales-intel dashboard --marketplace-id ATVPDKIKX0DER --days 30 --group-by date` — Summarize Sales and Traffic report metrics.
+- `amazon-seller-pp-cli sales-intel velocity --marketplace-id ATVPDKIKX0DER --days 60` — Detect SKU velocity trends and anomalies.
+- `amazon-seller-pp-cli sales-intel returns --marketplace-id ATVPDKIKX0DER --days 30` — Analyze return rate, reasons, and customer comments.
+- `amazon-seller-pp-cli sales-intel conversion-funnel --marketplace-id ATVPDKIKX0DER --days 30` — Diagnose traffic, buy-box, and conversion bottlenecks.
+
+**brand-analytics** — Compute Brand Registry search-term and basket insights.
+
+- `amazon-seller-pp-cli brand-analytics search-terms --marketplace-id ATVPDKIKX0DER --period WEEK` — Show search terms where tracked ASINs appear in top click positions.
+- `amazon-seller-pp-cli brand-analytics market-basket --marketplace-id ATVPDKIKX0DER --period WEEK` — Show products frequently purchased together with your ASINs.
+
+**listing-intel** — Audit listing defects and completeness from reports plus local listing data.
+
+- `amazon-seller-pp-cli listing-intel health-audit --marketplace-id ATVPDKIKX0DER` — Aggregate listing defect alerts and suppression signals.
+- `amazon-seller-pp-cli listing-intel catalog-completeness --marketplace-id ATVPDKIKX0DER --seller-id <seller>` — Score image, bullet, title, and A+ content completeness from local listing records.
+
+**account-health** — Summarize account-level listing, inventory, returns, and reimbursement health.
+
+- `amazon-seller-pp-cli account-health dashboard --marketplace-id ATVPDKIKX0DER` — Produce one dashboard with suppressed listings, stranded units, return rate, reimbursements, defect counts, and inventory grade summary.
+
 **sellers** — Verify seller authorization and list marketplace participations.
 
 - `amazon-seller-pp-cli sellers` — List marketplace participations for the authorized seller account.

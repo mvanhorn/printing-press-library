@@ -6,6 +6,8 @@ Use Sentry from scripts and agents without memorizing endpoint shapes. The CLI w
 
 Learn more at [Sentry](https://sentry.io).
 
+Created by [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
+
 ## Install
 
 The recommended path installs both the `sentry-pp-cli` binary and the `pp-sentry` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

@@ -1,0 +1,129 @@
+name: ankiweb
+description: "AnkiWeb CLI — search/download community shared decks and read your cloud-synced decks from the terminal"
+version: "0.1.0"
+base_url: "https://ankiweb.net"
+http_transport: standard
+health_check_path: "/shared/decks"
+required_headers:
+  - name: User-Agent
+    value: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
+
+# AnkiWeb uses an HttpOnly session cookie set on login at ankiweb.net.
+# The /svc/decks/* surface requires it; /svc/shared/* is public.
+# Responses are PROTOBUF (application/octet-stream) — decoded by hand-written
+# wire-format readers in internal/ (field maps reverse-engineered during browser-sniff).
+auth:
+  type: cookie
+  in: cookie
+  cookie_domain: ankiweb.net
+  env_vars:
+    - ANKIWEB_COOKIES
+
+config:
+  format: toml
+  path: "~/.config/ankiweb-pp-cli/config.toml"
+
+resources:
+  shared:
+    description: "Browse, search, and download public shared decks (no login required)"
+    endpoints:
+      search:
+        method: GET
+        path: "/svc/shared/list-decks"
+        no_auth: true
+        description: "Search the shared-deck catalog by keyword (protobuf response)"
+        params:
+          - name: search
+            type: string
+            required: true
+            description: "Search term (e.g. spanish, anatomy, MCAT). Empty returns nothing."
+        response:
+          type: array
+          item: SharedDeck
+      info:
+        method: GET
+        path: "/svc/shared/item-info"
+        no_auth: true
+        description: "Full detail + reviews for one shared deck (protobuf response)"
+        params:
+          - name: sharedId
+            flag_name: id
+            aliases: [shared-id]
+            type: string
+            required: true
+            positional: true
+            description: "Shared deck id (from search results)"
+        response:
+          type: object
+          item: SharedDeckInfo
+      download:
+        method: GET
+        path: "/svc/shared/download-deck/{sharedId}"
+        no_auth: true
+        description: "Download a shared deck .apkg. NOTE: requires a signed ?t= token minted client-side (op=sdd); without it the endpoint returns 400/503."
+        params:
+          - name: sharedId
+            flag_name: id
+            type: string
+            required: true
+            positional: true
+            description: "Shared deck id"
+          - name: t
+            type: string
+            required: false
+            description: "Signed download token (op=sdd JWT). Unresolved: minted by AnkiWeb's client JS."
+
+  decks:
+    description: "Your cloud-synced decks and study stats (requires AnkiWeb login)"
+    endpoints:
+      list:
+        method: POST
+        path: "/svc/decks/deck-list-info"
+        description: "List your synced decks with card counts and study stats (protobuf response; 200 with session cookie, 403 without)"
+        response:
+          type: array
+          item: MyDeck
+
+types:
+  SharedDeck:
+    fields:
+      - name: id
+        type: string
+      - name: title
+        type: string
+      - name: upvotes
+        type: int
+      - name: downvotes
+        type: int
+      - name: modified
+        type: int
+      - name: notes
+        type: int
+      - name: audio
+        type: int
+      - name: images
+        type: int
+  SharedDeckInfo:
+    fields:
+      - name: id
+        type: string
+      - name: title
+        type: string
+      - name: description
+        type: string
+      - name: upvotes
+        type: int
+      - name: downvotes
+        type: int
+      - name: modified
+        type: int
+      - name: notes
+        type: int
+  MyDeck:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+      - name: card_count
+        type: int

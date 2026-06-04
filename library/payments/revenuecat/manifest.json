@@ -1,0 +1,45 @@
+{
+  "manifest_version": "0.3",
+  "name": "revenuecat-pp-mcp",
+  "display_name": "RevenueCat",
+  "version": "4.19.0",
+  "description": "Every RevenueCat v2 endpoint, plus a local database, offline search, and revenue/churn/refund intelligence the dashboard charts can't compose.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/revenuecat-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/revenuecat-pp-mcp",
+      "args": [],
+      "env": {
+        "DEVELOPER_BEARER_AUTH": "${user_config.developer_bearer_auth}",
+        "REVENUECAT_API_KEY": "${user_config.revenuecat_api_key}"
+      }
+    }
+  },
+  "user_config": {
+    "developer_bearer_auth": {
+      "type": "string",
+      "title": "DEVELOPER_BEARER_AUTH",
+      "description": "Optional. Sets DEVELOPER_BEARER_AUTH for the RevenueCat MCP server.",
+      "sensitive": true
+    },
+    "revenuecat_api_key": {
+      "type": "string",
+      "title": "REVENUECAT_API_KEY",
+      "description": "Optional. Sets REVENUECAT_API_KEY for the RevenueCat MCP server.",
+      "sensitive": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

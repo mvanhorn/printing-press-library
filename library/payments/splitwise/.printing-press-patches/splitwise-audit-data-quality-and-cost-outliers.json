@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "splitwise-audit-data-quality-and-cost-outliers",
+  "applied_at": "2026-05-30",
+  "base_run_id": "20260528-002755",
+  "base_printing_press_version": "4.19.0",
+  "summary": "Add an audit command that scans synced expenses for likely duplicates and per-category cost outliers.",
+  "reason": "Splitwise has no built-in data-quality check, so double-entered charges (repeated identical 'Settle all balances' rows) and anomalous expenses go unnoticed. audit reads the local expense store (skipping payments and deleted expenses), clusters exact duplicates by normalized description + cost + date + group, and flags per-category cost outliers using a two-sided robust modified z-score (|z| > 3.5 vs. category median/MAD; flags items far above OR below the median, only for categories with >= 5 samples). Read-only; --limit caps findings per type.",
+  "files": [
+    "internal/cli/splitwise_audit.go",
+    "internal/cli/splitwise_audit_test.go",
+    "internal/cli/root.go"
+  ],
+  "validated_outcome": "go build/vet/test pass; runAudit unit tests cover duplicate clustering with description normalization, cost-outlier detection, normal-expense exclusion, small-category skip, and payment/deleted exclusion; verify-skill passes; audit --agent ran against a live 113-expense store and surfaced real outliers."
+}

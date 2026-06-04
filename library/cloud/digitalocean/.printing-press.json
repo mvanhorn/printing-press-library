@@ -5,6 +5,10 @@
   "api_name": "digitalocean",
   "display_name": "DigitalOcean",
   "cli_name": "digitalocean-pp-cli",
+  "creator": {
+    "handle": "hnshah",
+    "name": "Hiten Shah"
+  },
   "owner": "hiten-shah",
   "printer_name": "Hiten Shah",
   "spec_path": "/Users/bobshah/printing-press/.runstate/cli-printing-press-a236dae8/runs/20260509T153152Z-d4554011/research/openapi.yaml",

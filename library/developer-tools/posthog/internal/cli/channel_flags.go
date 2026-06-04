@@ -1,4 +1,4 @@
-// Copyright 2026 riteshtiwari. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 riteshtiwari and contributors. Licensed under Apache-2.0. See LICENSE.
 
 package cli
 
@@ -10,8 +10,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/posthog/internal/store"
+	"github.com/spf13/cobra"
 )
 
 func newFlagsCmd(flags *rootFlags) *cobra.Command {
@@ -38,7 +38,7 @@ func newFlagsBlastRadiusCmd(flags *rootFlags) *cobra.Command {
 		Use:         "blast-radius",
 		Short:       "Find every insight, dashboard, experiment, and survey that references a flag",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Long: `Scan insights, dashboards, experiments, and surveys for references to the given flag key. Use before archiving or renaming a flag.`,
+		Long:        `Scan insights, dashboards, experiments, and surveys for references to the given flag key. Use before archiving or renaming a flag.`,
 		Example: `  posthog-pp-cli flags blast-radius --key my-flag-key --project 12345
   posthog-pp-cli flags blast-radius --key my-flag-key --project 12345 --json`,
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -212,7 +212,7 @@ func newFlagsRolloutHealthCmd(flags *rootFlags) *cobra.Command {
 		Use:         "rollout-health",
 		Short:       "Go/no-go confidence for a flag ramp — error rate correlated with flag exposure",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Long: `Fetch flag state and project error signal, return a go/caution/inactive/unknown verdict. Use before ramping a flag to 100%.`,
+		Long:        `Fetch flag state and project error signal, return a go/caution/inactive/unknown verdict. Use before ramping a flag to 100%.`,
 		Example: `  posthog-pp-cli flags rollout-health --key my-flag --project 12345
   posthog-pp-cli flags rollout-health --key my-flag --project 12345 --window 7d --json`,
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -225,14 +225,18 @@ func newFlagsRolloutHealthCmd(flags *rootFlags) *cobra.Command {
 				orgData, err2 := c.Get("/api/organizations/", nil)
 				if err2 == nil {
 					var orgs struct {
-						Results []struct{ ID string `json:"id"` } `json:"results"`
+						Results []struct {
+							ID string `json:"id"`
+						} `json:"results"`
 					}
 					if json.Unmarshal(orgData, &orgs) == nil && len(orgs.Results) > 0 {
 						orgID := orgs.Results[0].ID
 						projData, err3 := c.Get(fmt.Sprintf("/api/organizations/%s/projects/", orgID), nil)
 						if err3 == nil {
 							var projs struct {
-								Results []struct{ ID int `json:"id"` } `json:"results"`
+								Results []struct {
+									ID int `json:"id"`
+								} `json:"results"`
 							}
 							if json.Unmarshal(projData, &projs) == nil && len(projs.Results) > 0 {
 								projectID = strconv.Itoa(projs.Results[0].ID)
@@ -254,11 +258,11 @@ func newFlagsRolloutHealthCmd(flags *rootFlags) *cobra.Command {
 
 			var flagResp struct {
 				Results []struct {
-					ID            int            `json:"id"`
-					Key           string         `json:"key"`
-					Active        bool           `json:"active"`
+					ID             int            `json:"id"`
+					Key            string         `json:"key"`
+					Active         bool           `json:"active"`
 					LastModifiedAt string         `json:"last_modified_at"`
-					Filters       map[string]any `json:"filters"`
+					Filters        map[string]any `json:"filters"`
 				} `json:"results"`
 			}
 			var flagID int
@@ -290,15 +294,15 @@ func newFlagsRolloutHealthCmd(flags *rootFlags) *cobra.Command {
 				errorParams)
 
 			type healthResult struct {
-				FlagKey      string `json:"flag_key"`
-				FlagID       int    `json:"flag_id"`
-				FlagActive   bool   `json:"flag_active"`
-				ProjectID    string `json:"project_id"`
-				Window       string `json:"window"`
-				ErrorCount   int    `json:"recent_error_count"`
-				Verdict      string `json:"verdict"`
+				FlagKey       string `json:"flag_key"`
+				FlagID        int    `json:"flag_id"`
+				FlagActive    bool   `json:"flag_active"`
+				ProjectID     string `json:"project_id"`
+				Window        string `json:"window"`
+				ErrorCount    int    `json:"recent_error_count"`
+				Verdict       string `json:"verdict"`
 				VerdictReason string `json:"verdict_reason"`
-				CheckedAt    string `json:"checked_at"`
+				CheckedAt     string `json:"checked_at"`
 			}
 
 			res := healthResult{
@@ -313,8 +317,8 @@ func newFlagsRolloutHealthCmd(flags *rootFlags) *cobra.Command {
 			if errErr == nil {
 				var errResp struct {
 					Results []struct {
-						Status     string `json:"status"`
-						Occurrences int   `json:"occurrences"`
+						Status      string `json:"status"`
+						Occurrences int    `json:"occurrences"`
 					} `json:"results"`
 				}
 				if json.Unmarshal(errorData, &errResp) == nil {
@@ -374,7 +378,7 @@ func newFlagsStaleCmd(flags *rootFlags) *cobra.Command {
 		Use:         "stale",
 		Short:       "List flags not evaluated in N days — cleanup candidates",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Long: `List feature flags not evaluated in N days. Never-evaluated flags are always included. Use for quarterly cleanup sprints.`,
+		Long:        `List feature flags not evaluated in N days. Never-evaluated flags are always included. Use for quarterly cleanup sprints.`,
 		Example: `  posthog-pp-cli flags stale --project 12345
   posthog-pp-cli flags stale --project 12345 --days 60 --json`,
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -387,14 +391,18 @@ func newFlagsStaleCmd(flags *rootFlags) *cobra.Command {
 				orgData, err2 := c.Get("/api/organizations/", nil)
 				if err2 == nil {
 					var orgs struct {
-						Results []struct{ ID string `json:"id"` } `json:"results"`
+						Results []struct {
+							ID string `json:"id"`
+						} `json:"results"`
 					}
 					if json.Unmarshal(orgData, &orgs) == nil && len(orgs.Results) > 0 {
 						orgID := orgs.Results[0].ID
 						projData, err3 := c.Get(fmt.Sprintf("/api/organizations/%s/projects/", orgID), nil)
 						if err3 == nil {
 							var projs struct {
-								Results []struct{ ID int `json:"id"` } `json:"results"`
+								Results []struct {
+									ID int `json:"id"`
+								} `json:"results"`
 							}
 							if json.Unmarshal(projData, &projs) == nil && len(projs.Results) > 0 {
 								projectID = strconv.Itoa(projs.Results[0].ID)
@@ -450,13 +458,13 @@ func newFlagsStaleCmd(flags *rootFlags) *cobra.Command {
 			cutoff := time.Now().AddDate(0, 0, -days)
 
 			type staleFlag struct {
-				ID          int    `json:"id"`
-				Key         string `json:"key"`
-				Name        string `json:"name"`
-				Active      bool   `json:"active"`
-				LastUsedAt  string `json:"last_used_at,omitempty"`
-				DaysSince   int    `json:"days_since_last_use"`
-				CreatedAt   string `json:"created_at,omitempty"`
+				ID         int    `json:"id"`
+				Key        string `json:"key"`
+				Name       string `json:"name"`
+				Active     bool   `json:"active"`
+				LastUsedAt string `json:"last_used_at,omitempty"`
+				DaysSince  int    `json:"days_since_last_use"`
+				CreatedAt  string `json:"created_at,omitempty"`
 			}
 
 			var stale []staleFlag

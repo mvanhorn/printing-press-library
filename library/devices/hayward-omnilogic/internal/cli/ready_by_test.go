@@ -18,12 +18,12 @@ func ptrInt(i int) *int { return &i }
 // marker as a real temperature. Regression for Greptile #3216365845.
 func TestPickWaterTempForReadyBy(t *testing.T) {
 	cases := []struct {
-		name      string
-		tele      *omnilogic.Telemetry
-		caps      store.SiteCapabilities
-		wantErr   bool
-		wantTemp  int
-		errIncl   []string
+		name     string
+		tele     *omnilogic.Telemetry
+		caps     store.SiteCapabilities
+		wantErr  bool
+		wantTemp int
+		errIncl  []string
 	}{
 		{
 			name: "valid reading passes through",

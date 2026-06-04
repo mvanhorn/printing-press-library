@@ -1,4 +1,4 @@
-// Copyright 2026 rob-coco. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Rob Zehner and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // T6 — Cross-entity track lookup.
 //
@@ -11,8 +11,8 @@
 package cli
 
 import (
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/spotify/internal/cliutil"
+	"github.com/spf13/cobra"
 )
 
 func newTracksWhereCmd(flags *rootFlags) *cobra.Command {

@@ -1,4 +1,4 @@
-// Copyright 2026 justinwfu. Licensed under Apache-2.0.
+// Copyright 2026 justinwfu and contributors. Licensed under Apache-2.0.
 
 // path --theme — multi-piece curated walk across the federated corpus.
 // FTS5 search builds the candidate pool; diversity ordering produces the

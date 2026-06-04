@@ -79,13 +79,13 @@ Run 'sync --resource events' first to populate the local store.
 			defer rows.Close()
 
 			type row struct {
-				ID         string `json:"id"`
-				Name       string `json:"name"`
-				Venue      string `json:"venue,omitempty"`
-				City       string `json:"city,omitempty"`
-				Segment    string `json:"segment,omitempty"`
-				Date       string `json:"date,omitempty"`
-				OnSaleAt   string `json:"on_sale_at"`
+				ID       string `json:"id"`
+				Name     string `json:"name"`
+				Venue    string `json:"venue,omitempty"`
+				City     string `json:"city,omitempty"`
+				Segment  string `json:"segment,omitempty"`
+				Date     string `json:"date,omitempty"`
+				OnSaleAt string `json:"on_sale_at"`
 			}
 			var out []row
 			for rows.Next() {

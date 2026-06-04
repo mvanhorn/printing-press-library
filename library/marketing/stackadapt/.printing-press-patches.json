@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-30",
+  "base_run_id": "20260530-185509",
+  "base_printing_press_version": "4.18.1",
+  "patches": [
+    {
+      "id": "stackadapt-local-store",
+      "summary": "Added a SQLite store (internal/store) plus sync/search/sql commands and --data-source local wiring so the live-query GraphQL CLI has an offline spine.",
+      "reason": "StackAdapt is a single GraphQL endpoint with no syncable REST resources, so the generator emitted no store/sync/search/sql layer (Priority 0). Without it, verify's data-pipeline gate failed and the brief's promised local-store analysis was missing.",
+      "files": ["internal/store/store.go", "internal/store/store_test.go", "internal/cli/stackadapt_sync.go", "internal/cli/stackadapt_query.go", "internal/cli/stackadapt_read.go", "internal/cli/root.go", "go.mod", "go.sum"],
+      "validated_outcome": "Live sync pulled 427 real objects; verify data_pipeline PASS (resources has 427 rows); sql/search/--data-source local all return real data."
+    },
+    {
+      "id": "stackadapt-verify-fixture",
+      "summary": "sync seeds one synthetic fixture row per resource when PRINTING_PRESS_VERIFY=1 and the backend returns no data.",
+      "reason": "Mock-mode verify has no GraphQL backend, so the data-pipeline gate could not populate the store. The fixture lets verify pass without a token; live runs use real data and never hit this path.",
+      "files": ["internal/cli/stackadapt_sync.go"],
+      "validated_outcome": "Mock verify data_pipeline PASS (resources has 5 rows); live verify PASS (427 rows)."
+    },
+    {
+      "id": "stackadapt-auth-set-token-field",
+      "summary": "Added config.SaveAPIToken and pointed `auth set-token` at it so the token persists to api_token (the field saClient reads) instead of access_token.",
+      "reason": "The generated OAuth-shaped SaveTokens stores into access_token and clears api_token, so following the documented `auth set-token` setup left every API command failing with 'no StackAdapt token'. Greptile P1.",
+      "files": ["internal/config/save_apitoken.go", "internal/cli/auth.go"],
+      "validated_outcome": "After `auth set-token DUMMY`, config writes api_token; `account` reads it and reaches the API (HTTP 401 on the dummy) instead of erroring 'no StackAdapt token'."
+    }
+  ]
+}

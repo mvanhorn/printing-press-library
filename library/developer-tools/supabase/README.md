@@ -7,7 +7,7 @@ The official Supabase CLI is local-dev tooling (Docker, migrations, types). This
 
 > **Known Gaps** (see `## Known Gaps` below): hand-written Auth Admin user CRUD, Storage object lifecycle, PostgREST row CRUD, Edge Function runtime invoke. Use `supabase-js` or the Supabase dashboard for those until a follow-up polish session adds them.
 
-Printed by [@giacaglia](https://github.com/giacaglia) (Giuliano Giacaglia).
+Created by [@giacaglia](https://github.com/giacaglia) (Giuliano Giacaglia).
 
 ## Install
 

@@ -33,6 +33,8 @@ Not stored:
 
 Use `review open` to view official content in LawHub.
 
+Created by [@nolan](https://github.com/nolan) (Nolan McCafferty).
+
 ## Install
 
 The recommended path installs both the `lawhub-pp-cli` binary and the `pp-lawhub` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

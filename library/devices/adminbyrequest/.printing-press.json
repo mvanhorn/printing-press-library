@@ -6,6 +6,10 @@
   "display_name": "Admin By Request",
   "description": "Sync Admin By Request audit, event, inventory, and elevation-request data for approvals, quota checks, and admin-risk reports.",
   "cli_name": "adminbyrequest-pp-cli",
+  "creator": {
+    "handle": "joltsconsulting",
+    "name": "joltsconsulting"
+  },
   "owner": "joltsconsulting",
   "printer": "joltsconsulting",
   "printer_name": "joltsconsulting",

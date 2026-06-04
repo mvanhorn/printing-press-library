@@ -1,4 +1,4 @@
-// Copyright 2026 trevin-chow. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Trevin Chow and contributors. Licensed under Apache-2.0. See LICENSE.
 //
 // PATCH mailchimp-novel-workflow-commands: hand-authored novel command
 // (one of 8). Composes the spec-emitted client; not generator-emitted.

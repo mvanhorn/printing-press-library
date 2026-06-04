@@ -1,0 +1,157 @@
+{
+  "api_name": "elezioni-sicilia",
+  "novelty_score": 7,
+  "alternatives": [
+    {
+      "name": "marcodallastella/elezioni",
+      "url": "https://github.com/marcodallastella/elezioni",
+      "language": "Python",
+      "install_method": "",
+      "stars": 12,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "ondata/elezioni_europee_2024",
+      "url": "https://github.com/ondata/elezioni_europee_2024",
+      "language": "CSV/Python",
+      "install_method": "",
+      "stars": 16,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-26T18:20:00Z",
+  "novel_features": [
+    {
+      "name": "Confronto storico",
+      "command": "storico",
+      "description": "Confronta affluenza, voti e candidati di uno stesso comune in tutti gli anni disponibili (2009-2026).",
+      "rationale": "Richiede fetch parallelo delle pagine archiviate per ogni anno — impossibile manualmente.",
+      "example": "elezioni-sicilia-pp-cli storico Agrigento --json",
+      "why_it_matters": "Permette analisi di trend elettorali pluridecennali su un singolo comune siciliano senza accesso a database.",
+      "group": "Analisi temporale"
+    },
+    {
+      "name": "Riepilogo regionale",
+      "command": "riepilogo",
+      "description": "Mostra affluenza e stato scrutini per tutte le 9 province siciliane in un unico output strutturato.",
+      "rationale": "Aggrega 9 pagine separate in un oggetto JSON coerente — nessun report regionale esiste sul sito.",
+      "example": "elezioni-sicilia-pp-cli riepilogo --json",
+      "why_it_matters": "Snapshot immediato del quadro regionale durante la notte elettorale.",
+      "group": "Analisi territoriale"
+    },
+    {
+      "name": "Monitoraggio scrutini",
+      "command": "watch",
+      "description": "Polling periodico dello stato scrutini per tutti i comuni, con alert su avanzamento.",
+      "rationale": "Il sito non ha notifiche né feed: l'unico modo è polling. La CLI automatizza il ciclo.",
+      "example": "elezioni-sicilia-pp-cli watch --intervallo 5m --json",
+      "why_it_matters": "Permette di monitorare l'avanzamento degli scrutini in tempo reale senza aggiornare manualmente il browser.",
+      "group": "Monitoraggio live"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Confronto storico",
+      "command": "storico",
+      "description": "Confronta affluenza, voti e candidati di uno stesso comune in tutti gli anni disponibili (2009-2026).",
+      "rationale": "Richiede fetch parallelo delle pagine archiviate per ogni anno — impossibile manualmente.",
+      "example": "elezioni-sicilia-pp-cli storico Agrigento --json",
+      "why_it_matters": "Permette analisi di trend elettorali pluridecennali su un singolo comune siciliano senza accesso a database.",
+      "group": "Analisi temporale"
+    },
+    {
+      "name": "Riepilogo regionale",
+      "command": "riepilogo",
+      "description": "Mostra affluenza e stato scrutini per tutte le 9 province siciliane in un unico output strutturato.",
+      "rationale": "Aggrega 9 pagine separate in un oggetto JSON coerente — nessun report regionale esiste sul sito.",
+      "example": "elezioni-sicilia-pp-cli riepilogo --json",
+      "why_it_matters": "Snapshot immediato del quadro regionale durante la notte elettorale.",
+      "group": "Analisi territoriale"
+    },
+    {
+      "name": "Monitoraggio scrutini",
+      "command": "watch",
+      "description": "Polling periodico dello stato scrutini per tutti i comuni, con alert su avanzamento.",
+      "rationale": "Il sito non ha notifiche né feed: l'unico modo è polling. La CLI automatizza il ciclo.",
+      "example": "elezioni-sicilia-pp-cli watch --intervallo 5m --json",
+      "why_it_matters": "Permette di monitorare l'avanzamento degli scrutini in tempo reale senza aggiornare manualmente il browser.",
+      "group": "Monitoraggio live"
+    }
+  ],
+  "narrative": {
+    "display_name": "Elezioni Sicilia",
+    "headline": "Dati elettorali siciliani da riga di comando — senza copiare tabelle HTML.",
+    "value_prop": "Il sito ufficiale della Regione Siciliana pubblica i risultati delle elezioni comunali solo in HTML e PDF. Questa CLI estrae affluenza, voti, candidati e risultati in JSON strutturato, con archivio dal 2009 e confronto storico tra anni.",
+    "quickstart": [
+      {
+        "command": "elezioni-sicilia-pp-cli affluenza --json",
+        "comment": "Tabella affluenza regionale aggiornata"
+      },
+      {
+        "command": "elezioni-sicilia-pp-cli comuni --provincia PA --json",
+        "comment": "Comuni alle elezioni in provincia di Palermo"
+      },
+      {
+        "command": "elezioni-sicilia-pp-cli candidati Agrigento --json",
+        "comment": "Voti per candidato sindaco ad Agrigento"
+      },
+      {
+        "command": "elezioni-sicilia-pp-cli storico Agrigento --json",
+        "comment": "Confronto affluenza dal 2009 al 2026"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "Errore TLS certificate",
+        "fix": "Il sito usa TLS self-signed — il CLI usa Surf automaticamente, non serve azione"
+      },
+      {
+        "symptom": "Dati non disponibili per il comune",
+        "fix": "Gli scrutini potrebbero essere ancora in corso — usa 'stato \u003ccomune\u003e' per verificare"
+      },
+      {
+        "symptom": "Regionali non accessibili",
+        "fix": "Il server della Regione Siciliana non espone i dati regionali via URL diretti"
+      }
+    ],
+    "when_to_use": "Usa questa CLI durante le notti elettorali per monitorare in tempo reale i risultati comunali siciliani. Utile anche per analisi storiche: confronta come ha votato un comune dal 2009 ad oggi.",
+    "recipes": [
+      {
+        "title": "Affluenza in JSON",
+        "command": "elezioni-sicilia-pp-cli affluenza --json",
+        "explanation": "Tutte le rilevazioni orarie per ogni comune in formato machine-readable"
+      },
+      {
+        "title": "Voti per lista a Palermo",
+        "command": "elezioni-sicilia-pp-cli liste Palermo --anno 2025 --json",
+        "explanation": "Voti per ogni lista elettorale nell'anno specificato"
+      },
+      {
+        "title": "Riepilogo regionale",
+        "command": "elezioni-sicilia-pp-cli riepilogo --json --select province.affluenza",
+        "explanation": "Snapshot aggregato per tutte le province"
+      },
+      {
+        "title": "Trend storico",
+        "command": "elezioni-sicilia-pp-cli storico Messina --json",
+        "explanation": "Serie temporale del voto dal 2009 al 2026"
+      }
+    ],
+    "trigger_phrases": [
+      "elezioni sicilia",
+      "risultati elezioni comunali sicilia",
+      "affluenza elettorale sicilia",
+      "candidati sindaco sicilia",
+      "voti lista sicilia"
+    ]
+  }
+}

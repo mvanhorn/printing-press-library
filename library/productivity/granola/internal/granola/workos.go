@@ -1,4 +1,4 @@
-// Copyright 2026 dstevens. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Damien Stevens and contributors. Licensed under Apache-2.0. See LICENSE.
 
 package granola
 
@@ -20,15 +20,16 @@ import (
 
 // WorkOSClientID is the Granola desktop client's WorkOS application client
 // id. It is hardcoded across the community ecosystem (getprobo, granola.py,
-// granola-mcp) because Granola does not document a per-user OAuth app for
-// the internal API; this value is the only client_id WorkOS will accept on
-// the refresh-token endpoint for Granola's tokens.
+// granola-mcp) and kept here for reference / ecosystem compatibility.
+// The active refresh flow now uses GranolaRefreshEndpoint directly and no
+// longer sends this client_id in the request body.
 const WorkOSClientID = "client_01HJK46TGGY2DFQ2NX9P9XYJZN"
 
-// WorkOSAuthEndpoint is the refresh endpoint. POST a JSON body of
-// {client_id, grant_type:"refresh_token", refresh_token} and you receive
-// a new access_token plus a NEW refresh_token (single-use rotation).
-const WorkOSAuthEndpoint = "https://api.workos.com/user_management/authenticate"
+// GranolaRefreshEndpoint is Granola desktop's refresh endpoint. Modern
+// Granola tokens are refreshed through Granola's API rather than by calling
+// WorkOS directly; the older WorkOS client_id flow can return invalid_client
+// for current desktop sessions.
+const GranolaRefreshEndpoint = "https://api.granola.ai/v1/refresh-access-token"
 
 // granolaSupportDir is the macOS support directory for Granola.
 func granolaSupportDir() string {
@@ -153,6 +154,12 @@ const (
 	// D6: refresh refused on this source to avoid signing the user out
 	// of Granola desktop.
 	TokenSourceEncryptedSupabase
+	// TokenSourcePlaintextSupabaseDesktopFallback: supabase.json.enc was
+	// present but unavailable because Keychain access failed, so the token
+	// was read from plaintext supabase.json. Treat this as desktop-owned
+	// for D6 because the plaintext and encrypted files may share the same
+	// single-use refresh token.
+	TokenSourcePlaintextSupabaseDesktopFallback
 	// TokenSourceStoredAccounts: stored-accounts.json fallback. Refresh
 	// allowed - this surface is rarely populated on modern installs and
 	// is not the canonical token store the desktop tracks.
@@ -245,10 +252,27 @@ func loadTokensRaw() (workosTokens, TokenSource, error) {
 // Returns the parsed token plus a TokenSource flag so the caller knows
 // whether D6's refresh-refusal applies.
 func loadFromSupabaseJSON() (workosTokens, TokenSource, error) {
-	// Prefer the .enc sibling when present, fall back to plaintext.
+	// Prefer the .enc sibling when present, but do not let a blocked
+	// Keychain prompt make headless/agent runs report "no token" when a
+	// legacy/plaintext supabase.json fallback is also available. Other
+	// encrypted-store errors still surface instead of silently falling back.
 	encPath := supabaseJSONPath() + ".enc"
 	if _, err := os.Stat(encPath); err == nil {
-		return loadFromSupabaseEnc(encPath)
+		tok, src, encErr := loadFromSupabaseEnc(encPath)
+		if encErr == nil {
+			return tok, src, nil
+		}
+		if errors.Is(encErr, safestorage.ErrKeyUnavailable) {
+			plainPath := supabaseJSONPath()
+			if _, statErr := os.Stat(plainPath); statErr == nil {
+				if tok, _, plainErr := loadFromSupabasePlain(plainPath); plainErr == nil {
+					return tok, TokenSourcePlaintextSupabaseDesktopFallback, nil
+				} else {
+					return workosTokens{}, TokenSourceUnknown, fmt.Errorf("supabase.json.enc: Keychain unavailable; supabase.json fallback also failed: %w", plainErr)
+				}
+			}
+		}
+		return workosTokens{}, TokenSourceUnknown, encErr
 	}
 	return loadFromSupabasePlain(supabaseJSONPath())
 }
@@ -351,30 +375,31 @@ func loadFromStoredAccountsJSON() (workosTokens, error) {
 	return best, nil
 }
 
-// RefreshAccessTokenResponse is the parsed body from a WorkOS refresh call.
+// RefreshAccessTokenResponse is the parsed body from a Granola refresh call.
 type RefreshAccessTokenResponse struct {
 	AccessToken  string `json:"access_token"`
 	RefreshToken string `json:"refresh_token"`
-	// WorkOS returns the new expiry as expires_in (seconds) when present.
+	// Granola returns the new expiry as expires_in (seconds) when present.
 	ExpiresIn int `json:"expires_in"`
 }
 
-// workosLimiter paces WorkOS refresh-token calls. The endpoint is hit at most
+// workosLimiter paces Granola refresh-token calls. The endpoint is hit at most
 // once per CLI invocation under normal conditions; the limiter is here for the
 // pathological case where a caller burst-refreshes (and so the typed 429
 // contract below is exercised by the AdaptiveLimiter as well).
 var workosLimiter = cliutil.NewAdaptiveLimiter(2.0)
 
 // RefreshAccessToken exchanges the current refresh token for a new
-// access/refresh pair. WorkOS rotates refresh tokens single-use per
+// access/refresh pair. Granola/WorkOS rotates refresh tokens single-use per
 // getprobo's findings; the caller MUST persist the new refresh token if
 // it intends to refresh again (we cache it in-process only - we do not
 // write back to Granola's files).
 //
 // PATCH(encrypted-cache): refuses to refresh when the in-memory token
-// came from supabase.json.enc (D6). Refreshing would mint a new
-// refresh_token and invalidate the one Granola desktop still has on
-// disk, signing the user out next time the desktop tries to refresh.
+// came from supabase.json.enc, or from plaintext supabase.json as a fallback
+// because the encrypted store was Keychain-blocked (D6). Refreshing would
+// mint a new refresh_token and invalidate the one Granola desktop still has
+// on disk, signing the user out next time the desktop tries to refresh.
 // The env override path (GRANOLA_WORKOS_TOKEN) is opt-in: power users
 // who set it accept the desktop-sign-out trade-off. The plaintext
 // supabase.json and stored-accounts.json paths still allow refresh
@@ -385,26 +410,27 @@ func RefreshAccessToken(refreshToken string) (RefreshAccessTokenResponse, error)
 	// the network call. Single-CLI-invocation processes don't see this race
 	// in practice; long-running agents that call sync concurrently would.
 	tokenMu.Lock()
-	if cachedSource == TokenSourceEncryptedSupabase {
+	if cachedSource == TokenSourceEncryptedSupabase || cachedSource == TokenSourcePlaintextSupabaseDesktopFallback {
 		tokenMu.Unlock()
 		return RefreshAccessTokenResponse{}, ErrRefreshRefused
 	}
 	tokenMu.Unlock()
 	body, _ := json.Marshal(map[string]string{
-		"client_id":     WorkOSClientID,
-		"grant_type":    "refresh_token",
 		"refresh_token": refreshToken,
 	})
-	req, err := http.NewRequest("POST", WorkOSAuthEndpoint, bytes.NewReader(body))
+	req, err := http.NewRequest("POST", GranolaRefreshEndpoint, bytes.NewReader(body))
 	if err != nil {
 		return RefreshAccessTokenResponse{}, err
 	}
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Accept", "application/json")
+	req.Header.Set("User-Agent", granolaUserAgent)
+	req.Header.Set("X-Client-Version", granolaClientVersion)
+	req.Header.Set("X-Granola-Platform", granolaPlatform)
 	workosLimiter.Wait()
 	resp, err := refreshClient.Do(req)
 	if err != nil {
-		return RefreshAccessTokenResponse{}, fmt.Errorf("workos refresh: %w", err)
+		return RefreshAccessTokenResponse{}, fmt.Errorf("granola refresh: %w", err)
 	}
 	defer resp.Body.Close()
 	respBody, _ := io.ReadAll(resp.Body)
@@ -414,21 +440,21 @@ func RefreshAccessToken(refreshToken string) (RefreshAccessTokenResponse, error)
 		workosLimiter.OnRateLimit()
 		wait := cliutil.RetryAfter(resp)
 		return RefreshAccessTokenResponse{}, &cliutil.RateLimitError{
-			URL:        WorkOSAuthEndpoint,
+			URL:        GranolaRefreshEndpoint,
 			RetryAfter: wait,
 			Body:       string(respBody),
 		}
 	}
 	workosLimiter.OnSuccess()
 	if resp.StatusCode != http.StatusOK {
-		return RefreshAccessTokenResponse{}, fmt.Errorf("workos refresh: status %d: %s", resp.StatusCode, string(respBody))
+		return RefreshAccessTokenResponse{}, fmt.Errorf("granola refresh: status %d: %s", resp.StatusCode, string(respBody))
 	}
 	var parsed RefreshAccessTokenResponse
 	if err := json.Unmarshal(respBody, &parsed); err != nil {
-		return RefreshAccessTokenResponse{}, fmt.Errorf("workos refresh: parse response: %w", err)
+		return RefreshAccessTokenResponse{}, fmt.Errorf("granola refresh: parse response: %w", err)
 	}
 	if parsed.AccessToken == "" {
-		return RefreshAccessTokenResponse{}, fmt.Errorf("workos refresh: empty access_token in response")
+		return RefreshAccessTokenResponse{}, fmt.Errorf("granola refresh: empty access_token in response")
 	}
 	// Cache the new pair in-process.
 	tokenMu.Lock()

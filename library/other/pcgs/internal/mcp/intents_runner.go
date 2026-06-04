@@ -1,4 +1,4 @@
-// Copyright 2026 vinny-pasceri. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Vinny Pasceri and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // Subprocess runner for intents that compose multiple CLI commands. The
 // in-process path (via newMCPClient + direct c.Get calls) is preferred when

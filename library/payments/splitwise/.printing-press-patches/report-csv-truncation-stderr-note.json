@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "report-csv-truncation-stderr-note",
+  "applied_at": "2026-05-30",
+  "base_run_id": "20260528-002755",
+  "base_printing_press_version": "4.19.0",
+  "summary": "report --format csv emits a stderr note when --limit truncates rows, matching json/md/summary.",
+  "reason": "renderReportCSV ignored res.Truncated, so a capped CSV looked complete with no in-band or stderr signal.",
+  "files": [
+    "internal/cli/splitwise_report.go",
+    "internal/cli/splitwise_report_test.go"
+  ]
+}

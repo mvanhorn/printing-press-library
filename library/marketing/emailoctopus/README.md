@@ -4,7 +4,7 @@
 
 EmailOctopus is the only major email-marketing platform whose free tier includes API access — but until now no maintained v2 CLI or SDK existed. This CLI ships all 25 endpoints with --json, --select, --csv, --dry-run, plus a local SQLite store that powers cross-list dedupe, per-contact engagement scoring, list churn diffs over time, and rate-budgeted bulk delete.
 
-Printed by [@tmchow](https://github.com/tmchow) (Trevin Chow).
+Created by [@tmchow](https://github.com/tmchow) (Trevin Chow).
 
 ## Install
 

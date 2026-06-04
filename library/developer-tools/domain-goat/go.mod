@@ -15,7 +15,7 @@ require (
 	github.com/mark3labs/mcp-go v0.47.0
 	github.com/openrdap/rdap v0.9.1
 	github.com/spf13/pflag v1.0.6
-	golang.org/x/net v0.54.0
+	golang.org/x/net v0.55.0
 )
 
 require (
@@ -35,7 +35,7 @@ require (
 	github.com/yosida95/uritemplate/v3 v3.0.2 // indirect
 	golang.org/x/crypto v0.51.0 // indirect
 	golang.org/x/exp v0.0.0-20250305212735-054e65f0b394 // indirect
-	golang.org/x/sys v0.44.0 // indirect
+	golang.org/x/sys v0.45.0 // indirect
 	golang.org/x/text v0.37.0 // indirect
 	modernc.org/libc v1.62.1 // indirect
 	modernc.org/mathutil v1.7.1 // indirect

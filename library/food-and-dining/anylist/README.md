@@ -4,6 +4,8 @@
 
 The CLI syncs your shopping lists, recipes, and meal plan to a local SQLite database, then lets you query and automate everything from the shell. Search recipes by ingredient, split shopping lists by store, and build this week's grocery list from your meal plan — all scriptable, JSON-outputting, and safe to run on a schedule.
 
+Created by [@jeeves](https://github.com/jeeves) (Jeeves).
+
 ## Install
 
 The recommended path installs both the `anylist-pp-cli` binary and the `pp-anylist` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

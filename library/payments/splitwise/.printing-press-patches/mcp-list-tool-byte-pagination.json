@@ -1,0 +1,24 @@
+{
+  "schema_version": 2,
+  "id": "mcp-list-tool-byte-pagination",
+  "applied_at": "2026-05-30",
+  "base_run_id": "20260528-002755",
+  "base_printing_press_version": "4.19.0",
+  "summary": "GET list MCP tools byte-budget-paginate by default (PaginateByBytes/ListFromResponse/PaginateBody in internal/cli); the 5 no-native-paging list tools gain client offset/limit params. Stops get-groups_list's ~118KB firehose.",
+  "reason": "makeAPIHandler returned raw list bodies with no size control, so get-groups_list (~118,973 chars) exceeded the host token budget. Added a shared byte-budget pager in internal/cli (the CLI owns output shaping). The pager runs ONLY for GET tools that do not page natively (paginatesNatively(bindings) is false): endpoints with native offset/limit (get-expenses, get-notifications) are left untouched so their API-paginated response keeps its native schema and full-collection total rather than being re-wrapped in the {total,...,items} envelope. maxBytes default 24KB, PP_MCP_MAX_BYTES override. For the client-paged tools, offset/limit are marked consumed in knownArgs (same paginatesNatively gate) so the generic args-forwarding loop does not append them to the upstream query string; without that guard a client cursor leaked to an endpoint that accepts it natively (e.g. /get_comments?offset=N), making the API return a partial slice that PaginateBody then mis-totaled.",
+  "known_limitation": "List detection at the MCP call site uses lone-top-level-array auto-detection (listField=\"\"). A GET 200 body carrying a SIBLING top-level array (e.g. an errors:[] companion) would fail auto-detect and pass through unpaginated. Not the case for the 5 targeted GET list success shapes ({groups|friends|categories|comments|currencies}:[...] are lone-array envelopes). Closed in Increment 2, where the generator passes the spec-derived listField per tool so detection never depends on the array-count heuristic.",
+  "files": [
+    "internal/cli/pagination.go",
+    "internal/cli/pagination_test.go",
+    "internal/mcp/tools.go",
+    "internal/mcp/pagination_wiring_test.go"
+  ],
+  "validated_outcome": "PaginateByBytes/ListFromResponse/PaginateBody (15 cases) + mcpIntArg/bindingHasName/paginatesNatively pass; get-groups_list returns a {total,offset,returned,next_offset,items} page under the byte budget instead of ~118KB; the 5 no-native list tools expose offset/limit while get-expenses/notifications keep their native API response untouched (pager gated off for natively-paged tools); the client cursor no longer leaks into the upstream query string; gofmt/build/vet/test, govulncheck, verify-skill pass.",
+  "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/issues/2515",
+  "deferred_to_upstream": [
+    {
+      "feature": "Generator: emit listField + offset/limit params + the shared PaginateByBytes/ListFromResponse/PaginateBody helpers into every printed CLI's list tools; reconcile native-paged endpoints; add CLI --agent/--max-bytes routing through the same pager.",
+      "reason": "Generator-shaped (#2515). Increment 2 — developed in cli-printing-press-private, promoted to a public PR closing #2515. Design: workshop hub splitwise-list-pagination-design.md."
+    }
+  ]
+}

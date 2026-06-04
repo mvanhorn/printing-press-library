@@ -5,6 +5,10 @@
   "api_name": "ahrefs",
   "display_name": "Ahrefs",
   "cli_name": "ahrefs-pp-cli",
+  "creator": {
+    "handle": "cathrynlavery",
+    "name": "Cathryn Lavery"
+  },
   "owner": "user",
   "printer": "cathrynlavery",
   "printer_name": "Cathryn Lavery",

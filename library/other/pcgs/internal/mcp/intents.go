@@ -1,4 +1,4 @@
-// Copyright 2026 vinny-pasceri. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Vinny Pasceri and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // PATCH mcp-intent-tools: hand-authored MCP intent layer registering three
 // composed-workflow tools (pcgs_verify_and_extract, pcgs_batch_with_quota_guard,

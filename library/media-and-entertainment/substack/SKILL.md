@@ -1,6 +1,6 @@
 ---
 name: pp-substack
-description: "Run your Substack growth loop from the command line — publish, schedule, engage, and measure with cross-table... Trigger phrases: `post a substack note`, `schedule a week of substack notes`, `find substack swap partners`, `which of my notes drove subs`, `what's my engagement reciprocity`, `voice-match a substack note`, `best time to post on substack`, `use substack`, `run substack`."
+description: "Run your Substack growth and authoring loop from the command line — publish rich drafts, manage a multi-publication portfolio, and measure what drives growth. Trigger phrases: `post a substack note`, `schedule a week of substack notes`, `find substack swap partners`, `which of my notes drove subs`, `what's my engagement reciprocity`, `voice-match a substack note`, `best time to post on substack`, `create a substack draft`, `sync my substack portfolio`, `top posts across my publications`, `search my substack posts`, `use substack`, `run substack`."
 author: "user"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"
@@ -10,6 +10,10 @@ metadata:
     requires:
       bins:
         - substack-pp-cli
+    install:
+      - kind: go
+        bins: [substack-pp-cli]
+        module: github.com/mvanhorn/printing-press-library/library/media-and-entertainment/substack/cmd/substack-pp-cli
 ---
 
 # Substack — Printing Press CLI
@@ -33,9 +37,11 @@ go install github.com/mvanhorn/printing-press-library/library/media-and-entertai
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
 
+Substack has no public API and the closed-source tools that work around it (WriteStack, StackSweller) stop at Notes scheduling and a heatmap. This CLI covers the read endpoints the community has reverse-engineered across the 8 wrappers we studied, plus rich authoring (30+ flags on `drafts create`/`update`, Markdown→ProseMirror conversion), a multi-publication portfolio layer (`portfolio sync` → `portfolio`, `posts best`, `grep`, `schedule board`, `subs churn`, `subs cross-sell`), and local-SQLite analytics. Every command is MCP-callable so an agent can drive the full publish → engage → measure → swap loop.
+
 ## When to Use This CLI
 
-Reach for this CLI when an agent needs to operate a Substack publication end-to-end: posting Notes on a cadence, drafting and publishing long-form, engaging with niche writers, finding swap partners, and measuring which content actually drove subs. It is the right pick over WriteStack/StackSweller when you need agent-native plumbing (--json, --select, --dry-run, typed exit codes), offline-first analytics (every join runs locally over SQLite), or coverage of the writer surface those tools don't expose.
+Reach for this CLI when an agent needs to operate a Substack publication end-to-end: posting Notes on a cadence, drafting and publishing long-form, engaging with niche writers, finding swap partners, and measuring which content actually drove subs. It is the right pick over WriteStack/StackSweller when you need agent-native plumbing (--json, --select, --dry-run, typed exit codes), offline-first analytics (every join runs locally over SQLite), or coverage of the writer surface those tools don't expose. Engage write actions (`engage like`, `engage restack`, `engage restack-with-comment`) print a curl-equivalent by default and only fire with `--send`; treat the print-curl output as a preflight, not a live action.
 
 ## Unique Capabilities
 
@@ -105,6 +111,92 @@ These capabilities aren't available in any other tool for this API.
   substack-pp-cli growth pod --members maya,devon,priya,jordan --days 30 --json
   ```
 
+### Authoring with rich field control
+
+- **`drafts create` / `drafts update`** — Full Substack draft API surface: 30+ flags covering title, subtitle, body (Markdown auto-converts to ProseMirror), section-id, type (newsletter/podcast/video/thread), audience, bylines, SEO metadata, social title, cover image, comment settings, podcast/video URLs, and visibility toggles. The only authoring path that gives agents field-level control without fighting a web editor.
+
+  _Use when an agent is constructing a complete long-form post from structured data — research summary, translated copy, ghostwritten piece — and needs paywall, SEO, and section placement set in one command._
+
+  ```bash
+  export SUBSTACK_PUBLICATION=mypub
+  substack-pp-cli drafts create --title "Why X matters" \
+    --body-file ./post.md --audience only_paid \
+    --seo-title "X explained" --seo-description "How X affects Y" \
+    --cover-image https://substackcdn.com/.../cover.jpg --json
+  ```
+
+### Portfolio & analytics (local columnar store)
+
+These commands read a **local SQLite store** populated by `portfolio sync`. The workflow is:
+
+```
+auth login --chrome  →  export SUBSTACK_PUBLICATION=<your-pub>  →  portfolio sync  →  portfolio / posts best / grep / subs churn / …
+```
+
+Custom-domain publications are supported: `auth login --chrome` captures the Creator-session cookie from the custom domain automatically.
+
+- **`portfolio sync`** — The data-population command. Discovers every publication you own and writes posts, subscribers, and drafts into the local columnar store. Must be run before `portfolio`, `posts best`, `grep`, `schedule board`, `subs churn`, and `subs cross-sell` can return cross-publication data.
+
+  ```bash
+  export SUBSTACK_PUBLICATION=mypub
+  substack-pp-cli portfolio sync --json
+  ```
+
+- **`portfolio`** — One-screen status of every publication you own: subscriber count, paid count, posts published, drafts pending, next scheduled. No tab-switching, no CSV exports.
+
+  ```bash
+  substack-pp-cli portfolio --json
+  ```
+
+- **`posts best`** — Rank posts by views, likes, comments, or restacks within a window. `--cross-pub` aggregates across all your publications.
+
+  _Use when an agent is deciding which posts to twin into a new publication or surface in a weekly newsletter._
+
+  ```bash
+  substack-pp-cli posts best --by restacks --window 30d --cross-pub --json
+  substack-pp-cli posts best --by views --limit 5 --publication mypub-en
+  ```
+
+- **`posts twin <slug> --to <pub>`** — Duplicate a published post into another publication you own as a draft. Preserves paywall markers, section mapping, and re-uploads images to the target CDN.
+
+  ```bash
+  substack-pp-cli posts twin my-en-slug --to mypub-de --dry-run --json
+  substack-pp-cli posts twin my-en-slug --to mypub-de
+  ```
+
+- **`posts pair <en> <de>` / `posts pairs [--missing]`** — Record EN↔DE post pairings in a local table. `--missing` lists posts without a recorded twin — feed that list into `posts twin` to spin up the missing translations.
+
+  ```bash
+  substack-pp-cli posts pair my-en-slug my-de-slug
+  substack-pp-cli posts pairs --missing --publication mypub-en --json
+  ```
+
+- **`grep <query>`** — FTS5 full-text search across synced posts, notes, and comments, ranked by bm25, returning snippets and source URLs. Optional `--scope`, `--publication`, and `--since` filters.
+
+  ```bash
+  substack-pp-cli grep "yield curve" --json
+  substack-pp-cli grep "rate hike" --scope posts --publication mypub-en --since 2024-01-01
+  ```
+
+- **`schedule board`** — ASCII calendar of the next N days showing scheduled posts across every publication you own. Multi-publication editorial overview in one screen.
+
+  ```bash
+  substack-pp-cli schedule board --days 30 --json
+  ```
+
+- **`subs churn`** — Diff subscriber snapshots: who newly subscribed, who unsubscribed, who upgraded free→paid, who downgraded paid→free. Run `--snapshot` at least once first to create a baseline.
+
+  ```bash
+  substack-pp-cli subs churn --snapshot
+  substack-pp-cli subs churn --since 7d --json --publication mypub-paid
+  ```
+
+- **`subs cross-sell`** — Emails that pay on at least one of your publications but are free or absent on the others. Requires 2+ owned publications in the local store. The cross-sell list Substack's UI does not ship.
+
+  ```bash
+  substack-pp-cli subs cross-sell --json --limit 100
+  ```
+
 ## Command Reference
 
 **categories** — Site-wide Substack category list — culture, technology, food, etc.
@@ -147,19 +239,30 @@ These capabilities aren't available in any other tool for this API.
 
 **notes** — Substack Notes — short-form posts (Substack treats Notes as comments internally)
 
-- `substack-pp-cli notes new` — Post a new Note from Markdown (auto-converts to ProseMirror; the agent-friendly entry point)
-- `substack-pp-cli notes create` — Post a new Note with raw ProseMirror JSON via `--body-json`
-- `substack-pp-cli notes schedule` — Schedule a Note locally with a cadence guard (refuses bursts within 30 min; typed exit 2)
+- `substack-pp-cli notes create` — Post a new Note (POST /comment/feed). Body is ProseMirror JSON.
 - `substack-pp-cli notes get` — Get a single Note by ID
 - `substack-pp-cli notes list-by-profile` — List Notes by a profile (cursor pagination)
 - `substack-pp-cli notes reply` — Reply to an existing Note (parent_id + ProseMirror body)
 
+**grep** — Full-text search across synced posts, notes, and comments
+
+- `substack-pp-cli grep <query>` — FTS5 search ranked by bm25, returning snippets and source URLs. Flags: `--scope posts|notes|comments|all`, `--publication`, `--since`, `--limit`
+
+**portfolio** — Multi-publication status dashboard and data-population
+
+- `substack-pp-cli portfolio` — One-screen status of every publication you own (subs, paid, posts, drafts, next scheduled). Run `portfolio sync` first.
+- `substack-pp-cli portfolio sync` — Discover every publication you own and populate the local columnar store (publications/posts/subscribers/drafts). The prerequisite for all cross-publication analytics commands.
+
 **posts** — Long-form posts and archives on a specific publication
 
 - `substack-pp-cli posts archive` — Public archive of a publication's posts
+- `substack-pp-cli posts best` — Rank cached posts by engagement metric (`--by views|likes|comments|restacks`, `--window`, `--cross-pub`, `--limit`, `--publication`)
 - `substack-pp-cli posts get-by-slug` — Get a published post by URL slug
 - `substack-pp-cli posts list-published` — List published posts on the publication (auth required)
+- `substack-pp-cli posts pair <en-slug> <de-slug>` — Record an EN↔DE translation pairing in the local table
+- `substack-pp-cli posts pairs` — List recorded post pairs; `--missing` shows posts without a twin; `--publication` filters to one pub
 - `substack-pp-cli posts ranked-authors` — Ranked list of authors for a publication
+- `substack-pp-cli posts twin <slug> --to <pub>` — Duplicate a published post into another publication you own as a draft (re-uploads images, preserves paywall markers)
 
 **profiles** — Substack profiles — your own and other writers'
 
@@ -183,10 +286,16 @@ These capabilities aren't available in any other tool for this API.
 - `substack-pp-cli settings get` — Get account settings
 - `substack-pp-cli settings ping` — Connectivity probe (non-destructive PUT used by doctor)
 
-**subs** — Subscriber count + publication metadata
+**schedule** — Cross-publication editorial scheduling
+
+- `substack-pp-cli schedule board` — ASCII calendar of the next N days (`--days`) of scheduled posts across all owned publications
+
+**subs** — Subscriber count, churn diff, and cross-sell analytics
 
 - `substack-pp-cli subs authors` — List bylined authors of a publication
+- `substack-pp-cli subs churn` — Diff subscriber snapshots (new/unsubscribed/upgraded/downgraded). Use `--snapshot` to create a baseline, then `--since` to diff. Flags: `--publication`, `--since`, `--snapshot`
 - `substack-pp-cli subs count` — Get subscriber count (read off the launch-checklist payload)
+- `substack-pp-cli subs cross-sell` — Emails paid on one publication but free/absent on others (requires 2+ owned pubs in local store). Flags: `--limit`
 
 **tags** — Post tags
 
@@ -201,42 +310,49 @@ This printed CLI owns bounded freshness only for registered store-backed read co
 Covered paths:
 
 - `substack-pp-cli categories`
+- `substack-pp-cli categories get`
 - `substack-pp-cli categories list`
-- `substack-pp-cli categories list-publications`
+- `substack-pp-cli categories search`
 - `substack-pp-cli drafts`
-- `substack-pp-cli drafts create`
-- `substack-pp-cli drafts delete`
 - `substack-pp-cli drafts get`
 - `substack-pp-cli drafts list`
-- `substack-pp-cli drafts prepublish`
-- `substack-pp-cli drafts publish`
-- `substack-pp-cli drafts schedule`
-- `substack-pp-cli drafts update`
+- `substack-pp-cli drafts search`
 - `substack-pp-cli inbox`
-- `substack-pp-cli inbox home`
-- `substack-pp-cli inbox reader-posts`
+- `substack-pp-cli inbox get`
+- `substack-pp-cli inbox list`
+- `substack-pp-cli inbox search`
 - `substack-pp-cli inbox-posts`
+- `substack-pp-cli inbox-posts get`
+- `substack-pp-cli inbox-posts list`
+- `substack-pp-cli inbox-posts search`
 - `substack-pp-cli posts`
-- `substack-pp-cli posts archive`
-- `substack-pp-cli posts get-by-slug`
-- `substack-pp-cli posts list-published`
-- `substack-pp-cli posts ranked-authors`
+- `substack-pp-cli posts get`
+- `substack-pp-cli posts list`
+- `substack-pp-cli posts search`
 - `substack-pp-cli posts-published`
+- `substack-pp-cli posts-published get`
+- `substack-pp-cli posts-published list`
+- `substack-pp-cli posts-published search`
 - `substack-pp-cli posts-ranked`
+- `substack-pp-cli posts-ranked get`
+- `substack-pp-cli posts-ranked list`
+- `substack-pp-cli posts-ranked search`
 - `substack-pp-cli profiles`
-- `substack-pp-cli profiles from-linkedin`
-- `substack-pp-cli profiles get-by-handle`
-- `substack-pp-cli profiles get-by-id`
-- `substack-pp-cli profiles handle-options`
-- `substack-pp-cli profiles posts`
-- `substack-pp-cli profiles self`
+- `substack-pp-cli profiles get`
+- `substack-pp-cli profiles list`
+- `substack-pp-cli profiles search`
 - `substack-pp-cli sections`
+- `substack-pp-cli sections get`
+- `substack-pp-cli sections list`
+- `substack-pp-cli sections search`
 - `substack-pp-cli subs`
-- `substack-pp-cli subs authors`
-- `substack-pp-cli subs count`
+- `substack-pp-cli subs get`
+- `substack-pp-cli subs list`
+- `substack-pp-cli subs search`
 - `substack-pp-cli tags`
-- `substack-pp-cli tags create`
+- `substack-pp-cli tags get`
 - `substack-pp-cli tags list`
+- `substack-pp-cli tags search`
 
 When JSON output uses the generated provenance envelope, freshness metadata appears at `meta.freshness`. Treat it as current-cache freshness for the covered command path, not a guarantee of complete historical backfill or API-specific enrichment.
 
@@ -252,38 +368,37 @@ substack-pp-cli which "<capability in your own words>"
 
 ## Recipes
 
-
 ### Daily growth-loop morning ritual
 
 ```bash
 substack-pp-cli growth attribution --days 7 --agent --select rank,note_excerpt,subs_acquired
 ```
 
-Syncs the last 24 hours, surfaces yesterday's Note→sub winners, and shows reciprocity drift before you start engaging.
+Surfaces yesterday's Note→sub winners. Pair with `substack-pp-cli engage reciprocity --days 7 --agent` to see whose engagement reciprocates yours, and `substack-pp-cli sync --since 24h` ahead of time to keep the local store fresh.
 
-### Batch-schedule a week of Notes with cadence guard
+### Schedule a Note with the cadence guard
 
 ```bash
 substack-pp-cli notes schedule --at 2030-05-13T09:00:00Z --body 'Tuesday hook line' --guard --json
 ```
 
-Prints every scheduled Note's request without firing; --guard rejects sub-30-min spacing. Drop --dry-run to commit.
+Queues the Note locally; --guard refuses scheduling if it lands within 30 min of an existing own-Note (typed exit 2 + JSON diagnosis). Drop --guard or add --send to fire immediately.
 
-### Find this week's swap partners and draft outreach
+### Find this week's swap partners
 
 ```bash
 substack-pp-cli recs find-partners --my-pub on --top 5 --json --select rank,handle,pub,overlap_score
 ```
 
-Ranks candidates by audience overlap, pipes the top 5 into the outreach drafter.
+Ranks candidate publications by audience overlap; pipe to your draft-outreach tool of choice (substack-pp-cli does the ranking; outreach drafting is left to your agent's prompt).
 
-### Voice-match a draft to a client (ghostwriter)
+### Capture a writer's voice fingerprint as JSON
 
 ```bash
 substack-pp-cli voice fingerprint --handle alice --diff bob --json
 ```
 
-Captures the client's measured voice profile as JSON, feeds it into Note generation; no LLM coupling — uses your own ANTHROPIC_API_KEY/OPENAI_API_KEY.
+Mechanical voice metrics for the named handle, with a delta against another writer when --diff is set. Save the JSON yourself; agent generation prompts can ingest it.
 
 ### Surface deeply nested Note metadata with --select
 
@@ -292,6 +407,64 @@ substack-pp-cli notes get c-12345 --agent --select id,body,attachments.url,attac
 ```
 
 Notes responses are deeply nested (attachments, bylines, contextual users). Dotted --select narrows the payload so an agent doesn't burn context parsing 30KB of JSON it doesn't need.
+
+### Bootstrap the portfolio analytics store
+
+```bash
+substack-pp-cli auth login --chrome
+export SUBSTACK_PUBLICATION=mypub
+substack-pp-cli portfolio sync --json
+substack-pp-cli portfolio --json
+```
+
+Run this once after login. Every cross-publication analytics command (`posts best`, `grep`, `schedule board`, `subs churn`, `subs cross-sell`) reads the local store that `portfolio sync` populates.
+
+### Publish a rich draft with SEO and cover image
+
+```bash
+export SUBSTACK_PUBLICATION=mypub
+substack-pp-cli drafts create \
+  --title "The case for X" \
+  --subtitle "Three reasons it matters now" \
+  --body-file ./post.md \
+  --audience only_paid \
+  --seo-title "Case for X" \
+  --seo-description "Why X matters for Y" \
+  --cover-image https://substackcdn.com/.../cover.jpg \
+  --json
+```
+
+Converts the Markdown body to Substack's ProseMirror format automatically. The target publication is resolved from `$SUBSTACK_PUBLICATION`. Drop `--audience only_paid` for a public post.
+
+### Twin your best EN post into a DE publication
+
+```bash
+# Sync first so the local store has current posts
+substack-pp-cli portfolio sync --json
+
+# Find top post by restacks
+substack-pp-cli posts best --by restacks --limit 1 --publication mypub-en --json
+
+# Preview the twin operation, then create the draft
+substack-pp-cli posts twin my-en-slug --to mypub-de --dry-run --json
+substack-pp-cli posts twin my-en-slug --to mypub-de --json
+```
+
+### Weekly subscriber churn digest
+
+```bash
+# Run this weekly (automate with a cron or agent schedule)
+substack-pp-cli subs churn --since 7d --json --publication mypub-paid
+```
+
+First run ever needs a baseline: `substack-pp-cli subs churn --snapshot`. After that, `--since 7d` compares against the nearest snapshot within that window.
+
+### Full-text search across all your publications
+
+```bash
+substack-pp-cli grep "interest rates" --scope posts --json
+substack-pp-cli grep "reader question" --scope notes --since 2025-01-01 --limit 20 --json
+```
 
 ## Auth Setup
 
@@ -325,7 +498,7 @@ Commands that read from the local store or the API wrap output in a provenance e
 }
 ```
 
-Parse `.results` for data and `.meta.source` to know whether it's live or local. A human-readable `N results (live)` summary is printed to stderr only when stdout is a terminal — piped/agent consumers get pure JSON on stdout.
+Parse `.results` for data and `.meta.source` to know whether it's live or local. A human-readable `N results (live)` summary is printed to stderr only when stdout is a terminal AND no machine-format flag (`--json`, `--csv`, `--compact`, `--quiet`, `--plain`, `--select`) is set — piped/agent consumers and explicit-format runs get pure JSON on stdout.
 
 ## Agent Feedback
 
@@ -337,7 +510,7 @@ substack-pp-cli feedback --stdin < notes.txt
 substack-pp-cli feedback list --json --limit 10
 ```
 
-Entries are stored locally at `~/.substack-pp-cli/feedback.jsonl`. They are never POSTed unless `SUBSTACK_FEEDBACK_ENDPOINT` is set AND either `--send` is passed or `SUBSTACK_FEEDBACK_AUTO_SEND=true`. Default behavior is local-only.
+Entries are stored locally at `~/.local/share/substack-pp-cli/feedback.jsonl`. They are never POSTed unless `SUBSTACK_FEEDBACK_ENDPOINT` is set AND either `--send` is passed or `SUBSTACK_FEEDBACK_AUTO_SEND=true`. Default behavior is local-only.
 
 Write what *surprised* you, not a bug report. Short, specific, one line: that is the part that compounds.
 
@@ -389,13 +562,15 @@ Parse `$ARGUMENTS`:
 
 ## MCP Server Installation
 
-Install the MCP binary from this CLI's published public-library entry or pre-built release, then register it:
-
-```bash
-claude mcp add substack-pp-mcp -- substack-pp-mcp
-```
-
-Verify: `claude mcp list`
+1. Install the MCP server:
+   ```bash
+   go install github.com/mvanhorn/printing-press-library/library/media-and-entertainment/substack/cmd/substack-pp-mcp@latest
+   ```
+2. Register with Claude Code:
+   ```bash
+   claude mcp add substack-pp-mcp -- substack-pp-mcp
+   ```
+3. Verify: `claude mcp list`
 
 ## Direct Use
 

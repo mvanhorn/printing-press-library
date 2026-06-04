@@ -1,0 +1,57 @@
+{
+  "version": "1",
+  "summary": {
+    "target_url": "https://ankiweb.net/shared/decks",
+    "captured_at": "2026-05-25T22:30:00Z",
+    "entry_count": 6,
+    "api_entry_count": 5,
+    "noise_entry_count": 1,
+    "host_distribution": { "ankiweb.net": 6 }
+  },
+  "reachability": {
+    "mode": "standard_http",
+    "confidence": 0.85,
+    "reasons": [
+      "All /svc/ endpoints returned 200 to same-origin fetch; no WAF/CDN challenge observed",
+      "Session is an HttpOnly cookie set at login; public /svc/shared/* needs no auth"
+    ]
+  },
+  "protocols": [
+    { "label": "protobuf", "confidence": 0.95, "details": { "note": "All /svc/ responses are application/octet-stream protobuf; field maps reverse-engineered during capture" } },
+    { "label": "sveltekit_spa", "confidence": 0.9, "details": { "note": "_app/immutable/* bundles; client-rendered, server-rendered HTML shells are empty" } }
+  ],
+  "auth": {
+    "candidates": [
+      {
+        "type": "cookie",
+        "confidence": 0.95,
+        "cookie_names": ["has_auth"],
+        "domain_hints": ["ankiweb.net"],
+        "evidence": ["POST /svc/decks/deck-list-info => 200 with session cookie, 403 without (validated). Real session cookie is HttpOnly; has_auth is the JS-visible flag."]
+      }
+    ],
+    "captcha_preflight": false
+  },
+  "protections": [],
+  "endpoint_clusters": [
+    { "host": "ankiweb.net", "method": "GET", "path": "/svc/shared/list-decks", "count": 3, "statuses": [200], "content_types": ["application/octet-stream"], "size_class": "medium" },
+    { "host": "ankiweb.net", "method": "GET", "path": "/svc/shared/item-info", "count": 1, "statuses": [200], "content_types": ["application/octet-stream"], "size_class": "large" },
+    { "host": "ankiweb.net", "method": "GET", "path": "/svc/shared/download-deck/{sharedId}", "count": 1, "statuses": [503, 400], "content_types": ["application/octet-stream"], "size_class": "large" },
+    { "host": "ankiweb.net", "method": "POST", "path": "/svc/decks/deck-list-info", "count": 1, "statuses": [200, 403], "content_types": ["application/octet-stream"], "size_class": "small" }
+  ],
+  "candidate_commands": [
+    { "name": "search", "resource": "shared", "confidence": 0.95, "rationale": "GET /svc/shared/list-decks?search= returns repeated deck protobuf {id,title,upvotes,downvotes,modified,notes,audio,images}" },
+    { "name": "info", "resource": "shared", "confidence": 0.9, "rationale": "GET /svc/shared/item-info?sharedId= returns full deck detail + reviews protobuf" },
+    { "name": "download", "resource": "shared", "confidence": 0.5, "rationale": "GET /svc/shared/download-deck/{id}?t= requires client-minted signed token (op=sdd); token generation unresolved" },
+    { "name": "list", "resource": "decks", "confidence": 0.85, "rationale": "POST /svc/decks/deck-list-info returns user's synced decks; cookie-gated" }
+  ],
+  "generation_hints": [
+    "protobuf_responses_require_handwritten_decoders",
+    "cookie_auth_validated",
+    "download_requires_signed_token"
+  ],
+  "warnings": [
+    { "code": "binary_protocol", "message": "All API responses are protobuf, not JSON; generated JSON decoding will not work without hand-written wire-format readers." },
+    { "code": "auth_token_gap", "message": "Shared-deck download needs a signed ?t= token minted by AnkiWeb client JS; not reproducible from captured traffic alone." }
+  ]
+}

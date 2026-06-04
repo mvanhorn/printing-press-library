@@ -1,0 +1,178 @@
+{
+  "api_name": "doordash",
+  "novelty_score": 7,
+  "alternatives": [
+    {
+      "name": "ashah360/doordash-mcp",
+      "url": "https://github.com/ashah360/doordash-mcp",
+      "language": "",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "DoorDash web client traffic",
+      "url": "",
+      "language": "",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [
+    "DoorDash does not provide a stable public DoorDash API for this surface.",
+    "Direct endpoint mirrors are risky because cart and order mutations are interleaved with read operations.",
+    "Agent-facing use needs redacted, read-focused commands and explicit guardrails around cart and checkout actions."
+  ],
+  "patterns": [
+    "Use browser-session cookies and CSRF headers for DoorDash web GraphQL compatibility.",
+    "Expose safe read commands for store search, menus, item options, order history, addresses, and payment summaries.",
+    "Keep cart and order placement behind explicit flags and confirmation-oriented command boundaries."
+  ],
+  "recommendation": "proceed-with-gaps",
+  "researched_at": "2026-05-15T18:10:04Z",
+  "novel_features": [
+    {
+      "name": "Safe store search",
+      "command": "search",
+      "description": "Search DoorDash stores through the consumer GraphQL autocomplete feed without mutating cart or order state.",
+      "rationale": "Agents need store discovery that avoids cart side effects and hides raw GraphQL plumbing.",
+      "example": "doordash-pp-cli search \"thai\" --agent",
+      "why_it_matters": "Useful for meal/vendor research while preserving account safety.",
+      "group": "Read-only DoorDash workflows"
+    },
+    {
+      "name": "Menu and option inspection",
+      "command": "menu",
+      "description": "Fetch DoorDash store menus in a normalized shape without changing the cart.",
+      "rationale": "The raw storepageFeed response is large and noisy; the command reduces it to agent-usable menu data.",
+      "example": "doordash-pp-cli menu --store-id STORE_ID --agent",
+      "why_it_matters": "Lets agents compare menu choices before any cart mutation is considered.",
+      "group": "Read-only DoorDash workflows"
+    },
+    {
+      "name": "Item customization discovery",
+      "command": "item-options",
+      "description": "Inspect item option groups and nested add-ons before adding anything to a cart.",
+      "rationale": "DoorDash item customization is deeply nested; exposing it separately reduces accidental invalid cart mutations.",
+      "example": "doordash-pp-cli item-options --store-id STORE_ID --item-id ITEM_ID --agent",
+      "why_it_matters": "Agents can reason about required modifiers before proposing a cart change.",
+      "group": "Read-only DoorDash workflows"
+    },
+    {
+      "name": "Redacted account reads",
+      "command": "recent-orders",
+      "description": "Read recent DoorDash order summaries without placing a new order.",
+      "rationale": "Historical order lookup is useful context, but public release artifacts must avoid leaking sensitive details.",
+      "example": "doordash-pp-cli recent-orders --limit 3 --agent",
+      "why_it_matters": "Supports repeat-order and preference analysis without checkout risk.",
+      "group": "Read-only DoorDash workflows"
+    },
+    {
+      "name": "Guarded cart commands",
+      "command": "cart",
+      "description": "Expose cart inspection and mutations as a separately named, guarded command family rather than mixing them into search/menu reads.",
+      "rationale": "Cart mutation is materially different from read-only browsing and must stay clearly separated for agents and reviewers.",
+      "example": "doordash-pp-cli cart --help",
+      "why_it_matters": "Clear command boundaries reduce accidental purchase-flow side effects.",
+      "group": "Guarded mutation boundary"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Safe store search",
+      "command": "search",
+      "description": "Search DoorDash stores through the consumer GraphQL autocomplete feed without mutating cart or order state.",
+      "rationale": "Agents need store discovery that avoids cart side effects and hides raw GraphQL plumbing.",
+      "example": "doordash-pp-cli search \"thai\" --agent",
+      "why_it_matters": "Useful for meal/vendor research while preserving account safety.",
+      "group": "Read-only DoorDash workflows"
+    },
+    {
+      "name": "Menu and option inspection",
+      "command": "menu",
+      "description": "Fetch DoorDash store menus in a normalized shape without changing the cart.",
+      "rationale": "The raw storepageFeed response is large and noisy; the command reduces it to agent-usable menu data.",
+      "example": "doordash-pp-cli menu --store-id STORE_ID --agent",
+      "why_it_matters": "Lets agents compare menu choices before any cart mutation is considered.",
+      "group": "Read-only DoorDash workflows"
+    },
+    {
+      "name": "Item customization discovery",
+      "command": "item-options",
+      "description": "Inspect item option groups and nested add-ons before adding anything to a cart.",
+      "rationale": "DoorDash item customization is deeply nested; exposing it separately reduces accidental invalid cart mutations.",
+      "example": "doordash-pp-cli item-options --store-id STORE_ID --item-id ITEM_ID --agent",
+      "why_it_matters": "Agents can reason about required modifiers before proposing a cart change.",
+      "group": "Read-only DoorDash workflows"
+    },
+    {
+      "name": "Redacted account reads",
+      "command": "recent-orders",
+      "description": "Read recent DoorDash order summaries without placing a new order.",
+      "rationale": "Historical order lookup is useful context, but public release artifacts must avoid leaking sensitive details.",
+      "example": "doordash-pp-cli recent-orders --limit 3 --agent",
+      "why_it_matters": "Supports repeat-order and preference analysis without checkout risk.",
+      "group": "Read-only DoorDash workflows"
+    },
+    {
+      "name": "Guarded cart commands",
+      "command": "cart",
+      "description": "Expose cart inspection and mutations as a separately named, guarded command family rather than mixing them into search/menu reads.",
+      "rationale": "Cart mutation is materially different from read-only browsing and must stay clearly separated for agents and reviewers.",
+      "example": "doordash-pp-cli cart --help",
+      "why_it_matters": "Clear command boundaries reduce accidental purchase-flow side effects.",
+      "group": "Guarded mutation boundary"
+    }
+  ],
+  "narrative": {
+    "display_name": "DoorDash",
+    "headline": "DoorDash GraphQL tooling with safe read commands and guarded cart/order boundaries.",
+    "value_prop": "This CLI packages a curated DoorDash GraphQL surface for agents. It separates safe browsing and account reads from cart/order mutations so reviewers can evaluate provenance, safety, and shipped command behavior without confusing the generated Go artifact with the active Node/CycleTLS runtime.",
+    "auth_narrative": "DoorDash access uses a browser-session cookie plus CSRF header. Do not publish real cookies, CSRF values, addresses, payment IDs, or order details; configure credentials only in the local runtime environment.",
+    "quickstart": [
+      {
+        "command": "doordash-pp-cli doctor",
+        "comment": "Check local config and generated CLI health."
+      },
+      {
+        "command": "doordash-pp-cli search \"thai\" --agent",
+        "comment": "Run a safe read-only store search."
+      },
+      {
+        "command": "doordash-pp-cli recent-orders --limit 1 --agent",
+        "comment": "Read a small account-history sample without checkout."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "DoorDash returns 401 or CSRF errors",
+        "fix": "Refresh the local browser-session cookie and CSRF header; never commit those values."
+      }
+    ],
+    "when_to_use": "Use this skill for the generated Go DoorDash PP artifact and its formal provenance/release checks. For day-to-day live DoorDash use in Mike's Hermes environment, prefer the active Node/CycleTLS wrapper documented separately in docs/SKILL.md.",
+    "recipes": [
+      {
+        "title": "Search stores safely",
+        "command": "doordash-pp-cli search \"thai\" --agent",
+        "explanation": "Uses the safe curated search command rather than a raw GraphQL mutation."
+      },
+      {
+        "title": "Inspect generated cart boundary",
+        "command": "doordash-pp-cli cart --help",
+        "explanation": "Shows the guarded mutation family without mutating cart state."
+      }
+    ],
+    "trigger_phrases": [
+      "validate DoorDash PP public release",
+      "inspect DoorDash generated PP artifact",
+      "run DoorDash PP release checks"
+    ]
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "restaurant365-odata-sync-stability",
+  "applied_at": "2026-06-01",
+  "base_run_id": "20260530-231734",
+  "base_printing_press_version": "4.18.1",
+  "summary": "Use one canonical GLAccount sync resource and add deterministic ordering to paginated sync requests.",
+  "reason": "Offset pagination needs a stable order, and GLAccount aliases should not sync the same dataset twice.",
+  "files": [
+    "internal/cli/channel_workflow.go",
+    "internal/cli/helpers.go",
+    "internal/cli/sync.go",
+    "internal/cli/r365_odata_test.go"
+  ],
+  "validated_outcome": "Focused Go regression tests covered GLAccount alias deduplication and stable $orderby sync parameters."
+}

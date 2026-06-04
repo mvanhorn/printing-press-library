@@ -1,0 +1,263 @@
+name: everbee
+description: EverBee Research workflows for product analytics, keyword research, and shop analysis
+version: 0.1.0
+base_url: https://api.everbee.com
+spec_source: sniffed
+category: marketing
+cli_description: Research Etsy product, shop, and keyword opportunities from EverBee data.
+mcp:
+    transport:
+        - stdio
+        - http
+    intents:
+        - name: research_keyword_opportunities
+          description: Pull EverBee keyword opportunity signals using the observed default keyword suggestion workflow.
+          steps:
+              - endpoint: keyword_research.list_default_keyword_suggestion
+                capture: keyword_suggestions
+          returns: keyword_suggestions
+        - name: research_product_opportunities
+          description: Pull EverBee product analytics sorted by observed monthly revenue signals.
+          steps:
+              - endpoint: product_analytics.list_default_product_analytics
+                capture: product_analytics
+          returns: product_analytics
+        - name: analyze_shops
+          description: Pull EverBee shop analyzer results for competitor and market research workflows.
+          steps:
+              - endpoint: shops.list_shops
+                capture: shops
+          returns: shops
+cache:
+    enabled: true
+    stale_after: 6h
+    refresh_timeout: 30s
+    env_opt_out: EVERBEE_NO_AUTO_REFRESH
+    resources:
+        keyword_research: 6h
+        product_analytics: 6h
+        shops: 6h
+    commands:
+        - name: opportunity shortlist
+          resources: [product_analytics, keyword_research]
+        - name: competitors watch
+          resources: [shops]
+        - name: report export
+          resources: [product_analytics, keyword_research, shops]
+auth:
+    type: api_key
+    header: x-access-token
+    in: header
+    verify_path: /users/show
+    login_url: https://auth.everbee.io/login
+    instructions: Capture the browser session token after Google SSO with `everbee-pp-cli auth capture`.
+    env_vars:
+        - EVERBEE_ACCESS_TOKEN
+config:
+    format: toml
+    path: ~/.config/everbee-pp-cli/config.toml
+resources:
+    folders:
+        description: Operations on folders
+        endpoints:
+            list_folders:
+                method: GET
+                path: /folders
+                description: GET /folders
+                params:
+                    - name: type
+                      type: string
+                      required: false
+                      positional: false
+                      default: listing
+                      description: "Folder type observed in EverBee traffic: listing, keyword_analytic, or shop"
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: folders
+                pagination: null
+                observed_auth:
+                    - x-access-token
+    keyword_research:
+        description: Operations on default_keyword_suggestion
+        endpoints:
+            list_default_keyword_suggestion:
+                method: GET
+                path: /keyword_research/default_keyword_suggestion
+                description: GET /keyword_research/default_keyword_suggestion
+                params:
+                    - name: order_by
+                      type: string
+                      required: false
+                      positional: false
+                      default: new_volume
+                      description: "Sort field observed in EverBee traffic"
+                      fields: []
+                    - name: order_direction
+                      type: string
+                      required: false
+                      positional: false
+                      default: desc
+                      description: "Sort direction"
+                      fields: []
+                    - name: page
+                      type: integer
+                      required: false
+                      positional: false
+                      default: 1
+                      description: "Result page"
+                      fields: []
+                    - name: type_of_search
+                      type: string
+                      required: false
+                      positional: false
+                      default: keywords_suggestion
+                      description: "EverBee keyword search mode"
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: default_keyword_suggestion
+                pagination: null
+                observed_auth:
+                    - x-access-token
+    management_modals:
+        description: Operations on management_modals
+        endpoints:
+            list_management_modals:
+                method: GET
+                path: /management_modals
+                description: GET /management_modals
+                params:
+                    - name: last_reset_at
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                      format: date-time
+                    - name: show_manage_keyword_modal
+                      type: boolean
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: show_manage_listing_modal
+                      type: boolean
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: show_manage_shop_modal
+                      type: boolean
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: management_modals
+                pagination: null
+                observed_auth:
+                    - x-access-token
+    product_analytics:
+        description: Operations on default_product_analytics
+        endpoints:
+            list_default_product_analytics:
+                method: GET
+                path: /product_analytics/default_product_analytics
+                description: GET /product_analytics/default_product_analytics
+                id_field: listing_id
+                params:
+                    - name: order_by
+                      type: string
+                      required: false
+                      positional: false
+                      default: est_mo_revenue
+                      description: "Sort field observed in EverBee traffic"
+                      fields: []
+                    - name: order_direction
+                      type: string
+                      required: false
+                      positional: false
+                      default: desc
+                      description: "Sort direction"
+                      fields: []
+                    - name: page
+                      type: integer
+                      required: false
+                      positional: false
+                      default: 1
+                      description: "Result page"
+                      fields: []
+                    - name: per_page
+                      type: integer
+                      required: false
+                      positional: false
+                      default: 20
+                      description: "Results per page"
+                      fields: []
+                    - name: time_range
+                      type: string
+                      required: false
+                      positional: false
+                      default: last_1_month
+                      description: "EverBee time range"
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: default_product_analytics
+                pagination: null
+                observed_auth:
+                    - x-access-token
+    shops:
+        description: Operations on shops
+        endpoints:
+            list_shops:
+                method: GET
+                path: /shops
+                description: GET /shops
+                params:
+                    - name: order_by
+                      type: string
+                      required: false
+                      positional: false
+                      default: revenue
+                      description: "Sort field observed in EverBee traffic"
+                      fields: []
+                    - name: order_direction
+                      type: string
+                      required: false
+                      positional: false
+                      default: desc
+                      description: "Sort direction"
+                      fields: []
+                    - name: page
+                      type: integer
+                      required: false
+                      positional: false
+                      default: 1
+                      description: "Result page"
+                      fields: []
+                    - name: per_page
+                      type: integer
+                      required: false
+                      positional: false
+                      default: 20
+                      description: "Results per page"
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: shops
+                pagination: null
+                observed_auth:
+                    - x-access-token
+types: {}

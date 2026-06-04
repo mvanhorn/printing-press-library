@@ -5,6 +5,10 @@
   "api_name": "obsidian",
   "display_name": "Obsidian",
   "cli_name": "obsidian-pp-cli",
+  "creator": {
+    "handle": "DrDriftwood",
+    "name": "Angelo Pullen"
+  },
   "owner": "drdriftwood",
   "owner_name": "LARGE FORMAT",
   "printer": "DrDriftwood",

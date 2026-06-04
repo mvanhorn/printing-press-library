@@ -1,4 +1,4 @@
-// Copyright 2026 nikica-jokic. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Nikica Jokic and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // PATCH novel-commands: hand-built digest aggregation (local SQLite, no upstream endpoint).
 package cli
@@ -62,13 +62,13 @@ Designed as the entry point for a morning sync or cron job.`,
 			defer rows.Close()
 
 			type digestEntry struct {
-				ID          string   `json:"id"`
-				Title       string   `json:"title"`
-				Date        string   `json:"date"`
-				Status      string   `json:"status"`
-				Gist        string   `json:"gist,omitempty"`
-				Topics      []string `json:"topics,omitempty"`
-				ActionItems string   `json:"action_items,omitempty"`
+				ID           string   `json:"id"`
+				Title        string   `json:"title"`
+				Date         string   `json:"date"`
+				Status       string   `json:"status"`
+				Gist         string   `json:"gist,omitempty"`
+				Topics       []string `json:"topics,omitempty"`
+				ActionItems  string   `json:"action_items,omitempty"`
 				Participants []string `json:"participants,omitempty"`
 			}
 			var entries []digestEntry

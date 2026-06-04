@@ -1,4 +1,4 @@
-// Copyright 2026 vinny-pasceri. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Vinny Pasceri and contributors. Licensed under Apache-2.0. See LICENSE.
 
 package cli
 
@@ -13,8 +13,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/other/numista/internal/store"
+	"github.com/spf13/cobra"
 )
 
 var refreshTypeRE = regexp.MustCompile(`^/types/([0-9]+)(?:$|/)`)

@@ -5,6 +5,10 @@
   "api_name": "table-reservation-goat",
   "display_name": "Table Reservation GOAT",
   "cli_name": "table-reservation-goat-pp-cli",
+  "creator": {
+    "handle": "pejmanjohn",
+    "name": "Pejman Pour-Moezzi"
+  },
   "owner": "pejman-pour-moezzi",
   "printer_name": "Pejman Pour-Moezzi",
   "spec_format": "internal",

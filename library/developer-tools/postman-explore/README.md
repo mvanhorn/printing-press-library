@@ -6,6 +6,8 @@ Postman's API Network is the world's largest public API directory, but discovery
 
 Learn more at [Postman Explore](https://www.postman.com/explore).
 
+Created by [@tmchow](https://github.com/tmchow) (Trevin Chow).
+
 ## Install
 
 The recommended path installs both the `postman-explore-pp-cli` binary and the `pp-postman-explore` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

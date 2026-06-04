@@ -1,4 +1,4 @@
-// Copyright 2026 david. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 David He and contributors. Licensed under Apache-2.0. See LICENSE.
 
 package cli
 
@@ -61,7 +61,7 @@ func openTestStore(t *testing.T) *store.Store {
 func TestQueryDigestSnapshots_EmptyStore(t *testing.T) {
 	db := openTestStore(t)
 
-	snaps, err := queryDigestSnapshotsCompat(db,time.Now().Add(-24*time.Hour))
+	snaps, err := queryDigestSnapshotsCompat(db, time.Now().Add(-24*time.Hour))
 	if err != nil {
 		t.Fatalf("query on empty store should succeed, got %v", err)
 	}
@@ -80,7 +80,7 @@ func TestQueryDigestSnapshots_TopByThumbs(t *testing.T) {
 		{DealID: "4", CapturedAt: now.Add(-4 * time.Hour), Thumbs: 25, Merchant: "thirdparty", Category: "tech"},
 	})
 
-	snaps, err := queryDigestSnapshotsCompat(db,now.Add(-24*time.Hour))
+	snaps, err := queryDigestSnapshotsCompat(db, now.Add(-24*time.Hour))
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -104,7 +104,7 @@ func TestQueryDigestSnapshots_SinceCutoff(t *testing.T) {
 		{DealID: "stale", CapturedAt: now.Add(-48 * time.Hour), Thumbs: 999},
 	})
 
-	snaps, err := queryDigestSnapshotsCompat(db,now.Add(-24*time.Hour))
+	snaps, err := queryDigestSnapshotsCompat(db, now.Add(-24*time.Hour))
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -125,7 +125,7 @@ func TestQueryDigestSnapshots_LatestPerDeal(t *testing.T) {
 		{DealID: "2", CapturedAt: now.Add(-2 * time.Hour), Thumbs: 30, Title: "only"},
 	})
 
-	snaps, err := queryDigestSnapshotsCompat(db,now.Add(-24*time.Hour))
+	snaps, err := queryDigestSnapshotsCompat(db, now.Add(-24*time.Hour))
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}

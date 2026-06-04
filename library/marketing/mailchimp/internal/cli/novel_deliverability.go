@@ -1,4 +1,4 @@
-// Copyright 2026 trevin-chow. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Trevin Chow and contributors. Licensed under Apache-2.0. See LICENSE.
 
 package cli
 
@@ -54,8 +54,8 @@ This command:
 			}
 			if dryRunOK(flags) {
 				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
-					"would_rollup_last":    last,
-					"would_filter_domain":  domain,
+					"would_rollup_last":   last,
+					"would_filter_domain": domain,
 				}, flags)
 			}
 
@@ -82,9 +82,9 @@ This command:
 
 			// Parallel fetch /reports/{id}/domain-performance for each campaign.
 			type result struct {
-				cid string
+				cid  string
 				perf []map[string]any
-				err error
+				err  error
 			}
 			results := make(chan result, len(campaigns))
 			var wg sync.WaitGroup

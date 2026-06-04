@@ -33,8 +33,8 @@ import (
 // envelope; the test inspects which side is populated to know which
 // branch the command took.
 type authorGetEnvelopeForTest struct {
-	Meta    map[string]any         `json:"meta"`
-	Result  *authorGetResultForTst `json:"result,omitempty"`
+	Meta    map[string]any          `json:"meta"`
+	Result  *authorGetResultForTst  `json:"result,omitempty"`
 	Results []authorGetResultForTst `json:"results,omitempty"`
 }
 

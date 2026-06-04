@@ -1,0 +1,238 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-27",
+  "base_run_id": "20260522-095940",
+  "base_printing_press_version": "4.11.0",
+  "patches": [
+    {
+      "id": "logout-warn-graphql-token",
+      "summary": "auth logout now also warns when GOODREADS_GRAPHQL_TOKEN is still exported, mirroring the existing GOODREADS_GOODREADS_COOKIE_SESSION warning (both JSON note and human prose).",
+      "reason": "config.Load() re-populates Config.GraphQLToken from GOODREADS_GRAPHQL_TOKEN after logout (so rating set/clear keep working), so a still-exported token meant the user thought they logged out but rating mutations still authenticated. Logout warned about the cookie env var but not this one.",
+      "files": [
+        "internal/cli/auth.go"
+      ],
+      "validated_outcome": "With GOODREADS_GRAPHQL_TOKEN set, `auth logout` prints '... env var is still set; unset it to fully log out.' and the --json envelope's note lists it; both env vars are joined when both are set."
+    },
+    {
+      "id": "chmod-existing-sensitive-files",
+      "summary": "After every sensitive cache/store/config/profile/feedback/export/deliver write, added an explicit os.Chmod (0o600 files / 0o700 dirs) so files/dirs left by an older 0o644/0o755 build get re-secured on next write.",
+      "reason": "os.WriteFile(path, data, 0o600) and os.OpenFile(..., O_CREATE, 0o600) do not change mode bits on an existing file (O_CREATE is a no-op then), and os.MkdirAll(dir, 0o700) does not change an existing dir's mode. Sensitive files created by an older world-readable build stayed 0o644 forever.",
+      "files": [
+        "internal/cache/cache.go",
+        "internal/config/config.go",
+        "internal/client/client.go",
+        "internal/store/store.go",
+        "internal/cli/profile.go",
+        "internal/cli/feedback.go",
+        "internal/cli/export.go",
+        "internal/cli/deliver.go"
+      ],
+      "validated_outcome": "go build/vet/test and verify_skill all pass. profile.go and deliver.go files were already safe via a tmp+rename (0o600 tmp) pattern; only their parent dirs needed re-securing. store.go already chmod'd the SQLite file/WAL/SHM sidecars; only its db dir needed re-securing."
+    },
+    {
+      "id": "markallasread-mutation-annotation",
+      "summary": "message list-markallasread annotated mcp:read-only=false to match its account-mutation behavior.",
+      "reason": "Greptile P1: GET /message/mark_all_as_read mutates the account, but the cobra command advertised mcp:read-only=true, telling MCP hosts it was safe to call without approval.",
+      "files": [
+        "internal/cli/message_list-markallasread.go"
+      ]
+    },
+    {
+      "id": "local-store-cache-perms",
+      "summary": "SQLite store and HTTP disk cache (dirs/files/WAL/SHM) restricted to owner-only (0o700/0o600).",
+      "reason": "Same world-readable class Greptile flagged on godaddy: store/cache were created 0o755 dir + umask-default file, leaving locally cached account/session data readable by other local users. Hardened proactively to match the midjourney/godaddy reference.",
+      "files": [
+        "internal/store/store.go",
+        "internal/cache/cache.go"
+      ]
+    },
+    {
+      "id": "set-token-stdin",
+      "summary": "auth set-token reads the session cookie from stdin (positional now optional).",
+      "reason": "Greptile P1/security: a session cookie passed as a positional arg is written to shell history and visible in the process table; piping via stdin keeps it out of both.",
+      "files": [
+        "internal/cli/auth.go"
+      ]
+    },
+    {
+      "id": "exclude-mutation-from-default-sync",
+      "summary": "Removed message-mark-all-as-read from the default sync resource list.",
+      "reason": "Greptile P1: it maps to a GET mutation; default sync would error on the write gate or mark the inbox read as a side effect.",
+      "files": [
+        "internal/cli/sync.go"
+      ]
+    },
+    {
+      "id": "store-list-unbounded-limit",
+      "summary": "store.List treats negative limit as unbounded; data_source passes -1 for the full dataset.",
+      "reason": "db.List(...,0) clamped to 200, silently truncating full-read callers to 200 rows.",
+      "files": [
+        "internal/store/store.go",
+        "internal/cli/data_source.go"
+      ]
+    },
+    {
+      "id": "export-path-escape",
+      "summary": "export escapes the optional ID arg via url.PathEscape.",
+      "reason": "Greptile P1: args[1] was concatenated raw into the URL path, allowing path/query injection via space, '/', or '?'.",
+      "files": [
+        "internal/cli/export.go"
+      ]
+    },
+    {
+      "id": "workflow-archive-exclude-mutation",
+      "summary": "Removed message-mark-all-as-read from the workflow archive resource list.",
+      "reason": "Greptile P1: same mutation hazard fixed in defaultSyncResources persisted in this second hardcoded list.",
+      "files": [
+        "internal/cli/channel_workflow.go"
+      ]
+    },
+    {
+      "id": "batch-form-key-id-substitution",
+      "summary": "Substitute the actual id into array-indexed batch form keys (messages[<id>], reviews[<id>]) instead of sending the literal {message_id}/{review_id} placeholder.",
+      "reason": "Greptile P1: the form key was emitted verbatim as messages[{message_id}] / reviews[{review_id}], so Goodreads matched no row and the batch action silently no-oped.",
+      "files": [
+        "internal/cli/message_create.go",
+        "internal/cli/review_create-updatelist.go"
+      ]
+    },
+    {
+      "id": "graphql-client-rating",
+      "summary": "Added Client.GraphQL targeting the AWS AppSync endpoint with Authorization-header (JWT) auth, plus GOODREADS_GRAPHQL_TOKEN env/config wiring; new 'rating set'/'rating clear' commands fire RateBook/UnrateBook.",
+      "reason": "Live capture (2026-05-28) proved star ratings are GraphQL-only on the modern UI; the generator had no GraphQL path and no rating command. This is the core correctness gap that deferred PR #894.",
+      "files": [
+        "internal/client/client.go",
+        "internal/config/config.go",
+        "internal/cli/rating.go",
+        "internal/cli/root.go"
+      ],
+      "validated_outcome": "rating set --dry-run posts {operationName:RateBook, variables.input.rating} to the appsync-api host with an Authorization header; live writes gated by GOODREADS_PP_ALLOW_WRITES."
+    },
+    {
+      "id": "review-write-form-rewire",
+      "summary": "Rewired 'review create' from the dead /review/update_session_shelf_settings route to the legacy POST /review/update/:book_id form with named flags (--review, --spoiler, --publicize, --add-to-blog, --shelf, --notes, --authenticity-token).",
+      "reason": "Generated command pointed at a transient shelf-table UI settings POST that does not write a review; the live capture documented the real review-write/publicize/spoiler form fields.",
+      "files": [
+        "internal/cli/review_create.go"
+      ]
+    },
+    {
+      "id": "clear-graphql-token-on-logout",
+      "summary": "ClearTokens() now also zeroes Config.GraphQLToken and Config.Headers.",
+      "reason": "Greptile P1/security: logout cleared every other credential but left the AppSync GraphQL JWT persisted in the on-disk TOML, so it survived `auth logout` and silently re-authenticated GraphQL rating mutations. The custom Headers map (applied verbatim to every request, can carry an Authorization header) was also never cleared; the sweep added it for a complete logout.",
+      "files": [
+        "internal/config/config.go"
+      ],
+      "validated_outcome": "After `auth logout`, graphql_token is absent from the config TOML (omitempty + empty); Headers cleared to nil."
+    },
+    {
+      "id": "sweep-authenticity-token-env-stdin",
+      "summary": "Repo-wide sweep: the 7 remaining commands that took the Rails CSRF token as a --authenticity-token CLI flag now resolve it from GOODREADS_AUTHENTICITY_TOKEN env/stdin via readAuthenticityTokenWithStdin; the flag is deprecated and warns.",
+      "reason": "Greptile only sampled review_create/shelf_create; the same credential-in-argv leak (shell history + ps aux) existed in 7 more form-POST commands.",
+      "files": [
+        "internal/cli/message_create.go",
+        "internal/cli/promoted_user-shelves.go",
+        "internal/cli/review_create-updatelist.go",
+        "internal/cli/shelf_create-movetoposition.go",
+        "internal/cli/shelf_create-removebook.go",
+        "internal/cli/shelf_create-update.go",
+        "internal/cli/giveaway.go"
+      ]
+    },
+    {
+      "id": "sweep-form-encode-rails-writes",
+      "summary": "Repo-wide sweep: 4 more legacy Rails form routes (/shelf/move_batch, /shelf/move_batch/:user_id, PUT /notes/:book_id/share, POST /notes/:book_id/:annotation_pair_id/note) now flatten the stdin JSON map into application/x-www-form-urlencoded fields via PostFormWithParams/PutFormWithParams instead of sending an ignored JSON body.",
+      "reason": "Same JSON-to-Rails-form bug class as the review create-update finding. The route research documents these as form/page-source routes with a CSRF requirement. /notifications/track and import (generic JSONL) were intentionally left as JSON — no form contract documented for either.",
+      "files": [
+        "internal/cli/shelf_create-movebatch.go",
+        "internal/cli/shelf_create-movebatch-2.go",
+        "internal/cli/notes_share_update.go",
+        "internal/cli/notes_note_create.go"
+      ],
+      "validated_outcome": "--dry-run shows shelf create-movebatch POST body 'shelf_order=3%2C1%2C2' and notes share update PUT body 'visible=1' as form-encoded."
+    },
+    {
+      "id": "sweep-output-file-perms",
+      "summary": "export output file created 0600 (was os.Create's umask-default ~0644); deliver target dir created 0700 (was 0755).",
+      "reason": "Both write API response data that can include private account/shelf records; matches the world-readable class Greptile flagged on store/cache. Hardened to owner-only.",
+      "files": [
+        "internal/cli/export.go",
+        "internal/cli/deliver.go"
+      ]
+    },
+    {
+      "id": "sweep-pathescape-resource-arg",
+      "summary": "tail and import now percent-encode the user-supplied <resource> arg via url.PathEscape before concatenating it into the request path.",
+      "reason": "Same path/query-injection class as the export-path-escape fix; a resource arg with space/'/'/'?' could corrupt the path or inject query params.",
+      "files": [
+        "internal/cli/tail.go",
+        "internal/cli/import.go"
+      ]
+    },
+    {
+      "id": "sweep-dryrun-form-body-display",
+      "summary": "client dryRun() now prints non-JSON (form-urlencoded) request bodies verbatim instead of silently dropping them.",
+      "reason": "Form POST previews showed no Body line, hiding what a write would send and making form-vs-JSON verification impossible.",
+      "files": [
+        "internal/client/client.go"
+      ]
+    },
+    {
+      "id": "sweep-spec-checksum-refresh",
+      "summary": "Refreshed .printing-press.json spec_checksum to match the current spec.yaml (sha256 384c1f5...).",
+      "reason": "spec.yaml had been edited after the manifest was written, leaving a stale checksum (5e817a3...) that the publish-package provenance check would flag. spec_path 'spec.yaml' is a clean relative path (no PII; the cal-com/tmchow path described upstream was already absent), so it was kept rather than blanked.",
+      "files": [
+        ".printing-press.json"
+      ]
+    },
+    {
+      "id": "review-create-update-form-encode",
+      "summary": "review create-update now flattens the stdin JSON map into review[...] bracket-key form fields and POSTs application/x-www-form-urlencoded via PostFormWithParams, instead of sending a JSON body.",
+      "reason": "Greptile P1: the legacy Rails controller at POST /review/update/:book_id only accepts application/x-www-form-urlencoded; the JSON body sent via PostWithParams was silently ignored and nothing updated.",
+      "files": [
+        "internal/cli/review_create-update.go"
+      ],
+      "validated_outcome": "Against a local echo server the command sends Content-Type application/x-www-form-urlencoded with body authenticity_token=...&review%5Bnotes%5D=...&review%5Breview%5D=... to POST /review/update/12345."
+    },
+    {
+      "id": "authenticity-token-env-stdin",
+      "summary": "The Rails CSRF authenticity_token is resolved from the GOODREADS_AUTHENTICITY_TOKEN env var or stdin (shared helpers readAuthenticityToken / readAuthenticityTokenWithStdin); the --authenticity-token / --body... flags are deprecated and warn when used. Also taught client dryRun to print non-JSON (form) bodies.",
+      "reason": "Greptile P2: a CSRF token passed as a CLI flag leaks into shell history and the process table (ps aux), the same risk auth.go documents for credentials-as-args. Applied to review create, review create-update, and shelf create.",
+      "files": [
+        "internal/cli/helpers.go",
+        "internal/cli/review_create.go",
+        "internal/cli/review_create-update.go",
+        "internal/cli/shelf_create.go",
+        "internal/client/client.go"
+      ],
+      "validated_outcome": "review/shelf create read the token from GOODREADS_AUTHENTICITY_TOKEN with no flag; passing --authenticity-token still works but prints a deprecation warning to stderr."
+    },
+    {
+      "id": "home-updates-feed",
+      "summary": "Added 'feed list' reading the home UPDATES feed (friends' activity) via read-only POST /home/load_more_updates with --page pagination.",
+      "reason": "The friends'-activity feed endpoint appeared in the live capture but was not wired by the generator; required by the feature list.",
+      "files": [
+        "internal/cli/feed.go",
+        "internal/cli/root.go",
+        "internal/cli/which.go"
+      ]
+    },
+    {
+      "id": "giveaways",
+      "summary": "Added 'giveaway list' (GET /giveaway) and 'giveaway show <id>' (GET /giveaway/:id); scaffolded 'giveaway enter <id>' which refuses live execution and documents the missing capture.",
+      "reason": "Goodreads Giveaways surface was absent. list/show are confirmed GET pages; the enter-giveaway POST body/CSRF shape was not captured live, so enter is dry-run-only until a real submission is captured.",
+      "files": [
+        "internal/cli/giveaway.go",
+        "internal/cli/root.go",
+        "internal/cli/which.go"
+      ]
+    }
+  ],
+  "deferred_to_upstream": [
+    {
+      "id": "giveaway-enter-capture",
+      "summary": "giveaway enter needs a live capture of an actual entry submission (POST target, address/terms fields, Rails CSRF) before it can execute against the live site.",
+      "reason": "The enter-giveaway POST was not observed in the 2026-05-22/2026-05-28 network sweeps."
+    }
+  ]
+}

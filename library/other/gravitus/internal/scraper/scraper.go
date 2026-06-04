@@ -35,7 +35,7 @@ type Exercise struct {
 
 // Set is one row in an exercise's set table.
 type Set struct {
-	Number    int     // 0 = warmup
+	Number    int // 0 = warmup
 	IsWarmup  bool
 	IsPR      bool
 	WeightLbs float64 // 0 if not applicable
@@ -630,8 +630,8 @@ func nodeText(n *html.Node) string {
 }
 
 var dateFormats = []string{
-	time.RFC3339,          // "2026-05-15T22:03:07+00:00" — actual Gravitus format
-	time.RFC3339Nano,      // with nanoseconds
+	time.RFC3339,     // "2026-05-15T22:03:07+00:00" — actual Gravitus format
+	time.RFC3339Nano, // with nanoseconds
 	"2006-01-02T15:04:05Z",
 	"2006-01-02T15:04:05",
 	"January 2, 2006",

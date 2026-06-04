@@ -1,0 +1,6 @@
+
+# Probe binaries from disk-auth development
+/chrome-disk-probe
+/cookie-probe
+/disk-auth-smoke
+/get-cookies

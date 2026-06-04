@@ -5,6 +5,10 @@
   "api_name": "fathom",
   "display_name": "Fathom",
   "cli_name": "fathom-pp-cli",
+  "creator": {
+    "handle": "neektza",
+    "name": "Nikica Jokic"
+  },
   "owner": "nikica-jokic",
   "printer": "neektza",
   "printer_name": "Nikica Jokic",

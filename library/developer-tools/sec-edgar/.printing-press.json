@@ -5,6 +5,10 @@
   "api_name": "sec-edgar",
   "display_name": "SEC EDGAR",
   "cli_name": "sec-edgar-pp-cli",
+  "creator": {
+    "handle": "ChrisDrit",
+    "name": "Chris Drit"
+  },
   "owner": "chris-drit",
   "printer": "ChrisDrit",
   "printer_name": "Chris Drit",

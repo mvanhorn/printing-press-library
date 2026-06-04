@@ -5,6 +5,10 @@
   "api_name": "hayward-omnilogic",
   "display_name": "Hayward OmniLogic",
   "cli_name": "hayward-omnilogic-pp-cli",
+  "creator": {
+    "handle": "rob-coco",
+    "name": "Rob Zehner"
+  },
   "owner": "rzehner",
   "printer": "rob-coco",
   "printer_name": "Rob Zehner",

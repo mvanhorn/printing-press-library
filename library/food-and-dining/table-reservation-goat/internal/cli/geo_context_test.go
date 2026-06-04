@@ -1,4 +1,4 @@
-// Copyright 2026 pejman-pour-moezzi. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Pejman Pour-Moezzi and contributors. Licensed under Apache-2.0. See LICENSE.
 
 package cli
 
@@ -179,34 +179,34 @@ func TestGeoContext_ForResy(t *testing.T) {
 // resyCityFromResolvedTo switch — keep them in sync.
 func TestResyCityFromResolvedTo(t *testing.T) {
 	cases := map[string]string{
-		"":                  "",
-		"New York":          "ny",
-		"New York City":     "ny",
-		"Manhattan":         "ny",
-		"Brooklyn":          "ny",
-		"Queens":            "ny",
-		"Seattle":           "sea",
-		"Los Angeles":       "la",
-		"San Francisco":     "sf",
-		"Chicago":           "chi",
-		"Miami":             "mia",
-		"Boston":            "bos",
-		"Washington":        "dc",
-		"Washington, DC":    "dc",
-		"Philadelphia":      "phi",
-		"Austin":            "atx",
-		"Houston":           "hou",
-		"Dallas":            "dfw",
-		"Atlanta":           "atl",
-		"Denver":            "den",
-		"Portland":          "pdx",
-		"San Diego":         "sd",
-		"Las Vegas":         "las",
-		"Nashville":         "bna",
-		"New Orleans":       "nola",
-		"Minneapolis":       "msp",
-		"Bellevue":          "", // not a Resy metro on its own
-		"Springfield":       "", // ambiguous; never mapped
+		"":               "",
+		"New York":       "ny",
+		"New York City":  "ny",
+		"Manhattan":      "ny",
+		"Brooklyn":       "ny",
+		"Queens":         "ny",
+		"Seattle":        "sea",
+		"Los Angeles":    "la",
+		"San Francisco":  "sf",
+		"Chicago":        "chi",
+		"Miami":          "mia",
+		"Boston":         "bos",
+		"Washington":     "dc",
+		"Washington, DC": "dc",
+		"Philadelphia":   "phi",
+		"Austin":         "atx",
+		"Houston":        "hou",
+		"Dallas":         "dfw",
+		"Atlanta":        "atl",
+		"Denver":         "den",
+		"Portland":       "pdx",
+		"San Diego":      "sd",
+		"Las Vegas":      "las",
+		"Nashville":      "bna",
+		"New Orleans":    "nola",
+		"Minneapolis":    "msp",
+		"Bellevue":       "", // not a Resy metro on its own
+		"Springfield":    "", // ambiguous; never mapped
 	}
 	for in, want := range cases {
 		t.Run(in, func(t *testing.T) {

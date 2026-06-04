@@ -1,9 +1,4 @@
-<!-- GENERATED FILE — DO NOT EDIT.
-     This file is a verbatim mirror of library/other/gravitus/SKILL.md,
-     regenerated post-merge by tools/generate-skills/. Hand-edits here are
-     silently overwritten on the next regen. Edit the library/ source instead.
-     See AGENTS.md "Generated artifacts: registry.json, cli-skills/". -->
-﻿---
+---
 name: pp-gravitus
 description: "The only CLI that syncs your Gravitus strength data into your training dashboard. Trigger phrases: `sync my Gravitus workouts`, `load my lifting data into the dashboard`, `find my plateau lifts`, `export my Gravitus data`, `check my personal records`, `use gravitus`, `run gravitus-pp-cli`."
 author: "mvanhorn"
@@ -16,6 +11,11 @@ metadata:
       bins:
         - gravitus-pp-cli
 ---
+<!-- GENERATED FILE — DO NOT EDIT.
+     This file is a verbatim mirror of library/other/gravitus/SKILL.md,
+     regenerated post-merge by tools/generate-skills/. Hand-edits here are
+     silently overwritten on the next regen. Edit the library/ source instead.
+     See the repository agent guide, section "Generated artifacts: registry.json, cli-skills/". -->
 
 # Gravitus — Printing Press CLI
 

@@ -1,4 +1,4 @@
-// Copyright 2026 trevin-chow. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Trevin Chow and contributors. Licensed under Apache-2.0. See LICENSE.
 
 package cli
 
@@ -7,8 +7,8 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/pagliacci/internal/client"
+	"github.com/spf13/cobra"
 )
 
 // findMostRecentOrderID hits /OrderList/1/1 and returns the single order ID.

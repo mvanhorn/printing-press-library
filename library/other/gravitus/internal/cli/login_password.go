@@ -14,8 +14,8 @@ import (
 	"golang.org/x/net/html"
 	"golang.org/x/term"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/other/gravitus/internal/config"
+	"github.com/spf13/cobra"
 )
 
 // newAuthLoginPasswordCmd adds password-based login to the auth command.
@@ -126,8 +126,8 @@ func gravitusDjangoLogin(baseURL, email, password string) (sessionID string, use
 
 	// Step 2: POST credentials with CSRF token
 	formData := url.Values{
-		"email":              {email},
-		"password":           {password},
+		"email":               {email},
+		"password":            {password},
 		"csrfmiddlewaretoken": {csrfToken},
 	}
 

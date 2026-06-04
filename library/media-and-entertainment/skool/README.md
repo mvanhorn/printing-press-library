@@ -4,6 +4,8 @@
 
 Pulls every post, comment, member, course, lesson, and calendar event into a local SQLite store with FTS5 so you can query historical state, compute leaderboard deltas, and surface at-risk members the native UI cannot show. One auth_token cookie, two hosts (www.skool.com reads, api2.skool.com writes), zero CloudFront friction.
 
+Created by [@quoxientzero](https://github.com/quoxientzero) (Zain Haseeb).
+
 ## Install
 
 The recommended path installs both the `skool-pp-cli` binary and the `pp-skool` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

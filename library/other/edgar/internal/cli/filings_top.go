@@ -1,4 +1,4 @@
-// Copyright 2026 magoo242. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 magoo242 and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // `edgar-pp-cli filings-by-ticker <TICKER> --type 10-K` — top-level wrapper
 // around the resource-level filings browse, with ticker→CIK resolution.

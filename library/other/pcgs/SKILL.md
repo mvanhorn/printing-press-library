@@ -382,6 +382,32 @@ pcgs-pp-cli coin facts-cert 45987467 --agent | jq '.data.year_mismatch'   # {"na
 pcgs-pp-cli coin facts-cert 50483263 --agent | jq '.data.year_mismatch'   # null
 ```
 
+#### `Images` is omitted — fetch URLs with `coin images <cert>`
+
+The PCGS CoinFacts endpoints return a stub `Images: [{}, {}]` array with no URL fields. The CLI strips the `Images` key entirely from `coin facts-cert`, `coin facts-grade`, `coin facts-barcode`, and `coin batch` responses so the empty objects don't read as "the image fetch failed". The image-presence booleans on the same response (`HasObverseImage`, `HasReverseImage`, `HasTrueViewImage`, `ImageReady`) are preserved so an agent can tell whether images exist before spending a second quota call.
+
+```bash
+pcgs-pp-cli coin facts-cert 50483263 --agent | jq '.data | has("Images")'        # false
+pcgs-pp-cli coin facts-cert 50483263 --agent | jq '.data.HasTrueViewImage'        # true (when applicable)
+
+# Fetch the URLs separately
+pcgs-pp-cli coin images 50483263 --agent
+```
+
+### `coin batch --csv --columns` flat export
+
+`coin batch` emits JSONL by default. Pass `--csv` to flatten the same stream into a single CSV with a header row. Pair with `--columns` to project a subset of dotted paths across the unified `{cert_no, data, _keep}` envelope — `data.*` reaches into the coin record, `_keep.*` reaches into the passthrough columns the input CSV carried, and `cert_no` is the top-level scalar.
+
+```bash
+pcgs-pp-cli coin batch \
+  --file pcgs-coin-list.csv \
+  --csv \
+  --columns "_keep.box,_keep.slot,cert_no,data.Name,data.Year,data.Grade,data.PriceGuideValue" \
+  > out.csv
+```
+
+Missing fields emit an empty cell (not the literal string `null`). Nested objects/arrays are JSON-encoded into one cell so downstream tooling can re-parse them if needed. When `--columns` is omitted, the CSV auto-discovers a header from the keys present in the first emitted row, scoped to `cert_no`, top-level `_keep.*` keys, and top-level `data.*` keys.
+
 ## Agent Feedback
 
 When you (or the agent) notice something off about this CLI, record it:

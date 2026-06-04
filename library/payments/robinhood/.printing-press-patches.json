@@ -1,0 +1,147 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-29",
+  "base_run_id": "20260522-162911",
+  "base_printing_press_version": "4.11.0",
+  "patches": [
+    {
+      "id": "clear-tokens-headers-map",
+      "summary": "ClearTokens now sets Config.Headers = nil so a logout drops any custom credential header in addition to the named token fields.",
+      "reason": "Greptile (Squarespace #919) class: ClearTokens zeroed the named credential fields but left the Headers map intact, and the client's do() loop applies every Config.Headers entry to every request, so a logout could leave an Authorization/credential header active. Mirrors the goodreads fix.",
+      "files": ["internal/config/config.go"],
+      "validated_outcome": "go build/vet/test pass; verify-skill passes."
+    },
+    {
+      "id": "typed-brokerage-commands",
+      "summary": "Added typed brokerage read/write commands under the existing 'brokerage' parent (accounts, ceres-accounts, account, account-switcher, positions, portfolios, instrument, quote, orders[+place/cancel], options[positions/orders/chain/instruments/marketdata/place/cancel], performance, transfers[+relationships/unified], dividends, history, watchlist[+items/add/remove]).",
+      "reason": "The generated CLI was crypto-only (official Crypto API). Zayd wanted the brokerage surface (~90%) captured in the live API map. Each command targets a specific captured endpoint and reuses brokeragemap.Execute (the existing Bearer-token, multi-host, rate-limited, write-gated transport) rather than the crypto client, which speaks x-api-key+ed25519 and cannot reach brokerage hosts. Writes default to dry-run and require --live-write + ROBINHOOD_PP_ALLOW_WRITES=1; trades are never auto-executed.",
+      "files": [
+        "internal/cli/brokerage_read.go",
+        "internal/cli/brokerage.go"
+      ],
+      "validated_outcome": "go build/vet/test pass; verify-skill passes; orders place auto-falls-back to dry-run without --live-write; reads exit 5 on auth/HTTP failure."
+    },
+    {
+      "id": "brokeragemap-build-direct-plan",
+      "summary": "Added brokeragemap.BuildDirectPlan(host, pathTemplate, method, risk, params, query) to construct a Plan for an explicit captured endpoint, plus unit tests.",
+      "reason": "Typed brokerage commands need to target captured endpoints by host+path (with {placeholder} resolution and query assembly) instead of looking them up in the embedded route list. Foundation shared by every typed command.",
+      "files": [
+        "internal/brokeragemap/route_map.go",
+        "internal/brokeragemap/direct_plan_test.go"
+      ]
+    },
+    {
+      "id": "brokerage-execute-error-propagation",
+      "summary": "brokerage execute returns a non-zero exit on HTTP 4xx/5xx and propagates io.ReadAll errors.",
+      "reason": "Greptile P1: brokeragemap.Execute discarded the response body-read error (returning truncated bodies as OK), and the brokerage execute RunE never checked result.OK, so failed live requests exited 0 unlike every other command.",
+      "files": [
+        "internal/brokeragemap/route_map.go",
+        "internal/cli/brokerage.go"
+      ]
+    },
+    {
+      "id": "local-store-cache-perms",
+      "summary": "SQLite store and HTTP disk cache (dirs/files/WAL/SHM) restricted to owner-only (0o700/0o600).",
+      "reason": "Same world-readable class Greptile flagged on godaddy: store/cache were created 0o755 dir + umask-default file, leaving locally cached account/session data readable by other local users. Hardened proactively to match the midjourney/godaddy reference.",
+      "files": [
+        "internal/store/store.go",
+        "internal/cache/cache.go"
+      ]
+    },
+    {
+      "id": "remove-cancel-create-alias",
+      "summary": "Removed the misleading 'create' alias from crypto post-trading-cancel-order.",
+      "reason": "Greptile P1: the cancel-order command registered 'create' as an alias, so 'crypto create <id>' would silently cancel a live order instead of placing one.",
+      "files": [
+        "internal/cli/crypto_post-trading-cancel-order.go"
+      ]
+    },
+    {
+      "id": "brokerage-execute-missing-params",
+      "summary": "brokerage execute refuses to run when path params are unresolved.",
+      "reason": "Greptile P1: execute sent a live request with literal {placeholder} URL segments when --param was omitted, unlike brokerage plan which surfaces missing params.",
+      "files": [
+        "internal/cli/brokerage.go"
+      ]
+    },
+    {
+      "id": "store-list-unbounded-limit",
+      "summary": "store.List treats negative limit as unbounded; analytics/data_source pass -1 for the full dataset.",
+      "reason": "db.List(...,0) clamped to 200, so analytics/full-read callers silently truncated to the first 200 rows.",
+      "files": [
+        "internal/store/store.go",
+        "internal/cli/analytics.go",
+        "internal/cli/data_source.go"
+      ]
+    },
+    {
+      "id": "brokerage-execute-rate-limit",
+      "summary": "brokeragemap.Execute wires cliutil.NewAdaptiveLimiter (Wait/OnSuccess/OnRateLimit) around its HTTP call.",
+      "reason": "Greptile P2: Execute used a plain http.Client with no per-second cap, unlike client.go's AdaptiveLimiter, so brokerage execute in a loop could hit Robinhood's rate limiter with no back-off.",
+      "files": [
+        "internal/brokeragemap/route_map.go"
+      ]
+    },
+    {
+      "id": "brokerage-routes-runE-and-authheader-deadcode",
+      "summary": "brokerage routes RunE uses an if/else-if chain over UnifiedRoutes/BrowserRoutes/Routes, and config.AuthHeader drops a redundant second empty-token check.",
+      "reason": "Greptile P2: the routes RunE always called Routes() first and swallowed its error before overwriting the result for unified/browser; AuthHeader had a duplicate dead `if c.RobinhoodApiKey == \"\"` guard already covered by the earlier token check.",
+      "files": [
+        "internal/cli/brokerage.go",
+        "internal/config/config.go"
+      ]
+    },
+    {
+      "id": "http-cache-owner-only-perms",
+      "summary": "client.writeCache creates the HTTP response cache dir/files as 0o700/0o600 instead of 0o755/0o644.",
+      "reason": "Repo-wide perms sweep: the prior session hardened internal/store and internal/cache but missed the client's own ~/.cache/robinhood-pp-cli/http writer, which mirrors live account/portfolio/order/quote responses and was left world-readable.",
+      "files": [
+        "internal/client/client.go"
+      ]
+    },
+    {
+      "id": "brokeragemap-url-escape",
+      "summary": "brokeragemap.BuildPlan percent-encodes path-param values (url.PathEscape) and BuildDirectPlan percent-encodes query keys/values (url.QueryEscape).",
+      "reason": "Repo-wide URL-injection sweep: the crypto commands already escape via replacePathParam (url.PathEscape), but the brokerage route builder substituted user-supplied --param path values and --query values raw, so a value with '/' or '..' could collapse into extra path segments or inject query parameters.",
+      "files": [
+        "internal/brokeragemap/route_map.go",
+        "internal/brokeragemap/direct_plan_test.go"
+      ],
+      "validated_outcome": "go build/vet/test pass; new TestBuildDirectPlanEscapesReservedChars proves '../evil/segment' and 'a&b=c' are percent-encoded; verify-skill passes."
+    },
+    {
+      "id": "chmod-existing-sensitive-files",
+      "summary": "After every sensitive WriteFile/MkdirAll/O_CREATE on cache/store/config/profile/feedback paths, added os.Chmod to 0o700 (dirs) / 0o600 (files).",
+      "reason": "os.WriteFile / os.OpenFile(O_CREATE) / os.MkdirAll only apply the perm bits when CREATING; a dir/file left over from an older 0o755/0o644 build kept its world-readable mode forever. The prior perms patches only hardened newly-created paths. Chmod re-secures the existing artifacts on the next write.",
+      "files": [
+        "internal/cache/cache.go",
+        "internal/config/config.go",
+        "internal/client/client.go",
+        "internal/cli/profile.go",
+        "internal/cli/feedback.go",
+        "internal/store/store.go"
+      ],
+      "validated_outcome": "go build/vet/test pass; verify-skill passes. store.go's db file + WAL/SHM sidecars were already chmod'd; this adds the missing dir chmod and re-secures the config/profile/feedback/cache files. deliver.go left at 0o755 (user-chosen output sink, not a sensitive cache/store path)."
+    },
+    {
+      "id": "brokerage-forward-timeout-flag",
+      "summary": "Added a Timeout field to brokeragemap.ExecuteOptions; Execute uses it for the http.Client (falling back to 30s when zero), and every brokerage command threads the CLI --timeout (flags.timeout) into the ExecuteOptions it builds.",
+      "reason": "Greptile (#893): brokeragemap.Execute hardcoded a 30s http.Client timeout and ExecuteOptions had no Timeout field, so the user-visible --timeout flag (wired into the crypto client via flags.newClient) was silently ignored on every brokerage command. Now brokerage honors --timeout like crypto does.",
+      "files": [
+        "internal/brokeragemap/route_map.go",
+        "internal/cli/brokerage.go",
+        "internal/cli/brokerage_read.go"
+      ],
+      "validated_outcome": "go build/vet/test pass; verify-skill passes. Default behavior unchanged when --timeout is unset (zero Timeout falls back to 30s)."
+    },
+    {
+      "id": "recurring-and-cancel-write-verbs",
+      "summary": "Added the recurring_schedules/{id}/ write route (PATCH resume/pause, DELETE) to the embedded brokerage route map, and declared HTTP methods on the previously method-less equity/options order-cancel routes (POST) and ach/transfers (GET+POST).",
+      "reason": "Recurring-investment writes were unreachable: the map had only the read-side recurring_schedules/ listing, so `brokerage execute` could not resume or pause a schedule. PATCH with {\"state\":\"active\"|\"paused\"} was verified live against the real API. The cancel and ach/transfers routes existed but carried no methods, so execute could not select a verb. The new route is risk=destructive so it stays behind the ROBINHOOD_PP_ALLOW_WRITES dry-run gate; recurring_schedules/{id}/ is a new URL with no read-route collision under the URL-keyed Find.",
+      "files": [
+        "internal/brokeragemap/brokerage-routes.json"
+      ],
+      "validated_outcome": "go build/vet/test (incl. fresh brokeragemap), verify-skill, and govulncheck all pass; recurring_schedules/{id}/ resolves as destructive and defaults to dry-run without --live-write."
+    }
+  ]
+}

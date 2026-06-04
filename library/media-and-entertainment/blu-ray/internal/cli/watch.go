@@ -169,8 +169,8 @@ func newWatchCheckCmd(flags *rootFlags) *cobra.Command {
 			// this, releases added via `watch add <id>` (target=0) never alerted
 			// because the prior code only checked `target > 0 && sale <= target`.
 			type watchEntry struct {
-				target    float64
-				prevLow   float64
+				target     float64
+				prevLow    float64
 				hasPrevLow bool
 			}
 			watched := map[int]watchEntry{}

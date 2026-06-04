@@ -1,4 +1,4 @@
-// Copyright 2026 nikica-jokic. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Nikica Jokic and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // PATCH novel-commands: hand-built person timeline/complaints (local SQLite, no upstream endpoint).
 package cli
@@ -80,13 +80,13 @@ contain participant names.`,
 			isEmail := strings.Contains(search, "@")
 
 			type timelineEntry struct {
-				ID          string   `json:"id"`
-				Title       string   `json:"title"`
-				Date        string   `json:"date"`
-				Status      string   `json:"status"`
-				Topics      []string `json:"topics,omitempty"`
-				ActionItems string   `json:"action_items,omitempty"`
-				TalkRatioPct float64 `json:"talk_ratio_pct,omitempty"`
+				ID           string   `json:"id"`
+				Title        string   `json:"title"`
+				Date         string   `json:"date"`
+				Status       string   `json:"status"`
+				Topics       []string `json:"topics,omitempty"`
+				ActionItems  string   `json:"action_items,omitempty"`
+				TalkRatioPct float64  `json:"talk_ratio_pct,omitempty"`
 			}
 			var timeline []timelineEntry
 

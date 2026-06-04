@@ -1,4 +1,4 @@
-// Copyright 2026 charles-garrison. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Trevin Chow and contributors. Licensed under Apache-2.0. See LICENSE.
 // Novel feature: options covered-calls. Scans portfolio lots with >=100
 // shares and ranks call contracts by annualized yield.
 
@@ -11,8 +11,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/commerce/yahoo-finance/internal/optionsmath"
+	"github.com/spf13/cobra"
 )
 
 type coveredCallRow struct {

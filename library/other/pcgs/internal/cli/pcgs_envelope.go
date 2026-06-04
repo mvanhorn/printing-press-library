@@ -1,4 +1,4 @@
-// Copyright 2026 vinny-pasceri. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Vinny Pasceri and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // PATCH envelope-classifier: hand-authored helper that translates PCGS's
 // HTTP-200 + envelope error shape into typed cliError values (usageErr,

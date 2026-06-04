@@ -5,6 +5,10 @@
   "api_name": "strava",
   "display_name": "Strava",
   "cli_name": "strava-pp-cli",
+  "creator": {
+    "handle": "azaaron",
+    "name": "azaaron"
+  },
   "owner": "azaaron",
   "printer": "azaaron",
   "printer_name": "azaaron",

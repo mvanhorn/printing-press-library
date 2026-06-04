@@ -1,4 +1,4 @@
-// Copyright 2026 quantumglitch. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 QuantumGlitch and contributors. Licensed under Apache-2.0. See LICENSE.
 
 package cli
 
@@ -7,8 +7,8 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/spf13/cobra"
 	moba "github.com/mvanhorn/printing-press-library/library/media-and-entertainment/mobalytics-lol/internal/mobalytics"
+	"github.com/spf13/cobra"
 )
 
 // newChampionCmd is the umbrella for per-champion lookups.

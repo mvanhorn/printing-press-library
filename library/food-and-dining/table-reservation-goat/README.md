@@ -4,6 +4,8 @@
 
 OpenTable, Tock, and Resy split the US fine-dining world between them and share zero data. This CLI unifies them: `goat` searches all three at once, `watch` polls each network for cancellations, `earliest` composes availability across all three, and `drift` surfaces what changed at a venue since your last look. Auth is `auth login --chrome` (for OT + Tock cookies) plus `auth login --resy --email <you@example.com>` (for the Resy API token) — no partner keys.
 
+Created by [@pejmanjohn](https://github.com/pejmanjohn) (Pejman Pour-Moezzi).
+
 ## Install
 
 The recommended path installs both the `table-reservation-goat-pp-cli` binary and the `pp-table-reservation-goat` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

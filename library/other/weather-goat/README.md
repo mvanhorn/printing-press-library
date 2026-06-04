@@ -4,6 +4,8 @@ The weather CLI that answers the questions you actually ask: Should I bike today
 
 Powered by Open-Meteo (global forecasts, 80 years of history, air quality) and NWS (severe weather alerts). No API key required.
 
+Created by [@tmchow](https://github.com/tmchow) (Trevin Chow).
+
 ## Install
 
 The recommended path installs both the `weather-goat-pp-cli` binary and the `pp-weather-goat` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

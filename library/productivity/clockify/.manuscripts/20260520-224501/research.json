@@ -1,0 +1,314 @@
+{
+  "api_name": "clockify",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "lucassabreu/clockify-cli",
+      "url": "https://github.com/lucassabreu/clockify-cli",
+      "language": "Go",
+      "install_method": "",
+      "stars": 194,
+      "last_updated": "",
+      "command_count": 20,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "JeremyVyska/clockify-mcp",
+      "url": "https://github.com/JeremyVyska/clockify-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 33,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "BlythMeister/ClockifyCli",
+      "url": "https://github.com/BlythMeister/ClockifyCli",
+      "language": "C#",
+      "install_method": "",
+      "stars": 1,
+      "last_updated": "",
+      "command_count": 18,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "mentarch/clockify-cli",
+      "url": "https://github.com/mentarch/clockify-cli",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 16,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "artefactual-labs/clockify-tool",
+      "url": "https://github.com/artefactual-labs/clockify-tool",
+      "language": "Ruby",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 5,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-21T03:00:00Z",
+  "novel_features": [
+    {
+      "name": "Timesheet week reconstruct",
+      "command": "timesheet week",
+      "description": "Rebuild your whole weekly timesheet grid offline — every project and task across each weekday, with per-day, per-project, and weekly totals.",
+      "rationale": "Reconstructing the grid requires pivoting every synced time entry in the local store; the incumbent CLIs keep no store and cannot do it offline.",
+      "example": "clockify-pp-cli timesheet week --agent",
+      "why_it_matters": "Reach for this when an agent needs the full week at a glance instead of paging raw time-entry JSON.",
+      "group": "Timesheet intelligence"
+    },
+    {
+      "name": "Timesheet gap finder",
+      "command": "timesheet gaps",
+      "description": "Find the days you are short — compares each day's tracked hours against your workday target and reports the missing time before you submit.",
+      "rationale": "The web timesheet grid shows what you entered, never what you missed; gap detection needs local per-day math against a target no API call provides.",
+      "example": "clockify-pp-cli timesheet gaps --workday 8h --agent",
+      "why_it_matters": "Use this before submitting a timesheet so an agent can flag under-logged days instead of the user discovering them at month-end.",
+      "group": "Timesheet intelligence"
+    },
+    {
+      "name": "Billable leakage audit",
+      "command": "audit billable",
+      "description": "Catch the misfiled entries that silently drop off invoices — billable time with no project, billable tasks marked non-billable, and untagged billable entries.",
+      "rationale": "Detecting leakage requires joining time-entries against projects, clients, and tags in the local store — no single Clockify endpoint exposes the join.",
+      "example": "clockify-pp-cli audit billable --agent",
+      "why_it_matters": "Run this at invoice time so an agent surfaces revenue leakage before the billing period closes.",
+      "group": "Billable revenue protection"
+    },
+    {
+      "name": "Team submission tracker",
+      "command": "team timesheets",
+      "description": "See who has not submitted — diffs the full workspace user list against the week's approval requests so the people who forgot are visible, not invisible.",
+      "rationale": "The Clockify approvals queue shows only what was submitted; surfacing non-submitters needs a join of the users list against approval-requests that no endpoint provides.",
+      "example": "clockify-pp-cli team timesheets --agent",
+      "why_it_matters": "Use this for a manager's Monday approval sweep to chase non-submitters without clicking through every member.",
+      "group": "Timesheet intelligence"
+    },
+    {
+      "name": "Where-did-my-week-go recap",
+      "command": "recap",
+      "description": "A ranked breakdown of where your tracked time went — by project, client, and tag, with the billable vs non-billable split and percentage of the total.",
+      "rationale": "Aggregating across an arbitrary historical range needs a local store of every entry; competing CLIs query the live API per-call and keep no history.",
+      "example": "clockify-pp-cli recap --range last-month --agent",
+      "why_it_matters": "Reach for this for a fast time-allocation summary instead of running and parsing a Clockify web report.",
+      "group": "Local time database"
+    },
+    {
+      "name": "Unbilled billable balance",
+      "command": "billable pending",
+      "description": "The invoice-ready number — sums billable time not yet covered by any synced invoice, grouped by client.",
+      "rationale": "Answering 'what can I invoice right now' requires joining time-entries against invoice date ranges; no Clockify endpoint answers it directly.",
+      "example": "clockify-pp-cli billable pending --agent",
+      "why_it_matters": "Use this before raising an invoice so an agent knows exactly how much uninvoiced billable time exists per client.",
+      "group": "Billable revenue protection"
+    },
+    {
+      "name": "Project budget burn",
+      "command": "projects burn",
+      "description": "Estimate vs actual per project — hours logged against the project's budget or time estimate, with percent consumed.",
+      "rationale": "Burn requires joining synced time entries against each project's estimate field; the incumbents expose neither the join nor a local history of logged hours.",
+      "example": "clockify-pp-cli projects burn --agent",
+      "why_it_matters": "Reach for this when an agent needs to flag projects about to blow their estimate before the overrun happens.",
+      "group": "Billable revenue protection"
+    },
+    {
+      "name": "Full-text entry search",
+      "command": "search",
+      "description": "Full-text search across every synced time-entry description and project, task, client, and tag name.",
+      "rationale": "Instant offline search needs a SQLite FTS index over the local mirror; competing CLIs have no store to index.",
+      "example": "clockify-pp-cli search \"client onboarding\" --agent",
+      "why_it_matters": "Use this to locate a past entry by description without paginating the live API.",
+      "group": "Local time database"
+    },
+    {
+      "name": "Draft entries from logs and files",
+      "command": "backfill",
+      "description": "Reconstruct the time you forgot to track — turn a CSV export, your shell history, or a CLI session log into draft time entries, review them, then commit them to Clockify.",
+      "rationale": "Rebuilding entries from local artifacts needs source-specific parsers, time-window inference, and a draft/review/commit loop — a timer-only tool with no parsers cannot do it.",
+      "example": "clockify-pp-cli backfill --from session-log --file ./session.jsonl --agent",
+      "why_it_matters": "Reach for this when the timer was never started — an agent can draft entries from logs the user already has instead of losing the time.",
+      "group": "Timesheet intelligence"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Timesheet week reconstruct",
+      "command": "timesheet week",
+      "description": "Rebuild your whole weekly timesheet grid offline — every project and task across each weekday, with per-day, per-project, and weekly totals.",
+      "rationale": "Reconstructing the grid requires pivoting every synced time entry in the local store; the incumbent CLIs keep no store and cannot do it offline.",
+      "example": "clockify-pp-cli timesheet week --agent",
+      "why_it_matters": "Reach for this when an agent needs the full week at a glance instead of paging raw time-entry JSON.",
+      "group": "Timesheet intelligence"
+    },
+    {
+      "name": "Timesheet gap finder",
+      "command": "timesheet gaps",
+      "description": "Find the days you are short — compares each day's tracked hours against your workday target and reports the missing time before you submit.",
+      "rationale": "The web timesheet grid shows what you entered, never what you missed; gap detection needs local per-day math against a target no API call provides.",
+      "example": "clockify-pp-cli timesheet gaps --workday 8h --agent",
+      "why_it_matters": "Use this before submitting a timesheet so an agent can flag under-logged days instead of the user discovering them at month-end.",
+      "group": "Timesheet intelligence"
+    },
+    {
+      "name": "Billable leakage audit",
+      "command": "audit billable",
+      "description": "Catch the misfiled entries that silently drop off invoices — billable time with no project, billable tasks marked non-billable, and untagged billable entries.",
+      "rationale": "Detecting leakage requires joining time-entries against projects, clients, and tags in the local store — no single Clockify endpoint exposes the join.",
+      "example": "clockify-pp-cli audit billable --agent",
+      "why_it_matters": "Run this at invoice time so an agent surfaces revenue leakage before the billing period closes.",
+      "group": "Billable revenue protection"
+    },
+    {
+      "name": "Team submission tracker",
+      "command": "team timesheets",
+      "description": "See who has not submitted — diffs the full workspace user list against the week's approval requests so the people who forgot are visible, not invisible.",
+      "rationale": "The Clockify approvals queue shows only what was submitted; surfacing non-submitters needs a join of the users list against approval-requests that no endpoint provides.",
+      "example": "clockify-pp-cli team timesheets --agent",
+      "why_it_matters": "Use this for a manager's Monday approval sweep to chase non-submitters without clicking through every member.",
+      "group": "Timesheet intelligence"
+    },
+    {
+      "name": "Where-did-my-week-go recap",
+      "command": "recap",
+      "description": "A ranked breakdown of where your tracked time went — by project, client, and tag, with the billable vs non-billable split and percentage of the total.",
+      "rationale": "Aggregating across an arbitrary historical range needs a local store of every entry; competing CLIs query the live API per-call and keep no history.",
+      "example": "clockify-pp-cli recap --range last-month --agent",
+      "why_it_matters": "Reach for this for a fast time-allocation summary instead of running and parsing a Clockify web report.",
+      "group": "Local time database"
+    },
+    {
+      "name": "Unbilled billable balance",
+      "command": "billable pending",
+      "description": "The invoice-ready number — sums billable time not yet covered by any synced invoice, grouped by client.",
+      "rationale": "Answering 'what can I invoice right now' requires joining time-entries against invoice date ranges; no Clockify endpoint answers it directly.",
+      "example": "clockify-pp-cli billable pending --agent",
+      "why_it_matters": "Use this before raising an invoice so an agent knows exactly how much uninvoiced billable time exists per client.",
+      "group": "Billable revenue protection"
+    },
+    {
+      "name": "Project budget burn",
+      "command": "projects burn",
+      "description": "Estimate vs actual per project — hours logged against the project's budget or time estimate, with percent consumed.",
+      "rationale": "Burn requires joining synced time entries against each project's estimate field; the incumbents expose neither the join nor a local history of logged hours.",
+      "example": "clockify-pp-cli projects burn --agent",
+      "why_it_matters": "Reach for this when an agent needs to flag projects about to blow their estimate before the overrun happens.",
+      "group": "Billable revenue protection"
+    },
+    {
+      "name": "Full-text entry search",
+      "command": "search",
+      "description": "Full-text search across every synced time-entry description and project, task, client, and tag name.",
+      "rationale": "Instant offline search needs a SQLite FTS index over the local mirror; competing CLIs have no store to index.",
+      "example": "clockify-pp-cli search \"client onboarding\" --agent",
+      "why_it_matters": "Use this to locate a past entry by description without paginating the live API.",
+      "group": "Local time database"
+    },
+    {
+      "name": "Draft entries from logs and files",
+      "command": "backfill",
+      "description": "Reconstruct the time you forgot to track — turn a CSV export, your shell history, or a CLI session log into draft time entries, review them, then commit them to Clockify.",
+      "rationale": "Rebuilding entries from local artifacts needs source-specific parsers, time-window inference, and a draft/review/commit loop — a timer-only tool with no parsers cannot do it.",
+      "example": "clockify-pp-cli backfill --from session-log --file ./session.jsonl --agent",
+      "why_it_matters": "Reach for this when the timer was never started — an agent can draft entries from logs the user already has instead of losing the time.",
+      "group": "Timesheet intelligence"
+    }
+  ],
+  "narrative": {
+    "display_name": "Clockify",
+    "headline": "Every Clockify feature, plus a local time database that reconstructs your weekly timesheet, finds untracked gaps, and audits billable hours — none of which any other Clockify tool can do.",
+    "value_prop": "Other Clockify CLIs are timers with a thin reporting bolt-on, and none of them remember anything. This one keeps a local SQLite mirror of every time entry, project, client, and tag, so reports, timesheet reconstruction, gap detection, and billable audits run offline and instantly. It also covers the half of Clockify no terminal tool touches — invoices, expenses, time-off, approvals, and scheduling.",
+    "auth_narrative": "Authenticate with a personal API key from the Clockify web app (Profile Settings -\u003e API). Export it as CLOCKIFY_API_KEY; the CLI sends it as the X-Api-Key header. The key is read-only-safe for listing and reporting and is required for any write.",
+    "quickstart": [
+      {
+        "command": "clockify-pp-cli doctor",
+        "comment": "Confirm the API key works and Clockify is reachable before anything else."
+      },
+      {
+        "command": "clockify-pp-cli sync",
+        "comment": "Pull workspaces, projects, clients, tags, and time entries into the local store — every offline command reads from here."
+      },
+      {
+        "command": "clockify-pp-cli timesheet week",
+        "comment": "Reconstruct this week's grid from the synced entries — the headline view."
+      },
+      {
+        "command": "clockify-pp-cli timesheet gaps",
+        "comment": "Find the days you are short before you submit the timesheet."
+      },
+      {
+        "command": "clockify-pp-cli recap",
+        "comment": "See where your tracked time actually went."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 Unauthorized on every call",
+        "fix": "CLOCKIFY_API_KEY is missing or stale — regenerate it in the Clockify web app under Profile Settings -\u003e API and re-export it."
+      },
+      {
+        "symptom": "timesheet or recap output is empty",
+        "fix": "Run `clockify-pp-cli sync` first — the offline commands read the local store, not the live API."
+      },
+      {
+        "symptom": "commands return data from the wrong workspace",
+        "fix": "Pass the workspace id explicitly — the timesheet, recap, audit, team, and billable commands accept --workspace \u003cid\u003e, and the generated endpoint commands take it as the first positional argument."
+      },
+      {
+        "symptom": "429 Too Many Requests during a large sync",
+        "fix": "Clockify rate-limits at roughly 50 requests/second; the client backs off and retries automatically — just let the sync finish."
+      }
+    ],
+    "when_to_use": "Use this CLI when an agent or user needs to work with Clockify time data programmatically: filling or reviewing a weekly timesheet, checking that all hours are logged before submission, auditing billable time before invoicing, summarizing where time went over a range, or driving any Clockify resource (projects, clients, expenses, invoices, time-off, approvals) from the terminal. Prefer the offline commands (timesheet, recap, audit, search) after a sync — they are instant and need no network.",
+    "recipes": [
+      {
+        "title": "Reconstruct this week's timesheet",
+        "command": "clockify-pp-cli timesheet week",
+        "explanation": "Pivots every synced entry into the project/task by weekday grid with per-day and weekly totals."
+      },
+      {
+        "title": "Catch under-logged days before Friday",
+        "command": "clockify-pp-cli timesheet gaps --workday 8h",
+        "explanation": "Reports each day below the 8-hour target and how much time is missing."
+      },
+      {
+        "title": "Narrow the week grid for an agent",
+        "command": "clockify-pp-cli timesheet week --agent --select projects.project,projects.total_hours,total_hours",
+        "explanation": "Narrows the weekly grid JSON to just project names and totals with dotted-path selection, so an agent does not burn context on every daily cell."
+      },
+      {
+        "title": "Find what is invoice-ready",
+        "command": "clockify-pp-cli billable pending",
+        "explanation": "Sums billable time not yet covered by a synced invoice, grouped by client."
+      },
+      {
+        "title": "Summarize last month",
+        "command": "clockify-pp-cli recap --range last-month",
+        "explanation": "Ranked project/client/tag breakdown with the billable split for the prior month."
+      }
+    ],
+    "trigger_phrases": [
+      "fill my timesheet",
+      "reconstruct my week in clockify",
+      "did I log all my hours",
+      "what can I invoice right now",
+      "where did my week go",
+      "use clockify",
+      "run clockify-pp-cli"
+    ]
+  }
+}

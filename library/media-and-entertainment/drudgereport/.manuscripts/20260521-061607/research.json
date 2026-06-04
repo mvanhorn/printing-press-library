@@ -1,0 +1,343 @@
+{
+  "api_name": "drudgereport",
+  "novelty_score": 9,
+  "alternatives": [
+    {
+      "name": "mattrasband/drudge_parser",
+      "url": "https://github.com/mattrasband/drudge_parser",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "mattrasband/drudge.in",
+      "url": "https://github.com/mattrasband/drudge.in",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "ghayward/drudge_report_headline_scraper",
+      "url": "https://github.com/ghayward/drudge_report_headline_scraper",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "lukerosiak/drudge",
+      "url": "https://github.com/lukerosiak/drudge",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "JonathanBrownCFA/scrape-it-like-you-mean-it",
+      "url": "https://github.com/JonathanBrownCFA/scrape-it-like-you-mean-it",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "drudgereportfeed.com (community RSS)",
+      "url": "https://www.drudgereportfeed.com/",
+      "language": "RSS",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-21T13:25:00Z",
+  "novel_features": [
+    {
+      "name": "Splash now",
+      "command": "splash",
+      "description": "Just the current center-slot splash headline with image, outbound URL, red flag, and how long it has been on splash.",
+      "rationale": "No existing Drudge scraper exposes the splash slot alone with its color flag and tenure; Drudge's editorial signal is the splash, not a flat headline list.",
+      "example": "drudgereport splash --json",
+      "why_it_matters": "When an agent is asked 'what's on Drudge right now?' this is the one-shot bounded answer; no HTML soup to re-parse.",
+      "group": "Editorial signal-aware reading"
+    },
+    {
+      "name": "Breaking (red items)",
+      "command": "breaking",
+      "description": "Every headline currently set in red by Drudge's editor, ordered by slot importance.",
+      "rationale": "Red is Drudge's strongest editorial urgency cue; no peer scraper captures the `\u003cfont color=red\u003e` style attribute.",
+      "example": "drudgereport breaking --json",
+      "why_it_matters": "Tells an agent the difference between 'on Drudge' and 'Drudge thinks this is breaking,' a high-signal filter at zero token cost.",
+      "group": "Editorial signal-aware reading"
+    },
+    {
+      "name": "Ranked headlines",
+      "command": "headlines",
+      "description": "All current headlines ranked by composite editorial weight (slot + red + image), not by chronology.",
+      "rationale": "Every existing scraper either dumps a flat list or groups by raw position; none weights slot * color * image presence the way a reader's eye does.",
+      "example": "drudgereport headlines --limit 10 --json --select title,slot,is_red,url",
+      "why_it_matters": "Returns Drudge in priority order with bounded payloads agents can pipe.",
+      "group": "Editorial signal-aware reading"
+    },
+    {
+      "name": "Promotions and demotions since last fetch",
+      "command": "tail",
+      "description": "Slot transitions and color changes between consecutive snapshots: promoted to splash, demoted from splash, went red, disappeared, appeared.",
+      "rationale": "Requires stable story_id and snapshot history that none of the archived scrapers maintain.",
+      "example": "drudgereport tail --since 6h --json",
+      "why_it_matters": "Lets an agent answer 'what changed on Drudge?' without re-fetching the page or diffing screenshots.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Splash tenure",
+      "command": "tenure",
+      "description": "How long the current splash has been the splash, plus the all-time longest-tenured splash leaderboard.",
+      "rationale": "Tenure is the strongest Drudge-driving-narrative signal and no peer tool surfaces it.",
+      "example": "drudgereport tenure --history --json",
+      "why_it_matters": "Distinguishes 'breaking right now' from 'Drudge wants this to stick,' a question agents and journalists both need.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Source leaderboard with deltas",
+      "command": "sources",
+      "description": "Outbound-domain frequency leaderboard over a window with rising/falling delta vs the prior window, optionally crosstabbed by slot.",
+      "rationale": "lukerosiak/drudge tracked source frequency but never deltas; the by-slot crosstab (WaPo as splash vs WaPo in column) is new.",
+      "example": "drudgereport sources --window 168h --by-slot --json",
+      "why_it_matters": "Surfaces editorial bent shifts week over week; high-leverage for media analysts and agents writing about narrative pickup.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "On-this-date",
+      "command": "on-date",
+      "description": "Reconstruct Drudge at any past timestamp the CLI has observed: splash, red items, ranked headlines as of that moment.",
+      "rationale": "Drudge has no archive of its own; this command exists because we keep snapshot history locally.",
+      "example": "drudgereport on-date 2026-04-15T08:30 --json",
+      "why_it_matters": "Answers 'what was Drudge leading with when X happened?' — a question the live site cannot.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Editorial-bent index",
+      "command": "bent",
+      "description": "Ratio of red items by outbound domain over a window: which outlets Drudge tends to break vs which he tends to merely column.",
+      "rationale": "Requires joining stories.is_red x outbound_domain x snapshots; no peer tool joins these.",
+      "example": "drudgereport bent --window 168h --json",
+      "why_it_matters": "Quantifies a previously gut-feel media-criticism observation; agents writing media-analysis copy can cite numbers.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Story timeline",
+      "command": "story",
+      "description": "Every slot_event for one story_id ordered by timestamp: when it appeared, where it moved, when it went red, when it dropped, total tenure.",
+      "rationale": "Only possible because stories carry stable IDs across snapshots; no peer scraper has stable IDs.",
+      "example": "drudgereport story abc123 --json",
+      "why_it_matters": "Lets an agent reconstruct one story's editorial life on Drudge, useful for retrospective newsletter analysis.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Weekly digest",
+      "command": "digest",
+      "description": "One-pager: splash count, longest-tenured splash, top 5 outbound domains, biggest red-surge stories over the week.",
+      "rationale": "Composes splash-history, tenure, sources, and bent into one call; no peer tool summarizes.",
+      "example": "drudgereport digest --week --json",
+      "why_it_matters": "Replaces the 'what did Drudge feature this week' graf that journalists currently assemble by hand.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Splash now",
+      "command": "splash",
+      "description": "Just the current center-slot splash headline with image, outbound URL, red flag, and how long it has been on splash.",
+      "rationale": "No existing Drudge scraper exposes the splash slot alone with its color flag and tenure; Drudge's editorial signal is the splash, not a flat headline list.",
+      "example": "drudgereport splash --json",
+      "why_it_matters": "When an agent is asked 'what's on Drudge right now?' this is the one-shot bounded answer; no HTML soup to re-parse.",
+      "group": "Editorial signal-aware reading"
+    },
+    {
+      "name": "Breaking (red items)",
+      "command": "breaking",
+      "description": "Every headline currently set in red by Drudge's editor, ordered by slot importance.",
+      "rationale": "Red is Drudge's strongest editorial urgency cue; no peer scraper captures the `\u003cfont color=red\u003e` style attribute.",
+      "example": "drudgereport breaking --json",
+      "why_it_matters": "Tells an agent the difference between 'on Drudge' and 'Drudge thinks this is breaking,' a high-signal filter at zero token cost.",
+      "group": "Editorial signal-aware reading"
+    },
+    {
+      "name": "Ranked headlines",
+      "command": "headlines",
+      "description": "All current headlines ranked by composite editorial weight (slot + red + image), not by chronology.",
+      "rationale": "Every existing scraper either dumps a flat list or groups by raw position; none weights slot * color * image presence the way a reader's eye does.",
+      "example": "drudgereport headlines --limit 10 --json --select title,slot,is_red,url",
+      "why_it_matters": "Returns Drudge in priority order with bounded payloads agents can pipe.",
+      "group": "Editorial signal-aware reading"
+    },
+    {
+      "name": "Promotions and demotions since last fetch",
+      "command": "tail",
+      "description": "Slot transitions and color changes between consecutive snapshots: promoted to splash, demoted from splash, went red, disappeared, appeared.",
+      "rationale": "Requires stable story_id and snapshot history that none of the archived scrapers maintain.",
+      "example": "drudgereport tail --since 6h --json",
+      "why_it_matters": "Lets an agent answer 'what changed on Drudge?' without re-fetching the page or diffing screenshots.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Splash tenure",
+      "command": "tenure",
+      "description": "How long the current splash has been the splash, plus the all-time longest-tenured splash leaderboard.",
+      "rationale": "Tenure is the strongest Drudge-driving-narrative signal and no peer tool surfaces it.",
+      "example": "drudgereport tenure --history --json",
+      "why_it_matters": "Distinguishes 'breaking right now' from 'Drudge wants this to stick,' a question agents and journalists both need.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Source leaderboard with deltas",
+      "command": "sources",
+      "description": "Outbound-domain frequency leaderboard over a window with rising/falling delta vs the prior window, optionally crosstabbed by slot.",
+      "rationale": "lukerosiak/drudge tracked source frequency but never deltas; the by-slot crosstab (WaPo as splash vs WaPo in column) is new.",
+      "example": "drudgereport sources --window 168h --by-slot --json",
+      "why_it_matters": "Surfaces editorial bent shifts week over week; high-leverage for media analysts and agents writing about narrative pickup.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "On-this-date",
+      "command": "on-date",
+      "description": "Reconstruct Drudge at any past timestamp the CLI has observed: splash, red items, ranked headlines as of that moment.",
+      "rationale": "Drudge has no archive of its own; this command exists because we keep snapshot history locally.",
+      "example": "drudgereport on-date 2026-04-15T08:30 --json",
+      "why_it_matters": "Answers 'what was Drudge leading with when X happened?' — a question the live site cannot.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Editorial-bent index",
+      "command": "bent",
+      "description": "Ratio of red items by outbound domain over a window: which outlets Drudge tends to break vs which he tends to merely column.",
+      "rationale": "Requires joining stories.is_red x outbound_domain x snapshots; no peer tool joins these.",
+      "example": "drudgereport bent --window 168h --json",
+      "why_it_matters": "Quantifies a previously gut-feel media-criticism observation; agents writing media-analysis copy can cite numbers.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Story timeline",
+      "command": "story",
+      "description": "Every slot_event for one story_id ordered by timestamp: when it appeared, where it moved, when it went red, when it dropped, total tenure.",
+      "rationale": "Only possible because stories carry stable IDs across snapshots; no peer scraper has stable IDs.",
+      "example": "drudgereport story abc123 --json",
+      "why_it_matters": "Lets an agent reconstruct one story's editorial life on Drudge, useful for retrospective newsletter analysis.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Weekly digest",
+      "command": "digest",
+      "description": "One-pager: splash count, longest-tenured splash, top 5 outbound domains, biggest red-surge stories over the week.",
+      "rationale": "Composes splash-history, tenure, sources, and bent into one call; no peer tool summarizes.",
+      "example": "drudgereport digest --week --json",
+      "why_it_matters": "Replaces the 'what did Drudge feature this week' graf that journalists currently assemble by hand.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "narrative": {
+    "display_name": "Drudge Report",
+    "headline": "Drudge Report in your terminal, with the editorial signal (splash, red, slot, tenure) the live page broadcasts but no other scraper preserves.",
+    "value_prop": "Read Drudge's lead, breaking-red items, and ranked headlines in one bounded JSON call. Keep a local SQLite snapshot history so you can answer 'what's changed since I checked,' 'how long has that been the splash,' and 'what was Drudge leading with on Tuesday' — none of which the live site supports.",
+    "quickstart": [
+      {
+        "command": "drudgereport splash --json",
+        "comment": "the one command an agent should reach for first when asked 'what's on Drudge?'"
+      },
+      {
+        "command": "drudgereport breaking --json",
+        "comment": "every red headline right now, ordered by slot"
+      },
+      {
+        "command": "drudgereport headlines --limit 10 --json --select title,slot,is_red,url",
+        "comment": "ranked headlines in agent-shaped form"
+      },
+      {
+        "command": "drudgereport sync",
+        "comment": "snapshot the current page into local SQLite so tail/tenure/on-date have history to draw on"
+      },
+      {
+        "command": "drudgereport tail --since 6h --json",
+        "comment": "what got promoted, demoted, or went red in the last 6 hours"
+      },
+      {
+        "command": "drudgereport tenure --history --json",
+        "comment": "longest-tenured splashes the CLI has observed"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "splash and headlines return zero stories",
+        "fix": "drudgereport doctor — confirms drudgereport.com is reachable; if the page layout changes, the parser may need an update"
+      },
+      {
+        "symptom": "tail returns nothing",
+        "fix": "run drudgereport sync at least twice with some time between, since tail diffs consecutive snapshots"
+      },
+      {
+        "symptom": "tenure shows 0s for the current splash",
+        "fix": "sync history doesn't extend back far enough; tenure reports the earliest captured_at the local store has"
+      }
+    ],
+    "when_to_use": "Reach for this CLI when the task is 'what is Drudge featuring' or 'how has Drudge framed X over time.' It is read-only, the local SQLite store rewards repeated sync runs with deeper analytics, and the agent surface returns bounded JSON. Not the right tool for live breaking news outside Drudge's curation.",
+    "recipes": [
+      {
+        "title": "Just the splash, for a daily briefing",
+        "command": "drudgereport splash --json --select title,url,image_url,is_red,splash_tenure_seconds",
+        "explanation": "Bounded payload with every signal an agent needs to summarize Drudge's lead in one sentence."
+      },
+      {
+        "title": "What's red right now",
+        "command": "drudgereport breaking --json --select title,url,slot",
+        "explanation": "Every red headline with its slot; lets the agent distinguish splash-red from column-red without re-parsing the page."
+      },
+      {
+        "title": "Top 10 ranked headlines with select-narrowing",
+        "command": "drudgereport headlines --limit 10 --json --select title,slot,is_red,url,outbound_domain",
+        "explanation": "Returns the priority-ordered list of stories in agent-friendly shape with only the fields needed for downstream framing."
+      },
+      {
+        "title": "What changed in the last 6 hours",
+        "command": "drudgereport tail --since 6h --json",
+        "explanation": "Slot_event rows for promotions, demotions, color changes, and disappearances; cheaper than diffing two fetches."
+      },
+      {
+        "title": "Which outlets Drudge leaned on this week",
+        "command": "drudgereport sources --window 168h --by-slot --json",
+        "explanation": "Outbound-domain leaderboard split by slot (splash vs red vs column) over the trailing 7 days, with rising/falling delta vs the prior 7 days."
+      }
+    ],
+    "trigger_phrases": [
+      "what's on drudge",
+      "drudge splash",
+      "drudge breaking",
+      "what changed on drudge",
+      "drudge tenure",
+      "drudge sources this week",
+      "use drudgereport",
+      "run drudgereport"
+    ]
+  }
+}

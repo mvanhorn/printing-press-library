@@ -1,0 +1,47 @@
+workflows:
+  - name: "EverBee local research loop"
+    primary: true
+    steps:
+      # Printing Press 4.19 executes command and ignores args; keep command as executable source of truth.
+      - command: "opportunity shortlist --query=teacher-gift --no-refresh --agent"
+        args:
+          query: "teacher-gift"
+          no-refresh: "true"
+          agent: "true"
+        mode: local
+        expect_fields:
+          - "scope"
+          - "data_source"
+          - "summary"
+          - "confidence"
+          - "next_actions"
+      - command: "niche score --keyword=teacher-gift --no-refresh --agent"
+        args:
+          keyword: "teacher-gift"
+          no-refresh: "true"
+          agent: "true"
+        mode: local
+        expect_fields:
+          - "scope"
+          - "summary"
+          - "confidence"
+      - command: "tags gap --query=teacher-gift --no-refresh --agent"
+        args:
+          query: "teacher-gift"
+          no-refresh: "true"
+          agent: "true"
+        mode: local
+        expect_fields:
+          - "scope"
+          - "summary"
+          - "next_actions"
+      - command: "listing audit --listing-id=123456789 --no-refresh --agent"
+        args:
+          listing-id: "123456789"
+          no-refresh: "true"
+          agent: "true"
+        mode: local
+        expect_fields:
+          - "scope"
+          - "summary"
+          - "warnings"

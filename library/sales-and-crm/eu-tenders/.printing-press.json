@@ -5,6 +5,10 @@
   "api_name": "eu-tenders",
   "display_name": "EU Tenders",
   "cli_name": "eu-tenders-pp-cli",
+  "creator": {
+    "handle": "m91michel",
+    "name": "Mathias Michel"
+  },
   "owner": "mathias-michel",
   "printer": "m91michel",
   "printer_name": "Mathias Michel",

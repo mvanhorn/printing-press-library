@@ -5,6 +5,10 @@
   "api_name": "x-twitter",
   "display_name": "X (Twitter)",
   "cli_name": "x-twitter-pp-cli",
+  "creator": {
+    "handle": "cathrynlavery",
+    "name": "Cathryn Lavery"
+  },
   "owner": "cathryn-lavery",
   "printer": "cathrynlavery",
   "printer_name": "Cathryn Lavery",

@@ -1,4 +1,4 @@
-// Copyright 2026 charles-garrison. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Charles Garrison and contributors. Licensed under Apache-2.0. See LICENSE.
 //
 // Novel feature #6 — backlink gap (referring domains they have, we don't).
 
@@ -166,7 +166,7 @@ func newBacklinkGapCmd(flags *rootFlags) *cobra.Command {
 				"hit_count":       totalHitCount,
 				"hit_count_shown": len(hits),
 				"truncated":       truncated,
-				"hits":       hits,
+				"hits":            hits,
 			}
 			raw, err := json.Marshal(out)
 			if err != nil {

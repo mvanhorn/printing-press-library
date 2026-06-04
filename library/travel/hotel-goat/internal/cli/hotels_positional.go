@@ -1,4 +1,4 @@
-// Copyright 2026 kothari-nikunj. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 kothari-nikunj and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // hotels <location> <checkin> <checkout> — the headline command.
 // Hand-written: lives outside the generator's emit set so re-running
@@ -93,6 +93,7 @@ URL surface doesn't accept them.`,
 	cmd.Flags().IntVar(&opts.Page, "page", 1, "Page number for pagination")
 	cmd.Flags().StringVar(&opts.Locale, "locale", "en", "Locale (en, de, fr, ...)")
 	cmd.Flags().BoolVar(&noSnapshots, "no-snapshots", false, "Don't append to local price_snapshots history")
+	cmd.Flags().StringVar(&opts.Source, "source", "both", "Cash-price source: google, trivago, or both (default: both)")
 	return cmd
 }
 

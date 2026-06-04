@@ -5,6 +5,10 @@
   "api_name": "postman-explore",
   "display_name": "Postman Explore",
   "cli_name": "postman-explore-pp-cli",
+  "creator": {
+    "handle": "tmchow",
+    "name": "Trevin Chow"
+  },
   "printer": "tmchow",
   "printer_name": "Trevin Chow",
   "spec_path": "/Users/tmchow/printing-press/.runstate/parsed-exploring-penguin-5c956a6b/runs/20260429-230407/working/postman-explore-pp-cli/spec.json",

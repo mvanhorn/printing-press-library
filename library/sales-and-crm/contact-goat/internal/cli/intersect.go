@@ -1,4 +1,4 @@
-// Copyright 2026 matt-van-horn. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Matt Van Horn and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // intersect: find people who appear in BOTH your LinkedIn 1st-degree network
 // AND your Happenstance friends list. These are the highest-signal warm
@@ -49,9 +49,9 @@ func newIntersectCmd(flags *rootFlags) *cobra.Command {
 	var skipLI bool
 
 	cmd := &cobra.Command{
-		Use:   "intersect",
+		Use:         "intersect",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short: "Find people in BOTH your LinkedIn 1st-degree AND Happenstance friends",
+		Short:       "Find people in BOTH your LinkedIn 1st-degree AND Happenstance friends",
 		Long: `Find the highest-signal warm intros: people who appear in BOTH your
 LinkedIn 1st-degree network AND your Happenstance friends list.
 

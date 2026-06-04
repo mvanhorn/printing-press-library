@@ -6,7 +6,7 @@ art-goat is an OmniMuseum aggregator for a daily contemplative art practice. Eig
 
 Where similar tools wrap one museum, art-goat treats the eight as a single curated corpus: `today` rotates across sources, `similar` and `artist --arc` step laterally across them, and `path --theme` walks a theme through the whole federation. The point isn't completeness of any one museum's catalog; it's a daily practice grounded in real, public-domain collections.
 
-Printed by [@justinwfu](https://github.com/justinwfu) (justinwfu).
+Created by [@justinwfu](https://github.com/justinwfu) (justinwfu).
 
 ## Data sources
 

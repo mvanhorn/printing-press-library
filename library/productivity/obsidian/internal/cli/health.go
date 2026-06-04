@@ -1,4 +1,4 @@
-// Copyright 2026 drdriftwood. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Angelo Pullen and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // `obsidian-pp-cli health` — composite vault-health score. Combines four
 // independent sub-scores (each 0..1) into a single percentage so an
@@ -23,8 +23,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/productivity/obsidian/internal/store"
+	"github.com/spf13/cobra"
 )
 
 func newHealthCmd(flags *rootFlags) *cobra.Command {
@@ -132,7 +132,7 @@ Returns a single 0..100 percentage plus the per-axis breakdown. Pass
 			score := 100 * (connectivity + freshness + integrity + consistency) / 4
 
 			out := map[string]any{
-				"score":      round2(score),
+				"score": round2(score),
 				"components": map[string]float64{
 					"connectivity": round4(connectivity),
 					"freshness":    round4(freshness),
@@ -144,14 +144,14 @@ Returns a single 0..100 percentage plus the per-axis breakdown. Pass
 				out["explain"] = map[string]any{
 					"formula": "score = 100 * (connectivity + freshness + integrity + consistency) / 4",
 					"inputs": map[string]int{
-						"notes":             notes,
-						"orphans":           orphans,
-						"stale_notes":       staleN,
-						"wikilinks":         wikilinks,
-						"broken_links":      brokenLinks,
-						"drift_notes":       drift,
+						"notes":                  notes,
+						"orphans":                orphans,
+						"stale_notes":            staleN,
+						"wikilinks":              wikilinks,
+						"broken_links":           brokenLinks,
+						"drift_notes":            drift,
 						"notes_with_frontmatter": notesWithFM,
-						"stale_days":        staleDays,
+						"stale_days":             staleDays,
 					},
 					"connectivity_formula": "1 - orphans/notes",
 					"freshness_formula":    fmt.Sprintf("1 - stale_notes/notes (modified < %d days ago)", staleDays),

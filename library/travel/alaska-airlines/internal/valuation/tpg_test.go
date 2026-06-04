@@ -1,4 +1,4 @@
-// Copyright 2026 matt-van-horn. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Matt Van Horn and contributors. Licensed under Apache-2.0. See LICENSE.
 
 package valuation
 
@@ -96,11 +96,11 @@ func TestLooksLikeCloudflareChallenge_NegativeCase(t *testing.T) {
 // realistic cell string with surrounding punctuation.
 func TestCPPRegexp_Sanity(t *testing.T) {
 	cases := map[string]string{
-		"1.4*":     "1.4",
-		"1.55†":    "1.55",
-		"  2.0 ":   "2.0",
-		"3":        "3",
-		"1,400":    "1", // first run is "1" (TPG never uses thousands separators here)
+		"1.4*":   "1.4",
+		"1.55†":  "1.55",
+		"  2.0 ": "2.0",
+		"3":      "3",
+		"1,400":  "1", // first run is "1" (TPG never uses thousands separators here)
 	}
 	for input, want := range cases {
 		got := cppRegexp.FindString(strings.TrimSpace(input))

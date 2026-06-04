@@ -1,4 +1,4 @@
-// Copyright 2026 user. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Jen Williams and contributors. Licensed under Apache-2.0. See LICENSE.
 //
 // Hand-coded helpers shared by the 11 GHL-specific commands (opp, field,
 // contact, sql, recruit, config, convo). Kept out of the generator-emitted

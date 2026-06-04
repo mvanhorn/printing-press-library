@@ -19,7 +19,7 @@ metadata:
      This file is a verbatim mirror of library/cloud/cloud-run-admin/SKILL.md,
      regenerated post-merge by tools/generate-skills/. Hand-edits here are
      silently overwritten on the next regen. Edit the library/ source instead.
-     See AGENTS.md "Generated artifacts: registry.json, cli-skills/". -->
+     See the repository agent guide, section "Generated artifacts: registry.json, cli-skills/". -->
 
 # Google Cloud Run — Printing Press CLI
 

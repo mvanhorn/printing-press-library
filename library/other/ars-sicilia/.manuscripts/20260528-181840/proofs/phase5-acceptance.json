@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "ars-sicilia",
+  "run_id": "20260528-181840",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 100,
+  "tests_passed": 100,
+  "tests_skipped": 61,
+  "auth_context": {
+    "type": "none"
+  }
+}

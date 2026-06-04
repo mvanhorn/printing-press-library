@@ -1,0 +1,6 @@
+{
+  "reachability": { "mode": "standard_http", "needs_browser_capture": false, "needs_clearance_cookie": false },
+  "primary_host": "pricing-bff-api.blacklane.com",
+  "auth": { "type": "none", "notes": "Pricing BFF (/prices, /packages) is public. GraphQL location ops are SSR-only and reject external callers. Booking/account require Auth0 — out of scope." },
+  "client_pattern": "rest"
+}

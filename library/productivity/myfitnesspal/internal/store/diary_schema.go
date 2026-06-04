@@ -1,4 +1,4 @@
-// Copyright 2026 user. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Nick Scarabosio and contributors. Licensed under Apache-2.0. See LICENSE.
 //
 // HAND-WRITTEN — not generated. Adds the per-food-entry table and the FTS5
 // index that the generator's resource-scoped migrations don't cover.

@@ -1,4 +1,4 @@
-// Copyright 2026 riteshtiwari. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 riteshtiwari and contributors. Licensed under Apache-2.0. See LICENSE.
 
 package cli
 
@@ -36,7 +36,7 @@ func newDashboardHealthCmd(flags *rootFlags) *cobra.Command {
 		Use:         "health",
 		Short:       "Find broken dashboards before a stakeholder meeting does",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Long: `Score dashboards for health issues: stale (not refreshed), empty (no tiles), error (tile errors), archived insight. Returns healthy/warning/broken per dashboard.`,
+		Long:        `Score dashboards for health issues: stale (not refreshed), empty (no tiles), error (tile errors), archived insight. Returns healthy/warning/broken per dashboard.`,
 		Example: `  posthog-pp-cli dashboard health --project 12345
   posthog-pp-cli dashboard health --project 12345 --stale-days 3
   posthog-pp-cli dashboard health --project 12345 --json`,
@@ -50,14 +50,18 @@ func newDashboardHealthCmd(flags *rootFlags) *cobra.Command {
 				orgData, err2 := c.Get("/api/organizations/", nil)
 				if err2 == nil {
 					var orgs struct {
-						Results []struct{ ID string `json:"id"` } `json:"results"`
+						Results []struct {
+							ID string `json:"id"`
+						} `json:"results"`
 					}
 					if json.Unmarshal(orgData, &orgs) == nil && len(orgs.Results) > 0 {
 						orgID := orgs.Results[0].ID
 						projData, err3 := c.Get(fmt.Sprintf("/api/organizations/%s/projects/", orgID), nil)
 						if err3 == nil {
 							var projs struct {
-								Results []struct{ ID int `json:"id"` } `json:"results"`
+								Results []struct {
+									ID int `json:"id"`
+								} `json:"results"`
 							}
 							if json.Unmarshal(projData, &projs) == nil && len(projs.Results) > 0 {
 								projectID = strconv.Itoa(projs.Results[0].ID)
@@ -98,8 +102,8 @@ func newDashboardHealthCmd(flags *rootFlags) *cobra.Command {
 			staleCutoff := time.Now().AddDate(0, 0, -staleDays)
 
 			type issue struct {
-				Type    string `json:"type"`
-				Detail  string `json:"detail"`
+				Type   string `json:"type"`
+				Detail string `json:"detail"`
 			}
 			type dashHealth struct {
 				ID          int     `json:"id"`
@@ -118,13 +122,13 @@ func newDashboardHealthCmd(flags *rootFlags) *cobra.Command {
 
 			for _, raw := range rawItems {
 				var dash struct {
-					ID          int            `json:"id"`
-					Name        string         `json:"name"`
-					IsShared    bool           `json:"is_shared"`
-					Deleted     bool           `json:"deleted"`
+					ID          int               `json:"id"`
+					Name        string            `json:"name"`
+					IsShared    bool              `json:"is_shared"`
+					Deleted     bool              `json:"deleted"`
 					Tiles       []json.RawMessage `json:"tiles"`
-					LastRefresh string         `json:"last_refresh"`
-					CreatedAt   string         `json:"created_at"`
+					LastRefresh string            `json:"last_refresh"`
+					CreatedAt   string            `json:"created_at"`
 				}
 				if json.Unmarshal(raw, &dash) != nil {
 					continue

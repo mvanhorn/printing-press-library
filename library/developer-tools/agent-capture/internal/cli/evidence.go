@@ -14,9 +14,9 @@ import (
 )
 
 var evidenceCmd = &cobra.Command{
-	Use:   "evidence",
-		Annotations: map[string]string{"mcp:read-only": "true"},
-	Short: "Capture a complete evidence bundle: screenshots + recording + GIF",
+	Use:         "evidence",
+	Annotations: map[string]string{"mcp:read-only": "true"},
+	Short:       "Capture a complete evidence bundle: screenshots + recording + GIF",
 	Long: `One command to produce a full PR evidence package.
 Takes N screenshots at intervals, records a video, converts to GIF, and bundles all outputs.`,
 	Example: `  # Full evidence bundle for an app

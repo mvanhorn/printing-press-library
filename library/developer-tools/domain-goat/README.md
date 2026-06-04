@@ -4,6 +4,8 @@
 
 domain-goat absorbs everything dnstwist, openrdap, whois, and the abandoned domainr-cli ever did, then transcends with a local SQLite shortlist that knows your scores, your notes, your watch list, and 5-year renewal cost for every TLD — so you can find domains worth registering instead of just typing names into instant-domain-search.com five at a time.
 
+Created by [@mitch-nick](https://github.com/mitch-nick) (Mitch Nick).
+
 ## Install
 
 The recommended path installs both the `domain-goat-pp-cli` binary and the `pp-domain-goat` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

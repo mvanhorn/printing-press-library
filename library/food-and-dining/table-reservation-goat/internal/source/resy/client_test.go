@@ -1,4 +1,4 @@
-// Copyright 2026 pejman-pour-moezzi. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Pejman Pour-Moezzi and contributors. Licensed under Apache-2.0. See LICENSE.
 
 package resy
 

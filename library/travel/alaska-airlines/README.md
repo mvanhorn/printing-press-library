@@ -6,6 +6,8 @@ Single static binary that talks to alaskaair.com's SvelteKit endpoints over a Ch
 
 Learn more at [Alaska Airlines](https://www.alaskaair.com).
 
+Created by [@mvanhorn](https://github.com/mvanhorn) (Matt Van Horn).
+
 ## Install
 
 The recommended path installs both the `alaska-airlines-pp-cli` binary and the `pp-alaska-airlines` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

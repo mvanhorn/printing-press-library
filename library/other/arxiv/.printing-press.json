@@ -5,6 +5,10 @@
   "api_name": "arxiv",
   "display_name": "arXiv",
   "cli_name": "arxiv-pp-cli",
+  "creator": {
+    "handle": "hnshah",
+    "name": "Hiten Shah"
+  },
   "owner": "hiten-shah",
   "printer": "hnshah",
   "printer_name": "Hiten Shah",

@@ -5,6 +5,10 @@
   "api_name": "sendgrid",
   "display_name": "Twilio Sendgrid",
   "cli_name": "sendgrid-pp-cli",
+  "creator": {
+    "handle": "natekettles",
+    "name": "Nathan Kettles"
+  },
   "owner": "nathan-kettles",
   "printer": "natekettles",
   "printer_name": "Nathan Kettles",

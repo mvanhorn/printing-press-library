@@ -1,0 +1,55 @@
+{
+  "manifest_version": "0.3",
+  "name": "alltrails-pp-mcp",
+  "display_name": "Alltrails Unofficial Seed",
+  "version": "4.18.0",
+  "description": "Evidence-labeled, live-capable route map for AllTrails browser/mobile surfaces. Not an official API contract.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/alltrails-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/alltrails-pp-mcp",
+      "args": [],
+      "env": {
+        "ALLTRAILS_ACCESS_TOKEN": "${user_config.alltrails_access_token}",
+        "ALLTRAILS_COOKIE": "${user_config.alltrails_cookie}",
+        "ALLTRAILS_CSRF_TOKEN": "${user_config.alltrails_csrf_token}"
+      }
+    }
+  },
+  "user_config": {
+    "alltrails_access_token": {
+      "type": "string",
+      "title": "ALLTRAILS_ACCESS_TOKEN",
+      "description": "Bearer token for authenticated AllTrails API requests.",
+      "sensitive": true,
+      "required": false
+    },
+    "alltrails_cookie": {
+      "type": "string",
+      "title": "ALLTRAILS_COOKIE",
+      "description": "Raw AllTrails Cookie header for browser-session authenticated requests.",
+      "sensitive": true,
+      "required": false
+    },
+    "alltrails_csrf_token": {
+      "type": "string",
+      "title": "ALLTRAILS_CSRF_TOKEN",
+      "description": "AllTrails CSRF token for browser-session write requests when required by the captured route.",
+      "sensitive": true,
+      "required": false
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

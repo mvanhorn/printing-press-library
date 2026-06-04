@@ -1,4 +1,4 @@
-// Copyright 2026 jmbernabotto. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 jmbernabotto and contributors. Licensed under Apache-2.0. See LICENSE.
 
 package cli
 
@@ -82,12 +82,12 @@ Useful for understanding frequency patterns for commute planning.`,
 				enc := json.NewEncoder(os.Stdout)
 				enc.SetIndent("", "  ")
 				return enc.Encode(map[string]any{
-					"line":     lineURI,
-					"stop":     stopURI,
-					"date":     date,
-					"coverage": coverage,
+					"line":      lineURI,
+					"stop":      stopURI,
+					"date":      date,
+					"coverage":  coverage,
 					"peak_hour": peak,
-					"buckets":  out,
+					"buckets":   out,
 				})
 			}
 

@@ -1,4 +1,4 @@
-// Copyright 2026 drdriftwood. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Angelo Pullen and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // The generic Printing Press emits a `load` command for SaaS APIs that
 // shows workload distribution per assignee. That semantic doesn't apply
@@ -16,8 +16,8 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/productivity/obsidian/internal/store"
+	"github.com/spf13/cobra"
 )
 
 func newLoadCmd(flags *rootFlags) *cobra.Command {

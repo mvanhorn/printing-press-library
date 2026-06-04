@@ -1,0 +1,5268 @@
+{
+  "api_name": "plane",
+  "base_url": "https://api.plane.so/api/v1/workspaces/{slug}",
+  "description": "The Plane REST API\n\nVisit our quick start guide and full API documentation at [developers.plane.so](https://developers.plane.so/api-reference/introduction).",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "mcp": {
+    "endpoint_tools": "hidden",
+    "orchestration": "code"
+  },
+  "auth": {
+    "type": "api_key",
+    "header": "X-API-Key",
+    "in": "header",
+    "env_vars": [
+      "PLANE_API_KEY_AUTHENTICATION"
+    ],
+    "env_var_specs": [
+      {
+        "name": "PLANE_API_KEY_AUTHENTICATION",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ],
+    "key_url": "https://app.plane.so/profile/api-tokens"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "assets_create-generic-upload",
+      "description": "Generate presigned URL for generic asset upload. Required: name, size. Optional: external_id, external_source, project_id (plus 1 more).",
+      "method": "POST",
+      "path": "/assets/",
+      "params": [
+        {
+          "name": "external_id",
+          "type": "string",
+          "location": "body",
+          "description": "External identifier for the asset (for integration tracking)"
+        },
+        {
+          "name": "external_source",
+          "type": "string",
+          "location": "body",
+          "description": "External source system (for integration tracking)"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Original filename of the asset",
+          "required": true
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "body",
+          "description": "UUID of the project to associate with the asset"
+        },
+        {
+          "name": "size",
+          "type": "int",
+          "location": "body",
+          "description": "File size in bytes",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "MIME type of the file"
+        }
+      ]
+    },
+    {
+      "name": "assets_create-user-upload",
+      "description": "Generate presigned URL for user asset upload. Required: entity_type, name, size. Optional: type.",
+      "method": "POST",
+      "path": "/api/v1/assets/user-assets/",
+      "params": [
+        {
+          "name": "entity_type",
+          "type": "string",
+          "location": "body",
+          "description": "Type of user asset * `USER_AVATAR` - User Avatar * `USER_COVER` - User Cover",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Original filename of the asset",
+          "required": true
+        },
+        {
+          "name": "size",
+          "type": "int",
+          "location": "body",
+          "description": "File size in bytes",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "MIME type of the file * `image/jpeg` - JPEG * `image/png` - PNG * `image/webp` - WebP * `image/jpg` - JPG * `image/gif` - GIF"
+        }
+      ]
+    },
+    {
+      "name": "assets_delete-user",
+      "description": "Delete user asset. Delete a user profile asset (avatar or cover image) and remove its reference from the user profile. This performs a soft delete by marking the asset as deleted and updating the user's profile. Required: asset_id. Destructive.",
+      "method": "DELETE",
+      "path": "/api/v1/assets/user-assets/{asset_id}/",
+      "params": [
+        {
+          "name": "asset_id",
+          "type": "string",
+          "location": "path",
+          "description": "Asset ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "assets_get-generic",
+      "description": "Get presigned URL for asset download. Required: asset_id.",
+      "method": "GET",
+      "path": "/assets/{asset_id}/",
+      "params": [
+        {
+          "name": "asset_id",
+          "type": "string",
+          "location": "path",
+          "description": "Asset id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "assets_update-generic",
+      "description": "Update generic asset after upload completion. Required: asset_id. Optional: is_uploaded (default: true). Partial update.",
+      "method": "PATCH",
+      "path": "/assets/{asset_id}/",
+      "params": [
+        {
+          "name": "asset_id",
+          "type": "string",
+          "location": "path",
+          "description": "Asset ID",
+          "required": true
+        },
+        {
+          "name": "is_uploaded",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether the asset has been successfully uploaded"
+        }
+      ]
+    },
+    {
+      "name": "assets_update-user",
+      "description": "Mark user asset as uploaded. Required: asset_id. Optional: attributes. Partial update.",
+      "method": "PATCH",
+      "path": "/api/v1/assets/user-assets/{asset_id}/",
+      "params": [
+        {
+          "name": "asset_id",
+          "type": "string",
+          "location": "path",
+          "description": "Asset ID",
+          "required": true
+        },
+        {
+          "name": "attributes",
+          "type": "string",
+          "location": "body",
+          "description": "Additional attributes to update for the asset"
+        }
+      ]
+    },
+    {
+      "name": "invitations_workspaces-create",
+      "description": "Create a workspace invite. Required: email. Optional: role. Returns the new WorkspaceInvite.",
+      "method": "POST",
+      "path": "/invitations/",
+      "params": [
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body",
+          "description": "Email",
+          "required": true
+        },
+        {
+          "name": "role",
+          "type": "int",
+          "location": "body",
+          "description": "* `20` - Admin * `15` - Member * `5` - Guest"
+        }
+      ]
+    },
+    {
+      "name": "invitations_workspaces-destroy",
+      "description": "Delete a workspace invite. Required: pk. Destructive.",
+      "method": "DELETE",
+      "path": "/invitations/{pk}/",
+      "params": [
+        {
+          "name": "pk",
+          "type": "string",
+          "location": "path",
+          "description": "Workspace invite ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "invitations_workspaces-list",
+      "description": "List all workspace invites for a workspace. Returns array of WorkspaceInvite.",
+      "method": "GET",
+      "path": "/invitations/",
+      "params": []
+    },
+    {
+      "name": "invitations_workspaces-partial-update",
+      "description": "Update a workspace invite. Required: pk. Optional: email, role. Returns the updated WorkspaceInvite.",
+      "method": "PATCH",
+      "path": "/invitations/{pk}/",
+      "params": [
+        {
+          "name": "pk",
+          "type": "string",
+          "location": "path",
+          "description": "Workspace invite ID",
+          "required": true
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body",
+          "description": "Email"
+        },
+        {
+          "name": "role",
+          "type": "int",
+          "location": "body",
+          "description": "* `20` - Admin * `15` - Member * `5` - Guest"
+        }
+      ]
+    },
+    {
+      "name": "invitations_workspaces-retrieve",
+      "description": "Get a workspace invite by ID. Required: pk. Returns the WorkspaceInvite.",
+      "method": "GET",
+      "path": "/invitations/{pk}/",
+      "params": [
+        {
+          "name": "pk",
+          "type": "string",
+          "location": "path",
+          "description": "Workspace invite ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "issues_get-workspace-work-item",
+      "description": "Retrieve a specific work item using workspace slug, project identifier, and issue identifier. Required: issue_identifier, project_identifier. Returns the Issue.",
+      "method": "GET",
+      "path": "/issues/{project_identifier}-{issue_identifier}/",
+      "params": [
+        {
+          "name": "issue_identifier",
+          "type": "int",
+          "location": "path",
+          "description": "Issue sequence ID (numeric identifier within project)",
+          "required": true
+        },
+        {
+          "name": "project_identifier",
+          "type": "string",
+          "location": "path",
+          "description": "Project identifier (unique string within workspace)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "issues_search-work-items",
+      "description": "Perform semantic search across issue names, sequence IDs, and project identifiers. Required: search. Optional: limit, project_id, workspace_search. Returns the IssueSearch.",
+      "method": "GET",
+      "path": "/issues/search/",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of results to return"
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "query",
+          "description": "Project ID for filtering results within a specific project"
+        },
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Search query to filter results by name, description, or identifier",
+          "required": true
+        },
+        {
+          "name": "workspace_search",
+          "type": "string",
+          "location": "query",
+          "description": "Whether to search across entire workspace or within specific project"
+        }
+      ]
+    },
+    {
+      "name": "members_get-workspace",
+      "description": "Retrieve all users who are members of the specified workspace. Returns array of MembersGetWorkspaceItem.",
+      "method": "GET",
+      "path": "/members/",
+      "params": []
+    },
+    {
+      "name": "projects_create",
+      "description": "Create a new project in the workspace with default states and member assignments. Required: identifier, name. Optional: archive_in, close_in, cover_image (plus 16 more). Returns the new Project.",
+      "method": "POST",
+      "path": "/projects/",
+      "params": [
+        {
+          "name": "archive_in",
+          "type": "int",
+          "location": "body",
+          "description": "Archive in"
+        },
+        {
+          "name": "close_in",
+          "type": "int",
+          "location": "body",
+          "description": "Close in"
+        },
+        {
+          "name": "cover_image",
+          "type": "string",
+          "location": "body",
+          "description": "Cover image"
+        },
+        {
+          "name": "cycle_view",
+          "type": "bool",
+          "location": "body",
+          "description": "Cycle view"
+        },
+        {
+          "name": "default_assignee",
+          "type": "string",
+          "location": "body",
+          "description": "Default assignee"
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description"
+        },
+        {
+          "name": "emoji",
+          "type": "string",
+          "location": "body",
+          "description": "Emoji"
+        },
+        {
+          "name": "external_id",
+          "type": "string",
+          "location": "body",
+          "description": "External id"
+        },
+        {
+          "name": "external_source",
+          "type": "string",
+          "location": "body",
+          "description": "External source"
+        },
+        {
+          "name": "guest_view_all_features",
+          "type": "bool",
+          "location": "body",
+          "description": "Guest view all features"
+        },
+        {
+          "name": "icon_prop",
+          "type": "string",
+          "location": "body",
+          "description": "Icon prop"
+        },
+        {
+          "name": "identifier",
+          "type": "string",
+          "location": "body",
+          "description": "Identifier",
+          "required": true
+        },
+        {
+          "name": "intake_view",
+          "type": "bool",
+          "location": "body",
+          "description": "Intake view"
+        },
+        {
+          "name": "is_issue_type_enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Is issue type enabled"
+        },
+        {
+          "name": "is_time_tracking_enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Is time tracking enabled"
+        },
+        {
+          "name": "issue_views_view",
+          "type": "bool",
+          "location": "body",
+          "description": "Issue views view"
+        },
+        {
+          "name": "module_view",
+          "type": "bool",
+          "location": "body",
+          "description": "Module view"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        },
+        {
+          "name": "page_view",
+          "type": "bool",
+          "location": "body",
+          "description": "Page view"
+        },
+        {
+          "name": "project_lead",
+          "type": "string",
+          "location": "body",
+          "description": "Project lead"
+        },
+        {
+          "name": "timezone",
+          "type": "string",
+          "location": "body",
+          "description": "* `Africa/Abidjan` - Africa/Abidjan * `Africa/Accra` - Africa/Accra * `Africa/Addis_Ababa` -..."
+        }
+      ]
+    },
+    {
+      "name": "projects_delete",
+      "description": "Permanently remove a project and all its associated data from the workspace. Required: pk. Destructive.",
+      "method": "DELETE",
+      "path": "/projects/{pk}/",
+      "params": [
+        {
+          "name": "pk",
+          "type": "string",
+          "location": "path",
+          "description": "Project ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_list",
+      "description": "Retrieve all projects in a workspace or get details of a specific project. Optional: cursor, expand, fields (plus 3 more). Returns array of Project.",
+      "method": "GET",
+      "path": "/projects/",
+      "params": [
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor for getting next set of results"
+        },
+        {
+          "name": "expand",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated list of related fields to expand in response"
+        },
+        {
+          "name": "fields",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated list of fields to include in response"
+        },
+        {
+          "name": "order_by",
+          "type": "string",
+          "location": "query",
+          "description": "Field to order results by. Prefix with '-' for descending order"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Number of results per page (default: 20, max: 100)"
+        },
+        {
+          "name": "updated_at__gt",
+          "type": "string",
+          "location": "query",
+          "description": "Incremental filter — return items updated after this RFC3339 timestamp."
+        }
+      ]
+    },
+    {
+      "name": "projects_retrieve",
+      "description": "Retrieve details of a specific project. Required: pk. Returns the Project.",
+      "method": "GET",
+      "path": "/projects/{pk}/",
+      "params": [
+        {
+          "name": "pk",
+          "type": "string",
+          "location": "path",
+          "description": "Project ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_update",
+      "description": "Partially update an existing project's properties like name, description, or settings. Required: pk. Optional: archive_in, close_in, cover_image (plus 20 more). Returns the updated Project.",
+      "method": "PATCH",
+      "path": "/projects/{pk}/",
+      "params": [
+        {
+          "name": "pk",
+          "type": "string",
+          "location": "path",
+          "description": "Project ID",
+          "required": true
+        },
+        {
+          "name": "archive_in",
+          "type": "int",
+          "location": "body",
+          "description": "Archive in"
+        },
+        {
+          "name": "close_in",
+          "type": "int",
+          "location": "body",
+          "description": "Close in"
+        },
+        {
+          "name": "cover_image",
+          "type": "string",
+          "location": "body",
+          "description": "Cover image"
+        },
+        {
+          "name": "cycle_view",
+          "type": "bool",
+          "location": "body",
+          "description": "Cycle view"
+        },
+        {
+          "name": "default_assignee",
+          "type": "string",
+          "location": "body",
+          "description": "Default assignee"
+        },
+        {
+          "name": "default_state",
+          "type": "string",
+          "location": "body",
+          "description": "Default state"
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description"
+        },
+        {
+          "name": "emoji",
+          "type": "string",
+          "location": "body",
+          "description": "Emoji"
+        },
+        {
+          "name": "estimate",
+          "type": "string",
+          "location": "body",
+          "description": "Estimate"
+        },
+        {
+          "name": "external_id",
+          "type": "string",
+          "location": "body",
+          "description": "External id"
+        },
+        {
+          "name": "external_source",
+          "type": "string",
+          "location": "body",
+          "description": "External source"
+        },
+        {
+          "name": "guest_view_all_features",
+          "type": "bool",
+          "location": "body",
+          "description": "Guest view all features"
+        },
+        {
+          "name": "icon_prop",
+          "type": "string",
+          "location": "body",
+          "description": "Icon prop"
+        },
+        {
+          "name": "identifier",
+          "type": "string",
+          "location": "body",
+          "description": "Identifier"
+        },
+        {
+          "name": "intake_view",
+          "type": "bool",
+          "location": "body",
+          "description": "Intake view"
+        },
+        {
+          "name": "is_issue_type_enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Is issue type enabled"
+        },
+        {
+          "name": "is_time_tracking_enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Is time tracking enabled"
+        },
+        {
+          "name": "issue_views_view",
+          "type": "bool",
+          "location": "body",
+          "description": "Issue views view"
+        },
+        {
+          "name": "module_view",
+          "type": "bool",
+          "location": "body",
+          "description": "Module view"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        },
+        {
+          "name": "page_view",
+          "type": "bool",
+          "location": "body",
+          "description": "Page view"
+        },
+        {
+          "name": "project_lead",
+          "type": "string",
+          "location": "body",
+          "description": "Project lead"
+        },
+        {
+          "name": "timezone",
+          "type": "string",
+          "location": "body",
+          "description": "* `Africa/Abidjan` - Africa/Abidjan * `Africa/Accra` - Africa/Accra * `Africa/Addis_Ababa` -..."
+        }
+      ]
+    },
+    {
+      "name": "projects_archive_project",
+      "description": "Move a project to archived status, hiding it from active project lists. Required: project_id.",
+      "method": "POST",
+      "path": "/projects/{project_id}/archive/",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_archive_unarchive-project",
+      "description": "Restore an archived project to active status, making it available in regular workflows. Required: project_id. Destructive.",
+      "method": "DELETE",
+      "path": "/projects/{project_id}/archive/",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_archived-cycles_list",
+      "description": "Retrieve all cycles that have been archived in the project. Required: project_id. Optional: cursor, per_page, updated_at__gt. Returns array of Cycle.",
+      "method": "GET",
+      "path": "/projects/{project_id}/archived-cycles/",
+      "params": [
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor for getting next set of results"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Number of results per page (default: 20, max: 100)"
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project ID",
+          "required": true
+        },
+        {
+          "name": "updated_at__gt",
+          "type": "string",
+          "location": "query",
+          "description": "Incremental filter — return items updated after this RFC3339 timestamp."
+        }
+      ]
+    },
+    {
+      "name": "projects_archived-cycles_unarchive-cycle",
+      "description": "Restore an archived cycle to active status, making it available for regular use. Required: cycle_id, project_id. Destructive.",
+      "method": "DELETE",
+      "path": "/projects/{project_id}/archived-cycles/{cycle_id}/unarchive/",
+      "params": [
+        {
+          "name": "cycle_id",
+          "type": "string",
+          "location": "path",
+          "description": "Cycle id",
+          "required": true
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_archived-modules_list",
+      "description": "Retrieve all modules that have been archived in the project. Required: project_id. Optional: cursor, expand, fields (plus 3 more). Returns array of Module.",
+      "method": "GET",
+      "path": "/projects/{project_id}/archived-modules/",
+      "params": [
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor for getting next set of results"
+        },
+        {
+          "name": "expand",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated list of related fields to expand in response"
+        },
+        {
+          "name": "fields",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated list of fields to include in response"
+        },
+        {
+          "name": "order_by",
+          "type": "string",
+          "location": "query",
+          "description": "Field to order results by. Prefix with '-' for descending order"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Number of results per page (default: 20, max: 100)"
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project ID",
+          "required": true
+        },
+        {
+          "name": "updated_at__gt",
+          "type": "string",
+          "location": "query",
+          "description": "Incremental filter — return items updated after this RFC3339 timestamp."
+        }
+      ]
+    },
+    {
+      "name": "projects_archived-modules_unarchive-module",
+      "description": "Restore an archived module to active status, making it available for regular use. Required: pk, project_id. Destructive.",
+      "method": "DELETE",
+      "path": "/projects/{project_id}/archived-modules/{pk}/unarchive/",
+      "params": [
+        {
+          "name": "pk",
+          "type": "string",
+          "location": "path",
+          "description": "Module ID",
+          "required": true
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_cycles_add-work-items",
+      "description": "Assign multiple work items to a cycle. Automatically handles bulk creation and updates with activity tracking. Required: cycle_id, project_id, issues. Returns the new CycleIssue.",
+      "method": "POST",
+      "path": "/projects/{project_id}/cycles/{cycle_id}/cycle-issues/",
+      "params": [
+        {
+          "name": "cycle_id",
+          "type": "string",
+          "location": "path",
+          "description": "Cycle id",
+          "required": true
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project ID",
+          "required": true
+        },
+        {
+          "name": "issues",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "List of issue IDs to add to the cycle",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_cycles_archive",
+      "description": "Move a completed cycle to archived status for historical tracking. Only cycles that have ended can be archived. Required: cycle_id, project_id.",
+      "method": "POST",
+      "path": "/projects/{project_id}/cycles/{cycle_id}/archive/",
+      "params": [
+        {
+          "name": "cycle_id",
+          "type": "string",
+          "location": "path",
+          "description": "Cycle id",
+          "required": true
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_cycles_create",
+      "description": "Create a new development cycle with specified name, description, and date range. Supports external ID tracking for integration purposes. Required: project_id, name. Optional: description, end_date, external_id (plus 4 more). Returns the new Cycle.",
+      "method": "POST",
+      "path": "/projects/{project_id}/cycles/",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project ID",
+          "required": true
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description"
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "location": "body",
+          "description": "End date"
+        },
+        {
+          "name": "external_id",
+          "type": "string",
+          "location": "body",
+          "description": "External id"
+        },
+        {
+          "name": "external_source",
+          "type": "string",
+          "location": "body",
+          "description": "External source"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        },
+        {
+          "name": "owned_by",
+          "type": "string",
+          "location": "body",
+          "description": "User who owns the cycle. If not provided, defaults to the current user."
+        },
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "body",
+          "description": "Start date"
+        },
+        {
+          "name": "timezone",
+          "type": "string",
+          "location": "body",
+          "description": "* `Africa/Abidjan` - Africa/Abidjan * `Africa/Accra` - Africa/Accra * `Africa/Addis_Ababa` -..."
+        }
+      ]
+    },
+    {
+      "name": "projects_cycles_delete",
+      "description": "Permanently remove a cycle and all its associated issue relationships. Required: pk, project_id. Destructive.",
+      "method": "DELETE",
+      "path": "/projects/{project_id}/cycles/{pk}/",
+      "params": [
+        {
+          "name": "pk",
+          "type": "string",
+          "location": "path",
+          "description": "Pk",
+          "required": true
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_cycles_delete-work-item",
+      "description": "Remove a work item from a cycle while keeping the work item in the project. Required: cycle_id, issue_id, project_id. Destructive.",
+      "method": "DELETE",
+      "path": "/projects/{project_id}/cycles/{cycle_id}/cycle-issues/{issue_id}/",
+      "params": [
+        {
+          "name": "cycle_id",
+          "type": "string",
+          "location": "path",
+          "description": "Cycle id",
+          "required": true
+        },
+        {
+          "name": "issue_id",
+          "type": "string",
+          "location": "path",
+          "description": "Issue id",
+          "required": true
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_cycles_list",
+      "description": "Retrieve all cycles in a project. Supports filtering by cycle status like current, upcoming, completed, or draft. Required: project_id. Optional: cursor, cycle_view, expand (plus 4 more). Returns array of Cycle.",
+      "method": "GET",
+      "path": "/projects/{project_id}/cycles/",
+      "params": [
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor for getting next set of results"
+        },
+        {
+          "name": "cycle_view",
+          "type": "string",
+          "location": "query",
+          "description": "Filter cycles by status"
+        },
+        {
+          "name": "expand",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated list of related fields to expand in response"
+        },
+        {
+          "name": "fields",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated list of fields to include in response"
+        },
+        {
+          "name": "order_by",
+          "type": "string",
+          "location": "query",
+          "description": "Field to order results by. Prefix with '-' for descending order"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Number of results per page (default: 20, max: 100)"
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project ID",
+          "required": true
+        },
+        {
+          "name": "updated_at__gt",
+          "type": "string",
+          "location": "query",
+          "description": "Incremental filter — return items updated after this RFC3339 timestamp."
+        }
+      ]
+    },
+    {
+      "name": "projects_cycles_list-work-items",
+      "description": "Retrieve all work items assigned to a cycle. Required: cycle_id, project_id. Optional: cursor, per_page, updated_at__gt. Returns array of Issue.",
+      "method": "GET",
+      "path": "/projects/{project_id}/cycles/{cycle_id}/cycle-issues/",
+      "params": [
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor for getting next set of results"
+        },
+        {
+          "name": "cycle_id",
+          "type": "string",
+          "location": "path",
+          "description": "Cycle id",
+          "required": true
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Number of results per page (default: 20, max: 100)"
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project ID",
+          "required": true
+        },
+        {
+          "name": "updated_at__gt",
+          "type": "string",
+          "location": "query",
+          "description": "Incremental filter — return items updated after this RFC3339 timestamp."
+        }
+      ]
+    },
+    {
+      "name": "projects_cycles_retrieve",
+      "description": "Retrieve details of a specific cycle by its ID. Supports cycle status filtering. Required: pk, project_id. Returns the Cycle.",
+      "method": "GET",
+      "path": "/projects/{project_id}/cycles/{pk}/",
+      "params": [
+        {
+          "name": "pk",
+          "type": "string",
+          "location": "path",
+          "description": "Pk",
+          "required": true
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_cycles_retrieve-work-item",
+      "description": "Retrieve details of a specific cycle work item. Required: cycle_id, issue_id, project_id. Returns the CycleIssue.",
+      "method": "GET",
+      "path": "/projects/{project_id}/cycles/{cycle_id}/cycle-issues/{issue_id}/",
+      "params": [
+        {
+          "name": "cycle_id",
+          "type": "string",
+          "location": "path",
+          "description": "Cycle id",
+          "required": true
+        },
+        {
+          "name": "issue_id",
+          "type": "string",
+          "location": "path",
+          "description": "Issue id",
+          "required": true
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_cycles_transfer-work-items",
+      "description": "Move incomplete work items from the current cycle to a new target cycle. Captures progress snapshot and transfers only unfinished work items. Required: cycle_id, project_id, new_cycle_id. Returns the new CyclesTransferWorkItemsResponse.",
+      "method": "POST",
+      "path": "/projects/{project_id}/cycles/{cycle_id}/transfer-issues/",
+      "params": [
+        {
+          "name": "cycle_id",
+          "type": "string",
+          "location": "path",
+          "description": "Cycle id",
+          "required": true
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project ID",
+          "required": true
+        },
+        {
+          "name": "new_cycle_id",
+          "type": "string",
+          "location": "body",
+          "description": "ID of the target cycle to transfer issues to",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_cycles_update",
+      "description": "Modify an existing cycle's properties like name, description, or date range. Completed cycles can only have their sort order changed. Required: pk, project_id. Optional: description, end_date, external_id (plus 5 more). Returns the updated Cycle.",
+      "method": "PATCH",
+      "path": "/projects/{project_id}/cycles/{pk}/",
+      "params": [
+        {
+          "name": "pk",
+          "type": "string",
+          "location": "path",
+          "description": "Pk",
+          "required": true
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project ID",
+          "required": true
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description"
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "location": "body",
+          "description": "End date"
+        },
+        {
+          "name": "external_id",
+          "type": "string",
+          "location": "body",
+          "description": "External id"
+        },
+        {
+          "name": "external_source",
+          "type": "string",
+          "location": "body",
+          "description": "External source"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        },
+        {
+          "name": "owned_by",
+          "type": "string",
+          "location": "body",
+          "description": "User who owns the cycle. If not provided, defaults to the current user."
+        },
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "body",
+          "description": "Start date"
+        },
+        {
+          "name": "timezone",
+          "type": "string",
+          "location": "body",
+          "description": "* `Africa/Abidjan` - Africa/Abidjan * `Africa/Accra` - Africa/Accra * `Africa/Addis_Ababa` -..."
+        }
+      ]
+    },
+    {
+      "name": "projects_intake-issues_create-intake-work-item",
+      "description": "Submit a new work item to the project's intake queue for review and triage. Automatically creates the work item with default triage state and tracks activity. Required: project_id, issue. Returns the new IntakeIssue.",
+      "method": "POST",
+      "path": "/projects/{project_id}/intake-issues/",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project ID",
+          "required": true
+        },
+        {
+          "name": "issue-description",
+          "wire_name": "issue.description",
+          "type": "string",
+          "location": "body",
+          "description": "Description"
+        },
+        {
+          "name": "issue-description-html",
+          "wire_name": "issue.description_html",
+          "type": "string",
+          "location": "body",
+          "description": "Description html"
+        },
+        {
+          "name": "issue-description-json",
+          "wire_name": "issue.description_json",
+          "type": "string",
+          "location": "body",
+          "description": "Description json"
+        },
+        {
+          "name": "issue-name",
+          "wire_name": "issue.name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        },
+        {
+          "name": "issue-priority",
+          "wire_name": "issue.priority",
+          "type": "string",
+          "location": "body",
+          "description": "* `urgent` - Urgent * `high` - High * `medium` - Medium * `low` - Low * `none` - None"
+        }
+      ]
+    },
+    {
+      "name": "projects_intake-issues_delete-intake-work-item",
+      "description": "Permanently remove an intake work item from the triage queue. Also deletes the underlying work item if it hasn't been accepted yet. Required: issue_id, project_id. Destructive.",
+      "method": "DELETE",
+      "path": "/projects/{project_id}/intake-issues/{issue_id}/",
+      "params": [
+        {
+          "name": "issue_id",
+          "type": "string",
+          "location": "path",
+          "description": "Issue ID",
+          "required": true
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_intake-issues_get-intake-work-items-list",
+      "description": "Retrieve all work items in the project's intake queue. Returns paginated results when listing all intake work items. Required: project_id. Optional: cursor, expand, fields (plus 1 more).",
+      "method": "GET",
+      "path": "/projects/{project_id}/intake-issues/",
+      "params": [
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor for getting next set of results"
+        },
+        {
+          "name": "expand",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated list of related fields to expand in response"
+        },
+        {
+          "name": "fields",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated list of fields to include in response"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Number of results per page (default: 20, max: 100)"
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_intake-issues_retrieve-intake-work-item",
+      "description": "Retrieve details of a specific intake work item. Required: issue_id, project_id. Returns the IntakeIssue.",
+      "method": "GET",
+      "path": "/projects/{project_id}/intake-issues/{issue_id}/",
+      "params": [
+        {
+          "name": "issue_id",
+          "type": "string",
+          "location": "path",
+          "description": "Issue ID",
+          "required": true
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_intake-issues_update-intake-work-item",
+      "description": "Modify an existing intake work item's properties or status for triage processing. Supports status changes like accept, reject, or mark as duplicate. Required: issue_id, project_id. Optional: duplicate_to, issue, snoozed_till (plus 3 more). Returns the updated IntakeIssue.",
+      "method": "PATCH",
+      "path": "/projects/{project_id}/intake-issues/{issue_id}/",
+      "params": [
+        {
+          "name": "issue_id",
+          "type": "string",
+          "location": "path",
+          "description": "Issue ID",
+          "required": true
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project ID",
+          "required": true
+        },
+        {
+          "name": "duplicate_to",
+          "type": "string",
+          "location": "body",
+          "description": "Duplicate to"
+        },
+        {
+          "name": "issue-description",
+          "wire_name": "issue.description",
+          "type": "string",
+          "location": "body",
+          "description": "Description"
+        },
+        {
+          "name": "issue-description-html",
+          "wire_name": "issue.description_html",
+          "type": "string",
+          "location": "body",
+          "description": "Description html"
+        },
+        {
+          "name": "issue-description-json",
+          "wire_name": "issue.description_json",
+          "type": "string",
+          "location": "body",
+          "description": "Description json"
+        },
+        {
+          "name": "issue-name",
+          "wire_name": "issue.name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        },
+        {
+          "name": "issue-priority",
+          "wire_name": "issue.priority",
+          "type": "string",
+          "location": "body",
+          "description": "* `urgent` - Urgent * `high` - High * `medium` - Medium * `low` - Low * `none` - None"
+        },
+        {
+          "name": "snoozed_till",
+          "type": "string",
+          "location": "body",
+          "description": "Snoozed till"
+        },
+        {
+          "name": "source",
+          "type": "string",
+          "location": "body",
+          "description": "Source"
+        },
+        {
+          "name": "source_email",
+          "type": "string",
+          "location": "body",
+          "description": "Source email"
+        },
+        {
+          "name": "status",
+          "type": "int",
+          "location": "body",
+          "description": "* `-2` - Pending * `-1` - Rejected * `0` - Snoozed * `1` - Accepted * `2` - Duplicate"
+        }
+      ]
+    },
+    {
+      "name": "projects_issues_create-work-item",
+      "description": "Create a new work item in the specified project with the provided details. Required: project_id, name. Optional: archived_at, assignees, completed_at (plus 18 more). Returns the new Issue.",
+      "method": "POST",
+      "path": "/projects/{project_id}/issues/",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project ID",
+          "required": true
+        },
+        {
+          "name": "archived_at",
+          "type": "string",
+          "location": "body",
+          "description": "Archived at"
+        },
+        {
+          "name": "assignees",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Assignees"
+        },
+        {
+          "name": "completed_at",
+          "type": "string",
+          "location": "body",
+          "description": "Completed at"
+        },
+        {
+          "name": "created_by",
+          "type": "string",
+          "location": "body",
+          "description": "Created by"
+        },
+        {
+          "name": "deleted_at",
+          "type": "string",
+          "location": "body",
+          "description": "Deleted at"
+        },
+        {
+          "name": "description_html",
+          "type": "string",
+          "location": "body",
+          "description": "Description html"
+        },
+        {
+          "name": "estimate_point",
+          "type": "string",
+          "location": "body",
+          "description": "Estimate point"
+        },
+        {
+          "name": "external_id",
+          "type": "string",
+          "location": "body",
+          "description": "External id"
+        },
+        {
+          "name": "external_source",
+          "type": "string",
+          "location": "body",
+          "description": "External source"
+        },
+        {
+          "name": "is_draft",
+          "type": "bool",
+          "location": "body",
+          "description": "Is draft"
+        },
+        {
+          "name": "labels",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Labels"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        },
+        {
+          "name": "parent",
+          "type": "string",
+          "location": "body",
+          "description": "Parent"
+        },
+        {
+          "name": "point",
+          "type": "int",
+          "location": "body",
+          "description": "Point"
+        },
+        {
+          "name": "priority",
+          "type": "string",
+          "location": "body",
+          "description": "* `urgent` - Urgent * `high` - High * `medium` - Medium * `low` - Low * `none` - None"
+        },
+        {
+          "name": "sequence_id",
+          "type": "int",
+          "location": "body",
+          "description": "Sequence id"
+        },
+        {
+          "name": "sort_order",
+          "type": "float",
+          "location": "body",
+          "description": "Sort order"
+        },
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "body",
+          "description": "Start date"
+        },
+        {
+          "name": "state",
+          "type": "string",
+          "location": "body",
+          "description": "State"
+        },
+        {
+          "name": "target_date",
+          "type": "string",
+          "location": "body",
+          "description": "Target date"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Type"
+        },
+        {
+          "name": "type_id",
+          "type": "string",
+          "location": "body",
+          "description": "Type id"
+        }
+      ]
+    },
+    {
+      "name": "projects_issues_create-work-item-attachment",
+      "description": "Generate presigned URL for uploading file attachments to a work item. Required: issue_id, project_id, name, size. Optional: external_id, external_source, type.",
+      "method": "POST",
+      "path": "/projects/{project_id}/issues/{issue_id}/issue-attachments/",
+      "params": [
+        {
+          "name": "issue_id",
+          "type": "string",
+          "location": "path",
+          "description": "Issue ID",
+          "required": true
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project ID",
+          "required": true
+        },
+        {
+          "name": "external_id",
+          "type": "string",
+          "location": "body",
+          "description": "External identifier for the asset (for integration tracking)"
+        },
+        {
+          "name": "external_source",
+          "type": "string",
+          "location": "body",
+          "description": "External source system (for integration tracking)"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Original filename of the asset",
+          "required": true
+        },
+        {
+          "name": "size",
+          "type": "int",
+          "location": "body",
+          "description": "File size in bytes",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "MIME type of the file"
+        }
+      ]
+    },
+    {
+      "name": "projects_issues_create-work-item-comment",
+      "description": "Add a new comment to a work item with HTML content. Required: issue_id, project_id. Optional: access, comment_html, comment_json (plus 2 more). Returns array of string.",
+      "method": "POST",
+      "path": "/projects/{project_id}/issues/{issue_id}/comments/",
+      "params": [
+        {
+          "name": "issue_id",
+          "type": "string",
+          "location": "path",
+          "description": "Issue ID",
+          "required": true
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project ID",
+          "required": true
+        },
+        {
+          "name": "access",
+          "type": "string",
+          "location": "body",
+          "description": "* `INTERNAL` - INTERNAL * `EXTERNAL` - EXTERNAL"
+        },
+        {
+          "name": "comment_html",
+          "type": "string",
+          "location": "body",
+          "description": "Comment html"
+        },
+        {
+          "name": "comment_json",
+          "type": "string",
+          "location": "body",
+          "description": "Comment json"
+        },
+        {
+          "name": "external_id",
+          "type": "string",
+          "location": "body",
+          "description": "External id"
+        },
+        {
+          "name": "external_source",
+          "type": "string",
+          "location": "body",
+          "description": "External source"
+        }
+      ]
+    },
+    {
+      "name": "projects_issues_create-work-item-link",
+      "description": "Add a new external link to a work item with URL, title, and metadata. Required: issue_id, project_id, url. Optional: title. Returns the new IssueLink.",
+      "method": "POST",
+      "path": "/projects/{project_id}/issues/{issue_id}/links/",
+      "params": [
+        {
+          "name": "issue_id",
+          "type": "string",
+          "location": "path",
+          "description": "Issue ID",
+          "required": true
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project ID",
+          "required": true
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "Title"
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "body",
+          "description": "Url",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_issues_delete-work-item",
+      "description": "Permanently delete an existing work item from the project. Only admins or the item creator can perform this action. Required: pk, project_id. Destructive.",
+      "method": "DELETE",
+      "path": "/projects/{project_id}/issues/{pk}/",
+      "params": [
+        {
+          "name": "pk",
+          "type": "string",
+          "location": "path",
+          "description": "Pk",
+          "required": true
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_issues_delete-work-item-attachment",
+      "description": "Permanently remove an attachment from a work item. Records deletion activity for audit purposes. Required: issue_id, pk, project_id. Destructive.",
+      "method": "DELETE",
+      "path": "/projects/{project_id}/issues/{issue_id}/issue-attachments/{pk}/",
+      "params": [
+        {
+          "name": "issue_id",
+          "type": "string",
+          "location": "path",
+          "description": "Issue id",
+          "required": true
+        },
+        {
+          "name": "pk",
+          "type": "string",
+          "location": "path",
+          "description": "Attachment ID",
+          "required": true
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_issues_delete-work-item-comment",
+      "description": "Permanently remove a comment from a work item. Records deletion activity for audit purposes. Required: issue_id, pk, project_id. Destructive.",
+      "method": "DELETE",
+      "path": "/projects/{project_id}/issues/{issue_id}/comments/{pk}/",
+      "params": [
+        {
+          "name": "issue_id",
+          "type": "string",
+          "location": "path",
+          "description": "Issue ID",
+          "required": true
+        },
+        {
+          "name": "pk",
+          "type": "string",
+          "location": "path",
+          "description": "Comment ID",
+          "required": true
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_issues_delete-work-item-link",
+      "description": "Permanently remove an external link from a work item. Required: issue_id, pk, project_id. Destructive.",
+      "method": "DELETE",
+      "path": "/projects/{project_id}/issues/{issue_id}/links/{pk}/",
+      "params": [
+        {
+          "name": "issue_id",
+          "type": "string",
+          "location": "path",
+          "description": "Issue ID",
+          "required": true
+        },
+        {
+          "name": "pk",
+          "type": "string",
+          "location": "path",
+          "description": "Link ID",
+          "required": true
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_issues_list-work-item-activities",
+      "description": "Retrieve all activities for a work item. Supports filtering by activity type and date range. Required: issue_id, project_id. Optional: cursor, expand, fields (plus 3 more). Returns array of IssueActivity.",
+      "method": "GET",
+      "path": "/projects/{project_id}/issues/{issue_id}/activities/",
+      "params": [
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor for getting next set of results"
+        },
+        {
+          "name": "expand",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated list of related fields to expand in response"
+        },
+        {
+          "name": "fields",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated list of fields to include in response"
+        },
+        {
+          "name": "issue_id",
+          "type": "string",
+          "location": "path",
+          "description": "Issue ID",
+          "required": true
+        },
+        {
+          "name": "order_by",
+          "type": "string",
+          "location": "query",
+          "description": "Field to order results by. Prefix with '-' for descending order"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Number of results per page (default: 20, max: 100)"
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project ID",
+          "required": true
+        },
+        {
+          "name": "updated_at__gt",
+          "type": "string",
+          "location": "query",
+          "description": "Incremental filter — return items updated after this RFC3339 timestamp."
+        }
+      ]
+    },
+    {
+      "name": "projects_issues_list-work-item-attachments",
+      "description": "Retrieve all attachments for a work item. Required: issue_id, project_id. Optional: updated_at__gt. Returns the IssueAttachment.",
+      "method": "GET",
+      "path": "/projects/{project_id}/issues/{issue_id}/issue-attachments/",
+      "params": [
+        {
+          "name": "issue_id",
+          "type": "string",
+          "location": "path",
+          "description": "Issue ID",
+          "required": true
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project ID",
+          "required": true
+        },
+        {
+          "name": "updated_at__gt",
+          "type": "string",
+          "location": "query",
+          "description": "Incremental filter — return items updated after this RFC3339 timestamp."
+        }
+      ]
+    },
+    {
+      "name": "projects_issues_list-work-item-comments",
+      "description": "Retrieve all comments for a work item. Required: issue_id, project_id. Optional: cursor, expand, fields (plus 3 more). Returns array of IssueComment.",
+      "method": "GET",
+      "path": "/projects/{project_id}/issues/{issue_id}/comments/",
+      "params": [
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor for getting next set of results"
+        },
+        {
+          "name": "expand",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated list of related fields to expand in response"
+        },
+        {
+          "name": "fields",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated list of fields to include in response"
+        },
+        {
+          "name": "issue_id",
+          "type": "string",
+          "location": "path",
+          "description": "Issue ID",
+          "required": true
+        },
+        {
+          "name": "order_by",
+          "type": "string",
+          "location": "query",
+          "description": "Field to order results by. Prefix with '-' for descending order"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Number of results per page (default: 20, max: 100)"
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project ID",
+          "required": true
+        },
+        {
+          "name": "updated_at__gt",
+          "type": "string",
+          "location": "query",
+          "description": "Incremental filter — return items updated after this RFC3339 timestamp."
+        }
+      ]
+    },
+    {
+      "name": "projects_issues_list-work-item-links",
+      "description": "Retrieve all links associated with a work item. Supports filtering by URL, title, and metadata. Required: issue_id, project_id. Optional: cursor, expand, fields (plus 3 more). Returns array of IssueLink.",
+      "method": "GET",
+      "path": "/projects/{project_id}/issues/{issue_id}/links/",
+      "params": [
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor for getting next set of results"
+        },
+        {
+          "name": "expand",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated list of related fields to expand in response"
+        },
+        {
+          "name": "fields",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated list of fields to include in response"
+        },
+        {
+          "name": "issue_id",
+          "type": "string",
+          "location": "path",
+          "description": "Issue ID",
+          "required": true
+        },
+        {
+          "name": "order_by",
+          "type": "string",
+          "location": "query",
+          "description": "Field to order results by. Prefix with '-' for descending order"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Number of results per page (default: 20, max: 100)"
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project ID",
+          "required": true
+        },
+        {
+          "name": "updated_at__gt",
+          "type": "string",
+          "location": "query",
+          "description": "Incremental filter — return items updated after this RFC3339 timestamp."
+        }
+      ]
+    },
+    {
+      "name": "projects_issues_list-work-items",
+      "description": "Retrieve a paginated list of all work items in a project. Supports filtering, ordering, and field selection through query parameters. Required: project_id. Optional: cursor, expand, external_id (plus 5 more). Returns array of Issue.",
+      "method": "GET",
+      "path": "/projects/{project_id}/issues/",
+      "params": [
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor for getting next set of results"
+        },
+        {
+          "name": "expand",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated list of related fields to expand in response"
+        },
+        {
+          "name": "external_id",
+          "type": "string",
+          "location": "query",
+          "description": "External system identifier for filtering or lookup"
+        },
+        {
+          "name": "external_source",
+          "type": "string",
+          "location": "query",
+          "description": "External system source name for filtering or lookup"
+        },
+        {
+          "name": "fields",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated list of fields to include in response"
+        },
+        {
+          "name": "order_by",
+          "type": "string",
+          "location": "query",
+          "description": "Field to order results by. Prefix with '-' for descending order"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Number of results per page (default: 20, max: 100)"
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project ID",
+          "required": true
+        },
+        {
+          "name": "updated_at__gt",
+          "type": "string",
+          "location": "query",
+          "description": "Incremental filter — return items updated after this RFC3339 timestamp."
+        }
+      ]
+    },
+    {
+      "name": "projects_issues_retrieve-work-item",
+      "description": "Retrieve details of a specific work item. Required: pk, project_id. Optional: expand, external_id, external_source (plus 2 more). Returns the Issue.",
+      "method": "GET",
+      "path": "/projects/{project_id}/issues/{pk}/",
+      "params": [
+        {
+          "name": "expand",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated list of related fields to expand in response"
+        },
+        {
+          "name": "external_id",
+          "type": "string",
+          "location": "query",
+          "description": "External system identifier for filtering or lookup"
+        },
+        {
+          "name": "external_source",
+          "type": "string",
+          "location": "query",
+          "description": "External system source name for filtering or lookup"
+        },
+        {
+          "name": "fields",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated list of fields to include in response"
+        },
+        {
+          "name": "order_by",
+          "type": "string",
+          "location": "query",
+          "description": "Field to order results by. Prefix with '-' for descending order"
+        },
+        {
+          "name": "pk",
+          "type": "string",
+          "location": "path",
+          "description": "Pk",
+          "required": true
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_issues_retrieve-work-item-activity",
+      "description": "Retrieve details of a specific activity. Required: issue_id, pk, project_id. Optional: cursor, expand, fields (plus 2 more). Returns array of IssueActivity.",
+      "method": "GET",
+      "path": "/projects/{project_id}/issues/{issue_id}/activities/{pk}/",
+      "params": [
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor for getting next set of results"
+        },
+        {
+          "name": "expand",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated list of related fields to expand in response"
+        },
+        {
+          "name": "fields",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated list of fields to include in response"
+        },
+        {
+          "name": "issue_id",
+          "type": "string",
+          "location": "path",
+          "description": "Issue ID",
+          "required": true
+        },
+        {
+          "name": "order_by",
+          "type": "string",
+          "location": "query",
+          "description": "Field to order results by. Prefix with '-' for descending order"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Number of results per page (default: 20, max: 100)"
+        },
+        {
+          "name": "pk",
+          "type": "string",
+          "location": "path",
+          "description": "Activity ID",
+          "required": true
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_issues_retrieve-work-item-attachment",
+      "description": "Download attachment file. Returns a redirect to the presigned download URL. Required: issue_id, pk, project_id.",
+      "method": "GET",
+      "path": "/projects/{project_id}/issues/{issue_id}/issue-attachments/{pk}/",
+      "params": [
+        {
+          "name": "issue_id",
+          "type": "string",
+          "location": "path",
+          "description": "Issue id",
+          "required": true
+        },
+        {
+          "name": "pk",
+          "type": "string",
+          "location": "path",
+          "description": "Attachment ID",
+          "required": true
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_issues_retrieve-work-item-comment",
+      "description": "Retrieve details of a specific comment. Required: issue_id, pk, project_id. Returns array of string.",
+      "method": "GET",
+      "path": "/projects/{project_id}/issues/{issue_id}/comments/{pk}/",
+      "params": [
+        {
+          "name": "issue_id",
+          "type": "string",
+          "location": "path",
+          "description": "Issue ID",
+          "required": true
+        },
+        {
+          "name": "pk",
+          "type": "string",
+          "location": "path",
+          "description": "Comment ID",
+          "required": true
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_issues_retrieve-work-item-link",
+      "description": "Retrieve details of a specific work item link. Required: issue_id, pk, project_id. Optional: cursor, expand, fields (plus 1 more). Returns array of IssueLink.",
+      "method": "GET",
+      "path": "/projects/{project_id}/issues/{issue_id}/links/{pk}/",
+      "params": [
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor for getting next set of results"
+        },
+        {
+          "name": "expand",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated list of related fields to expand in response"
+        },
+        {
+          "name": "fields",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated list of fields to include in response"
+        },
+        {
+          "name": "issue_id",
+          "type": "string",
+          "location": "path",
+          "description": "Issue ID",
+          "required": true
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Number of results per page (default: 20, max: 100)"
+        },
+        {
+          "name": "pk",
+          "type": "string",
+          "location": "path",
+          "description": "Link ID",
+          "required": true
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_issues_update-link",
+      "description": "Modify the URL, title, or metadata of an existing issue link. Required: issue_id, pk, project_id. Optional: title, url. Returns the updated IssueLink.",
+      "method": "PATCH",
+      "path": "/projects/{project_id}/issues/{issue_id}/links/{pk}/",
+      "params": [
+        {
+          "name": "issue_id",
+          "type": "string",
+          "location": "path",
+          "description": "Issue ID",
+          "required": true
+        },
+        {
+          "name": "pk",
+          "type": "string",
+          "location": "path",
+          "description": "Link ID",
+          "required": true
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project ID",
+          "required": true
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "Title"
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "body",
+          "description": "Url"
+        }
+      ]
+    },
+    {
+      "name": "projects_issues_update-work-item",
+      "description": "Partially update an existing work item with the provided fields. Supports external ID validation to prevent conflicts. Required: pk, project_id. Optional: archived_at, assignees, completed_at (plus 19 more). Returns the updated Issue.",
+      "method": "PATCH",
+      "path": "/projects/{project_id}/issues/{pk}/",
+      "params": [
+        {
+          "name": "pk",
+          "type": "string",
+          "location": "path",
+          "description": "Pk",
+          "required": true
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project ID",
+          "required": true
+        },
+        {
+          "name": "archived_at",
+          "type": "string",
+          "location": "body",
+          "description": "Archived at"
+        },
+        {
+          "name": "assignees",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Assignees"
+        },
+        {
+          "name": "completed_at",
+          "type": "string",
+          "location": "body",
+          "description": "Completed at"
+        },
+        {
+          "name": "created_by",
+          "type": "string",
+          "location": "body",
+          "description": "Created by"
+        },
+        {
+          "name": "deleted_at",
+          "type": "string",
+          "location": "body",
+          "description": "Deleted at"
+        },
+        {
+          "name": "description_html",
+          "type": "string",
+          "location": "body",
+          "description": "Description html"
+        },
+        {
+          "name": "estimate_point",
+          "type": "string",
+          "location": "body",
+          "description": "Estimate point"
+        },
+        {
+          "name": "external_id",
+          "type": "string",
+          "location": "body",
+          "description": "External id"
+        },
+        {
+          "name": "external_source",
+          "type": "string",
+          "location": "body",
+          "description": "External source"
+        },
+        {
+          "name": "is_draft",
+          "type": "bool",
+          "location": "body",
+          "description": "Is draft"
+        },
+        {
+          "name": "labels",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Labels"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        },
+        {
+          "name": "parent",
+          "type": "string",
+          "location": "body",
+          "description": "Parent"
+        },
+        {
+          "name": "point",
+          "type": "int",
+          "location": "body",
+          "description": "Point"
+        },
+        {
+          "name": "priority",
+          "type": "string",
+          "location": "body",
+          "description": "* `urgent` - Urgent * `high` - High * `medium` - Medium * `low` - Low * `none` - None"
+        },
+        {
+          "name": "sequence_id",
+          "type": "int",
+          "location": "body",
+          "description": "Sequence id"
+        },
+        {
+          "name": "sort_order",
+          "type": "float",
+          "location": "body",
+          "description": "Sort order"
+        },
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "body",
+          "description": "Start date"
+        },
+        {
+          "name": "state",
+          "type": "string",
+          "location": "body",
+          "description": "State"
+        },
+        {
+          "name": "target_date",
+          "type": "string",
+          "location": "body",
+          "description": "Target date"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Type"
+        },
+        {
+          "name": "type_id",
+          "type": "string",
+          "location": "body",
+          "description": "Type id"
+        }
+      ]
+    },
+    {
+      "name": "projects_issues_update-work-item-comment",
+      "description": "Modify the content of an existing comment on a work item. Required: issue_id, pk, project_id. Optional: access, comment_html, comment_json (plus 2 more). Returns array of string.",
+      "method": "PATCH",
+      "path": "/projects/{project_id}/issues/{issue_id}/comments/{pk}/",
+      "params": [
+        {
+          "name": "issue_id",
+          "type": "string",
+          "location": "path",
+          "description": "Issue ID",
+          "required": true
+        },
+        {
+          "name": "pk",
+          "type": "string",
+          "location": "path",
+          "description": "Comment ID",
+          "required": true
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project ID",
+          "required": true
+        },
+        {
+          "name": "access",
+          "type": "string",
+          "location": "body",
+          "description": "* `INTERNAL` - INTERNAL * `EXTERNAL` - EXTERNAL"
+        },
+        {
+          "name": "comment_html",
+          "type": "string",
+          "location": "body",
+          "description": "Comment html"
+        },
+        {
+          "name": "comment_json",
+          "type": "string",
+          "location": "body",
+          "description": "Comment json"
+        },
+        {
+          "name": "external_id",
+          "type": "string",
+          "location": "body",
+          "description": "External id"
+        },
+        {
+          "name": "external_source",
+          "type": "string",
+          "location": "body",
+          "description": "External source"
+        }
+      ]
+    },
+    {
+      "name": "projects_issues_upload-work-item-attachment",
+      "description": "Mark an attachment as uploaded after successful file transfer to storage. Required: issue_id, pk, project_id. Partial update.",
+      "method": "PATCH",
+      "path": "/projects/{project_id}/issues/{issue_id}/issue-attachments/{pk}/",
+      "params": [
+        {
+          "name": "issue_id",
+          "type": "string",
+          "location": "path",
+          "description": "Issue id",
+          "required": true
+        },
+        {
+          "name": "pk",
+          "type": "string",
+          "location": "path",
+          "description": "Attachment ID",
+          "required": true
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_labels_create",
+      "description": "Create a new label in the specified project with name, color, and description. Required: project_id, name. Optional: color, description, external_id (plus 3 more). Returns the new Label.",
+      "method": "POST",
+      "path": "/projects/{project_id}/labels/",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project ID",
+          "required": true
+        },
+        {
+          "name": "color",
+          "type": "string",
+          "location": "body",
+          "description": "Color"
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description"
+        },
+        {
+          "name": "external_id",
+          "type": "string",
+          "location": "body",
+          "description": "External id"
+        },
+        {
+          "name": "external_source",
+          "type": "string",
+          "location": "body",
+          "description": "External source"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        },
+        {
+          "name": "parent",
+          "type": "string",
+          "location": "body",
+          "description": "Parent"
+        },
+        {
+          "name": "sort_order",
+          "type": "float",
+          "location": "body",
+          "description": "Sort order"
+        }
+      ]
+    },
+    {
+      "name": "projects_labels_delete",
+      "description": "Permanently remove a label from the project. This action cannot be undone. Required: pk, project_id. Destructive.",
+      "method": "DELETE",
+      "path": "/projects/{project_id}/labels/{pk}/",
+      "params": [
+        {
+          "name": "pk",
+          "type": "string",
+          "location": "path",
+          "description": "Label ID",
+          "required": true
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_labels_get",
+      "description": "Retrieve details of a specific label. Required: pk, project_id. Returns the Label.",
+      "method": "GET",
+      "path": "/projects/{project_id}/labels/{pk}/",
+      "params": [
+        {
+          "name": "pk",
+          "type": "string",
+          "location": "path",
+          "description": "Label ID",
+          "required": true
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_labels_list",
+      "description": "Retrieve all labels in a project. Supports filtering by name and color. Required: project_id. Optional: cursor, expand, fields (plus 3 more). Returns array of Label.",
+      "method": "GET",
+      "path": "/projects/{project_id}/labels/",
+      "params": [
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor for getting next set of results"
+        },
+        {
+          "name": "expand",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated list of related fields to expand in response"
+        },
+        {
+          "name": "fields",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated list of fields to include in response"
+        },
+        {
+          "name": "order_by",
+          "type": "string",
+          "location": "query",
+          "description": "Field to order results by. Prefix with '-' for descending order"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Number of results per page (default: 20, max: 100)"
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project ID",
+          "required": true
+        },
+        {
+          "name": "updated_at__gt",
+          "type": "string",
+          "location": "query",
+          "description": "Incremental filter — return items updated after this RFC3339 timestamp."
+        }
+      ]
+    },
+    {
+      "name": "projects_labels_update",
+      "description": "Partially update an existing label's properties like name, color, or description. Required: pk, project_id. Optional: color, description, external_id (plus 4 more). Returns the updated Label.",
+      "method": "PATCH",
+      "path": "/projects/{project_id}/labels/{pk}/",
+      "params": [
+        {
+          "name": "pk",
+          "type": "string",
+          "location": "path",
+          "description": "Label ID",
+          "required": true
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project ID",
+          "required": true
+        },
+        {
+          "name": "color",
+          "type": "string",
+          "location": "body",
+          "description": "Color"
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description"
+        },
+        {
+          "name": "external_id",
+          "type": "string",
+          "location": "body",
+          "description": "External id"
+        },
+        {
+          "name": "external_source",
+          "type": "string",
+          "location": "body",
+          "description": "External source"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        },
+        {
+          "name": "parent",
+          "type": "string",
+          "location": "body",
+          "description": "Parent"
+        },
+        {
+          "name": "sort_order",
+          "type": "float",
+          "location": "body",
+          "description": "Sort order"
+        }
+      ]
+    },
+    {
+      "name": "projects_members_create-project",
+      "description": "Create a new project member. Required: project_id, member. Optional: role. Returns the new ProjectMember.",
+      "method": "POST",
+      "path": "/projects/{project_id}/members/",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project ID",
+          "required": true
+        },
+        {
+          "name": "member",
+          "type": "string",
+          "location": "body",
+          "description": "Member",
+          "required": true
+        },
+        {
+          "name": "role",
+          "type": "int",
+          "location": "body",
+          "description": "* `20` - Admin * `15` - Member * `5` - Guest"
+        }
+      ]
+    },
+    {
+      "name": "projects_members_delete-project",
+      "description": "Delete a project member. Required: pk, project_id. Destructive.",
+      "method": "DELETE",
+      "path": "/projects/{project_id}/members/{pk}/",
+      "params": [
+        {
+          "name": "pk",
+          "type": "string",
+          "location": "path",
+          "description": "Pk",
+          "required": true
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_members_get-project",
+      "description": "Retrieve all users who are members of the specified project. Required: project_id. Returns the UserLite.",
+      "method": "GET",
+      "path": "/projects/{project_id}/members/",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_members_get-project-projects",
+      "description": "Retrieve a project member by ID. Required: pk, project_id. Returns the ProjectMember.",
+      "method": "GET",
+      "path": "/projects/{project_id}/members/{pk}/",
+      "params": [
+        {
+          "name": "pk",
+          "type": "string",
+          "location": "path",
+          "description": "Pk",
+          "required": true
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_members_update-project",
+      "description": "Update a project member. Required: pk, project_id. Optional: member, role. Returns the updated ProjectMember.",
+      "method": "PATCH",
+      "path": "/projects/{project_id}/members/{pk}/",
+      "params": [
+        {
+          "name": "pk",
+          "type": "string",
+          "location": "path",
+          "description": "Pk",
+          "required": true
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project ID",
+          "required": true
+        },
+        {
+          "name": "member",
+          "type": "string",
+          "location": "body",
+          "description": "Member"
+        },
+        {
+          "name": "role",
+          "type": "int",
+          "location": "body",
+          "description": "* `20` - Admin * `15` - Member * `5` - Guest"
+        }
+      ]
+    },
+    {
+      "name": "projects_modules_add-work-items",
+      "description": "Assign multiple work items to a module or move them from another module. Automatically handles bulk creation and updates with activity tracking. Required: module_id, project_id, issues. Returns the new ModuleIssue.",
+      "method": "POST",
+      "path": "/projects/{project_id}/modules/{module_id}/module-issues/",
+      "params": [
+        {
+          "name": "module_id",
+          "type": "string",
+          "location": "path",
+          "description": "Module ID",
+          "required": true
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project ID",
+          "required": true
+        },
+        {
+          "name": "issues",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "List of issue IDs to add to the module",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_modules_archive",
+      "description": "Move a module to archived status for historical tracking. Required: pk, project_id.",
+      "method": "POST",
+      "path": "/projects/{project_id}/modules/{pk}/archive/",
+      "params": [
+        {
+          "name": "pk",
+          "type": "string",
+          "location": "path",
+          "description": "Module ID",
+          "required": true
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_modules_create",
+      "description": "Create a new project module with specified name, description, and timeline. Required: project_id, name. Optional: description, external_id, external_source (plus 5 more). Returns the new Module.",
+      "method": "POST",
+      "path": "/projects/{project_id}/modules/",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project ID",
+          "required": true
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description"
+        },
+        {
+          "name": "external_id",
+          "type": "string",
+          "location": "body",
+          "description": "External id"
+        },
+        {
+          "name": "external_source",
+          "type": "string",
+          "location": "body",
+          "description": "External source"
+        },
+        {
+          "name": "lead",
+          "type": "string",
+          "location": "body",
+          "description": "Lead"
+        },
+        {
+          "name": "members",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Members"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        },
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "body",
+          "description": "Start date"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "body",
+          "description": "* `backlog` - Backlog * `planned` - Planned * `in-progress` - In Progress * `paused` - Paused * `completed` - Completed * `cancelled` - Cancelled"
+        },
+        {
+          "name": "target_date",
+          "type": "string",
+          "location": "body",
+          "description": "Target date"
+        }
+      ]
+    },
+    {
+      "name": "projects_modules_delete",
+      "description": "Permanently remove a module and all its associated issue relationships. Required: pk, project_id. Destructive.",
+      "method": "DELETE",
+      "path": "/projects/{project_id}/modules/{pk}/",
+      "params": [
+        {
+          "name": "pk",
+          "type": "string",
+          "location": "path",
+          "description": "Module ID",
+          "required": true
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_modules_delete-work-item",
+      "description": "Remove a work item from a module while keeping the work item in the project. Required: issue_id, module_id, project_id. Destructive.",
+      "method": "DELETE",
+      "path": "/projects/{project_id}/modules/{module_id}/module-issues/{issue_id}/",
+      "params": [
+        {
+          "name": "issue_id",
+          "type": "string",
+          "location": "path",
+          "description": "Issue ID",
+          "required": true
+        },
+        {
+          "name": "module_id",
+          "type": "string",
+          "location": "path",
+          "description": "Module ID",
+          "required": true
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_modules_list",
+      "description": "Retrieve all modules in a project. Required: project_id. Optional: cursor, expand, fields (plus 3 more). Returns array of Module.",
+      "method": "GET",
+      "path": "/projects/{project_id}/modules/",
+      "params": [
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor for getting next set of results"
+        },
+        {
+          "name": "expand",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated list of related fields to expand in response"
+        },
+        {
+          "name": "fields",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated list of fields to include in response"
+        },
+        {
+          "name": "order_by",
+          "type": "string",
+          "location": "query",
+          "description": "Field to order results by. Prefix with '-' for descending order"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Number of results per page (default: 20, max: 100)"
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project ID",
+          "required": true
+        },
+        {
+          "name": "updated_at__gt",
+          "type": "string",
+          "location": "query",
+          "description": "Incremental filter — return items updated after this RFC3339 timestamp."
+        }
+      ]
+    },
+    {
+      "name": "projects_modules_list-work-items",
+      "description": "Retrieve all work items assigned to a module with detailed information. Required: module_id, project_id. Optional: cursor, expand, fields (plus 3 more). Returns array of Issue.",
+      "method": "GET",
+      "path": "/projects/{project_id}/modules/{module_id}/module-issues/",
+      "params": [
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor for getting next set of results"
+        },
+        {
+          "name": "expand",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated list of related fields to expand in response"
+        },
+        {
+          "name": "fields",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated list of fields to include in response"
+        },
+        {
+          "name": "module_id",
+          "type": "string",
+          "location": "path",
+          "description": "Module ID",
+          "required": true
+        },
+        {
+          "name": "order_by",
+          "type": "string",
+          "location": "query",
+          "description": "Field to order results by. Prefix with '-' for descending order"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Number of results per page (default: 20, max: 100)"
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project ID",
+          "required": true
+        },
+        {
+          "name": "updated_at__gt",
+          "type": "string",
+          "location": "query",
+          "description": "Incremental filter — return items updated after this RFC3339 timestamp."
+        }
+      ]
+    },
+    {
+      "name": "projects_modules_retrieve",
+      "description": "Retrieve details of a specific module. Required: pk, project_id. Returns the Module.",
+      "method": "GET",
+      "path": "/projects/{project_id}/modules/{pk}/",
+      "params": [
+        {
+          "name": "pk",
+          "type": "string",
+          "location": "path",
+          "description": "Module ID",
+          "required": true
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_modules_update",
+      "description": "Modify an existing module's properties like name, description, status, or timeline. Required: pk, project_id. Optional: description, external_id, external_source (plus 6 more). Returns the updated Module.",
+      "method": "PATCH",
+      "path": "/projects/{project_id}/modules/{pk}/",
+      "params": [
+        {
+          "name": "pk",
+          "type": "string",
+          "location": "path",
+          "description": "Module ID",
+          "required": true
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project ID",
+          "required": true
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description"
+        },
+        {
+          "name": "external_id",
+          "type": "string",
+          "location": "body",
+          "description": "External id"
+        },
+        {
+          "name": "external_source",
+          "type": "string",
+          "location": "body",
+          "description": "External source"
+        },
+        {
+          "name": "lead",
+          "type": "string",
+          "location": "body",
+          "description": "Lead"
+        },
+        {
+          "name": "members",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Members"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        },
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "body",
+          "description": "Start date"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "body",
+          "description": "* `backlog` - Backlog * `planned` - Planned * `in-progress` - In Progress * `paused` - Paused * `completed` - Completed * `cancelled` - Cancelled"
+        },
+        {
+          "name": "target_date",
+          "type": "string",
+          "location": "body",
+          "description": "Target date"
+        }
+      ]
+    },
+    {
+      "name": "projects_project-members_create-2",
+      "description": "Create a new project member. Required: project_id, member. Optional: role. Returns the new ProjectMember.",
+      "method": "POST",
+      "path": "/projects/{project_id}/project-members/",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project ID",
+          "required": true
+        },
+        {
+          "name": "member",
+          "type": "string",
+          "location": "body",
+          "description": "Member",
+          "required": true
+        },
+        {
+          "name": "role",
+          "type": "int",
+          "location": "body",
+          "description": "* `20` - Admin * `15` - Member * `5` - Guest"
+        }
+      ]
+    },
+    {
+      "name": "projects_project-members_delete-2",
+      "description": "Delete a project member. Required: pk, project_id. Destructive.",
+      "method": "DELETE",
+      "path": "/projects/{project_id}/project-members/{pk}/",
+      "params": [
+        {
+          "name": "pk",
+          "type": "string",
+          "location": "path",
+          "description": "Pk",
+          "required": true
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_project-members_get-2",
+      "description": "Retrieve all users who are members of the specified project. Required: project_id. Returns the UserLite.",
+      "method": "GET",
+      "path": "/projects/{project_id}/project-members/",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_project-members_get-2-projects",
+      "description": "Retrieve a project member by ID. Required: pk, project_id. Returns the ProjectMember.",
+      "method": "GET",
+      "path": "/projects/{project_id}/project-members/{pk}/",
+      "params": [
+        {
+          "name": "pk",
+          "type": "string",
+          "location": "path",
+          "description": "Pk",
+          "required": true
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_project-members_update-2",
+      "description": "Update a project member. Required: pk, project_id. Optional: member, role. Returns the updated ProjectMember.",
+      "method": "PATCH",
+      "path": "/projects/{project_id}/project-members/{pk}/",
+      "params": [
+        {
+          "name": "pk",
+          "type": "string",
+          "location": "path",
+          "description": "Pk",
+          "required": true
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project ID",
+          "required": true
+        },
+        {
+          "name": "member",
+          "type": "string",
+          "location": "body",
+          "description": "Member"
+        },
+        {
+          "name": "role",
+          "type": "int",
+          "location": "body",
+          "description": "* `20` - Admin * `15` - Member * `5` - Guest"
+        }
+      ]
+    },
+    {
+      "name": "projects_states_create",
+      "description": "Create a new workflow state for a project with specified name, color, and group. Required: project_id, color, name. Optional: default, description, external_id (plus 4 more). Returns the new State.",
+      "method": "POST",
+      "path": "/projects/{project_id}/states/",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project ID",
+          "required": true
+        },
+        {
+          "name": "color",
+          "type": "string",
+          "location": "body",
+          "description": "Color",
+          "required": true
+        },
+        {
+          "name": "default",
+          "type": "bool",
+          "location": "body",
+          "description": "Default"
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description"
+        },
+        {
+          "name": "external_id",
+          "type": "string",
+          "location": "body",
+          "description": "External id"
+        },
+        {
+          "name": "external_source",
+          "type": "string",
+          "location": "body",
+          "description": "External source"
+        },
+        {
+          "name": "group",
+          "type": "string",
+          "location": "body",
+          "description": "* `backlog` - Backlog * `unstarted` - Unstarted * `started` - Started * `completed` - Completed * `cancelled` - Cancelled * `triage` - Triage"
+        },
+        {
+          "name": "is_triage",
+          "type": "bool",
+          "location": "body",
+          "description": "Is triage"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        },
+        {
+          "name": "sequence",
+          "type": "float",
+          "location": "body",
+          "description": "Sequence"
+        }
+      ]
+    },
+    {
+      "name": "projects_states_delete",
+      "description": "Permanently remove a workflow state from a project. Default states and states with existing work items cannot be deleted. Required: project_id, state_id. Destructive.",
+      "method": "DELETE",
+      "path": "/projects/{project_id}/states/{state_id}/",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project ID",
+          "required": true
+        },
+        {
+          "name": "state_id",
+          "type": "string",
+          "location": "path",
+          "description": "State ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_states_list",
+      "description": "Retrieve all workflow states for a project. Required: project_id. Optional: cursor, expand, fields (plus 2 more). Returns array of State.",
+      "method": "GET",
+      "path": "/projects/{project_id}/states/",
+      "params": [
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor for getting next set of results"
+        },
+        {
+          "name": "expand",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated list of related fields to expand in response"
+        },
+        {
+          "name": "fields",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated list of fields to include in response"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Number of results per page (default: 20, max: 100)"
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project ID",
+          "required": true
+        },
+        {
+          "name": "updated_at__gt",
+          "type": "string",
+          "location": "query",
+          "description": "Incremental filter — return items updated after this RFC3339 timestamp."
+        }
+      ]
+    },
+    {
+      "name": "projects_states_retrieve",
+      "description": "Retrieve details of a specific state. Required: project_id, state_id. Returns the State.",
+      "method": "GET",
+      "path": "/projects/{project_id}/states/{state_id}/",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project ID",
+          "required": true
+        },
+        {
+          "name": "state_id",
+          "type": "string",
+          "location": "path",
+          "description": "State ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_states_update",
+      "description": "Partially update an existing workflow state's properties like name, color, or group. Required: project_id, state_id. Optional: color, default, description (plus 6 more). Returns the updated State.",
+      "method": "PATCH",
+      "path": "/projects/{project_id}/states/{state_id}/",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project ID",
+          "required": true
+        },
+        {
+          "name": "state_id",
+          "type": "string",
+          "location": "path",
+          "description": "State ID",
+          "required": true
+        },
+        {
+          "name": "color",
+          "type": "string",
+          "location": "body",
+          "description": "Color"
+        },
+        {
+          "name": "default",
+          "type": "bool",
+          "location": "body",
+          "description": "Default"
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description"
+        },
+        {
+          "name": "external_id",
+          "type": "string",
+          "location": "body",
+          "description": "External id"
+        },
+        {
+          "name": "external_source",
+          "type": "string",
+          "location": "body",
+          "description": "External source"
+        },
+        {
+          "name": "group",
+          "type": "string",
+          "location": "body",
+          "description": "* `backlog` - Backlog * `unstarted` - Unstarted * `started` - Started * `completed` - Completed * `cancelled` - Cancelled * `triage` - Triage"
+        },
+        {
+          "name": "is_triage",
+          "type": "bool",
+          "location": "body",
+          "description": "Is triage"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        },
+        {
+          "name": "sequence",
+          "type": "float",
+          "location": "body",
+          "description": "Sequence"
+        }
+      ]
+    },
+    {
+      "name": "projects_summary_workspaces-projects-retrieve",
+      "description": "Get project summary Get the summary of a project. Required: project_id.",
+      "method": "GET",
+      "path": "/projects/{project_id}/summary/",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_work-items_create-2",
+      "description": "Create a new work item in the specified project with the provided details. Required: project_id, name. Optional: archived_at, assignees, completed_at (plus 18 more). Returns the new Issue.",
+      "method": "POST",
+      "path": "/projects/{project_id}/work-items/",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project ID",
+          "required": true
+        },
+        {
+          "name": "archived_at",
+          "type": "string",
+          "location": "body",
+          "description": "Archived at"
+        },
+        {
+          "name": "assignees",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Assignees"
+        },
+        {
+          "name": "completed_at",
+          "type": "string",
+          "location": "body",
+          "description": "Completed at"
+        },
+        {
+          "name": "created_by",
+          "type": "string",
+          "location": "body",
+          "description": "Created by"
+        },
+        {
+          "name": "deleted_at",
+          "type": "string",
+          "location": "body",
+          "description": "Deleted at"
+        },
+        {
+          "name": "description_html",
+          "type": "string",
+          "location": "body",
+          "description": "Description html"
+        },
+        {
+          "name": "estimate_point",
+          "type": "string",
+          "location": "body",
+          "description": "Estimate point"
+        },
+        {
+          "name": "external_id",
+          "type": "string",
+          "location": "body",
+          "description": "External id"
+        },
+        {
+          "name": "external_source",
+          "type": "string",
+          "location": "body",
+          "description": "External source"
+        },
+        {
+          "name": "is_draft",
+          "type": "bool",
+          "location": "body",
+          "description": "Is draft"
+        },
+        {
+          "name": "labels",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Labels"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        },
+        {
+          "name": "parent",
+          "type": "string",
+          "location": "body",
+          "description": "Parent"
+        },
+        {
+          "name": "point",
+          "type": "int",
+          "location": "body",
+          "description": "Point"
+        },
+        {
+          "name": "priority",
+          "type": "string",
+          "location": "body",
+          "description": "* `urgent` - Urgent * `high` - High * `medium` - Medium * `low` - Low * `none` - None"
+        },
+        {
+          "name": "sequence_id",
+          "type": "int",
+          "location": "body",
+          "description": "Sequence id"
+        },
+        {
+          "name": "sort_order",
+          "type": "float",
+          "location": "body",
+          "description": "Sort order"
+        },
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "body",
+          "description": "Start date"
+        },
+        {
+          "name": "state",
+          "type": "string",
+          "location": "body",
+          "description": "State"
+        },
+        {
+          "name": "target_date",
+          "type": "string",
+          "location": "body",
+          "description": "Target date"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Type"
+        },
+        {
+          "name": "type_id",
+          "type": "string",
+          "location": "body",
+          "description": "Type id"
+        }
+      ]
+    },
+    {
+      "name": "projects_work-items_create-attachment-2",
+      "description": "Generate presigned URL for uploading file attachments to a work item. Required: issue_id, project_id, name, size. Optional: external_id, external_source, type.",
+      "method": "POST",
+      "path": "/projects/{project_id}/work-items/{issue_id}/attachments/",
+      "params": [
+        {
+          "name": "issue_id",
+          "type": "string",
+          "location": "path",
+          "description": "Issue ID",
+          "required": true
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project ID",
+          "required": true
+        },
+        {
+          "name": "external_id",
+          "type": "string",
+          "location": "body",
+          "description": "External identifier for the asset (for integration tracking)"
+        },
+        {
+          "name": "external_source",
+          "type": "string",
+          "location": "body",
+          "description": "External source system (for integration tracking)"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Original filename of the asset",
+          "required": true
+        },
+        {
+          "name": "size",
+          "type": "int",
+          "location": "body",
+          "description": "File size in bytes",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "MIME type of the file"
+        }
+      ]
+    },
+    {
+      "name": "projects_work-items_create-comment-2",
+      "description": "Add a new comment to a work item with HTML content. Required: issue_id, project_id. Optional: access, comment_html, comment_json (plus 2 more). Returns array of string.",
+      "method": "POST",
+      "path": "/projects/{project_id}/work-items/{issue_id}/comments/",
+      "params": [
+        {
+          "name": "issue_id",
+          "type": "string",
+          "location": "path",
+          "description": "Issue ID",
+          "required": true
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project ID",
+          "required": true
+        },
+        {
+          "name": "access",
+          "type": "string",
+          "location": "body",
+          "description": "* `INTERNAL` - INTERNAL * `EXTERNAL` - EXTERNAL"
+        },
+        {
+          "name": "comment_html",
+          "type": "string",
+          "location": "body",
+          "description": "Comment html"
+        },
+        {
+          "name": "comment_json",
+          "type": "string",
+          "location": "body",
+          "description": "Comment json"
+        },
+        {
+          "name": "external_id",
+          "type": "string",
+          "location": "body",
+          "description": "External id"
+        },
+        {
+          "name": "external_source",
+          "type": "string",
+          "location": "body",
+          "description": "External source"
+        }
+      ]
+    },
+    {
+      "name": "projects_work-items_create-link-2",
+      "description": "Add a new external link to a work item with URL, title, and metadata. Required: issue_id, project_id, url. Optional: title. Returns the new IssueLink.",
+      "method": "POST",
+      "path": "/projects/{project_id}/work-items/{issue_id}/links/",
+      "params": [
+        {
+          "name": "issue_id",
+          "type": "string",
+          "location": "path",
+          "description": "Issue ID",
+          "required": true
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project ID",
+          "required": true
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "Title"
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "body",
+          "description": "Url",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_work-items_create-relation",
+      "description": "Create relationships between work items. Supports various relation types including blocking, blocked_by, duplicate, relates_to, start_before, start_after, finish_before, and finish_after. Required: issue_id, project_id, issues, relation_type. Returns array of IssueRelation.",
+      "method": "POST",
+      "path": "/projects/{project_id}/work-items/{issue_id}/relations/",
+      "params": [
+        {
+          "name": "issue_id",
+          "type": "string",
+          "location": "path",
+          "description": "Issue ID",
+          "required": true
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project ID",
+          "required": true
+        },
+        {
+          "name": "issues",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Array of work item IDs to create relations with",
+          "required": true
+        },
+        {
+          "name": "relation_type",
+          "type": "string",
+          "location": "body",
+          "description": "Type of relationship between work items * `blocking` - Blocking * `blocked_by` - Blocked By * `duplicate` - Duplicate * `relates_to` - Relates To * `start_before` - Start Before * `start_after` - Start After * `finish_before` - Finish Before * `finish_after` - Finish After",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_work-items_delete-2",
+      "description": "Permanently delete an existing work item from the project. Only admins or the item creator can perform this action. Required: pk, project_id. Destructive.",
+      "method": "DELETE",
+      "path": "/projects/{project_id}/work-items/{pk}/",
+      "params": [
+        {
+          "name": "pk",
+          "type": "string",
+          "location": "path",
+          "description": "Pk",
+          "required": true
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_work-items_delete-attachment-2",
+      "description": "Permanently remove an attachment from a work item. Records deletion activity for audit purposes. Required: issue_id, pk, project_id. Destructive.",
+      "method": "DELETE",
+      "path": "/projects/{project_id}/work-items/{issue_id}/attachments/{pk}/",
+      "params": [
+        {
+          "name": "issue_id",
+          "type": "string",
+          "location": "path",
+          "description": "Issue id",
+          "required": true
+        },
+        {
+          "name": "pk",
+          "type": "string",
+          "location": "path",
+          "description": "Attachment ID",
+          "required": true
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_work-items_delete-comment-2",
+      "description": "Permanently remove a comment from a work item. Records deletion activity for audit purposes. Required: issue_id, pk, project_id. Destructive.",
+      "method": "DELETE",
+      "path": "/projects/{project_id}/work-items/{issue_id}/comments/{pk}/",
+      "params": [
+        {
+          "name": "issue_id",
+          "type": "string",
+          "location": "path",
+          "description": "Issue ID",
+          "required": true
+        },
+        {
+          "name": "pk",
+          "type": "string",
+          "location": "path",
+          "description": "Comment ID",
+          "required": true
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_work-items_delete-link-2",
+      "description": "Permanently remove an external link from a work item. Required: issue_id, pk, project_id. Destructive.",
+      "method": "DELETE",
+      "path": "/projects/{project_id}/work-items/{issue_id}/links/{pk}/",
+      "params": [
+        {
+          "name": "issue_id",
+          "type": "string",
+          "location": "path",
+          "description": "Issue ID",
+          "required": true
+        },
+        {
+          "name": "pk",
+          "type": "string",
+          "location": "path",
+          "description": "Link ID",
+          "required": true
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_work-items_list-2",
+      "description": "Retrieve a paginated list of all work items in a project. Supports filtering, ordering, and field selection through query parameters. Required: project_id. Optional: cursor, expand, external_id (plus 5 more). Returns array of Issue.",
+      "method": "GET",
+      "path": "/projects/{project_id}/work-items/",
+      "params": [
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor for getting next set of results"
+        },
+        {
+          "name": "expand",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated list of related fields to expand in response"
+        },
+        {
+          "name": "external_id",
+          "type": "string",
+          "location": "query",
+          "description": "External system identifier for filtering or lookup"
+        },
+        {
+          "name": "external_source",
+          "type": "string",
+          "location": "query",
+          "description": "External system source name for filtering or lookup"
+        },
+        {
+          "name": "fields",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated list of fields to include in response"
+        },
+        {
+          "name": "order_by",
+          "type": "string",
+          "location": "query",
+          "description": "Field to order results by. Prefix with '-' for descending order"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Number of results per page (default: 20, max: 100)"
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project ID",
+          "required": true
+        },
+        {
+          "name": "updated_at__gt",
+          "type": "string",
+          "location": "query",
+          "description": "Incremental filter — return items updated after this RFC3339 timestamp."
+        }
+      ]
+    },
+    {
+      "name": "projects_work-items_list-activities-2",
+      "description": "Retrieve all activities for a work item. Supports filtering by activity type and date range. Required: issue_id, project_id. Optional: cursor, expand, fields (plus 3 more). Returns array of IssueActivity.",
+      "method": "GET",
+      "path": "/projects/{project_id}/work-items/{issue_id}/activities/",
+      "params": [
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor for getting next set of results"
+        },
+        {
+          "name": "expand",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated list of related fields to expand in response"
+        },
+        {
+          "name": "fields",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated list of fields to include in response"
+        },
+        {
+          "name": "issue_id",
+          "type": "string",
+          "location": "path",
+          "description": "Issue ID",
+          "required": true
+        },
+        {
+          "name": "order_by",
+          "type": "string",
+          "location": "query",
+          "description": "Field to order results by. Prefix with '-' for descending order"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Number of results per page (default: 20, max: 100)"
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project ID",
+          "required": true
+        },
+        {
+          "name": "updated_at__gt",
+          "type": "string",
+          "location": "query",
+          "description": "Incremental filter — return items updated after this RFC3339 timestamp."
+        }
+      ]
+    },
+    {
+      "name": "projects_work-items_list-attachments-2",
+      "description": "Retrieve all attachments for a work item. Required: issue_id, project_id. Optional: updated_at__gt. Returns the IssueAttachment.",
+      "method": "GET",
+      "path": "/projects/{project_id}/work-items/{issue_id}/attachments/",
+      "params": [
+        {
+          "name": "issue_id",
+          "type": "string",
+          "location": "path",
+          "description": "Issue ID",
+          "required": true
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project ID",
+          "required": true
+        },
+        {
+          "name": "updated_at__gt",
+          "type": "string",
+          "location": "query",
+          "description": "Incremental filter — return items updated after this RFC3339 timestamp."
+        }
+      ]
+    },
+    {
+      "name": "projects_work-items_list-comments-2",
+      "description": "Retrieve all comments for a work item. Required: issue_id, project_id. Optional: cursor, expand, fields (plus 3 more). Returns array of IssueComment.",
+      "method": "GET",
+      "path": "/projects/{project_id}/work-items/{issue_id}/comments/",
+      "params": [
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor for getting next set of results"
+        },
+        {
+          "name": "expand",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated list of related fields to expand in response"
+        },
+        {
+          "name": "fields",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated list of fields to include in response"
+        },
+        {
+          "name": "issue_id",
+          "type": "string",
+          "location": "path",
+          "description": "Issue ID",
+          "required": true
+        },
+        {
+          "name": "order_by",
+          "type": "string",
+          "location": "query",
+          "description": "Field to order results by. Prefix with '-' for descending order"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Number of results per page (default: 20, max: 100)"
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project ID",
+          "required": true
+        },
+        {
+          "name": "updated_at__gt",
+          "type": "string",
+          "location": "query",
+          "description": "Incremental filter — return items updated after this RFC3339 timestamp."
+        }
+      ]
+    },
+    {
+      "name": "projects_work-items_list-links-2",
+      "description": "Retrieve all links associated with a work item. Supports filtering by URL, title, and metadata. Required: issue_id, project_id. Optional: cursor, expand, fields (plus 3 more). Returns array of IssueLink.",
+      "method": "GET",
+      "path": "/projects/{project_id}/work-items/{issue_id}/links/",
+      "params": [
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor for getting next set of results"
+        },
+        {
+          "name": "expand",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated list of related fields to expand in response"
+        },
+        {
+          "name": "fields",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated list of fields to include in response"
+        },
+        {
+          "name": "issue_id",
+          "type": "string",
+          "location": "path",
+          "description": "Issue ID",
+          "required": true
+        },
+        {
+          "name": "order_by",
+          "type": "string",
+          "location": "query",
+          "description": "Field to order results by. Prefix with '-' for descending order"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Number of results per page (default: 20, max: 100)"
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project ID",
+          "required": true
+        },
+        {
+          "name": "updated_at__gt",
+          "type": "string",
+          "location": "query",
+          "description": "Incremental filter — return items updated after this RFC3339 timestamp."
+        }
+      ]
+    },
+    {
+      "name": "projects_work-items_list-relations",
+      "description": "Retrieve all relationships for a work item including blocking, blocked_by, duplicate, relates_to, start_before, start_after, finish_before, and finish_after relations. Required: issue_id, project_id. Optional: cursor, expand, fields (plus 3 more). Returns the IssueRelationResponse.",
+      "method": "GET",
+      "path": "/projects/{project_id}/work-items/{issue_id}/relations/",
+      "params": [
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor for getting next set of results"
+        },
+        {
+          "name": "expand",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated list of related fields to expand in response"
+        },
+        {
+          "name": "fields",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated list of fields to include in response"
+        },
+        {
+          "name": "issue_id",
+          "type": "string",
+          "location": "path",
+          "description": "Issue ID",
+          "required": true
+        },
+        {
+          "name": "order_by",
+          "type": "string",
+          "location": "query",
+          "description": "Field to order results by. Prefix with '-' for descending order"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Number of results per page (default: 20, max: 100)"
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project ID",
+          "required": true
+        },
+        {
+          "name": "updated_at__gt",
+          "type": "string",
+          "location": "query",
+          "description": "Incremental filter — return items updated after this RFC3339 timestamp."
+        }
+      ]
+    },
+    {
+      "name": "projects_work-items_retrieve-2",
+      "description": "Retrieve details of a specific work item. Required: pk, project_id. Optional: expand, external_id, external_source (plus 2 more). Returns the Issue.",
+      "method": "GET",
+      "path": "/projects/{project_id}/work-items/{pk}/",
+      "params": [
+        {
+          "name": "expand",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated list of related fields to expand in response"
+        },
+        {
+          "name": "external_id",
+          "type": "string",
+          "location": "query",
+          "description": "External system identifier for filtering or lookup"
+        },
+        {
+          "name": "external_source",
+          "type": "string",
+          "location": "query",
+          "description": "External system source name for filtering or lookup"
+        },
+        {
+          "name": "fields",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated list of fields to include in response"
+        },
+        {
+          "name": "order_by",
+          "type": "string",
+          "location": "query",
+          "description": "Field to order results by. Prefix with '-' for descending order"
+        },
+        {
+          "name": "pk",
+          "type": "string",
+          "location": "path",
+          "description": "Pk",
+          "required": true
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_work-items_retrieve-activity-2",
+      "description": "Retrieve details of a specific activity. Required: issue_id, pk, project_id. Optional: cursor, expand, fields (plus 2 more). Returns array of IssueActivity.",
+      "method": "GET",
+      "path": "/projects/{project_id}/work-items/{issue_id}/activities/{pk}/",
+      "params": [
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor for getting next set of results"
+        },
+        {
+          "name": "expand",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated list of related fields to expand in response"
+        },
+        {
+          "name": "fields",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated list of fields to include in response"
+        },
+        {
+          "name": "issue_id",
+          "type": "string",
+          "location": "path",
+          "description": "Issue ID",
+          "required": true
+        },
+        {
+          "name": "order_by",
+          "type": "string",
+          "location": "query",
+          "description": "Field to order results by. Prefix with '-' for descending order"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Number of results per page (default: 20, max: 100)"
+        },
+        {
+          "name": "pk",
+          "type": "string",
+          "location": "path",
+          "description": "Activity ID",
+          "required": true
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_work-items_retrieve-attachment-2",
+      "description": "Download attachment file. Returns a redirect to the presigned download URL. Required: issue_id, pk, project_id.",
+      "method": "GET",
+      "path": "/projects/{project_id}/work-items/{issue_id}/attachments/{pk}/",
+      "params": [
+        {
+          "name": "issue_id",
+          "type": "string",
+          "location": "path",
+          "description": "Issue id",
+          "required": true
+        },
+        {
+          "name": "pk",
+          "type": "string",
+          "location": "path",
+          "description": "Attachment ID",
+          "required": true
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_work-items_retrieve-comment-2",
+      "description": "Retrieve details of a specific comment. Required: issue_id, pk, project_id. Returns array of string.",
+      "method": "GET",
+      "path": "/projects/{project_id}/work-items/{issue_id}/comments/{pk}/",
+      "params": [
+        {
+          "name": "issue_id",
+          "type": "string",
+          "location": "path",
+          "description": "Issue ID",
+          "required": true
+        },
+        {
+          "name": "pk",
+          "type": "string",
+          "location": "path",
+          "description": "Comment ID",
+          "required": true
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_work-items_retrieve-link-2",
+      "description": "Retrieve details of a specific work item link. Required: issue_id, pk, project_id. Optional: cursor, expand, fields (plus 1 more). Returns array of IssueLink.",
+      "method": "GET",
+      "path": "/projects/{project_id}/work-items/{issue_id}/links/{pk}/",
+      "params": [
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor for getting next set of results"
+        },
+        {
+          "name": "expand",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated list of related fields to expand in response"
+        },
+        {
+          "name": "fields",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated list of fields to include in response"
+        },
+        {
+          "name": "issue_id",
+          "type": "string",
+          "location": "path",
+          "description": "Issue ID",
+          "required": true
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Number of results per page (default: 20, max: 100)"
+        },
+        {
+          "name": "pk",
+          "type": "string",
+          "location": "path",
+          "description": "Link ID",
+          "required": true
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_work-items_update-2",
+      "description": "Partially update an existing work item with the provided fields. Supports external ID validation to prevent conflicts. Required: pk, project_id. Optional: archived_at, assignees, completed_at (plus 19 more). Returns the updated Issue.",
+      "method": "PATCH",
+      "path": "/projects/{project_id}/work-items/{pk}/",
+      "params": [
+        {
+          "name": "pk",
+          "type": "string",
+          "location": "path",
+          "description": "Pk",
+          "required": true
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project ID",
+          "required": true
+        },
+        {
+          "name": "archived_at",
+          "type": "string",
+          "location": "body",
+          "description": "Archived at"
+        },
+        {
+          "name": "assignees",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Assignees"
+        },
+        {
+          "name": "completed_at",
+          "type": "string",
+          "location": "body",
+          "description": "Completed at"
+        },
+        {
+          "name": "created_by",
+          "type": "string",
+          "location": "body",
+          "description": "Created by"
+        },
+        {
+          "name": "deleted_at",
+          "type": "string",
+          "location": "body",
+          "description": "Deleted at"
+        },
+        {
+          "name": "description_html",
+          "type": "string",
+          "location": "body",
+          "description": "Description html"
+        },
+        {
+          "name": "estimate_point",
+          "type": "string",
+          "location": "body",
+          "description": "Estimate point"
+        },
+        {
+          "name": "external_id",
+          "type": "string",
+          "location": "body",
+          "description": "External id"
+        },
+        {
+          "name": "external_source",
+          "type": "string",
+          "location": "body",
+          "description": "External source"
+        },
+        {
+          "name": "is_draft",
+          "type": "bool",
+          "location": "body",
+          "description": "Is draft"
+        },
+        {
+          "name": "labels",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Labels"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        },
+        {
+          "name": "parent",
+          "type": "string",
+          "location": "body",
+          "description": "Parent"
+        },
+        {
+          "name": "point",
+          "type": "int",
+          "location": "body",
+          "description": "Point"
+        },
+        {
+          "name": "priority",
+          "type": "string",
+          "location": "body",
+          "description": "* `urgent` - Urgent * `high` - High * `medium` - Medium * `low` - Low * `none` - None"
+        },
+        {
+          "name": "sequence_id",
+          "type": "int",
+          "location": "body",
+          "description": "Sequence id"
+        },
+        {
+          "name": "sort_order",
+          "type": "float",
+          "location": "body",
+          "description": "Sort order"
+        },
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "body",
+          "description": "Start date"
+        },
+        {
+          "name": "state",
+          "type": "string",
+          "location": "body",
+          "description": "State"
+        },
+        {
+          "name": "target_date",
+          "type": "string",
+          "location": "body",
+          "description": "Target date"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Type"
+        },
+        {
+          "name": "type_id",
+          "type": "string",
+          "location": "body",
+          "description": "Type id"
+        }
+      ]
+    },
+    {
+      "name": "projects_work-items_update-comment-2",
+      "description": "Modify the content of an existing comment on a work item. Required: issue_id, pk, project_id. Optional: access, comment_html, comment_json (plus 2 more). Returns array of string.",
+      "method": "PATCH",
+      "path": "/projects/{project_id}/work-items/{issue_id}/comments/{pk}/",
+      "params": [
+        {
+          "name": "issue_id",
+          "type": "string",
+          "location": "path",
+          "description": "Issue ID",
+          "required": true
+        },
+        {
+          "name": "pk",
+          "type": "string",
+          "location": "path",
+          "description": "Comment ID",
+          "required": true
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project ID",
+          "required": true
+        },
+        {
+          "name": "access",
+          "type": "string",
+          "location": "body",
+          "description": "* `INTERNAL` - INTERNAL * `EXTERNAL` - EXTERNAL"
+        },
+        {
+          "name": "comment_html",
+          "type": "string",
+          "location": "body",
+          "description": "Comment html"
+        },
+        {
+          "name": "comment_json",
+          "type": "string",
+          "location": "body",
+          "description": "Comment json"
+        },
+        {
+          "name": "external_id",
+          "type": "string",
+          "location": "body",
+          "description": "External id"
+        },
+        {
+          "name": "external_source",
+          "type": "string",
+          "location": "body",
+          "description": "External source"
+        }
+      ]
+    },
+    {
+      "name": "projects_work-items_update-issue-link-2",
+      "description": "Modify the URL, title, or metadata of an existing issue link. Required: issue_id, pk, project_id. Optional: title, url. Returns the updated IssueLink.",
+      "method": "PATCH",
+      "path": "/projects/{project_id}/work-items/{issue_id}/links/{pk}/",
+      "params": [
+        {
+          "name": "issue_id",
+          "type": "string",
+          "location": "path",
+          "description": "Issue ID",
+          "required": true
+        },
+        {
+          "name": "pk",
+          "type": "string",
+          "location": "path",
+          "description": "Link ID",
+          "required": true
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project ID",
+          "required": true
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "Title"
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "body",
+          "description": "Url"
+        }
+      ]
+    },
+    {
+      "name": "projects_work-items_upload-attachment-2",
+      "description": "Mark an attachment as uploaded after successful file transfer to storage. Required: issue_id, pk, project_id. Partial update.",
+      "method": "PATCH",
+      "path": "/projects/{project_id}/work-items/{issue_id}/attachments/{pk}/",
+      "params": [
+        {
+          "name": "issue_id",
+          "type": "string",
+          "location": "path",
+          "description": "Issue id",
+          "required": true
+        },
+        {
+          "name": "pk",
+          "type": "string",
+          "location": "path",
+          "description": "Attachment ID",
+          "required": true
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "stickies_create-sticky",
+      "description": "Create a new sticky in the workspace. Optional: background_color, color, created_by (plus 8 more). Returns array of Sticky.",
+      "method": "POST",
+      "path": "/stickies/",
+      "params": [
+        {
+          "name": "background_color",
+          "type": "string",
+          "location": "body",
+          "description": "Background color"
+        },
+        {
+          "name": "color",
+          "type": "string",
+          "location": "body",
+          "description": "Color"
+        },
+        {
+          "name": "created_by",
+          "type": "string",
+          "location": "body",
+          "description": "Created by"
+        },
+        {
+          "name": "deleted_at",
+          "type": "string",
+          "location": "body",
+          "description": "Deleted at"
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description"
+        },
+        {
+          "name": "description_html",
+          "type": "string",
+          "location": "body",
+          "description": "Description html"
+        },
+        {
+          "name": "description_stripped",
+          "type": "string",
+          "location": "body",
+          "description": "Description stripped"
+        },
+        {
+          "name": "logo_props",
+          "type": "string",
+          "location": "body",
+          "description": "Logo props"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        },
+        {
+          "name": "sort_order",
+          "type": "float",
+          "location": "body",
+          "description": "Sort order"
+        },
+        {
+          "name": "updated_by",
+          "type": "string",
+          "location": "body",
+          "description": "Updated by"
+        }
+      ]
+    },
+    {
+      "name": "stickies_delete-sticky",
+      "description": "Delete a sticky by its ID. Required: pk. Destructive.",
+      "method": "DELETE",
+      "path": "/stickies/{pk}/",
+      "params": [
+        {
+          "name": "pk",
+          "type": "string",
+          "location": "path",
+          "description": "A UUID string identifying this Sticky.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "stickies_list",
+      "description": "List all stickies in the workspace. Optional: updated_at__gt. Returns array of Sticky.",
+      "method": "GET",
+      "path": "/stickies/",
+      "params": [
+        {
+          "name": "updated_at__gt",
+          "type": "string",
+          "location": "query",
+          "description": "Incremental filter — return items updated after this RFC3339 timestamp."
+        }
+      ]
+    },
+    {
+      "name": "stickies_retrieve-sticky",
+      "description": "Retrieve a sticky by its ID. Required: pk. Returns array of Sticky.",
+      "method": "GET",
+      "path": "/stickies/{pk}/",
+      "params": [
+        {
+          "name": "pk",
+          "type": "string",
+          "location": "path",
+          "description": "A UUID string identifying this Sticky.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "stickies_update-sticky",
+      "description": "Update a sticky by its ID. Required: pk. Optional: background_color, color, created_by (plus 8 more). Returns array of Sticky.",
+      "method": "PATCH",
+      "path": "/stickies/{pk}/",
+      "params": [
+        {
+          "name": "pk",
+          "type": "string",
+          "location": "path",
+          "description": "A UUID string identifying this Sticky.",
+          "required": true
+        },
+        {
+          "name": "background_color",
+          "type": "string",
+          "location": "body",
+          "description": "Background color"
+        },
+        {
+          "name": "color",
+          "type": "string",
+          "location": "body",
+          "description": "Color"
+        },
+        {
+          "name": "created_by",
+          "type": "string",
+          "location": "body",
+          "description": "Created by"
+        },
+        {
+          "name": "deleted_at",
+          "type": "string",
+          "location": "body",
+          "description": "Deleted at"
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description"
+        },
+        {
+          "name": "description_html",
+          "type": "string",
+          "location": "body",
+          "description": "Description html"
+        },
+        {
+          "name": "description_stripped",
+          "type": "string",
+          "location": "body",
+          "description": "Description stripped"
+        },
+        {
+          "name": "logo_props",
+          "type": "string",
+          "location": "body",
+          "description": "Logo props"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        },
+        {
+          "name": "sort_order",
+          "type": "float",
+          "location": "body",
+          "description": "Sort order"
+        },
+        {
+          "name": "updated_by",
+          "type": "string",
+          "location": "body",
+          "description": "Updated by"
+        }
+      ]
+    },
+    {
+      "name": "users_get-current",
+      "description": "Retrieve the authenticated user's profile information including basic details. Returns the UserLite.",
+      "method": "GET",
+      "path": "/api/v1/users/me/",
+      "params": []
+    },
+    {
+      "name": "work-items_get-workspace-2",
+      "description": "Retrieve a specific work item using workspace slug, project identifier, and issue identifier. Required: issue_identifier, project_identifier. Returns the Issue.",
+      "method": "GET",
+      "path": "/work-items/{project_identifier}-{issue_identifier}/",
+      "params": [
+        {
+          "name": "issue_identifier",
+          "type": "int",
+          "location": "path",
+          "description": "Issue sequence ID (numeric identifier within project)",
+          "required": true
+        },
+        {
+          "name": "project_identifier",
+          "type": "string",
+          "location": "path",
+          "description": "Project identifier (unique string within workspace)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "work-items_search-2",
+      "description": "Perform semantic search across issue names, sequence IDs, and project identifiers. Required: search. Optional: limit, project_id, workspace_search. Returns the IssueSearch.",
+      "method": "GET",
+      "path": "/work-items/search/",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of results to return"
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "query",
+          "description": "Project ID for filtering results within a specific project"
+        },
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Search query to filter results by name, description, or identifier",
+          "required": true
+        },
+        {
+          "name": "workspace_search",
+          "type": "string",
+          "location": "query",
+          "description": "Whether to search across entire workspace or within specific project"
+        }
+      ]
+    }
+  ]
+}

@@ -1,4 +1,4 @@
-// Copyright 2026 nikica-jokic. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Nikica Jokic and contributors. Licensed under Apache-2.0. See LICENSE.
 
 package cli
 
@@ -8,17 +8,17 @@ import (
 	"strings"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/productivity/notion/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/productivity/notion/internal/store"
+	"github.com/spf13/cobra"
 )
 
 type changedPage struct {
-	ID            string    `json:"id"`
-	Title         string    `json:"title"`
+	ID             string    `json:"id"`
+	Title          string    `json:"title"`
 	LastEditedTime time.Time `json:"last_edited_time"`
-	EditedBy      string    `json:"edited_by,omitempty"`
-	URL           string    `json:"url,omitempty"`
+	EditedBy       string    `json:"edited_by,omitempty"`
+	URL            string    `json:"url,omitempty"`
 }
 
 func newChangedCmd(flags *rootFlags) *cobra.Command {
@@ -102,11 +102,11 @@ func newChangedCmd(flags *rootFlags) *cobra.Command {
 				url, _ := data["url"].(string)
 
 				results = append(results, changedPage{
-					ID:            id,
-					Title:         title,
+					ID:             id,
+					Title:          title,
 					LastEditedTime: lastEdited,
-					EditedBy:      editedBy,
-					URL:           url,
+					EditedBy:       editedBy,
+					URL:            url,
 				})
 			}
 			if err := rows.Err(); err != nil {
@@ -147,4 +147,3 @@ func newChangedCmd(flags *rootFlags) *cobra.Command {
 
 	return cmd
 }
-

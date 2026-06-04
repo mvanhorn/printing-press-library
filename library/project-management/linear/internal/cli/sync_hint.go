@@ -1,4 +1,4 @@
-// Copyright 2026 matt-van-horn. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Matt Van Horn and contributors. Licensed under Apache-2.0. See LICENSE.
 
 package cli
 
@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/project-management/linear/internal/store"
+	"github.com/spf13/cobra"
 )
 
 // defaultMaxAge is the threshold above which a store-backed read is

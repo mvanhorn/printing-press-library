@@ -1,4 +1,4 @@
-// Copyright 2026 matt-van-horn. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Matt Van Horn and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // resolveDeeplineKey centralizes Deepline API key resolution across every
 // paid path in the CLI (waterfall, dossier, prospect, deepline subcommands,
@@ -173,7 +173,7 @@ func discoverDeeplineKeyFromSiblingCLIWithSkips() (key, path string, skips []str
 //
 //   - Lstat — symlink whose target leaves $HOME is rejected.
 //   - Mode  — group or world WRITE access is rejected. Read access is
-//             accepted because the upstream sibling CLI writes mode 0644.
+//     accepted because the upstream sibling CLI writes mode 0644.
 //   - Parse — non-quoted KEY=VALUE per line, comments and blanks ignored.
 //   - Prefix — value must start with "dlp_".
 //   - Empty — DEEPLINE_API_KEY="" falls through (no error, no key).

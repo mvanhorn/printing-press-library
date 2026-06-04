@@ -1,0 +1,175 @@
+{
+  "api_name": "everbee",
+  "base_url": "https://api.everbee.com",
+  "description": "EverBee Research workflows for product analytics, keyword research, and shop analysis",
+  "mcp_ready": "full",
+  "http_transport": "browser-chrome-h2",
+  "auth": {
+    "type": "api_key",
+    "header": "x-access-token",
+    "in": "header",
+    "env_vars": [
+      "EVERBEE_ACCESS_TOKEN"
+    ],
+    "env_var_specs": [
+      {
+        "name": "EVERBEE_ACCESS_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "folders_list_folders",
+      "description": "GET /folders. Optional: type (default: listing). Returns the folders.",
+      "method": "GET",
+      "path": "/folders",
+      "params": [
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Folder type observed in EverBee traffic: listing, keyword_analytic, or shop"
+        }
+      ]
+    },
+    {
+      "name": "keyword_research_list_default_keyword_suggestion",
+      "description": "GET /keyword_research/default_keyword_suggestion. Optional: order_by (default: new_volume), order_direction (default: desc), page (default: 1) (plus 1 more). Returns the default_keyword_suggestion.",
+      "method": "GET",
+      "path": "/keyword_research/default_keyword_suggestion",
+      "params": [
+        {
+          "name": "order_by",
+          "type": "string",
+          "location": "query",
+          "description": "Sort field observed in EverBee traffic"
+        },
+        {
+          "name": "order_direction",
+          "type": "string",
+          "location": "query",
+          "description": "Sort direction"
+        },
+        {
+          "name": "page",
+          "type": "integer",
+          "location": "query",
+          "description": "Result page"
+        },
+        {
+          "name": "type_of_search",
+          "type": "string",
+          "location": "query",
+          "description": "EverBee keyword search mode"
+        }
+      ]
+    },
+    {
+      "name": "management_modals_list_management_modals",
+      "description": "GET /management_modals. Required: last_reset_at, show_manage_keyword_modal, show_manage_listing_modal, show_manage_shop_modal. Returns the management_modals.",
+      "method": "GET",
+      "path": "/management_modals",
+      "params": [
+        {
+          "name": "last_reset_at",
+          "type": "string",
+          "location": "query",
+          "required": true
+        },
+        {
+          "name": "show_manage_keyword_modal",
+          "type": "boolean",
+          "location": "query",
+          "required": true
+        },
+        {
+          "name": "show_manage_listing_modal",
+          "type": "boolean",
+          "location": "query",
+          "required": true
+        },
+        {
+          "name": "show_manage_shop_modal",
+          "type": "boolean",
+          "location": "query",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "product_analytics_list_default_product_analytics",
+      "description": "GET /product_analytics/default_product_analytics. Optional: order_by (default: est_mo_revenue), order_direction (default: desc), page (default: 1) (plus 2 more). Returns the default_product_analytics.",
+      "method": "GET",
+      "path": "/product_analytics/default_product_analytics",
+      "params": [
+        {
+          "name": "order_by",
+          "type": "string",
+          "location": "query",
+          "description": "Sort field observed in EverBee traffic"
+        },
+        {
+          "name": "order_direction",
+          "type": "string",
+          "location": "query",
+          "description": "Sort direction"
+        },
+        {
+          "name": "page",
+          "type": "integer",
+          "location": "query",
+          "description": "Result page"
+        },
+        {
+          "name": "per_page",
+          "type": "integer",
+          "location": "query",
+          "description": "Results per page"
+        },
+        {
+          "name": "time_range",
+          "type": "string",
+          "location": "query",
+          "description": "EverBee time range"
+        }
+      ]
+    },
+    {
+      "name": "shops_list_shops",
+      "description": "GET /shops. Optional: order_by (default: revenue), order_direction (default: desc), page (default: 1) (plus 1 more). Returns the shops.",
+      "method": "GET",
+      "path": "/shops",
+      "params": [
+        {
+          "name": "order_by",
+          "type": "string",
+          "location": "query",
+          "description": "Sort field observed in EverBee traffic"
+        },
+        {
+          "name": "order_direction",
+          "type": "string",
+          "location": "query",
+          "description": "Sort direction"
+        },
+        {
+          "name": "page",
+          "type": "integer",
+          "location": "query",
+          "description": "Result page"
+        },
+        {
+          "name": "per_page",
+          "type": "integer",
+          "location": "query",
+          "description": "Results per page"
+        }
+      ]
+    }
+  ]
+}

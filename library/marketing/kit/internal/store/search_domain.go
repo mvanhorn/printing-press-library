@@ -1,4 +1,4 @@
-// Copyright 2026 cathrynlavery. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Cathryn Lavery and contributors. Licensed under Apache-2.0. See LICENSE.
 //
 // Hand-authored under printing-press patch kit-honest-90.
 // Preserved across regen-merge via .printing-press-patches.json.

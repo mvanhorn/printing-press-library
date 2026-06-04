@@ -1,4 +1,4 @@
-// Copyright 2026 mvanhorn. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Matt Van Horn and contributors. Licensed under Apache-2.0. See LICENSE.
 // Public API for paid-provider key persistence.
 //
 // Adapters call Resolve(envName) to get env-or-config; the auth set-key

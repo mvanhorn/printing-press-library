@@ -560,6 +560,424 @@ func TestCommand_SweepCommandTmp_RemovesStaleFiles(t *testing.T) {
 }
 
 // ---------------------------------------------------------------------------
+// Fleet token self-heal on tesla-control 401 (U1 characterization, U2 fix)
+// ---------------------------------------------------------------------------
+
+// seedFleetSelfHeal populates the [fleet] block of the test config (so
+// commandFleetReady is true via config, not env, mirroring an agentcookie
+// sink), plants a fake signing key + a fake tesla-control on PATH, and wires
+// TESLA_FLEET_AUTH_URL at a local server that counts refresh_token grants and
+// returns a freshly-minted access token. Returns a pointer to the live refresh
+// counter so a test can assert how many times the fleet token was re-minted.
+//
+// expiry controls the stored [fleet] token_expiry: pass a future time to keep
+// the proactive clock check (commandDispatchFleet) from firing, so a test
+// isolates the reactive (401-driven) refresh path.
+func seedFleetSelfHeal(t *testing.T, flags *rootFlags, expiry time.Time, refreshOK bool) *int {
+	t.Helper()
+
+	cfg, err := config.Load(flags.configPath)
+	if err != nil {
+		t.Fatalf("Load cfg: %v", err)
+	}
+	keyFile := filepath.Join(t.TempDir(), "fleet-private.pem")
+	if err := os.WriteFile(keyFile, []byte("-----BEGIN EC PRIVATE KEY-----\nfake\n-----END EC PRIVATE KEY-----\n"), 0o600); err != nil {
+		t.Fatalf("write key: %v", err)
+	}
+	// clientID + refreshToken populate everything tryRefreshFleetToken needs;
+	// stale access token is what tesla-control will reject with a 401.
+	if err := cfg.SaveFleetTokens("fleet-cid", "fleet-csec", "stale-fleet-access", "fleet-refresh-tok", expiry, "keys.example.com", keyFile); err != nil {
+		t.Fatalf("SaveFleetTokens: %v", err)
+	}
+	t.Setenv("TESLA_FLEET_KEY_FILE", keyFile)
+
+	binDir := t.TempDir()
+	if err := os.WriteFile(filepath.Join(binDir, "tesla-control"), []byte("#!/bin/sh\nexit 0\n"), 0o755); err != nil {
+		t.Fatalf("plant tesla-control: %v", err)
+	}
+	t.Setenv("PATH", binDir)
+
+	refreshes := 0
+	mux := http.NewServeMux()
+	mux.HandleFunc("/oauth2/v3/token", func(w http.ResponseWriter, r *http.Request) {
+		_ = r.ParseForm()
+		if r.PostForm.Get("grant_type") != "refresh_token" {
+			http.Error(w, "wrong grant_type", 400)
+			return
+		}
+		refreshes++
+		if !refreshOK {
+			// Simulate a dead refresh token: the grant fails, so the caller
+			// gets no new access token and must surface the original 401.
+			http.Error(w, `{"error":"invalid_grant"}`, http.StatusUnauthorized)
+			return
+		}
+		_ = json.NewEncoder(w).Encode(map[string]any{
+			"access_token":  "fresh-fleet-access",
+			"refresh_token": "fresh-fleet-refresh",
+			"expires_in":    28800,
+		})
+	})
+	srv := httptest.NewServer(mux)
+	t.Cleanup(srv.Close)
+	t.Setenv("TESLA_FLEET_AUTH_URL", srv.URL)
+
+	return &refreshes
+}
+
+// auth401Stub returns a runTeslaControlSubprocessFn replacement that emits a
+// 401-shaped failure on the first N calls and success afterward, recording the
+// call count via the returned pointer. N<0 means "always 401".
+func auth401Stub(t *testing.T, failFirst int) (*int, func(ctx context.Context, bin string, args []string) (string, string, error)) {
+	t.Helper()
+	calls := 0
+	fn := func(ctx context.Context, bin string, args []string) (string, string, error) {
+		calls++
+		if failFirst < 0 || calls <= failFirst {
+			return "", "Error: request failed: 401 Unauthorized (token expired)\n",
+				&exitErr{code: 1}
+		}
+		return "command succeeded\n", "", nil
+	}
+	return &calls, fn
+}
+
+// exitErr is a minimal error mimicking a non-zero tesla-control exit.
+type exitErr struct{ code int }
+
+func (e *exitErr) Error() string { return "exit status " + strconv.Itoa(e.code) }
+
+// TestCommand_Fleet_StaleToken_401_SelfHeals asserts that when tesla-control
+// fails with a 401 and the stored [fleet] token_expiry is still in the future
+// (so the proactive clock check does NOT fire), the dispatch reactively
+// re-mints the fleet token from the stored refresh token and retries once,
+// succeeding without any source-side action. This is the core sink-autonomy
+// behavior (plan U1 -> U2).
+func TestCommand_Fleet_StaleToken_401_SelfHeals(t *testing.T) {
+	flags, _ := commandTestSetup(t, []productEntry{
+		{VIN: "SNOWFLAKEVIN0001", DisplayName: "Snowflake", CommandSigning: "required"},
+	})
+	refreshes := seedFleetSelfHeal(t, flags, time.Now().Add(time.Hour), true) // future: proactive check stays quiet
+
+	calls, stub := auth401Stub(t, 1) // 401 once, then success on retry
+	orig := runTeslaControlSubprocessFn
+	t.Cleanup(func() { runTeslaControlSubprocessFn = orig })
+	runTeslaControlSubprocessFn = stub
+
+	out, err := runCommandForTest(t, flags, []string{"unlock", "--vehicle", "Snowflake", "--send"})
+	if err != nil {
+		t.Fatalf("expected self-heal success, got error: %v\n%s", err, out.String())
+	}
+	if *refreshes != 1 {
+		t.Errorf("expected exactly 1 reactive fleet refresh, got %d", *refreshes)
+	}
+	if *calls != 2 {
+		t.Errorf("expected tesla-control invoked twice (401 then retry), got %d", *calls)
+	}
+	if !strings.Contains(out.String(), `"status": "ok"`) && !strings.Contains(out.String(), `"status":"ok"`) {
+		t.Errorf("expected ok status after self-heal, got: %s", out.String())
+	}
+}
+
+// TestCommand_Fleet_401_RetryBoundedToOnce: when the retry also 401s, the
+// dispatch refreshes exactly once and does NOT loop. Caps blast radius (R2).
+func TestCommand_Fleet_401_RetryBoundedToOnce(t *testing.T) {
+	flags, _ := commandTestSetup(t, []productEntry{
+		{VIN: "SNOWFLAKEVIN0001", DisplayName: "Snowflake", CommandSigning: "required"},
+	})
+	refreshes := seedFleetSelfHeal(t, flags, time.Now().Add(time.Hour), true)
+
+	calls, stub := auth401Stub(t, -1) // always 401
+	orig := runTeslaControlSubprocessFn
+	t.Cleanup(func() { runTeslaControlSubprocessFn = orig })
+	runTeslaControlSubprocessFn = stub
+
+	out, err := runCommandForTest(t, flags, []string{"unlock", "--vehicle", "Snowflake", "--send"})
+	if err == nil {
+		t.Fatalf("expected error when both attempts 401, got success: %s", out.String())
+	}
+	if *refreshes != 1 {
+		t.Errorf("expected exactly 1 refresh (no loop), got %d", *refreshes)
+	}
+	if *calls != 2 {
+		t.Errorf("expected exactly 2 tesla-control calls (original + one retry), got %d", *calls)
+	}
+}
+
+// TestCommand_Fleet_401_RefreshFails_SurfacesOriginal: when the refresh grant
+// itself fails (dead refresh token), no retry fires and the original 401 is
+// surfaced with the existing fleet-login guidance preserved (R3).
+func TestCommand_Fleet_401_RefreshFails_SurfacesOriginal(t *testing.T) {
+	flags, _ := commandTestSetup(t, []productEntry{
+		{VIN: "SNOWFLAKEVIN0001", DisplayName: "Snowflake", CommandSigning: "required"},
+	})
+	refreshes := seedFleetSelfHeal(t, flags, time.Now().Add(time.Hour), false) // refresh endpoint fails
+
+	calls, stub := auth401Stub(t, -1)
+	orig := runTeslaControlSubprocessFn
+	t.Cleanup(func() { runTeslaControlSubprocessFn = orig })
+	runTeslaControlSubprocessFn = stub
+
+	out, err := runCommandForTest(t, flags, []string{"unlock", "--vehicle", "Snowflake", "--send"})
+	if err == nil {
+		t.Fatalf("expected error when refresh fails, got success: %s", out.String())
+	}
+	if *refreshes != 1 {
+		t.Errorf("expected exactly 1 refresh attempt, got %d", *refreshes)
+	}
+	if *calls != 1 {
+		t.Errorf("expected exactly 1 tesla-control call (no retry without a new token), got %d", *calls)
+	}
+	if !strings.Contains(out.String(), "401") {
+		t.Errorf("expected original 401 surfaced, got: %s", out.String())
+	}
+}
+
+// TestCommand_Fleet_NonAuthError_NoRefresh: a non-auth failure (sleeping car)
+// must NOT trigger a token refresh or retry (KD2).
+func TestCommand_Fleet_NonAuthError_NoRefresh(t *testing.T) {
+	flags, _ := commandTestSetup(t, []productEntry{
+		{VIN: "SNOWFLAKEVIN0001", DisplayName: "Snowflake", CommandSigning: "required"},
+	})
+	refreshes := seedFleetSelfHeal(t, flags, time.Now().Add(time.Hour), true)
+
+	calls := 0
+	orig := runTeslaControlSubprocessFn
+	t.Cleanup(func() { runTeslaControlSubprocessFn = orig })
+	runTeslaControlSubprocessFn = func(ctx context.Context, bin string, args []string) (string, string, error) {
+		calls++
+		return "", "Error: vehicle is asleep; wake it first\n", &exitErr{code: 1}
+	}
+
+	out, err := runCommandForTest(t, flags, []string{"unlock", "--vehicle", "Snowflake", "--send"})
+	if err == nil {
+		t.Fatalf("expected error for sleeping vehicle, got success: %s", out.String())
+	}
+	if *refreshes != 0 {
+		t.Errorf("expected 0 refreshes for a non-auth failure, got %d", *refreshes)
+	}
+	if calls != 1 {
+		t.Errorf("expected exactly 1 tesla-control call (no retry), got %d", calls)
+	}
+}
+
+// TestIsFleetAuthError covers the auth-vs-not classification table (KD2).
+func TestIsFleetAuthError(t *testing.T) {
+	someErr := &exitErr{code: 1}
+	cases := []struct {
+		name           string
+		stdout, stderr string
+		err            error
+		want           bool
+	}{
+		{"nil error is never auth", "", "401 unauthorized", nil, false},
+		{"401 in stderr", "", "request failed: 401 Unauthorized", someErr, true},
+		{"unauthorized word", "", "Unauthorized", someErr, true},
+		{"invalid_token", "", "oauth: invalid_token", someErr, true},
+		{"token expired", "", "the token expired", someErr, true},
+		{"mixed case 401", "", "HTTP 401 UNAUTHORIZED", someErr, true},
+		{"timeout is not auth", "", "context deadline exceeded", someErr, false},
+		{"sleeping car is not auth", "", "vehicle is asleep", someErr, false},
+		{"offline is not auth", "", "vehicle offline", someErr, false},
+		{"connection refused is not auth", "", "dial tcp: connection refused", someErr, false},
+		{"generic failure is not auth", "", "command failed for unknown reason", someErr, false},
+		{"401 substring loses to timeout negative", "", "401 but actually timed out", someErr, false},
+	}
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			if got := isFleetAuthError(c.stdout, c.stderr, c.err); got != c.want {
+				t.Errorf("isFleetAuthError(%q,%q,%v) = %v, want %v", c.stdout, c.stderr, c.err, got, c.want)
+			}
+		})
+	}
+}
+
+// TestTryRefreshFleetToken_ConcurrentGuard exercises the serialization guard
+// (R5): many goroutines racing a refresh must not panic or tear config.toml,
+// and the final state is a single coherent rotated token.
+func TestTryRefreshFleetToken_ConcurrentGuard(t *testing.T) {
+	flags := commandTestFlags(t)
+	cfg, err := config.Load(flags.configPath)
+	if err != nil {
+		t.Fatalf("Load: %v", err)
+	}
+	if err := cfg.SaveFleetTokens("cid", "csec", "old-access", "old-refresh", time.Now().Add(-time.Hour), "keys.example.com", ""); err != nil {
+		t.Fatalf("seed: %v", err)
+	}
+	mux := http.NewServeMux()
+	mux.HandleFunc("/oauth2/v3/token", func(w http.ResponseWriter, r *http.Request) {
+		_ = json.NewEncoder(w).Encode(map[string]any{
+			"access_token":  "rotated-access",
+			"refresh_token": "rotated-refresh",
+			"expires_in":    28800,
+		})
+	})
+	srv := httptest.NewServer(mux)
+	defer srv.Close()
+	t.Setenv("TESLA_FLEET_AUTH_URL", srv.URL)
+
+	const n = 8
+	done := make(chan struct{}, n)
+	for i := 0; i < n; i++ {
+		go func() {
+			defer func() { done <- struct{}{} }()
+			teslaFleetRefreshGuard.Lock()
+			_, _ = tryRefreshFleetToken(cfg)
+			teslaFleetRefreshGuard.Unlock()
+		}()
+	}
+	for i := 0; i < n; i++ {
+		<-done
+	}
+
+	cfg2, _ := config.Load(flags.configPath)
+	ft := cfg2.FleetTokens()
+	if ft.AccessToken != "rotated-access" {
+		t.Errorf("config not coherently rotated: AccessToken=%q", ft.AccessToken)
+	}
+	if ft.RefreshToken != "rotated-refresh" {
+		t.Errorf("config not coherently rotated: RefreshToken=%q", ft.RefreshToken)
+	}
+}
+
+// TestTryRefreshFleetToken_SaveFailureStillReturnsToken locks the return
+// contract: a successful grant whose config persistence fails must still return
+// the freshly-minted token (alongside the save error) so the caller can use it
+// for the current request. Greptile flagged callers dropping this token.
+func TestTryRefreshFleetToken_SaveFailureStillReturnsToken(t *testing.T) {
+	// Point the config at a path whose parent is a regular file, so save()'s
+	// MkdirAll fails and the write cannot land.
+	blocker := filepath.Join(t.TempDir(), "not-a-dir")
+	if err := os.WriteFile(blocker, []byte("x"), 0o600); err != nil {
+		t.Fatalf("write blocker: %v", err)
+	}
+	cfg := &config.Config{
+		Path:  filepath.Join(blocker, "config.toml"),
+		Fleet: config.FleetConfig{ClientID: "cid", RefreshToken: "refresh-tok"},
+	}
+	mux := http.NewServeMux()
+	mux.HandleFunc("/oauth2/v3/token", func(w http.ResponseWriter, r *http.Request) {
+		_ = json.NewEncoder(w).Encode(map[string]any{
+			"access_token":  "minted-but-unsaved",
+			"refresh_token": "new-refresh",
+			"expires_in":    28800,
+		})
+	})
+	srv := httptest.NewServer(mux)
+	defer srv.Close()
+	t.Setenv("TESLA_FLEET_AUTH_URL", srv.URL)
+
+	tok, err := tryRefreshFleetToken(cfg)
+	if tok != "minted-but-unsaved" {
+		t.Errorf("expected minted token returned despite save failure, got %q", tok)
+	}
+	if err == nil {
+		t.Errorf("expected a non-nil save error alongside the token")
+	}
+}
+
+// TestFleetTokenNeedsProactiveRefresh covers the skew-window proactive check
+// (plan U3): refresh when expired, near-expiry, or unknown-expiry-with-refresh;
+// skip when comfortably valid or when no refresh token exists.
+func TestFleetTokenNeedsProactiveRefresh(t *testing.T) {
+	skew := 60 * time.Second
+	cases := []struct {
+		name string
+		ft   config.FleetConfig
+		want bool
+	}{
+		{"expired with refresh token", config.FleetConfig{RefreshToken: "r", TokenExpiry: time.Now().Add(-time.Hour)}, true},
+		{"near-expiry within skew", config.FleetConfig{RefreshToken: "r", TokenExpiry: time.Now().Add(30 * time.Second)}, true},
+		{"comfortably valid beyond skew", config.FleetConfig{RefreshToken: "r", TokenExpiry: time.Now().Add(time.Hour)}, false},
+		{"zero expiry with refresh token", config.FleetConfig{RefreshToken: "r"}, true},
+		{"zero expiry without refresh token", config.FleetConfig{}, false},
+		{"expired but no refresh token", config.FleetConfig{TokenExpiry: time.Now().Add(-time.Hour)}, false},
+	}
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			if got := fleetTokenNeedsProactiveRefresh(c.ft, skew); got != c.want {
+				t.Errorf("fleetTokenNeedsProactiveRefresh = %v, want %v", got, c.want)
+			}
+		})
+	}
+}
+
+// TestNewClient_ReadPathSelfHealsInBothModes guards that the read client always
+// wires a 401 auto-refresh callback (plan U4): owner-api reads heal via the
+// owner-api refresh closure, Fleet-routed reads heal via the Fleet closure.
+// A future refactor that drops OnTokenExpired would make a sink's reads stop
+// self-healing — this test fails loudly if that happens.
+func TestNewClient_ReadPathSelfHealsInBothModes(t *testing.T) {
+	t.Run("owner-api creds present routes owner-api and self-heals", func(t *testing.T) {
+		t.Setenv("TESLA_FLEET_TOKEN", "")
+		t.Setenv("TESLA_PP_NO_AUTOREFRESH", "")
+		flags := commandTestFlags(t)
+		cfg, err := config.Load(flags.configPath)
+		if err != nil {
+			t.Fatalf("Load: %v", err)
+		}
+		if err := cfg.SaveTokens("ownerapi", "", "owner-bearer", "owner-refresh", time.Now().Add(time.Hour)); err != nil {
+			t.Fatalf("SaveTokens: %v", err)
+		}
+		c, err := flags.newClient()
+		if err != nil {
+			t.Fatalf("newClient: %v", err)
+		}
+		if c.FleetMode {
+			t.Errorf("expected owner-api read routing (FleetMode=false) when a valid owner token exists")
+		}
+		if c.OnTokenExpired == nil {
+			t.Errorf("read client must wire a 401 self-heal callback (owner-api mode)")
+		}
+	})
+
+	t.Run("fleet-only creds route fleet and self-heal", func(t *testing.T) {
+		t.Setenv("TESLA_FLEET_TOKEN", "")
+		t.Setenv("TESLA_PP_NO_AUTOREFRESH", "")
+		flags := commandTestFlags(t)
+		cfg, err := config.Load(flags.configPath)
+		if err != nil {
+			t.Fatalf("Load: %v", err)
+		}
+		// Fleet token only, no usable owner-api credential: reads must route to
+		// the Fleet API and still self-heal via the Fleet refresh closure.
+		if err := cfg.SaveFleetTokens("cid", "csec", "fleet-bearer", "fleet-refresh", time.Now().Add(time.Hour), "keys.example.com", ""); err != nil {
+			t.Fatalf("SaveFleetTokens: %v", err)
+		}
+		c, err := flags.newClient()
+		if err != nil {
+			t.Fatalf("newClient: %v", err)
+		}
+		if !c.FleetMode {
+			t.Errorf("expected Fleet read routing (FleetMode=true) when only Fleet creds exist")
+		}
+		if c.OnTokenExpired == nil {
+			t.Errorf("read client must wire a 401 self-heal callback (Fleet mode)")
+		}
+	})
+
+	t.Run("opt-out disables the self-heal callback", func(t *testing.T) {
+		t.Setenv("TESLA_FLEET_TOKEN", "")
+		t.Setenv("TESLA_PP_NO_AUTOREFRESH", "1")
+		flags := commandTestFlags(t)
+		cfg, err := config.Load(flags.configPath)
+		if err != nil {
+			t.Fatalf("Load: %v", err)
+		}
+		if err := cfg.SaveTokens("ownerapi", "", "owner-bearer", "owner-refresh", time.Now().Add(time.Hour)); err != nil {
+			t.Fatalf("SaveTokens: %v", err)
+		}
+		c, err := flags.newClient()
+		if err != nil {
+			t.Fatalf("newClient: %v", err)
+		}
+		if c.OnTokenExpired != nil {
+			t.Errorf("TESLA_PP_NO_AUTOREFRESH=1 must leave OnTokenExpired unset for explicit 401 handling")
+		}
+	})
+}
+
+// ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
 

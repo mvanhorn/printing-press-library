@@ -1,4 +1,4 @@
-// Copyright 2026 david. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 David He and contributors. Licensed under Apache-2.0. See LICENSE.
 
 package rss
 
@@ -99,18 +99,18 @@ func TestResolveCategory(t *testing.T) {
 		{"9", 9, false},
 		{"25", 25, false},
 		{"hot", 9, false},
-		{"HOT", 9, false},   // case-insensitive
+		{"HOT", 9, false}, // case-insensitive
 		{"freebies", 4, false},
 		{"coupons", 10, false},
 		{"contests", 25, false},
 		{"sweepstakes", 25, false},
 		{"grocery", 38, false},
-		{"999", 999, false},  // arbitrary numeric ID passes through unchanged
+		{"999", 999, false}, // arbitrary numeric ID passes through unchanged
 		{"", -1, true},
 		{"0", -1, true},
-		{"-1", -1, true},     // strconv.Atoi succeeds but <=0 check triggers
+		{"-1", -1, true}, // strconv.Atoi succeeds but <=0 check triggers
 		{"unknown-category-xyz", -1, true},
-		{"tech", -1, true},   // v0.2 alias intentionally dropped — was wrong
+		{"tech", -1, true}, // v0.2 alias intentionally dropped — was wrong
 	}
 
 	for _, tt := range tests {

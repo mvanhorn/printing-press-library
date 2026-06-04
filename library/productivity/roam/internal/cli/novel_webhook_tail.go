@@ -2,9 +2,9 @@ package cli
 
 import (
 	"database/sql"
-	"github.com/mvanhorn/printing-press-library/library/productivity/roam/internal/store"
 	"encoding/json"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/productivity/roam/internal/store"
 	"time"
 
 	"github.com/spf13/cobra"

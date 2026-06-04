@@ -5,6 +5,10 @@
   "api_name": "wolt",
   "display_name": "Wolt",
   "cli_name": "wolt-pp-cli",
+  "creator": {
+    "handle": "Amit-Tabibi",
+    "name": "Amit"
+  },
   "category": "food-and-dining",
   "description": "Browse Wolt food delivery from the terminal: cities, nearby venues, menus, prices, ETAs, and cross-venue comparisons.",
   "owner": "Amit-Tabibi",

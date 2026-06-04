@@ -13,7 +13,7 @@ A command-line interface for [AdGuard Home](https://github.com/AdguardTeam/AdGua
 - **Real-time monitoring** — `tail` streams live DNS query changes; `analytics` runs aggregate queries on synced data
 - **Agent-ready** — `--agent` flag sets JSON output, compact mode, no-color, and no-prompts in one flag for AI agent workflows
 
-Printed by [@e-jung](https://github.com/e-jung) (Eric Jung).
+Created by [@e-jung](https://github.com/e-jung) (Eric Jung).
 
 ## Install
 

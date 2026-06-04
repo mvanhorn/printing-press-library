@@ -5,6 +5,10 @@
   "api_name": "wikipedia",
   "display_name": "Wikipedia",
   "cli_name": "wikipedia-pp-cli",
+  "creator": {
+    "handle": "hnshah",
+    "name": "Hiten Shah"
+  },
   "owner": "hiten-shah",
   "printer": "hnshah",
   "printer_name": "Hiten Shah",

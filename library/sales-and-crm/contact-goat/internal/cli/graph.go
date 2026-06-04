@@ -1,4 +1,4 @@
-// Copyright 2026 matt-van-horn. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Matt Van Horn and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // graph export: dump a unified view of your network as GEXF, DOT, or JSON so
 // it can be loaded into Gephi / Cytoscape / Graphviz / any visualization tool.
@@ -29,9 +29,9 @@ const viewerNodeID = "me"
 
 func newGraphCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "graph",
+		Use:         "graph",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short: "Export or inspect the unified contact graph",
+		Short:       "Export or inspect the unified contact graph",
 	}
 	cmd.AddCommand(newGraphExportCmd(flags))
 	return cmd

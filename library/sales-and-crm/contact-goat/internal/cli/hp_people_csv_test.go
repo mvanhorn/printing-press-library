@@ -1,4 +1,4 @@
-// Copyright 2026 matt-van-horn. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Matt Van Horn and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // hp_people_csv_test.go: tests for the U7 CSV emitter on hp people.
 // The CSV path replaces the silently-broken global --csv that produced

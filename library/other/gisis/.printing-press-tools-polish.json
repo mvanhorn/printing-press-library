@@ -1,0 +1,15 @@
+{
+  "timestamp": "2026-05-29T09:05:58.171318Z",
+  "cli_dir": "\u003ccli-dir\u003e/gisis-pp-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "version",
+      "file": "root.go",
+      "line": 304,
+      "evidence": "Print version",
+      "status": "accepted",
+      "note": "Standard 'version' command in a generated DO-NOT-EDIT root.go; 'Print version' is accurate and brief, and agents understand it without elaboration."
+    }
+  ]
+}

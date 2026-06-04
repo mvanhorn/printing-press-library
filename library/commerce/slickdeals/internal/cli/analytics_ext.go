@@ -1,4 +1,4 @@
-// Copyright 2026 david. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 David He and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // Package cli: analytics_ext.go extends the existing `analytics` command tree
 // with two snapshot-aware sub-commands — `top-stores` and `thumbs-velocity`.
@@ -117,7 +117,7 @@ Fewer than 2 snapshots is valid — the series is returned anyway with
 delta=0 throughout.`,
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		Args:        cobra.ExactArgs(1),
-		Example: `  slickdeals-pp-cli analytics thumbs-velocity 19510173 --json`,
+		Example:     `  slickdeals-pp-cli analytics thumbs-velocity 19510173 --json`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {
 				return nil

@@ -33,7 +33,7 @@ type Flight struct {
 type FlightStop struct {
 	Time     string `json:"time"`
 	Date     string `json:"date"`
-	Airport  string `json:"airport"`  // IATA code, e.g. "JAX"
+	Airport  string `json:"airport"` // IATA code, e.g. "JAX"
 	City     string `json:"city,omitempty"`
 	Terminal string `json:"terminal,omitempty"`
 	Gate     string `json:"gate,omitempty"`
@@ -41,12 +41,12 @@ type FlightStop struct {
 
 // Layover describes a connection between two flight legs.
 type Layover struct {
-	Duration    string `json:"duration"`              // "1h 21m"
-	Airport     string `json:"airport"`               // IATA code
-	City        string `json:"city,omitempty"`
-	RiskLevel   string `json:"riskLevel,omitempty"`   // "OK", "TIGHT", "HIGH"
-	RiskMinutes int    `json:"riskMinutes,omitempty"` // connection window in minutes
-	International bool `json:"international,omitempty"`
+	Duration      string `json:"duration"` // "1h 21m"
+	Airport       string `json:"airport"`  // IATA code
+	City          string `json:"city,omitempty"`
+	RiskLevel     string `json:"riskLevel,omitempty"`   // "OK", "TIGHT", "HIGH"
+	RiskMinutes   int    `json:"riskMinutes,omitempty"` // connection window in minutes
+	International bool   `json:"international,omitempty"`
 }
 
 // PassengerSeg is a per-passenger record for a single flight leg.

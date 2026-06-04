@@ -19,6 +19,8 @@ Learn more at [Slickdeals](https://slickdeals.net).
 - **`analytics top-stores`** — merchant leaderboard over a configurable window
 - **`analytics thumbs-velocity <deal-id>`** — time-series of thumb counts with deltas
 
+Created by [@beetz12](https://github.com/beetz12) (David He).
+
 ## Install
 
 The recommended path installs both the `slickdeals-pp-cli` binary and the `pp-slickdeals` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

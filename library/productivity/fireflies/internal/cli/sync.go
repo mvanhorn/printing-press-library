@@ -1,4 +1,4 @@
-// Copyright 2026 nikica-jokic. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Nikica Jokic and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // PATCH sync-no-from-date: client-side date filtering only — Fireflies API silently ignores the from_date param.
 package cli

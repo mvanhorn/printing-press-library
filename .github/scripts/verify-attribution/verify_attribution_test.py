@@ -94,5 +94,53 @@ class AttributionVerifierTest(unittest.TestCase):
         self.assertEqual(0, verifier.run(base, "HEAD"))
 
 
+class SkillAuthorParsingTest(unittest.TestCase):
+    PLAIN = '---\nname: pp-foo\nauthor: "Ada Lovelace"\n---\n\n# Foo\n'
+
+    def test_plain_frontmatter_author(self) -> None:
+        self.assertEqual("Ada Lovelace", verifier.skill_author(self.PLAIN))
+
+    def test_leading_bom_does_not_hide_author(self) -> None:
+        # A SKILL.md with a leading UTF-8 BOM must resolve to the same author as
+        # the BOM-free file, so stripping the BOM is not read as an attribution flip.
+        bom = "\ufeff" + self.PLAIN
+        self.assertEqual("Ada Lovelace", verifier.skill_author(bom))
+        self.assertEqual(verifier.skill_author(bom), verifier.skill_author(self.PLAIN))
+
+    def test_leading_comment_does_not_hide_author(self) -> None:
+        commented = "<!-- // PATCH: hand-edited headline -->\n" + self.PLAIN
+        self.assertEqual("Ada Lovelace", verifier.skill_author(commented))
+        self.assertEqual(verifier.skill_author(commented), verifier.skill_author(self.PLAIN))
+
+    def test_bom_then_comment_does_not_hide_author(self) -> None:
+        noisy = "\ufeff<!-- // PATCH: note -->\n" + self.PLAIN
+        self.assertEqual("Ada Lovelace", verifier.skill_author(noisy))
+        self.assertEqual(verifier.skill_author(noisy), verifier.skill_author(self.PLAIN))
+
+    def test_multiple_leading_comments_do_not_hide_author(self) -> None:
+        noisy = "<!-- generated header -->\n<!-- // PATCH: note -->\n" + self.PLAIN
+        self.assertEqual("Ada Lovelace", verifier.skill_author(noisy))
+        self.assertEqual(verifier.skill_author(noisy), verifier.skill_author(self.PLAIN))
+
+    def test_no_frontmatter_still_returns_none(self) -> None:
+        self.assertIsNone(verifier.skill_author("# Foo\n\nNo frontmatter here.\n"))
+
+    def test_attribution_only_correction_on_bom_file_is_not_a_surface_change(self) -> None:
+        # Same BOM on both sides, only the author value changes: normalize must
+        # report no surface change so an attribution-only fix isn't gated.
+        before = "\ufeff" + self.PLAIN
+        after = "\ufeff" + self.PLAIN.replace("Ada Lovelace", "Grace Hopper")
+        self.assertEqual(
+            verifier.normalize_skill_author(before),
+            verifier.normalize_skill_author(after),
+        )
+
+    def test_bom_removal_alone_is_not_a_surface_change(self) -> None:
+        self.assertEqual(
+            verifier.normalize_skill_author("\ufeff" + self.PLAIN),
+            verifier.normalize_skill_author(self.PLAIN),
+        )
+
+
 if __name__ == "__main__":
     unittest.main()

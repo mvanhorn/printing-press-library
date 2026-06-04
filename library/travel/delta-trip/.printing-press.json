@@ -5,6 +5,10 @@
   "api_name": "delta-trip",
   "display_name": "Delta Trip Management",
   "cli_name": "delta-trip-pp-cli",
+  "creator": {
+    "handle": "paulbockewitz",
+    "name": "Paul Bockewitz"
+  },
   "owner": "user",
   "printer": "paulbockewitz",
   "printer_name": "Paul Bockewitz",

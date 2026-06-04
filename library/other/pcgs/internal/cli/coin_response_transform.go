@@ -1,4 +1,4 @@
-// Copyright 2026 vinny-pasceri. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Vinny Pasceri and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // PATCH(amend-2026-05-18: coin-response-transforms) — Single helper that
 // post-processes raw PCGS coin records before they leave the CLI:
@@ -14,6 +14,21 @@
 //     handful of certs per inventory pass where Name="2022-S ..." but
 //     Year=2021; without this, the agent silently picks one and the conflict
 //     stays hidden. See AGENTS.md P4.
+//
+//  3. PATCH(amend-2026-05-19: images-field-strip) — Drops the noisy
+//     Images: [{}, {}] array PCGS returns on CoinFactsModel responses. The
+//     two stub items have no URL fields (image URLs live on a separate
+//     endpoint exposed as `coin images <cert>`) and read as "the image
+//     fetch failed" to a first-time consumer. Removing the field entirely
+//     leaves the HasObverseImage / HasReverseImage / HasTrueViewImage /
+//     ImageReady booleans intact so callers can still tell images exist
+//     before paying the second quota call. See AGENTS.md P6.
+//
+//     Safe because the envelope classifier (classifyPCGSEnvelope in
+//     pcgs_envelope.go) already runs inside resolveRead — well before this
+//     transform — and consumes the Images=[] + all-Has*Image-false
+//     heuristic on the GetImagesByCertNo endpoint. Stripping Images at
+//     the response-transform layer cannot affect bogus-cert detection.
 //
 // Both transforms are idempotent and safe on non-coin JSON (the function
 // passes through invalid/non-object payloads unchanged), so wiring it into
@@ -82,6 +97,13 @@ func applyCoinResponseTransforms(data json.RawMessage) json.RawMessage {
 			}
 		}
 	}
+
+	// PATCH(amend-2026-05-19: images-field-strip) — P6: drop the noisy
+	// Images stub array. Idempotent (delete on absent map key is a no-op).
+	// Has*Image / ImageReady booleans elsewhere in the object are left
+	// untouched so callers can still tell images exist before paying the
+	// second quota call to `coin images <cert>`.
+	delete(obj, "Images")
 
 	out, err := json.Marshal(obj)
 	if err != nil {

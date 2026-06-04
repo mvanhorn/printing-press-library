@@ -2,7 +2,7 @@
   "manifest_version": "0.3",
   "name": "tenderned-pp-mcp",
   "display_name": "TenderNed",
-  "version": "4.8.0",
+  "version": "4.18.1",
   "description": "Dutch public-tender CLI with offline search, document corpus, and the sub-threshold long tail TED never sees.",
   "author": {
     "name": "CLI Printing Press"

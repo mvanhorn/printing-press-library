@@ -1,4 +1,4 @@
-// Copyright 2026 matt-van-horn. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Matt Van Horn and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // PATCH(amend-2026-05-20: value-compare) — KILLER command added by
 // /printing-press-amend.
@@ -136,7 +136,7 @@ baseline and surfaces the source in meta.cpp_baseline_source.`,
 			// goes to a different host (or the local cache).
 			path := "/search/results/__data.json"
 			var (
-				wg       sync.WaitGroup
+				wg                  sync.WaitGroup
 				cashData, awardData json.RawMessage
 				cashProv, awardProv DataProvenance
 				cashErr, awardErr   error

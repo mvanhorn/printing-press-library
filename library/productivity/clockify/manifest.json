@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "clockify-pp-mcp",
+  "display_name": "Clockify",
+  "version": "4.14.0",
+  "description": "Clockify API surface as MCP tools.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/clockify-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/clockify-pp-mcp",
+      "args": [],
+      "env": {
+        "CLOCKIFY_API_KEY": "${user_config.clockify_api_key}"
+      }
+    }
+  },
+  "user_config": {
+    "clockify_api_key": {
+      "type": "string",
+      "title": "CLOCKIFY_API_KEY",
+      "description": "Sets CLOCKIFY_API_KEY for the Clockify MCP server. Get a credential from https://marketplace.cake.com.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

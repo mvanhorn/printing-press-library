@@ -9,7 +9,7 @@ builds:
     env:
       - CGO_ENABLED=0
     ldflags:
-      - -s -w -X github.com/mvanhorn/printing-press-library/library/sales-and-crm/tenderned/internal/cli.version={{ .Version }}
+      - -s -w -X tenderned-pp-cli/internal/cli.version={{ .Version }}
     targets:
       - darwin_amd64
       - darwin_arm64
@@ -44,8 +44,8 @@ brews:
     repository:
       owner: markvandeven
       name: homebrew-tap
-    homepage: "https://github.com/mvanhorn/printing-press-library"
-    description: "Every Dutch public tender, with the sub-threshold long tail that EU TED never sees, in a local-first CLI you can pipe."
+    homepage: "https://github.com/markvandeven/tenderned-pp-cli"
+    description: "Dutch public-tender CLI with offline search, document corpus, and the sub-threshold long tail TED never sees."
     install: |
       bin.install "tenderned-pp-cli"
       bin.install "tenderned-pp-mcp"

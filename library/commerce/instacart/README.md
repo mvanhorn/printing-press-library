@@ -274,6 +274,9 @@ available for offline reads.
   top result may not match your intent. Use `instacart search` first to see
   the ranked list, then pass `--item-id` to `add` for precision.
 
+Created by [@mvanhorn](https://github.com/mvanhorn) (Matt Van Horn).
+Contributors: [@omarshahine](https://github.com/omarshahine) (Omar Shahine).
+
 ## Install
 
 The recommended path installs both the `instacart-pp-cli` binary and the `pp-instacart` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

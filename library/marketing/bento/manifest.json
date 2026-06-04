@@ -1,0 +1,53 @@
+{
+  "manifest_version": "0.3",
+  "name": "bento-pp-mcp",
+  "display_name": "Bento",
+  "version": "4.11.0",
+  "description": "Every Bento feature, plus the ones their own CLI does not have, plus a local SQLite store that turns 'who are my top spenders by tag' into a one-liner.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/bento-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/bento-pp-mcp",
+      "args": [],
+      "env": {
+        "BENTO_PUBLISHABLE_KEY": "${user_config.bento_publishable_key}",
+        "BENTO_SECRET_KEY": "${user_config.bento_secret_key}",
+        "BENTO_SITE_UUID": "${user_config.bento_site_uuid}"
+      }
+    }
+  },
+  "user_config": {
+    "bento_publishable_key": {
+      "type": "string",
+      "title": "BENTO_PUBLISHABLE_KEY",
+      "description": "Basic auth username. Starts with pk_. Available in your Bento dashboard under Settings -> API Keys.",
+      "required": true
+    },
+    "bento_secret_key": {
+      "type": "string",
+      "title": "BENTO_SECRET_KEY",
+      "description": "Basic auth password. Starts with sk_. Available in your Bento dashboard under Settings -> API Keys. Never expose client-side.",
+      "sensitive": true,
+      "required": true
+    },
+    "bento_site_uuid": {
+      "type": "string",
+      "title": "BENTO_SITE_UUID",
+      "description": "Bento site identifier. Attached to every request as ?site_uuid= on GETs and in the JSON body on POSTs. Available in your Bento dashboard under Account -> Site Settings.",
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

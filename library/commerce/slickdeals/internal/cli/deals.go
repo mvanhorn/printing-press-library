@@ -1,4 +1,4 @@
-// Copyright 2026 david. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 David He and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // Package cli: deals.go is the flagship compound-query command. It joins the
 // `--store`, `--category`, `--since`, `--min-thumbs`, `--limit`, `--deal-id`,

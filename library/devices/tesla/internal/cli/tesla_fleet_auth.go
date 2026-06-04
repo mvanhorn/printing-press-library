@@ -52,9 +52,58 @@ const (
 	// Regional Fleet API audience — North America. Other regions ship later;
 	// for now this matches the fleet-oauth helper that produced the working
 	// token on the reference user.
-	fleetAPIAudience       = "https://fleet-api.prd.na.vn.cloud.tesla.com"
-	fleetPartnerAccountURL = "https://fleet-api.prd.na.vn.cloud.tesla.com/api/1/partner_accounts"
+	fleetAPIAudience = "https://fleet-api.prd.na.vn.cloud.tesla.com"
 )
+
+// fleetAPIBase resolves the regional Fleet API root used for partner
+// registration, token audience, and (when reads route through Fleet) data and
+// command calls. Resolution order: the TESLA_FLEET_API_URL env override, then
+// the persisted [fleet].api_base (recorded at register/login time), then the
+// North America default. Non-NA owners — whose vehicles live in eu/cn/etc. —
+// need the correct regional host, or Tesla returns HTTP 421 (misdirected) for
+// the wrong region and HTTP 412 ("must be registered in the current region").
+func fleetAPIBase(cfg *config.Config) string {
+	if v := strings.TrimSpace(os.Getenv("TESLA_FLEET_API_URL")); v != "" {
+		if base := normalizeFleetBase(v); base != "" {
+			return base
+		}
+		fmt.Fprintf(os.Stderr, "warning: ignoring TESLA_FLEET_API_URL=%q (must be https on a tesla.com host)\n", v)
+	}
+	if cfg != nil && cfg.Fleet.APIBase != "" {
+		if base := normalizeFleetBase(cfg.Fleet.APIBase); base != "" {
+			return base
+		}
+		fmt.Fprintf(os.Stderr, "warning: ignoring persisted [fleet].api_base=%q (must be https on a tesla.com host)\n", cfg.Fleet.APIBase)
+	}
+	return fleetAPIAudience
+}
+
+// normalizeFleetBase validates and trims a Fleet API base URL. The Fleet bearer
+// is sent to this host, so an arbitrary value — from a hostile creds bundle, a
+// typo, or a poisoned env var — would be a token-exfiltration vector. Only
+// https:// URLs on a tesla.com host are accepted; returns "" otherwise.
+func normalizeFleetBase(raw string) string {
+	s := strings.TrimRight(strings.TrimSpace(raw), "/")
+	u, err := url.Parse(s)
+	if err != nil || u.Host == "" {
+		return ""
+	}
+	host := u.Hostname()
+	// Loopback is always allowed: a local mock server (tests) or the local
+	// tesla-http-proxy relay can't exfiltrate the bearer off-machine. Still
+	// require http/https so an unsupported scheme is caught here instead of
+	// failing opaquely at request time with "unsupported protocol scheme".
+	if (host == "localhost" || host == "127.0.0.1" || host == "::1") &&
+		(u.Scheme == "http" || u.Scheme == "https") {
+		return s
+	}
+	// Any remote host must be https on tesla.com — the bearer's only legit
+	// off-machine destination.
+	if u.Scheme == "https" && (host == "tesla.com" || strings.HasSuffix(host, ".tesla.com")) {
+		return s
+	}
+	return ""
+}
 
 // fleetTokenResponse is the shape every Tesla fleet token endpoint returns
 // (client_credentials, authorization_code, refresh_token grants all share this
@@ -202,17 +251,20 @@ honored when neither flag is set.`,
 				return configErr(err)
 			}
 
+			// Resolve the regional Fleet base once: TESLA_FLEET_API_URL env >
+			// persisted [fleet].api_base > North America default. The partner
+			// token audience, the partner_accounts endpoint, and the persisted
+			// api_base must all agree on the region, or Tesla returns HTTP 412
+			// ("must be registered in the current region").
+			fleetBase := fleetAPIBase(cfg)
 			partnerTokenURL := fleetTokenURL
-			partnerAccountsURL := fleetPartnerAccountURL
+			partnerAccountsURL := fleetBase + "/api/1/partner_accounts"
 			if base := os.Getenv("TESLA_FLEET_AUTH_URL"); base != "" {
 				partnerTokenURL = base + "/oauth2/v3/token"
 			}
-			if base := os.Getenv("TESLA_FLEET_API_URL"); base != "" {
-				partnerAccountsURL = base + "/api/1/partner_accounts"
-			}
 
 			// Step 1: client_credentials grant -> partner token (8h).
-			partnerTok, _, err := fleetClientCredentialsGrant(partnerTokenURL, effClientID, effSecret)
+			partnerTok, _, err := fleetClientCredentialsGrant(partnerTokenURL, effClientID, effSecret, fleetBase)
 			if err != nil {
 				return apiErr(err)
 			}
@@ -221,7 +273,8 @@ honored when neither flag is set.`,
 				return apiErr(err)
 			}
 
-			// Persist client_id + secret + domain into [fleet].
+			// Persist client_id + secret + domain + resolved region into [fleet].
+			cfg.Fleet.APIBase = fleetBase
 			if err := cfg.SaveFleetTokens(effClientID, effSecret, "", "", time.Time{}, publicKeyDomain, ""); err != nil {
 				return err
 			}
@@ -252,9 +305,10 @@ honored when neither flag is set.`,
 // ~/snowflake-bypass/fleet-oauth/main.go for the working pattern.
 func newFleetLoginCmd(flags *rootFlags) *cobra.Command {
 	var (
-		noOpen      bool
-		audience    string
-		clientIDArg string
+		noOpen          bool
+		vehicleLocation bool
+		audience        string
+		clientIDArg     string
 	)
 	cmd := &cobra.Command{
 		Use:   "fleet-login",
@@ -291,18 +345,29 @@ URI to a different port — but the CLI default expects 8585).`,
 			if effClientID == "" {
 				return usageErr(fmt.Errorf("no Fleet client_id available; run `tesla auth fleet-register` first or pass --client-id"))
 			}
-			effAudience := firstNonEmpty(audience, fleetAPIAudience)
+			effAudience := firstNonEmpty(audience, fleetAPIBase(cfg))
 			effAuthURL := fleetAuthURL
 			effTokenURL := fleetTokenURL
 			if base := os.Getenv("TESLA_FLEET_AUTH_URL"); base != "" {
 				effAuthURL = base + "/oauth2/v3/authorize"
 				effTokenURL = base + "/oauth2/v3/token"
 			}
-			tok, err := runFleetLoginFlow(cmd, cfg, effClientID, effAuthURL, effTokenURL, effAudience, !noOpen)
+			effScope := fleetScopes
+			if vehicleLocation {
+				effScope += " vehicle_location"
+			}
+			tok, err := runFleetLoginFlow(cmd, cfg, effClientID, effAuthURL, effTokenURL, effAudience, effScope, !noOpen)
 			if err != nil {
 				return err
 			}
 			expiresAt := time.Now().Add(time.Duration(tok.ExpiresIn) * time.Second).UTC()
+			// Sticky region: set the audience we logged in against on the
+			// in-memory struct BEFORE the single SaveFleetTokens write, so the
+			// tokens and api_base are persisted atomically. Two separate saves
+			// would leave api_base unwritten if the process died between them,
+			// silently reverting later reads to North America (the bug this
+			// whole change fixes). Mirrors fleet-register.
+			cfg.Fleet.APIBase = effAudience
 			if err := cfg.SaveFleetTokens("", "", tok.AccessToken, tok.RefreshToken, expiresAt, "", ""); err != nil {
 				return err
 			}
@@ -317,6 +382,7 @@ URI to a different port — but the CLI default expects 8585).`,
 		},
 	}
 	cmd.Flags().BoolVar(&noOpen, "no-open", false, "Print the auth URL but don't auto-open the browser")
+	cmd.Flags().BoolVar(&vehicleLocation, "vehicle-location", false, "Also request the vehicle_location scope (GPS) — the app must be registered for it at developer.tesla.com")
 	cmd.Flags().StringVar(&audience, "audience", "", "Override the token audience (default: regional Fleet API)")
 	cmd.Flags().StringVar(&clientIDArg, "client-id", "", "Client ID override (default: stored value from fleet-register, env: TESLA_FLEET_CLIENT_ID)")
 	return cmd
@@ -365,7 +431,8 @@ on a Fleet API call, or whenever you want to confirm refresh works.`,
 			if base := os.Getenv("TESLA_FLEET_AUTH_URL"); base != "" {
 				effTokenURL = base + "/oauth2/v3/token"
 			}
-			tok, err := fleetRefreshGrant(effTokenURL, effClientID, ft.RefreshToken)
+			_, curScope, _ := decodeJWTClaims(ft.AccessToken)
+			tok, err := fleetRefreshGrant(effTokenURL, effClientID, ft.RefreshToken, curScope)
 			if err != nil {
 				// Tesla's refresh-token-expired response is a 401 with
 				// invalid_grant. Surface a friendly hint to re-run fleet-login.
@@ -461,7 +528,10 @@ refresh token, or client_secret literal.`,
 // the redirect. The handler closure compares state before accepting any code.
 //
 // Patterned after ~/snowflake-bypass/fleet-oauth/main.go.
-func runFleetLoginFlow(cmd *cobra.Command, cfg *config.Config, clientID, authURL, tokenURL, audience string, openBrowserFlag bool) (*fleetTokenResponse, error) {
+func runFleetLoginFlow(cmd *cobra.Command, cfg *config.Config, clientID, authURL, tokenURL, audience, scope string, openBrowserFlag bool) (*fleetTokenResponse, error) {
+	if scope == "" {
+		scope = fleetScopes
+	}
 	// Pre-flight: refuse to bind if 8585 is already in use. We surface a
 	// clear error rather than try a different port because Tesla enforces
 	// exact-match redirect_uri.
@@ -481,9 +551,13 @@ func runFleetLoginFlow(cmd *cobra.Command, cfg *config.Config, clientID, authURL
 		"response_type": {"code"},
 		"client_id":     {clientID},
 		"redirect_uri":  {fleetRedirectURI},
-		"scope":         {fleetScopes},
+		"scope":         {scope},
 		"state":         {state},
-		"prompt":        {"login"},
+		// "login consent" forces both re-authentication AND a fresh consent
+		// screen. Without consent, Tesla silently grants only the user's
+		// previously-consented scopes and ignores newly-requested ones (e.g.
+		// vehicle_location), so a scope added later never reaches the token.
+		"prompt": {"login consent"},
 	}
 	loginURL := authURL + "?" + q.Encode()
 
@@ -580,13 +654,16 @@ func runFleetLoginFlow(cmd *cobra.Command, cfg *config.Config, clientID, authURL
 
 // fleetClientCredentialsGrant mints the partner token (8h lifespan). Used by
 // fleet-register; not stored.
-func fleetClientCredentialsGrant(tokenURL, clientID, clientSecret string) (string, *fleetTokenResponse, error) {
+func fleetClientCredentialsGrant(tokenURL, clientID, clientSecret, audience string) (string, *fleetTokenResponse, error) {
+	if audience == "" {
+		audience = fleetAPIAudience
+	}
 	form := url.Values{
 		"grant_type":    {"client_credentials"},
 		"client_id":     {clientID},
 		"client_secret": {clientSecret},
 		"scope":         {fleetScopes},
-		"audience":      {fleetAPIAudience},
+		"audience":      {audience},
 	}
 	resp, err := http.PostForm(tokenURL, form)
 	if err != nil {
@@ -635,12 +712,17 @@ func fleetRegisterPartnerAccount(partnerAccountsURL, partnerToken, domain string
 }
 
 // fleetRefreshGrant re-mints the access token via refresh_token grant.
-func fleetRefreshGrant(tokenURL, clientID, refreshToken string) (*fleetTokenResponse, error) {
+func fleetRefreshGrant(tokenURL, clientID, refreshToken, scope string) (*fleetTokenResponse, error) {
+	// Re-request the scopes the current token already carries so a refresh
+	// never silently narrows the grant (e.g. dropping vehicle_location).
+	if scope == "" {
+		scope = fleetScopes
+	}
 	form := url.Values{
 		"grant_type":    {"refresh_token"},
 		"client_id":     {clientID},
 		"refresh_token": {refreshToken},
-		"scope":         {fleetScopes},
+		"scope":         {scope},
 	}
 	resp, err := http.PostForm(tokenURL, form)
 	if err != nil {
@@ -695,9 +777,19 @@ func decodeJWTClaims(tok string) ([]string, string, error) {
 	}
 	scope, _ := raw["scope"].(string)
 	if scope == "" {
-		// Sometimes Tesla returns scp instead.
-		if s, ok := raw["scp"].(string); ok {
-			scope = s
+		// Tesla returns the granted scopes under `scp`, and as a JSON array
+		// (not a space-delimited string), so handle both shapes.
+		switch v := raw["scp"].(type) {
+		case string:
+			scope = v
+		case []any:
+			parts := make([]string, 0, len(v))
+			for _, e := range v {
+				if s, ok := e.(string); ok {
+					parts = append(parts, s)
+				}
+			}
+			scope = strings.Join(parts, " ")
 		}
 	}
 	return aud, scope, nil
@@ -730,6 +822,19 @@ func resolveClientSecret(flag, filePath string) (string, error) {
 		return flag, nil
 	}
 	return os.Getenv("TESLA_FLEET_CLIENT_SECRET"), nil
+}
+
+// teslaFleetHasLocationScope reports whether the active Fleet token (env
+// override or [fleet] block) carries the vehicle_location scope, decoded from
+// the JWT. drive_state reads only request the location_data endpoint when this
+// is true, since Tesla 403s the whole call if it's requested without the scope.
+func teslaFleetHasLocationScope(cfg *config.Config) bool {
+	if cfg == nil {
+		return false
+	}
+	tok := firstNonEmpty(os.Getenv("TESLA_FLEET_TOKEN"), cfg.Fleet.AccessToken)
+	_, scopes, err := decodeJWTClaims(tok)
+	return err == nil && strings.Contains(scopes, "vehicle_location")
 }
 
 // firstNonEmpty returns the first non-empty string in vals, or "" if all empty.

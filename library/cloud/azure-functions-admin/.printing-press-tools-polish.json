@@ -1,0 +1,19 @@
+{
+  "timestamp": "2026-05-30T00:52:41.555788Z",
+  "cli_dir": "\u003ccli-dir\u003e/azure-functions-admin-pp-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "version",
+      "file": "root.go",
+      "line": 335,
+      "evidence": "Print version",
+      "status": "accepted",
+      "note": "Standard 'version' command; agents understand this without elaboration. Audit normally exempts version but surfaced it here."
+    }
+  ],
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-05-30T00:49:18.749453Z"
+  }
+}

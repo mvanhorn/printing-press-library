@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "everbee-pp-mcp",
+  "display_name": "EverBee",
+  "version": "4.19.0",
+  "description": "Research Etsy products, shops, and keywords from EverBee in a repeatable agent-ready workflow.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/everbee-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/everbee-pp-mcp",
+      "args": [],
+      "env": {
+        "EVERBEE_ACCESS_TOKEN": "${user_config.everbee_access_token}"
+      }
+    }
+  },
+  "user_config": {
+    "everbee_access_token": {
+      "type": "string",
+      "title": "EVERBEE_ACCESS_TOKEN",
+      "description": "Sets EVERBEE_ACCESS_TOKEN for the EverBee MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

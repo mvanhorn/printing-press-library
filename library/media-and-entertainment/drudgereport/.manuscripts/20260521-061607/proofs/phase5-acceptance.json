@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "drudgereport",
+  "run_id": "20260521-061607",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 59,
+  "tests_passed": 59,
+  "tests_skipped": 34,
+  "auth_context": {
+    "type": "none"
+  }
+}

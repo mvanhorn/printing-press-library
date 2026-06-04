@@ -1,4 +1,4 @@
-// Copyright 2026 nikica-jokic. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Nikica Jokic and contributors. Licensed under Apache-2.0. See LICENSE.
 
 package cli
 
@@ -10,8 +10,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/mvanhorn/printing-press-library/library/productivity/notion/internal/config"
 	"github.com/mvanhorn/printing-press-library/library/productivity/notion/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/productivity/notion/internal/config"
 
 	"github.com/spf13/cobra"
 )

@@ -7,8 +7,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/uspto-tsdr/internal/store"
+	"github.com/spf13/cobra"
 )
 
 // tmWatchEntry is a single mark's status in the watch report.

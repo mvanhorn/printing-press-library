@@ -1,0 +1,51 @@
+version: 2
+project_name: everbee-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: everbee-pp-cli
+    main: ./cmd/everbee-pp-cli
+    binary: everbee-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/marketing/everbee/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: everbee-pp-mcp
+    main: ./cmd/everbee-pp-mcp
+    binary: everbee-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: everbee-pp-cli
+    repository:
+      owner: horknfbr
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Research Etsy products, shops, and keywords from EverBee in a repeatable agent-ready workflow."
+    install: |
+      bin.install "everbee-pp-cli"
+      bin.install "everbee-pp-mcp"

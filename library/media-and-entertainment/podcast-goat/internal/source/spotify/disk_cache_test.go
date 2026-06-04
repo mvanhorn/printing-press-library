@@ -1,4 +1,4 @@
-// Copyright 2026 mvanhorn. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Matt Van Horn and contributors. Licensed under Apache-2.0. See LICENSE.
 
 package spotify
 
@@ -20,7 +20,7 @@ func withTempCache(t *testing.T) string {
 func TestSaveLoadDiskCache_RoundTrip(t *testing.T) {
 	withTempCache(t)
 	spDC := "sp_dc_test_value"
-	expMs := time.Now().Add(30 * time.Minute).UnixNano() / int64(time.Millisecond)
+	expMs := time.Now().Add(30*time.Minute).UnixNano() / int64(time.Millisecond)
 	if err := SaveDiskCache(spDC, "bearer_xyz", expMs); err != nil {
 		t.Fatalf("save: %v", err)
 	}
@@ -39,7 +39,7 @@ func TestSaveLoadDiskCache_RoundTrip(t *testing.T) {
 func TestLoadDiskCache_ExpiredIsMiss(t *testing.T) {
 	withTempCache(t)
 	spDC := "sp_dc_test"
-	expMs := time.Now().Add(-5 * time.Minute).UnixNano() / int64(time.Millisecond)
+	expMs := time.Now().Add(-5*time.Minute).UnixNano() / int64(time.Millisecond)
 	_ = SaveDiskCache(spDC, "bearer_old", expMs)
 	_, _, hit := LoadDiskCache(spDC)
 	if hit {
@@ -49,7 +49,7 @@ func TestLoadDiskCache_ExpiredIsMiss(t *testing.T) {
 
 func TestLoadDiskCache_WrongSpDCIsMiss(t *testing.T) {
 	withTempCache(t)
-	expMs := time.Now().Add(30 * time.Minute).UnixNano() / int64(time.Millisecond)
+	expMs := time.Now().Add(30*time.Minute).UnixNano() / int64(time.Millisecond)
 	_ = SaveDiskCache("sp_dc_user1", "bearer_xyz", expMs)
 	_, _, hit := LoadDiskCache("sp_dc_user2")
 	if hit {

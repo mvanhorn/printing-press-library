@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-22T12:47:32.911636Z",
+  "printing_press_version": "4.11.0",
+  "api_name": "godaddy",
+  "display_name": "GoDaddy",
+  "cli_name": "godaddy-pp-cli",
+  "owner": "zaydiscold",
+  "printer": "zaydiscold",
+  "printer_name": "zaydiscold",
+  "spec_path": "godaddy/api-map/openapi/official-normalized/abuse.json",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:fb9ea409dce23212f8905b34af1f4df3b810ee2df62045dc162df270136051ce",
+  "run_id": "20260522-124732",
+  "description": "Agent-native CLI + MCP covering all 12 GoDaddy developer APIs (138 endpoints): Domains (incl. DNS records), Certificates, Orders, Subscriptions, Shoppers, ANS/Agents, Parking, Aftermarket, Abuse, Agreements, Countries, and Auctions. Auth via GODADDY_API_KEY/GODADDY_API_SECRET; writes are validated and gated.",
+  "mcp_binary": "godaddy-pp-mcp",
+  "mcp_tool_count": 138,
+  "mcp_public_tool_count": 5,
+  "mcp_ready": "full",
+  "api_version": "2.0.0",
+  "auth_type": "sso-key",
+  "novel_features": [
+    {
+      "name": "Unified GoDaddy official API command surface",
+      "command": "api",
+      "description": "Combine the GoDaddy Swagger groups into one searchable CLI and MCP catalog covering domains, DNS records, certificates, subscriptions, abuse, shoppers, auctions, and related account APIs."
+    },
+    {
+      "name": "Authenticated GoDaddy account route evidence",
+      "command": "agent-context",
+      "description": "Document the official API surface alongside sanitized authenticated account-portal route evidence and live-read proof so agents can reason across docs, portal, and API behavior."
+    },
+    {
+      "name": "Approval-gated GoDaddy account mutation controls",
+      "command": "domains records",
+      "description": "Classify GoDaddy writes by risk, keep dry-run previews available, and require the package write barrier before live DNS, purchase, transfer, cancellation, or account-changing requests."
+    }
+  ]
+}

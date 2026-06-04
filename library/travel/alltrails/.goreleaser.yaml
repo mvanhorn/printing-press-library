@@ -1,0 +1,51 @@
+version: 2
+project_name: alltrails-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: alltrails-pp-cli
+    main: ./cmd/alltrails-pp-cli
+    binary: alltrails-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/travel/alltrails/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: alltrails-pp-mcp
+    main: ./cmd/alltrails-pp-mcp
+    binary: alltrails-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: alltrails-pp-cli
+    repository:
+      owner: zaydiscold
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Evidence-labeled, live-capable route map for AllTrails browser/mobile surfaces. Not an official API contract."
+    install: |
+      bin.install "alltrails-pp-cli"
+      bin.install "alltrails-pp-mcp"

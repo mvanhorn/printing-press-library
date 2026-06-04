@@ -1,4 +1,4 @@
-// Copyright 2026 rderwin. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 rderwin and contributors. Licensed under Apache-2.0. See LICENSE.
 
 package cli
 
@@ -10,9 +10,9 @@ import (
 
 // compareOut is the wide-table shape: rows = field names, columns = listings.
 type compareOut struct {
-	Fields         []string                 `json:"fields"`
-	Listings       []map[string]interface{} `json:"listings"`
-	FailedLookups  []compareFailure         `json:"failed_lookups,omitempty"`
+	Fields        []string                 `json:"fields"`
+	Listings      []map[string]interface{} `json:"listings"`
+	FailedLookups []compareFailure         `json:"failed_lookups,omitempty"`
 }
 
 type compareFailure struct {

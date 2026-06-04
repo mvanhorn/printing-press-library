@@ -6,10 +6,24 @@
   "generated_at": "2026-05-17T00:00:00Z",
   "printing_press_version": "4.8.0",
   "api_name": "icloud",
-  "display_name": "iCloud",
+  "display_name": "Apple iCloud",
   "cli_name": "icloud-pp-cli",
+  "creator": {
+    "handle": "matysanchez",
+    "name": "Matias Sanchez Moises"
+  },
+  "contributors": [
+    {
+      "handle": "mvanhorn",
+      "name": "Matt Van Horn"
+    },
+    {
+      "handle": "tmchow",
+      "name": "Trevin Chow"
+    }
+  ],
   "category": "media-and-entertainment",
-  "description": "Query iCloud data stored locally on macOS — Photos library storage analysis, with Contacts and more coming. All reads hit local SQLite databases directly; no network calls or iCloud API token required.",
+  "description": "Query Apple iCloud data stored locally on macOS — Photos library storage analysis, with Contacts and more coming. All reads hit local SQLite databases directly; no network calls or iCloud API token required.",
   "auth_type": "none",
   "spec_format": "local",
   "spec_source": "local-sqlite",

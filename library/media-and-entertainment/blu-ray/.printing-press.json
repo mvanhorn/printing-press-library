@@ -5,6 +5,10 @@
   "api_name": "blu-ray",
   "display_name": "Blu-ray.com",
   "cli_name": "blu-ray-pp-cli",
+  "creator": {
+    "handle": "vinnyp",
+    "name": "Vinny Pasceri"
+  },
   "owner": "vinny-pasceri",
   "printer": "vinnyp",
   "printer_name": "Vinny Pasceri",

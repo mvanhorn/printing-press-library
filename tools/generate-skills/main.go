@@ -25,7 +25,7 @@ const generatedHeaderFmt = "<!-- GENERATED FILE — DO NOT EDIT.\n" +
 	"     This file is a verbatim mirror of %s,\n" +
 	"     regenerated post-merge by tools/generate-skills/. Hand-edits here are\n" +
 	"     silently overwritten on the next regen. Edit the library/ source instead.\n" +
-	"     See AGENTS.md \"Generated artifacts: registry.json, cli-skills/\". -->\n"
+	"     See the repository agent guide, section \"Generated artifacts: registry.json, cli-skills/\". -->\n"
 const generatedHeaderPrefix = "<!-- GENERATED FILE — DO NOT EDIT"
 
 type PrintManifest struct {

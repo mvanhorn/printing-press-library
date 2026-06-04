@@ -1,6 +1,6 @@
 ---
 name: pp-allrecipes
-description: "Every Allrecipes recipe in your terminal — cached as data, with pantry-aware search, Bayesian-smoothed ranking, one-line grocery lists, and Cloudflare clearance. Trigger phrases: `search Allrecipes for X`, `find a recipe for brownies`, `scale this Allrecipes recipe`, `build a grocery list from these recipes`, `what can I cook with what I have`, `use allrecipes-pp-cli`, `run allrecipes`."
+description: "Every Allrecipes recipe in your terminal — cached as data, with pantry-aware search, Bayesian-smoothed ranking, and one-line grocery lists. Trigger phrases: `search Allrecipes for X`, `find a recipe for brownies`, `scale this Allrecipes recipe`, `build a grocery list from these recipes`, `what can I cook with what I have`, `use allrecipes-pp-cli`, `run allrecipes`."
 author: "Trevin Chow"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"
@@ -19,7 +19,7 @@ metadata:
      This file is a verbatim mirror of library/food-and-dining/allrecipes/SKILL.md,
      regenerated post-merge by tools/generate-skills/. Hand-edits here are
      silently overwritten on the next regen. Edit the library/ source instead.
-     See AGENTS.md "Generated artifacts: registry.json, cli-skills/". -->
+     See the repository agent guide, section "Generated artifacts: registry.json, cli-skills/". -->
 
 # Allrecipes — Printing Press CLI
 

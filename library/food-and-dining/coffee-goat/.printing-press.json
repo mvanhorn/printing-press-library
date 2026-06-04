@@ -5,6 +5,10 @@
   "api_name": "coffee-goat",
   "display_name": "Coffee GOAT",
   "cli_name": "coffee-goat-pp-cli",
+  "creator": {
+    "handle": "justinwfu",
+    "name": "Justin Fu"
+  },
   "category": "food-and-dining",
   "description": "Search elite roaster catalogs, creator reviews, brew logs, and cupping notes in one local coffee database.",
   "owner": "justinwfu",

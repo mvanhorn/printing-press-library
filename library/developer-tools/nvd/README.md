@@ -4,6 +4,8 @@ The NVD is the U.S. government repository of standards-based vulnerability manag
 Search CVEs by keyword, product (CPE name), CVE ID, or date range. Get CVSS scores,
 affected versions, references, and severity ratings. No API key required (optional for higher rate limits).
 
+Created by [@hnshah](https://github.com/hnshah) (Hiten Shah).
+
 ## Install
 
 The recommended path installs both the `nvd-pp-cli` binary and the `pp-nvd` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

@@ -1,10 +1,12 @@
 # Allrecipes CLI
 
-**Every Allrecipes recipe in your terminal — cached as data, with pantry-aware search, Bayesian-smoothed ranking, one-line grocery lists, and Cloudflare clearance.**
+**Every Allrecipes recipe in your terminal — cached as data, with pantry-aware search, Bayesian-smoothed ranking, and one-line grocery lists.**
 
 Search Allrecipes' 250k-recipe corpus from the command line, fetch a full recipe as parsed JSON-LD (ingredients with quantity+unit+name, instructions, nutrition, ratings, Made-It count), aggregate grocery lists from a meal plan, scale recipes, and export to clean markdown. Every recipe you fetch lands in a local SQLite store, which unlocks `pantry` (which recipes can I cook with what I have), `with-ingredient` (reverse index), `top-rated` with Bayesian smoothing (no more 1-review 5-star noise), and `cookbook` (export a category as a personal cookbook). Recipe detail pages are walled by Cloudflare; one-time `auth login --chrome` captures a clearance cookie from your browser — no Allrecipes account needed.
 
 Learn more at [Allrecipes](https://www.allrecipes.com).
+
+Created by [@tmchow](https://github.com/tmchow) (Trevin Chow).
 
 ## Install
 

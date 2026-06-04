@@ -1,0 +1,1172 @@
+{
+  "dir": "/Users/dhilipsubramanian/Documents/Printingpress/workspace/.runstate/cabinet-e5f45aae/runs/20260530-185509/working/stackadapt-pp-cli",
+  "binary": "/Users/dhilipsubramanian/Documents/Printingpress/workspace/.runstate/cabinet-e5f45aae/runs/20260530-185509/working/stackadapt-pp-cli/stackadapt-pp-cli",
+  "level": "full",
+  "verdict": "PASS",
+  "matrix_size": 77,
+  "passed": 77,
+  "failed": 0,
+  "skipped": 36,
+  "commands": [
+    "account",
+    "ads list",
+    "advertisers get",
+    "advertisers list",
+    "api",
+    "bottleneck",
+    "campaign-groups get",
+    "campaign-groups list",
+    "campaigns get",
+    "campaigns list",
+    "delivery-drift",
+    "doctor",
+    "feedback list",
+    "graphql",
+    "import",
+    "pacing",
+    "profile delete",
+    "profile list",
+    "profile save",
+    "profile show",
+    "profile use",
+    "report campaign-delivery",
+    "search",
+    "segments list",
+    "sql",
+    "stale-campaigns",
+    "sync",
+    "which"
+  ],
+  "tests": [
+    {
+      "command": "account",
+      "kind": "help",
+      "args": [
+        "account",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show the StackAdapt account this token can access\n\nUsage:\n  stackadapt-pp-cli account [flags]\n\nExamples:\n  stackadapt-pp-cli account --agent\n\nFlags:\n  -h, --help   help for account\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'stackadapt-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "account",
+      "kind": "happy_path",
+      "args": [
+        "account",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"account\": {\n    \"currency\": \"USD\",\n    \"id\": \"<account-id>\"\n  },\n  \"tokenInfo\": {\n    \"__typename\": \"TokenInfo\"\n  }\n}\n"
+    },
+    {
+      "command": "account",
+      "kind": "json_fidelity",
+      "args": [
+        "account",
+        "--agent",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"account\": {\n    \"currency\": \"USD\",\n    \"id\": \"<account-id>\"\n  },\n  \"tokenInfo\": {\n    \"__typename\": \"TokenInfo\"\n  }\n}\n"
+    },
+    {
+      "command": "account",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "ads list",
+      "kind": "help",
+      "args": [
+        "ads",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List ads\n\nUsage:\n  stackadapt-pp-cli ads list [flags]\n\nExamples:\n  stackadapt-pp-cli ads list --agent\n\nFlags:\n  -h, --help        help for list\n      --limit int   Max ads to return (default 100)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'stackadapt-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "ads list",
+      "kind": "happy_path",
+      "args": [
+        "ads",
+        "list",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\"count\":100,\"items\":[{\"brandname\":\"\",\"campaign\":null,\"channelType\":\"Display\",\"clickUrl\":\"\",\"creativeSize\":\"n/a\",\"id\":\"2281191\",\"isArchived\":false,\"isDraft\":true,\"isRejected\":false,\"name\":\"\u003credacted\u003e\",\"paused\":false},{\"brandname\":\"\",\"campaign\":null,\"channelType\":\"Display\",\"clickUrl\":\"\",\"creativeSize\":\"n/a\",\"id\":\"2281192\",\"isArchived\":false,\"isDraft\":true,\"isRejected\":false,\"name\":\"\u003credacted\u003e\",\"paused\":false},{\"brandname\":\"\",\"campaign\":null,\"channelType\":\"Display\",\"clickUrl\":\"\",\"creativeSize\":\"n/a\",\"id\":\"2281193\",\"isArchived\":false,\"isDraft\":true,\"isRejected\":false,\"name\":\"\u003credacted\u003e\",\"paused\":false},{\"brandname\":\"\",\"campaign\":null,\"channelType\":\"Display\",\"clickUrl\":\"\",\"creativeSize\":\"n/a\",\"id\":\"2281194\",\"isArchived\":false,\"isDraft\":true,\"isRejected\":false,\"name\":\"\u003credacted\u003e\",\"paused\":false},{\"brandname\":\"\",\"campaign\":null,\"channelType\":\"Display\",\"clickUrl\":\"\",\"creativeSize\":\"n/a\",\"id\":\"2281195\",\"isArchived\":false,\"isDraft\":true,\"isRejected\":false,\"name\":\"\u003credacted\u003e\",\"paused\":false},{\"brandname\":\"Adventure Dental Greeley\",\"campaign\":{\"id\":\"261282\",\"name\":\"\u003credacted\u003e\"},\"channelType\":\"CTV\",\"clickUrl\":\"https://kidsdentalvisioncare.com/colorado/adventure-co/greeley/greeley-w-10th-street?utm_source=MediaDex\u0026utm_medium=CTV\u0026utm_campaign=Denver_Greeley\u0026utm_id=Rap\u0026utm_term=English\u0026utm_content=StackAdapt\",\"creativeSize\":\"1920x1080\",\"id\":\"2281208\",\"isArchived\":false,\"isDraft\":false,\"isRejected\":false,\"name\":\"\u003credacted\u003e\",\"paused\":false},{\"brandname\":\"Adventure Dental Greeley\",\"campaign\":{\"id\":\"261283\",\"name\":\"\u003credacted\u003e\"},\"channelType\":\"CTV\",\"clickUrl\":\"https://kidsdentalvisioncare.com/colorado/adventure-co/greeley/greeley-w-10th-street?utm_source=MediaDex\u0026utm_medium=CTV\u0026utm_campaign=Denver_Greeley\u0026utm_id=Rap\u0026utm_term=English\u0026utm_content=StackAdapt\",\"creativeSize\":\"1920x1080\",\"id\":\"2281209\",\"isArchived\":false,\"isDraft\":false,\"isRejected\":false,\"name\":\"\u003credacted\u003e\",\"paused\":false},{\"brandname\":\"Adventure Dental Greeley\",\"campaign\":{\"id\":\"261284\",\"name\":\"\u003credacted\u003e\"},\"channelType\":\"CTV\",\"clickUrl\":\"https://kidsdentalvisioncare.com/colorado/adventure-co/greeley/greeley-w-10th-street?utm_source=MediaDex\u0026utm_medium=CTV\u0026utm_campaign=Denver_Greeley\u0026utm_id=Rap\u0026utm_term=English\u0026utm_content=StackAdapt\",\"creativeSize\":\"1920x1080\",\"id\":\"2281210\",\"isArchived\":false,\"isDraft\":false,\"isRejected\":false,\"name\":\"\u003credacted\u003e\",\"paused\":false},{\"brandname\":\"Adventure Dental\",\"campaign\":{\"id\":\"261285\",\"name\":\"\u003credacted\u003e\"},\"channelType\":\"CTV\",\"clickUrl\":\"https://kidsdentalvisioncare.com/adventure-greeley-digital?utm_source=MediaDex\u0026utm_medium=CTV\u0026utm_campaign=Denver_Greeley\u0026utm_id=MediaDex\u0026utm_content=StackAdapt\",\"creativeSize\":\"1920x1080\",\"id\":\"2281211\",\"isArchived\":false,\"isDraft\":false,\"isRejected\":false,\"name\":\"\u003credacted\u003e\",\"paused\":false},{\"brandname\":\"Adventure Dental Greeley\",\"campaign\":{\"id\":\"261288\",\"name\":\"\u003credacted\u003e\"},\"channelType\":\"Video\",\"clickUrl\":\"https://kidsdentalvisioncare.com/colorado/adventure-co/greeley/greeley-w-10th-street?utm_source=MediaDex\u0026utm_medium=Online_Video\u0026utm_campaign=Denver_Greeley\u0026utm_id=Rap\u0026utm_term=English\u0026utm_content=StackAdapt\u0026sa_ga_tracker_advertiser=%7BSA_ADVERTISER_ID%7D\u0026sa_ga_tracker_campaign=%7BSA_CAMPAIGN_ID%7D\u0026sa_ga_tracker_ad=%7BSA_CREATIVE_ID%7D\u0026sa_ga_tracker_lineitem=%7BSA_LINE_ITEM_ID%7D\u0026sa_ga_tracker_domain=%7BSA_DOMAIN_KEY%7D\",\"creativeSize\":\"1280x720\",\"id\":\"2281244\",\"isArchived\":false,\"isDraft\":false,\"isRejected\":false,\"name\":\"\u003credacted\u003e\",\"paused\":true},{\"brandname\":\"Adventure Dental Greeley\",\"campaign\":{\"id\":\"261290\",\"name\":\"\u003credacted\u003e\"},\"channelType\":\"Video\",\"clickUrl\":\"https://kidsdentalvisioncare.com/colorado/adventure-co/greeley/greeley-w-10th-street?utm_source=MediaDex\u0026utm_medium=Online_Video\u0026utm_campaign=Denver_Greeley\u0026utm_id=Rap\u0026utm_term=English\u0026utm_content=StackAdapt\u0026sa_ga_tracker_advertiser=%7BSA_ADVERTISER_ID%7D\u0026sa_ga_tracker_campaign=%7BSA_CAMPAIGN_ID%7D\u0026sa_ga_tracker_ad=%7BSA_CREATIVE_ID%7D\u0026sa_ga_tracker_lineitem=%7BSA_LINE_ITEM_ID%7D\u0026sa_ga_tracker_domain=%7BSA_DOMAIN_KEY%7D\",\"creativeSize\":\"1280x720\",\"id\":\"2281245\",\"isArchived\":false,\"isDraft\":false,\"isRejected\":false,\"name\":\"\u003credacted\u003e\",\"pau…[truncated]"
+    },
+    {
+      "command": "ads list",
+      "kind": "json_fidelity",
+      "args": [
+        "ads",
+        "list",
+        "--agent",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"count\":100,\"items\":[{\"brandname\":\"\",\"campaign\":null,\"channelType\":\"Display\",\"clickUrl\":\"\",\"creativeSize\":\"n/a\",\"id\":\"2281191\",\"isArchived\":false,\"isDraft\":true,\"isRejected\":false,\"name\":\"\u003credacted\u003e\",\"paused\":false},{\"brandname\":\"\",\"campaign\":null,\"channelType\":\"Display\",\"clickUrl\":\"\",\"creativeSize\":\"n/a\",\"id\":\"2281192\",\"isArchived\":false,\"isDraft\":true,\"isRejected\":false,\"name\":\"\u003credacted\u003e\",\"paused\":false},{\"brandname\":\"\",\"campaign\":null,\"channelType\":\"Display\",\"clickUrl\":\"\",\"creativeSize\":\"n/a\",\"id\":\"2281193\",\"isArchived\":false,\"isDraft\":true,\"isRejected\":false,\"name\":\"\u003credacted\u003e\",\"paused\":false},{\"brandname\":\"\",\"campaign\":null,\"channelType\":\"Display\",\"clickUrl\":\"\",\"creativeSize\":\"n/a\",\"id\":\"2281194\",\"isArchived\":false,\"isDraft\":true,\"isRejected\":false,\"name\":\"\u003credacted\u003e\",\"paused\":false},{\"brandname\":\"\",\"campaign\":null,\"channelType\":\"Display\",\"clickUrl\":\"\",\"creativeSize\":\"n/a\",\"id\":\"2281195\",\"isArchived\":false,\"isDraft\":true,\"isRejected\":false,\"name\":\"\u003credacted\u003e\",\"paused\":false},{\"brandname\":\"Adventure Dental Greeley\",\"campaign\":{\"id\":\"261282\",\"name\":\"\u003credacted\u003e\"},\"channelType\":\"CTV\",\"clickUrl\":\"https://kidsdentalvisioncare.com/colorado/adventure-co/greeley/greeley-w-10th-street?utm_source=MediaDex\u0026utm_medium=CTV\u0026utm_campaign=Denver_Greeley\u0026utm_id=Rap\u0026utm_term=English\u0026utm_content=StackAdapt\",\"creativeSize\":\"1920x1080\",\"id\":\"2281208\",\"isArchived\":false,\"isDraft\":false,\"isRejected\":false,\"name\":\"\u003credacted\u003e\",\"paused\":false},{\"brandname\":\"Adventure Dental Greeley\",\"campaign\":{\"id\":\"261283\",\"name\":\"\u003credacted\u003e\"},\"channelType\":\"CTV\",\"clickUrl\":\"https://kidsdentalvisioncare.com/colorado/adventure-co/greeley/greeley-w-10th-street?utm_source=MediaDex\u0026utm_medium=CTV\u0026utm_campaign=Denver_Greeley\u0026utm_id=Rap\u0026utm_term=English\u0026utm_content=StackAdapt\",\"creativeSize\":\"1920x1080\",\"id\":\"2281209\",\"isArchived\":false,\"isDraft\":false,\"isRejected\":false,\"name\":\"\u003credacted\u003e\",\"paused\":false},{\"brandname\":\"Adventure Dental Greeley\",\"campaign\":{\"id\":\"261284\",\"name\":\"\u003credacted\u003e\"},\"channelType\":\"CTV\",\"clickUrl\":\"https://kidsdentalvisioncare.com/colorado/adventure-co/greeley/greeley-w-10th-street?utm_source=MediaDex\u0026utm_medium=CTV\u0026utm_campaign=Denver_Greeley\u0026utm_id=Rap\u0026utm_term=English\u0026utm_content=StackAdapt\",\"creativeSize\":\"1920x1080\",\"id\":\"2281210\",\"isArchived\":false,\"isDraft\":false,\"isRejected\":false,\"name\":\"\u003credacted\u003e\",\"paused\":false},{\"brandname\":\"Adventure Dental\",\"campaign\":{\"id\":\"261285\",\"name\":\"\u003credacted\u003e\"},\"channelType\":\"CTV\",\"clickUrl\":\"https://kidsdentalvisioncare.com/adventure-greeley-digital?utm_source=MediaDex\u0026utm_medium=CTV\u0026utm_campaign=Denver_Greeley\u0026utm_id=MediaDex\u0026utm_content=StackAdapt\",\"creativeSize\":\"1920x1080\",\"id\":\"2281211\",\"isArchived\":false,\"isDraft\":false,\"isRejected\":false,\"name\":\"\u003credacted\u003e\",\"paused\":false},{\"brandname\":\"Adventure Dental Greeley\",\"campaign\":{\"id\":\"261288\",\"name\":\"\u003credacted\u003e\"},\"channelType\":\"Video\",\"clickUrl\":\"https://kidsdentalvisioncare.com/colorado/adventure-co/greeley/greeley-w-10th-street?utm_source=MediaDex\u0026utm_medium=Online_Video\u0026utm_campaign=Denver_Greeley\u0026utm_id=Rap\u0026utm_term=English\u0026utm_content=StackAdapt\u0026sa_ga_tracker_advertiser=%7BSA_ADVERTISER_ID%7D\u0026sa_ga_tracker_campaign=%7BSA_CAMPAIGN_ID%7D\u0026sa_ga_tracker_ad=%7BSA_CREATIVE_ID%7D\u0026sa_ga_tracker_lineitem=%7BSA_LINE_ITEM_ID%7D\u0026sa_ga_tracker_domain=%7BSA_DOMAIN_KEY%7D\",\"creativeSize\":\"1280x720\",\"id\":\"2281244\",\"isArchived\":false,\"isDraft\":false,\"isRejected\":false,\"name\":\"\u003credacted\u003e\",\"paused\":true},{\"brandname\":\"Adventure Dental Greeley\",\"campaign\":{\"id\":\"261290\",\"name\":\"\u003credacted\u003e\"},\"channelType\":\"Video\",\"clickUrl\":\"https://kidsdentalvisioncare.com/colorado/adventure-co/greeley/greeley-w-10th-street?utm_source=MediaDex\u0026utm_medium=Online_Video\u0026utm_campaign=Denver_Greeley\u0026utm_id=Rap\u0026utm_term=English\u0026utm_content=StackAdapt\u0026sa_ga_tracker_advertiser=%7BSA_ADVERTISER_ID%7D\u0026sa_ga_tracker_campaign=%7BSA_CAMPAIGN_ID%7D\u0026sa_ga_tracker_ad=%7BSA_CREATIVE_ID%7D\u0026sa_ga_tracker_lineitem=%7BSA_LINE_ITEM_ID%7D\u0026sa_ga_tracker_domain=%7BSA_DOMAIN_KEY%7D\",\"creativeSize\":\"1280x720\",\"id\":\"2281245\",\"isArchived\":false,\"isDraft\":false,\"isRejected\":false,\"name\":\"\u003credacted\u003e\",\"pau…[truncated]"
+    },
+    {
+      "command": "ads list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "advertisers get",
+      "kind": "help",
+      "args": [
+        "advertisers",
+        "get",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Get one advertiser by ID\n\nUsage:\n  stackadapt-pp-cli advertisers get \u003cadvertiser-id\u003e [flags]\n\nExamples:\n  stackadapt-pp-cli advertisers get 123 --agent\n\nFlags:\n  -h, --help   help for get\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'stackadapt-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "advertisers get",
+      "kind": "happy_path",
+      "args": [
+        "advertisers",
+        "get",
+        "39370",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\"id\":\"39370\",\"isArchived\":false,\"name\":\"\u003credacted\u003e\"}"
+    },
+    {
+      "command": "advertisers get",
+      "kind": "json_fidelity",
+      "args": [
+        "advertisers",
+        "get",
+        "39370",
+        "--agent",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"id\":\"39370\",\"isArchived\":false,\"name\":\"\u003credacted\u003e\"}"
+    },
+    {
+      "command": "advertisers get",
+      "kind": "error_path",
+      "args": [
+        "advertisers",
+        "get",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "Error: no advertisers with id \"__printing_press_invalid__\"\n"
+    },
+    {
+      "command": "advertisers list",
+      "kind": "help",
+      "args": [
+        "advertisers",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List advertisers\n\nUsage:\n  stackadapt-pp-cli advertisers list [flags]\n\nExamples:\n  stackadapt-pp-cli advertisers list --agent\n\nFlags:\n  -h, --help        help for list\n      --limit int   Max advertisers to return (default 100)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'stackadapt-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "advertisers list",
+      "kind": "happy_path",
+      "args": [
+        "advertisers",
+        "list",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\"count\":27,\"items\":[{\"description\":\"\",\"id\":\"39370\",\"isArchived\":false,\"name\":\"\u003credacted\u003e\"},{\"description\":\"\",\"id\":\"40732\",\"isArchived\":false,\"name\":\"\u003credacted\u003e\"},{\"description\":\"\",\"id\":\"40733\",\"isArchived\":false,\"name\":\"\u003credacted\u003e\"},{\"description\":\"\",\"id\":\"41924\",\"isArchived\":false,\"name\":\"\u003credacted\u003e\"},{\"description\":\"\",\"id\":\"42456\",\"isArchived\":false,\"name\":\"\u003credacted\u003e\"},{\"description\":\"Bankruptcy Attorney Memphis\",\"id\":\"43269\",\"isArchived\":false,\"name\":\"\u003credacted\u003e\"},{\"description\":\"Personal Injury Colorado\",\"id\":\"44035\",\"isArchived\":false,\"name\":\"\u003credacted\u003e\"},{\"description\":\"\",\"id\":\"45905\",\"isArchived\":false,\"name\":\"\u003credacted\u003e\"},{\"description\":\"Personal Injury Attorney - Louisville KY\",\"id\":\"48086\",\"isArchived\":false,\"name\":\"\u003credacted\u003e\"},{\"description\":\"QSR - Burger\",\"id\":\"52508\",\"isArchived\":false,\"name\":\"\u003credacted\u003e\"},{\"description\":\"\",\"id\":\"69188\",\"isArchived\":false,\"name\":\"\u003credacted\u003e\"},{\"description\":\"Pizza and Brew\",\"id\":\"73712\",\"isArchived\":false,\"name\":\"\u003credacted\u003e\"},{\"description\":\"Sandwiches\",\"id\":\"75356\",\"isArchived\":false,\"name\":\"\u003credacted\u003e\"},{\"description\":\"\",\"id\":\"83936\",\"isArchived\":false,\"name\":\"\u003credacted\u003e\"},{\"description\":\"\",\"id\":\"98026\",\"isArchived\":false,\"name\":\"\u003credacted\u003e\"},{\"description\":\"\",\"id\":\"98608\",\"isArchived\":false,\"name\":\"\u003credacted\u003e\"},{\"description\":\"Family Fun Center\",\"id\":\"101289\",\"isArchived\":false,\"name\":\"\u003credacted\u003e\"},{\"description\":\"\",\"id\":\"111103\",\"isArchived\":false,\"name\":\"\u003credacted\u003e\"},{\"description\":null,\"id\":\"112285\",\"isArchived\":false,\"name\":\"\u003credacted\u003e\"},{\"description\":\"\",\"id\":\"113162\",\"isArchived\":false,\"name\":\"\u003credacted\u003e\"},{\"description\":\"\",\"id\":\"121926\",\"isArchived\":false,\"name\":\"\u003credacted\u003e\"},{\"description\":\"\",\"id\":\"129996\",\"isArchived\":false,\"name\":\"\u003credacted\u003e\"},{\"description\":null,\"id\":\"134230\",\"isArchived\":false,\"name\":\"\u003credacted\u003e\"},{\"description\":\"\",\"id\":\"31417\",\"isArchived\":true,\"name\":\"\u003credacted\u003e\"},{\"description\":null,\"id\":\"45149\",\"isArchived\":true,\"name\":\"\u003credacted\u003e\"},{\"description\":null,\"id\":\"45150\",\"isArchived\":true,\"name\":\"\u003credacted\u003e\"},{\"description\":null,\"id\":\"45147\",\"isArchived\":true,\"name\":\"\u003credacted\u003e\"}],\"resource\":\"advertisers\"}"
+    },
+    {
+      "command": "advertisers list",
+      "kind": "json_fidelity",
+      "args": [
+        "advertisers",
+        "list",
+        "--agent",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"count\":27,\"items\":[{\"description\":\"\",\"id\":\"39370\",\"isArchived\":false,\"name\":\"\u003credacted\u003e\"},{\"description\":\"\",\"id\":\"40732\",\"isArchived\":false,\"name\":\"\u003credacted\u003e\"},{\"description\":\"\",\"id\":\"40733\",\"isArchived\":false,\"name\":\"\u003credacted\u003e\"},{\"description\":\"\",\"id\":\"41924\",\"isArchived\":false,\"name\":\"\u003credacted\u003e\"},{\"description\":\"\",\"id\":\"42456\",\"isArchived\":false,\"name\":\"\u003credacted\u003e\"},{\"description\":\"Bankruptcy Attorney Memphis\",\"id\":\"43269\",\"isArchived\":false,\"name\":\"\u003credacted\u003e\"},{\"description\":\"Personal Injury Colorado\",\"id\":\"44035\",\"isArchived\":false,\"name\":\"\u003credacted\u003e\"},{\"description\":\"\",\"id\":\"45905\",\"isArchived\":false,\"name\":\"\u003credacted\u003e\"},{\"description\":\"Personal Injury Attorney - Louisville KY\",\"id\":\"48086\",\"isArchived\":false,\"name\":\"\u003credacted\u003e\"},{\"description\":\"QSR - Burger\",\"id\":\"52508\",\"isArchived\":false,\"name\":\"\u003credacted\u003e\"},{\"description\":\"\",\"id\":\"69188\",\"isArchived\":false,\"name\":\"\u003credacted\u003e\"},{\"description\":\"Pizza and Brew\",\"id\":\"73712\",\"isArchived\":false,\"name\":\"\u003credacted\u003e\"},{\"description\":\"Sandwiches\",\"id\":\"75356\",\"isArchived\":false,\"name\":\"\u003credacted\u003e\"},{\"description\":\"\",\"id\":\"83936\",\"isArchived\":false,\"name\":\"\u003credacted\u003e\"},{\"description\":\"\",\"id\":\"98026\",\"isArchived\":false,\"name\":\"\u003credacted\u003e\"},{\"description\":\"\",\"id\":\"98608\",\"isArchived\":false,\"name\":\"\u003credacted\u003e\"},{\"description\":\"Family Fun Center\",\"id\":\"101289\",\"isArchived\":false,\"name\":\"\u003credacted\u003e\"},{\"description\":\"\",\"id\":\"111103\",\"isArchived\":false,\"name\":\"\u003credacted\u003e\"},{\"description\":null,\"id\":\"112285\",\"isArchived\":false,\"name\":\"\u003credacted\u003e\"},{\"description\":\"\",\"id\":\"113162\",\"isArchived\":false,\"name\":\"\u003credacted\u003e\"},{\"description\":\"\",\"id\":\"121926\",\"isArchived\":false,\"name\":\"\u003credacted\u003e\"},{\"description\":\"\",\"id\":\"129996\",\"isArchived\":false,\"name\":\"\u003credacted\u003e\"},{\"description\":null,\"id\":\"134230\",\"isArchived\":false,\"name\":\"\u003credacted\u003e\"},{\"description\":\"\",\"id\":\"31417\",\"isArchived\":true,\"name\":\"\u003credacted\u003e\"},{\"description\":null,\"id\":\"45149\",\"isArchived\":true,\"name\":\"\u003credacted\u003e\"},{\"description\":null,\"id\":\"45150\",\"isArchived\":true,\"name\":\"\u003credacted\u003e\"},{\"description\":null,\"id\":\"45147\",\"isArchived\":true,\"name\":\"\u003credacted\u003e\"}],\"resource\":\"advertisers\"}"
+    },
+    {
+      "command": "advertisers list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "api",
+      "kind": "help",
+      "args": [
+        "api",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Browse and call any API endpoint using the raw interface names.\n\nThe friendly top-level commands cover the most common operations.\nThis command provides access to ALL endpoints for power users and\nagents that need full API coverage.\n\nRun 'api' with no arguments to list all interfaces.\nRun 'api \u003cinterface\u003e' to see that interface's methods.\n\nUsage:\n  stackadapt-pp-cli api [interface] [flags]\n\nExamples:\n  # List all available interfaces\n  stackadapt-pp-cli api\n\n  # Show methods for a specific interface\n  stackadapt-pp-cli api \u003cinterface-name\u003e\n\nFlags:\n  -h, --help   help for api\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'stackadapt-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "api",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "api",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "api",
+      "kind": "error_path",
+      "args": [
+        "api",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: interface \"__printing_press_invalid__\" not found. Run 'stackadapt-pp-cli api' to list all interfaces\n"
+    },
+    {
+      "command": "bottleneck",
+      "kind": "help",
+      "args": [
+        "bottleneck",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Pull campaign delivery over a window and rank the spending campaigns by worst return on ad spend (conversionRevenue / cost), so you can see where budget is being wasted. Scope with --advertiser. Read-only.\n\nUsage:\n  stackadapt-pp-cli bottleneck [flags]\n\nExamples:\n  stackadapt-pp-cli bottleneck --advertiser 123 --days 30 --agent\n\nFlags:\n      --advertiser string   Limit to one advertiser ID\n      --days int            Days of delivery history to evaluate (default 30)\n  -h, --help                help for bottleneck\n      --limit int           Max campaigns to return (default 10)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'stackadapt-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "bottleneck",
+      "kind": "happy_path",
+      "args": [
+        "bottleneck",
+        "--advertiser",
+        "123",
+        "--days",
+        "30",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"advertiser\": \"123\",\n  \"bottlenecks\": [],\n  \"count\": 0,\n  \"window\": \"2026-04-30..2026-05-30\"\n}\n"
+    },
+    {
+      "command": "bottleneck",
+      "kind": "json_fidelity",
+      "args": [
+        "bottleneck",
+        "--advertiser",
+        "123",
+        "--days",
+        "30",
+        "--agent",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"advertiser\": \"123\",\n  \"bottlenecks\": [],\n  \"count\": 0,\n  \"window\": \"2026-04-30..2026-05-30\"\n}\n"
+    },
+    {
+      "command": "bottleneck",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "campaign-groups get",
+      "kind": "help",
+      "args": [
+        "campaign-groups",
+        "get",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Get one campaign group by ID\n\nUsage:\n  stackadapt-pp-cli campaign-groups get \u003cgroup-id\u003e [flags]\n\nExamples:\n  stackadapt-pp-cli campaign-groups get 789 --agent\n\nFlags:\n  -h, --help   help for get\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'stackadapt-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "campaign-groups get",
+      "kind": "happy_path",
+      "args": [
+        "campaign-groups",
+        "get",
+        "89155",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\"advertiser\":{\"id\":\"39370\",\"name\":\"\u003credacted\u003e\"},\"budgetRollover\":false,\"budgetType\":\"cost\",\"createdAt\":\"2022-06-29T17:36:46Z\",\"id\":\"89155\",\"isArchived\":false,\"name\":\"\u003credacted\u003e\",\"revenuePricing\":null,\"revenueType\":null,\"timezone\":\"Eastern Time (US \u0026 Canada)\"}"
+    },
+    {
+      "command": "campaign-groups get",
+      "kind": "json_fidelity",
+      "args": [
+        "campaign-groups",
+        "get",
+        "89155",
+        "--agent",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"advertiser\":{\"id\":\"39370\",\"name\":\"\u003credacted\u003e\"},\"budgetRollover\":false,\"budgetType\":\"cost\",\"createdAt\":\"2022-06-29T17:36:46Z\",\"id\":\"89155\",\"isArchived\":false,\"name\":\"\u003credacted\u003e\",\"revenuePricing\":null,\"revenueType\":null,\"timezone\":\"Eastern Time (US \u0026 Canada)\"}"
+    },
+    {
+      "command": "campaign-groups get",
+      "kind": "error_path",
+      "args": [
+        "campaign-groups",
+        "get",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "Error: no campaignGroups with id \"__printing_press_invalid__\"\n"
+    },
+    {
+      "command": "campaign-groups list",
+      "kind": "help",
+      "args": [
+        "campaign-groups",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List campaign groups\n\nUsage:\n  stackadapt-pp-cli campaign-groups list [flags]\n\nExamples:\n  stackadapt-pp-cli campaign-groups list --agent\n\nFlags:\n  -h, --help        help for list\n      --limit int   Max campaign groups to return (default 100)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'stackadapt-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "campaign-groups list",
+      "kind": "happy_path",
+      "args": [
+        "campaign-groups",
+        "list",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\"count\":100,\"items\":[{\"advertiser\":{\"id\":\"39370\",\"name\":\"\u003credacted\u003e\"},\"budgetRollover\":false,\"budgetType\":\"cost\",\"createdAt\":\"2022-06-29T17:36:46Z\",\"id\":\"89155\",\"isArchived\":false,\"name\":\"\u003credacted\u003e\",\"revenuePricing\":null,\"revenueType\":null,\"timezone\":\"Eastern Time (US \u0026 Canada)\"},{\"advertiser\":{\"id\":\"39370\",\"name\":\"\u003credacted\u003e\"},\"budgetRollover\":false,\"budgetType\":\"cost\",\"createdAt\":\"2022-07-05T13:27:16Z\",\"id\":\"89766\",\"isArchived\":false,\"name\":\"\u003credacted\u003e\",\"revenuePricing\":null,\"revenueType\":null,\"timezone\":\"Eastern Time (US \u0026 Canada)\"},{\"advertiser\":{\"id\":\"39370\",\"name\":\"\u003credacted\u003e\"},\"budgetRollover\":false,\"budgetType\":\"cost\",\"createdAt\":\"2022-07-05T13:32:38Z\",\"id\":\"89769\",\"isArchived\":false,\"name\":\"\u003credacted\u003e\",\"revenuePricing\":null,\"revenueType\":null,\"timezone\":\"Eastern Time (US \u0026 Canada)\"},{\"advertiser\":{\"id\":\"39370\",\"name\":\"\u003credacted\u003e\"},\"budgetRollover\":false,\"budgetType\":\"cost\",\"createdAt\":\"2022-07-05T13:51:36Z\",\"id\":\"89773\",\"isArchived\":false,\"name\":\"\u003credacted\u003e\",\"revenuePricing\":null,\"revenueType\":null,\"timezone\":\"Eastern Time (US \u0026 Canada)\"},{\"advertiser\":{\"id\":\"39370\",\"name\":\"\u003credacted\u003e\"},\"budgetRollover\":false,\"budgetType\":\"cost\",\"createdAt\":\"2022-07-05T13:51:52Z\",\"id\":\"89774\",\"isArchived\":false,\"name\":\"\u003credacted\u003e\",\"revenuePricing\":null,\"revenueType\":null,\"timezone\":\"Eastern Time (US \u0026 Canada)\"},{\"advertiser\":{\"id\":\"39370\",\"name\":\"\u003credacted\u003e\"},\"budgetRollover\":false,\"budgetType\":\"cost\",\"createdAt\":\"2022-07-05T13:52:28Z\",\"id\":\"89775\",\"isArchived\":false,\"name\":\"\u003credacted\u003e\",\"revenuePricing\":null,\"revenueType\":null,\"timezone\":\"Eastern Time (US \u0026 Canada)\"},{\"advertiser\":{\"id\":\"39370\",\"name\":\"\u003credacted\u003e\"},\"budgetRollover\":false,\"budgetType\":\"cost\",\"createdAt\":\"2022-07-05T13:57:20Z\",\"id\":\"89776\",\"isArchived\":false,\"name\":\"\u003credacted\u003e\",\"revenuePricing\":null,\"revenueType\":null,\"timezone\":\"Eastern Time (US \u0026 Canada)\"},{\"advertiser\":{\"id\":\"39370\",\"name\":\"\u003credacted\u003e\"},\"budgetRollover\":false,\"budgetType\":\"cost\",\"createdAt\":\"2022-07-05T13:57:44Z\",\"id\":\"89777\",\"isArchived\":false,\"name\":\"\u003credacted\u003e\",\"revenuePricing\":null,\"revenueType\":null,\"timezone\":\"Eastern Time (US \u0026 Canada)\"},{\"advertiser\":{\"id\":\"39370\",\"name\":\"\u003credacted\u003e\"},\"budgetRollover\":false,\"budgetType\":\"cost\",\"createdAt\":\"2022-07-05T13:57:58Z\",\"id\":\"89778\",\"isArchived\":false,\"name\":\"\u003credacted\u003e\",\"revenuePricing\":null,\"revenueType\":null,\"timezone\":\"Eastern Time (US \u0026 Canada)\"},{\"advertiser\":{\"id\":\"39370\",\"name\":\"\u003credacted\u003e\"},\"budgetRollover\":false,\"budgetType\":\"cost\",\"createdAt\":\"2022-07-05T13:58:30Z\",\"id\":\"89779\",\"isArchived\":false,\"name\":\"\u003credacted\u003e\",\"revenuePricing\":null,\"revenueType\":null,\"timezone\":\"Eastern Time (US \u0026 Canada)\"},{\"advertiser\":{\"id\":\"39370\",\"name\":\"\u003credacted\u003e\"},\"budgetRollover\":false,\"budgetType\":\"cost\",\"createdAt\":\"2022-07-05T13:58:45Z\",\"id\":\"89780\",\"isArchived\":false,\"name\":\"\u003credacted\u003e\",\"revenuePricing\":null,\"revenueType\":null,\"timezone\":\"Eastern Time (US \u0026 Canada)\"},{\"advertiser\":{\"id\":\"39370\",\"name\":\"\u003credacted\u003e\"},\"budgetRollover\":false,\"budgetType\":\"cost\",\"createdAt\":\"2022-07-05T13:59:00Z\",\"id\":\"89781\",\"isArchived\":false,\"name\":\"\u003credacted\u003e\",\"revenuePricing\":null,\"revenueType\":null,\"timezone\":\"Eastern Time (US \u0026 Canada)\"},{\"advertiser\":{\"id\":\"39370\",\"name\":\"\u003credacted\u003e\"},\"budgetRollover\":false,\"budgetType\":\"cost\",\"createdAt\":\"2022-07-05T14:12:42Z\",\"id\":\"89785\",\"isArchived\":false,\"name\":\"\u003credacted\u003e\",\"revenuePricing\":null,\"revenueType\":null,\"timezone\":\"Eastern Time (US \u0026 Canada)\"},{\"advertiser\":{\"id\":\"39370\",\"name\":\"\u003credacted\u003e\"},\"budgetRollover\":false,\"budgetType\":\"cost\",\"createdAt\":\"2022-07-05T14:12:51Z\",\"id\":\"89787\",\"isArchived\":false,\"name\":\"\u003credacted\u003e\",\"revenuePricing\":null,\"revenueType\":null,\"timezone\":\"Eastern Time (US \u0026 Canada)\"},{\"advertiser\":{\"id\":\"39370\",\"name\":\"\u003credacted\u003e\"},\"budgetRollover\":false,\"budgetType\":\"cost\",\"createdAt\":\"2022-07-05T14:13:08Z\",\"id\":\"89788\",\"isArchived\":false,\"name\":\"\u003credacted\u003e\",\"revenuePricing\":null,\"revenueType\":null,\"timezone\":\"Eastern Time (US \u0026 Canada)\"},{\"advertiser\":{\"id\":\"39370\",\"name\":\"\u003credacted\u003e\"},\"budgetRollover\":false,\"budgetType\":\"cost\",\"createdAt\":\"2022-07-05T14:16:21Z\",\"id\":\"89789\",\"isArchived\":false,…[truncated]"
+    },
+    {
+      "command": "campaign-groups list",
+      "kind": "json_fidelity",
+      "args": [
+        "campaign-groups",
+        "list",
+        "--agent",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"count\":100,\"items\":[{\"advertiser\":{\"id\":\"39370\",\"name\":\"\u003credacted\u003e\"},\"budgetRollover\":false,\"budgetType\":\"cost\",\"createdAt\":\"2022-06-29T17:36:46Z\",\"id\":\"89155\",\"isArchived\":false,\"name\":\"\u003credacted\u003e\",\"revenuePricing\":null,\"revenueType\":null,\"timezone\":\"Eastern Time (US \u0026 Canada)\"},{\"advertiser\":{\"id\":\"39370\",\"name\":\"\u003credacted\u003e\"},\"budgetRollover\":false,\"budgetType\":\"cost\",\"createdAt\":\"2022-07-05T13:27:16Z\",\"id\":\"89766\",\"isArchived\":false,\"name\":\"\u003credacted\u003e\",\"revenuePricing\":null,\"revenueType\":null,\"timezone\":\"Eastern Time (US \u0026 Canada)\"},{\"advertiser\":{\"id\":\"39370\",\"name\":\"\u003credacted\u003e\"},\"budgetRollover\":false,\"budgetType\":\"cost\",\"createdAt\":\"2022-07-05T13:32:38Z\",\"id\":\"89769\",\"isArchived\":false,\"name\":\"\u003credacted\u003e\",\"revenuePricing\":null,\"revenueType\":null,\"timezone\":\"Eastern Time (US \u0026 Canada)\"},{\"advertiser\":{\"id\":\"39370\",\"name\":\"\u003credacted\u003e\"},\"budgetRollover\":false,\"budgetType\":\"cost\",\"createdAt\":\"2022-07-05T13:51:36Z\",\"id\":\"89773\",\"isArchived\":false,\"name\":\"\u003credacted\u003e\",\"revenuePricing\":null,\"revenueType\":null,\"timezone\":\"Eastern Time (US \u0026 Canada)\"},{\"advertiser\":{\"id\":\"39370\",\"name\":\"\u003credacted\u003e\"},\"budgetRollover\":false,\"budgetType\":\"cost\",\"createdAt\":\"2022-07-05T13:51:52Z\",\"id\":\"89774\",\"isArchived\":false,\"name\":\"\u003credacted\u003e\",\"revenuePricing\":null,\"revenueType\":null,\"timezone\":\"Eastern Time (US \u0026 Canada)\"},{\"advertiser\":{\"id\":\"39370\",\"name\":\"\u003credacted\u003e\"},\"budgetRollover\":false,\"budgetType\":\"cost\",\"createdAt\":\"2022-07-05T13:52:28Z\",\"id\":\"89775\",\"isArchived\":false,\"name\":\"\u003credacted\u003e\",\"revenuePricing\":null,\"revenueType\":null,\"timezone\":\"Eastern Time (US \u0026 Canada)\"},{\"advertiser\":{\"id\":\"39370\",\"name\":\"\u003credacted\u003e\"},\"budgetRollover\":false,\"budgetType\":\"cost\",\"createdAt\":\"2022-07-05T13:57:20Z\",\"id\":\"89776\",\"isArchived\":false,\"name\":\"\u003credacted\u003e\",\"revenuePricing\":null,\"revenueType\":null,\"timezone\":\"Eastern Time (US \u0026 Canada)\"},{\"advertiser\":{\"id\":\"39370\",\"name\":\"\u003credacted\u003e\"},\"budgetRollover\":false,\"budgetType\":\"cost\",\"createdAt\":\"2022-07-05T13:57:44Z\",\"id\":\"89777\",\"isArchived\":false,\"name\":\"\u003credacted\u003e\",\"revenuePricing\":null,\"revenueType\":null,\"timezone\":\"Eastern Time (US \u0026 Canada)\"},{\"advertiser\":{\"id\":\"39370\",\"name\":\"\u003credacted\u003e\"},\"budgetRollover\":false,\"budgetType\":\"cost\",\"createdAt\":\"2022-07-05T13:57:58Z\",\"id\":\"89778\",\"isArchived\":false,\"name\":\"\u003credacted\u003e\",\"revenuePricing\":null,\"revenueType\":null,\"timezone\":\"Eastern Time (US \u0026 Canada)\"},{\"advertiser\":{\"id\":\"39370\",\"name\":\"\u003credacted\u003e\"},\"budgetRollover\":false,\"budgetType\":\"cost\",\"createdAt\":\"2022-07-05T13:58:30Z\",\"id\":\"89779\",\"isArchived\":false,\"name\":\"\u003credacted\u003e\",\"revenuePricing\":null,\"revenueType\":null,\"timezone\":\"Eastern Time (US \u0026 Canada)\"},{\"advertiser\":{\"id\":\"39370\",\"name\":\"\u003credacted\u003e\"},\"budgetRollover\":false,\"budgetType\":\"cost\",\"createdAt\":\"2022-07-05T13:58:45Z\",\"id\":\"89780\",\"isArchived\":false,\"name\":\"\u003credacted\u003e\",\"revenuePricing\":null,\"revenueType\":null,\"timezone\":\"Eastern Time (US \u0026 Canada)\"},{\"advertiser\":{\"id\":\"39370\",\"name\":\"\u003credacted\u003e\"},\"budgetRollover\":false,\"budgetType\":\"cost\",\"createdAt\":\"2022-07-05T13:59:00Z\",\"id\":\"89781\",\"isArchived\":false,\"name\":\"\u003credacted\u003e\",\"revenuePricing\":null,\"revenueType\":null,\"timezone\":\"Eastern Time (US \u0026 Canada)\"},{\"advertiser\":{\"id\":\"39370\",\"name\":\"\u003credacted\u003e\"},\"budgetRollover\":false,\"budgetType\":\"cost\",\"createdAt\":\"2022-07-05T14:12:42Z\",\"id\":\"89785\",\"isArchived\":false,\"name\":\"\u003credacted\u003e\",\"revenuePricing\":null,\"revenueType\":null,\"timezone\":\"Eastern Time (US \u0026 Canada)\"},{\"advertiser\":{\"id\":\"39370\",\"name\":\"\u003credacted\u003e\"},\"budgetRollover\":false,\"budgetType\":\"cost\",\"createdAt\":\"2022-07-05T14:12:51Z\",\"id\":\"89787\",\"isArchived\":false,\"name\":\"\u003credacted\u003e\",\"revenuePricing\":null,\"revenueType\":null,\"timezone\":\"Eastern Time (US \u0026 Canada)\"},{\"advertiser\":{\"id\":\"39370\",\"name\":\"\u003credacted\u003e\"},\"budgetRollover\":false,\"budgetType\":\"cost\",\"createdAt\":\"2022-07-05T14:13:08Z\",\"id\":\"89788\",\"isArchived\":false,\"name\":\"\u003credacted\u003e\",\"revenuePricing\":null,\"revenueType\":null,\"timezone\":\"Eastern Time (US \u0026 Canada)\"},{\"advertiser\":{\"id\":\"39370\",\"name\":\"\u003credacted\u003e\"},\"budgetRollover\":false,\"budgetType\":\"cost\",\"createdAt\":\"2022-07-05T14:16:21Z\",\"id\":\"89789\",\"isArchived\":false,…[truncated]"
+    },
+    {
+      "command": "campaign-groups list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "campaigns get",
+      "kind": "help",
+      "args": [
+        "campaigns",
+        "get",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Get one campaign by ID\n\nUsage:\n  stackadapt-pp-cli campaigns get \u003ccampaign-id\u003e [flags]\n\nExamples:\n  stackadapt-pp-cli campaigns get 456 --agent\n\nFlags:\n  -h, --help   help for get\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'stackadapt-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "campaigns get",
+      "kind": "happy_path",
+      "args": [
+        "campaigns",
+        "get",
+        "261269",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\"advertiser\":{\"id\":\"39370\",\"name\":\"\u003credacted\u003e\"},\"budgetRollover\":false,\"campaignGroup\":{\"id\":\"89155\",\"name\":\"\u003credacted\u003e\"},\"campaignStatus\":{\"state\":\"ENDED\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},\"channelType\":\"Display\",\"createdAt\":\"2022-07-05T13:17:43Z\",\"goalType\":\"CONVERSION\",\"id\":\"261269\",\"isArchived\":false,\"isDraft\":false,\"name\":\"\u003credacted\u003e\"}"
+    },
+    {
+      "command": "campaigns get",
+      "kind": "json_fidelity",
+      "args": [
+        "campaigns",
+        "get",
+        "261269",
+        "--agent",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"advertiser\":{\"id\":\"39370\",\"name\":\"\u003credacted\u003e\"},\"budgetRollover\":false,\"campaignGroup\":{\"id\":\"89155\",\"name\":\"\u003credacted\u003e\"},\"campaignStatus\":{\"state\":\"ENDED\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},\"channelType\":\"Display\",\"createdAt\":\"2022-07-05T13:17:43Z\",\"goalType\":\"CONVERSION\",\"id\":\"261269\",\"isArchived\":false,\"isDraft\":false,\"name\":\"\u003credacted\u003e\"}"
+    },
+    {
+      "command": "campaigns get",
+      "kind": "error_path",
+      "args": [
+        "campaigns",
+        "get",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "Error: no campaigns with id \"__printing_press_invalid__\"\n"
+    },
+    {
+      "command": "campaigns list",
+      "kind": "help",
+      "args": [
+        "campaigns",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List campaigns\n\nUsage:\n  stackadapt-pp-cli campaigns list [flags]\n\nExamples:\n  stackadapt-pp-cli campaigns list --agent\n\nFlags:\n  -h, --help        help for list\n      --limit int   Max campaigns to return (default 100)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'stackadapt-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "campaigns list",
+      "kind": "happy_path",
+      "args": [
+        "campaigns",
+        "list",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\"count\":100,\"items\":[{\"advertiser\":{\"id\":\"39370\",\"name\":\"\u003credacted\u003e\"},\"budgetRollover\":false,\"campaignGroup\":{\"id\":\"89155\",\"name\":\"\u003credacted\u003e\"},\"campaignStatus\":{\"state\":\"ENDED\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},\"channelType\":\"Display\",\"createdAt\":\"2022-07-05T13:17:43Z\",\"goalType\":\"CONVERSION\",\"id\":\"261269\",\"isArchived\":false,\"isDraft\":false,\"name\":\"\u003credacted\u003e\"},{\"advertiser\":{\"id\":\"39370\",\"name\":\"\u003credacted\u003e\"},\"budgetRollover\":false,\"campaignGroup\":{\"id\":\"89155\",\"name\":\"\u003credacted\u003e\"},\"campaignStatus\":{\"state\":\"ENDED\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},\"channelType\":\"Display\",\"createdAt\":\"2022-07-05T13:22:19Z\",\"goalType\":\"CONVERSION\",\"id\":\"261273\",\"isArchived\":false,\"isDraft\":false,\"name\":\"\u003credacted\u003e\"},{\"advertiser\":{\"id\":\"39370\",\"name\":\"\u003credacted\u003e\"},\"budgetRollover\":false,\"campaignGroup\":{\"id\":\"89155\",\"name\":\"\u003credacted\u003e\"},\"campaignStatus\":{\"state\":\"ENDED\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},\"channelType\":\"Display\",\"createdAt\":\"2022-07-05T13:22:21Z\",\"goalType\":\"CONVERSION\",\"id\":\"261274\",\"isArchived\":false,\"isDraft\":false,\"name\":\"\u003credacted\u003e\"},{\"advertiser\":{\"id\":\"39370\",\"name\":\"\u003credacted\u003e\"},\"budgetRollover\":false,\"campaignGroup\":{\"id\":\"89155\",\"name\":\"\u003credacted\u003e\"},\"campaignStatus\":{\"state\":\"ENDED\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},\"channelType\":\"Display\",\"createdAt\":\"2022-07-05T13:22:22Z\",\"goalType\":\"CONVERSION\",\"id\":\"261275\",\"isArchived\":false,\"isDraft\":false,\"name\":\"\u003credacted\u003e\"},{\"advertiser\":{\"id\":\"39370\",\"name\":\"\u003credacted\u003e\"},\"budgetRollover\":false,\"campaignGroup\":{\"id\":\"89155\",\"name\":\"\u003credacted\u003e\"},\"campaignStatus\":{\"state\":\"ENDED\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},\"channelType\":\"Display\",\"createdAt\":\"2022-07-05T13:23:17Z\",\"goalType\":\"CONVERSION\",\"id\":\"261278\",\"isArchived\":false,\"isDraft\":false,\"name\":\"\u003credacted\u003e\"},{\"advertiser\":{\"id\":\"39370\",\"name\":\"\u003credacted\u003e\"},\"budgetRollover\":false,\"campaignGroup\":{\"id\":\"89766\",\"name\":\"\u003credacted\u003e\"},\"campaignStatus\":{\"state\":\"ENDED\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},\"channelType\":\"CTV\",\"createdAt\":\"2022-07-05T13:30:39Z\",\"goalType\":null,\"id\":\"261282\",\"isArchived\":false,\"isDraft\":false,\"name\":\"\u003credacted\u003e\"},{\"advertiser\":{\"id\":\"39370\",\"name\":\"\u003credacted\u003e\"},\"budgetRollover\":false,\"campaignGroup\":{\"id\":\"89766\",\"name\":\"\u003credacted\u003e\"},\"campaignStatus\":{\"state\":\"ENDED\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},\"channelType\":\"CTV\",\"createdAt\":\"2022-07-05T13:30:41Z\",\"goalType\":null,\"id\":\"261283\",\"isArchived\":false,\"isDraft\":false,\"name\":\"\u003credacted\u003e\"},{\"advertiser\":{\"id\":\"39370\",\"name\":\"\u003credacted\u003e\"},\"budgetRollover\":false,\"campaignGroup\":{\"id\":\"89766\",\"name\":\"\u003credacted\u003e\"},\"campaignStatus\":{\"state\":\"ENDED\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},\"channelType\":\"CTV\",\"createdAt\":\"2022-07-05T13:30:43Z\",\"goalType\":null,\"id\":\"261284\",\"isArchived\":false,\"isDraft\":false,\"name\":\"\u003credacted\u003e\"},{\"advertiser\":{\"id\":\"39370\",\"name\":\"\u003credacted\u003e\"},\"budgetRollover\":false,\"campaignGroup\":{\"id\":\"89766\",\"name\":\"\u003credacted\u003e\"},\"campaignStatus\":{\"state\":\"ENDED\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},\"channelType\":\"CTV\",\"createdAt\":\"2022-07-05T13:30:44Z\",\"goalType\":null,\"id\":\"261285\",\"isArchived\":false,\"isDraft\":false,\"name\":\"\u003credacted\u003e\"},{\"advertiser\":{\"id\":\"39370\",\"name\":\"\u003credacted\u003e\"},\"budgetRollover\":false,\"campaignGroup\":{\"id\":\"89769\",\"name\":\"\u003credacted\u003e\"},\"campaignStatus\":{\"state\":\"ENDED\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},\"channelType\":\"Video\",\"createdAt\":\"2022-07-05T13:33:06Z\",\"goalType\":null,\"id\":\"261288\",\"isArchived\":false,\"isDraft\":false,\"name\":\"\u003credacted\u003e\"},{\"advertiser\":{\"id\":\"39370\",\"name\":\"\u003credacted\u003e\"},\"budgetRollover\":false,\"campaignGroup\":{\"id\":\"89769\",\"name\":\"\u003credacted\u003e\"},\"campaignStatus\":{\"state\":\"ENDED\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},\"channelType\":\"Video\",\"createdAt\":\"2022-07-05T13:34:37Z\",\"goalType\":null,\"id\":\"261290\",\"isArchived\":false,\"isDraft\":false,\"name\":\"\u003credacted\u003e\"},{\"advertiser\":{\"id\":\"39370\",\"name\":\"\u003credacted\u003e\"},\"budgetRollover\":false,\"campaignGroup\":{\"id\":\"89769\",\"name\":\"\u003credacted\u003e\"},\"campaignStatus\":{\"state\":\"ENDED\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},\"channelType\":\"Video\",\"createdAt\":\"2022-07-05T13:34:39Z\",\"goalType\":null,\"id\":\"261291\",\"isArchived\":false,\"isDraft\":fal…[truncated]"
+    },
+    {
+      "command": "campaigns list",
+      "kind": "json_fidelity",
+      "args": [
+        "campaigns",
+        "list",
+        "--agent",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"count\":100,\"items\":[{\"advertiser\":{\"id\":\"39370\",\"name\":\"\u003credacted\u003e\"},\"budgetRollover\":false,\"campaignGroup\":{\"id\":\"89155\",\"name\":\"\u003credacted\u003e\"},\"campaignStatus\":{\"state\":\"ENDED\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},\"channelType\":\"Display\",\"createdAt\":\"2022-07-05T13:17:43Z\",\"goalType\":\"CONVERSION\",\"id\":\"261269\",\"isArchived\":false,\"isDraft\":false,\"name\":\"\u003credacted\u003e\"},{\"advertiser\":{\"id\":\"39370\",\"name\":\"\u003credacted\u003e\"},\"budgetRollover\":false,\"campaignGroup\":{\"id\":\"89155\",\"name\":\"\u003credacted\u003e\"},\"campaignStatus\":{\"state\":\"ENDED\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},\"channelType\":\"Display\",\"createdAt\":\"2022-07-05T13:22:19Z\",\"goalType\":\"CONVERSION\",\"id\":\"261273\",\"isArchived\":false,\"isDraft\":false,\"name\":\"\u003credacted\u003e\"},{\"advertiser\":{\"id\":\"39370\",\"name\":\"\u003credacted\u003e\"},\"budgetRollover\":false,\"campaignGroup\":{\"id\":\"89155\",\"name\":\"\u003credacted\u003e\"},\"campaignStatus\":{\"state\":\"ENDED\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},\"channelType\":\"Display\",\"createdAt\":\"2022-07-05T13:22:21Z\",\"goalType\":\"CONVERSION\",\"id\":\"261274\",\"isArchived\":false,\"isDraft\":false,\"name\":\"\u003credacted\u003e\"},{\"advertiser\":{\"id\":\"39370\",\"name\":\"\u003credacted\u003e\"},\"budgetRollover\":false,\"campaignGroup\":{\"id\":\"89155\",\"name\":\"\u003credacted\u003e\"},\"campaignStatus\":{\"state\":\"ENDED\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},\"channelType\":\"Display\",\"createdAt\":\"2022-07-05T13:22:22Z\",\"goalType\":\"CONVERSION\",\"id\":\"261275\",\"isArchived\":false,\"isDraft\":false,\"name\":\"\u003credacted\u003e\"},{\"advertiser\":{\"id\":\"39370\",\"name\":\"\u003credacted\u003e\"},\"budgetRollover\":false,\"campaignGroup\":{\"id\":\"89155\",\"name\":\"\u003credacted\u003e\"},\"campaignStatus\":{\"state\":\"ENDED\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},\"channelType\":\"Display\",\"createdAt\":\"2022-07-05T13:23:17Z\",\"goalType\":\"CONVERSION\",\"id\":\"261278\",\"isArchived\":false,\"isDraft\":false,\"name\":\"\u003credacted\u003e\"},{\"advertiser\":{\"id\":\"39370\",\"name\":\"\u003credacted\u003e\"},\"budgetRollover\":false,\"campaignGroup\":{\"id\":\"89766\",\"name\":\"\u003credacted\u003e\"},\"campaignStatus\":{\"state\":\"ENDED\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},\"channelType\":\"CTV\",\"createdAt\":\"2022-07-05T13:30:39Z\",\"goalType\":null,\"id\":\"261282\",\"isArchived\":false,\"isDraft\":false,\"name\":\"\u003credacted\u003e\"},{\"advertiser\":{\"id\":\"39370\",\"name\":\"\u003credacted\u003e\"},\"budgetRollover\":false,\"campaignGroup\":{\"id\":\"89766\",\"name\":\"\u003credacted\u003e\"},\"campaignStatus\":{\"state\":\"ENDED\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},\"channelType\":\"CTV\",\"createdAt\":\"2022-07-05T13:30:41Z\",\"goalType\":null,\"id\":\"261283\",\"isArchived\":false,\"isDraft\":false,\"name\":\"\u003credacted\u003e\"},{\"advertiser\":{\"id\":\"39370\",\"name\":\"\u003credacted\u003e\"},\"budgetRollover\":false,\"campaignGroup\":{\"id\":\"89766\",\"name\":\"\u003credacted\u003e\"},\"campaignStatus\":{\"state\":\"ENDED\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},\"channelType\":\"CTV\",\"createdAt\":\"2022-07-05T13:30:43Z\",\"goalType\":null,\"id\":\"261284\",\"isArchived\":false,\"isDraft\":false,\"name\":\"\u003credacted\u003e\"},{\"advertiser\":{\"id\":\"39370\",\"name\":\"\u003credacted\u003e\"},\"budgetRollover\":false,\"campaignGroup\":{\"id\":\"89766\",\"name\":\"\u003credacted\u003e\"},\"campaignStatus\":{\"state\":\"ENDED\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},\"channelType\":\"CTV\",\"createdAt\":\"2022-07-05T13:30:44Z\",\"goalType\":null,\"id\":\"261285\",\"isArchived\":false,\"isDraft\":false,\"name\":\"\u003credacted\u003e\"},{\"advertiser\":{\"id\":\"39370\",\"name\":\"\u003credacted\u003e\"},\"budgetRollover\":false,\"campaignGroup\":{\"id\":\"89769\",\"name\":\"\u003credacted\u003e\"},\"campaignStatus\":{\"state\":\"ENDED\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},\"channelType\":\"Video\",\"createdAt\":\"2022-07-05T13:33:06Z\",\"goalType\":null,\"id\":\"261288\",\"isArchived\":false,\"isDraft\":false,\"name\":\"\u003credacted\u003e\"},{\"advertiser\":{\"id\":\"39370\",\"name\":\"\u003credacted\u003e\"},\"budgetRollover\":false,\"campaignGroup\":{\"id\":\"89769\",\"name\":\"\u003credacted\u003e\"},\"campaignStatus\":{\"state\":\"ENDED\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},\"channelType\":\"Video\",\"createdAt\":\"2022-07-05T13:34:37Z\",\"goalType\":null,\"id\":\"261290\",\"isArchived\":false,\"isDraft\":false,\"name\":\"\u003credacted\u003e\"},{\"advertiser\":{\"id\":\"39370\",\"name\":\"\u003credacted\u003e\"},\"budgetRollover\":false,\"campaignGroup\":{\"id\":\"89769\",\"name\":\"\u003credacted\u003e\"},\"campaignStatus\":{\"state\":\"ENDED\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},\"channelType\":\"Video\",\"createdAt\":\"2022-07-05T13:34:39Z\",\"goalType\":null,\"id\":\"261291\",\"isArchived\":false,\"isDraft\":fal…[truncated]"
+    },
+    {
+      "command": "campaigns list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "delivery-drift",
+      "kind": "help",
+      "args": [
+        "delivery-drift",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Pull delivery for the current window and the immediately preceding window of the same length, then report per-campaign spend and CTR drift. Flags campaigns whose CTR dropped sharply. Scope with --campaign or --advertiser. Read-only.\n\nUsage:\n  stackadapt-pp-cli delivery-drift [flags]\n\nExamples:\n  stackadapt-pp-cli delivery-drift --advertiser 123 --days 7 --agent\n\nFlags:\n      --advertiser string   Limit to one advertiser ID\n      --campaign string     Limit to one campaign ID\n      --days int            Window length in days (compared against the prior window of the same length) (default 7)\n  -h, --help                help for delivery-drift\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'stackadapt-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "delivery-drift",
+      "kind": "happy_path",
+      "args": [
+        "delivery-drift",
+        "--advertiser",
+        "123",
+        "--days",
+        "7",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"count\": 0,\n  \"current_window\": \"2026-05-23..2026-05-30\",\n  \"drift\": [],\n  \"prior_window\": \"2026-05-16..2026-05-23\"\n}\n"
+    },
+    {
+      "command": "delivery-drift",
+      "kind": "json_fidelity",
+      "args": [
+        "delivery-drift",
+        "--advertiser",
+        "123",
+        "--days",
+        "7",
+        "--agent",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"count\": 0,\n  \"current_window\": \"2026-05-23..2026-05-30\",\n  \"drift\": [],\n  \"prior_window\": \"2026-05-16..2026-05-23\"\n}\n"
+    },
+    {
+      "command": "delivery-drift",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "doctor",
+      "kind": "help",
+      "args": [
+        "doctor",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Check CLI health\n\nUsage:\n  stackadapt-pp-cli doctor [flags]\n\nExamples:\n  stackadapt-pp-cli doctor\n  stackadapt-pp-cli doctor --json\n  stackadapt-pp-cli doctor --fail-on warn\n\nFlags:\n      --fail-on string   Exit non-zero when a health level is reached: stale, error. Default is never.\n  -h, --help             help for doctor\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'stackadapt-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "happy_path",
+      "args": [
+        "doctor"
+      ],
+      "status": "pass",
+      "output_sample": "  OK Config: ok\n  OK Auth: configured\n  OK Env Vars: OK 1/1 available\n  OK Verify Mode: normal operation\n  OK API: reachable\n  INFO Credentials: present, not verified. Run any read command to confirm the token works end-to-end.\n  config_path: /tmp/claude-501/printing-press-subprocess-778153951/.config/stackadapt-pp-cli/config.toml\n  base_url: https://api.stackadapt.com\n  auth_source: env:STACKADAPT_API_TOKEN\n  version: 1.0.0\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "json_fidelity",
+      "args": [
+        "doctor",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"agentcookie\": \"not detected (optional)\",\n  \"api\": \"reachable\",\n  \"auth\": \"configured\",\n  \"auth_source\": \"env:STACKADAPT_API_TOKEN\",\n  \"base_url\": \"https://api.stackadapt.com\",\n  \"config\": \"ok\",\n  \"config_path\": \"/tmp/claude-501/printing-press-subprocess-778153951/.config/stackadapt-pp-cli/config.toml\",\n  \"credentials\": \"present, not verified. Run any read command to confirm the token works end-to-end.\",\n  \"env_vars\": \"OK 1/1 available\",\n  \"verify_mode\": \"normal operation\",\n  \"version\": \"1.0.0\"\n}\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "feedback list",
+      "kind": "help",
+      "args": [
+        "feedback",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List recent feedback entries\n\nUsage:\n  stackadapt-pp-cli feedback list [flags]\n\nExamples:\n  stackadapt-pp-cli feedback list\n  stackadapt-pp-cli feedback list --limit 5\n  stackadapt-pp-cli feedback list --json\n\nFlags:\n  -h, --help        help for list\n      --limit int   Maximum number of recent entries to return (default 20)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'stackadapt-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "happy_path",
+      "args": [
+        "feedback",
+        "list"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "feedback list",
+      "kind": "json_fidelity",
+      "args": [
+        "feedback",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "graphql",
+      "kind": "help",
+      "args": [
+        "graphql",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Execute a raw GraphQL query against the StackAdapt API\n\nUsage:\n  stackadapt-pp-cli graphql [flags]\n\nExamples:\n  stackadapt-pp-cli graphql --query example-value\n\nFlags:\n  -h, --help           help for graphql\n      --query string   GraphQL query document\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'stackadapt-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "graphql",
+      "kind": "happy_path",
+      "args": [
+        "graphql",
+        "--query",
+        "example-value"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"errors\": [\n    {\n      \"message\": \"Syntax Error: Unexpected Name \\\"example\\\".\",\n      \"locations\": [\n        {\n          \"line\": 1,\n          \"column\": 1\n        }\n      ]\n    }\n  ]\n}\n"
+    },
+    {
+      "command": "graphql",
+      "kind": "json_fidelity",
+      "args": [
+        "graphql",
+        "--query",
+        "example-value",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"errors\": [\n    {\n      \"message\": \"Syntax Error: Unexpected Name \\\"example\\\".\",\n      \"locations\": [\n        {\n          \"line\": 1,\n          \"column\": 1\n        }\n      ]\n    }\n  ]\n}\n"
+    },
+    {
+      "command": "graphql",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "import",
+      "kind": "help",
+      "args": [
+        "import",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Import data from a JSONL file by issuing POST requests for each record.\nEach line must be a valid JSON object. Failed records are logged to stderr\nbut do not stop the import.\n\nUsage:\n  stackadapt-pp-cli import \u003cresource\u003e [flags]\n\nExamples:\n  # Import from a JSONL file\n  stackadapt-pp-cli import \u003cresource\u003e --input data.jsonl\n\n  # Dry-run to preview without sending\n  stackadapt-pp-cli import \u003cresource\u003e --input data.jsonl --dry-run\n\n  # Import from stdin\n  cat data.jsonl | stackadapt-pp-cli import \u003cresource\u003e --input -\n\nFlags:\n      --batch-size int   Records per batch (future: batch API support) (default 1)\n      --dry-run          Preview import without sending requests\n  -h, --help             help for import\n  -i, --input string     Input JSONL file path (use - for stdin)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'stackadapt-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "import",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [import] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "import",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [import] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "import",
+      "kind": "error_path",
+      "args": [
+        "import",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: required flag(s) \"input\" not set\n"
+    },
+    {
+      "command": "pacing",
+      "kind": "help",
+      "args": [
+        "pacing",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List active campaigns with their budget pacing — the calculated pace percent, lifetime budget, and projected spend from StackAdapt's flight pacing. Flags campaigns that will likely underspend or overspend. Scope to one advertiser with --advertiser. Read-only.\n\nUsage:\n  stackadapt-pp-cli pacing [flags]\n\nExamples:\n  stackadapt-pp-cli pacing --advertiser 123 --agent\n\nFlags:\n      --advertiser string   Limit to one advertiser ID\n  -h, --help                help for pacing\n      --limit int           Max campaigns to evaluate (default 200)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'stackadapt-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "pacing",
+      "kind": "happy_path",
+      "args": [
+        "pacing",
+        "--advertiser",
+        "123",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"advertiser\": \"123\",\n  \"campaign_count\": 0,\n  \"campaigns\": []\n}\n"
+    },
+    {
+      "command": "pacing",
+      "kind": "json_fidelity",
+      "args": [
+        "pacing",
+        "--advertiser",
+        "123",
+        "--agent",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"advertiser\": \"123\",\n  \"campaign_count\": 0,\n  \"campaigns\": []\n}\n"
+    },
+    {
+      "command": "pacing",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "profile delete",
+      "kind": "help",
+      "args": [
+        "profile",
+        "delete",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Remove a profile\n\nUsage:\n  stackadapt-pp-cli profile delete \u003cname\u003e [flags]\n\nExamples:\n  stackadapt-pp-cli profile delete my-defaults --yes\n  stackadapt-pp-cli profile delete old-profile --yes --json\n\nFlags:\n  -h, --help   help for delete\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'stackadapt-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile delete",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile list",
+      "kind": "help",
+      "args": [
+        "profile",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List saved profiles\n\nUsage:\n  stackadapt-pp-cli profile list [flags]\n\nExamples:\n  stackadapt-pp-cli profile list\n  stackadapt-pp-cli profile list --json\n\nFlags:\n  -h, --help   help for list\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'stackadapt-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "happy_path",
+      "args": [
+        "profile",
+        "list"
+      ],
+      "status": "pass",
+      "output_sample": "NAME  FIELDS  DESCRIPTION\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "json_fidelity",
+      "args": [
+        "profile",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "profile save",
+      "kind": "help",
+      "args": [
+        "profile",
+        "save",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Captures every flag explicitly set on the invocation and stores\nthem under \u003cname\u003e. To update an existing profile, run save again; the\nentry is replaced.\n\nTo avoid creating empty profiles, at least one non-default flag must be\npresent (other than --profile and --config).\n\nUsage:\n  stackadapt-pp-cli profile save \u003cname\u003e [--\u003cflag\u003e \u003cvalue\u003e ...] [flags]\n\nExamples:\n  stackadapt-pp-cli profile save my-defaults --json --compact\n  stackadapt-pp-cli profile save tonight-defaults --region US\n\nFlags:\n      --description string   Short description shown in 'profile list'\n  -h, --help                 help for save\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'stackadapt-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile save",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "save",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: no non-default flags set - pass at least one flag to save into \"__printing_press_invalid__\"\n"
+    },
+    {
+      "command": "profile show",
+      "kind": "help",
+      "args": [
+        "profile",
+        "show",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show a profile's values as JSON\n\nUsage:\n  stackadapt-pp-cli profile show \u003cname\u003e [flags]\n\nExamples:\n  stackadapt-pp-cli profile show my-defaults\n  stackadapt-pp-cli profile show tonight-defaults --json\n\nFlags:\n  -h, --help   help for show\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'stackadapt-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile show",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "show",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: profile \"__printing_press_invalid__\" not found\n"
+    },
+    {
+      "command": "profile use",
+      "kind": "help",
+      "args": [
+        "profile",
+        "use",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Print the flag values a profile will apply (does not execute anything)\n\nUsage:\n  stackadapt-pp-cli profile use \u003cname\u003e [flags]\n\nExamples:\n  stackadapt-pp-cli profile use my-defaults\n  stackadapt-pp-cli profile use tonight-defaults --json\n\nFlags:\n  -h, --help   help for use\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'stackadapt-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile use",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "use",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: profile \"__printing_press_invalid__\" not found\n"
+    },
+    {
+      "command": "report campaign-delivery",
+      "kind": "help",
+      "args": [
+        "report",
+        "campaign-delivery",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Pull per-campaign delivery metrics from StackAdapt over the last N days: cost, CTR, conversions, conversion revenue, and more. Scope with --advertiser or --campaign. Read-only.\n\nUsage:\n  stackadapt-pp-cli report campaign-delivery [flags]\n\nExamples:\n  stackadapt-pp-cli report campaign-delivery --days 30 --agent --select records.campaign_name,records.metrics.cost\n\nFlags:\n      --advertiser string   Limit to one advertiser ID\n      --campaign string     Limit to one campaign ID\n      --days int            Days of delivery history (default 30)\n  -h, --help                help for campaign-delivery\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'stackadapt-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "report campaign-delivery",
+      "kind": "happy_path",
+      "args": [
+        "report",
+        "campaign-delivery",
+        "--days",
+        "30",
+        "--agent",
+        "--select",
+        "records.campaign_name,records.metrics.cost"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"records\": [\n    {\n      \"campaign_name\": \"Moody CTV\",\n      \"metrics\": {\n        \"cost\": 1443.1912949999999\n      }\n    },\n    {\n      \"campaign_name\": \"Moody Display Retargeting\",\n      \"metrics\": {\n        \"cost\": 146.438197\n      }\n    },\n    {\n      \"campaign_name\": \"Netclicks Retargeting\",\n      \"metrics\": {\n        \"cost\": 42.222288\n      }\n    },\n    {\n      \"campaign_name\": \"Rallys - ElCajon - Event - 3\",\n      \"metrics\": {\n        \"cost\": 666.624908\n      }\n    },\n    {\n      \"campaign_name\": \"Rallys - Escondido - Event 3\",\n      \"metrics\": {\n        \"cost\": 882.5772599999999\n      }\n    },\n    {\n      \"campaign_name\": \"Rallys - Yuma - Event 3\",\n      \"metrics\": {\n        \"cost\": 892.2934889999999\n      }\n    },\n    {\n      \"campaign_name\": \"CDP-Display\",\n      \"metrics\": {\n        \"cost\": 26.41546\n      }\n    },\n    {\n      \"campaign_name\": \"Papa Johns-Yuma-Event 1\",\n      \"metrics\": {\n        \"cost\": 147.55803799999998\n      }\n    }\n  ]\n}\n"
+    },
+    {
+      "command": "report campaign-delivery",
+      "kind": "json_fidelity",
+      "args": [
+        "report",
+        "campaign-delivery",
+        "--days",
+        "30",
+        "--agent",
+        "--select",
+        "records.campaign_name,records.metrics.cost",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"records\": [\n    {\n      \"campaign_name\": \"Moody CTV\",\n      \"metrics\": {\n        \"cost\": 1443.1912949999999\n      }\n    },\n    {\n      \"campaign_name\": \"Moody Display Retargeting\",\n      \"metrics\": {\n        \"cost\": 146.438197\n      }\n    },\n    {\n      \"campaign_name\": \"Netclicks Retargeting\",\n      \"metrics\": {\n        \"cost\": 42.222288\n      }\n    },\n    {\n      \"campaign_name\": \"Rallys - ElCajon - Event - 3\",\n      \"metrics\": {\n        \"cost\": 666.624908\n      }\n    },\n    {\n      \"campaign_name\": \"Rallys - Escondido - Event 3\",\n      \"metrics\": {\n        \"cost\": 882.5772599999999\n      }\n    },\n    {\n      \"campaign_name\": \"Rallys - Yuma - Event 3\",\n      \"metrics\": {\n        \"cost\": 892.2934889999999\n      }\n    },\n    {\n      \"campaign_name\": \"CDP-Display\",\n      \"metrics\": {\n        \"cost\": 26.41546\n      }\n    },\n    {\n      \"campaign_name\": \"Papa Johns-Yuma-Event 1\",\n      \"metrics\": {\n        \"cost\": 147.55803799999998\n      }\n    }\n  ]\n}\n"
+    },
+    {
+      "command": "report campaign-delivery",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "search",
+      "kind": "help",
+      "args": [
+        "search",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Substring-search the local store populated by 'sync'. Matches against an\nobject's name and its full JSON, across advertisers, campaigns, campaign\ngroups, ads, and segments. Runs fully offline — no API calls.\n\nRun 'stackadapt-pp-cli sync' first to populate the store.\n\nUsage:\n  stackadapt-pp-cli search \u003cterm\u003e [flags]\n\nExamples:\n  stackadapt-pp-cli search \"spring\" --agent\n  stackadapt-pp-cli search acme --type advertisers\n  stackadapt-pp-cli search 12345 --limit 5\n\nFlags:\n      --db string     Path to the local store (default: STACKADAPT_DB or ~/.local/share/stackadapt-pp-cli/data.db)\n  -h, --help          help for search\n      --limit int     Maximum results to return (default 50)\n      --type string   Restrict to one resource: advertisers, campaigns, campaign-groups, ads, segments\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'stackadapt-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "search",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [search] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "search",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [search] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "search",
+      "kind": "error_path",
+      "args": [
+        "search",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: no local store at /tmp/claude-501/printing-press-subprocess-778153951/.local/share/stackadapt-pp-cli/data.db: run 'stackadapt-pp-cli sync' first\n"
+    },
+    {
+      "command": "segments list",
+      "kind": "help",
+      "args": [
+        "segments",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List custom segments\n\nUsage:\n  stackadapt-pp-cli segments list [flags]\n\nExamples:\n  stackadapt-pp-cli segments list --agent\n\nFlags:\n  -h, --help        help for list\n      --limit int   Max segments to return (default 100)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'stackadapt-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "segments list",
+      "kind": "happy_path",
+      "args": [
+        "segments",
+        "list",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\"count\":100,\"items\":[{\"active\":true,\"createdAt\":\"2019-06-06T21:12:06Z\",\"description\":\"People who are qualified for Medicaid coverage\",\"id\":\"10650\",\"name\":\"\u003credacted\u003e\",\"size\":\"0\"},{\"active\":false,\"createdAt\":\"2019-06-07T14:58:50Z\",\"description\":\"People who are eligible for both Medicaid \u0026 Medicare\",\"id\":\"10678\",\"name\":\"\u003credacted\u003e\",\"size\":\"0\"},{\"active\":true,\"createdAt\":\"2019-07-09T18:37:44Z\",\"description\":\"Individuals who are home owners.\",\"id\":\"11650\",\"name\":\"\u003credacted\u003e\",\"size\":\"332208500\"},{\"active\":true,\"createdAt\":\"2019-09-26T21:41:15Z\",\"description\":\"Audience derived from Scarborough USA+\",\"id\":\"14851\",\"name\":\"\u003credacted\u003e\",\"size\":\"140715600\"},{\"active\":false,\"createdAt\":\"2019-10-28T17:27:15Z\",\"description\":\"\",\"id\":\"16402\",\"name\":\"\u003credacted\u003e\",\"size\":\"0\"},{\"active\":true,\"createdAt\":\"2019-11-26T16:56:03Z\",\"description\":\"The segment includes people residing in the United States who are African-American. This segment is a mix of deterministic \u0026 probabilistic from users' self-declared information, in relevant mobile apps and social profiles, geolocations, respective timestamps and public records such as census data. The segment uses a 30 day lookback window, refreshed every 30 days, and complies with CCPA and GDPR. For more information, please reach out to \u003credacted\u003e.\",\"id\":\"18422\",\"name\":\"\u003credacted\u003e\",\"size\":\"234053000\"},{\"active\":false,\"createdAt\":\"2019-12-17T21:56:30Z\",\"description\":\"People in this audience are interested in applying for a health care insurance policy. They have been seen researching health care insurance companies, such as BlueCross BlueShield, UnitedHealth Care, Humana, Kaiser Permanente or Aetna, as well as Medicare or Medicaid plans.\",\"id\":\"19771\",\"name\":\"\u003credacted\u003e\",\"size\":\"0\"},{\"active\":true,\"createdAt\":\"2020-04-08T13:57:12Z\",\"description\":\"Individuals who are Small Business Owners based on B2B contact information including email, name, title, and company firmographic information that is verified through multiple sources including business social media profiles. (FLA Friendly)\",\"id\":\"28487\",\"name\":\"\u003credacted\u003e\",\"size\":\"19657800\"},{\"active\":true,\"createdAt\":\"2020-04-08T13:57:27Z\",\"description\":\"Individuals who have recently started new businesses multi-sourced from government registrations, phone records, professional licenses, utility records, tax records, and other service registrations. They are entrepreneurs who are highly likely to be in market for business related products and services such as business loans, staffing, and lawyers. (FLA Friendly)\",\"id\":\"28488\",\"name\":\"\u003credacted\u003e\",\"size\":\"1171300\"},{\"active\":true,\"createdAt\":\"2020-04-08T13:57:44Z\",\"description\":\"Individuals who are small business owners multi-sourced from surveys, government registrations, phone records, professional licenses, utility records, tax records, and other service registrations. (FLA Friendly)\",\"id\":\"28489\",\"name\":\"\u003credacted\u003e\",\"size\":\"6417400\"},{\"active\":true,\"createdAt\":\"2020-04-17T14:46:24Z\",\"description\":\"Individuals who are Business Owners based on B2B contact information including email, name, title, and company firmographic information that is verified through multiple sources including business social media profiles. (FLA Friendly)\",\"id\":\"29065\",\"name\":\"\u003credacted\u003e\",\"size\":\"9770300\"},{\"active\":true,\"createdAt\":\"2020-05-05T22:07:01Z\",\"description\":\"Individuals that have likely had a recent personal injury are in this segment. Audience selection is identified using predictive algorithms that identify devices displaying behavior indicative of being in a serious accident that required medical care in the past 12 months. Individuals may engage with content related to options for medical care, personal injury lawsuit cases or ways to cope with accidents.\",\"id\":\"30078\",\"name\":\"\u003credacted\u003e\",\"size\":\"0\"},{\"active\":true,\"createdAt\":\"2020-06-18T15:45:56Z\",\"description\":\"Mobile devices with visitation patterns indicating interest in open enrollment, such as elder care and retirement venues and events\",\"id\":\"34004\",\"name\":\"\u003credacted\u003e\",\"size\":\"0\"},{\"active\":false,\"createdAt\":\"2020-07-01T19:53:15Z\",\"description\":\"Individuals who …[truncated]"
+    },
+    {
+      "command": "segments list",
+      "kind": "json_fidelity",
+      "args": [
+        "segments",
+        "list",
+        "--agent",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"count\":100,\"items\":[{\"active\":true,\"createdAt\":\"2019-06-06T21:12:06Z\",\"description\":\"People who are qualified for Medicaid coverage\",\"id\":\"10650\",\"name\":\"\u003credacted\u003e\",\"size\":\"0\"},{\"active\":false,\"createdAt\":\"2019-06-07T14:58:50Z\",\"description\":\"People who are eligible for both Medicaid \u0026 Medicare\",\"id\":\"10678\",\"name\":\"\u003credacted\u003e\",\"size\":\"0\"},{\"active\":true,\"createdAt\":\"2019-07-09T18:37:44Z\",\"description\":\"Individuals who are home owners.\",\"id\":\"11650\",\"name\":\"\u003credacted\u003e\",\"size\":\"332208500\"},{\"active\":true,\"createdAt\":\"2019-09-26T21:41:15Z\",\"description\":\"Audience derived from Scarborough USA+\",\"id\":\"14851\",\"name\":\"\u003credacted\u003e\",\"size\":\"140715600\"},{\"active\":false,\"createdAt\":\"2019-10-28T17:27:15Z\",\"description\":\"\",\"id\":\"16402\",\"name\":\"\u003credacted\u003e\",\"size\":\"0\"},{\"active\":true,\"createdAt\":\"2019-11-26T16:56:03Z\",\"description\":\"The segment includes people residing in the United States who are African-American. This segment is a mix of deterministic \u0026 probabilistic from users' self-declared information, in relevant mobile apps and social profiles, geolocations, respective timestamps and public records such as census data. The segment uses a 30 day lookback window, refreshed every 30 days, and complies with CCPA and GDPR. For more information, please reach out to \u003credacted\u003e.\",\"id\":\"18422\",\"name\":\"\u003credacted\u003e\",\"size\":\"234053000\"},{\"active\":false,\"createdAt\":\"2019-12-17T21:56:30Z\",\"description\":\"People in this audience are interested in applying for a health care insurance policy. They have been seen researching health care insurance companies, such as BlueCross BlueShield, UnitedHealth Care, Humana, Kaiser Permanente or Aetna, as well as Medicare or Medicaid plans.\",\"id\":\"19771\",\"name\":\"\u003credacted\u003e\",\"size\":\"0\"},{\"active\":true,\"createdAt\":\"2020-04-08T13:57:12Z\",\"description\":\"Individuals who are Small Business Owners based on B2B contact information including email, name, title, and company firmographic information that is verified through multiple sources including business social media profiles. (FLA Friendly)\",\"id\":\"28487\",\"name\":\"\u003credacted\u003e\",\"size\":\"19657800\"},{\"active\":true,\"createdAt\":\"2020-04-08T13:57:27Z\",\"description\":\"Individuals who have recently started new businesses multi-sourced from government registrations, phone records, professional licenses, utility records, tax records, and other service registrations. They are entrepreneurs who are highly likely to be in market for business related products and services such as business loans, staffing, and lawyers. (FLA Friendly)\",\"id\":\"28488\",\"name\":\"\u003credacted\u003e\",\"size\":\"1171300\"},{\"active\":true,\"createdAt\":\"2020-04-08T13:57:44Z\",\"description\":\"Individuals who are small business owners multi-sourced from surveys, government registrations, phone records, professional licenses, utility records, tax records, and other service registrations. (FLA Friendly)\",\"id\":\"28489\",\"name\":\"\u003credacted\u003e\",\"size\":\"6417400\"},{\"active\":true,\"createdAt\":\"2020-04-17T14:46:24Z\",\"description\":\"Individuals who are Business Owners based on B2B contact information including email, name, title, and company firmographic information that is verified through multiple sources including business social media profiles. (FLA Friendly)\",\"id\":\"29065\",\"name\":\"\u003credacted\u003e\",\"size\":\"9770300\"},{\"active\":true,\"createdAt\":\"2020-05-05T22:07:01Z\",\"description\":\"Individuals that have likely had a recent personal injury are in this segment. Audience selection is identified using predictive algorithms that identify devices displaying behavior indicative of being in a serious accident that required medical care in the past 12 months. Individuals may engage with content related to options for medical care, personal injury lawsuit cases or ways to cope with accidents.\",\"id\":\"30078\",\"name\":\"\u003credacted\u003e\",\"size\":\"0\"},{\"active\":true,\"createdAt\":\"2020-06-18T15:45:56Z\",\"description\":\"Mobile devices with visitation patterns indicating interest in open enrollment, such as elder care and retirement venues and events\",\"id\":\"34004\",\"name\":\"\u003credacted\u003e\",\"size\":\"0\"},{\"active\":false,\"createdAt\":\"2020-07-01T19:53:15Z\",\"description\":\"Individuals who …[truncated]"
+    },
+    {
+      "command": "segments list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "sql",
+      "kind": "help",
+      "args": [
+        "sql",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Execute a read-only SQL query (SELECT or WITH only) against the local SQLite\nstore populated by 'sync'. The database is opened read-only, so mutating\nstatements are rejected.\n\nThe synced objects live in the 'resources' table:\n  resource_type, id, name, data (JSON), synced_at\nUse SQLite's json_extract to reach into the stored JSON, e.g.\n  json_extract(data, '$.channelType').\n\nRun 'stackadapt-pp-cli sync' first to populate the store.\n\nUsage:\n  stackadapt-pp-cli sql \u003cquery\u003e [flags]\n\nExamples:\n  stackadapt-pp-cli sql \"SELECT resource_type, count(*) FROM resources GROUP BY resource_type\"\n  stackadapt-pp-cli sql \"SELECT id, name FROM resources WHERE resource_type='campaigns' LIMIT 10\"\n  stackadapt-pp-cli sql \"SELECT json_extract(data,'$.channelType') AS channel, count(*) FROM resources WHERE resource_type='ads' GROUP BY channel\" --json\n\nFlags:\n      --db string   Path to the local store (default: STACKADAPT_DB or ~/.local/share/stackadapt-pp-cli/data.db)\n  -h, --help        help for sql\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'stackadapt-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "sql",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [sql] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "sql",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [sql] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "sql",
+      "kind": "error_path",
+      "args": [
+        "sql",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: only SELECT/WITH queries are allowed; the local store is read-only\n"
+    },
+    {
+      "command": "stale-campaigns",
+      "kind": "help",
+      "args": [
+        "stale-campaigns",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Cross-reference your non-archived campaigns against campaigns that actually delivered (spent) in the last N days. Campaigns with no delivery are surfaced with their status so you can spot live-but-not-delivering campaigns. Read-only.\n\nUsage:\n  stackadapt-pp-cli stale-campaigns [flags]\n\nExamples:\n  stackadapt-pp-cli stale-campaigns --days 14 --agent\n\nFlags:\n      --days int   Days of delivery history to consider (default 14)\n  -h, --help       help for stale-campaigns\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'stackadapt-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "stale-campaigns",
+      "kind": "happy_path",
+      "args": [
+        "stale-campaigns",
+        "--days",
+        "14",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\"stale_campaigns\":[{\"campaign\":\"261306\",\"name\":\"\u003credacted\u003e\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},{\"campaign\":\"261307\",\"name\":\"\u003credacted\u003e\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},{\"campaign\":\"261304\",\"name\":\"\u003credacted\u003e\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},{\"campaign\":\"261305\",\"name\":\"\u003credacted\u003e\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},{\"campaign\":\"261310\",\"name\":\"\u003credacted\u003e\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},{\"campaign\":\"261311\",\"name\":\"\u003credacted\u003e\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},{\"campaign\":\"261312\",\"name\":\"\u003credacted\u003e\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},{\"campaign\":\"261308\",\"name\":\"\u003credacted\u003e\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},{\"campaign\":\"261309\",\"name\":\"\u003credacted\u003e\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},{\"campaign\":\"261302\",\"name\":\"\u003credacted\u003e\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},{\"campaign\":\"261303\",\"name\":\"\u003credacted\u003e\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},{\"campaign\":\"261299\",\"name\":\"\u003credacted\u003e\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},{\"campaign\":\"261300\",\"name\":\"\u003credacted\u003e\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},{\"campaign\":\"261301\",\"name\":\"\u003credacted\u003e\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},{\"campaign\":\"261353\",\"name\":\"\u003credacted\u003e\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},{\"campaign\":\"261354\",\"name\":\"\u003credacted\u003e\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},{\"campaign\":\"261350\",\"name\":\"\u003credacted\u003e\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},{\"campaign\":\"261351\",\"name\":\"\u003credacted\u003e\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},{\"campaign\":\"261347\",\"name\":\"\u003credacted\u003e\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},{\"campaign\":\"261348\",\"name\":\"\u003credacted\u003e\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},{\"campaign\":\"261349\",\"name\":\"\u003credacted\u003e\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},{\"campaign\":\"261346\",\"name\":\"\u003credacted\u003e\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},{\"campaign\":\"261358\",\"name\":\"\u003credacted\u003e\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},{\"campaign\":\"261359\",\"name\":\"\u003credacted\u003e\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},{\"campaign\":\"261355\",\"name\":\"\u003credacted\u003e\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},{\"campaign\":\"261356\",\"name\":\"\u003credacted\u003e\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},{\"campaign\":\"261357\",\"name\":\"\u003credacted\u003e\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},{\"campaign\":\"261382\",\"name\":\"\u003credacted\u003e\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},{\"campaign\":\"261383\",\"name\":\"\u003credacted\u003e\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},{\"campaign\":\"261380\",\"name\":\"\u003credacted\u003e\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},{\"campaign\":\"261381\",\"name\":\"\u003credacted\u003e\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},{\"campaign\":\"261377\",\"name\":\"\u003credacted\u003e\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},{\"campaign\":\"261378\",\"name\":\"\u003credacted\u003e\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},{\"campaign\":\"261379\",\"name\":\"\u003credacted\u003e\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},{\"campaign\":\"261375\",\"name\":\"\u003credacted\u003e\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},{\"campaign\":\"261376\",\"name\":\"\u003credacted\u003e\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},{\"campaign\":\"261387\",\"name\":\"\u003credacted\u003e\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},{\"campaign\":\"261388\",\"name\":\"\u003credacted\u003e\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},{\"campaign\":\"261384\",\"name\":\"\u003credacted\u003e\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},{\"campaign\":\"261385\",\"name\":\"\u003credacted\u003e\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},{\"campaign\":\"261386\",\"name\":\"\u003credacted\u003e\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},{\"campaign\":\"261284\",\"name\":\"\u003credacted\u003e\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},{\"campaign\":\"261285\",\"name\":\"\u003credacted\u003e\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},{\"campaign\":\"261282\",\"name\":\"\u003credacted\u003e\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},{\"campaign\":\"261283\",\"name\":\"\u003credacted\u003e\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},{\"campaign\":\"261274\",\"name\":\"\u003credacted\u003e\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},{\"campaign\":\"261275\",\"name\":\"\u003credacted\u003e\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},{\"campaign\":\"261278\",\"name\":\"\u003credacted\u003e\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},{\"campaign\":\"261269\",\"name\":\"\u003credacted\u003e\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},{\"campaign\":\"261273\",\"name\":\"\u003credacted\u003e\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},{\"campaign\":\"261292\",\"name\":\"\u003credacted\u003e\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},{\"campaign\":\"261293\",\"name\":\"\u003credacted\u003e\",\"statu…[truncated]"
+    },
+    {
+      "command": "stale-campaigns",
+      "kind": "json_fidelity",
+      "args": [
+        "stale-campaigns",
+        "--days",
+        "14",
+        "--agent",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"stale_campaigns\":[{\"campaign\":\"261306\",\"name\":\"\u003credacted\u003e\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},{\"campaign\":\"261307\",\"name\":\"\u003credacted\u003e\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},{\"campaign\":\"261304\",\"name\":\"\u003credacted\u003e\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},{\"campaign\":\"261305\",\"name\":\"\u003credacted\u003e\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},{\"campaign\":\"261310\",\"name\":\"\u003credacted\u003e\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},{\"campaign\":\"261311\",\"name\":\"\u003credacted\u003e\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},{\"campaign\":\"261312\",\"name\":\"\u003credacted\u003e\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},{\"campaign\":\"261308\",\"name\":\"\u003credacted\u003e\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},{\"campaign\":\"261309\",\"name\":\"\u003credacted\u003e\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},{\"campaign\":\"261302\",\"name\":\"\u003credacted\u003e\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},{\"campaign\":\"261303\",\"name\":\"\u003credacted\u003e\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},{\"campaign\":\"261299\",\"name\":\"\u003credacted\u003e\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},{\"campaign\":\"261300\",\"name\":\"\u003credacted\u003e\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},{\"campaign\":\"261301\",\"name\":\"\u003credacted\u003e\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},{\"campaign\":\"261353\",\"name\":\"\u003credacted\u003e\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},{\"campaign\":\"261354\",\"name\":\"\u003credacted\u003e\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},{\"campaign\":\"261350\",\"name\":\"\u003credacted\u003e\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},{\"campaign\":\"261351\",\"name\":\"\u003credacted\u003e\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},{\"campaign\":\"261347\",\"name\":\"\u003credacted\u003e\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},{\"campaign\":\"261348\",\"name\":\"\u003credacted\u003e\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},{\"campaign\":\"261349\",\"name\":\"\u003credacted\u003e\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},{\"campaign\":\"261346\",\"name\":\"\u003credacted\u003e\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},{\"campaign\":\"261358\",\"name\":\"\u003credacted\u003e\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},{\"campaign\":\"261359\",\"name\":\"\u003credacted\u003e\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},{\"campaign\":\"261355\",\"name\":\"\u003credacted\u003e\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},{\"campaign\":\"261356\",\"name\":\"\u003credacted\u003e\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},{\"campaign\":\"261357\",\"name\":\"\u003credacted\u003e\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},{\"campaign\":\"261382\",\"name\":\"\u003credacted\u003e\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},{\"campaign\":\"261383\",\"name\":\"\u003credacted\u003e\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},{\"campaign\":\"261380\",\"name\":\"\u003credacted\u003e\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},{\"campaign\":\"261381\",\"name\":\"\u003credacted\u003e\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},{\"campaign\":\"261377\",\"name\":\"\u003credacted\u003e\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},{\"campaign\":\"261378\",\"name\":\"\u003credacted\u003e\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},{\"campaign\":\"261379\",\"name\":\"\u003credacted\u003e\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},{\"campaign\":\"261375\",\"name\":\"\u003credacted\u003e\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},{\"campaign\":\"261376\",\"name\":\"\u003credacted\u003e\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},{\"campaign\":\"261387\",\"name\":\"\u003credacted\u003e\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},{\"campaign\":\"261388\",\"name\":\"\u003credacted\u003e\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},{\"campaign\":\"261384\",\"name\":\"\u003credacted\u003e\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},{\"campaign\":\"261385\",\"name\":\"\u003credacted\u003e\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},{\"campaign\":\"261386\",\"name\":\"\u003credacted\u003e\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},{\"campaign\":\"261284\",\"name\":\"\u003credacted\u003e\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},{\"campaign\":\"261285\",\"name\":\"\u003credacted\u003e\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},{\"campaign\":\"261282\",\"name\":\"\u003credacted\u003e\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},{\"campaign\":\"261283\",\"name\":\"\u003credacted\u003e\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},{\"campaign\":\"261274\",\"name\":\"\u003credacted\u003e\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},{\"campaign\":\"261275\",\"name\":\"\u003credacted\u003e\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},{\"campaign\":\"261278\",\"name\":\"\u003credacted\u003e\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},{\"campaign\":\"261269\",\"name\":\"\u003credacted\u003e\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},{\"campaign\":\"261273\",\"name\":\"\u003credacted\u003e\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},{\"campaign\":\"261292\",\"name\":\"\u003credacted\u003e\",\"status\":\"CAMPAIGN_END_DATE_REACHED\"},{\"campaign\":\"261293\",\"name\":\"\u003credacted\u003e\",\"statu…[truncated]"
+    },
+    {
+      "command": "stale-campaigns",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "sync",
+      "kind": "help",
+      "args": [
+        "sync",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Pull advertisers, campaigns, campaign groups, ads, and audience segments from\nthe StackAdapt GraphQL API into a local SQLite store. Once synced, 'search' and\n'sql' run fully offline, and read commands accept '--data-source local'.\n\nThe store lives at ~/.local/share/stackadapt-pp-cli/data.db (override with the\nSTACKADAPT_DB environment variable). Re-running sync refreshes every object in\nplace.\n\nUsage:\n  stackadapt-pp-cli sync [flags]\n\nExamples:\n  stackadapt-pp-cli sync --full\n  stackadapt-pp-cli sync --resources advertisers,campaigns\n  STACKADAPT_DB=/tmp/sa.db stackadapt-pp-cli sync --full\n\nFlags:\n      --full               Refresh every selected resource (full re-sync)\n  -h, --help               help for sync\n      --limit int          Maximum objects to pull per resource (default 500)\n      --resources string   Comma-separated resources to sync (default: all). One of: advertisers, campaigns, campaign-groups, ads, segments\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'stackadapt-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "sync",
+      "kind": "happy_path",
+      "args": [
+        "sync",
+        "--full"
+      ],
+      "status": "pass",
+      "output_sample": "advertisers      27\ncampaigns        50\ncampaign-groups  50\nads              50\nsegments         50\ntotal            227\nstored at /tmp/claude-501/printing-press-subprocess-778153951/.local/share/stackadapt-pp-cli/data.db\n"
+    },
+    {
+      "command": "sync",
+      "kind": "json_fidelity",
+      "args": [
+        "sync",
+        "--full",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"synced\": [\n    {\n      \"resource\": \"advertisers\",\n      \"count\": 27\n    },\n    {\n      \"resource\": \"campaigns\",\n      \"count\": 50\n    },\n    {\n      \"resource\": \"campaign-groups\",\n      \"count\": 50\n    },\n    {\n      \"resource\": \"ads\",\n      \"count\": 50\n    },\n    {\n      \"resource\": \"segments\",\n      \"count\": 50\n    }\n  ],\n  \"total\": 227,\n  \"store_path\": \"/tmp/claude-501/printing-press-subprocess-778153951/.local/share/stackadapt-pp-cli/data.db\"\n}\n"
+    },
+    {
+      "command": "sync",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "which",
+      "kind": "help",
+      "args": [
+        "which",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "which resolves a natural-language capability query (for example, \"search messages\" or \"stale tickets\") to the best matching command from this CLI's curated feature index.\n\nExit codes:\n  0  at least one match found\n  2  no confident match - the query did not score against any indexed capability; fall back to '--help' or 'search' if this CLI has one\n\nUsage:\n  stackadapt-pp-cli which [query] [flags]\n\nExamples:\n  stackadapt-pp-cli which \"stale tickets\"\n  stackadapt-pp-cli which \"bottleneck\"\n  stackadapt-pp-cli which --limit 1 \"send message\"\n  stackadapt-pp-cli which                                # list the full capability index\n\nFlags:\n  -h, --help        help for which\n      --limit int   Maximum number of matches to return (default 3)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'stackadapt-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "which",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [which] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "which",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [which] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "which",
+      "kind": "error_path",
+      "args": [
+        "which",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"matches\": []\n}\n"
+    }
+  ],
+  "ran_at": "2026-05-30T09:14:54.432298Z"
+}

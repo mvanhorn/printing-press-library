@@ -1,4 +1,4 @@
-// Copyright 2026 nathan-kettles. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Nathan Kettles and contributors. Licensed under Apache-2.0. See LICENSE.
 
 package cli
 
@@ -8,8 +8,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/productivity/nylas/internal/store"
+	"github.com/spf13/cobra"
 )
 
 // rtBucket is one row of the response-time report. p50 and p90 are

@@ -5,6 +5,10 @@
   "api_name": "outlook-calendar",
   "display_name": "Outlook Calendar",
   "cli_name": "outlook-calendar-pp-cli",
+  "creator": {
+    "handle": "brennaman",
+    "name": "Paul Brennaman"
+  },
   "owner": "paul-brennaman",
   "printer": "brennaman",
   "printer_name": "Paul Brennaman",

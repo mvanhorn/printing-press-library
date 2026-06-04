@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-28T07:18:02.014013Z",
+  "printing_press_version": "4.18.1",
+  "api_name": "meta-ads",
+  "display_name": "Meta Ads",
+  "cli_name": "meta-ads-pp-cli",
+  "owner": "dhilip-subramanian",
+  "printer": "sdhilip200",
+  "printer_name": "Dhilip Subramanian",
+  "spec_path": "meta-ads-spec.yaml",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:09f776114bf87e002e083cba58d9823d9e21159953b92903024b60e96e5ddbc3",
+  "run_id": "20260528-183943",
+  "category": "marketing",
+  "description": "The first agent-native Meta Ads CLI with local SQLite history and compound queries the live API cannot answer.",
+  "mcp_binary": "meta-ads-pp-mcp",
+  "mcp_tool_count": 11,
+  "mcp_ready": "full",
+  "api_version": "v19.0",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "META_ACCESS_TOKEN"
+  ],
+  "auth_key_url": "https://developers.facebook.com/docs/marketing-api/access",
+  "novel_features": [
+    {
+      "name": "Creative-Fatigue Observatory",
+      "command": "fatigue",
+      "description": "Detect ads whose CPM is drifting up, frequency is climbing, and CTR is falling across a configurable window."
+    },
+    {
+      "name": "Creative Decay Curve",
+      "command": "decay",
+      "description": "Compare a creative's first-impression CTR against its current CTR, with projected dead-date."
+    },
+    {
+      "name": "Audience Overlap Cartographer",
+      "command": "overlap",
+      "description": "Pairwise overlap percentages across custom audiences, with cannibalization recommendations."
+    },
+    {
+      "name": "Learning-Phase Forensics",
+      "command": "learning",
+      "description": "Surface adsets stuck in algorithmic learning \u003eN days with root-cause hint (budget too low, audience too narrow, events too sparse)."
+    },
+    {
+      "name": "Spend Reconciliation",
+      "command": "reconcile",
+      "description": "Per-day diff between Meta-reported account spend and sum-of-insights spend; flags days where attribution drift exceeds threshold."
+    },
+    {
+      "name": "Bottleneck Surfacer",
+      "command": "bottleneck",
+      "description": "Highest-spend adsets with worst ROAS, ranked with 'why' column joining learning state and effective status."
+    },
+    {
+      "name": "Stale Active Ads",
+      "command": "stale",
+      "description": "Active ads with zero impressions in N days."
+    },
+    {
+      "name": "Account Inventory Roll-up",
+      "command": "inventory",
+      "description": "Group every ad in an account by effective_status, surface ads where configured status='ACTIVE' but effective_status='WITH_ISSUES' or 'DISAPPROVED'."
+    }
+  ]
+}

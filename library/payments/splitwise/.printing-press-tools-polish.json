@@ -1,0 +1,19 @@
+{
+  "timestamp": "2026-05-28T05:34:02.065468Z",
+  "cli_dir": "\u003ccli-dir\u003e/splitwise-pp-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "version",
+      "file": "root.go",
+      "line": 348,
+      "evidence": "Print version",
+      "status": "accepted",
+      "note": "Framework version command; agents understand 'Print version' without elaboration and it is exempted from the MCP surface by classify.go"
+    }
+  ],
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-05-28T05:29:07.49589Z"
+  }
+}

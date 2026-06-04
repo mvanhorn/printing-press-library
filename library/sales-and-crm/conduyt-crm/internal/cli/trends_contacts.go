@@ -1,4 +1,4 @@
-// Copyright 2026 conduyt. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Conduyt and contributors. Licensed under Apache-2.0. See LICENSE.
 
 package cli
 
@@ -81,9 +81,9 @@ func newInsightsContactTrendsCmd(flags *rootFlags) *cobra.Command {
 			sort.Slice(sources, func(i, j int) bool { return sources[i].Count > sources[j].Count })
 
 			result := map[string]any{
-				"total_contacts":    total,
-				"creation_by_date":  dates,
-				"sources":           sources,
+				"total_contacts":   total,
+				"creation_by_date": dates,
+				"sources":          sources,
 			}
 
 			if flags.asJSON {

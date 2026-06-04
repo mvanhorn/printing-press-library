@@ -82,6 +82,46 @@
       "summary": "fillLastPreviews and printSearchTable slice text via []rune so previews don't split multi-byte UTF-8 runes at the truncation boundary.",
       "reason": "Byte-index truncation (text[:maxLen]) on emoji or CJK previews left a half rune at the end, which both JSON encoders and terminals render as U+FFFD mojibake. Rune-aware slicing keeps the cut at a glyph boundary. Greptile P1 on PR #766.",
       "files": ["internal/cli/messages_db.go", "internal/cli/messages_search.go"]
+    },
+    {
+      "id": "contacts-jxa-sqlite-store",
+      "summary": "contacts.go / contacts_db.go / contacts_analytics.go add a full contacts command group: sync (JXA → SQLite), list, get, search (FTS5), create, update, delete, and analytics subcommands (countries, domains, missing).",
+      "reason": "macOS Contacts requires Full Disk Access for raw SQLite but is fully readable via JXA (JavaScript for Automation) without any special permission. A local SQLite cache (~/Library/Application Support/icloud-pp-cli/contacts.db) is populated once via a single JXA call and makes all subsequent reads instant (<20ms). Phone numbers are resolved to countries via a longest-prefix E.164 dial-code map, enabling the `contacts analytics countries` command that groups contacts by country without any network call.",
+      "files": [
+        "internal/cli/contacts.go",
+        "internal/cli/contacts_analytics.go",
+        "internal/cli/contacts_db.go",
+        "internal/cli/root.go"
+      ],
+      "validated_outcome": "Synced 1,648 contacts; analytics countries returned 47 countries; FTS5 search on 'juan' returned 21 results in 13ms."
+    },
+    {
+      "id": "contacts-argv-injection-fix",
+      "summary": "create/update/delete commands switched from fmt.Sprintf(%q) script interpolation to on-run-argv AppleScript; UpsertOne tx.Exec errors are now propagated; update cache refresh includes MiddleName.",
+      "reason": "Greptile PR #872 flagged three blocking issues: (1) %q produces Go escape sequences (\\n, \\\") that AppleScript parses differently — a double-quote in user-supplied data terminates the string literal and can inject arbitrary AppleScript code. Fix: three contactCreate/Update/DeleteScript constants use 'on run argv / end run'; values are passed as separate process args after '--' and never seen by the AppleScript lexer. (2) UpsertOne swallowed all tx.Exec errors, so a constraint violation or disk-full condition committed a partially-written record silently. Fix: every tx.Exec error is checked and returned. (3) The update command's local cache refresh was missing existing.MiddleName = middle, so the middle name was written to Contacts.app but stale in the SQLite cache until the next full sync.",
+      "files": [
+        "internal/cli/contacts.go",
+        "internal/cli/contacts_db.go"
+      ]
+    },
+    {
+      "id": "contacts-uuid-merge-duplicates",
+      "summary": "contacts_db.go adds uuid column + GetByAny (prefix lookup); contacts.go adds merge and duplicates commands.",
+      "reason": "Apple contact IDs (UUID:ABPerson) are unwieldy in shell usage. Extracting the bare UUID and storing it separately allows 8-char prefix lookups across all write commands (get/update/delete/merge). The merge command (contacts merge <id1> <id2> [--confirm]) copies phones, emails, URLs, addresses, and note from contact2 into contact1 via AppleScript on-run-argv, deduplicates phones by normalized number and emails by lowercase value in the local store, then deletes contact2. The duplicates command runs four detection strategies (exact name, same-first-prefix-last, same phone, same email) and prints ready-to-paste merge commands with [UUID8] shortcodes.",
+      "files": [
+        "internal/cli/contacts.go",
+        "internal/cli/contacts_db.go"
+      ]
+    },
+    {
+      "id": "contacts-upsert-cache-completeness",
+      "summary": "UpsertOne re-inserts addresses and URLs (not just phones and emails); merge command nil-guards both GetByAny results; FTS body includes MiddleName; GetByAny prefix LIKE escapes wildcards and pairs with ESCAPE '\\'; analytics countries propagates the unresolved-count Scan error.",
+      "reason": "Greptile PR #872 second-round findings: (1) UpsertOne deleted contact_addresses and contact_urls but only re-inserted phones and emails, so every `contacts update` and `contacts merge --confirm` silently wiped the affected rows in the local cache until the next full sync — most visible on merge, which explicitly aggregates addresses/URLs before writing. Fix: mirror the SyncAll insert loops for addresses and URLs. (2) merge dereferenced primary.Phones / absorbed.Phones without checking the (nil, nil) shape Get returns on sql.ErrNoRows when GetByAny delegates to Get for a full Apple ID not in the local cache — every other write command already guards this. Fix: explicit `if primary == nil` / `if absorbed == nil` returns. (3) UpsertOne's FTS body omitted c.MiddleName, so contacts indexed only by middle name were unsearchable via FTS5 MATCH. (4) GetByAny's UUID-prefix lookup interpolated input directly into LIKE without escaping % and _, so `contacts get %` would match every contact and trip the ambiguous-prefix path instead of returning not-found. Fix: escapeLike(input) + explicit `ESCAPE '\\'` clause. (5) analytics countries swallowed the Scan error on the unresolved-country query — a missing table in an old DB would print 0 instead of erroring.",
+      "files": [
+        "internal/cli/contacts.go",
+        "internal/cli/contacts_db.go",
+        "internal/cli/contacts_analytics.go"
+      ]
     }
   ]
 }

@@ -10,6 +10,9 @@ cli_description: Dutch public-tender CLI with offline search, document corpus, a
 version: "0.1.0"
 base_url: "https://www.tenderned.nl/papi/tenderned-rs-tns/v2"
 
+regions: ["NL"]
+api_language: "nl"
+
 auth:
   type: none
 

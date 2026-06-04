@@ -5,6 +5,10 @@
   "api_name": "apify",
   "display_name": "Apify",
   "cli_name": "apify-pp-cli",
+  "creator": {
+    "handle": "kjmagnan1s",
+    "name": "Kevin Magnan"
+  },
   "owner": "kevin-magnan",
   "printer": "kjmagnan1s",
   "printer_name": "Kevin Magnan",

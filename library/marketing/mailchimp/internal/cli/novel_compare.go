@@ -1,4 +1,4 @@
-// Copyright 2026 trevin-chow. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Trevin Chow and contributors. Licensed under Apache-2.0. See LICENSE.
 
 package cli
 
@@ -16,20 +16,20 @@ import (
 // only the fields needed for diffing to keep the human and --md output
 // compact and the agent token cost low.
 type campaignReportSnapshot struct {
-	CampaignID    string  `json:"campaign_id"`
-	Subject       string  `json:"subject_line,omitempty"`
-	SendTime      string  `json:"send_time,omitempty"`
-	EmailsSent    int     `json:"emails_sent,omitempty"`
-	OpenRate      float64 `json:"open_rate"`
-	UniqueOpens   int     `json:"unique_opens"`
-	ClickRate     float64 `json:"click_rate"`
-	UniqueClicks  int     `json:"unique_clicks"`
-	ClickToOpen   float64 `json:"click_to_open_rate"`
-	HardBounces   int     `json:"hard_bounces"`
-	SoftBounces   int     `json:"soft_bounces"`
-	Unsubscribes  int     `json:"unsubscribed"`
-	AbuseReports  int     `json:"abuse_reports"`
-	Revenue       float64 `json:"total_revenue,omitempty"`
+	CampaignID   string  `json:"campaign_id"`
+	Subject      string  `json:"subject_line,omitempty"`
+	SendTime     string  `json:"send_time,omitempty"`
+	EmailsSent   int     `json:"emails_sent,omitempty"`
+	OpenRate     float64 `json:"open_rate"`
+	UniqueOpens  int     `json:"unique_opens"`
+	ClickRate    float64 `json:"click_rate"`
+	UniqueClicks int     `json:"unique_clicks"`
+	ClickToOpen  float64 `json:"click_to_open_rate"`
+	HardBounces  int     `json:"hard_bounces"`
+	SoftBounces  int     `json:"soft_bounces"`
+	Unsubscribes int     `json:"unsubscribed"`
+	AbuseReports int     `json:"abuse_reports"`
+	Revenue      float64 `json:"total_revenue,omitempty"`
 }
 
 // extractCampaignReport pulls the subset of fields compare cares about from

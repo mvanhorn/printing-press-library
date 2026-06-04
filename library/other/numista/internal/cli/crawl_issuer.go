@@ -1,4 +1,4 @@
-// Copyright 2026 vinny-pasceri. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Vinny Pasceri and contributors. Licensed under Apache-2.0. See LICENSE.
 
 package cli
 
@@ -11,9 +11,9 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/other/numista/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/other/numista/internal/store"
+	"github.com/spf13/cobra"
 )
 
 // PATCH: hand-written issuer crawler with monthly quota forecast promised by README Highlights.

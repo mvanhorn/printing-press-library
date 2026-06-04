@@ -1,4 +1,4 @@
-// Copyright 2026 salmonumbrella. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 salmonumbrella and contributors. Licensed under Apache-2.0. See LICENSE.
 // PATCH(retro #marianatek-browser-auth): tests for the cookie-blob parser.
 
 package cli
@@ -10,11 +10,11 @@ import (
 
 func TestMTCookieBlobParsing(t *testing.T) {
 	cases := []struct {
-		name        string
-		input       string
-		wantToken   string
-		wantType    string
-		wantErr     bool
+		name      string
+		input     string
+		wantToken string
+		wantType  string
+		wantErr   bool
 	}{
 		{
 			name:      "happy path with full tokenData",

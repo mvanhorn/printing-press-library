@@ -5,6 +5,10 @@
   "api_name": "trustpilot",
   "display_name": "Trustpilot",
   "cli_name": "trustpilot-pp-cli",
+  "creator": {
+    "handle": "mvanhorn",
+    "name": "Matt Van Horn"
+  },
   "owner": "mvanhorn",
   "printer": "mvanhorn",
   "printer_name": "Matt Van Horn",

@@ -1,4 +1,4 @@
-// Copyright 2026 nikica-jokic. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Nikica Jokic and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // PATCH novel-commands: hand-built topics aggregation (local SQLite, no upstream endpoint).
 package cli
@@ -30,9 +30,9 @@ func newTopicsGetCmd(flags *rootFlags) *cobra.Command {
 	var dbPath string
 
 	cmd := &cobra.Command{
-		Use:     "get <id>",
-		Short:   "Get topics discussed in a specific transcript",
-		Example: `  fireflies-pp-cli topics get abc123 --json`,
+		Use:         "get <id>",
+		Short:       "Get topics discussed in a specific transcript",
+		Example:     `  fireflies-pp-cli topics get abc123 --json`,
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

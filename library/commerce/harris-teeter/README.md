@@ -4,6 +4,8 @@ Harris Teeter grocery shopping API discovered from the logged-in web app
 
 Learn more at [Harris Teeter](https://www.harristeeter.com).
 
+Created by [@jwmoss](https://github.com/jwmoss) (Jonathan Moss).
+
 ## Install
 
 The recommended path installs both the `harris-teeter-pp-cli` binary and the `pp-harris-teeter` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

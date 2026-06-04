@@ -1,4 +1,4 @@
-// Copyright 2026 drdriftwood. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Angelo Pullen and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // `obsidian-pp-cli orphans` — list vault notes that have no incoming
 // wikilinks. Replaces the Press's generic "items missing assignee/project"
@@ -17,9 +17,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/productivity/obsidian/internal/obsidian"
 	"github.com/mvanhorn/printing-press-library/library/productivity/obsidian/internal/store"
+	"github.com/spf13/cobra"
 )
 
 func newOrphansCmd(flags *rootFlags) *cobra.Command {
@@ -46,8 +46,8 @@ When the mirror is empty this command falls back to the live
   # JSON output, top 20
   obsidian-pp-cli orphans --json --limit 20`,
 		Annotations: map[string]string{
-			"mcp:read-only":        "true",
-			"pp:typed-exit-codes":  "0,3,5",
+			"mcp:read-only":       "true",
+			"pp:typed-exit-codes": "0,3,5",
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dbPath == "" {

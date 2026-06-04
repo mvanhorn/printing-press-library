@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "tesla-auth-storage-facade",
+  "applied_at": "2026-05-21",
+  "base_run_id": "20260519-225351",
+  "base_printing_press_version": "4.9.0",
+  "summary": "Token-storage facade routing all auth writes through cfg.SaveTokens (single source of truth) plus one-time migration from legacy ~/.config/tesla-pp-cli/auth.json.",
+  "reason": "Earlier hand-coded auth flows wrote to a separate auth.json file the templated config/client layer never read; the rest of the CLI couldn't see fresh tokens after login. Migration breadcrumb (auth.json.migrated-YYYYMMDD) keeps the legacy file recoverable for one release.",
+  "files": [
+    "internal/cli/tesla_auth_storage.go",
+    "internal/cli/tesla_auth_storage_test.go"
+  ],
+  "validated_outcome": "8 storage tests pass; round-trip writes via saveTeslaTokens read back via config.Load with matching access_token, refresh_token, token_expiry."
+}

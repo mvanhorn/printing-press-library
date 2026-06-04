@@ -1,4 +1,4 @@
-// Copyright 2026 mitch-nick. Licensed under Apache-2.0.
+// Copyright 2026 Mitch Nick and contributors. Licensed under Apache-2.0.
 
 package store
 

@@ -1,4 +1,4 @@
-// Copyright 2026 trevin-chow. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Trevin Chow and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // Package dreoauth implements the Dreo mobile-app OAuth login flow:
 // MD5-hashed password POST against the regional auth host, with a

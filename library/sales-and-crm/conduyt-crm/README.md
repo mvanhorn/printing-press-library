@@ -73,6 +73,8 @@ follow exponential backoff: 1m, 5m, 15m, 1h, 6h, 24h, 72h (7 attempts).
 
 Learn more at [Conduyt Crm](https://conduyt.app).
 
+Created by [@ptaramona](https://github.com/ptaramona) (Conduyt).
+
 ## Install
 
 The recommended path installs both the `conduyt-crm-pp-cli` binary and the `pp-conduyt-crm` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

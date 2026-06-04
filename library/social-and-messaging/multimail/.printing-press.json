@@ -1,20 +1,24 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-05-09T18:09:29.310416Z",
-  "printing_press_version": "4.2.0",
+  "generated_at": "2026-05-28T04:19:00Z",
+  "printing_press_version": "4.19.0",
   "api_name": "multimail",
-  "display_name": "Multimail",
+  "display_name": "MultiMail",
   "cli_name": "multimail-pp-cli",
   "owner": "h179922",
   "printer": "H179922",
   "printer_name": "H179922",
-  "spec_path": "/tmp/multimail-openapi.json",
+  "creator": {
+    "handle": "H179922",
+    "name": "H179922"
+  },
+  "spec_path": "multimail-openapi.json",
   "spec_format": "openapi3",
-  "spec_checksum": "sha256:1ef613e9984cecb7aed2292701ba4f4a7733ed36cd23e81df7708c92cd430e31",
-  "run_id": "20260507-194146",
+  "spec_checksum": "sha256:d89ac9638ffefdccc4bfe393809f984634965f061190085c9bd4df060b193583",
+  "run_id": "20260527-225904",
   "category": "social-and-messaging",
   "mcp_binary": "multimail-pp-mcp",
-  "mcp_tool_count": 77,
+  "mcp_tool_count": 86,
   "mcp_ready": "full",
   "api_version": "2.0.0",
   "auth_type": "bearer_token",
@@ -23,44 +27,59 @@
   ],
   "novel_features": [
     {
-      "name": "Inbox health composite score",
-      "command": "mm health",
-      "description": "Compute a 0-100 inbox health score from local SQLite, factoring in unread count, stale thread ratio, bounce rate, spam score, and quota utilization."
+      "name": "Fleet health",
+      "command": "fleet health",
+      "description": "Single-command account-wide health snapshot: mailbox count, oversight queue depth, webhook delivery rate, domain verification status, usage vs plan limits."
     },
     {
-      "name": "Stale thread detection",
-      "command": "mm stale",
-      "description": "Scan synced mailboxes for threads with unanswered inbound messages older than a configurable threshold (default 48h)."
+      "name": "Bulk oversight decide",
+      "command": "oversight bulk-decide",
+      "description": "Approve or reject all pending emails matching a filter (by mailbox, sender, or age) in one command."
     },
     {
-      "name": "Oversight dashboard",
-      "command": "mm oversight summary",
-      "description": "Display a summary of pending oversight approvals across all mailboxes, grouped by direction and mailbox."
+      "name": "Oversight velocity",
+      "command": "oversight velocity",
+      "description": "See approval/rejection rates and median decision latency per mailbox across your entire fleet."
     },
     {
       "name": "Trust ladder status",
-      "command": "mm trust status",
-      "description": "Show the current trust ladder position for each mailbox with upgrade eligibility and operator approval flow status."
+      "command": "trust status",
+      "description": "Fleet-wide view of each mailbox's oversight mode, time-at-level, and upgrade eligibility."
     },
     {
-      "name": "Quota forecast",
-      "command": "mm quota forecast",
-      "description": "Project email quota usage for the remainder of the billing period based on the current send rate."
+      "name": "Trust timeline",
+      "command": "trust timeline",
+      "description": "Per-mailbox chronological history of every oversight mode change with timestamps and who triggered it."
     },
     {
-      "name": "Send analytics",
-      "command": "mm stats",
-      "description": "Display send/receive analytics for the current billing period from the /v1/usage endpoint."
+      "name": "Send and wait",
+      "command": "emails send-and-wait",
+      "description": "Send an email and block until a reply arrives or timeout — the agent test loop in one command."
     },
     {
-      "name": "Offline email search",
-      "command": "mm search",
-      "description": "Full-text search across locally synced emails by subject, sender, or body content without making API calls."
+      "name": "Allowlist coverage",
+      "command": "mailboxes allowlist coverage",
+      "description": "See what percentage of recent recipients are covered by allowlist patterns vs gated."
     },
     {
-      "name": "Incremental sync",
-      "command": "mm sync",
-      "description": "Pull new and updated emails from the API into the local SQLite cache using cursor-based pagination."
+      "name": "Inbox health",
+      "command": "inbox health",
+      "description": "Per-mailbox health snapshot: unread count, oldest unread age, reply rate, and thread depth."
+    },
+    {
+      "name": "Stale thread detection",
+      "command": "threads stale",
+      "description": "List conversation threads with no reply in N days — surfaces dropped conversations."
+    },
+    {
+      "name": "Compliance snapshot",
+      "command": "audit compliance",
+      "description": "Cross-entity compliance report: oversight bypass count, approval/rejection counts, decision latency percentiles per mailbox."
+    },
+    {
+      "name": "Webhook health",
+      "command": "webhooks health",
+      "description": "Per-webhook success rate, failure count, last delivery timestamp, and consecutive failure streak."
     }
   ]
 }

@@ -1,0 +1,21 @@
+{
+  "schema_version": 2,
+  "id": "restaurant365-basic-auth-and-docs",
+  "applied_at": "2026-06-01",
+  "base_run_id": "20260530-231734",
+  "base_printing_press_version": "4.18.1",
+  "summary": "Correct Basic auth guidance and document Restaurant365 OData warehouse refresh patterns.",
+  "reason": "Restaurant365 OData uses username/password Basic auth, not a single API key; public docs also needed to explain rowVersion, date-window refresh, and EntityDeleted workflows.",
+  "files": [
+    "README.md",
+    "SKILL.md",
+    "internal/cli/auth.go",
+    "internal/cli/doctor.go",
+    "internal/cli/helpers.go",
+    "internal/client/client.go",
+    "internal/mcp/tools.go",
+    ".manuscripts/20260530-231734/research.json",
+    ".manuscripts/20260530-231734/proofs/live-validation-summary.md"
+  ],
+  "validated_outcome": "doctor verified live $metadata, samples stayed redacted, and publish validate passed Go build/vet/skill checks before phase proof generation."
+}

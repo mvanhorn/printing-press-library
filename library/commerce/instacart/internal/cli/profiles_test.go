@@ -179,11 +179,11 @@ func TestProfilesListJSON(t *testing.T) {
 
 func TestSlugifyName(t *testing.T) {
 	cases := map[string]string{
-		"1528 37th Ave E":             "1528-37th-ave-e",
-		"990 Lake Whatcom Boulevard":  "990-lake-whatcom-boulevard",
-		"  Padded   Spaces  ":         "padded-spaces",
-		"a/b/c":                       "a-b-c",
-		"!!!":                         "",
+		"1528 37th Ave E":            "1528-37th-ave-e",
+		"990 Lake Whatcom Boulevard": "990-lake-whatcom-boulevard",
+		"  Padded   Spaces  ":        "padded-spaces",
+		"a/b/c":                      "a-b-c",
+		"!!!":                        "",
 		// Truncated to the 40-char cap; tail isn't a dash so no further trim happens.
 		"this is a way way way way way way way way way too long for forty characters": "this-is-a-way-way-way-way-way-way-way-wa",
 	}
@@ -497,4 +497,3 @@ func TestProfilesImportBadPrefixIsUsageError(t *testing.T) {
 		t.Errorf("ExitCode = %d, want ExitUsage (%d) so agents stop retrying", ce.Code(), ExitUsage)
 	}
 }
-

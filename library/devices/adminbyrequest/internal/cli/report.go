@@ -1,4 +1,4 @@
-// Copyright 2026 joltsconsulting. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 joltsconsulting and contributors. Licensed under Apache-2.0. See LICENSE.
 
 package cli
 
@@ -14,18 +14,18 @@ import (
 )
 
 type complianceRow struct {
-	ID            string `json:"id"`
-	RequestTime   string `json:"request_time"`
-	Type          string `json:"type"`
-	Status        string `json:"status"`
-	User          string `json:"user"`
-	Computer      string `json:"computer"`
-	Application   string `json:"application"`
-	Reason        string `json:"reason"`
-	ApprovedBy    string `json:"approved_by"`
-	DeniedBy      string `json:"denied_by"`
-	DeniedReason  string `json:"denied_reason"`
-	AuditLogLink  string `json:"auditlog_link"`
+	ID           string `json:"id"`
+	RequestTime  string `json:"request_time"`
+	Type         string `json:"type"`
+	Status       string `json:"status"`
+	User         string `json:"user"`
+	Computer     string `json:"computer"`
+	Application  string `json:"application"`
+	Reason       string `json:"reason"`
+	ApprovedBy   string `json:"approved_by"`
+	DeniedBy     string `json:"denied_by"`
+	DeniedReason string `json:"denied_reason"`
+	AuditLogLink string `json:"auditlog_link"`
 }
 
 func newReportCmd(flags *rootFlags) *cobra.Command {
@@ -220,4 +220,3 @@ func firstNonEmpty(vs ...string) string {
 	}
 	return ""
 }
-

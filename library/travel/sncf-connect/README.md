@@ -12,7 +12,7 @@ navitia.io is the open API for building cool stuff with mobility data. It provid
 
 Learn more at [Sncf Connect](https://www.navitia.io/).
 
-Printed by [@jmbernabotto](https://github.com/jmbernabotto) (jmbernabotto).
+Created by [@jmbernabotto](https://github.com/jmbernabotto) (jmbernabotto).
 
 ## Install
 

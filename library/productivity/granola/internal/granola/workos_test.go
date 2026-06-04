@@ -1,4 +1,4 @@
-// Copyright 2026 dstevens. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Damien Stevens and contributors. Licensed under Apache-2.0. See LICENSE.
 
 package granola
 
@@ -41,14 +41,14 @@ func TestRefreshAccessToken_RotatesRefresh(t *testing.T) {
 	if resp.RefreshToken != "new-refresh" {
 		t.Errorf("expected new-refresh, got %q", resp.RefreshToken)
 	}
-	if gotBody["grant_type"] != "refresh_token" {
-		t.Errorf("expected grant_type=refresh_token, got %q", gotBody["grant_type"])
-	}
 	if gotBody["refresh_token"] != "old-refresh" {
 		t.Errorf("expected refresh_token=old-refresh, got %q", gotBody["refresh_token"])
 	}
-	if gotBody["client_id"] != WorkOSClientID {
-		t.Errorf("expected client_id=%q, got %q", WorkOSClientID, gotBody["client_id"])
+	if _, ok := gotBody["client_id"]; ok {
+		t.Errorf("did not expect legacy WorkOS client_id in Granola refresh body")
+	}
+	if _, ok := gotBody["grant_type"]; ok {
+		t.Errorf("did not expect legacy WorkOS grant_type in Granola refresh body")
 	}
 
 	// Verify cache holds the new pair.
@@ -102,6 +102,28 @@ func TestRefreshAccessToken_RefusesEncryptedSource(t *testing.T) {
 	cachedAccess = "old-access"
 	cachedRefresh = "old-refresh"
 	cachedSource = TokenSourceEncryptedSupabase
+	tokenMu.Unlock()
+
+	_, err := RefreshAccessToken("old-refresh")
+	if err == nil {
+		t.Fatal("expected ErrRefreshRefused, got nil")
+	}
+	if err != ErrRefreshRefused {
+		t.Errorf("expected ErrRefreshRefused, got %v", err)
+	}
+}
+
+func TestRefreshAccessToken_RefusesPlaintextDesktopFallbackSource(t *testing.T) {
+	ResetTokenCache()
+	defer ResetTokenCache()
+
+	// Simulate a plaintext supabase.json fallback after supabase.json.enc was
+	// present but Keychain-unavailable. The refresh token is still desktop-owned
+	// and may be the same single-use token Granola desktop has encrypted on disk.
+	tokenMu.Lock()
+	cachedAccess = "old-access"
+	cachedRefresh = "old-refresh"
+	cachedSource = TokenSourcePlaintextSupabaseDesktopFallback
 	tokenMu.Unlock()
 
 	_, err := RefreshAccessToken("old-refresh")

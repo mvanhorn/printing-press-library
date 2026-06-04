@@ -1,4 +1,4 @@
-// Copyright 2026 markvandeven. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 markvandeven and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // MCP server entry. Supports both stdio (the default for local Claude
 // Desktop / Claude Code clients) and streamable HTTP (for cloud-hosted
