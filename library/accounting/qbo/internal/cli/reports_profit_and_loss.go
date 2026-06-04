@@ -7,15 +7,21 @@ import "github.com/spf13/cobra"
 
 func newReportsProfitAndLossCmd() *cobra.Command {
 	var fixture string
+	var tokenFile string
+	var companyID string
+	var baseURL string
 	cmd := &cobra.Command{
 		Use:   "profit-and-loss",
 		Short: "Read QBO ProfitAndLoss report fixture.",
 		Args:  cobra.ArbitraryArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return printFixture("qbo", "profit-and-loss", fixture)
+			return printQBORead("profit-and-loss", fixture, "/reports/ProfitAndLoss", tokenFile, companyID, baseURL)
 		},
 	}
 	cmd.Flags().StringVar(&fixture, "fixture", "", "Path to local JSON fixture; live API access is intentionally unavailable")
+	cmd.Flags().StringVar(&tokenFile, "access-token-file", "", "Path to explicit QBO access token file for live read-only mode; no refresh/fallback")
+	cmd.Flags().StringVar(&companyID, "company-id", "", "QBO company/realm ID for live read-only mode")
+	cmd.Flags().StringVar(&baseURL, "base-url", "https://quickbooks.api.intuit.com/v3/company", "QBO API base URL")
 	cmd.Annotations = map[string]string{"mcp:read-only": "true"}
 	return cmd
 }

@@ -7,6 +7,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+
+	"github.com/mvanhorn/printing-press-library/library/accounting/qbo/internal/client"
 )
 
 type fixtureEnvelope struct {
@@ -43,6 +45,39 @@ func printFixture(provider, resource, fixture string) error {
 		return err
 	}
 	return printJSON(fixtureEnvelope{Provider: provider, Resource: resource, Mode: "fixture-only", Data: data})
+}
+
+func printQBORead(resource, fixture, endpoint, tokenFile, companyID, baseURL string) error {
+	if fixture != "" {
+		return printFixture("qbo", resource, fixture)
+	}
+	c, err := client.NewQBOClient(baseURL, companyID, tokenFile)
+	if err != nil {
+		return err
+	}
+	data, err := c.Get(endpoint)
+	if err != nil {
+		return err
+	}
+	return printJSON(fixtureEnvelope{Provider: "qbo", Resource: resource, Mode: "live-read-only", Data: data})
+}
+
+func printQBOQuery(fixture, query, tokenFile, companyID, baseURL string) error {
+	if fixture != "" {
+		return printFixture("qbo", "query", fixture)
+	}
+	if query == "" {
+		return fmt.Errorf("qbo query required for live mode")
+	}
+	c, err := client.NewQBOClient(baseURL, companyID, tokenFile)
+	if err != nil {
+		return err
+	}
+	data, err := c.Get(client.QueryEndpoint(query))
+	if err != nil {
+		return err
+	}
+	return printJSON(fixtureEnvelope{Provider: "qbo", Resource: "query", Mode: "live-read-only", Data: data})
 }
 
 func printError(format string, args ...any) {
