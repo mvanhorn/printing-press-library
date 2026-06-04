@@ -1,4 +1,4 @@
-module xero-pp-cli
+module github.com/mvanhorn/printing-press-library/library/accounting/xero
 
 go 1.26.3
 

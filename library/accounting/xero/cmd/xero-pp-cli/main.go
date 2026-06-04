@@ -6,7 +6,7 @@ package main
 import (
 	"os"
 
-	"xero-pp-cli/internal/cli"
+	"github.com/mvanhorn/printing-press-library/library/accounting/xero/internal/cli"
 )
 
 func main() {
