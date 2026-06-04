@@ -17,7 +17,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var version = "1.0.0"
+var version = "1.1.0"
 
 type rootFlags struct {
 	asJSON     bool
@@ -45,6 +45,11 @@ type rootFlags struct {
 	maxAge              time.Duration
 	dataSource          string
 	freshnessMeta       any
+	// store selects the active Shopper storefront (programada/fresh/unica/pet
+	// or a raw store id) by overriding the x-store-id / x-cluster-id request
+	// headers. PATCH: store-scoping — the API picks a store from these headers,
+	// not from POST /features/stores/select, so reads were locked to store 1.
+	store string
 
 	// deliverBuf captures command output when --deliver is set to a
 	// non-stdout sink. Flushed to the sink after Execute returns.
@@ -185,6 +190,7 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.PersistentFlags().StringVar(&flags.profileName, "profile", "", "Apply values from a saved profile (see 'shopper-pp-cli profile list')")
 	rootCmd.PersistentFlags().StringVar(&flags.deliverSpec, "deliver", "", "Route output to a sink: stdout (default), file:<path>, webhook:<url>")
 	rootCmd.PersistentFlags().Float64Var(&flags.rateLimit, "rate-limit", 2, "Max requests per second (0 to disable, default 2 for sniffed APIs)")
+	rootCmd.PersistentFlags().StringVar(&flags.store, "store", "", "Active Shopper store: programada, fresh, unica, pet, or a store id (default programada). Sets x-store-id/x-cluster-id; overrides SHOPPER_STORE.")
 
 	rootCmd.PersistentPreRunE = func(cmd *cobra.Command, args []string) error {
 		if flags.deliverSpec != "" {
@@ -260,6 +266,7 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.AddCommand(newNovelChargeCalendarCmd(flags))
 	rootCmd.AddCommand(newNovelPriceWatchCmd(flags))
 	rootCmd.AddCommand(newNovelRestockCmd(flags))
+	rootCmd.AddCommand(newOrdersCmd(flags))
 	rootCmd.AddCommand(newAPICmd(flags))
 	rootCmd.AddCommand(newAddressPromotedCmd(flags))
 	rootCmd.AddCommand(newSessionPromotedCmd(flags))
@@ -284,6 +291,16 @@ func (f *rootFlags) newClient() (*client.Client, error) {
 	c := client.New(cfg, f.timeout, f.rateLimit)
 	c.DryRun = f.dryRun
 	c.NoCache = f.noCache
+	// PATCH: store-scoping. An explicit --store wins over the env/default store
+	// headers so a single invocation can target Programada vs Fresh without
+	// relying on POST /features/stores/select (a no-op for reads).
+	if f.store != "" {
+		st, ok := client.ResolveStore(f.store)
+		if !ok {
+			return nil, fmt.Errorf("unknown --store %q: choose one of %s, or a numeric store id", f.store, strings.Join(client.StoreNames(), ", "))
+		}
+		client.SetStoreHeaders(c, st)
+	}
 	return c, nil
 }
 
