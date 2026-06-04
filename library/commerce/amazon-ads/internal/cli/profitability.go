@@ -122,12 +122,27 @@ func newACOSVsTACOSCmd(flags *rootFlags) *cobra.Command {
 			"mcp:read-only": "true",
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			var sellerValidation *adsanalytics.SellerStoreValidation
 			if reportPath != "" {
 				rows, err := adsanalytics.LoadPerformanceReport(reportPath)
 				if err != nil {
 					return err
 				}
 				adSpend, adRevenue = summarizeAdRevenue(rows, asin)
+				startDate, endDate := performanceDateRange(rows)
+				if sellerStorePath != "" || totalRevenue == 0 {
+					validation, err := adsanalytics.ValidateSellerStore(sellerStorePath, "", flags.adsProfileID, startDate, endDate)
+					if err != nil {
+						return err
+					}
+					sellerValidation = &validation
+				}
+			} else if totalRevenue == 0 {
+				validation, err := adsanalytics.ValidateSellerStore(sellerStorePath, "", flags.adsProfileID, "", "")
+				if err != nil {
+					return err
+				}
+				sellerValidation = &validation
 			}
 			acos, err := adsanalytics.ACOS(adSpend, adRevenue)
 			if err != nil {
@@ -141,6 +156,9 @@ func newACOSVsTACOSCmd(flags *rootFlags) *cobra.Command {
 			}
 			if reportPath != "" {
 				out["report"] = reportPath
+			}
+			if sellerValidation != nil {
+				out["seller_store_validation"] = *sellerValidation
 			}
 			if asin != "" {
 				out["asin"] = asin
@@ -177,6 +195,23 @@ func newACOSVsTACOSCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&sellerStorePath, "seller-store", "", "Path to amazon-seller-pp-cli store.db")
 	cmd.Flags().StringVar(&asin, "asin", "", "Limit report and seller-store revenue to one ASIN when available")
 	return cmd
+}
+
+func performanceDateRange(rows []adsanalytics.PerformanceRow) (string, string) {
+	start := ""
+	end := ""
+	for _, row := range rows {
+		if row.Date == "" {
+			continue
+		}
+		if start == "" || row.Date < start {
+			start = row.Date
+		}
+		if end == "" || row.Date > end {
+			end = row.Date
+		}
+	}
+	return start, end
 }
 
 func summarizeAdRevenue(rows []adsanalytics.PerformanceRow, asin string) (float64, float64) {

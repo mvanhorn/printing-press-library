@@ -12,6 +12,8 @@ func newSearchTermMiningCmd(flags *rootFlags) *cobra.Command {
 	var promoteThreshold int
 	var negateThreshold float64
 	var targetACOS float64
+	var reportKind string
+	var allowPartial bool
 
 	cmd := &cobra.Command{
 		Use:   "search-term-mining",
@@ -23,7 +25,7 @@ func newSearchTermMiningCmd(flags *rootFlags) *cobra.Command {
 			if reportPath == "" {
 				return usageErr(fmt.Errorf("--report is required"))
 			}
-			rows, err := adsanalytics.LoadSearchTermReport(reportPath)
+			rows, schemaReport, err := loadSearchTermRowsForCommand(cmd, reportPath, reportLoadOptions{ReportKind: reportKind, AllowPartial: allowPartial, Command: "search-term-mining"})
 			if err != nil {
 				return err
 			}
@@ -33,6 +35,10 @@ func newSearchTermMiningCmd(flags *rootFlags) *cobra.Command {
 				"recommendations": recs,
 				"count":           len(recs),
 			}
+			if schemaReport.Kind != "" {
+				out["report_kind"] = schemaReport.Kind
+				out["detected_candidates"] = schemaReport.Validation.Candidates
+			}
 			return printCommandJSON(cmd, flags, out)
 		},
 	}
@@ -40,12 +46,16 @@ func newSearchTermMiningCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().IntVar(&promoteThreshold, "promote-threshold", 3, "Minimum conversions before suggesting exact-match promotion")
 	cmd.Flags().Float64Var(&negateThreshold, "negate-threshold", 10, "Spend threshold for zero-conversion negative keyword candidates")
 	cmd.Flags().Float64Var(&targetACOS, "target-acos", 25, "Target ACOS percentage for promotion candidates")
+	cmd.Flags().StringVar(&reportKind, "report-kind", "", "Explicit report schema kind (see reports recipe search-term-mining)")
+	cmd.Flags().BoolVar(&allowPartial, "allow-partial", false, "Allow missing schema columns with a warning")
 	return cmd
 }
 
 func newWastedSpendCmd(flags *rootFlags) *cobra.Command {
 	var reportPath string
 	var threshold float64
+	var reportKind string
+	var allowPartial bool
 
 	cmd := &cobra.Command{
 		Use:   "wasted-spend",
@@ -57,7 +67,7 @@ func newWastedSpendCmd(flags *rootFlags) *cobra.Command {
 			if reportPath == "" {
 				return usageErr(fmt.Errorf("--report is required"))
 			}
-			rows, err := adsanalytics.LoadSearchTermReport(reportPath)
+			rows, schemaReport, err := loadSearchTermRowsForCommand(cmd, reportPath, reportLoadOptions{ReportKind: reportKind, AllowPartial: allowPartial, Command: "wasted-spend"})
 			if err != nil {
 				return err
 			}
@@ -73,17 +83,25 @@ func newWastedSpendCmd(flags *rootFlags) *cobra.Command {
 				"recommendations": recs,
 				"count":           len(recs),
 			}
+			if schemaReport.Kind != "" {
+				out["report_kind"] = schemaReport.Kind
+				out["detected_candidates"] = schemaReport.Validation.Candidates
+			}
 			return printCommandJSON(cmd, flags, out)
 		},
 	}
 	cmd.Flags().StringVar(&reportPath, "report", "", "Path to a Search Term Report CSV or JSON export")
 	cmd.Flags().Float64Var(&threshold, "threshold", 10, "Minimum spend for wasted-spend candidates")
+	cmd.Flags().StringVar(&reportKind, "report-kind", "", "Explicit report schema kind (see reports recipe wasted-spend)")
+	cmd.Flags().BoolVar(&allowPartial, "allow-partial", false, "Allow missing schema columns with a warning")
 	return cmd
 }
 
 func newNegativeKeywordGeneratorCmd(flags *rootFlags) *cobra.Command {
 	var reportPath string
 	var threshold float64
+	var reportKind string
+	var allowPartial bool
 
 	cmd := &cobra.Command{
 		Use:   "negative-keyword-generator",
@@ -95,7 +113,7 @@ func newNegativeKeywordGeneratorCmd(flags *rootFlags) *cobra.Command {
 			if reportPath == "" {
 				return usageErr(fmt.Errorf("--report is required"))
 			}
-			rows, err := adsanalytics.LoadSearchTermReport(reportPath)
+			rows, schemaReport, err := loadSearchTermRowsForCommand(cmd, reportPath, reportLoadOptions{ReportKind: reportKind, AllowPartial: allowPartial, Command: "negative-keyword-generator"})
 			if err != nil {
 				return err
 			}
@@ -112,11 +130,17 @@ func newNegativeKeywordGeneratorCmd(flags *rootFlags) *cobra.Command {
 				"count":                len(recs),
 				"dry_run":              true,
 			}
+			if schemaReport.Kind != "" {
+				out["report_kind"] = schemaReport.Kind
+				out["detected_candidates"] = schemaReport.Validation.Candidates
+			}
 			return printCommandJSON(cmd, flags, out)
 		},
 	}
 	cmd.Flags().StringVar(&reportPath, "report", "", "Path to a Search Term Report CSV or JSON export")
 	cmd.Flags().Float64Var(&threshold, "threshold", 10, "Minimum spend for negative keyword candidates")
+	cmd.Flags().StringVar(&reportKind, "report-kind", "", "Explicit report schema kind (see reports recipe negative-keyword-generator)")
+	cmd.Flags().BoolVar(&allowPartial, "allow-partial", false, "Allow missing schema columns with a warning")
 	return cmd
 }
 
@@ -148,6 +172,18 @@ func newKeywordCannibalizationCmd(flags *rootFlags) *cobra.Command {
 	}
 	cmd.Flags().StringVar(&reportPath, "report", "", "Path to a Search Term Report CSV or JSON export")
 	return cmd
+}
+
+func loadSearchTermRowsForCommand(cmd *cobra.Command, reportPath string, opts reportLoadOptions) ([]adsanalytics.SearchTermPerformance, adsanalytics.NormalizedSchemaReport, error) {
+	if reportPath == "" {
+		return nil, adsanalytics.NormalizedSchemaReport{}, usageErr(fmt.Errorf("--report is required"))
+	}
+	if opts.ReportKind == "" && !opts.AllowPartial {
+		rows, err := adsanalytics.LoadSearchTermReport(reportPath)
+		return rows, adsanalytics.NormalizedSchemaReport{}, err
+	}
+	rows, report, err := loadSchemaSearchTermReport(cmd, reportPath, opts)
+	return rows, report, err
 }
 
 func newNewKeywordOpportunitiesCmd(flags *rootFlags) *cobra.Command {

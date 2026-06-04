@@ -9,6 +9,8 @@ import (
 
 func newPortfolioDashboardCmd(flags *rootFlags) *cobra.Command {
 	var reportPath string
+	var reportKind string
+	var allowPartial bool
 
 	cmd := &cobra.Command{
 		Use:   "portfolio-dashboard",
@@ -17,7 +19,7 @@ func newPortfolioDashboardCmd(flags *rootFlags) *cobra.Command {
 			"mcp:read-only": "true",
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			rows, err := loadPerformanceRows(reportPath)
+			rows, schemaReport, err := loadPerformanceRowsForCommand(cmd, reportPath, reportLoadOptions{ReportKind: reportKind, AllowPartial: allowPartial, Command: "portfolio-dashboard"})
 			if err != nil {
 				return err
 			}
@@ -26,15 +28,23 @@ func newPortfolioDashboardCmd(flags *rootFlags) *cobra.Command {
 				"report":  reportPath,
 				"summary": summary,
 			}
+			if schemaReport.Kind != "" {
+				out["report_kind"] = schemaReport.Kind
+				out["detected_candidates"] = schemaReport.Validation.Candidates
+			}
 			return printCommandJSON(cmd, flags, out)
 		},
 	}
 	cmd.Flags().StringVar(&reportPath, "report", "", "Path to a campaign/product performance CSV or JSON export")
+	cmd.Flags().StringVar(&reportKind, "report-kind", "", "Explicit report schema kind (see reports recipe portfolio-dashboard)")
+	cmd.Flags().BoolVar(&allowPartial, "allow-partial", false, "Allow missing schema columns with a warning")
 	return cmd
 }
 
 func newCampaignComparisonCmd(flags *rootFlags) *cobra.Command {
 	var reportPath string
+	var reportKind string
+	var allowPartial bool
 
 	cmd := &cobra.Command{
 		Use:   "campaign-comparison",
@@ -43,7 +53,7 @@ func newCampaignComparisonCmd(flags *rootFlags) *cobra.Command {
 			"mcp:read-only": "true",
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			rows, err := loadPerformanceRows(reportPath)
+			rows, schemaReport, err := loadPerformanceRowsForCommand(cmd, reportPath, reportLoadOptions{ReportKind: reportKind, AllowPartial: allowPartial, Command: "campaign-comparison"})
 			if err != nil {
 				return err
 			}
@@ -53,10 +63,16 @@ func newCampaignComparisonCmd(flags *rootFlags) *cobra.Command {
 				"campaigns": campaigns,
 				"count":     len(campaigns),
 			}
+			if schemaReport.Kind != "" {
+				out["report_kind"] = schemaReport.Kind
+				out["detected_candidates"] = schemaReport.Validation.Candidates
+			}
 			return printCommandJSON(cmd, flags, out)
 		},
 	}
 	cmd.Flags().StringVar(&reportPath, "report", "", "Path to a campaign performance CSV or JSON export")
+	cmd.Flags().StringVar(&reportKind, "report-kind", "", "Explicit report schema kind (see reports recipe campaign-comparison)")
+	cmd.Flags().BoolVar(&allowPartial, "allow-partial", false, "Allow missing schema columns with a warning")
 	return cmd
 }
 
@@ -64,6 +80,8 @@ func newProductAdProfitabilityCmd(flags *rootFlags) *cobra.Command {
 	var reportPath string
 	var cogsPath string
 	var feePercent float64
+	var reportKind string
+	var allowPartial bool
 
 	cmd := &cobra.Command{
 		Use:   "product-ad-profitability",
@@ -72,7 +90,7 @@ func newProductAdProfitabilityCmd(flags *rootFlags) *cobra.Command {
 			"mcp:read-only": "true",
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			rows, err := loadPerformanceRows(reportPath)
+			rows, schemaReport, err := loadPerformanceRowsForCommand(cmd, reportPath, reportLoadOptions{ReportKind: reportKind, AllowPartial: allowPartial, Command: "product-ad-profitability"})
 			if err != nil {
 				return err
 			}
@@ -88,12 +106,18 @@ func newProductAdProfitabilityCmd(flags *rootFlags) *cobra.Command {
 				"count":        len(products),
 				"missing_cogs": missingCOGS(rows, costs),
 			}
+			if schemaReport.Kind != "" {
+				out["report_kind"] = schemaReport.Kind
+				out["detected_candidates"] = schemaReport.Validation.Candidates
+			}
 			return printCommandJSON(cmd, flags, out)
 		},
 	}
 	cmd.Flags().StringVar(&reportPath, "report", "", "Path to a product performance CSV or JSON export")
 	cmd.Flags().StringVar(&cogsPath, "cogs-file", "", "Path to COGS TOML file")
 	cmd.Flags().Float64Var(&feePercent, "fees", 30, "Estimated Amazon fees as a percentage of sales")
+	cmd.Flags().StringVar(&reportKind, "report-kind", "", "Explicit report schema kind (see reports recipe product-ad-profitability)")
+	cmd.Flags().BoolVar(&allowPartial, "allow-partial", false, "Allow missing schema columns with a warning")
 	return cmd
 }
 
@@ -255,6 +279,18 @@ func loadPerformanceRows(reportPath string) ([]adsanalytics.PerformanceRow, erro
 		return nil, usageErr(fmt.Errorf("--report is required"))
 	}
 	return adsanalytics.LoadPerformanceReport(reportPath)
+}
+
+func loadPerformanceRowsForCommand(cmd *cobra.Command, reportPath string, opts reportLoadOptions) ([]adsanalytics.PerformanceRow, adsanalytics.NormalizedSchemaReport, error) {
+	if reportPath == "" {
+		return nil, adsanalytics.NormalizedSchemaReport{}, usageErr(fmt.Errorf("--report is required"))
+	}
+	if opts.ReportKind == "" && !opts.AllowPartial {
+		rows, err := adsanalytics.LoadPerformanceReport(reportPath)
+		return rows, adsanalytics.NormalizedSchemaReport{}, err
+	}
+	rows, report, err := loadSchemaPerformanceReport(cmd, reportPath, opts)
+	return rows, report, err
 }
 
 func loadOptionalCOGS(cogsPath string) (map[string]adsanalytics.ProductCost, error) {

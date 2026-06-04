@@ -106,6 +106,57 @@ func TestLoadSellerRevenueMalformedJSONSurfacesNote(t *testing.T) {
 	}
 }
 
+func TestValidateSellerStorePrerequisites(t *testing.T) {
+	t.Parallel()
+	path := filepath.Join(t.TempDir(), "store.db")
+	db, err := sql.Open("sqlite", path)
+	if err != nil {
+		t.Fatalf("open sqlite: %v", err)
+	}
+	defer db.Close()
+	if _, err := db.Exec(`CREATE TABLE metadata (key TEXT PRIMARY KEY, value TEXT);
+CREATE TABLE orders (id TEXT PRIMARY KEY, updated_at TEXT, data JSON NOT NULL);
+INSERT INTO metadata (key, value) VALUES ('profile_id', 'profile-1'), ('marketplace', 'ATVPDKIKX0DER');
+INSERT INTO orders (id, updated_at, data) VALUES ('one', '2026-06-03T12:00:00Z', '{"PurchaseDate":"2026-06-02","OrderTotal":{"Amount":"42.00"}}');`); err != nil {
+		t.Fatalf("seed store: %v", err)
+	}
+	got, err := ValidateSellerStore(path, "ATVPDKIKX0DER", "profile-1", "2026-06-01", "2026-06-04")
+	if err != nil {
+		t.Fatalf("ValidateSellerStore returned error: %v", err)
+	}
+	if !got.Exists || got.Freshness == "" || got.AccountMatch == nil || !*got.AccountMatch || got.DateOverlap == nil || !*got.DateOverlap {
+		t.Fatalf("validation = %+v", got)
+	}
+	if _, err := ValidateSellerStore(path, "ATVPDKIKX0DER", "other-profile", "2026-06-01", "2026-06-04"); err == nil {
+		t.Fatalf("expected account mismatch error")
+	}
+}
+
+func TestSellerStoreDateOverlapUsesNestedJSONDates(t *testing.T) {
+	t.Parallel()
+	path := filepath.Join(t.TempDir(), "store.db")
+	db, err := sql.Open("sqlite", path)
+	if err != nil {
+		t.Fatalf("open sqlite: %v", err)
+	}
+	defer db.Close()
+	if _, err := db.Exec(`CREATE TABLE resources (id TEXT PRIMARY KEY, data JSON NOT NULL);
+INSERT INTO resources (id, data) VALUES
+('one', '{"payload":{"order":{"PurchaseDate":"2026-06-02"}}}'),
+('two', '{"payload":{"order":{"lastUpdateDate":"2026-06-06T10:00:00Z"}}}'),
+('bad', '{not-json');`); err != nil {
+		t.Fatalf("seed resources: %v", err)
+	}
+	overlap, known := sellerStoreDateOverlap(db, "2026-06-03", "2026-06-04")
+	if !known || !overlap {
+		t.Fatalf("overlap, known = %v, %v; want true, true", overlap, known)
+	}
+	overlap, known = sellerStoreDateOverlap(db, "2026-05-01", "2026-05-02")
+	if !known || overlap {
+		t.Fatalf("overlap, known = %v, %v; want false, true", overlap, known)
+	}
+}
+
 func notesContain(notes []string, needle string) bool {
 	for _, note := range notes {
 		if strings.Contains(note, needle) {

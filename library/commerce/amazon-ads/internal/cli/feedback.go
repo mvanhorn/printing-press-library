@@ -11,6 +11,8 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"regexp"
+	"runtime"
 	"strings"
 	"time"
 
@@ -21,11 +23,16 @@ import (
 // the feedback command appends one entry; upstream POST is a separate,
 // optional step.
 type FeedbackEntry struct {
-	Text      string    `json:"text"`
-	CLI       string    `json:"cli"`
-	Version   string    `json:"version"`
-	AgentID   string    `json:"agent_id,omitempty"`
-	Timestamp time.Time `json:"timestamp"`
+	Text             string         `json:"text"`
+	CLI              string         `json:"cli"`
+	Command          string         `json:"command,omitempty"`
+	Version          string         `json:"version"`
+	Persona          string         `json:"persona,omitempty"`
+	ExitStatus       int            `json:"exit_status,omitempty"`
+	Platform         string         `json:"platform"`
+	SanitizedContext map[string]any `json:"sanitized_context,omitempty"`
+	AgentID          string         `json:"agent_id,omitempty"`
+	Timestamp        time.Time      `json:"timestamp"`
 }
 
 const feedbackMaxTextLen = 4096
@@ -71,6 +78,21 @@ func appendFeedback(entry FeedbackEntry) error {
 	return json.NewEncoder(f).Encode(entry)
 }
 
+func redactFeedbackText(text string) string {
+	replacers := []struct {
+		re *regexp.Regexp
+		to string
+	}{
+		{regexp.MustCompile(`\bB0[A-Z0-9]{8}\b`), "[REDACTED_ASIN]"},
+		{regexp.MustCompile(`(?i)(campaign|account|profile|brand|portfolio)\s+["']?[^"',\n]{3,80}["']?`), "$1 [REDACTED_NAME]"},
+		{regexp.MustCompile(`[\w./~ -]+(?:\.csv|\.tsv|\.json|\.jsonl|\.gz)`), "[REDACTED_REPORT_FILE]"},
+	}
+	for _, repl := range replacers {
+		text = repl.re.ReplaceAllString(text, repl.to)
+	}
+	return text
+}
+
 func postFeedback(url string, entry FeedbackEntry) error {
 	body, err := json.Marshal(entry)
 	if err != nil {
@@ -97,6 +119,9 @@ func postFeedback(url string, entry FeedbackEntry) error {
 func newFeedbackCmd(flags *rootFlags) *cobra.Command {
 	var useStdin bool
 	var send bool
+	var commandName string
+	var exitStatus int
+	var contextJSON string
 	cmd := &cobra.Command{
 		Use:   "feedback [text]",
 		Short: "Record feedback about this CLI (local by default; upstream opt-in)",
@@ -123,18 +148,32 @@ maintainer sees it.`,
 			if text == "" {
 				return fmt.Errorf("feedback text is empty (pass arguments or --stdin)")
 			}
+			text = redactFeedbackText(text)
 			truncated := false
 			if len(text) > feedbackMaxTextLen {
 				text = text[:feedbackMaxTextLen]
 				truncated = true
 			}
 
+			var sanitizedContext map[string]any
+			if strings.TrimSpace(contextJSON) != "" {
+				var parsed map[string]any
+				if err := json.Unmarshal([]byte(contextJSON), &parsed); err != nil {
+					return usageErr(fmt.Errorf("parsing --context JSON: %w", err))
+				}
+				sanitizedContext = redactFeedbackContext(parsed)
+			}
 			entry := FeedbackEntry{
-				Text:      text,
-				CLI:       "amazon-ads-pp-cli",
-				Version:   version,
-				AgentID:   os.Getenv("AGENT_ID"),
-				Timestamp: time.Now().UTC(),
+				Text:             text,
+				CLI:              "amazon-ads-pp-cli",
+				Command:          commandName,
+				Version:          version,
+				Persona:          resolvePersona(flags, cmd),
+				ExitStatus:       exitStatus,
+				Platform:         runtime.GOOS + "/" + runtime.GOARCH,
+				SanitizedContext: sanitizedContext,
+				AgentID:          os.Getenv("AGENT_ID"),
+				Timestamp:        time.Now().UTC(),
 			}
 			if err := appendFeedback(entry); err != nil {
 				return err
@@ -174,9 +213,51 @@ maintainer sees it.`,
 	}
 	cmd.Flags().BoolVar(&useStdin, "stdin", false, "Read feedback body from stdin rather than arguments")
 	cmd.Flags().BoolVar(&send, "send", false, "POST to the configured feedback endpoint in addition to local write")
+	cmd.Flags().StringVar(&commandName, "command", "", "Command this feedback refers to")
+	cmd.Flags().IntVar(&exitStatus, "exit-status", 0, "Exit status from the command this feedback refers to")
+	cmd.Flags().StringVar(&contextJSON, "context", "", "Optional sanitized JSON context; sensitive fields are redacted before storage")
 
 	cmd.AddCommand(newFeedbackListCmd(flags))
+	cmd.AddCommand(newFeedbackSummarizeCmd(flags))
 	return cmd
+}
+
+func redactFeedbackContext(input map[string]any) map[string]any {
+	out := map[string]any{}
+	for key, value := range input {
+		out[key] = redactFeedbackContextValue(key, value)
+	}
+	return out
+}
+
+func redactFeedbackContextValue(key string, value any) any {
+	if feedbackContextKeySensitive(key) {
+		return "[REDACTED]"
+	}
+	switch v := value.(type) {
+	case string:
+		return redactFeedbackText(v)
+	case map[string]any:
+		return redactFeedbackContext(v)
+	case []any:
+		out := make([]any, 0, len(v))
+		for _, item := range v {
+			out = append(out, redactFeedbackContextValue("", item))
+		}
+		return out
+	default:
+		return value
+	}
+}
+
+func feedbackContextKeySensitive(key string) bool {
+	lower := strings.ToLower(key)
+	return strings.Contains(lower, "asin") ||
+		strings.Contains(lower, "campaign") ||
+		strings.Contains(lower, "account") ||
+		strings.Contains(lower, "profile") ||
+		strings.Contains(lower, "filename") ||
+		strings.Contains(lower, "file")
 }
 
 func newFeedbackListCmd(flags *rootFlags) *cobra.Command {
@@ -222,4 +303,93 @@ func newFeedbackListCmd(flags *rootFlags) *cobra.Command {
 	}
 	cmd.Flags().IntVar(&limit, "limit", 20, "Maximum number of recent entries to return")
 	return cmd
+}
+
+func newFeedbackSummarizeCmd(flags *rootFlags) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "summarize",
+		Short: "Summarize local feedback for reprint tooling",
+		RunE: func(cmd *cobra.Command, _ []string) error {
+			entries, err := readFeedbackEntries()
+			if err != nil {
+				return err
+			}
+			byCommand := map[string]int{}
+			byPersona := map[string]int{}
+			for _, entry := range entries {
+				command := entry.Command
+				if command == "" {
+					command = "(unspecified)"
+				}
+				persona := entry.Persona
+				if persona == "" {
+					persona = "default"
+				}
+				byCommand[command]++
+				byPersona[persona]++
+			}
+			return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+				"schema":     "amazon-ads-pp-cli.feedback.summary.v1",
+				"path":       mustFeedbackPathString(),
+				"count":      len(entries),
+				"by_command": byCommand,
+				"by_persona": byPersona,
+				"entries":    entries,
+			}, flags)
+		},
+	}
+	return cmd
+}
+
+func readFeedbackEntries() ([]FeedbackEntry, error) {
+	p, err := feedbackFilePath()
+	if err != nil {
+		return nil, err
+	}
+	data, err := os.ReadFile(p)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return nil, nil
+		}
+		return nil, err
+	}
+	var entries []FeedbackEntry
+	for _, line := range strings.Split(string(data), "\n") {
+		line = strings.TrimSpace(line)
+		if line == "" {
+			continue
+		}
+		var e FeedbackEntry
+		if err := json.Unmarshal([]byte(line), &e); err == nil {
+			entries = append(entries, e)
+		}
+	}
+	return entries, nil
+}
+
+func mustFeedbackPathString() string {
+	p, err := feedbackFilePath()
+	if err != nil {
+		return "~/.local/share/amazon-ads-pp-cli/feedback.jsonl"
+	}
+	return p
+}
+
+func maybeEmitFeedbackNudge(cmd *cobra.Command, flags *rootFlags) {
+	if flags == nil || flags.agent || flags.asJSON || flags.quiet || flags.noInput || os.Getenv("AMAZON_ADS_FEEDBACK_NUDGE") == "0" || os.Getenv("CI") != "" {
+		return
+	}
+	if !isTerminal(cmd.ErrOrStderr()) {
+		return
+	}
+	p, err := feedbackFilePath()
+	if err != nil {
+		return
+	}
+	marker := filepath.Join(filepath.Dir(p), ".feedback_nudge_seen")
+	if _, err := os.Stat(marker); err == nil {
+		return
+	}
+	_ = os.WriteFile(marker, []byte(time.Now().UTC().Format(time.RFC3339)), 0o600)
+	fmt.Fprintf(cmd.ErrOrStderr(), "hint: record CLI friction with 'amazon-ads-pp-cli feedback ...' (opt out: AMAZON_ADS_FEEDBACK_NUDGE=0)\n")
 }
