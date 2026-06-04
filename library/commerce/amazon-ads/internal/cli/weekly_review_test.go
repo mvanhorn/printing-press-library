@@ -42,3 +42,22 @@ func TestWeeklyReviewVerifySkipsStaleKeywordBid(t *testing.T) {
 		t.Fatalf("skipped = %+v", skipped)
 	}
 }
+
+func TestWeeklyReviewCurrencyFlag(t *testing.T) {
+	t.Parallel()
+	root := RootCmd()
+	cmd, remaining, err := root.Find([]string{"weekly-review"})
+	if err != nil {
+		t.Fatalf("Find weekly-review returned error: %v", err)
+	}
+	if len(remaining) != 0 {
+		t.Fatalf("Find weekly-review returned remaining args %v", remaining)
+	}
+	flag := cmd.Flags().Lookup("currency")
+	if flag == nil {
+		t.Fatalf("weekly-review --currency flag missing")
+	}
+	if flag.DefValue != "USD" {
+		t.Fatalf("--currency default = %q, want USD", flag.DefValue)
+	}
+}

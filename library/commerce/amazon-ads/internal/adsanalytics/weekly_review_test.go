@@ -35,3 +35,22 @@ func TestWeeklyReviewPlansMutationReadyActionsWithCaps(t *testing.T) {
 		t.Fatalf("plan missing expected action types: %+v", plan.Actions)
 	}
 }
+
+func TestWeeklyReviewPropagatesConfiguredCurrency(t *testing.T) {
+	t.Parallel()
+	plan := WeeklyReview(
+		nil,
+		[]SearchTermPerformance{{CampaignID: "c1", AdGroupID: "a1", SearchTerm: "bad query", Spend: 20, Clicks: 30, Conversions: 0}},
+		nil,
+		WeeklyReviewOptions{TargetACOSPercent: 25, NegateSpendThreshold: 10, NegateMinClicks: 20, Currency: "EUR"},
+	)
+	if plan.Currency != "EUR" {
+		t.Fatalf("plan currency = %q, want EUR", plan.Currency)
+	}
+	if len(plan.Actions) != 1 {
+		t.Fatalf("actions = %+v, want one action", plan.Actions)
+	}
+	if plan.Actions[0].Currency != "EUR" {
+		t.Fatalf("action currency = %q, want EUR", plan.Actions[0].Currency)
+	}
+}

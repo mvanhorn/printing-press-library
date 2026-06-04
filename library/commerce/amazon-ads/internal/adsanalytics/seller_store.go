@@ -318,22 +318,16 @@ func sellerStoreDateOverlap(db *sql.DB, startDate, endDate string) (bool, bool) 
 		if !sellerTableExists(db, table) || !stringSliceContains(sellerStoreColumns(db, table), "data") {
 			continue
 		}
-		rows, err := db.Query(`SELECT data FROM ` + quoteSQLiteIdent(table))
-		if err != nil {
+		tableMin, tableMax, ok := sellerStoreDateRange(db, table)
+		if !ok {
 			continue
 		}
-		for rows.Next() {
-			var raw string
-			if err := rows.Scan(&raw); err != nil {
-				continue
-			}
-			var payload any
-			if err := json.Unmarshal([]byte(raw), &payload); err != nil {
-				continue
-			}
-			collectSellerDates(payload, &minDate, &maxDate)
+		if minDate.IsZero() || tableMin.Before(minDate) {
+			minDate = tableMin
 		}
-		rows.Close()
+		if maxDate.IsZero() || tableMax.After(maxDate) {
+			maxDate = tableMax
+		}
 	}
 	if minDate.IsZero() && maxDate.IsZero() {
 		return false, false
@@ -347,30 +341,30 @@ func sellerStoreDateOverlap(db *sql.DB, startDate, endDate string) (bool, bool) 
 	return !reportEnd.Before(minDate) && !reportStart.After(maxDate), true
 }
 
-func collectSellerDates(v any, minDate, maxDate *time.Time) {
-	switch x := v.(type) {
-	case map[string]any:
-		for key, child := range x {
-			lower := strings.ToLower(key)
-			if strings.Contains(lower, "date") || strings.Contains(lower, "purchase") || strings.Contains(lower, "lastupdate") {
-				if s, ok := child.(string); ok {
-					if ts, ok := parseSellerDate(s); ok {
-						if (*minDate).IsZero() || ts.Before(*minDate) {
-							*minDate = ts
-						}
-						if (*maxDate).IsZero() || ts.After(*maxDate) {
-							*maxDate = ts
-						}
-					}
-				}
-			}
-			collectSellerDates(child, minDate, maxDate)
-		}
-	case []any:
-		for _, child := range x {
-			collectSellerDates(child, minDate, maxDate)
-		}
+func sellerStoreDateRange(db *sql.DB, table string) (time.Time, time.Time, bool) {
+	query := `WITH extracted(value) AS (
+	SELECT node.value
+	FROM ` + quoteSQLiteIdent(table) + ` AS source,
+		json_tree(CASE WHEN json_valid(source.data) THEN source.data ELSE '{}' END) AS node
+	WHERE node.type = 'text'
+		AND (
+			lower(COALESCE(node.key, '')) LIKE '%date%'
+			OR lower(COALESCE(node.key, '')) LIKE '%purchase%'
+			OR lower(COALESCE(node.key, '')) LIKE '%lastupdate%'
+		)
+		AND node.value GLOB '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]*'
+)
+SELECT MIN(value), MAX(value) FROM extracted WHERE value IS NOT NULL AND TRIM(value) <> ''`
+	var minRaw, maxRaw sql.NullString
+	if err := db.QueryRow(query).Scan(&minRaw, &maxRaw); err != nil {
+		return time.Time{}, time.Time{}, false
 	}
+	minDate, minOK := parseSellerDate(minRaw.String)
+	maxDate, maxOK := parseSellerDate(maxRaw.String)
+	if !minRaw.Valid || !maxRaw.Valid || !minOK || !maxOK {
+		return time.Time{}, time.Time{}, false
+	}
+	return minDate, maxDate, true
 }
 
 func parseSellerDate(raw string) (time.Time, bool) {

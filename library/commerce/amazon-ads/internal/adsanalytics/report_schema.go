@@ -317,10 +317,11 @@ func readReportHeaderAndRows(path string) ([]string, []map[string]string, error)
 }
 
 func readDelimitedRows(data []byte) ([]string, []map[string]string, error) {
-	firstLine := string(data)
-	if idx := strings.IndexByte(firstLine, '\n'); idx >= 0 {
-		firstLine = firstLine[:idx]
+	firstLineEnd := bytes.IndexByte(data, '\n')
+	if firstLineEnd < 0 {
+		firstLineEnd = len(data)
 	}
+	firstLine := string(data[:firstLineEnd])
 	delimiter := ','
 	if strings.Count(firstLine, "\t") > strings.Count(firstLine, ",") {
 		delimiter = '\t'
@@ -497,7 +498,7 @@ func firstNonEmpty(values ...string) string {
 	return ""
 }
 
-func EncodeDelimitedRows(w io.Writer, rows []CanonicalRecord) error {
+func EncodeJSONRows(w io.Writer, rows []CanonicalRecord) error {
 	enc := json.NewEncoder(w)
 	return enc.Encode(rows)
 }

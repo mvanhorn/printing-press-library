@@ -31,6 +31,7 @@ func newWeeklyReviewCmd(flags *rootFlags) *cobra.Command {
 	var maxBidChangePct float64
 	var maxBudgetChangePct float64
 	var maxTotalBudgetIncrease float64
+	var currency string
 	var apply bool
 	var dbPath string
 
@@ -98,7 +99,7 @@ func newWeeklyReviewCmd(flags *rootFlags) *cobra.Command {
 				MaxBudgetChangePercent: maxBudgetChangePct,
 				MaxTotalBudgetIncrease: maxTotalBudgetIncrease,
 				TotalBudget:            totalBudget,
-				Currency:               "USD",
+				Currency:               strings.ToUpper(strings.TrimSpace(currency)),
 			})
 			out := map[string]any{
 				"dry_run":            true,
@@ -159,6 +160,7 @@ func newWeeklyReviewCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().Float64Var(&maxBidChangePct, "max-bid-change-pct", 25, "Maximum bid increase or decrease percentage per action (0 disables)")
 	cmd.Flags().Float64Var(&maxBudgetChangePct, "max-budget-change-pct", 25, "Maximum budget increase or decrease percentage per action (0 disables)")
 	cmd.Flags().Float64Var(&maxTotalBudgetIncrease, "max-total-budget-increase", 0, "Maximum aggregate daily budget increase across actions (0 disables)")
+	cmd.Flags().StringVar(&currency, "currency", "USD", "Currency code for planned budget, bid, audit, and rollback metadata")
 	cmd.Flags().BoolVar(&apply, "apply", false, "Apply changes to Amazon Ads instead of printing a dry-run plan")
 	cmd.Flags().StringVar(&dbPath, "db", "", "SQLite store path for the automation audit record (defaults to the per-user store)")
 	return cmd
