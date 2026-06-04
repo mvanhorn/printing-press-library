@@ -139,13 +139,6 @@ explains what data is needed.
 			}
 			var preds []pred
 
-			oldestSnap := snaps[len(snaps)-1]
-			newestSnap := snaps[0]
-			totalDays := newestSnap.TakenAt.Sub(oldestSnap.TakenAt).Hours() / 24
-			if totalDays < 1 {
-				totalDays = 1
-			}
-
 			for id, h := range skuMap {
 				if len(h.points) < 2 {
 					continue
@@ -157,8 +150,12 @@ explains what data is needed.
 				}
 				avgQty := totalQty / float64(len(h.points))
 
-				// Estimate consumption: average qty ordered per snapshot, over cycle
-				cycleDays := totalDays / float64(len(h.points)-1)
+				// Estimate the reorder cadence from THIS product's own appearance
+				// span (first to last snapshot it appears in), not the global
+				// snapshot window — otherwise an item seen in only 2 of many
+				// snapshots gets its cycle badly overstated.
+				productSpan := h.points[len(h.points)-1].takenAt.Sub(h.points[0].takenAt).Hours() / 24
+				cycleDays := productSpan / float64(len(h.points)-1)
 				if cycleDays < 1 {
 					cycleDays = 7 // minimum assumption: weekly cycle
 				}

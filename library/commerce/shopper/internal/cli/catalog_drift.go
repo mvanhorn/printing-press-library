@@ -203,26 +203,48 @@ pack sizes in their names (e.g. "Arroz 5KG", "Leite 1L").`,
 						basketProductIDs[item.ID] = true
 					}
 
-					// For each basket product, check if it's in the latest price_snapshots
-					// If the product was in an earlier snapshot but NOT in the most recent ~24h, it may be discontinued
-					cutoff := time.Now().Add(-48 * time.Hour)
+					// A product is "discontinued" if it was tracked before but is
+					// absent from the most recent catalog-snapshot run, while other
+					// products WERE captured in that run. This is relative to the
+					// latest run — not an absolute wall-clock cutoff — so a user who
+					// runs price-watch weekly doesn't see their whole basket flagged.
+					const runWindow = time.Hour
+					var globalLatest, oldest time.Time
 					latestSeenAt := make(map[string]store.PriceSnapshot)
 					for _, s := range snaps {
+						if s.TakenAt.After(globalLatest) {
+							globalLatest = s.TakenAt
+						}
+						if oldest.IsZero() || s.TakenAt.Before(oldest) {
+							oldest = s.TakenAt
+						}
 						ls, exists := latestSeenAt[s.ProductID]
 						if !exists || s.TakenAt.After(ls.TakenAt) {
 							latestSeenAt[s.ProductID] = s
 						}
 					}
+					latestRunCutoff := globalLatest.Add(-runWindow)
+					inLatestRun := make(map[string]bool)
+					for _, s := range snaps {
+						if !s.TakenAt.Before(latestRunCutoff) {
+							inLatestRun[s.ProductID] = true
+						}
+					}
+					// Discontinuation is only determinable when at least two distinct
+					// capture runs exist (a newer run that could have re-observed the item).
+					multipleRuns := globalLatest.Sub(oldest) >= runWindow && len(inLatestRun) > 0
 
-					for id := range basketProductIDs {
-						ls, seen := latestSeenAt[id]
-						if seen && ls.TakenAt.Before(cutoff) {
-							result.Discontinued = append(result.Discontinued, discontinuedItem{
-								ProductID:  id,
-								Name:       ls.Name,
-								LastSeenAt: ls.TakenAt.Format("2006-01-02"),
-								LastPrice:  float64(ls.PriceCents) / 100,
-							})
+					if multipleRuns {
+						for id := range basketProductIDs {
+							ls, seen := latestSeenAt[id]
+							if seen && !inLatestRun[id] {
+								result.Discontinued = append(result.Discontinued, discontinuedItem{
+									ProductID:  id,
+									Name:       ls.Name,
+									LastSeenAt: ls.TakenAt.Format("2006-01-02"),
+									LastPrice:  float64(ls.PriceCents) / 100,
+								})
+							}
 						}
 					}
 				}
