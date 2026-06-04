@@ -426,11 +426,14 @@ test("install command with --bin-dir sets GOBIN and reports the chosen binary pa
     installSkill: async () => ok(),
     stdout: (message) => stdout.push(message),
     stderr: () => {},
+    home: "/Users/example",
+    env: { KEEP_ME: "yes", GOBIN: "/old/go/bin" },
   });
 
-  assert.equal(await command(["espn", "--bin-dir", "/Users/example/.local/bin"]), 0);
+  assert.equal(await command(["espn", "--bin-dir", "~/.local/bin"]), 0);
   assert.deepEqual(mkdirCalls, ["/Users/example/.local/bin"]);
   assert.equal(goCalls.length, 1);
+  assert.equal(goCalls[0]!.env?.KEEP_ME, "yes");
   assert.equal(goCalls[0]!.env?.GOBIN, "/Users/example/.local/bin");
   assert.match(stdout.join("\n"), /binary: \/Users\/example\/\.local\/bin\/espn-pp-cli/);
 });

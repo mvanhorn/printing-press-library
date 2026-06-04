@@ -41,6 +41,8 @@ interface InstallDeps {
   shell?: string;
   /** Home directory, used to prefer the portable `$HOME/go/bin` form in PATH instructions. */
   home?: string;
+  /** Environment inherited by subprocesses; injectable for targeted install tests. */
+  env: NodeJS.ProcessEnv;
 }
 
 interface InstallSummary {
@@ -94,11 +96,12 @@ export function createInstallCommand(overrides: Partial<InstallDeps> = {}) {
     platform: process.platform,
     shell: process.env.SHELL,
     home: process.env.HOME ?? process.env.USERPROFILE,
+    env: process.env,
     ...overrides,
   };
 
   return async function installCommandWithDeps(args: string[]): Promise<number> {
-    const parsed = parseInstallArgs(args);
+    const parsed = parseInstallArgs(args, deps.home);
     if ("error" in parsed) {
       deps.stderr(parsed.error);
       deps.stderr(
@@ -175,7 +178,7 @@ async function installOne(
       }
     }
 
-    const installEnv = options.binDir ? { ...process.env, GOBIN: options.binDir } : undefined;
+    const installEnv = options.binDir ? { ...deps.env, GOBIN: options.binDir } : undefined;
     const install = await deps.goInstall(modulePath, "latest", installEnv);
     if (install.code !== 0) {
       deps.stderr(`go install failed for ${modulePath}`);
@@ -312,7 +315,10 @@ function reportResults(outcomes: InstallOutcome[], options: InstallOptions, deps
 
 export const installCommand = createInstallCommand();
 
-function parseInstallArgs(args: string[]):
+function parseInstallArgs(
+  args: string[],
+  home?: string,
+):
   | { names: string[]; options: InstallOptions }
   | { error: string } {
   const options: InstallOptions = {
@@ -337,7 +343,7 @@ function parseInstallArgs(args: string[]):
       if (!value) {
         return { error: "Missing value for --bin-dir" };
       }
-      options.binDir = normalizeBinDir(value, process.env.HOME ?? process.env.USERPROFILE);
+      options.binDir = normalizeBinDir(value, home);
     } else if (arg === "--agent" || arg === "-a") {
       const agent = args[++i];
       if (!agent) {

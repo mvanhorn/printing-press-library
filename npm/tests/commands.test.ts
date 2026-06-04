@@ -210,6 +210,21 @@ test("update command refreshes detected installed CLIs", async () => {
     },
   });
 
+  assert.equal(await command(["--agent", "claude-code"]), 0);
+  assert.deepEqual(installs, [["espn", "--agent", "claude-code"]]);
+});
+
+test("update command forwards --bin-dir to detected installed CLIs", async () => {
+  const installs: string[][] = [];
+  const command = createUpdateCommand({
+    fetchRegistry: async () => registry,
+    commandOnPath: async (binary) => (binary === "espn-pp-cli" ? "/bin/espn-pp-cli" : null),
+    createInstall: () => async (args) => {
+      installs.push(args);
+      return 0;
+    },
+  });
+
   assert.equal(await command(["--agent", "claude-code", "--bin-dir", "/Users/example/.local/bin"]), 0);
   assert.deepEqual(installs, [["espn", "--agent", "claude-code", "--bin-dir", "/Users/example/.local/bin"]]);
 });
