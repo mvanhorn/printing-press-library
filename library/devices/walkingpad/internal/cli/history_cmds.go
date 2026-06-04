@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"sync"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -88,6 +89,7 @@ func captureAndSave(cmd *cobra.Command, flags *rootFlags, run func(onStatus func
 		return err
 	}
 	var (
+		mu              sync.Mutex
 		samples         []history.Sample
 		maxSpeed        float64
 		firstS, lastS   wpble.Status
@@ -96,6 +98,7 @@ func captureAndSave(cmd *cobra.Command, flags *rootFlags, run func(onStatus func
 	)
 	onStatus := func(s wpble.Status) error {
 		now := float64(time.Now().Unix())
+		mu.Lock()
 		if !haveFirst {
 			firstS, firstTS, haveFirst = s, now, true
 		}
@@ -106,6 +109,7 @@ func captureAndSave(cmd *cobra.Command, flags *rootFlags, run func(onStatus func
 		samples = append(samples, history.Sample{
 			TS: now, SpeedKmh: s.SpeedKmh, DistanceM: s.DistanceM, Steps: s.Steps, BeltState: s.BeltState,
 		})
+		mu.Unlock()
 		if !flags.asJSON {
 			fmt.Fprintf(cmd.OutOrStdout(), "%.1f km/h  %dm  %d steps\n", s.SpeedKmh, s.DistanceM, s.Steps)
 		}
@@ -114,22 +118,31 @@ func captureAndSave(cmd *cobra.Command, flags *rootFlags, run func(onStatus func
 	if err := run(onStatus); err != nil {
 		return err
 	}
-	if !haveFirst {
+	mu.Lock()
+	haveFirstSnapshot := haveFirst
+	firstSSnapshot := firstS
+	lastSSnapshot := lastS
+	firstTSSnapshot := firstTS
+	lastTSSnapshot := lastTS
+	maxSpeedSnapshot := maxSpeed
+	samplesSnapshot := append([]history.Sample(nil), samples...)
+	mu.Unlock()
+	if !haveFirstSnapshot {
 		return emit(cmd, flags, map[string]any{"recorded": false}, "no telemetry captured; was the belt moving?")
 	}
-	session := buildSession(firstS, lastS, firstTS, lastTS, maxSpeed)
-	for i := range samples {
-		samples[i].SessionID = session.ID
+	session := buildSession(firstSSnapshot, lastSSnapshot, firstTSSnapshot, lastTSSnapshot, maxSpeedSnapshot)
+	for i := range samplesSnapshot {
+		samplesSnapshot[i].SessionID = session.ID
 	}
 	if err := store.AddSession(session); err != nil {
 		return err
 	}
-	if err := store.AddSamples(samples); err != nil {
+	if err := store.AddSamples(samplesSnapshot); err != nil {
 		return err
 	}
 	return emit(cmd, flags, session,
 		fmt.Sprintf("recorded session %s: %dm, %d steps, %ds (%d samples)",
-			session.ID, session.DistanceM, session.Steps, session.DurationS, len(samples)))
+			session.ID, session.DistanceM, session.Steps, session.DurationS, len(samplesSnapshot)))
 }
 
 func newTodayCmd(flags *rootFlags) *cobra.Command {
