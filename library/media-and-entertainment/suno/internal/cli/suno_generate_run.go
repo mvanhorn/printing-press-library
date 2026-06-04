@@ -45,8 +45,9 @@ func captchaRequiredError() error {
 	return usageErr(fmt.Errorf(
 		"Suno required an hCaptcha token for this generation.\n" +
 			"      Suno gates generation adaptively — many requests succeed with no token,\n" +
-			"      but this one was challenged (typically after sustained use). Retry with:\n" +
+			"      but this one was challenged (typically after sustained use). Options:\n" +
 			"        --token <hcaptcha-token>   (e.g. solved via 2Captcha)\n" +
+			"        --wait-for-gate            (backs off and retries until the gate reopens; --gate-timeout sets the ceiling)\n" +
 			"      This CLI will not launch a browser or solver on your behalf."))
 }
 
@@ -339,8 +340,10 @@ func runGenerationFlow(cmd *cobra.Command, flags *rootFlags, body sunoGenerateBo
 	// --wait-for-gate wait can last many minutes, and a silent process reads as
 	// a hang. Agent/JSON mode stays clean (progress would corrupt stdout JSON).
 	if waitForGate && !flags.asJSON {
+		deadline := time.Now().Add(gateTimeout)
 		cfg.onWait = func(attempt int, wait time.Duration) {
-			fmt.Fprintf(cmd.ErrOrStderr(), "gate challenged; waiting %s before retry %d (until --gate-timeout %s)...\n", wait.Round(time.Second), attempt, gateTimeout)
+			remaining := time.Until(deadline).Round(time.Second)
+			fmt.Fprintf(cmd.ErrOrStderr(), "gate challenged; waiting %s before retry %d (%s remaining of --gate-timeout)...\n", wait.Round(time.Second), attempt, remaining)
 		}
 	}
 	resp, err := retryOnGate(ctx, cfg, func() (*sunoGenerateResponse, error) {

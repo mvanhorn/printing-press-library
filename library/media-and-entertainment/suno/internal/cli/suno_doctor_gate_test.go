@@ -41,3 +41,29 @@ func TestProbeClipIDs(t *testing.T) {
 		t.Errorf("probeClipIDs(garbage) = %v, want nil", got)
 	}
 }
+
+// TestDoctorExitForFailOn_GateAuthFailure locks the P1 fix: a generate_gate
+// auth-failure verdict must trip --fail-on=error (CI must not stay green while
+// generation is blocked by rejected credentials).
+func TestDoctorExitForFailOn_GateAuthFailure(t *testing.T) {
+	report := map[string]any{
+		"generate_gate": "auth-failure (HTTP 401) at the generate endpoint — credentials were rejected",
+	}
+	if err := doctorExitForFailOn("error", report); err == nil {
+		t.Errorf("--fail-on=error must trigger on a generate_gate auth-failure verdict")
+	}
+
+	// A tripped gate is transient, not an error — it must NOT trip --fail-on=error.
+	tripped := map[string]any{
+		"generate_gate": "tripped — the adaptive hCaptcha gate is active right now; no clip created and no credits spent.",
+	}
+	if err := doctorExitForFailOn("error", tripped); err != nil {
+		t.Errorf("--fail-on=error must NOT trigger on a transient tripped-gate verdict, got %v", err)
+	}
+
+	// An open gate is healthy — must not trip.
+	open := map[string]any{"generate_gate": "open — generation reachable"}
+	if err := doctorExitForFailOn("error", open); err != nil {
+		t.Errorf("--fail-on=error must NOT trigger on an open gate, got %v", err)
+	}
+}
