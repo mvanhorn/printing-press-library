@@ -13,9 +13,18 @@ func newRawGetCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "get",
 		Short: "Read a fixture as a raw QBO resource envelope.",
-		Args:  cobra.ArbitraryArgs,
+		Args: func(cmd *cobra.Command, args []string) error {
+			if fixture != "" {
+				return cobra.MaximumNArgs(1)(cmd, args)
+			}
+			return cobra.ExactArgs(1)(cmd, args)
+		},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return printQBORead("raw", fixture, args[0], tokenFile, companyID, baseURL)
+			endpoint := "raw"
+			if len(args) > 0 {
+				endpoint = args[0]
+			}
+			return printQBORead("raw", fixture, endpoint, tokenFile, companyID, baseURL)
 		},
 	}
 	cmd.Flags().StringVar(&fixture, "fixture", "", "Path to local JSON fixture; live API access is intentionally unavailable")
