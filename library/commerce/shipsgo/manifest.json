@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "shipsgo-pp-mcp",
+  "display_name": "ShipsGo",
+  "version": "4.20.1",
+  "description": "Every ShipsGo endpoint, plus an RFQ workspace, lane analytics, and an offline shipment book no other tool offers.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/shipsgo-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/shipsgo-pp-mcp",
+      "args": [],
+      "env": {
+        "SHIPSGO_USER_TOKEN": "${user_config.shipsgo_user_token}"
+      }
+    }
+  },
+  "user_config": {
+    "shipsgo_user_token": {
+      "type": "string",
+      "title": "SHIPSGO_USER_TOKEN",
+      "description": "Sets SHIPSGO_USER_TOKEN for the ShipsGo MCP server. Get a credential from https://shipsgo.com/dashboard/air/integrations/api-tokens.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

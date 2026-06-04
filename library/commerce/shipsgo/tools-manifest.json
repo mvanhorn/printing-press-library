@@ -1,0 +1,537 @@
+{
+  "api_name": "shipsgo",
+  "base_url": "https://api.shipsgo.com/v2",
+  "description": "Every ShipsGo endpoint, plus an RFQ workspace, lane analytics, and an offline shipment book no other tool offers.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "api_key",
+    "header": "X-Shipsgo-User-Token",
+    "in": "header",
+    "env_vars": [
+      "SHIPSGO_USER_TOKEN"
+    ],
+    "env_var_specs": [
+      {
+        "name": "SHIPSGO_USER_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ],
+    "key_url": "https://shipsgo.com/dashboard/air/integrations/api-tokens"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "air_create",
+      "description": "This endpoint allows you to create a new shipment by providing the necessary shipment details. Once the shipment is successfully created, you need to save the given shipment identifier in your internal system to use it across the related endpoints. ### Duplicate Shipments If there is an another shipment with the same `reference` and `awb_number`, the shipment will not be created (there is no cost), and the system will return a response (`409` - `ALREADY_EXISTS`) indicating details of the existing shipment. If you don't provide a `reference` field on your request, the system will only check with the `awb_number`. **Note:** If you want to add a follower or tag to the existing shipment, you must make new request(s) to related endpoints using the existing shipment's `id`. ### Concurrent Requests We process creation requests one by one for your company to prevent race conditions, such as misusing your credits or creating unnecessary duplicate shipments. You don't need to take any action, this process is handled entirely by ShipsGo system. However, sending too many concurrent requests can result in longer wait times and errors (`429` - `TOO_MANY_CONCURRENT_REQUESTS`). If you plan to create a large number of shipments at once, ensure that requests are sent synchronously. Required: awb_number. Optional: followers, reference, tags. Returns the new AirCreateResponse.",
+      "method": "POST",
+      "path": "/air/shipments",
+      "params": [
+        {
+          "name": "awb_number",
+          "type": "string",
+          "location": "body",
+          "description": "The Air Waybill (AWB) number provided by the airline and required to track the shipment. **Note:** To avoid any confusion, our system will standardize the AWB number with a separating hyphen (`333-88888888`).",
+          "required": true
+        },
+        {
+          "name": "followers",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Email addresses subscribed to receive notifications about the shipment."
+        },
+        {
+          "name": "reference",
+          "type": "string",
+          "location": "body",
+          "description": "Your reference to remember or classify the shipment. You can enter any numbers or letters. **Note:** Also it will be the default title of tracking notification emails."
+        },
+        {
+          "name": "tags",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "A list of labels or keywords associated with the shipment. Used to include additional information to the shipment in order to differentiate, identify and categorise your shipments."
+        }
+      ]
+    },
+    {
+      "name": "air_create-shipments",
+      "description": "This endpoint allows users to add a new follower to an existing air shipment. Required: shipment_id. Optional: follower. Returns the new AirCreateShipmentsResponse.",
+      "method": "POST",
+      "path": "/air/shipments/{shipment_id}/followers",
+      "params": [
+        {
+          "name": "shipment_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique identifier of the shipment.",
+          "required": true
+        },
+        {
+          "name": "follower",
+          "type": "string",
+          "location": "body",
+          "description": "The new follower’s email address that you want to add to the shipment."
+        }
+      ]
+    },
+    {
+      "name": "air_create-shipments-2",
+      "description": "This endpoint allows users to add a tag to an existing air shipment. Required: shipment_id. Optional: tag. Returns the new AirCreateShipments2Response.",
+      "method": "POST",
+      "path": "/air/shipments/{shipment_id}/tags",
+      "params": [
+        {
+          "name": "shipment_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique identifier of the shipment.",
+          "required": true
+        },
+        {
+          "name": "tag",
+          "type": "string",
+          "location": "body",
+          "description": "The new tag (a label or keyword) that you want to add to the shipment."
+        }
+      ]
+    },
+    {
+      "name": "air_delete",
+      "description": "This endpoint allows users to delete an existing air shipment. Required: shipment_id. Returns the AirDeleteResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/air/shipments/{shipment_id}",
+      "params": [
+        {
+          "name": "shipment_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique identifier of the shipment.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "air_delete-shipments",
+      "description": "This endpoint allows users to remove an existing follower from an existing air shipment. Required: shipment_id, follower_id. Returns the AirDeleteShipmentsResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/air/shipments/{shipment_id}/followers/{follower_id}",
+      "params": [
+        {
+          "name": "shipment_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique identifier of the shipment.",
+          "required": true
+        },
+        {
+          "name": "follower_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique identifier of the follower.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "air_delete-shipments-2",
+      "description": "This endpoint allows users to remove an existing tag from an existing air shipment. Required: shipment_id, tag_id. Returns the AirDeleteShipments2Response. Destructive.",
+      "method": "DELETE",
+      "path": "/air/shipments/{shipment_id}/tags/{tag_id}",
+      "params": [
+        {
+          "name": "shipment_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique identifier of the shipment.",
+          "required": true
+        },
+        {
+          "name": "tag_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique identifier of the tag.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "air_get",
+      "description": "This endpoint retrieves the details of an existing air shipment. It returns comprehensive information about the shipment. This allows users to track and monitor the shipment's progress and status in real-time. Required: shipment_id.",
+      "method": "GET",
+      "path": "/air/shipments/{shipment_id}",
+      "params": [
+        {
+          "name": "shipment_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique identifier of the shipment.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "air_get-shipments",
+      "description": "This endpoint provides a GeoJSON FeatureCollection with all map-related data for a shipment, including airport locations, the aircraft’s current position, and past/future paths. GeoJSON ([RFC 7946](https://datatracker.ietf.org/doc/html/rfc7946)) is a format used to describe geographic data and can be directly used with most mapping libraries (Leaflet, Mapbox, Google Maps, etc.). In this endpoint, only `Point` and `LineString` geometry types are used. Each geometry is returned within a Feature as defined below: - Each Feature has a `geometry` (`Point` or `LineString`). - Each Feature has a set of `properties` according to its `geometry`. - Each Feature has a `status` property, which can be: - `PAST` – The shipment was at this airport/route in the past. - `CURRENT` – The shipment is at this airport/route now. - `FUTURE` – The shipment is expected to be at this airport/route in the future. #### Point Features Features with `Point` geometry represent airports. Each `Point` Feature includes the airport’s name, IATA code, timezone, and country information. #### LineString Features Features with `LineString` geometry represent routes between two locations. Each `LineString` Feature includes cargo information, flight number, related events (`DEP`, `ARR`), and current position (when `status` is `CURRENT`). Required: shipment_id. Returns the AirGetShipmentsResponse.",
+      "method": "GET",
+      "path": "/air/shipments/{shipment_id}/geojson",
+      "params": [
+        {
+          "name": "shipment_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique identifier of the shipment.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "air_list",
+      "description": "The shipments list endpoint allows you to retrieve a list of airlines. This includes options to apply various filters and sorting. **Example #1:** To filter the trackable airlines. ```plain /air/airlines?filters[status]=eq:ACTIVE ``` **Example #2:** To filter airlines that contain `ARABIA` in their name. ```plain /air/airlines?filters[name]=contains:ARABIA ```. Optional: filters, order_by, skip (plus 1 more). Returns array of AirAirline.",
+      "method": "GET",
+      "path": "/air/airlines",
+      "params": [
+        {
+          "name": "filters",
+          "type": "object",
+          "location": "query",
+          "description": "Filters"
+        },
+        {
+          "name": "order_by",
+          "type": "string",
+          "location": "query",
+          "description": "Order by"
+        },
+        {
+          "name": "skip",
+          "type": "int",
+          "location": "query",
+          "description": "Skip"
+        },
+        {
+          "name": "take",
+          "type": "int",
+          "location": "query",
+          "description": "Take"
+        }
+      ]
+    },
+    {
+      "name": "air_list-shipments",
+      "description": "The shipments list endpoint allows you to retrieve a list of your shipments (**basic information**). This includes options to apply various filters and sorting. To access detailed information (`status_extended`, `movements`, `followers`, etc.) about a shipment, you should use the **AIR - Details of the Shipment** endpoint. **Example #1:** **Ongoing** (`EN_ROUTE`) shipments carried by **TURKISH CARGO** (`TK`) or **LUFTHANSA CARGO** (`LH`) with upcoming arrivals in order. ```plain /air/shipments ?filters[status]=eq:EN_ROUTE \u0026filters[airline]=in:TK,LH \u0026order_by=date_of_rcf,asc ``` **Example #2:** Shipments that were shipped to **India** (`IN`), between **September 1, 2024**, and **October 1, 2024** in order. ```plain /air/shipments ?filters[destination_country]=eq:IN \u0026filters[date_of_dep]=between:2024-09-01...2024-10-01 \u0026order_by=date_of_dep,asc ``` **Example #3:** Shipments tagged with `COMPANY_ABC` and created by **John Doe** (`john-doe@example.com`). ```plain /air/shipments ?filters[tags]=with:COMPANY_ABC \u0026filters[creator]=eq:john-doe@example.com ```. Optional: filters, order_by, skip (plus 1 more). Returns array of AirShipmentsListData.",
+      "method": "GET",
+      "path": "/air/shipments",
+      "params": [
+        {
+          "name": "filters",
+          "type": "object",
+          "location": "query",
+          "description": "Filters"
+        },
+        {
+          "name": "order_by",
+          "type": "string",
+          "location": "query",
+          "description": "Order by"
+        },
+        {
+          "name": "skip",
+          "type": "int",
+          "location": "query",
+          "description": "Skip"
+        },
+        {
+          "name": "take",
+          "type": "int",
+          "location": "query",
+          "description": "Take"
+        }
+      ]
+    },
+    {
+      "name": "air_update",
+      "description": "This endpoint allows users to update the fields of an existing air shipment. Required: shipment_id. Optional: reference. Returns the updated AirUpdateResponse.",
+      "method": "PATCH",
+      "path": "/air/shipments/{shipment_id}",
+      "params": [
+        {
+          "name": "shipment_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique identifier of the shipment.",
+          "required": true
+        },
+        {
+          "name": "reference",
+          "type": "string",
+          "location": "body",
+          "description": "Your reference to remember or classify the shipment."
+        }
+      ]
+    },
+    {
+      "name": "ocean_create",
+      "description": "This endpoint allows you to create a new shipment by providing the necessary shipment details. Once the shipment is successfully created, you need to save the given shipment identifier in your internal system to use it across the related endpoints. ### Duplicate Shipments If a shipment already exists with the same `reference` and `booking_number` or `container_number`, the system will not create a new shipment (no cost will be incurred) and will return a (`409 - ALREADY_EXISTS`) response containing the details of the existing shipment. - If the `reference` is provided in the request, it will always be considered during the duplicate check. - If both `booking_number` and `container_number` are provided, only the `booking_number` will be considered for the duplicate check. - If the `booking_number` is not provided, the system will perform the duplicate check using the `container_number`. **Note:** To add a follower or tag to an existing shipment, you must send a new request to the relevant endpoints using the existing shipment’s `id`. ### Concurrent Requests We process creation requests one by one for your company to prevent race conditions, such as misusing your credits or creating unnecessary duplicate shipments. You don't need to take any action, this process is handled entirely by ShipsGo system. However, sending too many concurrent requests can result in longer wait times and errors (`429` - `TOO_MANY_CONCURRENT_REQUESTS`). If you plan to create a large number of shipments at once, ensure that requests are sent synchronously. Optional: booking_number, carrier, container_number (plus 3 more). Returns the new OceanCreateResponse.",
+      "method": "POST",
+      "path": "/ocean/shipments",
+      "params": [
+        {
+          "name": "booking_number",
+          "type": "string",
+          "location": "body",
+          "description": "The booking number provided by the shipping line and required to track the shipment. **Note:** Either `container_number` or `booking_number` must be provided. The `booking_number` is required if `container_number` is not provided."
+        },
+        {
+          "name": "carrier",
+          "type": "string",
+          "location": "body",
+          "description": "The SCAC code of the carrier. This is used to identify the carrier for tracking purposes. A list of supported carriers can be obtained through the following API: **_[GET /ocean/carriers]_**"
+        },
+        {
+          "name": "container_number",
+          "type": "string",
+          "location": "body",
+          "description": "The container number provided by the shipping line and required to track the shipment. **Note:** Either `container_number` or `booking_number` must be provided. The `container_number` is required if `booking_number` is not provided."
+        },
+        {
+          "name": "followers",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Email addresses subscribed to receive notifications about the shipment."
+        },
+        {
+          "name": "reference",
+          "type": "string",
+          "location": "body",
+          "description": "Your reference to remember or classify the shipment. You can enter any numbers or letters. **Note:** Also it will be the default title of tracking notification emails."
+        },
+        {
+          "name": "tags",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "A list of labels or keywords associated with the shipment. Used to include additional information to the shipment in order to differentiate, identify and categorise your shipments."
+        }
+      ]
+    },
+    {
+      "name": "ocean_create-shipments",
+      "description": "This endpoint allows users to add a new follower to an existing ocean shipment. Required: shipment_id. Optional: follower. Returns the new OceanCreateShipmentsResponse.",
+      "method": "POST",
+      "path": "/ocean/shipments/{shipment_id}/followers",
+      "params": [
+        {
+          "name": "shipment_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique identifier of the shipment.",
+          "required": true
+        },
+        {
+          "name": "follower",
+          "type": "string",
+          "location": "body",
+          "description": "The new follower’s email address that you want to add to the shipment."
+        }
+      ]
+    },
+    {
+      "name": "ocean_create-shipments-2",
+      "description": "This endpoint allows users to add a tag to an existing ocean shipment. Required: shipment_id. Optional: tag. Returns the new OceanCreateShipments2Response.",
+      "method": "POST",
+      "path": "/ocean/shipments/{shipment_id}/tags",
+      "params": [
+        {
+          "name": "shipment_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique identifier of the shipment.",
+          "required": true
+        },
+        {
+          "name": "tag",
+          "type": "string",
+          "location": "body",
+          "description": "The new tag (a label or keyword) that you want to add to the shipment."
+        }
+      ]
+    },
+    {
+      "name": "ocean_delete",
+      "description": "This endpoint allows users to delete an existing ocean shipment. Required: shipment_id. Returns the OceanDeleteResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/ocean/shipments/{shipment_id}",
+      "params": [
+        {
+          "name": "shipment_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique identifier of the shipment.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "ocean_delete-shipments",
+      "description": "This endpoint allows users to remove an existing follower from an existing ocean shipment. Required: shipment_id, follower_id. Returns the OceanDeleteShipmentsResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/ocean/shipments/{shipment_id}/followers/{follower_id}",
+      "params": [
+        {
+          "name": "shipment_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique identifier of the shipment.",
+          "required": true
+        },
+        {
+          "name": "follower_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique identifier of the follower.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "ocean_delete-shipments-2",
+      "description": "This endpoint allows users to remove an existing tag from an existing ocean shipment. Required: shipment_id, tag_id. Returns the OceanDeleteShipments2Response. Destructive.",
+      "method": "DELETE",
+      "path": "/ocean/shipments/{shipment_id}/tags/{tag_id}",
+      "params": [
+        {
+          "name": "shipment_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique identifier of the shipment.",
+          "required": true
+        },
+        {
+          "name": "tag_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique identifier of the tag.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "ocean_get",
+      "description": "This endpoint retrieves the details of an existing ocean shipment. It returns comprehensive information about the shipment. This allows users to track and monitor the shipment's progress and status in real-time. Required: shipment_id.",
+      "method": "GET",
+      "path": "/ocean/shipments/{shipment_id}",
+      "params": [
+        {
+          "name": "shipment_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique identifier of the shipment.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "ocean_get-shipments",
+      "description": "This endpoint provides a GeoJSON FeatureCollection with all map-related data for a shipment, including port locations, the vessel’s current position, and past/future paths. GeoJSON ([RFC 7946](https://datatracker.ietf.org/doc/html/rfc7946)) is a format used to describe geographic data and can be directly used with most mapping libraries (Leaflet, Mapbox, Google Maps, etc.). In this endpoint, only `Point` and `LineString` geometry types are used. Each geometry is returned within a Feature as defined below: - Each Feature has a `geometry` (`Point` or `LineString`). - Each Feature has a set of `properties` according to its `geometry`. - Each Feature has a `status` property, which can be: - `PAST` – The shipment was at this port/route in the past. - `CURRENT` – The shipment is at this port/route now. - `FUTURE` – The shipment is expected to be at this port/route in the future. #### Point Features Features with `Point` geometry represent ports. Each `Point` Feature includes the port’s name, unlocode, timezone, and country information. #### LineString Features Features with `LineString` geometry represent routes between two locations. Each `LineString` Feature includes vessel information, voyage number, related events (`DEPA`, `ARRV`), and current position (when `status` is `CURRENT`). Required: shipment_id. Returns the OceanGetShipmentsResponse.",
+      "method": "GET",
+      "path": "/ocean/shipments/{shipment_id}/geojson",
+      "params": [
+        {
+          "name": "shipment_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique identifier of the shipment.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "ocean_list",
+      "description": "The shipments list endpoint allows you to retrieve a list of carriers. This includes options to apply various filters and sorting. **Example #1:** To filter the trackable carriers. ```plain /ocean/carriers?filters[status]=eq:ACTIVE ``` **Example #2:** To filter carriers that contain `CMA` in their name. ```plain /ocean/carriers?filters[name]=contains:CMA ```. Optional: filters, order_by, skip (plus 1 more). Returns array of OceanCarrier.",
+      "method": "GET",
+      "path": "/ocean/carriers",
+      "params": [
+        {
+          "name": "filters",
+          "type": "object",
+          "location": "query",
+          "description": "Filters"
+        },
+        {
+          "name": "order_by",
+          "type": "string",
+          "location": "query",
+          "description": "Order by"
+        },
+        {
+          "name": "skip",
+          "type": "int",
+          "location": "query",
+          "description": "Skip"
+        },
+        {
+          "name": "take",
+          "type": "int",
+          "location": "query",
+          "description": "Take"
+        }
+      ]
+    },
+    {
+      "name": "ocean_list-shipments",
+      "description": "The shipments list endpoint allows you to retrieve a list of your shipments (**basic information**) including options for applying various filters and sorting. To access detailed information (such as `route details`, `container movements`, `followers`, etc.) about a shipment, use the **OCEAN - Details of the Shipment** endpoint. **Example #1:** Ongoing (SAILING) shipments carried by **MSC** (MSCU) or **OOCL** (OOLU) with upcoming arrivals, listed in order. ```plain /ocean/shipments ?filters[status]=eq:SAILING \u0026filters[carrier]=in:MSCU,OOLU \u0026order_by=date_of_discharge,asc ``` **Example #2:** Shipments loaded from **India** (IN), between **September 1, 2024**, and **October 1, 2024**, listed in order of loading date. ```plain /ocean/shipments ?filters[port_of_loading_country]=eq:IN \u0026filters[date_of_loading]=between:2024-09-01...2024-10-01 \u0026order_by=date_of_loading,asc ``` **Example #3:** Shipments tagged with `COMPANY_ABC` and created by **John Doe** (`john-doe@example.com`). ```plain /ocean/shipments ?filters[tags]=with:COMPANY_ABC \u0026filters[creator]=eq:john-doe@example.com ```. Optional: filters, order_by, skip (plus 1 more). Returns array of OceanShipmentsListData.",
+      "method": "GET",
+      "path": "/ocean/shipments",
+      "params": [
+        {
+          "name": "filters",
+          "type": "object",
+          "location": "query",
+          "description": "Filters"
+        },
+        {
+          "name": "order_by",
+          "type": "string",
+          "location": "query",
+          "description": "Order by"
+        },
+        {
+          "name": "skip",
+          "type": "int",
+          "location": "query",
+          "description": "Skip"
+        },
+        {
+          "name": "take",
+          "type": "int",
+          "location": "query",
+          "description": "Take"
+        }
+      ]
+    },
+    {
+      "name": "ocean_update",
+      "description": "This endpoint allows users to update the fields of an existing ocean shipment. Required: shipment_id. Optional: reference. Returns the updated OceanUpdateResponse.",
+      "method": "PATCH",
+      "path": "/ocean/shipments/{shipment_id}",
+      "params": [
+        {
+          "name": "shipment_id",
+          "type": "int",
+          "location": "path",
+          "description": "The unique identifier of the shipment.",
+          "required": true
+        },
+        {
+          "name": "reference",
+          "type": "string",
+          "location": "body",
+          "description": "Your reference to remember or classify the shipment."
+        }
+      ]
+    }
+  ]
+}
