@@ -66,4 +66,13 @@ func TestDoctorExitForFailOn_GateAuthFailure(t *testing.T) {
 	if err := doctorExitForFailOn("error", open); err != nil {
 		t.Errorf("--fail-on=error must NOT trigger on an open gate, got %v", err)
 	}
+
+	// gateReachableOther (unexpected error past the gate) must trip
+	// --fail-on=error, consistent with its FAIL human indicator.
+	reachableOther := map[string]any{
+		"generate_gate": "reachable — gate not tripped, but the probe returned an unexpected error: HTTP 500",
+	}
+	if err := doctorExitForFailOn("error", reachableOther); err == nil {
+		t.Errorf("--fail-on=error must trigger on a gateReachableOther (unexpected error) verdict")
+	}
 }

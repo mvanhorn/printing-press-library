@@ -322,9 +322,13 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 				s := fmt.Sprintf("%v", gv)
 				indicator := green("OK")
 				switch {
-				case strings.HasPrefix(s, "auth-failure"), strings.HasPrefix(s, "unreachable"):
+				case strings.HasPrefix(s, "auth-failure"), strings.HasPrefix(s, "unreachable"), strings.HasPrefix(s, "reachable"):
+					// "reachable" is gateReachableOther: gate not tripped but the
+					// probe hit an unexpected error. FAIL (not WARN) so the human
+					// indicator matches --fail-on=error, which trips on the
+					// "error" in the verdict string.
 					indicator = red("FAIL")
-				case strings.HasPrefix(s, "tripped"), strings.HasPrefix(s, "skipped"), strings.HasPrefix(s, "reachable"):
+				case strings.HasPrefix(s, "tripped"), strings.HasPrefix(s, "skipped"):
 					indicator = yellow("WARN")
 				}
 				fmt.Fprintf(w, "  %s %s: %s\n", indicator, "Generate Gate", s)
