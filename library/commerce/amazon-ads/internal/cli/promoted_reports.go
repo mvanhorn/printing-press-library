@@ -93,6 +93,8 @@ func newReportsPromotedCmd(flags *rootFlags) *cobra.Command {
 	}
 
 	// Wire sibling endpoints and sub-resources as subcommands
+	cmd.AddCommand(newReportsRecipeCmd(flags))
+	cmd.AddCommand(newReportsDetectCmd(flags))
 	{
 		sub := newReportsDownloadCmd(flags)
 		sub.Hidden = false // unhide: the raw parent is hidden but these are useful under the promoted command

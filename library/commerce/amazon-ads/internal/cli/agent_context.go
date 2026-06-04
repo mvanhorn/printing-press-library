@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"os"
 	"sort"
+	"strings"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
@@ -24,6 +25,8 @@ const agentContextSchemaVersion = "3"
 type agentContext struct {
 	SchemaVersion              string                 `json:"schema_version"`
 	CLI                        agentContextCLI        `json:"cli"`
+	Persona                    string                 `json:"persona"`
+	PersonaView                *personaView           `json:"persona_view,omitempty"`
 	Auth                       agentContextAuth       `json:"auth"`
 	Discovery                  *agentContextDiscovery `json:"discovery,omitempty"`
 	Commands                   []agentContextCommand  `json:"commands"`
@@ -148,6 +151,12 @@ func buildAgentContext(rootCmd *cobra.Command) agentContext {
 	if profiles == nil {
 		profiles = []string{}
 	}
+	persona := "default"
+	if flag := rootCmd.PersistentFlags().Lookup("persona"); flag != nil && strings.TrimSpace(flag.Value.String()) != "" {
+		persona = strings.TrimSpace(flag.Value.String())
+	} else if env := strings.TrimSpace(os.Getenv("AMAZON_ADS_CLI_PERSONA")); env != "" {
+		persona = env
+	}
 	return agentContext{
 		SchemaVersion: agentContextSchemaVersion,
 		CLI: agentContextCLI{
@@ -155,6 +164,8 @@ func buildAgentContext(rootCmd *cobra.Command) agentContext {
 			Description: "Amazon Ads CLI for OAuth profile setup, report normalization, profitability analytics, keyword optimization, and guarded campaign automation.",
 			Version:     rootCmd.Version,
 		},
+		Persona:     persona,
+		PersonaView: personaDefinition(persona),
 		Auth: agentContextAuth{
 			Mode:    authMode,
 			EnvVars: envVars,

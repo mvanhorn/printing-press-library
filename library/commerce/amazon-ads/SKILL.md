@@ -39,6 +39,21 @@ If `--version` reports "command not found" after install, the install step did n
 
 Amazon Ads CLI for reports, profitability analytics, keyword optimization, profile-aware OAuth setup, and guarded campaign automation.
 
+## Start here: profitability
+
+For a seller focused on organic + advertising profitability, start with these commands before browsing the full API surface:
+
+1. `amazon-ads-pp-cli break-even-acos` — Calculate the maximum ACOS a product can carry before it loses money.
+2. `amazon-ads-pp-cli true-profit` — Calculate product profit after COGS, estimated Amazon fees, and ad spend.
+3. `amazon-ads-pp-cli acos-vs-tacos --report product-performance.csv --seller-store ~/.config/amazon-seller-pp-cli/store.db` — Join ad spend to seller-store sales for ACOS and TACOS by ASIN when the seller store has matching data.
+4. `amazon-ads-pp-cli portfolio-dashboard --report campaign-performance.csv` — Summarize spend, sales, orders, ACOS, CPC, CTR, and CVR.
+5. `amazon-ads-pp-cli product-ad-profitability --report product-performance.csv --cogs-file products.toml` — Estimate per-ASIN profit from ad performance and COGS.
+6. `amazon-ads-pp-cli campaign-comparison --report campaign-performance.csv` — Compare campaigns by spend, sales, ACOS, CPC, CTR, and CVR.
+
+Use `amazon-ads-pp-cli reports recipe <command>` when a command asks for `--report`; it prints the exact report kind, required columns, export path, and sample header. The schema-aware flows support console CSV/TSV exports and Ads API JSON/GZIP report artifacts.
+
+`acos-vs-tacos` covers ad spend joined to seller-store sales and TACOS by ASIN when the seller store overlaps the ads report. It does not yet cover organic sessions, conversion rate, parent/child ASIN rollups, refunds, COGS unless `--cogs-file` is provided to profit commands, or TACOS by portfolio. For the seller-side dashboard workflow, cross-check `amazon-seller-pp-cli sales-intel dashboard`.
+
 ## Command Reference
 
 **amazon-ads-dsp-dsp** — Manage amazon ads dsp dsp

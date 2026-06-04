@@ -14,6 +14,8 @@ import (
 func newBidOptimizerCmd(flags *rootFlags) *cobra.Command {
 	var reportPath string
 	var targetACOS float64
+	var reportKind string
+	var allowPartial bool
 
 	cmd := &cobra.Command{
 		Use:   "bid-optimizer",
@@ -25,7 +27,7 @@ func newBidOptimizerCmd(flags *rootFlags) *cobra.Command {
 			if reportPath == "" {
 				return usageErr(fmt.Errorf("--report is required"))
 			}
-			rows, err := adsanalytics.LoadKeywordPerformanceReport(reportPath)
+			rows, schemaReport, err := loadKeywordRowsForCommand(cmd, reportPath, reportLoadOptions{ReportKind: reportKind, AllowPartial: allowPartial, Command: "bid-optimizer"})
 			if err != nil {
 				return err
 			}
@@ -36,12 +38,30 @@ func newBidOptimizerCmd(flags *rootFlags) *cobra.Command {
 				"recommendations": recs,
 				"count":           len(recs),
 			}
+			if schemaReport.Kind != "" {
+				out["report_kind"] = schemaReport.Kind
+				out["detected_candidates"] = schemaReport.Validation.Candidates
+			}
 			return printCommandJSON(cmd, flags, out)
 		},
 	}
 	cmd.Flags().StringVar(&reportPath, "report", "", "Path to a keyword performance CSV or JSON export")
 	cmd.Flags().Float64Var(&targetACOS, "target-acos", 25, "Target ACOS percentage")
+	cmd.Flags().StringVar(&reportKind, "report-kind", "", "Explicit report schema kind (see reports recipe bid-optimizer)")
+	cmd.Flags().BoolVar(&allowPartial, "allow-partial", false, "Allow missing schema columns with a warning")
 	return cmd
+}
+
+func loadKeywordRowsForCommand(cmd *cobra.Command, reportPath string, opts reportLoadOptions) ([]adsanalytics.KeywordPerformance, adsanalytics.NormalizedSchemaReport, error) {
+	if reportPath == "" {
+		return nil, adsanalytics.NormalizedSchemaReport{}, usageErr(fmt.Errorf("--report is required"))
+	}
+	if opts.ReportKind == "" && !opts.AllowPartial {
+		rows, err := adsanalytics.LoadKeywordPerformanceReport(reportPath)
+		return rows, adsanalytics.NormalizedSchemaReport{}, err
+	}
+	rows, report, err := loadSchemaKeywordReport(cmd, reportPath, opts)
+	return rows, report, err
 }
 
 func newKeywordDecayCmd(flags *rootFlags) *cobra.Command {

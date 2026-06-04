@@ -337,6 +337,8 @@ func attachAutomationAudit(cmd *cobra.Command, out map[string]any, command, repo
 		planCount = len(v)
 	case []adsanalytics.BidRulePlan:
 		planCount = len(v)
+	case []adsanalytics.WeeklyReviewAction:
+		planCount = len(v)
 	}
 	if dbPath == "" {
 		dbPath = defaultDBPath("amazon-ads-pp-cli")

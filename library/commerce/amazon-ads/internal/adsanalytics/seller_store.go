@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"time"
 
 	_ "modernc.org/sqlite"
 )
@@ -18,7 +19,18 @@ type SellerRevenueSummary struct {
 	Revenue        float64  `json:"revenue"`
 	MatchedRecords int      `json:"matched_records"`
 	Source         string   `json:"source,omitempty"`
+	Freshness      string   `json:"freshness,omitempty"`
 	Notes          []string `json:"notes,omitempty"`
+}
+
+type SellerStoreValidation struct {
+	StorePath        string   `json:"store_path"`
+	Exists           bool     `json:"exists"`
+	MarketplaceMatch *bool    `json:"marketplace_match,omitempty"`
+	AccountMatch     *bool    `json:"account_match,omitempty"`
+	DateOverlap      *bool    `json:"date_overlap,omitempty"`
+	Freshness        string   `json:"freshness,omitempty"`
+	Warnings         []string `json:"warnings,omitempty"`
 }
 
 func DefaultSellerStorePath() string {
@@ -51,6 +63,9 @@ func LoadSellerRevenue(storePath, asin string) (SellerRevenueSummary, error) {
 		return summary, fmt.Errorf("opening seller store %s: %w", storePath, err)
 	}
 	defer db.Close()
+	if freshness := sellerStoreFreshness(db); !freshness.IsZero() {
+		summary.Freshness = freshness.Format(time.RFC3339)
+	}
 
 	if tableUsableForRevenue(db, "orders", &summary) {
 		summary.Source = "orders"
@@ -78,6 +93,65 @@ func LoadSellerRevenue(storePath, asin string) (SellerRevenueSummary, error) {
 		}
 	}
 	return summary, nil
+}
+
+func ValidateSellerStore(storePath, expectedMarketplace, expectedAccount, startDate, endDate string) (SellerStoreValidation, error) {
+	if storePath == "" {
+		storePath = DefaultSellerStorePath()
+	}
+	validation := SellerStoreValidation{StorePath: storePath}
+	if storePath == "" {
+		return validation, fmt.Errorf("could not resolve amazon-seller store path")
+	}
+	if _, err := os.Stat(storePath); err != nil {
+		if errors.Is(err, os.ErrNotExist) {
+			return validation, fmt.Errorf("amazon-seller store not found at %s; run amazon-seller-pp-cli sync or pass --total-revenue", storePath)
+		}
+		return validation, fmt.Errorf("checking seller store %s: %w", storePath, err)
+	}
+	validation.Exists = true
+	db, err := sql.Open("sqlite", storePath+"?mode=ro&_pragma=busy_timeout(5000)")
+	if err != nil {
+		return validation, fmt.Errorf("opening seller store %s: %w", storePath, err)
+	}
+	defer db.Close()
+	if freshness := sellerStoreFreshness(db); !freshness.IsZero() {
+		validation.Freshness = freshness.Format(time.RFC3339)
+	}
+	if expectedMarketplace != "" {
+		if actual, ok := sellerStoreMetaValue(db, "marketplace", "marketplace_id", "marketplaceId"); ok {
+			match := strings.EqualFold(actual, expectedMarketplace)
+			validation.MarketplaceMatch = &match
+			if !match {
+				return validation, fmt.Errorf("seller store marketplace %q does not match ads marketplace %q", actual, expectedMarketplace)
+			}
+		} else {
+			validation.Warnings = append(validation.Warnings, "seller store marketplace metadata unavailable; marketplace match could not be verified")
+		}
+	}
+	if expectedAccount != "" {
+		if actual, ok := sellerStoreMetaValue(db, "account", "account_id", "accountId", "profile_id", "profileId"); ok {
+			match := actual == expectedAccount
+			validation.AccountMatch = &match
+			if !match {
+				return validation, fmt.Errorf("seller store account/profile %q does not match ads profile %q", actual, expectedAccount)
+			}
+		} else {
+			validation.Warnings = append(validation.Warnings, "seller store account metadata unavailable; account match could not be verified")
+		}
+	}
+	if startDate != "" || endDate != "" {
+		overlap, known := sellerStoreDateOverlap(db, startDate, endDate)
+		if known {
+			validation.DateOverlap = &overlap
+			if !overlap {
+				return validation, fmt.Errorf("seller store dates do not overlap ads report range %s..%s", startDate, endDate)
+			}
+		} else {
+			validation.Warnings = append(validation.Warnings, "seller store date coverage unavailable; date overlap could not be verified")
+		}
+	}
+	return validation, nil
 }
 
 func tableUsableForRevenue(db *sql.DB, table string, summary *SellerRevenueSummary) bool {
@@ -156,6 +230,174 @@ func loadRevenueFromTable(db *sql.DB, table, resourceType, asin string, summary 
 		summary.Notes = append(summary.Notes, fmt.Sprintf("skipped %d malformed JSON row(s) in seller store table %s", malformedRows, table))
 	}
 	return nil
+}
+
+func sellerStoreFreshness(db *sql.DB) time.Time {
+	var best time.Time
+	rows, err := db.Query(`SELECT name FROM sqlite_master WHERE type='table'`)
+	if err != nil {
+		return best
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var table string
+		if err := rows.Scan(&table); err != nil {
+			continue
+		}
+		for _, column := range sellerStoreColumns(db, table) {
+			if column != "updated_at" && column != "updatedAt" && column != "created_at" && column != "createdAt" && column != "fetched_at" && column != "fetchedAt" {
+				continue
+			}
+			var raw sql.NullString
+			query := `SELECT MAX(` + quoteSQLiteIdent(column) + `) FROM ` + quoteSQLiteIdent(table)
+			if err := db.QueryRow(query).Scan(&raw); err != nil || !raw.Valid {
+				continue
+			}
+			if ts, ok := parseSellerDate(raw.String); ok && ts.After(best) {
+				best = ts
+			}
+		}
+	}
+	return best
+}
+
+func sellerStoreColumns(db *sql.DB, table string) []string {
+	rows, err := db.Query(`PRAGMA table_info(` + quoteSQLiteIdent(table) + `)`)
+	if err != nil {
+		return nil
+	}
+	defer rows.Close()
+	var cols []string
+	for rows.Next() {
+		var cid int
+		var colName, colType string
+		var notNull int
+		var defaultValue any
+		var pk int
+		if err := rows.Scan(&cid, &colName, &colType, &notNull, &defaultValue, &pk); err == nil {
+			cols = append(cols, colName)
+		}
+	}
+	return cols
+}
+
+func sellerStoreMetaValue(db *sql.DB, keys ...string) (string, bool) {
+	for _, table := range []string{"metadata", "meta", "profiles", "accounts"} {
+		if !sellerTableExists(db, table) {
+			continue
+		}
+		cols := sellerStoreColumns(db, table)
+		for _, key := range keys {
+			if stringSliceContains(cols, key) {
+				var value sql.NullString
+				if err := db.QueryRow(`SELECT ` + quoteSQLiteIdent(key) + ` FROM ` + quoteSQLiteIdent(table) + ` WHERE ` + quoteSQLiteIdent(key) + ` IS NOT NULL LIMIT 1`).Scan(&value); err == nil && value.Valid && value.String != "" {
+					return value.String, true
+				}
+			}
+		}
+		if stringSliceContains(cols, "key") && stringSliceContains(cols, "value") {
+			for _, key := range keys {
+				var value sql.NullString
+				if err := db.QueryRow(`SELECT value FROM `+quoteSQLiteIdent(table)+` WHERE key = ? LIMIT 1`, key).Scan(&value); err == nil && value.Valid && value.String != "" {
+					return value.String, true
+				}
+			}
+		}
+	}
+	return "", false
+}
+
+func sellerStoreDateOverlap(db *sql.DB, startDate, endDate string) (bool, bool) {
+	reportStart, _ := parseSellerDate(startDate)
+	reportEnd, _ := parseSellerDate(endDate)
+	if reportStart.IsZero() && reportEnd.IsZero() {
+		return false, false
+	}
+	var minDate, maxDate time.Time
+	for _, table := range []string{"orders", "resources", "reports"} {
+		if !sellerTableExists(db, table) || !stringSliceContains(sellerStoreColumns(db, table), "data") {
+			continue
+		}
+		rows, err := db.Query(`SELECT data FROM ` + quoteSQLiteIdent(table))
+		if err != nil {
+			continue
+		}
+		for rows.Next() {
+			var raw string
+			if err := rows.Scan(&raw); err != nil {
+				continue
+			}
+			var payload any
+			if err := json.Unmarshal([]byte(raw), &payload); err != nil {
+				continue
+			}
+			collectSellerDates(payload, &minDate, &maxDate)
+		}
+		rows.Close()
+	}
+	if minDate.IsZero() && maxDate.IsZero() {
+		return false, false
+	}
+	if reportStart.IsZero() {
+		reportStart = reportEnd
+	}
+	if reportEnd.IsZero() {
+		reportEnd = reportStart
+	}
+	return !reportEnd.Before(minDate) && !reportStart.After(maxDate), true
+}
+
+func collectSellerDates(v any, minDate, maxDate *time.Time) {
+	switch x := v.(type) {
+	case map[string]any:
+		for key, child := range x {
+			lower := strings.ToLower(key)
+			if strings.Contains(lower, "date") || strings.Contains(lower, "purchase") || strings.Contains(lower, "lastupdate") {
+				if s, ok := child.(string); ok {
+					if ts, ok := parseSellerDate(s); ok {
+						if (*minDate).IsZero() || ts.Before(*minDate) {
+							*minDate = ts
+						}
+						if (*maxDate).IsZero() || ts.After(*maxDate) {
+							*maxDate = ts
+						}
+					}
+				}
+			}
+			collectSellerDates(child, minDate, maxDate)
+		}
+	case []any:
+		for _, child := range x {
+			collectSellerDates(child, minDate, maxDate)
+		}
+	}
+}
+
+func parseSellerDate(raw string) (time.Time, bool) {
+	raw = strings.TrimSpace(raw)
+	if raw == "" {
+		return time.Time{}, false
+	}
+	for _, layout := range []string{time.RFC3339, "2006-01-02", "2006-01-02 15:04:05", "2006-01-02T15:04:05"} {
+		if ts, err := time.Parse(layout, raw); err == nil {
+			return ts, true
+		}
+	}
+	return time.Time{}, false
+}
+
+func sellerTableExists(db *sql.DB, table string) bool {
+	var name string
+	return db.QueryRow(`SELECT name FROM sqlite_master WHERE type='table' AND name=?`, table).Scan(&name) == nil
+}
+
+func stringSliceContains(values []string, needle string) bool {
+	for _, value := range values {
+		if value == needle {
+			return true
+		}
+	}
+	return false
 }
 
 func quoteSQLiteIdent(name string) string {

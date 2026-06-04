@@ -46,6 +46,7 @@ type rootFlags struct {
 	maxAge              time.Duration
 	dataSource          string
 	adsProfileID        string
+	persona             string
 	freshnessMeta       any
 
 	// deliverBuf captures command output when --deliver is set to a
@@ -178,6 +179,7 @@ Run 'amazon-ads-pp-cli doctor' to verify auth and connectivity.`,
 	rootCmd.PersistentFlags().DurationVar(&flags.maxAge, "max-age", 30*time.Minute, "Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables")
 	rootCmd.PersistentFlags().StringVar(&flags.profileName, "profile", "", "Apply values from a saved profile (see 'amazon-ads-pp-cli profile list')")
 	rootCmd.PersistentFlags().StringVar(&flags.adsProfileID, "profile-id", "", "Amazon Ads profile ID to send as Amazon-Advertising-API-Scope")
+	rootCmd.PersistentFlags().StringVar(&flags.persona, "persona", "", "Persona view for docs/agent context/command groups (e.g. seller-no-dsp)")
 	rootCmd.PersistentFlags().StringVar(&flags.deliverSpec, "deliver", "", "Route output to a sink: stdout (default), file:<path>, webhook:<url>")
 	rootCmd.PersistentFlags().Float64Var(&flags.rateLimit, "rate-limit", 0, "Max requests per second (0 to disable)")
 
@@ -204,6 +206,8 @@ Run 'amazon-ads-pp-cli doctor' to verify auth and connectivity.`,
 				return err
 			}
 		}
+		resolvePersona(flags, cmd)
+		maybeEmitFeedbackNudge(cmd, flags)
 		if flags.agent {
 			if !cmd.Flags().Changed("json") {
 				flags.asJSON = true
@@ -283,8 +287,10 @@ Run 'amazon-ads-pp-cli doctor' to verify auth and connectivity.`,
 	rootCmd.AddCommand(newAutoPromoteCmd(flags))
 	rootCmd.AddCommand(newBudgetRebalanceCmd(flags))
 	rootCmd.AddCommand(newBidRulesCmd(flags))
+	rootCmd.AddCommand(newWeeklyReviewCmd(flags))
 	rootCmd.AddCommand(newAutomationAuditCmd(flags))
 	rootCmd.AddCommand(newNormalizeReportCmd(flags))
+	rootCmd.AddCommand(newCommandGroupsCmd(flags))
 	rootCmd.AddCommand(newAgentContextCmd(rootCmd))
 	rootCmd.AddCommand(newProfileCmd(flags))
 	rootCmd.AddCommand(newFeedbackCmd(flags))
@@ -298,6 +304,13 @@ Run 'amazon-ads-pp-cli doctor' to verify auth and connectivity.`,
 	rootCmd.AddCommand(newAnalyticsCmd(flags))
 	rootCmd.AddCommand(newWorkflowCmd(flags))
 	rootCmd.AddCommand(newAPICmd(flags))
+	defaultHelp := rootCmd.HelpFunc()
+	rootCmd.SetHelpFunc(func(cmd *cobra.Command, args []string) {
+		if cmd == rootCmd && renderPersonaHelp(cmd, flags) {
+			return
+		}
+		defaultHelp(cmd, args)
+	})
 	rootCmd.AddCommand(newAmazonAdsSponsoredReportsPromotedCmd(flags))
 	rootCmd.AddCommand(newBrandsPromotedCmd(flags))
 	rootCmd.AddCommand(newCurrenciesPromotedCmd(flags))
