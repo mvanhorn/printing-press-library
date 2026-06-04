@@ -4,7 +4,7 @@
 
 Shopper's recurring basket, fixed charge-7-days-before clock, and drifting prices produce a time series the official app discards every cycle. This CLI keeps it in a local SQLite store, unlocking charge-calendar, basket diff, price-watch, restock prediction, catalog-drift detection, and cashback optimization — none of which any Shopper interface offers.
 
-Learn more at [Shopper](https://siteapi.shopper.com.br).
+Learn more at [Shopper](https://shopper.com.br).
 
 Created by [@educrvz](https://github.com/educrvz) (educrvz).
 
