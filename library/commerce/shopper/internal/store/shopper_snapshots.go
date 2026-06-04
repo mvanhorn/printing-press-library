@@ -8,8 +8,16 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"sync"
 	"time"
 )
+
+// snapshotWriteMu serializes writes to the hand-authored snapshot tables
+// (cart_snapshots, price_snapshots). These tables live outside the generated
+// resources schema guarded by Store.writeMu, so this dedicated mutex prevents
+// concurrent snapshot writers (e.g. a compound workflow running basket diff and
+// price-watch at once) from interleaving transactions and tripping SQLITE_BUSY.
+var snapshotWriteMu sync.Mutex
 
 // ensureCartSnapshotsTable creates cart_snapshots if it doesn't exist.
 func ensureCartSnapshotsTable(db *sql.DB) error {
@@ -42,10 +50,10 @@ func ensurePriceSnapshotsTable(db *sql.DB) error {
 
 // CartSnapshotItem represents a single cart item stored in a snapshot.
 type CartSnapshotItem struct {
-	ID       string  `json:"id"`
-	Name     string  `json:"name"`
-	Qty      float64 `json:"qty"`
-	Price    float64 `json:"price"`
+	ID        string  `json:"id"`
+	Name      string  `json:"name"`
+	Qty       float64 `json:"qty"`
+	Price     float64 `json:"price"`
 	UnitPrice float64 `json:"unit_price,omitempty"`
 }
 
@@ -58,6 +66,8 @@ type CartSnapshot struct {
 
 // SnapshotCart stores a new cart snapshot. Returns the new snapshot's row ID.
 func SnapshotCart(db *sql.DB, items []CartSnapshotItem) (int64, error) {
+	snapshotWriteMu.Lock()
+	defer snapshotWriteMu.Unlock()
 	if err := ensureCartSnapshotsTable(db); err != nil {
 		return 0, fmt.Errorf("ensuring cart_snapshots table: %w", err)
 	}
@@ -141,18 +151,20 @@ func scanCartSnapshots(rows *sql.Rows) ([]CartSnapshot, error) {
 
 // PriceSnapshot represents a stored product price snapshot.
 type PriceSnapshot struct {
-	ID        int64
-	ProductID string
-	Name      string
+	ID         int64
+	ProductID  string
+	Name       string
 	PriceCents int64
 	UnitPrice  float64
 	UnitLabel  string
 	PackGrams  int64
-	TakenAt   time.Time
+	TakenAt    time.Time
 }
 
 // SnapshotPrices stores price snapshots for a batch of products.
 func SnapshotPrices(db *sql.DB, items []PriceSnapshot) error {
+	snapshotWriteMu.Lock()
+	defer snapshotWriteMu.Unlock()
 	if err := ensurePriceSnapshotsTable(db); err != nil {
 		return fmt.Errorf("ensuring price_snapshots table: %w", err)
 	}

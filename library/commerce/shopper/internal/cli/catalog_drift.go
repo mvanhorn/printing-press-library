@@ -4,15 +4,14 @@
 package cli
 
 import (
-	"encoding/json"
 	"fmt"
 	"math"
 	"strings"
 	"time"
 
+	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/commerce/shopper/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/commerce/shopper/internal/store"
-	"github.com/spf13/cobra"
 )
 
 type shrinkflationItem struct {
@@ -240,7 +239,6 @@ pack sizes in their names (e.g. "Arroz 5KG", "Leite 1L").`,
 			}
 
 			// Emit JSON regardless of terminal status (this is an analytics command)
-			_ = json.NewEncoder(cmd.OutOrStdout()) // suppress unused import warning if needed
 			return printJSONFiltered(cmd.OutOrStdout(), result, flags)
 		},
 	}

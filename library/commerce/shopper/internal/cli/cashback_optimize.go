@@ -11,8 +11,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/mvanhorn/printing-press-library/library/commerce/shopper/internal/store"
 	"github.com/spf13/cobra"
+	"github.com/mvanhorn/printing-press-library/library/commerce/shopper/internal/store"
 )
 
 type cashbackSuggestedItem struct {
@@ -140,7 +140,7 @@ greedily by price (cheapest first) until the gap is closed without exceeding max
 
 			// Fetch catalog items to fill the gap
 			var catalogItems []cashbackSuggestedItem
-			searchData, _, serr := c.Post(cmd.Context(), "/catalog/search",
+			searchData, _, serr := c.PostQueryWithParams(cmd.Context(), "/catalog/search", nil,
 				map[string]any{"query": "", "page": 0, "size": 100})
 			if serr == nil && searchData != nil {
 				catalogItems = extractCatalogItemsForCashback(searchData, restockIDs)

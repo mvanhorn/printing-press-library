@@ -9,9 +9,9 @@ import (
 	"sort"
 	"time"
 
+	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/commerce/shopper/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/commerce/shopper/internal/store"
-	"github.com/spf13/cobra"
 )
 
 type restockPrediction struct {
@@ -167,8 +167,20 @@ explains what data is needed.
 				if dailyConsumption <= 0 {
 					continue
 				}
-				// Assuming user currently has ~1 cycle's worth; run-out estimate
-				runOutDays := avgQty / dailyConsumption
+				// Interpolate current on-hand stock from the last observed order:
+				// the user received ~one cycle's worth (avgQty) at the last order
+				// and has consumed dailyConsumption/day since, so
+				// run-out = cycleDays - days-since-last-order. This makes the
+				// estimate urgency-differentiated rather than equal to cycleDays.
+				lastOrder := h.points[len(h.points)-1].takenAt
+				daysSinceLast := time.Since(lastOrder).Hours() / 24
+				if daysSinceLast < 0 {
+					daysSinceLast = 0
+				}
+				runOutDays := cycleDays - daysSinceLast
+				if runOutDays < 0 {
+					runOutDays = 0
+				}
 				suggestAdd := flagSuggestAdds && runOutDays <= float64(horizonDays)
 
 				preds = append(preds, pred{
