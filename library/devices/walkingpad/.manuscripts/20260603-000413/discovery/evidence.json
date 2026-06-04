@@ -1,0 +1,519 @@
+{
+  "name": "ble-live-capture",
+  "identity": {},
+  "events": [
+    {
+      "id": "scan-1",
+      "type": "advertisement",
+      "device_address": "322685c1-0e65-ee50-0251-664b2e58136a",
+      "rssi": -46
+    },
+    {
+      "id": "scan-2",
+      "type": "advertisement",
+      "device_address": "3880255f-c7f1-a734-ce9c-93762305eeaf",
+      "rssi": -52
+    },
+    {
+      "id": "scan-3",
+      "type": "advertisement",
+      "device_address": "e92436e3-6aab-0fff-4ee0-c66c9172d79b",
+      "rssi": -52
+    },
+    {
+      "id": "scan-4",
+      "type": "advertisement",
+      "device_address": "de44a4b7-ec10-375b-2a18-de55e5f43e8a",
+      "rssi": -54
+    },
+    {
+      "id": "scan-5",
+      "type": "advertisement",
+      "device_address": "bfa2c229-bacf-73f0-79fe-2c1ced5828a4",
+      "rssi": -58
+    },
+    {
+      "id": "scan-6",
+      "type": "advertisement",
+      "device_address": "171be00d-a68f-324b-ecb9-5af07bd38458",
+      "rssi": -59,
+      "service_uuids": [
+        "093b30d3-2d5b-4960-b561-852829ab91b1"
+      ]
+    },
+    {
+      "id": "scan-7",
+      "type": "advertisement",
+      "device_address": "2e322841-8554-1931-e0df-890fdf96e916",
+      "rssi": -59
+    },
+    {
+      "id": "scan-8",
+      "type": "advertisement",
+      "device_address": "3ec95763-4d5d-67c0-4356-062f09078409",
+      "rssi": -59
+    },
+    {
+      "id": "scan-9",
+      "type": "advertisement",
+      "device_address": "7bfb0c73-dff0-2351-ec7f-26b7e3c9b3e0",
+      "rssi": -59
+    },
+    {
+      "id": "scan-10",
+      "type": "advertisement",
+      "device_address": "d8c32adc-edaa-4cce-2885-a60bd319eaaa",
+      "rssi": -59,
+      "service_uuids": [
+        "98ed0001-a541-11e4-b6a0-0002a5d5c51b"
+      ]
+    },
+    {
+      "id": "scan-11",
+      "type": "advertisement",
+      "device_address": "f47cf3e5-58a2-b1db-bcc2-3dc59cc81cc7",
+      "rssi": -59
+    },
+    {
+      "id": "scan-12",
+      "type": "advertisement",
+      "device_address": "199f31b9-80c8-ffb5-dfcf-d4a4ad4ced25",
+      "rssi": -60
+    },
+    {
+      "id": "scan-13",
+      "type": "advertisement",
+      "device_address": "2acb1327-5139-2f8c-35dc-ede346d6c377",
+      "rssi": -60
+    },
+    {
+      "id": "scan-14",
+      "type": "advertisement",
+      "device_address": "1b87722c-be93-d15a-d835-c34d1a4f5226",
+      "rssi": -62
+    },
+    {
+      "id": "scan-15",
+      "type": "advertisement",
+      "device_address": "38dc4419-f6cf-48d9-5523-852b7e373c3a",
+      "rssi": -62
+    },
+    {
+      "id": "scan-16",
+      "type": "advertisement",
+      "device_address": "a6cab0bd-eaec-a6af-cf7e-4e11a8e6f945",
+      "rssi": -63,
+      "service_uuids": [
+        "0000febe-0000-1000-8000-00805f9b34fb"
+      ]
+    },
+    {
+      "id": "scan-17",
+      "type": "advertisement",
+      "device_address": "0e046ba5-af8b-018d-4b30-5c03a93b6222",
+      "rssi": -65
+    },
+    {
+      "id": "scan-18",
+      "type": "advertisement",
+      "device_address": "46236086-e51c-56be-2362-29363994199e",
+      "device_name": "N00FV",
+      "rssi": -65,
+      "service_uuids": [
+        "0000feaf-0000-1000-8000-00805f9b34fb"
+      ]
+    },
+    {
+      "id": "scan-19",
+      "type": "advertisement",
+      "device_address": "78248ba8-51ef-4e4e-274b-33a5d9458c4f",
+      "rssi": -65
+    },
+    {
+      "id": "scan-20",
+      "type": "advertisement",
+      "device_address": "9c99dad2-f045-88d3-9773-d329b8a57ec4",
+      "device_name": "LE_Home Theatre",
+      "rssi": -65
+    },
+    {
+      "id": "scan-21",
+      "type": "advertisement",
+      "device_address": "07ef94a9-8880-c779-16a0-113db6292809",
+      "device_name": "KS-BLC2",
+      "rssi": -68,
+      "service_uuids": [
+        "0000fe00-0000-1000-8000-00805f9b34fb"
+      ]
+    },
+    {
+      "id": "scan-22",
+      "type": "advertisement",
+      "device_address": "bc6954f6-0d57-cdb4-c3c2-62bc7c21d50f",
+      "rssi": -68
+    },
+    {
+      "id": "scan-23",
+      "type": "advertisement",
+      "device_address": "0f5978ce-3c73-6bed-4ad7-361e1d939047",
+      "device_name": "110035_50A0",
+      "rssi": -69,
+      "service_uuids": [
+        "4772911e-d07c-4617-8241-f4d10948d6ae"
+      ]
+    },
+    {
+      "id": "scan-24",
+      "type": "advertisement",
+      "device_address": "353c423c-d815-f0e2-3b8e-8d8eb51fb582",
+      "rssi": -70
+    },
+    {
+      "id": "scan-25",
+      "type": "advertisement",
+      "device_address": "5f8a6a19-b97f-a3f1-d595-b320ee15c50c",
+      "rssi": -71
+    },
+    {
+      "id": "scan-26",
+      "type": "advertisement",
+      "device_address": "6cbaa5b0-ab07-f5e4-5adc-e9d768eea7f1",
+      "device_name": "C5500XK2203007979",
+      "rssi": -71
+    },
+    {
+      "id": "scan-27",
+      "type": "advertisement",
+      "device_address": "bce8c645-1ae3-c5f6-7b02-305fc7b8a895",
+      "rssi": -71
+    },
+    {
+      "id": "scan-28",
+      "type": "advertisement",
+      "device_address": "c7189f4c-7758-fd35-25ef-7944393b5456",
+      "rssi": -71
+    },
+    {
+      "id": "scan-29",
+      "type": "advertisement",
+      "device_address": "4c9213e8-de09-29a0-284f-b86ce85c4829",
+      "rssi": -72
+    },
+    {
+      "id": "scan-30",
+      "type": "advertisement",
+      "device_address": "75255e1f-195d-171b-5c5b-8d96167e27f3",
+      "device_name": "R33-0199",
+      "rssi": -72
+    },
+    {
+      "id": "scan-31",
+      "type": "advertisement",
+      "device_address": "1d424aa9-fbd2-84df-0a1a-c38a6f40cb1b",
+      "rssi": -75
+    },
+    {
+      "id": "scan-32",
+      "type": "advertisement",
+      "device_address": "38c4b567-a6a6-8749-ec41-957a69d7e002",
+      "device_name": "S17 3ACC LE",
+      "rssi": -76,
+      "service_uuids": [
+        "0000fe07-0000-1000-8000-00805f9b34fb"
+      ]
+    },
+    {
+      "id": "scan-33",
+      "type": "advertisement",
+      "device_address": "83c153d4-368a-35cc-be26-74caa1e7d36a",
+      "rssi": -77
+    },
+    {
+      "id": "scan-34",
+      "type": "advertisement",
+      "device_address": "68df06f5-452b-49e1-28df-e312bbf05384",
+      "rssi": -78
+    },
+    {
+      "id": "scan-35",
+      "type": "advertisement",
+      "device_address": "ea79d637-c5f7-cf16-c1a0-ffb4429c188f",
+      "rssi": -78
+    },
+    {
+      "id": "scan-36",
+      "type": "advertisement",
+      "device_address": "1d2ebe0f-2c73-3a03-d409-4d4a70e98240",
+      "device_name": "XBLOOM 56H041",
+      "rssi": -79,
+      "service_uuids": [
+        "0000e0ff-3c17-d293-8e48-14fe2e4da212"
+      ]
+    },
+    {
+      "id": "scan-37",
+      "type": "advertisement",
+      "device_address": "7593f40e-0b6d-9f43-a879-edf17d6e720f",
+      "device_name": "[TV] Samsung The Frame (55)",
+      "rssi": -85
+    },
+    {
+      "id": "scan-38",
+      "type": "advertisement",
+      "device_address": "2ff5ef2d-543d-588e-c76c-c9d7cb1f86d7",
+      "rssi": -86
+    },
+    {
+      "id": "scan-39",
+      "type": "advertisement",
+      "device_address": "cdd97807-e16c-502e-ae80-7d1f7d0a71c7",
+      "rssi": -87
+    },
+    {
+      "id": "scan-40",
+      "type": "advertisement",
+      "device_address": "7ff7f613-7176-413d-ffde-73aba0dded3a",
+      "rssi": -88
+    },
+    {
+      "id": "scan-41",
+      "type": "advertisement",
+      "device_address": "d328a86b-bd09-bc4e-c0ea-66b8cb0e6906",
+      "rssi": -88
+    },
+    {
+      "id": "scan-42",
+      "type": "advertisement",
+      "device_address": "2843a73f-a49e-27b8-3aae-b9e4c34a9d02",
+      "rssi": -89
+    },
+    {
+      "id": "scan-43",
+      "type": "advertisement",
+      "device_address": "012a1c34-00f5-09ad-ff79-bfcddf4023ea",
+      "rssi": -91
+    },
+    {
+      "id": "scan-44",
+      "type": "advertisement",
+      "device_address": "22c4de23-7a36-edec-4ea0-f42289980f7e",
+      "rssi": -92
+    },
+    {
+      "id": "scan-45",
+      "type": "advertisement",
+      "device_address": "847ed826-9cdc-08a0-0c6d-25252e20d97c",
+      "rssi": -92,
+      "service_uuids": [
+        "0000febe-0000-1000-8000-00805f9b34fb"
+      ]
+    },
+    {
+      "id": "scan-46",
+      "type": "advertisement",
+      "device_address": "95d9f9bf-3bdf-73ed-7b7c-da67822d1f6a",
+      "device_name": "lime-207907433049",
+      "rssi": -92
+    },
+    {
+      "id": "scan-47",
+      "type": "advertisement",
+      "device_address": "9108cfe4-6036-102e-68e5-784ba350cd16",
+      "device_name": "net",
+      "rssi": -94,
+      "service_uuids": [
+        "0000ff80-0000-1000-8000-00805f9b34fb",
+        "0000ff90-0000-1000-8000-00805f9b34fb"
+      ]
+    },
+    {
+      "id": "scan-48",
+      "type": "advertisement",
+      "device_address": "f3f73b15-1a5a-123d-4e87-16e5dbe76709",
+      "device_name": "N062F",
+      "rssi": -94,
+      "service_uuids": [
+        "0000feaf-0000-1000-8000-00805f9b34fb"
+      ]
+    },
+    {
+      "id": "scan-49",
+      "type": "advertisement",
+      "device_address": "74e22798-cfbf-8bde-83c1-af1bfa106a66",
+      "device_name": "Govee_H7015_0E3D",
+      "rssi": -96
+    },
+    {
+      "id": "scan-50",
+      "type": "advertisement",
+      "device_address": "aff88477-0700-2916-f593-d9e1824c2332",
+      "rssi": -96
+    },
+    {
+      "id": "scan-51",
+      "type": "advertisement",
+      "device_address": "b795a821-b6a3-ebc8-9aee-a7dbe8cbb39d",
+      "device_name": "lime-930703634973",
+      "rssi": -96
+    },
+    {
+      "id": "scan-52",
+      "type": "advertisement",
+      "device_address": "eff559da-5d64-c03e-c0f9-3672f6c7967a",
+      "device_name": "1F1B301EE4FB",
+      "rssi": -96
+    },
+    {
+      "id": "scan-53",
+      "type": "advertisement",
+      "device_address": "045e4744-46ea-7682-2d10-8429fc2d14e4",
+      "rssi": -97
+    },
+    {
+      "id": "scan-54",
+      "type": "advertisement",
+      "device_address": "28ed25d7-65bb-8308-7bfb-f9f7442cb770",
+      "device_name": "WL_SCLET",
+      "rssi": -97,
+      "service_uuids": [
+        "0000fd7b-0000-1000-8000-00805f9b34fb"
+      ]
+    },
+    {
+      "id": "scan-55",
+      "type": "advertisement",
+      "device_address": "387511b5-f583-baf0-3dfa-32d00e1ba163",
+      "rssi": -97
+    },
+    {
+      "id": "scan-56",
+      "type": "advertisement",
+      "device_address": "aadef1f2-7cee-6dda-0b59-bb711ba0fc48",
+      "rssi": -97
+    },
+    {
+      "id": "scan-57",
+      "type": "advertisement",
+      "device_address": "04a3172a-6888-015e-387a-13dbca5d751d",
+      "rssi": -98
+    },
+    {
+      "id": "scan-58",
+      "type": "advertisement",
+      "device_address": "290464b8-82aa-56e6-62be-844d5f3fe9f4",
+      "rssi": -98
+    },
+    {
+      "id": "scan-59",
+      "type": "advertisement",
+      "device_address": "a3afed53-60ef-458a-3052-11873d606a8c",
+      "rssi": -98
+    },
+    {
+      "id": "scan-60",
+      "type": "advertisement",
+      "device_address": "bc9c27cf-398b-ce35-e45a-0245d7381a0e",
+      "rssi": -98
+    },
+    {
+      "id": "scan-61",
+      "type": "advertisement",
+      "device_address": "e996007f-1763-e150-2ed9-e9be0b982416",
+      "rssi": -98,
+      "service_uuids": [
+        "0000fe9f-0000-1000-8000-00805f9b34fb"
+      ]
+    },
+    {
+      "id": "scan-62",
+      "type": "advertisement",
+      "device_address": "c3cdb509-00c2-ca20-1e6a-25f21722e2eb",
+      "rssi": -100
+    },
+    {
+      "id": "svc-01-char-01",
+      "type": "service_discovery",
+      "service_uuid": "0000fe00-0000-1000-8000-00805f9b34fb",
+      "characteristic_uuid": "0000fe01-0000-1000-8000-00805f9b34fb"
+    },
+    {
+      "id": "svc-01-char-02",
+      "type": "service_discovery",
+      "service_uuid": "0000fe00-0000-1000-8000-00805f9b34fb",
+      "characteristic_uuid": "0000fe02-0000-1000-8000-00805f9b34fb"
+    },
+    {
+      "id": "svc-02-char-01",
+      "type": "service_discovery",
+      "service_uuid": "0000180a-0000-1000-8000-00805f9b34fb",
+      "characteristic_uuid": "00002a29-0000-1000-8000-00805f9b34fb"
+    },
+    {
+      "id": "svc-02-char-02",
+      "type": "service_discovery",
+      "service_uuid": "0000180a-0000-1000-8000-00805f9b34fb",
+      "characteristic_uuid": "00002a24-0000-1000-8000-00805f9b34fb"
+    },
+    {
+      "id": "svc-02-char-03",
+      "type": "service_discovery",
+      "service_uuid": "0000180a-0000-1000-8000-00805f9b34fb",
+      "characteristic_uuid": "00002a25-0000-1000-8000-00805f9b34fb"
+    },
+    {
+      "id": "svc-02-char-04",
+      "type": "service_discovery",
+      "service_uuid": "0000180a-0000-1000-8000-00805f9b34fb",
+      "characteristic_uuid": "00002a27-0000-1000-8000-00805f9b34fb"
+    },
+    {
+      "id": "svc-02-char-05",
+      "type": "service_discovery",
+      "service_uuid": "0000180a-0000-1000-8000-00805f9b34fb",
+      "characteristic_uuid": "00002a26-0000-1000-8000-00805f9b34fb"
+    },
+    {
+      "id": "svc-02-char-06",
+      "type": "service_discovery",
+      "service_uuid": "0000180a-0000-1000-8000-00805f9b34fb",
+      "characteristic_uuid": "00002a28-0000-1000-8000-00805f9b34fb"
+    },
+    {
+      "id": "svc-02-char-07",
+      "type": "service_discovery",
+      "service_uuid": "0000180a-0000-1000-8000-00805f9b34fb",
+      "characteristic_uuid": "00002a23-0000-1000-8000-00805f9b34fb"
+    },
+    {
+      "id": "svc-02-char-08",
+      "type": "service_discovery",
+      "service_uuid": "0000180a-0000-1000-8000-00805f9b34fb",
+      "characteristic_uuid": "00002a2a-0000-1000-8000-00805f9b34fb"
+    },
+    {
+      "id": "svc-02-char-09",
+      "type": "service_discovery",
+      "service_uuid": "0000180a-0000-1000-8000-00805f9b34fb",
+      "characteristic_uuid": "00002a50-0000-1000-8000-00805f9b34fb"
+    },
+    {
+      "id": "svc-03-char-01",
+      "type": "service_discovery",
+      "service_uuid": "f000ffc0-0451-4000-b000-000000000000",
+      "characteristic_uuid": "f000ffc1-0451-4000-b000-000000000000"
+    },
+    {
+      "id": "svc-03-char-02",
+      "type": "service_discovery",
+      "service_uuid": "f000ffc0-0451-4000-b000-000000000000",
+      "characteristic_uuid": "f000ffc2-0451-4000-b000-000000000000"
+    },
+    {
+      "id": "live-read",
+      "type": "read",
+      "service_uuid": "0000180a-0000-1000-8000-00805f9b34fb",
+      "characteristic_uuid": "00002a24-0000-1000-8000-00805f9b34fb",
+      "value_hex": "424b2d424c452d312e30"
+    }
+  ]
+}
