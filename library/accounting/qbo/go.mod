@@ -1,4 +1,4 @@
-module qbo-pp-cli
+module github.com/mvanhorn/printing-press-library/library/accounting/qbo
 
 go 1.26.3
 

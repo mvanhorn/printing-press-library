@@ -6,7 +6,7 @@ package main
 import (
 	"os"
 
-	"qbo-pp-cli/internal/cli"
+	"github.com/mvanhorn/printing-press-library/library/accounting/qbo/internal/cli"
 )
 
 func main() {
