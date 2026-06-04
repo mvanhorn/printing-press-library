@@ -54,3 +54,10 @@ func TestWeeklyReviewPropagatesConfiguredCurrency(t *testing.T) {
 		t.Fatalf("action currency = %q, want EUR", plan.Actions[0].Currency)
 	}
 }
+
+func TestCapBudgetChangeAppliesMinimumDailyBudget(t *testing.T) {
+	t.Parallel()
+	if got := capBudgetChange(10, 0.25, WeeklyReviewOptions{MaxBudgetChangePercent: 0}); got != 1 {
+		t.Fatalf("capBudgetChange floor = %.2f, want 1.00", got)
+	}
+}

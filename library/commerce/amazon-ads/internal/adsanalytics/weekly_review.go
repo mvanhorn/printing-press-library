@@ -269,6 +269,9 @@ func capBudgetChange(current, proposed float64, opts WeeklyReviewOptions) float6
 			proposed = current - maxDelta
 		}
 	}
+	if proposed < 1 {
+		proposed = 1
+	}
 	return proposed
 }
 
