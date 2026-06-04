@@ -8,7 +8,6 @@ directly — no Photos.app launch, no API token, no network calls.
 ---
 
 Created by [@matysanchez](https://github.com/matysanchez) (Matias Sanchez Moises).
-Contributors: [@mvanhorn](https://github.com/mvanhorn) (Matt Van Horn), [@tmchow](https://github.com/tmchow) (Trevin Chow).
 
 ## Install
 
@@ -62,17 +61,19 @@ hermes skills install mvanhorn/printing-press-library/cli-skills/pp-icloud --for
 
 Inside a Hermes chat session:
 
-```bash
+```text
 /skills install mvanhorn/printing-press-library/cli-skills/pp-icloud --force
 ```
 
 ## Install for OpenClaw
 
-Tell your OpenClaw agent (copy this):
+Install both the CLI binary and the focused OpenClaw skill into runtime-visible locations:
 
+```bash
+npx -y @mvanhorn/printing-press-library install icloud --agent openclaw --bin-dir ~/.local/bin
 ```
-Install the pp-icloud skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-icloud. The skill defines how its required CLI can be installed.
-```
+
+Restart the OpenClaw session or gateway if the newly installed skill is not visible immediately.
 
 ## Quick start
 

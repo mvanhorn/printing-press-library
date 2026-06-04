@@ -210,8 +210,8 @@ test("update command refreshes detected installed CLIs", async () => {
     },
   });
 
-  assert.equal(await command(["--agent", "claude-code"]), 0);
-  assert.deepEqual(installs, [["espn", "--agent", "claude-code"]]);
+  assert.equal(await command(["--agent", "claude-code", "--bin-dir", "/Users/example/.local/bin"]), 0);
+  assert.deepEqual(installs, [["espn", "--agent", "claude-code", "--bin-dir", "/Users/example/.local/bin"]]);
 });
 
 test("reinstall dispatches to the update handler rather than the unknown-command path", async () => {

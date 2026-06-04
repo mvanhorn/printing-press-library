@@ -11,31 +11,37 @@ Created by [@grahac](https://github.com/grahac) (grahac).
 The recommended path installs both the `botsee-pp-cli` binary and the `pp-botsee` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
 
 ```bash
-npx -y @mvanhorn/printing-press install botsee
+npx -y @mvanhorn/printing-press-library install botsee
 ```
 
 For CLI only (no skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install botsee --cli-only
+npx -y @mvanhorn/printing-press-library install botsee --cli-only
 ```
 
 For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install botsee --skill-only
+npx -y @mvanhorn/printing-press-library install botsee --skill-only
 ```
 
 To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
 
 ```bash
-npx -y @mvanhorn/printing-press install botsee --agent claude-code
-npx -y @mvanhorn/printing-press install botsee --agent claude-code --agent codex
+npx -y @mvanhorn/printing-press-library install botsee --agent claude-code
+npx -y @mvanhorn/printing-press-library install botsee --agent claude-code --agent codex
 ```
 
-### Without Node
+### Without Node (Go fallback)
 
-The generated install path is category-agnostic until this CLI is published. If `npx` is not available before publish, install Node or use the category-specific Go fallback from the public-library entry after publish.
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.3 or newer):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/marketing/botsee/cmd/botsee-pp-cli@latest
+```
+
+This installs the CLI only — no skill.
 
 ### Pre-built binary
 
@@ -52,17 +58,19 @@ hermes skills install mvanhorn/printing-press-library/cli-skills/pp-botsee --for
 
 Inside a Hermes chat session:
 
-```bash
+```text
 /skills install mvanhorn/printing-press-library/cli-skills/pp-botsee --force
 ```
 
 ## Install for OpenClaw
 
-Tell your OpenClaw agent (copy this):
+Install both the CLI binary and the focused OpenClaw skill into runtime-visible locations:
 
+```bash
+npx -y @mvanhorn/printing-press-library install botsee --agent openclaw --bin-dir ~/.local/bin
 ```
-Install the pp-botsee skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-botsee. The skill defines how its required CLI can be installed.
-```
+
+Restart the OpenClaw session or gateway if the newly installed skill is not visible immediately.
 
 ## Use with Claude Desktop
 
@@ -111,18 +119,14 @@ BotSee uses Bearer tokens prefixed `bts_live_`. Set `BOTSEE_API_KEY` in your env
 # Verify auth, reachability, and remaining rate-limit budget
 botsee-pp-cli doctor
 
-
 # Flagship — bootstrap a new site, run analysis, print results. Idempotent: a second run on the same domain reuses the existing site and just runs a fresh analysis.
 botsee-pp-cli ai-visibility-audit example.com --types 2 --personas 2 --questions 5 --watch
-
 
 # Inspect the customer-types / personas / questions tree for the site (with copy-paste edit commands)
 botsee-pp-cli site-config --site $SITE_UUID --agent
 
-
 # Generate next-step recommendations from the analysis (cached locally)
 botsee-pp-cli recommendations $ANALYSIS_UUID --agent
-
 
 # Cross-site cited-source rollup — useful once you've audited multiple domains
 botsee-pp-cli sites-summary --agent
@@ -273,7 +277,6 @@ Manage webhooks
 - **`botsee-pp-cli webhooks delete`** - Deletes a webhook. Returns 204 No Content on success.
 - **`botsee-pp-cli webhooks list`** - Lists all registered webhooks for the organization.
 - **`botsee-pp-cli webhooks list-events`** - Returns the catalog of event types this API can emit, with JSON Schemas per event. Use this to self-discover available events programmatically without parsing the full OpenAPI doc.
-
 
 ## Output Formats
 

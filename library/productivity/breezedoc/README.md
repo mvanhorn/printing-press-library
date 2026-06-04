@@ -15,7 +15,6 @@ If you're building a custom integration to BreezeDoc which requires users to aut
 
 Using the `authorization_code` grant type to authenticate users using OAuth 2.0 to retrieve an access token is fairly conventional, more information on that process can be found here: https://www.oauth.com/oauth2-servers/server-side-apps/authorization-code/
 
-
 * Authorization URL: https://breezedoc.com/oauth/authorize
 * Access Token URL: https://breezedoc.com/oauth/token
 
@@ -78,17 +77,19 @@ hermes skills install mvanhorn/printing-press-library/cli-skills/pp-breezedoc --
 
 Inside a Hermes chat session:
 
-```bash
+```text
 /skills install mvanhorn/printing-press-library/cli-skills/pp-breezedoc --force
 ```
 
 ## Install for OpenClaw
 
-Tell your OpenClaw agent (copy this):
+Install both the CLI binary and the focused OpenClaw skill into runtime-visible locations:
 
+```bash
+npx -y @mvanhorn/printing-press-library install breezedoc --agent openclaw --bin-dir ~/.local/bin
 ```
-Install the pp-breezedoc skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-breezedoc. The skill defines how its required CLI can be installed.
-```
+
+Restart the OpenClaw session or gateway if the newly installed skill is not visible immediately.
 
 ## Use with Claude Desktop
 
@@ -205,14 +206,12 @@ Manage recipients
 
 Manage teams
 
-
 ### templates
 
 Manage templates
 
 - **`breezedoc-pp-cli templates get`** - Get a specific template
 - **`breezedoc-pp-cli templates list`** - Get list of templates
-
 
 ## Output Formats
 

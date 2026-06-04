@@ -750,12 +750,12 @@ func buildPrerequisitesSection(ctx patchSkillCtx) string {
 
 This skill drives the `+"`%s`"+` binary. **You must verify the CLI is installed before invoking any command from this skill.** If it is missing, install it first:
 
-1. Install via the Printing Press installer:
+1. Install via the Printing Press installer into a user bin directory:
    `+"```bash"+`
-   npx -y @mvanhorn/printing-press-library install %s --cli-only
+   npx -y @mvanhorn/printing-press-library install %s --cli-only --bin-dir ~/.local/bin
    `+"```"+`
 2. Verify: `+"`%s --version`"+`
-3. Ensure `+"`$GOPATH/bin`"+` (or `+"`$HOME/go/bin`"+`) is on `+"`$PATH`"+`.
+3. Ensure `+"`~/.local/bin`"+` is on `+"`$PATH`"+` for the agent/runtime that will invoke this skill.
 
 If the `+"`npx`"+` install fails (no Node, offline, etc.), fall back to a direct Go install (requires %s):
 
@@ -763,7 +763,7 @@ If the `+"`npx`"+` install fails (no Node, offline, etc.), fall back to a direct
 go install %s@latest
 `+"```"+`
 
-If `+"`--version`"+` reports "command not found" after install, the install step did not put the binary on `+"`$PATH`"+`. Do not proceed with skill commands until verification succeeds.
+If `+"`--version`"+` reports "command not found" after install, the runtime cannot see the binary directory on `+"`$PATH`"+`. Do not proceed with skill commands until verification succeeds.
 
 `, ctx.CLIName, ctx.APIName, ctx.CLIName, minimumGoVersion, module)
 }
@@ -1126,18 +1126,19 @@ func buildReadmeInstallSections(ctx patchReadmeCtx) string {
 	return fmt.Sprintf("## Install for Hermes\n\n"+
 		"From the Hermes CLI:\n\n"+
 		"```bash\n"+
-		"hermes skills install mvanhorn/printing-press-library/cli-skills/pp-%s\n"+
+		"hermes skills install mvanhorn/printing-press-library/cli-skills/pp-%s --force\n"+
 		"```\n\n"+
 		"Inside a Hermes chat session:\n\n"+
 		"```text\n"+
-		"/skills install mvanhorn/printing-press-library/cli-skills/pp-%s\n"+
+		"/skills install mvanhorn/printing-press-library/cli-skills/pp-%s --force\n"+
 		"```\n\n"+
 		"## Install for OpenClaw\n\n"+
-		"Tell your OpenClaw agent (copy this):\n\n"+
-		"```\n"+
-		"Install the pp-%s skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-%s. The skill defines how its required CLI can be installed.\n"+
-		"```\n\n",
-		ctx.APIName, ctx.APIName, ctx.APIName, ctx.APIName,
+		"Install both the CLI binary and the focused OpenClaw skill into runtime-visible locations:\n\n"+
+		"```bash\n"+
+		"npx -y @mvanhorn/printing-press-library install %s --agent openclaw --bin-dir ~/.local/bin\n"+
+		"```\n\n"+
+		"Restart the OpenClaw session or gateway if the newly installed skill is not visible immediately.\n\n",
+		ctx.APIName, ctx.APIName, ctx.APIName,
 	)
 }
 

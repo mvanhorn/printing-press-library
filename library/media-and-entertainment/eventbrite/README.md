@@ -58,17 +58,19 @@ hermes skills install mvanhorn/printing-press-library/cli-skills/pp-eventbrite -
 
 Inside a Hermes chat session:
 
-```bash
+```text
 /skills install mvanhorn/printing-press-library/cli-skills/pp-eventbrite --force
 ```
 
 ## Install for OpenClaw
 
-Tell your OpenClaw agent (copy this):
+Install both the CLI binary and the focused OpenClaw skill into runtime-visible locations:
 
+```bash
+npx -y @mvanhorn/printing-press-library install eventbrite --agent openclaw --bin-dir ~/.local/bin
 ```
-Install the pp-eventbrite skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-eventbrite. The skill defines how its required CLI can be installed.
-```
+
+Restart the OpenClaw session or gateway if the newly installed skill is not visible immediately.
 
 ## Use with Claude Desktop
 
@@ -208,7 +210,6 @@ These capabilities aren't available in any other tool for this API.
 
 ## Recipes
 
-
 ### Find your slowest-selling live events
 
 ```bash
@@ -266,7 +267,6 @@ Run `eventbrite-pp-cli --help` for the full command reference and flag list.
 ### balance
 
 Manage balance
-
 
 ### categories
 
@@ -437,7 +437,6 @@ Information from expansions fields are not normally returned when requesting inf
 | `checkout_settings   `    | `checkout_settings`   | Event checkout and payment settings.                                                                                                                                                                                                                     |
 | `listing_properties`      | `listing_properties`  | Display/listing details about the event                                                                                                                                                                                                                  |
 | `has_digital_content`     | `has_digital_content` | Whether or not an event [Has Digital Content](#has_digital_content_object)                                                                                                                                                                                                   |
-
 
 ### events
 
@@ -733,7 +732,6 @@ Use these fields to specify information about an Organization.
 | `image_id` | `string` | (Optional) ID of the image for an Organization.                                                                                                          |
 | `vertical` | `string` | Type of business vertical within which this Organization operates. Currently, the only values are `default` and `music`. If not specified, the value is `default`. |
 
-
 ### pricing
 
 <a name="Pricing_object"></a>
@@ -865,7 +863,6 @@ For more information regarding deprecated APIs, refer to our [changelog](https:/
 > Warning: Access to this API will be no longer usable on June 1st, 2020.
 
 For more information regarding deprecated APIs, refer to our [changelog](https://www.eventbrite.com/platform/docs/changelog).
-
 
 ## Output Formats
 

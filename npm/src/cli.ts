@@ -81,6 +81,7 @@ Install options:
   --cli-only             Install only the Go binary (skip the focused skill)
   --skill-only           Install only the focused skill (skip the Go binary)
   --agent <agent>        Constrain skill install to a specific agent (repeatable)
+  --bin-dir <dir>        Install the Go binary into this directory via GOBIN
   --json                 Emit machine-readable output
 
 Top-level options:

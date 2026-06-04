@@ -20,22 +20,20 @@ metadata:
 
 This skill drives the `tenderned-pp-cli` binary. **You must verify the CLI is installed before invoking any command from this skill.** If it is missing, install it first:
 
-1. Install via the Printing Press installer:
+1. Install via the Printing Press installer into a user bin directory:
    ```bash
-   npx -y @mvanhorn/printing-press-library install tenderned --cli-only
+   npx -y @mvanhorn/printing-press-library install tenderned --cli-only --bin-dir ~/.local/bin
    ```
 2. Verify: `tenderned-pp-cli --version`
-3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
+3. Ensure `~/.local/bin` is on `$PATH` for the agent/runtime that will invoke this skill.
 
-If the `npx` install fails before this CLI has a public-library category, install Node or use the category-specific Go fallback after publish.
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.3 or newer):
 
-If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
+```bash
+go install github.com/mvanhorn/printing-press-library/library/sales-and-crm/tenderned/cmd/tenderned-pp-cli@latest
+```
 
-Every Dutch public tender, with the sub-threshold long tail that EU TED never sees, in a local-first CLI you can pipe.
-
-TenderNed is the Dutch national public procurement platform run by PIANOo / Ministerie van EZK. Every Dutch contracting authority must publish above- and below-threshold tender notices here. Above-threshold notices are forwarded to EU TED; the sub-threshold long tail (€40k–€220k) is TenderNed-only.
-
-This CLI covers the unauthenticated TNS publication webservice (search/list/filter publications, document download, contracting-authority directory, RSS feed) and the Basic-auth eForms XML endpoint. Data is CC-0 public domain.
+If `--version` reports "command not found" after install, the runtime cannot see the binary directory on `$PATH`. Do not proceed with skill commands until verification succeeds.
 
 ## When Not to Use This CLI
 

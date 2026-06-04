@@ -251,7 +251,7 @@ stuff.
 	if strings.Contains(got, "STALE INSTALL CONTENT") {
 		t.Errorf("stale Prerequisites content not removed:\n%s", got)
 	}
-	if !strings.Contains(got, "npx -y @mvanhorn/printing-press-library install x --cli-only") {
+	if !strings.Contains(got, "npx -y @mvanhorn/printing-press-library install x --cli-only --bin-dir ~/.local/bin") {
 		t.Errorf("canonical npx install line not present:\n%s", got)
 	}
 	if strings.Count(got, "## Prerequisites: Install the CLI") != 1 {
@@ -500,6 +500,9 @@ auth body.
 	}
 	if !strings.Contains(got, "## Install for Hermes") || !strings.Contains(got, "## Install for OpenClaw") {
 		t.Errorf("canonical Hermes/OpenClaw blocks missing:\n%s", got)
+	}
+	if !strings.Contains(got, "npx -y @mvanhorn/printing-press-library install x --agent openclaw --bin-dir ~/.local/bin") {
+		t.Errorf("canonical OpenClaw install command missing:\n%s", got)
 	}
 }
 

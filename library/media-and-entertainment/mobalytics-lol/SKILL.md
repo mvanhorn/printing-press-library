@@ -22,12 +22,12 @@ metadata:
 
 This skill drives the `mobalytics-lol-pp-cli` binary. **You must verify the CLI is installed before invoking any command from this skill.** If it is missing, install it first:
 
-1. Install via the Printing Press installer:
+1. Install via the Printing Press installer into a user bin directory:
    ```bash
-   npx -y @mvanhorn/printing-press-library install mobalytics-lol --cli-only
+   npx -y @mvanhorn/printing-press-library install mobalytics-lol --cli-only --bin-dir ~/.local/bin
    ```
 2. Verify: `mobalytics-lol-pp-cli --version`
-3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
+3. Ensure `~/.local/bin` is on `$PATH` for the agent/runtime that will invoke this skill.
 
 If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.3 or newer):
 
@@ -35,9 +35,7 @@ If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go in
 go install github.com/mvanhorn/printing-press-library/library/media-and-entertainment/mobalytics-lol/cmd/mobalytics-lol-pp-cli@latest
 ```
 
-If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
-
-mobalytics-lol-pp-cli pulls champion data, builds, runes, counters, and tier ratings from Mobalytics and Riot Data Dragon, hydrates them into a local SQLite store, then exposes cross-champion SQL queries no aggregator page surfaces: counter-pool matrices, patch meta-shift deltas, head-to-head compares, region-split tier views, and ARAM batch item-set exports for the LoL client. Free, offline-after-sync, agent-native (--json + --select + --agent), and the only LoL data source agentically accessible without a headless browser.
+If `--version` reports "command not found" after install, the runtime cannot see the binary directory on `$PATH`. Do not proceed with skill commands until verification succeeds.
 
 ## When to Use This CLI
 

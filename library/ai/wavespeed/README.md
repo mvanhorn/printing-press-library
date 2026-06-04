@@ -55,7 +55,6 @@ This installs the CLI only — no skill.
 Download a pre-built binary for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/wavespeed-current). On macOS, clear the Gatekeeper quarantine: `xattr -d com.apple.quarantine <binary>`. On Unix, mark it executable: `chmod +x <binary>`.
 
 <!-- pp-hermes-install-anchor -->
-
 ## Install for Hermes
 
 From the Hermes CLI:
@@ -66,17 +65,19 @@ hermes skills install mvanhorn/printing-press-library/cli-skills/pp-wavespeed --
 
 Inside a Hermes chat session:
 
-```bash
+```text
 /skills install mvanhorn/printing-press-library/cli-skills/pp-wavespeed --force
 ```
 
 ## Install for OpenClaw
 
-Tell your OpenClaw agent (copy this):
+Install both the CLI binary and the focused OpenClaw skill into runtime-visible locations:
 
+```bash
+npx -y @mvanhorn/printing-press-library install wavespeed --agent openclaw --bin-dir ~/.local/bin
 ```
-Install the pp-wavespeed skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-wavespeed. The skill defines how its required CLI can be installed.
-```
+
+Restart the OpenClaw session or gateway if the newly installed skill is not visible immediately.
 
 ## Use with Claude Desktop
 

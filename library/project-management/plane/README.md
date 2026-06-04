@@ -60,17 +60,19 @@ hermes skills install mvanhorn/printing-press-library/cli-skills/pp-plane --forc
 
 Inside a Hermes chat session:
 
-```bash
+```text
 /skills install mvanhorn/printing-press-library/cli-skills/pp-plane --force
 ```
 
 ## Install for OpenClaw
 
-Tell your OpenClaw agent (copy this):
+Install both the CLI binary and the focused OpenClaw skill into runtime-visible locations:
 
+```bash
+npx -y @mvanhorn/printing-press-library install plane --agent openclaw --bin-dir ~/.local/bin
 ```
-Install the pp-plane skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-plane. The skill defines how its required CLI can be installed.
-```
+
+Restart the OpenClaw session or gateway if the newly installed skill is not visible immediately.
 
 ## Use with Claude Desktop
 
@@ -293,7 +295,6 @@ Plane's issue API never returns module membership, so a plain `sync` leaves `mod
 - **`plane-pp-cli module sync`** - Walk modules → module-issues, populate a junction table, and patch each issue's `module_ids` (also runs automatically inside `sync`).
 - **`plane-pp-cli module of <issue>`** - Show which modules an issue belongs to (from the local cache).
 - **`plane-pp-cli module create-issue <module> <project> <slug> --name "..."`** - Create a work item and add it to a module in one step.
-
 
 ## Output Formats
 

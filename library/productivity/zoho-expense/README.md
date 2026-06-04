@@ -60,17 +60,19 @@ hermes skills install mvanhorn/printing-press-library/cli-skills/pp-zoho-expense
 
 Inside a Hermes chat session:
 
-```bash
+```text
 /skills install mvanhorn/printing-press-library/cli-skills/pp-zoho-expense --force
 ```
 
 ## Install for OpenClaw
 
-Tell your OpenClaw agent (copy this):
+Install both the CLI binary and the focused OpenClaw skill into runtime-visible locations:
 
+```bash
+npx -y @mvanhorn/printing-press-library install zoho-expense --agent openclaw --bin-dir ~/.local/bin
 ```
-Install the pp-zoho-expense skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-zoho-expense. The skill defines how its required CLI can be installed.
-```
+
+Restart the OpenClaw session or gateway if the newly installed skill is not visible immediately.
 
 ## Use with Claude Desktop
 
@@ -127,22 +129,17 @@ Zoho Expense uses OAuth 2.0 with a self-client authorization-code flow. Create a
 # Exchange the 10-min code for a refresh token
 zoho-expense-pp-cli auth login --client-id $ZOHO_EXPENSE_CLIENT_ID --client-secret $ZOHO_EXPENSE_CLIENT_SECRET
 
-
 # Set the active organization (first one in the list)
 zoho-expense-pp-cli org use $(zoho-expense-pp-cli organizations list --json | jq -r '.[0].organization_id')
-
 
 # Sync categories, reporting tags, projects, customers, expenses into the local store
 zoho-expense-pp-cli sync
 
-
 # Upload one receipt with hash-dedup and auto-tag
 zoho-expense-pp-cli receipt upload ~/Downloads/uber-receipt.pdf --auto-tag
 
-
 # Batch ingest a folder for AI consumption
 zoho-expense-pp-cli invoice ingest ~/Downloads/october-invoices --auto-tag --agent
-
 
 # Bundle the month into a report and submit
 zoho-expense-pp-cli close --month 2026-10 --auto-submit
@@ -345,7 +342,6 @@ Manage users in the organization
 - **`zoho-expense-pp-cli users list`** - List users
 - **`zoho-expense-pp-cli users me`** - Get the authenticated user's profile
 - **`zoho-expense-pp-cli users update`** - Update a user
-
 
 ## Output Formats
 

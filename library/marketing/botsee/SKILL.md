@@ -18,18 +18,20 @@ metadata:
 
 This skill drives the `botsee-pp-cli` binary. **You must verify the CLI is installed before invoking any command from this skill.** If it is missing, install it first:
 
-1. Install via the Printing Press installer:
+1. Install via the Printing Press installer into a user bin directory:
    ```bash
-   npx -y @mvanhorn/printing-press install botsee --cli-only
+   npx -y @mvanhorn/printing-press-library install botsee --cli-only --bin-dir ~/.local/bin
    ```
 2. Verify: `botsee-pp-cli --version`
-3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
+3. Ensure `~/.local/bin` is on `$PATH` for the agent/runtime that will invoke this skill.
 
-If the `npx` install fails before this CLI has a public-library category, install Node or use the category-specific Go fallback after publish.
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.3 or newer):
 
-If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
+```bash
+go install github.com/mvanhorn/printing-press-library/library/marketing/botsee/cmd/botsee-pp-cli@latest
+```
 
-BotSee is the API-first GEO platform; this CLI is the API-first front door. The flagship `ai-visibility-audit <url>` mirrors the proven Python create-site+analyze flow as a single idempotent Go command. The other 64 commands cover the entire BotSee surface (CRUD on sites/customer-types/personas/questions, the full analysis lifecycle, recommendations, blog content, billing, signup including USDC/x402, webhooks, api-key rotation, usage) plus framework commands (sync/search/sql/doctor) over a local SQLite cache.
+If `--version` reports "command not found" after install, the runtime cannot see the binary directory on `$PATH`. Do not proceed with skill commands until verification succeeds.
 
 ## When to Use This CLI
 

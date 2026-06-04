@@ -4,6 +4,8 @@
 
 The only CLI that makes MultiMail's trust ladder a first-class operator surface. Sync mailboxes, emails, and audit events to local SQLite, then query oversight velocity, allowlist coverage, and inbox health across your entire fleet — insights no single API call provides.
 
+Created by [@H179922](https://github.com/H179922) (H179922).
+
 ## Install
 
 The recommended path installs both the `multimail-pp-cli` binary and the `pp-multimail` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
@@ -56,17 +58,19 @@ hermes skills install mvanhorn/printing-press-library/cli-skills/pp-multimail --
 
 Inside a Hermes chat session:
 
-```bash
+```text
 /skills install mvanhorn/printing-press-library/cli-skills/pp-multimail --force
 ```
 
 ## Install for OpenClaw
 
-Tell your OpenClaw agent (copy this):
+Install both the CLI binary and the focused OpenClaw skill into runtime-visible locations:
 
+```bash
+npx -y @mvanhorn/printing-press-library install multimail --agent openclaw --bin-dir ~/.local/bin
 ```
-Install the pp-multimail skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-multimail. The skill defines how its required CLI can be installed.
-```
+
+Restart the OpenClaw session or gateway if the newly installed skill is not visible immediately.
 
 ## Use with Claude Desktop
 
@@ -214,7 +218,6 @@ These capabilities aren't available in any other tool for this API.
   ```
 
 ## Recipes
-
 
 ### Approve all pending emails for a mailbox
 
@@ -459,7 +462,6 @@ Manage well known
 - **`multimail-pp-cli well-known list`** - Returns the ECDSA P-256 public key used to sign X-MultiMail-Identity headers.
 - **`multimail-pp-cli well-known list-wellknown`** - Returns OAuth authorization server metadata with an agent_auth extension block describing the auth.md agent registration flow.
 - **`multimail-pp-cli well-known list-wellknown-2`** - Returns metadata about MultiMail as an OAuth-protected resource, including supported scopes and authorization servers. Part of the auth.md agent registration protocol.
-
 
 ## Output Formats
 

@@ -60,17 +60,19 @@ hermes skills install mvanhorn/printing-press-library/cli-skills/pp-offerup --fo
 
 Inside a Hermes chat session:
 
-```bash
+```text
 /skills install mvanhorn/printing-press-library/cli-skills/pp-offerup --force
 ```
 
 ## Install for OpenClaw
 
-Tell your OpenClaw agent (copy this):
+Install both the CLI binary and the focused OpenClaw skill into runtime-visible locations:
 
+```bash
+npx -y @mvanhorn/printing-press-library install offerup --agent openclaw --bin-dir ~/.local/bin
 ```
-Install the pp-offerup skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-offerup. The skill defines how its required CLI can be installed.
-```
+
+Restart the OpenClaw session or gateway if the newly installed skill is not visible immediately.
 
 ## Use with Claude Desktop
 
@@ -189,7 +191,6 @@ These capabilities aren't available in any other tool for this API.
 
 ## Recipes
 
-
 ### Narrow a verbose search for an agent
 
 ```bash
@@ -234,7 +235,6 @@ Search and view OfferUp listings (public, no login)
 
 - **`offerup-pp-cli listings get`** - Get the full detail for one listing
 - **`offerup-pp-cli listings search`** - Search live OfferUp listings by keyword and location
-
 
 ## Output Formats
 

@@ -12,11 +12,9 @@ To get started, head to your [crypto account settings](https://robinhood.com/acc
 
 The Robinhood Crypto Trading API is available to customers in the United States only. Use of the Robinhood Crypto Trading API is subject to the [Robinhood Crypto Customer Agreement](https://cdn.robinhood.com/assets/robinhood/legal/Robinhood%20Crypto%20Customer%20Agreement.pdf) as well as all other terms and disclosures made available on [Robinhood Crypto's about page](https://robinhood.com/us/en/about/crypto).
 
-
 # Authentication
 
 To get started with the Robinhood Crypto Trading API, you need to create a key, signature, and headers. Authenticated requests must include all three `x-api-key`, `x-signature`, and `x-timestamp` HTTP headers.
-
 
 ## Creating an API key
 
@@ -24,9 +22,7 @@ Head to your [crypto account settings](https://robinhood.com/account/crypto) on 
 
 Your API key will be used as the `x-api-key` header you will need to pass during authentication when calling our API endpoints. Additionally, you will need the public key generated in the [Creating a key pair](#section/Authentication/Creating-a-key-pair) section to create your API credentials.
 
-
 ## Creating a key pair
-
 
 #### Below are example scripts on how to generate the public and private key pair. You'll need the public key for creating an API credential and the private key for authenticating requests. Remember to never share your private key with anyone. Robinhood will never ask you to share it with us.
 
@@ -59,11 +55,9 @@ print("Public Key (Base64):")
 print(public_key_base64)
 ```
 
-
 ## Headers and Signature
 
 <SecurityDefinitions />
-
 
 # Making your first API call
 
@@ -209,7 +203,6 @@ class CryptoAPITrading:
         path = "/api/v1/crypto/trading/orders/"
         return self.make_api_request("GET", path)
 
-
 def main():
     api_trading_client = CryptoAPITrading()
     print(api_trading_client.get_account())
@@ -225,7 +218,6 @@ def main():
           {"asset_quantity": "0.0001"}
     )
     """
-
 
 if __name__ == "__main__":
     main()
@@ -244,7 +236,6 @@ from nacl.signing import SigningKey
 
 API_KEY = "ADD YOUR API KEY HERE"
 BASE64_PRIVATE_KEY = "ADD YOUR PRIVATE KEY HERE"
-
 
 class CryptoAPITradingV2:
     def __init__(self):
@@ -410,7 +401,6 @@ class CryptoAPITradingV2:
         path = f"/api/v2/crypto/trading/orders/{query_params}"
         return self.make_api_request("GET", path)
 
-
 def main():
     api_trading_client = CryptoAPITradingV2()
     print(api_trading_client.get_trading_pairs())
@@ -439,7 +429,6 @@ def main():
     )
     """
 
-
 if __name__ == "__main__":
     main()
 ```
@@ -453,12 +442,9 @@ python robinhood_api_trading.py
 python robinhood_api_trading_v2.py
 ```
 
-
 # Pagination
 
-
  Endpoints that return a list of results allow you to paginate to have more control over how many and which results to display.
-
 
 ### Pagination Parameters
 
@@ -467,9 +453,7 @@ python robinhood_api_trading_v2.py
 | cursor | The cursor is a unique identifier for each page in a list of results. The cursor is used to paginate through the pages of results. |
 | limit | The limit is the number of items to return in a single page. Some of our endpoints support this query parameter. You can view support by checking the query parameters in the documentation of each endpoint.  |
 
-
 ### Pagination Response
-
 
 | Field | Description |
 |-|-|
@@ -477,20 +461,15 @@ python robinhood_api_trading_v2.py
 | previous | The API request endpoint that includes the previous cursor query parameter to use for pagination. |
 | results | The list of response items for the current cursor.
 
-
 # Rate Limiting
-
 
 ### Rate Limits
 * Requests per minute per user account: 100
 * Requests per minute per user account in bursts: 300
 
-
 Rate limiting is applied using a token bucket implementation. The burst size or `capacity` is the number of tokens you can use to call an endpoint. This capacity is initialized at the maximum capacity and will be refilled using a `refill amount` at a timed interval called `refill interval` until the max capacity is once again reached.
 
-
 ### Rate Limiting Terms
-
 
 | Term | Description |
 |-|-|
@@ -501,9 +480,7 @@ Rate limiting is applied using a token bucket implementation. The burst size or 
 
  The actual values of the configuration will fluctuate depending on the availability of our service and our current expected volume at the time of service. Rate limits are applied per endpoint and may differ among each endpoint depending on their expected use case.
 
-
  #### Example rate limiting configuration:
-
 
 | Term | Value |
 |-|-|
@@ -511,7 +488,6 @@ Rate limiting is applied using a token bucket implementation. The burst size or 
 | Remaining amount | 2 |
 | Refill amount | 1 |
 | Refill interval | 1 second |
-
 
 | Action | Time (in seconds) | Remaining amount | Description |
 |-|-|-|-|
@@ -523,9 +499,7 @@ Rate limiting is applied using a token bucket implementation. The burst size or 
 | No refill | 3 | 5 | No refill since max capacity has been reached and no endpoints were called. |
 | Endpoint call 3 | 3.5 | 4 | One token consumed for calling endpoint 3.
 
-
 # Error Responses
-
 
 ### Error response format
 
@@ -537,15 +511,12 @@ Rate limiting is applied using a token bucket implementation. The burst size or 
 | client_error | 4XX, excluding 400 |
 | server_error | 5XX |
 
-
 #### Errors
 The `errors` field will contain a list of error details, each item will contain a nested `attr` and `detail` field.
 | Field | Description |
 |-|-|
 | attr | Error types of `validation_error` will specify the field name or `non_field_errors` if the error cannot be attributed to a field. Will be `null` for error types of either `client_error` and `server_error`. |
 | detail | Will contain a human readable string describing the error. |
-
-
 
 ### Example Error Response
 Here's a sample error response where the `client_order_id` field in the payload was a value that was not expected when calling the ***Add Crypto Order*** endpoint. The `detail` field for each error in the `errors` list will help understand why the `validation_error` was thrown. The `attr` field will indicate which field name in the request body or query parameter the error was thrown for if applicable.
@@ -561,7 +532,6 @@ Here's a sample error response where the `client_order_id` field in the payload 
 }
 ```
 
-
 ### Common Error Status Codes
  | Status Code | Error |
 |-|-|
@@ -576,7 +546,7 @@ Here's a sample error response where the `client_order_id` field in the payload 
 | 500 | Internal server error |
 | 503 | Service unavailable |
 
-Printed by [@zaydiscold](https://github.com/zaydiscold) (zaydiscold).
+Created by [@zaydiscold](https://github.com/zaydiscold) (zaydiscold).
 
 ## Install
 
@@ -605,9 +575,15 @@ npx -y @mvanhorn/printing-press-library install robinhood --agent claude-code
 npx -y @mvanhorn/printing-press-library install robinhood --agent claude-code --agent codex
 ```
 
-### Without Node
+### Without Node (Go fallback)
 
-The generated install path is category-agnostic until this CLI is published. If `npx` is not available before publish, install Node or use the category-specific Go fallback from the public-library entry after publish.
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.3 or newer):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/payments/robinhood/cmd/robinhood-pp-cli@latest
+```
+
+This installs the CLI only — no skill.
 
 ### Pre-built binary
 
@@ -624,17 +600,19 @@ hermes skills install mvanhorn/printing-press-library/cli-skills/pp-robinhood --
 
 Inside a Hermes chat session:
 
-```bash
+```text
 /skills install mvanhorn/printing-press-library/cli-skills/pp-robinhood --force
 ```
 
 ## Install for OpenClaw
 
-Tell your OpenClaw agent (copy this):
+Install both the CLI binary and the focused OpenClaw skill into runtime-visible locations:
 
+```bash
+npx -y @mvanhorn/printing-press-library install robinhood --agent openclaw --bin-dir ~/.local/bin
 ```
-Install the pp-robinhood skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-robinhood. The skill defines how its required CLI can be installed.
-```
+
+Restart the OpenClaw session or gateway if the newly installed skill is not visible immediately.
 
 ## Use with Claude Desktop
 
@@ -812,7 +790,6 @@ Inspect Robinhood brokerage/account route maps and the typed brokerage surface. 
 - **`robinhood-pp-cli brokerage dividends`** - Dividends (paid + pending). Maps `GET /dividends/`.
 - **`robinhood-pp-cli brokerage history`** - Account transaction history. Maps `GET /history/transactions/` (minerva).
 - **`robinhood-pp-cli brokerage watchlist`** - Default watchlist; `items`/`add`/`remove` subcommands. Maps `GET /discovery/lists/default/`.
-
 
 ## Output Formats
 

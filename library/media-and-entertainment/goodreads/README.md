@@ -14,11 +14,11 @@ or raw Kindle highlight text.
 
 Learn more at [Goodreads](https://www.goodreads.com).
 
-Printed by [@zaydiscold](https://github.com/zaydiscold) (zaydiscold).
+Created by [@zaydiscold](https://github.com/zaydiscold) (zaydiscold).
 
 ## Install
 
-The recommended path installs both the `goodreads-pp-cli` binary and the `pp-goodreads` agent skill for the supported harnesses (Claude Code, Codex, OpenClaw, and Hermes) in one shot:
+The recommended path installs both the `goodreads-pp-cli` binary and the `pp-goodreads` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
 
 ```bash
 npx -y @mvanhorn/printing-press-library install goodreads
@@ -43,9 +43,15 @@ npx -y @mvanhorn/printing-press-library install goodreads --agent claude-code
 npx -y @mvanhorn/printing-press-library install goodreads --agent claude-code --agent codex
 ```
 
-### Without Node
+### Without Node (Go fallback)
 
-The generated install path is category-agnostic until this CLI is published. If `npx` is not available before publish, install Node or use the category-specific Go fallback from the public-library entry after publish.
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.3 or newer):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/media-and-entertainment/goodreads/cmd/goodreads-pp-cli@latest
+```
+
+This installs the CLI only — no skill.
 
 ### Pre-built binary
 
@@ -62,17 +68,19 @@ hermes skills install mvanhorn/printing-press-library/cli-skills/pp-goodreads --
 
 Inside a Hermes chat session:
 
-```bash
+```text
 /skills install mvanhorn/printing-press-library/cli-skills/pp-goodreads --force
 ```
 
 ## Install for OpenClaw
 
-Tell your OpenClaw agent (copy this):
+Install both the CLI binary and the focused OpenClaw skill into runtime-visible locations:
 
+```bash
+npx -y @mvanhorn/printing-press-library install goodreads --agent openclaw --bin-dir ~/.local/bin
 ```
-Install the pp-goodreads skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-goodreads. The skill defines how its required CLI can be installed.
-```
+
+Restart the OpenClaw session or gateway if the newly installed skill is not visible immediately.
 
 ## Use with Claude Desktop
 
@@ -344,7 +352,6 @@ Inspect Goodreads most-followed people discovery
 Plan custom Goodreads shelf creation
 
 - **`goodreads-pp-cli user-shelves`** - Create a custom user shelf.
-
 
 ## Output Formats
 

@@ -5,7 +5,6 @@
 granola-pp-cli reads Granola’s local cache directly and adds the queries Granola.ai’s web app and existing community CLIs cannot answer. Cache-first, then internal API, then public API — transparent fallthrough. memo run, memo queue, attendee timeline, recipes coverage, calendar overlay, and talktime are local-data joins no per-meeting tool produces. Works offline; agent-native JSON by default.
 
 Created by [@dstevens](https://github.com/dstevens) (Damien Stevens).
-Contributors: [@jeffreydebolt](https://github.com/jeffreydebolt) (Jeff DeBolt).
 
 ## Install
 
@@ -59,17 +58,19 @@ hermes skills install mvanhorn/printing-press-library/cli-skills/pp-granola --fo
 
 Inside a Hermes chat session:
 
-```bash
+```text
 /skills install mvanhorn/printing-press-library/cli-skills/pp-granola --force
 ```
 
 ## Install for OpenClaw
 
-Tell your OpenClaw agent (copy this):
+Install both the CLI binary and the focused OpenClaw skill into runtime-visible locations:
 
+```bash
+npx -y @mvanhorn/printing-press-library install granola --agent openclaw --bin-dir ~/.local/bin
 ```
-Install the pp-granola skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-granola. The skill defines how its required CLI can be installed.
-```
+
+Restart the OpenClaw session or gateway if the newly installed skill is not visible immediately.
 
 ## Use with Claude Desktop
 

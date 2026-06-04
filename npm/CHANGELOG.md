@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.16
+
+- Add `install --bin-dir <dir>` and thread it through `update` / `reinstall` so Go binaries can be installed into a runtime-visible user bin directory such as `~/.local/bin`.
+- Document OpenClaw installs as `--agent openclaw --bin-dir ~/.local/bin`, keeping skill placement and binary placement explicit.
+
 ## 0.1.15
 
 - Add a version-lifecycle guard for npm releases: `preversion` now checks that `package-lock.json` is in sync before the bump, and `version` refreshes/checks the lockfile after `package.json` changes so future release commits cannot accidentally leave the lockfile version stale.

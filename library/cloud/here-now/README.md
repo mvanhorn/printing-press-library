@@ -60,17 +60,19 @@ hermes skills install mvanhorn/printing-press-library/cli-skills/pp-here-now --f
 
 Inside a Hermes chat session:
 
-```bash
+```text
 /skills install mvanhorn/printing-press-library/cli-skills/pp-here-now --force
 ```
 
 ## Install for OpenClaw
 
-Tell your OpenClaw agent (copy this):
+Install both the CLI binary and the focused OpenClaw skill into runtime-visible locations:
 
+```bash
+npx -y @mvanhorn/printing-press-library install here-now --agent openclaw --bin-dir ~/.local/bin
 ```
-Install the pp-here-now skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-here-now. The skill defines how its required CLI can be installed.
-```
+
+Restart the OpenClaw session or gateway if the newly installed skill is not visible immediately.
 
 ## Use with Claude Desktop
 
@@ -192,7 +194,6 @@ These capabilities aren't available in any other tool for this API.
   ```
 
 ## Recipes
-
 
 ### Publish a folder and keep it permanently
 
@@ -333,7 +334,6 @@ Manage publishes
 Authenticated support requests.
 
 - **`here-now-pp-cli support`** - Send an authenticated support request
-
 
 ## Output Formats
 

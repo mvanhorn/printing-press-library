@@ -22,12 +22,12 @@ metadata:
 
 This skill drives the `azure-functions-admin-pp-cli` binary. **You must verify the CLI is installed before invoking any command from this skill.** If it is missing, install it first:
 
-1. Install via the Printing Press installer:
+1. Install via the Printing Press installer into a user bin directory:
    ```bash
-   npx -y @mvanhorn/printing-press-library install azure-functions-admin --cli-only
+   npx -y @mvanhorn/printing-press-library install azure-functions-admin --cli-only --bin-dir ~/.local/bin
    ```
 2. Verify: `azure-functions-admin-pp-cli --version`
-3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
+3. Ensure `~/.local/bin` is on `$PATH` for the agent/runtime that will invoke this skill.
 
 If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.3 or newer):
 
@@ -35,9 +35,7 @@ If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go in
 go install github.com/mvanhorn/printing-press-library/library/cloud/azure-functions-admin/cmd/azure-functions-admin-pp-cli@latest
 ```
 
-If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
-
-Azure Functions runs your code on demand without you managing servers. This CLI is a read-only inspector for the Function Apps in your Azure subscription: it lists your apps and functions, reads their settings and keys, and pulls invocation history from Application Insights into a local database. That local history unlocks answers a stateless `az` command can't give — like how often your functions cold-start, whether you should move off the Consumption plan, and where plaintext secrets are hiding in your app settings. It does not deploy code (use `func` or `az functionapp` for that); it tells you what your functions are doing and how to improve them.
+If `--version` reports "command not found" after install, the runtime cannot see the binary directory on `$PATH`. Do not proceed with skill commands until verification succeeds.
 
 ## When to Use This CLI
 

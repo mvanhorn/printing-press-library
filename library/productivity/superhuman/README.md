@@ -8,22 +8,40 @@ Created by [@mvanhorn](https://github.com/mvanhorn) (Matt Van Horn).
 
 ## Install
 
-The recommended path installs both the `superhuman-pp-cli` binary and the `pp-superhuman` agent skill in one shot:
+The recommended path installs both the `superhuman-pp-cli` binary and the `pp-superhuman` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
 
 ```bash
-npx -y @mvanhorn/printing-press install superhuman
+npx -y @mvanhorn/printing-press-library install superhuman
 ```
 
 For CLI only (no skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install superhuman --cli-only
+npx -y @mvanhorn/printing-press-library install superhuman --cli-only
 ```
 
+For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
 
-### Without Node
+```bash
+npx -y @mvanhorn/printing-press-library install superhuman --skill-only
+```
 
-The generated install path is category-agnostic until this CLI is published. If `npx` is not available before publish, install Node or use the category-specific Go fallback from the public-library entry after publish.
+To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
+
+```bash
+npx -y @mvanhorn/printing-press-library install superhuman --agent claude-code
+npx -y @mvanhorn/printing-press-library install superhuman --agent claude-code --agent codex
+```
+
+### Without Node (Go fallback)
+
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.3 or newer):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/productivity/superhuman/cmd/superhuman-pp-cli@latest
+```
+
+This installs the CLI only — no skill.
 
 ### Pre-built binary
 
@@ -40,17 +58,56 @@ hermes skills install mvanhorn/printing-press-library/cli-skills/pp-superhuman -
 
 Inside a Hermes chat session:
 
-```bash
+```text
 /skills install mvanhorn/printing-press-library/cli-skills/pp-superhuman --force
 ```
 
 ## Install for OpenClaw
 
-Tell your OpenClaw agent (copy this):
+Install both the CLI binary and the focused OpenClaw skill into runtime-visible locations:
 
+```bash
+npx -y @mvanhorn/printing-press-library install superhuman --agent openclaw --bin-dir ~/.local/bin
 ```
-Install the pp-superhuman skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-superhuman. The skill defines how its required CLI can be installed.
+
+Restart the OpenClaw session or gateway if the newly installed skill is not visible immediately.
+
+## Use with Claude Desktop
+
+This CLI ships an [MCPB](https://github.com/modelcontextprotocol/mcpb) bundle — Claude Desktop's standard format for one-click MCP extension installs (no JSON config required).
+
+To install:
+
+1. Download the `.mcpb` for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/superhuman-current).
+2. Double-click the `.mcpb` file. Claude Desktop opens and walks you through the install.
+3. Fill in `SUPERHUMAN_JWT` when Claude Desktop prompts you.
+
+Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple Silicon (`darwin-arm64`) and Windows (`amd64`, `arm64`); for other platforms, use the manual config below.
+
+<details>
+<summary>Manual JSON config (advanced)</summary>
+
+If you can't use the MCPB bundle (older Claude Desktop, unsupported platform), install the MCP binary and configure it manually.
+
+
+Install the MCP binary from this CLI's published public-library entry or pre-built release.
+
+Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
+
+```json
+{
+  "mcpServers": {
+    "superhuman": {
+      "command": "superhuman-pp-mcp",
+      "env": {
+        "SUPERHUMAN_JWT": "<your-key>"
+      }
+    }
+  }
+}
 ```
+
+</details>
 
 ## Authentication
 
@@ -70,22 +127,17 @@ superhuman-pp-cli doctor
 # One-time: capture durable tokens from Chrome's on-disk session
 superhuman-pp-cli auth login --disk
 
-
 # Confirm auth and connectivity are green
 superhuman-pp-cli doctor
-
 
 # Populate the local SQLite store; read commands refresh recent Gmail history automatically
 superhuman-pp-cli bootstrap --per-folder 100
 
-
 # List recent threads as structured JSON
 superhuman-pp-cli threads list --type inbox --limit 20 --json
 
-
 # Send with an undo window
 superhuman-pp-cli send --to teammate@example.com --subject "Update" --body-file body.txt --undo 30s
-
 
 # Look up Superhuman's live enrichment for a contact
 superhuman-pp-cli lookup teammate@example.com --json --select name,location,twitterHandle
@@ -276,7 +328,6 @@ Existing commands and flags continue to work. The overhaul adds automatic bootst
 
 Older pre-backend builds stored snippets at `~/.superhuman-pp-cli/snippets.json`. The first `snippets list` after upgrading prints a one-time migration hint if that local file exists and is non-empty. The CLI never auto-uploads, modifies, or deletes that file; recreate any snippets you still need with `snippets create --name <n> --body <b>`.
 
-
 ## Output Formats
 
 ```bash
@@ -311,69 +362,6 @@ This CLI is designed for AI agent consumption:
 - **Agent-safe by default** - no colors or formatting unless `--human-friendly` is set
 
 Exit codes: `0` success, `2` usage error, `3` not found, `4` auth error, `5` API error, `7` rate limited, `10` config error.
-
-## Use with Claude Code
-
-Install the focused skill — it auto-installs the CLI on first invocation:
-
-```bash
-npx skills add mvanhorn/printing-press-library/cli-skills/pp-superhuman -g
-```
-
-Then invoke `/pp-superhuman <query>` in Claude Code. The skill is the most efficient path — Claude Code drives the CLI directly without an MCP server in the middle.
-
-<details>
-<summary>Use as an MCP server in Claude Code (advanced)</summary>
-
-If you'd rather register this CLI as an MCP server in Claude Code, install the MCP binary first:
-
-
-Install the MCP binary from this CLI's published public-library entry or pre-built release.
-
-Then register it:
-
-```bash
-claude mcp add superhuman superhuman-pp-mcp -e SUPERHUMAN_JWT=<your-token>
-```
-
-</details>
-
-## Use with Claude Desktop
-
-This CLI ships an [MCPB](https://github.com/modelcontextprotocol/mcpb) bundle — Claude Desktop's standard format for one-click MCP extension installs (no JSON config required).
-
-To install:
-
-1. Download the `.mcpb` for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/superhuman-current).
-2. Double-click the `.mcpb` file. Claude Desktop opens and walks you through the install.
-3. Fill in `SUPERHUMAN_JWT` when Claude Desktop prompts you.
-
-Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple Silicon (`darwin-arm64`) and Windows (`amd64`, `arm64`); for other platforms, use the manual config below.
-
-<details>
-<summary>Manual JSON config (advanced)</summary>
-
-If you can't use the MCPB bundle (older Claude Desktop, unsupported platform), install the MCP binary and configure it manually.
-
-
-Install the MCP binary from this CLI's published public-library entry or pre-built release.
-
-Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
-
-```json
-{
-  "mcpServers": {
-    "superhuman": {
-      "command": "superhuman-pp-mcp",
-      "env": {
-        "SUPERHUMAN_JWT": "<your-key>"
-      }
-    }
-  }
-}
-```
-
-</details>
 
 ## Health Check
 
