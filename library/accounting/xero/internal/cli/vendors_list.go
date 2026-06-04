@@ -7,15 +7,21 @@ import "github.com/spf13/cobra"
 
 func newVendorsListCmd() *cobra.Command {
 	var fixture string
+	var tokenFile string
+	var tenantID string
+	var baseURL string
 	cmd := &cobra.Command{
 		Use:   "list",
 		Short: "Alias/convenience view for supplier contacts.",
 		Args:  cobra.ArbitraryArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return printFixture("xero", "vendors", fixture)
+			return printXeroRead("vendors", fixture, "/Contacts?where=IsSupplier==true", tokenFile, tenantID, baseURL)
 		},
 	}
 	cmd.Flags().StringVar(&fixture, "fixture", "", "Path to local JSON fixture; live API access is intentionally unavailable")
+	cmd.Flags().StringVar(&tokenFile, "access-token-file", "", "Path to explicit Xero access token file for live read-only mode; no refresh/fallback")
+	cmd.Flags().StringVar(&tenantID, "tenant-id", "", "Xero tenant ID for live read-only mode")
+	cmd.Flags().StringVar(&baseURL, "base-url", "https://api.xero.com/api.xro/2.0", "Xero API base URL")
 	cmd.Annotations = map[string]string{"mcp:read-only": "true"}
 	return cmd
 }

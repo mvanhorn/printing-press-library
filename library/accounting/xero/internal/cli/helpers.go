@@ -7,6 +7,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+
+	"github.com/mvanhorn/printing-press-library/library/accounting/xero/internal/client"
 )
 
 type fixtureEnvelope struct {
@@ -43,6 +45,21 @@ func printFixture(provider, resource, fixture string) error {
 		return err
 	}
 	return printJSON(fixtureEnvelope{Provider: provider, Resource: resource, Mode: "fixture-only", Data: data})
+}
+
+func printXeroRead(resource, fixture, endpoint, tokenFile, tenantID, baseURL string) error {
+	if fixture != "" {
+		return printFixture("xero", resource, fixture)
+	}
+	c, err := client.NewXeroClient(baseURL, tenantID, tokenFile)
+	if err != nil {
+		return err
+	}
+	data, err := c.Get(endpoint)
+	if err != nil {
+		return err
+	}
+	return printJSON(fixtureEnvelope{Provider: "xero", Resource: resource, Mode: "live-read-only", Data: data})
 }
 
 func printError(format string, args ...any) {
