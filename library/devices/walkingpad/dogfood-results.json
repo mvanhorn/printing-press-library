@@ -1,0 +1,102 @@
+{
+  "dir": "\u003ccli-dir\u003e/walkingpad",
+  "spec_path": "\u003ccli-dir\u003e/device-spec.yaml",
+  "spec_source": "caller",
+  "is_device_cli": true,
+  "verdict": "PASS",
+  "path_check": {
+    "tested": 0,
+    "valid": 0,
+    "valid_pct": 0
+  },
+  "auth_check": {
+    "spec_scheme": "",
+    "generated_format": "",
+    "match": true,
+    "detail": "SKIP (device CLI: no HTTP auth protocol)"
+  },
+  "browser_session_check": {
+    "required": false,
+    "pass": true,
+    "detail": "browser-session auth not required"
+  },
+  "oauth_scope_coverage_check": {
+    "checked": 0,
+    "covered": 0,
+    "skipped": true,
+    "detail": "no OAuth-scoped endpoints in spec"
+  },
+  "dead_flags": {
+    "total": 4,
+    "dead": 0
+  },
+  "dead_functions": {
+    "total": 0,
+    "dead": 0
+  },
+  "pipeline_check": {
+    "sync_calls_domain": false,
+    "search_calls_domain": false,
+    "domain_tables": 0,
+    "sync_file_emitted": false,
+    "sync_resources_present": false,
+    "detail": "sync Upsert calls not found; search methods not found"
+  },
+  "example_check": {
+    "tested": 10,
+    "with_examples": 9,
+    "valid_examples": 9,
+    "missing": [
+      "status"
+    ],
+    "detail": "9/10 commands have examples"
+  },
+  "wiring_check": {
+    "command_tree": {
+      "defined": 21,
+      "registered": 21
+    },
+    "config_consistency": {
+      "consistent": true
+    },
+    "workflow_completeness": {
+      "skipped": true,
+      "total_steps": 0,
+      "mapped_steps": 0,
+      "detail": "no workflow_verify.yaml found"
+    }
+  },
+  "novel_features_check": {
+    "planned": 0,
+    "found": 0,
+    "skipped": true
+  },
+  "mcp_surface_parity": {
+    "state": "missing",
+    "pass": true,
+    "skipped": true,
+    "detail": "no internal/mcp/tools.go; CLI does not ship an MCP surface"
+  },
+  "reimplementation_check": {
+    "checked": 0,
+    "exempted_via_store": 0,
+    "skipped": true
+  },
+  "source_client_check": {
+    "checked": 8
+  },
+  "print_json_filtered_check": {
+    "checked": 7
+  },
+  "test_presence": {
+    "checked": 4
+  },
+  "naming_check": {
+    "checked": 7
+  },
+  "sync_param_drop_check": {
+    "checked": 0,
+    "skipped": true
+  },
+  "issues": null
+}

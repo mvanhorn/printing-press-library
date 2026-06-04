@@ -214,6 +214,21 @@ test("update command refreshes detected installed CLIs", async () => {
   assert.deepEqual(installs, [["espn", "--agent", "claude-code"]]);
 });
 
+test("update command forwards --bin-dir to detected installed CLIs", async () => {
+  const installs: string[][] = [];
+  const command = createUpdateCommand({
+    fetchRegistry: async () => registry,
+    commandOnPath: async (binary) => (binary === "espn-pp-cli" ? "/bin/espn-pp-cli" : null),
+    createInstall: () => async (args) => {
+      installs.push(args);
+      return 0;
+    },
+  });
+
+  assert.equal(await command(["--agent", "claude-code", "--bin-dir", "/Users/example/.local/bin"]), 0);
+  assert.deepEqual(installs, [["espn", "--agent", "claude-code", "--bin-dir", "/Users/example/.local/bin"]]);
+});
+
 test("reinstall dispatches to the update handler rather than the unknown-command path", async () => {
   // `reinstall --bogus` fails in the update arg parser before any network call,
   // which proves the alias routes to `update` (and not to "Unknown command").

@@ -22,12 +22,12 @@ metadata:
 
 This skill drives the `zoho-expense-pp-cli` binary. **You must verify the CLI is installed before invoking any command from this skill.** If it is missing, install it first:
 
-1. Install via the Printing Press installer:
+1. Install via the Printing Press installer into a user bin directory:
    ```bash
-   npx -y @mvanhorn/printing-press-library install zoho-expense --cli-only
+   npx -y @mvanhorn/printing-press-library install zoho-expense --cli-only --bin-dir ~/.local/bin
    ```
 2. Verify: `zoho-expense-pp-cli --version`
-3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
+3. Ensure `~/.local/bin` is on `$PATH` for the agent/runtime that will invoke this skill.
 
 If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.3 or newer):
 
@@ -35,9 +35,7 @@ If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go in
 go install github.com/mvanhorn/printing-press-library/library/productivity/zoho-expense/cmd/zoho-expense-pp-cli@latest
 ```
 
-If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
-
-Zoho ships autoscan; this CLI ships everything that comes after — receipt dedup, learned merchant→category mapping, India GST splitting, and monthly report bundling. Built for AI agents that ingest invoices from an inbox on a cadence and need an idempotent, structured-output upload path. India-region by default; works against any Zoho datacenter by overriding the base URL.
+If `--version` reports "command not found" after install, the runtime cannot see the binary directory on `$PATH`. Do not proceed with skill commands until verification succeeds.
 
 ## When to Use This CLI
 

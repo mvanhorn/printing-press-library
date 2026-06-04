@@ -4,7 +4,7 @@
 
 Suno has no official API and every reverse-engineered client is abandoned and wrong in ways that matter today — broken pagination, broken cover, stale pre-2026 auth, no local persistence. This CLI is built from the current contract: it walks the real opaque feed cursor, sends the now-required cover title, tolerates the drifted billing schema, authenticates against the current auth.suno.com Clerk flow via your logged-in browser, and persists your whole library to local SQLite for offline grep, SQL, lineage, and analytics. Generate, extend, cover, remaster, stems, lyrics, download — all with --json, --select, --dry-run, and typed exit codes.
 
-Created by [@mvanhorn](https://github.com/mvanhorn) (Matt Van Horn). Superset rebuild contributed by [@horknfbr](https://github.com/horknfbr) (Scott Macdonald).
+Created by [@mvanhorn](https://github.com/mvanhorn) (Matt Van Horn).
 
 ## Install
 
@@ -58,17 +58,19 @@ hermes skills install mvanhorn/printing-press-library/cli-skills/pp-suno --force
 
 Inside a Hermes chat session:
 
-```bash
+```text
 /skills install mvanhorn/printing-press-library/cli-skills/pp-suno --force
 ```
 
 ## Install for OpenClaw
 
-Tell your OpenClaw agent (copy this):
+Install both the CLI binary and the focused OpenClaw skill into runtime-visible locations:
 
+```bash
+npx -y @mvanhorn/printing-press-library install suno --agent openclaw --bin-dir ~/.local/bin
 ```
-Install the pp-suno skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-suno. The skill defines how its required CLI can be installed.
-```
+
+Restart the OpenClaw session or gateway if the newly installed skill is not visible immediately.
 
 ## Use with Claude Desktop
 
@@ -181,7 +183,6 @@ These capabilities aren't available in any other tool for this API.
   ```
 
 ## Recipes
-
 
 ### Generate a custom song and wait for it
 
@@ -330,7 +331,6 @@ Parity with the 2026-05-15 build — these coexist with the novel commands (`gre
 - **`suno-pp-cli tail <resource> --interval 10s`** - Poll the API and stream changes as NDJSON
 - **`suno-pp-cli tree <clip-id>`** - Render a clip's local lineage tree (legacy view; see also `lineage`)
 - **`suno-pp-cli custom-model`** - List pending custom-model training jobs
-
 
 ## Output Formats
 

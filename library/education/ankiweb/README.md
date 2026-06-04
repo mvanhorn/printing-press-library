@@ -6,7 +6,7 @@ Every existing Anki CLI wraps the desktop AnkiConnect add-on; none touches ankiw
 
 Learn more at [AnkiWeb](https://ankiweb.net).
 
-Printed by [@paulbockewitz](https://github.com/paulbockewitz) (Paul Bockewitz).
+Created by [@paulb](https://github.com/paulb) (Paul Bockewitz).
 
 ## Install
 
@@ -35,9 +35,15 @@ npx -y @mvanhorn/printing-press-library install ankiweb --agent claude-code
 npx -y @mvanhorn/printing-press-library install ankiweb --agent claude-code --agent codex
 ```
 
-### Without Node
+### Without Node (Go fallback)
 
-The generated install path is category-agnostic until this CLI is published. If `npx` is not available before publish, install Node or use the category-specific Go fallback from the public-library entry after publish.
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.3 or newer):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/education/ankiweb/cmd/ankiweb-pp-cli@latest
+```
+
+This installs the CLI only — no skill.
 
 ### Pre-built binary
 
@@ -54,17 +60,19 @@ hermes skills install mvanhorn/printing-press-library/cli-skills/pp-ankiweb --fo
 
 Inside a Hermes chat session:
 
-```bash
+```text
 /skills install mvanhorn/printing-press-library/cli-skills/pp-ankiweb --force
 ```
 
 ## Install for OpenClaw
 
-Tell your OpenClaw agent (copy this):
+Install both the CLI binary and the focused OpenClaw skill into runtime-visible locations:
 
+```bash
+npx -y @mvanhorn/printing-press-library install ankiweb --agent openclaw --bin-dir ~/.local/bin
 ```
-Install the pp-ankiweb skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-ankiweb. The skill defines how its required CLI can be installed.
-```
+
+Restart the OpenClaw session or gateway if the newly installed skill is not visible immediately.
 
 ## Use with Claude Desktop
 
@@ -196,7 +204,6 @@ These capabilities aren't available in any other tool for this API.
 
 ## Recipes
 
-
 ### Find the best audio-rich Spanish deck
 
 ```bash
@@ -248,7 +255,6 @@ Browse, search, and download public shared decks (no login required)
 - **`ankiweb-pp-cli shared download`** - Download a shared deck .apkg. NOTE: requires a signed ?t= token minted client-side (op=sdd); without it the endpoint returns 400/503.
 - **`ankiweb-pp-cli shared info`** - Full detail + reviews for one shared deck (protobuf response)
 - **`ankiweb-pp-cli shared search`** - Search the shared-deck catalog by keyword (protobuf response)
-
 
 ## Output Formats
 

@@ -22,12 +22,12 @@ metadata:
 
 This skill drives the `tidycal-pp-cli` binary. **You must verify the CLI is installed before invoking any command from this skill.** If it is missing, install it first:
 
-1. Install via the Printing Press installer:
+1. Install via the Printing Press installer into a user bin directory:
    ```bash
-   npx -y @mvanhorn/printing-press-library install tidycal --cli-only
+   npx -y @mvanhorn/printing-press-library install tidycal --cli-only --bin-dir ~/.local/bin
    ```
 2. Verify: `tidycal-pp-cli --version`
-3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
+3. Ensure `~/.local/bin` is on `$PATH` for the agent/runtime that will invoke this skill.
 
 If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.3 or newer):
 
@@ -35,26 +35,7 @@ If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go in
 go install github.com/mvanhorn/printing-press-library/library/productivity/tidycal/cmd/tidycal-pp-cli@latest
 ```
 
-If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
-
-# Introduction
-TidyCal's REST API provides a handful of endpoints which can be used to get information about your account and bookings.  It uses conventional OAuth 2.0 protocol for authentication.
-
-# Authentication
-### Personal Access Token
-Create a personal access token at https://tidycal.com/integrations/oauth.  Once created, it can be used to authenticate requests by passing it in the `Authorization` header.
-```
-Authorization: Bearer {TOKEN}
-```
-
-### OAuth 2.0 Client
-If you're building a custom integration to TidyCal which requires users to authenticate in order to get access tokens to make API requests on their behalf, you'll need to create an OAuth 2.0 client. This is easy to do from the \"OAuth Apps\" settings page found here https://tidycal.com/integrations/oauth
-
-Using the `authorization_code` grant type to authenticate users using OAuth 2.0 to retrieve an access token is fairly conventional, more information on that process can be found here: https://www.oauth.com/oauth2-servers/server-side-apps/authorization-code/
-
-
-* Authorization URL: https://tidycal.com/oauth/authorize
-* Access Token URL: https://tidycal.com/oauth/token
+If `--version` reports "command not found" after install, the runtime cannot see the binary directory on `$PATH`. Do not proceed with skill commands until verification succeeds.
 
 ## Unique Capabilities
 

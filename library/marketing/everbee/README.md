@@ -60,17 +60,19 @@ hermes skills install mvanhorn/printing-press-library/cli-skills/pp-everbee --fo
 
 Inside a Hermes chat session:
 
-```bash
+```text
 /skills install mvanhorn/printing-press-library/cli-skills/pp-everbee --force
 ```
 
 ## Install for OpenClaw
 
-Tell your OpenClaw agent (copy this):
+Install both the CLI binary and the focused OpenClaw skill into runtime-visible locations:
 
+```bash
+npx -y @mvanhorn/printing-press-library install everbee --agent openclaw --bin-dir ~/.local/bin
 ```
-Install the pp-everbee skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-everbee. The skill defines how its required CLI can be installed.
-```
+
+Restart the OpenClaw session or gateway if the newly installed skill is not visible immediately.
 
 ## Use with Claude Desktop
 
@@ -208,7 +210,6 @@ Insight commands read local research snapshots first. If matching data is missin
 
 ## Recipes
 
-
 ### Narrow product analytics for agents
 
 ```bash
@@ -276,7 +277,6 @@ Operations on default_product_analytics
 Operations on shops
 
 - **`everbee-pp-cli shops`** - GET /shops
-
 
 ## Output Formats
 

@@ -122,7 +122,9 @@ These capabilities aren't available in any other tool for this API.
 **generate** — Music, lyrics, and video generation jobs
 
 - `suno-pp-cli generate create` — Generate a custom song from lyrics (captcha-gated). `--variation high|normal|subtle`, `--project <id>`.
-- `suno-pp-cli generate describe` — Description-driven (inspiration) generation. `--variation`, `--instrumental`.
+- `suno-pp-cli generate describe` — Description-driven (inspiration) generation. `--variation`, `--instrumental`. No `--title` is needed; the model writes its own.
+
+All captcha-gated generate commands accept `--wait-for-gate` (with `--gate-timeout`, default 30m): when Suno's adaptive gate is tripped (HTTP 422 `token_validation_failed`), the command backs off and retries until the gate reopens or the timeout elapses. Off by default. In `--agent`/JSON mode a gate failure is emitted as a structured envelope on stdout with `error_type: "captcha_required"` and `retriable: true`, so agents branch on a field rather than parsing prose.
 - `suno-pp-cli generate extend <clip_id>` — Extend a clip from a timestamp
 - `suno-pp-cli generate cover <clip_id>` — Cover / restyle a clip
 - `suno-pp-cli generate remaster <clip_id>` — Remaster a clip
@@ -238,7 +240,7 @@ Triggers WAV conversion, polls until ready, and saves the lossless file (Pro/Pre
 
 Suno uses Clerk session auth (auth.suno.com). Run `suno-pp-cli auth login --chrome` to capture your logged-in session cookie from Chrome; the CLI mints and refreshes the short-lived JWT for you. No password or API key is stored. Music generation is attempted optimistically with no token. Suno gates generation adaptively (an hCaptcha anti-bot challenge that usually fires only after sustained use), so many generations succeed outright; if Suno challenges a request, the CLI tells you to retry with `--token` carrying an hCaptcha token (e.g. solved via 2Captcha). All read, library, and metadata commands never need a captcha.
 
-Run `suno-pp-cli doctor` to verify setup.
+Run `suno-pp-cli doctor` to verify setup. Add `--probe-gate` to check the live generation gate specifically: the default health check only proves the billing API is reachable, which stays green even while generation is gated. `doctor --probe-gate` reports `tripped` (the adaptive hCaptcha gate is active) or `open`. WARNING: it issues a real generation — free when the gate is tripped, but it creates a clip and spends credits when the gate is open (the probe clip is best-effort trashed).
 
 ## Agent Mode
 

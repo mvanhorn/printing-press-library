@@ -11,31 +11,37 @@ Created by [@azaaron](https://github.com/azaaron) (azaaron).
 The recommended path installs both the `strava-pp-cli` binary and the `pp-strava` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
 
 ```bash
-npx -y @mvanhorn/printing-press install strava
+npx -y @mvanhorn/printing-press-library install strava
 ```
 
 For CLI only (no skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install strava --cli-only
+npx -y @mvanhorn/printing-press-library install strava --cli-only
 ```
 
 For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install strava --skill-only
+npx -y @mvanhorn/printing-press-library install strava --skill-only
 ```
 
 To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
 
 ```bash
-npx -y @mvanhorn/printing-press install strava --agent claude-code
-npx -y @mvanhorn/printing-press install strava --agent claude-code --agent codex
+npx -y @mvanhorn/printing-press-library install strava --agent claude-code
+npx -y @mvanhorn/printing-press-library install strava --agent claude-code --agent codex
 ```
 
-### Without Node
+### Without Node (Go fallback)
 
-The generated install path is category-agnostic until this CLI is published. If `npx` is not available before publish, install Node or use the category-specific Go fallback from the public-library entry after publish.
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.3 or newer):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/productivity/strava/cmd/strava-pp-cli@latest
+```
+
+This installs the CLI only — no skill.
 
 ### Pre-built binary
 
@@ -52,17 +58,19 @@ hermes skills install mvanhorn/printing-press-library/cli-skills/pp-strava --for
 
 Inside a Hermes chat session:
 
-```bash
+```text
 /skills install mvanhorn/printing-press-library/cli-skills/pp-strava --force
 ```
 
 ## Install for OpenClaw
 
-Tell your OpenClaw agent (copy this):
+Install both the CLI binary and the focused OpenClaw skill into runtime-visible locations:
 
+```bash
+npx -y @mvanhorn/printing-press-library install strava --agent openclaw --bin-dir ~/.local/bin
 ```
-Install the pp-strava skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-strava. The skill defines how its required CLI can be installed.
-```
+
+Restart the OpenClaw session or gateway if the newly installed skill is not visible immediately.
 
 ## Use with Claude Desktop
 
@@ -111,22 +119,17 @@ Strava uses OAuth2. Run `strava-pp-cli auth login` to open the browser authoriza
 # Verify credentials and API connectivity (run auth login first if not authenticated)
 strava-pp-cli doctor
 
-
 # Verify credentials and check API connectivity
 strava-pp-cli doctor
-
 
 # Mirror your Strava data to a local SQLite database
 strava-pp-cli sync
 
-
 # See your CTL/ATL/TSB training load timeline
 strava-pp-cli training load --weeks 12
 
-
 # Compute your power curve from synced stream data
 strava-pp-cli athlete power-curve --since 2025-01-01
-
 
 # Track your progression on a specific segment over time
 strava-pp-cli segments progress 229781
@@ -229,7 +232,6 @@ Manage athlete
 
 Manage athletes
 
-
 ### clubs
 
 Manage clubs
@@ -269,7 +271,6 @@ Manage uploads
 
 - **`strava-pp-cli uploads create`** - Uploads a new data file to create an activity from. Requires activity:write scope.
 - **`strava-pp-cli uploads get-by-id`** - Returns an upload for a given identifier. Requires activity:write scope.
-
 
 ## Output Formats
 

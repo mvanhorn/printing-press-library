@@ -56,17 +56,19 @@ hermes skills install mvanhorn/printing-press-library/cli-skills/pp-amazon-ads -
 
 Inside a Hermes chat session:
 
-```bash
+```text
 /skills install mvanhorn/printing-press-library/cli-skills/pp-amazon-ads --force
 ```
 
 ## Install for OpenClaw
 
-Tell your OpenClaw agent (copy this):
+Install both the CLI binary and the focused OpenClaw skill into runtime-visible locations:
 
+```bash
+npx -y @mvanhorn/printing-press-library install amazon-ads --agent openclaw --bin-dir ~/.local/bin
 ```
-Install the pp-amazon-ads skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-amazon-ads. The skill defines how its required CLI can be installed.
-```
+
+Restart the OpenClaw session or gateway if the newly installed skill is not visible immediately.
 
 ## Use with Claude Desktop
 
@@ -479,7 +481,6 @@ Manage history
 
 Manage hsa
 
-
 ### insights
 
 Manage insights
@@ -852,7 +853,6 @@ Note:
 
 The recommended bids are derrived from the last 7 days of winning auction bids for the related targeting clause.
 
-
 Receive bid recommendations using the following:
 Contextual targeting clause|Description|
 |-----------|----|
@@ -860,18 +860,15 @@ Contextual targeting clause|Description|
 |asinCategorySameAs=12345|Receive a bid recommendation for this target category
 |similarProduct|Receive a bid recommendation for targets that are similar to the advertised asins.
 
-
 Audience targeting clause|Description|
 |-----------|----|
 |views(asinCategorySameAs=12345 lookback=30)|Receive a bid recommendation for a target audience that has viewed products in the given category
 |views(similarProduct lookback=30)|Receive a bid recommendation for a target audience that has viewed similar products to the advertised asins
 |views(exactProduct lookback=30)|Receive a bid recommendation for a target audience that has viewed the advertised asins
 
-
 #### Notes:
 - Bid recommendations for purchases and audiences are **not currently supported**. This note will be removed when these operations are available.
 - Refinements are currently not supported and if included will not impact the bid recommendation for the target.
-
 
 #### Advertised ASIN Notes:
 - For asinSameAs targets the advertised asins will not impact the bid recommendation
@@ -1155,11 +1152,9 @@ Manage sponsored display sd
 ["advertiser_campaign_view"]
 - **`amazon-ads-pp-cli sponsored-display-sd get-request-results`** - When a user adds domains to their Brand Safety Deny List, the request is processed asynchronously, and a requestId is provided to the user. This requestId can be used to view the request results for up to 90 days from when the request was submitted. The results provide the status of each domain in the given request. Request results may contain multiple pages. This endpoint will only be available once the request has completed processing. To see the status of the request you can call GET /sd/brandSafety/{requestId}/status. Note that this endpoint only lists the results of POST requests to /sd/brandSafety/deny - it does not reflect the results of DELETE requests.
 
-
 **Requires one of these permissions**:
 ["advertiser_campaign_edit","advertiser_campaign_view"]
 - **`amazon-ads-pp-cli sponsored-display-sd get-request-status`** - When a user modifies their Brand Safety Deny List, the request is processed asynchronously, and a requestId is provided to the user. This requestId can be used to check the status of the request for up to 90 days from when the request was submitted
-
 
 **Requires one of these permissions**:
 ["advertiser_campaign_edit","advertiser_campaign_view"]
@@ -1171,7 +1166,6 @@ Manage sponsored display sd
 
 The recommended bids are derrived from the last 7 days of winning auction bids for the related targeting clause.
 
-
 Receive bid recommendations using the following:
 Product targeting clause|Description|
 |-----------|----|
@@ -1179,17 +1173,14 @@ Product targeting clause|Description|
 |asinCategorySameAs=12345|Receive a bid recommendation for this target category
 |similarProduct|Receive a bid recommendation for targets that are similar to the advertised asins.
 
-
 Audience targeting clause|Description|
 |-----------|----|
 |views(asinCategorySameAs=12345 lookback=30)|Receive a bid recommendation for a target audience that has viewed products in the given category
 |views(similarProduct lookback=30)|Receive a bid recommendation for a target audience that has viewed similar products to the advertised asins
 |views(exactProduct lookback=30)|Receive a bid recommendation for a target audience that has viewed the advertised asins
 
-
 #### Refinement Notes:
 - Refinements are currently not supported and if included will not impact the bid recommendation for the target
-
 
 #### Advertised ASIN Notes:
 - For asinSameAs targets the advertised asins will not impact the bid recommendation
@@ -1211,11 +1202,9 @@ The currently available tactic identifiers are:
 - **`amazon-ads-pp-cli sponsored-display-sd list-associated-budget-rules-for-sdcampaigns`** - Gets a list of budget rules associated to a campaign specified by identifier.
 - **`amazon-ads-pp-cli sponsored-display-sd list-domains`** - Gets an array of websites/apps that are on the advertiser's Brand Safety Deny List. It can take up to 15 minutes from the time a domain is added/deleted to the time it is reflected in the deny list.
 
-
 **Requires one of these permissions**:
 ["advertiser_campaign_edit","advertiser_campaign_view"]
 - **`amazon-ads-pp-cli sponsored-display-sd list-request-status`** - List status of all Brand Safety List requests. The list will contain requests that were submitted in the past 90 days.
-
 
 **Requires one of these permissions**:
 ["advertiser_campaign_edit","advertiser_campaign_view"]
@@ -1391,7 +1380,6 @@ Manage sponsored products sp
 Manage targeting expression
 
 - **`amazon-ads-pp-cli targeting-expression`** - Localizes (maps) targeting expressions from a source marketplace to one or more target marketplaces. V3: Providing locales in your request's source details or target details, will now return in &lt;sourceField&gt; and &lt;targetField&gt; respectively the translations of your targeting expressions.
-
 
 ## Output Formats
 

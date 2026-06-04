@@ -193,6 +193,7 @@ A printed CLI's attribution is a single permanent **`creator`** plus a multi-val
 
 - **`creator` is permanent.** It is the human who first got the CLI into the library. **Never edit the `creator` block or the `// Copyright YYYY <name> and contributors.` header** on a reprint or a contribution — they belong to the original author. The ` and contributors` suffix is a constant regardless of count, so the header never churns.
 - **When you fix or improve a published CLI, add yourself to `contributors[]`** in that CLI's `.printing-press.json`. From a local `cli-printing-press` checkout, `cli-printing-press contributors add --dir library/<cat>/<slug>` does this idempotently (skips the creator and anyone already listed). A reprinter is listed first (`--front`). Plain regen/sync never appends a contributor — accrual is a deliberate action.
+- **Adding yourself is a three-surface change, not just the manifest.** The `contributors[]` entry alone leaves a divergence: your handle/name must also appear in the CLI's **README byline** (a `Contributors: [@handle](url) (Name).` line directly under `Created by …`) and its **NOTICE** (a `Contributors:` block with `  - Name (@handle)` rows). `cli-printing-press contributors add` writes only the manifest — it does **not** touch README or NOTICE — so follow it with `tools/sweep-canonical -readme-only` scoped to that CLI, or hand-add the two lines (that hand-edit is your own self-entry, distinct from the library-wide backfill below). Manifest-only adds are the common miss: both the granola (#1022) and flight-goat (#1008) contribution PRs left the byline and NOTICE stale. CI does not gate this; `greptile.json` flags the divergence.
 - **Do not hand-edit attribution from a contribution PR beyond adding your own contributor entry.** The library-wide migration and contributor backfill are owned by `tools/sweep-canonical` (`-backfill-contributors`), which derives contributors from git history with a bot/regen/rename denylist and surfaces a human-reviewable table before writing — see the next section.
 
 ## `.printing-press-patches/` records library-side customizations
@@ -215,8 +216,8 @@ Each `<id>.json` is a single self-contained patch object:
   "applied_at": "YYYY-MM-DD",
   "base_run_id": "<copy from .printing-press.json>",
   "base_printing_press_version": "<copy from .printing-press.json>",
-  "summary": "What changed (one sentence).",
-  "reason": "Why this customization was needed (one or two sentences).",
+  "summary": "The durable behavior a regen must preserve — the lesson, not the diff (one sentence).",
+  "reason": "Why this API/runtime needs it and the failure mode it prevents (one or two sentences).",
   "files": ["internal/cli/foo.go"],
   "validated_outcome": "Optional: non-obvious test result that confirms the fix.",
   "upstream_issue": "Optional: https://github.com/mvanhorn/cli-printing-press/issues/<n>"
@@ -227,9 +228,11 @@ The filename is `slugify(id).json`. **One PR = one new file**, so two concurrent
 
 **Why this is not the legacy single-array file.** This used to be a single `.printing-press-patches.json` with a `patches: [...]` array that every PR appended to — a guaranteed merge conflict between any two same-CLI PRs. That shape is now **converted automatically**: the post-merge `normalize-patches.yml` workflow (source: `.github/scripts/normalize-patches/normalize.py`) explodes any legacy single-array file that lands on `main` into this directory. Older Printing Press versions still emit the single file, and CI tolerates it on PRs — you don't have to convert it yourself, the normalizer does it after merge. New work should write the directory form directly.
 
-Each `<id>.json` is an **index entry**, not a second copy of the diff. Diffs live in `git`; the entry tells the next agent (or regeneration tooling) what was customized and why. Keep `summary` and `reason` short — tables of field renames or SQL transformations belong in the commit message, not here. A fresh print from the generator overwrites this tree, and these entries are what survive that overwrite.
+Each `<id>.json` is an **index entry**, not a second copy of the diff — and the bar is *altitude*, not just brevity. A fresh print overwrites this whole tree; these entries are what survive to steer the next regen away from re-making the mistake, so write each one as a **reprint-guard**: capture the durable behavioral contract or API/runtime reality the customization encodes, not the line-level changes (git already has those). Litmus test — the entry should still read true after a full regen.
 
-**Inline `// PATCH:` source comments are optional, not required.** Earlier guidance asked agents to mark each changed site in source alongside the manifest entry; `verify_publish_package.py` enforced a bidirectional pairing that doubled the commit count on every in-session customization without surfacing a class of bug git history and the manifest didn't already cover. The pairing requirement is gone; if you find a marker helpful as a navigation aid for yourself, fine, but the CI no longer cares whether you add one.
+- **Flag moving targets instead of enshrining them.** *"The client version is whatever the live desktop currently sends; a regen must re-discover it"* — not *"set User-Agent to 7.299.0"*.
+- **Let the `id` read as the lesson.** `d6-read-only-applies-to-all-desktop-token-sources`, not `add-tokensource-enum`.
+- **Keep `summary`/`reason` short.** A table of field renames or SQL transformations means you've dropped to changelog altitude; that belongs in the commit message, not here.
 
 **Delete stale workaround entries.** A `reason` field that describes a verifier or pipeline bug (e.g. *"the package verifier currently treats X as Y; this entry exists to silence the false positive"*) is a placeholder, not a real customization. When the underlying bug is fixed, delete the file — leaving it behind makes future contributors think there's a hand-edit to preserve when there isn't.
 

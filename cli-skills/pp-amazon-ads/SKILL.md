@@ -27,12 +27,12 @@ metadata:
 
 This skill drives the `amazon-ads-pp-cli` binary. **You must verify the CLI is installed before invoking any command from this skill.** If it is missing, install it first:
 
-1. Install via the Printing Press installer:
+1. Install via the Printing Press installer into a user bin directory:
    ```bash
-   npx -y @mvanhorn/printing-press-library install amazon-ads --cli-only
+   npx -y @mvanhorn/printing-press-library install amazon-ads --cli-only --bin-dir ~/.local/bin
    ```
 2. Verify: `amazon-ads-pp-cli --version`
-3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
+3. Ensure `~/.local/bin` is on `$PATH` for the agent/runtime that will invoke this skill.
 
 If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.3 or newer):
 
@@ -40,9 +40,22 @@ If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go in
 go install github.com/mvanhorn/printing-press-library/library/commerce/amazon-ads/cmd/amazon-ads-pp-cli@latest
 ```
 
-If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
+If `--version` reports "command not found" after install, the runtime cannot see the binary directory on `$PATH`. Do not proceed with skill commands until verification succeeds.
 
-Amazon Ads CLI for reports, profitability analytics, keyword optimization, profile-aware OAuth setup, and guarded campaign automation.
+## Start here: profitability
+
+For a seller focused on organic + advertising profitability, start with these commands before browsing the full API surface:
+
+1. `amazon-ads-pp-cli break-even-acos` — Calculate the maximum ACOS a product can carry before it loses money.
+2. `amazon-ads-pp-cli true-profit` — Calculate product profit after COGS, estimated Amazon fees, and ad spend.
+3. `amazon-ads-pp-cli acos-vs-tacos --report product-performance.csv --seller-store ~/.config/amazon-seller-pp-cli/store.db` — Join ad spend to seller-store sales for ACOS and TACOS by ASIN when the seller store has matching data.
+4. `amazon-ads-pp-cli portfolio-dashboard --report campaign-performance.csv` — Summarize spend, sales, orders, ACOS, CPC, CTR, and CVR.
+5. `amazon-ads-pp-cli product-ad-profitability --report product-performance.csv --cogs-file products.toml` — Estimate per-ASIN profit from ad performance and COGS.
+6. `amazon-ads-pp-cli campaign-comparison --report campaign-performance.csv` — Compare campaigns by spend, sales, ACOS, CPC, CTR, and CVR.
+
+Use `amazon-ads-pp-cli reports recipe <command>` when a command asks for `--report`; it prints the exact report kind, required columns, export path, and sample header. The schema-aware flows support console CSV/TSV exports and Ads API JSON/GZIP report artifacts.
+
+`acos-vs-tacos` covers ad spend joined to seller-store sales and TACOS by ASIN when the seller store overlaps the ads report. It does not yet cover organic sessions, conversion rate, parent/child ASIN rollups, refunds, COGS unless `--cogs-file` is provided to profit commands, or TACOS by portfolio. For the seller-side dashboard workflow, cross-check `amazon-seller-pp-cli sales-intel dashboard`.
 
 ## Command Reference
 

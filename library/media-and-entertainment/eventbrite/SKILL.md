@@ -22,12 +22,12 @@ metadata:
 
 This skill drives the `eventbrite-pp-cli` binary. **You must verify the CLI is installed before invoking any command from this skill.** If it is missing, install it first:
 
-1. Install via the Printing Press installer:
+1. Install via the Printing Press installer into a user bin directory:
    ```bash
-   npx -y @mvanhorn/printing-press-library install eventbrite --cli-only
+   npx -y @mvanhorn/printing-press-library install eventbrite --cli-only --bin-dir ~/.local/bin
    ```
 2. Verify: `eventbrite-pp-cli --version`
-3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
+3. Ensure `~/.local/bin` is on `$PATH` for the agent/runtime that will invoke this skill.
 
 If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.3 or newer):
 
@@ -35,9 +35,7 @@ If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go in
 go install github.com/mvanhorn/printing-press-library/library/media-and-entertainment/eventbrite/cmd/eventbrite-pp-cli@latest
 ```
 
-If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
-
-Existing Eventbrite tools wrap a handful of event CRUD calls one event at a time. This CLI mirrors the full v3 organizer API and syncs your events, orders, attendees, ticket classes, and discounts into a local SQLite store, then layers cross-event analytics on top: sales-velocity ranks your live events by sell rate, repeat-attendees surfaces returning fans across your whole history, and org-rollup gives agencies a single pane across every client organization.
+If `--version` reports "command not found" after install, the runtime cannot see the binary directory on `$PATH`. Do not proceed with skill commands until verification succeeds.
 
 ## When to Use This CLI
 

@@ -4,9 +4,11 @@
 
 Ollama Cloud's catalog spans 20+ open-weights models (Qwen3, GPT-OSS, DeepSeek-V3, Kimi-K2, GLM, Llama, Gemma) and growing. No built-in picker exists. This CLI is the only one that combines live catalog metadata with prompt-feature extraction and emits a why/alternatives envelope you can pipe into other agents.
 
+Created by [@rvdlaar](https://github.com/rvdlaar) (Rick van de Laar).
+
 ## Install
 
-The recommended path installs both the `ollama-cloud-pp-cli` binary and the `pp-ollama-cloud` agent skill in one shot:
+The recommended path installs both the `ollama-cloud-pp-cli` binary and the `pp-ollama-cloud` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
 
 ```bash
 npx -y @mvanhorn/printing-press-library install ollama-cloud
@@ -18,10 +20,28 @@ For CLI only (no skill):
 npx -y @mvanhorn/printing-press-library install ollama-cloud --cli-only
 ```
 
+For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
 
-### Without Node
+```bash
+npx -y @mvanhorn/printing-press-library install ollama-cloud --skill-only
+```
 
-The generated install path is category-agnostic until this CLI is published. If `npx` is not available before publish, install Node or use the category-specific Go fallback from the public-library entry after publish.
+To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
+
+```bash
+npx -y @mvanhorn/printing-press-library install ollama-cloud --agent claude-code
+npx -y @mvanhorn/printing-press-library install ollama-cloud --agent claude-code --agent codex
+```
+
+### Without Node (Go fallback)
+
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.3 or newer):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/ai/ollama-cloud/cmd/ollama-cloud-pp-cli@latest
+```
+
+This installs the CLI only — no skill.
 
 ### Pre-built binary
 
@@ -38,17 +58,56 @@ hermes skills install mvanhorn/printing-press-library/cli-skills/pp-ollama-cloud
 
 Inside a Hermes chat session:
 
-```bash
+```text
 /skills install mvanhorn/printing-press-library/cli-skills/pp-ollama-cloud --force
 ```
 
 ## Install for OpenClaw
 
-Tell your OpenClaw agent (copy this):
+Install both the CLI binary and the focused OpenClaw skill into runtime-visible locations:
 
+```bash
+npx -y @mvanhorn/printing-press-library install ollama-cloud --agent openclaw --bin-dir ~/.local/bin
 ```
-Install the pp-ollama-cloud skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-ollama-cloud. The skill defines how its required CLI can be installed.
+
+Restart the OpenClaw session or gateway if the newly installed skill is not visible immediately.
+
+## Use with Claude Desktop
+
+This CLI ships an [MCPB](https://github.com/modelcontextprotocol/mcpb) bundle — Claude Desktop's standard format for one-click MCP extension installs (no JSON config required).
+
+To install:
+
+1. Download the `.mcpb` for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/ollama-cloud-current).
+2. Double-click the `.mcpb` file. Claude Desktop opens and walks you through the install.
+3. Fill in `OLLAMA_CLOUD_API_KEY` when Claude Desktop prompts you.
+
+Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple Silicon (`darwin-arm64`) and Windows (`amd64`, `arm64`); for other platforms, use the manual config below.
+
+<details>
+<summary>Manual JSON config (advanced)</summary>
+
+If you can't use the MCPB bundle (older Claude Desktop, unsupported platform), install the MCP binary and configure it manually.
+
+
+Install the MCP binary from this CLI's published public-library entry or pre-built release.
+
+Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
+
+```json
+{
+  "mcpServers": {
+    "ollama-cloud": {
+      "command": "ollama-cloud-pp-mcp",
+      "env": {
+        "OLLAMA_CLOUD_API_KEY": "<your-key>"
+      }
+    }
+  }
+}
 ```
+
+</details>
 
 ## Authentication
 
@@ -60,18 +119,14 @@ Bearer auth via OLLAMA_CLOUD_API_KEY (intentionally distinct from any local-Olla
 # Confirms auth, catalog reachable
 ollama-cloud-pp-cli doctor
 
-
 # Live catalog of hosted models
 ollama-cloud-pp-cli tags --json
-
 
 # Inspect drift between live catalog and curated metadata overlay
 ollama-cloud-pp-cli advise --validate-catalog --json
 
-
 # Pick a model for a specific prompt; pass any file path (or - for stdin)
 ollama-cloud-pp-cli advise --prompt-file ./prompt.txt --task-hint coding --json
-
 
 # Probe free-tier quota before launching long sessions
 ollama-cloud-pp-cli budget --json
@@ -174,7 +229,6 @@ Manage tags
 
 - **`ollama-cloud-pp-cli tags tags`** - Returns the live catalog of hosted Ollama Cloud models.
 
-
 ## Output Formats
 
 ```bash
@@ -209,69 +263,6 @@ This CLI is designed for AI agent consumption:
 - **Agent-safe by default** - no colors or formatting unless `--human-friendly` is set
 
 Exit codes: `0` success, `2` usage error, `3` not found, `4` auth error, `5` API error, `7` rate limited, `10` config error.
-
-## Use with Claude Code
-
-Install the focused skill — it auto-installs the CLI on first invocation:
-
-```bash
-npx skills add mvanhorn/printing-press-library/cli-skills/pp-ollama-cloud -g
-```
-
-Then invoke `/pp-ollama-cloud <query>` in Claude Code. The skill is the most efficient path — Claude Code drives the CLI directly without an MCP server in the middle.
-
-<details>
-<summary>Use as an MCP server in Claude Code (advanced)</summary>
-
-If you'd rather register this CLI as an MCP server in Claude Code, install the MCP binary first:
-
-
-Install the MCP binary from this CLI's published public-library entry or pre-built release.
-
-Then register it:
-
-```bash
-claude mcp add ollama-cloud ollama-cloud-pp-mcp -e OLLAMA_CLOUD_API_KEY=<your-token>
-```
-
-</details>
-
-## Use with Claude Desktop
-
-This CLI ships an [MCPB](https://github.com/modelcontextprotocol/mcpb) bundle — Claude Desktop's standard format for one-click MCP extension installs (no JSON config required).
-
-To install:
-
-1. Download the `.mcpb` for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/ollama-cloud-current).
-2. Double-click the `.mcpb` file. Claude Desktop opens and walks you through the install.
-3. Fill in `OLLAMA_CLOUD_API_KEY` when Claude Desktop prompts you.
-
-Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple Silicon (`darwin-arm64`) and Windows (`amd64`, `arm64`); for other platforms, use the manual config below.
-
-<details>
-<summary>Manual JSON config (advanced)</summary>
-
-If you can't use the MCPB bundle (older Claude Desktop, unsupported platform), install the MCP binary and configure it manually.
-
-
-Install the MCP binary from this CLI's published public-library entry or pre-built release.
-
-Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
-
-```json
-{
-  "mcpServers": {
-    "ollama-cloud": {
-      "command": "ollama-cloud-pp-mcp",
-      "env": {
-        "OLLAMA_CLOUD_API_KEY": "<your-key>"
-      }
-    }
-  }
-}
-```
-
-</details>
 
 ## Health Check
 

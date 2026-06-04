@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "api_name": "gorgias",
+  "cli_name": "gorgias-pp-cli",
+  "run_id": "20260512-201610",
+  "status": "pass",
+  "level": "quick",
+  "matrix_size": 4,
+  "tests_total": 4,
+  "tests_passed": 4,
+  "tests_skipped": 0,
+  "tests_failed": 0,
+  "completed_at": "2026-05-12T20:23:00Z",
+  "summary": "Public release proof record. Tenant identifiers, credential-state claims, and customer data observations have been removed. Reviewers should rely on the packaged build, vet, vuln, skill, PII, and dry-run checks, plus any sandbox-tenant checks they choose to run.",
+  "auth_context": {
+    "type": "http-basic",
+    "credential_material_recorded": false,
+    "tenant_identifiers_recorded": false,
+    "customer_data_recorded": false
+  }
+}

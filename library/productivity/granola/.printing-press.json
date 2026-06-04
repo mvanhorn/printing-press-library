@@ -9,6 +9,12 @@
     "handle": "dstevens",
     "name": "Damien Stevens"
   },
+  "contributors": [
+    {
+      "handle": "jeffreydebolt",
+      "name": "Jeff DeBolt"
+    }
+  ],
   "owner": "dstevens",
   "printer": "dstevens",
   "printer_name": "Damien Stevens",

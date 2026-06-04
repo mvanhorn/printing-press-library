@@ -6,7 +6,7 @@ GISIS is the IMO's canonical ship registry, gated by a login + Cloudflare Turnst
 
 Learn more at [GISIS](https://gisis.imo.org).
 
-Printed by [@6myfzqx6bv-ctrl](https://github.com/6myfzqx6bv-ctrl).
+Created by [@6myfzqx6bv-ctrl](https://github.com/6myfzqx6bv-ctrl) (ivory_elephant).
 
 ## Install
 
@@ -60,17 +60,19 @@ hermes skills install mvanhorn/printing-press-library/cli-skills/pp-gisis --forc
 
 Inside a Hermes chat session:
 
-```bash
+```text
 /skills install mvanhorn/printing-press-library/cli-skills/pp-gisis --force
 ```
 
 ## Install for OpenClaw
 
-Tell your OpenClaw agent (copy this):
+Install both the CLI binary and the focused OpenClaw skill into runtime-visible locations:
 
+```bash
+npx -y @mvanhorn/printing-press-library install gisis --agent openclaw --bin-dir ~/.local/bin
 ```
-Install the pp-gisis skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-gisis. The skill defines how its required CLI can be installed.
-```
+
+Restart the OpenClaw session or gateway if the newly installed skill is not visible immediately.
 
 ## Use with Claude Desktop
 
@@ -201,7 +203,6 @@ These capabilities aren't available in any other tool for this API.
 
 ## Recipes
 
-
 ### Look up an IMO with structured output
 
 ```bash
@@ -253,7 +254,6 @@ Run `gisis-pp-cli --help` for the full command reference and flag list.
 Ship particulars — authoritative IMO vessel registry data (name, flag, type, gross tonnage, ownership, classification society).
 
 - **`gisis-pp-cli ship <IMONumber>`** - Get ship particulars by IMO number from the IMO Ship and Company Particulars module.
-
 
 ## Output Formats
 

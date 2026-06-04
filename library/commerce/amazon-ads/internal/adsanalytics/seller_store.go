@@ -258,6 +258,9 @@ func sellerStoreFreshness(db *sql.DB) time.Time {
 			}
 		}
 	}
+	if err := rows.Err(); err != nil {
+		return best
+	}
 	return best
 }
 
@@ -277,6 +280,9 @@ func sellerStoreColumns(db *sql.DB, table string) []string {
 		if err := rows.Scan(&cid, &colName, &colType, &notNull, &defaultValue, &pk); err == nil {
 			cols = append(cols, colName)
 		}
+	}
+	if err := rows.Err(); err != nil {
+		return nil
 	}
 	return cols
 }

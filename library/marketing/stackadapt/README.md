@@ -4,7 +4,7 @@
 
 StackAdapt is a programmatic advertising platform. This read-only CLI queries your advertisers, campaigns, ads, audiences, and delivery reporting straight from the StackAdapt GraphQL API and answers questions the dashboard shows one screen at a time and the warehouse connectors only dump raw rows for: which campaigns are under-pacing, whose CTR has drifted, where budget is being wasted. It does not change anything in StackAdapt (read-only); it tells you what your campaigns are doing.
 
-Printed by [@sdhilip200](https://github.com/sdhilip200) (Dhilip Subramanian).
+Created by [@sdhilip200](https://github.com/sdhilip200) (Dhilip Subramanian).
 
 ## Install
 
@@ -58,17 +58,19 @@ hermes skills install mvanhorn/printing-press-library/cli-skills/pp-stackadapt -
 
 Inside a Hermes chat session:
 
-```bash
+```text
 /skills install mvanhorn/printing-press-library/cli-skills/pp-stackadapt --force
 ```
 
 ## Install for OpenClaw
 
-Tell your OpenClaw agent (copy this):
+Install both the CLI binary and the focused OpenClaw skill into runtime-visible locations:
 
+```bash
+npx -y @mvanhorn/printing-press-library install stackadapt --agent openclaw --bin-dir ~/.local/bin
 ```
-Install the pp-stackadapt skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-stackadapt. The skill defines how its required CLI can be installed.
-```
+
+Restart the OpenClaw session or gateway if the newly installed skill is not visible immediately.
 
 ## Use with Claude Desktop
 
@@ -211,7 +213,6 @@ These capabilities aren't available in any other tool for this API.
 
 ## Recipes
 
-
 ### Find under-pacing campaigns
 
 ```bash
@@ -255,7 +256,6 @@ Run `stackadapt-pp-cli --help` for the full command reference and flag list.
 Raw GraphQL query passthrough (advanced; prefer the typed commands)
 
 - **`stackadapt-pp-cli graphql`** - Execute a raw GraphQL query against the StackAdapt API
-
 
 ## Output Formats
 

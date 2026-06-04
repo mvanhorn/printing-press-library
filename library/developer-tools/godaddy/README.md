@@ -2,7 +2,7 @@
 
 Combined CLI for multiple API services
 
-Printed by [@zaydiscold](https://github.com/zaydiscold) (zaydiscold).
+Created by [@zaydiscold](https://github.com/zaydiscold) (zaydiscold).
 
 ## Install
 
@@ -31,9 +31,15 @@ npx -y @mvanhorn/printing-press-library install godaddy --agent claude-code
 npx -y @mvanhorn/printing-press-library install godaddy --agent claude-code --agent codex
 ```
 
-### Without Node
+### Without Node (Go fallback)
 
-The generated install path is category-agnostic until this CLI is published. If `npx` is not available before publish, install Node or use the category-specific Go fallback from the public-library entry after publish.
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.3 or newer):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/developer-tools/godaddy/cmd/godaddy-pp-cli@latest
+```
+
+This installs the CLI only — no skill.
 
 ### Pre-built binary
 
@@ -50,17 +56,19 @@ hermes skills install mvanhorn/printing-press-library/cli-skills/pp-godaddy --fo
 
 Inside a Hermes chat session:
 
-```bash
+```text
 /skills install mvanhorn/printing-press-library/cli-skills/pp-godaddy --force
 ```
 
 ## Install for OpenClaw
 
-Tell your OpenClaw agent (copy this):
+Install both the CLI binary and the focused OpenClaw skill into runtime-visible locations:
 
+```bash
+npx -y @mvanhorn/printing-press-library install godaddy --agent openclaw --bin-dir ~/.local/bin
 ```
-Install the pp-godaddy skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-godaddy. The skill defines how its required CLI can be installed.
-```
+
+Restart the OpenClaw session or gateway if the newly installed skill is not visible immediately.
 
 ## Use with Claude Desktop
 
@@ -184,7 +192,6 @@ Manage agreements
 
 Manage customers
 
-
 ### auctions-aftermarket
 
 Manage aftermarket
@@ -242,7 +249,6 @@ Manage domains
 
 Manage customers
 
-
 ### orders
 
 Manage orders
@@ -275,7 +281,6 @@ Manage subscriptions
 - **`godaddy-pp-cli subscriptions list`** - Retrieve a list of Subscriptions for the specified Shopper
 - **`godaddy-pp-cli subscriptions product-groups`** - Retrieve a list of ProductGroups for the specified Shopper
 - **`godaddy-pp-cli subscriptions update`** - Only Subscription properties that can be changed without immediate financial impact can be modified via PATCH, whereas some properties can be changed by purchasing a renewal<br/><strong>This endpoint only supports JWT authentication</strong>
-
 
 ## Output Formats
 

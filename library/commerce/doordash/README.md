@@ -1,7 +1,6 @@
 # Doordash CLI
 > Private-beta staging note: this generated Go tree is unofficial/experimental reference material. The active working runtime is the sibling `../active-wrapper/` Node/CycleTLS package. Do not commit credentials or session material. Live cart/order mutations require explicit bricenice17 approval and the CLI safety gates.
 
-
 Discovered API spec for doordash
 
 Learn more at [Doordash](https://www.doordash.com).
@@ -9,52 +8,94 @@ Created by [@bricenice17](https://github.com/bricenice17) (bricenice17).
 
 ## Install
 
-This directory is the generated Printing Press Go skeleton/reference tree. It is not the runtime users should install for DoorDash browser-facing calls.
-
-The public-install path for the working DoorDash PP is the repository root Node package, which exposes the same Node/CycleTLS runtime used by Hermes:
+The recommended path installs both the `doordash-pp-cli` binary and the `pp-doordash` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
 
 ```bash
-# After bricenice17 approves the visibility flip:
-npm install -g github:bricenice17/doordash-pp-cli-clean
-doordash-pp-cli --help
-doordash-pp-cli doctor --json
+npx -y @mvanhorn/printing-press-library install doordash
 ```
 
-Until the repo is public, verify from the private checkout root:
+For CLI only (no skill):
 
 ```bash
-npm ci
-npm run build
-node dist/cli.js --help
-node dist/cli.js doctor --json
+npx -y @mvanhorn/printing-press-library install doordash --cli-only
 ```
 
-Do not use `npx -y @mvanhorn/printing-press install doordash`, public release downloads, or generated Go binaries as the working DoorDash install story unless the Go runtime is later ported to the Node/CycleTLS behavior and reverified.
+For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
 
+```bash
+npx -y @mvanhorn/printing-press-library install doordash --skill-only
+```
 
-### Without Node
+To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
 
-There is no approved no-Node runtime path. The Go skeleton can be built locally for credential-free PP/spec tests, but it is not the working DoorDash runtime.
+```bash
+npx -y @mvanhorn/printing-press-library install doordash --agent claude-code
+npx -y @mvanhorn/printing-press-library install doordash --agent claude-code --agent codex
+```
+
+### Without Node (Go fallback)
+
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.3 or newer):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/commerce/doordash/cmd/doordash-pp-cli@latest
+```
+
+This installs the CLI only — no skill.
 
 ### Pre-built binary
 
-No standalone pre-built binary is approved. The public-ready install path is the root Node package from the GitHub repo after visibility approval.
+Download a pre-built binary for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/doordash-current). On macOS, clear the Gatekeeper quarantine: `xattr -d com.apple.quarantine <binary>`. On Unix, mark it executable: `chmod +x <binary>`.
 
 <!-- pp-hermes-install-anchor -->
 ## Install for Hermes
 
-Hermes should use the Node/CycleTLS runtime exposed by the root package or the installed wrappers. For private Hermes testing, verify:
+From the Hermes CLI:
 
 ```bash
-/home/hermes/go/bin/doordash-pp-mcp
-/home/hermes/go/bin/doordash-pp-cli doctor --json
+hermes skills install mvanhorn/printing-press-library/cli-skills/pp-doordash --force
 ```
 
-If this generated skeleton is built for credential-free checks, do not present it as the runtime replacement.
+Inside a Hermes chat session:
+
+```text
+/skills install mvanhorn/printing-press-library/cli-skills/pp-doordash --force
+```
 
 ## Install for OpenClaw
 
-For OpenClaw/Paperclip work, point agents at the GitHub/root Node install path once public, or the private checkout before release. Tell them the active runtime is the root package / `active-wrapper/`, not this generated Go tree.
+Install both the CLI binary and the focused OpenClaw skill into runtime-visible locations:
+
+```bash
+npx -y @mvanhorn/printing-press-library install doordash --agent openclaw --bin-dir ~/.local/bin
+```
+
+Restart the OpenClaw session or gateway if the newly installed skill is not visible immediately.
+
+## Use with Claude Desktop
+
+Do not install this DoorDash MCP/CLI from `mvanhorn/printing-press-library` releases as the working runtime. After public approval, install the root GitHub Node package and register `doordash-pp-mcp`.
+
+For private local testing, build from this checkout and register the Node/CycleTLS MCP wrapper.
+
+<details>
+<summary>Manual JSON config (private local testing only)</summary>
+
+If private MCP use is needed before bricenice17 approves public release and the release gate passes, install/register only from this private local checkout or an explicitly approved private build.
+
+Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
+
+```json
+{
+  "mcpServers": {
+    "doordash": {
+      "command": "doordash-pp-mcp"
+    }
+  }
+}
+```
+
+</details>
 
 ## Quick Start
 
@@ -175,7 +216,6 @@ The generated Go skeleton preserves the curated low-level GraphQL operation spec
 - **`doordash-pp-cli graphql create-update-cart-item-v2`** - POST /graphql/updateCartItemV2
 - **`doordash-pp-cli graphql create-validate-consumer-address-with-address-link-id`** - POST /graphql/validateConsumerAddressWithAddressLinkId
 
-
 ## Output Formats
 
 ```bash
@@ -206,57 +246,6 @@ This CLI is designed for AI agent consumption:
 - **Runtime-truth first** - the active wrapper may not expose every generated skeleton flag (`--agent`, `--select`, `which`, `agent-context`); inspect `--help` before use.
 
 Exit codes: `0` success, `2` usage error, `3` not found, `5` API error, `7` rate limited, `10` config error.
-
-## Use with Claude Code
-
-Install the focused skill — it auto-installs the CLI on first invocation:
-
-```bash
-npx skills add mvanhorn/printing-press-library/cli-skills/pp-doordash -g
-```
-
-Then invoke `/pp-doordash <query>` in Claude Code. The skill is the most efficient path — Claude Code drives the CLI directly without an MCP server in the middle.
-
-<details>
-<summary>Use as an MCP server in Claude Code (advanced)</summary>
-
-If you'd rather register this CLI as an MCP server in Claude Code, install the MCP binary first:
-
-
-If MCP use is needed before bricenice17 approves public release and the release gate passes, install/register only from the private local checkout or an explicitly approved private build.
-
-Then register it:
-
-```bash
-claude mcp add doordash doordash-pp-mcp
-```
-
-</details>
-
-## Use with Claude Desktop
-
-Do not install this DoorDash MCP/CLI from `mvanhorn/printing-press-library` releases as the working runtime. After public approval, install the root GitHub Node package and register `doordash-pp-mcp`.
-
-For private local testing, build from this checkout and register the Node/CycleTLS MCP wrapper.
-
-<details>
-<summary>Manual JSON config (private local testing only)</summary>
-
-If private MCP use is needed before bricenice17 approves public release and the release gate passes, install/register only from this private local checkout or an explicitly approved private build.
-
-Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
-
-```json
-{
-  "mcpServers": {
-    "doordash": {
-      "command": "doordash-pp-mcp"
-    }
-  }
-}
-```
-
-</details>
 
 ## Health Check
 

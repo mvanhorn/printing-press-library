@@ -58,17 +58,19 @@ hermes skills install mvanhorn/printing-press-library/cli-skills/pp-dice-fm --fo
 
 Inside a Hermes chat session:
 
-```bash
+```text
 /skills install mvanhorn/printing-press-library/cli-skills/pp-dice-fm --force
 ```
 
 ## Install for OpenClaw
 
-Tell your OpenClaw agent (copy this):
+Install both the CLI binary and the focused OpenClaw skill into runtime-visible locations:
 
+```bash
+npx -y @mvanhorn/printing-press-library install dice-fm --agent openclaw --bin-dir ~/.local/bin
 ```
-Install the pp-dice-fm skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-dice-fm. The skill defines how its required CLI can be installed.
-```
+
+Restart the OpenClaw session or gateway if the newly installed skill is not visible immediately.
 
 ## Use with Claude Desktop
 
@@ -265,7 +267,6 @@ Run `dice-fm-pp-cli <command> --help` for the full flag list on any command.
 | `tail` | Stream live changes by polling the API at intervals |
 | `doctor` | Check auth, config, and connectivity |
 | `import` | Import data from a JSONL file via API create/upsert calls |
-
 
 ## Output Formats
 

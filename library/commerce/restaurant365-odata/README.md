@@ -6,7 +6,7 @@ Restaurant365 is a restaurant back-office platform for accounting, operations, p
 
 This CLI focuses on the engineering work around that feed: discovering available views, checking schemas, taking redacted samples, planning daily refreshes, building bounded backfills, tracking rowVersion-based incremental loads, and checking deleted-record tombstones.
 
-Printed by [@sdhilip200](https://github.com/sdhilip200) (Dhilip Subramanian).
+Created by [@sdhilip200](https://github.com/sdhilip200) (Dhilip Subramanian).
 
 ## Install
 
@@ -60,17 +60,19 @@ hermes skills install mvanhorn/printing-press-library/cli-skills/pp-restaurant36
 
 Inside a Hermes chat session:
 
-```bash
+```text
 /skills install mvanhorn/printing-press-library/cli-skills/pp-restaurant365-odata --force
 ```
 
 ## Install for OpenClaw
 
-Tell your OpenClaw agent (copy this):
+Install both the CLI binary and the focused OpenClaw skill into runtime-visible locations:
 
+```bash
+npx -y @mvanhorn/printing-press-library install restaurant365-odata --agent openclaw --bin-dir ~/.local/bin
 ```
-Install the pp-restaurant365-odata skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-restaurant365-odata. The skill defines how its required CLI can be installed.
-```
+
+Restart the OpenClaw session or gateway if the newly installed skill is not visible immediately.
 
 ## Use with Claude Desktop
 
@@ -335,7 +337,6 @@ Manage transaction
 Manage transaction detail
 
 - **`restaurant365-odata-pp-cli transaction-detail`** - Returns TransactionDetail reporting rows from Restaurant365 OData.
-
 
 ## Output Formats
 

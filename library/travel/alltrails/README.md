@@ -33,9 +33,15 @@ npx -y @mvanhorn/printing-press-library install alltrails --agent claude-code
 npx -y @mvanhorn/printing-press-library install alltrails --agent claude-code --agent codex
 ```
 
-### Without Node
+### Without Node (Go fallback)
 
-The generated install path is category-agnostic until this CLI is published. If `npx` is not available before publish, install Node or use the category-specific Go fallback from the public-library entry after publish.
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.3 or newer):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/travel/alltrails/cmd/alltrails-pp-cli@latest
+```
+
+This installs the CLI only — no skill.
 
 ### Pre-built binary
 
@@ -52,17 +58,19 @@ hermes skills install mvanhorn/printing-press-library/cli-skills/pp-alltrails --
 
 Inside a Hermes chat session:
 
-```bash
+```text
 /skills install mvanhorn/printing-press-library/cli-skills/pp-alltrails --force
 ```
 
 ## Install for OpenClaw
 
-Tell your OpenClaw agent (copy this):
+Install both the CLI binary and the focused OpenClaw skill into runtime-visible locations:
 
+```bash
+npx -y @mvanhorn/printing-press-library install alltrails --agent openclaw --bin-dir ~/.local/bin
 ```
-Install the pp-alltrails skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-alltrails. The skill defines how its required CLI can be installed.
-```
+
+Restart the OpenClaw session or gateway if the newly installed skill is not visible immediately.
 
 ## Use with Claude Desktop
 
@@ -147,7 +155,6 @@ Manage alltrails
 - **`alltrails-pp-cli alltrails get-v3-5`** - User activity list
 - **`alltrails-pp-cli alltrails list`** - Trail search by text, location, and filters
 - **`alltrails-pp-cli alltrails list-v3`** - Current account profile
-
 
 ## Output Formats
 

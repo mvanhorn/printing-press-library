@@ -11,31 +11,37 @@ Created by [@melanson633](https://github.com/melanson633) (melanson633).
 The recommended path installs both the `clockify-pp-cli` binary and the `pp-clockify` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
 
 ```bash
-npx -y @mvanhorn/printing-press install clockify
+npx -y @mvanhorn/printing-press-library install clockify
 ```
 
 For CLI only (no skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install clockify --cli-only
+npx -y @mvanhorn/printing-press-library install clockify --cli-only
 ```
 
 For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install clockify --skill-only
+npx -y @mvanhorn/printing-press-library install clockify --skill-only
 ```
 
 To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
 
 ```bash
-npx -y @mvanhorn/printing-press install clockify --agent claude-code
-npx -y @mvanhorn/printing-press install clockify --agent claude-code --agent codex
+npx -y @mvanhorn/printing-press-library install clockify --agent claude-code
+npx -y @mvanhorn/printing-press-library install clockify --agent claude-code --agent codex
 ```
 
-### Without Node
+### Without Node (Go fallback)
 
-The generated install path is category-agnostic until this CLI is published. If `npx` is not available before publish, install Node or use the category-specific Go fallback from the public-library entry after publish.
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.3 or newer):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/productivity/clockify/cmd/clockify-pp-cli@latest
+```
+
+This installs the CLI only — no skill.
 
 ### Pre-built binary
 
@@ -52,17 +58,19 @@ hermes skills install mvanhorn/printing-press-library/cli-skills/pp-clockify --f
 
 Inside a Hermes chat session:
 
-```bash
+```text
 /skills install mvanhorn/printing-press-library/cli-skills/pp-clockify --force
 ```
 
 ## Install for OpenClaw
 
-Tell your OpenClaw agent (copy this):
+Install both the CLI binary and the focused OpenClaw skill into runtime-visible locations:
 
+```bash
+npx -y @mvanhorn/printing-press-library install clockify --agent openclaw --bin-dir ~/.local/bin
 ```
-Install the pp-clockify skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-clockify. The skill defines how its required CLI can be installed.
-```
+
+Restart the OpenClaw session or gateway if the newly installed skill is not visible immediately.
 
 ## Use with Claude Desktop
 
@@ -111,18 +119,14 @@ Authenticate with a personal API key from the Clockify web app (Profile Settings
 # Confirm the API key works and Clockify is reachable before anything else.
 clockify-pp-cli doctor
 
-
 # Pull workspaces, projects, clients, tags, and time entries into the local store — every offline command reads from here.
 clockify-pp-cli sync
-
 
 # Reconstruct this week's grid from the synced entries — the headline view.
 clockify-pp-cli timesheet week
 
-
 # Find the days you are short before you submit the timesheet.
 clockify-pp-cli timesheet gaps
-
 
 # See where your tracked time actually went.
 clockify-pp-cli recap
@@ -211,7 +215,6 @@ Run `clockify-pp-cli --help` for the full command reference and flag list.
 ### addons
 
 Manage addons
-
 
 ### approval-requests
 
@@ -443,7 +446,6 @@ Manage workspaces
 - **`clockify-pp-cli workspaces create`** - Add a workspace
 - **`clockify-pp-cli workspaces get-of-user`** - Get all my workspaces
 - **`clockify-pp-cli workspaces get-of-user-workspaceid`** - Get workspace info
-
 
 ## Output Formats
 

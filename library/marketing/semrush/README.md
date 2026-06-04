@@ -58,17 +58,19 @@ hermes skills install mvanhorn/printing-press-library/cli-skills/pp-semrush --fo
 
 Inside a Hermes chat session:
 
-```bash
+```text
 /skills install mvanhorn/printing-press-library/cli-skills/pp-semrush --force
 ```
 
 ## Install for OpenClaw
 
-Tell your OpenClaw agent (copy this):
+Install both the CLI binary and the focused OpenClaw skill into runtime-visible locations:
 
+```bash
+npx -y @mvanhorn/printing-press-library install semrush --agent openclaw --bin-dir ~/.local/bin
 ```
-Install the pp-semrush skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-semrush. The skill defines how its required CLI can be installed.
-```
+
+Restart the OpenClaw session or gateway if the newly installed skill is not visible immediately.
 
 ## Use with Claude Desktop
 
@@ -233,7 +235,6 @@ These capabilities aren't available in any other tool for this API.
   ```
 
 ## Recipes
-
 
 ### Monday baseline + Friday diff
 
@@ -427,7 +428,6 @@ URL-level analytics: overview, organic/paid keywords
 - **`semrush-pp-cli url overview-all`** - URL Overview (all databases). 10 units/line.
 - **`semrush-pp-cli url overview-history`** - URL Overview (history). 10 units/line. Monthly historical rankings for a URL.
 - **`semrush-pp-cli url paid-keywords`** - URL Paid Search Keywords. 30 units/line. Keywords this URL has been advertised against.
-
 
 ## Output Formats
 

@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "csv-distinguish-eof-from-parse-error",
+  "applied_at": "2026-05-22",
+  "base_run_id": "20260521-201949",
+  "base_printing_press_version": "4.11.0",
+  "summary": "reconcile.go CSV loop distinguishes io.EOF from parse errors; surfaces row-numbered errors instead of silently dropping rows.",
+  "reason": "csv.Reader returns *csv.ParseError for malformed input but the original loop broke on any non-nil error like EOF, silently discarding all rows after a malformed quote.",
+  "files": [
+    "internal/cli/reconcile.go"
+  ],
+  "validated_outcome": "go build ./..."
+}

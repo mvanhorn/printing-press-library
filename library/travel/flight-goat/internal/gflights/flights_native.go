@@ -64,22 +64,83 @@ func searchNativeDirect(ctx context.Context, opts SearchOptions) (*SearchResult,
 		return nil, err
 	}
 
-	depDate, err := time.Parse("2006-01-02", opts.DepartureDate)
-	if err != nil {
-		return nil, fmt.Errorf("invalid date %q: want YYYY-MM-DD", opts.DepartureDate)
-	}
-	var retDate time.Time
+	// PATCH(library): multi-city mode bypasses the single depart/return date
+	// path. Each segment carries its own date; tripType=3 + token-bearing
+	// payload required (see internal/gflights/multicity.go).
+	var depDate, retDate time.Time
 	tripType := tripTypeOneWay
-	if opts.ReturnDate != "" {
-		rd, err := time.Parse("2006-01-02", opts.ReturnDate)
-		if err != nil {
-			return nil, fmt.Errorf("invalid return date %q: want YYYY-MM-DD", opts.ReturnDate)
+	switch {
+	case len(opts.Segments) >= 2:
+		tripType = tripTypeMultiCity
+		// Validate every segment up front so we fail fast on bad input.
+		for i, s := range opts.Segments {
+			if _, derr := time.Parse("2006-01-02", s.DepartureDate); derr != nil {
+				return nil, fmt.Errorf("segment %d: invalid date %q: want YYYY-MM-DD", i+1, s.DepartureDate)
+			}
+			if strings.TrimSpace(s.Origin) == "" || strings.TrimSpace(s.Destination) == "" {
+				return nil, fmt.Errorf("segment %d: origin and destination are required", i+1)
+			}
 		}
-		retDate = rd
-		tripType = tripTypeRoundTrip
+	case len(opts.Segments) == 1:
+		return nil, fmt.Errorf("multi-city requires at least 2 segments; got 1 — use single-pair Origin/Destination for one-way")
+	default:
+		depDate, err = time.Parse("2006-01-02", opts.DepartureDate)
+		if err != nil {
+			return nil, fmt.Errorf("invalid date %q: want YYYY-MM-DD", opts.DepartureDate)
+		}
+		if opts.ReturnDate != "" {
+			rd, err := time.Parse("2006-01-02", opts.ReturnDate)
+			if err != nil {
+				return nil, fmt.Errorf("invalid return date %q: want YYYY-MM-DD", opts.ReturnDate)
+			}
+			retDate = rd
+			tripType = tripTypeRoundTrip
+		}
 	}
 
-	payload, err := buildOffersPayload(opts, depDate, retDate, tripType)
+	// PATCH(library): Google's multi-city POST endpoint requires an
+	// authenticated Google session (SAPISID cookie + XSRF hash); anonymous
+	// POSTs return ErrorResponse regardless of token tweaks. flight-goat
+	// has no cookie jar today, so multi-city short-circuits here: we emit
+	// the canonical Google Flights URL via MultiCityBookingURL and return
+	// it inside the SearchResult. The URL opens to a fully-prefilled
+	// multi-city search the user/agent can run interactively, which is
+	// the same UX Google's own "track price" links use.
+	if tripType == tripTypeMultiCity {
+		searchURL, urlErr := MultiCityBookingURL(opts.Segments)
+		if urlErr != nil {
+			return nil, fmt.Errorf("multi-city: %w", urlErr)
+		}
+		_, currencyCode, _ := normalizeCurrency(opts.Currency)
+		var parts []string
+		for _, s := range opts.Segments {
+			parts = append(parts, fmt.Sprintf("%s>%s@%s",
+				strings.ToUpper(s.Origin), strings.ToUpper(s.Destination), s.DepartureDate))
+		}
+		return &SearchResult{
+			Success:    true,
+			Source:     "native-go",
+			DataSource: "google_flights",
+			SearchType: "flights",
+			TripType:   "MULTI_CITY",
+			Query: SearchQuery{
+				Origin:     strings.Join(parts, ","),
+				MaxStops:   strings.ToUpper(opts.MaxStops),
+				CabinClass: strings.ToUpper(opts.CabinClass),
+				Currency:   currencyCode,
+			},
+			Count: 0,
+			Flights: []Flight{{
+				BookingURLs: BookingURLs{
+					Primary:     searchURL,
+					PrimaryKind: primaryKindSearch,
+					GoogleURL:   searchURL,
+				},
+			}},
+		}, nil
+	}
+
+	payload, err := buildOffersPayload(opts, depDate, retDate, tripType, "")
 	if err != nil {
 		return nil, fmt.Errorf("building payload: %w", err)
 	}
@@ -156,7 +217,9 @@ func searchNativeDirect(ctx context.Context, opts SearchOptions) (*SearchResult,
 
 // buildOffersPayload constructs the URL-encoded `f.req` value mirroring
 // fli's FlightSearchFilters.format(). Field positions documented inline.
-func buildOffersPayload(opts SearchOptions, depDate, retDate time.Time, tripType int) (string, error) {
+// sessionTok is non-empty only for multi-city queries; it goes at
+// inner[0][3] of the JSON, mirroring what Google's own UI POSTs.
+func buildOffersPayload(opts SearchOptions, depDate, retDate time.Time, tripType int, sessionTok string) (string, error) {
 	seat, err := mapSeatType(opts.CabinClass)
 	if err != nil {
 		return "", err
@@ -225,7 +288,20 @@ func buildOffersPayload(opts SearchOptions, depDate, retDate time.Time, tripType
 		showAll = 0
 	}
 
-	outer := []any{[]any{}, main, sortBy, showAll, 0, 1}
+	// PATCH(library): for multi-city, inner[0] carries the session token at
+	// index 3 (the captured UI POST is `[null,null,null,"<token>"]`) and the
+	// trailing flags collapse to `0,0,0,1` (sortBy/showAll get zeroed — the
+	// multi-city UI does not surface those controls). For one-way / round-trip
+	// the existing shape `[[], main, sortBy, showAll, 0, 1]` is preserved.
+	var outer []any
+	if tripType == tripTypeMultiCity {
+		outer = []any{
+			[]any{nil, nil, nil, sessionTok},
+			main, 0, 0, 0, 1,
+		}
+	} else {
+		outer = []any{[]any{}, main, sortBy, showAll, 0, 1}
+	}
 
 	innerJSON, err := json.Marshal(outer)
 	if err != nil {
@@ -240,6 +316,24 @@ func buildOffersPayload(opts SearchOptions, depDate, retDate time.Time, tripType
 }
 
 func buildOfferSegments(opts SearchOptions, depDate, retDate time.Time, tripType int, stops int) ([]any, error) {
+	// PATCH(library): multi-city emits N segments from opts.Segments rather
+	// than the single (origin, dest, date) tuple. Each segment slot mirrors
+	// buildOneSegment's 15-field shape.
+	if tripType == tripTypeMultiCity {
+		segs := make([]any, 0, len(opts.Segments))
+		for i, s := range opts.Segments {
+			d, err := time.Parse("2006-01-02", s.DepartureDate)
+			if err != nil {
+				return nil, fmt.Errorf("segment %d date %q: %w", i+1, s.DepartureDate, err)
+			}
+			seg, err := buildOneSegment(opts, d, s.Origin, s.Destination, stops)
+			if err != nil {
+				return nil, fmt.Errorf("segment %d: %w", i+1, err)
+			}
+			segs = append(segs, seg)
+		}
+		return segs, nil
+	}
 	var segments []any
 	outbound, err := buildOneSegment(opts, depDate, opts.Origin, opts.Destination, stops)
 	if err != nil {

@@ -126,9 +126,9 @@ function parseUpdateArgs(args: string[]):
       }
       registryUrl = value;
       installArgs.push("--registry-url", value);
-    } else if (arg === "--json" || arg === "--agent" || arg === "-a") {
+    } else if (arg === "--json" || arg === "--agent" || arg === "-a" || arg === "--bin-dir") {
       installArgs.push(arg);
-      if (arg === "--agent" || arg === "-a") {
+      if (arg === "--agent" || arg === "-a" || arg === "--bin-dir") {
         const value = args[++i];
         if (!value) {
           return { error: `Missing value for ${arg}` };

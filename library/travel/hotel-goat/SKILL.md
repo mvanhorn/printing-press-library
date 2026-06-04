@@ -22,12 +22,12 @@ metadata:
 
 This skill drives the `hotel-goat-pp-cli` binary. **You must verify the CLI is installed before invoking any command from this skill.** If it is missing, install it first:
 
-1. Install via the Printing Press installer:
+1. Install via the Printing Press installer into a user bin directory:
    ```bash
-   npx -y @mvanhorn/printing-press-library install hotel-goat --cli-only
+   npx -y @mvanhorn/printing-press-library install hotel-goat --cli-only --bin-dir ~/.local/bin
    ```
 2. Verify: `hotel-goat-pp-cli --version`
-3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
+3. Ensure `~/.local/bin` is on `$PATH` for the agent/runtime that will invoke this skill.
 
 If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.3 or newer):
 
@@ -35,28 +35,7 @@ If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go in
 go install github.com/mvanhorn/printing-press-library/library/travel/hotel-goat/cmd/hotel-goat-pp-cli@latest
 ```
 
-If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
-
-hotel-goat fans out across **two cash-price sources** by default:
-- **Google Hotels** — scraped from the server-rendered page
-- **Trivago** — called via the public Trivago MCP server (no key); aggregates OTA rates from Booking.com, Expedia, Agoda, Hotels.com, Priceline, etc.
-
-Control which sources run with `--source google|trivago|both` on the `hotels` command. Default is `both`. Matched hotels (lat/lng within 250m and name token-overlap ≥ 0.5, with both sides carrying ≥2 informative tokens after stopword stripping) get a unified `prices[]` array with one entry per source; Trivago-only properties are appended as standalone rows with `property_token` prefixed `trivago:`.
-
-Trivago is geolocated server-side and returns EUR regardless of client hints. When the headline currency differs from Trivago's, each Trivago price is converted via the Frankfurter ECB FX endpoint (free, no key, 24h cache) so cross-source comparisons are apples-to-apples. Source label semantics:
-
-- `trivago/<OTA> [EUR 802 -> USD]` — FX conversion ran. The numeric `price` field is in the target currency; the original EUR amount is in the label.
-- `trivago/<OTA> [EUR]` — FX lookup failed. The numeric `price` is native EUR and the headline `price_per_night` is NOT overridden.
-- `trivago/<OTA>` (no suffix) — currencies already matched.
-
-v1 ships:
-- `hotels <loc> <ci> <co>` — multi-source search with brand / hotel-class / price / rating / amenity / `--source` filters
-- `dates <loc> --from --to --nights N` — sweep a date window for the cheapest pair per stay
-- `near "<address>" --radius Nmi` — geo-radius around any address (auto-geocoded via OSM Nominatim)
-- `hotel show/reviews <token>` — single-property detail + reviews
-- `wishlist add/list/remove <token>` — local SQLite save
-
-Brand-loyalty expansion, full month-window scans, price drift, multi-room family logic, and per-OTA breakdown are deferred to v0.2.
+If `--version` reports "command not found" after install, the runtime cannot see the binary directory on `$PATH`. Do not proceed with skill commands until verification succeeds.
 
 ## When to Use This CLI
 

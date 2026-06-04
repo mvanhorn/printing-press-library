@@ -93,17 +93,19 @@ hermes skills install mvanhorn/printing-press-library/cli-skills/pp-hotel-goat -
 
 Inside a Hermes chat session:
 
-```bash
+```text
 /skills install mvanhorn/printing-press-library/cli-skills/pp-hotel-goat --force
 ```
 
 ## Install for OpenClaw
 
-Tell your OpenClaw agent (copy this):
+Install both the CLI binary and the focused OpenClaw skill into runtime-visible locations:
 
+```bash
+npx -y @mvanhorn/printing-press-library install hotel-goat --agent openclaw --bin-dir ~/.local/bin
 ```
-Install the pp-hotel-goat skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-hotel-goat. The skill defines how its required CLI can be installed.
-```
+
+Restart the OpenClaw session or gateway if the newly installed skill is not visible immediately.
 
 ## Use with Claude Desktop
 
@@ -179,7 +181,6 @@ These capabilities aren't available in any other tool for this API.
 
 ## Recipes
 
-
 ### Cheapest 4-star+ stay in Paris under EUR 300 for a specific weekend
 
 ```bash
@@ -226,13 +227,11 @@ Hotel search results from Google Hotels for a location + date range
 - **`hotel-goat-pp-cli hotels`** - Search hotels by location and date range. Returns ~30-40 properties per query
 with full OTA price breakdown and booking deep-links.
 
-
 ### properties
 
 Property detail records cached from Google's property detail pages
 
 - **`hotel-goat-pp-cli properties`** - Full property detail by Google's property_token
-
 
 ## Output Formats
 

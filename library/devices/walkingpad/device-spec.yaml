@@ -1,0 +1,228 @@
+version: 1
+name: walkingpad
+display_name: WalkingPad
+protocol: ble
+identity:
+  advertised_names: ["KS-BLC2", "WalkingPad", "KS-BLR"]
+  address_policy: dynamic
+  gatt_fingerprint:
+    - service:0000fe00-0000-1000-8000-00805f9b34fb
+    - char:0000fe01-0000-1000-8000-00805f9b34fb:notify
+    - char:0000fe02-0000-1000-8000-00805f9b34fb:write
+  match_strength: strong
+ble:
+  services:
+    - uuid: 0000fe00-0000-1000-8000-00805f9b34fb
+      name: WalkingPad Control
+      characteristics:
+        - uuid: 0000fe01-0000-1000-8000-00805f9b34fb
+          name: Status Notify
+          properties: [notify]
+        - uuid: 0000fe02-0000-1000-8000-00805f9b34fb
+          name: Command Write
+          properties: [write, write-without-response]
+    - uuid: 0000180a-0000-1000-8000-00805f9b34fb
+      name: Device Information
+      characteristics:
+        - uuid: 00002a24-0000-1000-8000-00805f9b34fb
+          name: Model Number
+          properties: [read]
+        - uuid: 00002a26-0000-1000-8000-00805f9b34fb
+          name: Firmware Revision
+          properties: [read]
+        - uuid: 00002a29-0000-1000-8000-00805f9b34fb
+          name: Manufacturer Name
+          properties: [read]
+capabilities:
+  commands:
+    - name: start
+      characteristic_uuid: 0000fe02-0000-1000-8000-00805f9b34fb
+      safety: physical-effect
+      validation_status: observed
+      evidence_refs: [ph4-start_belt, c2-live-fe02]
+      payload:
+        encoding: hex
+        bytes: "f7a20401a7fd"
+        checksum: "sum(bytes[1:-2]) % 256 at index -2"
+    # No one-shot `stop` command: stopping this belt is a ceremony (speed-0 ->
+    # settle -> switch to standby) over a held connection, so it is the
+    # hand-authored `stop` command, not a generated single-write. Bytes/evidence
+    # preserved as ph4-stop_belt + ph4-switch_mode for the operator implementation.
+    - name: wake
+      characteristic_uuid: 0000fe02-0000-1000-8000-00805f9b34fb
+      safety: physical-effect
+      validation_status: observed
+      evidence_refs: [ph4-switch_mode-manual, c2-live-fe02]
+      payload:
+        encoding: hex
+        bytes: "f7a20201a5fd"
+        checksum: "sum(bytes[1:-2]) % 256 at index -2"
+    - name: set-speed
+      characteristic_uuid: 0000fe02-0000-1000-8000-00805f9b34fb
+      safety: physical-effect
+      validation_status: observed
+      evidence_refs: [ph4-speed, c2-live-fe02]
+      parameters:
+        - name: kmh
+          type: float
+          description: "Target belt speed in km/h (0 stops; 0.5-6.0, 0.1 steps)"
+      payload:
+        encoding: hex
+        bytes: "f7a201001efd"
+        checksum: "sum(bytes[1:-2]) % 256 at index -2"
+    - name: set-mode
+      characteristic_uuid: 0000fe02-0000-1000-8000-00805f9b34fb
+      safety: configuration-risk
+      validation_status: observed
+      evidence_refs: [ph4-switch_mode, c2-live-fe02]
+      parameters:
+        - name: mode
+          type: string
+          description: "Belt mode: auto, manual, or standby"
+      payload:
+        encoding: hex
+        bytes: "f7a20201a5fd"
+        checksum: "sum(bytes[1:-2]) % 256 at index -2"
+  telemetry:
+    - name: belt_state
+      source_characteristic_uuid: 0000fe01-0000-1000-8000-00805f9b34fb
+      sample_cadence: notification
+      store: false
+    - name: speed_kmh
+      source_characteristic_uuid: 0000fe01-0000-1000-8000-00805f9b34fb
+      unit: km/h
+      sample_cadence: notification
+      store: false
+    - name: mode
+      source_characteristic_uuid: 0000fe01-0000-1000-8000-00805f9b34fb
+      sample_cadence: notification
+      store: false
+    - name: time_s
+      source_characteristic_uuid: 0000fe01-0000-1000-8000-00805f9b34fb
+      unit: s
+      sample_cadence: notification
+      store: false
+    - name: distance_m
+      source_characteristic_uuid: 0000fe01-0000-1000-8000-00805f9b34fb
+      unit: m
+      sample_cadence: notification
+      store: false
+    - name: steps
+      source_characteristic_uuid: 0000fe01-0000-1000-8000-00805f9b34fb
+      sample_cadence: notification
+      store: false
+session:
+  # The belt requires a held connection for control: the firmware needs a
+  # subscribe -> handshake -> mode -> settle -> start ceremony with command
+  # spacing, and a one-shot connect/write/close does not actuate it (validated
+  # against a live C2 and matching ph4r05/ph4-walkingpad's persistent-connection
+  # design). Reliable control is the held-connection `run` command; the generated
+  # one-shot control commands are therefore hidden from MCP.
+  mode: required
+  reasons:
+    - low_latency_controls
+    - notification_stream
+  notification_stream: true
+transport:
+  # Acknowledged writes: the belt lands the speed/control commands more reliably
+  # than write-without-response (which left speed stuck at the start value), and
+  # the stop ceremony holds the connection through its settle so nothing is
+  # dropped on close.
+  write_mode: acknowledged
+  # The firmware drops a command sent sooner than ~0.69s after the previous one,
+  # so a back-to-back burst (mode, start, speed) loses all but the first. The
+  # generated paced writer honors this; no hand-authored pacing wrapper.
+  command_spacing_ms: 690
+  poll_cadence_ms: 500
+  # Dropping the connection does not stop the belt (ph4r05 disconnect does not
+  # stop); the belt sustains its last state, and the weight sensor auto-stops it.
+  teardown: keep-running
+  single_client: true
+  # Post-subscribe handshake: settle, profile query, init beep, each with the
+  # firmware's spacing. wait_ms is the pause that follows the step's write.
+  connect_ceremony:
+    - name: settle-after-subscribe
+      wait_ms: 1500
+    - name: ask-profile
+      characteristic_uuid: "0000fe02-0000-1000-8000-00805f9b34fb"
+      value_hex: "f7a5604a4d937129c9fd"
+      wait_ms: 1500
+    - name: init-beep
+      characteristic_uuid: "0000fe02-0000-1000-8000-00805f9b34fb"
+      value_hex: "f7a20307acfd"
+      wait_ms: 1000
+  settle_delays:
+    # The belt ignores start until the mode switch has taken effect.
+    - name: mode_change
+      ms: 1500
+  evidence_refs: [ph4-send-cmd, ph4-connect, c2-live-fe02]
+quirks:
+  - category: concurrency
+    summary: One BLE client at a time; the WalkingPad phone app must be disconnected before laptop control.
+    handling: doctor surfaces this; close the vendor app if a connect fails.
+    evidence_refs: [c2-single-client]
+  - category: teardown
+    summary: In manual mode the belt auto-stops within ~2s if it detects no actual walking (zero steps), even with a person standing still on it (safety). It is NOT a no-weight check.
+    handling: Expected when no one is walking, not an error; sustained running requires real steps. Confounds stop-path testing — to test a commanded stop, the belt must be genuinely walked so its own auto-stop does not fire first.
+    evidence_refs: [c2-weight-sensor]
+  - category: write
+    summary: Stopping is a ceremony, not a single write — speed-0 only zeroes the speed while the belt stays in manual mode (still running under weight); you must then switch to standby to idle it.
+    handling: The stop command and run's exit-stop send speed-0, wait 1.5s, then switch to standby (per ph4r05 stop_belt).
+    evidence_refs: [ph4-stop_belt, ph4-stop-standby]
+workflows:
+  - name: start-walk
+    goal: Start the belt and hold it running at a target speed for a recorded walk.
+    steps:
+      - Subscribe to the status notify characteristic (fe01).
+      - Run the connect ceremony on fe02 — settle, profile query, init beep — each at command spacing.
+      - Switch to manual mode, then wait the mode_change settle (1.5s) so the switch commits.
+      - Send start; the belt runs a 3-2-1 countdown (belt_state 9->8->7) before reaching running (1).
+      - Wait for a status frame reporting belt_state=running, then send the target speed once.
+      - Poll status at the poll cadence and hold the connection for the walk; idle with the stop-walk ceremony on exit.
+    evidence_refs: [ph4-connect, ph4-switch_mode-manual, ph4-start_belt, c2-speed-after-running]
+    notes: A speed sent during the countdown is ignored and the belt keeps its start-speed, so wait for the running state first. The belt auto-stops within ~2s if it detects no real walking (see the no-walk quirk), so polling is for telemetry, not keep-alive.
+  - name: stop-walk
+    goal: Idle a running belt.
+    steps:
+      - Send speed-0 (change_speed 0).
+      - Wait the mode_change settle (1.5s).
+      - Switch to standby.
+    evidence_refs: [ph4-stop_belt, ph4-stop-standby]
+    notes: Speed-0 alone leaves the belt in manual mode (still running under weight); the standby switch is what idles it.
+evidence:
+  - id: ph4-start_belt
+    source: community-library
+    summary: ph4r05/ph4-walkingpad Controller.start_belt sends F7 A2 04 01 .. FD.
+  - id: ph4-stop_belt
+    source: community-library
+    summary: ph4r05/ph4-walkingpad Controller.change_speed(0) sends F7 A2 01 00 .. FD.
+  - id: ph4-switch_mode-manual
+    source: community-library
+    summary: ph4r05/ph4-walkingpad Controller.switch_mode(MANUAL=1) sends F7 A2 02 01 .. FD.
+  - id: c2-live-fe02
+    source: ble-event
+    summary: Live inspect of WalkingPad C2 confirmed writable characteristic fe02 under service fe00.
+  - id: c2-live-fe01
+    source: ble-event
+    summary: Live inspect of WalkingPad C2 confirmed notify characteristic fe01 under service fe00.
+  - id: c2-live-advert
+    source: ble-event
+    summary: Live scan saw device KS-BLC2 advertising service fe00 (name does not contain "walkingpad").
+  - id: ph4-send-cmd
+    source: community-library
+    summary: ph4r05/ph4-walkingpad send_cmd enforces minimal_cmd_space = 0.69s between commands and uses acknowledged write_gatt_char.
+  - id: ph4-connect
+    source: community-library
+    summary: ph4r05/ph4-walkingpad enables notifications then runs a profile/beep handshake before the belt streams status or accepts control.
+  - id: c2-single-client
+    source: ble-event
+    summary: Live C2 accepts one BLE client; control fails while the vendor app holds the connection.
+  - id: c2-weight-sensor
+    source: ble-event
+    summary: Live C2 auto-stopped ~2s after start when not being walked (zero steps), even with a person standing on it; sustained only while actually walking.
+  - id: ph4-stop-standby
+    source: community-library
+    summary: ph4r05/ph4-walkingpad stop_belt sends change_speed(0), sleeps 1.5s, then switch_mode(STANDBY); speed-0 alone does not idle a walked belt.
+  - id: c2-speed-after-running
+    source: ble-event
+    summary: Live C2 ignored a speed command sent during the start countdown (belt_state 9->8->7) and kept its start-speed; the speed took effect only when sent after belt_state reached running (1).

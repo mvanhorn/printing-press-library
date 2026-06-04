@@ -1,0 +1,47 @@
+{
+  "api_name": "plane",
+  "display_name": "Plane",
+  "researched_at": "2026-06-02T07:36:10Z",
+  "provenance": "degraded-reprint",
+  "provenance_note": "This CLI was first hand-built and dogfooded against a self-hosted Plane workspace before research.json provenance was captured as files. This record documents the real design basis (vendored official spec + two dogfooded novel features) reconstructed at reprint time; it is not a fresh web-research pass.",
+  "novelty_score": 7,
+  "recommendation": "proceed",
+  "spec_source": {
+    "type": "official-vendored",
+    "detail": "Plane v1.3.0 Community Edition OpenAPI, served dynamically by drf-spectacular at /api/schema/ on every instance (upstream github.com/makeplane/plane publishes no static spec). Re-expressed so the workspace scope lives in servers: as a {slug} variable instead of being baked into every path, which is the form the profiler recognizes for tenant scope.",
+    "spec_url": "https://raw.githubusercontent.com/mvanhorn/cli-printing-press/main/catalog/specs/plane-spec.yaml"
+  },
+  "patterns": [
+    "Workspace-scoped REST: every endpoint is /api/v1/workspaces/{slug}/...; /api/v1/users/ and /api/v1/assets/ are the only non-workspace paths.",
+    "Project fan-out: issues, cycles, modules, labels, states, intake-issues, archived-cycles/modules are all nested under /projects/{project_id}/, so sync must enumerate projects and loop.",
+    "Incremental sync via updated_at__gt query filter (detected as the since-param).",
+    "Module membership is not returned by the issue serializer (list or retrieve) — module_ids is null on every issue payload; the only source of truth is the reverse /modules/{id}/module-issues/ endpoint.",
+    "Plane CE exposes list + create on /work-items/{id}/relations/ but no DELETE (verified by OPTIONS: Allow GET, POST).",
+    "drf-spectacular emits both /issues/ and an aliased /work-items/ for the same resource."
+  ],
+  "gaps": [
+    "No static upstream OpenAPI file; spec must be vendored from a running instance.",
+    "Profiler list-endpoint selection within a resource group is non-deterministic (Go map iteration), so the canonical issues list must be pinned and the work-items alias deduped post-generation."
+  ],
+  "novel_features": [
+    {
+      "name": "Issue Relations",
+      "command": "relations",
+      "description": "Flat list/set/unset of issue blocking, blocked_by, duplicate, relates_to and temporal links without hand-driving the relations endpoint. unset bridges Plane CE's missing DELETE via a user-configured Django-shell call (self-hosted only)."
+    },
+    {
+      "name": "Module Membership & Sync Enrichment",
+      "command": "module",
+      "description": "Manage an issue's module membership (of/create-issue/sync) and auto-enrich issue module_ids during sync (on by default), since Plane's issue API never returns module membership."
+    }
+  ],
+  "novel_features_built": [
+    { "name": "Issue Relations", "command": "relations" },
+    { "name": "Module Membership & Sync Enrichment", "command": "module" }
+  ],
+  "narrative": {
+    "display_name": "Plane",
+    "headline": "Every Plane workspace as a typed, offline-syncable CLI — plus issue relations and module membership the REST API hides.",
+    "value": "Open-source project management (issues, cycles, modules, sub-issues, workspaces) as a terminal CLI with offline SQLite sync for instant search and analytics, an MCP server for agents, and two hand-built commands that close real REST gaps (relation delete, module membership)."
+  }
+}

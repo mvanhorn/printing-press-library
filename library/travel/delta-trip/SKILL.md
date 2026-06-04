@@ -18,18 +18,20 @@ metadata:
 
 This skill drives the `delta-trip-pp-cli` binary. **You must verify the CLI is installed before invoking any command from this skill.** If it is missing, install it first:
 
-1. Install via the Printing Press installer:
+1. Install via the Printing Press installer into a user bin directory:
    ```bash
-   npx -y @mvanhorn/printing-press-library install delta-trip --cli-only
+   npx -y @mvanhorn/printing-press-library install delta-trip --cli-only --bin-dir ~/.local/bin
    ```
 2. Verify: `delta-trip-pp-cli --version`
-3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
+3. Ensure `~/.local/bin` is on `$PATH` for the agent/runtime that will invoke this skill.
 
-If the `npx` install fails before this CLI has a public-library category, install Node or use the category-specific Go fallback after publish.
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.3 or newer):
 
-If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
+```bash
+go install github.com/mvanhorn/printing-press-library/library/travel/delta-trip/cmd/delta-trip-pp-cli@latest
+```
 
-Look up and manage Delta Air Lines trips by confirmation number — view all flights, seats, baggage, upgrade options, and flight details without logging in.
+If `--version` reports "command not found" after install, the runtime cannot see the binary directory on `$PATH`. Do not proceed with skill commands until verification succeeds.
 
 ## When Not to Use This CLI
 

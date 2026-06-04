@@ -49,6 +49,12 @@ func newGfFlightsCmd(flags *rootFlags) *cobra.Command {
 	var layoverAirports []string
 	var maxLayoverMinutes int
 	var limitedResults bool
+	// PATCH(library): multi-city — repeatable --segment "ORIG>DEST@YYYY-MM-DD"
+	// triggers cross-provider multi-city search. See multicity.go +
+	// internal/kayak/multicity.go.
+	var segmentStrs []string
+	var provider string
+	var nonstop bool
 
 	cmd := &cobra.Command{
 		Use:         "flights <origin> <destination> <date>",
@@ -70,13 +76,44 @@ durations, airlines, and leg details. No API key. No auth. Just results.`,
   flight-goat-pp-cli flights MAN AGP 2026-05-10 --currency GBP --sort cheapest
 
   # Round trip with return date
-  flight-goat-pp-cli flights SEA HNL 2026-08-01 --return 2026-08-10`,
-		Args: cobra.ExactArgs(3),
+  flight-goat-pp-cli flights SEA HNL 2026-08-01 --return 2026-08-10
+
+  # Multi-city (repeat --segment, positional args become optional)
+  flight-goat-pp-cli flights --segment "SFO>NRT@2026-08-15" --segment "NRT>ICN@2026-08-28" --segment "ICN>SFO@2026-09-05"`,
+		Args: func(cmd *cobra.Command, args []string) error {
+			// PATCH(library): multi-city mode (>=2 --segment values) makes
+			// the positional <origin> <destination> <date> optional and
+			// ignored. Single-segment positional invocation remains required
+			// for one-way / round-trip.
+			if len(segmentStrs) >= 2 {
+				return nil
+			}
+			return cobra.ExactArgs(3)(cmd, args)
+		},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			var origin, destination, departureDate string
+			var segments []gflights.Segment
+			if len(segmentStrs) >= 2 {
+				parsed, perr := parseMultiCitySegments(segmentStrs)
+				if perr != nil {
+					return perr
+				}
+				segments = parsed
+				// PATCH(library): multi-city has its own provider dispatch
+				// below; it does NOT flow through the normal gflights.Search
+				// path because Kayak is the data source.
+				return runMultiCity(cmd, flags, segments, provider, passengers, cabin, nonstop, currencyCode)
+			} else if len(segmentStrs) == 1 {
+				return fmt.Errorf("--segment requires >= 2 values for multi-city; got 1. Use the positional <origin> <destination> <date> form for a one-way search")
+			} else {
+				origin = strings.ToUpper(args[0])
+				destination = strings.ToUpper(args[1])
+				departureDate = args[2]
+			}
 			opts := gflights.SearchOptions{
-				Origin:         strings.ToUpper(args[0]),
-				Destination:    strings.ToUpper(args[1]),
-				DepartureDate:  args[2],
+				Origin:         origin,
+				Destination:    destination,
+				DepartureDate:  departureDate,
 				ReturnDate:     returnDate,
 				TimeWindow:     timeWindow,
 				Airlines:       airlines,
@@ -88,6 +125,7 @@ durations, airlines, and leg details. No API key. No auth. Just results.`,
 				Currency:       currencyCode,
 				Emissions:      emissions,
 				LimitedResults: limitedResults,
+				Segments:       segments,
 			}
 			if checkedBags > 0 || carryOn {
 				opts.Bags = &gflights.BagsFilter{CheckedBags: checkedBags, CarryOn: carryOn}
@@ -176,7 +214,210 @@ durations, airlines, and leg details. No API key. No auth. Just results.`,
 	cmd.Flags().StringSliceVarP(&layoverAirports, "layover", "l", nil, "Restrict layovers to specific airports (repeatable, e.g. -l ORD -l DFW)")
 	cmd.Flags().IntVar(&maxLayoverMinutes, "max-layover", 0, "Maximum layover duration in minutes (0 = no constraint)")
 	cmd.Flags().BoolVar(&limitedResults, "limited", false, "Return only the ~30 Google-curated results instead of the full set")
+	cmd.Flags().StringSliceVar(&segmentStrs, "segment", nil, "Multi-city: repeatable segment in 'ORIG>DEST@YYYY-MM-DD' form. Pass >=2 to trigger multi-city search; positional args become optional and ignored.")
+	cmd.Flags().StringVar(&provider, "provider", "auto", "Multi-city provider: 'auto' (Kayak for prices + Google URL fallback, default), 'kayak' (prices only), or 'google' (URL only — opens authenticated multi-city search in browser).")
+	cmd.Flags().BoolVar(&nonstop, "nonstop", false, "Multi-city only: restrict to nonstop flights on every leg. Equivalent to /nonstop on Kayak.")
 	return cmd
+}
+
+// runMultiCity dispatches a multi-city flight search to Kayak (which works
+// server-side without auth) and/or the Google Flights URL builder.
+//
+// provider:
+//
+//	auto   — Kayak prices + Google URL appended (default)
+//	kayak  — Kayak only
+//	google — Google URL only (no prices; user opens in browser)
+func runMultiCity(cmd *cobra.Command, flags *rootFlags, segments []gflights.Segment, provider string, passengers int, cabin string, nonstop bool, currencyCode string) error {
+	if flags.dryRun {
+		fmt.Fprintf(cmd.OutOrStdout(), "multi-city: %d segments provider=%s\n", len(segments), provider)
+		return nil
+	}
+	provider = strings.ToLower(strings.TrimSpace(provider))
+	if provider == "" {
+		provider = "auto"
+	}
+
+	// Google URL is cheap; always compute when 'auto' or 'google'.
+	var googleURL string
+	if provider == "auto" || provider == "google" {
+		mcsegs := make([]gflights.Segment, len(segments))
+		copy(mcsegs, segments)
+		u, err := gflights.MultiCityBookingURL(mcsegs)
+		if err != nil {
+			return fmt.Errorf("multi-city: google url: %w", err)
+		}
+		googleURL = u
+	}
+
+	// google-only short-circuit: emit URL-only envelope, no Kayak call.
+	if provider == "google" {
+		return emitMultiCityResult(cmd, flags, multiCityEnvelope{
+			Success:    true,
+			Complete:   true, // URL builder always produces the full deeplink
+			Source:     "google_flights",
+			SearchType: "flights_multicity",
+			Query:      multiCityQueryEcho(segments, passengers, cabin, nonstop, currencyCode),
+			GoogleURL:  googleURL,
+		})
+	}
+
+	// kayak | auto: call Kayak for live prices.
+	kc, err := kayak.NewMultiCityClient()
+	if err != nil {
+		return fmt.Errorf("multi-city: %w", err)
+	}
+	ksegs := make([]kayak.Segment, len(segments))
+	for i, s := range segments {
+		ksegs[i] = kayak.Segment{Origin: s.Origin, Destination: s.Destination, DepartureDate: s.DepartureDate}
+	}
+	ctx, cancel := context.WithTimeout(cmd.Context(), 90*time.Second)
+	defer cancel()
+	kres, err := kc.SearchMultiCity(ctx, kayak.MultiCityOptions{
+		Segments:   ksegs,
+		Passengers: passengers,
+		Cabin:      cabin,
+		Nonstop:    nonstop,
+		Currency:   currencyCode,
+	})
+	if err != nil {
+		if provider == "kayak" {
+			return fmt.Errorf("multi-city: kayak: %w", err)
+		}
+		// auto mode: degrade gracefully to URL-only with the kayak error attached
+		return emitMultiCityResult(cmd, flags, multiCityEnvelope{
+			Success:    true,
+			Complete:   true, // the Google deeplink is fully formed even when Kayak fails
+			Source:     "google_flights",
+			SearchType: "flights_multicity",
+			Query:      multiCityQueryEcho(segments, passengers, cabin, nonstop, currencyCode),
+			GoogleURL:  googleURL,
+			Note:       fmt.Sprintf("kayak unavailable, falling back to Google URL: %v", err),
+		})
+	}
+
+	env := multiCityEnvelope{
+		Success:     true,
+		Complete:    kres.Complete,
+		Source:      "kayak",
+		SearchType:  "flights_multicity",
+		Query:       multiCityQueryEcho(segments, passengers, cabin, nonstop, currencyCode),
+		TotalCount:  kres.TotalCount,
+		Count:       kres.Count,
+		Itineraries: kres.Itineraries,
+		KayakURL:    kres.SearchURL,
+		GoogleURL:   googleURL, // populated only when provider==auto
+	}
+	if !kres.Complete {
+		// Kayak's incremental search ran out of poll attempts before
+		// converging — surface that the itineraries are partial so an
+		// agent/user doesn't read Count as the full result set.
+		env.Note = fmt.Sprintf("kayak search did not finish before the poll limit; showing %d of %d itineraries (partial — re-run for more)", kres.Count, kres.TotalCount)
+	}
+	return emitMultiCityResult(cmd, flags, env)
+}
+
+// multiCityEnvelope is the user-facing JSON shape for multi-city responses.
+// Distinct from SearchResult because the leg shape differs materially: each
+// itinerary covers all N requested segments rather than a single pair.
+type multiCityEnvelope struct {
+	Success bool `json:"success"`
+	// Complete is false when a Kayak search exhausted its poll budget before
+	// finishing; Itineraries is then a partial set and Note carries a warning.
+	Complete    bool                    `json:"complete"`
+	Source      string                  `json:"source"`
+	SearchType  string                  `json:"search_type"`
+	Query       multiCityQuery          `json:"query"`
+	TotalCount  int                     `json:"total_count,omitempty"`
+	Count       int                     `json:"count"`
+	Itineraries []kayak.MultiCityFlight `json:"itineraries,omitempty"`
+	KayakURL    string                  `json:"kayak_url,omitempty"`
+	GoogleURL   string                  `json:"google_url,omitempty"`
+	Note        string                  `json:"note,omitempty"`
+}
+
+type multiCityQuery struct {
+	Segments   []gflights.Segment `json:"segments"`
+	Passengers int                `json:"passengers"`
+	Cabin      string             `json:"cabin,omitempty"`
+	Nonstop    bool               `json:"nonstop,omitempty"`
+	Currency   string             `json:"currency,omitempty"`
+}
+
+func multiCityQueryEcho(segs []gflights.Segment, pax int, cabin string, nonstop bool, currency string) multiCityQuery {
+	return multiCityQuery{Segments: segs, Passengers: pax, Cabin: cabin, Nonstop: nonstop, Currency: currency}
+}
+
+// emitMultiCityResult writes the envelope as JSON when --json/agent is set,
+// otherwise a compact human-readable summary.
+func emitMultiCityResult(cmd *cobra.Command, flags *rootFlags, env multiCityEnvelope) error {
+	if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
+		b, _ := json.MarshalIndent(env, "", "  ")
+		fmt.Fprintln(cmd.OutOrStdout(), string(b))
+		return nil
+	}
+	fmt.Fprintf(cmd.OutOrStdout(), "Multi-city via %s — %d itineraries (of %d total)\n",
+		env.Source, env.Count, env.TotalCount)
+	if env.Note != "" {
+		fmt.Fprintf(cmd.OutOrStdout(), "  note: %s\n", env.Note)
+	}
+	for i, f := range env.Itineraries {
+		if i >= 10 {
+			fmt.Fprintf(cmd.OutOrStdout(), "  ... and %d more (use --json)\n", len(env.Itineraries)-10)
+			break
+		}
+		price := f.LocalizedPrice
+		if price == "" && f.Price > 0 {
+			price = fmt.Sprintf("%.0f %s", f.Price, f.Currency)
+		}
+		fmt.Fprintf(cmd.OutOrStdout(), "  %-12s %d legs  %s\n", price, len(f.Legs), summarizeLegs(f.Legs))
+	}
+	if env.GoogleURL != "" {
+		fmt.Fprintf(cmd.OutOrStdout(), "\n  google: %s\n", env.GoogleURL)
+	}
+	return nil
+}
+
+func summarizeLegs(legs []kayak.MultiCityLeg) string {
+	parts := make([]string, 0, len(legs))
+	for _, l := range legs {
+		parts = append(parts, fmt.Sprintf("%s→%s", l.Origin, l.Destination))
+	}
+	return strings.Join(parts, ", ")
+}
+
+// parseMultiCitySegments parses repeated --segment values of the form
+// "ORIG>DEST@YYYY-MM-DD" into gflights.Segment objects. Lenient on whitespace
+// and case but strict on the date format (YYYY-MM-DD) and the >/@ separators.
+func parseMultiCitySegments(in []string) ([]gflights.Segment, error) {
+	out := make([]gflights.Segment, 0, len(in))
+	for i, raw := range in {
+		s := strings.TrimSpace(raw)
+		atIdx := strings.LastIndex(s, "@")
+		if atIdx <= 0 {
+			return nil, fmt.Errorf("--segment %d %q: missing date suffix '@YYYY-MM-DD'", i+1, raw)
+		}
+		route := strings.TrimSpace(s[:atIdx])
+		date := strings.TrimSpace(s[atIdx+1:])
+		gtIdx := strings.Index(route, ">")
+		if gtIdx <= 0 || gtIdx >= len(route)-1 {
+			return nil, fmt.Errorf("--segment %d %q: route must look like ORIG>DEST", i+1, raw)
+		}
+		origin := strings.ToUpper(strings.TrimSpace(route[:gtIdx]))
+		destination := strings.ToUpper(strings.TrimSpace(route[gtIdx+1:]))
+		if len(origin) < 3 || len(destination) < 3 {
+			return nil, fmt.Errorf("--segment %d %q: origin and destination must be 3-letter IATA codes", i+1, raw)
+		}
+		// Validate date format here so the error message blames the user's
+		// input rather than a downstream Kayak/Google failure when the
+		// provider is Kayak-only (which skips gflights.MultiCityBookingURL,
+		// the other date validator).
+		if _, derr := time.Parse("2006-01-02", date); derr != nil {
+			return nil, fmt.Errorf("--segment %d %q: date must be YYYY-MM-DD (e.g. 2026-08-15), got %q", i+1, raw, date)
+		}
+		out = append(out, gflights.Segment{Origin: origin, Destination: destination, DepartureDate: date})
+	}
+	return out, nil
 }
 
 // ----- dates: cheapest-dates discovery -----

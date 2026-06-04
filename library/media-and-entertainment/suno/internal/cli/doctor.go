@@ -66,6 +66,7 @@ func looksLikeDoctorInterstitial(body []byte) string {
 
 func newDoctorCmd(flags *rootFlags) *cobra.Command {
 	var failOn string
+	var probeGate bool
 	cmd := &cobra.Command{
 		Use:   "doctor",
 		Short: "Check CLI health",
@@ -221,6 +222,22 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 							report["credentials"] = fmt.Sprintf("error: %s", authErr)
 						}
 					}
+
+					// Step 3 (opt-in): honest generate-gate reachability. The
+					// billing-layer reachability check above cannot see Suno's
+					// adaptive generation gate, so a plain "reachable" is a false
+					// green for generation. This probe issues a real minimal
+					// generation only when --probe-gate is passed, and is skipped
+					// under dry-run / verify (it is a mutating POST).
+					if probeGate && !flags.dryRun && !cliutil.IsVerifyEnv() {
+						if authHeader == "" {
+							report["generate_gate"] = "skipped (no auth configured)"
+						} else if reachErr != nil && !errors.As(reachErr, &reachAPIErr) {
+							report["generate_gate"] = "skipped (API unreachable)"
+						} else {
+							report["generate_gate"] = runGateProbe(cmd.Context(), c)
+						}
+					}
 				}
 			} else if cfg != nil && cfg.BaseURL == "" {
 				report["api"] = "not configured (set base_url in config file)"
@@ -297,6 +314,25 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 				}
 				fmt.Fprintf(w, "  %s %s: %s\n", indicator, ck.label, s)
 			}
+			// Generate-gate verdict (only present with --probe-gate). Rendered
+			// with its own indicator: tripped/skipped are WARN (transient or
+			// not-run), auth-failure/unreachable are FAIL, open is OK. Without
+			// this block the verdict would be invisible in human mode.
+			if gv, ok := report["generate_gate"]; ok {
+				s := fmt.Sprintf("%v", gv)
+				indicator := green("OK")
+				switch {
+				case strings.HasPrefix(s, "auth-failure"), strings.HasPrefix(s, "unreachable"), strings.HasPrefix(s, "reachable"):
+					// "reachable" is gateReachableOther: gate not tripped but the
+					// probe hit an unexpected error. FAIL (not WARN) so the human
+					// indicator matches --fail-on=error, which trips on the
+					// "error" in the verdict string.
+					indicator = red("FAIL")
+				case strings.HasPrefix(s, "tripped"), strings.HasPrefix(s, "skipped"):
+					indicator = yellow("WARN")
+				}
+				fmt.Fprintf(w, "  %s %s: %s\n", indicator, "Generate Gate", s)
+			}
 			// Print info keys without status indicator
 			for _, key := range []string{"config_path", "base_url", "auth_source", "version"} {
 				if v, ok := report[key]; ok {
@@ -318,6 +354,7 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&failOn, "fail-on", "", "Exit non-zero when a health level is reached: stale, error. Default is never.")
+	cmd.Flags().BoolVar(&probeGate, "probe-gate", false, "Probe the live generation gate and report open/tripped. WARNING: issues a real generation — free when the gate is tripped, but creates a clip and spends credits when the gate is open (the probe clip is best-effort trashed).")
 	return cmd
 }
 
@@ -334,7 +371,7 @@ func doctorExitForFailOn(failOn string, report map[string]any) error {
 	for _, v := range report {
 		s, ok := v.(string)
 		if ok {
-			if strings.Contains(s, "error") || strings.Contains(s, "unreachable") || strings.Contains(s, "invalid") || strings.Contains(s, "missing") {
+			if strings.Contains(s, "error") || strings.Contains(s, "unreachable") || strings.Contains(s, "invalid") || strings.Contains(s, "missing") || strings.HasPrefix(s, "auth-failure") {
 				worstError = true
 			}
 		}

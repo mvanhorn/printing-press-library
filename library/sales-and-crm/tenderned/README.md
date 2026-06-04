@@ -35,9 +35,15 @@ npx -y @mvanhorn/printing-press-library install tenderned --agent claude-code
 npx -y @mvanhorn/printing-press-library install tenderned --agent claude-code --agent codex
 ```
 
-### Without Node
+### Without Node (Go fallback)
 
-The generated install path is category-agnostic until this CLI is published. If `npx` is not available before publish, install Node or use the category-specific Go fallback from the public-library entry after publish.
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.3 or newer):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/sales-and-crm/tenderned/cmd/tenderned-pp-cli@latest
+```
+
+This installs the CLI only — no skill.
 
 ### Pre-built binary
 
@@ -54,17 +60,19 @@ hermes skills install mvanhorn/printing-press-library/cli-skills/pp-tenderned --
 
 Inside a Hermes chat session:
 
-```bash
+```text
 /skills install mvanhorn/printing-press-library/cli-skills/pp-tenderned --force
 ```
 
 ## Install for OpenClaw
 
-Tell your OpenClaw agent (copy this):
+Install both the CLI binary and the focused OpenClaw skill into runtime-visible locations:
 
+```bash
+npx -y @mvanhorn/printing-press-library install tenderned --agent openclaw --bin-dir ~/.local/bin
 ```
-Install the pp-tenderned skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-tenderned. The skill defines how its required CLI can be installed.
-```
+
+Restart the OpenClaw session or gateway if the newly installed skill is not visible immediately.
 
 ## Use with Claude Desktop
 
@@ -146,7 +154,6 @@ Search, list and fetch tender notices (aankondigingen) from TenderNed — mirror
 
 - **`tenderned-pp-cli notices get`** - Fetch full structured metadata for one publication
 - **`tenderned-pp-cli notices list`** - Search and list tender publications with rich filters (CPV, dates, buyer, procedure, scope)
-
 
 ## Output Formats
 

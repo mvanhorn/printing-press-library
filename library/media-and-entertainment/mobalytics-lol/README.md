@@ -60,17 +60,19 @@ hermes skills install mvanhorn/printing-press-library/cli-skills/pp-mobalytics-l
 
 Inside a Hermes chat session:
 
-```bash
+```text
 /skills install mvanhorn/printing-press-library/cli-skills/pp-mobalytics-lol --force
 ```
 
 ## Install for OpenClaw
 
-Tell your OpenClaw agent (copy this):
+Install both the CLI binary and the focused OpenClaw skill into runtime-visible locations:
 
+```bash
+npx -y @mvanhorn/printing-press-library install mobalytics-lol --agent openclaw --bin-dir ~/.local/bin
 ```
-Install the pp-mobalytics-lol skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-mobalytics-lol. The skill defines how its required CLI can be installed.
-```
+
+Restart the OpenClaw session or gateway if the newly installed skill is not visible immediately.
 
 ## Use with Claude Desktop
 
@@ -113,18 +115,14 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
 # Hydrate the local store with the latest patch's champions, items, runes, tier snapshots, builds, and matchups
 mobalytics-lol-pp-cli sync --full
 
-
 # Look up the recommended Aatrox top build for Emerald+ — the single most common ritual
 mobalytics-lol-pp-cli champion build aatrox
-
 
 # Diamond+ mid-lane tier list with WR/PR/BR
 mobalytics-lol-pp-cli tier-list --role mid
 
-
 # Pool-vs-pool matchup matrix coaches do in their head
 mobalytics-lol-pp-cli counter-pool --our darius,aatrox,garen --their fiora,sett,renekton
-
 
 # What moved up or down since two patches ago
 mobalytics-lol-pp-cli meta-shift --since-patch 14.10 --agent --select winner,loser,delta
@@ -218,14 +216,12 @@ Run `mobalytics-lol-pp-cli --help` for the full command reference and flag list.
 
 Manage cdn
 
-
 ### versions-json
 
 Manage versions json
 
 - **`mobalytics-lol-pp-cli versions-json`** - Returns the full list of LoL patch versions known to Data Dragon, newest
 first. The first element is the current patch.
-
 
 ## Output Formats
 

@@ -22,12 +22,12 @@ metadata:
 
 This skill drives the `here-now-pp-cli` binary. **You must verify the CLI is installed before invoking any command from this skill.** If it is missing, install it first:
 
-1. Install via the Printing Press installer:
+1. Install via the Printing Press installer into a user bin directory:
    ```bash
-   npx -y @mvanhorn/printing-press-library install here-now --cli-only
+   npx -y @mvanhorn/printing-press-library install here-now --cli-only --bin-dir ~/.local/bin
    ```
 2. Verify: `here-now-pp-cli --version`
-3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
+3. Ensure `~/.local/bin` is on `$PATH` for the agent/runtime that will invoke this skill.
 
 If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.3 or newer):
 
@@ -35,9 +35,7 @@ If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go in
 go install github.com/mvanhorn/printing-press-library/library/cloud/here-now/cmd/here-now-pp-cli@latest
 ```
 
-If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
-
-here.now lets agents publish static Sites to live URLs and keep private files in cloud Drives. This CLI is the missing layer on top: `publish dir ./site` orchestrates the whole inline-upload-finalize dance for you, `drives sync` pushes only what changed, and a local claim-token vault keeps your free-tier anonymous sites from silently expiring. Built free-plan-first — anonymous publishing needs no account, and paid-only analytics fails soft with a clear message instead of a raw error.
+If `--version` reports "command not found" after install, the runtime cannot see the binary directory on `$PATH`. Do not proceed with skill commands until verification succeeds.
 
 ## When to Use This CLI
 

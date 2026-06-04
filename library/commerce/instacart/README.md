@@ -275,7 +275,6 @@ available for offline reads.
   the ranked list, then pass `--item-id` to `add` for precision.
 
 Created by [@mvanhorn](https://github.com/mvanhorn) (Matt Van Horn).
-Contributors: [@omarshahine](https://github.com/omarshahine) (Omar Shahine).
 
 ## Install
 
@@ -330,15 +329,17 @@ hermes skills install mvanhorn/printing-press-library/cli-skills/pp-instacart --
 
 Inside a Hermes chat session:
 
-```bash
+```text
 /skills install mvanhorn/printing-press-library/cli-skills/pp-instacart --force
 ```
 
 ## Install for OpenClaw
 
-Tell your OpenClaw agent (copy this):
+Install both the CLI binary and the focused OpenClaw skill into runtime-visible locations:
 
+```bash
+npx -y @mvanhorn/printing-press-library install instacart --agent openclaw --bin-dir ~/.local/bin
 ```
-Install the pp-instacart skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-instacart. The skill defines how its required CLI can be installed.
-```
+
+Restart the OpenClaw session or gateway if the newly installed skill is not visible immediately.
 

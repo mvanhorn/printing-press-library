@@ -4,6 +4,8 @@
 
 Drive the full RevenueCat Developer API v2 from the shell or an agent: customers, subscriptions, entitlements, products, offerings, purchases, invoices, and charts. On top of the typed endpoint surface it adds a local SQLite mirror and novel commands — revenue-snapshot with run-over-run diffs, mrr-trend with movement decomposition, churn-watch with dollar exposure, dunning-alert, entitlement-rollup, refund-cascade, and trial-funnel — that join synced data in ways no single API call returns.
 
+Created by [@jcastillo725](https://github.com/jcastillo725) (Joseph Alvin Castillo).
+
 ## Install
 
 The recommended path installs both the `revenuecat-pp-cli` binary and the `pp-revenuecat` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
@@ -56,17 +58,19 @@ hermes skills install mvanhorn/printing-press-library/cli-skills/pp-revenuecat -
 
 Inside a Hermes chat session:
 
-```bash
+```text
 /skills install mvanhorn/printing-press-library/cli-skills/pp-revenuecat --force
 ```
 
 ## Install for OpenClaw
 
-Tell your OpenClaw agent (copy this):
+Install both the CLI binary and the focused OpenClaw skill into runtime-visible locations:
 
+```bash
+npx -y @mvanhorn/printing-press-library install revenuecat --agent openclaw --bin-dir ~/.local/bin
 ```
-Install the pp-revenuecat skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-revenuecat. The skill defines how its required CLI can be installed.
-```
+
+Restart the OpenClaw session or gateway if the newly installed skill is not visible immediately.
 
 ## Use with Claude Desktop
 
@@ -195,7 +199,6 @@ These capabilities aren't available in any other tool for this API.
   ```
 
 ## Recipes
-
 
 ### Morning standup revenue line
 
@@ -427,7 +430,6 @@ Manage virtual currencies
 - **`revenuecat-pp-cli virtual-currencies get-virtual-currency`** - This endpoint requires the following permission(s): <code>project_configuration:virtual_currencies:read</code>. This endpoint belongs to the <strong>Project Configuration</strong> domain, which has a default rate limit of <strong>60 requests per minute</strong>.
 - **`revenuecat-pp-cli virtual-currencies list`** - This endpoint requires the following permission(s): <code>project_configuration:virtual_currencies:read</code>. This endpoint belongs to the <strong>Project Configuration</strong> domain, which has a default rate limit of <strong>60 requests per minute</strong>.
 - **`revenuecat-pp-cli virtual-currencies update-virtual-currency`** - This endpoint requires the following permission(s): <code>project_configuration:virtual_currencies:read_write</code>. This endpoint belongs to the <strong>Project Configuration</strong> domain, which has a default rate limit of <strong>60 requests per minute</strong>.
-
 
 ## Output Formats
 

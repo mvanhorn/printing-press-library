@@ -1,6 +1,7 @@
 ---
 name: pp-chrome-history
 description: "Query your local Chrome browsing history — search, topic clusters (Chrome's own Journeys), time/productivity reports, session timelines, downloads, and a behavioral profile — all read-only and on-device. Trigger phrases: `what have I been browsing`, `search my chrome history`, `what was that page I saw`, `my browsing journeys / topics`, `what did I download in chrome`, `what sites do I visit most`, `my browsing time report`, `my browsing profile`, `what was I researching last week`, `use chrome-history`, `run chrome-history-pp-cli`."
+license: "Apache-2.0"
 ---
 
 # pp-chrome-history
@@ -9,18 +10,20 @@ description: "Query your local Chrome browsing history — search, topic cluster
 
 This skill drives the `chrome-history-pp-cli` binary. **You must verify the CLI is installed before invoking any command from this skill.** If it is missing, install it first:
 
-1. Install via the Printing Press installer:
+1. Install via the Printing Press installer into a user bin directory:
    ```bash
-   npx -y @mvanhorn/printing-press-library install chrome-history --cli-only
+   npx -y @mvanhorn/printing-press-library install chrome-history --cli-only --bin-dir ~/.local/bin
    ```
 2. Verify: `chrome-history-pp-cli --version`
-3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
+3. Ensure `~/.local/bin` is on `$PATH` for the agent/runtime that will invoke this skill.
 
-If the `npx` install fails before this CLI has a public-library category, install Node or use the category-specific Go fallback after publish.
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.3 or newer):
 
-If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
+```bash
+go install github.com/mvanhorn/printing-press-library/library/productivity/chrome-history/cmd/chrome-history-pp-cli@latest
+```
 
-`chrome-history-pp-cli` reads your local Chrome history SQLite database, snapshots it to `~/.cache/chrome-history/`, builds an offline full-text index, and answers questions about your browsing. **Read-only, zero network — nothing leaves the machine.** Every command supports `--json` and `--select`, and the same surface is exposed as MCP tools (all read-only) via `chrome-history-pp-cli mcp`.
+If `--version` reports "command not found" after install, the runtime cannot see the binary directory on `$PATH`. Do not proceed with skill commands until verification succeeds.
 
 ## When to use
 
