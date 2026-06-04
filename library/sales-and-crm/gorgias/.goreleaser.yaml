@@ -1,0 +1,94 @@
+version: 2
+project_name: gorgias-pp-cli
+changelog:
+  # Use goreleaser's git-log-driven changelog. The default groups commits
+  # under "Changelog" in the release body; without this, release bodies
+  # are empty whitespace and readers can't tell tags apart.
+  use: git
+  sort: asc
+  groups:
+    - title: Features
+      regexp: '^.*?feat(\([[:word:]]+\))??!?:.+$'
+      order: 0
+    - title: Fixes
+      regexp: '^.*?fix(\([[:word:]]+\))??!?:.+$'
+      order: 1
+    - title: Docs
+      regexp: '^.*?docs(\([[:word:]]+\))??!?:.+$'
+      order: 2
+    - title: Other
+      order: 999
+  filters:
+    exclude:
+      - '^chore:'
+      - '^test:'
+      - '^Merge'
+builds:
+  - id: gorgias-pp-cli
+    main: ./cmd/gorgias-pp-cli
+    binary: gorgias-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/sales-and-crm/gorgias/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: gorgias-pp-mcp
+    main: ./cmd/gorgias-pp-mcp
+    binary: gorgias-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+# Pin the GitHub release target explicitly. Without this, goreleaser infers
+# the owner from `origin`, which makes a mis-configured fork or accidental
+# `gh repo create` in the wrong org silently push artifacts to the wrong
+# place. The author handle is the source of truth for this repo.
+release:
+  github:
+    owner: chrisyoungcooks
+    name: gorgias-pp-cli
+homebrew_casks:
+  - name: gorgias-pp-cli
+    repository:
+      owner: chrisyoungcooks
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Every Gorgias support workflow, agent-native, in one binary."
+    # Both binaries ship in the same archive; declare each so brew
+    # symlinks both into /opt/homebrew/bin (without this, only the
+    # project-name-matched binary gets linked and the MCP server is
+    # stranded inside the Caskroom).
+    binaries:
+      - gorgias-pp-cli
+      - gorgias-pp-mcp
+    # Clear macOS Gatekeeper quarantine on the unsigned binaries so the
+    # first invocation doesn't exit 137 (SIGKILL) with no error. Runs
+    # after the archive is staged, before brew creates the bin symlinks.
+    hooks:
+      post:
+        install: |
+          system_command "/usr/bin/xattr",
+                         args: ["-dr", "com.apple.quarantine", "#{staged_path}/gorgias-pp-cli"]
+          system_command "/usr/bin/xattr",
+                         args: ["-dr", "com.apple.quarantine", "#{staged_path}/gorgias-pp-mcp"]

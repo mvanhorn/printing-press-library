@@ -5,7 +5,6 @@ Ecommerce orders, products, customers, inventory, fulfillment orders, and bulk o
 Learn more at [Shopify](https://shopify.dev/docs/api/admin-graphql).
 
 Created by [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
-Contributors: [@benjaminn8](https://github.com/benjaminn8) (Benjamin Huang).
 
 ## Install
 
@@ -59,17 +58,19 @@ hermes skills install mvanhorn/printing-press-library/cli-skills/pp-shopify --fo
 
 Inside a Hermes chat session:
 
-```bash
+```text
 /skills install mvanhorn/printing-press-library/cli-skills/pp-shopify --force
 ```
 
 ## Install for OpenClaw
 
-Tell your OpenClaw agent (copy this):
+Install both the CLI binary and the focused OpenClaw skill into runtime-visible locations:
 
+```bash
+npx -y @mvanhorn/printing-press-library install shopify --agent openclaw --bin-dir ~/.local/bin
 ```
-Install the pp-shopify skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-shopify. The skill defines how its required CLI can be installed.
-```
+
+Restart the OpenClaw session or gateway if the newly installed skill is not visible immediately.
 
 ## Use with Claude Desktop
 
@@ -197,7 +198,6 @@ Shopify products with product status, catalog metadata, and a compact variant in
 
 - **`shopify-pp-cli products get`** - Get one Shopify product by GraphQL ID.
 - **`shopify-pp-cli products list`** - List products from the Shopify Admin GraphQL API.
-
 
 ## Output Formats
 

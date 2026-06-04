@@ -4,6 +4,8 @@
 
 Substack has no public API and the closed-source tools that work around it (WriteStack, StackSweller) stop at Notes scheduling and a heatmap. This CLI covers the read endpoints the community has reverse-engineered across the 8 wrappers we studied, plus rich authoring (30+ flags on `drafts create`/`update`, Markdown→ProseMirror conversion), a multi-publication portfolio layer (`portfolio sync` → `portfolio`, `posts best`, `grep`, `schedule board`, `subs churn`, `subs cross-sell`), and local-SQLite analytics. Every command is MCP-callable so an agent can drive the full publish → engage → measure → swap loop.
 
+Created by [@chirantan](https://github.com/chirantan) (Chirantan Rajhans).
+
 ## Install
 
 The recommended path installs both the `substack-pp-cli` binary and the `pp-substack` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
@@ -56,17 +58,19 @@ hermes skills install mvanhorn/printing-press-library/cli-skills/pp-substack --f
 
 Inside a Hermes chat session:
 
-```bash
+```text
 /skills install mvanhorn/printing-press-library/cli-skills/pp-substack --force
 ```
 
 ## Install for OpenClaw
 
-Tell your OpenClaw agent (copy this):
+Install both the CLI binary and the focused OpenClaw skill into runtime-visible locations:
 
+```bash
+npx -y @mvanhorn/printing-press-library install substack --agent openclaw --bin-dir ~/.local/bin
 ```
-Install the pp-substack skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-substack. The skill defines how its required CLI can be installed.
-```
+
+Restart the OpenClaw session or gateway if the newly installed skill is not visible immediately.
 
 ## Use with Claude Desktop
 
@@ -310,7 +314,6 @@ Custom-domain publications are supported: `auth login --chrome` captures the Cre
 
 ## Recipes
 
-
 ### Daily growth-loop morning ritual
 
 ```bash
@@ -550,7 +553,6 @@ Post tags
 
 - **`substack-pp-cli tags create`** - Create a new tag
 - **`substack-pp-cli tags list`** - List all tags for the publication
-
 
 ## Output Formats
 

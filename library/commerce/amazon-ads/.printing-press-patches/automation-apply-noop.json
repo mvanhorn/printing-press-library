@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "automation-apply-noop",
+  "applied_at": "2026-05-27",
+  "base_run_id": "20260527-233111",
+  "base_printing_press_version": "4.18.1",
+  "summary": "Replace `success: true` with `noop: true` on the empty-body apply path so dry-run/apply consumers can distinguish a successful API write from nothing-to-apply.",
+  "reason": "`applyAutomationMutation` previously emitted `applied: false, skipped: true, success: true` when there were no matching plans. The combination was ambiguous to agents reading the envelope; an explicit `noop: true` and dropping `success` keeps the two outcomes distinguishable.",
+  "files": [
+    "internal/cli/automation.go",
+    "internal/cli/automation_apply_test.go"
+  ],
+  "validated_outcome": "TestAutomationApplyBodyGuardrails covers the new envelope shape and asserts `success` is not present on the no-op branch."
+}

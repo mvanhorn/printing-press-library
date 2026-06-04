@@ -5,7 +5,6 @@
 Tella ships an API and an official MCP server; this CLI gives you both surfaces in one binary, plus a local-first store that makes cross-video transcript search, view-milestone rollups, and webhook replay actually fast. Every endpoint is a Cobra command, every command emits structured JSON, and every mutation supports --dry-run.
 
 Created by [@gregce](https://github.com/gregce) (Greg Ceccarelli).
-Contributors: [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
 
 ## Install
 
@@ -59,17 +58,19 @@ hermes skills install mvanhorn/printing-press-library/cli-skills/pp-tella --forc
 
 Inside a Hermes chat session:
 
-```bash
+```text
 /skills install mvanhorn/printing-press-library/cli-skills/pp-tella --force
 ```
 
 ## Install for OpenClaw
 
-Tell your OpenClaw agent (copy this):
+Install both the CLI binary and the focused OpenClaw skill into runtime-visible locations:
 
+```bash
+npx -y @mvanhorn/printing-press-library install tella --agent openclaw --bin-dir ~/.local/bin
 ```
-Install the pp-tella skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-tella. The skill defines how its required CLI can be installed.
-```
+
+Restart the OpenClaw session or gateway if the newly installed skill is not visible immediately.
 
 ## Use with Claude Desktop
 

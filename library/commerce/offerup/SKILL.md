@@ -22,12 +22,12 @@ metadata:
 
 This skill drives the `offerup-pp-cli` binary. **You must verify the CLI is installed before invoking any command from this skill.** If it is missing, install it first:
 
-1. Install via the Printing Press installer:
+1. Install via the Printing Press installer into a user bin directory:
    ```bash
-   npx -y @mvanhorn/printing-press-library install offerup --cli-only
+   npx -y @mvanhorn/printing-press-library install offerup --cli-only --bin-dir ~/.local/bin
    ```
 2. Verify: `offerup-pp-cli --version`
-3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
+3. Ensure `~/.local/bin` is on `$PATH` for the agent/runtime that will invoke this skill.
 
 If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.3 or newer):
 
@@ -35,9 +35,7 @@ If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go in
 go install github.com/mvanhorn/printing-press-library/library/commerce/offerup/cmd/offerup-pp-cli@latest
 ```
 
-If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
-
-OfferUp's web scrapers all dump a one-shot listing array and forget it. This CLI persists every listing in a local SQLite store, then layers on price intelligence no marketplace tool offers: price-check tells you the going rate in your area, deals flags listings below the local median, new-since and price-drops track saved searches over time, and seller-scan profiles a seller's whole inventory. Built for agents too — every command speaks --json, --select, and an MCP surface.
+If `--version` reports "command not found" after install, the runtime cannot see the binary directory on `$PATH`. Do not proceed with skill commands until verification succeeds.
 
 ## When to Use This CLI
 

@@ -47,6 +47,23 @@ func TestWeeklyReviewVerifySkipsStaleKeywordBid(t *testing.T) {
 	}
 }
 
+func TestWeeklyReviewVerificationUsesTopLevelFields(t *testing.T) {
+	t.Parallel()
+	raw := json.RawMessage(`{"metadata":{"bid":1.20,"campaignId":"wrong"},"bid":1.50,"campaignId":"c1"}`)
+	if !jsonNumberMatches(raw, "bid", 1.50) {
+		t.Fatalf("jsonNumberMatches did not use top-level bid")
+	}
+	if jsonNumberMatches(raw, "bid", 1.20) {
+		t.Fatalf("jsonNumberMatches matched nested bid")
+	}
+	if !jsonStringMatches(raw, "campaignId", "c1") {
+		t.Fatalf("jsonStringMatches did not use top-level campaignId")
+	}
+	if jsonStringMatches(raw, "campaignId", "wrong") {
+		t.Fatalf("jsonStringMatches matched nested campaignId")
+	}
+}
+
 func TestWeeklyReviewCurrencyFlag(t *testing.T) {
 	t.Parallel()
 	root := RootCmd()
@@ -63,6 +80,19 @@ func TestWeeklyReviewCurrencyFlag(t *testing.T) {
 	}
 	if flag.DefValue != "USD" {
 		t.Fatalf("--currency default = %q, want USD", flag.DefValue)
+	}
+}
+
+func TestWeeklyTargetSourcePrefersExplicitTargetACOS(t *testing.T) {
+	t.Parallel()
+	if got := weeklyTargetSource(30, 25, ""); got != "target_acos" {
+		t.Fatalf("weeklyTargetSource explicit target with gross margin = %q, want target_acos", got)
+	}
+	if got := weeklyTargetSource(0, 25, ""); got != "gross_margin_pct" {
+		t.Fatalf("weeklyTargetSource gross margin fallback = %q, want gross_margin_pct", got)
+	}
+	if got := weeklyTargetSource(0, 0, "cogs.csv"); got != "cogs_file_average_break_even_acos" {
+		t.Fatalf("weeklyTargetSource COGS fallback = %q, want cogs_file_average_break_even_acos", got)
 	}
 }
 

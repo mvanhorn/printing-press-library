@@ -58,13 +58,14 @@ The library is an open-source catalog of focused CLIs and matching agent skills 
    - Install the narrowest useful tool. Do not install a family of adjacent tools just because the search returned them.
 
 4. Install through the library installer when the selected tool is useful.
-   - The primitive is `npx -y @mvanhorn/printing-press-library install <slug>`.
+   - The default primitive is `npx -y @mvanhorn/printing-press-library install <slug>`.
+   - In OpenClaw, use `npx -y @mvanhorn/printing-press-library install <slug> --agent openclaw --bin-dir ~/.local/bin` so the focused skill is materialized under OpenClaw's managed skills root and the Go binary lands in a runtime-visible user bin directory.
    - The install command installs both the CLI and the matching focused agent skill.
    - `install <slug>` is idempotent: re-running it on an already-installed tool refreshes the Go binary and overwrites/re-adds the focused skill in place.
    - Behind the scenes, the installer uses `go install <module>@latest` for the CLI and the Vercel Agent Skills-compatible `skills` CLI to install the focused `pp-*` skill globally from this repo.
    - If the Go binary installs successfully but is not on the current process `PATH`, treat that as a warning, not a failed skill install. The installer should still install the focused skill and print platform-specific PATH instructions.
    - In agent/gateway environments, shell startup files may not affect the already-running process. Restart the session/gateway after PATH changes, or use a PATH-visible user bin directory such as `~/.local/bin` when that is already exposed by the harness.
-   - In OpenClaw, this same install command installs the focused skill for OpenClaw; do not replace it with a separate repo-path skill install unless the user explicitly asks for skill-only installation.
+   - For OpenClaw gateway/service deployments, verify the gateway process PATH can resolve `<slug>-pp-cli`; an interactive shell `which` is not enough.
    - Pass `--cli-only` or `--skill-only` only when the user explicitly wants just one side.
 
 5. Make the newly installed skill visible to the running agent.
@@ -112,6 +113,12 @@ The Printing Press Library CLI is the canonical interface for installing catalog
 npx -y @mvanhorn/printing-press-library install <slug>
 ```
 
+For OpenClaw, pass the OpenClaw agent target explicitly and put the binary in a user bin directory the OpenClaw runtime can see:
+
+```bash
+npx -y @mvanhorn/printing-press-library install <slug> --agent openclaw --bin-dir ~/.local/bin
+```
+
 That command installs both halves of a catalog entry:
 
 - the Go CLI binary
@@ -127,7 +134,13 @@ So the catalog installer is still the right top-level command: it installs the C
 
 The install operation is idempotent and works as a reinstall for one tool. Re-running `install <slug>` uses `go install <module>@latest` for the binary and re-adds the focused skill non-interactively, overwriting the existing install in place. No uninstall-first step is needed.
 
-If install warns that the binary directory is not on `PATH`, the binary and focused skill can still be installed successfully. Follow the printed platform-specific PATH instructions, then restart the running agent session or gateway if it inherits a fixed environment. On Unix-like systems where the harness already exposes `~/.local/bin`, a symlink can be a practical bridge:
+If install warns that the binary directory is not on `PATH`, the binary and focused skill can still be installed successfully. Prefer reinstalling with an explicit runtime-visible bin directory when an agent or gateway will run the CLI:
+
+```bash
+npx -y @mvanhorn/printing-press-library install <slug> --bin-dir ~/.local/bin
+```
+
+Otherwise follow the printed platform-specific PATH instructions, then restart the running agent session or gateway if it inherits a fixed environment. On Unix-like systems where the harness already exposes `~/.local/bin`, a symlink can be a practical bridge:
 
 ```bash
 ln -sf "$(go env GOPATH)/bin/<tool>" "$HOME/.local/bin/<tool>"

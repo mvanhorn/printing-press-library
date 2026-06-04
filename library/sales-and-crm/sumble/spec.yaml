@@ -1,0 +1,633 @@
+name: sumble
+display_name: Sumble
+description: "Credit-aware Sumble v6 sales-intelligence CLI: technographics, people, jobs, with cost estimates, balance tracking, and a local cache so you never pay twice."
+cli_description: "Every Sumble v6 feature, plus cost estimates before billed calls, a running credit balance, a budget guard, and a local SQLite cache so you never pay twice."
+version: "0.1.0"
+base_url: "https://api.sumble.com/v6"
+
+auth:
+  type: bearer_token
+  header: "Authorization"
+  env_vars:
+    - SUMBLE_API_KEY
+
+mcp:
+  transport: [stdio, http]
+
+config:
+  format: toml
+  path: "~/.config/sumble-cli/config.toml"
+
+resources:
+  organizations:
+    description: "Find, enrich, and match organizations by technographic and firmographic criteria"
+    endpoints:
+      find:
+        method: POST
+        path: "/organizations/find"
+        description: "Find organizations matching technology/category/firmographic filters (5 credits per row returned)"
+        body:
+          - name: filters
+            type: object
+            required: true
+            description: "Match criteria — set technologies/categories/since for structured matching, or a natural-language query"
+            fields:
+              - name: technologies
+                type: array
+                description: "Technology slugs the company must use (e.g. kafka, snowflake)"
+              - name: technology_categories
+                type: array
+                description: "Technology category slugs (e.g. cloud, analytics)"
+              - name: since
+                type: string
+                description: "Only include signals since this date (YYYY-MM-DD)"
+              - name: query
+                type: string
+                description: "Natural-language match query (alternative to structured filters)"
+          - name: order_by_column
+            type: string
+            description: "Sort column"
+            enum:
+              - industry
+              - employee_count
+              - employee_count_int
+              - first_activity_time
+              - last_activity_time
+              - jobs_count
+              - teams_count
+              - people_count
+              - jobs_count_growth_6mo
+              - cloud_spend_estimate_millions_usd
+              - account_score
+          - name: order_by_direction
+            type: string
+            description: "Sort direction"
+            enum: [ASC, DESC]
+          - name: include_entity_details
+            type: bool
+            description: "Include matching tags/entities per row (raises per-row cost)"
+          - name: limit
+            type: int
+            description: "Max organizations to return (1-200)"
+          - name: offset
+            type: int
+            description: "Pagination offset (max 10000)"
+        response_path: organizations
+        response:
+          type: array
+          item: Organization
+
+      enrich:
+        method: POST
+        path: "/organizations/enrich"
+        description: "Enrich one organization's technology stack with job/people/team signals (5 credits per technology found)"
+        body:
+          - name: organization
+            type: object
+            required: true
+            description: "The organization to enrich — supply exactly one identifier"
+            fields:
+              - name: domain
+                type: string
+                description: "Company domain (e.g. stripe.com)"
+              - name: id
+                type: int
+                description: "Sumble organization id"
+              - name: slug
+                type: string
+                description: "Sumble organization slug"
+              - name: linkedin_url
+                type: string
+                description: "Company LinkedIn URL"
+          - name: filters
+            type: object
+            description: "Optional technology filters to scope the enrichment"
+            fields:
+              - name: technologies
+                type: array
+                description: "Restrict to these technology slugs"
+              - name: technology_categories
+                type: array
+                description: "Restrict to these technology categories"
+              - name: since
+                type: string
+                description: "Only signals since this date (YYYY-MM-DD)"
+        response_path: technologies
+        response:
+          type: array
+          item: EnrichedTechnology
+
+      match:
+        method: POST
+        path: "/organizations/match"
+        description: "Resolve up to 1000 company names/URLs/locations to Sumble organizations (1 credit per matched org; unmatched free)"
+        body:
+          - name: organizations
+            type: array
+            required: true
+            description: "Companies to match, each {name,url,location}"
+        response_path: results
+        response:
+          type: array
+          item: MatchResult
+
+      intelligence-brief:
+        method: GET
+        path: "/organizations/{organization_id}/intelligence-brief"
+        description: "AI-generated intelligence brief for an organization (50 credits when complete; 202 while pending is free)"
+        params:
+          - name: organization_id
+            type: int
+            required: true
+            positional: true
+            description: "Sumble organization id"
+        response:
+          type: object
+          item: IntelligenceBrief
+
+  people:
+    description: "Find, traverse, and enrich people at organizations"
+    endpoints:
+      find:
+        method: POST
+        path: "/people/find"
+        description: "Find people at an organization by job function/level/country (1 credit per person)"
+        body:
+          - name: organization
+            type: object
+            required: true
+            description: "The organization to search within — supply exactly one identifier"
+            fields:
+              - name: domain
+                type: string
+                description: "Company domain"
+              - name: id
+                type: int
+                description: "Sumble organization id"
+              - name: slug
+                type: string
+                description: "Sumble organization slug"
+              - name: linkedin_url
+                type: string
+                description: "Company LinkedIn URL"
+          - name: filters
+            type: object
+            required: true
+            description: "Persona criteria — structured facets or a natural-language query"
+            fields:
+              - name: job_functions
+                type: array
+                description: "Roles (e.g. Engineer, Sales, Marketing)"
+              - name: job_levels
+                type: array
+                description: "Seniority (e.g. C-Level, VP, Director, Senior, Manager)"
+              - name: countries
+                type: array
+                description: "ISO country codes (e.g. US, CA, GB)"
+              - name: since
+                type: string
+                description: "Only people active since this date (YYYY-MM-DD)"
+              - name: query
+                type: string
+                description: "Natural-language persona query (alternative to structured filters)"
+          - name: limit
+            type: int
+            description: "Max people to return (1-250)"
+          - name: offset
+            type: int
+            description: "Pagination offset (max 10000)"
+        response_path: people
+        response:
+          type: array
+          item: Person
+
+      find-related-people:
+        method: POST
+        path: "/people/find-related-people"
+        description: "Find people above/below a person in the org chart (1 credit per person)"
+        body:
+          - name: person_id
+            type: int
+            required: true
+            description: "Sumble person id to traverse from"
+          - name: limit
+            type: int
+            description: "Max related people (1-100)"
+          - name: offset
+            type: int
+            description: "Pagination offset (max 10000)"
+        response_path: people
+        response:
+          type: array
+          item: RelatedPerson
+
+      enrich:
+        method: POST
+        path: "/people/enrich"
+        description: "Reveal a person's email (10 credits) and/or phone (80 credits); cached or unavailable reveals are free"
+        body:
+          - name: person_id
+            type: int
+            required: true
+            description: "Sumble person id to enrich"
+          - name: include_email
+            type: bool
+            description: "Reveal email addresses (10 credits on first reveal)"
+          - name: include_phone
+            type: bool
+            description: "Reveal phone number (80 credits on first reveal)"
+        response:
+          type: object
+          item: ContactInfo
+
+  postings:
+    description: "Find job postings and the people behind them — Sumble's hiring-signal layer"
+    endpoints:
+      find:
+        method: POST
+        path: "/jobs/find"
+        description: "Find job postings by technology/category/country (2 credits per job, 3 with descriptions)"
+        body:
+          - name: organization
+            type: object
+            description: "Optional organization to scope the search — supply one identifier"
+            fields:
+              - name: domain
+                type: string
+                description: "Company domain"
+              - name: id
+                type: int
+                description: "Sumble organization id"
+              - name: slug
+                type: string
+                description: "Sumble organization slug"
+              - name: linkedin_url
+                type: string
+                description: "Company LinkedIn URL"
+          - name: filters
+            type: object
+            required: true
+            description: "Job match criteria — structured facets or a natural-language query"
+            fields:
+              - name: technologies
+                type: array
+                description: "Technology slugs mentioned in the job"
+              - name: technology_categories
+                type: array
+                description: "Technology category slugs"
+              - name: countries
+                type: array
+                description: "ISO country codes"
+              - name: since
+                type: string
+                description: "Only jobs posted since this date (YYYY-MM-DD)"
+              - name: query
+                type: string
+                description: "Natural-language job query"
+          - name: include_descriptions
+            type: bool
+            description: "Include full job descriptions (raises per-job cost to 3 credits)"
+          - name: limit
+            type: int
+            description: "Max jobs to return (1-100)"
+          - name: offset
+            type: int
+            description: "Pagination offset (max 10000)"
+        response_path: jobs
+        response:
+          type: array
+          item: Job
+
+      get:
+        method: GET
+        path: "/jobs/{job_id}"
+        description: "Get a single job posting with its full description (1 credit)"
+        params:
+          - name: job_id
+            type: int
+            required: true
+            positional: true
+            description: "Job id"
+        response:
+          type: object
+          item: JobDetail
+
+      find-related-people:
+        method: POST
+        path: "/jobs/find-related-people"
+        description: "Find people associated with a job posting (1 credit per person)"
+        body:
+          - name: job_id
+            type: int
+            required: true
+            description: "Job id to traverse from"
+          - name: limit
+            type: int
+            description: "Max people (1-100)"
+          - name: offset
+            type: int
+            description: "Pagination offset (max 10000)"
+        response_path: people
+        response:
+          type: array
+          item: Person
+
+  technologies:
+    description: "Search Sumble's technology taxonomy"
+    endpoints:
+      find:
+        method: POST
+        path: "/technologies/find"
+        description: "Search technologies by name; returns canonical slugs (1 credit only if at least one match, else free)"
+        body:
+          - name: query
+            type: string
+            required: true
+            description: "Technology name to search for (e.g. kafka)"
+        response_path: technologies
+        response:
+          type: array
+          item: Technology
+
+  organization-lists:
+    description: "Manage saved organization lists"
+    endpoints:
+      list:
+        method: GET
+        path: "/organization-lists"
+        description: "List your saved organization lists (1 credit per list returned)"
+        response_path: organization_lists
+        response:
+          type: array
+          item: OrganizationListSummary
+      get:
+        method: GET
+        path: "/organization-lists/{list_id}"
+        description: "Get the organizations in a saved list (1 credit per organization returned)"
+        params:
+          - name: list_id
+            type: int
+            required: true
+            positional: true
+            description: "Organization list id"
+        response_path: organizations
+        response:
+          type: array
+          item: Organization
+      create:
+        method: POST
+        path: "/organization-lists"
+        description: "Create a new organization list (free)"
+        body:
+          - name: name
+            type: string
+            required: true
+            description: "List name"
+        response:
+          type: object
+          item: OrganizationListSummary
+      add:
+        method: POST
+        path: "/organization-lists/{list_id}/organizations"
+        description: "Add organizations to a saved list by id or slug (free)"
+        params:
+          - name: list_id
+            type: int
+            required: true
+            positional: true
+            description: "Organization list id"
+        body:
+          - name: organization_ids
+            type: array
+            description: "Sumble organization ids to add"
+          - name: organization_slugs
+            type: array
+            description: "Sumble organization slugs to add"
+        response:
+          type: object
+          item: ListAddResult
+
+  contact-lists:
+    description: "Manage saved contact (people) lists"
+    endpoints:
+      list:
+        method: GET
+        path: "/contact-lists"
+        description: "List your saved contact lists (1 credit per list returned)"
+        response_path: contact_lists
+        response:
+          type: array
+          item: ContactListSummary
+      get:
+        method: GET
+        path: "/contact-lists/{list_id}"
+        description: "Get the people in a saved contact list (1 credit per person returned)"
+        params:
+          - name: list_id
+            type: int
+            required: true
+            positional: true
+            description: "Contact list id"
+        response_path: people
+        response:
+          type: array
+          item: Person
+      create:
+        method: POST
+        path: "/contact-lists"
+        description: "Create a new contact list (free)"
+        body:
+          - name: name
+            type: string
+            required: true
+            description: "List name"
+        response:
+          type: object
+          item: ContactListSummary
+      add:
+        method: POST
+        path: "/contact-lists/{list_id}/people"
+        description: "Add people to a saved contact list by id (free)"
+        params:
+          - name: list_id
+            type: int
+            required: true
+            positional: true
+            description: "Contact list id"
+        body:
+          - name: person_ids
+            type: array
+            description: "Sumble person ids to add"
+        response:
+          type: object
+          item: ListAddResult
+
+types:
+  Organization:
+    fields:
+      - name: id
+        type: int
+      - name: parent_id
+        type: int
+      - name: name
+        type: string
+      - name: url
+        type: string
+      - name: industry
+        type: string
+      - name: total_employees
+        type: int
+      - name: matching_people_count
+        type: int
+      - name: matching_team_count
+        type: int
+      - name: matching_job_post_count
+        type: int
+      - name: headquarters_country
+        type: string
+      - name: headquarters_state
+        type: string
+      - name: domain
+        type: string
+      - name: linkedin_organization_url
+        type: string
+      - name: account_score
+        type: float
+      - name: account_score_fit
+        type: string
+  EnrichedTechnology:
+    fields:
+      - name: name
+        type: string
+      - name: last_job_post
+        type: string
+      - name: jobs_count
+        type: int
+      - name: people_count
+        type: int
+      - name: teams_count
+        type: int
+  MatchResult:
+    fields:
+      - name: input
+        type: string
+      - name: match
+        type: object
+  IntelligenceBrief:
+    fields:
+      - name: organization_id
+        type: int
+      - name: organization_slug
+        type: string
+      - name: title
+        type: string
+      - name: body
+        type: string
+      - name: sumble_url
+        type: string
+  Person:
+    fields:
+      - name: id
+        type: int
+      - name: url
+        type: string
+      - name: linkedin_url
+        type: string
+      - name: name
+        type: string
+      - name: job_title
+        type: string
+      - name: job_function
+        type: string
+      - name: job_level
+        type: string
+      - name: location
+        type: string
+      - name: country
+        type: string
+      - name: country_code
+        type: string
+      - name: start_date
+        type: string
+  RelatedPerson:
+    fields:
+      - name: id
+        type: int
+      - name: name
+        type: string
+      - name: job_title
+        type: string
+      - name: job_function
+        type: string
+      - name: job_level
+        type: string
+      - name: location
+        type: string
+      - name: country_code
+        type: string
+      - name: direction
+        type: string
+  ContactInfo:
+    fields:
+      - name: emails
+        type: array
+      - name: phone
+        type: string
+  Job:
+    fields:
+      - name: id
+        type: int
+      - name: organization_id
+        type: int
+      - name: organization_name
+        type: string
+      - name: organization_domain
+        type: string
+      - name: job_title
+        type: string
+      - name: datetime_pulled
+        type: string
+      - name: primary_job_function
+        type: string
+      - name: location
+        type: string
+      - name: url
+        type: string
+  JobDetail:
+    fields:
+      - name: job_title
+        type: string
+      - name: description
+        type: string
+  Technology:
+    fields:
+      - name: slug
+        type: string
+      - name: name
+        type: string
+      - name: count
+        type: int
+  OrganizationListSummary:
+    fields:
+      - name: id
+        type: int
+      - name: name
+        type: string
+      - name: url
+        type: string
+  ContactListSummary:
+    fields:
+      - name: id
+        type: int
+      - name: name
+        type: string
+      - name: url
+        type: string
+  ListAddResult:
+    fields:
+      - name: added
+        type: array
+      - name: failed_ids
+        type: array
+      - name: failed_slugs
+        type: array

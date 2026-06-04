@@ -7,38 +7,43 @@ The Tesla owner-API as JSON-first commands, with a local SQLite that remembers e
 Learn more at [Tesla](https://owner-api.teslamotors.com).
 
 Created by [@mvanhorn](https://github.com/mvanhorn) (Matt Van Horn).
-Contributors: [@ameshalexk](https://github.com/ameshalexk) (Amesh Alex Kuruvilla).
 
 ## Install
 
 The recommended path installs both the `tesla-pp-cli` binary and the `pp-tesla` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
 
 ```bash
-npx -y @mvanhorn/printing-press install tesla
+npx -y @mvanhorn/printing-press-library install tesla
 ```
 
 For CLI only (no skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install tesla --cli-only
+npx -y @mvanhorn/printing-press-library install tesla --cli-only
 ```
 
 For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install tesla --skill-only
+npx -y @mvanhorn/printing-press-library install tesla --skill-only
 ```
 
 To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
 
 ```bash
-npx -y @mvanhorn/printing-press install tesla --agent claude-code
-npx -y @mvanhorn/printing-press install tesla --agent claude-code --agent codex
+npx -y @mvanhorn/printing-press-library install tesla --agent claude-code
+npx -y @mvanhorn/printing-press-library install tesla --agent claude-code --agent codex
 ```
 
-### Without Node
+### Without Node (Go fallback)
 
-The generated install path is category-agnostic until this CLI is published. If `npx` is not available before publish, install Node or use the category-specific Go fallback from the public-library entry after publish.
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.3 or newer):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/devices/tesla/cmd/tesla-pp-cli@latest
+```
+
+This installs the CLI only — no skill.
 
 ### Pre-built binary
 
@@ -55,17 +60,19 @@ hermes skills install mvanhorn/printing-press-library/cli-skills/pp-tesla --forc
 
 Inside a Hermes chat session:
 
-```bash
+```text
 /skills install mvanhorn/printing-press-library/cli-skills/pp-tesla --force
 ```
 
 ## Install for OpenClaw
 
-Tell your OpenClaw agent (copy this):
+Install both the CLI binary and the focused OpenClaw skill into runtime-visible locations:
 
+```bash
+npx -y @mvanhorn/printing-press-library install tesla --agent openclaw --bin-dir ~/.local/bin
 ```
-Install the pp-tesla skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-tesla. The skill defines how its required CLI can be installed.
-```
+
+Restart the OpenClaw session or gateway if the newly installed skill is not visible immediately.
 
 ## Use with Claude Desktop
 
@@ -226,22 +233,17 @@ The same Fleet creds and the same enrolled key now work on both machines. The ca
 # Confirm auth and list your vehicle_id / VINs / energy sites. Run 'tesla auth login' first if needed (see Auth section above).
 tesla products --json
 
-
 # Confirm auth works and list your vehicle_id / VINs / energy site IDs.
 tesla products --json
-
 
 # Classify each vehicle: REST-OK (legacy) or signed-command-required (newer).
 tesla reachability --json
 
-
 # Capture a vehicle_data snapshot for every car; populates the local store for analytics.
 tesla snap --all --json
 
-
 # Single yes/no "can I leave?" with the blocker list.
 tesla ready 5YJ3E1EA6XXXXXXXX --json
-
 
 # Last 30 days of charging cost, home vs Supercharger split.
 tesla cost ledger --since 30d --json
@@ -443,7 +445,6 @@ Per-vehicle data, climate, locks, remote start, and Hermes telemetry token
 - **`tesla-pp-cli vehicles get-release-notes`** - Release notes for the current/queued software update
 - **`tesla-pp-cli vehicles get-service-data`** - Open service appointments and recent service history for this vehicle
 - **`tesla-pp-cli vehicles get-vehicle-data`** - Full vehicle state snapshot: charge, climate, drive, GUI, vehicle config, and software
-
 
 ## Output Formats
 

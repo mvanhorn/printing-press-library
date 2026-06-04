@@ -4,6 +4,8 @@
 
 Quote Blacklane's fixed all-inclusive chauffeur fares (airport transfers and by-the-hour) by address, compare vehicle classes, and keep a searchable local log of every quote. Addresses resolve via OpenStreetMap — no API key, no login, no booking.
 
+Created by [@omarshahine](https://github.com/omarshahine) (Omar Shahine).
+
 ## Install
 
 The recommended path installs both the `blacklane-pp-cli` binary and the `pp-blacklane` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
@@ -31,9 +33,15 @@ npx -y @mvanhorn/printing-press-library install blacklane --agent claude-code
 npx -y @mvanhorn/printing-press-library install blacklane --agent claude-code --agent codex
 ```
 
-### Without Node
+### Without Node (Go fallback)
 
-The generated install path is category-agnostic until this CLI is published. If `npx` is not available before publish, install Node or use the category-specific Go fallback from the public-library entry after publish.
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.3 or newer):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/commerce/blacklane/cmd/blacklane-pp-cli@latest
+```
+
+This installs the CLI only — no skill.
 
 ### Pre-built binary
 
@@ -50,17 +58,19 @@ hermes skills install mvanhorn/printing-press-library/cli-skills/pp-blacklane --
 
 Inside a Hermes chat session:
 
-```bash
+```text
 /skills install mvanhorn/printing-press-library/cli-skills/pp-blacklane --force
 ```
 
 ## Install for OpenClaw
 
-Tell your OpenClaw agent (copy this):
+Install both the CLI binary and the focused OpenClaw skill into runtime-visible locations:
 
+```bash
+npx -y @mvanhorn/printing-press-library install blacklane --agent openclaw --bin-dir ~/.local/bin
 ```
-Install the pp-blacklane skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-blacklane. The skill defines how its required CLI can be installed.
-```
+
+Restart the OpenClaw session or gateway if the newly installed skill is not visible immediately.
 
 ## Use with Claude Desktop
 
@@ -186,7 +196,6 @@ These capabilities aren't available in any other tool for this API.
 
 ## Recipes
 
-
 ### Quote and keep only class + price
 
 ```bash
@@ -220,7 +229,6 @@ Vehicle-class service catalog (models, capacity, features)
 Raw pricing quotes (prefer the top-level 'quote' command)
 
 - **`blacklane-pp-cli prices`** - Request prices for a journey (raw body; see 'quote' for a friendly interface)
-
 
 ## Output Formats
 

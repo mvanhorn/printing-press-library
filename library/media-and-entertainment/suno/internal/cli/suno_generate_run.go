@@ -17,6 +17,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/suno/internal/auth"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/suno/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/suno/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/suno/internal/config"
@@ -25,6 +26,16 @@ import (
 )
 
 const sunoGeneratePath = "/api/generate/v2-web/"
+
+// Gate-retry flag names. Shared between registration (generate.go, as inherited
+// persistent flags) and the string-keyed reads in runGenerationFlow, so a
+// rename cannot silently desync the two (the reads are by name, not by a bound
+// variable, because runGenerationFlow is a shared tail that does not own the
+// flag vars).
+const (
+	flagWaitForGate = "wait-for-gate"
+	flagGateTimeout = "gate-timeout"
+)
 
 // captchaRequiredError returns the actionable usage error (exit 2) shown when
 // Suno's adaptive hCaptcha challenge actually fires for a generation. The CLI
@@ -35,9 +46,37 @@ func captchaRequiredError() error {
 	return usageErr(fmt.Errorf(
 		"Suno required an hCaptcha token for this generation.\n" +
 			"      Suno gates generation adaptively — many requests succeed with no token,\n" +
-			"      but this one was challenged (typically after sustained use). Retry with:\n" +
+			"      but this one was challenged (typically after sustained use). Options:\n" +
 			"        --token <hcaptcha-token>   (e.g. solved via 2Captcha)\n" +
+			"        --wait-for-gate            (backs off and retries until the gate reopens; --gate-timeout sets the ceiling)\n" +
 			"      This CLI will not launch a browser or solver on your behalf."))
+}
+
+// captchaGateEnvelope is the structured payload emitted to stdout in
+// JSON/agent mode when the adaptive hCaptcha gate fires. Agents branch on
+// error_type "captcha_required" (and retriable) rather than parsing the prose
+// message. Kept as its own function so the shape is unit-testable.
+func captchaGateEnvelope() map[string]any {
+	return map[string]any{
+		"error_type": "captcha_required",
+		"error":      "Suno required an hCaptcha token for this generation",
+		"retriable":  true,
+		"hint":       "retry with --token <hcaptcha-token>, or pass --wait-for-gate to wait out the adaptive cooldown",
+		"code":       2,
+	}
+}
+
+// captchaGateError surfaces the adaptive hCaptcha gate. In JSON/agent mode it
+// writes the captchaGateEnvelope to stdout so consumers can branch on a stable
+// error_type; in human mode it returns only the prose usage error. The exit
+// code is 2 (usage) in both modes, matching captchaRequiredError. Mirrors the
+// writeAPIErrorEnvelope pattern: stdout carries machine output, the returned
+// error drives the exit code (and cobra's stderr prose for humans).
+func captchaGateError(cmd *cobra.Command, flags *rootFlags) error {
+	if flags != nil && flags.asJSON {
+		_ = json.NewEncoder(cmd.OutOrStdout()).Encode(captchaGateEnvelope())
+	}
+	return captchaRequiredError()
 }
 
 // isCaptchaRequired reports whether a generate error is Suno's adaptive
@@ -52,6 +91,67 @@ func isCaptchaRequired(err error) bool {
 	msg := strings.ToLower(err.Error())
 	return strings.Contains(msg, "token_validation_failed") ||
 		strings.Contains(msg, "verify your request")
+}
+
+// gateRetryConfig parameterizes retryOnGate. now/sleep are injectable so the
+// backoff logic is unit-testable without real time. enabled mirrors
+// --wait-for-gate; timeout mirrors --gate-timeout.
+type gateRetryConfig struct {
+	enabled        bool
+	timeout        time.Duration
+	initialBackoff time.Duration
+	maxBackoff     time.Duration
+	now            func() time.Time
+	sleep          func(context.Context, time.Duration) error
+	onWait         func(attempt int, wait time.Duration)
+}
+
+// retryOnGate calls submit once; if the result is an adaptive-gate challenge
+// (isCaptchaRequired) AND retry is enabled, it backs off with capped
+// exponential delay and retries until submit succeeds, returns a non-gate
+// error, or the timeout deadline passes. On timeout it returns the last gate
+// error so the caller maps it to captchaRequiredError. Non-gate errors and
+// successes return immediately — retry never fires on a 401, budget cap, etc.
+func retryOnGate(ctx context.Context, cfg gateRetryConfig, submit func() (*sunoGenerateResponse, error)) (*sunoGenerateResponse, error) {
+	resp, err := submit()
+	if err == nil || !cfg.enabled || !isCaptchaRequired(err) {
+		return resp, err
+	}
+	deadline := cfg.now().Add(cfg.timeout)
+	backoff := cfg.initialBackoff
+	for attempt := 1; cfg.now().Before(deadline); attempt++ {
+		wait := backoff
+		if rem := deadline.Sub(cfg.now()); rem < wait {
+			wait = rem
+		}
+		if wait <= 0 {
+			break
+		}
+		if cfg.onWait != nil {
+			cfg.onWait(attempt, wait)
+		}
+		if serr := cfg.sleep(ctx, wait); serr != nil {
+			return nil, serr
+		}
+		resp, err = submit()
+		if err == nil || !isCaptchaRequired(err) {
+			return resp, err
+		}
+		if backoff *= 2; backoff > cfg.maxBackoff {
+			backoff = cfg.maxBackoff
+		}
+	}
+	return resp, err
+}
+
+// sleepCtx sleeps for d or returns early if the context is cancelled.
+func sleepCtx(ctx context.Context, d time.Duration) error {
+	select {
+	case <-ctx.Done():
+		return ctx.Err()
+	case <-time.After(d):
+		return nil
+	}
 }
 
 // resolveModel maps a CLI model value to its wire key using the supplied
@@ -222,10 +322,47 @@ func runGenerationFlow(cmd *cobra.Command, flags *rootFlags, body sunoGenerateBo
 	if err != nil {
 		return err
 	}
-	resp, err := submitGeneration(cmd.Context(), c, flags.configPath, body)
+	ctx := cmd.Context()
+
+	// Adaptive-gate retry is opt-in via --wait-for-gate (inherited persistent
+	// flag on the generate parent). When off, this is a single submit attempt —
+	// identical to the prior behavior.
+	waitForGate, _ := cmd.Flags().GetBool(flagWaitForGate)
+	gateTimeout, _ := cmd.Flags().GetDuration(flagGateTimeout)
+	cfg := gateRetryConfig{
+		enabled:        waitForGate,
+		timeout:        gateTimeout,
+		initialBackoff: 30 * time.Second,
+		maxBackoff:     5 * time.Minute,
+		now:            time.Now,
+		sleep:          sleepCtx,
+	}
+	// Show retry progress on any non-JSON run (not just --human-friendly): a
+	// --wait-for-gate wait can last many minutes, and a silent process reads as
+	// a hang. Agent/JSON mode stays clean (progress would corrupt stdout JSON).
+	if waitForGate && !flags.asJSON {
+		deadline := time.Now().Add(gateTimeout)
+		cfg.onWait = func(attempt int, wait time.Duration) {
+			remaining := time.Until(deadline).Round(time.Second)
+			fmt.Fprintf(cmd.ErrOrStderr(), "gate challenged; waiting %s before retry %d (%s remaining of --gate-timeout)...\n", wait.Round(time.Second), attempt, remaining)
+		}
+	}
+	resp, err := retryOnGate(ctx, cfg, func() (*sunoGenerateResponse, error) {
+		// Re-mint the short-lived Clerk JWT before each attempt. A
+		// --wait-for-gate wait can outlive the session JWT (minutes), and the
+		// client reads c.Config.AuthHeader() live, so without this a long wait
+		// dies with a 401 instead of riding out the cooldown. EnsureFreshJWT
+		// no-ops when the JWT is still fresh and re-mints from the long-lived
+		// __client cookie when it has expired. Best-effort: a refresh failure
+		// falls through to the stored token and surfaces as the real error.
+		if !flags.dryRun && !cliutil.IsVerifyEnv() && c.Config != nil {
+			_ = auth.EnsureFreshJWT(ctx, c.Config)
+		}
+		return submitGeneration(ctx, c, flags.configPath, body)
+	})
 	if err != nil {
 		if isCaptchaRequired(err) {
-			return captchaRequiredError()
+			return captchaGateError(cmd, flags)
 		}
 		return classifyAPIError(err, flags)
 	}

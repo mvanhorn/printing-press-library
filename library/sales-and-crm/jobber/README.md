@@ -11,31 +11,37 @@ Created by [@melanson633](https://github.com/melanson633) (melanson633).
 The recommended path installs both the `jobber-pp-cli` binary and the `pp-jobber` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
 
 ```bash
-npx -y @mvanhorn/printing-press install jobber
+npx -y @mvanhorn/printing-press-library install jobber
 ```
 
 For CLI only (no skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install jobber --cli-only
+npx -y @mvanhorn/printing-press-library install jobber --cli-only
 ```
 
 For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install jobber --skill-only
+npx -y @mvanhorn/printing-press-library install jobber --skill-only
 ```
 
 To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
 
 ```bash
-npx -y @mvanhorn/printing-press install jobber --agent claude-code
-npx -y @mvanhorn/printing-press install jobber --agent claude-code --agent codex
+npx -y @mvanhorn/printing-press-library install jobber --agent claude-code
+npx -y @mvanhorn/printing-press-library install jobber --agent claude-code --agent codex
 ```
 
-### Without Node
+### Without Node (Go fallback)
 
-The generated install path is category-agnostic until this CLI is published. If `npx` is not available before publish, install Node or use the category-specific Go fallback from the public-library entry after publish.
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.3 or newer):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/sales-and-crm/jobber/cmd/jobber-pp-cli@latest
+```
+
+This installs the CLI only — no skill.
 
 ### Pre-built binary
 
@@ -52,17 +58,19 @@ hermes skills install mvanhorn/printing-press-library/cli-skills/pp-jobber --for
 
 Inside a Hermes chat session:
 
-```bash
+```text
 /skills install mvanhorn/printing-press-library/cli-skills/pp-jobber --force
 ```
 
 ## Install for OpenClaw
 
-Tell your OpenClaw agent (copy this):
+Install both the CLI binary and the focused OpenClaw skill into runtime-visible locations:
 
+```bash
+npx -y @mvanhorn/printing-press-library install jobber --agent openclaw --bin-dir ~/.local/bin
 ```
-Install the pp-jobber skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-jobber. The skill defines how its required CLI can be installed.
-```
+
+Restart the OpenClaw session or gateway if the newly installed skill is not visible immediately.
 
 ## Use with Claude Desktop
 
@@ -117,18 +125,14 @@ Jobber uses OAuth2 authorization code flow with mandatory refresh-token rotation
 # verify OAuth token, GraphQL version, and throttle budget before a long pull
 jobber-pp-cli doctor
 
-
 # one-time full pull of every read-only surface into local SQLite
 jobber-pp-cli sync --full
-
 
 # your first analytical question — aged AR by client, offline
 jobber-pp-cli ar aging --as-of 2026-05-15 --json
 
-
 # per-invoice ledger filtered to invoices whose payments don't equal total
 jobber-pp-cli invoices trace --mismatched --json
-
 
 # FTS5 across every text field in the synced store
 jobber-pp-cli search "smith" --json
@@ -213,7 +217,6 @@ Quotes (Jobber `quotes` Relay connection)
 Visits (Jobber `visits` Relay connection)
 
 - **`jobber-pp-cli visits`** - List visits with optional filters
-
 
 ## Output Formats
 

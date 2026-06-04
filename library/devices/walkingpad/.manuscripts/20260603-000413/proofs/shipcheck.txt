@@ -1,0 +1,161 @@
+
+=== verify ===
+warning: no servers defined in spec; generated CLI will require base_url in config
+
+Verification verdict FAIL (pass rate 100%, threshold 80%). Running fix loop (max 3 iterations)...
+
+Runtime Verification: /Users/tmchow/printing-press/.runstate/parrotfish-70cc69c0/runs/20260603-000413/working/walkingpad-pp-cli/walkingpad-pp-cli
+Mode: mock
+
+COMMAND                        KIND         HELP   DRY-RUN  EXEC     SCORE
+calories                       read         PASS   PASS     PASS     3/3
+capabilities                   read         PASS   PASS     PASS     3/3
+doctor                         local        PASS   PASS     PASS     3/3
+export                         data-layer   PASS   PASS     PASS     3/3
+last-record                    read         PASS   PASS     PASS     3/3
+mode                           read         PASS   PASS     PASS     3/3
+monitor                        read         PASS   PASS     PASS     3/3
+prefs                          read         PASS   PASS     PASS     3/3
+profile                        read         PASS   PASS     PASS     3/3
+record                         read         PASS   PASS     PASS     3/3
+scan                           read         PASS   PASS     PASS     3/3
+sessions                       read         PASS   PASS     PASS     3/3
+speed                          read         PASS   PASS     PASS     3/3
+start                          read         PASS   PASS     PASS     3/3
+status                         read         PASS   PASS     PASS     3/3
+stop                           read         PASS   PASS     PASS     3/3
+streak                         read         PASS   PASS     PASS     3/3
+today                          data-layer   PASS   PASS     PASS     3/3
+trends                         data-layer   PASS   PASS     PASS     3/3
+wake                           read         PASS   PASS     PASS     3/3
+
+Path-Param Probes (nested commands with <positional> args):
+  PASS prefs max-speed
+  PASS prefs start-speed
+
+Data Pipeline: FAIL: sync crashed
+Pass Rate: 100% (22/22 passed, 0 critical)
+Verdict: FAIL
+
+Fix Loop: 0 iterations, improved: false
+
+=== validate-narrative ===
+OK: 10 narrative commands resolved and full examples passed
+
+=== dogfood ===
+dogfood: using spec /Users/tmchow/printing-press/.runstate/parrotfish-70cc69c0/runs/20260603-000413/research/walkingpad-device.yaml (--spec)
+warning: no servers defined in spec; generated CLI will require base_url in config
+dogfood: synced README.md (Unique Features) from novel_features_built
+dogfood: synced SKILL.md (Unique Capabilities) from novel_features_built
+dogfood: synced README.md (Value Proposition) from research.json narrative
+dogfood: synced README.md (Quick Start) from research.json narrative
+dogfood: synced README.md (Authentication) from research.json narrative
+dogfood: synced SKILL.md (Auth Setup) from research.json narrative
+dogfood: synced README.md (Troubleshooting) from research.json narrative
+dogfood: synced SKILL.md (Recipes) from research.json narrative
+Dogfood Report: walkingpad-pp-cli
+================================
+
+Path Validity:     0/0 valid (N/A)
+
+Auth Protocol:     MISMATCH
+  Detail: failed to read client.go: open /Users/tmchow/printing-press/.runstate/parrotfish-70cc69c0/runs/20260603-000413/working/walkingpad-pp-cli/internal/client/client.go: no such file or directory
+
+OAuth Scope Cover: 0/0 endpoints covered (SKIP)
+  Detail: no OAuth-scoped endpoints in spec
+
+Dead Flags:        0 dead (PASS)
+
+Dead Functions:    0 dead (PASS)
+
+Data Pipeline:     PARTIAL
+  Sync: uses generic Upsert only
+  Search: uses generic Search only or direct SQL
+  Domain tables: 0
+
+Examples:          SKIP (could not discover command tree from agent-context: agent-context failed: Error: unknown command "agent-context" for "walkingpad-pp-cli"
+Run 'walkingpad-pp-cli --help' for usage.)
+
+Novel Features:    5/5 survived (PASS)
+
+MCP Surface:       SKIP (no internal/mcp/tools.go; CLI does not ship an MCP surface)
+
+Verdict: FAIL
+  - auth protocol mismatch
+  - sync uses generic Upsert only
+  - example check skipped: could not discover command tree from agent-context: agent-context failed: Error: unknown command "agent-context" for "walkingpad-pp-cli"
+Run 'walkingpad-pp-cli --help' for usage.
+  - pure-logic packages with no tests: device
+
+=== workflow-verify ===
+Workflow Verification: walkingpad-pp-cli
+================================
+
+Overall Verdict: workflow-pass
+  - no workflow manifest found, skipping
+
+=== verify-skill ===
+=== walkingpad-pp-cli ===
+  ✓ All checks passed (flag-names, flag-commands, positional-args, shell-var-quotes, unknown-command)
+
+=== scorecard ===
+Quality Scorecard: walkingpad
+
+  Output Modes         1/10
+  Auth                 10/10
+  Error Handling       0/10
+  Terminal UX          5/10
+  README               10/10
+  Doctor               0/10
+  Agent Native         4/10
+  MCP Quality          0/10
+  MCP Desc Quality     N/A
+  MCP Token Efficiency N/A
+  MCP Remote Transport N/A
+  MCP Tool Design      N/A
+  MCP Surface Strategy N/A
+  Local Cache          0/10
+  Cache Freshness      N/A
+  Breadth              4/10
+  Vision               0/10
+  Workflows            0/10
+  Insight              0/10
+  Agent Workflow       0/10
+
+  Domain Correctness
+  Path Validity           N/A
+  Auth Protocol           N/A
+  Data Pipeline Integrity 1/10
+  Sync Correctness        0/10
+  Live API Verification   N/A
+  Type Fidelity           3/5
+  Dead Code               5/5
+
+  Total: 27/100 - Grade F
+  Note: omitted from denominator: mcp_description_quality, mcp_token_efficiency, mcp_remote_transport, mcp_tool_design, mcp_surface_strategy, cache_freshness, path_validity, auth_protocol, live_api_verification
+
+Gaps:
+  - output_modes scored 1/10 - needs improvement
+  - error_handling scored 0/10 - needs improvement
+  - doctor scored 0/10 - needs improvement
+  - agent_native scored 4/10 - needs improvement
+  - mcp_quality scored 0/10 - needs improvement
+  - local_cache scored 0/10 - needs improvement
+  - breadth scored 4/10 - needs improvement
+  - vision scored 0/10 - needs improvement
+  - workflows scored 0/10 - needs improvement
+  - insight scored 0/10 - needs improvement
+  - data_pipeline_integrity scored 1/10 - needs improvement
+  - sync_correctness scored 0/10 - needs improvement
+
+Shipcheck Summary
+=================
+  LEG               RESULT  EXIT      ELAPSED
+  verify            FAIL    1         5.774s
+  validate-narrative  PASS    0         250ms
+  dogfood           PASS    0         1.352s
+  workflow-verify   PASS    0         178ms
+  verify-skill      PASS    0         1.251s
+  scorecard         PASS    0         289ms
+
+Verdict: FAIL (1/6 legs failed)

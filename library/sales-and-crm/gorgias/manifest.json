@@ -1,0 +1,53 @@
+{
+  "manifest_version": "0.3",
+  "name": "gorgias-pp-mcp",
+  "display_name": "Gorgias",
+  "version": "0.1.7",
+  "description": "Agent-native Gorgias support CLI with ticket triage, local sync, search, analytics, and MCP orchestration.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/gorgias-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/gorgias-pp-mcp",
+      "args": [],
+      "env": {
+        "GORGIAS_API_KEY": "${user_config.gorgias_api_key}",
+        "GORGIAS_BASE_URL": "${user_config.gorgias_base_url}",
+        "GORGIAS_USERNAME": "${user_config.gorgias_username}"
+      }
+    }
+  },
+  "user_config": {
+    "gorgias_api_key": {
+      "type": "string",
+      "title": "GORGIAS_API_KEY",
+      "description": "Sets GORGIAS_API_KEY for the Gorgias MCP server. Create one in Gorgias Settings -> Account -> REST API.",
+      "sensitive": true,
+      "required": true
+    },
+    "gorgias_base_url": {
+      "type": "string",
+      "title": "GORGIAS_BASE_URL",
+      "description": "Sets the tenant API URL, for example https://your-tenant.gorgias.com/api.",
+      "required": true
+    },
+    "gorgias_username": {
+      "type": "string",
+      "title": "GORGIAS_USERNAME",
+      "description": "Sets GORGIAS_USERNAME for HTTP Basic auth.",
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

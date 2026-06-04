@@ -4,7 +4,7 @@
 
 Syncs the full TBM GTFS dataset locally so schedule lookups, stop searches, and frequency analysis work without an internet connection. Overlays live real-time data from the SIRI-Lite API for arrival predictions, vehicle tracking, and disruption alerts. Computes journeys, detects ghost services, and diffs timetable changes — capabilities no existing Bordeaux transit tool provides.
 
-Printed by [@pawlclawbot](https://github.com/pawlclawbot).
+Created by [@pawlclawbot](https://github.com/pawlclawbot) (pawlclawbot).
 
 ## Install
 
@@ -58,17 +58,19 @@ hermes skills install mvanhorn/printing-press-library/cli-skills/pp-infotbm --fo
 
 Inside a Hermes chat session:
 
-```bash
+```text
 /skills install mvanhorn/printing-press-library/cli-skills/pp-infotbm --force
 ```
 
 ## Install for OpenClaw
 
-Tell your OpenClaw agent (copy this):
+Install both the CLI binary and the focused OpenClaw skill into runtime-visible locations:
 
+```bash
+npx -y @mvanhorn/printing-press-library install infotbm --agent openclaw --bin-dir ~/.local/bin
 ```
-Install the pp-infotbm skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-infotbm. The skill defines how its required CLI can be installed.
-```
+
+Restart the OpenClaw session or gateway if the newly installed skill is not visible immediately.
 
 ## Use with Claude Desktop
 
@@ -197,7 +199,6 @@ These capabilities aren't available in any other tool for this API.
 
 ## Recipes
 
-
 ### Morning commute check
 
 ```bash
@@ -246,56 +247,38 @@ Run `infotbm-pp-cli --help` for the full command reference and flag list.
 
 ### agencies
 
-
-
 - **`infotbm-pp-cli agencies`** - Transit agencies in the Bordeaux network
 
 ### alerts
-
-
 
 - **`infotbm-pp-cli alerts`** - Active service disruption alerts
 
 ### fares
 
-
-
 - **`infotbm-pp-cli fares`** - Fare structure including pricing and transfer rules
 
 ### feed-info
-
-
 
 - **`infotbm-pp-cli feed-info`** - GTFS feed metadata including validity dates and timestamps
 
 ### kml
 
-
-
 - **`infotbm-pp-cli kml`** - KML geographic data export with route geometry and stop locations
 
 ### realtime
-
-
 
 - **`infotbm-pp-cli realtime stop`** - Real-time departure information at a specific stop
 - **`infotbm-pp-cli realtime vehicles`** - Real-time vehicle positions across the network
 
 ### routes
 
-
-
 - **`infotbm-pp-cli routes`** - All transit routes/lines in the TBM network
 
 ### server-info
 
-
-
 - **`infotbm-pp-cli server-info`** - API version and build information
 
 ### siri
-
-
 
 - **`infotbm-pp-cli siri check-status`** - SIRI service health check
 - **`infotbm-pp-cli siri estimated-timetable`** - Estimated real-time timetable for a line
@@ -306,10 +289,7 @@ Run `infotbm-pp-cli --help` for the full command reference and flag list.
 
 ### stops
 
-
-
 - **`infotbm-pp-cli stops`** - All transit stops in the TBM network
-
 
 ## Output Formats
 

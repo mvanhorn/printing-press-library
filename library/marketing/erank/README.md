@@ -60,17 +60,19 @@ hermes skills install mvanhorn/printing-press-library/cli-skills/pp-erank --forc
 
 Inside a Hermes chat session:
 
-```bash
+```text
 /skills install mvanhorn/printing-press-library/cli-skills/pp-erank --force
 ```
 
 ## Install for OpenClaw
 
-Tell your OpenClaw agent (copy this):
+Install both the CLI binary and the focused OpenClaw skill into runtime-visible locations:
 
+```bash
+npx -y @mvanhorn/printing-press-library install erank --agent openclaw --bin-dir ~/.local/bin
 ```
-Install the pp-erank skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-erank. The skill defines how its required CLI can be installed.
-```
+
+Restart the OpenClaw session or gateway if the newly installed skill is not visible immediately.
 
 ## Use with Claude Desktop
 
@@ -197,7 +199,6 @@ These capabilities aren't available in any other tool for this API.
 
 ## Recipes
 
-
 ### Compact top listings for an agent
 
 ```bash
@@ -315,7 +316,6 @@ Operations on daily
 Operations on last-refresh
 
 - **`erank-pp-cli refresh-data`** - GET /api/refresh-data/listings/last-refresh
-
 
 ## Output Formats
 

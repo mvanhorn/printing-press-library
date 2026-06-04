@@ -22,12 +22,12 @@ metadata:
 
 This skill drives the `yahoo-finance-pp-cli` binary. **You must verify the CLI is installed before invoking any command from this skill.** If it is missing, install it first:
 
-1. Install via the Printing Press installer:
+1. Install via the Printing Press installer into a user bin directory:
    ```bash
-   npx -y @mvanhorn/printing-press-library install yahoo-finance --cli-only
+   npx -y @mvanhorn/printing-press-library install yahoo-finance --cli-only --bin-dir ~/.local/bin
    ```
 2. Verify: `yahoo-finance-pp-cli --version`
-3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
+3. Ensure `~/.local/bin` is on `$PATH` for the agent/runtime that will invoke this skill.
 
 If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.3 or newer):
 
@@ -35,9 +35,7 @@ If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go in
 go install github.com/mvanhorn/printing-press-library/library/commerce/yahoo-finance/cmd/yahoo-finance-pp-cli@latest
 ```
 
-If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
-
-yahoo-finance-pp-cli matches yfinance and yahoo-finance2 for raw endpoint coverage, then adds the things only a local store + agent-shaped CLI can do: cost-basis-aware portfolio performance, dividend income with yield-on-cost, a SQL-backed fundamentals screener, options moneyness + DTE filtering, and an `auth login --chrome` cookie escape hatch when Yahoo blocks your IP.
+If `--version` reports "command not found" after install, the runtime cannot see the binary directory on `$PATH`. Do not proceed with skill commands until verification succeeds.
 
 ## When to Use This CLI
 

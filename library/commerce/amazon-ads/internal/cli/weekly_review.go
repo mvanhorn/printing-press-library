@@ -46,6 +46,7 @@ func newWeeklyReviewCmd(flags *rootFlags) *cobra.Command {
 			if campaignReport == "" && searchTermReport == "" && keywordReport == "" {
 				return usageErr(fmt.Errorf("at least one of --campaign-report, --search-term-report, or --keyword-report is required"))
 			}
+			targetSource := weeklyTargetSource(targetACOS, grossMargin, cogsPath)
 			if targetACOS <= 0 {
 				if grossMargin > 0 {
 					targetACOS = grossMargin
@@ -103,8 +104,9 @@ func newWeeklyReviewCmd(flags *rootFlags) *cobra.Command {
 			})
 			out := map[string]any{
 				"dry_run":            true,
-				"target_acos":        targetACOS,
-				"target_acos_source": weeklyTargetSource(targetACOS, grossMargin, cogsPath),
+				"target_acos":        plan.TargetACOS,
+				"target_acos_pct":    targetACOS,
+				"target_acos_source": targetSource,
 				"campaign_report":    campaignReport,
 				"search_term_report": searchTermReport,
 				"keyword_report":     keywordReport,
@@ -137,6 +139,9 @@ func newWeeklyReviewCmd(flags *rootFlags) *cobra.Command {
 				if err != nil {
 					if auditErr := attachAutomationAudit(cmd, out, "weekly-review", strings.Join([]string{campaignReport, searchTermReport, keywordReport}, ","), automationMode(apply, flags.dryRun), plan.Actions, dbPath); auditErr != nil {
 						return auditErr
+					}
+					if printErr := printCommandJSON(cmd, flags, out); printErr != nil {
+						return printErr
 					}
 					return err
 				}
@@ -342,71 +347,44 @@ func verifyWeeklyAction(cmd *cobra.Command, c *client.Client, action adsanalytic
 }
 
 func jsonNumberMatches(raw json.RawMessage, key string, expected float64) bool {
-	var payload any
+	var payload map[string]any
 	if err := json.Unmarshal(raw, &payload); err != nil {
 		return false
 	}
-	value, ok := findJSONNumber(payload, key)
-	return ok && math.Abs(value-expected) < 0.005
+	value, ok := payload[key]
+	if !ok {
+		return false
+	}
+	number, ok := jsonValueNumber(value)
+	return ok && math.Abs(number-expected) < 0.005
+}
+
+func jsonValueNumber(value any) (float64, bool) {
+	switch n := value.(type) {
+	case float64:
+		return n, true
+	case string:
+		return parseFloatLoose(n)
+	default:
+		return 0, false
+	}
+
 }
 
 func jsonStringMatches(raw json.RawMessage, key, expected string) bool {
-	var payload any
+	var payload map[string]any
 	if err := json.Unmarshal(raw, &payload); err != nil {
 		return false
 	}
-	value, ok := findJSONString(payload, key)
-	return ok && value == expected
-}
-
-func findJSONNumber(v any, key string) (float64, bool) {
-	switch x := v.(type) {
-	case map[string]any:
-		for k, child := range x {
-			if k == key {
-				switch n := child.(type) {
-				case float64:
-					return n, true
-				case string:
-					return parseFloatLoose(n)
-				}
-			}
-			if n, ok := findJSONNumber(child, key); ok {
-				return n, true
-			}
-		}
-	case []any:
-		for _, child := range x {
-			if n, ok := findJSONNumber(child, key); ok {
-				return n, true
-			}
-		}
+	value, ok := payload[key]
+	if !ok {
+		return false
 	}
-	return 0, false
-}
-
-func findJSONString(v any, key string) (string, bool) {
-	switch x := v.(type) {
-	case map[string]any:
-		for k, child := range x {
-			if k == key {
-				if s, ok := child.(string); ok {
-					return s, true
-				}
-				return fmt.Sprint(child), true
-			}
-			if s, ok := findJSONString(child, key); ok {
-				return s, true
-			}
-		}
-	case []any:
-		for _, child := range x {
-			if s, ok := findJSONString(child, key); ok {
-				return s, true
-			}
-		}
+	stringValue, ok := value.(string)
+	if !ok {
+		stringValue = fmt.Sprint(value)
 	}
-	return "", false
+	return stringValue == expected
 }
 
 func parseFloatLoose(raw string) (float64, bool) {
@@ -432,12 +410,14 @@ func averageBreakEvenACOS(costs map[string]adsanalytics.ProductCost) float64 {
 }
 
 func weeklyTargetSource(targetACOS, grossMargin float64, cogsPath string) string {
-	switch {
-	case grossMargin > 0:
-		return "gross_margin_pct"
-	case cogsPath != "":
-		return "cogs_file_average_break_even_acos"
-	default:
+	if targetACOS > 0 {
 		return "target_acos"
 	}
+	if grossMargin > 0 {
+		return "gross_margin_pct"
+	}
+	if cogsPath != "" {
+		return "cogs_file_average_break_even_acos"
+	}
+	return "target_acos"
 }

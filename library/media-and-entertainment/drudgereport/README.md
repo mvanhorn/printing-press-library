@@ -11,31 +11,37 @@ Created by [@mvanhorn](https://github.com/mvanhorn) (Matt Van Horn).
 The recommended path installs both the `drudgereport-pp-cli` binary and the `pp-drudgereport` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
 
 ```bash
-npx -y @mvanhorn/printing-press install drudgereport
+npx -y @mvanhorn/printing-press-library install drudgereport
 ```
 
 For CLI only (no skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install drudgereport --cli-only
+npx -y @mvanhorn/printing-press-library install drudgereport --cli-only
 ```
 
 For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install drudgereport --skill-only
+npx -y @mvanhorn/printing-press-library install drudgereport --skill-only
 ```
 
 To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
 
 ```bash
-npx -y @mvanhorn/printing-press install drudgereport --agent claude-code
-npx -y @mvanhorn/printing-press install drudgereport --agent claude-code --agent codex
+npx -y @mvanhorn/printing-press-library install drudgereport --agent claude-code
+npx -y @mvanhorn/printing-press-library install drudgereport --agent claude-code --agent codex
 ```
 
-### Without Node
+### Without Node (Go fallback)
 
-The generated install path is category-agnostic until this CLI is published. If `npx` is not available before publish, install Node or use the category-specific Go fallback from the public-library entry after publish.
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.3 or newer):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/media-and-entertainment/drudgereport/cmd/drudgereport-pp-cli@latest
+```
+
+This installs the CLI only — no skill.
 
 ### Pre-built binary
 
@@ -52,17 +58,19 @@ hermes skills install mvanhorn/printing-press-library/cli-skills/pp-drudgereport
 
 Inside a Hermes chat session:
 
-```bash
+```text
 /skills install mvanhorn/printing-press-library/cli-skills/pp-drudgereport --force
 ```
 
 ## Install for OpenClaw
 
-Tell your OpenClaw agent (copy this):
+Install both the CLI binary and the focused OpenClaw skill into runtime-visible locations:
 
+```bash
+npx -y @mvanhorn/printing-press-library install drudgereport --agent openclaw --bin-dir ~/.local/bin
 ```
-Install the pp-drudgereport skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-drudgereport. The skill defines how its required CLI can be installed.
-```
+
+Restart the OpenClaw session or gateway if the newly installed skill is not visible immediately.
 
 ## Use with Claude Desktop
 
@@ -103,22 +111,17 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
 # the one command an agent should reach for first when asked 'what's on Drudge?'
 drudgereport splash --json
 
-
 # every red headline right now, ordered by slot
 drudgereport breaking --json
-
 
 # ranked headlines in agent-shaped form
 drudgereport headlines --limit 10 --json --select title,slot,is_red,url
 
-
 # snapshot the current page into local SQLite so tail/tenure/on-date have history to draw on
 drudgereport sync
 
-
 # what got promoted, demoted, or went red in the last 6 hours
 drudgereport tail --since 6h --json
-
 
 # longest-tenured splashes the CLI has observed
 drudgereport tenure --history --json
@@ -222,7 +225,6 @@ Unofficial community RSS feed mirror of Drudge Report (feedpress.me). Used as a 
 Drudge Report's curated home page. Most users should run `sync` then `splash`/`headlines`/`breaking`; the raw fetch is exposed for debugging.
 
 - **`drudgereport-pp-cli page`** - Fetch the raw drudgereport.com HTML page. The CLI's parser turns this into ranked headlines with slot, is_red, image_url, and outbound_domain fields. Most users do not need to call this directly.
-
 
 ## Output Formats
 

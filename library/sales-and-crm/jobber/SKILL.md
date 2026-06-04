@@ -18,12 +18,12 @@ metadata:
 
 This skill drives the `jobber-pp-cli` binary. **You must verify the CLI is installed before invoking any command from this skill.** If it is missing, install it first:
 
-1. Install via the Printing Press installer:
+1. Install via the Printing Press installer into a user bin directory:
    ```bash
-   npx -y @mvanhorn/printing-press install jobber --cli-only
+   npx -y @mvanhorn/printing-press-library install jobber --cli-only --bin-dir ~/.local/bin
    ```
 2. Verify: `jobber-pp-cli --version`
-3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
+3. Ensure `~/.local/bin` is on `$PATH` for the agent/runtime that will invoke this skill.
 
 If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.3 or newer):
 
@@ -31,9 +31,7 @@ If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go in
 go install github.com/mvanhorn/printing-press-library/library/sales-and-crm/jobber/cmd/jobber-pp-cli@latest
 ```
 
-If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
-
-The `jobber-pp-cli` binary syncs the whole Jobber GraphQL surface into a local SQLite database, then lets you slice it with `ar aging`, `invoices trace`, `snapshot diff`, FTS `search`, and ad-hoc `sql`. Existing Jobber MCPs are RPC proxies — you can't run them on a plane, you can't compose them with SQL, and they don't store data locally. This tool does. It also ships read-only by construction (no mutation commands are emitted), which makes it safe to hand to an advisor or auditor on a live client tenant.
+If `--version` reports "command not found" after install, the runtime cannot see the binary directory on `$PATH`. Do not proceed with skill commands until verification succeeds.
 
 ## When to Use This CLI
 

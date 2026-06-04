@@ -1,5 +1,6 @@
 import { BUNDLES, isBundle } from "../bundles.js";
-import { realpath } from "node:fs/promises";
+import { mkdir, realpath } from "node:fs/promises";
+import { isAbsolute, resolve } from "node:path";
 import { detectGo, goInstall, goInstallDir, type GoDetection, type GoInstallDir } from "../go.js";
 import { pathFixInstructions } from "../pathfix.js";
 import { commandOnPath, type RunResult } from "../process.js";
@@ -20,6 +21,7 @@ interface InstallOptions {
   registryUrl: string;
   cliOnly: boolean;
   skillOnly: boolean;
+  binDir?: string;
 }
 
 interface InstallDeps {
@@ -30,6 +32,7 @@ interface InstallDeps {
   goInstallDir: () => Promise<GoInstallDir>;
   commandOnPath: (binary: string) => Promise<string | null>;
   realpath: (path: string) => Promise<string | null>;
+  mkdir: (path: string) => Promise<void>;
   installSkill: (skillName: string, agents: string[]) => Promise<RunResult>;
   stdout: (message: string) => void;
   stderr: (message: string) => void;
@@ -38,6 +41,8 @@ interface InstallDeps {
   shell?: string;
   /** Home directory, used to prefer the portable `$HOME/go/bin` form in PATH instructions. */
   home?: string;
+  /** Environment inherited by subprocesses; injectable for targeted install tests. */
+  env: NodeJS.ProcessEnv;
 }
 
 interface InstallSummary {
@@ -82,20 +87,26 @@ export function createInstallCommand(overrides: Partial<InstallDeps> = {}) {
         return null;
       }
     },
+    mkdir: async (path) => {
+      await mkdir(path, { recursive: true });
+    },
     installSkill: (skillName, agents) => installSkill(skillName, { agents }),
     stdout: (message) => console.log(message),
     stderr: (message) => console.error(message),
     platform: process.platform,
     shell: process.env.SHELL,
     home: process.env.HOME ?? process.env.USERPROFILE,
+    env: process.env,
     ...overrides,
   };
 
   return async function installCommandWithDeps(args: string[]): Promise<number> {
-    const parsed = parseInstallArgs(args);
+    const parsed = parseInstallArgs(args, deps.home);
     if ("error" in parsed) {
       deps.stderr(parsed.error);
-      deps.stderr("Usage: printing-press-library install <name|bundle>... [--agent <agent>...] [--json]");
+      deps.stderr(
+        "Usage: printing-press-library install <name|bundle>... [--agent <agent>...] [--bin-dir <dir>] [--json]",
+      );
       return 1;
     }
 
@@ -156,7 +167,19 @@ async function installOne(
       `github.com/mvanhorn/printing-press-library/${entry.path}`;
     const modulePath = `${moduleRoot}/cmd/${binary}`;
 
-    const install = await deps.goInstall(modulePath, "latest");
+    if (options.binDir) {
+      try {
+        await deps.mkdir(options.binDir);
+      } catch (error) {
+        deps.stderr(
+          `Failed to create --bin-dir ${options.binDir}: ${error instanceof Error ? error.message : String(error)}`,
+        );
+        return { ok: false, name: entry.name, error: "bin dir create failed" };
+      }
+    }
+
+    const installEnv = options.binDir ? { ...deps.env, GOBIN: options.binDir } : undefined;
+    const install = await deps.goInstall(modulePath, "latest", installEnv);
     if (install.code !== 0) {
       deps.stderr(`go install failed for ${modulePath}`);
       if (install.stderr.trim()) {
@@ -165,7 +188,7 @@ async function installOne(
       return { ok: false, name: entry.name, error: "go install failed" };
     }
 
-    const installed = await resolveInstalledPath(binary, deps);
+    const installed = await resolveInstalledPath(binary, deps, options.binDir);
     const installedPath = installed?.binaryPath ?? null;
     const pathBinaryPath = await deps.commandOnPath(binary);
 
@@ -292,7 +315,10 @@ function reportResults(outcomes: InstallOutcome[], options: InstallOptions, deps
 
 export const installCommand = createInstallCommand();
 
-function parseInstallArgs(args: string[]):
+function parseInstallArgs(
+  args: string[],
+  home?: string,
+):
   | { names: string[]; options: InstallOptions }
   | { error: string } {
   const options: InstallOptions = {
@@ -312,6 +338,12 @@ function parseInstallArgs(args: string[]):
       options.cliOnly = true;
     } else if (arg === "--skill-only") {
       options.skillOnly = true;
+    } else if (arg === "--bin-dir") {
+      const value = args[++i];
+      if (!value) {
+        return { error: "Missing value for --bin-dir" };
+      }
+      options.binDir = normalizeBinDir(value, home);
     } else if (arg === "--agent" || arg === "-a") {
       const agent = args[++i];
       if (!agent) {
@@ -333,6 +365,10 @@ function parseInstallArgs(args: string[]):
 
   if (options.cliOnly && options.skillOnly) {
     return { error: "--cli-only and --skill-only are mutually exclusive" };
+  }
+
+  if (options.skillOnly && options.binDir) {
+    return { error: "--bin-dir cannot be used with --skill-only" };
   }
 
   if (names.length === 0) {
@@ -362,7 +398,15 @@ interface InstalledPath {
 async function resolveInstalledPath(
   binary: string,
   deps: InstallDeps,
+  binDirOverride?: string,
 ): Promise<InstalledPath | null> {
+  if (binDirOverride) {
+    const sep = deps.platform === "win32" ? "\\" : "/";
+    const suffix = deps.platform === "win32" ? ".exe" : "";
+    const clean = stripTrailingSeparators(binDirOverride);
+    return { binDir: clean, binaryPath: `${clean}${sep}${binary}${suffix}` };
+  }
+
   const info = await deps.goInstallDir();
   if (!info.binDir) {
     return null;
@@ -370,6 +414,29 @@ async function resolveInstalledPath(
   const sep = deps.platform === "win32" ? "\\" : "/";
   const suffix = deps.platform === "win32" ? ".exe" : "";
   return { binDir: info.binDir, binaryPath: `${info.binDir}${sep}${binary}${suffix}` };
+}
+
+function normalizeBinDir(input: string, home?: string): string {
+  const expanded = expandHome(input, home);
+  const cleaned = stripTrailingSeparators(expanded);
+  return isAbsolute(cleaned) ? cleaned : resolve(cleaned);
+}
+
+function expandHome(input: string, home?: string): string {
+  if (!home) {
+    return input;
+  }
+  if (input === "~") {
+    return home;
+  }
+  if (input.startsWith("~/") || input.startsWith("~\\")) {
+    return `${home}${input.slice(1)}`;
+  }
+  return input;
+}
+
+function stripTrailingSeparators(path: string): string {
+  return path.replace(/[\\/]+$/, "");
 }
 
 function memoize<T>(fn: () => Promise<T>): () => Promise<T> {

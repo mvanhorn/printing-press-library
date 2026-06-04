@@ -4,6 +4,8 @@
 
 Lemon Squeezy's official SDKs are libraries, not CLIs, and the dashboard is a click-walk per store. This CLI mirrors all 19 LS resources to local SQLite with offline FTS5 and cross-entity SQL, then layers transcendence commands — `revenue-snapshot`, `mrr-trend`, `churn-watch`, `dunning-alert`, `license-rollup`, `refund-cascade`, `campaign-watch`, `webhook-audit` — that combine entities no single endpoint returns. Built for indie SaaS founders and license-key sellers who live in the LS state machine.
 
+Created by [@jcastillo725](https://github.com/jcastillo725) (Joseph Alvin Castillo).
+
 ## Install
 
 The recommended path installs both the `lemonsqueezy-pp-cli` binary and the `pp-lemonsqueezy` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
@@ -56,17 +58,19 @@ hermes skills install mvanhorn/printing-press-library/cli-skills/pp-lemonsqueezy
 
 Inside a Hermes chat session:
 
-```bash
+```text
 /skills install mvanhorn/printing-press-library/cli-skills/pp-lemonsqueezy --force
 ```
 
 ## Install for OpenClaw
 
-Tell your OpenClaw agent (copy this):
+Install both the CLI binary and the focused OpenClaw skill into runtime-visible locations:
 
+```bash
+npx -y @mvanhorn/printing-press-library install lemonsqueezy --agent openclaw --bin-dir ~/.local/bin
 ```
-Install the pp-lemonsqueezy skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-lemonsqueezy. The skill defines how its required CLI can be installed.
-```
+
+Restart the OpenClaw session or gateway if the newly installed skill is not visible immediately.
 
 ## Use with Claude Desktop
 
@@ -195,7 +199,6 @@ These capabilities aren't available in any other tool for this API.
   ```
 
 ## Recipes
-
 
 ### Monday-morning revenue + churn sweep
 
@@ -397,7 +400,6 @@ Manage webhooks
 - **`lemonsqueezy-pp-cli webhooks get`** - Lemon Squeezy Retrieve a webhook
 - **`lemonsqueezy-pp-cli webhooks list`** - Lemon Squeezy List all webhooks
 - **`lemonsqueezy-pp-cli webhooks update`** - Lemon Squeezy Update a webhook
-
 
 ## Output Formats
 

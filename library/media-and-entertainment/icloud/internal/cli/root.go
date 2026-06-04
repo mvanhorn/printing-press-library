@@ -24,8 +24,8 @@ func Execute() error {
 
 	root := &cobra.Command{
 		Use:   "icloud-pp-cli",
-		Short: "Query your iCloud data from the command line",
-		Long: `icloud-pp-cli gives AI agents and power users direct access to iCloud data
+		Short: "Query your Apple iCloud data from the command line",
+		Long: `icloud-pp-cli gives AI agents and power users direct access to Apple iCloud data
 stored locally on macOS — Photos library storage analysis today, with Contacts
 and more coming.
 

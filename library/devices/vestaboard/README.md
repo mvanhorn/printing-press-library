@@ -60,17 +60,19 @@ hermes skills install mvanhorn/printing-press-library/cli-skills/pp-vestaboard -
 
 Inside a Hermes chat session:
 
-```bash
+```text
 /skills install mvanhorn/printing-press-library/cli-skills/pp-vestaboard --force
 ```
 
 ## Install for OpenClaw
 
-Tell your OpenClaw agent (copy this):
+Install both the CLI binary and the focused OpenClaw skill into runtime-visible locations:
 
+```bash
+npx -y @mvanhorn/printing-press-library install vestaboard --agent openclaw --bin-dir ~/.local/bin
 ```
-Install the pp-vestaboard skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-vestaboard. The skill defines how its required CLI can be installed.
-```
+
+Restart the OpenClaw session or gateway if the newly installed skill is not visible immediately.
 
 ## Use with Claude Desktop
 
@@ -154,7 +156,6 @@ These capabilities aren't available in any other tool for this API.
 
 ## Recipes
 
-
 ### Read the board as text
 
 ```bash
@@ -212,7 +213,6 @@ Transition animation settings for the board (Flagship and Note devices).
 Vestaboard Markup Language (VBML) text formatting service.
 
 - **`vestaboard-pp-cli vbml`** - Convert a text string into a 2D array of Vestaboard character codes.
-
 
 ## Output Formats
 

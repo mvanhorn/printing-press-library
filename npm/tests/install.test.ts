@@ -404,6 +404,51 @@ test("install command with --skill-only skips go install and PATH check", async 
   assert.doesNotMatch(stdout.join("\n"), /binary:/);
 });
 
+test("install command with --bin-dir sets GOBIN and reports the chosen binary path", async () => {
+  const goCalls: Array<{ modulePath: string; env?: NodeJS.ProcessEnv }> = [];
+  const mkdirCalls: string[] = [];
+  const stdout: string[] = [];
+  const command = createInstallCommand({
+    fetchRegistry: async () => registry,
+    resolveModulePath: async () => null,
+    detectGo: async () => ({ installed: true }),
+    goInstall: async (modulePath, _ref, env) => {
+      goCalls.push({ modulePath, env });
+      return ok();
+    },
+    goInstallDir: async () => {
+      throw new Error("goInstallDir should not be called when --bin-dir is explicit");
+    },
+    mkdir: async (path) => {
+      mkdirCalls.push(path);
+    },
+    commandOnPath: async () => "/Users/example/.local/bin/espn-pp-cli",
+    installSkill: async () => ok(),
+    stdout: (message) => stdout.push(message),
+    stderr: () => {},
+    home: "/Users/example",
+    env: { KEEP_ME: "yes", GOBIN: "/old/go/bin" },
+  });
+
+  assert.equal(await command(["espn", "--bin-dir", "~/.local/bin"]), 0);
+  assert.deepEqual(mkdirCalls, ["/Users/example/.local/bin"]);
+  assert.equal(goCalls.length, 1);
+  assert.equal(goCalls[0]!.env?.KEEP_ME, "yes");
+  assert.equal(goCalls[0]!.env?.GOBIN, "/Users/example/.local/bin");
+  assert.match(stdout.join("\n"), /binary: \/Users\/example\/\.local\/bin\/espn-pp-cli/);
+});
+
+test("install command rejects --bin-dir with --skill-only", async () => {
+  const stderr: string[] = [];
+  const command = createInstallCommand({
+    fetchRegistry: async () => registry,
+    stderr: (message) => stderr.push(message),
+  });
+
+  assert.equal(await command(["espn", "--skill-only", "--bin-dir", "/tmp/bin"]), 1);
+  assert.match(stderr.join("\n"), /--bin-dir cannot be used with --skill-only/);
+});
+
 test("install command rejects --cli-only and --skill-only together", async () => {
   const stderr: string[] = [];
   const command = createInstallCommand({

@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "id": "multicity",
+  "applied_at": "2026-06-02",
+  "base_run_id": "",
+  "base_printing_press_version": "3.6.0",
+  "summary": "Add cross-provider multi-city flight search to the `flights` command via a repeatable --segment flag and a --provider switch (kayak | google | auto). Kayak returns real flight prices; Google generates an authenticated-multi-city deeplink (the underlying Google POST requires a cookie jar).",
+  "reason": "Two providers, two integration shapes: (A) Google Flights' multi-city POST requires an authenticated Google session (SAPISID cookie + XSRF hash); anonymous POSTs return travel.frontend.flights.ErrorResponse regardless of session-token / f.sid / build-string tweaks (verified empirically). flight-goat has no cookie jar, so the Google path generates the canonical multi-city URL via a hand-rolled tfs-protobuf encoder; the URL opens to a fully-prefilled multi-city search where Google's UI handles auth from the user's browser session. (B) Kayak's POST /i/api/search/dynamic/flights/poll works server-side without authentication — only requires CSRF formToken (regex-scraped from the shell HTML) + the session cookies the initial GET sets. Two-phase polling, denormalized response with leg/segment IDs that look up into top-level lookup maps. Default --provider=auto runs Kayak for prices + appends Google URL. The existing tripType=1/2 one-way + round-trip POSTs are unchanged. (C) MOVING TARGET — the tfs protobuf `field 2` varint is 1, which is the value encodeTFSMultiCity emits and the value the live smoke test confirmed renders the prefilled multi-city UI; the package-doc schema was hand-decoded by inspection and previously mis-noted this field as 2. Keep code and comment at 1 unless a fresh browser capture proves otherwise — a reprint must not 'fix' the comment back to 2. (D) Kayak's incremental search can exhaust maxPolls (6) before status reaches 'complete', leaving a partial result set (e.g. 8 of 1567 itineraries). SearchMultiCity reports this via MultiCityResult.Complete and runMultiCity surfaces it as a `complete:false` envelope field plus a warning Note, so an agent/user is not misled into reading Count as the full set. A reprint must preserve this completeness signal rather than returning partial data under a bare success:true.",
+  "files": [
+    "internal/gflights/gflights.go",
+    "internal/gflights/dates_native.go",
+    "internal/gflights/flights_native.go",
+    "internal/gflights/multicity.go",
+    "internal/gflights/multicity_test.go",
+    "internal/gflights/capture_test.go",
+    "internal/kayak/multicity.go",
+    "internal/kayak/multicity_test.go",
+    "internal/cli/primary.go",
+    "internal/cli/multicity_segments_test.go"
+  ],
+  "validated_outcome": "go build ./... + go vet ./... + go test ./... all green. 19 multi-city tests covering Google URL builder (4 incl. one-way regression guard), CLI segment parser (5), and Kayak URL/body/parser plus the new completeness-signal coverage (10) — two httptest-backed tests assert MultiCityResult.Complete is false when the poll loop exhausts maxPolls without status:complete (partial set preserved) and true when status:complete stops it early. Live smoke tests confirmed: (a) --provider google returns a Google Flights URL that loads the multi-city search page with prefilled dates + IATA codes; (b) --provider kayak returns 50 itineraries (totalCount 1567) for a 3-segment SFO→NRT→ICN→SFO query, cheapest at $1,161 via UA, with bookable kayak.com URLs. govulncheck reports 0 reachable vulnerabilities introduced by this patch (the only findings are pre-existing stdlib crypto/x509 toolchain-version advisories in untouched probe.go/main.go paths).",
+  "upstream_issue": ""
+}

@@ -22,12 +22,12 @@ metadata:
 
 This skill drives the `gisis-pp-cli` binary. **You must verify the CLI is installed before invoking any command from this skill.** If it is missing, install it first:
 
-1. Install via the Printing Press installer:
+1. Install via the Printing Press installer into a user bin directory:
    ```bash
-   npx -y @mvanhorn/printing-press-library install gisis --cli-only
+   npx -y @mvanhorn/printing-press-library install gisis --cli-only --bin-dir ~/.local/bin
    ```
 2. Verify: `gisis-pp-cli --version`
-3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
+3. Ensure `~/.local/bin` is on `$PATH` for the agent/runtime that will invoke this skill.
 
 If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.3 or newer):
 
@@ -35,9 +35,7 @@ If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go in
 go install github.com/mvanhorn/printing-press-library/library/other/gisis/cmd/gisis-pp-cli@latest
 ```
 
-If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
-
-GISIS is the IMO's canonical ship registry, gated by a login + Cloudflare Turnstile and only readable from a server-rendered web app. This CLI scrapes it politely (1 req/2-3s), caches every result to local SQLite, exposes 'ship get' as an MCP tool, and adds maritime-DD-specific commands like 'ship history' for flag-hop detection and 'owner fleet' for counterparty exposure that the GISIS web app itself can't answer.
+If `--version` reports "command not found" after install, the runtime cannot see the binary directory on `$PATH`. Do not proceed with skill commands until verification succeeds.
 
 ## When to Use This CLI
 

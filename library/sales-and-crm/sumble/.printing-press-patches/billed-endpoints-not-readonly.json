@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "id": "billed-endpoints-not-readonly",
+  "applied_at": "2026-05-22",
+  "base_run_id": "20260521-201949",
+  "base_printing_press_version": "4.11.0",
+  "summary": "Removed read-only annotation (Cobra mcp:read-only and typed-MCP readOnlyHint) from generated endpoint mirrors that bill Sumble credits.",
+  "reason": "The generator marks GET/search endpoints mcp:read-only (correct for 'no state mutation'), but Sumble is usage-based: these reads cost credits (e.g. intelligence-brief 50, organizations find 5/org). Read-only would let an MCP agent call them without a confirmation prompt, defeating the CLI's credit-frugality goal.",
+  "files": [
+    "internal/cli/organizations_intelligence-brief.go",
+    "internal/cli/organizations_find.go",
+    "internal/cli/people_find.go",
+    "internal/cli/postings_find.go",
+    "internal/cli/postings_get.go",
+    "internal/cli/contact-lists_get.go",
+    "internal/cli/contact-lists_list.go",
+    "internal/cli/organization-lists_get.go",
+    "internal/cli/organization-lists_list.go",
+    "internal/cli/promoted_technologies.go",
+    "internal/mcp/tools.go"
+  ],
+  "validated_outcome": "go vet ./... && go build ./..."
+}

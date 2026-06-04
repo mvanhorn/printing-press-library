@@ -621,6 +621,54 @@
       }
     },
     {
+      "name": "ankiweb",
+      "category": "education",
+      "api": "Ankiweb",
+      "description": "The only terminal-native way to search, rank",
+      "search_terms": [
+        "ankiweb",
+        "ankiweb-pp-cli",
+        "Approval-rate ranking",
+        "shared rank",
+        "Rank shared decks by approval rate (upvotes vs downvotes) with a minimum-vote floor, instead of the raw vote counts the website shows.",
+        "Audio/image coverage filter",
+        "shared search",
+        "Filter shared decks by whether they include audio or images, critical for language learners.",
+        "Side-by-side deck comparison",
+        "compare",
+        "Compare multiple shared decks in one table: approval rate, note count, audio/image coverage, and freshness.",
+        "Freshness ranking",
+        "shared fresh",
+        "Rank or filter shared decks by last-modified date to surface actively maintained decks.",
+        "New-deck drift watch",
+        "watch",
+        "Show shared decks that are new or changed for a search term since your last sync.",
+        "Owned-deck download drift",
+        "drift",
+        "Track download-count changes on the decks you've published, between syncs.",
+        "Discovery briefing",
+        "brief",
+        "One digest for a topic: top decks by approval rate, audio coverage, the freshest deck, and how many are new since last sync."
+      ],
+      "path": "library/education/ankiweb",
+      "printer": "paulb",
+      "printer_name": "Paul Bockewitz",
+      "mcp": {
+        "binary": "ankiweb-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 4,
+        "public_tool_count": 3,
+        "auth_type": "cookie",
+        "env_vars": [
+          "ANKIWEB_COOKIES"
+        ],
+        "mcp_ready": "partial"
+      }
+    },
+    {
       "name": "anylist",
       "category": "food-and-dining",
       "api": "AnyList",
@@ -1013,6 +1061,60 @@
         "env_vars": [],
         "mcp_ready": "full",
         "spec_format": "openapi3"
+      }
+    },
+    {
+      "name": "azure-functions-admin",
+      "category": "cloud",
+      "api": "Azure Functions",
+      "description": "Inspect, audit, and right-size your Azure Functions from the terminal — cold-start trends, config drift",
+      "search_terms": [
+        "azure-functions-admin",
+        "Azure Functions",
+        "azure-functions-admin-pp-cli",
+        "Inspect, audit, and right-size your Azure Functions from the terminal — cold-start trends, config drift, and plan-fit answers the portal and az don't give you.",
+        "Cold-start observatory",
+        "coldstart",
+        "See how often your functions cold-start and how slow those starts are, with the projected cost of moving to a Premium always-ready plan.",
+        "Scaling & exec-drift trend",
+        "scaling",
+        "Track instance scale-out and execution-time drift for an app over a time window, flagging when p95 duration creeps above baseline.",
+        "Plan-fit recommendation",
+        "plan-fit",
+        "Per-app recommendation of Consumption vs Premium vs Dedicated across a resource group, based on invocation density, cold-start sensitivity, and duration.",
+        "Config-drift detector",
+        "drift",
+        "Diff app settings across function apps and their deployment slots, flagging settings present in one environment but not another and plaintext values that should be Key Vault references.",
+        "Secret-sprawl audit",
+        "secrets-audit",
+        "Flag app settings holding raw secret values instead of @Microsoft.KeyVault references, plus stale or unused function keys.",
+        "Invocation failure clustering",
+        "failures",
+        "Cluster recent invocation failures by function and exception type from Application Insights over a time window.",
+        "Stale-function finder",
+        "stale",
+        "Find functions with zero invocations in the last N days as cleanup candidates."
+      ],
+      "path": "library/cloud/azure-functions-admin",
+      "printer": "sdhilip200",
+      "printer_name": "Dhilip Subramanian",
+      "mcp": {
+        "binary": "azure-functions-admin-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 7,
+        "public_tool_count": 0,
+        "auth_type": "bearer_token",
+        "env_vars": [
+          "AZURE_TENANT_ID",
+          "AZURE_CLIENT_ID",
+          "AZURE_CLIENT_SECRET",
+          "AZURE_SUBSCRIPTION_ID"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "internal"
       }
     },
     {
@@ -3152,6 +3254,60 @@
       }
     },
     {
+      "name": "erank",
+      "category": "marketing",
+      "api": "eRank",
+      "description": "Keyword Tool data from eRank, plus local scoring, drift, and listing-gap analysis for Etsy sellers.",
+      "search_terms": [
+        "erank",
+        "erank-pp-cli",
+        "Keyword Tool data from eRank, plus local scoring, drift, and listing-gap analysis for Etsy sellers.",
+        "Niche Opportunity Score",
+        "opportunity",
+        "Score a keyword as a seller opportunity using eRank stats, difficulty, competition, and current top listings.",
+        "Top Listing Gap Analyzer",
+        "listing gaps",
+        "Compare a draft listing title and tags against phrases and tags appearing in top eRank results.",
+        "Tag Consensus Map",
+        "tags consensus",
+        "Find tags that repeatedly appear across top listings, Etsy tag data, related searches, and near matches.",
+        "Keyword Drift Watcher",
+        "watch drift",
+        "Detect meaningful changes in keyword competition, difficulty, and top listings across saved snapshots.",
+        "Keyword Portfolio Optimizer",
+        "lists optimize",
+        "Rank saved keyword lists by weak, saturated, overlapping, and missing keyword opportunities.",
+        "Saturation Warning",
+        "saturation",
+        "Flag crowded keywords by combining competition, difficulty, tag reuse, and top-listing density.",
+        "POD Angle Finder",
+        "angles",
+        "Extract product angles from related searches, near matches, tags, and current top listings."
+      ],
+      "path": "library/marketing/erank",
+      "printer": "horknfbr",
+      "printer_name": "horknfbr",
+      "creator": {
+        "handle": "horknfbr",
+        "name": "horknfbr"
+      },
+      "mcp": {
+        "binary": "erank-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 25,
+        "public_tool_count": 0,
+        "auth_type": "composed",
+        "env_vars": [
+          "ERANK_XSRF_TOKEN"
+        ],
+        "mcp_ready": "partial",
+        "spec_format": "internal"
+      }
+    },
+    {
       "name": "espn",
       "category": "media-and-entertainment",
       "api": "ESPN",
@@ -3334,6 +3490,59 @@
         ],
         "mcp_ready": "full",
         "spec_format": "openapi3"
+      }
+    },
+    {
+      "name": "everbee",
+      "category": "marketing",
+      "api": "EverBee",
+      "description": "Research Etsy products, shops, and keywords from EverBee in a repeatable agent-ready workflow.",
+      "search_terms": [
+        "everbee",
+        "everbee-pp-cli",
+        "Research Etsy products, shops, and keywords from EverBee in a repeatable agent-ready workflow.",
+        "Opportunity Shortlist",
+        "Rank Etsy product opportunities by combining product analytics, keyword demand, competition, and local trend history.",
+        "Niche Score",
+        "Score a niche by weighing search demand, competition, product saturation, pricing, and trend movement.",
+        "Shop Gaps",
+        "Find competitor shop openings from product mix, pricing bands, tags, and keyword coverage.",
+        "Tag Gap",
+        "tags gap",
+        "Compare winning listing tags against a target shop or keyword set to reveal missing SEO coverage.",
+        "Keyword Clusters",
+        "keywords cluster",
+        "Group related keyword suggestions by term overlap, demand, competition, and opportunity score.",
+        "Trend Diff",
+        "trends diff",
+        "Compare saved research snapshots to show which products, shops, or keywords moved over time.",
+        "Competitor Watch",
+        "competitors watch",
+        "Detect competitor changes in top products, price bands, and tags across saved shop snapshots.",
+        "Listing Audit",
+        "Audit a listing's keyword and tag fit using EverBee-derived product and keyword context."
+      ],
+      "path": "library/marketing/everbee",
+      "printer": "horknfbr",
+      "printer_name": "horknfbr",
+      "creator": {
+        "handle": "horknfbr",
+        "name": "horknfbr"
+      },
+      "mcp": {
+        "binary": "everbee-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 5,
+        "public_tool_count": 0,
+        "auth_type": "api_key",
+        "env_vars": [
+          "EVERBEE_ACCESS_TOKEN"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "internal"
       }
     },
     {
@@ -3880,6 +4089,54 @@
       }
     },
     {
+      "name": "gisis",
+      "category": "other",
+      "api": "GISIS",
+      "description": "Authoritative IMO ship particulars on the command line",
+      "search_terms": [
+        "gisis",
+        "gisis-pp-cli",
+        "Authoritative IMO ship particulars on the command line, plus a local cache that turns one-shot lookups into a compounding vessel index.",
+        "Batch IMO lookup with throttled persistence",
+        "ship batch",
+        "Resolve a list of IMOs in one invocation, honoring the 1 req/2-3s throttle and persisting each to the local cache.",
+        "Local cache browse with FTS",
+        "ship list",
+        "Browse vessels you have already fetched, with filters on flag/owner/type and full-text search on name/owner.",
+        "Watchlist with selective refresh",
+        "ship pin",
+        "Pin vessels for an active deal or story, then refresh only the pinned ones at a chosen cadence.",
+        "Cross-snapshot ship history (flag-hop detector)",
+        "ship history",
+        "Show how a vessel's particulars have changed across snapshots — flag, name, owner, operator, classification society, status.",
+        "Stale-cache report",
+        "ship stale",
+        "List cached vessels whose particulars haven't been refreshed in N days.",
+        "Owner-fleet listing from accumulated cache",
+        "owner fleet",
+        "List every cached vessel for a given owner string (the Companies module isn't in v1).",
+        "Session liveness ping",
+        "auth ping",
+        "Single fast GET to /Public/SHIPS/Default.aspx; exits 0 if session is live, non-zero if re-login needed."
+      ],
+      "path": "library/other/gisis",
+      "printer": "6myfzqx6bv-ctrl",
+      "printer_name": "ivory_elephant",
+      "mcp": {
+        "binary": "gisis-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 1,
+        "public_tool_count": 0,
+        "auth_type": "cookie",
+        "env_vars": [],
+        "mcp_ready": "partial",
+        "spec_format": "internal"
+      }
+    },
+    {
       "name": "godaddy",
       "category": "developer-tools",
       "api": "GoDaddy",
@@ -4154,6 +4411,52 @@
       }
     },
     {
+      "name": "gorgias",
+      "category": "sales-and-crm",
+      "api": "Gorgias",
+      "description": "Gorgias support CLI with offline sync, local search, read-only SQL, and MCP tools for agent-native support workflows.",
+      "search_terms": [
+        "gorgias",
+        "gorgias-pp-cli",
+        "Gorgias support CLI with offline sync, local search, read-only SQL, and MCP tools for agent-native support workflows.",
+        "Code-orchestration MCP surface",
+        "gorgias-pp-mcp --transport http --addr :7777",
+        "108 Gorgias endpoints reachable through a small fixed set of MCP tools — 15 typed tools total, ~9K context tokens for a full tools/list response (~1K of descriptions, ~7K of JSON schemas). Agents reach the full surface through gorgias_search + gorgias_execute, not a 108-tool catalog. Live tool count is reported by the `context` tool.",
+        "Doctor with live credential verification",
+        "gorgias-pp-cli doctor --json",
+        "Probes /account with the configured credentials and reports credentials: valid only when an authenticated call succeeds. Surfaces auth failures as the first command an agent runs, before any read or write.",
+        "Auto-refresh of stale local mirror",
+        "GORGIAS_AUTO_REFRESH_TTL=15m gorgias-pp-cli tickets list",
+        "Opt-in: read commands automatically sync the resource before serving if the local SQLite mirror is older than the TTL. Off by default to keep behavior predictable for agents preferring explicit syncs.",
+        "Local FTS5 search across synced data",
+        "gorgias-pp-cli sync --resources tickets --since 7d && gorgias-pp-cli search refund --agent",
+        "Sync to local SQLite, then full-text search with subsecond latency. Turns a 30-second multi-page paginated search into a 50ms SQL-backed query. Pairs with cron for warm local data.",
+        "Agent-readable endpoint surface",
+        "gorgias-pp-cli agent-context --json",
+        "agent-context exposes the command catalog, global flags, env requirements, MCP surface, and endpoint counts so an agent can inspect supported capabilities without parsing help text or making tenant-specific live calls."
+      ],
+      "path": "library/sales-and-crm/gorgias",
+      "printer": "chrisyoungcooks",
+      "printer_name": "Chris Young",
+      "mcp": {
+        "binary": "gorgias-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 15,
+        "public_tool_count": 0,
+        "auth_type": "api_key",
+        "env_vars": [
+          "GORGIAS_USERNAME",
+          "GORGIAS_API_KEY",
+          "GORGIAS_BASE_URL"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "internal"
+      }
+    },
+    {
       "name": "granola",
       "category": "productivity",
       "api": "Granola",
@@ -4202,6 +4505,12 @@
         "handle": "dstevens",
         "name": "Damien Stevens"
       },
+      "contributors": [
+        {
+          "handle": "jeffreydebolt",
+          "name": "Jeff DeBolt"
+        }
+      ],
       "mcp": {
         "binary": "granola-pp-mcp",
         "transports": [
@@ -4665,12 +4974,13 @@
     {
       "name": "icloud",
       "category": "media-and-entertainment",
-      "api": "iCloud",
+      "api": "Apple iCloud",
       "description": "Query iCloud data stored locally on macOS — Photos library storage analysis, with Contacts and more coming. All reads hit local SQLite databases directly; no network calls or iCloud API token required.",
       "search_terms": [
         "icloud",
+        "Apple iCloud",
         "icloud-pp-cli",
-        "Query iCloud data stored locally on macOS — Photos library storage analysis, with Contacts and more coming. All reads hit local SQLite databases directly; no network calls or iCloud API token required.",
+        "Query Apple iCloud data stored locally on macOS — Photos library storage analysis, with Contacts and more coming. All reads hit local SQLite databases directly; no network calls or iCloud API token required.",
         "Heaviest file finder",
         "photos top",
         "List the top N heaviest files across all media types or filtered to photos/videos.",
@@ -4695,8 +5005,66 @@
         {
           "handle": "mvanhorn",
           "name": "Matt Van Horn"
+        },
+        {
+          "handle": "tmchow",
+          "name": "Trevin Chow"
         }
       ]
+    },
+    {
+      "name": "infotbm",
+      "category": "travel",
+      "api": "TBM Bordeaux",
+      "description": "Every Bordeaux tram, bus, and ferry schedule offline in SQLite, plus real-time arrivals, ghost service detection",
+      "search_terms": [
+        "infotbm",
+        "TBM Bordeaux",
+        "infotbm-pp-cli",
+        "Every Bordeaux tram, bus, and ferry schedule offline in SQLite, plus real-time arrivals, ghost service detection, and journey planning no other Bordeaux transit tool offers.",
+        "Ghost Service Detector",
+        "schedule diff",
+        "Surface trips that are scheduled in GTFS but absent from live real-time data — the buses that exist on paper but never showed up",
+        "Last Viable Departure",
+        "trips last-departure",
+        "Find the latest departure from a stop that still reaches your destination before a cutoff time",
+        "Delay-Triggered Reroute",
+        "trips reroute",
+        "When your current connection is delayed, compute the best alternate onward path using live vehicle data",
+        "Alert Impact Filter",
+        "alerts impact",
+        "Filter all active disruptions to only those affecting your specific lines or stops",
+        "Line Stop Sequence",
+        "lines stops",
+        "Print the ordered stop list for a line and direction, optionally with scheduled departure times",
+        "Timetable Change Diff",
+        "schedule changes",
+        "Compare GTFS sync snapshots to detect added, removed, or modified routes on a line",
+        "Journey Planner",
+        "trips plan",
+        "Plan multi-modal journeys across tram, bus, and ferry using local GTFS data with live disruption awareness",
+        "Headway Frequency Report",
+        "lines frequency",
+        "Compute average headways per hour from the SIRI estimated timetable"
+      ],
+      "path": "library/travel/infotbm",
+      "printer": "pawlclawbot",
+      "printer_name": "pawlclawbot",
+      "mcp": {
+        "binary": "infotbm-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 16,
+        "public_tool_count": 2,
+        "auth_type": "api_key",
+        "env_vars": [
+          "INFOTBM_API_KEY"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "internal"
+      }
     },
     {
       "name": "instacart",
@@ -6191,6 +6559,34 @@
       }
     },
     {
+      "name": "nynj-world-cup-concierge",
+      "category": "travel",
+      "api": "NYNJ World Cup Concierge",
+      "description": "Extract public NYNJ World Cup Concierge Explore NYNJ, Fan Experiences, and Watch Parties guidance.",
+      "search_terms": [
+        "nynj-world-cup-concierge",
+        "NYNJ World Cup Concierge",
+        "nynj-world-cup-concierge-pp-cli",
+        "Read-only extractor for the public NYNJ World Cup Concierge Explore NYNJ, Fan Experiences, and match-viewing guidance.",
+        "Trip-window fan experience extraction",
+        "extract --category Fan Experiences --date-window-start 2026-07-02 --date-window-end 2026-07-06 --exclude-undated --agent",
+        "Filters official NYNJ fan experiences to activities whose public date ranges overlap a trip window, excluding undated guidance from itinerary feeds."
+      ],
+      "path": "library/travel/nynj-world-cup-concierge",
+      "printer": "amit",
+      "printer_name": "Amit",
+      "creator": {
+        "handle": "amit",
+        "name": "Amit"
+      },
+      "contributors": [
+        {
+          "handle": "ridegoodwaves",
+          "name": "Amit"
+        }
+      ]
+    },
+    {
       "name": "obsidian",
       "category": "productivity",
       "api": "Obsidian",
@@ -6973,6 +7369,45 @@
       "creator": {
         "handle": "markvandeven",
         "name": "markvandeven"
+      }
+    },
+    {
+      "name": "plane",
+      "category": "project-management",
+      "api": "Plane",
+      "description": "The Plane REST API Visit our quick start guide and full API documentation at [developers.plane.so](https://developers.",
+      "search_terms": [
+        "plane",
+        "plane-pp-cli",
+        "Open-source project management вЂ” issues, cycles, modules, sub-issues, and workspaces. A self-hostable Jira/Linear/ClickUp alternative.",
+        "Issue Relations",
+        "relations",
+        "Flat list/set/unset of issue blocking, blocked_by, duplicate, relates_to and temporal links without hand-driving the relations endpoint (unset bridges Plane CE's missing DELETE via a configurable Django-shell call).",
+        "Module Membership & Sync Enrichment",
+        "module",
+        "Manage an issue's module membership (of/create-issue/sync) and auto-enrich issue module_ids during sync (on by default), since Plane's issue API never returns module membership."
+      ],
+      "path": "library/project-management/plane",
+      "printer": "sidorovanthon",
+      "printer_name": "Anton Sidorov aka anticodeguy",
+      "creator": {
+        "handle": "sidorovanthon",
+        "name": "Anton Sidorov aka anticodeguy"
+      },
+      "mcp": {
+        "binary": "plane-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 125,
+        "public_tool_count": 0,
+        "auth_type": "api_key",
+        "env_vars": [
+          "PLANE_API_KEY_AUTHENTICATION"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
       }
     },
     {
@@ -7910,6 +8345,52 @@
         "auth_type": "bearer_token",
         "env_vars": [
           "RESEND_API_KEY"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
+      }
+    },
+    {
+      "name": "restaurant365-odata",
+      "category": "commerce",
+      "api": "Restaurant365 OData Connector",
+      "description": "Read-only OpenAPI description for documented Restaurant365 OData v2 reporting views.",
+      "search_terms": [
+        "restaurant365-odata",
+        "Restaurant365 OData Connector",
+        "restaurant365-odata-pp-cli",
+        "Read-only Restaurant365 OData CLI for schema discovery, safe sampling, backfill planning, export, sync, and deleted-record checks.",
+        "Redacted tenant sampler",
+        "sample",
+        "Samples one Restaurant365 OData view while returning only columns and row counts by default.",
+        "Refresh planner",
+        "backfill-plan",
+        "Builds Restaurant365-safe date-window and rowVersion request plans without fetching rows.",
+        "Delete tombstone counter",
+        "deleted-records",
+        "Reads EntityDeleted with optional entity and rowVersion filters, returning counts by default.",
+        "Metadata-first discovery",
+        "list-views",
+        "Reports supported views, field counts, field types, date fields, rowVersion support, and refresh pattern from $metadata.",
+        "Bounded export guard",
+        "export",
+        "Exports a view to JSONL or CSV and requires date filters for known date-window views."
+      ],
+      "path": "library/commerce/restaurant365-odata",
+      "printer": "sdhilip200",
+      "printer_name": "Dhilip Subramanian",
+      "mcp": {
+        "binary": "restaurant365-odata-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 17,
+        "public_tool_count": 0,
+        "auth_type": "basic",
+        "env_vars": [
+          "RESTAURANT365_ODATA_USERNAME",
+          "RESTAURANT365_ODATA_PASSWORD"
         ],
         "mcp_ready": "full",
         "spec_format": "openapi3"
@@ -9125,6 +9606,46 @@
       }
     },
     {
+      "name": "stackadapt",
+      "category": "marketing",
+      "api": "StackAdapt",
+      "description": "The first agent-native StackAdapt CLI: pacing, delivery drift",
+      "search_terms": [
+        "stackadapt",
+        "stackadapt-pp-cli",
+        "The first agent-native StackAdapt CLI: pacing, delivery drift, and spend reconciliation the dashboard and warehouse connectors can't answer in one call.",
+        "Pacing observatory",
+        "pacing",
+        "See which campaigns are under- or over-pacing against their budget, not just current spend.",
+        "Delivery drift",
+        "delivery-drift",
+        "Track CTR, CPM, and spend drift week-over-week for a campaign and flag when performance degrades.",
+        "Bottleneck",
+        "Rank the highest-spend campaigns by worst ROAS or CPA, with a reason column.",
+        "Stale campaigns",
+        "stale-campaigns",
+        "Find active campaigns with zero delivery in the last N days."
+      ],
+      "path": "library/marketing/stackadapt",
+      "printer": "sdhilip200",
+      "printer_name": "Dhilip Subramanian",
+      "mcp": {
+        "binary": "stackadapt-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 1,
+        "public_tool_count": 0,
+        "auth_type": "bearer_token",
+        "env_vars": [
+          "STACKADAPT_API_TOKEN"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "internal"
+      }
+    },
+    {
       "name": "steam-web",
       "category": "media-and-entertainment",
       "api": "Steam Web",
@@ -9387,6 +9908,56 @@
         "auth_type": "cookie",
         "env_vars": [],
         "mcp_ready": "partial",
+        "spec_format": "internal"
+      }
+    },
+    {
+      "name": "sumble",
+      "category": "sales-and-crm",
+      "api": "Sumble",
+      "description": "Every Sumble v6 feature, plus the credit-awareness the API itself won't give you",
+      "search_terms": [
+        "sumble",
+        "sumble-pp-cli",
+        "Every Sumble v6 feature, plus the credit-awareness the API itself won't give you: cost estimates before every billed call, a running balance, a budget guard, and a local SQLite cache so you never pay twice.",
+        "Pre-call cost estimate",
+        "cost-estimate",
+        "See exactly how many credits a billed Sumble call will cost before you run it.",
+        "Running credit balance",
+        "balance",
+        "Show remaining Sumble credits and recent burn without spending any.",
+        "Budget ceiling guard",
+        "budget",
+        "Set a credit ceiling so any call whose estimate exceeds it is refused before it dials.",
+        "Spend report",
+        "spend",
+        "Break down credits spent over time by endpoint and by day.",
+        "Stale-cache report",
+        "stale",
+        "List cached organizations, people, and jobs older than Sumble's freshness window.",
+        "Tech-stack diff",
+        "stack-diff",
+        "Compare two cached organizations' technology stacks — shared and unique technologies.",
+        "Free-first reconcile",
+        "reconcile",
+        "Resolve a CSV of company names/URLs to Sumble IDs via the cheap match endpoint, then report which still need a billed enrich."
+      ],
+      "path": "library/sales-and-crm/sumble",
+      "printer": "cpard",
+      "printer_name": "Kostas Pardalis",
+      "mcp": {
+        "binary": "sumble-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 19,
+        "public_tool_count": 0,
+        "auth_type": "bearer_token",
+        "env_vars": [
+          "SUMBLE_API_KEY"
+        ],
+        "mcp_ready": "full",
         "spec_format": "internal"
       }
     },
@@ -10548,6 +11119,39 @@
         "env_vars": [],
         "mcp_ready": "full",
         "spec_format": "internal"
+      }
+    },
+    {
+      "name": "walkingpad",
+      "category": "devices",
+      "api": "walkingpad",
+      "description": "WalkingPad device CLI",
+      "search_terms": [
+        "walkingpad",
+        "walkingpad-pp-cli",
+        "Control a WalkingPad treadmill over Bluetooth LE: start and stop the belt, set speed, stream live telemetry, and record walks to a local history store.",
+        "Local walk history",
+        "today",
+        "Keep a permanent local record of every walk — distance, steps, time — that survives the belt's power-cut memory loss.",
+        "Streak tracking",
+        "streak",
+        "See your current consecutive-day walking streak.",
+        "Daily trends",
+        "trends",
+        "Distance, steps, and active minutes per day over a window.",
+        "Calorie estimate",
+        "calories",
+        "Estimate calories burned from your body profile — the number the belt refuses to report.",
+        "Family-generic discovery",
+        "scan",
+        "Find any compatible WalkingPad by its BLE service, not its name."
+      ],
+      "path": "library/devices/walkingpad",
+      "printer": "tmchow",
+      "printer_name": "Trevin Chow",
+      "creator": {
+        "handle": "tmchow",
+        "name": "Trevin Chow"
       }
     },
     {

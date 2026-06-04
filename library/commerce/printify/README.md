@@ -38,7 +38,7 @@ npx -y @mvanhorn/printing-press-library install printify --agent claude-code --a
 If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.3 or newer):
 
 ```bash
-go install github.com/mvanhorn/printing-press-library/library/other/printify/cmd/printify-pp-cli@latest
+go install github.com/mvanhorn/printing-press-library/library/commerce/printify/cmd/printify-pp-cli@latest
 ```
 
 This installs the CLI only — no skill.
@@ -58,17 +58,19 @@ hermes skills install mvanhorn/printing-press-library/cli-skills/pp-printify --f
 
 Inside a Hermes chat session:
 
-```bash
+```text
 /skills install mvanhorn/printing-press-library/cli-skills/pp-printify --force
 ```
 
 ## Install for OpenClaw
 
-Tell your OpenClaw agent (copy this):
+Install both the CLI binary and the focused OpenClaw skill into runtime-visible locations:
 
+```bash
+npx -y @mvanhorn/printing-press-library install printify --agent openclaw --bin-dir ~/.local/bin
 ```
-Install the pp-printify skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-printify. The skill defines how its required CLI can be installed.
-```
+
+Restart the OpenClaw session or gateway if the newly installed skill is not visible immediately.
 
 ## Use with Claude Desktop
 
@@ -196,7 +198,6 @@ These capabilities aren't available in any other tool for this API.
 
 ## Recipes
 
-
 ### Find a shop with narrow output
 
 ```bash
@@ -266,7 +267,6 @@ Browse the Printify catalog including blueprints, print providers, product varia
 
 Manage Printify shops and shop connections. Retrieve shop information and disconnect shops from your account.
 
-
 ### shops-json
 
 Manage shops json
@@ -285,7 +285,6 @@ Upload and manage images and assets. Upload images from URLs or base64-encoded c
 Manage uploads json
 
 - **`printify-pp-cli uploads-json`** - Retrieve a list of uploaded images
-
 
 ## Output Formats
 

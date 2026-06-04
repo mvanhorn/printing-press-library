@@ -6,7 +6,7 @@ Read-only insights CLI for Meta Marketing API focused on creative-fatigue detect
 
 Learn more at [Meta Ads](https://developers.facebook.com/docs/marketing-api).
 
-Printed by [@sdhilip200](https://github.com/sdhilip200) (Dhilip Subramanian).
+Created by [@sdhilip200](https://github.com/sdhilip200) (Dhilip Subramanian).
 
 ## Install
 
@@ -60,17 +60,19 @@ hermes skills install mvanhorn/printing-press-library/cli-skills/pp-meta-ads --f
 
 Inside a Hermes chat session:
 
-```bash
+```text
 /skills install mvanhorn/printing-press-library/cli-skills/pp-meta-ads --force
 ```
 
 ## Install for OpenClaw
 
-Tell your OpenClaw agent (copy this):
+Install both the CLI binary and the focused OpenClaw skill into runtime-visible locations:
 
+```bash
+npx -y @mvanhorn/printing-press-library install meta-ads --agent openclaw --bin-dir ~/.local/bin
 ```
-Install the pp-meta-ads skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-meta-ads. The skill defines how its required CLI can be installed.
-```
+
+Restart the OpenClaw session or gateway if the newly installed skill is not visible immediately.
 
 ## Use with Claude Desktop
 
@@ -203,7 +205,6 @@ These capabilities aren't available in any other tool for this API.
 
 ## Recipes
 
-
 ### Triage creative fatigue across a campaign
 
 ```bash
@@ -310,7 +311,6 @@ Manage me
 
 - **`meta-ads-pp-cli me`** - Returns every ad account the access token has been granted access to.
 Use this on first run to discover which accounts you can query.
-
 
 ## Output Formats
 

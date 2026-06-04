@@ -1,0 +1,28 @@
+{
+  "schema_version": 2,
+  "id": "report-normalization",
+  "applied_at": "2026-05-27",
+  "base_run_id": "20260527-233111",
+  "base_printing_press_version": "4.18.1",
+  "summary": "Add gzip-aware report loading plus a normalize-report command with optional local store import.",
+  "reason": "Amazon Ads downloaded reports are commonly gzip-compressed; the plan calls for report format normalization into local SQLite for downstream analytics.",
+  "files": [
+    "internal/adsanalytics/report_io.go",
+    "internal/adsanalytics/report_io_test.go",
+    "internal/adsanalytics/search_terms.go",
+    "internal/adsanalytics/performance.go",
+    "internal/adsanalytics/optimization.go",
+    "internal/store/extras.go",
+    "internal/store/normalized_reports.go",
+    "internal/store/normalized_reports_test.go",
+    "internal/cli/jobs.go",
+    "internal/cli/jobs_test.go",
+    "internal/cli/report_normalize.go",
+    "internal/cli/reports_wait.go",
+    "internal/cli/reports_wait_test.go",
+    "internal/cli/promoted_reports.go",
+    "internal/cli/promoted_amazon-ads-sponsored-reports.go",
+    "internal/cli/root.go"
+  ],
+  "validated_outcome": "go test ./internal/adsanalytics ./internal/store ./internal/cli passes; reports wait exposes an async status poller for /v2/reports/{reportId}."
+}

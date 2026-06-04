@@ -94,17 +94,19 @@ hermes skills install mvanhorn/printing-press-library/cli-skills/pp-defillama --
 
 Inside a Hermes chat session:
 
-```bash
+```text
 /skills install mvanhorn/printing-press-library/cli-skills/pp-defillama --force
 ```
 
 ## Install for OpenClaw
 
-Tell your OpenClaw agent (copy this):
+Install both the CLI binary and the focused OpenClaw skill into runtime-visible locations:
 
+```bash
+npx -y @mvanhorn/printing-press-library install defillama --agent openclaw --bin-dir ~/.local/bin
 ```
-Install the pp-defillama skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-defillama. The skill defines how its required CLI can be installed.
-```
+
+Restart the OpenClaw session or gateway if the newly installed skill is not visible immediately.
 
 ## Use with Claude Desktop
 
@@ -494,7 +496,6 @@ Data from our yields/APY dashboard
 - **`defillama-pp-cli yields list-perps`** - Funding rates and Open Interest of perps across exchanges, including both Decentralized and Centralized
 - **`defillama-pp-cli yields list-poolsborrow`** - Borrow costs APY of assets from lending markets
 - **`defillama-pp-cli yields list-poolsold`** - Same as /pools but it also includes a new parameter `pool_old` which usually contains pool address (but not guaranteed)
-
 
 ## Output Formats
 

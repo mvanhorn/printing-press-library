@@ -4,7 +4,7 @@
 
 apple-docs-pp-cli mirrors developer.apple.com's DocC JSON into a local SQLite store you can grep across every framework, diff between releases, and project down to just the fields an agent needs. Ships with offline FTS, a cross-platform 'port-to' walker, a deprecation-cliff report, and an MCP server you can plug into Claude Desktop.
 
-Printed by [@jcastillo725](https://github.com/jcastillo725) (Joseph Alvin Castillo).
+Created by [@jcastillo725](https://github.com/jcastillo725) (Joseph Alvin Castillo).
 
 ## Install
 
@@ -58,17 +58,19 @@ hermes skills install mvanhorn/printing-press-library/cli-skills/pp-apple-docs -
 
 Inside a Hermes chat session:
 
-```bash
+```text
 /skills install mvanhorn/printing-press-library/cli-skills/pp-apple-docs --force
 ```
 
 ## Install for OpenClaw
 
-Tell your OpenClaw agent (copy this):
+Install both the CLI binary and the focused OpenClaw skill into runtime-visible locations:
 
+```bash
+npx -y @mvanhorn/printing-press-library install apple-docs --agent openclaw --bin-dir ~/.local/bin
 ```
-Install the pp-apple-docs skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-apple-docs. The skill defines how its required CLI can be installed.
-```
+
+Restart the OpenClaw session or gateway if the newly installed skill is not visible immediately.
 
 ## Use with Claude Desktop
 
@@ -197,7 +199,6 @@ These capabilities aren't available in any other tool for this API.
 
 ## Recipes
 
-
 ### Find a symbol's iOS introduction version
 
 ```bash
@@ -261,7 +262,6 @@ Fetch the full structured index of a framework (every symbol, in tree form)
 List every Apple framework and technology (Swift, SwiftUI, UIKit, etc.)
 
 - **`apple-docs-pp-cli technologies`** - Fetch the master technologies index — every Apple framework, grouped by topic.
-
 
 ## Output Formats
 

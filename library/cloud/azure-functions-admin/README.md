@@ -4,7 +4,7 @@
 
 Azure Functions runs your code on demand without you managing servers. This CLI is a read-only inspector for the Function Apps in your Azure subscription: it lists your apps and functions, reads their settings and keys, and pulls invocation history from Application Insights into a local database. That local history unlocks answers a stateless `az` command can't give — like how often your functions cold-start, whether you should move off the Consumption plan, and where plaintext secrets are hiding in your app settings. It does not deploy code (use `func` or `az functionapp` for that); it tells you what your functions are doing and how to improve them.
 
-Printed by [@sdhilip200](https://github.com/sdhilip200) (Dhilip Subramanian).
+Created by [@sdhilip200](https://github.com/sdhilip200) (Dhilip Subramanian).
 
 ## Install
 
@@ -58,17 +58,19 @@ hermes skills install mvanhorn/printing-press-library/cli-skills/pp-azure-functi
 
 Inside a Hermes chat session:
 
-```bash
+```text
 /skills install mvanhorn/printing-press-library/cli-skills/pp-azure-functions-admin --force
 ```
 
 ## Install for OpenClaw
 
-Tell your OpenClaw agent (copy this):
+Install both the CLI binary and the focused OpenClaw skill into runtime-visible locations:
 
+```bash
+npx -y @mvanhorn/printing-press-library install azure-functions-admin --agent openclaw --bin-dir ~/.local/bin
 ```
-Install the pp-azure-functions-admin skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-azure-functions-admin. The skill defines how its required CLI can be installed.
-```
+
+Restart the OpenClaw session or gateway if the newly installed skill is not visible immediately.
 
 ## Use with Claude Desktop
 
@@ -207,7 +209,6 @@ These capabilities aren't available in any other tool for this API.
 
 ## Recipes
 
-
 ### Cold-start check before a plan decision
 
 ```bash
@@ -290,7 +291,6 @@ List deployment slots for a Function App
 List Azure subscriptions reachable by the current credential
 
 - **`azure-functions-admin-pp-cli subscriptions`** - List accessible subscriptions
-
 
 ## Output Formats
 
