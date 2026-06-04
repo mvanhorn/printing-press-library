@@ -1,6 +1,6 @@
 ---
 name: pp-agentpool
-description: Use the Printing Press companion for AgentPool. It installs or delegates to the official agentpool CLI instead of reimplementing AgentPool behavior.
+description: Use the Printing Press companion for AgentPool to inspect official capacity signals, run privacy-safe diagnostics, and delegate to the official agentpool CLI.
 version: 0.1.0
 ---
 
@@ -27,7 +27,7 @@ If `--version` reports "command not found" after install, the install step did n
 
 ## When to Use This CLI
 
-Use this when you want a Printing Press catalog entry for AgentPool but still want the official AgentPool CLI to remain the source of truth. This wrapper checks installation, prints onboarding guidance, and delegates to `agentpool`.
+Use this when you want a Printing Press catalog entry for AgentPool but still want the official AgentPool CLI to remain the source of truth. This wrapper checks installation, prints onboarding guidance, reads usage/capacity summaries through the official CLI, and delegates to `agentpool`.
 
 Do not treat this as a separate AgentPool implementation. It does not choose providers, parse usage, inspect SQLite state, run MCP itself, rank models, merge branches, push code, store credentials, or add `provider=auto`.
 

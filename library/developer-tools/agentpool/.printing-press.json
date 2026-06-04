@@ -17,23 +17,23 @@
   "spec_source": "custom-wrapper",
   "run_id": "20260604T192521Z-agentpool-wrapper",
   "category": "developer-tools",
-  "description": "Catalog-native companion for the official AgentPool CLI. It checks prerequisites, teaches the workflow, and delegates behavior to the real agentpool binary.",
+  "description": "AgentPool control-plane companion: inspect coding-agent subscription headroom, run privacy-safe diagnostics, and delegate explicit handoffs through the official agentpool CLI.",
   "auth_type": "none",
   "novel_features": [
     {
       "name": "Official CLI Delegation",
       "command": "exec",
-      "description": "Passes arbitrary arguments through to the official agentpool binary without reimplementing provider, usage, session, or MCP behavior."
+      "description": "Passes arbitrary arguments through to the official agentpool binary so advanced and newly shipped AgentPool commands remain reachable without wrapper drift."
     },
     {
       "name": "AgentPool Onboarding",
       "command": "install",
-      "description": "Shows the official uv/pipx installation path for the Python agentpool-cli package."
+      "description": "Shows the official uv/pipx installation and upgrade path for the Python agentpool-cli package from a catalog-native entrypoint."
     },
     {
       "name": "Agent Guidance Bridge",
       "command": "skill",
-      "description": "Prints the official AgentPool skill guidance from the real AgentPool CLI."
+      "description": "Prints the version-matched AgentPool skill guidance from the official AgentPool CLI instead of copying guidance into this wrapper."
     }
   ]
 }
